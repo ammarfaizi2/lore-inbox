@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272073AbTHRPka (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 11:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272118AbTHRPk3
+	id S272059AbTHRPcs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 11:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272053AbTHRPcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 11:40:29 -0400
-Received: from [63.247.75.124] ([63.247.75.124]:51854 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S272074AbTHRPkZ (ORCPT
+	Mon, 18 Aug 2003 11:32:47 -0400
+Received: from [63.247.75.124] ([63.247.75.124]:32142 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S272050AbTHRPcl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 11:40:25 -0400
-Date: Mon, 18 Aug 2003 11:40:25 -0400
+	Mon, 18 Aug 2003 11:32:41 -0400
+Date: Mon, 18 Aug 2003 11:32:39 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
-To: "Hassard, Stephen" <SHassard@angio.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Communication problem with via-rhine in kernel-2.6.0-test3-bk3+
-Message-ID: <20030818154025.GD24693@gtf.org>
-References: <E2B3FD6B3FF2804CB276D9ED037268354FF6FA@mail4.angio.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries.Brouwer@cwi.nl, Dominik.Strasser@t-online.de, hch@infradead.org,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Re: [PATCH] scsi.h uses "u8" which isn't defined.
+Message-ID: <20030818153239.GC24693@gtf.org>
+References: <UTC200308181219.h7ICJfw14963.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0308180820470.1672-100000@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E2B3FD6B3FF2804CB276D9ED037268354FF6FA@mail4.angio.com>
+In-Reply-To: <Pine.LNX.4.44.0308180820470.1672-100000@home.osdl.org>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 08:28:24AM -0700, Hassard, Stephen wrote:
-> Hi all,
+On Mon, Aug 18, 2003 at 08:21:45AM -0700, Linus Torvalds wrote:
 > 
-> I've been happily using the Rhine-II NIC on my VIA Epia-800 with
-> 2.6.0-test3, but ever since bk3 via-rhine seems to be broken.
-> 2.6.0-test3-bk2 works without problems.
+> On Mon, 18 Aug 2003 Andries.Brouwer@cwi.nl wrote:
+> > 
+> > I see that Linus already applied this, but I am quite unhappy with
+> > these changes. Entirely needlessly user space software is broken.
 > 
-> I've contacted the driver maintainer, Roger Luethi, and he mentioned that if
-> it was a problem since 2.6.0-test3, I should contact the kernel mailing
-> list.
+> If it's supposed to be exported to user space, it _still_ must not use 
+> "u_char", since that isn't namespace-clean.
 > 
-> The interface is detected properly, but no data is transmitted. DHCP doesn't
-> work. When I manually configure the interface and try to send data, I get
-> the following error, which repeats:
-> >>
-> eth0: Transmit timed out, status 1003, PHY status 786d, resetting...
-> eth0: Setting full-duplex based on MII #1 link partner capability of 45e1.
-> <<
+> If it needs exporting, it must use "__u8".
 
-Does booting with "pci=noapic" or "acpi=off" or "noapic" help?
+Maybe I am biased, but I actually prefer to use the C99 size-specific
+types, when code will be used outside the kernel tree...  even if that
+userland code is entirely Linux-kernel-specific.  I try to avoid "__u<size>"
+since it's typically a gcc-specific type.
+
+C99 gave us the tools, we should use them :)
 
 	Jeff
-
 
 

@@ -1,53 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130252AbRCHXdv>; Thu, 8 Mar 2001 18:33:51 -0500
+	id <S130347AbRCIALE>; Thu, 8 Mar 2001 19:11:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130261AbRCHXdm>; Thu, 8 Mar 2001 18:33:42 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:28042 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130252AbRCHXde>; Thu, 8 Mar 2001 18:33:34 -0500
-Message-ID: <3AA8169F.FAE81841@uow.edu.au>
-Date: Thu, 08 Mar 2001 23:32:47 +0000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolinux.com>
-CC: Vibol Hou <vhou@khmer.cc>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel BUG doing sysrq-t on 2.4.2-ac14
-In-Reply-To: <200103081934.f28JYGS05891@webber.adilger.net>
+	id <S130336AbRCIAKz>; Thu, 8 Mar 2001 19:10:55 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:11019 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S130329AbRCIAKq>;
+	Thu, 8 Mar 2001 19:10:46 -0500
+Date: Thu, 8 Mar 2001 16:07:58 -0800
+From: Greg KH <greg@kroah.com>
+To: Erik DeBill <edebill@swbell.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac12 and ac13 breaks usb-visor
+Message-ID: <20010308160758.A16296@kroah.com>
+In-Reply-To: <E14aQA9-0001br-00@the-village.bc.nu> <20010307172056.A8647@austin.rr.com> <20010307173640.A14818@kroah.com> <20010308140103.A17993@austin.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010308140103.A17993@austin.rr.com>; from edebill@swbell.net on Thu, Mar 08, 2001 at 02:01:03PM -0600
+X-Operating-System: Linux 2.2.18-immunix (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Thu, Mar 08, 2001 at 02:01:03PM -0600, Erik DeBill wrote:
+> On Wed, Mar 07, 2001 at 05:36:40PM -0800, Greg KH wrote:
+> > I'll try to run with everything compiled into the kernel later tonight.
+> > Does -ac14 with all of USB as modules, using usb-uhci work for you?
 > 
-> > [< c0109557>] kernel BUG at printk.c:327!
+> Hmm... I was compiling usb-uhci and uhci directly into the kernel,
+> then visor.o as a module.
+
+You shouldn't be able to compile both usb-uhci and uhci into the kernel,
+unless you tweak your .config file by hand.
+
+> ac13 + crypto works with usb-uhci, usb-serial, and visor as modules.
+> No problems.
 > 
-> It may be that if the tasklist is too long, and it runs with interrupts
-> disabled, that this will trigger the NMI watchdog timer.  Since I don't
-> know anything about the console, I can't help.
+> I've gone back and (re)tested with kernels 2.4.1, 2.4.2, ac[36],
+> ac1[01234].  I can only get a crash on ac12 and ac13.  2.4.2 is broken
+> after all, and everything after it.  2.4.2 and the ac kernels seem to
+> fail on 'pilot-xfer /dev/usb/tts/1 -m scsi.pdb' (to install a zTXT
+> into gutenpalm, doesn't matter what I'm sending), and things seem to
+> go slower and have more problems as the versions increase.  Then I can
+> crash the system under ac12 and 13.  This is using uhci compiled
+> directly into kernel, with usb-serial and visor as modules.
 
-Yes, this is being a pest.  I assume what is happening
-is that a CPU is (slowly) doing a print to the serial
-console with console_sem held.  Then the NMI watchdog
-fires and it reinitialises the console semaphore.  On return
-from the NMI handler, console_sem is now released.  It's off-by-one.
+What is the oops from when things crash?
+Have you tried enabling debugging on the usb-serial drivers and looking
+at what the visor driver spits out to the kernel debug log?  I'd be
+interested in seeing that.
 
-So subsequent attempts to use printk() hit the BUG().  ho-hum.
-The machine is of course completely kaput by this stage
-but this really should be fixed.  This'll be fun to test.
+Since you are reporting problems with a clean 2.4.2 kernel, I don't
+think that the 1 line patch in ac12 is the cause of your problem.
 
-A wider question is why are we still getting NMI watchdog
-triggering during SYSRQ-T on a serial console.  This
-is the second time this has been reported.  It can certainly
-happen if the serial port is set up for hardware handshaking
-and the modem control lines aren't set up right - we loop
-for ever in the serial console code.  Fair enough.
+What kind of hardware is this?  What compiler?  What version of
+modutils?  What is your .config?  Do you have any other USB devices that
+work properly (or not) in this system?  Have you tried resetting your
+Visor?
 
-Maybe the sysrq handler should communicate with the NMI
-watchdog code, and tell it not to fire while it's dumping 
-stuff.  hmm...  Messy.
+> If uhci + visor is unsupported, might I suggest the following change
+> to Configure.help to warn people?
 
--
+I've considered it, but I keep hoping that JE is going to fix the uhci
+driver some day soon :)
+
+There are other drivers that also do not work with the uhci.o driver do
+to this bug.
+
+thanks,
+
+greg k-h
+
+-- 
+greg@(kroah|wirex).com

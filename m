@@ -1,48 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269067AbUHMKZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269060AbUHMK1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269067AbUHMKZw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 06:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269063AbUHMKXG
+	id S269060AbUHMK1D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 06:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269057AbUHMK0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 06:23:06 -0400
-Received: from gprs214-243.eurotel.cz ([160.218.214.243]:41858 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S269059AbUHMKV6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 06:21:58 -0400
-Date: Fri, 13 Aug 2004 12:21:41 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: is_head_of_free_region slowing down swsusp
-Message-ID: <20040813102141.GA12958@elf.ucw.cz>
-References: <20040812222348.GA10791@elf.ucw.cz>
+	Fri, 13 Aug 2004 06:26:47 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60104 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S269065AbUHMKZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 06:25:01 -0400
+Date: Fri, 13 Aug 2004 12:22:02 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.or
+Subject: [2.6 patch] CONFIG_MII requires only CONFIG_NET
+Message-ID: <20040813102202.GT13377@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040812222348.GA10791@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Jeff,
 
-> is_head_of_free_region with count_and_copy_zone results results in
-> pretty nasty O(number_of_free_regions^2) behaviour, and some users see
-> cpu spending 40 seconds there :-(.
-> 
-> Actually count_and_copy_zone would probably be happy with
-> "is_free_page()".
-> 
-> I asked Lukas (who is seeing this problem) to kill locking from
-> is_head_of_free_region [we are running singlethreaded at this point,
-> so it should be ok]. Do you have any other ideas?
+the patch below still applies against 2.6.8-rc4-mm1.
 
-Thanks to Lukas Horalek for some timing info....
+Could you comment on it and apply it if it's correct?
 
-I now reproduced in on my machine. updatedb is enough to trigger
-40seconds of copying. Killing locking does not help :-(.
+TIA
+Adrian
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+But trying it out CONFIG_MII=y seems to at least compile with 
+CONFIG_NET_ETHERNET=n.
+
+@Jeff:
+It seems, CONFIG_MII doesn't actually require CONFIG_NET_ETHERNET?
+Could you comment on the following patch?
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.6-rc1-mm1-full/drivers/net/Kconfig.old	2004-04-20 00:48:27.000000000 +0200
++++ linux-2.6.6-rc1-mm1-full/drivers/net/Kconfig	2004-04-20 01:07:51.000000000 +0200
+@@ -151,6 +151,15 @@
+ 
+ 	  If you don't have this card, of course say N.
+ 
++config MII
++        tristate "Generic Media Independent Interface device support"
++        depends on NET
++        help
++          Most ethernet controllers have MII transceiver either as an external
++          or internal device.  It is safe to say Y or M here even if your
++          ethernet card lack MII.
++
++
+ if NETDEVICES
+ 	source "drivers/net/arcnet/Kconfig"
+ endif
+@@ -188,14 +197,6 @@
+ 	  kernel: saying N will just cause the configurator to skip all
+ 	  the questions about Ethernet network cards. If unsure, say N.
+ 
+-config MII
+-	tristate "Generic Media Independent Interface device support"
+-	depends on NET_ETHERNET
+-	help
+-	  Most ethernet controllers have MII transceiver either as an external
+-	  or internal device.  It is safe to say Y or M here even if your
+-	  ethernet card lack MII.
+-
+ source "drivers/net/arm/Kconfig"
+ 
+ config MACE
+
+

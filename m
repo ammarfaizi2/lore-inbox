@@ -1,116 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267342AbTAVFPO>; Wed, 22 Jan 2003 00:15:14 -0500
+	id <S267362AbTAVFVr>; Wed, 22 Jan 2003 00:21:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267348AbTAVFPO>; Wed, 22 Jan 2003 00:15:14 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:58884
+	id <S267364AbTAVFVr>; Wed, 22 Jan 2003 00:21:47 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:5125
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267342AbTAVFPI>; Wed, 22 Jan 2003 00:15:08 -0500
-Date: Wed, 22 Jan 2003 00:24:26 -0500 (EST)
+	id <S267362AbTAVFVn>; Wed, 22 Jan 2003 00:21:43 -0500
+Date: Wed, 22 Jan 2003 00:30:56 -0500 (EST)
 From: Zwane Mwaikambo <zwane@holomorphy.com>
 X-X-Sender: zwane@montezuma.mastecende.com
 To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: davidm@hpl.hp.com
-Subject: [PATCH][2.5][6/18] smp_call_function_on_cpu - ia64
-Message-ID: <Pine.LNX.4.44.0301220022080.29944-100000@montezuma.mastecende.com>
+cc: paulus@samba.org, <linuxppc-dev@lists.linuxppc.org>,
+       <benh@kernel.crashing.org>
+Subject: [PATCH][2.5][10/18] smp_call_function_on_cpu - ppc
+Message-ID: <Pine.LNX.4.44.0301220028240.29944-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.5.59/include/asm-ia64/smp.h
+Index: linux-2.5.59/arch/ppc/kernel/smp.c
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/include/asm-ia64/smp.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.h
---- linux-2.5.59/include/asm-ia64/smp.h	17 Jan 2003 11:16:03 -0000	1.1.1.1
-+++ linux-2.5.59/include/asm-ia64/smp.h	22 Jan 2003 02:40:14 -0000
-@@ -133,8 +133,6 @@
- extern void __init init_smp_config (void);
- extern void smp_do_timer (struct pt_regs *regs);
- 
--extern int smp_call_function_single (int cpuid, void (*func) (void *info), void *info,
--				     int retry, int wait);
- extern void smp_send_reschedule (int cpu);
- extern void smp_send_reschedule_all (void);
- 
-Index: linux-2.5.59/arch/ia64/kernel/palinfo.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/ia64/kernel/palinfo.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 palinfo.c
---- linux-2.5.59/arch/ia64/kernel/palinfo.c	17 Jan 2003 11:15:16 -0000	1.1.1.1
-+++ linux-2.5.59/arch/ia64/kernel/palinfo.c	22 Jan 2003 00:16:02 -0000
-@@ -867,7 +867,7 @@
- 
- 
- 	/* will send IPI to other CPU and wait for completion of remote call */
--	if ((ret=smp_call_function_single(f->req_cpu, palinfo_smp_call, &ptr, 0, 1))) {
-+	if ((ret=smp_call_function_single(f->req_cpu, palinfo_smp_call, &ptr, 1))) {
- 		printk("palinfo: remote CPU call from %d to %d on function %d: error %d\n", smp_processor_id(), f->req_cpu, f->func_id, ret);
- 		return 0;
- 	}
-Index: linux-2.5.59/arch/ia64/kernel/perfmon.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/ia64/kernel/perfmon.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 perfmon.c
---- linux-2.5.59/arch/ia64/kernel/perfmon.c	17 Jan 2003 11:15:16 -0000	1.1.1.1
-+++ linux-2.5.59/arch/ia64/kernel/perfmon.c	22 Jan 2003 00:13:55 -0000
-@@ -3268,7 +3268,7 @@
- 	}
- 
- 	/* will send IPI to other CPU and wait for completion of remote call */
--	if ((ret=smp_call_function_single(cpu, pfm_handle_fetch_regs, &arg, 0, 1))) {
-+	if ((ret=smp_call_function_single(cpu, pfm_handle_fetch_regs, &arg, 1))) {
- 		printk("perfmon: remote CPU call from %d to %d error %d\n", smp_processor_id(), cpu, ret);
- 		return;
- 	}
-Index: linux-2.5.59/arch/ia64/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/ia64/kernel/smp.c,v
+RCS file: /build/cvsroot/linux-2.5.59/arch/ppc/kernel/smp.c,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 smp.c
---- linux-2.5.59/arch/ia64/kernel/smp.c	17 Jan 2003 11:15:16 -0000	1.1.1.1
-+++ linux-2.5.59/arch/ia64/kernel/smp.c	22 Jan 2003 00:32:15 -0000
-@@ -17,6 +17,9 @@
-  *  scheme.
-  * 10/13/00 Goutham Rao <goutham.rao@intel.com> Updated smp_call_function and
-  *		smp_call_function_single to resend IPI on timeouts
-+ * 21/01/03 Zwane Mwaikambo <zwane@holomorphy.com> Removed extraneous 'retry/nonatomic'
-+ *		parameter from smp_call_function* and introduced smp_call_function_on_cpu
-+ *		in accordance with other architectures.
-  */
- #define __KERNEL_SYSCALLS__
+--- linux-2.5.59/arch/ppc/kernel/smp.c	17 Jan 2003 11:14:47 -0000	1.1.1.1
++++ linux-2.5.59/arch/ppc/kernel/smp.c	22 Jan 2003 00:53:12 -0000
+@@ -165,7 +165,7 @@
  
-@@ -206,7 +209,7 @@
- void
- smp_flush_tlb_all (void)
+ void smp_send_stop(void)
  {
--	smp_call_function((void (*)(void *))local_flush_tlb_all, 0, 1, 1);
-+	smp_call_function((void (*)(void *))local_flush_tlb_all, NULL, 1);
- 	local_flush_tlb_all();
- }
- 
-@@ -226,31 +229,35 @@
- 	 * anyhow, and once a CPU is interrupted, the cost of local_flush_tlb_all() is
- 	 * rather trivial.
- 	 */
--	smp_call_function((void (*)(void *))local_finish_flush_tlb_mm, mm, 1, 1);
-+	smp_call_function((void (*)(void *))local_finish_flush_tlb_mm, mm, 1);
+-	smp_call_function(stop_this_cpu, NULL, 1, 0);
++	smp_call_function(stop_this_cpu, NULL, 0);
  }
  
  /*
-- * Run a function on another CPU
-- *  <func>	The function to run. This must be fast and non-blocking.
-- *  <info>	An arbitrary pointer to pass to the function.
-- *  <nonatomic>	Currently unused.
-- *  <wait>	If true, wait until function has completed on other CPUs.
-- *  [RETURNS]   0 on success, else a negative status code.
+@@ -188,13 +188,10 @@
+  * in the system.
+  */
+ 
+-int smp_call_function(void (*func) (void *info), void *info, int nonatomic,
+-		      int wait)
+ /*
+  * [SUMMARY] Run a function on all other CPUs.
+  * <func> The function to run. This must be fast and non-blocking.
+  * <info> An arbitrary pointer to pass to the function.
+- * <nonatomic> currently unused.
+  * <wait> If true, wait (atomically) until function has completed on other CPUs.
+  * [RETURNS] 0 on success, else a negative status code. Does not return until
+  * remote CPUs are nearly ready to execute <<func>> or are or have executed.
+@@ -202,6 +199,8 @@
+  * You must not call this function with disabled interrupts or from a
+  * hardware interrupt handler or from a bottom half handler.
+  */
++
++int smp_call_function(void (*func) (void *info), void *info, int wait)
+ {
+ 	/* FIXME: get cpu lock with hotplug cpus, or change this to
+            bitmask. --RR */
+@@ -263,6 +262,80 @@
+ 
+  out:
+ 	spin_unlock(&call_lock);
++	return ret;
++}
++
++/*
 + * smp_call_function_on_cpu - Runs func on all processors in the mask
-  *
-- * Does not return until the remote CPU is nearly ready to execute <func>
-- * or is or has executed.
++ *
 + * @func: The function to run. This must be fast and non-blocking.
 + * @info: An arbitrary pointer to pass to the function.
 + * @wait: If true, wait (atomically) until function has completed on other CPUs.
@@ -121,98 +78,94 @@ diff -u -r1.1.1.1 smp.c
 + *
 + * You must not call this function with disabled interrupts or from a
 + * hardware interrupt handler or from a bottom half handler.
-  */
- 
- int
--smp_call_function_single (int cpuid, void (*func) (void *info), void *info, int nonatomic,
--			  int wait)
-+smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+				unsigned long mask)
- {
- 	struct call_data_struct data;
--	int cpus = 1;
-+	int num_cpus = hweight64(mask), cpu, i;
- 
--	if (cpuid == smp_processor_id()) {
--		printk("%s: trying to call self\n", __FUNCTION__);
--		return -EBUSY;
-+	cpu = get_cpu();
-+	if (((1UL << cpu) & mask) || num_cpus == 0) {
-+		put_cpu_no_resched();
++ */
++
++static int smp_call_function_on_cpu(void (*func) (void *info), void *info,
++					int wait, unsigned long mask)
++{
++	struct call_data_struct data;
++	int ret = -1;
++	int timeout;
++	int i, cpu, num_cpus = hweight32(mask);
++
++	if (num_cpus == 0 || )
 +		return -EINVAL;
- 	}
- 
- 	data.func = func;
-@@ -264,21 +271,30 @@
- 
- 	call_data = &data;
- 	mb();	/* ensure store to call_data precedes setting of IPI_CALL_FUNC */
--  	send_IPI_single(cpuid, IPI_CALL_FUNC);
++
++	cpu = get_cpu();
++	data.func = func;
++	data.info = info;
++	atomic_set(&data.started, 0);
++	data.wait = wait;
++	if (wait)
++		atomic_set(&data.finished, 0);
++
++	spin_lock(&call_lock);
++	call_data = &data;
++	/* Send a message to all other CPUs and wait for them to respond */
 +	for (i = 0; i < NR_CPUS; i++) {
 +		if (cpu_online(i) && ((1UL << i) & mask))
-+			send_IPI_single(i, IPI_CALL_FUNC);
++			smp_message_pass(i, PPC_MSG_CALL_FUNCTION, 0, 0);
 +	}
- 
- 	/* Wait for response */
--	while (atomic_read(&data.started) != cpus)
-+	while (atomic_read(&data.started) != num_cpus)
- 		barrier();
- 
- 	if (wait)
--		while (atomic_read(&data.finished) != cpus)
-+		while (atomic_read(&data.finished) != num_cpus)
- 			barrier();
- 	call_data = NULL;
- 
- 	spin_unlock_bh(&call_lock);
-+	put_cpu_no_resched();
- 	return 0;
++
++	/* Wait for response */
++	timeout = 1000000;
++	while (atomic_read(&data.started) != num_cpus) {
++		if (--timeout == 0) {
++			printk("smp_call_function on cpu %d: other cpus not responding (%d)\n",
++			       cpu, atomic_read(&data.started));
++			goto out;
++		}
++		barrier();
++		udelay(1);
++	}
++
++	if (wait) {
++		timeout = 1000000;
++		while (atomic_read(&data.finished) != num_cpus) {
++			if (--timeout == 0) {
++				printk("smp_call_function on cpu %d: other cpus not finishing (%d/%d)\n",
++				       cpu, atomic_read(&data.finished), atomic_read(&data.started));
++				goto out;
++			}
++			barrier();
++			udelay(1);
++		}
++	}
++	ret = 0;
++
++ out:
++	spin_unlock(&call_lock);
++	pu_cpu_no_resched();
+ 	return ret;
  }
  
-+int smp_call_function_single (int cpuid, void (*func) (void *info), void *info, int wait)
-+{
-+	return smp_call_function_on_cpu(func, info, wait, 1UL << cpuid);
-+}
-+
- /*
-  * this function sends a 'generic call function' IPI to all other CPUs
-  * in the system.
-@@ -288,7 +304,6 @@
-  *  [SUMMARY]	Run a function on all other CPUs.
-  *  <func>	The function to run. This must be fast and non-blocking.
-  *  <info>	An arbitrary pointer to pass to the function.
-- *  <nonatomic>	currently unused.
-  *  <wait>	If true, wait (atomically) until function has completed on other CPUs.
-  *  [RETURNS]   0 on success, else a negative status code.
-  *
-@@ -299,7 +314,7 @@
-  * hardware interrupt handler or from a bottom half handler.
-  */
- int
--smp_call_function (void (*func) (void *info), void *info, int nonatomic, int wait)
-+smp_call_function (void (*func) (void *info), void *info, int wait)
- {
- 	struct call_data_struct data;
- 	int cpus = num_online_cpus()-1;
-Index: linux-2.5.59/arch/ia64/kernel/smpboot.c
+Index: linux-2.5.59/arch/ppc/kernel/temp.c
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/arch/ia64/kernel/smpboot.c,v
+RCS file: /build/cvsroot/linux-2.5.59/arch/ppc/kernel/temp.c,v
 retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smpboot.c
---- linux-2.5.59/arch/ia64/kernel/smpboot.c	17 Jan 2003 11:15:16 -0000	1.1.1.1
-+++ linux-2.5.59/arch/ia64/kernel/smpboot.c	22 Jan 2003 00:33:18 -0000
-@@ -203,7 +203,7 @@
- 
- 	go[MASTER] = 1;
- 
--	if (smp_call_function_single(master, sync_master, NULL, 1, 0) < 0) {
-+	if (smp_call_function_single(master, sync_master, NULL, 0) < 0) {
- 		printk("sync_itc: failed to get attention of CPU %u!\n", master);
- 		return;
- 	}
+diff -u -r1.1.1.1 temp.c
+--- linux-2.5.59/arch/ppc/kernel/temp.c	17 Jan 2003 11:14:47 -0000	1.1.1.1
++++ linux-2.5.59/arch/ppc/kernel/temp.c	22 Jan 2003 00:54:12 -0000
+@@ -195,7 +195,7 @@
+ 	/* schedule ourselves to be run again */
+ 	mod_timer(&tau_timer, jiffies + shrink_timer) ;
+ #ifdef CONFIG_SMP
+-	smp_call_function(tau_timeout, NULL, 1, 0);
++	smp_call_function(tau_timeout, NULL, 0);
+ #endif
+ 	tau_timeout(NULL);
+ }
+@@ -240,7 +240,7 @@
+ 	add_timer(&tau_timer);
+ 	
+ #ifdef CONFIG_SMP
+-	smp_call_function(TAU_init_smp, NULL, 1, 0);
++	smp_call_function(TAU_init_smp, NULL, 0);
+ #endif
+ 	TAU_init_smp(NULL);
+ 	
 
 -- 
 function.linuxpower.ca
-
 
 

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262168AbRFHPvO>; Fri, 8 Jun 2001 11:51:14 -0400
+	id <S264023AbRFHPvO>; Fri, 8 Jun 2001 11:51:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264023AbRFHPvE>; Fri, 8 Jun 2001 11:51:04 -0400
+	id <S264021AbRFHPvF>; Fri, 8 Jun 2001 11:51:05 -0400
 Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1540 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S264021AbRFHPuz>;
-	Fri, 8 Jun 2001 11:50:55 -0400
-Date: Wed, 6 Jun 2001 21:42:22 +0000
+	by vger.kernel.org with ESMTP id <S262168AbRFHPuq>;
+	Fri, 8 Jun 2001 11:50:46 -0400
+Date: Wed, 6 Jun 2001 23:21:34 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Nick Urbanik <nicku@vtc.edu.hk>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Cannot mount old ext2 cdrom, but e2fsck shows no problems
-Message-ID: <20010606214222.C38@toy.ucw.cz>
-In-Reply-To: <3B1C8C1B.E3946FE1@vtc.edu.hk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [driver] New life for Serial mice
+Message-ID: <20010606232133.E38@toy.ucw.cz>
+In-Reply-To: <20010606125556.A1766@suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3B1C8C1B.E3946FE1@vtc.edu.hk>; from nicku@vtc.edu.hk on Tue, Jun 05, 2001 at 03:36:59PM +0800
+In-Reply-To: <20010606125556.A1766@suse.cz>; from vojtech@suse.cz on Wed, Jun 06, 2001 at 12:55:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HIi!
+Hi!
+> 
+> If you still have your 3-button MouseSystems (or any other serial) mouse
+> somewhere in your driver, forgotten becase of the incredibly slow update
+> rate causing so much jumping of the pointer on the screen that it is
+> unusable, you may want to pull it out and give it a try.
+> 
+> Or if you're still using it with some old 486 computer, this driver is
+> for you. 
+> 
+> What it does is that it enhances the update rate from 24 (with current
+> GPM and X drivers) to 96. This is almost what the best USB mice do.
 
-> I made 18 ext2 cdroms in October 1998 using an old (new at the time) Red
-> Hat system.  Now I can't mount them.  e2fsck shows no problems.  I also
-> can dd them to a file, then mount the file.  But I want to be able to
-> simply access them directly.  Current system: RH 7.1 with all updates.
-> 
-> Sorry, I can't remember the exact command I used to create the images.
-> 
-> I also want to better understand the output of dumpe2fs, and how to
-> relate this to mount.
-> 
-> I will be very grateful for any help that increases my understanding of
-> what is going on.
-> 
-> $ sudo mount -t ext2 /dev/scd0 /cdrom -o ro
-> mount: wrong fs type, bad option, bad superblock on /dev/scd0,
->        or too many mounted file systems
-
-Try -o loop.
+What's the "prediction" stuff? Does it mean you are guessing some values
+by interpolation? [If so, what kind of update rate would it do on USB?]
 								Pavel
+
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

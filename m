@@ -1,44 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289868AbSAKT12>; Fri, 11 Jan 2002 14:27:28 -0500
+	id <S290010AbSAKTeJ>; Fri, 11 Jan 2002 14:34:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289997AbSAKT1S>; Fri, 11 Jan 2002 14:27:18 -0500
-Received: from colorfullife.com ([216.156.138.34]:12554 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S289868AbSAKT1F>;
-	Fri, 11 Jan 2002 14:27:05 -0500
-Message-ID: <3C3F3C7F.76CCAF76@colorfullife.com>
-Date: Fri, 11 Jan 2002 20:26:55 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.2-pre9 i686)
-X-Accept-Language: en, de
+	id <S290021AbSAKTds>; Fri, 11 Jan 2002 14:33:48 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:27149 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S290010AbSAKTdp>; Fri, 11 Jan 2002 14:33:45 -0500
+Message-ID: <3C3F3D4B.6060605@namesys.com>
+Date: Fri, 11 Jan 2002 22:30:19 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Q: behaviour of mlockall(MCL_FUTURE) and VM_GROWSDOWN segments
-Content-Type: text/plain; charset=us-ascii
+To: Andre Hedrick <andre@linux-ide.org>
+CC: "W. Wilson Ho" <ho@routefree.com>, "Gryaznova E." <grev@namesys.botik.ru>,
+        Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-dev] Re: [reiserfs-list] Re: elevator algorithm in disk controller bad?
+In-Reply-To: <Pine.LNX.4.10.10201110157240.9366-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If an app has an VM_GROWS{DOWN,UP} stack and calls
-mlockall(MCL_FUTURE|MCL_CURRENT), which pages should the kernel lock?
+Andre Hedrick wrote:
 
-* grow the vma to the maximum size and lock all.
-* just according to the current size.
+>You mean like this ??
+>
+>ide.2.4.0-ac10.all.01212001.patch:
+>+static int do_flush_cache(ide_drive_t *drive);
+>ide.2.4.0-ac10.all.01212001.patch:
+>+ (do_flush_cache(drive)) ? "SUCCESSED" : "FAILED");
+>ide.2.4.0-ac10.all.01212001.patch:
+>+static int do_flush_cache (ide_drive_t *drive)
+>ide.2.4.0-ac10.all.01212001.patch:
+>+ (do_flush_cache(drive)) ? "SUCCESSED" : "FAILED");
+>ide.2.4.0-ac10.all.01212001.patch:
+>-              * all current requests to be flushed from the queue.
+>ide.2.4.0-ac10.all.01212001.patch:
+>+      * all current requests to be flushed from the queue.
+>
+>Or something more up to date?
+>
+>ide.2.4.16.12102001.patch:+     flushcache:             NULL,
+>ide.2.4.16.12102001.patch:+static int do_idedisk_flushcache(ide_drive_t *drive);
+>ide.2.4.16.12102001.patch:+             if (do_idedisk_flushcache(drive))
+>ide.2.4.16.12102001.patch:+static int do_idedisk_flushcache (ide_drive_t *drive)
+>ide.2.4.16.12102001.patch:+             if (do_idedisk_flushcache(drive))
+>ide.2.4.16.12102001.patch:+     flushcache:             do_idedisk_flushcache,
+>ide.2.4.16.12102001.patch:+     flushcache:             NULL,
+>ide.2.4.16.12102001.patch:+     flushcache:             NULL,
+>
+> On Fri, 11 Jan 2002, Hans Reiser wrote:
+>
+>>Andre, have you had a chance to put in the the cache flushing stuff into 
+>>your IDE code?
+>>
+>>Hans
+>>
+>
+><snip>
+>
+>This code as only been available for a year or so ...
+>
+>Regards,
+>
+>Andre Hedrick
+>Linux ATA Development
+>
+>
+>
 
-What should happen if the segment is extended by more than one page
-at once? (i.e. a function with 100 kB local variables)
+Your code has been kept out of the main kernel for a year or so?  Sigh. 
+ I guess 2.4 has been freezing (except for VFS and MM which I will say 
+nothing about) for that long....
 
-* Just allocate the page that is needed to handle the page faults
-* always fill holes immediately.
+Chris and Edward, can you look at it and create a complementary patch to 
+make use of it that we can ask Andre to add to his patch, and then link 
+to his patch on our website?
 
-Right now segments are not grown during the mlockall syscall. Some
-codepaths fill holes (find_extend_vma()), most don't (page fault
-handlers)
-
-What's the right thing (tm) to do?
-I don't care which implementation is choosen, but IMHO all
-implementations should be identical
-
---
-	Manfred
+Hans
 

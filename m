@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264105AbTEOVE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 17:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264236AbTEOVE1
+	id S264098AbTEOVQC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 17:16:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264237AbTEOVQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 17:04:27 -0400
-Received: from galileo.bork.org ([66.11.174.148]:39440 "HELO galileo.bork.org")
-	by vger.kernel.org with SMTP id S264105AbTEOVE0 (ORCPT
+	Thu, 15 May 2003 17:16:02 -0400
+Received: from pc3-cmbg5-6-cust177.cmbg.cable.ntl.com ([81.104.203.177]:35570
+	"EHLO flat") by vger.kernel.org with ESMTP id S264098AbTEOVQB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 17:04:26 -0400
-Date: Thu, 15 May 2003 17:17:16 -0400
-From: Martin Hicks <mort@wildopensource.com>
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: rename the ksoftirqd kernel thread.
-Message-ID: <20030515211716.GV17021@bork.org>
+	Thu, 15 May 2003 17:16:01 -0400
+Date: Thu, 15 May 2003 22:29:45 +0100
+From: cb-lkml@fish.zetnet.co.uk
+To: linux-kernel@vger.kernel.org
+Subject: O(1) scheduler questions + bug
+Message-ID: <20030515212945.GA617@fish.zetnet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,46 +22,31 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Marcelo,
+Hi all
 
-Please consider this patch for 2.4.22-pre
+I started writing this email a while ago, the Doom III trailer example/bug has
+prompted me to finish it.
 
-It just renames the ksoftirqd kernel thread to be the same as in 2.5.
+Firstly, in -mm MAX_SLEEP_AVG defaults to 10 seconds. This means that a new
+interactive task has a relatively low priority for nearly 5 seconds which feels
+too long in practise. (eg start ogg123, music starts, switch desktop, music
+skips) I think that MAX_SLEEP_AVG should be reduced to allow the scheduler to
+react quicker.
 
-The side effect is that on machines with > 100 processors the last
-number in the thread name doesn't get truncated.  
+Secondly, if there are (hypothetically) two interactive tasks, one repeatedly
+works for 10ms and then sleeps for 90ms, and the other works for 45ms and
+sleeps for 55ms, then they get the same maximum priority even though one is
+"more interactive" than the other (using 10% of CPU rather than 45%). 
 
-The patch is against linux-2.4 bk.
+Has this been considered in the design of the effective_prio function? Does it
+matter?
 
-thanks
-mh
+Finally, playing the Doom III trailer with mplayer results in mplayer's
+priority slowly increasing to the maximum and therefore becoming
+non-interactive, which means a CPU hog (perl -e 'while (1) {}') can cause the
+audio/video playback to skip.  Mplayer consumes about 25% of CPU, X consumes
+about 10%. (measured with top)
 
--- 
-Wild Open Source Inc.                  mort@wildopensource.com
+I'm currently using 2.5.69-mm2, Celeron 333, pre-empt.
 
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1210  -> 1.1211 
-#	    kernel/softirq.c	1.11    -> 1.12   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/15	mort@plato.i.bork.org	1.1211
-# Rename the ksoftirqd thread to be the same as in 2.5.
-# --------------------------------------------
-#
-diff -Nru a/kernel/softirq.c b/kernel/softirq.c
---- a/kernel/softirq.c	Thu May 15 17:13:08 2003
-+++ b/kernel/softirq.c	Thu May 15 17:13:08 2003
-@@ -372,7 +372,7 @@
- 	while (smp_processor_id() != cpu)
- 		schedule();
- 
--	sprintf(current->comm, "ksoftirqd_CPU%d", bind_cpu);
-+	sprintf(current->comm, "ksoftirqd/%d", bind_cpu);
- 
- 	__set_current_state(TASK_INTERRUPTIBLE);
- 	mb();
+Charlie

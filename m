@@ -1,326 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbVBCXRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVBCXT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262755AbVBCXRU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 18:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVBCXRU
+	id S261726AbVBCXT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 18:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVBCXT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 18:17:20 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:9370
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262755AbVBCXPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 18:15:42 -0500
-Date: Thu, 3 Feb 2005 15:08:21 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Anton Blanchard <anton@samba.org>
-Cc: herbert@gondor.apana.org.au, okir@suse.de, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
-Message-Id: <20050203150821.2321130b.davem@davemloft.net>
-In-Reply-To: <20050203142705.GA11318@krispykreme.ozlabs.ibm.com>
-References: <20050131102920.GC4170@suse.de>
-	<E1CvZo6-0001Bz-00@gondolin.me.apana.org.au>
-	<20050203142705.GA11318@krispykreme.ozlabs.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Feb 2005 18:19:27 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:24467 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S261726AbVBCXSy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 18:18:54 -0500
+Date: Fri, 04 Feb 2005 08:18:56 +0900
+From: Itsuro Oda <oda@valinux.co.jp>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
+Cc: Koichi Suzuki <koichi@intellilink.co.jp>, Vivek Goyal <vgoyal@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Hariprasad Nellitheertha <hari@in.ibm.com>,
+       suparna bhattacharya <suparna@in.ibm.com>
+In-Reply-To: <m14qgu81bw.fsf@ebiederm.dsl.xmission.com>
+References: <20050203154433.18E4.ODA@valinux.co.jp> <m14qgu81bw.fsf@ebiederm.dsl.xmission.com>
+Message-Id: <20050204074755.18EA.ODA@valinux.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.10.04 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005 01:27:05 +1100
-Anton Blanchard <anton@samba.org> wrote:
+Hi,
+
+On 03 Feb 2005 02:00:51 -0700
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+
+> A better description is probably make a list of memory regions
+> using an ELF header data structure in user space.  
+> Use sys_kexec_load to put that list the dump kernel and a little
+> big of glue code in the reserved area.  The glue code includes
+> a hash of all of everything so it can all be validated before
+> use.
+
+I see. The data structure is put on a part of loading kernel's data. 
+
+> Record the register information as ELF notes in a per cpu data
+> area.  The per cpu data areas are known and enumerated in
+> the list of memory regions.  The kernel knows nothing about
+> the ELF header etc.
+> 
+
+I see.
+
+> > 5) dump kernel: export all valid physical memory (and saved register
+> >    information) to the user. (as /dev/oldmem /proc/vmcore ?)
+> 
+> Or in user space, by just mmaping /dev/mem. That is part of the
+> current conversation.   The only real point for putting that code in
+> the kernel (besides momentum) is it is a cheap way to get the exact
+> data structures of the kernel you are using.  But since:
+> (a) it does not look like any primary kernel data structures need to
+>     be examined.
+> (b) even simple compile options like SMP/NOSMP are enough to change
+>     the layout of the data structures.
+> I think there is a pretty good case for moving all of the work to
+> user space.  But you still need a kernel that loads and
+> runs in the reserved area.
+> 
+I don't make sense. what do you mean ?
+
+What we want to do when the system is crashed is storing the whole
+physical memory (and saved register information for x86 arch) to
+some place (ex. a disk partition) for later analysis. 
+So the basic requirments to the dump kernel is that:
+ * supply a method to access whole (valid) physical memory.
+ * supply a method to access the saved register information.
+
+Does the kdump meet this requirment ? 
+
+(I am not interesting to /proc/vmcore. Constructing the vmcore
+ image is area of analysis tools. not kernel's task.)
+
+Thanks.
+-- 
+Itsuro ODA <oda@valinux.co.jp>
 
-> Its difficult stuff, everyone gets it wrong and Andrew keeps
-> hassling me to write up a document explaining it.
-
-Ok, here goes nothing.  Can someone run with this?  It should
-be rather complete, and require only minor editorial work.
-
---- atomic_ops.txt ---
-
-	This document is intended to serve as a guide to Linux port
-maintainers on how to implement atomic counter and bitops operations
-properly.
-
-	The atomic_t type should be defined as a signed integer.
-Also, it should be made opaque such that any kind of cast to
-a normal C integer type will fail.  Something like the following
-should suffice:
-
-	typedef struct { volatile int counter; } atomic_t;
-
-	The first operations to implement for atomic_t's are
-the initializers and plain reads.
-
-	#define ATOMIC_INIT(i)		{ (i) }
-	#define atomic_set(v, i)	((v)->counter = (i))
-
-The first macro is used in definitions, such as:
-
-static atomic_t my_counter = ATOMIC_INIT(1);
-
-The second interface can be used at runtime, as in:
-
-	k = kmalloc(sizeof(*k), GFP_KERNEL);
-	if (!k)
-		return -ENOMEM;
-	atomic_set(&k->counter, 0);
-
-Next, we have:
-
-	#define atomic_read(v)	((v)->counter)
-
-which simply reads the current value of the counter.
-
-Now, we move onto the actual atomic operation interfaces.
-
-	void atomic_add(int i, atomic_t *v);
-	void atomic_sub(int i, atomic_t *v);
-	void atomic_inc(atomic_t *v);
-	void atomic_dec(atomic_t *v);
-
-These four routines add and subtract integral values to/from the given
-atomic_t value.  The first two routines pass explicit integers by
-which to make the adjustment, whereas the latter two use an implicit
-adjustment value of "1".
-
-One very important aspect of these two routines is that
-they DO NOT require any explicit memory barriers.  They
-need only perform the atomic_t counter update in an SMP
-safe manner.
-
-Next, we have:
-
-	int atomic_inc_return(atomic_t *v);
-	int atomic_dec_return(atomic_t *v);
-
-These routines add 1 and subtract 1, respectively, from
-the given atomic_t and return the new counter value after
-the operation is performed.
-
-Unlike the above routines, it is required that explicit memory
-barriers are performed before and after the operation.  It must
-be done such that all memory operations before and after the
-atomic operation calls are strongly ordered with respect to the
-atomic operation itself.
-
-For example, it should behave as if a smp_mb() call existed both
-before and after the atomic operation.
-
-If the atomic instructions used in an implementation provide
-explicit memory barrier semantics which satisfy the above requirements,
-that is fine as well.
-
-Let's move on:
-
-	int atomic_add_return(int i, atomic_t *v);
-	int atomic_sub_return(int i, atomic_t *v);
-
-These behave just like atomic_{inc,dec}_return() except that an
-explicit counter adjustment is given instead of the implicit "1".
-This means that like atomic_{inc,dec}_return(), the memory barrier
-semantics are required.
-
-Next:
-
-	int atomic_inc_and_test(atomic_t *v);
-	int atomic_dec_and_test(atomic_t *v);
-
-These two routines increment and decrement by 1, respectively,
-the given atomic counter.  They return a boolean indicating
-whether the resulting counter value was zero or not.
-
-It requires explicit memory barrier semantics around the operation
-as above.
-
-	int atomic_sub_and_test(int i, atomic_t *v);
-
-This is identical to atomic_dec_and_test() except that an explicit
-decrement is given instead of the implicit "1".  It requires explicit
-memory barrier semantics around the operation.
-
-	int atomic_add_negative(int i, atomic_t *v);
-
-The given increment is added to the given atomic counter value.
-A boolean is return which indicates whether the resulting counter
-value is negative.  It requires explicit memory barrier semantics
-around the operation.
-
-If a caller requires memory barrier semantics around an atomic_t
-operation which does not return a value, a set of interfaces
-are defined which accomplish this:
-
-	void smb_mb__before_atomic_dec(void);
-	void smb_mb__after_atomic_dec(void);
-	void smb_mb__before_atomic_inc(void);
-	void smb_mb__after_atomic_dec(void);
-
-For example, smb_mb__before_atomic_dec() can be used like so:
-
-	obj->dead = 1;
-	smb_mb__before_atomic_dec();
-	atomic_dec(&obj->ref_count);
-
-It makes sure that all memory operations preceeding the atomic_dec()
-call are strongly ordered with respect to the atomic counter
-operation.  In the above example, it guarentees that the assignment
-of "1" to obj->dead will be globally visible to other cpus before
-the atomic counter decrement.
-
-Without the explicitl smb_mb__before_atomic_dec() call, the
-implementation could legally allow the atomic counter update
-visible to other cpus before the "obj->dead = 1;" assignment.
-
-The other three interfaces listed are used to provide explicit
-ordering with respect to memory operations after an atomic_dec()
-call (smb_mb__after_atomic_dec()) and around atomic_inc() calls
-(smb_mb__{before,after}_atomic_inc()).
-
-A missing memory barrier in the cases where they are required
-by the atomic_t implementation above can have disasterous
-results.  Here is an example, which follows a pattern occuring
-frequently in the Linux kernel.  It is the use of atomic counters
-to implement reference counting, and it works such that once
-the counter falls to zero it can be guarenteed that no other
-entity can be accessing the object.   Observe:
-
-	list_del(&obj->list);
-	if (atomic_dec_and_test(&obj->ref_count))
-		kfree(obj);
-
-Here, the list (say it is some linked list on which object
-searches are performed) creates the reference to the object.
-The insertion code probably looks something like this:
-
-	atomic_inc(&obj->ref_count);
-	list_add(&obj->list, &global_obj_list);
-
-And searches look something like:
-
-	for_each(obj, &global_obj_list) {
-		if (key_compare(obj->key, key)) {
-			atomic_inc(&obj->ref_count);
-			return obj;
-		}
-	}
-	return NULL;
-
-Given the above scheme, it must be the case that the list_del()
-be visible to other processors before the atomic counter decrement
-is performed.  Otherwise, the counter could fall to zero, yet
-the object is still visible for lookup on the linked list.  So
-we'd get a bogus sequence like this:
-
-	cpu 0				cpu 1
-	list_del(&obj->list);
-	... visibility delayed ...
-					lookup and find obj on
-					global_obj_list
-	atomic_dec_and_test();
-	obj refcount hits zero, this
-	is visible globally
-					atomic_inc()
-					obj refcount incremented
-					to one
-	list_del() becomes visible
-
-	kfree(obj);
-					obj is now freed up memory
-					--> CRASH
-
-With the memory barrier semantics required of the atomic_t
-operations which return values, the above sequence of memory
-visibility can never happen.
-
-We will now cover the atomic bitmask operations.  You will find
-that their SMP and memory barrier semantics are similar in shape
-to the atomic_t ops above.
-
-Native atomic bit operations are defined to operate on objects
-aligned to the size of an "unsigned long" C data type, and are
-least of that size.  The endianness of the bits within each
-"unsigned long" are the native endianness of the cpu.
-
-	void set_bit(unsigned long nr, volatils unsigned long *addr);
-	void clear_bit(unsigned long nr, volatils unsigned long *addr);
-	void change_bit(unsigned long nr, volatils unsigned long *addr);
-
-These routines set, clear, and change, respectively, the bit
-number indicated by "nr" on the bit mask pointed to by "ADDR".
-
-They must execute atomically, yet there are no implicit memory
-barrier semantics required of these interfaces.
-
-	long test_and_set_bit(unsigned long nr, volatils unsigned long *addr);
-	long test_and_clear_bit(unsigned long nr, volatils unsigned long *addr);
-	long test_and_change_bit(unsigned long nr, volatils unsigned long *addr);
-
-Like the above, except that these routines return a boolean
-which indicates whether the changed bit was set _BEFORE_
-the atomic bit operation.
-
-These routines, like the atomic_t counter operations returning
-values, require explicit memory barrier semantics around their
-execution.  All memory operations before the atomic bit operation
-call must be made visible globally before the atomic bit operation
-is made visible.  Likewise, the atomic bit operation must be
-visible globally before any subsequent memory operation is made
-visible.  For example:
-
-	obj->dead = 1;
-	if (test_and_set_bit(0, &obj->flags))
-		/* ... */;
-	obj->killed = 1;
-
-The implementation of test_and_set_bit() must guarentee that
-"obj->dead = 1;" is visible to cpus before the atomic
-memory operation done by test_and_set_bit() becomes visible.
-Likewise, the atomic memory operation done by test_and_set_bit()
-must become visible before "obj->killed = 1;" is visible.
-
-Finally there is the basic operation:
-
-	long test_bit(unsigned long nr, __const__ volatile unsigned long *addr);
-
-Which returns a boolean indicating if bit "nr" is set in the
-bitmask pointed to by "addr".
-
-If explicit memory barriers are required around clear_bit()
-(which does not return a value, and thus does not need to
- provide memory barrier semantics), two interfaces are provided:
-
-	void smp_mb__before_clear_bit(void);
-	void smp_mb__after_clear_bit(void);
-
-They are used as follows, and are akin to their atomic_t
-operation brothers:
-
-	/* All memory operations before this call will
-	 * be globally visible before the clear_bit().
-	 */
-	smp_mb__before_clear_bit();
-	clear_bit( ... );
-
-	/* The clear_bit() will be visible before all
-	 * subsequent memory operations.
-	 */
-	 smp_mb__after_clear_bit();
-
-Finally, there are non-atomic versions of the bitmask operations
-provided.  They are used in contexts where some other higher-level
-SMP locking scheme is being used to protect the bitmask, and
-thus less expensive non-atomic operations may be used in the
-implementation.  They have names similar to the above bitmask
-operation interfaces, except that two underscores are prefixed
-to the interface name.
-
-	void __set_bit(unsigned long nr, volatile unsigned long *addr);
-	void __clear_bit(unsigned long nr, volatile unsigned long *addr);
-	void __change_bit(unsigned long nr, volatile unsigned long *addr);
-	long __test_and_set_bit(unsigned long nr, volatile unsigned long *addr);
-	long __test_and_clear_bit(unsigned long nr, volatile unsigned long *addr);
-	long __test_and_change_bit(unsigned long nr, volatile unsigned long *addr);
-
-These non-atomic variants also do not require any special
-memory barrier semantics.

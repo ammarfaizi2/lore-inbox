@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUH0LiX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUH0LlB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUH0LiX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 07:38:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUH0LiX
+	id S263117AbUH0LlB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 07:41:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUH0LlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 07:38:23 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:3741 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262085AbUH0Lho (ORCPT
+	Fri, 27 Aug 2004 07:41:01 -0400
+Received: from forte.mfa.kfki.hu ([148.6.72.11]:690 "EHLO forte.mfa.kfki.hu")
+	by vger.kernel.org with ESMTP id S263117AbUH0Lk6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 07:37:44 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16687.7416.393210.981773@alkaid.it.uu.se>
-Date: Fri, 27 Aug 2004 13:37:28 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Gergely Tamas <dice@mfa.kfki.hu>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+	Fri, 27 Aug 2004 07:40:58 -0400
+Date: Fri, 27 Aug 2004 13:40:55 +0200
+From: Gergely Tamas <dice@mfa.kfki.hu>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 Subject: Re: data loss in 2.6.9-rc1-mm1
-In-Reply-To: <20040827105543.GA10563@mfa.kfki.hu>
-References: <20040827105543.GA10563@mfa.kfki.hu>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Message-ID: <20040827114054.GA4467@mfa.kfki.hu>
+References: <20040827105543.GA10563@mfa.kfki.hu> <1093604706.5994.54.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093604706.5994.54.camel@imp.csi.cam.ac.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gergely Tamas writes:
- > Hi!
- > 
- > I've hit the following data loss problem under 2.6.9-rc1-mm1.
- > 
- > If I copy data from a file to another the target will be smaller then
- > the source file.
- > 
- > 2.6.9-rc1 does not have this problem
- > 2.6.8.1-mm4 does not have this problem
- > 2.6.9-rc1-mm1 _does have_ this problem
- > 
- > I tried this with reiserfs and xfs and it happened with both of them.
+Hi!
 
-I also saw weird errors when I (very briefly) ran 2.6.9-rc1-mm1
-on my News server.
-- scp of a newly created file to another box failed with an I/O error
-- md5sums of newly created files were incorrect
-- NFS mount request to this box failed with permission denied
+ > The difference is exactly 4096 bytes, i.e. 1 whole page.  Seems like an
+ > off-by-one error somewhere in the file access or page cache code.
+ > 
+ > It would be interesting to know whether the read is truncated or whether
+ > the write is truncated.  So could you tell us what is returned by:
+ > 
+ > cat testfile | wc -c
 
-I don't have time to investigate further, but I've experienced no
-problems with either 2.6.9-rc1 or 2.6.8.1-mm4. All local file
-systems were ext3, btw.
+$ cat testfile | wc -c
+10481664
 
-/Mikael
+ > Also your .config would probably be helpful.
+
+[ http://dice.mfa.kfki.hu/dot.config-2.6.9-rc1-mm1.gz ]
+
+Thanks,
+Gergely

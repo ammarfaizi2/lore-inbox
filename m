@@ -1,66 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267228AbSLRSbX>; Wed, 18 Dec 2002 13:31:23 -0500
+	id <S267312AbSLRShD>; Wed, 18 Dec 2002 13:37:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267279AbSLRSbX>; Wed, 18 Dec 2002 13:31:23 -0500
-Received: from 209-76-113-226.ded.pacbell.net ([209.76.113.226]:18996 "EHLO
-	siamese.engr.3ware.com") by vger.kernel.org with ESMTP
-	id <S267228AbSLRSbW>; Wed, 18 Dec 2002 13:31:22 -0500
-Message-ID: <A1964EDB64C8094DA12D2271C04B812672C927@tabby>
-From: Adam Radford <aradford@3WARE.com>
-To: "'Dave Jones'" <davej@codemonkey.org.uk>, Nathan Neulinger <nneul@umr.edu>
-Cc: linux-kernel@vger.kernel.org, uetrecht@umr.edu
-Subject: RE: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00 seri
-	es cards
-Date: Wed, 18 Dec 2002 10:41:45 -0800
+	id <S267279AbSLRShD>; Wed, 18 Dec 2002 13:37:03 -0500
+Received: from jdi.jdimedia.nl ([212.204.192.51]:49039 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S267312AbSLRShB>;
+	Wed, 18 Dec 2002 13:37:01 -0500
+Date: Wed, 18 Dec 2002 19:45:00 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+X-X-Sender: igmar@jdi.jdimedia.nl
+To: linux-kernel@vger.kernel.org
+Subject: Invalidate: busy buffer + MD RAID 1
+Message-ID: <Pine.LNX.4.44.0212181905500.4421-100000@jdi.jdimedia.nl>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Who from 3ware told you it isn't compatible?  That's totally bogus.  
-It's completely compatible.
 
-3ware supports 6, 7, and 8000 series cards with a single driver in 
-2.2, 2.4, and 2.5 trees.
+Hi,
 
-If it isn't working for you, let me know.
+I get a 'invalidate: busy buffer' about 20 times at reboot. Only at 
+reboot however.
 
--Adam
+Setup :
 
------Original Message-----
-From: Dave Jones [mailto:davej@codemonkey.org.uk]
-Sent: Wednesday, December 18, 2002 10:26 AM
-To: Nathan Neulinger
-Cc: linux-kernel@vger.kernel.org; uetrecht@umr.edu
-Subject: Re: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00
-series cards
+linux-2.4.19 + grsecurity-1.9.7d + acl+xattr 0.8.53 + freeswan (inc. aes 
+and that kind of stuff)
+
+The machine (Compaq ML350) has 2 scsi devices (sda, sdb) and a RAID 1 
+setup :
+
+md0 : sda1 + sdb1
+md1 : sda3 + sdb3
+swap is done on sda2 + sdb2, using default prio's.
+
+Triggering the 'invalidate: busy buffer' is easiest done by letting squid 
+create it's cache dirs and then rebooting.
+
+No data corruption is occuring (at last not any that a force fsck can 
+detect), but I removed the RAID1 setup to make sure I sleep well tonight 
+:)
+
+Looking at the md.c code, line 1708 :
+
+    ITERATE_RDEV(mddev,rdev,tmp) {
+        if (rdev->faulty)
+            continue;
+        invalidate_device(rdev->dev, 1);
+        if (get_hardsect_size(rdev->dev)
+            > md_hardsect_sizes[mdidx(mddev)])
+            md_hardsect_sizes[mdidx(mddev)] =
+                get_hardsect_size(rdev->dev);
+    }
+
+Looks like it is invalidating the underlying devices (sda[13], sdb[13] in 
+my case.
+
+Since my RAID array doesn't get screwed I suspect that the md code does 
+the above again on a do_md_stop(), but I can't find it.
+
+Anyone got any comments on this ?? 
 
 
-On Wed, Dec 18, 2002 at 12:10:54PM -0600, Nathan Neulinger wrote:
- > According to 3Ware, the driver in the 2.4.x and (I assume) 2.5.x is no
- > longer compatible with the 6xxx series cards. 
- > I don't know what we'll do with this situation when we move to 2.6, cause
- > right now, it looks like we are completely screwed. The old driver 
- > obviously will not compile on 2.6 since the API's have changed. 
 
-Any idea at which point the 2.5 driver stopped working ?
-It may not be that much work to bring that version up to date as
-a 3ware-old.c driver in a worse-case scenario.
+	Regards,
 
-This would be huge code duplication however, and would be much
-better fixed by having the driver detect which card its running
-on, and 'do the right thing' wrt which firmware it needs.
 
-		Dave
+		Igmar
+
+
+Please CC all responses.
+
+
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+
+Igmar Palsenberg
+JDI Media Solutions
+
+Helhoek 30
+6923PE Groessen
+Tel: +31 (0)316 - 596695
+Fax: +31 (0)316 - 596699
+The Netherlands
+
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
+

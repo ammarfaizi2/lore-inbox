@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267852AbTB1M3o>; Fri, 28 Feb 2003 07:29:44 -0500
+	id <S267812AbTB1M1P>; Fri, 28 Feb 2003 07:27:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267853AbTB1M3o>; Fri, 28 Feb 2003 07:29:44 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:41183 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S267852AbTB1M3n>; Fri, 28 Feb 2003 07:29:43 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: Replacement for "make SUBDIRS=...." in 2.5.63?
-Date: 28 Feb 2003 13:48:52 +0100
-Organization: SuSE Labs, Berlin
-Message-ID: <87d6lcbmff.fsf@bytesex.org>
-References: <200302250633.WAA06979@adam.yggdrasil.com> <Pine.LNX.4.44.0302251039080.13501-100000@chaos.physics.uiowa.edu>
-NNTP-Posting-Host: localhost
+	id <S267844AbTB1M1P>; Fri, 28 Feb 2003 07:27:15 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:11409
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267812AbTB1M1O>; Fri, 28 Feb 2003 07:27:14 -0500
+Subject: Re: Protecting processes from the OOM killer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dan Kegel <dank@kegel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E5EB9A8.3010807@kegel.com>
+References: <3E5EB9A8.3010807@kegel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046439618.16599.22.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Trace: bytesex.org 1046436533 15130 127.0.0.1 (28 Feb 2003 12:48:53 GMT)
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 28 Feb 2003 13:40:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> writes:
+On Fri, 2003-02-28 at 01:21, Dan Kegel wrote:
+> For a while now, I've been trying to figure out how
+> to make the oom killer not kill important processes.
 
-> I hope that clarifies things a bit. As I wrote earlier, I'll come up with 
-> a proper and simple way to build external modules once I find the time.
+How about by not allowing your system to excessively overcommit.
+Everything else is armwaving "works half the time" stuff. By the time
+the OOM kicks in the game is already over. The rlimit one doesnt deal
+with things like fork explosions where you have lots of processes
+all under 1/4 of the rlimit range who cumulatively overcommit. In
+fact you now pick harder on other tasks...
 
-Any idea what to do until this is available?  The "make
-SUBDIRS=/dir/outside/kernel/tree modules" approach worked quite well
-for a long time, but stopped working now.  Which isn't very nice for
-driver hacking.
-
-  Gerd
-
--- 
-Weil die späten Diskussionen nicht mal mehr den Rotwein lohnen.
-				-- Wacholder in “Melanie”

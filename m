@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263176AbTHVPrt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 11:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbTHVPrt
+	id S263343AbTHVPxN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 11:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbTHVPxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 11:47:49 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:27024
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263185AbTHVPrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 11:47:45 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Wiktor Wodecki <wodecki@gmx.de>
-Subject: Re: [PATCH]O18int
-Date: Sat, 23 Aug 2003 01:54:36 +1000
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <200308222231.25059.kernel@kolivas.org> <200308230103.19724.kernel@kolivas.org> <20030822154639.GA711@gmx.de>
-In-Reply-To: <20030822154639.GA711@gmx.de>
+	Fri, 22 Aug 2003 11:53:12 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:16795 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263343AbTHVPxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 11:53:08 -0400
+Date: Fri, 22 Aug 2003 08:52:31 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: michal-bugzilla@logix.cz
+Subject: [Bug 1131] New: Unable to compile without "Software Suspend" (AMD 64)
+Message-ID: <18140000.1061567551@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200308230154.36357.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 23 August 2003 01:46, Wiktor Wodecki wrote:
-> On Sat, Aug 23, 2003 at 01:03:19AM +1000, Con Kolivas wrote:
-> > > > There it is again; the reference to darn O10. Hrm. One question
-> > > > before your holiday; your O10 kernel is it the same kernel tree or a
-> > > > different/newere one? I'm looking to blame something else here I know
-> > > > but I need to know; this just doesn't hold with any testing here.
-> > >
-> > > well, I run O10 on top of test2, since I didn't need any patches from
-> > > test3 I didn't rediff it.
-> >
-> > So O18 is also on test2?
->
-> Okay, I applied O18 on top of test2 now. Xmms works as a charm,
-> programm start is still slow while doing an tar xf linuxtest2.tar.
-> Already open xterm's (one with mutt) react a bit in-interactive (I spawn
-> vi to write this email and a :w takes 5 seconds). It is nonetheless
-> worse than O10, sorry to say that.
+http://bugme.osdl.org/show_bug.cgi?id=1131
 
-Ok, but none of that weird starvation and massive load and skipping audio. 
-Interesting. At least it's clear now that all is _not_ just my patches. 
-Thanks for testing.
+           Summary: Unable to compile without "Software Suspend"
+    Kernel Version: 2.6.0-test3-bk9
+            Status: NEW
+          Severity: high
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: michal-bugzilla@logix.cz
 
-Con
+
+Hardware Environment: AMD64
+Software Environment: gcc-3.3
+Problem Description:
+
+It's impossible to compile kernel without "Software Suspend" on AMD64. At the
+linking time it complains:
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+arch/x86_64/kernel/built-in.o(.text+0xc6bf): In function `do_suspend_lowlevel':
+: undefined reference to `save_processor_state'
+arch/x86_64/kernel/built-in.o(.text+0xc6c6): In function `do_suspend_lowlevel':
+: undefined reference to `saved_context_esp'
+arch/x86_64/kernel/built-in.o(.text+0xc6cd): In function `do_suspend_lowlevel':
+: undefined reference to `saved_context_eax'
+
+Steps to reproduce:
+On AMD64 deselect "Power management options" -> "Software Suspend" and compile.
+
 

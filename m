@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263656AbTEWGQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 02:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbTEWGQZ
+	id S263654AbTEWGSe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 02:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263657AbTEWGSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 02:16:25 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:15569 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263652AbTEWGQZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 02:16:25 -0400
-Date: Fri, 23 May 2003 07:27:45 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       schwidefsky@de.ibm.com
-Subject: Re: Patch to add SysRq handling to 3270 console
-Message-ID: <20030523072745.A5368@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Arnd Bergmann <arnd@arndb.de>, Pete Zaitcev <zaitcev@redhat.com>,
-	linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-References: <20030522225014$1daf@gated-at.bofh.it> <200305222316.h4MNGk8H004738@post.webmailer.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200305222316.h4MNGk8H004738@post.webmailer.de>; from arnd@arndb.de on Fri, May 23, 2003 at 01:12:20AM +0200
+	Fri, 23 May 2003 02:18:34 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:30226 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S263654AbTEWGSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 02:18:32 -0400
+Date: Fri, 23 May 2003 08:38:14 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Stian Jordet <liste@jordet.nu>
+cc: jt@hpl.hp.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: irtty_sir cannot be unloaded
+In-Reply-To: <1053654253.668.1.camel@chevrolet.hybel>
+Message-ID: <Pine.LNX.4.44.0305230830490.14825-100000@notebook.home.mdiehl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 23, 2003 at 01:12:20AM +0200, Arnd Bergmann wrote:
-> duplicated work. Do you have a tested backport for 2.4.2x? If
-> so, we could merge it for the z990 code drop.
+On 23 May 2003, Stian Jordet wrote:
 
-What is the z990 code drop?  Can you please merge support for new
-hardware into mainline instead of realsing it in these silly IBM
-patchkits for old kernels with exploitable security issues..
+> > 	Disable HotPlug in your kernel and recompile. Various network
+> > people have been notified of this bug, but this is not an easy one.
+> 
+> You were right, this was the problem. Then I just have to choose what I
+> need the most; irda or pcmcia :)
 
-Btw, what's the state of 2.4.21-rc3 vs s390(x)?
+I bet pcmcia works without hotplug ;-)
+
+IMHO the worst thing that might happen without hotplug would be one has to 
+modprobe some drivers for CardBus cards by hand. But maybe I'm missing 
+something because I'm not using hotplug...
+
+Anyway, I really hope the network-hotplug deadlock issue gets resolved 
+before 2.6.0 or we'll see quite a number of such reports then...
+
+Martin
+

@@ -1,50 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbUDPTrb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 15:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbUDPTrb
+	id S263040AbUDPTzE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 15:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbUDPTzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 15:47:31 -0400
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:52140 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S263424AbUDPTr3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 15:47:29 -0400
-Date: Sat, 17 Apr 2004 03:45:05 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: ncunningham@users.sourceforge.net
-Subject: Re: 2.4.26 intermittent kernel bug on boot.
-Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <opr6j9q0d54evsfm@smtp.pacific.net.th> <1082140624.19725.82.camel@laptop-linux.wpcb.org.au>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
+	Fri, 16 Apr 2004 15:55:04 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:32266 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S263040AbUDPTy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 15:54:57 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] deinline put_page if CONFIG_HUGETLB_PAGE=y
+Date: Fri, 16 Apr 2004 22:54:46 +0300
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>
+References: <200404162230.40530.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200404162230.40530.vda@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr6kehfsr4evsfm@smtp.pacific.net.th>
-In-Reply-To: <1082140624.19725.82.camel@laptop-linux.wpcb.org.au>
-User-Agent: Opera M2/7.50 (Linux, build 615)
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_GoDgAjxU1Nzisr0"
+Message-Id: <200404162254.46533.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Apr 2004 04:37:05 +1000, Nigel Cunningham <ncunningham@users.sourceforge.net> wrote:
 
-> Hi.
+--Boundary-00=_GoDgAjxU1Nzisr0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+On Friday 16 April 2004 22:30, Denis Vlasenko wrote:
+> This is next version of 'inline hunter', a tool designed to find
+> inlines which are large. It has bug fixes and improvements suggested
+> by readers of lkml. Tarball and results are below sig.
 >
-> On Sat, 2004-04-17 at 04:02, Michael Frank wrote:
->> kernel BUG at slab.c:1238!
+> Matt, you may simply replace earlier version with this one.
+> --
+> vda
 >
-> That's a really strange oops to see. It's testing that the GFP flags
-> match the slab's flags. To get an oops there, you'd have to have a
-> non-dma slab (which makes sense), but you've called the kmem_cache_alloc
-> routine with a DMA flag. Line 444 of kernel/signal.c clearly doesn't do
-> that! Could the args be being corrupted while being passed?
+> Size  Uses Wasted Name and definition
+> ===== ==== ====== ================================================
+>    56  461  16560 copy_from_user	include/asm/uaccess.h
+>   122  119  12036 skb_dequeue	include/linux/skbuff.h
+>   164   78  11088 skb_queue_purge	include/linux/skbuff.h
+>    97  141  10780 netif_wake_queue	include/linux/netdevice.h
+>    43  468  10741 copy_to_user	include/asm/uaccess.h
+>    43  461  10580 copy_from_user	include/asm/uaccess.h
+>   145   77   9500 put_page	include/linux/mm.h
 
-I had sometimes hangs while calibrating delay loop with earlier kernels,
-Alan Cox suggested SMI screwing things up. This bug is earlier and new.
+This patch deinlines put_page if CONFIG_HUGETLB_PAGE=y.
+--
+vda
 
-> What does a backtrace look like?
->
+--Boundary-00=_GoDgAjxU1Nzisr0
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="linux-2.6.5.mm_inline1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="linux-2.6.5.mm_inline1.patch"
 
-Too bad, kdb not fully init, modules not loaded, so no BT command.
+diff -urN linux-2.6.5.orig/include/linux/mm.h linux-2.6.5.mm_inline1/include/linux/mm.h
+--- linux-2.6.5.orig/include/linux/mm.h	Sun Apr  4 06:36:15 2004
++++ linux-2.6.5.mm_inline1/include/linux/mm.h	Fri Apr 16 22:49:18 2004
+@@ -253,22 +253,7 @@
+ 	atomic_inc(&page->count);
+ }
+ 
+-static inline void put_page(struct page *page)
+-{
+-	if (PageCompound(page)) {
+-		page = (struct page *)page->lru.next;
+-		if (put_page_testzero(page)) {
+-			if (page->lru.prev) {	/* destructor? */
+-				(*(void (*)(struct page *))page->lru.prev)(page);
+-			} else {
+-				__page_cache_release(page);
+-			}
+-		}
+-		return;
+-	}
+-	if (!PageReserved(page) && put_page_testzero(page))
+-		__page_cache_release(page);
+-}
++void put_page(struct page *page);
+ 
+ #else		/* CONFIG_HUGETLB_PAGE */
+ 
+diff -urN linux-2.6.5.orig/mm/page_alloc.c linux-2.6.5.mm_inline1/mm/page_alloc.c
+--- linux-2.6.5.orig/mm/page_alloc.c	Sun Apr  4 06:36:17 2004
++++ linux-2.6.5.mm_inline1/mm/page_alloc.c	Fri Apr 16 22:49:51 2004
+@@ -109,6 +109,24 @@
+  * This is only for debug at present.  This usage means that zero-order pages
+  * may not be compound.
+  */
++
++void put_page(struct page *page)
++{
++	if (PageCompound(page)) {
++		page = (struct page *)page->lru.next;
++		if (put_page_testzero(page)) {
++			if (page->lru.prev) {	/* destructor? */
++				(*(void (*)(struct page *))page->lru.prev)(page);
++			} else {
++				__page_cache_release(page);
++			}
++		}
++		return;
++	}
++	if (!PageReserved(page) && put_page_testzero(page))
++		__page_cache_release(page);
++}
++
+ static void prep_compound_page(struct page *page, unsigned long order)
+ {
+ 	int i;
 
-Michael
+--Boundary-00=_GoDgAjxU1Nzisr0--
+

@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270712AbRHNTbZ>; Tue, 14 Aug 2001 15:31:25 -0400
+	id <S270758AbRHNTex>; Tue, 14 Aug 2001 15:34:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270757AbRHNTbN>; Tue, 14 Aug 2001 15:31:13 -0400
-Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:18074 "EHLO
-	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
-	id <S270753AbRHNTa6>; Tue, 14 Aug 2001 15:30:58 -0400
-Message-ID: <3B794D30.5549DE71@ameritech.net>
-Date: Tue, 14 Aug 2001 11:09:20 -0500
-From: watermodem <aquamodem@ameritech.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S270766AbRHNTen>; Tue, 14 Aug 2001 15:34:43 -0400
+Received: from ns.suse.de ([213.95.15.193]:8712 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S270758AbRHNTe3>;
+	Tue, 14 Aug 2001 15:34:29 -0400
+Date: Tue, 14 Aug 2001 21:34:42 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: memory compress tech...
+In-Reply-To: <Pine.LNX.4.33.0108141242160.31226-100000@terbidium.openservices.net>
+Message-ID: <Pine.LNX.4.30.0108142134090.5059-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: NTFS R-Only error
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following command fails for DLL files (not exe) in my WINNT
-partition.
-(windows 2000)
+On Tue, 14 Aug 2001, Ignacio Vazquez-Abrams wrote:
 
-I am not sure who currently maintains the NTFS driver so I am posting it
-here. It doesn't look to be in the kernel so maybe mount or shell?
+> > maybe for compressing swap?  you have to read less data off the disk,
+> > which is faster.  and the processor is probably idling anyway, waiting on
+> > disk.
+> Ah, now THAT is a good idea.
 
-[root@dali system32]# strings *.dll | grep -i root
-Root Entry
-.?AVCComObjectRootBase@ATL@@
-.?AV?$CComObjectRootEx@VCComSingleThreadModel@ATL@@@ATL@@
-.?AV?$CComObjectRootEx@VCComMultiThreadModel@ATL@@@ATL@@
-?GetRoot@KcCatalog@@QAEPAVKcFolderEntry@@XZ
-@(#)$Id: ss_root.c,v 1.10 1998/02/26 10:43:49 johns LADS451 $
-Root Entry
-%SystemRoot%
-SystemRoot
-HKEY_CLASSES_ROOT
-.?AVCComObjectRootBase@ATL@@
-.?AV?$CComObjectRootEx@VCComMultiThreadModel@ATL@@@ATL@@
-.?AV?$CComObjectRootEx@VCComMultiThreadModelNoCS@ATL@@@ATL@@
-BFD: BFD internal error, aborting at coffcode.h line 749 in
-styp_to_sec_flags
+I missed the beginning of this thread, but this sounds to me like
+what is being implemented at http://linuxcompressed.sourceforge.net/
 
-BFD: Please report this bug.
+regards,
 
-uname -a
-Linux dali.x.com 2.4.7 #2 Thu Jul 26 01:42:19 CDT 2001 i686 unknown
+Dave.
 
-I don't see coffcode.h in the linux kernel and don't know what BFD is
-in.
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

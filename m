@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314057AbSEAVoG>; Wed, 1 May 2002 17:44:06 -0400
+	id <S314068AbSEAWFk>; Wed, 1 May 2002 18:05:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314067AbSEAVoF>; Wed, 1 May 2002 17:44:05 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:26273 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S314057AbSEAVoF>; Wed, 1 May 2002 17:44:05 -0400
-Message-ID: <3CD060FD.4070903@didntduck.org>
-Date: Wed, 01 May 2002 17:41:17 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S314069AbSEAWFk>; Wed, 1 May 2002 18:05:40 -0400
+Received: from gw.lowendale.com.au ([203.26.242.120]:15420 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S314068AbSEAWFj>; Wed, 1 May 2002 18:05:39 -0400
+Date: Thu, 2 May 2002 08:45:38 +1000 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Eugenij Butusov <dinorage@wp.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernels 2.2.19-2.4.x. Why why why?
+In-Reply-To: <20020501201703.A990@matrix.awr.open.net.pl>
+Message-ID: <Pine.LNX.4.05.10205020839030.8020-100000@marina.lowendale.com.au>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Dave Jones <davej@suse.de>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix thermal_interrupt
-Content-Type: multipart/mixed;
- boundary="------------020600010907000504050103"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020600010907000504050103
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 1 May 2002, Eugenij Butusov wrote:
 
-The interrupt stub for thermal_interrupt was not being created.
+>  I'm writing to You because of my problem with kernels > 2.2.17.
+> This kernel is the last that works on my machine. I've tried almost
+> all, including 2.3.x and 2.5.x, but they simple don't work.
 
--- 
+Have you tried 2.2.21-rc3?
 
-						Brian Gerst
+[...]
+> PROC: p200MMX
+> MB: pc chips, SiS, tx-pro m570(v12), apg, 1MB L2 cache, onboard soundpro
+> MEM: 64MB sdram
+> GFX: diamond viper v330 agp (4mb)
+> NIC: realtek8139 (D-Link NetEasy)
+> HDD: 2x3.2GB (samsung & seagate, both udma33)
 
---------------020600010907000504050103
-Content-Type: text/plain;
- name="thermal-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="thermal-1"
+Assuming I have you right that 2.2.17 works reliably and 2.2.18 fails
+reliably, then perhaps:
 
-diff -urN linux-2.5.12/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
---- linux-2.5.12/arch/i386/kernel/entry.S	Mon Apr 29 02:29:49 2002
-+++ linux/arch/i386/kernel/entry.S	Wed May  1 14:38:28 2002
-@@ -395,6 +395,11 @@
- BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
- BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
- BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
-+
-+#ifdef CONFIG_X86_MCE_P4THERMAL
-+BUILD_INTERRUPT(thermal_interrupt,THERMAL_APIC_VECTOR)
-+#endif
-+
- #endif
- 
- ENTRY(divide_error)
-diff -urN linux-2.5.12/arch/i386/kernel/i8259.c linux/arch/i386/kernel/i8259.c
---- linux-2.5.12/arch/i386/kernel/i8259.c	Mon Apr 29 02:29:49 2002
-+++ linux/arch/i386/kernel/i8259.c	Wed May  1 14:36:22 2002
-@@ -394,7 +394,7 @@
- 
- 	/* thermal monitor LVT interrupt */
- #ifdef CONFIG_X86_MCE_P4THERMAL
--	set_intr_gate(THERMAL_APIC_VECTOR, smp_thermal_interrupt);
-+	set_intr_gate(THERMAL_APIC_VECTOR, thermal_interrupt);
- #endif
- #endif
- 
+(a) have a look through the changelog at
+http://www.kernel.org/pub/linux/kernel/v2.2/linux-2.2.18.log and see if
+there's anything likely -OR-
+(b) do a binary search of 2.2.18-pre* to find just where it breaks.
 
---------------020600010907000504050103--
+The point is to narrow down the patch which broke things for you.
+
+HTH,
+Neale.
 

@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbTLLRVU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 12:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbTLLRVU
+	id S261326AbTLLRfb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 12:35:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTLLRfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 12:21:20 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:5052 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261613AbTLLRVS
+	Fri, 12 Dec 2003 12:35:31 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:65509 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261326AbTLLRf0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 12:21:18 -0500
-Date: Fri, 12 Dec 2003 18:21:16 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-In-Reply-To: <Pine.LNX.4.53.0312121152240.730@chaos>
-Message-ID: <Pine.LNX.4.55.0312121805160.21008@jurand.ds.pg.gda.pl>
-References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>
- <brcoob$a02$1@gatekeeper.tmr.com> <Pine.LNX.4.55.0312121717510.21008@jurand.ds.pg.gda.pl>
- <Pine.LNX.4.53.0312121152240.730@chaos>
-Organization: Technical University of Gdansk
+	Fri, 12 Dec 2003 12:35:26 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Daniel Tram Lux <daniel@starbattle.com>
+Subject: Re: [patch] ide.c as a module
+Date: Fri, 12 Dec 2003 18:37:31 +0100
+User-Agent: KMail/1.5.4
+References: <20031211202536.GA10529@starbattle.com> <200312121646.04047.bzolnier@elka.pw.edu.pl> <20031212171711.GA15954@starbattle.com>
+In-Reply-To: <20031212171711.GA15954@starbattle.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312121837.31121.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Dec 2003, Richard B. Johnson wrote:
+On Friday 12 of December 2003 18:17, Daniel Tram Lux wrote:
+> Hi Bartlomiej,
+>
+> I applied your changes only, reverting all of mine...
+>
+> moving the initializing=1 also solves the multiple init problem...thanks
+>
+> here is how the patch looks like now:
 
-> >  Sometimes the NMI watchdog works in principle, but its activation leads
-> > to system instability -- almost always this is a symptom of buggy SMM code
->                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > executed by the BIOS behind our back (NMIs are disabled by default in the
->   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > SMM, but careless code may enable them by accident).
-> 
-> The NMI vector goes to Linux code. In fact all interrupt vectors
-> go to Linux code. There is no way that some BIOS code could possibly
-> be accidentally executed here. Some Linux code would have to
-> call some 16-bit BIOS code somewhere, and it doesn't even know
-> where..........
+Thanks.  I noticed that in 2.4 ide_probe_module() has revaldiate parameter
+(I am currently fixing modules in 2.6 so I over-looked it before), so I need
+to check if these changes are sufficient.  If so I will submit to Marcelo.
 
- The problem happens when the SMM is active (i.e. the BIOS code is being
-executed) after an SMI has been received during Linux operation (SMIs may
-get triggered due to various reasons -- a parity/ECC error caught by the
-chipset, an access to an emulated 8042 controller, a power failure in a
-notebook, etc.) and an NMI arrives.  When in the SMM, no interrupt
-(including the NMI) causes a switch back into the protected mode (and the
-processor expects real-mode style interrupt vectors), so the Linux's NMI
-handler is never reached and the SMM's NMI handler (if at all initialized)  
-isn't appropriate for handling the NMI watchdog.  Since the SMM cannot
-know what NMIs are used for in a particular OS, the code should best keep
-NMIs disabled -- then an arriving NMI event is latched and postponed until
-after the RSM instruction is executed.
+Regards,
+--bart
 
- The SMM was invented to be transparent to a running OS, but care has to
-be taken for this to be true and firmware bugs sometimes make the SMM
-activity visible.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

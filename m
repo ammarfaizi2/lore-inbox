@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVCINN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVCINRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262091AbVCINN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 08:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVCINN4
+	id S261619AbVCINRD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 08:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbVCINRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 08:13:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:63678 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262176AbVCINKm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 08:10:42 -0500
-Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jan Kara <jack@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050308151258.GD23403@atrey.karlin.mff.cuni.cz>
-References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050304160451.4c33919c.akpm@osdl.org>
-	 <1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050307123118.3a946bc8.akpm@osdl.org>
-	 <1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1110286417.1941.40.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050308151258.GD23403@atrey.karlin.mff.cuni.cz>
+	Wed, 9 Mar 2005 08:17:02 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:49386 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261619AbVCINQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 08:16:57 -0500
+Subject: Re: Problem with DCE with Kernel Patch
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Singal, Manoj Kumar (STSD)" <manoj-kumar.singal@hp.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3EB96D97711EAA45B291A31082CC865601511595@bgeexc04.asiapacific.cpqcorp.net>
+References: <3EB96D97711EAA45B291A31082CC865601511595@bgeexc04.asiapacific.cpqcorp.net>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110373818.1932.31.camel@sisko.sctweedie.blueyonder.co.uk>
+Date: Wed, 09 Mar 2005 14:16:48 +0100
+Message-Id: <1110374209.6280.102.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 09 Mar 2005 13:10:19 +0000
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 2005-03-08 at 15:12, Jan Kara wrote:
-
->   Isn't also the following scenario dangerous?
+On Wed, 2005-03-09 at 18:21 +0530, Singal, Manoj Kumar (STSD) wrote:
+> Hello,
 > 
->   __journal_unfile_buffer(jh);
->   journal_remove_journal_head(bh);
+> While installing DCE 0.1.13 on RH Linux AS 2.1 Kernel 2.4.18-e.54smp
+> running on Itanium, the system hangs and becomes unbootable. It then has
+> to be started in single user mode, the dce rpm has to be removed and
+> then booted. This happens with kernel patch 52/54. 
+> 
+> Has anyone faced a similar problem and resolved it ? . Any pointers in
+> this regard will be really *nice*
 
-It depends.  I think the biggest problem here is that there's really no
-written rule protecting this stuff universally.  But in testing, we just
-don't see this triggering.
+you are probably better off using the support escalation person to RH
+inside HP for such issues; the 2.4.18 kernel is ancient and of little
+interest to lkml generally.
 
-Why not?  We actually have a raft of other locks protecting us in
-various places.  As long as there's some overlap in the locks, we're
-OK.  But because it's not written down, not everybody relies on the same
-set of locks; it's only because journal_unmap_buffer() was dropping the
-jh without enough locks that we saw a problem there.
-
-So the scenario:
-
-	__journal_unfile_buffer(jh);
-	journal_remove_journal_head(bh);
-
-*might* be dangerous, if called carelessly; but in practice it works out
-OK.  Remember, that journal_remove_journal_head() call still takes the
-bh_journal_head lock and still checks b_transaction with that held.
-
-I think it's time I went and worked out *why* it works out OK, though,
-so that we can write it down and make sure it stays working!  And we may
-well be able to simplify the locking when we do this; collapsing the two
-bh state locks, for example, may help improve the robustness as well as
-improving performance through removing some redundant locking
-operations.
-
-Fortunately, there are really only three classes of operation that can
-remove a jh.  There are the normal VFS/VM operations, like writepage,
-try_to_free_buffer, etc; these are all called with the page lock.  There
-are metadata updates, which take a liberal dose of buffer, bh_state and
-journal locks.  
-
-Finally there are the commit/checkpoint functions, which run
-asynchronously to the rest of the journaling and which don't relate to
-the current transaction, but to previous ones.  This is the danger area,
-I think.  But as long as at least the bh_state lock is held, we can
-protect these operations against the data/metadata update operations.
-
---Stephen
 

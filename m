@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264782AbUFLNyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUFLN5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264782AbUFLNyH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 09:54:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264791AbUFLNyH
+	id S264791AbUFLN5x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 09:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264795AbUFLN5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 09:54:07 -0400
-Received: from outmx001.isp.belgacom.be ([195.238.3.51]:4580 "EHLO
-	outmx001.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S264782AbUFLNyF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 09:54:05 -0400
-Subject: Re: [PATCH 2.6.7-rc3] nr_free_files ?
-From: FabF <fabian.frederick@skynet.be>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040608221913.GA16473@taniwha.stupidest.org>
-References: <1086728685.3865.3.camel@localhost.localdomain>
-	 <20040608141712.2da5ace2.akpm@osdl.org>
-	 <20040608221913.GA16473@taniwha.stupidest.org>
-Content-Type: text/plain
-Message-Id: <1087048566.18631.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 12 Jun 2004 15:56:06 +0200
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Jun 2004 09:57:53 -0400
+Received: from nepa.nlc.no ([195.159.31.6]:65468 "HELO nepa.nlc.no")
+	by vger.kernel.org with SMTP id S264791AbUFLN5w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 09:57:52 -0400
+Message-ID: <1469.83.109.11.80.1087048662.squirrel@nepa.nlc.no>
+In-Reply-To: <20040612134413.GA3396@sirius.home>
+References: <Pine.LNX.4.44.0406112308100.13607-100000@chimarrao.boston.redhat.com>
+      <20040612134413.GA3396@sirius.home>
+Date: Sat, 12 Jun 2004 15:57:42 +0200 (CEST)
+Subject: Re: timer + fpu stuff locks my console race
+From: stian@nixia.no
+To: "Sergey Vlasov" <vsu@altlinux.ru>
+Cc: "Rik van Riel" <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       stian@nixia.no
+User-Agent: SquirrelMail/1.4.0-1
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-09 at 00:19, Chris Wedgwood wrote:
-> On Tue, Jun 08, 2004 at 02:17:12PM -0700, Andrew Morton wrote:
-> 
-> > It changes the format of /proc/sys/fs/file-nr.
-> 
-> For 2.7.x is think that's fine but clearly for 2.6.x it's not.  Are we
-> starting to queue stuff for 2.7.x yet? :)
-Who _can_ do that ?
+> --- linux-2.6.6/include/asm-i386/i387.h.fp-lockup	2004-05-10 06:33:06
+> +0400
+> +++ linux-2.6.6/include/asm-i386/i387.h	2004-06-12 17:25:56 +0400
+> @@ -51,7 +51,6 @@
+>  #define __clear_fpu( tsk )					\
+>  do {								\
+>  	if ((tsk)->thread_info->status & TS_USEDFPU) {		\
+> -		asm volatile("fwait");				\
+>  		(tsk)->thread_info->status &= ~TS_USEDFPU;	\
+>  		stts();						\
+>  	}							\
 
-FabF
-> 
-> 
->   --cw
-> 
+But what about task-switching and fpu-exceptions that comes in late? I
+know that the kernel does not use FPU in general, and the places it does,
+fsave, fwait and frstor embeddes it all in kernel-space.
 
+
+Stian Skjelstad

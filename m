@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264919AbSLaX3Y>; Tue, 31 Dec 2002 18:29:24 -0500
+	id <S264936AbSLaXak>; Tue, 31 Dec 2002 18:30:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264920AbSLaX3Y>; Tue, 31 Dec 2002 18:29:24 -0500
-Received: from pdbn-d9bb86aa.pool.mediaWays.net ([217.187.134.170]:7949 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id <S264919AbSLaX3X>;
-	Tue, 31 Dec 2002 18:29:23 -0500
-Date: Wed, 1 Jan 2003 00:37:41 +0100
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Josh Brooks <user@mail.econolodgetulsa.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Usermode NFS - still in existence ?
-Message-ID: <20021231233741.GA25889@citd.de>
-References: <20021231141201.D88624-100000@mail.econolodgetulsa.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021231141201.D88624-100000@mail.econolodgetulsa.com>
-User-Agent: Mutt/1.3.27i
+	id <S264938AbSLaXak>; Tue, 31 Dec 2002 18:30:40 -0500
+Received: from h-64-105-35-45.SNVACAID.covad.net ([64.105.35.45]:64211 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S264936AbSLaXah>; Tue, 31 Dec 2002 18:30:37 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 31 Dec 2002 15:38:51 -0800
+Message-Id: <200212312338.PAA00551@baldur.yggdrasil.com>
+To: akpm@digeo.com
+Subject: Re: [PATCH] generic device DMA (dma_pool update)
+Cc: david-b@pacbell.net, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 31, 2002 at 02:13:58PM -0800, Josh Brooks wrote:
-> 
-> Hello,
-> 
-> I have a system running a vendor supplied kernel that I do not have the
-> ability to change.  Further, it is modified enough that normal modules
-> will not load into it - and of course I cannot compile modules to work
-> with it since I don't have the source to the kernel.
-> 
-> And for some reason they did not compile NFS in.
-> 
-> And I need this system to be an NFS _client_.
-> 
-> What are my options ?  I see that at some point there was a usermode NFS
-> ... does this still exist ? Is there some other way of mounting an NFS
-> volume from userland - really any solution is fine, I just need to mount
-> my nfs volume from this server.
+Andrew Morton wrote:
+>"Adam J. Richter" wrote:
+>> 
+>> David Brownell wrote:
+>> 
+>> >struct dma_pool *dma_pool_create(char *, struct device *, size_t)
+>> >void dma_pool_destroy (struct dma_pool *pool)
+>> >void *dma_pool_alloc(struct dma_pool *, int mem_flags, dma_addr_t *)
+>> >void dma_pool_free(struct dma_pool *, void *, dma_addr_t)
+>> 
+>>         I would like to be able to have failure-free, deadlock-free
+>> blocking memory allocation, such as we have with the non-DMA mempool
+>> library so that we can guarantee that drivers that have been
+>> successfully initialized will continue to work regardless of memory
+>> pressure, and reduce error branches that drivers have to deal with.
+>> 
+>>         Such a facility could be layered on top of your interface
+>> perhaps by extending the mempool code to pass an extra parameter
+>> around.  If so, then you should think about arranging your interface
+>> so that it could be driven with as little glue as possible by mempool.
+>> 
 
-Hmmm.
+>What is that parameter?  The size, I assume.
 
-uname -r tells you the base-kernel and what you have to write into
-"EXTRAVERSION".
-uname -v tells you if you have a SMP or UP-Kernel.
+	No, dma address.  All allocations in a memory pool (in both
+the mempool and pci_pool sense) are the same size.
 
-Then you "guess" what CPU-Type was used.
-A start-point for this guess is "uname -m".
-For a non-specific kernel i would guess i386 (=i386) or Pentium (=i586).
-For i686 you can normaly use the CPU from "/proc/cpuinfo".
-
-This way you SHOULD be able to create a module that matches (more or
-less) for the kernel you want to load it in.
-
-At least i had luck with this method so far. :-)
-
-
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

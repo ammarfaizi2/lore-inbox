@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265179AbTFUMeP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 08:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265181AbTFUMeP
+	id S265176AbTFUMcl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 08:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbTFUMcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 08:34:15 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:21959
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265179AbTFUMeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 08:34:11 -0400
-Subject: Re: [PATCH] 2.[45] eexpress.c skb_padto fixes broke pppoe
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Shane Shrybman <shrybman@sympatico.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1055975326.28012.13.camel@mars.goatskin.org>
-References: <1055975326.28012.13.camel@mars.goatskin.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056199563.25974.29.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 21 Jun 2003 08:32:41 -0400
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:33550 "EHLO
+	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S265176AbTFUMck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 08:32:40 -0400
+Date: Sat, 21 Jun 2003 14:46:39 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.4.21-ac1: CONFIG_SCSI_BUSLOGIC in help?
+Message-ID: <20030621124639.GA23352@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 21 Jun 2003 13:46:04 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-06-18 at 23:28, Shane Shrybman wrote:
-> Hi,
-> 
-> I posted this to linux-net and didn't get a reply so I am posting it
-> here. Please cc any replies.
+CONFIG_SCSI_BUSLOGIC mentions "If this driver does not work correctly
+without modification, please contact the author, Leonard N. Zubkoff, by
+email to lnz@dandelion.com." According to reports posted here, this fine
+guy was killed some months ago in an accident, and he isn't mentioned in
+MAINTAINERS, but in Configure.help.
 
-Cleaner is to set buf->len = ETH_ZLEN for the padto path IMHO, that
-keeps the old horrible length compute stuff dead
+Who maintains the buslogic driver today?
 
+-- 
+Matthias Andree

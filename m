@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265342AbTFFG2y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 02:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265344AbTFFG2y
+	id S265350AbTFFGc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 02:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265352AbTFFGc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 02:28:54 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:55515 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S265342AbTFFG2x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 02:28:53 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Fri, 6 Jun 2003 02:32:28 -0400
+Received: from gw.foursticks.com ([150.101.16.181]:51113 "EHLO
+	ponder.foursticks.com.au") by vger.kernel.org with ESMTP
+	id S265350AbTFFGc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 02:32:27 -0400
+Date: Fri, 6 Jun 2003 16:44:57 +0930
+From: Chee Kent Lam <cklam@foursticks.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Call for interest: linux.conf.au kernel miniconf
+Message-ID: <20030606164457.A21301@ponder.foursticks.com.au>
+Reply-To: cklam@foursticks.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16096.14281.621282.67906@napali.hpl.hp.com>
-Date: Thu, 5 Jun 2003 23:42:17 -0700
-To: manfred@colorfullife.com
-Cc: axboe@suse.de, davidm@hpl.hp.com, "David S. Miller" <davem@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: problem with blk_queue_bounce_limit()
-In-Reply-To: <1054797653.18294.1.camel@rth.ninka.net>
-References: <16094.58952.941468.221985@napali.hpl.hp.com>
-	<1054797653.18294.1.camel@rth.ninka.net>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 05 Jun 2003 00:20:53 -0700, "David S. Miller" <davem@redhat.com> said:
+Hi,
 
-  DaveM> On Wed, 2003-06-04 at 23:42, David Mosberger wrote:
-  >> On platforms with I/O MMU hardware, memory above 4GB, and IDE hard disks,
-  >> this check:
+This is a call for interest to gauge the Linux kernel community
+interest in a Kernel miniconf for the next Australian Linux 
+conference.
 
-  >> BUG_ON(dma_addr < BLK_BOUNCE_ISA);
+Linux.conf.au is the annual Australian Linux conference. The 2004
+conference will be held in Adelaide, South Australia in January. The 
+two days preceding the conference, the facilities are available to run 
+mini conferences.  People who pay to attend the main conference can
+also attend the miniconfs for no extra charge.
 
-  DaveM> Doesn't panic on sparc64, let this be your guiding light :-)
+If you are interested in presenting a paper, giving a talk or want
+more information, please email me.  There is more information about
+the conference at the conference web site http://lca2004.linux.org.au
 
-I checked with Dave in private email and, like I suspected, this is a
-(potential) problem on sparc64 as well.  Let me be try to be even more
-clear: on many 64 bit platforms, BLK_BOUNCE_ISA will be bigger than
-4GB, so the BUG_ON() will trigger for IDE controllers that can DMA
-only to, say, 4GB (and it's probably not even an IDE-only problem, I
-think we don't see it on SCSI because our machines have SCSI
-controllers that can DMA >4GB).
 
-Manfred, I'm readdressed this mail to you because according to google,
-you're the original author of the patch
-(http://www.cs.helsinki.fi/linux/linux-kernel/2002-02/0032.html).
+Thanks
+Chee Kent Lam
 
-Like I stated earlier, I think this code simply makes no sense on a
-platform with I/O MMU.  Hence my suggestion to deal with this via
-dma_supported().
-
-	--david
+-- 

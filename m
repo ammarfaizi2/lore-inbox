@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267362AbSLKXtZ>; Wed, 11 Dec 2002 18:49:25 -0500
+	id <S267368AbSLKXyK>; Wed, 11 Dec 2002 18:54:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267364AbSLKXtZ>; Wed, 11 Dec 2002 18:49:25 -0500
-Received: from mail.hometree.net ([212.34.181.120]:970 "EHLO mail.hometree.net")
-	by vger.kernel.org with ESMTP id <S267362AbSLKXtX>;
-	Wed, 11 Dec 2002 18:49:23 -0500
+	id <S267369AbSLKXyK>; Wed, 11 Dec 2002 18:54:10 -0500
+Received: from mail.hometree.net ([212.34.181.120]:6602 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S267368AbSLKXyJ>; Wed, 11 Dec 2002 18:54:09 -0500
 To: linux-kernel@vger.kernel.org
 Path: forge.intermeta.de!not-for-mail
 From: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Newsgroups: hometree.linux.kernel
 Subject: Re: Is this going to be true ?
-Date: Wed, 11 Dec 2002 23:57:10 +0000 (UTC)
+Date: Thu, 12 Dec 2002 00:01:55 +0000 (UTC)
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <at8jcm$n8u$1@forge.intermeta.de>
-References: <001801c2a0a9$02613f40$2e863841@joe> <yw1xbs3smtx0.fsf@gladiusit.e.kth.se>
+Message-ID: <at8jlj$nc6$1@forge.intermeta.de>
+References: <yw1xbs3smtx0.fsf@gladiusit.e.kth.se> <Pine.LNX.3.95.1021211111221.24200A-100000@chaos.analogic.com>
 Reply-To: hps@intermeta.de
 NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1039651030 10634 212.34.181.4 (11 Dec 2002 23:57:10 GMT)
+X-Trace: tangens.hometree.net 1039651315 10792 212.34.181.4 (12 Dec 2002 00:01:55 GMT)
 X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 11 Dec 2002 23:57:10 +0000 (UTC)
+NNTP-Posting-Date: Thu, 12 Dec 2002 00:01:55 +0000 (UTC)
 X-Copyright: (C) 1996-2002 Henning Schmiedehausen
 X-No-Archive: yes
 X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=) writes:
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
->> Competition is always good. It inpires people to do better.
+>> Why would that be good?  People would start using their programs and
+>> blame Linux when they crash.
 
->Doing better than MS isn't much of an inspiration to me.
+>Well, when the program crashes, you get to run it again under Linux
+>and Unix operating systems. Not so with Windows. With Windows, you
+>reinstall windows after first booting DOS from a floppy and using
 
-There are no similar applications like the Exchange Server or the
-BizTalk server for Linux. I'd see them port all of the server portions
-of these applications to an *ix platform (be it MacOS X, *BSD or
-Linux) in quite short time. The management GUIs and application
-development tools will stay on Windows, however.
+Grow up and stop spreading FUD. I haven't had to reinstall a Windows
+2000 server ever since it was released (not that there were many that
+I ever used. But I actually did and deployed apps on them). 95, 98 and
+ME maybe. NT4 almost never and W2K is a quite stable platform even
+under load.
 
-Basically the same thing, many other server platform vendors (Oracle,
-InterSystems Cache are the ones I spontanously remember) do. You get 1
-(one) Linux Server in the company running the server and be able to
-keep 100 (one hundred) % of the desktops on Windows. Sounds like a
-good deal for M$ to me.
+I'm amazed that the most violent Windows critique comes from people
+that claim to "never have touched a M$ operating system in their whole
+life".  But then again, same goes to the Linux critics... :-)
 
 	Regards
 		Henning

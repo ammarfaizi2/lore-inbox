@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVCZAaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVCZAgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbVCZAaW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 19:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVCZAaW
+	id S261891AbVCZAgB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 19:36:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVCZAgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 19:30:22 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:11468
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261890AbVCZAaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 19:30:16 -0500
-Date: Fri, 25 Mar 2005 16:29:26 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: nickpiggin@yahoo.com.au, hugh@veritas.com, akpm@osdl.org,
-       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
-Message-Id: <20050325162926.6d28448b.davem@davemloft.net>
-In-Reply-To: <20050325092312.4ae2bd32.davem@davemloft.net>
-References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com>
-	<4243A257.8070805@yahoo.com.au>
-	<20050325092312.4ae2bd32.davem@davemloft.net>
-X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 25 Mar 2005 19:36:00 -0500
+Received: from hera.kernel.org ([209.128.68.125]:1216 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261891AbVCZAfx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 19:35:53 -0500
+Date: Fri, 25 Mar 2005 16:58:56 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Greg Banks <gnb@melbourne.sgi.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux NFS Mailing List <nfs@lists.sourceforge.net>,
+       Linux AutoFS Mailing List <autofs@linux.kernel.org>
+Subject: Re: [PATCH 2.4] SGI 932676 link_path_walk refcount problem allows umount of active filesystem
+Message-ID: <20050325195856.GB15383@logos.cnet>
+References: <1111454677.1991.766.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111454677.1991.766.camel@hole.melbourne.sgi.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Mar 2005 09:23:12 -0800
-"David S. Miller" <davem@davemloft.net> wrote:
-
-> On Fri, 25 Mar 2005 16:32:07 +1100
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Tue, Mar 22, 2005 at 12:24:37PM +1100, Greg Banks wrote:
+> G'day,
 > 
-> > So, to make the question more concrete: if a pgd_t is freed due
-> > to freeing the single pmd_t contained within it (which was the
-> > only part of the pgd's address space that contained a valid mapping)
-> > Then do you need the full PGDIR_SIZE width passed to
-> > flush_tlb_pgtables, or just the PMD_SIZE'd start,end that covered
-> > the freed pmd_t?
+> The attached patch fixes a bug in the VFS code which causes
+> "Busy inodes after unmount" and a subsequent oops.
+
+Applied, thanks.
+
 > 
-> Just the PMD_SIZE'd start,end is necessary.
+> Greg.
+> -- 
+> Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+> I don't speak for SGI.
+> 
 
-Since sparc64 is the only user of this thing...
-
-Let's make it so that the flush can be queued up
-at pmd_clear() time, as that's what we really want.
-
-Something like:
-
-	pmd_clear(mm, vaddr, pmdp);
-
-I'll try to play with something like this later.
+> Following an absolute symlink opens a window during which the
+> filesystem containing the symlink has an outstanding dentry count
+> and no outstanding vfsmount count.  A umount() of the filesystem can
+> (incorrectly) proceed, resulting in the "Busy inodes after unmount"
+> message and an oops shortly thereafter.
+> 
+> Systems using autofs-controlled NFS mounts are especially vulnerable,
+> as autofs both increases the number of unmounts happening and does NFS
+> mounting in response to lookups which can result in multiple-second
+> vulnerability windows.  However the bug could happen on any filesystem.
+> 
+> This patch adds a mntget()/mntput() pair around the link following code
+> (as the 2.6 code does).  Attempts to umount() during link following
+> now return EBUSY.
+> 
+> 
+> Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>

@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262789AbTHWGMe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 02:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTHWGMd
+	id S263310AbTHWGG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 02:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbTHWGG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 02:12:33 -0400
-Received: from smtp7.hy.skanova.net ([195.67.199.140]:25287 "EHLO
-	smtp7.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S262789AbTHWGMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 02:12:31 -0400
-To: Eugene Teo <eugene.teo@eugeneteo.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Random hangs in 2.6.0-test3-mm3
-References: <20030821045444.GA465@eugeneteo.net>
-From: Peter Osterlund <petero2@telia.com>
-Date: 23 Aug 2003 08:12:12 +0200
-In-Reply-To: <20030821045444.GA465@eugeneteo.net>
-Message-ID: <m2r83cykar.fsf@p4.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 23 Aug 2003 02:06:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1422 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263310AbTHWGGw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 02:06:52 -0400
+Date: Fri, 22 Aug 2003 23:05:09 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, jffs-dev@axis.com
+Subject: [PATCH] eliminate type warnings in jffs
+Message-Id: <20030822230509.053c2985.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eugene Teo <eugene.teo@eugeneteo.net> writes:
 
-> I am back. This time, I built a new box. It's an
-> AMD XP 2400+ on ASUS A7N8X. I tried the same 2.6.0
-> configuration as my Fujitsu E-7010 laptop, and again,
-> I experienced random hangs. I have done memtest86
-> on both, and there are no errors. I am very sure that
-> my new box is working fine, same goes to my laptop.
-> This time, I am unable to get any debugging messages,
-> but will do so the next time I experience the same
-> problem again.
-...
-> CONFIG_INPUT_MOUSE=y
-> CONFIG_MOUSE_PS2=y
-> CONFIG_MOUSE_PS2_SYNAPTICS=y
 
-Note that early versions of the XFree86 synaptics driver had a bug
-that could make the X server lock up. I'm not sure if this has
-anything to do with your problem, but I have seen at least one lockup
-report on the list that turned out to be caused by this bug.
+patch_name:	jffs_fntypes.patch
+patch_version:	2003-08-22.22:57:20
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	eliminate warning: initialization from incompatible
+		pointer type (2 times)
+product:	Linux
+product_versions: 260-test4
+maintainer:	jffs-dev@axis.com
+diffstat:	=
+ fs/jffs/inode-v23.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-The bug was fixed in version 0.11.3p5.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+diff -Naur ./fs/jffs/inode-v23.c~fntypes ./fs/jffs/inode-v23.c
+--- ./fs/jffs/inode-v23.c~fntypes	Fri Aug 22 16:57:08 2003
++++ ./fs/jffs/inode-v23.c	Fri Aug 22 22:43:45 2003
+@@ -1530,7 +1530,7 @@
+ 	return err;
+ } /* jffs_file_write()  */
+ 
+-static ssize_t
++static int
+ jffs_prepare_write(struct file *filp, struct page *page,
+                   unsigned from, unsigned to)
+ {
+@@ -1543,7 +1543,7 @@
+ 	return 0;
+ } /* jffs_prepare_write() */
+ 
+-static ssize_t
++static int
+ jffs_commit_write(struct file *filp, struct page *page,
+                  unsigned from, unsigned to)
+ {
+
+
+--
+~Randy

@@ -1,31 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130284AbRBVKAB>; Thu, 22 Feb 2001 05:00:01 -0500
+	id <S130510AbRBVKL4>; Thu, 22 Feb 2001 05:11:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130296AbRBVJ7w>; Thu, 22 Feb 2001 04:59:52 -0500
-Received: from alpham.uni-mb.si ([164.8.1.101]:48655 "EHLO alpham.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S130284AbRBVJ70>;
-	Thu, 22 Feb 2001 04:59:26 -0500
-Date: Thu, 22 Feb 2001 10:58:21 +0100
-From: Igor Mozetic <igor.mozetic@uni-mb.si>
-Subject: 3c59x in 2.4.{0,1,2}
-To: linux-kernel@vger.kernel.org
-Cc: andrewm@uow.edu.au
-Message-id: <14996.58045.843929.411743@ravan.camtp.uni-mb.si>
-MIME-version: 1.0
-X-Mailer: VM 6.90 under Emacs 20.7.2
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	id <S130673AbRBVKLq>; Thu, 22 Feb 2001 05:11:46 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21776 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130510AbRBVKLh>; Thu, 22 Feb 2001 05:11:37 -0500
+Subject: Re: Very high bandwith packet based interface and performance problems
+To: nyet@curtis.curtisfong.org (Nye Liu)
+Date: Thu, 22 Feb 2001 10:14:19 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010221172431.A10657@curtis.curtisfong.org> from "Nye Liu" at Feb 21, 2001 05:24:31 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14VslR-0003ow-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is probably just some miscoordination between the kernel
-mainteiners, but anyway. The 3c59x driver shipped with all 
-official 2.4.x kernels lacks the 'medialock' feature.
-The result on 3c900 10M/combo cards can be unpleasant:
-kernel log fills up quickly and only reboot helps.
-However, Andrew's unofficial drivers at
-http://www.uow.edu.au/~andrewm/linux/ work fine so this is 
-just a plea to include them into the official kernel.
+> and the transmitter is unrestricted, what happens?
+> Does it have to do with TCP_FORMAL_WINDOW (eg. automatically reduce window
+> size to zero when queue backs up?)
 
--Igor Mozetic
+Read RFC1122. Basically your guess is right. The sender sends data, and gets
+back acks saying 'window 0'. It will then do exponential backoffs while
+polling the 0 window as it backs off (ack being unreliable)
+
+

@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265859AbRFYDU7>; Sun, 24 Jun 2001 23:20:59 -0400
+	id <S265860AbRFYDW3>; Sun, 24 Jun 2001 23:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265860AbRFYDUt>; Sun, 24 Jun 2001 23:20:49 -0400
-Received: from mx1.sac.fedex.com ([199.81.208.10]:23047 "EHLO
-	mx1.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S265859AbRFYDUj>; Sun, 24 Jun 2001 23:20:39 -0400
-Date: Mon, 25 Jun 2001 11:21:44 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Marty Leisner <leisner@rochester.rr.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: mounting a fs in two places at once?
-In-Reply-To: <200106250212.WAA05336@soyata.home>
-Message-ID: <Pine.LNX.4.33.0106251121260.1325-100000@boston.corp.fedex.com>
+	id <S265861AbRFYDWJ>; Sun, 24 Jun 2001 23:22:09 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8009 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S265860AbRFYDWG>; Sun, 24 Jun 2001 23:22:06 -0400
+To: landley@webofficenow.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Microsoft and Xenix.
+In-Reply-To: <E15DZbq-0008D8-00@roo.home>
+	<01062310075401.00696@localhost.localdomain>
+	<m1ofrebnkx.fsf@frodo.biederman.org>
+	<01062406364601.01519@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 24 Jun 2001 21:17:29 -0600
+In-Reply-To: <01062406364601.01519@localhost.localdomain>
+Message-ID: <m1ithlb646.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Jun 2001, Marty Leisner wrote:
+Rob Landley <landley@webofficenow.com> writes:
 
-> Is this a feature or a bug?
->
-> This is with 2.4.2...
->
+> On Saturday 23 June 2001 22:47, Eric W. Biederman wrote:
+> > Rob Landley <landley@webofficenow.com> writes:
+> > > Ummm...  GEM was the Geos stuff?  (Yeah I remember it, I haven't
+> > > researched it yet though...)
+> >
+> > GEM was a gui from Digital Research I believe.
+> > Geoworks/Geos was a seperate entity.
+> 
+> Ah, the DR-DOS answer to dosshell/windows.  Cool.  (I used Dr. Dos byt never 
+> tried its gui.)
 
-feature.
+Actually I believe GEM predates DR-DOS, and except for being
+made by the same company I don't think they were ever related.
 
-Jeff
-
+Eric

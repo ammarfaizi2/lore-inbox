@@ -1,96 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265114AbUASOJA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 09:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUASOJA
+	id S265126AbUASOKT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 09:10:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbUASOKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 09:09:00 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:3253 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S265114AbUASOI4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 09:08:56 -0500
-Subject: Re: i2c_adapter i2c-0: Bus collision!
-From: Stian Jordet <liste@jordet.nu>
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-In-Reply-To: <20040117094856.2f8b44c8.khali@linux-fr.org>
-References: <1073527236.624.7.camel@buick> <1073707567.621.5.camel@buick>
-	 <1074304828.780.2.camel@chevrolet.hybel>
-	 <20040117094856.2f8b44c8.khali@linux-fr.org>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1074521306.1807.2.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 19 Jan 2004 15:08:26 +0100
-Content-Transfer-Encoding: 8bit
+	Mon, 19 Jan 2004 09:10:19 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:55429 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265126AbUASOKE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 09:10:04 -0500
+Date: Mon, 19 Jan 2004 09:11:46 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: timing code in 2.6.1
+In-Reply-To: <20040116153122.2c4adffe.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0401190849230.6524@chaos>
+References: <Pine.LNX.4.53.0401161150390.28039@chaos> <20040116153122.2c4adffe.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lør, 17.01.2004 kl. 09.48 skrev Jean Delvare:
-> > sorry to bother you again, but this didn't tell you anything about
-> > what's going on?
-> 
-> Sorry for the delay. Too much work, not enough time. You know the story
-> I guess.
+On Fri, 16 Jan 2004, Andrew Morton wrote:
 
-I do. Sorry for buggin' you again, I just figured you had forgot me when
-you answered other mails on LKML.
+> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+> >
+> >
+> > Some drivers are being re-written for 2.6++. The following
+> > construct seems to work for "waiting for an event" in
+> > the kernel modules.
+> >
+> >         // No locks are being held
+> >         tim = jiffies + EVENT_TIMEOUT;
+> >         while(!event() && time_before(jiffies, tim))
+> >             schedule_timeout(0);
+> >
+> > Is there anything wrong?
+>
+> This is not a good thing to be doing.  You should add this task to a
+> waitqueue and then sleep.  Make the code which causes event() to come true
+> deliver a wake_up to that waitqueue.  There are many examples of this in
+> the kernel.
+>
 
-> > > I forgot to mention it in my last mail, but I sometime has to
-> > > reload the modules before "sensors" finds any sensor.
-> 
-> As we load sensor chip drivers, we make sure that the chip we want to
-> handle is what we think it is. Technically, this means reading from a
-> few registers and compare the values with what we would expect for this
-> chip. So the same read errors that make your hardware monitoring values
-> jump make the chip identification fail sometimes.
+Huh? The code that causes "event()" needs to get the CPU occasionally
+to check for the event. The hardware doesn't produce an interrupt
+upon that event.
 
-I see.
+> If the hardware only supports polling then gee, you'd be best off spinning
+> for a few microseconds then fall into a schedule_timeout(1) polling loop.
+> Or something like that.  Or make the hardware designer write the damn
+> driver.
 
-> > > Attached three runs. Seems to be some read errors :( On these three
-> > > runs I got first three bus-collisions, then one, and last two.
-> 
-> Not all read errors are detected as bus collisions. Anyway, you got
-> loads of 'XX' as I expected, "moving" from run to run, which means that
-> your i2c bus is unreliable.
-> 
-> My conclusion would be: bad hardware design generates noise on the i2c
-> bus, resulting in read errors.
+The poll will almost never be true when first called. Spinning and
+wasting CPU cycles that can be used by another task isn't a good
+idea.
 
-I don't doubt that.
+The hardware designer has designed the hardware according to
+the requirements dictated by a government agency (the FDA).
+There was no requirement to make interface code simple. The
+interface code must check for multiple failure modes during
+every specific operation. Both the hardware and software
+check for these modes so that no single failure can cause
+injury to a patient. This is SOP for medical equipment.
 
-> > > > Did you have to enable any particular option in MBM?
-> > > 
-> > > Nah, it just worked :)
-> 
-> I asked Alex van Kaam (MBM's brilliant author) about his strategy with
-> bus collisions. To make it short, he explained he resets the bus on
-> problems. If you confirm that the smbus MBM detected was Via, Alex will
-> send me his code so that I can compare with ours, just in case. But I
-> doubt it'll change anything (our driver is working, it's just a matter
-> of how errors are - or aren't - handled).
+In the specific case, we operate a patient table. The operator
+presses an UP and DOWN button. These will produce interrupts.
 
-Yes, it's a Via Apollo Pro 133A.
+When an UP button is hit, thousands of interrupts are generated.
+This is because it is a mechanical operation. The same is true
+for the DOWN button. These events are filtered to determine
+the true intervals for "UP", "NOTHING", and "DOWN". When the
+"UP" button is pressed, the CPU servos position information
+from another driver and motor speed to to move the table to
+the commanded position. If the button is pressed for a short
+period of time, the table moves slowly. If it is pressed for
+a longer period, it moves quickly. It must accellerate according
+to a schedule and decellerate according to a schedule so that
+patients that weigh 350 lbs and patients that weigh 45 lbs are
+accellerated and decellerated at the same rate.
 
-> Basically we don't handle read errors at all (because it is so rare).
-> Handling them correctly would make all chip drivers (and possibly i2c
-> core and bus drivers as well) more complex. I'm not sure it's worth it.
-> 
-> That said, a similar problem was reported with W83L785TS-S chips (A7N8X
-> motherboards). I think that the cause is different (BIOS trying to
-> access the bus at the same time we do) but the consequences are the
-> same. I plan to add basic error handling to this specific chip driver
-> (don't know when I'll find the time to do so though). If it works and
-> could be extended to other drivers as well, we'll consider it.
-> 
-> > > I guess this is unsolvable, but I just wanted to hear what you say.
-> > > Kinda weird it works so well with MBM, but that's ok. It's just for
-> > > fun I want it to work.
-> 
-> I think it is work-around-able, but doubt it's worth it. Anyway, thanks
-> for reporting, as it increased our knowledge of the topic.
+When the table is being moved, 12 different parameters are
+monitored. At least two parameters are actually calculated
+and filtered to predict where the patient will be if the
+button is released.
 
-Thanks for your help :)
+So, this cannot be dismissed as "get the hardware designer
+to write the same driver..."
 
-Best regards,
-Stian
+Writing software often requires knowing about the whole sustem.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

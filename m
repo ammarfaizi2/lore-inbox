@@ -1,62 +1,86 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315552AbSECFDk>; Fri, 3 May 2002 01:03:40 -0400
+	id <S315555AbSECFPR>; Fri, 3 May 2002 01:15:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315554AbSECFDj>; Fri, 3 May 2002 01:03:39 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:52671 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S315552AbSECFDi>;
-	Fri, 3 May 2002 01:03:38 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
-In-Reply-To: Your message of "Thu, 02 May 2002 21:17:43 MST."
-             <Pine.LNX.4.33L2.0205022102570.11832-100000@dragon.pdx.osdl.net> 
+	id <S315556AbSECFPQ>; Fri, 3 May 2002 01:15:16 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:50970 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S315555AbSECFPP>; Fri, 3 May 2002 01:15:15 -0400
+Date: Fri, 3 May 2002 07:15:54 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <20020503071554.P11414@dualathlon.random>
+In-Reply-To: <20020502180632.I11414@dualathlon.random> <143790000.1020367912@flay> <20020502205741.O11414@dualathlon.random> <E173LwB-00027n-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 03 May 2002 15:02:29 +1000
-Message-ID: <7691.1020402149@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 May 2002 21:17:43 -0700 (PDT), 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->I kinda like to do 'make bzImage' without making modules also.
->Would that be difficult to do in kbuild 2.5?
->Oh, but then I would also (still) need 'make modules'...
+On Thu, May 02, 2002 at 09:08:18PM +0200, Daniel Phillips wrote:
+> On Thursday 02 May 2002 20:57, Andrea Arcangeli wrote:
+> > On Thu, May 02, 2002 at 12:31:52PM -0700, Martin J. Bligh wrote:
+> > > between physical to virtual memory to a non 1-1 mapping.
+> > 
+> > correct. The direct mapping is nothing magic, it's like a big static
+> > kmap area.  Everybody is required to use
+> > virt_to_page/page_address/pci_map_single/... to switch between virtual
+> > address and mem_map anyways (thanks to the discontigous mem_map), so you
+> > can use this property by making discontigous the virtual space as well,
+> > not only the mem_map.  discontigmem basically just allows that.
+> 
+> And what if you don't have enough virtual space to fit all the memory you
 
-Sample testing targets, to see if you made any typing errors.
+ZONE_NORMAL is by definition limited by the direct mapping size, so if
+you don't have enough virtual space you cannot enlarge the zone_normal
+anyways. If need more virtual space you can only do  things like
+CONFIG_2G.
 
-  make vmlinux
-  make arch/i386/boot/bzImage
-  make drivers/acpi (non-recursive)
-  make drivers/acpi-r (recursive)
+> need, plus the holes?  Config_nonlinear handles that, config_discontig
+> doesn't.
+> 
+> > > No, you don't need to call changing that mapping "CONFIG_NONLINEAR",
+> > > but that's basically what the bulk of Dan's patch does, so I think we should 
+> > > steal it with impunity ;-) 
+> > 
+> > The difference is that if you use discontigmem you don't clobber the
+> > common code in any way,
+> 
+> First that's wrong.  Look at _alloc_pages and tell me that config_discontig
+> doesn't impact the common code (in fact, it adds two extra subroutine
+> calls, including two loops, to every alloc_pages call).
 
-Do it with NO_MAKEFILE_GEN=1 for much, much! faster builds.  But you
-should really do a clean make installable (which will do modules as
-well) before make install.
+there are no two subroutines, check -aa. And the whole point is that we
+need a topology description of the machine for numa, nonlinear or not,
+what you're talking about is the whole numa concept in 2.4, it is all
+but superflous, while nonlinear implications in common code are
+superflous just to provide ZONE_NORMAL in more than one node in numa-q.
 
->Any ideas about this error?  user error??
->
->$ make oldconfig menuconfig
->
->... and then
->
->[rddunlap@midway linux-2513-pv]$ make -f Makefile-2.5
->spec value %p not found
->Using ARCH='i386' AS='as' LD='ld' CC='/usr/bin/gcc' CPP='/usr/bin/gcc
->-E' AR='ar' HOSTAS='as' HOSTLD='gcc' HOSTCC='gcc' HOSTAR='ar'
->Generating global Makefile
->  phase 1 (find all inputs)
->Error: The CML input files have changed since .config was created.
->       Always make one of xconfig menuconfig oldconfig defconfig
->config randconfig allyes allno allmod after changing CML files
->make: *** [/usr/linsrc/linux-2513-pv/.config] Error 1
+> 
+> Secondly, config_nonlinear does not clobber the common code.  If it does,
+> please show me where.
+> 
+> When config_nonlinear is not enabled, suitable stubs are provided to make it
+> transparent.
 
-You mixed the old kbuild 2.4 make *config with a kbuild 2.5 build.
-Don't do that.
+it's the stubs that are visible to the common code and that are
+superflous.
 
-One of the downsides of coexistence, users can get it wrong.
+> > Actually the same mmu technique can be used to coalesce in virtual
+> > memory the discontigous chunks of iSeries, then you left the lookup in
+> > the tree to resolve from mem_map to the right virtual address and from
+> > the right virtual address back to mem_map. (and you left DISCONTIGMEM
+> > disabled) I think it should be possible.
+> 
+> So you're proposing a new patch?  Have you chosen a name for it?  How
+> about 'config_nonlinear'? ;-)
 
-make -f Makefile-2.5 menuconfig installable
+They're called CONFIG_MULTIQUAD and CONFIG_MSCHUNKS.
 
+Andrea

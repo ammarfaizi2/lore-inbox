@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262984AbUKTPnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262999AbUKTP4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262984AbUKTPnu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 10:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbUKTPnu
+	id S262999AbUKTP4g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 10:56:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263013AbUKTP4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 10:43:50 -0500
-Received: from ozlabs.org ([203.10.76.45]:50838 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262984AbUKTPns (ORCPT
+	Sat, 20 Nov 2004 10:56:36 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:42742 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262999AbUKTP4d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 10:43:48 -0500
-Date: Sun, 21 Nov 2004 02:38:49 +1100
-From: Anton Blanchard <anton@samba.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: David Gibson <david@gibson.dropbear.id.au>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, Adam Litke <agl@us.ibm.com>,
-       Andy Whitworth <apw@shadowen.org>
-Subject: Re: [RFC] Consolidate lots of hugepage code
-Message-ID: <20041120153849.GB11932@krispykreme.ozlabs.ibm.com>
-References: <20041029033708.GF12247@zax> <20041029034817.GY12934@holomorphy.com> <20041107172030.GA16976@krispykreme.ozlabs.ibm.com> <20041107192024.GM2890@holomorphy.com> <20041107193007.GC16976@krispykreme.ozlabs.ibm.com> <20041107210943.GN2890@holomorphy.com> <20041107212212.GD16976@krispykreme.ozlabs.ibm.com> <20041107224948.GO2890@holomorphy.com>
+	Sat, 20 Nov 2004 10:56:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=NfvE3E5NGQYt2J8V+vVTFrAsTZkrFaebmUnDqULB9tvfo9S2mbm9uE0yiFm/MKq6TqB9/GoYU0tphwxJ88MCbK9ckFf8Q9MaKlUN0irSsYsomLqk8H+yWJhOYTD9jTt3C02wJhLyUvhogm0t5TAMMwIRGMktXGZqLdZeenFVu/k=
+Message-ID: <876ef97a04112007562d6797e@mail.gmail.com>
+Date: Sat, 20 Nov 2004 10:56:32 -0500
+From: Tobias DiPasquale <codeslinger@gmail.com>
+Reply-To: Tobias DiPasquale <codeslinger@gmail.com>
+To: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: [PATCH] add list_del_head function
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041107224948.GO2890@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_911_27268275.1100966192953"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi wli,
+------=_Part_911_27268275.1100966192953
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Any progress on this? If not Id like to suggest we get Davids patch into
--mm.
+Hi all,
 
-Anton
+I was working with some queues the other day and I noticed that there
+was a list_add_tail() function in list.h, but no list_del_head()
+function. This struck me as a little odd, so I went ahead and
+implemented one in order to complete full queue functionality. The
+patch below was generated against pristine 2.6.9 kernel.org kernel
+sources and is attached to this email.
 
-> Sorry, I don't get complete bugreports myself. If you care to try to
-> actually fix something (it's doubtful you yourself are the culprit) I'm
-> still trying to reproduce it myself with long-running database tests.
-> It's reliably reproducible on the reporters' machines.
-> 
-> The particular bug is only one piece of evidence. Just asking basic
-> questions about what was done for architecture code reveals that
-> all this "development" is not paying proper attention to architecture
-> code. I merely insist that development toward the end of stabilization
-> occur prior to that for large feature work.
-> 
-> And frankly, I'm rather unimpressed with the gravity of the proposed
-> featurework, particularly in comparison to the stability requirements
-> of users on typical production systems.
-> 
-> Nor am I impressed with the quality. The patch presentations have been
-> messy, the audits (as mentioned above) incomplete, the benefits not
-> clearly demonstrated, and the code itself not so pretty. Just
-> respinning the patches so they're properly incremental and the code
-> somewhat cleaner (e.g. some recent one nested tabs 5 deep or so)
-> would already remedy a large number of the issues with the featurework.
-> Once arranged that way the audits' incompleteness can be dealt with by
-> those with the fortitude to thoroughly audit and/or prior architecture
-> knowledge to correct the patches for arches they don't deal with properly.
-> 
-> 
-> -- wli
+Please CC me on any replies, as I'm not subscribed to LKML. Thanks :)
+
+Name: Add list_del_head for full queue functionality
+Status: Tested
+Signed-off-by: Tobias DiPasquale <codeslinger@gmail.com>
+
+-- 
+[ Tobias DiPasquale ]
+0x636f6465736c696e67657240676d61696c2e636f6d
+
+------=_Part_911_27268275.1100966192953
+Content-Type: application/octet-stream; name="list_del_head.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="list_del_head.patch"
+
+ZGlmZiAtTnJ1cCBsaW51eC0yLjYuOS9pbmNsdWRlL2xpbnV4L2xpc3QuaCBsaW51eC9pbmNsdWRl
+L2xpbnV4L2xpc3QuaAotLS0gbGludXgtMi42LjkvaW5jbHVkZS9saW51eC9saXN0LmgJMjAwNC0x
+MC0xOCAyMTo1NDozMS4wMDAwMDAwMDAgKzAwMDAKKysrIGxpbnV4L2luY2x1ZGUvbGludXgvbGlz
+dC5oCTIwMDQtMTEtMjAgMTg6NTU6MTIuMzczNjU0MDQ4ICswMDAwCkBAIC0xNjYsNiArMTY2LDIx
+IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBsaXN0X2RlbChzdHJ1Y3QgbGlzdF8KIH0KIAogLyoqCisg
+KiBsaXN0X2RlbF9oZWFkIC0gZGVsZXRlcyBmaXJzdCBlbnRyeSBmcm9tIGxpc3QuCisgKiBAZW50
+cnk6IHJldHVybiBwYXJhbWV0ZXI7IHdpbGwgY29udGFpbiBmb3JtZXIgaGVhZCBvZiBsaXN0IG9u
+IHJldHVybi4KKyAqIEBoZWFkOiBoZWFkIG9mIGxpc3QgZnJvbSB3aGljaCB0byBkZWxldGUuCisg
+KgorICogVGhpcyBmdW5jdGlvbiBpcyB1c2VmdWwgZm9yIGltcGxlbWVudGluZyBxdWV1ZXMuIENh
+bGxlciBtdXN0IGVuc3VyZQorICogdGhlIGxpc3QgaXMgbm90IGVtcHR5IGJlZm9yZSBjYWxsaW5n
+IHRoaXMgZnVuY3Rpb24uIE9uIHJldHVybiwgZW50cnkKKyAqIHdpbGwgcG9pbnQgdG8gdGhlIGZv
+cm1lciBoZWFkIG9mIHRoZSBsaXN0LgorICovCitzdGF0aWMgaW5saW5lIHZvaWQgbGlzdF9kZWxf
+aGVhZChzdHJ1Y3QgbGlzdF9oZWFkICoqZW50cnksIHN0cnVjdCBsaXN0X2hlYWQgKmhlYWQpCit7
+CisJKmVudHJ5ID0gaGVhZC0+bmV4dDsKKwlsaXN0X2RlbChoZWFkLT5uZXh0KTsKK30KKworLyoq
+CiAgKiBsaXN0X2RlbF9yY3UgLSBkZWxldGVzIGVudHJ5IGZyb20gbGlzdCB3aXRob3V0IHJlLWlu
+aXRpYWxpemF0aW9uCiAgKiBAZW50cnk6IHRoZSBlbGVtZW50IHRvIGRlbGV0ZSBmcm9tIHRoZSBs
+aXN0LgogICoK
+------=_Part_911_27268275.1100966192953--

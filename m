@@ -1,76 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTJJU7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 16:59:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTJJU7Z
+	id S262739AbTJJVJe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 17:09:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263081AbTJJVJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 16:59:25 -0400
-Received: from [217.172.69.25] ([217.172.69.25]:13972 "EHLO falafell.ghetto")
-	by vger.kernel.org with ESMTP id S262610AbTJJU7X (ORCPT
+	Fri, 10 Oct 2003 17:09:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32722 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262739AbTJJVJd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 16:59:23 -0400
-Date: Fri, 10 Oct 2003 22:59:05 +0200
-To: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts
-Message-ID: <20031010205905.GA1601@81.38.200.176>
-Reply-To: piotr@member.fsf.org
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009115809.GE8370@vega.digitel2002.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031009115809.GE8370@vega.digitel2002.hu>
-User-Agent: Mutt/1.5.4i
-From: Pedro Larroy <piotr@member.fsf.org>
+	Fri, 10 Oct 2003 17:09:33 -0400
+Date: Fri, 10 Oct 2003 14:09:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Joel Becker <Joel.Becker@oracle.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: statfs() / statvfs() syscall ballsup...
+In-Reply-To: <16263.6450.819475.453165@charged.uio.no>
+Message-ID: <Pine.LNX.4.44.0310101402370.25501-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 09, 2003 at 01:58:09PM +0200, Gábor Lénárt wrote:
-> On Thu, Oct 09, 2003 at 10:08:00AM +0200, Frederick, Fabian wrote:
-> > Hi,
-> > 	Some thoughts for 2.7.Someone has other ideas, comments ?
-> [...] 	
-> > *	All this guides me to a more global conclusion in which all that
-> > stuff should be kobject registration relevant 
-> > *	Meanwhile, we don't have a kobject <-> security bridge :( 
+
+On Fri, 10 Oct 2003, Trond Myklebust wrote:
 > 
-> well, maybe stupid ideas, but they're which supported on other unix like
-> system(s) or it would be very nice according to my experiences:
-> 
-> * bind mount support for all general mount options (nodev,ro,noexec etc)
->   with SECURE implementation with any (maybe even future) filesystems?
-> * union mount (possible with option to declare on what fs a new file
->   should be created: on fixed ones, random algorithm, on fs with the
->   largest free space available etc ...)
-> * guaranteed i/o bandwidth allocation?
-> * netfilter's ability to do tricks which OpenBSD can do now with its
->   packet filter
+> In fact, I recently noticed that we still have this race in the NFS
+> file locking code: readahead may have been scheduled before we
+> actually set the file lock on the server, and may thus fill the page
+> cache with stale data.
 
-Can you describe those please?
+The current "invalidate_inode_pages()" is _not_ equivalent to a specific
+user saying "these pages are bad and have to be updated".
 
-> * ENBD support in official kernel with enterprise-class 'through the
->   network' volume management
-> * more and more tunable kernel parameters to be able to have some user
->   space program which can 'tune' the system for the current load,usage,etc
->   of the server ("selftune")
-> * more configuration options to be able to use Linux at the low end as well
->   (current kernels are too complex, too huge and sometimes contains too
->   many unwanted features for a simple system, though for most times it is
->   enough but can be even better)
+The main difference is that invalidate_inode_pages() really cannot assume
+that the pages are bad: the pages may be mapped into another process that 
+is actively writing to them, so the regular "invalidate_inode_pages()" 
+literally must not force a re-read - that would throw out real 
+information.
 
-Maybe hardware detection -> automatic kernel configuration maker
+So "invalidate_inode_pages()" really is a hint, not a forced eviction.
 
+A forced eviction can be done only by a user that says "I have write
+permission to this file, and I will now say that these pages _have_ to be
+thrown away, whether dirty or not".
 
-> * maybe some 'official in the kernel' general framework to implement
->   virtual machines without the need to load third party kernel modeles
->   from vmware, plex86 etc ...
-> 
+And that's totally different, and will require a totally different 
+approach.
 
+(As to the read-ahead issue: there's nothing saying that you can't wait
+for the pages if they aren't up-to-date, and really synchronize with
+read-ahead. But that will require filesystem help, if only to be able to
+recognize that there is active IO going on. So NFS would have to keep 
+track of a "read list" the same way it does for writeback pages).
 
-Regards.
--- 
-  Pedro Larroy Tovar  |  piotr%member.fsf.org 
+		Linus
 
-Software patents are a threat to innovation in Europe please check: 
-	http://www.eurolinux.org/     

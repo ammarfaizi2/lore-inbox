@@ -1,88 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbULOCtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbULOC72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbULOCtv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 21:49:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbULOCtv
+	id S261824AbULOC72 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 21:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbULOC72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 21:49:51 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:41907 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S261823AbULOCtr
+	Tue, 14 Dec 2004 21:59:28 -0500
+Received: from out010pub.verizon.net ([206.46.170.133]:54665 "EHLO
+	out010.verizon.net") by vger.kernel.org with ESMTP id S261824AbULOC7Y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 21:49:47 -0500
+	Tue, 14 Dec 2004 21:59:24 -0500
 From: Gene Heskett <gene.heskett@verizon.net>
 Reply-To: gene.heskett@verizon.net
 Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org, linux-os@analogic.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-Date: Tue, 14 Dec 2004 21:49:45 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: USB making time drift [was Re: dynamic-hz]
+Date: Tue, 14 Dec 2004 21:59:23 -0500
 User-Agent: KMail/1.7
-Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark Johnson <Mark_H_Johnson@raytheon.com>,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       George Anzinger <george@mvista.com>,
-       Paul Davis <paul@linuxaudiosystems.com>
-References: <20041124101626.GA31788@elte.hu> <1103064432.14699.69.camel@krustophenia.net> <Pine.LNX.4.61.0412141805240.20391@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0412141805240.20391@chaos.analogic.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>
+References: <20041213002751.GP16322@dualathlon.random> <20041214220239.GA19221@elf.ucw.cz> <20041214231649.GR16322@dualathlon.random>
+In-Reply-To: <20041214231649.GR16322@dualathlon.random>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200412142149.46092.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.42.94] at Tue, 14 Dec 2004 20:49:46 -0600
+Message-Id: <200412142159.23488.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.42.94] at Tue, 14 Dec 2004 20:59:23 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 December 2004 18:18, linux-os wrote:
->On Tue, 14 Dec 2004, Lee Revell wrote:
-
->>> <clueless question> roughly what latency/accuracy requirements
->> Lee
+On Tuesday 14 December 2004 18:16, Andrea Arcangeli wrote:
+>On Tue, Dec 14, 2004 at 11:02:39PM +0100, Pavel Machek wrote:
+>> How much drift do you see?
 >
->When I use Cakewalk Home-Studio to record Music from my MIDI piano,
->I notice that the clock-resolution shown is several orders of
->magnitude better than anything a PC can generate! I haven't got
->a clue where this information comes from. It is in seconds, starting
->at 1 (not zero, don't know why) and has resolution of microseconds
->with no missing codes. This is on a M$ PC.
->
->This generates a highly-accurate "time ruler". One can back-up
->through this time and resolve samples that appear synchronous
->but can be displaced in time with apparent resolution much
->better than the 38,400 baud-rate of MIDI. I don't know how
->they do it, but this is the MIDI "sample-clock". It has to
->be virtual because there isn't any hardware on a PC that can
->duplicate it.
+>huge drift, minutes per hour or similar.
 
-Midi's baud rate isn't 38,400, its 31,250.  Check your
-references.  It should be in any keyboards manual.
+Which way?  I was running quite fast here, several minutes an
+hour, then I discovered the tickadj command, found its default
+was 10000, and started reducing it.  At 9926, I'm staying within
+a sec an hour now.  I have no idea when this started, I didn't
+discover it till I had already been running Ingo's realtime
+patches for a while, then checked with a stock 2.6.9 and found it
+was doing it then.
 
->It is likely that they use a software PLL with some periodic
->updates from a timer-tick, but it sure looks impressive to
->see "real-time" with such resolution on a PC.
-
-Well, it is pretty slow for a non multiuser os equipt with todays
-hardware.
-
->I'm pretty sure that if Cakewalk decided to port Home Studio
->to Linux, they would be able to do it with no technical hurdles.
->Its just that, for Music, most use Apple and cheapskates like
->me use PCs running M$.
->
->Cheers,
->Dick Johnson
->Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
->  Notice : All mail here is now cached for review by John Ashcroft.
-
-I don't want to bring politics into this group it has no place
-here.  None, nada.   But, since you mentioned it, screw Ashcroft
-and the camel that ride in on him.  He has done more to bring true
-democracy to its knees in 4 years than all others before him in
-our 230 years.
+[...]
 
 -- 
 Cheers, Gene

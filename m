@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266097AbRGLMWq>; Thu, 12 Jul 2001 08:22:46 -0400
+	id <S266118AbRGLMpC>; Thu, 12 Jul 2001 08:45:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266103AbRGLMWg>; Thu, 12 Jul 2001 08:22:36 -0400
-Received: from oe24.law3.hotmail.com ([209.185.240.17]:50951 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S266097AbRGLMWW>;
-	Thu, 12 Jul 2001 08:22:22 -0400
-X-Originating-IP: [4.16.58.17]
-Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
-From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
-To: <jatin.shah@yale.edu>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <F123WsJ4X0q1y9v2N3t00013f69@hotmail.com>
-Subject: Re: Resource busy
-Date: Thu, 12 Jul 2001 07:26:18 -0500
+	id <S266123AbRGLMow>; Thu, 12 Jul 2001 08:44:52 -0400
+Received: from [62.58.73.254] ([62.58.73.254]:9466 "EHLO
+	ats-core-0.atos-group.nl") by vger.kernel.org with ESMTP
+	id <S266118AbRGLMor>; Thu, 12 Jul 2001 08:44:47 -0400
+Date: Thu, 12 Jul 2001 14:44:36 +0200 (MEST)
+From: <ryan.sweet@atosorigin.com>
+X-X-Sender: <rsweet@ats-dhcp-01.atos-group.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: apic, and spontaneous reboots with smp diskless clients on 2.4.x
+Message-ID: <Pine.LNX.4.33.0107121355180.1047-100000@ats-dhcp-01.atos-group.nl>
 MIME-Version: 1.0
-Content-Type: text/plain;	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Message-ID: <OE248oNEGlPN7L7peSs000032a5@hotmail.com>
-X-OriginalArrivalTime: 12 Jul 2001 12:22:19.0544 (UTC) FILETIME=[4B90D180:01C10ACD]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What does ps aux show?  Is there still a process that has the camera?  Can
-you kill -9 <pid> to get rid of that process, and does the camera then
-unlock?
 
------ Original Message -----
-From: "Jatin Shah" <jatin_shah100@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, July 11, 2001 10:57 PM
-Subject: Resource busy
+I have a cluster of diskless clients with the following spec:
+
+ASUS CUR_DLS FC-PGA Motherboard with dual 1Ghz PIII /768MB Registered
+SDRAM, on board eepro100.
+
+They boot nfsroot from a PIII 1Ghz running 2.4.6-xfs with nfsv3.  The
+diskless client root is on an ext2 filesystem.  The master is stable.
+
+one or more of the clients will always either lock up or reboot under
+moderate load (kernel compile across all of them, cfdrc software run...).
+I started with 2.4.6, tried 2.4.5, and am now running 2.4.3-12 (redhat
+sources).  The 2.4.3-12 seems to be more stable, but now some nodes simply
+lockup instead of rebooting, while other times they reboot.  The only
+thing I can find to give any information about the problem is occasionally
+on the console (but not in syslog -and I'm logging *.*) are APIC error in
+CPUx blah(blah) messages, where blah, blah is replaced by various APIC
+error codes (I haven't been able to determine the frequency or pattern).
+
+I have just rebooted them all with "noapic" and am testing again, also
+collecting tcpdump output.
+
+When the machines lock, the sysreq key doesn't do anything.  lkcd also of
+course doesn't help.
+
+In the meantime, searching the archives, I can see a few mentions of
+similar problems, but I haven't been able to see any threads that reached
+a useful conclusion (except for going back to 2.2.x).  Is there a previous
+discussion that is  applicable and I just haven't understood it?
+
+Can anyone suggest what additional information I can gather/provide in
+order to debug the problem?
+
+For what it is worth, I have another cluster running the same motherboard
+with 2.4.1 with local disks (symbios onboard scsi controller) and slower
+(866Mhz) cpus that doesn't show this problem.
 
 
-> Hi,
-> I have an application that uses an USB camera. This app is bit buggy and
-> when it crashes (segmentation fault) it locks the devices so that the app
-> always gets the message "Device or Resource Busy"(Thats error EBUSY). Note
-> that app, mmaps device to memory.
->
->         Now that app has crashed how do I release the device? rmmod on
-> camera driver (or uhci) does not work.
->
-> Jatin
-> PS: Please cc me the response.
-> _________________________________________________________________
-> Get your FREE download of MSN Explorer at http://explorer.msn.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+

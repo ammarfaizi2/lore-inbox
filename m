@@ -1,54 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265782AbUFINPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265774AbUFINPC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265782AbUFINPB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 09:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265774AbUFINOa
+	id S265774AbUFINPC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 09:15:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUFINNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 09:14:30 -0400
-Received: from vivaldi.madbase.net ([81.173.6.10]:57032 "HELO
-	vivaldi.madbase.net") by vger.kernel.org with SMTP id S265786AbUFINLt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 09:11:49 -0400
-Message-ID: <55780.67.8.218.172.1086786707.squirrel@webmail.krabbendam.net>
-In-Reply-To: <40C6E07C.6060609@serice.net>
-References: <40BD2841.2050509@serice.net>
-    <54574.67.8.218.172.1086758675.squirrel@webmail.krabbendam.net>
-    <40C6E07C.6060609@serice.net>
-Date: Wed, 9 Jun 2004 09:11:47 -0400 (EDT)
-Subject: Re: [PATCH] iso9660 Inodes Anywhere and NFS
-From: "Eric Lammerts" <eric@lammerts.org>
-To: "Paul Serice" <paul@serice.net>
+	Wed, 9 Jun 2004 09:13:42 -0400
+Received: from mailman1.ppco.com ([138.32.33.10]:37302 "EHLO mailman1.ppco.com")
+	by vger.kernel.org with ESMTP id S265749AbUFINJO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 09:09:14 -0400
+From: Norman Weathers <norman.r.weathers@conocophillips.com>
+Reply-To: norman.r.weathers@conocophillips.com
+To: sdake@mvista.com
+Subject: Re: 2.4.26 SMP lockup problem
+Date: Wed, 9 Jun 2004 08:09:08 -0500
+User-Agent: KMail/1.6.2
 Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
+References: <200406081757.28770.norman.r.weathers@conocophillips.com> <1086736002.3346.56.camel@persist.az.mvista.com>
+In-Reply-To: <1086736002.3346.56.camel@persist.az.mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406090809.08919.norman.r.weathers@conocophillips.com>
+X-OriginalArrivalTime: 09 Jun 2004 13:09:10.0977 (UTC) FILETIME=[F46BB310:01C44E22]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> The second line of reasoning is that I do not know of any other common
-> use of inode numbers in user space, and while posix says inode numbers
-> shall be unique, BSD (at least NetBSD) appears to me to assign
-> non-unique inode numbers for files by returning the lower 32 bits of
-> the byte offset.
+That's the funny thing about this lockup... I can't even get a traceback from 
+the serial console.  Here is my boot command line:
 
-Tar uses inode numbers to determine which files are hardlinked. So if you
-tar up a tree containing 0-byte files, then untar it somewhere, all 0-byte
-files will end up being hardlinked to each other. The same happens when you
-use cp -a.
+auto BOOT_IMAGE=2.4.26 ro root=301 noapic console=tty0 console=ttyS0,115200n8 
+panic=60 nmi_watchdog=1
 
-> In conclusion, I just don't see much long-term difference in any of
-> the inode numbering schemes, and the advantage of the scheme in my
-> patch is that directories should always have unique inode numbers
-> which to me is the important case.
+I have the watchdog turned on (built in to the kernel, not a module), and have 
+been using the above command line, but still get no oops and cannot get a 
+traceback...
 
-Or take a hybrid approach: use your scheme for directories and my scheme for
-files; use bit 0 or bit 31 to indicate what scheme is used. Then directories
-have unique inode numbers, and files too as long as their directory records
-are in the first 64Gb of the disc.
+On Tuesday 08 June 2004 06:06 pm, Steven Dake wrote:
+> Norman,
+>
+> A kernel traceback of the lockup would be helpful.
+>
+> To do this, add the nmi_watchdog=1 to the kernel command line (lilo or
+> pxe boot append option).  This will cause the NMI watchdog handler to
+> buzz off when you have your deadlock.
+>
+> Run the output through ksymoops and post that to the list.
+>
+> Thanks
+> -steve
+>
+> On Tue, 2004-06-08 at 15:57, Norman Weathers wrote:
+> > Hello All.
+> >
+> > During an interesting round of kernel updates, I found a very interesting
+> > problem.  I have several "hundred" nodes in a cluster that I am currently
+> > updating from kernel 2.4.21 to 2.4.26.  These nodes are all running
+> > RedHat 7.3 (old, I know, but this is the OS that are software currently
+> > works on). During this round of updates, I have updated about 150 PIII
+> > 800 MHz nodes, all of which are currently being used and work just fine
+> > (1 GB Ram, e100 ethernet driver, IDE drives, fairly generic).  Also, I
+> > have a few PIII 1260 nodes (Tyan Motherboard, 2 GB Ram, e100 ethernet
+> > driver, again, fairly generic) that have also been updated and run fine. 
+> > I have even started testing fairly new P4 3060 IBM blades.  They also
+> > seem to work just fine.
+> >
+> > Now to the problem.  I have "several hundred" Tyan Thunder Motherboards
+> > (older AMD 760MP chipset).  I have rebooted ~ 200 of these nodes with the
+> > new 2.4.26 kernel and about half of these nodes have suffered a hard
+> > lockup during bootup.  The lockup is hard enough that I cannot even isuse
+> > sys request keys over serial or at the local keyboard to cause them to
+> > reboot or output a trace.  These nodes have 2 GB of ram, dual 3Com 100 Mb
+> > NICS, and IDE drives. Again, fairly generic for a cluster.  I had a
+> > vanilal + trond patched 2.4.21 kernel running on these boxes just fine. 
+> > (The new 2.4.26 kernel also has the trond patches for 2.4.26).  Has
+> > anyone seen this happen to them?
+> >
+> > Here is some info on the kernel config for the 2.4.26 kernel:
+> >
+> > #
+> > # Automatically generated by make menuconfig: don't edit
+> > #
+> > CONFIG_X86=y
+> > # CONFIG_SBUS is not set
+> > CONFIG_UID16=y
+> >
+> > #
+> > # Code maturity level options
+> > #
+> > CONFIG_EXPERIMENTAL=y
+> >
+> > #
+> > # Loadable module support
+> > #
+> > CONFIG_MODULES=y
+> > CONFIG_MODVERSIONS=y
+> > CONFIG_KMOD=y
+> >
+> > #
+> > # Processor type and features
+> > #
+> > # CONFIG_M386 is not set
+> > # CONFIG_M486 is not set
+> > # CONFIG_M586 is not set
+> > # CONFIG_M586TSC is not set
+> > # CONFIG_M586MMX is not set
+> > # CONFIG_M686 is not set
+> > CONFIG_MPENTIUMIII=y
+> > # CONFIG_MPENTIUM4 is not set
+> > # CONFIG_MK6 is not set
+> > # CONFIG_MK7 is not set
+> > # CONFIG_MK8 is not set
+> > # CONFIG_MELAN is not set
+> > # CONFIG_MCRUSOE is not set
+> > # CONFIG_MWINCHIPC6 is not set
+> > # CONFIG_MWINCHIP2 is not set
+> > # CONFIG_MWINCHIP3D is not set
+> > # CONFIG_MCYRIXIII is not set
+> > # CONFIG_MVIAC3_2 is not set
+> > CONFIG_X86_WP_WORKS_OK=y
+> > CONFIG_X86_INVLPG=y
+> > CONFIG_X86_CMPXCHG=y
+> > CONFIG_X86_XADD=y
+> > CONFIG_X86_BSWAP=y
+> > CONFIG_X86_POPAD_OK=y
+> > # CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+> > CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+> > CONFIG_X86_L1_CACHE_SHIFT=5
+> > CONFIG_X86_HAS_TSC=y
+> > CONFIG_X86_GOOD_APIC=y
+> > CONFIG_X86_PGE=y
+> > CONFIG_X86_USE_PPRO_CHECKSUM=y
+> > CONFIG_X86_F00F_WORKS_OK=y
+> > CONFIG_X86_MCE=y
+> > # CONFIG_TOSHIBA is not set
+> > # CONFIG_I8K is not set
+> > CONFIG_MICROCODE=y
+> > # CONFIG_X86_MSR is not set
+> > # CONFIG_X86_CPUID is not set
+> > # CONFIG_EDD is not set
+> > # CONFIG_NOHIGHMEM is not set
+> > # CONFIG_HIGHMEM4G is not set
+> > CONFIG_HIGHMEM64G=y
+> > CONFIG_HIGHMEM=y
+> > CONFIG_X86_PAE=y
+> > CONFIG_HIGHIO=y
+> > # CONFIG_MATH_EMULATION is not set
+> > CONFIG_MTRR=y
+> > CONFIG_SMP=y
+> > CONFIG_NR_CPUS=32
+> > # CONFIG_X86_NUMA is not set
+> > # CONFIG_X86_TSC_DISABLE is not set
+> > CONFIG_X86_TSC=y
+> > CONFIG_HAVE_DEC_LOCK=y
+> >
+> > #
+> > # General setup
+> > #
+> > CONFIG_NET=y
+> > CONFIG_X86_IO_APIC=y
+> > CONFIG_X86_LOCAL_APIC=y
+> > CONFIG_PCI=y
+> > # CONFIG_PCI_GOBIOS is not set
+> > # CONFIG_PCI_GODIRECT is not set
+> > CONFIG_PCI_GOANY=y
+> > CONFIG_PCI_BIOS=y
+> > CONFIG_PCI_DIRECT=y
+> > CONFIG_ISA=y
+> > CONFIG_PCI_NAMES=y
+> > # CONFIG_EISA is not set
+> > # CONFIG_MCA is not set
+> > CONFIG_HOTPLUG=y
+> > ---- Rest cut -------
+> >
+> > I have the noapic option passed on the lilo boot prompt line, otherwise
+> > we get the APIC error after about a month or two in service.
+> >
+> > We tried to make the kernel somewhat generic because we want this kernel
+> > to boot on the largest hardware base possible.  Is there something
+> > obvious that I have missed (I have used these options on the 2.4.21
+> > kernel that we used on all of the nodes with the exception of the 64 GB
+> > memory.
+> >
+> > Any help would be appreciated.  Any dumps that need to be made (or try to
+> > make), great as I have about 200 nodes right now that are candidates for
+> > testing.
+> >
+> > Please contact me at email listed below as I am not on the list.
+> >
+> >
+> > Email:  norman.r.weathers@conocophillips.com
+> >
+> >
+> > Thanks in advance.
 
-Eric
+-- 
 
+Norman Weathers
+SIP Linux Cluster
+TCE UNIX
+ConocoPhillips
+Houston, TX
+
+Office:  LO2003
+Phone:   ETN  639-2727
+	 or (281) 293-2727

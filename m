@@ -1,73 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVCBGLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVCBGR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262195AbVCBGLK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 01:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVCBGLJ
+	id S262194AbVCBGR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 01:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVCBGR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 01:11:09 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:38858 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262191AbVCBGKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 01:10:44 -0500
-Message-ID: <42255971.4070608@jp.fujitsu.com>
-Date: Wed, 02 Mar 2005 15:13:05 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Wed, 2 Mar 2005 01:17:27 -0500
+Received: from web52207.mail.yahoo.com ([206.190.39.89]:43890 "HELO
+	web52207.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262194AbVCBGRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 01:17:20 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=5fsGk/3NKCUgKYnhTMoJjgZoeccIb+gTpZnNYSITPhV6JnKtS4m9O34E89cS+NS8WSS1HHySOK/jLuIBqrpJHFXFk0/LAtKDqhnGfHzbuhBNpv4XKMuqNUILgCz9AX9s/2rEMekkzBYG8yfBedlSJmHTdkLdekNFqFSS9oHxXiY=  ;
+Message-ID: <20050302061720.74613.qmail@web52207.mail.yahoo.com>
+Date: Tue, 1 Mar 2005 22:17:20 -0800 (PST)
+From: linux lover <linux_lover2004@yahoo.com>
+Subject: some /proc understandings
+To: linux-kernel@vger.kernel.org, lkg india <lkg_india@yahoogroups.com>
 MIME-Version: 1.0
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Matthew Wilcox <matthew@wil.cx>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-References: <422428EC.3090905@jp.fujitsu.com> <20050301144211.GI28741@parcelfarce.linux.theplanet.co.uk> <20050301192711.GE1220@austin.ibm.com>
-In-Reply-To: <20050301192711.GE1220@austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas wrote:
- >> I'd prefer to see it as ioerr_clear(), ioerr_read() ...
- >
- > I'd prefer pci_io_start() and pci_io_check_err()
- >
- > The names should have "pci" in them.
- >
- > I don't like "ioerr_clear" because it implies we are clearing the io error; we are not; we are clearing the checker 
-for io errors.
+Hello,
+         1) I want to know how much can i write to
+/proc entry file?? Is there any limitation on file
+size???
+         2)Also how can i call /proc entry files
+proc_read_myfile function on that file by another
+kernel module call? What parameters i require to pass
+and how? Say i have read functions as 
 
-My intention was "clear/read checker(called iochk) to check my I/O."
-(bitmask would be better for error flag, but bits are not defined yet.)
-So I agree that ioerr_clear/read() would be one of good alternatives.
-But still I'd prefer iochk_*, because it doesn't clear error but checker.
-iochecker_* would be bit long.
+struct myfile_data_t {
+  char value[8];
+};
+struct proc_dir_entry *myfile_file;
+struct myfile_data_t myfile_data;
 
-And then, I don't think it need to have "pci" ... limitation of this
-API's target. It would not be match if there are a recoverable device
-over some PCI to XXX bridge, or if there are some special arch where
-don't have PCI but other recoverable bus system, or if future bus system
-doesn't called pci...
-Currently we would deal only pci, but in future possibly not.
+int proc_read_myfile(char *page, char **start, off_t
+off, int count, int *eof, void *data)
+{
+  int len;
 
- > Do we really need a cookie?
+/* cast the void pointer of data to myfile_data_t*/
+  struct myfile_data_t *myfile_data=(struct
+myfile_data_t *)data;
 
-Some do, some not.
-For example, if arch has only a counter of error exception, saving value
-of the counter to the cookie would be make sense.
+/* use sprintf to fill the page array with a string */
+  len = sprintf(page, "%s", myfile_data->value);
+    return len;
+}
 
- > Yes, they should be no-ops. save/restore interrupts would be a bad idea.
+Then can it possible that i can call proc_read_myfile
+from another kernel module?? Instead read file from
+user level call?
+   3) Also Is following code valid of creating /proc
+files with different file name created by passing
+function cr_proc(fname)?
 
-I expect that we should not do any operation requires enabled interrupt
-between iochk_clear and iochk_read. If their defaults are no-ops, device
-maintainers who develops their driver on not-implemented arch should be
-more careful. Or are there any bad thing other than waste of steps?
+struct proc_dir_entry *entnew;
+int cr_proc(char *fname)
+{
+        if ((entnew1 = create_proc_entry(fname,
+S_IRUGO | S_IWUSR, NULL)) == NULL)
+        return -EACCES;
+       entnew1->proc_fops = &proc_file_operations;
+}
+static struct file_operations proc_file_operations = {
+    open:       proc_open,
+    release:    proc_release,
+    read:       proc_read,
+    write:      proc_write,
+};
 
+      What will happen if dynamic file names are going
+to use same all above 4 functions???
+regards,
+linux_lover
 
-Thanks,
-H.Seto
-
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

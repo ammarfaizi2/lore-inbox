@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319624AbSH3RS1>; Fri, 30 Aug 2002 13:18:27 -0400
+	id <S319629AbSH3Reo>; Fri, 30 Aug 2002 13:34:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319626AbSH3RS1>; Fri, 30 Aug 2002 13:18:27 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:25240 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319624AbSH3RS0>;
-	Fri, 30 Aug 2002 13:18:26 -0400
-Date: Fri, 30 Aug 2002 10:19:15 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG+FIX] 2.4 buggercache sucks
-Message-ID: <30940000.1030727954@flay>
-In-Reply-To: <200208301121.06437.roy@karlsbakk.net>
-References: <200208291000.46618.roy@karlsbakk.net> <318656043.1030603363@[10.10.2.3]> <200208301121.06437.roy@karlsbakk.net>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S319630AbSH3Reo>; Fri, 30 Aug 2002 13:34:44 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:14025 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S319629AbSH3Ren>;
+	Fri, 30 Aug 2002 13:34:43 -0400
+Date: Fri, 30 Aug 2002 10:39:07 -0700
+To: Timothy Murphy <tim@birdsnest.maths.tcd.ie>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: wavelan_cs.c in linux-2.4.20-pre5
+Message-ID: <20020830173907.GA15469@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20020830183658.A1821@birdsnest.maths.tcd.ie>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20020830183658.A1821@birdsnest.maths.tcd.ie>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Was your workload doing lots of reads, or lots of writes? Or both?
-> 
-> I was downloading large files @ ~ 4Mbps from 20-50 clients - filesize ~3GB
-> the box has 1GB memory minus (no highmem) - so - 900 megs. After some time it 
-> starts swapping and it OOMs. Same happens with several userspace httpd's
+On Fri, Aug 30, 2002 at 06:36:59PM +0100, Timothy Murphy wrote:
+> I'm not quite sure if you are responsible for this driver,
+> but I thought I would mention that I had to #include <linux/types.h>
+> in wavelan_cs.c to compete compilation of the kernel,
+> after getting warnings that seemed to imply u32 was undefined.
 
-Mmmm .... not quite sure which way round to read that. Presumably the box
-that was the server fell over, and the clients are fine? So the workload that's
-causing problems is doing predominantly reads? If so, I suggest you tear down
-Andrew's patch to read side only, and submit that ... I get the feeling that would
-be acceptable, and would solve your problem.
+	That's the wrong fix. #include <linux/types.h> is already
+available in wavelan.p.h. Those includes should be moved there as
+well.
 
-M.
+	Jean
 

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312266AbSCTXJx>; Wed, 20 Mar 2002 18:09:53 -0500
+	id <S312267AbSCTXJv>; Wed, 20 Mar 2002 18:09:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312271AbSCTXJp>; Wed, 20 Mar 2002 18:09:45 -0500
-Received: from CPE-203-51-26-136.nsw.bigpond.net.au ([203.51.26.136]:4337 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S312266AbSCTXJC>; Wed, 20 Mar 2002 18:09:02 -0500
-Message-ID: <3C99168A.F30EB8D6@eyal.emu.id.au>
-Date: Thu, 21 Mar 2002 10:08:58 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre3-ac1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre4: pdcadma.c still missing ?
-In-Reply-To: <Pine.LNX.4.21.0203201757560.9129-100000@freak.distro.conectiva>
+	id <S312266AbSCTXJt>; Wed, 20 Mar 2002 18:09:49 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:25484 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S312267AbSCTXJV>; Wed, 20 Mar 2002 18:09:21 -0500
+Date: Thu, 21 Mar 2002 00:09:10 +0100
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+Message-ID: <20020320230910.GA6462@pelks01.extern.uni-tuebingen.de>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020319225609.A12655@ucw.cz> <20020320065425.D27F3DD1C@mail.medav.de> <20020320221514.GB23957@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+From: Daniel Kobras <kobras@linux.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> 
-> So here goes pre4, now with a much more detailed changelog...
+On Wed, Mar 20, 2002 at 11:15:14PM +0100, Pavel Machek wrote:
+> I do not think we are using PM3:sleep in noflushd, but we even
+> could. AFAICT, ide layer resets interface if it does not respond.
 
-Or maybe the makefile should not include it?
+It does, but only after a rather longish timeout, and a couple of IDE
+errors in the syslog.  Nothing I'd like to scare users with, so noflushd
+issues standby (PM2).
 
-ld: cannot open pdcadma.o: No such file or directory
-make[3]: *** [ide-mod.o] Error 1
-make[3]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/ide'
+Regards,
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Daniel.
+

@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279746AbRJ3KjX>; Tue, 30 Oct 2001 05:39:23 -0500
+	id <S279745AbRJ3KhX>; Tue, 30 Oct 2001 05:37:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279910AbRJ3KjN>; Tue, 30 Oct 2001 05:39:13 -0500
-Received: from ns.caldera.de ([212.34.180.1]:45192 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S279746AbRJ3KjC>;
-	Tue, 30 Oct 2001 05:39:02 -0500
-Date: Tue, 30 Oct 2001 11:37:31 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Mike Jagdis <jaggy@purplet.demon.co.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        arjanv@redhat.com
-Subject: Re: [PATCH] syscall exports - against 2.4.14-pre3
-Message-ID: <20011030113731.A14808@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Mike Jagdis <jaggy@purplet.demon.co.uk>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, arjanv@redhat.com
-In-Reply-To: <20011029173711.B24272@caldera.de> <3BDE7D22.8000006@purplet.demon.co.uk>
+	id <S279910AbRJ3KhD>; Tue, 30 Oct 2001 05:37:03 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:18430
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S279745AbRJ3KhA>; Tue, 30 Oct 2001 05:37:00 -0500
+Date: Tue, 30 Oct 2001 02:37:31 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: bert hubert <ahu@ds9a.nl>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nasty suprise with uptime
+Message-ID: <20011030023731.A21884@mikef-linux.matchmail.com>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E15yJD1-0003uO-00@the-village.bc.nu> <3BDDBE89.397E42C0@lexus.com> <20011030104751.A11623@outpost.ds9a.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BDE7D22.8000006@purplet.demon.co.uk>; from jaggy@purplet.demon.co.uk on Tue, Oct 30, 2001 at 10:12:50AM +0000
+In-Reply-To: <20011030104751.A11623@outpost.ds9a.nl>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 10:12:50AM +0000, Mike Jagdis wrote:
-> Christoph Hellwig wrote:
-> > Hi Linus,
-> > 
-> > once again the syscall export patch - back to EXPORT_SYMBOL
-> > vs EXPORT_SYMBOL_GPL due to some complaints, more syscalls
-> > as I dropped sys_call_table abuse in linux-abi.
+On Tue, Oct 30, 2001 at 10:47:51AM +0100, bert hubert wrote:
+> On Mon, Oct 29, 2001 at 12:39:37PM -0800, J Sloan wrote:
 > 
-> The whole *point* of the sys_call_table "abuse" was to avoid having
-> the whole damn lot in the export list!
-
-It is not only ugly over belief but also unportable.
-
-For example the mips port does not have a sys_call_table array at all,
-on IA64 funktion pointer do _NOT_ fit into an unsigned long so at least
-the prototype is wrong if it works at all.
-
-> As a side effect it meant that any module that patched the
-> sys_call_table (funky tracers, security hot-fixes, whatever)
-> would work seamlessly with non-Linux binaries.
-
-This is not only racy (no locking!) but also a loophole for binary
-modules to do all kinds of crap (see http://www.sysinternals.com/linux/
-utilities/filemon.shtml for details).  In early 2.5 I will submit a patch
-to remove the export, let's see wether it will be accepted.
-
+> > So, is there an implicit Linux policy to upgrade
+> > the distro, or at least the kernel, every 496 days
+> > whether it needs it or not?
 > 
-> > Could you _please_ apply it - it is badly needed for foreign
-> > personalities compiled as modules.
+> Having huge uptimes is by the way not adviseable operational policy
+> according to many. Chances are you will be in for a nasty surprise when you
+> reboot - do you remember after a year which daemons you 'started by hand'
+> and how?
 > 
-> I can't see why? iBCS always was a module for years before
-> linux-abi dumped it back in a humungous kernel patch.
 
-"Because we did it all the time it's right".
+Very, very true.  This has happened to me a couple times with only a couple
+months uptime... :(
 
-Of course it worked - that doesn't mean it's a good idea.
-Arjan might want to comment on how gcc 2.96+ liked the old concept..
+My configs have since stabalized so that hasn't been a problem for me
+recently...
 
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.
+Mike

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261793AbSJIPB0>; Wed, 9 Oct 2002 11:01:26 -0400
+	id <S261795AbSJIPBd>; Wed, 9 Oct 2002 11:01:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261795AbSJIPB0>; Wed, 9 Oct 2002 11:01:26 -0400
-Received: from ns.suse.de ([213.95.15.193]:54789 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261793AbSJIPBZ>;
-	Wed, 9 Oct 2002 11:01:25 -0400
+	id <S261796AbSJIPBd>; Wed, 9 Oct 2002 11:01:33 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:65292 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S261795AbSJIPBc>; Wed, 9 Oct 2002 11:01:32 -0400
+Message-ID: <3DA44603.2000708@didntduck.org>
+Date: Wed, 09 Oct 2002 11:06:43 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: root@chaos.analogic.com
-Cc: "J.A. Magallon" <jamagallon@able.es>,
+CC: "J.A. Magallon" <jamagallon@able.es>,
        Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Writable global section?
 References: <Pine.LNX.3.95.1021009103521.3016B-100000@chaos.analogic.com>
-X-Yow: We have DIFFERENT amounts of HAIR --
-From: Andreas Schwab <schwab@suse.de>
-Date: Wed, 09 Oct 2002 17:06:55 +0200
-In-Reply-To: <Pine.LNX.3.95.1021009103521.3016B-100000@chaos.analogic.com> ("Richard
- B. Johnson"'s message of "Wed, 9 Oct 2002 10:49:57 -0400 (EDT)")
-Message-ID: <jen0pn1wj4.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+Richard B. Johnson wrote:
+> I would like to be able to write to that variable and have it seen
+> by other tasks, since shared memory is shared memory. It's a shame
+> to mmap a shared library upon startup and then have to mmap some
+> additional shared memory for some inter-process communication.
 
-|> If a variable is in the ".data" section, it is "seen" by all procedures
-|> that are linked to the shared library, but any attempt to write to this
-|> variable will seg-fault the task that attempts to modify it.
+There are only two ways to share memory between processes:
+- SYSV shared memory
+- using clone() to share the VM.
 
-Your tests must be flawed, because a .data section *is* writable.  The
-only difference between .data and .bss is that the latter has no
-allocation in the image file, but they are mapped to the same, writable
-segment.
+Shared libraries != shared memory.  Each mapping of a shared library is 
+copy-on-write.  The purpose of shared libraries is to save memory, not 
+for IPC.
 
-Andreas.
+--
+				Brian Gerst
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+

@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261839AbTCGW5D>; Fri, 7 Mar 2003 17:57:03 -0500
+	id <S261842AbTCGXGf>; Fri, 7 Mar 2003 18:06:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261842AbTCGW5D>; Fri, 7 Mar 2003 17:57:03 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52236 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261839AbTCGW5B>; Fri, 7 Mar 2003 17:57:01 -0500
-Date: Fri, 7 Mar 2003 15:05:32 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: "H. Peter Anvin" <hpa@zytor.com>, Greg KH <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-In-Reply-To: <Pine.LNX.4.44.0303072121180.5042-100000@serv>
-Message-ID: <Pine.LNX.4.44.0303071459260.1309-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261844AbTCGXGf>; Fri, 7 Mar 2003 18:06:35 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:57004 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id <S261842AbTCGXGe>;
+	Fri, 7 Mar 2003 18:06:34 -0500
+Date: Fri, 7 Mar 2003 15:17:09 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: acx100_pci.o GPL but only binary version
+Message-ID: <20030307231709.GA10152@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 7 Mar 2003, Roman Zippel wrote:
-> > 
-> > Put the two together, and the GPL really doesn't look like a very good 
-> > license for klibc. Yeah, you can disagree about what the actual exceptions 
-> > are, but clearly there has to be _some_ exception to the license.
+Alan Cox wrote :
 > 
-> This really doesn't speak against the GPL, if we do something similiar as 
-> libgcc.
+> On Fri, 2003-03-07 at 20:17, alx wrote:
+> > acx100_pci.o wanna be a linux driver from the TI acx100 chipset.
+> > but it doesn't work at all!
+> > - First ifconfig SegFault 
+> > - Second hangs the machine
+> 
+> Its a known one. No source, the GPL license appears to be a fiction 
+> designed to violate the Linux copyright. I guess someone needs a DMCA
+> takedown order in the post
 
-Sure. GPL with restrictions might work fine.
+	Actually, the problem is that TI (which we believe is the
+author of the driver) doesn't itself distribute this driver, but it
+seems that it has misteriously "leaked" on the net and it's just basic
+Linux users that are putting it on their web page.
+	If you look at the Linux-Wlan mailing list archive, you will
+see that this driver also contain code from the linux-wlan-ng driver,
+and I don't know yet if they cut'n'paste code from the GPL version or
+just bought the development kit from Linux-Wlan.
+	Anyway, as this driver doesn't seem to work (check the various
+mailing list), I don't think there is any point making a big fuss and
+we should politely ask TI (or whoever wrote the driver) to come clear
+on this one.
 
-> Well, there wasn't much to argue against yet so far :), I'm still trying 
-> to find the reason for Peters decision.
+	Have fun...
 
-That I can't answer. I don't personally think that BSD/MIT is any better 
-than GPL with restriction, and the real issue boils down to "what license 
-do people want to work on". Since Peter so far has been one of the major 
-developers, his opinion (regardless of _why_ he holds that opinion) 
-matters more than most to me.
+	Jean
 
-Of course, some people have said that _they_ would want to work on it only 
-if it's GPL, but hey, the proof is in the pudding, and "A bird in the hand 
-is worth two in the bush". In other words, talk is cheap, and code rules. 
-Right now that means that hpa rules, methinks.
-
-However, I also have to say that klibc is pretty late in the game, and as 
-long as it doesn't add any direct value to the kernel build the whole 
-thing ends up being pretty moot right now. It might be different if we 
-actually had code that needed it (ie ACPI in user space or whatever).
-
-		Linus
-
+P.S. : And in the Howto, TI is still marked as "unsupported".

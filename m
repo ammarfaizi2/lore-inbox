@@ -1,120 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264680AbUEJOah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264714AbUEJOcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264680AbUEJOah (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 10:30:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264710AbUEJOah
+	id S264714AbUEJOcT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 10:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264718AbUEJOcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 10:30:37 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:23242 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264680AbUEJOab (ORCPT
+	Mon, 10 May 2004 10:32:19 -0400
+Received: from smtpq1.home.nl ([213.51.128.196]:15794 "EHLO smtpq1.home.nl")
+	by vger.kernel.org with ESMTP id S264714AbUEJOcE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 10:30:31 -0400
-Date: Mon, 10 May 2004 16:30:24 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Cache queue_congestion_on/off_threshold
-Message-ID: <20040510143024.GF14403@suse.de>
-References: <20040507093921.GD21109@suse.de> <200405072200.i47M0AF00868@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405072200.i47M0AF00868@unix-os.sc.intel.com>
+	Mon, 10 May 2004 10:32:04 -0400
+Message-ID: <409F9201.3000302@keyaccess.nl>
+Date: Mon, 10 May 2004 16:30:25 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bernd.Knochenhauer@t-online.de
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [Fwd: Me too : Linux 2.6.6 "IDE cache-flush at shutdown fixes"]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 07 2004, Chen, Kenneth W wrote:
-> >>>> Jens Axboe wrote on Friday, May 07, 2004 2:39 AM
-> > On Thu, May 06 2004, Chen, Kenneth W wrote:
-> > > (3) can we allocate request structure up front in __make_request?
-> > >     For I/O that cannot be merged, the elevator code executes twice
-> > >     in __make_request.
-> > >
-> >
-> > Actually, with the good working batching we might get away with killing
-> > freereq completely. Have you tested that (if not, could you?)
-> 
-> Sorry, I'm clueless on "good working batching".  If you could please give
-> me some pointers, I will definitely test it.
+Hi Bernd.
 
-Something like this.
+Fowarded this onto lkml. Note, though, that you can post to lkml without 
+being subscribed. Anyways, seems it's then not just the 8M cache drives.
 
---- linux-2.6.6/drivers/block/ll_rw_blk.c~	2004-05-10 16:23:45.684726955 +0200
-+++ linux-2.6.6/drivers/block/ll_rw_blk.c	2004-05-10 16:29:04.333792268 +0200
-@@ -2138,8 +2138,8 @@
- 
- static int __make_request(request_queue_t *q, struct bio *bio)
- {
--	struct request *req, *freereq = NULL;
- 	int el_ret, rw, nr_sectors, cur_nr_sectors, barrier, ra;
-+	struct request *req;
- 	sector_t sector;
- 
- 	sector = bio->bi_sector;
-@@ -2161,15 +2161,15 @@
- 
- 	ra = bio->bi_rw & (1 << BIO_RW_AHEAD);
- 
--again:
-+	if (barrier)
-+		goto get_rq_nolock;
-+
- 	spin_lock_irq(q->queue_lock);
- 
- 	if (elv_queue_empty(q)) {
- 		blk_plug_device(q);
- 		goto get_rq;
- 	}
--	if (barrier)
--		goto get_rq;
- 
- 	el_ret = elv_merge(q, &req, bio);
- 	switch (el_ret) {
-@@ -2230,21 +2230,17 @@
- 	 * a free slot.
- 	 */
- get_rq:
--	if (freereq) {
--		req = freereq;
--		freereq = NULL;
--	} else {
--		spin_unlock_irq(q->queue_lock);
--		if ((freereq = get_request(q, rw, GFP_ATOMIC)) == NULL) {
--			/*
--			 * READA bit set
--			 */
--			if (ra)
--				goto end_io;
-+	spin_unlock_irq(q->queue_lock);
-+get_rq_nolock:
-+	req = get_request(q, rw, GFP_ATOMIC);
-+	if (!req) {
-+		/*
-+		 * READA bit set
-+		 */
-+		if (ra)
-+			goto end_io;
- 	
--			freereq = get_request_wait(q, rw);
--		}
--		goto again;
-+		req = get_request_wait(q, rw);
- 	}
- 
- 	req->flags |= REQ_CMD;
-@@ -2276,10 +2272,9 @@
- 	req->rq_disk = bio->bi_bdev->bd_disk;
- 	req->start_time = jiffies;
- 
-+	spin_lock_irq(q->queue_lock);
- 	add_request(q, req);
- out:
--	if (freereq)
--		__blk_put_request(q, freereq);
- 
- 	if (blk_queue_plugged(q)) {
- 		int nrq = q->rq.count[READ] + q->rq.count[WRITE] - q->in_flight;
+-------- Original Message --------
+Subject: Me too : Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+Date: Mon, 10 May 2004 16:25:34 +0200
+From: Bernd.Knochenhauer@t-online.de (Bernd Knochenhauer)
+To: Rene Herman <rene.herman@keyaccess.nl>
 
--- 
-Jens Axboe
+
+Just wanted to let you know I'm having the exact same problem with a
+Maxtor 6Y120L0.
+
+Perhaps you can relay this to the linux-kernel mailinglist since I'm
+not on there.
+
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+SiI680: IDE controller at PCI slot 0000:02:0d.0
+SiI680: chipset revision 2
+SiI680: BASE CLOCK == 133
+SiI680: 100% native mode on irq 217
+     ide0: MMIO-DMA , BIOS settings: hda:pio, hdb:pio
+     ide1: MMIO-DMA , BIOS settings: hdc:pio, hdd:pio
+hda: Maxtor 6Y120L0, ATA DISK drive
+hdb: SAMSUNG SP1604N, ATA DISK drive
+Using anticipatory io scheduler
+ide0 at 0xf8816480-0xf8816487,0xf881648a on irq 217
+hdc: Maxtor 6Y120L0, ATA DISK drive
+ide1 at 0xf88164c0-0xf88164c7,0xf88164ca on irq 217
+hda: max request size: 64KiB
+hda: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=65535/16/63, 
+UDMA(133)
+  /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
+hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: task_no_data_intr: error=0x04 { DriveStatusError }
+hda: Write Cache FAILED Flushing!
+hdb: max request size: 64KiB
+hdb: 312581808 sectors (160041 MB) w/2048KiB Cache, CHS=19457/255/63, 
+UDMA(100)
+  /dev/ide/host0/bus0/target1/lun0: p1 p2
+hdc: max request size: 64KiB
+hdc: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=65535/16/63, 
+UDMA(133)
+  /dev/ide/host0/bus1/target0/lun0: p1 p2 p3
+hdc: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hdc: task_no_data_intr: error=0x04 { DriveStatusError }
+hdc: Write Cache FAILED Flushing!
+
 

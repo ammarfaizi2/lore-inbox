@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293487AbSCGLMD>; Thu, 7 Mar 2002 06:12:03 -0500
+	id <S292852AbSCGLJc>; Thu, 7 Mar 2002 06:09:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293508AbSCGLLx>; Thu, 7 Mar 2002 06:11:53 -0500
-Received: from idefix.linkvest.com ([194.209.53.99]:47121 "EHLO
-	idefix.linkvest.com") by vger.kernel.org with ESMTP
-	id <S293487AbSCGLLp>; Thu, 7 Mar 2002 06:11:45 -0500
-Message-ID: <3C874AE8.9060208@linkvest.com>
-Date: Thu, 07 Mar 2002 12:11:36 +0100
-From: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
+	id <S293487AbSCGLJX>; Thu, 7 Mar 2002 06:09:23 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38827 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S292852AbSCGLJG>;
+	Thu, 7 Mar 2002 06:09:06 -0500
+Date: Thu, 7 Mar 2002 06:09:04 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Voluspa <voluspa@bigfoot.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.6-pre3 Kernel panic: VFS: Unable to mount root fs on 03:02
+In-Reply-To: <20020307114845.530abcfa.voluspa@bigfoot.com>
+Message-ID: <Pine.GSO.4.21.0203070601100.26116-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rework of /proc/stat
-In-Reply-To: <E16ik6y-0008Qf-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Mar 2002 11:11:36.0598 (UTC) FILETIME=[D8E32360:01C1C5C8]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
->
->Any reason for preferring this over the sard patches in -ac ?
->
-What does the sard patches?
-What I need is to be able to get IO stats to pass them (through a home 
-made script) to SNMP which have no IO stats available.
-Is it possible to get SARD values through /proc ? Or at least in a 
-simple shell script?
-Thanks
--jec
-
--- 
-Jean-Eric Cuendet
-Linkvest SA
-Av des Baumettes 19, 1020 Renens Switzerland
-Tel +41 21 632 9043  Fax +41 21 632 9090
-E-mail: jean-eric.cuendet@linkvest.com
-http://www.linkvest.com
---------------------------------------------------------
 
 
+On Thu, 7 Mar 2002, Voluspa wrote:
+
+> only show enforced differences, I could boot into 2.5.6-pre2 tonight (about 6 hours from now) and dump whatever info you need - if it is deemed necessary. Otherwise I'll just enjoy the -ac series until a -preX turns up that is bootable.
+
+Very interesting...
+
+It boots fine from ext2 on IDE here.  Do you have any oddities in
+.config? (e.g. something silly enabled - CONFIG_PREEMPT, etc.)
+
+Bug looks very odd.  -EFAULT from mount(2) done by a thread that
+runs with equivalent of set_fs(KERNEL_DS)...
+
+.config might be really useful.  Or not - it may boil down to checking
+which path it actually takes and where does -EFAULT come from.
 

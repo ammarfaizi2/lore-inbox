@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbTJHLkF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 07:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbTJHLkF
+	id S261384AbTJHLmc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 07:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbTJHLmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 07:40:05 -0400
-Received: from gate.corvil.net ([213.94.219.177]:1803 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S261360AbTJHLkB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 07:40:01 -0400
-Message-ID: <3F83F62D.5090805@draigBrady.com>
-Date: Wed, 08 Oct 2003 12:34:05 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Wed, 8 Oct 2003 07:42:32 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:13207 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261384AbTJHLma convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 07:42:30 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Marko Rauhamaa <marko@pacujo.net>
-CC: linux-kernel@vger.kernel.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Jamal Hadi Salim <hadi@cyberus.ca>,
-       Robert Olsson <Robert.Olsson@data.slu.se>
-Subject: Re: NAPI Race?
-References: <m3smm4qvf0.fsf@lumo.pacujo.net>
-In-Reply-To: <m3smm4qvf0.fsf@lumo.pacujo.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [PATCH] incorrect use of sizeof() in ioctl definitions
+Date: Wed, 8 Oct 2003 19:42:23 +0800
+Message-ID: <571ACEFD467F7749BC50E0A98C17CDD8F3283D@pdsmsx403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] incorrect use of sizeof() in ioctl definitions
+Thread-Index: AcONgzrJ0ZPU8JAAShG3pJVHzvQ0YwACn43w
+From: "Tian, Kevin" <kevin.tian@intel.com>
+To: "Maciej Zenczykowski" <maze@cela.pl>
+Cc: "Andries Brouwer" <aebr@win.tue.nl>, "Andrew Morton" <akpm@osdl.org>,
+       "Sharma, Arun" <arun.sharma@intel.com>, <linux-kernel@vger.kernel.org>,
+       "Matthew Wilcox" <willy@debian.org>
+X-OriginalArrivalTime: 08 Oct 2003 11:42:24.0076 (UTC) FILETIME=[3DA8E8C0:01C38D91]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marko Rauhamaa wrote:
-> It looks to me like net_rx_action() might suffer from a race, which in
-> turn might explain some weirdness in my driver test results.
+> Wrote from Maciej Zenczykowski [mailto:maze@cela.pl]
 > 
-> Here's the essence of the function from net/core/dev.c:
-> 
-> net_rx_action()
-> {
->         local_irq_disable();
->         while (!list_empty(&queue->poll_list)) {
->                 local_irq_enable();
->                 /* do stuff */
->                 local_irq_disable();
->         }
->         local_irq_enable();
-> }
-> 
-> Say I receive a packet. net_rx_action() processes it in the while loop
-> and reenables interrupts. But just before net_rx_action() returns, I
-> receive another packet, and __netif_rx_schedule() gets called from the
-> driver. Then the soft irq is raised from within itself. If I'm not
-> interrupted for some other reason, the packet will get processed only at
-> the next jiffie when the soft irq is invoked again.
-> 
-> Am I mistaken?
+> So as not to break userspace we must still support old values, at the
+same
+> time we want new programs to start using the new correct values -
+hence
+> the introduction of _backward compatibility_ values.
 
-Probably not, as I tested the reception timing
-accuracy against an independent hardware "packet
-timestamper", and out of 2 million packets,
-3 were delayed by up to 5ms on the linux box
-(e100 NAPI). There were about 10 packets delayed
-between 1ms and 5ms.
+Thanks. :) Now I see... but are there any rules to decide which part
+should be upgraded even breaking the backward compatibility? You know,
+the latest 2.6 kernel will request many modules recompiled to run on it.
+IMO, most ioctls defined in this bad manner seems to be not-widely used
+ones, and... maybe it's worthy of some sacrifice on temporary
+compatibility, thus to keep a clean and consistent environment. 
 
-Pádraig.
+> the old was bad since it was sizeof(sizeof(...)) - it so happens that
+by
+> def sizeof(anything) is a size_t - thus replacing sizeof(sizeof(..))
+with
+> sizeof(size_t) changes nothing - just shortens the code...
+> Of course what we probably should really have is the above (now) code
+> defined as "BAD" and the previous (old) define without the sizeof as
+the
+> current (no BAD prefix).
+
+Reasonable!
+
+> Yap, both violate.  It is a mess and there is no easy fix due to the
+need
+> to retain the old invalid ioctl's as well... 
+
+If without such need... :(
+
+Thanks,
+Kevin
 

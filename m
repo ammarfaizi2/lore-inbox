@@ -1,62 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131489AbRC0TBt>; Tue, 27 Mar 2001 14:01:49 -0500
+	id <S131320AbRC0S5t>; Tue, 27 Mar 2001 13:57:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131488AbRC0TBk>; Tue, 27 Mar 2001 14:01:40 -0500
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:9607 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S131486AbRC0TB0>; Tue, 27 Mar 2001 14:01:26 -0500
-Date: Tue, 27 Mar 2001 14:00:37 -0500
-To: LA Walsh <law@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: 64-bit block sizes on 32-bit systems
-Message-ID: <20010327140036.A21171@cs.cmu.edu>
-Mail-Followup-To: LA Walsh <law@sgi.com>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0103270022500.21075-100000@age.cs.columbia.edu> <3AC0CA9C.3D804361@sgi.com>
-Mime-Version: 1.0
+	id <S131486AbRC0S5k>; Tue, 27 Mar 2001 13:57:40 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:5137
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S131320AbRC0S5d>; Tue, 27 Mar 2001 13:57:33 -0500
+Date: Tue, 27 Mar 2001 10:56:16 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Padraig Brady <Padraig@AnteFacto.com>
+cc: Richard Smith <ras2@tant.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compact flash disk and slave drives in 2.4.2
+In-Reply-To: <3AC0E112.6040607@AnteFacto.com>
+Message-ID: <Pine.LNX.4.10.10103271055560.17821-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3AC0CA9C.3D804361@sgi.com>; from law@sgi.com on Tue, Mar 27, 2001 at 09:15:08AM -0800
-From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 27, 2001 at 09:15:08AM -0800, LA Walsh wrote:
-> 	Now lets look at the sites want to process terabytes of
-> data -- perhaps files systems up into the Pentabyte range.  Often I
-> can see these being large multi-node (think 16-1024 clusters as 
-> are in use today for large super-clusters).  If I was to characterize
-> the performance of them, I'd likely see the CPU pegged at 100% 
-> with 99% usage in user space.  Let's assume that increasing the
-> block size decreases disk accesses by as much as 10% (you'll have
-> to admit -- using a 64bit quantity vs. 32bit quantity isn't going
-> to even come close to increasing disk access times by 1 millisecond,
-> really, so it really is going to be a much smaller fraction when
-> compared to the actual disk latency).  
-[snip]
-> 	Is there some logical flaw in the above reasoning?
 
-But those changes will affect even the fastpath, i.e. data that is
-already in the page/buffer caches. In which case we don't have to wait
-for disk access latency. Why would anyone who is working with a
-pentabyte of data even consider not relying on essentially always
-hitting data that is available the read-ahead cache.
+./linux/drivers/ide/ide.c
 
-Using similar numbers as presented. If we are working our way through
-every single block in a Pentabyte filesystem, and the blocksize is 512
-bytes. Then the 1us in extra CPU cycles because of 64-bit operations
-would add, according to by back of the envelope calculation, 2199023
-seconds of CPU time a bit more than 25 days.
+ * "hdx=flash"          : allows for more than one ata_flash disk to be
+ *                              registered. In most cases, only one device
+ *                              will be present.
 
-Seriously, there is a lot more that needs to be done than introducing a
-64-bit blocknumber. Effectively 512 byte blocks are far too small for
-that kind of data, and going to pagesize blocks (and increasing pagesize
-to 64KB or 2MB at the same time) is a solution that is far more likely
-to give good results since it reduces both the total the number of
-'blocks' on the device as well as reducing the total amount of calls
-throughout kernel space instead of increasing the cost per call.
 
-Jan
+On Tue, 27 Mar 2001, Padraig Brady wrote:
+
+> How do you activate the walk around you describe
+> to allow the detection of the slave? hda=ataflash?
+> Is this sort of stuff documented anywhere?
+> 
+> For those interested you also mention it here:
+> http://lists.sourceforge.net/archives//linux-usb-devel/2000-August/000929.html
+> 
+> This describes the other combination that causes
+> a problem where you have a normal disk as master
+> and the CF as slave:
+> http://boudicca.tux.org/hypermail/linux-kernel/2000week25/0973.html
+> 
+> Again the problem unresolved:
+> http://boudicca.tux.org/hypermail/linux-kernel/2000week26/0174.html
+> 
+> cheers,
+> Padraig.
+> 
+> Andre Hedrick wrote:
+> 
+> > Because 'real' ATA devices use a signature map the detects presense of
+> > master slave during execute diagnostics.  This is done in the BIOS.
+> > CFA does no report this correctly and waiting for a 31 second time out is
+> > not acceptable.  If you have a complain take it to CFA commitee and have
+> > them fix it.
+> > 
+> > I put in a walk around for having 2 CFA's to allow detection.
+> > This will work also if you call it for a CFA+Disk pair.
+> > 
+> > On Tue, 27 Mar 2001, Padraig Brady wrote:
+> > 
+> >> OK the following assumes CF never have slaves which is just wrong.
+> >> The CF should be logically treated as an IDE harddisk. So the fix is
+> >> probably have a kernel parameter that causes the following check to
+> >> be skipped?
+> > 
+> > Logically treated, is true, but again CFA does not follow the rules of
+> > what the ATA committee gives them, and I refuse to break rules as the
+> > standard model.  Rule breaking are exceptions.
+> > 
+> > Also show me a case where a laptop will do master/slave in CFA.
+> > 
+> >> /*
+> >>    * Prevent long system lockup probing later for non-existant
+> >>    * slave drive if the hwif is actually a flash memory card of some 
+> >> variety:
+> >>    */
+> >>   if (drive_is_flashcard(drive)) {
+> >>           ide_drive_t *mate = &HWIF(drive)->drives[1^drive->select.b.unit];
+> >>           if (!mate->ata_flash) {
+> >>                 mate->present = 0;
+> >>                 ide_drive_t *mate = 
+> >> &HWIF(drive)->drives[1^drive->select.b.unit]
+> >>                 mate->noprobe = 1;
+> >>           }
+> >>   }
+> >> 
+> >> But do we need this check? Is it just for speed. If you have an "ordinary"
+> >> harddrive as master with no slave, will the check for slave cause the same
+> >> "long system lockup", and if not, why.
+> >> 
+> >> Padraig.
+> >> 
+> >> Andre Hedrick wrote:
+> >> 
+> >> 
+> >>> Because in laptops, the primary use of CFA.
+> >>> Laptops using CFA do not have slaves.
+> >> 
+> > 
+> > Andre Hedrick
+> > Linux ATA Development
+> > ASL Kernel Development
+> > -----------------------------------------------------------------------------
+> > ASL, Inc.                                     Toll free: 1-877-ASL-3535
+> > 1757 Houret Court                             Fax: 1-408-941-2071
+> > Milpitas, CA 95035                            Web: www.aslab.com
+> 
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 

@@ -1,68 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316884AbSGNPJX>; Sun, 14 Jul 2002 11:09:23 -0400
+	id <S316886AbSGNPMF>; Sun, 14 Jul 2002 11:12:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316886AbSGNPJW>; Sun, 14 Jul 2002 11:09:22 -0400
-Received: from mail.storm.ca ([209.87.239.66]:62598 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id <S316884AbSGNPJV>;
-	Sun, 14 Jul 2002 11:09:21 -0400
-Message-ID: <3D3187E6.426BB595@storm.ca>
-Date: Sun, 14 Jul 2002 10:17:10 -0400
-From: Sandy Harris <pashley@storm.ca>
-Organization: Flashman's Dragoons
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S316889AbSGNPME>; Sun, 14 Jul 2002 11:12:04 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:23686 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S316886AbSGNPL5>;
+	Sun, 14 Jul 2002 11:11:57 -0400
+Date: Sun, 14 Jul 2002 18:14:49 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Advice saught on math functions
-References: <E17T15g-0007mP-00@speech.braille.uwo.ca> <3D2EF8DB.4DB091FF@storm.ca> <20020714002054.GB29007@codepoet.org>
+Subject: STOP THAT! Re: IDE/ATAPI in 2.5
+Message-ID: <20020714181449.K28720@mea-ext.zmailer.org>
+References: <5.1.0.14.2.20020714153821.00b232d0@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207140850570.3331-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207140850570.3331-100000@hawkeye.luckynet.adm>; from thunder@ngforever.de on Sun, Jul 14, 2002 at 08:52:28AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
+  Folks,
+
+These lists are run in "open for all posters, all topics ok" manner,
+mainly because doing closed lists is way larger pain in the rear than
+occasional through-leaked spam, or occasional bickering, but ...
+
+.. when most of the list traffic is flame war, I am sorely tempted to 
+stomp in with some TABOO-filters..
+
+/Matti Aarnio  -- co-postmaster of vger.kernel.org
+
+
+On Sun, Jul 14, 2002 at 08:52:28AM -0600, Thunder from the hill wrote:
+> Date:	Sun, 14 Jul 2002 08:52:28 -0600 (MDT)
+> From:	Thunder from the hill <thunder@ngforever.de>
+> To:	Anton Altaparmakov <aia21@cantab.net>
+> cc:	Joerg Schilling <schilling@fokus.gmd.de>,
+> 	<linux-kernel@vger.kernel.org>
+> Subject: Re: IDE/ATAPI in 2.5
 > 
-> On Fri Jul 12, 2002 at 11:42:19AM -0400, Sandy Harris wrote:
-> > Does dietlibc help?
-> >
+> Hi,
 > 
-> This is kernel space.  Using any math functions is forbidden
-> in kernel space,
-
-Exactly what do you mean by "forbidden"?
-
-Granted the kernel does not normally contain math libraries,
-and that linking in a 500 meg library would be spectacularly
-silly, what's wrong with using a few carefully chosen math
-functions in a driver?
-
-The kernel does not, I think, normally use floating point.
-Would things break if a library that does was linked in?
-Is that what you mean?
-
-> so using dietlibc, uClibc, or anything else
-> is not going to work.
-
-Just linking in a whole library won't work, but stealing code
-from a size-optimized library might. 
-
-> Moving the math stuff to userspace will
-> help, at which point he can use any C library that suits him,
-
-The guy asking the question thinks he needs math in his driver
-because he needs a system that talks to blind users during the
-boot process, before any userspace programs can run.
-
-I've already suggested writing a scaled integer math library.
-This should be faster than float, accurate enough for speech.
-If what Erik is objecting to is floating point in the kernel,
-not just any sort of math, then it avoids his objection.
-
-Another possible solution:
-
-Use two machines, both set to put boot messages on a serial
-console and connected so that when either reboots, the other
-is used as console. Do your sound in userspace (which I agree
-is where it belongs). Now as long as you don't reboot both
-at once (use a UPS!), you have sound for boot messages.
+> On Sun, 14 Jul 2002, Anton Altaparmakov wrote:
+> > Anton, who is starting to get pissed off with Mr Joerg "I know everything" 
+> > Schilling
+> 
+> I am, so I want mr. Joerg "I know everything" Schilling to take the 
+> challenge to provide us with a working patch on how to deal with it. If 
+> he's so much more familiar with the kernel than we are, he should be able 
+> to provide an efficient interface in no time.
+> 
+> 							Regards,
+> 							Thunder
+> -- 
+> (Use http://www.ebb.org/ungeek if you can't decode)
+> ------BEGIN GEEK CODE BLOCK------
+> Version: 3.12
+> GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+> N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+> e++++ h* r--- y- 
+> ------END GEEK CODE BLOCK------
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

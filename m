@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbUJYS72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbUJYTFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbUJYS72 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 14:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbUJYS51
+	id S261228AbUJYTFG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 15:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbUJYTEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 14:57:27 -0400
-Received: from siaag1ad.compuserve.com ([149.174.40.6]:10975 "EHLO
-	siaag1ad.compuserve.com") by vger.kernel.org with ESMTP
-	id S261220AbUJYS4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 14:56:41 -0400
-Date: Mon, 25 Oct 2004 14:53:52 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Kernel 2.6.9 Page Allocation Failures w/TSO+rollup.patch
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Justin Piszcz <jpiszcz@lucidpixels.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200410251456_MC3-1-8D29-C332@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Mon, 25 Oct 2004 15:04:02 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:37250 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261263AbUJYTDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 15:03:30 -0400
+Subject: Re: 2.6.9-mm1: LVM stopped working
+From: Christophe Saout <christophe@saout.de>
+To: Mathieu Segaud <matt@minas-morgul.org>
+Cc: linux-kernel@vger.kernel.org, Alasdair G Kergon <agk@redhat.com>
+In-Reply-To: <87oeitdogw.fsf@barad-dur.crans.org>
+References: <87oeitdogw.fsf@barad-dur.crans.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qvNhs+t5AjpU1BHRj6IT"
+Date: Mon, 25 Oct 2004 21:03:22 +0200
+Message-Id: <1098731002.14877.3.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicj Piggin wrote:
 
-> Does it cause any noticable problems? If not, then stay with
-> 2.6.9.
->
-> However, it would be nice to get to the bottom of it. It might
-> just be happening by chance on 2.6.9 but not 2.6.8.1 though...
+--=-qvNhs+t5AjpU1BHRj6IT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-  Isn't this the problem fixed by the below patch?  (Sorry I didn't
-get sender name when I collected it.)  Some were skeptical this
-would fix it but it has worked for those who tried...
+Am Sonntag, den 24.10.2004, 01:06 +0200 schrieb Mathieu Segaud:
 
-  Oh and BTW what is rollup.patch?
+> Well, I gave a try to last -mm tree. The bot seemed good till it got to
+> LVM stuff. Vgchange does not find any volume groups. I can't say much bec=
+ause
+> lvm is pretty "early stuff" on this box; so it is pretty unusable. All I =
+know
+> for now, as I changed a little my boot scripts to be more verbose, is tha=
+t
+> vgchange -avvv y returns this kind of message:=20
+> hdXN: cannot read LABEL
+> and this message for all parts it can test....
+> As I need this box up and running, I came back to 2.6.9-rc3-mm3 (it works
+> pretty well). I will be able to run more tests on it, tomorrow but for no=
+w
+> that's all I can provide.
+>=20
+> Oh and dmesg didn't have any oops or BUG in it, and seemed quite usual,
+> in IDE detection and settings messages and device-mapper messages.
+>=20
+> However, I use dm-crypt to encrypt my / (no initrd, just initramfs) and
+> it works under 2.6.9-mm1, so the bug is likely to be in IDE stuff.
+
+Are you encrypting your PV or your LVs?
+
+There's some new dm-crypt code in -mm1 along with some API changes, but
+backward compatibility is provided and should work.
 
 
-# The following patch makes it allocate skb_headlen(skb) - len instead
-# of skb->len - len.  When skb is linear there is no difference.  When
-# it's non-linear we only ever copy the bytes in the header.
-#
-===== net/ipv4/tcp_output.c 1.67 vs edited =====
---- 1.67/net/ipv4/tcp_output.c  2004-10-01 13:56:45 +10:00
-+++ edited/net/ipv4/tcp_output.c        2004-10-17 18:58:47 +10:00
-@@ -455,8 +455,12 @@
- {
-        struct tcp_opt *tp = tcp_sk(sk);
-        struct sk_buff *buff;
--       int nsize = skb->len - len;
-+       int nsize;
-        u16 flags;
-+
-+       nsize = skb_headlen(skb) - len;
-+       if (nsize < 0)
-+               nsize = 0;
- 
-        if (skb_cloned(skb) &&
-            skb_is_nonlinear(skb) &&
+--=-qvNhs+t5AjpU1BHRj6IT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
---Chuck Ebbert  25-Oct-04  14:54:36
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBfU36ZCYBcts5dM0RAv/CAKCnytz87e+A6+Nt5Ok0nMfqP5d5CACgp2vH
+O7PyM4ApFyL49iyH298mxiU=
+=xEaT
+-----END PGP SIGNATURE-----
+
+--=-qvNhs+t5AjpU1BHRj6IT--
+

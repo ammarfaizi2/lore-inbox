@@ -1,78 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269272AbUIHSSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269282AbUIHSUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269272AbUIHSSO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 14:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269284AbUIHSSO
+	id S269282AbUIHSUA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 14:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269286AbUIHSUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 14:18:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38559 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269272AbUIHSSI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 14:18:08 -0400
-Date: Wed, 8 Sep 2004 13:54:12 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com,
-       piggin@cyberone.com.au, mbligh@aracnet.com
-Subject: Re: swapping and the value of /proc/sys/vm/swappiness
-Message-ID: <20040908165412.GB4284@logos.cnet>
-References: <413CB661.6030303@sgi.com> <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <cone.1094513660.210107.6110.502@pc.kolivas.org> <20040907000304.GA8083@logos.cnet> <20040907212051.GC3492@logos.cnet> <413F1518.7050608@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Sep 2004 14:20:00 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:7629 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S269285AbUIHSTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 14:19:50 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: Erik Jacobson <erikj@subway.americas.sgi.com>
+Subject: Re: [PATCH] sgiioc4 driver needs /proc/ide entries
+Date: Wed, 8 Sep 2004 19:40:13 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <Pine.SGI.4.53.0409081059500.77854@subway.americas.sgi.com>
+In-Reply-To: <Pine.SGI.4.53.0409081059500.77854@subway.americas.sgi.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <413F1518.7050608@sgi.com>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409081940.13597.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08, 2004 at 09:20:08AM -0500, Ray Bryant wrote:
-> 
-> 
-> Marcelo Tosatti wrote:
-> 
-> >
-> >Andrew, dirty_ratio and dirty_background_ratio (as low as 5% each) did not 
-> >significantly affect the amount of swapped out data, only a small effect 
-> >on _how soon_ anonymous memory was swapped out.
-> >
-> 
-> I looked at the get_dirty_limits() code and for the test cases I was 
-> running,
-> we have mapped > 90% of memory.  So what will happen is that dirty_ratio 
-> will be thresholded at 5%, and background_ratio will be 1%.  Changing 
-> values in /proc won't modify this at all (well, you could force 
-> background_ratio to 0%.)
-> 
-> It seems to me that the 5% number in there is more or less arbitrary.  If 
-> we are on a big memory Altix (4 TB), 5% of memory would be 200 GB. That is 
-> a lot of page cache.
 
-On such huge memory machines I guess you have no choice but scale down the 
-dirty limits for them to be "equivalent" with reference to IO device speed.
+On Wednesday 08 September 2004 18:17, Erik Jacobson wrote:
+> The patch below makes it so the proper /proc/ide files are created when
+> this driver is loaded.  Previously, /proc/ide would be empty even though
 
-And as Martin says it depends on the workload also.
+This patch only adds /proc/ide/sgiioc4 entry.
+/proc/ide should be properly populated without it.
 
-> It seems get_dirty_limits() would be a lot simpler (and automatically scale 
-> as memory is mapped) if the limits were interpreted as being in terms of 
-> the amount of unmapped memory.  A patch that implements this idea is 
-> attached.
-> (Andrew -- if it comes to that I can submit this patch inline -- this is 
-> just for talking at the moment).
+> the devices could be used, etc.  This is creating problems for us because
+> some installers and daemons expect the proc files to be in place.
+
+Please name these installers and daemons.
+
+If your application is checking for /proc/ide/sgiioc4 this is WRONG.
+
+Please tell us what do you need this information for and we can
+see what can be done.
+
+> We're open to comments but would appreciate this being accepted ASAP
+> as this problem is affecting our progress on some projects.
+>
+> I verified this exact patch works on 2.6.9-rc1 (and it applies without
+> fuzz).
 > 
-> I'll run a few of the tests with this modified kernel and see if they are 
-> any different.
+> One thing I'll probably hear about is that we create /proc/ide/sgiioc4
+> but don't produce info and metrics for it.  We may elect to produce some
 
-Huh, that changes the meaning of the dirty limits. Dont think its suitable
-for mainline.
+Actually no, these /proc/ide/<chipset> entries are just bloat and should
+be removed - basic info should be always printed on the console (i.e. while
+changing transfer mode) and more advanced info should be only printed
+while debugging driver.
 
-> >And finally, Ray, the difference you see between 2.6.6 and 2.6.7 can be 
-> >explained, as noted by others in this thread, to vmscan.c changes (page 
-> >replacement/scanning policy
-> >changes were made).
+> metrics later but this driver is used primarily for the system CDROM and
+> having metrics there isn't a priority at this moment.  So I create the proc
+> file anyway but it just reports the type of driver it is.
 > 
-> Yep.  I can probably live with those minor differences though.  I would be 
-> happier if the system didn't swap anything at all for low values of 
-> swappiness, though.
-
-Now that must work - if its not we have a problem.
+> diffstat:
+> 
+>  drivers/ide/pci/sgiioc4.c |   33 +++++++++++++++++++++++++++++++++
+>  1 files changed, 33 insertions(+)
+> 
+> Signed-off-by: Erik Jacobson <erikj@sgi.com>
+> 
+> 
+> diff -Naru linux-2.6.8-orig/drivers/ide/pci/sgiioc4.c linux-2.6.8/drivers/ide/pci/sgiioc4.c
+> --- linux-2.6.8-orig/drivers/ide/pci/sgiioc4.c	2004-08-14 01:36:58.000000000 -0400
+> +++ linux-2.6.8/drivers/ide/pci/sgiioc4.c	2004-09-08 08:40:39.624159397 -0400
+> @@ -34,6 +34,7 @@
+>  #include <linux/mm.h>
+>  #include <linux/ioport.h>
+>  #include <linux/blkdev.h>
+> +#include <linux/proc_fs.h>
+>  #include <asm/io.h>
+> 
+>  #include <linux/ide.h>
+> @@ -92,6 +93,27 @@
+>  #define IOC4_PRD_BYTES       16
+>  #define IOC4_PRD_ENTRIES     (PAGE_SIZE /(4*IOC4_PRD_BYTES))
+> 
+> +/* Used so we only try to create the /proc/ide/sgiioc4 entry once. */
+> +static u8 sgiioc4_proc;
+> +
+> +/* Produce output for /proc/ide/sgiioc4:
+> + * At this point, we don't produce any metrics information.
+> + * Still, it seems we should create this so we behave like other IDE
+> + * drivers do.  Perhaps someone will write in metrics information some day
+> + * and that can be hooked in here.
+> + */
+> +static int sgiioc4_get_info(char *buffer, char **addr, off_t offset, int count)
+> +{
+> +	char *p = buffer;
+> +	int len;
+> +
+> +	p += sprintf(p, "\nSGI IOC4 IDE Driver\n");
+> +	p += sprintf(p, "This space may be used in the future for metrics.\n");
+> +
+> +	len = (p - buffer) - offset;
+> +	*addr = buffer + offset;
+> +	return len > count ? count : len;
+> +}
+> 
+>  static void
+>  sgiioc4_init_hwif_ports(hw_regs_t * hw, unsigned long data_port,
+> @@ -702,6 +724,10 @@
+>  		       hwif->name, d->name);
+> 
+>  	probe_hwif_init(hwif);
+> +
+> +	/* Create /proc/ide entries */
+> +	create_proc_ide_interfaces();
+> +
+>  	return 0;
+>  }
+> 
+> @@ -732,6 +758,13 @@
+> 
+>  	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
+>  	class_rev &= 0xff;
+> +
+> +	/* create /proc/ide/sgiioc4 entry */
+> +	if (!sgiioc4_proc) {
+> +		ide_pci_create_host_proc("sgiioc4", sgiioc4_get_info);
+> +		sgiioc4_proc = 1;
+> +	}
+> +
+>  	printk(KERN_INFO "%s: IDE controller at PCI slot %s, revision %d\n",
+>  			d->name, dev->slot_name, class_rev);
+>  	if (class_rev < IOC4_SUPPORTED_FIRMWARE_REV) {
+> 
+> 

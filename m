@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263340AbTDGI1e (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 04:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263341AbTDGI1e (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 04:27:34 -0400
-Received: from [12.47.58.191] ([12.47.58.191]:65254 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263340AbTDGI1d (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 04:27:33 -0400
-Date: Mon, 7 Apr 2003 01:39:03 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Nikita@Namesys.COM, dragon@gentoo.org, hch@lst.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove kdevname() before someone starts using it again
-Message-Id: <20030407013903.711d5927.akpm@digeo.com>
-In-Reply-To: <20030407091923.B28879@infradead.org>
-References: <20030331162634.A14319@lst.de>
-	<3E908DF6.1050004@gentoo.org>
-	<16017.11269.576246.373826@laputa.namesys.com>
-	<20030407091923.B28879@infradead.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id S263331AbTDGIYY (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 04:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbTDGIYY (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 04:24:24 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:59149 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263333AbTDGIYW (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 04:24:22 -0400
+Date: Mon, 7 Apr 2003 04:35:56 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new syscall: flink
+Message-ID: <20030407043555.G13397@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <Pine.BSO.4.44.0304062250250.9407-100000@kwalitee.nolab.conman.org> <b6qruf$elf$1@cesium.transmeta.com> <b6r9cv$jof$1@news.cistron.nl> <20030407081800.GA48052@dspnet.fr.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Apr 2003 08:39:01.0232 (UTC) FILETIME=[23722700:01C2FCE1]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030407081800.GA48052@dspnet.fr.eu.org>; from galibert@pobox.com on Mon, Apr 07, 2003 at 10:18:00AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> partition_name()
+On Mon, Apr 07, 2003 at 10:18:00AM +0200, Olivier Galibert wrote:
+> On Mon, Apr 07, 2003 at 07:29:35AM +0000, Miquel van Smoorenburg wrote:
+> > Can't you just check those permissions, i.e. behave like link() ?
+> > If you cant't access the path to the file, don't permit flink() ?
+> 
+> Which path ?  A file can have many paths to it, or to the other
+> extreme none at all.
 
-That function would appear to be
+There is at most one path associated with an opened file - d_path on
+file->f_dentry. If a fd has no path, don't permit flink().
+Alternatively, flink() could have 3 arguments, 2 like link and an opened
+fd, which would atomically do if fd describes the same object as buf,
+link buf to newname.
 
-a) slow
-
-b) leaky
-
-c) racy and
-
-d) plain wrong if dev_t's can get recycled.
-
-Can we at least give it a lock? :(
-
+	Jakub

@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbUJYVZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbUJYVZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbUJYVZw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbUJYVV6
+	id S261212AbUJYVZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 17:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUJYVW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 17:21:58 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:58513 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261991AbUJYVRl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 17:17:41 -0400
-Message-ID: <417D6CD9.2090702@tmr.com>
-Date: Mon, 25 Oct 2004 17:15:05 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Mon, 25 Oct 2004 17:22:29 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:39026 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262180AbUJYVDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 17:03:47 -0400
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 1/1] dm: fix printk errors about whether %lu/%Lu is right for sector_t - revised
+Date: Mon, 25 Oct 2004 22:55:08 +0200
+User-Agent: KMail/1.6.1
+Cc: agk@redhat.com, neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
+References: <20041021224554.402233F37@zion.localdomain> <20041022025340.058837f7.akpm@osdl.org>
+In-Reply-To: <20041022025340.058837f7.akpm@osdl.org>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Willy Tarreau <willy@w.ods.org>, espenfjo@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: My thoughts on the "new development model"
-References: <20041022225703.GJ19761@alpha.home.local><20041022225703.GJ19761@alpha.home.local> <20041023000956.GI17038@holomorphy.com>
-In-Reply-To: <20041023000956.GI17038@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410252255.08217.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+On Friday 22 October 2004 11:53, Andrew Morton wrote:
+> blaisorblade_spam@yahoo.it wrote:
+> > The Device Manager code barfs when sector_t is 64bit wide (i.e. an u64)
+> > and CONFIG_LBD is off. This happens on printk(), resulting in wrong
+> > memory accesses, but also on sscanf(), resulting in overflows (because it
+> > uses %lu for a long long in this case). And region_t, chunk_t are
+> > typedefs for sector_t, so we have warnings for these, too.
 
-> We aren't just stabilizing 2.6. We're moving it forward. Part of moving
-> forward is preventing backportmania depravity. Backporting is the root
-> of all evil.
+> This patch caused the x86_64 build to puke: "Not allowed to define
+> CONFIG_LBD on this architecture" or some such.
 
-Damn! And I thought it was closed source software...
+Yes, there is an #error directive for this.
 
-Let me just put forward my single criterion for stable vs. not, and that 
-is that if I am running a stable kernel and upgrade to a new version to 
-gain a feature or security fix my existing programs don't break. That 
-means to me that if Reiser4 goes in, Reiser3 doesn't exit. If something 
-more please to theoretical cryptographers than cryptoloop comes out, 
-cryptoloop doesn't go away. Etc, these are just examples.
+Who would ever need to use CONFIG_LBD when sector_t is already 64-bit? So this 
+is flagged as an error (feel free to remove that, if you know a good reason).
 
-It doesn't bother me (and I believe most users of kernel.org releases) 
-when a new features comes in, until it breaks something even though I 
-don't use the new feature. It's when there is an incompatible change, 
-like the rewrite of modules, that I think a development kernel is needed.
+In fact, this is your fault, given both the 2.6.9 kernel and the 2.6.10-rc1 
+one:
 
-I don't see the need for a development kernel, and it is desirable to be 
-able to run kernel.org kernels. I would like to hope that other people 
-agree that stable need not mean static, as long as changes don't 
-deliberately break existing apps.
+config LBD
+        bool "Support for Large Block Devices"
+        depends on X86 || MIPS32 || PPC32 || ARCH_S390_31 || SUPERH
+        help
+          Say Y here if you want to attach large (bigger than 2TB) discs to
+          your machine, or if you want to have a raid or loopback device
+          bigger than 2TB.  Otherwise say N.
 
-I note that BSD has another serious fork and that people are actually 
-moving to Linux after installing SP2 and finding it disfunctional with 
-non-MS software. Nice to see people looking at Linux as the stable 
-choice. I would like to hope that continues.
+So if you define LBD on a x86_64 kernel, you get to keep the pieces.
 
+A make oldconfig would probably help - don't you think so?
+
+> I'd much prefer that you simply remove SECTOR_FORMAT completely.
+
+Impossible - doing a scanf and then copying the value is much uglier. I just 
+add 5 lines of code to avoid the problem, while removing the silly 
+HAVE_SECTOR_T trick and moving the CONFIG_LBD handling to arch-independent 
+code.
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

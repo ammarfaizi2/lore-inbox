@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbTEHXY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 19:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTEHXY5
+	id S262301AbTEHX1X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 19:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbTEHX1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 19:24:57 -0400
-Received: from h-64-105-35-101.SNVACAID.covad.net ([64.105.35.101]:40109 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S262251AbTEHXYy
+	Thu, 8 May 2003 19:27:22 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:20361 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S262301AbTEHX1U
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 19:24:54 -0400
-Date: Thu, 8 May 2003 16:36:42 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200305082336.h48Nage18416@freya.yggdrasil.com>
-To: root@mauve.demon.co.uk
-Subject: Re: Binary firmware in the kernel - licensing issues.
-Cc: linux-kernel@vger.kernel.org
+	Thu, 8 May 2003 19:27:20 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Pavel Machek <pavel@ucw.cz>, "David S. Miller" <davem@redhat.com>
+Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
+Date: Fri, 9 May 2003 01:35:39 +0200
+User-Agent: KMail/1.5.1
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org
+References: <20030507152856.GF412@elf.ucw.cz> <20030508.134300.122085520.davem@redhat.com> <20030508230337.GA139@elf.ucw.cz>
+In-Reply-To: <20030508230337.GA139@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="euc-jp"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305090135.39944.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 	Let's be clear: embedding binary firmware into a GPL'ed
->> work is fine if the firmware contains no additional restriction
->> beyond the GPL and complete source code for the firmware is
->> included.  I think you understand this much already, but I just
->> want to be clear about it.
+On Friday 09 May 2003 01:03, Pavel Machek wrote:
 
->> 	All three distribution options in section 3 of the version 2
->> of the GNU General Public License require distribution or arrangments
->> for distribution "machine-readable source code", and defines
->> "source code" as "the preferred form of the work for making
->> modifications to it."  That seems pretty clear to me.
+> > Suggest something sane like defining a macro such as
+> > "compat_task(tsk)" that can be tested by various bits of
+> > code.
+>
+> That makes more sense. Unfortunately, that means that case "okay, it
+> is compatible" can not be told from "we did not bother to check
+> compat_task()". :-(. Nor do I see a transition phase.
 
-root@mauve.demon.co.uk wrote:
->So if you've got a CPU, that you have to load the microcode into before
->fully booting, you can't run linux on it natively, unless the CPU maker
->provides full microcode source? 
+You still need to list them as COMPATIBLE_IOCTL() or call
+register_ioctl32_conversion(IOCTLNO, 0) when the ioctl has been
+made compatible. Unless we are sure that every single ioctl
+has been made compatible (probably never), the default must
+be to call sys_ioctl from compat_sys_ioctl only if the number
+is explicitly listed. This should solve both problems you
+mentioned.
 
-	I don't know of any such CPU, but I imagine you could run
-Linux on it natively.  Just make sure that the microcode is not part
-of a GPL'ed work.  For example, have the boot loader load the
-microcode from a separate file before booting Linux.
+One minor remaining problem is that if multiple files contain
+handlers for the same ioctl number, they have to be converted
+at the same time because the number can not both be compatible
+and incompatible at the same time.
 
-	If the CPU can start boot Linux far enough to mount
-a root file system and run some user space programs manually,
-you could even have a separate user space program running under
-Linux update the microcode.
-
->Presumably the "preferred form" clause would mean that there must 
->be hardware documentation too.
-
-	No.  I just expalained the differences in these two
-messages:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105240981525737&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105241295329617&w=2
-
->And when is a binary a binary, and not a string constant?
-
-	When the developers create the binary from an assembler
-rather calculating numbers manually, then the file that they
-feed to the assembler is part of the preferred form of the
-work for making modifications to it.
-
-	All of the above is "in my humble opinion."  Also, remember
-that I am not a lawyer, so do not rely on this as legal advice.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Miplitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+	Arnd <><

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUDZKcC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUDZKsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264443AbUDZKcC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 06:32:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbUDZKbI
+	id S264500AbUDZKsj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 06:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264499AbUDZK32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 06:31:08 -0400
-Received: from ns.suse.de ([195.135.220.2]:56021 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264443AbUDZK2v (ORCPT
+	Mon, 26 Apr 2004 06:29:28 -0400
+Received: from ns.suse.de ([195.135.220.2]:55765 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264307AbUDZK2u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 06:28:51 -0400
-Subject: [PATCH 2/11] sunrpc-multiple-programs
+	Mon, 26 Apr 2004 06:28:50 -0400
+Subject: [PATCH 1/11] sunrpc-enosys-when-unavail
 From: Andreas Gruenbacher <agruen@suse.de>
 To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Organization: SUSE Labs, SUSE LINUX AG
-Message-Id: <1082975173.3295.72.camel@winden.suse.de>
+Message-Id: <1082975161.3295.70.camel@winden.suse.de>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.4 
 Date: Mon, 26 Apr 2004 12:28:47 +0200
@@ -22,68 +22,45 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Support multiple program numbers on one RPC transport
+Differentiate between program/procedure not available and other errors
 
-The NFS and NFSACL programs run on the same RPC transport. This patch
-adds support for this by changing svc_program into a chained list of
-programs instead of a single program (on the server side).
+  Andreas Gruenbacher <agruen@suse.de>, SUSE Labs
 
-  Andreas Gruenbacher <agruen@suse.de>, SuSE Labs
-
-
-Index: linux-2.6.6-rc2/fs/nfsd/nfsproc.c
+Index: linux-2.6.6-rc2/net/sunrpc/clnt.c
 ===================================================================
---- linux-2.6.6-rc2.orig/fs/nfsd/nfsproc.c
-+++ linux-2.6.6-rc2/fs/nfsd/nfsproc.c
-@@ -588,6 +588,8 @@ nfserrno (int errno)
- 		{ nfserr_jukebox, -ETIMEDOUT },
- 		{ nfserr_dropit, -EAGAIN },
- 		{ nfserr_dropit, -ENOMEM },
-+		{ nfserr_notsupp, -ENOTSUPP },
-+		{ nfserr_notsupp, -EOPNOTSUPP },
- 		{ -1, -EIO }
- 	};
- 	int	i;
-Index: linux-2.6.6-rc2/include/linux/sunrpc/svc.h
-===================================================================
---- linux-2.6.6-rc2.orig/include/linux/sunrpc/svc.h
-+++ linux-2.6.6-rc2/include/linux/sunrpc/svc.h
-@@ -232,9 +232,10 @@ struct svc_deferred_req {
- };
- 
- /*
-- * RPC program
-+ * List of RPC programs on the same transport endpoint
-  */
- struct svc_program {
-+	struct svc_program *	pg_next;	/* other programs (same xprt) */
- 	u32			pg_prog;	/* program number */
- 	unsigned int		pg_lovers;	/* lowest version */
- 	unsigned int		pg_hivers;	/* lowest version */
-Index: linux-2.6.6-rc2/net/sunrpc/svc.c
-===================================================================
---- linux-2.6.6-rc2.orig/net/sunrpc/svc.c
-+++ linux-2.6.6-rc2/net/sunrpc/svc.c
-@@ -326,8 +326,10 @@ svc_process(struct svc_serv *serv, struc
- 		goto sendit;
- 	}
- 		
--	progp = serv->sv_program;
--	if (prog != progp->pg_prog)
-+	for (progp = serv->sv_program; progp; progp = progp->pg_next)
-+		if (prog == progp->pg_prog)
-+			break;
-+	if (progp == NULL)
- 		goto err_bad_prog;
- 
- 	if (vers >= progp->pg_nvers ||
-@@ -440,7 +442,7 @@ err_bad_auth:
- 
- err_bad_prog:
- #ifdef RPC_PARANOIA
--	if (prog != 100227 || progp->pg_prog != 100003)
-+	if (prog != 100227 || serv->sv_program->pg_prog != 100003)
- 		printk("svc: unknown program %d (me %d)\n", prog, progp->pg_prog);
- 	/* else it is just a Solaris client seeing if ACLs are supported */
- #endif
+--- linux-2.6.6-rc2.orig/net/sunrpc/clnt.c
++++ linux-2.6.6-rc2/net/sunrpc/clnt.c
+@@ -1018,23 +1018,28 @@ call_verify(struct rpc_task *task)
+ 	case RPC_SUCCESS:
+ 		return p;
+ 	case RPC_PROG_UNAVAIL:
+-		printk(KERN_WARNING "RPC: call_verify: program %u is unsupported by server %s\n",
++		if (task->tk_client->cl_prog != 100227) {
++			printk(KERN_WARNING "RPC: call_verify: program %u is unsupported by server %s\n",
+ 				(unsigned int)task->tk_client->cl_prog,
+ 				task->tk_client->cl_server);
+-		goto out_eio;
++		}
++		rpc_exit(task, -ENOSYS);
++		return NULL;
+ 	case RPC_PROG_MISMATCH:
+ 		printk(KERN_WARNING "RPC: call_verify: program %u, version %u unsupported by server %s\n",
+ 				(unsigned int)task->tk_client->cl_prog,
+ 				(unsigned int)task->tk_client->cl_vers,
+ 				task->tk_client->cl_server);
+-		goto out_eio;
++		rpc_exit(task, -ENOSYS);
++		return NULL;
+ 	case RPC_PROC_UNAVAIL:
+ 		printk(KERN_WARNING "RPC: call_verify: proc %p unsupported by program %u, version %u on server %s\n",
+ 				task->tk_msg.rpc_proc,
+ 				task->tk_client->cl_prog,
+ 				task->tk_client->cl_vers,
+ 				task->tk_client->cl_server);
+-		goto out_eio;
++		rpc_exit(task, -ENOSYS);
++		return NULL;
+ 	case RPC_GARBAGE_ARGS:
+ 		break;			/* retry */
+ 	default:
 

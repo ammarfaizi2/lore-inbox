@@ -1,58 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbUK0QzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbUK0Q6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbUK0QzL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 11:55:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUK0QzL
+	id S261265AbUK0Q6e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 11:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbUK0Q6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 11:55:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8125 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261256AbUK0QzF (ORCPT
+	Sat, 27 Nov 2004 11:58:33 -0500
+Received: from inx.pm.waw.pl ([195.116.170.20]:21121 "EHLO inx.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261263AbUK0Q6b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 11:55:05 -0500
-Message-ID: <41A8B0AF.8000906@osdl.org>
-Date: Sat, 27 Nov 2004 08:51:59 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Sat, 27 Nov 2004 11:58:31 -0500
+To: Ferenci Daniel <Daniel.Ferenci@siemens.com>
+Cc: linux-kernel@vger.kernel.org, linux-x25@vger.kernel.org
+Subject: Re: x25 forward
+References: <41A5B137.6070405@siemens.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 27 Nov 2004 17:24:57 +0100
+In-Reply-To: <41A5B137.6070405@siemens.com> (Ferenci Daniel's message of
+ "Thu, 25 Nov 2004 11:17:27 +0100")
+Message-ID: <m3wtw745uu.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk, akpm@osdl.org
-Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for CONFIG_XEN
-References: <E1CY1rC-0007Y2-00@mta1.cl.cam.ac.uk>
-In-Reply-To: <E1CY1rC-0007Y2-00@mta1.cl.cam.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Pratt wrote:
->>>>@@ -42,7 +42,12 @@ extern void tapechar_init(void);
->>>>  */
->>>> static inline int uncached_access(struct file *file, unsigned long addr)
->>>
->>>Any chance you could just move uncached_access() to some asm/ header for
->>>all arches instead of making the ifdef mess even worse?
->>
->>I suppose a generic definition could go in asm-generic/iomap.h
->>with per-architecture definitions in asm/io.h.  However, I think
->>it would make sense to wait until PAT support gets added and then
->>think through exactly what needs doing rather than reorganising
->>things now.
-> 
-> 
-> What do people think about this? Should I stick with the current
-> patch that adds another #ifdef to uncached_access, or should I
-> try pulling it out into asm-generic/iomap.h with per-arch
-> definitions in asm/io.h ?
-> 
-> Is there anyone working on PAT support? It would be good to have
-> their input.
+Ferenci Daniel <Daniel.Ferenci@siemens.com> writes:
 
-Someone from NVidia has posted some PAT patches a few times.
-(Terence Ripperda)  There's a thread beginning here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108180930118848&w=2
-
+> +++ linux-2.4.25.intel/net/x25/af_x25.c	Sat Nov 13 09:30:12 2004
+> @@ -26,6 +26,7 @@
+>   *	2000-10-02	Henner Eisen	Made x25_kick() single threaded per socket.
+>   *	2000-10-27	Henner Eisen    MSG_DONTWAIT for fragment allocation.
+>   *	2000-11-14	Henner Eisen    Closing datalink from NETDEV_GOING_DOWN
+> + *	2000-11-12	Daniel Ferenci	Forward capability added
+        ^^^^
+Some time warp machine, eh? :-)
 -- 
-~Randy
+Krzysztof Halasa

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262020AbSKHNvQ>; Fri, 8 Nov 2002 08:51:16 -0500
+	id <S261996AbSKHNvD>; Fri, 8 Nov 2002 08:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262023AbSKHNvQ>; Fri, 8 Nov 2002 08:51:16 -0500
-Received: from chambertin.convergence.de ([212.84.236.2]:24328 "EHLO
-	chambertin.convergence.de") by vger.kernel.org with ESMTP
-	id <S262020AbSKHNvO>; Fri, 8 Nov 2002 08:51:14 -0500
-Message-ID: <3DCBC2E3.5040503@convergence.de>
-Date: Fri, 08 Nov 2002 14:57:55 +0100
-From: Holger Waechtler <holger@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: Switch DVB to generic crc32.
-References: <28280.1036753951@passion.cambridge.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262020AbSKHNvD>; Fri, 8 Nov 2002 08:51:03 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18957 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261996AbSKHNvD>; Fri, 8 Nov 2002 08:51:03 -0500
+Date: Fri, 8 Nov 2002 13:57:42 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Rusty Trivial Russell <trivial@rustcorp.com.au>
+Subject: Re: [PATCH] SCSI on non-ISA systems
+Message-ID: <20021108135742.A22790@flint.arm.linux.org.uk>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	Rusty Trivial Russell <trivial@rustcorp.com.au>
+References: <Pine.GSO.4.21.0211081443590.23267-100000@vervain.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0211081443590.23267-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Fri, Nov 08, 2002 at 02:46:40PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> Not entirely sure why the DVB core code has its own crc32 table -- not only 
-> should it be using the one the kernel provides, but AFAICT nothing in the 
-> tree actually seem to _use_ its dvb_set_crc32() function anyway.
+On Fri, Nov 08, 2002 at 02:46:40PM +0100, Geert Uytterhoeven wrote:
+> Since 2.5.31, the compilation of kernel/dma.c is conditional on
+> CONFIG_GENERIC_ISA_DMA. However, drivers/scsi/hosts.c unconditionally calls
+> free_dma(), which breaks machines with SCSI that don't have ISA.
 
-the crc32 table was defined because the same driver works for 2.4 
-kernels, there we need our own crc32 implementation. I'll check if we 
-can use the generic code in the kernel and then move the dvb_crc32 code 
-into the 2.4 compatibility file compat.c
+This isn't actually the original purpose of CONFIG_GENERIC_ISA_DMA (it
+was to allow an architecture to provide ISA-like DMA without having to
+use the ISA DMA request/free functions - eg, they need to claim interrupts
+on request_dma() and free them on free_dma()).
 
-That the crc32 check is currently not called by the software 
-demultiplexer is a known bug, it's already fixed in local CVS and will 
-get into the kernel with the next patchset. I'm currently preparing this 
-patchset but want to test it a little more.
+However, since this function isn't used on ARM, it doesn't affect me,
+and so I don't have any problem with this patch. 8)
 
-Alan: do you have doubts or is there a reason not to apply the last 
-patchset I sent you on Tue, 29 Oct 2002? (well - it was kind of huge, 
-but all the namespace fixes and cleanups should justify the patch's 
-size, not?)
-
-Holger
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

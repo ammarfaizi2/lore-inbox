@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbULaTgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbULaTmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbULaTgI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 14:36:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbULaTgI
+	id S262152AbULaTmp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 14:42:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbULaTmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 14:36:08 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:4876 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262147AbULaTgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 14:36:05 -0500
-Date: Fri, 31 Dec 2004 20:32:47 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: William Park <opengeometry@yahoo.ca>,
-       Paulo Marques <pmarques@grupopie.com>, Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-kernel@vger.kernel.org, Andreas Unterkircher <unki@netshadow.at>
-Subject: Re: waiting 10s before mounting root filesystem?
-Message-ID: <20041231193247.GQ17946@alpha.home.local>
-References: <20041227201015.GB18911@sweep.bur.st> <41D07D56.7020702@netshadow.at> <20041229005922.GA2520@node1.opengeometry.net> <Pine.LNX.4.61.0412290231580.3528@dragon.hygekrogen.localhost> <20041229015622.GA2817@node1.opengeometry.net> <41D2A7BE.2030806@grupopie.com> <20041229191525.GA2597@node1.opengeometry.net> <41D306AF.1020500@grupopie.com> <20041229205940.GB3024@node1.opengeometry.net> <41D320F3.2010508@domdv.de>
+	Fri, 31 Dec 2004 14:42:42 -0500
+Received: from smtp3.pp.htv.fi ([213.243.153.36]:28367 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S262149AbULaTmj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 14:42:39 -0500
+Date: Fri, 31 Dec 2004 21:42:38 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: pmarques@grupopie.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sh: inconsistent kallsyms data
+Message-ID: <20041231194238.GC19049@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	pmarques@grupopie.com, linux-kernel@vger.kernel.org
+References: <20041231172549.GA18211@linux-sh.org> <1104515971.41d593835721f@webmail.grupopie.com> <20041231182234.GB18211@linux-sh.org> <1104521356.41d5a88c041ff@webmail.grupopie.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="48TaNjbzBVislYPb"
 Content-Disposition: inline
-In-Reply-To: <41D320F3.2010508@domdv.de>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1104521356.41d5a88c041ff@webmail.grupopie.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 29, 2004 at 10:26:11PM +0100, Andreas Steinmetz wrote:
-> William Park wrote:
-> >I finally wrote a script to build 200MB root filesystem from Slackware
-> >distribution (A, AP, N, X series).  And, now, you're telling me to build
-> >a 200kB root filesystem?  I need beer...
-> 
-> You don't need beer, you need busybox. The smallest initrd I made with 
-> busybox is 99kB (finds boot cdrom and sets up a ram disk as rootfs).
 
-Hmmm... Since we have the equivalent function in slightly less than 7 kB in
-Formilux, I think that I should document a bit more when I have some time so
-that others can reuse it... I find it a shame to still need 99 kB to find a
-CDROM, particularly when you need to put this on floppies.
+--48TaNjbzBVislYPb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
-Willy
+On Fri, Dec 31, 2004 at 07:29:16PM +0000, pmarques@grupopie.com wrote:
+> You mis-read the 'if'. The symbol is not used it is of 'U' type *or*
+> is_arm_mapping_symbol. This means that is_arm_mapping_symbol will be
+> called for all the symbols that are not of type 'U'.
+>=20
+Yeah, I noticed that after I had modified the if and commented out the
+is_arm_mapping_symbol and replied already. It made no difference
+anyways.
 
+> I was the one who wrote the algorithm, so I'm probably in the best
+> position to debug it. If you send Keith the info he requested, send it
+> to me too, so that I have some more data to look at.
+>=20
+Keith already replied to this privately so I'll leave it at that. Let me
+know if you need anything else.
+
+--48TaNjbzBVislYPb
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFB1auu1K+teJFxZ9wRAo0BAJ9KAzVH2dYX76oEeRM6BC3yQ83TFACfXSxz
+i/JriIvA3NEEw2rBPiG55F4=
+=T8Wj
+-----END PGP SIGNATURE-----
+
+--48TaNjbzBVislYPb--

@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263778AbTK2Nr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 08:47:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbTK2Nr5
+	id S263460AbTK2OCR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 09:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTK2OCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 08:47:57 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55824 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263778AbTK2Nry
+	Sat, 29 Nov 2003 09:02:16 -0500
+Received: from as13-5-5.has.s.bonet.se ([217.215.179.23]:39112 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S263460AbTK2OCP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 08:47:54 -0500
-Date: Sat, 29 Nov 2003 08:36:50 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: bert hubert <ahu@ds9a.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 not cat proof
-In-Reply-To: <20031126201052.GA16106@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.3.96.1031129083405.26461D-100000@gatekeeper.tmr.com>
+	Sat, 29 Nov 2003 09:02:15 -0500
+Message-ID: <3FC8A77B.9020806@stesmi.com>
+Date: Sat, 29 Nov 2003 15:04:43 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John Bradford <john@grabjohn.com>
+CC: Andries Brouwer <aebr@win.tue.nl>, Szakacsits Szabolcs <szaka@sienet.hu>,
+       Andrew Clausen <clausen@gnu.org>, Apurva Mehta <apurva@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bug-parted@gnu.org
+Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
+References: <20031128045854.GA1353@home.woodlands> <20031128142452.GA4737@win.tue.nl> <20031129022221.GA516@gnu.org> <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi> <20031129123451.GA5372@win.tue.nl> <200311291350.hATDo0CY001142@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200311291350.hATDo0CY001142@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Nov 2003, bert hubert wrote:
+Hi.
 
-> This bug has been seen here over eight years ago and it is back.. linux
-> 2.6.0-test4 is still not cat proof :-)
+> Why don't we take the opporunity to make all CHS code configurable out
+> of the kernel, and define a new, more compact, partition table format
+> which used LBA exclusively, and allowed more than four partitions in
+> the main partition table?
 > 
-> I found my cat asleep on the warm laptop, it is winter here, and the
-> keyboard was dead. Mouse still works, but I had to reboot before I could use
-> the keyboard again. Restarting X, which I could do with the mouse, did not
-> help.
+> I know it sounds pointless to define a new partitioning scheme when
+> there are so many already in existance, but for dedicated Linux
+> machines, only being able to define four partitions without resorting
+> to 'extended' partitions, which store there partitioning data in other
+> parts of the disk, is a needless limitation.  We could also ensure
+> that there is sufficient magic in the partition table to make
+> identifying it easy and reliable.
 
-Interesting, I must have different config options, my keyboard is fine, if
-I tap the spacebar with my cat on my lap he   b <-(cat spaces) will insert
-one or more spaces for me. If I don't trim his nails he may insert nearby
-characters as well.
-> 
-> But I'm willing to live with this problem :-) Not sure if I want to debug
-> this, my previous laptop turned out to be filled with hair too. She never
-> lies on the keyboard when I'm at home!
-> 
-> Thought you'd want to know,
+Then just select a partitioning scheme that fills those features you
+request instead, as you say - there are very many out there and
+you're bound to find at least ONE that has those features (I can name
+a few straight off) :)
 
-Nice to know I'm not the only person silly about his cat ;-)
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+// Stefan
 

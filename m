@@ -1,97 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267840AbTBJM5Z>; Mon, 10 Feb 2003 07:57:25 -0500
+	id <S267843AbTBJNJt>; Mon, 10 Feb 2003 08:09:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267841AbTBJM5Z>; Mon, 10 Feb 2003 07:57:25 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:44674 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267840AbTBJM5X>;
-	Mon, 10 Feb 2003 07:57:23 -0500
-Date: Mon, 10 Feb 2003 14:07:04 +0100
+	id <S267844AbTBJNJt>; Mon, 10 Feb 2003 08:09:49 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:49538 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S267843AbTBJNJs>;
+	Mon, 10 Feb 2003 08:09:48 -0500
+Date: Mon, 10 Feb 2003 14:18:58 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.0, 2.2, 2.4, 2.5: fsync buffer race
-Message-ID: <20030210130704.GO31401@dualathlon.random>
-References: <Pine.LNX.4.44.0302022354570.11719-100000@artax.karlin.mff.cuni.cz> <20030202160007.554be43d.akpm@digeo.com> <20030204231652.GC128@elf.ucw.cz>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrew Morton <akpm@digeo.com>, piggin@cyberone.com.au,
+       jakob@unthought.net, david.lang@digitalinsight.com,
+       riel@conectiva.com.br, ckolivas@yahoo.com.au,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
+Message-ID: <20030210131858.GP31401@dualathlon.random>
+References: <20030210010937.57607249.akpm@digeo.com> <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <20030210034808.7441d611.akpm@digeo.com> <20030210120916.GD31401@dualathlon.random> <3E47A1E5.6020902@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030204231652.GC128@elf.ucw.cz>
+In-Reply-To: <3E47A1E5.6020902@namesys.com>
 User-Agent: Mutt/1.4i
 X-GPG-Key: 1024D/68B9CB43
 X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 12:16:53AM +0100, Pavel Machek wrote:
-> Hi!
+On Mon, Feb 10, 2003 at 03:58:13PM +0300, Hans Reiser wrote:
+> Is the following a fair summary?
 > 
-> > > there's a race condition in filesystem
-> > > 
-> > > let's have a two inodes that are placed in the same buffer.
-> > > 
-> > > call fsync on inode 1
-> > > it goes down to ext2_update_inode [update == 1]
-> > > it calls ll_rw_block at the end
-> > > ll_rw_block starts to write buffer
-> > > ext2_update_inode waits on buffer
-> > > 
-> > > while the buffer is writing, another process calls fsync on inode 2
-> > > it goes again to ext2_update_inode
-> > > it calls ll_rw_block
-> > > ll_rw_block sees buffer locked and exits immediatelly
-> > > ext2_update_inode waits for buffer
-> > > the first write finished, ext2_update_inode exits and changes made by
-> > > second proces to inode 2 ARE NOT WRITTEN TO DISK.
-> > > 
-> > 
-> > hmm, yes.  This is a general weakness in the ll_rw_block() interface.  It is
-> > not suitable for data-integrity writeouts, as you've pointed out.
-> > 
-> > A suitable fix would be do create a new
-> > 
-> > void wait_and_rw_block(...)
-> > {
-> > 	wait_on_buffer(bh);
-> > 	ll_rw_block(...);
-> > }
-> > 
-> > and go use that in all the appropriate places.
-> > 
-> > I shall make that change for 2.5, thanks.
+> There is a certain minimum size required for the IOs to be cost 
+> effective.  This can be determined by single reader benchmarking.  Only 
+> readahead and not anticipatory scheduling addresses that.
 > 
-> Should this be fixed at least in 2.4, too? It seems pretty serious for
-> mail servers (etc)...
+> Anticipatory scheduling does not address the application that spends one 
+> minute processing every read that it makes.  Readahead does.
+> 
+> Anticipatory scheduling does address the application that reads multiple 
+> files that are near each other (because they are in the same directory), 
+> and current readahead implementations (excepting reiser4 in progress 
+> vaporware) do not.
+> 
+> Anticipatory scheduling can do a better job of avoiding unnecessary 
+> reads for workloads with small time gaps between reads than readahead 
+> (it is potentially more accurate for some workloads).
+> 
+> Is this a fair summary?
 
-actually the lowlevel currently is supposed to take care of that if it
-writes directly with ll_rw_block like fsync_buffers_list takes care of
-it before calling ll_rw_block. But the whole point is that normally the
-write_inode path only marks the buffer dirty, it never writes directly,
-and no dirty bitflag can be lost and we flush those dirty buffers right
-with the proper wait_on_buffer before ll_rw_block. So I don't think it's
-happening really in 2.4, at least w/o mounting the fs with -osync.
+I would also add what I feel the most important thing, that is
+anticipatory scheduling can help decreasing a lot the latencies of
+filesystem reads in presence of lots of misc I/O, by knowing which are
+the read commands that are intermediate-dependent-sync, that means
+knowing a new dependent read will be submitted very quickly as soon as
+the current read-I/O is completed. In such a case it makes lots sense to
+wait for the next read to be submitted instead of start processing
+immediatly the rest of the I/O queue.  This way when you read a file and
+you've to walk the indirect blocks before being able to read the data,
+you won't be greatly peanalized against the writes or reads that won't
+need to pass through metadata I/O before being served.
 
-But I thought about about Mikulas suggestion of adding lock_buffer
-in place of the test and set bit. This looks very appealing. the main
-reason we didn't do that while fixing fsync_buffers_list a few months
-ago in 2.4.20 or so, is been that it is a very risky change, I mean, I'm
-feeling like it'll break something subtle.
+This doesn't obviate the need of SFQ for the patological multimedia
+cases where I/O latency is the first prio, or for workloads where
+sync-write latency is the first prio.
 
-In theory the only thing those bitflags controls are the coherency of
-the buffer cache here, the rest is serialized by design at the
-highlevel. And the buffer_cache should be ok with the lock_buffer(),
-since we'll see the buffer update and we'll skip the write if we race
-with other reads (we'll sleep in lock_buffer rather than in
-wait_on_buffer). For the writes we'll overwrite the data one more time
-(the feature incidentally ;).  so it sounds safe.  Performance wise it
-shouldn't matter, for read it can't matter infact.
-
-So I guess it's ok to make that change, then we could even move the
-wait_on_buffer from fsync_buffers_list to the xfs buffer_delay path of
-write_buffer. I'm tempted to make this change for next -aa. I feel it
-makes more sense and it's a better fix even if if risky. Can anybody see
-a problem with that?
+BTW, I'm also thinking that the SFQ could be selected not system wide,
+but per-process basis, with a prctl or something, so you could have all
+the I/O going into the single default async-io queue, except for mplayer
+that will use the SFQ queues. This may not even need to be privilegied
+since SFQ is fair and if an user can write a lot it can just hurt
+latency, with SFQ could hurt more but still not deadlock. This SFQ prctl
+for the I/O scheduler, would be very similar to the RT policy for the
+main process scheduler. Infact it maybe the best to just have SFQ always
+enabled, and selectable only via the SFQ prctl, and to enable the
+functionaltiy only per-process basis rather than global. We can still
+add a sysctl to enable it globally despite nobody set the per-process
+flag.
 
 Andrea

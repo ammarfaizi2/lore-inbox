@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317063AbSGXMi1>; Wed, 24 Jul 2002 08:38:27 -0400
+	id <S317091AbSGXMla>; Wed, 24 Jul 2002 08:41:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317066AbSGXMi1>; Wed, 24 Jul 2002 08:38:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43138 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S317063AbSGXMiZ>;
-	Wed, 24 Jul 2002 08:38:25 -0400
-Date: Wed, 24 Jul 2002 14:41:24 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: martin@dalecki.de, linux-kernel@vger.kernel.org
-Subject: Re: please DON'T run 2.5.27 with IDE!
-Message-ID: <20020724124124.GA15201@suse.de>
-References: <3D3E90E4.3080108@evision.ag> <Pine.SOL.4.30.0207241423190.15605-100000@mion.elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0207241423190.15605-100000@mion.elka.pw.edu.pl>
+	id <S317096AbSGXMla>; Wed, 24 Jul 2002 08:41:30 -0400
+Received: from eos.telenet-ops.be ([195.130.132.40]:14000 "EHLO
+	eos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S317091AbSGXMl2>; Wed, 24 Jul 2002 08:41:28 -0400
+Date: Wed, 24 Jul 2002 14:44:50 +0200 (CEST)
+From: Michael De Nil <michael@aerythmic.be>
+X-X-Sender: linux@LiSa
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Tulip-driver && SMC1255TX -> kernel fails
+Message-ID: <Pine.LNX.4.44.0207241441100.21178-100000@LiSa>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24 2002, Bartlomiej Zolnierkiewicz wrote:
-> > void blk_start_queue(request_queue_t *q)
-> > {
-> >          if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
-> >                  unsigned long flags;
-> >
-> > ================== possigle race here for qeue_flags BTW.
-> >
-> >                  spin_lock_irqsave(q->queue_lock, flags);
-> >                  clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags);
-> >
-> >                  if (!elv_queue_empty(q))
-> >                          q->request_fn(q);
-> > ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > If we call it from within request_fn then if this isn't recursion on the
-> > kernel stack then I don't know...
-> 
-> You really don't know.
-> 
-> And funny thing is I have diffirent blk_start_queue() function in my tree
-> (2.5.27) ? Without described above race and without possibilty of
-> recursion...
-> 
-> 2.5.27:drivers/block/ll_rw_blk.c
-> void blk_start_queue(request_queue_t *q)
-> {
->         if (test_and_clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
->                 unsigned long flags;
-> 
->                 spin_lock_irqsave(q->queue_lock, flags);
->                 if (!elv_queue_empty(q))
->                         q->request_fn(q);
->                 spin_unlock_irqrestore(q->queue_lock, flags);
->         }
-> }
+On Tue, 23 Jul 2002, Michael De Nil wrote:
 
-Yep, the version Martin posted must be really old.
+> Hey
+>
+> I have bought an SMC 1255TX-card.
+> In the manual is said that I should use the Tulip-driver.
+> I was able to load the module tulip.o from kernel 2.4.19-pre10, but when
+I
+> start my network (/etc/init.d/networking start) on my debian-machine,
+the
+> screen starts flashing the message:
+> Eth0: (i) System Error occured (0)
+> with i = number increasing by 1
+>
+> I didn't see any of this in the changelog up to rc3..
 
--- 
-Jens Axboe
+It looked like it was sharing IRQ with another piece of hardware, when I
+remove all other hardware, the card runs just fine.
+
+The insmod-msg I recieved with shared IRQ:
+
+...
+PCI: Found IRQ 5 for device 00:14.0
+PCI Sharing IRQ 5 with 00:13.0
+eth0: SMC EZ Card 10/100 rev 17 at 0xc800, 00:04:E2:3D:AB:52, IRQ 5.
+
+
+Greetings
+	Michael
+
+
+-----------------------------------------------------------------------
+                Michael De Nil -- michael@aerythmic.be
+      Linux LiSa 2.4.19-rc2 #1 vr jul 19 22:10:00 CEST 2002 i686
+  14:41:01 up 4 days,  3:56,  8 users,  load average: 0.00, 0.00, 0.00
+-----------------------------------------------------------------------
 

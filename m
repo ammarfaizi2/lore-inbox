@@ -1,77 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266736AbRGORpL>; Sun, 15 Jul 2001 13:45:11 -0400
+	id <S266718AbRGORpL>; Sun, 15 Jul 2001 13:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266730AbRGORpD>; Sun, 15 Jul 2001 13:45:03 -0400
-Received: from geos.coastside.net ([207.213.212.4]:15245 "EHLO
+	id <S266736AbRGORpC>; Sun, 15 Jul 2001 13:45:02 -0400
+Received: from geos.coastside.net ([207.213.212.4]:15501 "EHLO
 	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S266718AbRGORox>; Sun, 15 Jul 2001 13:44:53 -0400
+	id <S266730AbRGORox>; Sun, 15 Jul 2001 13:44:53 -0400
 Mime-Version: 1.0
-Message-Id: <p0510031ab77784b66bc8@[207.213.214.37]>
-In-Reply-To: <20010716051046.A10956@weta.f00f.org>
+Message-Id: <p0510031cb7778611bd3f@[207.213.214.37]>
+In-Reply-To: <20010716032220.B10635@weta.f00f.org>
 In-Reply-To: <E15LL3Y-0000yJ-00@the-village.bc.nu>
- <20010716051046.A10956@weta.f00f.org>
-Date: Sun, 15 Jul 2001 10:39:52 -0700
-To: Chris Wedgwood <cw@f00f.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+ <0107142211300W.00409@starship> <20010715153607.A7624@weta.f00f.org>
+ <01071515442400.05609@starship> <20010716023911.A10576@weta.f00f.org>
+ <p05100317b7775fc2bd15@[207.213.214.37]>
+ <20010716032220.B10635@weta.f00f.org>
+Date: Sun, 15 Jul 2001 10:44:28 -0700
+To: Chris Wedgwood <cw@f00f.org>
 From: Jonathan Lundell <jlundell@pobox.com>
 Subject: Re: [PATCH] 64 bit scsi read/write
-Cc: Andrew Morton <andrewm@uow.edu.au>,
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andrew Morton <andrewm@uow.edu.au>,
         Andreas Dilger <adilger@turbolinux.com>,
         "Albert D. Cahalan" <acahalan@cs.uml.edu>,
         Ben LaHaise <bcrl@redhat.com>,
         Ragnar Kjxrstad <kernel@ragnark.vestdata.no>,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mike@bigstorage.com, kevin@bigstorage.com
+        mike@bigstorage.com, kevin@bigstorage.com, linux-lvm@sistina.com
 Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 5:10 AM +1200 2001-07-16, Chris Wedgwood wrote:
->On Sat, Jul 14, 2001 at 09:45:44AM +0100, Alan Cox wrote:
+At 3:22 AM +1200 2001-07-16, Chris Wedgwood wrote:
+>On Sun, Jul 15, 2001 at 08:06:39AM -0700, Jonathan Lundell wrote:
 >
->     As far as I can tell none of them at least in the IDE world
+>     At first glance, by the way, the only write barrier I see in the
+>     SCSI command set is the synchronize-cache command, which completes
+>     only after all the drive's dirty buffers are written out. Of
+>     course, without write caching, it's not an issue.
 >
->Can you test with the code I posted a hour or so ago please?
+>Is the spec you have distributable? I believe some of the early drafts
+>were, but the final spec isn't.
+>
+>I'd really like to check it out myself, I alwasy assumed SCSI had the
+>smarts for write-barriers and force-unit-access but I guess I was
+>wrong.
+>
+>Anyhow, I'd like to see the spec for myself if it is something I can
+>get hold of.
 
-AC's comment was about whether the drive's cache would be written out 
-on power failure, which is another issue, a little harder to test 
-(and not easily testable by writing a single sector). I raise the 
-related question of what happens to the write cache on a bus reset on 
-SCSI drives.
+I was referring to IBM's spec, as implemented in their recent SCSI 
+and FC drives. You can find a copy at 
+http://www.storage.ibm.com/techsup/hddtech/prodspec/ddyf_spi.pdf
 
->I ask this because I tested writes to:
->
->   -- buffered devices
->
->   -- ide with caching on
->
->   -- ide with caching off
->
->   -- scsi (caching on?)
->
->To a buffered device, I get something silly like 63000
->writes/second. No big surprises there (other than Linux is bloody lean
->these days).
->
->To a SCSI device (10K RPM SCSI-3 160 drive), I get something like 167
->writes/second, which seems moderately sane if caching is disabled.
+WRITE EXTENDED has a bit (FUA) that will let you force that 
+particular write to go to disk immediately, independent of write 
+caching, but there's no suggestion that it otherwise acts as a write 
+barrier for cached writes.
 
-My impression, based a a little but not much research, is that most 
-SCSI drives disable write caching by default. IBM SCSI drives may be 
-an exception to this.
-
->To a cheap IDE drive (5400 RPM?) with caching off, I get about 87
->writes/second.
->
->To the same drive, with caching on, I get almost 4000 writes/second.
->
->This seems to imply, at least for my test IDE drive, you can turn
->caching off --- and its about half as fast as my SCSI drives which
->rotate at about twice the speed (sanity check).
->
->IDE drive:  IBM-DTTA-351010, ATA DISK drive
->SCSI drive: SEAGATE ST318404LC
-
-
+WRITE VERIFY implies a CACHE SYNCHRONIZE, so it's a write barrier, 
+but an expensive (because synchronous) one.
 -- 
 /Jonathan Lundell.

@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317372AbSFCLJt>; Mon, 3 Jun 2002 07:09:49 -0400
+	id <S317368AbSFCLLP>; Mon, 3 Jun 2002 07:11:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317370AbSFCLIj>; Mon, 3 Jun 2002 07:08:39 -0400
-Received: from holomorphy.com ([66.224.33.161]:28544 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317372AbSFCLIg>;
-	Mon, 3 Jun 2002 07:08:36 -0400
-Date: Mon, 3 Jun 2002 04:07:42 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: remove mixture of non-atomic operations with page->flags which requires atomic operations to access
-Message-ID: <20020603110742.GC912@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, hugh@veritas.com,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-In-Reply-To: <20020603102809.GA912@holomorphy.com> <20020603.022739.102772773.davem@redhat.com> <20020603110055.GB912@holomorphy.com> <20020603.030048.15263428.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S317373AbSFCLLO>; Mon, 3 Jun 2002 07:11:14 -0400
+Received: from inet-mail2.oracle.com ([148.87.2.202]:23680 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S317368AbSFCLLM>; Mon, 3 Jun 2002 07:11:12 -0400
+Message-ID: <3CFB4DDC.30704@oracle.com>
+Date: Mon, 03 Jun 2002 13:07:08 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020516
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Peter Osterlund <petero2@telia.com>, mochel <mochel@osdl.org>
+Subject: 2.5.20 - Xircom PCI Cardbus doesn't work
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    From: William Lee Irwin III <wli@holomorphy.com>
->    Date: Mon, 3 Jun 2002 04:00:55 -0700
-> 
->     	if (PageWriteback(page))
->     		BUG();
->    -	ClearPageDirty(page);
->    -	page->flags &= ~(1<<PG_referenced);
->    +
->    +	page->flags &= ~((1UL << PG_referenced) | (1UL << PG_dirty));
-> 
-> Umm, nevermind.  Look at ClearPageDirty, it does
-> "other stuff" so you can't remove it wholesale.
-> In the end, the code is as it should be right now.
+In 2.5.19 I got an oops on boot (kindly fixed by Peter's patch),
+  in 2.5.20 no oopsen but eth0 isn't seen anymore by the kernel:
 
-Ugh, even if it isn't I don't care to deal with it, rusty, chuck this one.
+[...]
+Jun  3 12:50:38 dolphin kernel: PCI: Probing PCI hardware
+Jun  3 12:50:38 dolphin kernel: PCI: Probing PCI hardware (bus 00)
+Jun  3 12:50:38 dolphin kernel: PCI: Address space collision on region 7 of device Intel Corp. 82371AB PIIX4 ACPI [800:83f]
+Jun  3 12:50:38 dolphin kernel: PCI: Address space collision on region 8 of device Intel Corp. 82371AB PIIX4 ACPI [840:85f]
+Jun  3 12:50:38 dolphin kernel: Unknown bridge resource 2: assuming transparent
+Jun  3 12:50:38 dolphin kernel: PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
+[...]
+Jun  3 12:50:39 dolphin kernel: Linux Kernel Card Services 3.1.22
+Jun  3 12:50:39 dolphin kernel:   options:  [pci] [cardbus] [pm]
+Jun  3 12:50:39 dolphin kernel: PCI: Found IRQ 11 for device 00:03.0
+Jun  3 12:50:39 dolphin kernel: PCI: Sharing IRQ 11 with 00:03.1
+Jun  3 12:50:39 dolphin kernel: PCI: Sharing IRQ 11 with 00:07.2
+Jun  3 12:50:39 dolphin keytable: Loading keymap:  succeeded
+Jun  3 12:50:39 dolphin kernel: PCI: Found IRQ 11 for device 00:03.1
+Jun  3 12:50:39 dolphin kernel: PCI: Sharing IRQ 11 with 00:03.0
+Jun  3 12:50:39 dolphin kernel: PCI: Sharing IRQ 11 with 00:07.2
+Jun  3 12:50:39 dolphin kernel: Yenta IRQ list 06d8, PCI irq11
+Jun  3 12:50:39 dolphin kernel: Socket status: 30000020
+Jun  3 12:50:39 dolphin kernel: Yenta IRQ list 06d8, PCI irq11
+Jun  3 12:50:39 dolphin kernel: Socket status: 30000006
+[...]
+Jun  3 12:50:39 dolphin kernel: cs: cb_alloc(bus 2): vendor 0x115d, device 0x0003
+Jun  3 12:50:39 dolphin kernel: PCI: Enabling device 02:00.0 (0000 -> 0003)
+Jun  3 12:50:39 dolphin kernel: PCI: Enabling device 02:00.1 (0000 -> 0003)
+[...]
+Jun  3 12:50:40 dolphin kernel: cs: IO port probe 0x0100-0x04ff: excluding 0x290-0x297 0x378-0x37f 0x4d0-0x4d7
+Jun  3 12:50:40 dolphin cardmgr[597]: socket 0: Xircom CBEM56G-100 CardBus 10/100 Ethernet + 56K Modem
+Jun  3 12:50:40 dolphin sshd: Starting sshd:
+Jun  3 12:50:37 dolphin network: Bringing up interface eth0:  succeeded
+Jun  3 12:50:40 dolphin kernel: cs: IO port probe 0x0a00-0x0aff: clean.
+Jun  3 12:50:41 dolphin cardmgr[597]: executing: 'modprobe cb_enabler'
+Jun  3 12:50:41 dolphin apmd[572]: Battery: * * * (100% 4:15)
+Jun  3 12:50:41 dolphin cardmgr[597]: executing: 'modprobe xircom_cb'
+Jun  3 12:50:41 dolphin sshd:  succeeded
+Jun  3 12:50:41 dolphin sshd:
+Jun  3 12:50:42 dolphin rc: Starting sshd:  succeeded
+Jun  3 12:50:42 dolphin cardmgr[597]: get dev info on socket 0 failed: Resource temporarily unavailable
+
+Note that cb_enabler and xircom_cb are aliased to 'off' in
+  /etc/modules.conf since both are actually built in-kernel.
+
+...back to 2.5.18 for the moment.
 
 
-Cheers,
-Bill
+Thanks & ciao,
+
+--alessandro
+
+  "the hands that build / can also pull down
+    even the hands of love"
+                             (U2, "Exit")
+

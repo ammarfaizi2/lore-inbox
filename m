@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266364AbUITMad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266366AbUITMd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266364AbUITMad (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 08:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUITMad
+	id S266366AbUITMd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 08:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUITMd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 08:30:33 -0400
-Received: from mproxy.gmail.com ([216.239.56.240]:11904 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266364AbUITMaa (ORCPT
+	Mon, 20 Sep 2004 08:33:27 -0400
+Received: from smtp8.wanadoo.fr ([193.252.22.23]:55807 "EHLO
+	mwinf0801.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S266366AbUITMd0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 08:30:30 -0400
-Message-ID: <407a1d8204092005304783ad36@mail.gmail.com>
-Date: Mon, 20 Sep 2004 18:00:22 +0530
-From: Manik Raina <manikraina@gmail.com>
-Reply-To: Manik Raina <manikraina@gmail.com>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: linux, Manik Raina has invited you to open a Google mail account
+	Mon, 20 Sep 2004 08:33:26 -0400
+Subject: Re: OOM & [OT] util-linux-2.12e
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: DervishD <lkml@dervishd.net>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <20040920115942.GG5684@DervishD>
+References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
+	 <20040920110631.GJ5482@DervishD> <1095680326.27965.238.camel@gonzales>
+	 <20040920115942.GG5684@DervishD>
+Content-Type: text/plain; charset=utf-8
+Message-Id: <1095683552.27965.240.camel@gonzales>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 20 Sep 2004 14:32:32 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Had a gmail account to spare. Anyone who needs a gmail account can use
-this. Let's see who the lucky person is.
+Le lun 20/09/2004 à 13:59, DervishD a écrit :
+>     Hi Xavier :)
+> 
+>  * Xavier Bestel <xavier.bestel@free.fr> dixit:
+> > > does the kernel *read* /proc/mounts contents?
+> > /proc/mounts is kernel-generated on the fly (it's alive only during the
+> > read() call).
+> 
+>     Then you can cripple it with any extra contents you want, am I
+> wrong? The kernel won't mind...
 
-Manik Raina
+Sure.
 
------------------------------------------------------------------------
+	Xav
 
-Manik Raina has invited you to open a free Gmail account. The invitation 
-will expire in three weeks and can only be used to set up one account.
-
-To accept this invitation and register for your account, visit
-http://gmail.google.com/gmail/a-8698430991-5f7bac4a86-35ce22d306
-
-Once you create your account, Manik Raina will be notified with 
-your new @gmail.com address so you can stay in touch with Gmail!
-
-If you haven't already heard about Gmail, it's a new search-based webmail 
-service that offers:
-
-- 1,000 megabytes (one gigabyte) of free storage
-- Built-in Google search that instantly finds any message you want
-- Automatic arrangement of messages and related replies into 
-  "conversations"
-- Text ads and related pages that are relevant to the content of your 
-  messages
-
-Gmail is still in an early stage of development. If you set up an 
-account, you'll be able to keep it even after we make Gmail more 
-widely available and as one of the system's early testers, you will 
-be helping us improve the service through your feedback. We might ask 
-for your comments and suggestions periodically and we appreciate your 
-help in making Gmail even better.
-
-Thanks,
-
-The Gmail Team
-
-To learn more about Gmail before registering, visit:
-http://gmail.google.com/gmail/help/benefits.html
-
-(If clicking the URLs in this message does not work, copy and paste them
-into the address bar of your browser).

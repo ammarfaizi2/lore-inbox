@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262857AbUCJVnb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 16:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262855AbUCJVnQ
+	id S262862AbUCJVjb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 16:39:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbUCJVid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 16:43:16 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:4078 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S262854AbUCJVkw (ORCPT
+	Wed, 10 Mar 2004 16:38:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:5086 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262864AbUCJVhm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 16:40:52 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: [PATCH] backing dev unplugging
-Date: Wed, 10 Mar 2004 21:40:50 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <c2o212$4h0$1@news.cistron.nl>
-References: <20040310124507.GU4949@suse.de> <20040310130046.2df24f0e.akpm@osdl.org> <20040310210207.GL15087@suse.de>
+	Wed, 10 Mar 2004 16:37:42 -0500
+Date: Wed, 10 Mar 2004 13:37:34 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Paul Wagland <paul@wagland.net>
+Cc: vcanja@bitdefender.com, linux-kernel@vger.kernel.org
+Subject: Re: problem in tcp_v4_synq_add ?
+Message-Id: <20040310133734.0758f5e2.davem@redhat.com>
+In-Reply-To: <F750F6B1-7271-11D8-AFFE-000A95CD704C@wagland.net>
+References: <684501482.20040309132741@bitdefender.com>
+	<20040309113046.40271dc8.davem@redhat.com>
+	<F750F6B1-7271-11D8-AFFE-000A95CD704C@wagland.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1078954850 4640 62.216.29.200 (10 Mar 2004 21:40:50 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040310210207.GL15087@suse.de>,
-Jens Axboe  <axboe@suse.de> wrote:
->On Wed, Mar 10 2004, Andrew Morton wrote:
->> Jens Axboe <axboe@suse.de> wrote:
->> >
->> > Here's a first cut at killing global plugging of block devices to reduce
->> > the nasty contention blk_plug_lock caused.
->> 
->> Shouldn't we take read_lock(&md->map_lock) in dm_table_unplug_all()?
->
->Ugh yes, we certainly should.
+On Wed, 10 Mar 2004 10:04:41 +0100
+Paul Wagland <paul@wagland.net> wrote:
 
-With the latest patches from Joe it would be more like
+> > Nope, the listening socket's socket lock is held, and all things that
+> > add members to these hash chains hold that lock.
+> 
+> Is that the same as saying that the write_lock() is not needed at all? 
+> Since it is already guaranteed to be protected with a different lock?
 
-	map = dm_get_table(md);
-	if (map) {
-		dm_table_unplug_all(map);
-		dm_table_put(map);
-	}
-
-No lock ranking issues, you just get a refcounted map (table, really).
-
-Mike.
-
+Also not true, as other pieces of code traverse the list as a reader
+without holding the listening sockets lock.

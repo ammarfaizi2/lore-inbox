@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286188AbSBKB37>; Sun, 10 Feb 2002 20:29:59 -0500
+	id <S286207AbSBKCAc>; Sun, 10 Feb 2002 21:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286207AbSBKB3t>; Sun, 10 Feb 2002 20:29:49 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44040 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286188AbSBKB3c>; Sun, 10 Feb 2002 20:29:32 -0500
-Subject: Re: [PATCH-2.4] drivers/char/pcwd.c
-To: rob@osinvestor.com (Rob Radez)
-Date: Mon, 11 Feb 2002 01:43:10 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0202101956510.26027-100000@pita.lan> from "Rob Radez" at Feb 10, 2002 08:07:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286303AbSBKCAW>; Sun, 10 Feb 2002 21:00:22 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:60429 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S286207AbSBKCAK>; Sun, 10 Feb 2002 21:00:10 -0500
+Message-ID: <3C6725A6.9E9AEC14@delusion.de>
+Date: Mon, 11 Feb 2002 03:00:06 +0100
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.3 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: Gerd Knorr <kraxel@bytesex.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: bttv driver broken in 2.5.4-pre
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16a5Us-00055V-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> a) backports a 2.5 fix that closes what looks like a very small/minor
-> race opportunity
 
-I don't know what that "2.5 fix" is but I suggest someone replaces it 
-with code that might actually work. Whoever put the 2.5 patch in please
-fix it, or pull it back out again.
+Hi Gerd,
 
->  	case WDIOC_GETSUPPORT:
-> -		i = copy_to_user((void*)arg, &ident, sizeof(ident));
-> -		return i ? -EFAULT : 0;
-> +		return copy_to_user((void*)arg, &ident, sizeof(ident)) ? -EFAULT : 0;
+The latest changes in the 2.5.4 prepatches throw linker errors which seem to be caused by
+bttv-driver.c using obsolete functions:
 
-Ugly pointless change
+drivers/media/media.o: In function `make_vbitab':
+drivers/media/media.o(.text+0x77ff): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+drivers/media/media.o(.text+0x7806): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+drivers/media/media.o(.text+0x78a2): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+drivers/media/media.o(.text+0x78cc): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+drivers/media/media.o(.text+0x7952): undefined reference to `virt_to_bus_not_defined_use_pci_map'
+drivers/media/media.o(.text+0x797c): more undefined references to `virt_to_bus_not_defined_use_pci_map' follow
 
-> -	is_open = 0;
-> +	set_bit(0, &open_allowed);
+Do you have a patch for this problem?
 
-You can't mix set_bit with atomic operations
-
-Alan
+Regards,
+Udo.

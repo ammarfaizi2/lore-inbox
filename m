@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbUACJHR (ORCPT <rfc822;willy@w.ods.org>);
+	id S262838AbUACJHR (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 3 Jan 2004 04:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUACJFT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbUACJEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 04:05:19 -0500
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:33918 "HELO
-	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265937AbUACJEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 04:04:15 -0500
+	Sat, 3 Jan 2004 04:04:54 -0500
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:59246 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265932AbUACJEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 04:04:12 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 3/7] psmouse option parsing
-Date: Sat, 3 Jan 2004 04:00:54 -0500
+Subject: Re: [PATCH 2/7] i8042 option parsing
+Date: Sat, 3 Jan 2004 03:57:43 -0500
 User-Agent: KMail/1.5.4
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200401030350.43437.dtor_core@ameritech.net> <200401030356.48071.dtor_core@ameritech.net> <200401030357.44852.dtor_core@ameritech.net>
-In-Reply-To: <200401030357.44852.dtor_core@ameritech.net>
+References: <200401030350.43437.dtor_core@ameritech.net> <200401030356.48071.dtor_core@ameritech.net>
+In-Reply-To: <200401030356.48071.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200401030400.55755.dtor_core@ameritech.net>
+Message-Id: <200401030357.44852.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 ===================================================================
 
 
-ChangeSet@1.1573, 2004-01-02 03:02:35-05:00, dtor_core@ameritech.net
-  Input: With Vojtech's approval adjusted psmouse option names by
-         dropping psmouse_ prefix.
+ChangeSet@1.1572, 2004-01-02 02:46:43-05:00, dtor_core@ameritech.net
+  Input: With Vojtech's approval adjusted i8042 option names by
+         dropping i8042_ prefix.
   
-         If psmouse is compiled as a module new option names are:
-         proto, rate, resetafter, resolution, smartscroll
+         If i8042 is compiled as a module new option names are:
+         direct, dumbkbd, noaux, nomux, reset, unlock
   
-         If psmouse is built in the kernel the prefix "psmouse." is
-         required in front of an option, like "psmouse.proto"
+         If i8042 is build in the kernel the prefix "i8042." is
+         required in front of an option, like "i8042.reset"
 
-         Also, since we are changing all names, killed psmouse_noext
-         completely
 
- Documentation/kernel-parameters.txt |   12 +++++++++---
- drivers/input/mouse/psmouse-base.c  |   30 ++++++++++--------------------
- 2 files changed, 19 insertions(+), 23 deletions(-)
+ Documentation/kernel-parameters.txt |   16 +++++++++-------
+ drivers/input/serio/i8042.c         |   18 ++++++++++++------
+ 2 files changed, 21 insertions(+), 13 deletions(-)
 
 
 ===================================================================
@@ -52,84 +50,66 @@ ChangeSet@1.1573, 2004-01-02 03:02:35-05:00, dtor_core@ameritech.net
 
 
 diff -Nru a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
---- a/Documentation/kernel-parameters.txt	Sat Jan  3 03:08:40 2004
-+++ b/Documentation/kernel-parameters.txt	Sat Jan  3 03:08:40 2004
-@@ -797,12 +797,18 @@
- 			before loading.
- 			See Documentation/ramdisk.txt.
+--- a/Documentation/kernel-parameters.txt	Sat Jan  3 03:08:12 2004
++++ b/Documentation/kernel-parameters.txt	Sat Jan  3 03:08:12 2004
+@@ -372,13 +372,15 @@
  
--	psmouse_proto=  [HW,MOUSE] Highest PS2 mouse protocol extension to
-+	psmouse.proto=  [HW,MOUSE] Highest PS2 mouse protocol extension to
- 			probe for (bare|imps|exps).
--
--	psmouse_resetafter=
-+	psmouse.rate=	[HW,MOUSE] Set desired mouse report rate, in reports
-+			per second.
-+	psmouse.resetafter=
- 			[HW,MOUSE] Try to reset Synaptics Touchpad after so many
- 			bad packets (0 = never).
-+	psmouse.resolution=
-+			[HW,MOUSE] Set desired mouse resolution, in dpi.
-+	psmouse.smartscroll=
-+			[HW,MOUSE] Controls Logitech smartscroll autoreteat,
-+			0 = disabled, 1 = enabled (default). 
+ 	noirqbalance	[IA-32,SMP,KNL] Disable kernel irq balancing
  
- 	pss=		[HW,OSS] Personal Sound System (ECHO ESC614)
- 			Format: <io>,<mss_io>,<mss_irq>,<mss_dma>,<mpu_io>,<mpu_irq>
-diff -Nru a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
---- a/drivers/input/mouse/psmouse-base.c	Sat Jan  3 03:08:40 2004
-+++ b/drivers/input/mouse/psmouse-base.c	Sat Jan  3 03:08:40 2004
-@@ -35,30 +35,26 @@
- MODULE_DESCRIPTION("PS/2 mouse driver");
+-	i8042_direct	[HW] Keyboard has been put into non-translated mode 
+-			by BIOS
+-	i8042_dumbkbd	[HW] Don't attempt to blink the leds
+-	i8042_noaux	[HW] Don't check for auxiliary (== mouse) port
+-	i8042_nomux
+-	i8042_reset	[HW] Reset the controller during init and cleanup
+-	i8042_unlock	[HW] Unlock (ignore) the keylock
++	i8042.direct	[HW] Put keyboard port into non-translated mode 
++	i8042.dumbkbd	[HW] Pretend that controlled can only read data from
++			     keyboard and can not control its state
++			     (Don't attempt to blink the leds)
++	i8042.noaux	[HW] Don't check for auxiliary (== mouse) port
++	i8042.nomux	[HW] Don't check presence of an active multiplexing
++			     controller
++	i8042.reset	[HW] Reset the controller during init and cleanup
++	i8042.unlock	[HW] Unlock (ignore) the keylock
+ 
+ 	i810=		[HW,DRM]
+ 
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	Sat Jan  3 03:08:12 2004
++++ b/drivers/input/serio/i8042.c	Sat Jan  3 03:08:12 2004
+@@ -29,22 +29,28 @@
  MODULE_LICENSE("GPL");
  
--static int psmouse_noext;
--module_param(psmouse_noext, int, 0);
--MODULE_PARM_DESC(psmouse_noext, "[DEPRECATED] Disable any protocol extensions. Useful for KVM switches.");
--
- static char *psmouse_proto;
- static unsigned int psmouse_max_proto = -1U;
--module_param(psmouse_proto, charp, 0);
--MODULE_PARM_DESC(psmouse_proto, "Highest protocol extension to probe (bare, imps, exps). Useful for KVM switches.");
-+module_param_named(proto, psmouse_proto, charp, 0);
-+MODULE_PARM_DESC(proto, "Highest protocol extension to probe (bare, imps, exps). Useful for KVM switches.");
+ static unsigned int i8042_noaux;
+-module_param(i8042_noaux, bool, 0);
++module_param_named(noaux, i8042_noaux, bool, 0);
++MODULE_PARM_DESC(noaux, "Do not probe or use AUX (mouse) port.");
  
- int psmouse_resolution = 200;
--module_param(psmouse_resolution, uint, 0);
--MODULE_PARM_DESC(psmouse_resolution, "Resolution, in dpi.");
-+module_param_named(resolution, psmouse_resolution, uint, 0);
-+MODULE_PARM_DESC(resolution, "Resolution, in dpi.");
+ static unsigned int i8042_nomux;
+-module_param(i8042_nomux, bool, 0);
++module_param_named(nomux, i8042_nomux, bool, 0);
++MODULE_PARM_DESC(nomux, "Do not check whether an active multiplexing conrtoller is present.");
  
- unsigned int psmouse_rate = 100;
--module_param(psmouse_rate, uint, 0);
--MODULE_PARM_DESC(psmouse_rate, "Report rate, in reports per second.");
-+module_param_named(rate, psmouse_rate, uint, 0);
-+MODULE_PARM_DESC(rate, "Report rate, in reports per second.");
+ static unsigned int i8042_unlock;
+-module_param(i8042_unlock, bool, 0);
++module_param_named(unlock, i8042_unlock, bool, 0);
++MODULE_PARM_DESC(unlock, "Ignore keyboard lock.");
  
- int psmouse_smartscroll = 1;
--module_param(psmouse_smartscroll, bool, 0);
--MODULE_PARM_DESC(psmouse_smartscroll, "Logitech Smartscroll autorepeat, 1 = enabled (default), 0 = disabled.");
-+module_param_named(smartscroll, psmouse_smartscroll, bool, 0);
-+MODULE_PARM_DESC(smartscroll, "Logitech Smartscroll autorepeat, 1 = enabled (default), 0 = disabled.");
+ static unsigned int i8042_reset;
+-module_param(i8042_reset, bool, 0);
++module_param_named(reset, i8042_reset, bool, 0);
++MODULE_PARM_DESC(reset, "Reset controller during init and cleanup.");
  
- unsigned int psmouse_resetafter;
--module_param(psmouse_resetafter, uint, 0);
--MODULE_PARM_DESC(psmouse_resetafter, "Reset Synaptics Touchpad after so many bad packets (0 = never).");
-+module_param_named(resetafter, psmouse_resetafter, uint, 0);
-+MODULE_PARM_DESC(resetafter, "Reset Synaptics Touchpad after so many bad packets (0 = never).");
+ static unsigned int i8042_direct;
+-module_param(i8042_direct, bool, 0);
++module_param_named(direct, i8042_direct, bool, 0);
++MODULE_PARM_DESC(direct, "Put keyboard port into non-translated mode.");
  
- static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
+ static unsigned int i8042_dumbkbd;
+-module_param(i8042_dumbkbd, bool, 0);
++module_param_named(dumbkbd, i8042_dumbkbd, bool, 0);
++MODULE_PARM_DESC(dumbkbd, "Pretend that controller can only read data from keyboard");
  
-@@ -674,12 +670,6 @@
- 
- static inline void psmouse_parse_proto(void)
- {
--	if (psmouse_noext) {
--		printk(KERN_WARNING "psmouse: 'psmouse_noext' option is deprecated, please use 'psmouse_proto'\n");
--		psmouse_max_proto = PSMOUSE_PS2;
--	}
--
--	/* even is psmouse_noext is present psmouse_proto overrides it */
- 	if (psmouse_proto) {
- 		if (!strcmp(psmouse_proto, "bare"))
- 			psmouse_max_proto = PSMOUSE_PS2;
+ #undef DEBUG
+ #include "i8042.h"

@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263616AbUFKAd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263640AbUFKAg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263616AbUFKAd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 20:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbUFKAd6
+	id S263640AbUFKAg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 20:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbUFKAg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 20:33:58 -0400
-Received: from mail-06.iinet.net.au ([203.59.3.38]:11429 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263616AbUFKAdw
+	Thu, 10 Jun 2004 20:36:26 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:36005 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S263640AbUFKAgA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 20:33:52 -0400
-Subject: Re: Insults in the kernel-sources
-From: James Buchanan <buchanan@iinet.net.au>
-To: Tim Hockin <thockin@hockin.org>
-Cc: Vadim Lobanov <vadim@cs.washington.edu>, walt <wa1ter@myrealbox.com>,
-       alan <alan@clueserver.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040610235818.GA3418@hockin.org>
-References: <40C8EC21.2090803@myrealbox.com>
-	 <20040610164948.N7071-100000@attu2.cs.washington.edu>
-	 <20040610235818.GA3418@hockin.org>
-Content-Type: text/plain
-Message-Id: <1086914046.1812.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 11 Jun 2004 10:34:06 +1000
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jun 2004 20:36:00 -0400
+Message-ID: <40C8FE7C.2060404@blue-labs.org>
+Date: Thu, 10 Jun 2004 20:36:12 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040609
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       alsa-user@lists.sourceforge.net
+Subject: ALSA burps, 2.6.7-rc2 VIA VT8233
+Content-Type: multipart/mixed;
+ boundary="------------080509040907040402060507"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------080509040907040402060507
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Note to all: do not accept patches from Vadim.  Sorry, guy.  You're
-> tainted.
+This machine spams dmesg _very_ frequently with the following message:
 
-Yeah, we don't want microshit's source in Linux!!  Hah.
+    ALSA sound/pci/via82xx.c:737: invalid via82xx_cur_ptr, using last 
+valid pointer
 
-Seriously, how can this amount to anything?  M$ claiming Vadim stole
-Win2K source and contributed it to Linux?  Pu-leeease....
+It doesn't happen constantly but comes in bursts.  I haven't any idea 
+what triggers it since I can be playing 20 minutes without any messages 
+then there will be 50 of them with no change in computer usage.
 
-Maybehap they could use their lawyers to stir up a great mess and cause
-people to waste a lot of money defending spurious lawsuits... in which
-case I get your point...
+David
 
 
+--------------080509040907040402060507
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
+
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
+
+
+--------------080509040907040402060507--

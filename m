@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVC3UjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVC3Unn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbVC3UjY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 15:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVC3UjY
+	id S261260AbVC3Unn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 15:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVC3Uni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 15:39:24 -0500
-Received: from fire.osdl.org ([65.172.181.4]:61896 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261812AbVC3UjH (ORCPT
+	Wed, 30 Mar 2005 15:43:38 -0500
+Received: from box3.punkt.pl ([217.8.180.76]:22035 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S261260AbVC3UnO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 15:39:07 -0500
-Date: Wed, 30 Mar 2005 12:39:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: rweight@us.ibm.com
-Cc: linux-kernel@vger.kernel.org,
-       "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: [PATCH] Set MS_ACTIVE in isofs_fill_super()
-Message-Id: <20050330123907.10740bc1.akpm@osdl.org>
-In-Reply-To: <1112213392.25362.65.camel@russw.beaverton.ibm.com>
-References: <1112213392.25362.65.camel@russw.beaverton.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Mar 2005 15:43:14 -0500
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: DervishD <lkml@dervishd.net>
+Subject: Re: linux-libc-headers scsi headers vs libc scsi headers
+Date: Wed, 30 Mar 2005 22:40:08 +0200
+User-Agent: KMail/1.7.1
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050330162114.GA1028@DervishD> <20050330181007.GA17835@DervishD>
+In-Reply-To: <20050330181007.GA17835@DervishD>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200503302240.08200.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russ Weight <rweight@us.ibm.com> wrote:
->
-> This patch sets the MS_ACTIVE bit in isofs_fill_super() prior to calling
-> iget() or iput(). This eliminates a race condition between mount
-> (for isofs) and kswapd that results in a system panic.
-> 
-> Signed-off-by: Russ Weight <rweight@us.ibm.com>
-> 
-> --- linux-2.6.12-rc1/fs/isofs/inode.c	2005-03-17 17:34:36.000000000
-> -0800
-> +++ linux-2.6.12-rc1-isofsfix/fs/isofs/inode.c	2005-03-22
-> 15:29:51.945607217 -0800
-> @@ -820,6 +820,7 @@
->  	 * the s_rock flag. Once we have the final s_rock value,
->  	 * we then decide whether to use the Joliet descriptor.
->  	 */
-> +	s->s_flags |= MS_ACTIVE;
->  	inode = isofs_iget(s, sbi->s_firstdatazone, 0);
->  
->  	/*
-> @@ -909,6 +910,7 @@
->  		kfree(opt.iocharset);
->  	kfree(sbi);
->  	s->s_fs_info = NULL;
-> +	s->s_flags &= ~MS_ACTIVE;
->  	return -EINVAL;
->  }
->  
+On ¶roda 30 marzec 2005 20:10, DervishD wrote:
+>     Yes, I know, this is in the llh FAQ, but the answer starts with
+> 'Not too sure on this one', that's the reason I'm asking here...
 
-The patch is obviously safe enough, but seems a bit kludgy.
+Use whatever works. And ignore anybody telling you, that your system will blow 
+up if you use the wrong headers to compile something.
 
-The basic problem here appears to be that isofs is doing iget/iput in
-->fill_super before MS_ACTIVE is set and the inode freeing code
-(generic_forget_inode) doesn't expect that to happen, yes?
-
-I wonder if it would make more sense for all the ->fill_super callers to
-set MS_ACTIVE prior to calling ->fill_super(), and clear MS_ACTIVE if
-fill_super() failed?
+-- 
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

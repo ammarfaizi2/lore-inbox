@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262481AbUC1Wu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 17:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbUC1Wuz
+	id S262484AbUC1XAw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 18:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbUC1XAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 17:50:55 -0500
-Received: from mxsf12.cluster1.charter.net ([209.225.28.212]:23044 "EHLO
-	mxsf12.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S262481AbUC1Wuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 17:50:54 -0500
-Subject: Re: 2.6.5-rc2-mm[34] causes drop in DRI FPS
-From: Glenn Johnson <glennpj@charter.net>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0403281434010.19857@montezuma.fsmlabs.com>
-References: <1080435375.8280.1.camel@gforce.johnson.home>
-	 <20040327180932.10e4bae7.akpm@osdl.org>
-	 <1080443802.7085.2.camel@gforce.johnson.home>
-	 <20040328090637.GA11056@elte.hu>
-	 <1080490657.9667.7.camel@gforce.johnson.home>
-	 <1080492821.7578.5.camel@gforce.johnson.home>
-	 <Pine.LNX.4.58.0403281434010.19857@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Message-Id: <1080514093.7540.1.camel@gforce.johnson.home>
+	Sun, 28 Mar 2004 18:00:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:2954 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262484AbUC1XAv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 18:00:51 -0500
+Date: Sun, 28 Mar 2004 15:00:27 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Willy TARREAU <willy@w.ods.org>
+Cc: petero2@telia.com, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
+Subject: Re: [PATCH-2.4.26] ip6tables cleanup
+Message-Id: <20040328150027.6095cfee.davem@redhat.com>
+In-Reply-To: <20040328223805.GA27147@pcw.home.local>
+References: <20040328042608.GA17969@logos.cnet>
+	<20040328115439.GA24421@pcw.home.local>
+	<m2d66wsrg2.fsf@p4.localdomain>
+	<20040328200932.GA19852@pcw.home.local>
+	<20040328123318.63c54ee8.davem@redhat.com>
+	<20040328223805.GA27147@pcw.home.local>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 28 Mar 2004 16:48:13 -0600
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-03-28 at 13:35, Zwane Mwaikambo wrote:
-> On Sun, 28 Mar 2004, Glenn Johnson wrote:
-> 
-> > I just did a diff of my XFree86 log files with the system booted using
-> > the 2.6.5-rc2-mm2 and 2.6.5-rc2-mm4 kernels, respectively. Here is the
-> > diff, so maybe this will mean something.
-> >
-> > --- XFree86-2.6.5-rc2-mm2.log	2004-03-28 10:32:00.070254034 -0600
-> > +++ XFree86-2.6.5-rc2-mm4.log	2004-03-28 10:29:30.123163884 -0600
-> > @@ -19 +19 @@
-> > -(==) Log file: "/var/log/XFree86.0.log", Time: Sun Mar 28 10:31:22 2004
-> > +(==) Log file: "/var/log/XFree86.0.log", Time: Sun Mar 28 10:28:32 2004
-> > @@ -713,2 +713,2 @@
-> > -(II) RADEON(0): [drm] added 8192 byte SAREA at 0xe188b000
-> > -(II) RADEON(0): [drm] mapped SAREA 0xe188b000 to 0x48328000
-> > +(II) RADEON(0): [drm] added 8192 byte SAREA at 0xe1889000
-> > +(II) RADEON(0): [drm] mapped SAREA 0xe1889000 to 0x48328000
-> 
-> That's just a memory allocation, so that will never be consistent.
-> 
-> > @@ -764 +764 @@
-> > -(II) RADEON(0): [drm] dma control initialized, using IRQ 169
-> > +(II) RADEON(0): [drm] dma control initialized, using IRQ 10
-> 
-> You're not using CONFIG_PCI_USE_VECTOR in the newer kernel, but that also
-> wouldn't make a difference.
+On Mon, 29 Mar 2004 00:38:05 +0200
+Willy TARREAU <willy@w.ods.org> wrote:
 
-Actually, I am using CONFIG_PCI_USE_VECTOR in both.
+> I sent last one too quickly, it needs this one to compile :
 
+I know, I fixed this already when I tried to compile your
+original version :-)
+
+Thanks.

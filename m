@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279053AbRJVXIa>; Mon, 22 Oct 2001 19:08:30 -0400
+	id <S279066AbRJVXKx>; Mon, 22 Oct 2001 19:10:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279060AbRJVXIV>; Mon, 22 Oct 2001 19:08:21 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30737 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279053AbRJVXIK>; Mon, 22 Oct 2001 19:08:10 -0400
-Subject: Re: Linux 2.2.20pre10
-To: david@blue-labs.org (David Ford)
-Date: Tue, 23 Oct 2001 00:15:00 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3BD4A602.5050605@blue-labs.org> from "David Ford" at Oct 22, 2001 07:04:34 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S279072AbRJVXJf>; Mon, 22 Oct 2001 19:09:35 -0400
+Received: from zero.tech9.net ([209.61.188.187]:42506 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S279060AbRJVXIn>;
+	Mon, 22 Oct 2001 19:08:43 -0400
+Subject: Re: [PATCH] updated preempt-kernel
+From: Robert Love <rml@tech9.net>
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200110221532.f9MFWH615801@deathstar.prodigy.com>
+In-Reply-To: <200110221532.f9MFWH615801@deathstar.prodigy.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15voHc-0003qA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
+Date: 22 Oct 2001 19:08:19 -0400
+Message-Id: <1003792101.1496.61.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This reaction is ludicrous.
-> 
-> Instead of helping US people, now the US people are fighting both US 
-> politicians and their own camp of code developers.
+On Mon, 2001-10-22 at 11:32, bill davidsen wrote:
+>   Is this safe to try on SMP again? The one-previous 2.4.12-ac3 patch
+> seems stable on a P5-100+48MB RAM, which I use as a test for things
+> helping dog-slow systems, did not run well on a BP6 (crashed on first
+> login). I didn't report it because I try to have some useful info to
+> report and had no time.
 
-I dont see why I should risk 5 years in a US jail. Not my problem.
-Fortunately the major vendors kernel development teams are all non US based.
+Hm, your report of failure on the BP6 is the first I have heard of
+that.  I did (re)fix a race in a later release that may solve your
+problem.
 
-Alan
+I would be very interested to see if you can replicate the problem on
+2.4.12-ac5 with the corresponding preempt-kernel patch from
+http://tech9.net/rml/linux ... I hope not.
+
+>   Also, has this been tested with experimental kernel pcmcia or the real
+> pcmcia package? The BP6 is my only non-laptop pcmcia.
+
+You will need to recompile pcmcia, but then it should work.  Dave Hinds
+merged specific support for detecting preempt on compile into 3.1.30 ...
+but as long as the pcmcia-cs build can find your .config, with
+CONFIG_PREEMPT set, you should be OK.
+
+	Robert Love
+

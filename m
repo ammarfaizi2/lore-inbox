@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317771AbSGVSCk>; Mon, 22 Jul 2002 14:02:40 -0400
+	id <S317773AbSGVSDM>; Mon, 22 Jul 2002 14:03:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317770AbSGVSCk>; Mon, 22 Jul 2002 14:02:40 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:48007 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S317771AbSGVSCi>;
-	Mon, 22 Jul 2002 14:02:38 -0400
-Date: Mon, 22 Jul 2002 20:04:42 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: george anzinger <george@mvista.com>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, <linux-kernel@vger.kernel.org>
-Subject: Re: [announce, patch, RFC] "big IRQ lock" removal, IRQ cleanups.
-In-Reply-To: <3D3C48D7.4B36F14E@mvista.com>
-Message-ID: <Pine.LNX.4.44.0207222003310.19622-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317782AbSGVSDL>; Mon, 22 Jul 2002 14:03:11 -0400
+Received: from unthought.net ([212.97.129.24]:39299 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S317781AbSGVSDI>;
+	Mon, 22 Jul 2002 14:03:08 -0400
+Date: Mon, 22 Jul 2002 20:06:16 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: linux-kernel@vger.kernel.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] core file names
+Message-ID: <20020722180616.GE11081@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	linux-kernel@vger.kernel.org,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <1027358351.12656.24.camel@albatros>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1027358351.12656.24.camel@albatros>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 22, 2002 at 07:19:11PM +0200, Jes Rahbek Klinke wrote:
+> This patch agains linux-2.4.18 will allow you to configure the way core
+> files are named through the /proc filesystem.
+...
 
-On Mon, 22 Jul 2002, george anzinger wrote:
+Marcelo, any chance of getting this into 2.4.20 ?
 
-> But schedule and signal code does return with interrupts enabled, so a
-> cli is still needed here.  Also at least some of the trap code returns
-> with interrupts enabled.
+The patch doesn't break existing functionality as far as I can see, and
+it's extremely useful for Beowulf-type people, among others.
 
-the change only affects the ret_from_intr path, which is IRQ-only. The
-signal and schedule path is still disabling interrupts.
+It even removes a few embarassments from the existing code  :)
 
-	Ingo
-
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

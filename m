@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbTHSShJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 14:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbTHSShI
+	id S261170AbTHSSdi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbTHSSdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 14:37:08 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:35212 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S273034AbTHSSVw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 14:21:52 -0400
-Date: Tue, 19 Aug 2003 11:13:58 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Richard Underwood <richard@aspectgroup.co.uk>
-Cc: skraw@ithnet.com, willy@w.ods.org, alan@lxorguk.ukuu.org.uk,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
-       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819111358.35ef1059.davem@redhat.com>
-In-Reply-To: <353568DCBAE06148B70767C1B1A93E625EAB5E@post.pc.aspectgroup.co.uk>
-References: <353568DCBAE06148B70767C1B1A93E625EAB5E@post.pc.aspectgroup.co.uk>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Tue, 19 Aug 2003 14:33:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53007 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S273004AbTHSSTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 14:19:53 -0400
+Date: Tue, 19 Aug 2003 19:19:48 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Valdis.Kletnieks@vt.edu
+Cc: Narayan Desai <desai@mcs.anl.gov>, linux-kernel@vger.kernel.org
+Subject: Re: weird pcmcia problem
+Message-ID: <20030819191948.C23670@flint.arm.linux.org.uk>
+Mail-Followup-To: Valdis.Kletnieks@vt.edu,
+	Narayan Desai <desai@mcs.anl.gov>, linux-kernel@vger.kernel.org
+References: <87u18efpsc.fsf@mcs.anl.gov> <200308190447.h7J4l0Vq004410@turing-police.cc.vt.edu> <200308191816.h7JIGNBC002405@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200308191816.h7JIGNBC002405@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Tue, Aug 19, 2003 at 02:16:23PM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003 19:16:18 +0100
-Richard Underwood <richard@aspectgroup.co.uk> wrote:
+On Tue, Aug 19, 2003 at 02:16:23PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 19 Aug 2003 00:47:00 EDT, Valdis.Kletnieks@vt.edu said:
+> 
+> > On Mon, 18 Aug 2003 19:34:59 CDT, Narayan Desai <desai@mcs.anl.gov>  said:
+> > > Running 2.6.0-test3 (both with and without your recent yenta socket
+> > > patches) pcmcia cards present during boot don't show up until they are
+> > > removed and reinserted. Once reinserted, they work fine. This only
+> 
+> > Same issue on 2.6.0-test3-mm2 on a Dell Latitude C840 with a TrueMobile 1150
+> > wireless (uses orinoco_cs driver) - card is recognized at boot, and somewhat
+> > configured:
+> 
+> Went to 2.6.0-test3-mm3, and the problem is resolved on my laptop.  Not sure if
+> Narayan's machine is using a different "recent Yenta socket patches" than
+> what's in -mm3, or if there's something ELSE that made the difference.
 
-> David S. Miller wrote:
-> > Ok, then how would you propose to be able to send
-> > packets out an interface _before_ we have addresses
-> > assigned to it?
-> > 
-> 	IP packets you mean? You don't? ;) It would depend on why you're
-> doing it naturally. Mostly, I'd have thought that if a host doesn't have an
-> IP number it doesn't get to use ARP.
+That wasn't expected.
 
-Of course it gets to use ARP, nothing prevents this.
+Can you provide all the following information please:
 
-If I know that IP X has my configuration information, I
-have every right to send X a packet from zero-net to
-ask for that information before I have any IP addresses
-attached to the interface.
+- make/model of machine
+- type of cardbus bridge (from lspci)
+- type of card (pcmcia or cardbus)
+- make/model of card
+- full kernel dmesg (including yenta, card services messages)
+- cardmgr messages from system log
 
-This is nothing wrong nor strange about this and we've
-supported it for years.
+thx.
 
-Also, when one specifies a specific device in an output
-address and we cannot find the IP part of the address
-in the routing tables, we still procure a valid route for
-the requester.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Besides normal IP addresses, multicast tools use these
-facilities.

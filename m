@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315216AbSEQA2r>; Thu, 16 May 2002 20:28:47 -0400
+	id <S315235AbSEQAfF>; Thu, 16 May 2002 20:35:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315227AbSEQA2q>; Thu, 16 May 2002 20:28:46 -0400
-Received: from [202.135.142.194] ([202.135.142.194]:10507 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315216AbSEQA2o>; Thu, 16 May 2002 20:28:44 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix BUG macro 
-In-Reply-To: Your message of "Thu, 16 May 2002 12:21:44 +0100."
-             <Pine.LNX.4.21.0205161154410.1036-100000@localhost.localdomain> 
-Date: Fri, 17 May 2002 10:31:41 +1000
-Message-Id: <E178Ven-0007jA-00@wagner.rustcorp.com.au>
+	id <S315236AbSEQAfE>; Thu, 16 May 2002 20:35:04 -0400
+Received: from dsl-213-023-040-248.arcor-ip.net ([213.23.40.248]:56808 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315235AbSEQAe7>;
+	Thu, 16 May 2002 20:34:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: linux-kernel@vger.kernel.org
+Subject: Htree directory index for Ext2, updated
+Date: Fri, 17 May 2002 02:34:51 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: "Li, Chris" <cli@archway.com>, Ted Tso <tytso@thunk.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E178Vhr-0008Vj-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.21.0205161154410.1036-100000@localhost.localdomain> you 
-write:
-> On Thu, 16 May 2002, Rusty Russell wrote:
-> 
-> > Replaces filename with object name.  Sure, it's not as canonical, but
-> > it means that ccache works across different directories (at the
-> > moment, ccache gets almost no caceh hits when you compile in a
-> > different dir).
-> 
-> __STRINGIZE(KBUILD_BASENAME) sounds good, except in inline
-> function from header file; perhaps that's why you're adding
-> __FUNCTION__, which will waste a lot of space.
+An updated version of the htree directory index patch for Ext2 is available
+at:
 
-Um, show me where sizeof(KBUILD_BASENAME) + sizeof(__FUNCTION__) >
-sizeof(__FILENAME__).
+   nl.linux.org/~phillips/htree/htree-2.4.18-2
 
->  Suggest you
-> should test __INCLUDE_LEVEL__: use __STRINGIZE(KBUILD_BASENAME)
-> at __INCLUDE_LEVEL__ 0, __FUNCTION__ at included levels?
+This update fixes a corruption-causing bug.
 
-That'd be cute.  Of course best would be using KBUILD_BASENAME (which
-means BUG() in a header works correclty) and make BUG() take a string
-arg.
+After learning to my horror that gnu patch will, if a patch was made to be 
+applied with option -p0, sometimes apply patches to your 'clean' tree (the 
+one with the ---'s) instead of the target tree (the one with the +++'s) I 
+decided to switch to -p1, and that is how this patch is to be applied.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Changes:
+
+  - Off-by-one bug in second level index block splitting identified
+    by Ted using his prototype Htree extensions to e2fsck, isolated using
+    same, and fixed by Chris Li (Ted, Chris)
+
+  - Added a missing static, allowing htree to be applied to
+    Ext2 and Ext3 simultaneously, withload symbol conflicts (Me)
+
+News:
+
+  - Htree has been ported to Ext3 by Chris Li, patch to be available soon.
+    (Chris, do you need a place to post it?)
+
+In progress:
+
+  - Port to Ext3 (Chris)
+  - e2fsprogs extensions (Ted)
+  - Tuning/testing/finalizing of hash function
+  - Delete coalescing
+
+To do:
+
+  - Highmem support (currently buggy)
+  - telldir cookie(s)
+  - Hash attack resistance
+  - Source cleanup
+  - Port to 2.5
+
+-- 
+Daniel

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131710AbRAPXAL>; Tue, 16 Jan 2001 18:00:11 -0500
+	id <S135179AbRAPXAl>; Tue, 16 Jan 2001 18:00:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135179AbRAPW7w>; Tue, 16 Jan 2001 17:59:52 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:17290 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S132131AbRAPW7j>; Tue, 16 Jan 2001 17:59:39 -0500
-Date: Tue, 16 Jan 2001 23:59:33 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: "richard.morgan9" <richard.morgan9@ntlworld.com>
-cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: eth1: Transmit timed out, status 0000, PHY status 0000
-In-Reply-To: <001101c0800d$50efd900$548cfd3e@abc>
-Message-ID: <Pine.LNX.4.30.0101162351480.13791-100000@cola.teststation.com>
+	id <S135180AbRAPXAO>; Tue, 16 Jan 2001 18:00:14 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:39932 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S135177AbRAPW7u>; Tue, 16 Jan 2001 17:59:50 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200101162259.f0GMxcN01740@webber.adilger.net>
+Subject: Re: super_operations in -pre7
+In-Reply-To: <20010116221357.H20275@parcelfarce.linux.theplanet.co.uk>
+ "from Matthew Wilcox at Jan 16, 2001 10:13:57 pm"
+To: Matthew Wilcox <matthew@wil.cx>
+Date: Tue, 16 Jan 2001 15:59:37 -0700 (MST)
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jan 2001, richard.morgan9 wrote:
+Mattew Wilcox writes:
+> several new operations have been added to super_operations, presumably
+> as part of the reiserfs merge.  write_super_lockfs and unlockfs are
+> never called.  can we remove them?
 
-> I have the same problem as Urban with a recent DLink 530tx
-> (rhine2).  Pulling the power cable from my atx psu (while the
-> computer was "off") fixed the card, until my next reboot from
-> win98.
+These operations were added to co-ordinate filesystem backups/snapshots
+for journalling filesystems (especially in conjunction with LVM).  At
+some point in the future ext3 will also be using them.  However, (only
+having looked at preliminary patches, and not the final 2.4.1-pre reiserfs
+merge) it is bad to insert them in the middle of the super_operations
+struct at this point, as it breaks every filesystem that isn't part of
+the kernel.  That said, the addition of (reiserfs-specific) read_inode2
+and dirty_inode pointers also break all non-kernel filesystems.  Argh!
 
-I'm not the one with a problem but maybe it has something to do with win98
-and/or the driver used there. I intend to test this myself eventually and
-see if I can do something based on Donald Beckers suggestions on eeprom.
-
-Unless someone else feels like playing with this ... anyone?
-
-Does everyone seeing this have a Rhine-II, pci id 1106:3065, and not the
-older chip found in dfe530tx with pci id 1106:3043?
-
-/Urban
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

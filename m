@@ -1,74 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317181AbSH0TQ5>; Tue, 27 Aug 2002 15:16:57 -0400
+	id <S314278AbSH0T3w>; Tue, 27 Aug 2002 15:29:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317189AbSH0TQ5>; Tue, 27 Aug 2002 15:16:57 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:25863 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S317181AbSH0TQz>; Tue, 27 Aug 2002 15:16:55 -0400
-Message-ID: <3D6BD0A8.74509205@zip.com.au>
-Date: Tue, 27 Aug 2002 12:19:04 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-CC: Daniel Phillips <phillips@arcor.de>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: MM patches against 2.5.31
-References: <3D644C70.6D100EA5@zip.com.au> <E17jKlX-0001i0-00@starship> <20020826152950.9929.qmail@thales.mathematik.uni-ulm.de> <E17jO6g-0002XU-00@starship> <3D6A8082.3775C5AB@zip.com.au> <20020827092219.27495.qmail@thales.mathematik.uni-ulm.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316971AbSH0T3w>; Tue, 27 Aug 2002 15:29:52 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:29422 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S314278AbSH0T3u>; Tue, 27 Aug 2002 15:29:50 -0400
+Date: Tue, 27 Aug 2002 12:34:01 -0700
+From: "H. J. Lu" <hjl@lucon.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, dhinds@zen.stanford.edu
+Subject: Re: [Fwd: [PATCH] reduce size of bridge regions for yenta.c]
+Message-ID: <20020827123401.A28519@lucon.org>
+References: <3D6874A0.5B110F6@zip.com.au> <20020825075729.A14924@lucon.org> <3D6907BA.5020603@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D6907BA.5020603@colorfullife.com>; from manfred@colorfullife.com on Sun, Aug 25, 2002 at 06:37:14PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Ehrhardt wrote:
+
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Sun, Aug 25, 2002 at 06:37:14PM +0200, Manfred Spraul wrote:
 > 
-> ...
-> So what we want CPUB do instead is
-> 
->         spin_lock(lru_lock);
->         page = list_entry(lru)
-> 
->         START ATOMIC
->                 page_cache_get(page);
->                 res = (page_count (page) == 1)
->         END ATOMIC
-> 
->         if (res) {
->                 atomic_dec (&page->count);
->                 continue;  /* with next page */
->         }
->         ...
->         page_cache_release (page);
-> 
-> I.e. we want to detect _atomically_ that we just raised the page count
-> from zero to one. My patch actually has a solution that implements the
-> needed atomic operation above by means of the atomic functions that we
-> currently have on all archs (it's called get_page_testzero and
-> should probably called get_page_testone).
-> The more I think about this the more I think this is the way to go.
+> yenta.c doesn't contain error handling, and that should be fixed.
 > 
 
-Yes, I think that would provide a minimal fix to the problem.
-(I'd prefer a solution in which presence on the LRU contributes
-to page->count, because that means I can dump a load of expensive
-page_cache_get-inside-lru-lock instances, but whatever)
+This is what I have been using.
 
-You had:
 
--#define put_page_testzero(p)   atomic_dec_and_test(&(p)->count)
--#define page_count(p)          atomic_read(&(p)->count)
--#define set_page_count(p,v)    atomic_set(&(p)->count, v)
-+#define put_page_testzero(p)   atomic_add_negative(-1, &(p)->count)
-+#define page_count(p)          (1+atomic_read(&(p)->count))
-+#define set_page_count(p,v)    atomic_set(&(p)->count, v-1)
-+#define get_page_testzero(p)   atomic_inc_and_test(&(p)->count)
+H.J.
 
-So the page count is actually offset by -1, and that is hidden by
-the macros.  Fair enough.
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.4.18-yenta-resource.patch"
 
-atomic_add_negative() is not implemented on quite a number of
-architectures (sparc64, mips, ppc, sh, cris, 68k, alpha..), so
-some legwork is needed there.  Looks to be pretty simple though;
-alpha, ppc and others already have atomic_add_return().
+--- linux/drivers/pcmcia/yenta.c.resource	Sat Aug 10 20:30:35 2002
++++ linux/drivers/pcmcia/yenta.c	Fri Aug 16 09:34:32 2002
+@@ -739,17 +739,27 @@ static void yenta_allocate_res(pci_socke
+ 		return;
+ 	}
+ 
+-	align = size = 4*1024*1024;
+-	min = PCIBIOS_MIN_MEM; max = ~0U;
+ 	if (type & IORESOURCE_IO) {
+ 		align = 1024;
+ 		size = 256;
+ 		min = 0x4000;
+ 		max = 0xffff;
+ 	}
++	else {
++		align = size = 4*1024*1024;
++		min = PCIBIOS_MIN_MEM;
++		max = ~0U;
++	}
+ 		
+-	if (allocate_resource(root, res, size, min, max, align, NULL, NULL) < 0)
++
++	if (allocate_resource(root, res, size, min, max, align, NULL, NULL) < 0) {
++		printk (KERN_NOTICE "PCI: CardBus bridge (%04x:%04x, %04x:%04x): Failed to allocate %s resource: %d bytes!\n",
++			socket->dev->vendor, socket->dev->device,
++			socket->dev->subsystem_vendor,
++			socket->dev->subsystem_device,
++			(type & IORESOURCE_IO) ? "I/O" : "memory", size);
+ 		return;
++	}
+ 
+ 	config_writel(socket, offset, res->start);
+ 	config_writel(socket, offset+4, res->end);
+
+--cWoXeonUoKmBZSoM--

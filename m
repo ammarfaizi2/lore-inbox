@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273470AbRIYUDn>; Tue, 25 Sep 2001 16:03:43 -0400
+	id <S273467AbRIYUDD>; Tue, 25 Sep 2001 16:03:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273465AbRIYUDe>; Tue, 25 Sep 2001 16:03:34 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:29447 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S273464AbRIYUDT>; Tue, 25 Sep 2001 16:03:19 -0400
-Date: Tue, 25 Sep 2001 15:40:23 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: andrea@suse.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Locking comment on shrink_caches()
-In-Reply-To: <20010925.125758.94556009.davem@redhat.com>
-Message-ID: <Pine.LNX.4.21.0109251539150.2193-100000@freak.distro.conectiva>
+	id <S273465AbRIYUCq>; Tue, 25 Sep 2001 16:02:46 -0400
+Received: from gateway.wvi.com ([204.119.27.10]:38600 "HELO gateway.wvi.com")
+	by vger.kernel.org with SMTP id <S273464AbRIYUCc>;
+	Tue, 25 Sep 2001 16:02:32 -0400
+Message-ID: <3BB0E2F2.CD668D18@wvi.com>
+Date: Tue, 25 Sep 2001 13:02:58 -0700
+From: Jim Potter <jrp@wvi.com>
+X-Mailer: Mozilla 4.75 (Macintosh; U; PPC)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: question from linuxppc group
+Content-Type: text/plain; charset=us-ascii; x-mac-type="54455854"; x-mac-creator="4D4F5353"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We have  a host bridge (plus PIC, mem ctlr, etc.) that is essentially
+identical
+for ppc and mips.  Where is the best place to put the code since we
+don't want to
+duplicate it for both architectures?
 
+--
+Sincerely,
 
-On Tue, 25 Sep 2001, David S. Miller wrote:
+Jim Potter
+45th Parallel Processing
+jrp@wvi.com
 
->    From: Marcelo Tosatti <marcelo@conectiva.com.br>
->    Date: Tue, 25 Sep 2001 14:49:40 -0300 (BRT)
->    
->    Do you really need to do this ? 
->    
->                    if (unlikely(!spin_trylock(&pagecache_lock))) {
->                            /* we hold the page lock so the page cannot go away from under us */
->                            spin_unlock(&pagemap_lru_lock);
->    
->                            spin_lock(&pagecache_lock);
->                            spin_lock(&pagemap_lru_lock);
->                    }
->    
->    Have you actually seen bad hold times of pagecache_lock by
->    shrink_caches() ? 
-> 
-> Marcelo, this is needed because of the spin lock ordering rules.
-> The pagecache_lock must be obtained before the pagemap_lru_lock
-> or else deadlock is possible.  The spin_trylock is an optimization.
+"It is rather for us to be here dedicated to the great
+task remaining before us -- that from these honored dead
+we take increased devotion to that cause for which they
+gave the last full measure of devotion -- that we here
+highly resolve that these dead shall not have died in vain,
+that this nation under God shall have a new birth of
+freedom, and that government of the people, by the people,
+for the people shall not perish from the earth.
 
-Not, it is not.
+A. Lincoln, Gettysburg, 1863
 
-We can simply lock the pagecachelock and the pagemap_lru_lock at the
-beginning of the cleaning function. page_launder() use to do that.
+ln -sf /dev/null /osama/bin/laden
 
-Thats why I asked Andrea if there was long hold times by shrink_caches().
 

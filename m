@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266825AbUGLN0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266827AbUGLN1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266825AbUGLN0x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 09:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266818AbUGLN0x
+	id S266827AbUGLN1S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 09:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266828AbUGLN1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 09:26:53 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:63157 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266825AbUGLN0A (ORCPT
+	Mon, 12 Jul 2004 09:27:17 -0400
+Received: from mail.eris.qinetiq.com ([128.98.1.1]:14892 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S266820AbUGLN0e convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 09:26:00 -0400
-Date: Mon, 12 Jul 2004 15:25:50 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.8-rc1
-In-Reply-To: <87pt71jre2.fsf@devron.myhome.or.jp>
-Message-ID: <Pine.GSO.4.58.0407121524420.17199@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
- <Pine.GSO.4.58.0407121356510.17199@waterleaf.sonytel.be>
- <87pt71jre2.fsf@devron.myhome.or.jp>
+	Mon, 12 Jul 2004 09:26:34 -0400
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: HDIO_SET_DMA failed on a Dell Latitude C400 Laptop
+Date: Mon, 12 Jul 2004 14:22:00 +0100
+User-Agent: KMail/1.6.1
+References: <200407121407.14428.m.watts@eris.qinetiq.com>
+In-Reply-To: <200407121407.14428.m.watts@eris.qinetiq.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200407121422.00841.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jul 2004, OGAWA Hirofumi wrote:
-> Geert Uytterhoeven <geert@linux-m68k.org> writes:
-> > On Sun, 11 Jul 2004, Linus Torvalds wrote:
-> > > Hirofumi Ogawa:
-> > >   o FAT: don't use "utf8" charset and NLS_DEFAULT
-> >
-> > This patch breaks compilation if both MSDOS_FS and VFAT_FS are not set, due to
-> > CONFIG_FAT_DEFAULT_CODEPAGE being undefined.
-> >
-> > Suggested fix: either make FAT_DEFAULT_CODEPAGE depend on FAT_FS only
-> > (compilation of fs/fat/inode.c depends on FAT_FS), or add a test for
-> > CONFIG_FAT_DEFAULT_CODEPAGE being undefined, cfr. the test for
-> > CONFIG_FAT_DEFAULT_IOCHARSET in fs/fat/inode.c.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+
+> I've just burnt a cd for the first time on a Dell Latitude C400 laptop and
+> I noticed that the system was quite sluggish while the burn was happening.
+> (mouse pointer erratic, window redraw slow etc).
 >
-> Why did you need only FAT_FS? If it was not needed, I'll remove the
+> Remembering a similar issue with a desktop system, I did the following to
+> enable DMA on the hard drive (hdparm was giving ~3MB/sec read)
+>
+> # hdparm -c1 -d1 /dev/hda
+>
+> /dev/hda
+>  setting 32-bit IO_support flag to 1
+>  setting using_dma to 1 (on)
+>  HDIO_SET_DMA failed: Operation not permitted
+>  IO_support   =  1 (32-bit)
+>  using_dma   =  0 (off)
+>
+>
+> hdparm now reports ~7MB/sec which is better but still prety poor.
+>
+>
+> Any ideas why I couldn't set DMA on the drive?
+>
+>
+> CPU = Mobile Pentum 3 @1.2GHz (800MHz when booted with no power cord)
+> Ram = 256MB
+> HDD = IBM Travelstar (IC25N020ATDA04-0) 20GB
+> BIOS Rev = A12
 
-It was a leftover in my current .config.
+Kernel is a 2.6.7 kernel...
 
-> configurable FAT_FS, instead it is internally used only.
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
 
-If it's for internal use only, perhaps it should not be presented to the user
-and both MSDOS_FS and VFAT_FS should simply select it in Kconfig?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+iD8DBQFA8pB4Bn4EFUVUIO0RAjmoAJ93XBQpvOhfi3PNWvNDIHDvT6WASQCcDmlI
+TI0LXhd4IxLKE6sMK3W7mls=
+=rzX2
+-----END PGP SIGNATURE-----

@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268908AbUHUImO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268911AbUHUIuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268908AbUHUImO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 04:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268912AbUHUImO
+	id S268911AbUHUIuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 04:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268912AbUHUIuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 04:42:14 -0400
-Received: from mail.xor.ch ([212.55.210.163]:56841 "HELO mail.xor.ch")
-	by vger.kernel.org with SMTP id S268908AbUHUImD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 04:42:03 -0400
-Message-ID: <41270AD0.FE6C7970@orpatec.ch>
-Date: Sat, 21 Aug 2004 10:41:53 +0200
-From: Otto Wyss <otto.wyss@orpatec.ch>
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	Sat, 21 Aug 2004 04:50:05 -0400
+Received: from qfep04.superonline.com ([212.252.122.160]:24247 "EHLO
+	qfep04.superonline.com") by vger.kernel.org with ESMTP
+	id S268911AbUHUIuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 04:50:01 -0400
+From: "Josan Kadett" <corporate@superonline.com>
+To: "'Lee Revell'" <rlrevell@joe-job.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Entirely ignoring TCP and UDP checksum in kernel level
+Date: Sat, 21 Aug 2004 11:50:03 +0200
 MIME-Version: 1.0
-To: "'linux-fbdev-devel'" <linux-fbdev-devel@lists.sourceforge.net>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Framebuffer drivers maintainers
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <1093077667.854.69.camel@krustophenia.net>
+Thread-Index: AcSHWpwp8CY2M0CtTYmscTRu94UseAACK/1w
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Message-Id: <S268911AbUHUIuB/20040821085001Z+1971@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've now updated the framebuffer driver list and hopefully listed each
-current driver. It may not show the correct name so please suggest corrections.
+Here is the very original linux-kernel mailing list, and if I cannot find an
+answer here, then nowhere on earth can this answer be found. I also saw some
+other messages regarding the same issue on the net. None of them is answered
+correctly; and also as if this is a very "forbidden" thing to disable the
+checksums, most replies are as if they are "unbreakable rules of god".
+Really, I am losing my patience with this. It is also very odd to write a
+low-level application in order to just disable a "feature" of the kernel to
+deal with a faulty piece of embedded firmware.
 
-For each driver its maintainer should be listed possibly with its
-sourceforge.net user account in brackets. I'd like if only current
-maintainers, who really take care of their drivers, are listed and none
-who has done so in the past. Please any maintainer post a message to
-linux-fbdev-devel or tell me where I can retrieve reliable information.
+In reply to;
+------------
+He already stated that he was dealing with a very expensive, very broken
+piece of hardware, and he needs a way to work around it.  Many of us
+have been in this situation, I will not name names ;-).  Telling him to
+just replace it is not helpful.
 
-I'd like to form a QA team which task is mostly to take care of not
-maintained drivers. If you want to volunteer just leave me a message.
+Lee
 
-O. Wyss
 
--- 
-See a huge pile of work at "http://wyodesktop.sourceforge.net/"
+
+

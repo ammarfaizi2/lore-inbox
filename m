@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129776AbQLaPoa>; Sun, 31 Dec 2000 10:44:30 -0500
+	id <S129370AbQLaNcg>; Sun, 31 Dec 2000 08:32:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129870AbQLaPoU>; Sun, 31 Dec 2000 10:44:20 -0500
-Received: from hermes.cs.kuleuven.ac.be ([134.58.40.3]:29395 "EHLO
-	hermes.cs.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id <S129776AbQLaPoB>; Sun, 31 Dec 2000 10:44:01 -0500
-Date: Sat, 30 Dec 2000 14:24:06 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test13-pre5
-In-Reply-To: <Pine.LNX.4.10.10012281459150.995-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10012301422310.581-100000@cassiopeia.home>
+	id <S129450AbQLaNcR>; Sun, 31 Dec 2000 08:32:17 -0500
+Received: from mailframe.cabinet.net ([213.169.1.9]:5132 "HELO
+	mailframe.cabinet.net") by vger.kernel.org with SMTP
+	id <S129370AbQLaNb4>; Sun, 31 Dec 2000 08:31:56 -0500
+Date: Sun, 31 Dec 2000 15:01:09 +0200 (EET)
+From: Jussi Hamalainen <count@theblah.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: path MTU bug still there?
+Message-ID: <Pine.LNX.4.30.0012311449250.9644-100000@shodan.irccrew.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2000, Linus Torvalds wrote:
-> On Thu, 28 Dec 2000, Andi Kleen wrote:
-> > - Instead of having a zone pointer mask use a 8 or 16 byte index into a 
-> > zone table. On a modern CPU it is much cheaper to do the and/shifts than
-> > to do even a single cache miss during page aging. On a lot of systems 
-> > that zone index could be hardcoded to 0 anyways, giving better code.
-> > - Instead of using 4/8 bytes for the age use only 16bit (FreeBSD which
-> > has the same swapping algorithm even only uses 8bit) 
-> 
-> This would be good, but can be hard.
-> 
-> FreeBSD doesn't try to be portable any more, but Linux does, and there are
-> architectures where 8- and 16-bit accesses aren't atomic but have to be
-> done with read-modify-write cycles.
-> 
-> And even for fields like "age", where we don't care whether the age itself
-> is 100% accurate, we _do_ care that the fields close-by don't get strange
-> effects from updating "age". We used to have exactly this problem on alpha
-> back in the 2.1.x timeframe.
-> 
-> This is why a lot of fields are 32-bit, even though we wouldn't need more
-> than 8 or 16 bits of them.
+I have an old 486-box acting as a router. It has two NICs and
+an ISDN adapter. The box is connected to my ISP by ISDN link
+and has a GRE tunnel running over the ISDN link. The other end
+of the tunnel is a Cisco router and the tunnel is the default
+route. I'm experiencing problems identical to the classic MTU
+problem with IP masquarade where a TCP-connection to/from some
+hosts becomes jammed after a few bytes have been sent. The only
+difference is that the problem is reproducable also on the router
+box itself.
 
-What about defining new types for this? Like e.g. `x8', being `u8' on platforms
-were that's OK, and `u32' on platforms where that's more efficient?
+I'm running 2.2.18 vanilla and my firewall rules aren't blocking
+ICMP. The ethernet interfaces and the ISDN link have an MTU of
+1500 and the GRE tunnel has an MTU of 1514 (courtesy of Cisco).
 
-Gr{oetje,eeting}s,
+Has anyone got any bright ideas how to work around this? Would
+upgrading to 2.4 fix this?
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+-=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.org ]=-
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

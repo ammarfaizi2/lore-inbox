@@ -1,106 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264925AbUD2Suq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbUD2SzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264925AbUD2Suq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 14:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbUD2Suq
+	id S262073AbUD2SzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 14:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbUD2SzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 14:50:46 -0400
-Received: from mail2.webmessenger.it ([193.70.193.55]:29635 "EHLO
-	mail1a.webmessenger.it") by vger.kernel.org with ESMTP
-	id S264925AbUD2Stf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 14:49:35 -0400
-Message-ID: <40914C35.1030802@copeca.dsnet.it>
-Date: Thu, 29 Apr 2004 20:40:53 +0200
-From: Giuliano Colla <copeca@copeca.dsnet.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; it-IT; rv:1.5) Gecko/20031007
-X-Accept-Language: it, en, en-us
+	Thu, 29 Apr 2004 14:55:25 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20430 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262073AbUD2SzL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 14:55:11 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [PATCH] Kconfig.debug family
+Date: Thu, 29 Apr 2004 20:54:49 +0200
+User-Agent: KMail/1.5.3
+Cc: trini@kernel.crashing.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       jgarzik@pobox.com, mpm@selenic.com, zwane@linuxpower.ca
+References: <20040421205140.445ae864.rddunlap@osdl.org> <200404291842.23968.bzolnier@elka.pw.edu.pl> <20040429095143.6de85098.rddunlap@osdl.org>
+In-Reply-To: <20040429095143.6de85098.rddunlap@osdl.org>
 MIME-Version: 1.0
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       hsflinux@lists.mbsi.ca
-CC: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [hsflinux] [PATCH] Blacklist binary-only modules lying about
- their	license
-References: <408DC0E0.7090500@gmx.net>
-In-Reply-To: <408DC0E0.7090500@gmx.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404292054.49663.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger ha scritto:
+On Thursday 29 of April 2004 18:51, Randy.Dunlap wrote:
+> On Thu, 29 Apr 2004 18:42:23 +0200 Bartlomiej Zolnierkiewicz wrote:
 
->Hi,
+> | Only on x86 it does a proper thing:
+> |
+> | arch/<arch>/Kconfig -> arch/<arch>/Kconfig.debug -> lib/Kconfig.debug
 >
->LinuxAnt offers binary only modules without any sources. To circumvent our
->MODULE_LICENSE checks LinuxAnt has inserted a "\0" into their declaration:
+> That's because I goofed up... it's the wrong patch.
 >
->MODULE_LICENSE("GPL\0for files in the \"GPL\" directory; for others, only
->LICENSE file applies");
->
->Since string comparisons stop at the first "\0" character, the kernel is
->tricked into thinking the modules are GPL. Btw, the "GPL" directory they
->are speaking about is empty.
->
->The attached patch blacklists all modules having "Linuxant" or "Conexant"
->in their author string. This may seem a bit broad, but AFAIK both
->companies never have released anything under the GPL and have a strong
->history of binary-only modules.
->
->
->Regards,
->Carl-Daniel
->  
->
-<snip>
+> I was trying something that someone suggested (You!) and it didn't
 
-Let's try not to be ridiculous, please.
+:)
 
-As an end user, if I buy a full fledged modem, I get some amount of 
-proprietary, non GPL, code  which executes within the board or the 
-PCMCIA card of the modem. The GPL driver may even support the 
-functionality of downloading a new version of *proprietary* code into 
-the flash Eprom of the device. The GPL linux driver interfaces with it, 
-and all is kosher.
-On the other hand, I have the misfortune of being stuck with a 
-soft-modem, roughly the *same* proprietary code is provided as a binary 
-file, and a linux driver (source provided) interfaces with it. In that 
-case the kernel is flagged as "tainted".
+> work out in a desirable way as far as how it's presented in
+> {x,menu}config, so I need to fix that (i386 part) and then you
 
-But in both cases, if the driver is poorly written, because of 
-developer's inadequacy, or because of the proprietary code being poorly 
-documented and/or implemented, my kernel may go nuts, be it tainted or not.
+In your previous patch (vs 2.6.5) there was only one "Kernel hacking" menu,
+in this one there are two menus: "Kernel hacking" and "X86 kernel hacking".
 
-Can you honestly tell apart the two cases, if you don't make a it a case 
-of "religion war"?
+I hacked it quickly and I have one menu again (on x86 arch specific options
+are not configurable) so I also hacked+checked  ppc and 'make menuconfig'
+looks OK).  Did I miss something?
 
-For sake of completeness. *My* download of
+diff -u linux-2.6.6-rc2-bk4-bzolnier/arch/i386/Kconfig.debug linux-2.6.6-rc2-bk4-bzolnier/arch/i386/Kconfig.debug
+--- linux-2.6.6-rc2-bk4-bzolnier/arch/i386/Kconfig.debug	2004-04-29 20:31:57.358189632 +0200
++++ linux-2.6.6-rc2-bk4-bzolnier/arch/i386/Kconfig.debug	2004-04-29 20:45:11.884403288 +0200
+@@ -1,6 +1,7 @@
+-source "lib/Kconfig.debug"
+ 
+-menu "X86 kernel hacking"
++menu "Kernel hacking"
++
++source "lib/Kconfig.debug"
+ 
+ config X86_FIND_SMP_CONFIG
+ 	bool
+diff -u linux-2.6.6-rc2-bk4-bzolnier/arch/ppc/Kconfig linux-2.6.6-rc2-bk4-bzolnier/arch/ppc/Kconfig
+--- linux-2.6.6-rc2-bk4-bzolnier/arch/ppc/Kconfig	2004-04-29 20:31:57.396183856 +0200
++++ linux-2.6.6-rc2-bk4-bzolnier/arch/ppc/Kconfig	2004-04-29 20:45:49.703653888 +0200
+@@ -1108,7 +1108,7 @@
+ 
+ source "lib/Kconfig"
+ 
+-source "lib/Kconfig.debug"
++source "arch/ppc/Kconfig.debug"
+ 
+ source "security/Kconfig"
+ 
+diff -u linux-2.6.6-rc2-bk4-bzolnier/arch/ppc/Kconfig.debug linux-2.6.6-rc2-bk4-bzolnier/arch/ppc/Kconfig.debug
+--- linux-2.6.6-rc2-bk4-bzolnier/arch/ppc/Kconfig.debug	2004-04-29 20:31:57.397183704 +0200
++++ linux-2.6.6-rc2-bk4-bzolnier/arch/ppc/Kconfig.debug	2004-04-29 20:45:33.027189096 +0200
+@@ -1,4 +1,6 @@
+-menu "PPC kernel hacking"
++menu "Kernel hacking"
++
++source "lib/Kconfig.debug"
+ 
+ config KGDB
+ 	bool "Include kgdb kernel debugger"
+@@ -66 +67,0 @@
+-
+diff -u linux-2.6.6-rc2-bk4-bzolnier/lib/Kconfig.debug linux-2.6.6-rc2-bk4-bzolnier/lib/Kconfig.debug
+--- linux-2.6.6-rc2-bk4-bzolnier/lib/Kconfig.debug	2004-04-29 20:31:57.439177320 +0200
++++ linux-2.6.6-rc2-bk4-bzolnier/lib/Kconfig.debug	2004-04-29 20:39:43.907263392 +0200
+@@ -1,6 +1,4 @@
+-# Generic debug menu
+-
+-menu "Kernel hacking"
++# Generic debug options
+ 
+ config DEBUG_KERNEL
+ 	bool "Kernel debugging"
+@@ -97,7 +95,7 @@
+ 	  debugging info resulting in a larger kernel image.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+-	  
++
+ config FRAME_POINTER
+ 	bool "Compile the kernel with frame pointers"
+ 	depends on DEBUG_KERNEL && (!ARM && !ARM26 && !X86_64 && !S390 && !V850 && !SPARC64)
+@@ -148,3 +145,0 @@
+-
+-endmenu
+-
 
-https://www.linuxant.com/drivers/hsf/full/archive/hsfmodem-6.03.00lnxt04032800full/hsfmodem-6.03.00lnxt04032800full.tar.gz
+> can complain some more.  :)
 
-contains, in the /modules/GPL/ directory the following files:
+:)
 
--rw-r--r--    1 colla    colla       18860 ago 23  2003 COPYING
--rw-r--r--    1 colla    colla       13609 gen 18 00:51 oscompat.h
--rw-r--r--    1 colla    colla       32573 mar 26 09:16 serial_cnxt.c
--rw-r--r--    1 colla    colla        3392 ago 23  2003 serial_cnxt.h
--rw-r--r--    1 colla    colla       57857 ago 24  2003 serial_core.c
--rw-r--r--    1 colla    colla        9789 ago 22  2003 serial_core.h
-
-I strongly hope that developers' efforts will be addressed to more 
-valuable topics than detecting the "Linuxant" string in a loadable 
-module. Not forgetting  that Linux\0ant, L\0inuxant, etc. would display 
-the same way ;-)
-
-Kind Regards
-
--- 
-Ing. Giuliano Colla
-Direttore Tecnico
-Copeca srl
-Bologna 
-Italy
-
-
+Bartlomiej
 

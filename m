@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269442AbUIYXqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269443AbUIYXsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269442AbUIYXqt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 19:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269443AbUIYXqt
+	id S269443AbUIYXsL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 19:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269449AbUIYXsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 19:46:49 -0400
-Received: from gate.crashing.org ([63.228.1.57]:62082 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S269442AbUIYXqq (ORCPT
+	Sat, 25 Sep 2004 19:48:11 -0400
+Received: from gate.crashing.org ([63.228.1.57]:63362 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269443AbUIYXrv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 19:46:46 -0400
+	Sat, 25 Sep 2004 19:47:51 -0400
 Subject: [PATCH] ppc64: Fix 32 bits conversion of SI_TIMER signals
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Andrew Morton <akpm@osdl.org>
@@ -16,10 +16,10 @@ Cc: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel list <linux-kernel@vger.kernel.org>,
        Olaf Hering <olh@suse.de>
 Content-Type: text/plain
-Message-Id: <1096155773.575.46.camel@gaston>
+Message-Id: <1096156004.18236.49.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 26 Sep 2004 09:45:40 +1000
+Date: Sun, 26 Sep 2004 09:46:44 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -66,6 +66,8 @@ Signed-ogg-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
  		} _timer;
  
  		/* POSIX.1b signals */
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 -- 
 Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

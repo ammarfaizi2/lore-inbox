@@ -1,121 +1,216 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277654AbRJIAPG>; Mon, 8 Oct 2001 20:15:06 -0400
+	id <S277653AbRJIANq>; Mon, 8 Oct 2001 20:13:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277655AbRJIAO5>; Mon, 8 Oct 2001 20:14:57 -0400
-Received: from [208.178.176.216] ([208.178.176.216]:64675 "EHLO
-	wizardsworks.org") by vger.kernel.org with ESMTP id <S277654AbRJIAOm>;
-	Mon, 8 Oct 2001 20:14:42 -0400
-Date: Mon, 8 Oct 2001 17:15:12 -0700 (PDT)
-From: Sir Ace <chandleg@wizardsworks.org>
-To: linux-kernel@vger.kernel.org
-Subject: Error in Documentation 
-Message-ID: <Pine.LNX.4.21.0110081714100.6095-100000@wizardsworks.org>
+	id <S277654AbRJIANh>; Mon, 8 Oct 2001 20:13:37 -0400
+Received: from knight.ca.mdis.co.jp ([202.253.208.54]:46996 "EHLO
+	knight.ca.mdis.co.jp") by vger.kernel.org with ESMTP
+	id <S277653AbRJIANV>; Mon, 8 Oct 2001 20:13:21 -0400
+Message-Id: <200110090013.AA00291@MJ136.kamakura.mdis.co.jp>
+From: Seiichi Nakashima <nakasei@kamakura.mdis.co.jp>
+Date: Tue, 09 Oct 2001 09:13:38 +0900
+To: David Weinehall <tao@acc.umu.se>
+Cc: linux-kernel@vger.kernel.org, nakasei@fa.mdis.co.jp
+Subject: linux-2.0.40-pre2 patch error
+In-Reply-To: <20010923145654.F26627@khan.acc.umu.se>
+In-Reply-To: <20010923145654.F26627@khan.acc.umu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: AL-Mail32 Version 1.12
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear. David Weinehall
 
-Aparently I posted this in the wrong place the first time:
+I am Seiichi Nakashima.
 
-
-
-  I noticed that in the documentation in the kernel setup
-{menuconfig/xconfig} on the alpha platform, under "General Setup",
-the option "Use SRM as bootloader" has an error..  {long sentance}
-
-Anyway there is at least one mistake in it:
-
-----------------------------------------------------------------------------
-
-"If MILO doesn't work on your system (true for Jensen motherboards), you
-can bypass it altogether and boot Linux directly from an SRM console; say
-Y here in order to do that."
-
---Semi-false
-  correction:
-Way 1:  Using a boot loader like aboot {recommended} you can boot from SRM
-	to linux, and pass flags just like milo. The SRM variables are:
-	BOOTDEF_DEV=
-	BOOT_FILE=
-	BOOT_OSFLAGS=
-	The aboot.conf is the place where all the kernel parameters can be
-	set, however by just loading the aboot bootstrap you can manually
-        type everything in, in a pinch.
-
-Way 2:  {Very cool, but HYPER-Not recomended}  You can load the linux
-	kernel directly into the ROM, and boot it directly from there.
-	This is not supported on a few of the platforms, but I have seen
-	it done, and it is pretty cool.  However, It becomes a pain when
-	you have 120 alphas to reflash, no to mention you could error
-	and it would render the box useless...
-
----------------------------------------------------------------------------
-
-"Note that you won't be able to boot from an IDE disk using SRM."
-
---Way-false
-
-correction:
-	If your SRM is current, and the board has IDE, it will boot it..
-	OSF/Tru 64 will not recognize the IDE port, SRM however sees it
-	fine.  I know this works scince I boot off of a 20 Gig IDE now.
-
----------------------------------------------------------------------------
-
-using a "show config" in the srm, you will get a listing of all
-attached/integrated devices.
-
-SCSI   is normally dka*
-IDE    is normally dqa*
-Floppy is normally dva*
-
-known issues:  The place that aboot.conf and the kernel live needs to be
-on a partition that lives completly withing the first 2 gig of the disk.
-I hate seporating /boot out, but if you have a 20 gig root, it will not
-work, unless you do so.  The modules for the kernel can reside anywhere,
-once the kernel loads far enough to need them, then you already should
-have the support for the filesystems that they reside on.  If not you will
-be recomiling the damn thing again anyway.
-
-Issue 2, You MUST MUST use bsd partitioning, on a disk not using milo.
-If you migrated from a Tru 64/OSF system, you need not blow away the OSF/
-disk label, however you do have to turn on the support for OSF in the
-advanced filesystem area of the kernel config. Just remember to make sure
-the bsd label exists..
-
-Issue 3, You have to waste disk.. With PC partitioning, you can use lilo
-without wasting disk..  No such luck with aboot.  You need to loose the
-first cylinder of the disk so you can boot. {yes this equates to a lot on
-big disks, maybe 2-5 Meg or more} It is necessary.  You partition should
-look something like this:
-
-BSD disklabel command (m for help): p
-4 partitions:
-#	start       end      size     fstype   [fsize bsize   cpg]
-a:        1         2         2     unused        0     0
-b:        3      1043      1041       ext2
-c:        1     39560     39560     unused        0     0
-d:     1042     39560     38519       ext2  
-
-where "a" is wasted space for the aboot loader, "b" is /boot or something
-useful residing < 2 Gig., "c" is the BSD disklabel, and d-{blahness} are
-the rest of your normal partitions.
+>
+>Thanks a lot. I've fixed those two warnings and the error in my tree;
+>expect a pre2 shortly.
+>
 
 
+Today, I download pre-patch-2.0.40-2 from www.kernel.org in tao's directory,
+and update linux-2.0.39 to use pre-patch-2.0.40-2.
+
+but patch error occured sched.c step.
+I send you patch log file and sched.c.rej file.
+
+< patch log >
+
+patching file `linux-2.0.40/CREDITS'
+patching file `linux-2.0.40/Documentation/Configure.help'
+patching file `linux-2.0.40/Documentation/cdrom/sbpcd'
+patching file `linux-2.0.40/Documentation/magic-number.txt'
+patching file `linux-2.0.40/MAINTAINERS'
+patching file `linux-2.0.40/Makefile'
+patching file `linux-2.0.40/arch/alpha/config.in'
+patching file `linux-2.0.40/arch/i386/config.in'
+patching file `linux-2.0.40/arch/i386/kernel/head.S'
+patching file `linux-2.0.40/arch/i386/kernel/process.c'
+patching file `linux-2.0.40/arch/i386/kernel/ptrace.c'
+patching file `linux-2.0.40/arch/i386/kernel/setup.c'
+patching file `linux-2.0.40/arch/i386/kernel/signal.c'
+patching file `linux-2.0.40/arch/i386/kernel/traps.c'
+patching file `linux-2.0.40/arch/i386/math-emu/Makefile'
+patching file `linux-2.0.40/arch/i386/math-emu/README'
+patching file `linux-2.0.40/arch/i386/math-emu/control_w.h'
+patching file `linux-2.0.40/arch/i386/math-emu/div_Xsig.S'
+patching file `linux-2.0.40/arch/i386/math-emu/div_small.S'
+patching file `linux-2.0.40/arch/i386/math-emu/errors.c'
+patching file `linux-2.0.40/arch/i386/math-emu/exception.h'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_arith.c'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_asm.h'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_aux.c'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_debug.c'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_emu.h'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_entry.c'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_etc.c'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_proto.h'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_system.h'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_tags.c'
+patching file `linux-2.0.40/arch/i386/math-emu/fpu_trig.c'
+patching file `linux-2.0.40/arch/i386/math-emu/get_address.c'
+patching file `linux-2.0.40/arch/i386/math-emu/load_store.c'
+patching file `linux-2.0.40/arch/i386/math-emu/poly.h'
+patching file `linux-2.0.40/arch/i386/math-emu/poly_2xm1.c'
+patching file `linux-2.0.40/arch/i386/math-emu/poly_atan.c'
+patching file `linux-2.0.40/arch/i386/math-emu/poly_l2.c'
+patching file `linux-2.0.40/arch/i386/math-emu/poly_sin.c'
+patching file `linux-2.0.40/arch/i386/math-emu/poly_tan.c'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_add_sub.c'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_compare.c'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_constant.c'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_constant.h'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_convert.c'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_div.S'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_divide.c'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_ld_str.c'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_mul.c'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_norm.S'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_round.S'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_u_add.S'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_u_div.S'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_u_mul.S'
+patching file `linux-2.0.40/arch/i386/math-emu/reg_u_sub.S'
+patching file `linux-2.0.40/arch/i386/math-emu/status_w.h'
+patching file `linux-2.0.40/arch/i386/math-emu/version.h'
+patching file `linux-2.0.40/arch/i386/math-emu/wm_shrx.S'
+patching file `linux-2.0.40/arch/i386/math-emu/wm_sqrt.S'
+patching file `linux-2.0.40/arch/i386/mm/fault.c'
+patching file `linux-2.0.40/arch/i386/mm/init.c'
+patching file `linux-2.0.40/arch/m68k/config.in'
+patching file `linux-2.0.40/arch/mips/config.in'
+patching file `linux-2.0.40/arch/mips/kernel/sysmips.c'
+patching file `linux-2.0.40/arch/ppc/config.in'
+patching file `linux-2.0.40/arch/sparc/config.in'
+patching file `linux-2.0.40/arch/sparc/kernel/sparc-stub.c'
+patching file `linux-2.0.40/drivers/block/ll_rw_blk.c'
+patching file `linux-2.0.40/drivers/block/promise.h'
+patching file `linux-2.0.40/drivers/cdrom/aztcd.c'
+patching file `linux-2.0.40/drivers/cdrom/cdi.c'
+patching file `linux-2.0.40/drivers/cdrom/cdu31a.c'
+patching file `linux-2.0.40/drivers/cdrom/mcd.c'
+patching file `linux-2.0.40/drivers/cdrom/mcdx.c'
+patching file `linux-2.0.40/drivers/cdrom/optcd.c'
+patching file `linux-2.0.40/drivers/cdrom/sbpcd.c'
+patching file `linux-2.0.40/drivers/char/lp_m68k.c'
+patching file `linux-2.0.40/drivers/char/misc.c'
+patching file `linux-2.0.40/drivers/char/vga.c'
+patching file `linux-2.0.40/drivers/isdn/hisax/elsa_ser.c'
+patching file `linux-2.0.40/drivers/isdn/icn/icn.c'
+patching file `linux-2.0.40/drivers/isdn/isdn_common.c'
+patching file `linux-2.0.40/drivers/isdn/isdn_net.c'
+patching file `linux-2.0.40/drivers/isdn/isdnloop/isdnloop.c'
+patching file `linux-2.0.40/drivers/net/atp.c'
+patching file `linux-2.0.40/drivers/net/auto_irq.c'
+patching file `linux-2.0.40/drivers/net/tulip.c'
+patching file `linux-2.0.40/drivers/sbus/char/sunserial.c'
+patching file `linux-2.0.40/drivers/scsi/NCR5380.h'
+patching file `linux-2.0.40/drivers/scsi/NCR53c406a.c'
+patching file `linux-2.0.40/drivers/scsi/aha152x.c'
+patching file `linux-2.0.40/drivers/scsi/aha1542.c'
+patching file `linux-2.0.40/drivers/scsi/aic7xxx.c'
+patching file `linux-2.0.40/drivers/scsi/pci2000.c'
+patching file `linux-2.0.40/drivers/scsi/ultrastor.c'
+patching file `linux-2.0.40/drivers/sound/gus_wave.c'
+patching file `linux-2.0.40/fs/buffer.c'
+patching file `linux-2.0.40/fs/exec.c'
+patching file `linux-2.0.40/fs/ext2/dir.c'
+patching file `linux-2.0.40/fs/ext2/super.c'
+patching file `linux-2.0.40/fs/ext2/truncate.c'
+patching file `linux-2.0.40/fs/isofs/inode.c'
+patching file `linux-2.0.40/fs/pipe.c'
+patching file `linux-2.0.40/fs/proc/array.c'
+patching file `linux-2.0.40/include/asm-i386/bugs.h'
+patching file `linux-2.0.40/include/asm-i386/math_emu.h'
+patching file `linux-2.0.40/include/asm-i386/processor.h'
+patching file `linux-2.0.40/include/asm-m68k/zorro.h'
+patching file `linux-2.0.40/include/asm-sparc/bitops.h'
+patching file `linux-2.0.40/include/asm-sparc/head.h'
+patching file `linux-2.0.40/include/linux/binfmts.h'
+patching file `linux-2.0.40/include/linux/blk.h'
+patching file `linux-2.0.40/include/linux/cdrom.h'
+patching file `linux-2.0.40/include/linux/cm206.h'
+patching file `linux-2.0.40/include/linux/if_frad.h'
+patching file `linux-2.0.40/include/linux/kernel.h'
+patching file `linux-2.0.40/include/linux/md.h'
+patching file `linux-2.0.40/include/linux/optcd.h'
+patching file `linux-2.0.40/include/linux/sbpcd.h'
+patching file `linux-2.0.40/include/linux/skbuff.h'
+patching file `linux-2.0.40/init/main.c'
+patching file `linux-2.0.40/kernel/printk.c'
+patching file `linux-2.0.40/kernel/sched.c'
+Hunk #3 FAILED at 241.
+1 out of 18 hunks FAILED -- saving rejects to linux-2.0.40/kernel/sched.c.rej
+patching file `linux-2.0.40/lib/vsprintf.c'
+patching file `linux-2.0.40/mm/kmalloc.c'
+patching file `linux-2.0.40/net/core/skbuff.c'
+patching file `linux-2.0.40/net/ipv4/tcp.c'
+patching file `linux-2.0.40/net/ipv4/tcp_input.c'
+patching file `linux-2.0.40/scripts/checkconfig.pl'
+patching file `linux-2.0.40/scripts/checkhelp.pl'
+patching file `linux-2.0.40/scripts/checkincludes.pl'
+patching file `linux-2.0.40/scripts/mkdep.c'
 
 
-I've been asked a few times to re-write the alpha/SRM/booting Howto, but
-no one has ever told me who to contact about it...  Anyway, I just thought
-I should post this long winded thing... :)  Just in case anyone is
-wondering, I'm the guy that maintained and ran the 120 node alpha
-render farm at Digital Domain {the place that titanic was rendered}, and
-helped Chris a little with the alpha port of Slackware. I hope I didn't
-step on anyones toes in this. {grin}  
+< shced.c.rej >
 
-In any event I still have no clue what this option does in the kernel,
-scince it can all be done anyway, I just figured I would send this in.
+***************
+*** 241,255 ****
+  {
+  	int weight;
+  
+- #ifdef __SMP__	
+  	/* We are not permitted to run a task someone else is running */
+  	if (p->processor != NO_PROC_ID)
+  		return -1000;
+- #ifdef PAST_2_0		
+  	/* This process is locked to a processor group */
+- 	if (p->processor_mask && !(p->processor_mask & (1<<this_cpu)))
+  		return -1000;
+- #endif		
+  #endif
+  
+  	/*
+--- 241,255 ----
+  {
+  	int weight;
+  
++ #ifdef __SMP__
+  	/* We are not permitted to run a task someone else is running */
+  	if (p->processor != NO_PROC_ID)
+  		return -1000;
++ #ifdef PAST_2_0
+  	/* This process is locked to a processor group */
++ 	if (p->processor_mask && !(p->processor_mask & (1<<this_cpu))
+  		return -1000;
++ #endif
+  #endif
+  
+  	/*
 
-Sir Ace
-
+------------------------------------
+ Name:  Seiichi Nakashima
+ Email: nakasei@kamakura.mdis.co.jp
+------------------------------------

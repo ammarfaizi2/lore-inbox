@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbULAE6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261601AbUKAIju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbULAE6a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 23:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbULAE6a
+	id S261601AbUKAIju (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 1 Nov 2004 03:39:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUKAIju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 23:58:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48858 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261241AbULAE6H
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 23:58:07 -0500
-Date: Tue, 30 Nov 2004 20:57:07 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nickpiggin@yahoo.com.au, nikita@clusterfs.com,
-       Linux-Kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH]: 1/4 batch mark_page_accessed()
-Message-ID: <20041130225707.GA2315@dmt.cyclades>
-References: <16800.47044.75874.56255@gargle.gargle.HOWL> <20041126185833.GA7740@logos.cnet> <41A7CC3D.9030405@yahoo.com.au> <20041130162956.GA3047@dmt.cyclades> <20041130173323.0b3ac83d.akpm@osdl.org>
+	Mon, 1 Nov 2004 03:39:50 -0500
+Received: from gprs214-33.eurotel.cz ([160.218.214.33]:23424 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261601AbUKAIjo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 03:39:44 -0500
+Date: Mon, 1 Nov 2004 09:39:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Larry McVoy <lm@work.bitmover.com>,
+        Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+        Xavier Bestel <xavier.bestel@free.fr>,
+        James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
+        Roman Zippel <zippel@linux-m68k.org>,
+        Andrea Arcangeli <andrea@novell.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow
+Message-ID: <20041101083922.GA1160@elf.ucw.cz>
+References: <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <20041031210323.GG5578@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041130173323.0b3ac83d.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20041031210323.GG5578@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 30, 2004 at 05:33:23PM -0800, Andrew Morton wrote:
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-> >
-> > Because the ordering of LRU pages should be enhanced in respect to locality, 
-> >  with the mark_page_accessed batching you group together tasks accessed pages 
-> >  and move them at once to the active list. 
+Hi!
+
+> > > In Spain, reverse engineering is allowed for interoperability.
 > > 
-> >  You maintain better locality ordering, while decreasing the precision of aging/
-> >  temporal locality.
-> > 
-> >  Which should enhance disk writeout performance.
-> 
-> I'll buy that explanation.  Although I'm a bit sceptical that it is
-> measurable.
+> > And in lots of other places.  Which has been mentioned in this and other
+> > instances of this discussion for the last 5 years.  And the response is
+> > that BK already gives you documented ways to interoperate, extensively
+> > documented, in fact.  You can get data and/or metadata into and out of
+> > BK from the command line.  You could create your own network protocol,
+> > client, and server using the documented interfaces that BK has.  You
+> > could create your own CVS2BK tool, your own BK2CVS tool, etc., all
+> > using documented interfaces.
 
-Its just a theory that makes sense to me, but yes we need to be measure it.
+Okay, statement here seems to be "it is technically possible to write
+BK2something using documented interfaces", problem is just that nobody
+but Halle Berry is allowed to do the work. So Larry claims that he's
+not doing lock-in because you can export that data. Only catch is that
+you are not legally permitted to do that with free version, and Larry
+is not going to sell commercial version to you if you do something
+like this. So we have unique lockin at legal level, instead of
+technical one.
 
-> Was that particular workload actually performing significant amounts of
-> writeout in vmscan.c?  (We should have direct+kswapd counters for that, but
-> we don't.  /proc/vmstat:pgrotated will give us an idea).
-
-I strongly believe so, its a memory hungry benchmark - I'll collect status later 
-on this week or the next.
-
-> >  On the other hand, without batching you mix the locality up in LRU - the LRU becomes 
-> >  more precise in terms of "LRU aging", but less ordered in terms of sequential 
-> >  access pattern.
-> > 
-> >  The disk IO intensive reaim has very significant gain from the batching, its
-> >  probably due to the enhanced LRU ordering (what Nikita says).
-> > 
-> >  The slowdown is probably due to the additional atomic_inc by page_cache_get(). 
-> > 
-> >  Is there no way to avoid such page_cache_get there (and in lru_cache_add also)?
-> 
-> Not really.  The page is only in the pagevec at that time - if someone does
-> a put_page() on it the page will be freed for real, and will then be
-> spilled onto the LRU.  Messy. 
-
-We could handle such situation on allocation and during vmscan - maybe its doable.
-Just pondering, maybe its indeed too messy to even ponder about.
-
+If I misunderstood this, Larry please clarify.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

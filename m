@@ -1,49 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264973AbSJPIeD>; Wed, 16 Oct 2002 04:34:03 -0400
+	id <S264964AbSJPIqS>; Wed, 16 Oct 2002 04:46:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264975AbSJPIeD>; Wed, 16 Oct 2002 04:34:03 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51578 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S264973AbSJPIeC> convert rfc822-to-8bit; Wed, 16 Oct 2002 04:34:02 -0400
-To: Eduardo PXrez <100018135@alumnos.uc3m.es>
-Cc: Marius Gedminas <mgedmin@centras.lt>, linux-kernel@vger.kernel.org
-Subject: Re: fork() wait semantics
-References: <20021015115517.GA2514@atrey.karlin.mff.cuni.cz>
-	<34f5602687bbb910752d5becee9c9aa1@alumnos.uc3m.es>
-	<20021015180743.GD7511@gintaras>
-	<a074067cb9f2b74a80a9f9f03f0abcaa@alumnos.uc3m.es>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 16 Oct 2002 02:38:29 -0600
-In-Reply-To: <a074067cb9f2b74a80a9f9f03f0abcaa@alumnos.uc3m.es>
-Message-ID: <m1u1jm3hiy.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S264975AbSJPIqS>; Wed, 16 Oct 2002 04:46:18 -0400
+Received: from barclay.balt.net ([195.14.162.78]:6831 "EHLO barclay.balt.net")
+	by vger.kernel.org with ESMTP id <S264964AbSJPIqQ>;
+	Wed, 16 Oct 2002 04:46:16 -0400
+Date: Wed, 16 Oct 2002 10:49:08 +0200
+From: Zilvinas Valinskas <zilvinas@gemtek.lt>
+To: linux-kernel@vger.kernel.org
+Subject: sendfile(2) behaviour has changed ?
+Message-ID: <20021016084908.GA770@gemtek.lt>
+Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Attribution: Zilvinas
+X-Url: http://www.gemtek.lt/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eduardo PXrez <100018135@alumnos.uc3m.es> writes:
 
-> On 2002-10-15 20:07:43 +0200, Marius Gedminas wrote:
-> > On Tue, Oct 15, 2002 at 04:58:44PM +0000, Eduardo Pérez wrote:
-> > > As an example consider bash. In case of fork() error the program
-> > > isn't even run thus causing a fatal error. If fork() waited for
-> > > resources to be available there wouldn't be any problem.
-> > 
-> > No, thank you.  This happened to me more than once (runaway fetchmail
-> > plugins).  An error message about a failing fork() indicates
-> > immediately that I have too many processes, and I can kill them
-> > (thankfully kill is a bash builtin).  If bash just waited silently I
-> > wouldn't know what to think.
-> 
-> But you are talking about buggy software.
-> If you software has bugs don't expect it to work properly.
-> 
-> These fork() semantics are for non-buggy software.
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Well that clinches it since there is no non-buggy software we
-definitely don't want that behavior.
+This sample code copies a file using sendfile(2) call works just fine on 
+2.2.x and 2.4.x kernels. On 2.5.x kernels (not sure starting which
+version) it stopped working. Program terminates with EINVAL error. 
 
-Eric
+$ ./sendfile
+sendfile: Invalid argument
+
+Is this expected behaviour ? that sendfile(2) on 2.5.4x linux kernel requires
+socket as an output fd paramter ? 
+
+Was it ever legal to copy file(s) on filesystem using sendfile(2) ?
+(which was kindda nice feature ... )
+
+--y0ulUmNC+osPPQO6
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="sendfile.c"
+
+#include <sys/sendfile.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+int main() 
+{
+	int fd_in  = 0;
+	int fd_out = 0;
+	struct stat stat_buf;
+	off_t  offset = 0;
+	ssize_t count = 0;
+
+	if ((fd_in=open("sendfile.c",O_RDONLY))<0)
+	{
+		perror("open");
+		exit(1);
+	}
+	if ((fd_out=open("sendfile.out",O_CREAT|O_TRUNC|O_WRONLY,S_IRWXU))<0)
+	{
+		perror("open");
+		exit(1);
+	}
+
+	if (fstat(fd_in,&stat_buf)) {
+		perror("fstat");
+	}
+
+
+	count = sendfile(fd_out,fd_in,&offset,stat_buf.st_size);
+
+	if (count < 0)
+		perror("sendfile");
+	
+	if (close(fd_in) < 0)
+		perror("close");
+	if (close(fd_out) < 0)
+		perror("close");
+	return 0;
+}
+
+
+--y0ulUmNC+osPPQO6--

@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277258AbRKNUZo>; Wed, 14 Nov 2001 15:25:44 -0500
+	id <S277380AbRKNUcq>; Wed, 14 Nov 2001 15:32:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277294AbRKNUZe>; Wed, 14 Nov 2001 15:25:34 -0500
-Received: from postfix1-2.free.fr ([213.228.0.130]:28388 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S277258AbRKNUZ1> convert rfc822-to-8bit; Wed, 14 Nov 2001 15:25:27 -0500
-Date: Wed, 14 Nov 2001 18:40:16 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Charles Marslett <cmarslett9@cs.com>
-Cc: Philippe Amelant <philippe.amelant@free.fr>,
-        Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-In-Reply-To: <3BF2A2A2.29021CF6@cs.com>
-Message-ID: <20011114182520.H1491-100000@gerard>
+	id <S277341AbRKNUcg>; Wed, 14 Nov 2001 15:32:36 -0500
+Received: from [62.221.156.44] ([62.221.156.44]:39465 "HELO firewall.it")
+	by vger.kernel.org with SMTP id <S277382AbRKNUcZ>;
+	Wed, 14 Nov 2001 15:32:25 -0500
+Message-ID: <00a001c16d4b$7dabf240$0400a8c0@jh>
+From: "Giorgio A." <jh@libero.it>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0111141212220.24024-100000@anime.net>
+Subject: Need info on kernel philosofy
+Date: Wed, 14 Nov 2001 21:32:34 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi all,
+i know this is gonna be the lamest question of the year, but i didn't found
+a valid answer elsewhere !
+I'm using linux as a sysadmin since slack 3.1, and i've subscribed to this
+list about 2 month ago. I'm not a developer, i don't have the knowledge, but
+i like to watch at all of your e-mails since it makes me feel like i'm
+really following the growing of the penguin ! Only now i discovered that
+there're 2 trees, the Alans' and the Linus' (here in alphabetical order :-),
+and in these days i saw Linus saying that 2.4.15 is ready to be the result
+of a merge between the two trees. Now, i wonder if merging the 2 trees is an
+usual thing, so it would be happened also with 2.2 and 2.0 (thing that i
+can't knew, since at that time i wasn't subscribed to LKML), or if i'm
+taking part of a kind of an historycal event, i.e. the fusion of the 2
+kernel trees.
 
+tnx for your answer,
+have a nice day!
 
-On Wed, 14 Nov 2001, Charles Marslett wrote:
+Giorgio A.
 
-> Philippe Amelant wrote:
-> >
-> > le mer 14-11-2001 à 17:15, Alastair Stevens a écrit :
-> > > > We just finished putting together what was for us a pretty big box using
-> > > > the Tyan S2460 with 1.4GHz Athlons (not MP) and ran into some troublesome
-> > > > heating problems.
-> > >
-> > > Well, I finally managed to check, and both CPUs are at 76C - sounds
-> > > quite hot to me. Is that problematic? I've never run these Athlons
-> > > before, so I'm not sure what's supposed to be normal ;-)
-> > >
-> >
-> > It's hot i think, my dual celeron hang around 60°C.
->
-> I agree, but the Thunderbirds (older 1.4 GHz processors) run hotter than anything
-> else, so this may be normal.  My dual 1.2 GHz MPs run about 72C, and they are
-> supposed to be a bit cooler than the Thunderbirds.
-
-> I don't have much in the way of cooling, though....
-
-In my opinion, you just need some ketch-up and you will be done. :-)
-
-Athlons can survive at more than 90C, but probably not all the stuff that
-is closed to them when temperature is so high, in my opinion. I would not
-trust anything higher than 55C.
-
-  Gérard.
+  "in girum imus nocte
+            et consumimur igni"
 

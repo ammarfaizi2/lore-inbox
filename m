@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262998AbRFDXRG>; Mon, 4 Jun 2001 19:17:06 -0400
+	id <S262824AbRFDXSz>; Mon, 4 Jun 2001 19:18:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbRFDXQ4>; Mon, 4 Jun 2001 19:16:56 -0400
-Received: from t2.redhat.com ([199.183.24.243]:21487 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262856AbRFDXQu>; Mon, 4 Jun 2001 19:16:50 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-To: bjornw@axis.com
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: Missing cache flush.
-Mime-Version: 1.0
+	id <S262856AbRFDXSp>; Mon, 4 Jun 2001 19:18:45 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26126 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262824AbRFDXSl>; Mon, 4 Jun 2001 19:18:41 -0400
+Subject: Re: disk-based fds in select/poll
+To: pp@ludusdesign.com (Pierre Phaneuf)
+Date: Tue, 5 Jun 2001 00:16:29 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B1C0EE9.9F8F58A4@ludusdesign.com> from "Pierre Phaneuf" at Jun 04, 2001 06:42:49 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 05 Jun 2001 00:16:47 +0100
-Message-ID: <13942.991696607@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1573aH-00068I-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The flash mapping driver arch/cris/drivers/axisflashmap.c uses a cached
-mapping of the flash chips for bulk reads, but obviously an uncached mapping
-for sending commands and reading status when we're actually writing to or
-erasing parts of the chip.
+> Ok, so while knowing about select "lying" about readability of a file
+> fd, if I would stick a file fd in my select-based loop anyway, but would
 
-However, it fails to flush the dcache for the range used when the flash is 
-accessed through the uncached mapping. So after an erase or write, we may 
-read old data from the cache for the changed area.
+You could fix select to return when the page was cachied and return EWOULDBLOCK
+on reads if the page was not present to be honest. I don't think that would
+actually break any apps, and the specs seem to allow it
 
-All the mapping driver needs to do is invalidate the dcache for the affected
-area before the next copy_from() operation. No need to worry about writeback
-in this case, because we never write to flash chips through the cached
-mapping.
+> only try to read a bit at a time (say, 4K or 8K) would trigger
+> readahead, yet finish quickly enough that I can get back to processing
+> other fds in my select loop?
 
-However, I can't see a cache operation which performs this function.
-flush_dcache_page() is defined as a NOP on CRIS as, it seems, it is on most
-architectures. On other architectures, there's dma_cache_wback_inv(), but
-that also seems to be a NOP on i386, to pick a random example.
+Probably
 
-I'm aware that some architectures can't handle having both cached and
-uncached mappings of the same physical range - so to prevent dismissal of
-the question out of hand by people assuming all the world's a PeeCee -
-consider the alternative situation where we have ROM or RAM chips in a paged
-mapping such that only a 64K 'page' is visible by the CPU at a time
-(remember XMS?). Using an uncached mapping is extremely suboptimal - all we
-want to do is invalidate the cache when we change the page, or writeback 
-and invalidate in the case of RAM.
+> Wouldn't that cause too many syscalls to be done? Or if this is actually
+> the way to go without an actual thread, how should I go determining an
+> optimal block size?
 
-I would have thought that's the function that dma_cache_wback_inv() is
-supposed to perform - but it seems not to do so.
-
-So how is this _supposed_ to be done?
-
-I was pointed at Documentation/DMA-mapping.txt but that doesn't seem very
-helpful - it's very PCI-specific, and a quick perusal of pci_dma_sync() on
-i386 shows that it doesn't do what's required anyway.
-
---
-dwmw2
-
+fs block size I suspect or small multiple thereof
 

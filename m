@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264844AbTF0Vkj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 17:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbTF0Vkj
+	id S264825AbTF0Vq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 17:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbTF0Vq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 17:40:39 -0400
-Received: from dhcp93-dsl-usw3.w-link.net ([206.129.84.93]:61888 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id S264839AbTF0Vkc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 17:40:32 -0400
-Message-ID: <3EFCBD12.3070101@candelatech.com>
-Date: Fri, 27 Jun 2003 14:54:26 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: davidel@xmailserver.org, mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+	Fri, 27 Jun 2003 17:46:58 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:5817 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264825AbTF0Vq4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 17:46:56 -0400
+Date: Fri, 27 Jun 2003 14:54:56 -0700 (PDT)
+Message-Id: <20030627.145456.115915594.davem@redhat.com>
+To: greearb@candelatech.com
+Cc: davidel@xmailserver.org, mbligh@aracnet.com, linux-kernel@vger.kernel.org,
        linux-net@vger.kernel.org, netdev@oss.sgi.com
 Subject: Re: networking bugs and bugme.osdl.org
-References: <20030626.224739.88478624.davem@redhat.com>	<21740000.1056724453@[10.10.2.4]>	<Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com> <20030627.143738.41641928.davem@redhat.com>
-In-Reply-To: <20030627.143738.41641928.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3EFCBD12.3070101@candelatech.com>
+References: <Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com>
+	<20030627.143738.41641928.davem@redhat.com>
+	<3EFCBD12.3070101@candelatech.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
->    From: Davide Libenzi <davidel@xmailserver.org>
->    Date: Fri, 27 Jun 2003 07:56:16 -0700 (PDT)
->    
->    The good of a bug tracking system against the mailing list is that
->    bugs do survive in a bug tracking system,
-> 
-> No, this is the _BAD_ part, shit accumulates equally with
-> useful reports.
-> 
-> Useful reports in non-bugtracking system environments get
-> retransmitted and eventually looked at.
+   From: Ben Greear <greearb@candelatech.com>
+   Date: Fri, 27 Jun 2003 14:54:26 -0700
+   
+   I think you are putting too much work on the bug reporter(s).
 
-I think you are putting too much work on the bug reporter(s).  If
-you want to ignore bug reports that only happen once, feel free,
-but give the rest of us a way to easily keep a history and list
-of bug reports.
+Don't even talk to me about too much work.
 
-For instance, where is the list of open networking bugs for
-2.4 now?
+Someone wants me to spend hours groveling through some pieces of code
+to track down some tricky bug, for free, and all I ask is that they
+retransmit the bug every once in a while if they don't see any
+response?
 
+Give me a frigging break.
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+If they're not willing to do this, they DON'T care about the bug.
+Just like if people aren't willing to retransmit patches they want
+installed, they DON'T care about the patch.  And just like I don't
+want to apply patches people don't care about, I don't want any of my
+contributors looking at bugs that the bug reporter doesn't care about.
 
+Just like with patches, I want to know that people are going to stick
+around and be responsive if I need to get information from them when
+a bug is reported.  If they're not willing to retransmit the report
+every one in a while, why should I believe they will?
 
+Ben, you absolutely don't understand how all of this development works
+and what it relies upon to function properly.

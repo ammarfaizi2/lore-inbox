@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267735AbUHJUyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267743AbUHJU5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267735AbUHJUyc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 16:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267744AbUHJUyc
+	id S267743AbUHJU5b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 16:57:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267744AbUHJU5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 16:54:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34262 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267735AbUHJUy3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 16:54:29 -0400
-Date: Tue, 10 Aug 2004 13:54:09 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org, spam99@2thebatcave.com,
-       <km@westend.com>, david-b@pacbell.net
-Subject: Re: uhci-hcd oops with 2.4.27/ intel D845GLVA
-Message-Id: <20040810135409.44d31d1e@lembas.zaitcev.lan>
-In-Reply-To: <mailman.1092163681.21436.linux-kernel2news@redhat.com>
-References: <1092142777.1042.30.camel@bart.intern>
-	<20040810171000.GC12702@logos.cnet>
-	<mailman.1092163681.21436.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 10 Aug 2004 16:57:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5286 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267743AbUHJU53
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 16:57:29 -0400
+Date: Tue, 10 Aug 2004 16:50:10 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       Ernie Petrides <petrides@redhat.com>
+Subject: Re: [PATCH] reserved buffers only for PF_MEMALLOC
+Message-ID: <20040810195009.GC13509@logos.cnet>
+References: <Pine.LNX.4.44.0408101310580.7156-100000@dhcp83-102.boston.redhat.com> <20040810190455.GA13349@logos.cnet> <20040810204232.GA2528@lists.us.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040810204232.GA2528@lists.us.dell.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Aug 2004 14:10:42 -0300
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+On Tue, Aug 10, 2004 at 03:42:32PM -0500, Matt Domsch wrote:
+> On Tue, Aug 10, 2004 at 04:04:55PM -0300, Marcelo Tosatti wrote:
+> > On Tue, Aug 10, 2004 at 01:20:24PM -0400, Rik van Riel wrote:
+> > > 
+> > > The buffer allocation path in 2.4 has a long standing bug,
+> > > where non-PF_MEMALLOC tasks can dig into the reserved pool
+> > > in get_unused_buffer_head().  The following patch makes the
+> > > reserved pool only accessible to PF_MEMALLOC tasks.
+> > 
+> > Out of curiosity: Do you actually seen any practical problem due to 
+> > get_unused_buffer_head() calls eating into the reserved pool?
+> > 
+> > Or have any testcase which would trigger a problem (OOM) due to it? 
+> 
+> My team has seen an application which mallocs as much memory as
+> possible, up to 95% of system RAM, using multiple processes as
+> necessary, and then has threads which touch all the malloc'd bytes and
+> threads which touch all the malloc'd pages.  It keeps kswapd pretty
+> busy, such that you can get down to zero free and inactive clean
+> ZONE_NORMAL pages from which to allocate additional buffer_heads for
+> swapout, deadlocking the system.
+> 
+> We believe that by limiting the use of the reserved buffer_head pool
+> to PF_MEMALLOC tasks like kswapd, kswapd can make forward progress
+> even in extremely low memory situations.
 
-> And I'm unable to find the message you are responding to, 
-> can you please forward me it?
+OK, makes sense. I assume Rik's patch fixes the deadlock you are seeing?
 
-http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&selm=2rhs2-6H8-11%40gated-at.bofh.it
+Have you tested it?
 
-The "uhci-hcd in 2.4.27" was launched by Nick, Kai simply reused that
-header. I should note when I saw "uhci-hcd" I automatically ignored it,
-because there's no uhci-hcd in 2.4.
-
-> ehci_hcd 00:1d.7:  Bios handoff failed (104, 1010001)
-> unable to handle kernel NULL pointer dereference at virtual address 00000048
-
-This is a clue. I know that EHCI goes belly up if it fails to execute
-the handoff.
-
-The attached ought to fix Nick up (no way to tell about Kai because his
-report had no data). It consists of two things. First, it fixes the
-oops in the scan_async. Second, it prevents the oops from happening by
-ignoring the handoff failure (as the old code did, in effect). Either
-one should be sufficient, but this is why I use both. The if around
-scan_async is the right fix, so it's there on merit. However, it yields
-a non-working EHCI if your BIOS is buggy.
-
-I know that David Brownlee disagrees with writing zero into the
-configuration space, but it looks safer to me, because old code
-did write that zero.
-
--- Pete
-
---- linux-2.4.27/drivers/usb/host/ehci-hcd.c	2004-08-10 13:43:36.691040600 -0700
-+++ linux-2.4.21-17.EL-usb1/drivers/usb/host/ehci-hcd.c	2004-07-30 16:21:12.000000000 -0700
-@@ -303,7 +302,8 @@
- 		if (cap & (1 << 16)) {
- 			ehci_err (ehci, "BIOS handoff failed (%d, %04x)\n",
- 				where, cap);
--			return 1;
-+			pci_write_config_dword (ehci->hcd.pdev, where, 0);
-+			return 0;
- 		} 
- 		ehci_dbg (ehci, "BIOS handoff succeeded\n");
- 	}
-@@ -547,7 +547,8 @@
- 
- 	/* root hub is shut down separately (first, when possible) */
- 	spin_lock_irq (&ehci->lock);
--	ehci_work (ehci, NULL);
-+	if (ehci->async)
-+		ehci_work (ehci, NULL);
- 	spin_unlock_irq (&ehci->lock);
- 	ehci_mem_cleanup (ehci);
- 

@@ -1,987 +1,352 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317615AbSFIOiD>; Sun, 9 Jun 2002 10:38:03 -0400
+	id <S317610AbSFIOfu>; Sun, 9 Jun 2002 10:35:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317616AbSFIOiC>; Sun, 9 Jun 2002 10:38:02 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:61709 "EHLO
+	id <S317611AbSFIOft>; Sun, 9 Jun 2002 10:35:49 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:59917 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317615AbSFIOhv>; Sun, 9 Jun 2002 10:37:51 -0400
-Message-ID: <3D035A80.7030404@evision-ventures.com>
-Date: Sun, 09 Jun 2002 15:39:12 +0200
+	id <S317610AbSFIOfr>; Sun, 9 Jun 2002 10:35:47 -0400
+Message-ID: <3D0359FE.6030809@evision-ventures.com>
+Date: Sun, 09 Jun 2002 15:37:02 +0200
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
 X-Accept-Language: en-us, pl
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.20 locks.h
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de
+Subject: [PATCH] 2.5.20 IDE 86
 In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com>
 Content-Type: multipart/mixed;
- boundary="------------040705070500040101090800"
+ boundary="------------020405080704040300060008"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------040705070500040101090800
+--------------020405080704040300060008
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Since I have been looking in to the lcoking issues recently
-the following rather trivial gabrage code collection became
-obvious...
+Most importantly this makes ide-scsi work again, which I broke
+IDE 85. And we are starting to be serious about locking issues.
+However the locking issues will take some patches until they stabilize.
 
+Wed Jun  5 22:08:15 CEST 2002 ide-clean-86
 
-- Remove "not jet used" code from 1995 in asm/locks.h. It's garbage.
+- Add spin locks in ata_special_intr.
 
-- Remove useless DEBUG_SPINLOCK code from generic spinlock.h code. Just
-   compiling for SMP does the trick already.
+- Add Server Works CSB6 handling by Matt Domsch.
 
-- Replace all usages of SPINLOCK_DEBUG with the now global
-   CONFIG_DEBUG_SPINLOCK.
+- Atari updates by Geert Uytterhoeven:
+   * irq_lock is used in more than one file, so make it global and rename it
+     to ide_irq_lock
+   * `hwgroup' is dead, use `channel' instead
+   * ide_irq_lock depends on ATA_ARCH_LOCK, not on m68k or APUS
 
---------------040705070500040101090800
-Content-Type: text/plain;
- name="locks-2.5.20.diff"
-Content-Transfer-Encoding: quoted-printable
+- Small janitorial tidbits by Angus Sawyer.
+
+- PIIX driver updates by Vojtech Pavlik:
+
+   * Removes the CONFIG_BLK_DEV_PIIX_TRY133 option. I've got an official
+     statement from Intel saying that the controller definitely isn't intended
+     to operate at this speed and doing so may cause severe trouble.
+	
+   * Fixes a bug in ata-timing.c, where EIDE timing data was discarded by
+     accident.
+	
+   * Fixed a couple bugs in the Artop driver (UDMA clocks, active/recovery
+     timing), 8-bit timing merging.
+	
+   * Removes an unused variable from piix.c
+
+- Move locking out from ide_set_handler(). There are places where it incurred
+   too frequent lock grab and release or where we did miss to lock against
+   concurrent hardware access.
+
+   Generally the locking appears to be too fine grained and inconsistent at many
+   places. This is the first cut. We will deal with it step by step.
+
+- Make sure message string is initialized even if FANCY_STATUS_DUMPS is
+   disabled.
+
+- Don't lock directly inside udma_init and implementations of this method.
+
+- Guard against REQ_SPECIAL issued by the SCSI layer on us. Use REQ_PC in
+   ide-scsi.c instead.
+
+--------------020405080704040300060008
+Content-Type: application/x-gzip;
+ name="ide-clean-86.diff.gz"
+Content-Transfer-Encoding: base64
 Content-Disposition: inline;
- filename="locks-2.5.20.diff"
+ filename="ide-clean-86.diff.gz"
 
-diff -urN linux-2.5.20/arch/alpha/kernel/smc37c669.c linux/arch/alpha/ker=
-nel/smc37c669.c
---- linux-2.5.20/arch/alpha/kernel/smc37c669.c	2002-06-03 03:44:51.000000=
-000 +0200
-+++ linux/arch/alpha/kernel/smc37c669.c	2002-06-09 04:58:37.000000000 +02=
-00
-@@ -7,6 +7,7 @@
- #include <linux/mm.h>
- #include <linux/init.h>
- #include <linux/delay.h>
-+#include <linux/spinlock.h>
-=20
- #include <asm/hwrpb.h>
- #include <asm/io.h>
-@@ -1103,66 +1104,7 @@
-     unsigned int drq=20
- );
-=20
--#if 0
--/*
--** External Data Declarations
--*/
--
--extern struct LOCK spl_atomic;
--
--/*
--** External Function Prototype Declarations
--*/
--
--/* From kernel_alpha.mar */
--extern spinlock(=20
--    struct LOCK *spl=20
--);
--
--extern spinunlock(=20
--    struct LOCK *spl=20
--);
--
--/* From filesys.c */
--int allocinode(
--    char *name,=20
--    int can_create,=20
--    struct INODE **ipp
--);
--
--extern int null_procedure( void );
--
--int smcc669_init( void );
--int smcc669_open( struct FILE *fp, char *info, char *next, char *mode );=
-
--int smcc669_read( struct FILE *fp, int size, int number, unsigned char *=
-buf );
--int smcc669_write( struct FILE *fp, int size, int number, unsigned char =
-*buf );
--int smcc669_close( struct FILE *fp );
--
--struct DDB smc_ddb =3D {
--	"smc",			/* how this routine wants to be called	*/
--	smcc669_read,		/* read routine				*/
--	smcc669_write,		/* write routine			*/
--	smcc669_open,		/* open routine				*/
--	smcc669_close,		/* close routine			*/
--	null_procedure,		/* name expansion routine		*/
--	null_procedure,		/* delete routine			*/
--	null_procedure,		/* create routine			*/
--	null_procedure,		/* setmode				*/
--	null_procedure,		/* validation routine			*/
--	0,			/* class specific use			*/
--	1,			/* allows information			*/
--	0,			/* must be stacked			*/
--	0,			/* is a flash update driver		*/
--	0,			/* is a block device			*/
--	0,			/* not seekable				*/
--	0,			/* is an Ethernet device		*/
--	0,			/* is a filesystem driver		*/
--};
--#endif
--
--#define spinlock(x)
--#define spinunlock(x)
--
-+static spinlock_t smc_lock __cacheline_aligned =3D SPIN_LOCK_UNLOCKED;
- =0C
- /*
- **++
-@@ -2042,10 +1984,10 @@
- ** mode.  Therefore, a spinlock is placed around the two writes to=20
- ** guarantee that they complete uninterrupted.
- */
--	spinlock( &spl_atomic );
-+	spin_lock(&smc_lock);
-     	wb( &SMC37c669->index_port, SMC37c669_CONFIG_ON_KEY );
-     	wb( &SMC37c669->index_port, SMC37c669_CONFIG_ON_KEY );
--	spinunlock( &spl_atomic );
-+	spin_unlock(&smc_lock);
-     }
-     else {
-     	wb( &SMC37c669->index_port, SMC37c669_CONFIG_OFF_KEY );
-diff -urN linux-2.5.20/arch/ppc/kernel/ppc_ksyms.c linux/arch/ppc/kernel/=
-ppc_ksyms.c
---- linux-2.5.20/arch/ppc/kernel/ppc_ksyms.c	2002-06-03 03:44:53.00000000=
-0 +0200
-+++ linux/arch/ppc/kernel/ppc_ksyms.c	2002-06-09 04:58:37.000000000 +0200=
-
-@@ -217,7 +217,7 @@
- EXPORT_SYMBOL(__global_sti);
- EXPORT_SYMBOL(__global_save_flags);
- EXPORT_SYMBOL(__global_restore_flags);
--#ifdef SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- EXPORT_SYMBOL(_raw_spin_lock);
- EXPORT_SYMBOL(_raw_spin_unlock);
- EXPORT_SYMBOL(_raw_spin_trylock);
-diff -urN linux-2.5.20/arch/ppc/lib/locks.c linux/arch/ppc/lib/locks.c
---- linux-2.5.20/arch/ppc/lib/locks.c	2002-06-03 03:44:44.000000000 +0200=
-
-+++ linux/arch/ppc/lib/locks.c	2002-06-09 04:58:37.000000000 +0200
-@@ -16,7 +16,7 @@
- #include <asm/system.h>
- #include <asm/io.h>
-=20
--#ifdef SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
-=20
- #undef INIT_STUCK
- #define INIT_STUCK 200000000 /*0xffffffff*/
-diff -urN linux-2.5.20/drivers/scsi/tmscsim.c linux/drivers/scsi/tmscsim.=
-c
---- linux-2.5.20/drivers/scsi/tmscsim.c	2002-06-03 03:44:50.000000000 +02=
-00
-+++ linux/drivers/scsi/tmscsim.c	2002-06-09 04:58:38.000000000 +0200
-@@ -254,8 +254,6 @@
-  * undef  : traditional save_flags; cli; restore_flags;
-  */
-=20
--//#define DEBUG_SPINLOCKS 2	/* Set to 0, 1 or 2 in include/linux/spinloc=
-k.h */
--
- #if LINUX_VERSION_CODE >=3D KERNEL_VERSION(2,1,30)
- # include <linux/init.h>
- #if LINUX_VERSION_CODE >=3D KERNEL_VERSION(2,3,30)
-@@ -293,7 +291,7 @@
-=20
- # if USE_SPINLOCKS =3D=3D 3 /* both */
-=20
--#  if defined (CONFIG_SMP) || DEBUG_SPINLOCKS > 0
-+#  if defined (CONFIG_SMP)
- #   define DC390_LOCKA_INIT { spinlock_t __unlocked =3D SPIN_LOCK_UNLOCK=
-ED; pACB->lock =3D __unlocked; };
- #  else
- #   define DC390_LOCKA_INIT
-@@ -322,7 +320,7 @@
-=20
- #  if USE_SPINLOCKS =3D=3D 2 /* adapter specific locks */
-=20
--#   if defined (CONFIG_SMP) || DEBUG_SPINLOCKS > 0
-+#   if defined (CONFIG_SMP)
- #    define DC390_LOCKA_INIT { spinlock_t __unlocked =3D SPIN_LOCK_UNLOC=
-KED; pACB->lock =3D __unlocked; };
- #   else
- #    define DC390_LOCKA_INIT
-diff -urN linux-2.5.20/include/asm-cris/locks.h linux/include/asm-cris/lo=
-cks.h
---- linux-2.5.20/include/asm-cris/locks.h	2002-06-03 03:44:48.000000000 +=
-0200
-+++ linux/include/asm-cris/locks.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,133 +0,0 @@
--/*
-- *	SMP locks primitives for building ix86 locks
-- *	(not yet used).
-- *
-- *		Alan Cox, alan@cymru.net, 1995
-- */
--=20
--/*
-- *	This would be much easier but far less clear and easy
-- *	to borrow for other processors if it was just assembler.
-- */
--
--extern __inline__ void prim_spin_lock(struct spinlock *sp)
--{
--	int processor=3Dsmp_processor_id();
--=09
--	/*
--	 *	Grab the lock bit
--	 */
--	=20
--	while(lock_set_bit(0,&sp->lock))
--	{
--		/*
--		 *	Failed, but that's cos we own it!
--		 */
--		=20
--		if(sp->cpu=3D=3Dprocessor)
--		{
--			sp->users++;
--			return 0;
--		}
--		/*
--		 *	Spin in the cache S state if possible
--		 */
--		while(sp->lock)
--		{
--			/*
--			 *	Wait for any invalidates to go off
--			 */
--			=20
--			if(smp_invalidate_needed&(1<<processor))
--				while(lock_clear_bit(processor,&smp_invalidate_needed))
--					local_flush_tlb();
--			sp->spins++;
--		}
--		/*
--		 *	Someone wrote the line, we go 'I' and get
--		 *	the cache entry. Now try to regrab
--		 */
--	}
--	sp->users++;sp->cpu=3Dprocessor;
--	return 1;
--}
--
--/*
-- *	Release a spin lock
-- */
--=20
--extern __inline__ int prim_spin_unlock(struct spinlock *sp)
--{
--	/* This is safe. The decrement is still guarded by the lock. A multiloc=
-k would
--	   not be safe this way */
--	if(!--sp->users)
--	{
--		lock_clear_bit(0,&sp->lock);sp->cpu=3D NO_PROC_ID;
--		return 1;
--	}
--	return 0;
--}
--
--
--/*
-- *	Non blocking lock grab
-- */
--=20
--extern __inline__ int prim_spin_lock_nb(struct spinlock *sp)
--{
--	if(lock_set_bit(0,&sp->lock))
--		return 0;		/* Locked already */
--	sp->users++;
--	return 1;			/* We got the lock */
--}
--
--
--/*
-- *	These wrap the locking primitives up for usage
-- */
--=20
--extern __inline__ void spinlock(struct spinlock *sp)
--{
--	if(sp->priority<current->lock_order)
--		panic("lock order violation: %s (%d)\n", sp->name, current->lock_order=
-);
--	if(prim_spin_lock(sp))
--	{
--		/*
--		 *	We got a new lock. Update the priority chain
--		 */
--		sp->oldpri=3Dcurrent->lock_order;
--		current->lock_order=3Dsp->priority;
--	}
--}
--
--extern __inline__ void spinunlock(struct spinlock *sp)
--{
--	if(current->lock_order!=3Dsp->priority)
--		panic("lock release order violation %s (%d)\n", sp->name, current->loc=
-k_order);
--	if(prim_spin_unlock(sp))
--	{
--		/*
--		 *	Update the debugging lock priority chain. We dumped
--		 *	our last right to the lock.
--		 */
--		current->lock_order=3Dsp->oldpri;
--	}=09
--}
--
--extern __inline__ void spintestlock(struct spinlock *sp)
--{
--	/*
--	 *	We do no sanity checks, it's legal to optimistically
--	 *	get a lower lock.
--	 */
--	prim_spin_lock_nb(sp);
--}
--
--extern __inline__ void spintestunlock(struct spinlock *sp)
--{
--	/*
--	 *	A testlock doesn't update the lock chain so we
--	 *	must not update it on free
--	 */
--	prim_spin_unlock(sp);
--}
-diff -urN linux-2.5.20/include/asm-i386/locks.h linux/include/asm-i386/lo=
-cks.h
---- linux-2.5.20/include/asm-i386/locks.h	2002-06-03 03:44:51.000000000 +=
-0200
-+++ linux/include/asm-i386/locks.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,135 +0,0 @@
--/*
-- *	SMP locks primitives for building ix86 locks
-- *	(not yet used).
-- *
-- *		Alan Cox, alan@redhat.com, 1995
-- */
--=20
--/*
-- *	This would be much easier but far less clear and easy
-- *	to borrow for other processors if it was just assembler.
-- */
--
--static __inline__ void prim_spin_lock(struct spinlock *sp)
--{
--	int processor=3Dsmp_processor_id();
--=09
--	/*
--	 *	Grab the lock bit
--	 */
--	=20
--	while(lock_set_bit(0,&sp->lock))
--	{
--		/*
--		 *	Failed, but that's cos we own it!
--		 */
--		 
--		if(sp->cpu=3D=3Dprocessor)
--		{
--			sp->users++;
--			return 0;
--		}
--		/*
--		 *	Spin in the cache S state if possible
--		 */
--		while(sp->lock)
--		{
--			/*
--			 *	Wait for any invalidates to go off
--			 */
--			=20
--			if(smp_invalidate_needed&(1<<processor))
--				while(lock_clear_bit(processor,&smp_invalidate_needed))
--					local_flush_tlb();
--			sp->spins++;
--		}
--		/*
--		 *	Someone wrote the line, we go 'I' and get
--		 *	the cache entry. Now try to regrab
--		 */
--	}
--	sp->users++;sp->cpu=3Dprocessor;
--	return 1;
--}
--
--/*
-- *	Release a spin lock
-- */
--=20
--static __inline__ int prim_spin_unlock(struct spinlock *sp)
--{
--	/* This is safe. The decrement is still guarded by the lock. A multiloc=
-k would
--	   not be safe this way */
--	if(!--sp->users)
--	{
--		sp->cpu=3D NO_PROC_ID;lock_clear_bit(0,&sp->lock);
--		return 1;
--	}
--	return 0;
--}
--
--
--/*
-- *	Non blocking lock grab
-- */
--=20
--static __inline__ int prim_spin_lock_nb(struct spinlock *sp)
--{
--	if(lock_set_bit(0,&sp->lock))
--		return 0;		/* Locked already */
--	sp->users++;
--	return 1;			/* We got the lock */
--}
--
--
--/*
-- *	These wrap the locking primitives up for usage
-- */
--=20
--static __inline__ void spinlock(struct spinlock *sp)
--{
--	if(sp->priority<current->lock_order)
--		panic("lock order violation: %s (%d)\n", sp->name, current->lock_order=
-);
--	if(prim_spin_lock(sp))
--	{
--		/*
--		 *	We got a new lock. Update the priority chain
--		 */
--		sp->oldpri=3Dcurrent->lock_order;
--		current->lock_order=3Dsp->priority;
--	}
--}
--
--static __inline__ void spinunlock(struct spinlock *sp)
--{
--	int pri;
--	if(current->lock_order!=3Dsp->priority)
--		panic("lock release order violation %s (%d)\n", sp->name, current->loc=
-k_order);
--	pri=3Dsp->oldpri;
--	if(prim_spin_unlock(sp))
--	{
--		/*
--		 *	Update the debugging lock priority chain. We dumped
--		 *	our last right to the lock.
--		 */
--		current->lock_order=3Dsp->pri;
--	}=09
--}
--
--static __inline__ void spintestlock(struct spinlock *sp)
--{
--	/*
--	 *	We do no sanity checks, it's legal to optimistically
--	 *	get a lower lock.
--	 */
--	prim_spin_lock_nb(sp);
--}
--
--static __inline__ void spintestunlock(struct spinlock *sp)
--{
--	/*
--	 *	A testlock doesn't update the lock chain so we
--	 *	must not update it on free
--	 */
--	prim_spin_unlock(sp);
--}
-diff -urN linux-2.5.20/include/asm-i386/spinlock.h linux/include/asm-i386=
-/spinlock.h
---- linux-2.5.20/include/asm-i386/spinlock.h	2002-06-03 03:44:44.00000000=
-0 +0200
-+++ linux/include/asm-i386/spinlock.h	2002-06-09 04:58:38.000000000 +0200=
-
-@@ -9,30 +9,20 @@
- extern int printk(const char * fmt, ...)
- 	__attribute__ ((format (printf, 1, 2)));
-=20
--/* It seems that people are forgetting to
-- * initialize their spinlocks properly, tsk tsk.
-- * Remember to turn this off in 2.4. -ben
-- */
--#if defined(CONFIG_DEBUG_SPINLOCK)
--#define SPINLOCK_DEBUG	1
--#else
--#define SPINLOCK_DEBUG	0
--#endif
--
- /*
-  * Your basic SMP spinlocks, allowing only a single CPU anywhere
-  */
-=20
- typedef struct {
- 	volatile unsigned int lock;
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	unsigned magic;
- #endif
- } spinlock_t;
-=20
- #define SPINLOCK_MAGIC	0xdead4ead
-=20
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- #define SPINLOCK_MAGIC_INIT	, SPINLOCK_MAGIC
- #else
- #define SPINLOCK_MAGIC_INIT	/* */
-@@ -79,7 +69,7 @@
-=20
- static inline void _raw_spin_unlock(spinlock_t *lock)
- {
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	if (lock->magic !=3D SPINLOCK_MAGIC)
- 		BUG();
- 	if (!spin_is_locked(lock))
-@@ -100,7 +90,7 @@
- static inline void _raw_spin_unlock(spinlock_t *lock)
- {
- 	char oldval =3D 1;
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	if (lock->magic !=3D SPINLOCK_MAGIC)
- 		BUG();
- 	if (!spin_is_locked(lock))
-@@ -125,7 +115,7 @@
-=20
- static inline void _raw_spin_lock(spinlock_t *lock)
- {
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	__label__ here;
- here:
- 	if (lock->magic !=3D SPINLOCK_MAGIC) {
-@@ -151,14 +141,14 @@
-  */
- typedef struct {
- 	volatile unsigned int lock;
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	unsigned magic;
- #endif
- } rwlock_t;
-=20
- #define RWLOCK_MAGIC	0xdeaf1eed
-=20
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- #define RWLOCK_MAGIC_INIT	, RWLOCK_MAGIC
- #else
- #define RWLOCK_MAGIC_INIT	/* */
-@@ -181,7 +171,7 @@
-=20
- static inline void _raw_read_lock(rwlock_t *rw)
- {
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	if (rw->magic !=3D RWLOCK_MAGIC)
- 		BUG();
- #endif
-@@ -190,7 +180,7 @@
-=20
- static inline void _raw_write_lock(rwlock_t *rw)
- {
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	if (rw->magic !=3D RWLOCK_MAGIC)
- 		BUG();
- #endif
-diff -urN linux-2.5.20/include/asm-ppc/spinlock.h linux/include/asm-ppc/s=
-pinlock.h
---- linux-2.5.20/include/asm-ppc/spinlock.h	2002-06-03 03:44:47.000000000=
- +0200
-+++ linux/include/asm-ppc/spinlock.h	2002-06-09 04:58:38.000000000 +0200
-@@ -7,22 +7,20 @@
- #include <asm/system.h>
- #include <asm/processor.h>
-=20
--#undef SPINLOCK_DEBUG
--
- /*
-  * Simple spin lock operations.
-  */
-=20
- typedef struct {
- 	volatile unsigned long lock;
--#ifdef SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	volatile unsigned long owner_pc;
- 	volatile unsigned long owner_cpu;
- #endif
- } spinlock_t;
-=20
- #ifdef __KERNEL__
--#if SPINLOCK_DEBUG
-+#if CONFIG_DEBUG_SPINLOCK
- #define SPINLOCK_DEBUG_INIT     , 0, 0
- #else
- #define SPINLOCK_DEBUG_INIT     /* */
-@@ -34,7 +32,7 @@
- #define spin_is_locked(x)	((x)->lock !=3D 0)
- #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
-=20
--#ifndef SPINLOCK_DEBUG
-+#ifndef CONFIG_DEBUG_SPINLOCK
-=20
- static inline void _raw_spin_lock(spinlock_t *lock)
- {
-@@ -88,12 +86,12 @@
-  */
- typedef struct {
- 	volatile unsigned long lock;
--#ifdef SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	volatile unsigned long owner_pc;
- #endif
- } rwlock_t;
-=20
--#if SPINLOCK_DEBUG
-+#if CONFIG_DEBUG_SPINLOCK
- #define RWLOCK_DEBUG_INIT     , 0
- #else
- #define RWLOCK_DEBUG_INIT     /* */
-@@ -102,7 +100,7 @@
- #define RW_LOCK_UNLOCKED (rwlock_t) { 0 RWLOCK_DEBUG_INIT }
- #define rwlock_init(lp) do { *(lp) =3D RW_LOCK_UNLOCKED; } while(0)
-=20
--#ifndef SPINLOCK_DEBUG
-+#ifndef CONFIG_DEBUG_SPINLOCK
-=20
- static __inline__ void _raw_read_lock(rwlock_t *rw)
- {
-diff -urN linux-2.5.20/include/asm-x86_64/locks.h linux/include/asm-x86_6=
-4/locks.h
---- linux-2.5.20/include/asm-x86_64/locks.h	2002-06-03 03:44:40.000000000=
- +0200
-+++ linux/include/asm-x86_64/locks.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,135 +0,0 @@
--/*
-- *	SMP locks primitives for building ix86 locks
-- *	(not yet used).
-- *
-- *		Alan Cox, alan@redhat.com, 1995
-- */
--=20
--/*
-- *	This would be much easier but far less clear and easy
-- *	to borrow for other processors if it was just assembler.
-- */
--
--extern __inline__ void prim_spin_lock(struct spinlock *sp)
--{
--	int processor=3Dsmp_processor_id();
--=09
--	/*
--	 *	Grab the lock bit
--	 */
--	=20
--	while(lock_set_bit(0,&sp->lock))
--	{
--		/*
--		 *	Failed, but that's cos we own it!
--		 */
--		=20
--		if(sp->cpu=3D=3Dprocessor)
--		{
--			sp->users++;
--			return 0;
--		}
--		/*
--		 *	Spin in the cache S state if possible
--		 */
--		while(sp->lock)
--		{
--			/*
--			 *	Wait for any invalidates to go off
--			 */
--			=20
--			if(smp_invalidate_needed&(1<<processor))
--				while(lock_clear_bit(processor,&smp_invalidate_needed))
--					local_flush_tlb();
--			sp->spins++;
--		}
--		/*
--		 *	Someone wrote the line, we go 'I' and get
--		 *	the cache entry. Now try to regrab
--		 */
--	}
--	sp->users++;sp->cpu=3Dprocessor;
--	return 1;
--}
--
--/*
-- *	Release a spin lock
-- */
--=20
--extern __inline__ int prim_spin_unlock(struct spinlock *sp)
--{
--	/* This is safe. The decrement is still guarded by the lock. A multiloc=
-k would
--	   not be safe this way */
--	if(!--sp->users)
--	{
--		sp->cpu=3D NO_PROC_ID;lock_clear_bit(0,&sp->lock);
--		return 1;
--	}
--	return 0;
--}
--
--
--/*
-- *	Non blocking lock grab
-- */
--=20
--extern __inline__ int prim_spin_lock_nb(struct spinlock *sp)
--{
--	if(lock_set_bit(0,&sp->lock))
--		return 0;		/* Locked already */
--	sp->users++;
--	return 1;			/* We got the lock */
--}
--
--
--/*
-- *	These wrap the locking primitives up for usage
-- */
--=20
--extern __inline__ void spinlock(struct spinlock *sp)
--{
--	if(sp->priority<current->lock_order)
--		panic("lock order violation: %s (%d)\n", sp->name, current->lock_order=
-);
--	if(prim_spin_lock(sp))
--	{
--		/*
--		 *	We got a new lock. Update the priority chain
--		 */
--		sp->oldpri=3Dcurrent->lock_order;
--		current->lock_order=3Dsp->priority;
--	}
--}
--
--extern __inline__ void spinunlock(struct spinlock *sp)
--{
--	int pri;
--	if(current->lock_order!=3Dsp->priority)
--		panic("lock release order violation %s (%d)\n", sp->name, current->loc=
-k_order);
--	pri=3Dsp->oldpri;
--	if(prim_spin_unlock(sp))
--	{
--		/*
--		 *	Update the debugging lock priority chain. We dumped
--		 *	our last right to the lock.
--		 */
--		current->lock_order=3Dsp->pri;
--	}=09
--}
--
--extern __inline__ void spintestlock(struct spinlock *sp)
--{
--	/*
--	 *	We do no sanity checks, it's legal to optimistically
--	 *	get a lower lock.
--	 */
--	prim_spin_lock_nb(sp);
--}
--
--extern __inline__ void spintestunlock(struct spinlock *sp)
--{
--	/*
--	 *	A testlock doesn't update the lock chain so we
--	 *	must not update it on free
--	 */
--	prim_spin_unlock(sp);
--}
-diff -urN linux-2.5.20/include/asm-x86_64/spinlock.h linux/include/asm-x8=
-6_64/spinlock.h
---- linux-2.5.20/include/asm-x86_64/spinlock.h	2002-06-03 03:44:53.000000=
-000 +0200
-+++ linux/include/asm-x86_64/spinlock.h	2002-06-09 04:58:38.000000000 +02=
-00
-@@ -9,30 +9,20 @@
- extern int printk(const char * fmt, ...)
- 	__attribute__ ((format (printf, 1, 2)));
-=20
--/* It seems that people are forgetting to
-- * initialize their spinlocks properly, tsk tsk.
-- * Remember to turn this off in 2.4. -ben
-- */
--#if defined(CONFIG_DEBUG_SPINLOCK)
--#define SPINLOCK_DEBUG	1
--#else
--#define SPINLOCK_DEBUG	0
--#endif
--
- /*
-  * Your basic SMP spinlocks, allowing only a single CPU anywhere
-  */
-=20
- typedef struct {
- 	volatile unsigned int lock;
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	unsigned magic;
- #endif
- } spinlock_t;
-=20
- #define SPINLOCK_MAGIC	0xdead4ead
-=20
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- #define SPINLOCK_MAGIC_INIT	, SPINLOCK_MAGIC
- #else
- #define SPINLOCK_MAGIC_INIT	/* */
-@@ -82,7 +72,7 @@
-=20
- static inline void _raw_spin_lock(spinlock_t *lock)
- {
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	__label__ here;
- here:
- 	if (lock->magic !=3D SPINLOCK_MAGIC) {
-@@ -97,7 +87,7 @@
-=20
- static inline void _raw_spin_unlock(spinlock_t *lock)
- {
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	if (lock->magic !=3D SPINLOCK_MAGIC)
- 		BUG();
- 	if (!spin_is_locked(lock))
-@@ -120,14 +110,14 @@
-  */
- typedef struct {
- 	volatile unsigned int lock;
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	unsigned magic;
- #endif
- } rwlock_t;
-=20
- #define RWLOCK_MAGIC	0xdeaf1eed
-=20
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- #define RWLOCK_MAGIC_INIT	, RWLOCK_MAGIC
- #else
- #define RWLOCK_MAGIC_INIT	/* */
-@@ -150,7 +140,7 @@
-=20
- extern inline void _raw_read_lock(rwlock_t *rw)
- {
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	if (rw->magic !=3D RWLOCK_MAGIC)
- 		BUG();
- #endif
-@@ -159,7 +149,7 @@
-=20
- static inline void _raw_write_lock(rwlock_t *rw)
- {
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	if (rw->magic !=3D RWLOCK_MAGIC)
- 		BUG();
- #endif
-diff -urN linux-2.5.20/include/linux/spinlock.h linux/include/linux/spinl=
-ock.h
---- linux-2.5.20/include/linux/spinlock.h	2002-06-03 03:44:49.000000000 +=
-0200
-+++ linux/include/linux/spinlock.h	2002-06-09 04:58:38.000000000 +0200
-@@ -62,13 +62,9 @@
- #elif !defined(spin_lock_init) /* !SMP and spin_lock_init not previously=
-
-                                   defined (e.g. by including asm/spinloc=
-k.h */
-=20
--#define DEBUG_SPINLOCKS	0	/* 0 =3D=3D no debugging, 1 =3D=3D maintain lo=
-ck state, 2 =3D=3D full debug */
--
--#if (DEBUG_SPINLOCKS < 1)
--
- #ifndef CONFIG_PREEMPT
--#define atomic_dec_and_lock(atomic,lock) atomic_dec_and_test(atomic)
--#define ATOMIC_DEC_AND_LOCK
-+# define atomic_dec_and_lock(atomic,lock) atomic_dec_and_test(atomic)
-+# define ATOMIC_DEC_AND_LOCK
- #endif
-=20
- /*
-@@ -78,10 +74,10 @@
-  */
- #if (__GNUC__ > 2)
-   typedef struct { } spinlock_t;
--  #define SPIN_LOCK_UNLOCKED (spinlock_t) { }
-+# define SPIN_LOCK_UNLOCKED (spinlock_t) { }
- #else
-   typedef struct { int gcc_is_buggy; } spinlock_t;
--  #define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
-+# define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
- #endif
-=20
- #define spin_lock_init(lock)	do { (void)(lock); } while(0)
-@@ -91,42 +87,6 @@
- #define spin_unlock_wait(lock)	do { (void)(lock); } while(0)
- #define _raw_spin_unlock(lock)	do { (void)(lock); } while(0)
-=20
--#elif (DEBUG_SPINLOCKS < 2)
--
--typedef struct {
--	volatile unsigned long lock;
--} spinlock_t;
--#define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
--
--#define spin_lock_init(x)	do { (x)->lock =3D 0; } while (0)
--#define spin_is_locked(lock)	(test_bit(0,(lock)))
--#define spin_trylock(lock)	(!test_and_set_bit(0,(lock)))
--
--#define spin_lock(x)		do { (x)->lock =3D 1; } while (0)
--#define spin_unlock_wait(x)	do { } while (0)
--#define spin_unlock(x)		do { (x)->lock =3D 0; } while (0)
--
--#else /* (DEBUG_SPINLOCKS >=3D 2) */
--
--typedef struct {
--	volatile unsigned long lock;
--	volatile unsigned int babble;
--	const char *module;
--} spinlock_t;
--#define SPIN_LOCK_UNLOCKED (spinlock_t) { 0, 25, __BASE_FILE__ }
--
--#include <linux/kernel.h>
--
--#define spin_lock_init(x)	do { (x)->lock =3D 0; } while (0)
--#define spin_is_locked(lock)	(test_bit(0,(lock)))
--#define spin_trylock(lock)	(!test_and_set_bit(0,(lock)))
--
--#define spin_lock(x)		do {unsigned long __spinflags; save_flags(__spinfl=
-ags); cli(); if ((x)->lock&&(x)->babble) {printk("%s:%d: spin_lock(%s:%p)=
- already locked\n", __BASE_FILE__,__LINE__, (x)->module, (x));(x)->babble=
---;} (x)->lock =3D 1; restore_flags(__spinflags);} while (0)
--#define spin_unlock_wait(x)	do {unsigned long __spinflags; save_flags(__=
-spinflags); cli(); if ((x)->lock&&(x)->babble) {printk("%s:%d: spin_unloc=
-k_wait(%s:%p) deadlock\n", __BASE_FILE__,__LINE__, (x)->module, (x));(x)-=
->babble--;} restore_flags(__spinflags);} while (0)
--#define spin_unlock(x)		do {unsigned long __spinflags; save_flags(__spin=
-flags); cli(); if (!(x)->lock&&(x)->babble) {printk("%s:%d: spin_unlock(%=
-s:%p) not locked\n", __BASE_FILE__,__LINE__, (x)->module, (x));(x)->babbl=
-e--;} (x)->lock =3D 0; restore_flags(__spinflags);} while (0)
--
--#endif	/* DEBUG_SPINLOCKS */
--
- /*
-  * Read-write spinlocks, allowing multiple readers
-  * but only one writer.
-
---------------040705070500040101090800--
+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
+--------------020405080704040300060008--
 

@@ -1,64 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267545AbSLSGk3>; Thu, 19 Dec 2002 01:40:29 -0500
+	id <S267546AbSLSGtT>; Thu, 19 Dec 2002 01:49:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267543AbSLSGk3>; Thu, 19 Dec 2002 01:40:29 -0500
-Received: from pby.osdl.jp ([202.221.206.21]:40321 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id <S267553AbSLSGk1>;
-	Thu, 19 Dec 2002 01:40:27 -0500
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
-In-Reply-To: <3E016A9F.52A4048@digeo.com>
-References: <200212181908.gBIJ82M03155@devserv.devel.redhat.com>
-	 <1040276082.1476.30.camel@localhost.localdomain>
-	 <3E016A9F.52A4048@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Open Source Development Lab, Inc.
-Message-Id: <1040276730.1474.35.camel@localhost.localdomain>
+	id <S267553AbSLSGtT>; Thu, 19 Dec 2002 01:49:19 -0500
+Received: from dhcp31182033.columbus.rr.com ([24.31.182.33]:25609 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id <S267546AbSLSGtR>; Thu, 19 Dec 2002 01:49:17 -0500
+From: "Joseph Fannin" <jhf@rivenstone.net>
+Date: Thu, 19 Dec 2002 01:34:45 -0500
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Notification hooks
+Message-ID: <20021219063445.GA30990@zion.rivenstone.net>
+Mail-Followup-To: Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <20021216171218.GV504@hopper.phunnypharm.org> <20021216171925.GC15256@suse.de> <20021216092415.E432@work.bitmover.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 18 Dec 2002 21:45:30 -0800
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+Content-Disposition: inline
+In-Reply-To: <20021216092415.E432@work.bitmover.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-18 at 22:43, Andrew Morton wrote:
-> "Timothy D. Witham" wrote:
-> > 
-> > Related thought:
-> > 
-> >   One of the things that we are trying to do is to automate
-> > patch testing.
-> > 
-> >   The PLM (www.osdl.org/plm) takes every patch that it gets
-> > and does a quick "Does it compile test".  Right now there
-> > are only 4 kernel configuration files that we try but we are
-> > going to be adding more.  We could expand this to 100's
-> > if needed as it would just be a matter of adding additional
-> > hardware to make the compiles go faster in parallel.
-> 
-> It would be valuable to be able to test that things compile
-> cleanly on non-ia32 machines.  And boot, too.
-> 
-  The way the software is configured it is fairly easy to
-add multiple servers (even different instruction sets) that
-have the complies farmed out to them.
 
-> That's probably a lot of ongoing work though.
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  The largest portion of the work would be keeping
-up with the breakages in the trees.
+On Mon, Dec 16, 2002 at 09:24:15AM -0800, Larry McVoy wrote:
+> On Mon, Dec 16, 2002 at 05:19:25PM +0000, Dave Jones wrote:
+> > On Mon, Dec 16, 2002 at 12:12:18PM -0500, Ben Collins wrote:
+> >  > Linus, is there anyway I can request a hook so that anything that
+> >  > changes drivers/ieee1394/ in your repo sends me an email with the di=
+ff
+> >  > for just the files in that directory, and the changeset log? Is this
+> >  > something that bkbits can do?
+> >  >=20
+> >  > I'd bet lots of ppl would like similar hooks for their portions of t=
+he
+> >  > source.
+> >=20
+> > It'd be nice if the bkbits webpage had a "notify me" interface for files
+> > in Linus' repository. This way not just the maintainers, but folks
+> > interested in changes in that area can also see the changes.
+>=20
+> Just for linux.bkbits.net or for the openlogging tree?  To remind people,=
+=20
+> linux.bkbits.net has Linus/Marcelo trees but openlogging.org has the=20
+> union of all trees anywhere in the world.  And openlogging doesn't have
+> contents, it just has comments. =20
 
-BTW I'm in Japan so my access times are going to be
-a little strange.
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+    Sorry to hijack this thread like this, but I can't find a better
+forum for it.
 
+    Several times I have browsed linux source trees at bkbits.net and
+found a changeset I have wanted to have as a patch.  I can search for
+the changeset, and read the commit messages, and even read the patch
+on the screen, but there is no good way to download that patch as a
+file (viewing the page source doesn't help because the patch has html
+markup interspersed with it).
+
+    The only way to get the patch is to either 'scrape' the screen
+with copy and paste and try to fix the broken whitespace or to use bk
+to clone the entire tree and extract the patch via bk export.  It's a
+real pain, and for no good reason I can see.
+
+    Would it be possible to add a link to the bkbits.net pages to an
+un-marked up changeset patch?  It would be great to have this for
+trees other than linux.bkbits.net too -- like Dave Jones'
+agpgart.bkbits.net for example.
+
+--=20
+Joseph Fannin
+jhf@rivenstone.net
+
+"That's all I have to say about that." -- Forrest Gump.
+
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+AWiFWv4KsgKfSVgRAi6MAJ9w4PdtItcJnIMZvQutP00siPUVDQCeM45r
+PMFQicHgNt+NrvI8If28MXU=
+=WNNS
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272247AbTHNIt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 04:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272248AbTHNIt2
+	id S272229AbTHNIqu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 04:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272231AbTHNIqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 04:49:28 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:58327 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S272247AbTHNIt0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 04:49:26 -0400
-Date: Thu, 14 Aug 2003 11:49:20 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: Oleg Drokin <green@namesys.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test2mm4 reiser bug? Buffer I/O error on device hda2,
- logica...
-In-Reply-To: <20030813155407.GA27436@namesys.com>
-Message-ID: <Pine.LNX.4.56.0308141148440.10006@hosting.rdsbv.ro>
-References: <Pine.LNX.4.56.0308131151070.11964@hosting.rdsbv.ro>
- <20030813155407.GA27436@namesys.com>
+	Thu, 14 Aug 2003 04:46:49 -0400
+Received: from nontri.ku.ac.th ([158.108.2.71]:8627 "EHLO ku.ac.th")
+	by vger.kernel.org with ESMTP id S272229AbTHNIqt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 04:46:49 -0400
+From: "Aphirak Jansang" <g4365035@ku.ac.th>
+To: <linux-kernel@vger.kernel.org>
+Subject: Promise Driver: PDC20378 Raid Controller
+Date: Thu, 14 Aug 2003 15:45:18 +0700
+Message-ID: <000001c36240$63881ec0$2f816c9e@apjnote>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Aug 13, 2003 at 11:55:25AM +0300, Catalin BOIE wrote:
->
-> > But I get something like:
-> > vs-8115: get_num_ver: not directory item
-> > Do I have to worry?
->
-> Time to get latest reiserfsprogs off ftp.namesys.com and check your
-> filesystem it seems.
+I try to use Promise 20378 Raid builtin on Asus P4C800-E board. I use
+linux-kernel 2.4.21. Does any one have a patch to make it work on Linux?
 
-I had 3.6.8. Now I have 3.6.11 and seems that it found the error.
-Thanks!
+Thanks for your help.
+Aphirak
 
->
-> Bye,
->     Oleg
->
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro

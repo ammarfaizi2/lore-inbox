@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285972AbRLTDdn>; Wed, 19 Dec 2001 22:33:43 -0500
+	id <S285986AbRLTDid>; Wed, 19 Dec 2001 22:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285974AbRLTDdd>; Wed, 19 Dec 2001 22:33:33 -0500
-Received: from [206.40.202.198] ([206.40.202.198]:34576 "EHLO
-	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
-	id <S285972AbRLTDdY>; Wed, 19 Dec 2001 22:33:24 -0500
-Date: Wed, 19 Dec 2001 19:30:13 +0000 (   )
-From: John Heil <kerndev@sc-software.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: aio
-In-Reply-To: <20011219.190629.03111291.davem@redhat.com>
-Message-ID: <Pine.LNX.3.95.1011219190820.581I-100000@scsoftware.sc-software.com>
+	id <S285992AbRLTDiO>; Wed, 19 Dec 2001 22:38:14 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39692 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285986AbRLTDiF>; Wed, 19 Dec 2001 22:38:05 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] PCI updates - 32-bit IO support
+Date: 19 Dec 2001 19:37:46 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9vrmea$mef$1@cesium.transmeta.com>
+In-Reply-To: <20011218235024.N13126@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Dec 2001, David S. Miller wrote:
-
-> Date: Wed, 19 Dec 2001 19:06:29 -0800 (PST)
-> From: "David S. Miller" <davem@redhat.com>
-> To: kerndev@sc-software.com
-> Cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
->     linux-kernel@vger.kernel.org, linux-aio@kvack.org
-> Subject: Re: aio
+Followup to:  <20011218235024.N13126@flint.arm.linux.org.uk>
+By author:    Russell King <rmk@flint.arm.linux.org.uk>
+In newsgroup: linux.dev.kernel
+>
+> I have here a system which requires 32-bit IO addressing on its PCI
+> busses.  Currently, Linux zeros the upper IO base/limit registers on
+> all PCI bridges, which prevents addresses being forwarded on this
+> system.
 > 
->    From: John Heil <kerndev@sc-software.com>
->    Date: Wed, 19 Dec 2001 18:57:34 +0000 (   )
->    
->    True for now, but if we want to expand linux into the enterprise and the
->    desktop to a greater degree, then we need to support the Java community to
->    draw them and their management in, rather than delaying beneficial 
->    features until their number on lkml reaches critical mass for a design
->    discussion.
+> The following patch the upper IO base/limit registers to be set
+> appropriately by the PCI layer.
 > 
-> Firstly, you say this as if server java applets do not function at all
-> or with acceptable performance today.  That is not true for the vast
-> majority of cases.
+> This patch is being sent for review, and is targetted solely at 2.5.
 > 
-> If java server applet performance in all cases is dependent upon AIO
-> (it is not), that would be pretty sad.  But it wouldn't be the first
-> time I've heard crap like that.  There is propaganda out there telling
-> people that 64-bit address spaces are needed for good java
-> performance.  Guess where that came from?  (hint: they invented java
-> and are in the buisness of selling 64-bit RISC processors)
-> 
+> diff -ur orig/drivers/pci/setup-bus.c linux/drivers/pci/setup-bus.c
+> --- orig/drivers/pci/setup-bus.c	Sun Oct 14 20:53:14 2001
+> +++ linux/drivers/pci/setup-bus.c	Tue Dec 18 23:20:13 2001
+> @@ -148,7 +181,10 @@
+>  	pci_write_config_dword(bridge, PCI_IO_BASE, l);
+>  
+>  	/* Clear upper 16 bits of I/O base/limit. */
+> -	pci_write_config_dword(bridge, PCI_IO_BASE_UPPER16, 0);
+> +	pci_write_config_word(bridge, PCI_IO_BASE_UPPER16,
+> +			ranges.io_start >> 16);
+> +	pci_write_config_word(bridge, PCI_IO_LIMIT_UPPER16,
+> +			ranges.io_end >> 16);
+>  
 
-Agree. However, put your business hat for a minute. We want increased
-market share for linux and a lot of us, you included, live by it. 
-If aio, the proposed implementation or some other, can provide an
-adequate performance boost for Java (yet to be seen), that at least 
-allows the marketing folks one more argument to draw users to linux. 
-Do think the trade mags etc don't watch what we do? A demonstrable
-advantage in Java performance is marketable and beneficial to all.
-   
+You probably need to verify that 32-bit support is available (both on
+the bridge and the peripherals), but if they are, there's no reason
+not to use it on non-x86 architectures...
 
--
------------------------------------------------------------------
-John Heil
-South Coast Software
-Custom systems software for UNIX and IBM MVS mainframes
-1-714-774-6952
-johnhscs@sc-software.com
-http://www.sc-software.com
------------------------------------------------------------------
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,28 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310686AbSCHFrH>; Fri, 8 Mar 2002 00:47:07 -0500
+	id <S310693AbSCHGQL>; Fri, 8 Mar 2002 01:16:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310691AbSCHFq6>; Fri, 8 Mar 2002 00:46:58 -0500
-Received: from DIRTY-BASTARD.MIT.EDU ([18.241.0.136]:7296 "EHLO
-	dirty-bastard.pthbb.org") by vger.kernel.org with ESMTP
-	id <S310686AbSCHFqq>; Fri, 8 Mar 2002 00:46:46 -0500
-Date: Fri, 8 Mar 2002 18:39:51 GMT
-From: Jerrad Pierce <belg4mit@dirty-bastard.pthbb.org>
-Message-Id: <200203081839.g28Idp000915@dirty-bastard.pthbb.org>
-To: linux-kermel@vger.kernel.org
-Subject: 2.4.18 prob's WAS Tulip bug?
+	id <S310694AbSCHGQB>; Fri, 8 Mar 2002 01:16:01 -0500
+Received: from server.divms.uiowa.edu ([128.255.44.21]:39402 "EHLO
+	server.divms.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S310693AbSCHGP4>; Fri, 8 Mar 2002 01:15:56 -0500
+From: Doug Siebert <dsiebert@divms.uiowa.edu>
+Message-Id: <200203080615.g286Fqh24770@server.divms.uiowa.edu>
+Subject: Fast Userspace Mutexes (futex) vs. msem_*
+To: linux-kernel@vger.kernel.org
+Date: Fri, 8 Mar 2002 00:15:52 -0600 (CST)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---------
-There is no Documentation/networking/tulip.txt which is referenced in that
-directory's 00-INDEX and also in the long explanation for the Tulip entry
-in menuconfig.
+I'm a long-time lurker in linux-kernel, but the discussion about fast
+userspace mutexes ("futexes") has piqued my interest.  I made great
+use of the msem_* (msem_init, msem_lock, msem_unlock) functions on HP-UX
+in the mid 90s (HP-UX 9.01 and on)  At the time, they were invaluable for
+me, with 1000+ processes needing exclusive access to resources on a 50MHz
+machine.  Requiring a system call for this purpose would have been a major
+performance hit (remember HP-UX's system calls are not nearly so light
+weight as Linux's)
 
-I have upgraded to 2.4.18 and am still experiencing these kernel panics,
-they seem to be exacerbated by compiling...
+The direction that the futex implementation is going is looking a lot like
+how they are implemented on HP-UX (as well as Tru64 and AIX)  I am curious
+though why the case of "what happens if the process holding the lock dies"
+is considered unimportant by some people.  It wouldn't be all that much
+more work to "do it right" (IMHO) and handle this case.  AFAIK, on HP-UX
+the implementation kept a "locker id" and a linked list of waiters' lock
+ids (to allow first come first served as well as handling the case of a
+lock holder dying)  There was an underlying system call that was made when
+the userspace part in libc found the lock already held and waiting for the
+lock was desired.
 
-I have placed the most recent ksymoops dump and the current kernel config
-at http://mit.edu/belg4mit/Public/kernel/
+If the implementation does move further towards the msem_* standard, it
+might make sense to just implement it as defined, and provide source
+compatibility with existing applications on HP-UX, AIX, and Tru64 that
+use it.
 
-Thanks!
+I'm not subscribed (I skim the hypermail archives on zork a couple times
+a week, so please cc: me on comments for a faster response)
+
+-- 
+Douglas Siebert
+douglas-siebert@uiowa.edu

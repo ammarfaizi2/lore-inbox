@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129453AbRBJLPz>; Sat, 10 Feb 2001 06:15:55 -0500
+	id <S129351AbRBJLfW>; Sat, 10 Feb 2001 06:35:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129351AbRBJLPq>; Sat, 10 Feb 2001 06:15:46 -0500
-Received: from B3b51.pppool.de ([213.7.59.81]:7182 "EHLO
-	velvet.programmfabrik.de") by vger.kernel.org with ESMTP
-	id <S129453AbRBJLPk>; Sat, 10 Feb 2001 06:15:40 -0500
-Message-ID: <3A85329E.75AAC342@programmfabrik.de>
-Date: Sat, 10 Feb 2001 12:22:54 +0000
-From: Martin Rode <Martin.Rode@programmfabrik.de>
-Organization: programmfabrik GmbH
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
+	id <S129751AbRBJLfN>; Sat, 10 Feb 2001 06:35:13 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:12293 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129351AbRBJLfF>; Sat, 10 Feb 2001 06:35:05 -0500
+Date: Sat, 10 Feb 2001 07:46:14 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.1-ac7
+In-Reply-To: <Pine.Linu.4.10.10102100958090.1007-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0102100727350.27389-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: MM Problems with 2.2.18 even more with > 2.2.19pre2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are seeing problems on our K7 600Mhz, 256MB box. After about one week
-uptime we certainly run into 
 
-vm_trying_to_free_unused pages. 
+On Sat, 10 Feb 2001, Mike Galbraith wrote:
 
-With > 2.2.19pre2 the hylafax daemon would not even start without
-causing a kernel oops. I was not able to capture these oopses, but they
-definitely were about memory management. Cannot handle null pointer ...
-at virtual address 00000000 (it was all zeros). And at the end of the
-oops the line started with EIP. That's all I remember. 
+> Hi Rik,
+> 
+> This change makes my box swap madly under load.  It appears to be
+> keeping more cache around than is really needed, and therefore
+> having to resort to swap instead.  The result is MUCH more I/O than
+> previous kernels while doing the same exact job.
+> 
+> My test load is make -jN bzImage.  Previous kernels kept cache at
+> an average of ~20ish mb at a job level N at which level I had nearly
+> zero measurable throughput loss compared to single task compile.
+> 
+> >>From that, I surmise that the cachable component of this job must
+> fit in that roughly 20ish mb of space.  (for otherwise, I would be
+> suffering throughput loss).  With this vm change, cache is nearly
+> three times as large as usual.  Where 30 tasks will run with only
+> modest throughput loss in ac5, ac8 throughput tapers off rapidly
+> at half of that.
 
-Is the AA VM keener on the quality of the memory? Do we have bad memory
-here? Can I test that thourougly somehow?
+Swapped out pages were not being counted in the flushing limitation.
 
-I had to bring the box up again and bootet into 2.2.18 which stands up
-at least for a week under normal load. We are three developers who use
-the box as our main application server. That is StarOffice / Xemacs /
-Netscape loading / unloading all the time.
+Could you try the following patch? 
 
-Offtopic:
-_Finally_ I tried to run 2.4.1 on that box (I have the fileserver on
-2.4.1., uptime 6 days now). I can boot into runlevel 1, runlevel 2 does
-not work. It stops at "Bringing up interface lo". An strace shows that
-it continously tries to poll from 127.0.0.1 but the poll times out. The
-system is RH 6.2. based patched for 2.4.
+Thanks
 
-Any help is much appreciated.
+--- linux.orig/mm/vmscan.c      Sat Feb 10 08:26:17 2001
++++ linux/mm/vmscan.c   Sat Feb 10 09:34:20 2001
+@@ -515,6 +515,7 @@
 
-Please also reply to martin@programmfabrik.de since I'm not a subscriber
-to linux-kernel (any more).
+                        writepage(page);
+                        flushed_pages++;
++                       max_launder--;
+                        page_cache_release(page);
 
-Regards,
+                        /* And re-start the thing.. */
 
-Martin
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262745AbTCPUAk>; Sun, 16 Mar 2003 15:00:40 -0500
+	id <S262746AbTCPUWh>; Sun, 16 Mar 2003 15:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262748AbTCPUAk>; Sun, 16 Mar 2003 15:00:40 -0500
-Received: from adsl-67-121-154-32.dsl.pltn13.pacbell.net ([67.121.154.32]:7904
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id <S262745AbTCPUAi>; Sun, 16 Mar 2003 15:00:38 -0500
-Date: Sun, 16 Mar 2003 12:11:24 -0800
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: con@kolivas.org
-Subject: Weirdness with 2.4.20-ck4
-Message-ID: <20030316201124.GA2849@triplehelix.org>
+	id <S262751AbTCPUWh>; Sun, 16 Mar 2003 15:22:37 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63454
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262746AbTCPUWg>; Sun, 16 Mar 2003 15:22:36 -0500
+Subject: Re: bitmaps/bitops
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200303160131.h2G1V3B10636@devserv.devel.redhat.com>
+References: <mailman.1047762781.3457.linux-kernel2news@redhat.com>
+	 <200303160131.h2G1V3B10636@devserv.devel.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047850976.21605.12.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
-From: Joshua Kwan <joshk@triplehelix.org>
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 16 Mar 2003 21:42:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-03-16 at 01:31, Pete Zaitcev wrote:
+> > but the prototype for test_and_set_bit() depends on $(ARCH), and it's
+> > not consistent, with the second arg (bitmap address) being one of:
+> >   volatile void *
+> >   void *
+> >   volatile unsigned long *
+> 
+> It should be unsigned long pointer. I have no idea why
+> volatile is still alive. Perhaps Linus can remember why he
+> left it in on is386. Other arch maintainers midnlessly ape him
+> in this area. I think I even kept his e-mail where he explains
+> why volatile has to go.
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Several 2.4 drivers assume the test_and_set point is a memory
+barrier for locking. Lots of
 
-So I tried out 2.4.20-ck4 on my server box, which continually leans
-towards the experimental because, well, it seems to work fine.
+	if(test_and_set_bit(0, &foo))
+	{
+		x=foodev->blah
 
-For 13 days, everything was peachy. Then on the 14th morning I wake
-up and dhcp3-server is not responding timely, since my laptop
-is unable to acquire an IP address automatically. I serial in and=20
-init has gone D and is eating 99.8% of the CPU.
+Since its inline code and not a memory barrier otherwise there
+is little stop the compile doing
 
-Every single process under init was DEFUNCT!
+	x=foodev->blah
 
-New processes also were defunct as well, after being started. I guess
-bash was somehow not affected when I logged in.
+first
 
-I can't provide a dmesg, since the machine eventually stopped responding
-and I had to hard reboot it. But unless I know for sure what's going on
-soon, I'll need to move back to a vanilla kernel or perhaps try out
-2.4.20aa, without the rest of the 'desktop' tuning stuff that I don't
-really make use of.
-
-Sorry I can't give much info, except possibly my .config. You can get it
-at http://triplehelix.org/~joshk/linux/config.gz. If this happens again
-I'll be sure to get some pstree output logged somewhere. (Would slabinfo
-be useful too in this kind of situation?)
-
-Regards
-Josh
-
---=20
-New PGP public key: 0x27AFC3EE
-
---C7zPtVaVf+AK4Oqc
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+dNpsT2bz5yevw+4RAqyKAKCA6f6QL0GfdM46fQjDt8z0ApZbcACeOEzS
-b3ZPy0PaWJuzZRgTAa/Oqyo=
-=NWNE
------END PGP SIGNATURE-----
-
---C7zPtVaVf+AK4Oqc--

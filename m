@@ -1,45 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265094AbUAZUkW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 15:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbUAZUkW
+	id S264604AbUAZUcO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 15:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUAZUcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 15:40:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:6624 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265094AbUAZUkS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 15:40:18 -0500
-Date: Mon, 26 Jan 2004 12:41:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: campbell@accelinc.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2 kernel and ext3 filesystems
-Message-Id: <20040126124141.6b6b84ba.akpm@osdl.org>
-In-Reply-To: <20040126145633.GA26983@helium.inexs.com>
-References: <20040124033208.GA4830@helium.inexs.com>
-	<20040123215848.28dac746.akpm@osdl.org>
-	<20040126145633.GA26983@helium.inexs.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 26 Jan 2004 15:32:14 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:34966 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S264604AbUAZUcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 15:32:12 -0500
+Subject: Re: [patch] 2.6.1-mm3 acpi frees free irq0
+From: Len Brown <len.brown@intel.com>
+To: Jes Sorensen <jes@trained-monkey.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       Jesse Barnes <jbarnes@sgi.com>
+In-Reply-To: <16390.43574.867869.286685@gargle.gargle.HOWL>
+References: <16390.43574.867869.286685@gargle.gargle.HOWL>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1075149023.2484.4.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 26 Jan 2004 15:30:31 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Campbell <campbell@accelinc.com> wrote:
->
-> On Fri, Jan 23, 2004 at 09:58:48PM -0800, Andrew Morton wrote:
-> > Chuck Campbell <campbell@accelinc.com> wrote:
-> > >
-> > > Was the ext3 filesystem ever back ported to the 2.2 kernel series?
-> > 
-> > It was written for 2.2, and then forward-ported.
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/sct/ext3/v2.2/
-> 
-> Interesting.  I looked at the system running 2.2, and there are no ext3
-> options in the running config file.  It may have been later than 2.2.22...
+Accepted.
 
-ext3 was originally written for 2.2 but was never merged into the
-mainstream kernel.   That happened in 2.4.15.
+thanks,
+-Len
+
+On Thu, 2004-01-15 at 09:56, Jes Sorensen wrote:
+> Hi,
+> 
+> There is a bug in the ACPI code found in 2.6.1-mm3 where if it can't
+> find the interrupt source for the ACPI System Control Interrupt Handler,
+> it end up trying to free irq 0.
+> 
+> Included patch fixes the problem.
+> 
+> Cheers,
+> Jes
+> 
+> --- linux-2.6.1-mm3/drivers/acpi/osl.c~	Wed Jan 14 05:00:25 2004
+> +++ linux-2.6.1-mm3/drivers/acpi/osl.c	Thu Jan 15 06:43:28 2004
+> @@ -257,13 +257,13 @@
+>  		return AE_OK;
+>  	}
+>  #endif
+> -	acpi_irq_irq = irq;
+>  	acpi_irq_handler = handler;
+>  	acpi_irq_context = context;
+>  	if (request_irq(irq, acpi_irq, SA_SHIRQ, "acpi", acpi_irq)) {
+>  		printk(KERN_ERR PREFIX "SCI (IRQ%d) allocation failed\n", irq);
+>  		return AE_NOT_ACQUIRED;
+>  	}
+> +	acpi_irq_irq = irq;
+>  
+>  	return AE_OK;
+>  }
+> @@ -271,12 +271,13 @@
+>  acpi_status
+>  acpi_os_remove_interrupt_handler(u32 irq, OSD_HANDLER handler)
+>  {
+> -	if (acpi_irq_handler) {
+> +	if (irq) {
+>  #if defined(CONFIG_IA64) || defined(CONFIG_PCI_USE_VECTOR)
+>  		irq = acpi_irq_to_vector(irq);
+>  #endif
+>  		free_irq(irq, acpi_irq);
+>  		acpi_irq_handler = NULL;
+> +		acpi_irq_irq = 0;
+>  	}
+>  
+>  	return AE_OK;
 

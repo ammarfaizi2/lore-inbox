@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVATRx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVATR7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVATRx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 12:53:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVATRua
+	id S261371AbVATR7B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 12:59:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVATR6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 12:50:30 -0500
-Received: from jose.lug.udel.edu ([128.175.60.112]:63676 "HELO
-	mail.lug.udel.edu") by vger.kernel.org with SMTP id S261362AbVATRtn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 12:49:43 -0500
-From: ross@lug.udel.edu
-Date: Thu, 20 Jan 2005 12:49:39 -0500
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: "Jack O'Quin" <joq@io.com>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
-Message-ID: <20050120174939.GA15920@jose.lug.udel.edu>
-References: <87pt00b01i.fsf@sulphur.joq.us> <200501201542.j0KFgOwo019109@localhost.localdomain>
+	Thu, 20 Jan 2005 12:58:51 -0500
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:64467 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S261371AbVATRzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 12:55:39 -0500
+Date: Thu, 20 Jan 2005 10:55:38 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linus Torvalds <torvalds@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] raid6: altivec support
+Message-ID: <20050120175537.GB32020@smtp.west.cox.net>
+References: <200501082324.j08NOIva030415@hera.kernel.org> <20050109151353.GA9508@suse.de> <1105956993.26551.327.camel@hades.cambridge.redhat.com> <1106107876.4534.163.camel@gaston> <1106120622.10851.42.camel@baythorne.infradead.org> <16878.11077.556326.769738@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501201542.j0KFgOwo019109@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <16878.11077.556326.769738@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 10:42:24AM -0500, Paul Davis wrote:
-> over on #ardour last week, we saw appalling performance from
-> reiserfs. a 120GB filesystem with 11GB of space failed to be able to
-> deliver enough read/write speed to keep up with a 16 track
-> session. When the filesystem was cleared to provide 36GB of space,
-> things improved. The actual recording takes place using writes of
-> 256kB, and no more than a few hundred MB was being written during the
-> failed tests.
+On Wed, Jan 19, 2005 at 08:41:25PM +1100, Paul Mackerras wrote:
+> David Woodhouse writes:
+> 
+> > Yeah.... I'm increasingly tempted to merge ppc32/ppc64 into one arch
+> > like mips/parisc/s390. Or would that get vetoed on the basis that we
+> > don't have all that horrid non-OF platform support in ppc64 yet, and
+> > we're still kidding ourselves that all those embedded vendors will
+> > either not notice ppc64 or will use OF?
+> 
+> I'm going to insist that every new ppc64 platform supplies a device
+> tree.  They don't have to have OF but they do need to have the booter
+> or wrapper supply a flattened device tree (which is just a few kB of
+> binary data as far as the booter/wrapper is concerned).  It doesn't
+> have to include all the 
 
-It's been a long while since I followed ReiserFS development closely,
-*however*, this issue used to be a common problem ReiserFS - when
-free space starts to drop below 10%, performace takes a big hit.  So
-performance improved when space was cleared up.
+*shurg*
+It really is a great idea, but I think it will just move the ire from
+(serial infos, IRQ table, ?) being in platforms/fooboard.[ch] to
+platforms/fooboard.h or platforms/fooboard_bootinfos.h
 
-I don't remember what causes this or what the status is in modern
-ResierFS systems.
-
-> everything i read about reiser suggests it is unsuitable for audio
-> work: it is optimized around the common case of filesystems with many
-> small files. the filesystems where we record audio is typically filled
-> with a relatively small number of very, very large files.
-
-Anecdotally, I've found this to not be the case.  I only use ReiserFS
-and have a few reasonably sized projects in Ardour that work fine:
-maybe 20 tracks, with 10-15 plugins (in the whole project), and I can
-do overdubs with no problems.  It may be relevant that I only have a
-four track card and so load is too small.
-
-But at least in my practice, it hasn't been a huge hinderance.
+So lets just hope ppc64 keeps getting ignored :)
 
 -- 
-Ross Vandegrift
-ross@lug.udel.edu
-
-"The good Christian should beware of mathematicians, and all those who
-make empty prophecies. The danger already exists that the mathematicians
-have made a covenant with the devil to darken the spirit and to confine
-man in the bonds of Hell."
-	--St. Augustine, De Genesi ad Litteram, Book II, xviii, 37
+Tom Rini
+http://gate.crashing.org/~trini/

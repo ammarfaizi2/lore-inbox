@@ -1,130 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286475AbRLTXnM>; Thu, 20 Dec 2001 18:43:12 -0500
+	id <S286478AbRLTXpC>; Thu, 20 Dec 2001 18:45:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286474AbRLTXnC>; Thu, 20 Dec 2001 18:43:02 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:24920 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S286471AbRLTXmz>; Thu, 20 Dec 2001 18:42:55 -0500
-Date: Fri, 21 Dec 2001 00:42:51 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: torrey.hoffman@myrio.com, linux-kernel@vger.kernel.org,
-        Alexander Viro <viro@math.psu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: ramdisk corruption problems - was: RE: pivot_root and initrd 	kern el panic woes
-Message-ID: <20011221004251.K1477@athlon.random>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB0F@mail0.myrio.com> <200112201946.fBKJkNw01262@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200112201946.fBKJkNw01262@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Dec 20, 2001 at 11:46:23AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S286479AbRLTXow>; Thu, 20 Dec 2001 18:44:52 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:16565 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S286471AbRLTXok>; Thu, 20 Dec 2001 18:44:40 -0500
+Date: Thu, 20 Dec 2001 16:44:35 -0700
+Message-Id: <200112202344.fBKNiZ705811@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17-rc2 BUG at slab.c:1110
+In-Reply-To: <3C2135D3.C5AE16A7@zip.com.au>
+In-Reply-To: <15393.11001.446919.939724@argo.ozlabs.ibm.com>
+	<3C2135D3.C5AE16A7@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 20, 2001 at 11:46:23AM -0800, Linus Torvalds wrote:
-> In article <D52B19A7284D32459CF20D579C4B0C0211CB0F@mail0.myrio.com> you write:
-> >Yes, this does fix the problem.  Thank you very much!
-> >
-> >Hopefully something like this will make it into 2.4.18?
+Andrew Morton writes:
+> Paul Mackerras wrote:
+> > 
+> > So, is this devfs's fault for not allowing devfs_unregister to be
+> > called from interrupt context, or is it ide-cs's fault for calling
+> > ide_unregister from interrupt context?
+> > 
 > 
-> This does not seem quite right.
-> 
-> >Tachino Nobuhiro (tachino@open.nm.fujitsu.co.jp) wrote:
-> >> Hello,
-> >> 
-> >> Following patch may fix your problem. 
-> >> 
-> >> diff -r -u linux-2.4.17-rc2.org/drivers/block/rd.c 
-> >> linux-2.4.17-rc2/drivers/block/rd.c
-> >> --- linux-2.4.17-rc2.org/drivers/block/rd.c	Thu Dec 20 20:30:57 2001
-> >> +++ linux-2.4.17-rc2/drivers/block/rd.c	Thu Dec 20 20:46:53 2001
-> >> @@ -194,9 +194,11 @@
-> >>  static int ramdisk_readpage(struct file *file, struct page * page)
-> >>  {
-> >>  	if (!Page_Uptodate(page)) {
-> >> -		memset(kmap(page), 0, PAGE_CACHE_SIZE);
-> >> -		kunmap(page);
-> >> -		flush_dcache_page(page);
-> >> +		if (!page->buffers) {
-> >> +			memset(kmap(page), 0, PAGE_CACHE_SIZE);
-> >> +			kunmap(page);
-> >> +			flush_dcache_page(page);
-> >> +		}
-> >>  		SetPageUptodate(page);
-> >>  	}
-> >>  	UnlockPage(page);
-> >> 
-> >> 
-> >>   grow_dev_page() creates not Uptodate page which has valid 
-> >> buffers, so
-> >> it is wrong that ramdisk_readpage() clears whole page unconditionally.
-> 
-> The problem is that having buffers doesn't necessarily always mean that
-> they are valid, nor that _all_ of them are valid.
-> 
-> Also, if the ramdisk "readpage" code is wrong, then so is the
-> "prepare_write" code.  They share the same logic, which basically says
-> that "if the page isn't up-to-date, then it is zero".  Which is always
-> true for normal read/write accesses, but as you found out it's not true
-> when parts of the page have been accessed by filesystems through the
-> buffers. 
+> ide-cs, I'd say.
 
-subtle, while writing and testing that code the buffercache was not
-sharing the physical address space yet, so it was stable, then it kept to
-work somehow till today because only metadata writes into holes would
-trigger it.
+Definately. It's always been illegal to call into the devfs API from
+interrupt context, and in fact given that devfs_register() always
+called kmalloc() with GFP_KERNEL, it should have caught any interrupt
+context callers of devfs.
 
-> 
-> So the code _should_ use a common helper, something like
-> 
-> 	static void ramdisk_updatepage(struct page * page)
-> 	{
-> 		if (!Page_Uptodate(page)) {
-> 			struct buffer_head *bh = page->buffers;
-> 			void * address = page_address(page);
-> 			if (bh) {
-> 				struct buffer_head *tmp = bh;
-> 				do {
-> 					if (!buffer_uptodate(tmp)) {
-> 						memset(address, 0, tmp->b_size);
-> 						 set_buffer_uptodate(tmp);
-> 					}
-> 					address += tmp->b_size;
-> 					tmp = tmp->b_this_page;
-> 				} while (tmp != bh);
-> 			} else
-> 				memset(address, 0, PAGE_SIZE);
-> 			flush_dcache_page(page);
-> 			SetPageUptodate(page);
-> 		}
-> 	}
-> 
-> and then ramdisk_readpage() would just be
-> 
-> 	kmap(page);
-> 	ramdisk_updatepage(page);
-> 	UnlockPage(page);
-> 	kunmap(page);
-> 	return 0;
-> 
-> while ramdisk_prepare_write() would be
-> 
-> 	ramdisk_updatepage(page);
-> 	SetPageDirty(page);
-> 	return 0;
+It just happened that in the old devfs core, you could often get away
+with a call to devfs_unregister(), since it didn't do any allocations.
+However, doing so was unsafe due to races (no locking/irq disabling),
+even on UP systems. So it was always a driver bug to do this.
 
-agreed. rd_blkdev_pagecache_IO will as well do:
+> The way hotplug generally avoids this problem is via schedule_task()
+> - that was why it was written in the first place, I think.
+> 
+> And given that we need to bump the event up to process context, we may
+> as well do it at the earliest stage.  Looks like the fix it to kill
+> off the timer altogether, replace it with a tqueue and ask keventd
+> to run ide_release.
 
-			err = 0;
+Sounds good to me. I look forward to seeing your patch in -rc3 :-)
 
-			kmap(page);
-			ramdisk_updatepage(page);
-			kunmap(page);
+				Regards,
 
-			unlock = 1;
-
-Andrea
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

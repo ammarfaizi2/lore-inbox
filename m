@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290628AbSAYKIz>; Fri, 25 Jan 2002 05:08:55 -0500
+	id <S290631AbSAYKKI>; Fri, 25 Jan 2002 05:10:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290632AbSAYKIq>; Fri, 25 Jan 2002 05:08:46 -0500
-Received: from [203.143.19.4] ([203.143.19.4]:63756 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S290631AbSAYKIb>;
-	Fri, 25 Jan 2002 05:08:31 -0500
-Date: Fri, 25 Jan 2002 16:07:34 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Anuradha Ratnaweera <anuradha@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] kernelconf-0.1.2
-Message-ID: <20020125160734.A3372@lklug.pdn.ac.lk>
-In-Reply-To: <20020124124548.A2435@lklug.pdn.ac.lk> <20020124234704.A968@mars.ravnborg.org>
-Mime-Version: 1.0
+	id <S290632AbSAYKJ4>; Fri, 25 Jan 2002 05:09:56 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:48912 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S290631AbSAYKJj>; Fri, 25 Jan 2002 05:09:39 -0500
+Message-ID: <3C513CD8.B75B5C42@aitel.hist.no>
+Date: Fri, 25 Jan 2002 12:09:12 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.2-dj4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: RFC: booleans and the kernel
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020124234704.A968@mars.ravnborg.org>; from sam@ravnborg.org on Thu, Jan 24, 2002 at 11:47:04PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 24, 2002 at 11:47:04PM +0100, Sam Ravnborg wrote:
-> On Thu, Jan 24, 2002 at 12:45:48PM +0600, Anuradha Ratnaweera wrote:
-> > 
-> > Here we go again...
+Jeff Garzik wrote:
 > 
-> I have not looked into the SRC, but IIRC you mentioned an interest in
-> LEX/YACC for CML2.  Take a look at:
->
-> http://www.alphalink.com.au/~gnb/cml2
+> Oliver Xymoron wrote:
+> > On Thu, 24 Jan 2002, Jeff Garzik wrote:
+> > > Where variables are truly boolean use of a bool type makes the
+> > > intentions of the code more clear.  And it also gives the compiler a
+> > > slightly better chance to optimize code [I suspect].
+> >
+> > Unlikely. The compiler can already figure this sort of thing out from
+> > context.
 > 
-> This is an incomplete implementation of a CML2 parser + semantic analysis in
-> C utilising a bison parser.
+> X, true, and false are of type int.
+> If one tests X==false and then later on tests X==true, how does the
+> compiler know the entire domain has been tested?  With a boolean, it
 
-My program is not related to neither CML2 nor yacc nor bison.
+Why would anyone want to write   if (X==false) or if (X==true) ?
+It is the "beginner's mistake" way of writing code.  Then people learn,
+and write if (X) or if (!X).  Comparing to true/false is silly.
+Nobody writes  if ( (a==b) == true) so why do it in the simpler cases?
 
-	Anuradha
+> would.  Or a switch statement... if both true and false are covered,
+A switch statement on a boolean value is stupid.  Use if - there
+is only two cases.
 
--- 
-
-Debian GNU/Linux (kernel 2.4.16-xfs)
-
-Truly great madness can not be achieved without significant intelligence.
-		-- Henrik Tikkanen
-
+Helge Hafting

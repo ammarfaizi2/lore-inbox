@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264610AbUDVRjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264609AbUDVRnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264610AbUDVRjm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 13:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264608AbUDVRjm
+	id S264609AbUDVRnO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 13:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264611AbUDVRnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 13:39:42 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:28591 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S264611AbUDVRji (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 13:39:38 -0400
-Message-Id: <200404221738.i3MHcg7J005234@eeyore.valparaiso.cl>
-To: alex@pilosoft.com
-Cc: jamal <hadi@cyberus.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: tcp vulnerability? haven't seen anything on it here... 
-In-Reply-To: Your message of "Thu, 22 Apr 2004 11:27:05 -0400."
-             <Pine.LNX.4.44.0404221121230.2738-100000@paix.pilosoft.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Thu, 22 Apr 2004 13:38:42 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Thu, 22 Apr 2004 13:43:14 -0400
+Received: from stogtw01.enlight.net ([212.209.183.10]:44812 "EHLO
+	stodns01.enlightnet.local") by vger.kernel.org with ESMTP
+	id S264609AbUDVRnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 13:43:11 -0400
+Date: Thu, 22 Apr 2004 19:43:03 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.local
+To: Christoph Lameter <christoph@graphe.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: CIFS/SMBFS failing under load in 2.6.X
+In-Reply-To: <Pine.LNX.4.58.0404121721410.12918@server.home>
+Message-ID: <Pine.LNX.4.44.0404221935090.32465-100000@cola.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 22 Apr 2004 17:43:06.0843 (UTC) FILETIME=[4521D2B0:01C42891]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alex@pilosoft.com said:
-> > > > Unless i misunderstood: You need someone/thing to see about 64K
-> > > > packets within a single flow to make the predicition so the attack
-> > > > is succesful. Sure to have access to such capability is to be in a
-> > > > hostile path, no? ;->
-> > > No, you do not need to see any packet.
+On Mon, 12 Apr 2004, Christoph Lameter wrote:
 
-> > Ok, so i misunderstood then. How do you predict the sequences without
-> > seeing any packet? Is there any URL to mentioned paper?
+> Whenever I put a high load on CIFS or SMBFS requests timeout and then the
+> benchmark or whatever I run fails. I ran the same tests successfully with
+> a 2.4.25 kernel. This is a connection to a samba 3.0.2 server.
+> 
+> SMBFS logs the following:
+> 
+> Apr 12 15:59:25 testbox kernel: smb_add_request: request [ca7b7280,
+> mid=12891] timed out!
+> Apr 12 15:59:25 testbox kernel: smb_writepage_sync: failed write,
+> wsize=4096, result=-5
+...
 
-> You don't - just brute-force the tcp 4-tuple and sequence number. The
-> attack relies on the fact that you don't have to match sequence number
-> exactly, which cuts down on the search-space. (If total search space is
-> 2^32, rwin is 16k, effective attack search space is 2^32/16k). Multiplied 
-> by number of ephemeral ports, it becomes *feasible* but still not very 
-> likely.
+> CIFS logs:
+> 
+> Apr 12 17:02:00 testbox kernel:  CIFS VFS: Send error in write = -6
+> Apr 12 17:02:29 testbox kernel:  CIFS VFS: Send error in write = -5
+> Apr 12 17:02:29 testbox last message repeated 8 times
+> Apr 12 17:02:39 testbox kernel:  CIFS VFS: Need to reconnect after session
+> died to server
 
-If everybody (or at least the bigger knots) filters spoofed traffic, this
-ceases to be a problem. And that solves a shipload of other problems, so...
+smbfs and cifs does not share any code although I believe both of them
+will send multiple requests in parallel. Any chance that this is the 
+server or network?
 
-If the cracker has access to the connection between routers (quite unlikely
-for BGP), there is other, lower-hanging, fun to be had... and in that case
-they can just read the exact data from the stream, no guessing needed at
-all. And no protection possible either AFAICS.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+
+smbfs at least does not limit the number of requests it sends. It could be
+a problem if the server has a low limit (should be the maxmux field in the
+smb_conn_opt struct).
+
+I could send a patch for this, but unless cifs does the same then that is 
+probably not it.
+
+/Urban
+

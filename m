@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130013AbRAaPpE>; Wed, 31 Jan 2001 10:45:04 -0500
+	id <S130287AbRAaPry>; Wed, 31 Jan 2001 10:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129853AbRAaPoy>; Wed, 31 Jan 2001 10:44:54 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:164 "EHLO tstac.esa.lanl.gov")
-	by vger.kernel.org with ESMTP id <S129939AbRAaPoh>;
-	Wed, 31 Jan 2001 10:44:37 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Wed, 31 Jan 2001 08:44:13 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_PDA1C1TD7I95SWHA5DR7"
-To: linux-kernel@vger.kernel.org
-Cc: chris.ricker@genetics.utah.edu
-Subject: [PATCH] 2.4.1 Documentation/Changes URL for Gnu Make 3.77
+	id <S130027AbRAaPre>; Wed, 31 Jan 2001 10:47:34 -0500
+Received: from main.cyclades.com ([209.128.87.2]:5385 "EHLO cyclades.com")
+	by vger.kernel.org with ESMTP id <S129805AbRAaPrX>;
+	Wed, 31 Jan 2001 10:47:23 -0500
+Date: Wed, 31 Jan 2001 07:46:53 -0800 (PST)
+From: Ivan Passos <lists@cyclades.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.2.18: Protocol 0008 is buggy
+In-Reply-To: <E14NxRb-0002Ku-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10101310744151.3420-100000@main.cyclades.com>
 MIME-Version: 1.0
-Message-Id: <01013108441300.18510@spc.esa.lanl.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_PDA1C1TD7I95SWHA5DR7
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+On Wed, 31 Jan 2001, Alan Cox wrote:
+> 
+> It should be set before netif_rx() is called on the packet. Typically that
+> means the driver or its support code sets protocol and nh.raw and if a
+> second header is pulled up then they are set again by whichever code does that
+> and calls netif_rx again
 
-The Changes file contains URLs for some required utilities, but not Gnu Make.
-This patch (against 2.4.1) lists the URL for Gnu Make 3.77.  It appears that 
-at least one person could have used this recently.
+Another question. The function that prints the "buggy protocol" msg is
+dev_queue_xmit_nit(), which is called by dev_queue_xmit(). Isn't that a Tx
+function?? What would it have to do with netif_rx() (which from what I
+understand is called to send Rx packets upstream, not used in the Tx
+datapath)??
 
-My mailer will mangle the long lines, so the patch is attached.
+Thanks again!
 
-Steven
+Later,
+Ivan
 
-
-
---------------Boundary-00=_PDA1C1TD7I95SWHA5DR7
-Content-Type: text/plain;
-  name="patch-Changes"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="patch-Changes"
-
-LS0tIGxpbnV4L0RvY3VtZW50YXRpb24vQ2hhbmdlcy5vcmlnCVdlZCBKYW4gMzEgMDg6MDE6MjQg
-MjAwMQorKysgbGludXgvRG9jdW1lbnRhdGlvbi9DaGFuZ2VzCVdlZCBKYW4gMzEgMDg6MTM6MzQg
-MjAwMQpAQCAtMjY3LDYgKzI2NywxMyBAQAogbyAgPGZ0cDovL2Z0cC52YWxpbnV4LmNvbS9wdWIv
-c3VwcG9ydC9oamwvZ2NjL2VnY3MtMS4xLjIvZWdjcy0xLjEuMi1saWJjNS54ODYudGFyLmJ6Mj4K
-IG8gIDxmdHA6Ly9mdHAudmFsaW51eC5jb20vcHViL3N1cHBvcnQvaGpsL2djYy9lZ2NzLTEuMS4y
-L2VnY3MtMS4xLjItYWxwaGEudGFyLmJ6Mj4KIAorR251IE1ha2UKKyoqKioqKioqCisKK01ha2Ug
-My43NworLS0tLS0tLS0KK28gIDxmdHA6Ly9mdHAuZ251Lm9yZy9nbnUvbWFrZS9tYWtlLTMuNzcu
-dGFyLmd6PgorCiBCaW51dGlscwogKioqKioqKioKIAo=
-
---------------Boundary-00=_PDA1C1TD7I95SWHA5DR7--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

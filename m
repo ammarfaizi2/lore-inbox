@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136037AbREGHvY>; Mon, 7 May 2001 03:51:24 -0400
+	id <S136044AbREGIOW>; Mon, 7 May 2001 04:14:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136044AbREGHvO>; Mon, 7 May 2001 03:51:14 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:24770 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S136037AbREGHvH>; Mon, 7 May 2001 03:51:07 -0400
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200105070750.JAA28407@sunrise.pg.gda.pl>
-Subject: Re: [PATCH] for iso8859-13
-To: kaih@khms.westfalen.de (Kai Henningsen)
-Date: Mon, 7 May 2001 09:50:39 +0200 (MET DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <80OKvFpXw-B@khms.westfalen.de> from "Kai Henningsen" at May 07, 2001 08:37:00 AM
-Reply-To: ankry@green.mif.pg.gda.pl
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S136047AbREGIOL>; Mon, 7 May 2001 04:14:11 -0400
+Received: from ns1.uklinux.net ([212.1.130.11]:32522 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S136044AbREGIN5>;
+	Mon, 7 May 2001 04:13:57 -0400
+Envelope-To: linux-kernel@vger.kernel.org
+Date: Sun, 6 May 2001 05:49:08 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: jakob@unthought.net
+Cc: linux-kernel@vger.kernel.org, dlitz@dlitz.net
+Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
+Message-Id: <20010506054908.08a90927.bruce@ask.ne.jp>
+In-Reply-To: <20010507034208.A16593@unthought.net>
+In-Reply-To: <20010505063726.A32232@va.samba.org>
+	<20010506011553.A11297@zed.dlitz.net>
+	<3AF584A2.4050208@kalifornia.com>
+	<20010507034208.A16593@unthought.net>
+X-Mailer: Sylpheed version 0.4.65 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kai Henningsen wrote:"
-> hpa@zytor.com (H. Peter Anvin)  wrote on 06.05.01 in <9d4ut6$9b9$1@cesium.transmeta.com>:
-> > Wouldn't it make a heck of a lot more sense if we had a preprocessor
-> > which could produce these kinds of tables from a more sensible input
-> > format (preferrably one which is already in use somewhere.)
+> > >How far away is the capability to "teleport" processes from one machine to
+> > >another over the network?  Think of the uptime!
+> > >
+> > 
+> > It is here.  Look at Mosix.
 > 
-> For example from the tables on the Unicode webserver or from the IBM  
-> charset registry ...
+> No.  Not for uptime.
 > 
+> The "responsibility" for process completion does not get delegated. A process
+> will always be bound to it's home-node (in mosix terms), no matter how far
+> it's "teleported".   If the home-node fails, the process won't know what hit
+> it.
+> 
+> There are good reasons why mosix let's processes depend on their home nodes.
+> 
+> This is not meant as backstabbing mosix, it's a great environment for a lot
+> of things.
+> 
+> But it's not the universal silver bullet.
 
-The original tables seem to be generated automatically, however manually
-broken in some places.
+Take a look at
 
-Can anybody point me to the tools the original tables were generated with?
+http://citeseer.nj.nec.com/299905.html
 
-Andrzej
+for something along the lines of what you want, I think (transparent process
+migration between nodes). As a bonus, it's also architecture-independent.
 
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+
+Bruce
+

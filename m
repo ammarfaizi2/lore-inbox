@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136521AbREDVkX>; Fri, 4 May 2001 17:40:23 -0400
+	id <S136523AbREDVlD>; Fri, 4 May 2001 17:41:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136523AbREDVkD>; Fri, 4 May 2001 17:40:03 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57103 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136521AbREDVj7>; Fri, 4 May 2001 17:39:59 -0400
-Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Fri, 4 May 2001 22:43:32 +0100 (BST)
-Cc: bergsoft@home.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3AF2FF93.44A2C49@colorfullife.com> from "Manfred Spraul" at May 04, 2001 09:14:27 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S136524AbREDVky>; Fri, 4 May 2001 17:40:54 -0400
+Received: from 20dyn25.com21.casema.net ([213.17.90.25]:61194 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S136523AbREDVkn>;
+	Fri, 4 May 2001 17:40:43 -0400
+Date: Fri, 4 May 2001 23:40:37 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Sending packets from within the kernel
+Message-ID: <20010504234037.A31430@home.ds9a.nl>
+Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.31.0105041356080.13540-100000@uranus.terran>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14vnMM-00084d-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <Pine.LNX.4.31.0105041356080.13540-100000@uranus.terran>; from bp@terran.org on Fri, May 04, 2001 at 02:09:16PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> prefetch 320(%0) can fetch memory behind the end of the source page.
-> Perhaps it accesses memory in the ISA hole, or beyond the end of memory?
-> Could you post the e820 map from dmesg?
+On Fri, May 04, 2001 at 02:09:16PM -0700, bp@terran.org wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> It's possible to build manually a memory map.
-> Could you build one with wide margins from "dangerous" areas? (untested:
-> mem=exactmap mem=620k@0 mem=<your mem in MB-2>M@1M)
+> Hello,
 > 
-> Then boot with prefetch enabled.
+> I am working on an kernel module which forwards TCP segments from one
+> interface to another (basic routing, no proxy or listener socket), but
+> which needs to be able to generate some segments completely independently
+> of the client<-->server data stream.  For example, when receiving a SYN
+> segment from the client, I want the module to be able to respond itself
+> with a SYN+ACK on behalf of the server (and drop the SYN).
 
-That might not be the actual bug but for rev 1 Athlon it is a real bug. The
-first step athlons have an unfortunate problem in that will prefetch
-memory marked uncachable and corrupt their caches with it.
+The iptables MIRROR target does some stuff you might be able to use.
 
-Arjan - care to unroll the tail 320 bytes of copying from the main loop ?
-
+-- 
+http://www.PowerDNS.com      Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

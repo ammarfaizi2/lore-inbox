@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263379AbVCKPji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263392AbVCKPor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263379AbVCKPji (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 10:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263422AbVCKPjL
+	id S263392AbVCKPor (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 10:44:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263404AbVCKPor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 10:39:11 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:40864 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263379AbVCKPcP (ORCPT
+	Fri, 11 Mar 2005 10:44:47 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:38359 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263392AbVCKPiH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 10:32:15 -0500
-Message-ID: <4231B9F9.2080401@us.ltcfwd.linux.ibm.com>
-Date: Fri, 11 Mar 2005 10:32:09 -0500
+	Fri, 11 Mar 2005 10:38:07 -0500
+Message-ID: <4231BB5D.8020400@us.ltcfwd.linux.ibm.com>
+Date: Fri, 11 Mar 2005 10:38:05 -0500
 From: Wen Xiong <wendyx@us.ibm.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Greg KH <greg@kroah.com>
 CC: Wen Xiong <wendyx@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ patch 2/5] drivers/serial/jsm: new serial device driver
+Subject: Re: [ patch 3/5] drivers/serial/jsm: new serial device driver
 References: <20050228063954.GB23595@kroah.com> <4228CE41.2000102@us.ltcfwd.linux.ibm.com> <20050304220116.GA1201@kroah.com> <422CD9DB.10103@us.ltcfwd.linux.ibm.com> <20050308064424.GF17022@kroah.com> <422DF525.8030606@us.ltcfwd.linux.ibm.com> <20050308235807.GA11807@kroah.com> <422F1A8A.4000106@us.ltcfwd.linux.ibm.com> <20050309163518.GC25079@kroah.com> <422F2FDD.4050908@us.ltcfwd.linux.ibm.com> <20050309185800.GA27268@kroah.com>
 In-Reply-To: <20050309185800.GA27268@kroah.com>
 Content-Type: multipart/mixed;
- boundary="------------030106020900000502060405"
+ boundary="------------020103030909080407090401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030106020900000502060405
+--------------020103030909080407090401
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-The second patch for new jsm serial device driver.
+The third patch for jsm device driver.
 
 Signed-off-by: Wen Xiong <wendyx@us.ltcfwd.linux.ibm.com>
 
---------------030106020900000502060405
+--------------020103030909080407090401
 Content-Type: text/plain;
- name="patch2.jasmine"
+ name="patch3.jasmine"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="patch2.jasmine"
+ filename="patch3.jasmine"
 
-diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_tty.c linux-2.6.11.new/drivers/serial/jsm/jsm_tty.c
---- linux-2.6.11.org/drivers/serial/jsm/jsm_tty.c	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.11.new/drivers/serial/jsm/jsm_tty.c	2005-03-10 16:34:37.342965976 -0600
-@@ -0,0 +1,1043 @@
+diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_neo.c linux-2.6.11.new/drivers/serial/jsm/jsm_neo.c
+--- linux-2.6.11.org/drivers/serial/jsm/jsm_neo.c	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.11.new/drivers/serial/jsm/jsm_neo.c	2005-03-11 09:07:53.902968424 -0600
+@@ -0,0 +1,1402 @@
 +/************************************************************************
 + * Copyright 2003 Digi International (www.digi.com)
 + *
@@ -70,1024 +70,1383 @@ diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_tty.c linux-2.6.11.new/driver
 + * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
 + *
 + ***********************************************************************/
-+#include <linux/tty.h>
-+#include <linux/tty_flip.h>
-+#include <linux/serial_reg.h>
 +#include <linux/delay.h>	/* For udelay */
-+#include <linux/pci.h>	
++#include <linux/serial_reg.h>	/* For the various UART offsets */
++#include <linux/tty.h>
++#include <linux/pci.h>
++#include <asm/io.h>
 +
-+#include "jsm.h"
++#include "jsm.h"		/* Driver main header file */
 +
-+static inline int jsm_get_mstat(struct jsm_channel *ch)
++static u32 jsm_offset_table[8] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
++
++static void neo_set_cts_flow_control(struct jsm_channel *ch)
 +{
-+	unsigned char mstat;
-+	unsigned char result;
++	u8 ier = readb(&ch->ch_neo_uart->ier);
++	u8 efr = readb(&ch->ch_neo_uart->efr);
 +
-+	jsm_printk(IOCTL, INFO, &ch->ch_bd->pci_dev, "start\n");
++	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Setting CTSFLOW\n");
 +
-+	mstat = (ch->ch_mostat | ch->ch_mistat);
++	/* Turn on auto CTS flow control */
++	ier |= (UART_17158_IER_CTSDSR);
++	efr |= (UART_17158_EFR_ECB | UART_17158_EFR_CTSDSR);
 +
-+	result = 0;
++	/* Turn off auto Xon flow control */
++	efr &= ~(UART_17158_EFR_IXON);
 +
-+	if (mstat & UART_MCR_DTR)
-+		result |= TIOCM_DTR;
-+	if (mstat & UART_MCR_RTS)
-+		result |= TIOCM_RTS;
-+	if (mstat & UART_MSR_CTS)
-+		result |= TIOCM_CTS;
-+	if (mstat & UART_MSR_DSR)
-+		result |= TIOCM_DSR;
-+	if (mstat & UART_MSR_RI)
-+		result |= TIOCM_RI;
-+	if (mstat & UART_MSR_DCD)
-+		result |= TIOCM_CD;
++	/* Why? Becuz Exar's spec says we have to zero it out before setting it */
++	writeb(0, &ch->ch_neo_uart->efr);
 +
-+	jsm_printk(IOCTL, INFO, &ch->ch_bd->pci_dev, "finish\n");
-+	return result;
++	/* Turn on UART enhanced bits */
++	writeb(efr, &ch->ch_neo_uart->efr);
++
++	/* Turn on table D, with 8 char hi/low watermarks */
++	writeb((UART_17158_FCTR_TRGD | UART_17158_FCTR_RTS_4DELAY), &ch->ch_neo_uart->fctr);
++
++	/* Feed the UART our trigger levels */
++	writeb(8, &ch->ch_neo_uart->tfifo);
++	ch->ch_t_tlevel = 8;
++
++	writeb(ier, &ch->ch_neo_uart->ier);
 +}
 +
-+static unsigned int jsm_tty_tx_empty(struct uart_port *port)
++static void neo_set_rts_flow_control(struct jsm_channel *ch)
 +{
-+	return TIOCSER_TEMT;
++	u8 ier = readb(&ch->ch_neo_uart->ier);
++	u8 efr = readb(&ch->ch_neo_uart->efr);
++
++	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Setting RTSFLOW\n");
++
++	/* Turn on auto RTS flow control */
++	ier |= (UART_17158_IER_RTSDTR);
++	efr |= (UART_17158_EFR_ECB | UART_17158_EFR_RTSDTR);
++
++	/* Turn off auto Xoff flow control */
++	ier &= ~(UART_17158_IER_XOFF);
++	efr &= ~(UART_17158_EFR_IXOFF);
++
++	/* Why? Becuz Exar's spec says we have to zero it out before setting it */
++	writeb(0, &ch->ch_neo_uart->efr);
++
++	/* Turn on UART enhanced bits */
++	writeb(efr, &ch->ch_neo_uart->efr);
++
++	writeb((UART_17158_FCTR_TRGD | UART_17158_FCTR_RTS_4DELAY), &ch->ch_neo_uart->fctr);
++	ch->ch_r_watermark = 4;
++
++	writeb(56, &ch->ch_neo_uart->rfifo);
++	ch->ch_r_tlevel = 56;
++
++	writeb(ier, &ch->ch_neo_uart->ier);
++
++	/*
++	 * From the Neo UART spec sheet:
++	 * The auto RTS/DTR function must be started by asserting
++	 * RTS/DTR# output pin (MCR bit-0 or 1 to logic 1 after
++	 * it is enabled.
++	 */
++	ch->ch_mostat |= (UART_MCR_RTS);
 +}
 +
-+/*
-+ * Return modem signals to ld.
-+ */
-+static unsigned int jsm_tty_get_mctrl(struct uart_port *port)
++
++static void neo_set_ixon_flow_control(struct jsm_channel *ch)
 +{
-+	int result;
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
++	u8 ier = readb(&ch->ch_neo_uart->ier);
++	u8 efr = readb(&ch->ch_neo_uart->efr);
 +
-+	jsm_printk(IOCTL, INFO, &channel->ch_bd->pci_dev, "start\n");
++	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Setting IXON FLOW\n");
 +
-+	result = jsm_get_mstat(channel);
++	/* Turn off auto CTS flow control */
++	ier &= ~(UART_17158_IER_CTSDSR);
++	efr &= ~(UART_17158_EFR_CTSDSR);
 +
-+	if (result < 0)
-+		return -ENXIO;
++	/* Turn on auto Xon flow control */
++	efr |= (UART_17158_EFR_ECB | UART_17158_EFR_IXON);
 +
-+	jsm_printk(IOCTL, INFO, &channel->ch_bd->pci_dev, "finish\n");
++	/* Why? Becuz Exar's spec says we have to zero it out before setting it */
++	writeb(0, &ch->ch_neo_uart->efr);
 +
-+	return result;
++	/* Turn on UART enhanced bits */
++	writeb(efr, &ch->ch_neo_uart->efr);
++
++	writeb((UART_17158_FCTR_TRGD | UART_17158_FCTR_RTS_8DELAY), &ch->ch_neo_uart->fctr);
++	ch->ch_r_watermark = 4;
++
++	writeb(32, &ch->ch_neo_uart->rfifo);
++	ch->ch_r_tlevel = 32;
++
++	/* Tell UART what start/stop chars it should be looking for */
++	writeb(ch->ch_startc, &ch->ch_neo_uart->xonchar1);
++	writeb(0, &ch->ch_neo_uart->xonchar2);
++
++	writeb(ch->ch_stopc, &ch->ch_neo_uart->xoffchar1);
++	writeb(0, &ch->ch_neo_uart->xoffchar2);
++
++	writeb(ier, &ch->ch_neo_uart->ier);
 +}
 +
-+/*
-+ * jsm_set_modem_info()
-+ *
-+ * Set modem signals, called by ld.
-+ */
-+static void jsm_tty_set_mctrl(struct uart_port *port, unsigned int mctrl)
++static void neo_set_ixoff_flow_control(struct jsm_channel *ch)
 +{
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
++	u8 ier = readb(&ch->ch_neo_uart->ier);
++	u8 efr = readb(&ch->ch_neo_uart->efr);
 +
-+	jsm_printk(IOCTL, INFO, &channel->ch_bd->pci_dev, "start\n");
++	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Setting IXOFF FLOW\n");
 +
-+	if (mctrl & TIOCM_RTS)
-+		channel->ch_mostat |= UART_MCR_RTS;
++	/* Turn off auto RTS flow control */
++	ier &= ~(UART_17158_IER_RTSDTR);
++	efr &= ~(UART_17158_EFR_RTSDTR);
++
++	/* Turn on auto Xoff flow control */
++	ier |= (UART_17158_IER_XOFF);
++	efr |= (UART_17158_EFR_ECB | UART_17158_EFR_IXOFF);
++
++	/* Why? Becuz Exar's spec says we have to zero it out before setting it */
++	writeb(0, &ch->ch_neo_uart->efr);
++
++	/* Turn on UART enhanced bits */
++	writeb(efr, &ch->ch_neo_uart->efr);
++
++	/* Turn on table D, with 8 char hi/low watermarks */
++	writeb((UART_17158_FCTR_TRGD | UART_17158_FCTR_RTS_8DELAY), &ch->ch_neo_uart->fctr);
++
++	writeb(8, &ch->ch_neo_uart->tfifo);
++	ch->ch_t_tlevel = 8;
++
++	/* Tell UART what start/stop chars it should be looking for */
++	writeb(ch->ch_startc, &ch->ch_neo_uart->xonchar1);
++	writeb(0, &ch->ch_neo_uart->xonchar2);
++
++	writeb(ch->ch_stopc, &ch->ch_neo_uart->xoffchar1);
++	writeb(0, &ch->ch_neo_uart->xoffchar2);
++
++	writeb(ier, &ch->ch_neo_uart->ier);
++}
++
++static void neo_set_no_input_flow_control(struct jsm_channel *ch)
++{
++	u8 ier = readb(&ch->ch_neo_uart->ier);
++	u8 efr = readb(&ch->ch_neo_uart->efr);
++
++	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Unsetting Input FLOW\n");
++
++	/* Turn off auto RTS flow control */
++	ier &= ~(UART_17158_IER_RTSDTR);
++	efr &= ~(UART_17158_EFR_RTSDTR);
++
++	/* Turn off auto Xoff flow control */
++	ier &= ~(UART_17158_IER_XOFF);
++	if (ch->ch_c_iflag & IXON)
++		efr &= ~(UART_17158_EFR_IXOFF);
 +	else
-+		channel->ch_mostat &= ~UART_MCR_RTS;
++		efr &= ~(UART_17158_EFR_ECB | UART_17158_EFR_IXOFF);
 +
-+	if (mctrl & TIOCM_DTR)
-+		channel->ch_mostat |= UART_MCR_DTR;
++	/* Why? Becuz Exar's spec says we have to zero it out before setting it */
++	writeb(0, &ch->ch_neo_uart->efr);
++
++	/* Turn on UART enhanced bits */
++	writeb(efr, &ch->ch_neo_uart->efr);
++
++	/* Turn on table D, with 8 char hi/low watermarks */
++	writeb((UART_17158_FCTR_TRGD | UART_17158_FCTR_RTS_8DELAY), &ch->ch_neo_uart->fctr);
++
++	ch->ch_r_watermark = 0;
++
++	writeb(16, &ch->ch_neo_uart->tfifo);
++	ch->ch_t_tlevel = 16;
++
++	writeb(16, &ch->ch_neo_uart->rfifo);
++	ch->ch_r_tlevel = 16;
++
++	writeb(ier, &ch->ch_neo_uart->ier);
++}
++
++static void neo_set_no_output_flow_control(struct jsm_channel *ch)
++{
++	u8 ier = readb(&ch->ch_neo_uart->ier);
++	u8 efr = readb(&ch->ch_neo_uart->efr);
++
++	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "Unsetting Output FLOW\n");
++
++	/* Turn off auto CTS flow control */
++	ier &= ~(UART_17158_IER_CTSDSR);
++	efr &= ~(UART_17158_EFR_CTSDSR);
++
++	/* Turn off auto Xon flow control */
++	if (ch->ch_c_iflag & IXOFF)
++		efr &= ~(UART_17158_EFR_IXON);
 +	else
-+		channel->ch_mostat &= ~UART_MCR_DTR;
++		efr &= ~(UART_17158_EFR_ECB | UART_17158_EFR_IXON);
 +
-+	channel->ch_bd->bd_ops->assert_modem_signals(channel);
++	/* Why? Becuz Exar's spec says we have to zero it out before setting it */
++	writeb(0, &ch->ch_neo_uart->efr);
 +
-+	jsm_printk(IOCTL, INFO, &channel->ch_bd->pci_dev, "finish\n");
-+	udelay(10);
++	/* Turn on UART enhanced bits */
++	writeb(efr, &ch->ch_neo_uart->efr);
++
++	/* Turn on table D, with 8 char hi/low watermarks */
++	writeb((UART_17158_FCTR_TRGD | UART_17158_FCTR_RTS_8DELAY), &ch->ch_neo_uart->fctr);
++
++	ch->ch_r_watermark = 0;
++
++	writeb(16, &ch->ch_neo_uart->tfifo);
++	ch->ch_t_tlevel = 16;
++
++	writeb(16, &ch->ch_neo_uart->rfifo);
++	ch->ch_r_tlevel = 16;
++
++	writeb(ier, &ch->ch_neo_uart->ier);
 +}
 +
-+static void jsm_tty_start_tx(struct uart_port *port, unsigned int tty_start)
++static inline void neo_set_new_start_stop_chars(struct jsm_channel *ch)
 +{
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
 +
-+	jsm_printk(IOCTL, INFO, &channel->ch_bd->pci_dev, "start\n");
++	/* if hardware flow control is set, then skip this whole thing */
++	if (ch->ch_c_cflag & CRTSCTS)
++		return;
 +
-+	channel->ch_flags &= ~(CH_STOP);
-+	jsm_tty_write(port);
++	jsm_printk(PARAM, INFO, &ch->ch_bd->pci_dev, "start\n");
 +
-+	jsm_printk(IOCTL, INFO, &channel->ch_bd->pci_dev, "finish\n");
++	/* Tell UART what start/stop chars it should be looking for */
++	writeb(ch->ch_startc, &ch->ch_neo_uart->xonchar1);
++	writeb(0, &ch->ch_neo_uart->xonchar2);
++
++	writeb(ch->ch_stopc, &ch->ch_neo_uart->xoffchar1);
++	writeb(0, &ch->ch_neo_uart->xoffchar2);
 +}
 +
-+static void jsm_tty_stop_tx(struct uart_port *port, unsigned int tty_stop)
++static void neo_copy_data_from_uart_to_queue(struct jsm_channel *ch)
 +{
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
-+
-+	jsm_printk(IOCTL, INFO, &channel->ch_bd->pci_dev, "start\n");
-+
-+	channel->ch_flags |= (CH_STOP);
-+
-+	jsm_printk(IOCTL, INFO, &channel->ch_bd->pci_dev, "finish\n");
-+}
-+
-+static void jsm_tty_send_xchar(struct uart_port *port, char ch)
-+{
-+	unsigned long lock_flags;
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
-+
-+	spin_lock_irqsave(&port->lock, lock_flags);
-+	if (ch == port->info->tty->termios->c_cc[VSTART])
-+		channel->ch_bd->bd_ops->send_start_character(channel);
-+
-+	if (ch == port->info->tty->termios->c_cc[VSTOP])
-+		channel->ch_bd->bd_ops->send_stop_character(channel);
-+	spin_unlock_irqrestore(&port->lock, lock_flags);
-+}
-+
-+static void jsm_tty_stop_rx(struct uart_port *port)
-+{
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
-+
-+	channel->ch_bd->bd_ops->disable_receiver(channel);
-+}
-+
-+static void jsm_tty_break(struct uart_port *port, int break_state)
-+{
-+	unsigned long lock_flags;
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
-+
-+	spin_lock_irqsave(&port->lock, lock_flags);
-+	if (break_state == -1)
-+		channel->ch_bd->bd_ops->send_break(channel);
-+	else
-+		channel->ch_bd->bd_ops->clear_break(channel, 0);
-+
-+	spin_unlock_irqrestore(&port->lock, lock_flags);
-+}
-+
-+static int jsm_tty_open(struct uart_port *port)
-+{
-+	struct jsm_board *brd;
-+	int rc = 0;
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
-+
-+	/* Get board pointer from our array of majors we have allocated */
-+	brd = channel->ch_bd;
-+
-+	/*
-+	 * Allocate channel buffers for read/write/error.
-+	 * Set flag, so we don't get trounced on.
-+	 */
-+	channel->ch_flags |= (CH_OPENING);
-+
-+	/* Drop locks, as malloc with GFP_KERNEL can sleep */
-+
-+	if (!channel->ch_rqueue) {
-+		channel->ch_rqueue = (u8 *) kmalloc(RQUEUESIZE, GFP_KERNEL);
-+		if (!channel->ch_rqueue) {
-+			jsm_printk(INIT, ERR, &channel->ch_bd->pci_dev,
-+				"unable to allocate read queue buf");
-+			return -ENOMEM;
-+		}
-+		memset(channel->ch_rqueue, 0, RQUEUESIZE);
-+	}
-+	if (!channel->ch_equeue) {
-+		channel->ch_equeue = (u8 *) kmalloc(EQUEUESIZE, GFP_KERNEL);
-+		if (!channel->ch_equeue) {
-+			jsm_printk(INIT, ERR, &channel->ch_bd->pci_dev,
-+				"unable to allocate error queue buf");
-+			return -ENOMEM;
-+		}
-+		memset(channel->ch_equeue, 0, EQUEUESIZE);
-+	}
-+	if (!channel->ch_wqueue) {
-+		channel->ch_wqueue = (u8 *) kmalloc(WQUEUESIZE, GFP_KERNEL);
-+		if (!channel->ch_wqueue) {
-+			jsm_printk(INIT, ERR, &channel->ch_bd->pci_dev,
-+				"unable to allocate write queue buf");
-+			return -ENOMEM;
-+		}
-+		memset(channel->ch_wqueue, 0, WQUEUESIZE);
-+	}
-+
-+	channel->ch_flags &= ~(CH_OPENING);
-+	/*
-+	 * Initialize if neither terminal is open.
-+	 */
-+	jsm_printk(OPEN, INFO, &channel->ch_bd->pci_dev,
-+		"jsm_open: initializing channel in open...\n");
-+
-+	/*
-+	 * Flush input queues.
-+	 */
-+	channel->ch_r_head = channel->ch_r_tail = 0;
-+	channel->ch_e_head = channel->ch_e_tail = 0;
-+	channel->ch_w_head = channel->ch_w_tail = 0;
-+
-+	brd->bd_ops->flush_uart_write(channel);
-+	brd->bd_ops->flush_uart_read(channel);
-+
-+	channel->ch_flags = 0;
-+	channel->ch_cached_lsr = 0;
-+	channel->ch_stops_sent = 0;
-+
-+	channel->ch_c_cflag	= port->info->tty->termios->c_cflag;
-+	channel->ch_c_iflag	= port->info->tty->termios->c_iflag;
-+	channel->ch_c_oflag	= port->info->tty->termios->c_oflag;
-+	channel->ch_c_lflag	= port->info->tty->termios->c_lflag;
-+	channel->ch_startc = port->info->tty->termios->c_cc[VSTART];
-+	channel->ch_stopc = port->info->tty->termios->c_cc[VSTOP];
-+
-+	/* Tell UART to init itself */
-+	brd->bd_ops->uart_init(channel);
-+
-+	/*
-+	 * Run param in case we changed anything
-+	 */
-+	brd->bd_ops->param(channel);
-+
-+	jsm_carrier(channel);
-+
-+	channel->ch_open_count++;
-+
-+	jsm_printk(OPEN, INFO, &channel->ch_bd->pci_dev, "finish\n");
-+	return rc;
-+}
-+
-+static void jsm_tty_close(struct uart_port *port)
-+{
-+	struct jsm_board *bd;
-+	struct termios *ts;
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
-+
-+	jsm_printk(CLOSE, INFO, &channel->ch_bd->pci_dev, "start\n");
-+
-+	bd = channel->ch_bd;
-+	ts = channel->uart_port.info->tty->termios;
-+
-+	channel->ch_flags &= ~(CH_STOPI);
-+
-+	channel->ch_open_count--;
-+
-+	/*
-+	 * If we have HUPCL set, lower DTR and RTS
-+	 */
-+	if (channel->ch_c_cflag & HUPCL) {
-+		jsm_printk(CLOSE, INFO, &channel->ch_bd->pci_dev,
-+			"Close. HUPCL set, dropping DTR/RTS\n");
-+
-+		/* Drop RTS/DTR */
-+		channel->ch_mostat &= ~(UART_MCR_DTR | UART_MCR_RTS);
-+		bd->bd_ops->assert_modem_signals(channel);
-+	}
-+
-+	channel->ch_old_baud = 0;
-+
-+	/* Turn off UART interrupts for this port */
-+	channel->ch_bd->bd_ops->uart_off(channel);
-+
-+	jsm_printk(CLOSE, INFO, &channel->ch_bd->pci_dev, "finish\n");
-+}
-+
-+static void jsm_tty_set_termios(struct uart_port *port,
-+				 struct termios *termios,
-+				 struct termios *old_termios)
-+{
-+	unsigned long lock_flags;
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
-+
-+	spin_lock_irqsave(&port->lock, lock_flags);
-+	channel->ch_c_cflag	= termios->c_cflag;
-+	channel->ch_c_iflag	= termios->c_iflag;
-+	channel->ch_c_oflag	= termios->c_oflag;
-+	channel->ch_c_lflag	= termios->c_lflag;
-+	channel->ch_startc	= termios->c_cc[VSTART];
-+	channel->ch_stopc	= termios->c_cc[VSTOP];
-+
-+	channel->ch_bd->bd_ops->param(channel);
-+	jsm_carrier(channel);
-+	spin_unlock_irqrestore(&port->lock, lock_flags);
-+}
-+
-+static const char *jsm_tty_type(struct uart_port *port)
-+{
-+	return "jsm";
-+}
-+
-+static void jsm_tty_release_port(struct uart_port *port)
-+{
-+}
-+
-+static int jsm_tty_request_port(struct uart_port *port)
-+{
-+	return 0;
-+}
-+
-+static void jsm_config_port(struct uart_port *port, int flags)
-+{
-+	port->type = PORT_JSM;
-+}
-+
-+static struct uart_ops jsm_ops = {
-+	.tx_empty	= jsm_tty_tx_empty,
-+	.set_mctrl	= jsm_tty_set_mctrl,
-+	.get_mctrl	= jsm_tty_get_mctrl,
-+	.stop_tx	= jsm_tty_stop_tx,
-+	.start_tx	= jsm_tty_start_tx,
-+	.send_xchar	= jsm_tty_send_xchar,
-+	.stop_rx	= jsm_tty_stop_rx,
-+	.break_ctl	= jsm_tty_break,
-+	.startup	= jsm_tty_open,
-+	.shutdown	= jsm_tty_close,
-+	.set_termios	= jsm_tty_set_termios,
-+	.type		= jsm_tty_type,
-+	.release_port	= jsm_tty_release_port,
-+	.request_port	= jsm_tty_request_port,
-+	.config_port	= jsm_config_port,
-+};
-+
-+/*
-+ * jsm_tty_init()
-+ *
-+ * Init the tty subsystem.  Called once per board after board has been
-+ * downloaded and init'ed.
-+ */
-+int jsm_tty_init(struct jsm_board *brd)
-+{
-+	int i;
-+	u8 *vaddr;
-+	struct jsm_channel *ch;
-+
-+	if (!brd)
-+		return -ENXIO;
-+
-+	jsm_printk(INIT, INFO, &brd->pci_dev, "start\n");
-+
-+	/*
-+	 * Initialize board structure elements.
-+	 */
-+
-+	vaddr = brd->re_map_membase;
-+
-+	brd->nasync = brd->maxports;
-+
-+	/*
-+	 * Allocate channel memory that might not have been allocated
-+	 * when the driver was first loaded.
-+	 */
-+	for (i = 0; i < brd->nasync; i++) {
-+		if (!brd->channels[i]) {
-+
-+			/*
-+			 * Okay to malloc with GFP_KERNEL, we are not at
-+			 * interrupt context, and there are no locks held.
-+			 */
-+			brd->channels[i] = kmalloc(sizeof(struct jsm_channel), GFP_KERNEL);
-+			if (!brd->channels[i]) {
-+				jsm_printk(CORE, ERR, &brd->pci_dev,
-+					"%s:%d Unable to allocate memory for channel struct\n",
-+							 __FILE__, __LINE__);
-+			}
-+			memset(brd->channels[i], 0, sizeof(struct jsm_channel));
-+		}
-+	}
-+
-+	ch = brd->channels[0];
-+	vaddr = brd->re_map_membase;
-+
-+	/* Set up channel variables */
-+	for (i = 0; i < brd->nasync; i++, ch = brd->channels[i]) {
-+
-+		if (!brd->channels[i])
-+			continue;
-+
-+		spin_lock_init(&ch->ch_lock);
-+
-+		if (brd->bd_uart_offset == 0x200)
-+			ch->ch_neo_uart = (struct neo_uart_struct *) ((u64) vaddr 
-+						+ (brd->bd_uart_offset * i));
-+
-+		ch->ch_bd = brd;
-+		ch->ch_portnum = i;
-+
-+		/* .25 second delay */
-+		ch->ch_close_delay = 250;
-+
-+		init_waitqueue_head(&ch->ch_flags_wait);
-+	}
-+
-+	jsm_printk(INIT, INFO, &brd->pci_dev, "finish\n");
-+	return 0;
-+}
-+
-+int jsm_uart_port_init(struct jsm_board *brd)
-+{
-+	int i;
-+	u8 *vaddr;
-+	struct jsm_channel *ch;
-+
-+	if (!brd)
-+		return -ENXIO;
-+
-+	jsm_printk(INIT, INFO, &brd->pci_dev, "start\n");
-+
-+	/*
-+	 * Initialize board structure elements.
-+	 */
-+
-+	vaddr = brd->re_map_membase;
-+	brd->nasync = brd->maxports;
-+
-+	/* Set up channel variables */
-+	for (i = 0; i < brd->nasync; i++, ch = brd->channels[i]) {
-+
-+		if (!brd->channels[i])
-+			continue;
-+
-+		brd->channels[i]->uart_port.irq = brd->irq;
-+		brd->channels[i]->uart_port.type = PORT_JSM;
-+		brd->channels[i]->uart_port.iotype = UPIO_MEM;
-+		brd->channels[i]->uart_port.membase = brd->re_map_membase;
-+		brd->channels[i]->uart_port.fifosize = 16;
-+		brd->channels[i]->uart_port.ops = &jsm_ops;
-+		brd->channels[i]->uart_port.line = brd->channels[i]->ch_portnum + brd->boardnum * 2;
-+		if (uart_add_one_port (&jsm_uart_driver, &brd->channels[i]->uart_port)) 
-+			printk(KERN_INFO "Added device failed\n");
-+		else
-+			printk(KERN_INFO "Added device \n");
-+	}
-+
-+	jsm_printk(INIT, INFO, &brd->pci_dev, "finish\n");
-+	return 0;
-+}
-+
-+int jsm_remove_uart_port(struct jsm_board *brd)
-+{
-+	int i;
-+	struct jsm_channel *ch;
-+
-+	if (!brd)
-+		return -ENXIO;
-+
-+	jsm_printk(INIT, INFO, &brd->pci_dev, "start\n");
-+
-+	/*
-+	 * Initialize board structure elements.
-+	 */
-+
-+	brd->nasync = brd->maxports;
-+
-+	/* Set up channel variables */
-+	for (i = 0; i < brd->nasync; i++) {
-+
-+		if (!brd->channels[i])
-+			continue;
-+
-+		ch = brd->channels[i];
-+
-+		uart_remove_one_port(&jsm_uart_driver, &brd->channels[i]->uart_port);
-+	}
-+
-+	jsm_printk(INIT, INFO, &brd->pci_dev, "finish\n");
-+	return 0;
-+}
-+
-+void jsm_input(struct jsm_channel *ch)
-+{
-+	struct jsm_board *bd;
-+	struct tty_struct *tp;
-+	u32 rmask;
++	int qleft = 0;
++	u8 linestatus = 0;
++	u8 error_mask = 0;
++	int n = 0;
++	int total = 0;
 +	u16 head;
 +	u16 tail;
-+	int data_len;
-+	u64 lock_flags;
-+	int flip_len;
-+	int len = 0;
-+	int n = 0;
-+	char *buf = NULL;
-+	char *buf2 = NULL;
-+	int s = 0;
-+	int i = 0;
-+
-+	jsm_printk(READ, INFO, &ch->ch_bd->pci_dev, "start\n");
 +
 +	if (!ch)
 +		return;
 +
-+	tp = ch->uart_port.info->tty;
++	/* cache head and tail of queue */
++	head = ch->ch_r_head & RQUEUEMASK;
++	tail = ch->ch_r_tail & RQUEUEMASK;
 +
-+	bd = ch->ch_bd;
-+	if(!bd)
-+		return;
++	/* Get our cached LSR */
++	linestatus = ch->ch_cached_lsr;
++	ch->ch_cached_lsr = 0;
 +
-+	spin_lock_irqsave(&ch->ch_lock, lock_flags);
-+
-+	/* 
-+	 *Figure the number of characters in the buffer.
-+	 *Exit immediately if none.
-+	 */
-+
-+	rmask = RQUEUEMASK;
-+
-+	head = ch->ch_r_head & rmask;
-+	tail = ch->ch_r_tail & rmask;
-+
-+	data_len = (head - tail) & rmask;
-+	if (data_len == 0) {
-+		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+		return;
-+	}
-+
-+	jsm_printk(READ, INFO, &ch->ch_bd->pci_dev, "start\n");
++	/* Store how much space we have left in the queue */
++	if ((qleft = tail - head - 1) < 0)
++		qleft += RQUEUEMASK + 1;
 +
 +	/*
-+	 *If the device is not open, or CREAD is off, flush
-+	 *input data and return immediately.
-+	 */
-+	if (!tp || 
-+		!(tp->termios->c_cflag & CREAD) ) {
-+
-+		jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
-+			"input. dropping %d bytes on port %d...\n", data_len, ch->ch_portnum);
-+		ch->ch_r_head = tail;
-+
-+		/* Force queue flow control to be released, if needed */
-+		jsm_check_queue_flow_control(ch);
-+
-+		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+		return;
-+	}
-+
-+	/*
-+	 * If we are throttled, simply don't read any data.
-+	 */
-+	if (ch->ch_flags & CH_STOPI) {
-+		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+		jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
-+			"Port %d throttled, not reading any data. head: %x tail: %x\n",
-+			ch->ch_portnum, head, tail);
-+		return;
-+	}
-+
-+	jsm_printk(READ, INFO, &ch->ch_bd->pci_dev, "start 2\n");
-+
-+	/*
-+	 * If the rxbuf is empty and we are not throttled, put as much
-+	 * as we can directly into the linux TTY flip buffer.  
-+	 * The jsm_rawreadok case takes advantage of carnal knowledge that
-+	 * the char_buf and the flag_buf are next to each other and
-+	 * are each of (2 * TTY_FLIPBUF_SIZE) size.
++	 * If the UART is not in FIFO mode, force the FIFO copy to
++	 * NOT be run, by setting total to 0.
 +	 *
-+	 * NOTE: if(!tty->real_raw), the call to ldisc.receive_buf
-+	 *actually still uses the flag buffer, so you can't
-+	 *use it for input data
++	 * On the other hand, if the UART IS in FIFO mode, then ask
++	 * the UART to give us an approximation of data it has RX'ed.
 +	 */
-+	if (jsm_rawreadok) {
-+		if (tp->real_raw)
-+			flip_len = MYFLIPLEN;
-+		else
-+			flip_len = 2 * TTY_FLIPBUF_SIZE;
-+	} else
-+		flip_len = TTY_FLIPBUF_SIZE - tp->flip.count;
++	if (!(ch->ch_flags & CH_FIFO_ENABLED))
++		total = 0;
++	else {
++		total = readb(&ch->ch_neo_uart->rfifo);
 +
-+	len = min(data_len, flip_len);
-+	len = min(len, (N_TTY_BUF_SIZE - 1) - tp->read_cnt);
++		/*
++		 * EXAR chip bug - RX FIFO COUNT - Fudge factor.
++		 *
++		 * This resolves a problem/bug with the Exar chip that sometimes
++		 * returns a bogus value in the rfifo register.
++		 * The count can be any where from 0-3 bytes "off".
++		 * Bizarre, but true.
++		 */
++		total -= 3;
++	}
 +
-+	if (len <= 0) {
-+		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+		jsm_printk(READ, INFO, &ch->ch_bd->pci_dev, "jsm_input 1\n");
++	/*
++	 * Finally, bound the copy to make sure we don't overflow
++	 * our own queue...
++	 * The byte by byte copy loop below this loop this will
++	 * deal with the queue overflow possibility.
++	 */
++	total = min(total, qleft);
++
++	while (total > 0) { 
++		/*
++		 * Grab the linestatus register, we need to check
++		 * to see if there are any errors in the FIFO.
++		 */
++		linestatus = readb(&ch->ch_neo_uart->lsr);
++
++		/*
++		 * Break out if there is a FIFO error somewhere.
++		 * This will allow us to go byte by byte down below,
++		 * finding the exact location of the error.
++		 */
++		if (linestatus & UART_17158_RX_FIFO_DATA_ERROR)
++			break;
++
++		/* Make sure we don't go over the end of our queue */
++		n = min(((u32) total), (RQUEUESIZE - (u32) tail));
++
++		/*
++		 * Cut down n even further if needed, this is to fix
++		 * a problem with memcpy_fromio() with the Neo on the
++		 * IBM pSeries platform.
++		 * 15 bytes max appears to be the magic number.
++		 */
++		n = min((u32) n, (u32) 12);
++
++		/*
++		 * Since we are grabbing the linestatus register, which
++		 * will reset some bits after our read, we need to ensure
++		 * we don't miss our TX FIFO emptys.
++		 */
++		if (linestatus & (UART_LSR_THRE | UART_17158_TX_AND_FIFO_CLR))
++			ch->ch_flags |= (CH_TX_FIFO_EMPTY | CH_TX_FIFO_LWM);
++
++		linestatus = 0;
++
++		/* Copy data from uart to the queue */
++		memcpy_fromio(ch->ch_rqueue + head, &ch->ch_neo_uart->txrxburst, n);
++		/*
++		 * Since RX_FIFO_DATA_ERROR was 0, we are guarenteed
++		 * that all the data currently in the FIFO is free of
++		 * breaks and parity/frame/orun errors.
++		 */
++		memset(ch->ch_equeue + head, 0, n);
++
++		/* Add to and flip head if needed */
++		head = (head + n) & RQUEUEMASK;
++		total -= n;
++		qleft -= n;
++		ch->ch_rxcount += n;
++	}
++
++	/*
++	 * Create a mask to determine whether we should
++	 * insert the character (if any) into our queue.
++	 */
++	if (ch->ch_c_iflag & IGNBRK)
++		error_mask |= UART_LSR_BI;
++
++	/*
++	 * Now cleanup any leftover bytes still in the UART.
++	 * Also deal with any possible queue overflow here as well.
++	 */
++	while (1) {
++
++		/*
++		 * Its possible we have a linestatus from the loop above
++		 * this, so we "OR" on any extra bits.
++		 */
++		linestatus |= readb(&ch->ch_neo_uart->lsr);
++
++		/*
++		 * If the chip tells us there is no more data pending to
++		 * be read, we can then leave.
++		 * But before we do, cache the linestatus, just in case.
++		 */
++		if (!(linestatus & UART_LSR_DR)) {
++			ch->ch_cached_lsr = linestatus;
++			break;
++		}
++
++		/* No need to store this bit */
++		linestatus &= ~UART_LSR_DR;
++
++		/*
++		 * Since we are grabbing the linestatus register, which
++		 * will reset some bits after our read, we need to ensure
++		 * we don't miss our TX FIFO emptys.
++		 */
++		if (linestatus & (UART_LSR_THRE | UART_17158_TX_AND_FIFO_CLR)) {
++			linestatus &= ~(UART_LSR_THRE | UART_17158_TX_AND_FIFO_CLR);
++			ch->ch_flags |= (CH_TX_FIFO_EMPTY | CH_TX_FIFO_LWM);
++		}
++
++		/*
++		 * Discard character if we are ignoring the error mask.
++		 */
++		if (linestatus & error_mask) {
++			u8 discard;
++			linestatus = 0;
++			memcpy_fromio(&discard, &ch->ch_neo_uart->txrxburst, 1);
++			continue;
++		}
++
++		/*
++		 * If our queue is full, we have no choice but to drop some data.
++		 * The assumption is that HWFLOW or SWFLOW should have stopped
++		 * things way way before we got to this point.
++		 *
++		 * I decided that I wanted to ditch the oldest data first,
++		 * I hope thats okay with everyone? Yes? Good.
++		 */
++		while (qleft < 1) {
++			jsm_printk(READ, INFO, &ch->ch_bd->pci_dev, 
++				"Queue full, dropping DATA:%x LSR:%x\n",
++				ch->ch_rqueue[tail], ch->ch_equeue[tail]);
++
++			ch->ch_r_tail = tail = (tail + 1) & RQUEUEMASK;
++			ch->ch_err_overrun++;
++			qleft++;
++		}
++
++		memcpy_fromio(ch->ch_rqueue + head, &ch->ch_neo_uart->txrxburst, 1);
++		ch->ch_equeue[head] = (u8) linestatus;
++
++		jsm_printk(READ, INFO, &ch->ch_bd->pci_dev, 
++				"DATA/LSR pair: %x %x\n", ch->ch_rqueue[head], ch->ch_equeue[head]);
++
++		/* Ditch any remaining linestatus value. */
++		linestatus = 0;
++
++		/* Add to and flip head if needed */
++		head = (head + 1) & RQUEUEMASK;
++
++		qleft--;
++		ch->ch_rxcount++;
++	}
++
++	/*
++	 * Write new final heads to channel structure.
++	 */
++	ch->ch_r_head = head & RQUEUEMASK;
++	ch->ch_e_head = head & EQUEUEMASK;
++	jsm_input(ch);
++}
++
++static void neo_copy_data_from_queue_to_uart(struct jsm_channel *ch)
++{
++	u16 head;
++	u16 tail;
++	int n;
++	int s;
++	int qlen;
++	u32 len_written = 0;
++
++	if (!ch)
++		return;
++
++	/* No data to write to the UART */ 
++	if (ch->ch_w_tail == ch->ch_w_head)
++		return;
++
++	/* If port is "stopped", don't send any data to the UART */
++	if ((ch->ch_flags & CH_STOP) || (ch->ch_flags & CH_BREAK_SENDING))
++		return;
++	/*
++	 * If FIFOs are disabled. Send data directly to txrx register
++	 */
++	if (!(ch->ch_flags & CH_FIFO_ENABLED)) {
++		u8 lsrbits = readb(&ch->ch_neo_uart->lsr);
++
++		ch->ch_cached_lsr |= lsrbits;
++		if (ch->ch_cached_lsr & UART_LSR_THRE) {
++			ch->ch_cached_lsr &= ~(UART_LSR_THRE);
++
++			writeb(ch->ch_wqueue[ch->ch_w_tail], &ch->ch_neo_uart->txrx);
++			jsm_printk(WRITE, INFO, &ch->ch_bd->pci_dev, 
++					"Tx data: %x\n", ch->ch_wqueue[ch->ch_w_head]);
++			ch->ch_w_tail++;
++			ch->ch_w_tail &= WQUEUEMASK;
++			ch->ch_txcount++;
++		}
 +		return;
 +	}
 +
 +	/*
-+	 * If we're bypassing flip buffers on rx, we can blast it
-+	 * right into the beginning of the buffer.
-+	 */ 
-+	if (jsm_rawreadok) {
-+		if (tp->real_raw) {
-+			if (ch->ch_flags & CH_FLIPBUF_IN_USE) {
-+				jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
-+					"JSM - FLIPBUF in use. delaying input\n");
-+				spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+				return;
-+			}
-+			ch->ch_flags |= CH_FLIPBUF_IN_USE;
-+			buf = ch->ch_bd->flipbuf;
-+			buf2 = NULL;
-+		} else {
-+			buf = tp->flip.char_buf;
-+			buf2 = tp->flip.flag_buf;
-+		}
-+	} else {
-+		buf = tp->flip.char_buf_ptr;
-+		buf2 = tp->flip.flag_buf_ptr;
-+	}
-+
-+	n = len;
-+
-+	/*
-+	 * n now contains the most amount of data we can copy,
-+	 * bounded either by the flip buffer size or the amount
-+	 * of data the card actually has pending...
++	 * We have to do it this way, because of the EXAR TXFIFO count bug.
 +	 */
-+	while (n) {
-+		s = ((head >= tail) ? head : RQUEUESIZE) - tail;
++	if (!(ch->ch_flags & (CH_TX_FIFO_EMPTY | CH_TX_FIFO_LWM)))
++		return; 
++
++	len_written = 0;
++	n = UART_17158_TX_FIFOSIZE - ch->ch_t_tlevel;
++
++	/* cache head and tail of queue */
++	head = ch->ch_w_head & WQUEUEMASK;
++	tail = ch->ch_w_tail & WQUEUEMASK;
++	qlen = (head - tail) & WQUEUEMASK;
++
++	/* Find minimum of the FIFO space, versus queue length */
++	n = min(n, qlen);
++
++	while (n > 0) {
++
++		s = ((head >= tail) ? head : WQUEUESIZE) - tail;
 +		s = min(s, n);
 +
 +		if (s <= 0)
 +			break;
 +
-+		memcpy(buf, ch->ch_rqueue + tail, s);
-+
-+		/* buf2 is only set when port isn't raw */
-+		if (buf2)
-+			memcpy(buf2, ch->ch_equeue + tail, s);
-+
-+		tail += s;
-+		buf += s;
-+		if (buf2)
-+			buf2 += s;
++		memcpy_toio(&ch->ch_neo_uart->txrxburst, ch->ch_wqueue + tail, s);
++		/* Add and flip queue if needed */
++		tail = (tail + s) & WQUEUEMASK;
 +		n -= s;
-+		/* Flip queue if needed */
-+		tail &= rmask;
++		ch->ch_txcount += s;
++		len_written += s;
 +	}
 +
-+	/*  
-+	 * In high performance mode, we don't have to update
-+	 * flag_buf or any of the counts or pointers into flip buf.
-+	 */
-+	if (!jsm_rawreadok) {
-+		if (I_PARMRK(tp) || I_BRKINT(tp) || I_INPCK(tp)) {
-+			for (i = 0; i < len; i++) {
-+				/*
-+				 * Give the Linux ld the flags in the
-+				 * format it likes.
-+				 */
-+				if (tp->flip.flag_buf_ptr[i] & UART_LSR_BI)
-+					tp->flip.flag_buf_ptr[i] = TTY_BREAK;
-+				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_PE)
-+					tp->flip.flag_buf_ptr[i] = TTY_PARITY;
-+				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_FE)
-+					tp->flip.flag_buf_ptr[i] = TTY_FRAME;
-+				else 
-+					tp->flip.flag_buf_ptr[i] = TTY_NORMAL;
-+			}
-+		} else {
-+			memset(tp->flip.flag_buf_ptr, 0, len);
-+		}
++	/* Update the final tail */
++	ch->ch_w_tail = tail & WQUEUEMASK;
 +
-+		tp->flip.char_buf_ptr += len;
-+		tp->flip.flag_buf_ptr += len;
-+		tp->flip.count += len;
-+	}
-+	else if (!tp->real_raw) {
-+		if (I_PARMRK(tp) || I_BRKINT(tp) || I_INPCK(tp)) {
-+			for (i = 0; i < len; i++) {
-+				/*
-+				 * Give the Linux ld the flags in the
-+				 * format it likes.
-+				 */
-+				if (tp->flip.flag_buf_ptr[i] & UART_LSR_BI)
-+					tp->flip.flag_buf_ptr[i] = TTY_BREAK;
-+				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_PE)
-+					tp->flip.flag_buf_ptr[i] = TTY_PARITY;
-+				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_FE)
-+					tp->flip.flag_buf_ptr[i] = TTY_FRAME;
-+				else 
-+					tp->flip.flag_buf_ptr[i] = TTY_NORMAL;
-+			}
-+		} else
-+			memset(tp->flip.flag_buf, 0, len);
-+	}
++	if (len_written >= ch->ch_t_tlevel)
++		ch->ch_flags &= ~(CH_TX_FIFO_EMPTY | CH_TX_FIFO_LWM);
 +
-+	/*
-+	 * If we're doing raw reads, jam it right into the
-+	 * line disc bypassing the flip buffers.
-+	 */
-+	if (jsm_rawreadok) {
-+		if (tp->real_raw) {
-+			ch->ch_r_tail = tail & rmask;
-+			ch->ch_e_tail = tail & rmask;
-+
-+			jsm_check_queue_flow_control(ch);
-+
-+			/* !!! WE *MUST* LET GO OF ALL LOCKS BEFORE CALLING RECEIVE BUF !!! */
-+
-+			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+
-+			jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
-+				"jsm_input. %d real_raw len:%d calling receive_buf for board %d\n",
-+				__LINE__, len, ch->ch_bd->boardnum);
-+			tp->ldisc.receive_buf(tp, ch->ch_bd->flipbuf, NULL, len);
-+
-+			/* Allow use of channel flip buffer again */
-+			spin_lock_irqsave(&ch->ch_lock, lock_flags);
-+			ch->ch_flags &= ~CH_FLIPBUF_IN_USE;
-+			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+
-+		} else {
-+			ch->ch_r_tail = tail & rmask;
-+			ch->ch_e_tail = tail & rmask;
-+
-+			jsm_check_queue_flow_control(ch);
-+
-+			/* !!! WE *MUST* LET GO OF ALL LOCKS BEFORE CALLING RECEIVE BUF !!! */
-+			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+
-+			jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
-+				"jsm_input. %d not real_raw len:%d calling receive_buf for board %d\n", 
-+				__LINE__, len, ch->ch_bd->boardnum);
-+
-+			tp->ldisc.receive_buf(tp, tp->flip.char_buf, tp->flip.flag_buf, len);
-+		}
-+	} else {
-+		ch->ch_r_tail = tail & rmask;
-+		ch->ch_e_tail = tail & rmask;
-+
-+		jsm_check_queue_flow_control(ch);
-+
-+		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+
-+		jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
-+			"jsm_input. %d not jsm_read raw okay scheduling flip\n", __LINE__); 
-+		tty_schedule_flip(tp);
-+	}
-+
-+	jsm_printk(IOCTL, INFO, &ch->ch_bd->pci_dev, "finish\n");
++	if (!jsm_tty_write(&ch->uart_port))
++		uart_write_wakeup(&ch->uart_port);
 +}
 +
-+void jsm_carrier(struct jsm_channel *ch)
++static void neo_parse_modem(struct jsm_channel *ch, u8 signals)
 +{
-+	struct jsm_board *bd;
++	u8 msignals = signals;
 +
-+	int virt_carrier = 0;
-+	int phys_carrier = 0;
-+ 
-+	jsm_printk(CARR, INFO, &ch->ch_bd->pci_dev, "start\n");
++	jsm_printk(MSIGS, INFO, &ch->ch_bd->pci_dev, 
++			"neo_parse_modem: port: %d msignals: %x\n", ch->ch_portnum, msignals);
++
 +	if (!ch)
 +		return;
 +
-+	bd = ch->ch_bd;
++	/* Scrub off lower bits. They signify delta's, which I don't care about */
++	msignals &= 0xf0;
 +
-+	if (!bd)
++	if (msignals & UART_MSR_DCD)
++		ch->ch_mistat |= UART_MSR_DCD;
++	else
++		ch->ch_mistat &= ~UART_MSR_DCD;
++
++	if (msignals & UART_MSR_DSR)
++		ch->ch_mistat |= UART_MSR_DSR;
++	else
++		ch->ch_mistat &= ~UART_MSR_DSR;
++
++	if (msignals & UART_MSR_RI)
++		ch->ch_mistat |= UART_MSR_RI;
++	else
++		ch->ch_mistat &= ~UART_MSR_RI;
++
++	if (msignals & UART_MSR_CTS)
++		ch->ch_mistat |= UART_MSR_CTS;
++	else
++		ch->ch_mistat &= ~UART_MSR_CTS;
++
++	jsm_printk(MSIGS, INFO, &ch->ch_bd->pci_dev, 
++			"Port: %d DTR: %d RTS: %d CTS: %d DSR: %d " "RI: %d CD: %d\n",
++		ch->ch_portnum,
++		!!((ch->ch_mistat | ch->ch_mostat) & UART_MCR_DTR),
++		!!((ch->ch_mistat | ch->ch_mostat) & UART_MCR_RTS),
++		!!((ch->ch_mistat | ch->ch_mostat) & UART_MSR_CTS), 
++		!!((ch->ch_mistat | ch->ch_mostat) & UART_MSR_DSR), 
++		!!((ch->ch_mistat | ch->ch_mostat) & UART_MSR_RI),
++		!!((ch->ch_mistat | ch->ch_mostat) & UART_MSR_DCD));
++}
++
++/* Make the UART raise any of the output signals we want up */
++static void neo_assert_modem_signals(struct jsm_channel *ch)
++{
++	u8 out;
++
++	if (!ch)
 +		return;
 +
-+	if (ch->ch_mistat & UART_MSR_DCD) {
-+		jsm_printk(CARR, INFO, &ch->ch_bd->pci_dev,
-+			"mistat: %x D_CD: %x\n", ch->ch_mistat, ch->ch_mistat & UART_MSR_DCD);
-+		phys_carrier = 1;
++	out = ch->ch_mostat;
++
++	writeb(out, &ch->ch_neo_uart->mcr);
++
++	/* flush write operation */
++	readb(&ch->ch_neo_uart->mcr);
++}
++
++/*
++ * Flush the WRITE FIFO on the Neo.
++ *
++ * NOTE: Channel lock MUST be held before calling this function!
++ */
++static void neo_flush_uart_write(struct jsm_channel *ch)
++{
++	u8 tmp = 0;
++	int i = 0;
++
++	if (!ch)
++		return;
++
++	writeb((UART_FCR_ENABLE_FIFO | UART_FCR_CLEAR_XMIT), &ch->ch_neo_uart->isr_fcr);
++
++	for (i = 0; i < 10; i++) {
++
++		/* Check to see if the UART feels it completely flushed the FIFO. */
++		tmp = readb(&ch->ch_neo_uart->isr_fcr);
++		if (tmp & 4) {
++			jsm_printk(IOCTL, INFO, &ch->ch_bd->pci_dev, 
++					"Still flushing TX UART... i: %d\n", i);
++			udelay(10);
++		}
++		else
++			break;
 +	}
 +
-+	if (ch->ch_c_cflag & CLOCAL)
-+		virt_carrier = 1;
-+
-+	jsm_printk(CARR, INFO, &ch->ch_bd->pci_dev,
-+		"DCD: physical: %d virt: %d\n", phys_carrier, virt_carrier);
-+
-+	/*
-+	 * Test for a VIRTUAL carrier transition to HIGH.
-+	 */
-+	if (((ch->ch_flags & CH_FCAR) == 0) && (virt_carrier == 1)) {
-+
-+		/*
-+		 * When carrier rises, wake any threads waiting
-+		 * for carrier in the open routine.
-+		 */
-+
-+		jsm_printk(CARR, INFO, &ch->ch_bd->pci_dev,
-+			"carrier: virt DCD rose\n");
-+
-+		if (waitqueue_active(&(ch->ch_flags_wait)))
-+			wake_up_interruptible(&ch->ch_flags_wait);
-+	}
-+
-+	/*
-+	 * Test for a PHYSICAL carrier transition to HIGH.
-+	 */
-+	if (((ch->ch_flags & CH_CD) == 0) && (phys_carrier == 1)) {
-+
-+		/*
-+		 * When carrier rises, wake any threads waiting
-+		 * for carrier in the open routine.
-+		 */
-+
-+		jsm_printk(CARR, INFO, &ch->ch_bd->pci_dev,
-+			"carrier: physical DCD rose\n");
-+
-+		if (waitqueue_active(&(ch->ch_flags_wait)))
-+			wake_up_interruptible(&ch->ch_flags_wait);
-+	}
-+
-+	/*
-+	 *  Test for a PHYSICAL transition to low, so long as we aren't
-+	 *  currently ignoring physical transitions (which is what "virtual
-+	 *  carrier" indicates).
-+	 *
-+	 *  The transition of the virtual carrier to low really doesn't
-+	 *  matter... it really only means "ignore carrier state", not
-+	 *  "make pretend that carrier is there".
-+	 */
-+	if ((virt_carrier == 0) && ((ch->ch_flags & CH_CD) != 0) 
-+			&& (phys_carrier == 0)) {
-+		/*
-+		 *	When carrier drops:
-+		 *
-+		 *	Drop carrier on all open units.
-+		 *
-+		 *	Flush queues, waking up any task waiting in the
-+		 *	line discipline.
-+		 *
-+		 *	Send a hangup to the control terminal.
-+		 *
-+		 *	Enable all select calls.
-+		 */
-+		if (waitqueue_active(&(ch->ch_flags_wait)))
-+			wake_up_interruptible(&ch->ch_flags_wait);
-+	}
-+
-+	/*
-+	 *  Make sure that our cached values reflect the current reality.
-+	 */
-+	if (virt_carrier == 1)
-+		ch->ch_flags |= CH_FCAR;
-+	else
-+		ch->ch_flags &= ~CH_FCAR;
-+
-+	if (phys_carrier == 1)
-+		ch->ch_flags |= CH_CD;
-+	else
-+		ch->ch_flags &= ~CH_CD;
++	ch->ch_flags |= (CH_TX_FIFO_EMPTY | CH_TX_FIFO_LWM);
 +}
 +
 +
-+void jsm_check_queue_flow_control(struct jsm_channel *ch)
++/*
++ * Flush the READ FIFO on the Neo.
++ *
++ * NOTE: Channel lock MUST be held before calling this function!
++ */
++static void neo_flush_uart_read(struct jsm_channel *ch)
 +{
-+	int qleft = 0;
++	u8 tmp = 0;
++	int i = 0;
 +
-+	/* Store how much space we have left in the queue */
-+	if ((qleft = ch->ch_r_tail - ch->ch_r_head - 1) < 0)
-+		qleft += RQUEUEMASK + 1;
++	if (!ch)
++		return;
 +
-+	/*
-+	 * Check to see if we should enforce flow control on our queue because
-+	 * the ld (or user) isn't reading data out of our queue fast enuf.
-+	 *
-+	 * NOTE: This is done based on what the current flow control of the
-+	 * port is set for.
-+	 *
-+	 * 1) HWFLOW (RTS) - Turn off the UART's Receive interrupt.
-+	 *	This will cause the UART's FIFO to back up, and force
-+	 *	the RTS signal to be dropped.
-+	 * 2) SWFLOW (IXOFF) - Keep trying to send a stop character to
-+	 *	the other side, in hopes it will stop sending data to us.
-+	 * 3) NONE - Nothing we can do.  We will simply drop any extra data
-+	 *	that gets sent into us when the queue fills up.
-+	 */
-+	if (qleft < 256) {
-+		/* HWFLOW */
-+		if (ch->ch_c_cflag & CRTSCTS) {
-+			if(!(ch->ch_flags & CH_RECEIVER_OFF)) {
-+				ch->ch_bd->bd_ops->disable_receiver(ch);
-+				ch->ch_flags |= (CH_RECEIVER_OFF);
-+				jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
-+					"Internal queue hit hilevel mark (%d)! Turning off interrupts.\n",
-+					qleft);
-+			}
-+		}
-+		/* SWFLOW */
-+		else if (ch->ch_c_iflag & IXOFF) {
-+			if (ch->ch_stops_sent <= MAX_STOPS_SENT) {
-+				ch->ch_bd->bd_ops->send_stop_character(ch);
-+				ch->ch_stops_sent++;
-+				jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
-+					"Sending stop char! Times sent: %x\n", ch->ch_stops_sent);
-+			}
-+		}
-+	}
++	writeb((UART_FCR_ENABLE_FIFO | UART_FCR_CLEAR_RCVR), &ch->ch_neo_uart->isr_fcr);
 +
-+	/*
-+	 * Check to see if we should unenforce flow control because
-+	 * ld (or user) finally read enuf data out of our queue.
-+	 *
-+	 * NOTE: This is done based on what the current flow control of the
-+	 * port is set for.
-+	 *
-+	 * 1) HWFLOW (RTS) - Turn back on the UART's Receive interrupt.
-+	 *	This will cause the UART's FIFO to raise RTS back up,
-+	 *	which will allow the other side to start sending data again.
-+	 * 2) SWFLOW (IXOFF) - Send a start character to
-+	 *	the other side, so it will start sending data to us again.
-+	 * 3) NONE - Do nothing. Since we didn't do anything to turn off the
-+	 *	other side, we don't need to do anything now.
-+	 */
-+	if (qleft > (RQUEUESIZE / 2)) {
-+		/* HWFLOW */
-+		if (ch->ch_c_cflag & CRTSCTS) {
-+			if (ch->ch_flags & CH_RECEIVER_OFF) {
-+				ch->ch_bd->bd_ops->enable_receiver(ch);
-+				ch->ch_flags &= ~(CH_RECEIVER_OFF);
-+				jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
-+					"Internal queue hit lowlevel mark (%d)! Turning on interrupts.\n",
-+					qleft);
-+			}
++	for (i = 0; i < 10; i++) {
++
++		/* Check to see if the UART feels it completely flushed the FIFO. */
++		tmp = readb(&ch->ch_neo_uart->isr_fcr);
++		if (tmp & 2) {
++			jsm_printk(IOCTL, INFO, &ch->ch_bd->pci_dev, 
++					"Still flushing RX UART... i: %d\n", i);
++			udelay(10);
 +		}
-+		/* SWFLOW */
-+		else if (ch->ch_c_iflag & IXOFF && ch->ch_stops_sent) {
-+			ch->ch_stops_sent = 0;
-+			ch->ch_bd->bd_ops->send_start_character(ch);
-+			jsm_printk(READ, INFO, &ch->ch_bd->pci_dev, "Sending start char!\n");
-+		}
++		else
++			break;
 +	}
 +}
 +
 +/*
-+ * jsm_tty_write()
-+ *
-+ * Take data from the user or kernel and send it out to the FEP.
-+ * In here exists all the Transparent Print magic as well.
++ * No locks are assumed to be held when calling this function.
 + */
-+int jsm_tty_write(struct uart_port *port)
++void neo_clear_break(struct jsm_channel *ch, int force)
 +{
-+	int bufcount = 0, n = 0;
-+	int data_count = 0,data_count1 =0;
-+	u16 head;
-+	u16 tail;
-+	u16 tmask;
-+	u32 remain;
-+	int temp_tail = port->info->xmit.tail;
-+	struct jsm_channel *channel = (struct jsm_channel *)port;
++	u64 lock_flags;
 +
-+	tmask = WQUEUEMASK;
-+	head = (channel->ch_w_head) & tmask;
-+	tail = (channel->ch_w_tail) & tmask;
++	spin_lock_irqsave(&ch->ch_lock, lock_flags);
 +
-+	if ((bufcount = tail - head - 1) < 0)
-+		bufcount += WQUEUESIZE;
++	/* Turn break off, and unset some variables */
++	if (ch->ch_flags & CH_BREAK_SENDING) {
++		u8 temp = readb(&ch->ch_neo_uart->lcr);
++		writeb((temp & ~UART_LCR_SBC), &ch->ch_neo_uart->lcr);
 +
-+	n = bufcount;
++		ch->ch_flags &= ~(CH_BREAK_SENDING);
++		jsm_printk(IOCTL, INFO, &ch->ch_bd->pci_dev, 
++				"clear break Finishing UART_LCR_SBC! finished: %lx\n", jiffies);
++	}
++	spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++}
 +
-+	n = min(n, 56);
-+	remain = WQUEUESIZE - head;
++/*
++ * Parse the ISR register.
++ */
++static inline void neo_parse_isr(struct jsm_board *brd, u32 port)
++{
++	struct jsm_channel *ch;
++	u8 isr;
++	u8 cause;
++	u64 lock_flags;
 +
-+	data_count = 0;
-+	if (n >= remain) {
-+		n -= remain;
-+		while ((port->info->xmit.head != temp_tail) &&
-+		(data_count < remain)) {
-+			channel->ch_wqueue[head++] =
-+			port->info->xmit.buf[temp_tail];
++	if (!brd)
++		return;
 +
-+			temp_tail++;
-+			temp_tail &= (UART_XMIT_SIZE - 1);
-+			data_count++;
++	if (port > brd->maxports)
++		return;
++
++	ch = brd->channels[port];
++	if (!ch)
++		return;
++
++	/* Here we try to figure out what caused the interrupt to happen */
++	while (1) {
++
++		isr = readb(&ch->ch_neo_uart->isr_fcr);
++
++		/* Bail if no pending interrupt */
++		if (isr & UART_IIR_NO_INT)
++			break;
++
++		/*
++		 * Yank off the upper 2 bits, which just show that the FIFO's are enabled.
++		 */
++		isr &= ~(UART_17158_IIR_FIFO_ENABLED);
++
++		jsm_printk(INTR, INFO, &ch->ch_bd->pci_dev, 
++				"%s:%d isr: %x\n", __FILE__, __LINE__, isr);
++
++		if (isr & (UART_17158_IIR_RDI_TIMEOUT | UART_IIR_RDI)) {
++			/* Read data from uart -> queue */
++			neo_copy_data_from_uart_to_queue(ch);
++
++			/* Call our tty layer to enforce queue flow control if needed. */
++			spin_lock_irqsave(&ch->ch_lock, lock_flags);
++			jsm_check_queue_flow_control(ch);
++			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
 +		}
-+		if (data_count == remain) head = 0;
++
++		if (isr & UART_IIR_THRI) {
++			/* Transfer data (if any) from Write Queue -> UART. */
++			spin_lock_irqsave(&ch->ch_lock, lock_flags);
++			ch->ch_flags |= (CH_TX_FIFO_EMPTY | CH_TX_FIFO_LWM);
++			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++			neo_copy_data_from_queue_to_uart(ch);
++		}
++
++		if (isr & UART_17158_IIR_XONXOFF) {
++			cause = readb(&ch->ch_neo_uart->xoffchar1);
++
++			jsm_printk(INTR, INFO, &ch->ch_bd->pci_dev, 
++					"Port %d. Got ISR_XONXOFF: cause:%x\n", port, cause);
++
++			/*
++			 * Since the UART detected either an XON or
++			 * XOFF match, we need to figure out which
++			 * one it was, so we can suspend or resume data flow.
++			 */
++			spin_lock_irqsave(&ch->ch_lock, lock_flags);
++			if (cause == UART_17158_XON_DETECT) {
++				/* Is output stopped right now, if so, resume it */
++				if (brd->channels[port]->ch_flags & CH_STOP) {
++					ch->ch_flags &= ~(CH_STOP);
++				}
++				jsm_printk(INTR, INFO, &ch->ch_bd->pci_dev, 
++						"Port %d. XON detected in incoming data\n", port);
++			} 
++			else if (cause == UART_17158_XOFF_DETECT) {
++				if (!(brd->channels[port]->ch_flags & CH_STOP)) {
++					ch->ch_flags |= CH_STOP;
++					jsm_printk(INTR, INFO, &ch->ch_bd->pci_dev, 
++							"Setting CH_STOP\n");
++				}
++				jsm_printk(INTR, INFO, &ch->ch_bd->pci_dev, 
++						"Port: %d. XOFF detected in incoming data\n", port);
++			}
++			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++		}
++
++		if (isr & UART_17158_IIR_HWFLOW_STATE_CHANGE) {
++			/*
++			 * If we get here, this means the hardware is doing auto flow control.
++			 * Check to see whether RTS/DTR or CTS/DSR caused this interrupt.
++			 */
++			cause = readb(&ch->ch_neo_uart->mcr);
++
++			/* Which pin is doing auto flow? RTS or DTR? */
++			spin_lock_irqsave(&ch->ch_lock, lock_flags);
++			if ((cause & 0x4) == 0) {
++				if (cause & UART_MCR_RTS)
++					ch->ch_mostat |= UART_MCR_RTS;
++				else
++					ch->ch_mostat &= ~(UART_MCR_RTS);
++			} else {
++				if (cause & UART_MCR_DTR)
++					ch->ch_mostat |= UART_MCR_DTR;
++				else
++					ch->ch_mostat &= ~(UART_MCR_DTR);
++			}
++			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++		}
++
++		/* Parse any modem signal changes */
++		jsm_printk(INTR, INFO, &ch->ch_bd->pci_dev, 
++				"MOD_STAT: sending to parse_modem_sigs\n");
++		neo_parse_modem(ch, readb(&ch->ch_neo_uart->msr));
++	}
++}
++
++static inline void neo_parse_lsr(struct jsm_board *brd, u32 port)
++{
++	struct jsm_channel *ch;
++	int linestatus;
++	u64 lock_flags;
++
++	if (!brd)
++		return;
++
++	if (port > brd->maxports)
++		return;
++
++	ch = brd->channels[port];
++	if (!ch)
++		return;
++
++	linestatus = readb(&ch->ch_neo_uart->lsr);
++
++	jsm_printk(INTR, INFO, &ch->ch_bd->pci_dev, 
++			"%s:%d port: %d linestatus: %x\n", __FILE__, __LINE__, port, linestatus);
++
++	ch->ch_cached_lsr |= linestatus;
++
++	if (ch->ch_cached_lsr & UART_LSR_DR) {
++		/* Read data from uart -> queue */
++		neo_copy_data_from_uart_to_queue(ch);
++		spin_lock_irqsave(&ch->ch_lock, lock_flags);
++		jsm_check_queue_flow_control(ch);
++		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
 +	}
 +
-+	data_count1 = 0;
-+	if (n > 0) {
-+		remain = n;
-+		while ((port->info->xmit.head != temp_tail) &&
-+			(data_count1 < remain)) {
-+			channel->ch_wqueue[head++] =
-+				port->info->xmit.buf[temp_tail];
++	/*
++	 * This is a special flag. It indicates that at least 1
++	 * RX error (parity, framing, or break) has happened.
++	 * Mark this in our struct, which will tell me that I have
++	 *to do the special RX+LSR read for this FIFO load.
++	 */
++	if (linestatus & UART_17158_RX_FIFO_DATA_ERROR)
++		jsm_printk(INTR, DEBUG, &ch->ch_bd->pci_dev, 
++			"%s:%d Port: %d Got an RX error, need to parse LSR\n",
++			__FILE__, __LINE__, port);
 +
-+			temp_tail++;
-+			temp_tail &= (UART_XMIT_SIZE - 1);
-+			data_count1++;
++	/*
++	 * The next 3 tests should *NOT* happen, as the above test
++	 * should encapsulate all 3... At least, thats what Exar says.
++	 */
 +
++	if (linestatus & UART_LSR_PE) {
++		ch->ch_err_parity++;
++		jsm_printk(INTR, DEBUG, &ch->ch_bd->pci_dev, 
++			"%s:%d Port: %d. PAR ERR!\n", __FILE__, __LINE__, port);
++	}
++
++	if (linestatus & UART_LSR_FE) {
++		ch->ch_err_frame++;
++		jsm_printk(INTR, DEBUG, &ch->ch_bd->pci_dev, 
++			"%s:%d Port: %d. FRM ERR!\n", __FILE__, __LINE__, port);
++	}
++
++	if (linestatus & UART_LSR_BI) {
++		ch->ch_err_break++;
++		jsm_printk(INTR, DEBUG, &ch->ch_bd->pci_dev, 
++			"%s:%d Port: %d. BRK INTR!\n", __FILE__, __LINE__, port);
++	}
++
++	if (linestatus & UART_LSR_OE) {
++		/*
++		 * Rx Oruns. Exar says that an orun will NOT corrupt
++		 * the FIFO. It will just replace the holding register
++		 * with this new data byte. So basically just ignore this.
++		 * Probably we should eventually have an orun stat in our driver...
++		 */
++		ch->ch_err_overrun++;
++		jsm_printk(INTR, DEBUG, &ch->ch_bd->pci_dev, 
++			"%s:%d Port: %d. Rx Overrun!\n", __FILE__, __LINE__, port);
++	}
++
++	if (linestatus & UART_LSR_THRE) {
++		spin_lock_irqsave(&ch->ch_lock, lock_flags);
++		ch->ch_flags |= (CH_TX_FIFO_EMPTY | CH_TX_FIFO_LWM);
++		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++
++		/* Transfer data (if any) from Write Queue -> UART. */
++		neo_copy_data_from_queue_to_uart(ch);
++	}
++	else if (linestatus & UART_17158_TX_AND_FIFO_CLR) {
++		spin_lock_irqsave(&ch->ch_lock, lock_flags);
++		ch->ch_flags |= (CH_TX_FIFO_EMPTY | CH_TX_FIFO_LWM);
++		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++
++		/* Transfer data (if any) from Write Queue -> UART. */
++		neo_copy_data_from_queue_to_uart(ch);
++	}
++}
++
++/*
++ * neo_param()
++ * Send any/all changes to the line to the UART.
++ */
++static void neo_param(struct jsm_channel *ch)
++{
++	u8 lcr = 0;
++	u8 uart_lcr = 0;
++	u8 ier = 0;
++	u32 baud = 9600;
++	int quot = 0;
++	struct jsm_board *bd;
++
++	bd = ch->ch_bd;
++	if (!bd)
++		return;
++
++	/*
++	 * If baud rate is zero, flush queues, and set mval to drop DTR.
++	 */
++	if ((ch->ch_c_cflag & (CBAUD)) == 0) {
++		ch->ch_r_head = ch->ch_r_tail = 0;
++		ch->ch_e_head = ch->ch_e_tail = 0;
++		ch->ch_w_head = ch->ch_w_tail = 0;
++
++		neo_flush_uart_write(ch);
++		neo_flush_uart_read(ch);
++
++		ch->ch_flags |= (CH_BAUD0);
++		ch->ch_mostat &= ~(UART_MCR_RTS | UART_MCR_DTR);
++		neo_assert_modem_signals(ch);
++		ch->ch_old_baud = 0;
++		return;
++
++	} else if (ch->ch_custom_speed) {
++			baud = ch->ch_custom_speed;
++			if (ch->ch_flags & CH_BAUD0)
++				ch->ch_flags &= ~(CH_BAUD0);
++		} else {
++			int iindex = 0;
++			int jindex = 0;
++
++			const u64 bauds[4][16] = {
++				{ 
++					0,	50,	75,	110,
++					134,	150,	200,	300,
++					600,	1200,	1800,	2400,
++					4800,	9600,	19200,	38400 },
++				{ 
++					0,	57600,	115200, 230400,
++					460800, 150,	200,	921600,
++					600,	1200,	1800,	2400,
++					4800,	9600,	19200,	38400 },
++				{ 
++					0,	57600,	76800, 115200,
++					131657, 153600, 230400, 460800,
++					921600, 1200,	1800,	2400,
++					4800,	9600,	19200,	38400 },
++				{ 
++					0,	57600,	115200, 230400,
++					460800, 150,	200,	921600,
++					600,	1200,	1800,	2400,
++					4800,	9600,	19200,	38400 }
++			};
++
++			baud = C_BAUD(ch->uart_port.info->tty) & 0xff;
++
++			if (ch->ch_c_cflag & CBAUDEX)
++				iindex = 1;
++
++			jindex = baud;
++
++			if ((iindex >= 0) && (iindex < 4) && (jindex >= 0) && (jindex < 16))
++				baud = bauds[iindex][jindex];
++			else {
++				jsm_printk(IOCTL, DEBUG, &ch->ch_bd->pci_dev, 
++					"baud indices were out of range (%d)(%d)",
++				iindex, jindex);
++				baud = 0;
++			}
++
++			if (baud == 0)
++				baud = 9600;
++
++			if (ch->ch_flags & CH_BAUD0)
++				ch->ch_flags &= ~(CH_BAUD0);
++		}
++
++	if (ch->ch_c_cflag & PARENB)
++		lcr |= UART_LCR_PARITY;
++
++	if (!(ch->ch_c_cflag & PARODD))
++		lcr |= UART_LCR_EPAR;
++
++	/* 
++	 * Not all platforms support mark/space parity,
++	 * so this will hide behind an ifdef.
++	 */
++#ifdef CMSPAR
++	if (ch->ch_c_cflag & CMSPAR) 
++		lcr |= UART_LCR_SPAR;
++#endif
++
++	if (ch->ch_c_cflag & CSTOPB)
++		lcr |= UART_LCR_STOP;
++
++	switch (ch->ch_c_cflag & CSIZE) {
++		case CS5:
++			lcr |= UART_LCR_WLEN5;
++			break;
++		case CS6:
++			lcr |= UART_LCR_WLEN6;
++			break;
++		case CS7:
++			lcr |= UART_LCR_WLEN7;
++			break;
++		case CS8:
++		default:
++			lcr |= UART_LCR_WLEN8;
++		break;
++	}
++
++	ier = readb(&ch->ch_neo_uart->ier);
++	uart_lcr = readb(&ch->ch_neo_uart->lcr);
++
++	if (baud == 0)
++		baud = 9600;
++
++	quot = ch->ch_bd->bd_dividend / baud;
++
++	if (quot != 0) {
++		ch->ch_old_baud = baud;
++		writeb(UART_LCR_DLAB, &ch->ch_neo_uart->lcr);
++		writeb((quot & 0xff), &ch->ch_neo_uart->txrx);
++		writeb((quot >> 8), &ch->ch_neo_uart->ier);
++		writeb(lcr, &ch->ch_neo_uart->lcr);
++	}
++
++	if (uart_lcr != lcr)
++		writeb(lcr, &ch->ch_neo_uart->lcr);
++
++	if (ch->ch_c_cflag & CREAD)
++		ier |= (UART_IER_RDI | UART_IER_RLSI);
++
++	ier |= (UART_IER_THRI | UART_IER_MSI);
++
++	writeb(ier, &ch->ch_neo_uart->ier);
++
++	/* Set new start/stop chars */
++	neo_set_new_start_stop_chars(ch);
++
++	if (ch->ch_c_cflag & CRTSCTS)
++		neo_set_cts_flow_control(ch);
++	else if (ch->ch_c_iflag & IXON) {
++		/* If start/stop is set to disable, then we should disable flow control */
++		if ((ch->ch_startc == __DISABLED_CHAR) || (ch->ch_stopc == __DISABLED_CHAR))
++			neo_set_no_output_flow_control(ch);
++		else
++			neo_set_ixon_flow_control(ch);
++	}
++	else
++		neo_set_no_output_flow_control(ch);
++
++	if (ch->ch_c_cflag & CRTSCTS)
++		neo_set_rts_flow_control(ch);
++	else if (ch->ch_c_iflag & IXOFF) {
++		/* If start/stop is set to disable, then we should disable flow control */
++		if ((ch->ch_startc == __DISABLED_CHAR) || (ch->ch_stopc == __DISABLED_CHAR))
++			neo_set_no_input_flow_control(ch);
++		else
++			neo_set_ixoff_flow_control(ch);
++	} 
++	else
++		neo_set_no_input_flow_control(ch);
++	/*
++	 * Adjust the RX FIFO Trigger level if baud is less than 9600.
++	 * Not exactly elegant, but this is needed because of the Exar chip's
++	 * delay on firing off the RX FIFO interrupt on slower baud rates.
++	 */
++	if (baud < 9600) {
++		writeb(1, &ch->ch_neo_uart->rfifo);
++		ch->ch_r_tlevel = 1;
++	}
++
++	neo_assert_modem_signals(ch);
++
++	/* Get current status of the modem signals now */
++	neo_parse_modem(ch, readb(&ch->ch_neo_uart->msr));
++	return;
++}
++
++/*
++ * jsm_neo_intr()
++ *
++ * Neo specific interrupt handler.
++ */
++static irqreturn_t neo_intr(int irq, void *voidbrd, struct pt_regs *regs)
++{
++	struct jsm_board *brd = (struct jsm_board *) voidbrd;
++	struct jsm_channel *ch;
++	int port = 0;
++	int type = 0;
++	int current_port;
++	u32 tmp;
++	u32 uart_poll;
++	unsigned long lock_flags;
++	unsigned long lock_flags2;
++	int outofloop_count = 0;
++
++	brd->intr_count++;
++
++	/* Lock out the slow poller from running on this board. */
++	spin_lock_irqsave(&brd->bd_intr_lock, lock_flags);
++
++	/*
++	 * Read in "extended" IRQ information from the 32bit Neo register.
++	 * Bits 0-7: What port triggered the interrupt.
++	 * Bits 8-31: Each 3bits indicate what type of interrupt occurred.
++	 */
++	uart_poll = readl(brd->re_map_membase + UART_17158_POLL_ADDR_OFFSET);
++
++	jsm_printk(INTR, INFO, &brd->pci_dev, 
++		"%s:%d uart_poll: %x\n", __FILE__, __LINE__, uart_poll);
++
++	if (!uart_poll) {
++		jsm_printk(INTR, INFO, &brd->pci_dev, 
++			"Kernel interrupted to me, but no pending interrupts...\n");
++		spin_unlock_irqrestore(&brd->bd_intr_lock, lock_flags);
++		return IRQ_NONE;
++	}
++
++	/* At this point, we have at least SOMETHING to service, dig further... */
++
++	current_port = 0;
++
++	/* Loop on each port */
++	while (((uart_poll & 0xff) != 0) && (outofloop_count < 0xff)){
++
++		tmp = uart_poll;
++		outofloop_count++;
++
++		/* Check current port to see if it has interrupt pending */
++		if ((tmp & jsm_offset_table[current_port]) != 0) {
++			port = current_port;
++			type = tmp >> (8 + (port * 3));
++			type &= 0x7;
++		} else {
++			current_port++;
++			continue;
++		}
++
++		jsm_printk(INTR, INFO, &brd->pci_dev, 
++		"%s:%d port: %x type: %x\n", __FILE__, __LINE__, port, type);
++
++		/* Remove this port + type from uart_poll */
++		uart_poll &= ~(jsm_offset_table[port]);
++
++		if (!type) {
++			/* If no type, just ignore it, and move onto next port */
++			jsm_printk(INTR, ERR, &brd->pci_dev, 
++				"Interrupt with no type! port: %d\n", port);
++			continue;
++		}
++
++		/* Switch on type of interrupt we have */
++		switch (type) {
++
++		case UART_17158_RXRDY_TIMEOUT:
++			/*
++			 * RXRDY Time-out is cleared by reading data in the
++			* RX FIFO until it falls below the trigger level.
++			 */
++
++			/* Verify the port is in range. */
++			if (port > brd->nasync)
++				continue;
++
++			ch = brd->channels[port];
++			neo_copy_data_from_uart_to_queue(ch);
++
++			/* Call our tty layer to enforce queue flow control if needed. */
++			spin_lock_irqsave(&ch->ch_lock, lock_flags2);
++			jsm_check_queue_flow_control(ch);
++			spin_unlock_irqrestore(&ch->ch_lock, lock_flags2);
++
++			continue;
++
++		case UART_17158_RX_LINE_STATUS:
++			/*
++			 * RXRDY and RX LINE Status (logic OR of LSR[4:1])
++			 */
++			neo_parse_lsr(brd, port);
++			continue;
++
++		case UART_17158_TXRDY:
++			/*
++			 * TXRDY interrupt clears after reading ISR register for the UART channel.
++			 */
++
++			/*
++			 * Yes, this is odd...
++			 * Why would I check EVERY possibility of type of
++			 * interrupt, when we know its TXRDY???
++			 * Becuz for some reason, even tho we got triggered for TXRDY,
++			 * it seems to be occassionally wrong. Instead of TX, which
++			 * it should be, I was getting things like RXDY too. Weird.
++			 */
++			neo_parse_isr(brd, port);
++			continue;
++
++		case UART_17158_MSR:
++			/*
++			 * MSR or flow control was seen.
++			 */
++			neo_parse_isr(brd, port);
++			continue;
++
++		default:
++			/*
++			 * The UART triggered us with a bogus interrupt type.
++			 * It appears the Exar chip, when REALLY bogged down, will throw
++			 * these once and awhile.
++			 * Its harmless, just ignore it and move on.
++			 */
++			jsm_printk(INTR, ERR, &brd->pci_dev, 
++				"%s:%d Unknown Interrupt type: %x\n", __FILE__, __LINE__, type);
++			continue;
 +		}
 +	}
 +
-+	port->info->xmit.tail = temp_tail;
++	spin_unlock_irqrestore(&brd->bd_intr_lock, lock_flags);
 +
-+	data_count += data_count1;
-+	if (data_count) {
-+		head &= tmask;
-+		channel->ch_w_head = head;
++	jsm_printk(INTR, INFO, &brd->pci_dev, "finish.\n");
++	return IRQ_HANDLED;
++}
++
++/*
++ * Neo specific way of turning off the receiver.
++ * Used as a way to enforce queue flow control when in
++ * hardware flow control mode.
++ */
++static void neo_disable_receiver(struct jsm_channel *ch)
++{
++	u8 tmp = readb(&ch->ch_neo_uart->ier);
++	tmp &= ~(UART_IER_RDI);
++	writeb(tmp, &ch->ch_neo_uart->ier);
++}
++
++
++/*
++ * Neo specific way of turning on the receiver.
++ * Used as a way to un-enforce queue flow control when in
++ * hardware flow control mode.
++ */
++static void neo_enable_receiver(struct jsm_channel *ch)
++{
++	u8 tmp = readb(&ch->ch_neo_uart->ier);
++	tmp |= (UART_IER_RDI);
++	writeb(tmp, &ch->ch_neo_uart->ier);
++}
++
++static void neo_send_start_character(struct jsm_channel *ch)
++{
++	unsigned char xdata;
++	if (!ch)
++		return;
++
++	if (ch->ch_startc != __DISABLED_CHAR) {
++		ch->ch_xon_sends++;
++		writeb(ch->ch_startc, &ch->ch_neo_uart->txrx);
++
++		/* flush write operation */
++		xdata = readb(&ch->ch_neo_uart->txrx);
++	}
++}
++
++static void neo_send_stop_character(struct jsm_channel *ch)
++{
++	unsigned char xdata;
++
++	if (!ch)
++		return;
++
++	if (ch->ch_stopc != __DISABLED_CHAR) {
++		ch->ch_xoff_sends++;
++		writeb(ch->ch_stopc, &ch->ch_neo_uart->txrx);
++
++		/* flush write operation */
++		xdata = readb(&ch->ch_neo_uart->txrx);
++	}
++}
++
++/*
++ * neo_uart_init
++ */
++static void neo_uart_init(struct jsm_channel *ch)
++{
++	writeb(0, &ch->ch_neo_uart->ier);
++	writeb(0, &ch->ch_neo_uart->efr);
++	writeb(UART_EFR_ECB, &ch->ch_neo_uart->efr);
++
++	/* Clear out UART and FIFO */
++	readb(&ch->ch_neo_uart->txrx);
++	writeb((UART_FCR_ENABLE_FIFO|UART_FCR_CLEAR_RCVR|UART_FCR_CLEAR_XMIT), &ch->ch_neo_uart->isr_fcr);
++	readb(&ch->ch_neo_uart->lsr);
++	readb(&ch->ch_neo_uart->msr);
++
++	ch->ch_flags |= CH_FIFO_ENABLED;
++
++	/* Assert any signals we want up */
++	writeb(ch->ch_mostat, &ch->ch_neo_uart->mcr);
++}
++
++/*
++ * Make the UART completely turn off.
++ */
++static void neo_uart_off(struct jsm_channel *ch)
++{
++	/* Turn off UART enhanced bits */
++	writeb(0, &ch->ch_neo_uart->efr);
++
++	/* Stop all interrupts from occurring. */
++	writeb(0, &ch->ch_neo_uart->ier);
++}
++
++static u32 neo_get_uart_bytes_left(struct jsm_channel *ch)
++{
++	u8 left = 0;
++	u8 lsr = readb(&ch->ch_neo_uart->lsr);
++
++	/* We must cache the LSR as some of the bits get reset once read... */
++	ch->ch_cached_lsr |= lsr;
++ 
++	/* Determine whether the Transmitter is empty or not */
++	if (!(lsr & UART_LSR_TEMT))
++		left = 1;
++	else {
++		ch->ch_flags |= (CH_TX_FIFO_EMPTY | CH_TX_FIFO_LWM);
++		left = 0;
 +	}
 +
-+	if (data_count) {
-+		channel->ch_bd->bd_ops->copy_data_from_queue_to_uart(channel);
++	return left;
++}
++
++/* Channel lock MUST be held by the calling function! */
++static void neo_send_break(struct jsm_channel *ch)
++{
++	/*
++	 * Set the time we should stop sending the break.
++	 * If we are already sending a break, toss away the existing
++	 * time to stop, and use this new value instead.
++	 */
++
++	/* Tell the UART to start sending the break */
++	if (!(ch->ch_flags & CH_BREAK_SENDING)) {
++		u8 temp = readb(&ch->ch_neo_uart->lcr);
++		writeb((temp | UART_LCR_SBC), &ch->ch_neo_uart->lcr);
++		ch->ch_flags |= (CH_BREAK_SENDING);
 +	}
-+
-+	return data_count;
 +}
 +
-+static ssize_t jsm_driver_version_show(struct device_driver *ddp, char *buf)
++/*
++ * neo_send_immediate_char.
++ *
++ * Sends a specific character as soon as possible to the UART,
++ * jumping over any bytes that might be in the write queue.
++ *
++ * The channel lock MUST be held by the calling function.
++ */
++static void neo_send_immediate_char(struct jsm_channel *ch, unsigned char c)
 +{
-+	return snprintf(buf, PAGE_SIZE, "%s\n", JSM_VERSION);
-+}
-+static DRIVER_ATTR(version, S_IRUSR, jsm_driver_version_show, NULL);
++	if (!ch)
++		return;
 +
-+static ssize_t jsm_driver_state_show(struct device_driver *ddp, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%s\n", jsm_driver_state_text[jsm_driver_state]);
-+}
-+static DRIVER_ATTR(state, S_IRUSR, jsm_driver_state_show, NULL);
-+
-+void jsm_create_driver_sysfiles(struct device_driver *driverfs)
-+{
-+	driver_create_file(driverfs, &driver_attr_version);
-+	driver_create_file(driverfs, &driver_attr_state);
++	writeb(c, &ch->ch_neo_uart->txrx);
 +}
 +
-+void jsm_remove_driver_sysfiles(struct device_driver *driverfs)
-+{
-+	driver_remove_file(driverfs, &driver_attr_version);
-+	driver_remove_file(driverfs, &driver_attr_state);
-+}
++struct board_ops jsm_neo_ops = {
++	.intr				= neo_intr,
++	.uart_init			= neo_uart_init,
++	.uart_off			= neo_uart_off,
++	.param				= neo_param,
++	.assert_modem_signals		= neo_assert_modem_signals,
++	.flush_uart_write		= neo_flush_uart_write,
++	.flush_uart_read		= neo_flush_uart_read,
++	.disable_receiver		= neo_disable_receiver,
++	.enable_receiver		= neo_enable_receiver,
++	.send_break			= neo_send_break,
++	.clear_break			= neo_clear_break,
++	.send_start_character		= neo_send_start_character,
++	.send_stop_character		= neo_send_stop_character,
++	.copy_data_from_queue_to_uart	= neo_copy_data_from_queue_to_uart,
++	.get_uart_bytes_left		= neo_get_uart_bytes_left,
++	.send_immediate_char		= neo_send_immediate_char
++};
 
---------------030106020900000502060405--
+--------------020103030909080407090401--
 

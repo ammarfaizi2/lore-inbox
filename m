@@ -1,73 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270786AbTGNUXU (ORCPT <rfc822;willy@w.ods.org>);
+	id S270819AbTGNUXU (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 14 Jul 2003 16:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270789AbTGNUVb
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270786AbTGNUVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 16:21:31 -0400
-Received: from gibson.mw.luc.edu ([147.126.62.56]:52915 "EHLO
-	gibson.mw.luc.edu") by vger.kernel.org with ESMTP id S270754AbTGNUUA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 16:20:00 -0400
-Date: Mon, 14 Jul 2003 15:35:57 -0500 (CDT)
-From: Fluke <fluke@gibson.mw.luc.edu>
-To: linux-poweredge@dell.com
-Cc: linux-kernel@vger.kernel.org, <Matt_Domsch@dell.com>,
-       <Sandra_Sanders@Dell.com>, <Anthony_Peterman@Dell.com>,
-       <Brent_Schroeder@Dell.com>
-Subject: Re: Dell vs. GPL
-In-Reply-To: <Pine.LNX.4.44.0306280005000.29249-100000@gibson.mw.luc.edu>
-Message-ID: <Pine.LNX.4.44.0307141504030.29249-100000@gibson.mw.luc.edu>
+	Mon, 14 Jul 2003 16:21:09 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:16909 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270820AbTGNUQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 16:16:23 -0400
+From: "Alan Shih" <alan@storlinksemi.com>
+To: "David griego" <dagriego@hotmail.com>, <alan@lxorguk.ukuu.org.uk>
+Cc: <alan@storlinksemi.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Alan Shih: "TCP IP Offloading Interface"
+Date: Mon, 14 Jul 2003 13:31:06 -0700
+Message-ID: <ODEIIOAOPGGCDIKEOPILAEBDCNAA.alan@storlinksemi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Sea2-F42G9i3HGRgKuw00017dcf@hotmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2727.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I sent the following information below to both the Dell Linux PowerEdge
-and the Linux Kernel mailing lists back in June.  Since then Dell has done
-nothing to add the required written offer or any other corrective steps.  
-This is not the first time that Dell has choosen to violate the terms of
-the GPL when performing binary only redistribution.  Back in 2002, I was
-told that steps where taken at Dell to ensure that they would strictly
-honor the GPL.  It took several *MONTHS* for these steps to be taken
-during which they continued to violate the GPL.
+In a typical application of NAS ASIC, it is easier to place 2 300MHz
+processor than a 1 GHz processor in cost. This line of reasoning forces me
+to consider making 1 of the processor to be TOE while the other one deals
+with disk/FS manipulations.
 
-  When I posted the message below, one of the responces was that raising
-it on the poweredge mailinglist might be a good idea since it has been his
-expierence that Dell folks fix mistakes pretty fast there.  I had already
-done exactly that by sending the original message to there.  Rather than a
-quick fix (again, two weeks later they still haven't fixed it), I got an
-auto-responce that the message is being delayed due to a suspicious
-header.  It appears that the report of the GPL violation is still being
-delayed or has been willfully discarded.  The mailinglist maintainer has
-choosen not to respond as to what about the header is suspicious or why
-the posting still has not appeared.
+Alan
 
-  I firmly believe that Dell will either again take several months to 
-address honoring the conditions of the GPL or continue to disregard their 
-obligations.  Personally, I consider this to be unacceptable behavior on 
-the part of Dell.  I am looking for anyone that is aware of any law office 
-which is willing to provide discounted legal services in regards to 
-enforcing the GPL.  I am not confortable with signing the copyright on my 
-contributions over to the FSF and don't have enough money to pay the 
-normal rate for seeking a court injuction.
 
-Thanks
+-----Original Message-----
+From: David griego [mailto:dagriego@hotmail.com]
+Sent: Monday, July 14, 2003 1:19 PM
+To: alan@lxorguk.ukuu.org.uk
+Cc: alan@storlinksemi.com; linux-kernel@vger.kernel.org
+Subject: Re: Alan Shih: "TCP IP Offloading Interface"
 
-On Sat, 28 Jun 2003, Fluke wrote:
 
->   Dell is providing binary only derived works of the Linux kernel and the 
-> modutils package at ftp://ftp.dell.com/fixes/boot-floppy-rh9.tar.gz
-> 
->   The GPL appears to provide four terms under section 3 that Dell may 
-> legally redistribute these works:
-> 
-> - In regards to GPL 3a, Dell does *NOT* provide the source code as part of 
-> the tar.gz
-> - In regards to GPL 3b, Dell does *NOT* provide a written offer as part of 
-> the tar.gz
-> - In regards to GPL 3c, Dell does *NOT* provide information regarding an 
-> offer to the source code as part of the tar.gz
-> - Lastly, Dell does *NOT* provide equivalent access to the source code 
-> from the same ftp site
+Embedded does not simply include toasters and fridges, it also includes NAS
+and SAN appliances as well as telco gear.  These types of devices have
+advanced memory subsystems and run processors such as PPC and ARM.  One of
+the most limiting factors in these types of devices is power consumption.
+This usually limits the number of cores and frequency these cores.
+Offloading the processing of protocol stacks to ASICS would have a great
+impact in performance.  If you are going to embed a high frequency chip in
+your embedded devices I would recommend developing a heater not a fridge.
+
+
+>From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>To: David griego <dagriego@hotmail.com>
+>CC: alan@storlinksemi.com,   Linux Kernel Mailing List
+><linux-kernel@vger.kernel.org>
+>Subject: Re: Alan Shih: "TCP IP Offloading Interface"
+>Date: 14 Jul 2003 20:42:53 +0100
+>
+>On Llu, 2003-07-14 at 19:46, David griego wrote:
+> > IMHO, there are several cases for some type of TCP/IP offload.  One is
+>for
+> > embedded systems that are just not capable of doing 1Gbps+.  Another is
+>with
+>
+>My fridge doesn't need to do 10Gbit a second, and for most other
+>embedded the constraints are ram bandwidth and nothing else. Since
+>deeply embedded stuff also doesn't run with MMUs or runs 'partially
+>trusted' most of the VM games and the socket api games also go away.
+
+See PPC and ARM architecture for the use of MMUs in embedded systems
+
+>
+>I've done deeply embedded tcp/ip. I don't buy the argument, embedded
+>gains the least of all from ToE.
+>
+> > 10GbE, even high end servers will not be able keep up with TCP
+> > processing/data movement at these speeds.  Not being proactive in
+>adopting
+>
+>They said that about 10Mbit until Van showed them a thing or two. They
+>said it about 100Mbit, they said it about gigabit.
+
+Not the case for embedded.  I understand your viewpoint from the server
+space though.
+>
+> > TCP/IP offload will force Linux into accepting some scheme that will not
+> > necessarily be best.
+>
+>TCP/IP is an exercise in two things when you are running at speed
+>
+>1.	Finding the memory bandwidth - ToE doesn't help, checksums do,
+>	sg does, on card target buffers do with decent chipsets.
+
+A TOE enabled with RDDP would help eliminate the kernel to user space copy
+(and in the case of SAMBA the copy back to the kernel).  This would reduce
+the memory system loading by a third to a half.
+>
+>2.	Handling in order perfectly predicted data streams. ToE is
+>	overkill for this. Thats about latency to memory and touching
+>	as little as possible. The main CPU has a rather good connection
+>	to main memory.
+>
+Yes, RDDP would be nice to have though for the reason stated for #1, so the
+hardware would need to at least be TCP aware.
+
+>ToE is also horribly vulnerable to attack because putting it on a card
+>dictates relatively low CPU power and low power consumption as well as
+>rather nasty pricing issues. Historically low power devices have
+>repeatedly been screwed by attackers hitting software or other slow
+>paths in the device to attack it.
+The use of ASICs could ensure that TCP processing is as quick as wire speed
+
+>
+>This is before we get into the delights of multipath routing across
+>different vendors cards, firewalling, traffic shaping, retrofitting new
+>features, questions about what happens with an old ToE card when its
+>got a hole...
+Try to keep the datapath processing on the TOE, and everything else in the
+OS.  Also give the API the ability to turn of the TOE if a hole exists and
+use it like a regular NIC.
+>
+>The internet land speed record is held by a non ToE system, let me know
+>when that changes.
+>
+Layer one network processing is often handled by ASICS, also some of the
+fastest encryption engines are hardware.  I suggest we don't wait until your
+proven wrong before making a decision on TOE.
+
+_________________________________________________________________
+MSN 8 helps eliminate e-mail viruses. Get 2 months FREE*.
+http://join.msn.com/?page=features/virus
 

@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129604AbRBLXWw>; Mon, 12 Feb 2001 18:22:52 -0500
+	id <S129154AbRBLX2M>; Mon, 12 Feb 2001 18:28:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129607AbRBLXWm>; Mon, 12 Feb 2001 18:22:42 -0500
-Received: from monza.monza.org ([209.102.105.34]:6406 "EHLO monza.monza.org")
-	by vger.kernel.org with ESMTP id <S129604AbRBLXWg>;
-	Mon, 12 Feb 2001 18:22:36 -0500
-Date: Mon, 12 Feb 2001 15:22:23 -0800
-From: Tim Wright <timw@splhi.com>
-To: Nick Papadonis <nick@coelacanth.com>
-Cc: linux-kernel@vger.kernel.org, kurt@garloff.de
-Subject: Re: TRM-S1040/DC395 Driver?
-Message-ID: <20010212152223.A4280@kochanski.internal.splhi.com>
-Reply-To: timw@splhi.com
-Mail-Followup-To: Nick Papadonis <nick@coelacanth.com>,
-	linux-kernel@vger.kernel.org, kurt@garloff.de
-In-Reply-To: <m3zofu7bk4.fsf@h0050bad6338d.ne.mediaone.net>
-Mime-Version: 1.0
+	id <S129162AbRBLX2D>; Mon, 12 Feb 2001 18:28:03 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8198 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129154AbRBLX1v>; Mon, 12 Feb 2001 18:27:51 -0500
+Subject: Re: LILO and serial speeds over 9600
+To: hpa@transmeta.com (H. Peter Anvin)
+Date: Mon, 12 Feb 2001 23:27:53 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Werner.Almesberger@epfl.ch (Werner Almesberger),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A886FAC.C47465A7@transmeta.com> from "H. Peter Anvin" at Feb 12, 2001 03:20:12 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3zofu7bk4.fsf@h0050bad6338d.ne.mediaone.net>; from nick@coelacanth.com on Sat, Feb 10, 2001 at 11:22:19AM -0500
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14SSNw-0008To-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, it's back up again now.
-I've been using the patches for a couple of months with no problems.
-This is on a 4-processor P6 box, so the SMP support seems sound. I only have
-a CDRW attached on this SCSI bus so I can't comment on disk support etc.
+> Depends on what the client can handle.  For the kernel, that might be
+> true, but for example a boot loader may only have a few K worth of buffer
+> space.
 
-Kurt, have you submitted this driver to be included into the mainstream
-kernel ? It seems solid enough to me.
+That same constraint is true of any UDP protocol too, and indeed any protocol
+not entirely based on FEC (which rather rules out ethernet based solutions)
 
-Regards,
+You also dont need much buffering for a smart embedded stack, its no secret
+that some embedded tcps dont buffer the data but pointers to constant data and
+values for only non constant objects. You really can make a minimal TCP very
+low resource.
 
-Tim
+Alan
 
-On Sat, Feb 10, 2001 at 11:22:19AM -0500, Nick Papadonis wrote:
-> Hi,
-> 
-> Anyone know where the kernel patches for the DC395U with the Tekram TRM-S1040
-> chip are?
-> 
-> http://www.garloff.de/ appears to be down.
-> 
-> Will these be included in the 2.4.x kernel tree?
-> 
-> Thanks.
-> 
-> -- 
-> - Nick
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-
--- 
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-Interested in Linux scalability ? Look at http://lse.sourceforge.net/
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

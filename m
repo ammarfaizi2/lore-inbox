@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267785AbUGWPLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267789AbUGWPQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267785AbUGWPLV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 11:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUGWPLV
+	id S267789AbUGWPQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 11:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267790AbUGWPQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 11:11:21 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:32739 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267785AbUGWPLT
+	Fri, 23 Jul 2004 11:16:28 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:11456 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267789AbUGWPQ0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 11:11:19 -0400
-Date: Fri, 23 Jul 2004 17:11:16 +0200
+	Fri, 23 Jul 2004 11:16:26 -0400
+Date: Fri, 23 Jul 2004 17:16:24 +0200
 From: maximilian attems <janitor@sternwelten.at>
 To: linux-mtd@lists.infradead.org
-Cc: wmw2@redhat.com, linux-kernel@vger.kernel.org
-Subject: [patch-kj] remove old ifdefs
-Message-ID: <20040723151116.GH14000@stro.at>
+Cc: dwmw2@redhat.com, linux-kernel@vger.kernel.org
+Subject: [patch-kj] remove old ifdefs drivers/mtd/mtdcore.c
+Message-ID: <20040723151624.GM1795@stro.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,9 +24,8 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
- Patches to remove some old ifdefs.
- remove most of the #include <linux/version.h>
- kill compat cruft like #define ahd_pci_set_dma_mask pci_set_dma_mask
+ remove unused #include <linux/version.h>
+ Patches to remove old ifdefs 2.2 compatibility is already merged.
 
 applies cleanly to 2.6.8-rc2
 
@@ -37,25 +36,17 @@ Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 ---
 
- linux-2.6.7-bk20-max/include/linux/mtd/cfi.h |    2 --
- 1 files changed, 2 deletions(-)
+ linux-2.6.7-bk20-max/drivers/mtd/mtdcore.c |   36 -----------------------------
+ 1 files changed, 1 insertion(+), 35 deletions(-)
 
-diff -puN include/linux/mtd/cfi.h~remove-old-ifdefs-mtd-cfi include/linux/mtd/cfi.h
---- linux-2.6.7-bk20/include/linux/mtd/cfi.h~remove-old-ifdefs-mtd-cfi	2004-07-11 14:42:34.000000000 +0200
-+++ linux-2.6.7-bk20-max/include/linux/mtd/cfi.h	2004-07-11 14:42:34.000000000 +0200
-@@ -458,14 +458,12 @@ static inline __u8 cfi_read_query(struct
+diff -puN drivers/mtd/mtdcore.c~remove-old-ifdefs-mtdcore drivers/mtd/mtdcore.c
+--- linux-2.6.7-bk20/drivers/mtd/mtdcore.c~remove-old-ifdefs-mtdcore	2004-07-11 14:42:37.000000000 +0200
++++ linux-2.6.7-bk20-max/drivers/mtd/mtdcore.c	2004-07-11 14:42:37.000000000 +0200
+@@ -6,7 +6,6 @@
+  *
+  */
  
- static inline void cfi_udelay(int us)
- {
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
- 	unsigned long t = us * HZ / 1000000;
- 	if (t) {
- 		set_current_state(TASK_UNINTERRUPTIBLE);
- 		schedule_timeout(t);
- 		return;
- 	}
--#endif
- 	udelay(us);
- 	cond_resched();
- }
-
+-#include <linux/version.h>
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>

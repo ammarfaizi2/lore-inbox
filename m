@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266292AbUANFBN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 00:01:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266293AbUANFBN
+	id S266297AbUANFJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 00:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266301AbUANFJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 00:01:13 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:10711 "EHLO
+	Wed, 14 Jan 2004 00:09:40 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:12247 "EHLO
 	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266292AbUANFBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 00:01:12 -0500
-Date: Wed, 14 Jan 2004 04:59:45 +0000
+	id S266297AbUANFJj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 00:09:39 -0500
+Date: Wed, 14 Jan 2004 05:08:18 +0000
 From: Dave Jones <davej@redhat.com>
-To: Robert Love <rml@ximian.com>
-Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Laptops & CPU frequency
-Message-ID: <20040114045945.GB23845@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BIOS Flash changes PowerNOW frequencies?
+Message-ID: <20040114050818.GC23845@redhat.com>
 Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Robert Love <rml@ximian.com>,
-	Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <20040111025623.GA19890@ncsu.edu> <20040111025623.GA19890@ncsu.edu> <1073791061.1663.77.camel@localhost> <E1Afj2b-0004QN-00@chiark.greenend.org.uk> <E1Afj2b-0004QN-00@chiark.greenend.org.uk> <1073841200.1153.0.camel@localhost> <E1AfjdT-0008OH-00@chiark.greenend.org.uk> <1073843690.1153.12.camel@localhost>
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040111175610.GA26855@dotnetslash.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1073843690.1153.12.camel@localhost>
+In-Reply-To: <20040111175610.GA26855@dotnetslash.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 12:54:51PM -0500, Robert Love wrote:
- > On Sun, 2004-01-11 at 12:44, Matthew Garrett wrote:
+On Sun, Jan 11, 2004 at 12:56:10PM -0500, Mark W. Alexander wrote:
+ > I'm not currently subscribed. Please cc: me on responses.
  > 
- > > Is there any realistic way of noticing this sort of change?
- > 
- > Sure.  That is how Speedstep works, right?  We have an interface for
- > Speedstep, so the kernel knows about it.  We do not have an interface
- > for the proprietary BIOS stuff, I assume, so the kernel is oblivious.
+ > I'm running 2.6.0 on an HP Pavilion ze4420 Athlon version (lspci -v below).  I
+ > recently flashed the BIOS (hoping against all odds for suspend to ram
+ > capability) and the CPU frequencies discovered by PowerNOW (K7) has changed.
+ > This is obviously caused by the BIOS update, but the stupid question of the day
+ > is "Why?". If the CPU and chipset support both sets of frequencies with
+ > different BIOS, wouldn't the _real_ set of supported frequencies be the union
+ > of the 2?
 
-Speedstep support is one way right now. We tell the CPU "switch to this mode"
-and it does. What we don't know how to do in cpufreq is detect when someone pulls
-the power out, or plugs back in. BIOS SMM magick happens, and it all
-gets taken care of transparently without us having a clue that anything
-happened.
+In reality, yes.
+However BIOS programmers have a different perception of reality to the rest of us.
+The spec for PST tables allows for up to 256 FID/VID pairs, yet everyone just
+seems to offer 5-6 as maximum. I guess they figured no-one needed the granularity
+of the full range.
 
-We *could* hook into the APM 'power source changed' notifiers, (and I
-guess ACPI has something similar somewhere). That should take care of things.
+ > As startling as it was to come up at 532Mhz the first boot, I can see where
+ > this could provide some dramatic power savings (say, while using vi),
+ > but the now missing 1064, 1463 and 1596 frequencies were more practical
+ > for actually doing something worthwhile (say, using vi while watching a
+ > DVD ;).
+ > Is there anything I can do to persuade PowerNOW/frequency scaling to see the
+ > full range of frequencies that I've seen this box can do?
 
- > But if you had the docs, I suppose you could code a solution and tie it
- > into the cpufreq code, just as we have proper support for Speedstep,
- > Longrun, etc.
+Something that has been planned for quite a while has been a means of overriding
+the tables using sysfs. I haven't had time to implement this, and no-one else
+has found the time/motivation to do so either it seems.
 
-Of all the implementations I've played with (longhaul/powernow/speedstep-smi)
-speedstep is the only one that does funky shit with SMM. The others are quite
-dumb (and friendly) in comparison. (Ie, nothing happens on power source change)
+Something I was tempted to do at one point (due to the number of broken PST's out
+there) was to offer a 'ignore_pst' module parameter, which exposed the full table
+to sysfs. The only problem being some VRMs can't handle certain frequencies at
+certain voltages whilst some can, making it hard to find a set of 'safe' values
+for each frequency.
+
+How to find out which one VRM can handle frequency X at voltage Y ?
+Through the PST tables.
+
+*sigh*, back to the drawing board.
 
 		Dave
 

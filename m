@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270511AbUJUArR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270628AbUJUAqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270511AbUJUArR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 20:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270644AbUJUArA
+	id S270628AbUJUAqq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 20:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270620AbUJUAnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 20:47:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17584 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270511AbUJUAoD
+	Wed, 20 Oct 2004 20:43:09 -0400
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:8068 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S270490AbUJUAeR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 20:44:03 -0400
-Date: Thu, 21 Oct 2004 01:44:02 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, John Cherry <cherry@osdl.org>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: Linux v2.6.9... (compile stats)
-Message-ID: <20041021004402.GE23987@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <1098196575.4320.0.camel@cherrybomb.pdx.osdl.net> <20041019161834.GA23821@one-eyed-alien.net> <1098310286.3381.5.camel@cherrybomb.pdx.osdl.net> <20041020224106.GM23987@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0410201710370.2317@ppc970.osdl.org> <41770307.5060304@pobox.com>
+	Wed, 20 Oct 2004 20:34:17 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+From: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+In-Reply-To: <20041020094508.GA29080@elte.hu>
+References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu>
+	 <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu>
+	 <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
+	 <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
+	 <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
+	 <20041020094508.GA29080@elte.hu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1098318763.16441.48.camel@cmn37.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41770307.5060304@pobox.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 20 Oct 2004 17:32:43 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 08:29:59PM -0400, Jeff Garzik wrote:
-> Current patch is at
-> http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/patch.iomap.bz2
-
-Got it.
- 
-> I still merging stuff, so won't get around to it for another day or so :)
+On Wed, 2004-10-20 at 02:45, Ingo Molnar wrote:
+> i have released the -U8 Real-Time Preemption patch:
 > 
-> I certainly don't mind anyone stealing the task from me, but the effort 
-> is larger than the other iomap conversions.  The patch above hits all 
-> the easily-picked fruit, leaving the stuff that requires a modicum of 
-> effort:
+>   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U8
+> 
+> this too is a fixes-only release.
 
-Hey, it's not that there wasn't enough work in other places...  I've
-picked the patch above for -bird and will happily leave further sata
-stuff to you, TYVM ;-)
+A bit late, but a short report. I managed to boot into U8.1 (Athlon64 up
+machine). But only if I turn off kudzu (the hardware discovery program
+in FC2). If I leave it on, I get tons of kernel error or warning
+messages on the console, they scroll too fast for me to read, once that
+starts the machine is pretty much stuck - the messages keep scrolling
+but that's about it. I have not managed to capture the output to see
+what they say...
 
-Speaking of which, since -bk5 is out there now...  Could you drop the delta
-between it and your current netdev-2.6 somewhere on anonftp?  AFAICS there
-are 6 patches missing from the pile I've sent to you (3 out of them with
-objections I've seen + 1 you've asked to postpone), but there's another
-pile waiting to be sent (11 more)...
+If I boot without kudzu I can use sound, but I have not done yet any
+latency testing. 
+
+-- Fernando
+
+

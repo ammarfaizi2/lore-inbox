@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262668AbRE3J3m>; Wed, 30 May 2001 05:29:42 -0400
+	id <S262672AbRE3Jaw>; Wed, 30 May 2001 05:30:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262669AbRE3J3c>; Wed, 30 May 2001 05:29:32 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:48143 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262668AbRE3J3X>;
-	Wed, 30 May 2001 05:29:23 -0400
-Date: Wed, 30 May 2001 11:29:18 +0200
-From: Jens Axboe <axboe@kernel.org>
-To: Fabio Riccardi <fabio@chromium.com>
-Cc: Jens Axboe <axboe@kernel.org>,
-        "Leeuw van der, Tim" <tim.leeuwvander@nl.unisys.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac2
-Message-ID: <20010530112918.A15089@suse.de>
-In-Reply-To: <DD0DC14935B1D211981A00105A1B28DB033ED2F0@NL-ASD-EXCH-1> <3B13542A.5DBA3903@chromium.com> <20010529121954.J26871@suse.de> <3B1436DC.60869CFB@chromium.com>
-Mime-Version: 1.0
+	id <S262674AbRE3Jam>; Wed, 30 May 2001 05:30:42 -0400
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:9103 "EHLO sunrise.pg.gda.pl")
+	by vger.kernel.org with ESMTP id <S262672AbRE3Jae>;
+	Wed, 30 May 2001 05:30:34 -0400
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200105300929.LAA02627@sunrise.pg.gda.pl>
+Subject: Re: Generating valid random .configs
+To: arjanv@redhat.com
+Date: Wed, 30 May 2001 11:29:42 +0200 (MET DST)
+Cc: anuradha@gnu.org, linux-kernel@vger.kernel.org
+In-Reply-To: <3B14AEFC.B522A7B4@redhat.com> from "Arjan van de Ven" at May 30, 2001 09:27:40 AM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B1436DC.60869CFB@chromium.com>; from fabio@chromium.com on Tue, May 29, 2001 at 04:55:08PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 29 2001, Fabio Riccardi wrote:
-> yes I get a performance improvement of about 5%
+"Arjan van de Ven wrote:"
+> Anuradha Ratnaweera wrote:
+> > 
+> > Recently, I posted a request here to send your .config files and I
+> > received a good number of them. (thanks!).
+> > 
+> > Now I want to generate even more different configurations, and a random
+> > .config generator would be ideal. If I write a program which randomly
+> > outputs "y", "m" and "n" and pipe its output through make config, will the
+> > generated .configs always compile? Yes. the best thing is to go ahead and
+> > try it (which I am doing at the moment) but I like to know the theoretical
+> > answer;)
+> 
+> Every once in a while I run this and fix everything that doesn't
+> compile. It has been 
+> 2 months since I last did that, so I should do it again soon..
 
-Nice
+Some things cannot be properly fixed in CML1.
+  "$CONFIG_BINFMT_MISC" = "y" -a "$CONFIG_PROC_FS" = "n"
+is a good example.
 
-> could you port your patches to the 2.4.5-ac4 kernel? I'd love to see if the ac
-> improvements and yours add to each other.
-
-Sure:
-
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.5-ac4/
-
--- 
-Jens Axboe
+Andrzej
 

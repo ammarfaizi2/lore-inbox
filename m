@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266514AbUHOHNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUHOHPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266514AbUHOHNa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 03:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266517AbUHOHNa
+	id S266517AbUHOHPm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 03:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbUHOHPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 03:13:30 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:1077 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266514AbUHOHN2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 03:13:28 -0400
-Date: Sun, 15 Aug 2004 09:15:59 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andres Salomon <dilinger@voxel.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] don't delete debian directory in official debian builds
-Message-ID: <20040815071559.GB7182@mars.ravnborg.org>
-Mail-Followup-To: Andres Salomon <dilinger@voxel.net>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <1092512343.3971.23.camel@spiral.internal>
+	Sun, 15 Aug 2004 03:15:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35790 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266517AbUHOHPi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 03:15:38 -0400
+Date: Sun, 15 Aug 2004 00:14:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kconfig.debug for 2.6.8
+Message-Id: <20040815001402.0b9699d7.akpm@osdl.org>
+In-Reply-To: <20040815071304.GA7182@mars.ravnborg.org>
+References: <20040814110522.4879ddd4.rddunlap@osdl.org>
+	<20040815071304.GA7182@mars.ravnborg.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092512343.3971.23.camel@spiral.internal>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 14, 2004 at 03:39:03PM -0400, Andres Salomon wrote:
-> Hi,
+Sam Ravnborg <sam@ravnborg.org> wrote:
+>
+> On Sat, Aug 14, 2004 at 11:05:22AM -0700, Randy.Dunlap wrote:
+>  > 
+>  > Here's the Kconfig.debug patch updated for 2.6.8:
+>  > 
+>  >   http://developer.osdl.org/rddunlap/kconfig/kconfig-debug-268.patch
 > 
-> Somewhere along the 2.6 series, there was a change made that causes
-> distclean to automatically delete the debian/ subdirectory from the top
-> of the kernel tree.  This causes grief for the official debian kernel
-> packages; the debian directory shouldn't be deleted in the packages.
-> Please apply the attached patch; it causes the debian/ subdirectory to
-> only be deleted if there's no debian/official.
+>  Hi Andrew.
 > 
-> An even better solution would be to mark the debian directory as being
-> created by the kernel (touch debian/linus), and only delete it if the
-> kernel created it.
+>  Any good way we can bring this patch forward?
+>  Currently it causes 9 rejects in -mm, and I understand why you are not
+>  inclined to fix that up.
 
-Such special cases are not acceptable.
-
-If this causes a problem then there are the following options:
-1) Rename directory in debian or the kernel
-2) Debian apply a patch to the kernel
-
-Preference to 1).
-
-Comments?
-
-	Sam
+Yeah, it's painful.  I'd be inclined to base it against -linus and then fix
+up the individual -mm patches.  It's a matter of finding a suitable time
+window in which to do that.   I'll take a shot at it tomorrow.

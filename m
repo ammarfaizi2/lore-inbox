@@ -1,112 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271645AbRIGJbm>; Fri, 7 Sep 2001 05:31:42 -0400
+	id <S272520AbRIFTar>; Thu, 6 Sep 2001 15:30:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271647AbRIGJbd>; Fri, 7 Sep 2001 05:31:33 -0400
-Received: from smtp1.vol.cz ([195.250.128.43]:57613 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S271645AbRIGJb0>;
-	Fri, 7 Sep 2001 05:31:26 -0400
-Date: Thu, 6 Sep 2001 11:46:54 +0200
-From: Stanislav Brabec <utx@penguin.cz>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI (?) problems of MSI K7T266 Pro = MS-6380 / VIA KT266 8233
-Message-ID: <20010906114654.A8422@utx.vol.cz>
-In-Reply-To: <20010905234544.A18413@utx.vol.cz> <003401c13660$84eab860$20040a0a@zeusinc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <003401c13660$84eab860$20040a0a@zeusinc.com>
-User-Agent: Mutt/1.3.18i
-X-Accept-Language: cs, sk, en
+	id <S272523AbRIFTai>; Thu, 6 Sep 2001 15:30:38 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54545 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272521AbRIFTaW>; Thu, 6 Sep 2001 15:30:22 -0400
+Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
+To: wietse@porcupine.org (Wietse Venema)
+Date: Thu, 6 Sep 2001 20:34:15 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), wietse@porcupine.org (Wietse Venema),
+        saw@saw.sw.com.sg (Andrey Savochkin),
+        matthias.andree@gmx.de (Matthias Andree), ak@suse.de (Andi Kleen),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010906172316.E0B74BC06C@spike.porcupine.org> from "Wietse Venema" at Sep 06, 2001 01:23:16 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15f4ul-0000J5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pùvodní zpráva (Tom Sightler, St  5. záøí 2001, 19:14:26 GMT):
-> > I have Microstar mainboard MSI K7T266 Pro (MS-6380) with
-> > VIA KT266 chipset (VIA 8233), Athlon 1200/266, linux-2.4.9
-> >
-> > Does anybody with this mainboard have some problems (or using it
-> > succesfull), or should I suspect some bad setup / problematic PCI card
-> > or more particular bugs?
+> Alan Cox:
+> > How for example do you propose to answer the question for the case
+> > Q: "is this local" A: "it depends on the sender"
+> > With netfilter and transparent proxying active this is entirely possible
 > 
-> We have a machine with this motherboard and a 1.4Ghz Athlon CPU and use it
-> without significant problems.
+> Please explain the relevance for a real-world, SMTP based, MTA.
+
+Certainly
+
+> If an MTA receives a delivery request for user@[ip.address] then
+> the MTA has to decide if it is the final destination. This is
+> required by the SMTP RFC.
+
+Lets take an absolutely clear every day of the week scenario. I have a 
+mail server with two connections, eth0 is through a corporate firewall
+out on to the internet. We have an ip address and name visible to the
+world. Say example.com and 192.193.194.165. eth1 is the private office
+network and contains private address space not visible to the outside
+world. Indeed in some cases the choice of the private address space might
+be considered security sensitive, but say its 10.0.0.*
+
+You get 
+RCPT root@[10.0.0.1]
+
+is that local valid mail.
+
+If it is from the outside world then the answer is "never heard of them,
+not me". If it is from the private network the answer is "yes fine"
+
+If you accept 10.0.0.1 from the outside you are leaking information. It
+might not be 10.* it might be something like an ibm internal address range
+revealing your company was bought by ibm before the press releases, it might
+indicate connection to a military network ..
+
+> In order to enable SMTP RFC compliance, Linux has to provide the
+> MTA with the necessary information.  Requiring the sysadmin to
+
+Strict RFC compliance isn't a real world goal. I doubt any mailer implements 
+SEND, SOML or SAML for example. I definitely agree that the #Number and
+[a.b.c.d] forms are important though, and that you need to be able to
+answer the question. However you need to answer it "is this my address
+from the viewpoint of the peer on this connection". I don't see why 
+user configured data isnt a solution. For the 99.9% of normal cases 
+SIOCGIFCONF is going to give the right data. People doing clever things
+will have to set up config files. simple easy - hard possible.
+
+> If an MTA receives a mail relaying request for user@domain.name
+> then it would be very useful if Linux could provide the MTA with
+> the necessary information to distinguish between local subnetworks
+
+Define "local". Same ASN ?, by OSPF - "directly plugged into this host"
+certainly doesn't cut.
+
+> and the rest of the world. Requiring the local sysadmin to enumerate
+> all local subnetwork blocks by hand is not practical.
 > 
+> I will ignore denigrating comments about competing IP stacks.
 
-> I don't find any of these to point toward PCI problems, are there other
-> reasons you would suspect PCI?
-> 
-Exactly, I don't suspect PCI, I suspect problems with 8233 chip setup
-(or some device connected to it). Maybe it is not correct, but I don't
-beleive there are four independent problems with devices connected via
-VIA 8233.
+Reread my mail. Now think about when the API in question was designed.
+The 4.* BSD world up 4.4BSD supported a much smaller subset of the possible
+configurations than current stacks do. Needless to say it should not be
+suprising that the API's available still reflect that limitation. That
+always happens. Thats why sockets are broken for 0 length datagrams and
+the C language is bad at unicode. It happens everywhere, and its not
+denigrating anything.
 
-There is actually one problem I'we forgotten:
+Its unfortunate you have to go around labelling everything as "competing"
+and "denigrating". You also appear confused still about the 127/8 issue.
+You say "you didnt ask it to", well you certainly did, since you bound
+to INADDR_ANY. Since 127/8 is looped back I don't think you can reasonably
+argue that it is not one of your addresses.
 
-About once per 50 pages printed via parport in graphic mode the page
-goes out mangled. Playing around with DMA mode/IRQ mode/polling, there
-only changes behavior (hanged printing / long timeouts every few pages /
-mangled page after few minutes timeout / mangled page)
-
-
-> > - SCSI scanner sometimes hangs scanning
-> Sounds like a SCSI configuration problem, possibly termination.
-> > - SCSI CD-ROM/writer sometimes fails to mount CD-ROM (read errors)
-> See above.
-> 
-> One other thing to check though, I'm assuming your using the onboad SCSI.
-No, I have version without SCSI controller, I am using DC315U:
-SCSI storage controller: Tekram Technology Co.,Ltd. TRM-S1040 (rev 01)
-I don't expect termination problems:
-1) I have moved whole SCSI subsystem (incl. SCSI card) from my old
-machine (Cyrix i686MX200). There were no problems.
-2) The problems CD-ROM is only while mounting or checking for msinfo.
-Never while burning or reading already mounted CD-ROM.
-
-> > - Mangled sound output from AC97 codec
-> 
-> I think this is largely caused by the VIA audio driver included with
-> standard linux.  I've had no end of trouble with it.  I use ALSA on my VIA
-> chip and it works mostly without trouble.  I'd suggest at least giving it a
-> try.
-
-I have downloaded latest ALSA and compiled via8233 driver. I have also
-communicated with ALSA developers and they say they have no problems.
-Maybe there is a problem ALSA knows nothing about K7T266 Pro's AC97
-codec (VIA VT1611A, identified as 0x49434943 ICI). Again, the problems
-with sound is random and occurs only during chip initialize and
-frequency change. The rest of time sound plays either correctly or buggy
-(depending whether initialization was succesful).
-
-
-> > - USB PC2PC driver sometimes looses data errors (cca once per 20MB)
-> 
-> This actually sounds pretty good, do you really mean one error per 20MB?
-> I've never used the PC2PC driver but knowing the nature of USB with it's
-> bandwidth saturation issues, etc. I think this sounds pretty good.
-> 
-I don't have many experiences with USB and their drivers, but these
-errors cause timeouts and sometimes connection loosing. Maybe it can be
-a driver bug (usbnet driver for GL620USB I was created from Genesys
-Logic source codes and it was my first kernel stuff).
-
-
-> > - PCI bus cannot be overclocked to more than 34.5 MHz
-> Uh, what do you expect?  The spec is 33Mhz, you're not guaranteed more than
-> that, that's why they have a spec.
-Well I have changed everything to observe number of problems (BIOS
-setups, under/overclocking). As far as machine was stable when
-underclocked (900 MHz processor, 100 MHz FSB, 33 MHz PCI), the problems
-were nearly the same. Then I have tried overclocking. At 35 MHz /
-140 MHz FSB on PCI, the USB started to make significantly more bugs
-(once per 100 kB).
-
-
-> Later,
-> Tom
-Thanks for your info
-
--- 
-Stanislav Brabec
+Alan

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131158AbRCGTO0>; Wed, 7 Mar 2001 14:14:26 -0500
+	id <S131164AbRCGTVG>; Wed, 7 Mar 2001 14:21:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131160AbRCGTOQ>; Wed, 7 Mar 2001 14:14:16 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:46822 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131158AbRCGTOL>;
-	Wed, 7 Mar 2001 14:14:11 -0500
-Date: Wed, 7 Mar 2001 19:10:44 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        David Balazic <david.balazic@uni-mb.si>, torvalds@transmeta.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: scsi vs ide performance on fsync's
-Message-ID: <20010307191044.M7453@redhat.com>
-In-Reply-To: <3AA53DC0.C6E2F308@uni-mb.si> <20010306213720.U2803@suse.de> <20010307135135.B3715@redhat.com> <20010307151241.E526@suse.de> <20010307150556.L7453@redhat.com> <20010307195152.C4653@suse.de>
+	id <S131165AbRCGTU5>; Wed, 7 Mar 2001 14:20:57 -0500
+Received: from mail.inf.tu-dresden.de ([141.76.2.1]:40293 "EHLO
+	mail.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id <S131164AbRCGTUt>; Wed, 7 Mar 2001 14:20:49 -0500
+Date: Wed, 7 Mar 2001 20:20:27 +0100
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: static scheduling - SCHED_IDLE?
+Message-ID: <20010307202027.B27421@ugly.wh8.tu-dresden.de>
+In-Reply-To: <20010307184000.A26594@ugly.wh8.tu-dresden.de> <Pine.LNX.4.33.0103071447340.1409-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010307195152.C4653@suse.de>; from axboe@suse.de on Wed, Mar 07, 2001 at 07:51:52PM +0100
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.33.0103071447340.1409-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, Mar 07, 2001 at 03:04:00PM -0300
+From: Oswald Buddenhagen <ob6@inf.tu-dresden.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, Mar 07, 2001 at 07:51:52PM +0100, Jens Axboe wrote:
-> On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
+> The problem with these things it that sometimes such a task may hold
+> a lock, which can prevent higher-priority tasks from running.
 > 
-> My bigger concern is when the journalled fs has a log on a different
-> queue.
+true ... three ideas:
+- a sort of temporary priority elevation (the opposite of SCHED_YIELD)
+  as long as the process holds some lock
+- automatically schedule the task, if some higher-priorized task wants
+  the lock
+- preventing the processes from aquiring locks at all (obviously this
+  is not possible for required locks inside the kernel, but i don't
+  know enough about this)
 
-For most fs'es, that's not an issue.  The fs won't start writeback on
-the primary disk at all until the journal commit has been acknowledged
-as firm on disk.
+> A solution would be to make sure that these tasks get at least one
+> time slice every 3 seconds or so, so they can release any locks
+> they might be holding and the system as a whole won't livelock.
+> 
+did "these" apply only to the tasks, that actually hold a lock?
+if not, then i don't like this idea, as it gives the processes
+time for the only reason, that it _might_ hold a lock. this basically 
+undermines the idea of static classes. in this case, we could actually
+just make the "nice" scale incredibly large and possibly nonlinear, 
+as mark suggested.
 
-Certainly for ext3, synchronisation between the log and the primary
-disk is no big thing.  What really hurts is writing to the log, where
-we have to wait for the log writes to complete before submitting the
-commit write (which is sequentially allocated just after the rest of
-the log blocks).  Specifying a barrier on the commit block would allow
-us to keep the log device streaming, and the fs can deal with
-synchronising the primary disk quite happily by itself.
+best regards
 
-Cheers,
- Stephen
+-- 
+Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
+--
+Nothing is fool-proof to a sufficiently talented fool.

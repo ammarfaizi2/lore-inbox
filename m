@@ -1,81 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274381AbRITJKm>; Thu, 20 Sep 2001 05:10:42 -0400
+	id <S274377AbRITJKw>; Thu, 20 Sep 2001 05:10:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274379AbRITJKd>; Thu, 20 Sep 2001 05:10:33 -0400
-Received: from unthought.net ([212.97.129.24]:54404 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S274377AbRITJKY>;
-	Thu, 20 Sep 2001 05:10:24 -0400
-Date: Thu, 20 Sep 2001 11:10:48 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: David Hajek <david@atrey.karlin.mff.cuni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: high cpu load with sw raid1
-Message-ID: <20010920111048.B17066@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	David Hajek <david@atrey.karlin.mff.cuni.cz>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010920102616.A2753@pida.ulita.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010920102616.A2753@pida.ulita.cz>; from david@atrey.karlin.mff.cuni.cz on Thu, Sep 20, 2001 at 10:26:16AM +0200
+	id <S274379AbRITJKm>; Thu, 20 Sep 2001 05:10:42 -0400
+Received: from koala.ichpw.zabrze.pl ([195.82.164.33]:59397 "EHLO
+	koala.ichpw.zabrze.pl") by vger.kernel.org with ESMTP
+	id <S274377AbRITJKg>; Thu, 20 Sep 2001 05:10:36 -0400
+Message-Id: <200109200921.f8K9LiZ19909@koala.ichpw.zabrze.pl>
+From: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Thu, 20 Sep 2001 11:10:39 -0400 (EDT)
+Reply-To: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
+X-Mailer: (Demonstration) PMMail 2.00.1500 for OS/2 Warp 3.00
+In-Reply-To: <01091916414501.00579@c779218-a>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20, 2001 at 10:26:16AM +0200, David Hajek wrote:
-> Hi,
-> 
-> I have linux box with 70GB SW Raid1. This box runs for half
-> a year without problems but now I meet the high cpu load 
-> problems. I suspect that it can be caused by not enough 
-> free disk space on this md device. I see following:
-> 
-> 1 GB free  - load > 5
-> 5 GB free  - load < 1
+On Wed, 19 Sep 2001 16:41:45 -0700, Nicholas Knight wrote:
 
-RAID does not know about "free space" (that is a filesystem thing), so that
-would be either some strange interaction between the filesystem and lower
-layers, or a measurement error - I guess.
+>On Wednesday 19 September 2001 10:15 am, safemode wrote:
+>> It works fine on the KX133 chipset that is on the Abit KA7 motherboard.
+>>  So, i for one have not applied the patch.
+>
+>That would be because the bug is specific to the KT133A chipset...
 
-High fragmentation could lead to extra filesystem activity, but that's not
-really something the RAID can influence.
+ and KT133E -   which is KT133  made  in 0.18 technology AFAIR
+--------------------------------------------------------
+ Marek Mentel  mmark@koala.ichpw.zabrze.pl  2:484/3.8          
+ INSTITUTE FOR CHEMICAL PROCESSING OF COAL , Zabrze , POLAND
+ NOTE: my opinions are strictly my own and not those of my employer
 
-> 
-> I have to notice that this box is rather under heavy load
-> (1 GB cvs tree, nfs homes etc.) My question is whether this 
-> load can depend on available disk space because I do not
-> see any suspect processes that can cause such a high load.
-> 
-> Kernel: 2.2.19
-> Patches: lfs + md + ide
-> RH6.2 + glibc-2.2.12
 
-Please check that your disks are using DMA (hdparm /dev/hdX). You should
-see something like:
 
-[root@eagle /root]# hdparm /dev/hda
-
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)                <=========== INDICATES DMA
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 782/128/63, sectors = 6306048, start = 0
-
-Without DMA you will see high CPU load from accessing the disks, regardless of
-free space.
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

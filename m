@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263164AbUDEUbN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 16:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUDEUbN
+	id S263192AbUDEUkh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 16:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUDEUkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 16:31:13 -0400
-Received: from smtp8.wanadoo.fr ([193.252.22.23]:7892 "EHLO
-	mwinf0803.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S263164AbUDEUbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 16:31:11 -0400
-Subject: reiserfs errors with 2.6.5-rc1-mm2
-From: equi-NoX <equi-NoX@wanadoo.fr>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: equi-NoX@wanadoo.fr
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OBEyUc9mXwtwSgp0bmMq"
-Message-Id: <1081197103.1067.20.camel@ender.WORKGROUP>
+	Mon, 5 Apr 2004 16:40:37 -0400
+Received: from mail.shareable.org ([81.29.64.88]:5528 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S263196AbUDEUkg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 16:40:36 -0400
+Date: Mon, 5 Apr 2004 21:40:28 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: bero@arklinux.org, linux-kernel@vger.kernel.org
+Subject: Re: Catching SIGSEGV with signal() in 2.6
+Message-ID: <20040405204028.GA21649@mail.shareable.org>
+References: <Pine.LNX.4.58.0404050824310.13367@build.arklinux.oregonstate.edu> <20040405181707.GA21245@mail.shareable.org> <4071B093.9030601@nortelnetworks.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 05 Apr 2004 20:31:43 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4071B093.9030601@nortelnetworks.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Friesen wrote:
+> SA_SIGINFO implies sigaction().  The original poster was talking about 
+> signal().
+> 
+> That said, it seems to work with 2.6.4 on ppc32.
 
---=-OBEyUc9mXwtwSgp0bmMq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Just tried it with 2.6.3, x86 and signal().  Works fine.
 
-I have seen in my Gentoo's syslogs many errors about reiserfs, however I
-discovered those ones few time ago (there are 3 or 4 hours). So, even if
-those releases of the linux kernel are quite old now, I wanted to share
-those with you.
-
-I was intalling Gentoo in this first syslog, chrooted from Debian SID
-(aerith), moreover you can see at the end of that syslog that I ran
-Gentoo (ender) next.
-
-I was probably running emerge system in that first syslog but I am not
-sure (because that was 15 days ago ;)).
-
-That's my first syslog with reiserfs errors, I have many others after
-this one (which are not on a 2.6.5-rc1-mm2 kernel and which are not
-chrooted from Debian SID but where I was running Gentoo)
-
-
-equi-NoX
---=20
-hoping helping
-
---=-OBEyUc9mXwtwSgp0bmMq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAccIvrEI/NqtpJI4RAvexAKCRmzyFhLmFwU4iZZdyeGrbh/VJjQCgikps
-eWghe2RCRLcAsR6GqwME6q8=
-=8fiF
------END PGP SIGNATURE-----
-
---=-OBEyUc9mXwtwSgp0bmMq--
-
+-- Jamie

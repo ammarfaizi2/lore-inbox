@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289836AbSAKCZl>; Thu, 10 Jan 2002 21:25:41 -0500
+	id <S289837AbSAKC0c>; Thu, 10 Jan 2002 21:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289837AbSAKCZc>; Thu, 10 Jan 2002 21:25:32 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:1155 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S289836AbSAKCZN>;
-	Thu, 10 Jan 2002 21:25:13 -0500
-Date: Thu, 10 Jan 2002 18:24:16 -0800 (PST)
-Message-Id: <20020110.182416.85412060.davem@redhat.com>
-To: gibbs@scsiguy.com
-Cc: ncm-nospam@cantrip.org, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: bad patch in aic7xxx_linux.c 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200201101759.g0AHxGg81428@aslan.scsiguy.com>
-In-Reply-To: <20020110074240.B25480@cantrip.org>
-	<200201101759.g0AHxGg81428@aslan.scsiguy.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S289839AbSAKC01>; Thu, 10 Jan 2002 21:26:27 -0500
+Received: from zero.tech9.net ([209.61.188.187]:19469 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S289837AbSAKC0N>;
+	Thu, 10 Jan 2002 21:26:13 -0500
+Subject: Re: [patch] O(1) scheduler, -H4 - 2.4.17 problems
+From: Robert Love <rml@tech9.net>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+In-Reply-To: <20020111004305.99D2F6C3C6@oscar.casa.dyndns.org>
+In-Reply-To: <20020111004305.99D2F6C3C6@oscar.casa.dyndns.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 10 Jan 2002 21:27:49 -0500
+Message-Id: <1010716127.1027.4.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-   Date: Thu, 10 Jan 2002 10:59:16 -0700
+On Thu, 2002-01-10 at 19:43, Ed Tomlinson wrote:
 
-   >One can guess, but there are no addresses for anyone noted there later 
-   >than 1999.  In particular, Justin's address isn't listed.
-   
-   I monitor this list.  A Yahoo search using my name provides several
-   hits for my email address.
+> The H4 sceduler does not boot here.  The G1 version worked.  The H4 version
+> gets as far as:
 
-Your contact information really ought to be up to date in
-the sources and linux/MAINTAINERS
+It seems most people are having problems with the scheduler some time
+after G1, at least in UP and 2.4.
+
+Same problem: stops just prior or after 'Starting kswapd' ...
+
+I'll see what changed ...
+
+	Robert Love
+

@@ -1,80 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267751AbUHJWak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267774AbUHJWbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267751AbUHJWak (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 18:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267774AbUHJWah
+	id S267774AbUHJWbI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 18:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267767AbUHJWas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 18:30:37 -0400
-Received: from holomorphy.com ([207.189.100.168]:55788 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267751AbUHJWaQ (ORCPT
+	Tue, 10 Aug 2004 18:30:48 -0400
+Received: from mail.tpgi.com.au ([203.12.160.61]:32743 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S267762AbUHJWae (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 18:30:16 -0400
-Date: Tue, 10 Aug 2004 15:30:06 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Picco <Robert.Picco@hp.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc4-mm1
-Message-ID: <20040810223006.GB11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Picco <Robert.Picco@hp.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040810002110.4fd8de07.akpm@osdl.org> <200408100937.47451.jbarnes@engr.sgi.com> <20040810212033.GY11200@holomorphy.com> <41194EA5.80706@hp.com> <20040810222840.GA11200@holomorphy.com>
+	Tue, 10 Aug 2004 18:30:34 -0400
+Subject: Re: [RFC] Fix Device Power Management States
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, david-b@pacbell.net
+In-Reply-To: <Pine.LNX.4.50.0408100655190.13807-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
+	 <20040809113829.GB9793@elf.ucw.cz>
+	 <Pine.LNX.4.50.0408090840560.16137-100000@monsoon.he.net>
+	 <20040809212949.GA1120@elf.ucw.cz>
+	 <Pine.LNX.4.50.0408092156480.24154-100000@monsoon.he.net>
+	 <1092130981.2676.1.camel@laptop.cunninghams>
+	 <Pine.LNX.4.50.0408100655190.13807-100000@monsoon.he.net>
+Content-Type: text/plain
+Message-Id: <1092176983.2709.3.camel@laptop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040810222840.GA11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 11 Aug 2004 08:29:43 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 03:28:40PM -0700, William Lee Irwin III wrote:
-> Please, let's do this instead:
+Hi.
 
-Index: mm1-2.6.8-rc4/arch/ia64/kernel/smpboot.c
-===================================================================
---- mm1-2.6.8-rc4.orig/arch/ia64/kernel/smpboot.c	2004-08-10 15:21:56.215915699 -0700
-+++ mm1-2.6.8-rc4/arch/ia64/kernel/smpboot.c	2004-08-10 15:22:39.504001106 -0700
-@@ -367,7 +367,7 @@
- {
- 	struct create_idle *c_idle = _c_idle;
- 
--	c_idle->idle = fork_idle(c_idle->cpu);
-+	c_idle->idle = __fork_idle(c_idle->cpu, NULL);
- 	complete(&c_idle->done);
- }
- 
-Index: mm1-2.6.8-rc4/include/linux/sched.h
-===================================================================
---- mm1-2.6.8-rc4.orig/include/linux/sched.h	2004-08-10 15:21:56.215915699 -0700
-+++ mm1-2.6.8-rc4/include/linux/sched.h	2004-08-10 15:29:30.376066386 -0700
-@@ -831,6 +831,7 @@
- 
- extern int do_execve(char *, char __user * __user *, char __user * __user *, struct pt_regs *);
- extern long do_fork(unsigned long, unsigned long, struct pt_regs *, unsigned long, int __user *, int __user *);
-+task_t *__fork_idle(int, struct pt_regs *);
- task_t *fork_idle(int);
- 
- extern void set_task_comm(struct task_struct *tsk, char *from);
-Index: mm1-2.6.8-rc4/kernel/fork.c
-===================================================================
---- mm1-2.6.8-rc4.orig/kernel/fork.c	2004-08-10 15:21:56.200290699 -0700
-+++ mm1-2.6.8-rc4/kernel/fork.c	2004-08-10 15:26:59.940521353 -0700
-@@ -1192,11 +1192,15 @@
- 
- task_t * __init fork_idle(int cpu)
- {
--	task_t *task;
- 	struct pt_regs regs;
- 
- 	memset(&regs, 0, sizeof(struct pt_regs));
--	task = copy_process(CLONE_VM, 0, &regs, 0, NULL, NULL, 0);
-+	return __fork_idle(cpu, &regs);
-+}
-+
-+task_t * __init __fork_idle(int cpu, struct pt_regs *regs)
-+{
-+	task_t *task = copy_process(CLONE_VM, 0, regs, 0, NULL, NULL, 0);
- 	if (!task)
- 		return ERR_PTR(-ENOMEM);
- 	init_idle(task, cpu);
+On Tue, 2004-08-10 at 23:58, Patrick Mochel wrote:
+> On Tue, 10 Aug 2004, Nigel Cunningham wrote:
+> 
+> > Do you want me to merge before or after all this is done; I'm a bit
+> > concerned that you guys are expending effort (well, Pavel is), getting
+> > SMP and Highmem going when I already have a working version that -
+> > unless the plans have changed - we were intending to merge too.
+> 
+> It would be nice if you posted small easily-consumable patches that
+> gradually merged the two. Even if you post them all at once, it provides
+> something to review and an understanding of how one evolves into the
+> other.
+
+I'm not intending to patch the current implementation into the new
+version; there are so many changes that it would make the process
+extremely painful (as evolution would have been if it were really true).
+Instead, I proposed, as Andrew requested to post a number of patches
+simply adding the new version along side the old. When you're satisfied
+that the new does everything the old does, I'm hoping we'll simply drop
+the old version.
+
+I'll start producing patches shortly, then.
+
+Nigel
+-- 
+Nigel Cunningham
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+Many today claim to be tolerant. But true tolerance can cope with others
+being intolerant.
+

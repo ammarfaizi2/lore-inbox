@@ -1,63 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVADH4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVADIHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVADH4U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 02:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVADH4T
+	id S261531AbVADIHx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 03:07:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVADIHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 02:56:19 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:23993 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261548AbVADH4F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 02:56:05 -0500
-Message-ID: <41DA4BFB.7090800@zytor.com>
-Date: Mon, 03 Jan 2005 23:55:39 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+	Tue, 4 Jan 2005 03:07:43 -0500
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:47063 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261531AbVADIH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 03:07:28 -0500
+Message-ID: <41DA4EB9.2030007@kolivas.org>
+Date: Tue, 04 Jan 2005 19:07:21 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] i386 boot loader IDs
-References: <41D31696.8050701@zytor.com> <m1vfadr65h.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1vfadr65h.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
+Subject: 2.6.10-ck2
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig7315CFA49179CB0B0FEF27D1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> 
-> I suspect /sbin/kexec could use one.  But I don't have the faintest
-> what you could do with the information after the kernel came up.
-> 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig7315CFA49179CB0B0FEF27D1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Sounds incorrect, unless you're generating the zeropage information.
+These are patches designed to improve system responsiveness. It is 
+configurable to any workload but the default ck1 patch is aimed at the 
+desktop and ck1-server is available with more emphasis on serverspace.
 
-> I don't think enhancing the bootloader numeric parameter is the
-> right way to go.  Currently the value is a single byte with the low
-> nibble reserved for version number information.  With the
-> values already assigned we have 7 left.  
-> 
-> If we assign a new value each for the bootloaders I know of that don't
-> yet have values assigned: pxelinux, isolinux, filo, /sbin/kexec,
-> redboot the pool of numbers is nearly exhausted.  With the addition of
-> bootloaders I can't recall or have not been written yet we will
-> quickly exhaust the pool of numbers.
+http://ck.kolivas.org/patches/2.6/2.6.10/2.6.10-ck2/
 
-pxelinux, isolinux and extlinux are syslinux derivatives (0x32, 0x33 and 
-0x34 respectively.)  filo and redboot probably could use them, though.
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
 
-> Even if using this mechanism is needed for supporting existing
-> bootloaders I suggest it be deprecated in favor of a kernel command
-> line option.  A command line option would be easier to maintain
-> being string based.  It would be portable to architectures besides
-> x86.  And it requires no additional code to implement, as you
-> can already read /proc/cmdline.
+*Note do not enable full write i/o priority support it is currently broken*
 
-Unfortunately the command line is very squeezed.  With the newer 
-protocol we can probably support longer command lines, though.
 
-It's a significant boot loader change, though.  In the short term it's 
-definitely desirable to be able to read it.
+Added since 2.6.10-ck1
++2.6.10-capabilities_fix.diff
++linux-2.6.7-CAN-2004-1056.patch
++linux-2.6.9-smbfs.patch
+Security fixes
 
-	-hpa
++nvidia_6111-6629_compat.diff
+A more comprehensive set of compatibility changes to allow the nvidia 
+6111 and 6629 driver versions to work
+
++fix-ll-resume.diff
+Fixes the problem of acpi resuming by removing a small change from the 
+low latency patches
+
++cfq-ts-050104.patch *
+The latest version of the timeslice cfq I/O scheduler with i/o priority 
+support
+
++isobatch_ionice.diff
+Add discrete support for i/o priorities being linked with SCHED_BATCH 
+and SCHED_ISO classes in the staircase cpu scheduler
+
++s9.2_s9.3.diff
+A small change to the staircase scheduler. This backs out special quirk 
+treatment of interactive tasks (so every task is now treated the same) 
+and is a fix for some fluctuating interactivity issues people would have 
+seen. It is a win in most settings but some people will notice bad 
+behaviour with wine based games and audio while others will notice 
+better behaviour with these games (go figure). A workaround is to run 
+your games nice +19.
+
++2610ck2-version.diff
+version
+
+
+Removed:
+-2.6.10-nvidia-fix.diff
+Not needed with newer nvidia compat patch
+-fix_noswap.diff
+Not needed
+
+
+Cheers,
+Con
+
+
+--------------enig7315CFA49179CB0B0FEF27D1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB2k65ZUg7+tp6mRURAh7VAJ9a95sz/Fucps1HD+fFHdXCJsnDigCfX0ra
+CqimnjuLyoyCLDboR7dwCu0=
+=9J3f
+-----END PGP SIGNATURE-----
+
+--------------enig7315CFA49179CB0B0FEF27D1--

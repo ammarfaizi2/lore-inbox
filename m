@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284334AbRLBUhg>; Sun, 2 Dec 2001 15:37:36 -0500
+	id <S282099AbRLDAML>; Mon, 3 Dec 2001 19:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284331AbRLBUhY>; Sun, 2 Dec 2001 15:37:24 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:37248 "EHLO
-	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S284320AbRLBUfr>;
-	Sun, 2 Dec 2001 15:35:47 -0500
-Date: Wed, 28 Nov 2001 00:47:58 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Kamil Iskra <kamil@science.uva.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Problems with APM suspend and ext3
-Message-ID: <20011128004758.C37@toy.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0111270958320.3391-100000@krakow.science.uva.nl> <3C03CEFB.780622F1@zip.com.au>
+	id <S284722AbRLDAHZ>; Mon, 3 Dec 2001 19:07:25 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:23431 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S284405AbRLCKWX>;
+	Mon, 3 Dec 2001 05:22:23 -0500
+Date: Tue, 14 Aug 2001 19:38:17 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: PinkFreud <pf-kernel@mirkwood.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Are we going too fast? [upatch]
+Message-ID: <20010814193817.A30391@se1.cogenit.fr>
+In-Reply-To: <Pine.LNX.4.20.0108141219001.769-100000@eriador.mirkwood.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3C03CEFB.780622F1@zip.com.au>; from akpm@zip.com.au on Tue, Nov 27, 2001 at 09:35:55AM -0800
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.20.0108141219001.769-100000@eriador.mirkwood.net>; from pf-kernel@mirkwood.net on Tue, Aug 14, 2001 at 12:25:34PM -0400
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+PinkFreud <pf-kernel@mirkwood.net> :
+[...]
+> >From Documentation/nmi_watchdog.txt:
+> NOTE: currently the NMI-oopser is enabled unconditionally on x86 SMP
+> boxes.
 
-> thank you for the clear and convincing problem description.
-> 
-> It's becoming increasingly clear that we need to do something with
-> ext3 and laptops.
-> 
-> I don't understand what can be causing the behaviour which you
-> report.  Presumably, some application is generating disk writes,
-> and kjournald is thus performing disk IO every five seconds.
-> But I don't know why this should prevent the machine from suspending,
-> nor why it's different with other filesystems.
+My 2.4.8 tree seems to disagree with the doc:
+find . -name \*[ch] | xargs fgrep nmi_watchdog | grep =
+./arch/i386/kernel/traps.c:int nmi_watchdog = 0;
+./arch/i386/kernel/traps.c:__setup("nmi_watchdog=", setup_nmi_watchdog);
+./arch/i386/kernel/io_apic.c:           nmi_watchdog = 0;
 
-Disk writes should not prevent suspend... unless he has buggy apm bios.
-But I can not imagine bug doing _that_...
+> I'm not specifically enabling it in LILO, but according to the docs, it's
+> enabled already.  Unfortunately, the lockup happens when switching between
+> virtual consoles, so even if something WERE printed to the screen, I'm unlikely
+> to see it.
+
+Let's hope Mr Murphy took some vacation and please give a try at 
+append="nmi_watchdog=1". 
+
+> Side note: The lockup does *NOT* occur on 2.2.19 with SMP.
+
+The console code differs a lot. Trace would help.
 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+Ueimor

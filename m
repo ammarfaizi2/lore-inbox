@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129031AbRBIUQ2>; Fri, 9 Feb 2001 15:16:28 -0500
+	id <S129032AbRBIUVl>; Fri, 9 Feb 2001 15:21:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbRBIUQT>; Fri, 9 Feb 2001 15:16:19 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:6411 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S129031AbRBIUQE>;
-	Fri, 9 Feb 2001 15:16:04 -0500
-Message-ID: <3A844FFC.D0087A3E@mandrakesoft.com>
-Date: Fri, 09 Feb 2001 15:15:56 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre2 i686)
-X-Accept-Language: en
+	id <S129176AbRBIUVb>; Fri, 9 Feb 2001 15:21:31 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:33451 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S129032AbRBIUVV>;
+	Fri, 9 Feb 2001 15:21:21 -0500
+Date: Fri, 9 Feb 2001 12:21:17 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>,
+        <jes@linuxcare.com>, Donald Becker <becker@scyld.com>
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+In-Reply-To: <3A844EDB.7F1CA6BE@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.30.0102091213250.31024-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-To: Francois Romieu <romieu@cogenit.fr>
-CC: Dimitromanolakis Apostolos <apdim@ovelix.softnet.tuc.gr>,
-        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] drivers/media/radio/radio-maxiradio.c - 2.4.1-ac8
-In-Reply-To: <20010206224451.A24412@ensta.fr> <Pine.LNX.4.10.10102072245460.17074-300000@kythira.softlab.tuc.gr> <20010209210806.A1001@se1.cogenit.fr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> --- linux-2.4.1-ac8.orig/drivers/media/radio/radio-maxiradio.c  Fri Feb  9 15:55:03 2001
-> +++ linux-2.4.1-ac8/drivers/media/radio/radio-maxiradio.c       Fri Feb  9 15:56:55 2001
-> @@ -376,9 +376,7 @@
+On Fri, 9 Feb 2001, Jeff Garzik wrote:
+
+> For 2.2, define SET_MODULE_OWNER to null.
 > 
->  int __init maxiradio_radio_init(void)
->  {
-> -       int count = pci_register_driver(&maxiradio_driver);
-> -
-> -       if(count > 0) return 0; else return -ENODEV;
-> +       return pci_module_init(&maxiradio_driver);
->  }
-> 
->  void __exit maxiradio_radio_exit(void)
+> Define STAR_MOD_INC_USE_COUNT and STAR_MOD_DEC_USE_COUNT.  For 2.4,
+> these are null.  For 2.2, these point to MOD_{INC,DEC}_USE_COUNT.
 
-Patch looks ok.  Further change:  move pci_enable_device above the
-request_region call.  request_region calls pci_resource_start(), which
-may not return a proper value if called before pci_enable_device.
+... and use both SET_MODULE_OWNER and STAR_MOD_*_USE_COUNT. It's along the 
+lines of what I was thinking -- though I don't think it's very clean.
 
-	Jeff
+Thanks a lot for the suggestion.
 
+And one more question: is 2.2.x compatibility stuff acceptable in a 2.4 
+driver, given that all that stuff is in *one* #ifdef and not sprinkled 
+throughout the file?
 
+Ion
 
 -- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,82 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267949AbTAHWuM>; Wed, 8 Jan 2003 17:50:12 -0500
+	id <S267954AbTAHWxA>; Wed, 8 Jan 2003 17:53:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267950AbTAHWuM>; Wed, 8 Jan 2003 17:50:12 -0500
-Received: from web10009.mail.yahoo.com ([216.136.128.120]:48300 "HELO
-	web10009.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267949AbTAHWuL>; Wed, 8 Jan 2003 17:50:11 -0500
-Message-ID: <20030108225852.65766.qmail@web10009.mail.yahoo.com>
-Date: Wed, 8 Jan 2003 14:58:52 -0800 (PST)
-From: Shangc <shangcs@yahoo.com>
-Subject: Re: [PATCH] mm/slab.c, kernel <2.4.20>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel@vger.kernel.org
-Cc: markhe@nextd.demon.co.uk, Shangc <shangcs@yahoo.com>
-In-Reply-To: <200301082312.32961.m.c.p@wolk-project.de>
+	id <S267958AbTAHWxA>; Wed, 8 Jan 2003 17:53:00 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:244 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267954AbTAHWw6>;
+	Wed, 8 Jan 2003 17:52:58 -0500
+Message-ID: <D9223EB959A5D511A98F00508B68C20C0AD0F269@orsmsx108.jf.intel.com>
+From: "Ronciak, John" <john.ronciak@intel.com>
+To: "'Robert Olsson'" <Robert.Olsson@data.slu.se>,
+       Avery Fay <avery_fay@symantec.com>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: RE: Gigabit/SMP performance problem
+Date: Wed, 8 Jan 2003 13:44:05 -0800 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thank you for reply. However, I am not very sure to be
-vary agree with you.
+All,
 
-after assigned the calculated initial value for "i",
-it is very close to the break value for the next while
-loop, actually, it is only one loop at most, so "i"
-never goes to be 
-i*size + L1_CACHE_ALIGN(base+i*extra) >  wastage +
-L1_CACHE_BYTES
+We (Intel - LAN Access Division, e1000 driver) are taking a look at what is
+going on here.  We don't have any data yet but we'll keep you posted on what
+we find.
 
-so, we do not need change the line 399 of slab.c.
+Thanks for your patients.
 
-thanks,
+Cheers,
+John
 
-chen
 
---- Marc-Christian Petersen <m.c.p@wolk-project.de>
-wrote:
-> On Wednesday 08 January 2003 23:03, Shangc wrote:
+
+> -----Original Message-----
+> From: Robert Olsson [mailto:Robert.Olsson@data.slu.se]
+> Sent: Tuesday, January 07, 2003 10:16 AM
+> To: Avery Fay
+> Cc: Anton Blanchard; linux-kernel@vger.kernel.org
+> Subject: Re: Gigabit/SMP performance problem
 > 
-> Hi Shangc,
 > 
-> > --- slab.c	2003-02-08 04:26:50.000000000 -0500
-> > +++ slab.c	2003-02-08 04:26:14.000000000 -0500
-> > @@ -397,7 +397,7 @@
-> >  		base = sizeof(slab_t);
-> >  		extra = sizeof(kmem_bufctl_t);
-> >  	}
-> > -	i = 0;
-> > +	i = (wastage - base) / (size + extra);
-> >  	while (i*size + L1_CACHE_ALIGN(base+i*extra) <=>
-> wastage)
-> >  		i++;
-> >  	if (i > 0)
-> if you use this you may also want this.
 > 
-> ciao, Marc> diff -Naurp a/mm/slab.c b/mm/slab.c
-> --- a/mm/slab.c	Wed Jul 17 12:25:04 2002
-> +++ b/mm/slab.c	Wed Jul 17 12:25:04 2002
-> @@ -399,10 +399,10 @@
->  		base = sizeof(slab_t);
->  		extra = sizeof(kmem_bufctl_t);
->  	}
-> -	i = 0;
-> +       i = (wastage - base)/(size + extra);
->  	while (i*size + L1_CACHE_ALIGN(base+i*extra) <=
-> wastage)
->  		i++;
-> -	if (i > 0)
-> +       while (i*size + L1_CACHE_ALIGN(base+i*extra)
-> > wastage)
->  		i--;
+> Avery Fay writes:
+>  > Hmm. That paper is actually very interesting. I'm thinking 
+> maybe with the 
+>  > P4 I'm better off with only 1 cpu. WRT hyperthreading, I 
+> actually disabled > it because it make performance worse 
+> (wasn't clear in the original email).
+> 
+> 
+>  With 1CPU-SMP-HT I'm on UP level of performance this with 
+> forwarding two 
+>  single flows evenly distributes between CPU's. So HT payed 
+> the SMP cost so 
+>  to say.
 >  
->  	if (i > SLAB_LIMIT)
+>  Also I tested the MB bandwidth with new threaded version of 
+> pktgen just 
+>  TX'ing a packets on 6 GIGE I'm seeing almost 6 Gbit/s TX'ed 
+> w 1500 bytes
+>  packets.
 > 
-
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com
+>  I have problem populating all slots w. GIGE NIC's. WoL (Wake 
+> on Lan) this
+>  is a real pain... Seems like my adapters needs a standby 
+> current 0.8A and 
+>  most Power Supplies gives 2.0A for this. (Number come from 
+> SuperMicro). 
+>  So booting fails radomlingy. You have 8 NIC's -- Didn't you 
+> have problem?
+> 
+>  Anyway I'll guess profiling is needed?
+> 
+>  Cheers.
+> 						--ro
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

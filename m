@@ -1,54 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267595AbSLFUuj>; Fri, 6 Dec 2002 15:50:39 -0500
+	id <S267696AbSLFUzo>; Fri, 6 Dec 2002 15:55:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267618AbSLFUuj>; Fri, 6 Dec 2002 15:50:39 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:10756 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267595AbSLFUui>;
-	Fri, 6 Dec 2002 15:50:38 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212062109.gB6L9GWe000553@darkstar.example.net>
-Subject: Re: [2.5.50] IDE error messages appearing after upgrade
-To: inkognito.anonym@uni.de
-Date: Fri, 6 Dec 2002 21:09:16 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <10525789281.20021206212219@uni.de> from "Tobias Rittweiler" at Dec 06, 2002 09:22:19 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267702AbSLFUzo>; Fri, 6 Dec 2002 15:55:44 -0500
+Received: from willow.compass.com.ph ([202.70.96.38]:62476 "EHLO
+	willow.compass.com.ph") by vger.kernel.org with ESMTP
+	id <S267696AbSLFUzl>; Fri, 6 Dec 2002 15:55:41 -0500
+Subject: Re: [STATUS] fbdev api.
+From: Antonino Daplas <adaplas@pol.net>
+To: Tobias Rittweiler <inkognito.anonym@uni.de>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+In-Reply-To: <6723376646.20021206204207@uni.de>
+References: <6723376646.20021206204207@uni.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1039218931.989.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Dec 2002 04:55:34 +0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Upgrading from 2.4.19 to 2.5.50 results in getting IDE error
-> log-messages on startup:
+On Sat, 2002-12-07 at 00:42, Tobias Rittweiler wrote:
+> Hello James,
 > 
-> Dec  6 21:00:23 brood kernel: hda: task_no_data_intr: status=0x51 {
-> DriveReady SeekComplete Error }
-> Dec  6 21:00:23 brood kernel: hda: task_no_data_intr: error=0x04 {
-> DriveStatusError }
-> Dec  6 21:00:23 brood kernel: hda: 4128768 sectors (2114 MB)
-> w/256KiB Cache, CHS=1024/64/63
-> Dec  6 21:00:23 brood kernel:  /dev/ide/host0/bus0/target0/lun0: p1 p2
-> Dec  6 21:00:23 brood kernel: hdb: task_no_data_intr: status=0x51 {
-> DriveReady SeekComplete Error }
-> Dec  6 21:00:23 brood kernel: hdb: task_no_data_intr: error=0x04 {
-> DriveStatusError }
+> Monday, December 2, 2002, 10:07:33 PM, you wrote:
+> 
+> JS> Hi!
+> 
+> JS> I have a new patch avaiable. It is against 2.5.50. The patch is at
+> JS> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+> 
+> Besides the hunks posted recently, I encountered three problems/bugs:
+> 
+> a) Although your patch fixes the FB oddness for me, it makes booting
+>    without using framebuffer fail, IOW the kernel hangs:
+> 
+>    Video mode to be used for restore is f00
+>    BIOS-provided physical RAM map:
+>     BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+> 
+Do you have framebuffer console enabled but with no framebuffer device
+enabled at boot time?  This will always fail with James' current patch.
 
-Ignore these 'errors', they are really warnings - your drive doesn't
-recognise some commands being sent to it.
+The diff I submitted in one of my replies in this thread (fbcon.diff)
+might fix that (not sure).
 
-2.4.20 will also show these messages.
+> b) After returning from blanking mode (via APM) to normal mode, no
+>    character is drawn. Let's assume I'm using VIM when that happens:
+>    After putting any character to return from blank mode, the screen stays
+>    blanked apart from the cursor that _is_ shown. Now I'm able to move
+>    the cursor, and when the cursor encounters a character, this char
+>    is drawn (and keeps drawn). Though when I press Ctrl-L or when I go one line
+>    above to the current top-line (i.e. by forcing a redrawn), the
+>    whole screen is drawn properly.
+> 
+Can you try this?
 
-> Dec  6 21:00:24 brood kernel: end_request: I/O error, dev hdc, sector 0
-> Dec  6 21:00:24 brood kernel: hdc: ATAPI 40X DVD-ROM drive, 512kB Cache
-> Dec  6 21:00:24 brood kernel: Uniform CD-ROM driver Revision: 3.12
-> Dec  6 21:00:24 brood kernel: end_request: I/O error, dev hdc, sector 0
-> Dec  6 21:00:24 brood kernel: end_request: I/O error, dev hdd, sector 0
-> Dec  6 21:00:24 brood kernel: end_request: I/O error, dev hdd, sector 0
+diff -Naur linux-2.5.50-js/drivers/video/console/fbcon.c linux/drivers/video/console/fbcon.c
+--- linux-2.5.50-js/drivers/video/console/fbcon.c	2002-12-06 23:33:56.000000000 +0000
++++ linux/drivers/video/console/fbcon.c	2002-12-06 23:33:18.000000000 +0000
+@@ -1986,6 +1986,8 @@
+ 						 vc->vc_cols);
+ 			vc->vc_video_erase_char = oldc;
+ 		}
++		else
++			update_screen(vc->vc_num);
+ 		return 0;
+ 	} else {
+ 		/* Tell console.c that it has to restore the screen itself */
 
-Not sure about these, though.  I suspect that commands that only
-relate to disk devices are being sent to your CD-ROM drives, but
-somebody else will probably confirm/deny that.
+> c) instruction:          | produces:
+>    ======================|==================
+>    1. typing abc def     | $ abc def
+>                          |          ^ (<- cursor)
+>    2. going three chars  | $ abc def
+>       ro the left        |       ^
+>    3. pressing backspace | $ abcddef
+>                          |      ^
+>    4. pressing enter     | -bash: abcdef: command not found
+>                          |
 
-John.
+I get this also. Seems to occur only with colored terms.  When I do 
+
+set TERM=vt100
+
+the problem disappears, so I thought this was an isolated case with my
+setup :-). Similar glitches happen also in emacs with syntax
+highlighting turned on.
+
+Tony
+
+
+

@@ -1,26 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262807AbSLJRmY>; Tue, 10 Dec 2002 12:42:24 -0500
+	id <S263215AbSLJRlU>; Tue, 10 Dec 2002 12:41:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbSLJRmX>; Tue, 10 Dec 2002 12:42:23 -0500
-Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:25583 "EHLO
-	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S262807AbSLJRmT>; Tue, 10 Dec 2002 12:42:19 -0500
-Date: Tue, 10 Dec 2002 12:50:02 -0500 (EST)
-From: Mohamed Amr Elayouty <melayout@umich.edu>
-X-X-Sender: melayout@timepilot.gpcc.itd.umich.edu
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.51 won't boot with devfs enabled
-Message-ID: <Pine.SOL.4.44.0212101246250.16436-100000@timepilot.gpcc.itd.umich.edu>
+	id <S263228AbSLJRlU>; Tue, 10 Dec 2002 12:41:20 -0500
+Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:8088 "EHLO
+	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S263215AbSLJRlT>; Tue, 10 Dec 2002 12:41:19 -0500
+Date: Tue, 10 Dec 2002 10:41:53 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Hanno =?ISO-8859-15?B?QvZjaw==?= <hanno@gmx.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: radeonfb and 2.5.51
+In-Reply-To: <20021210180046.6e7c31ed.hanno@gmx.de>
+Message-ID: <Pine.LNX.4.33.0212101041230.2617-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric I have a bug open on bugzilla for this.
 
-The only workaround I know is by enabling CONFIG_UNIX98_PTYS=Y under
-character devices.
+> I tried to compile the latest 2.5.51, but radeonfb brings errors.
+> I defined all missing PCI_DEVICE_ID_ATI_RADEON things, but still get a compile error about wrong definition of the display-type.
+> Is there a fix available?
 
-Mohamed El Ayouty
+A fix is in the works. I would have fixed some time ago but lack that
+hardware.
+
 

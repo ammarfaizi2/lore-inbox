@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276781AbRJBXax>; Tue, 2 Oct 2001 19:30:53 -0400
+	id <S276795AbRJBXp3>; Tue, 2 Oct 2001 19:45:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276788AbRJBXao>; Tue, 2 Oct 2001 19:30:44 -0400
-Received: from www.netlabs.net ([216.116.135.2]:41705 "EHLO www.netlabs.net")
-	by vger.kernel.org with ESMTP id <S276781AbRJBXa2>;
-	Tue, 2 Oct 2001 19:30:28 -0400
-Date: Tue, 2 Oct 2001 19:38:38 -0400
-From: Terry Warner <twarner@netlabs.net>
-To: linux-kernel@vger.kernel.org
-Subject: Ext3 and 2.4.10-ac problem
-Message-ID: <20011002193838.A12922@netlabs.net>
+	id <S276796AbRJBXpT>; Tue, 2 Oct 2001 19:45:19 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:7225 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S276795AbRJBXpN>; Tue, 2 Oct 2001 19:45:13 -0400
+Subject: Re: [PATCH] Intel 830 support for agpgart
+From: Robert Love <rml@tech9.net>
+To: Christof Efkemann <efkemann@uni-bremen.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011002151051.488306ee.efkemann@uni-bremen.de>
+In-Reply-To: <20011002033227.6e047544.efkemann@uni-bremen.de>
+	<1001988137.2780.53.camel@phantasy> 
+	<20011002151051.488306ee.efkemann@uni-bremen.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99+cvs.2001.09.30.08.08 (Preview Release)
+Date: 02 Oct 2001 19:45:42 -0400
+Message-Id: <1002066345.1003.66.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: BSD/OS 4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using ext3 from cvs and 2.4.10-ac4, (this has happened since 2.4.9-ac13 about)
+On Tue, 2001-10-02 at 09:10, Christof Efkemann wrote:
+> Yes, that seems to work as well.  Although there are two minor things I
+> noticed:
+> - First, intel_generic_setup sets num_aperture_sizes to 7, while the i830
+>   has only 4 valid values (32 to 256 MB).
+> - Second, when intel_generic_configure clears the error status register, it
+>   resets bits 8, 9 and 10.  With an i830 it should clear bits 2, 3 and 4.
+> 
+> So I'm not sure if this works in general, or could it cause errors on other
+> systems?
 
-I get this error when I do a make bzImage.
+It will probably work fine on all systems, but its not the right way to
+go IMO.  Your original implementation was better.
 
-exec_domain.c:23: `default_exec_domain' undeclared here (not in a function)
-make[2]: *** [exec_domain.o] Error 1
-make[2]: Leaving directory `/home/keerf/src/linux/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/home/keerf/src/linux/kernel'
-make: *** [_dir_kernel] Error 2
+However, I am still disliking the multiple function idea.  Same thing
+with the i840.  The only real difference is those defines.
 
-Could I have something wrong in my config? Any ideas would be helpful.
+A _very_ simple solution, IF we had separate CONFIG statements for each
+i8xx (or at least one for i830, one for i840, and one for the rest)
+would be:
 
-Thank you
+/* all the normal defines here */
+#ifdef CONFIG_AGP_I830
+#undef whatever_define_i830_is_different_on
+#define whatever xxx
+/* etc */
+#endif
+#ifdef CONFIG_AGP_I840
+#undef whatever
+#define whatever xxx
+/* etc */
+#endif
 
-Terry
+and then, voila, we have but one setup function! we can remove all the
+unique i830 and i840 muck...
 
+Is seperate config statements a problem?  We already have multiple ones
+for the i810/i815 on/off-board versions...Hmm.
 
-//Terry Warner//
-twarner@netlabs.net 
-Senior Technical Associate 
-Internet Labs 
-(732) 264-3111 x169
-http://netlabs.net
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

@@ -1,70 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263785AbTEFOsx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 10:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTEFOsx
+	id S263763AbTEFOwe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 10:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTEFOwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 10:48:53 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:45477 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263785AbTEFOst
+	Tue, 6 May 2003 10:52:34 -0400
+Received: from h-64-105-35-101.SNVACAID.covad.net ([64.105.35.101]:56741 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S263763AbTEFOwd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 10:48:49 -0400
-Date: Tue, 06 May 2003 08:00:47 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 668] New: Wrong xfer_funcs initialization in drivers/block/loop.c
-Message-ID: <12770000.1052233247@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 6 May 2003 10:52:33 -0400
+Date: Tue, 6 May 2003 08:04:15 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200305061504.h46F4FL19827@freya.yggdrasil.com>
+To: linux-kernel@vger.kernel.org, simon@thekelleys.org.uk
+Subject: Re: Binary firmware in the kernel - licensing issues.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=668
+Simon Kelley wrote:
+>Maybe this is the sort of thing I need:
+>
+>http://www.keyspan.com/support/linux/
 
-           Summary: Wrong xfer_funcs initialization in drivers/block/loop.c
-    Kernel Version: 2.5.68 and 2.5.69 (at least)
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: Reimar.Doeffinger@stud.uni-karlsruhe.de
+	I believe that the keyspan drivers that compile GPL-incompatible
+firmware into the kernel or kernel modules are illegal.  I tried
+being a nice guy about it, to the point of wring a user level
+firmware loader could be invoked automatically via hotplug:
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=98758846106843&w=2.
+You can look in the linux-usb-devel archives at about that time
+for further discussion of the copyright issues.
 
-
-Distribution: SuSE Linux Professional 8.1
-Software Environment: gcc 3.2.2 (but should be independant of that...)
-
-Problem Description:
-In drivers/block/loop.c loop_register_transfer always fails because all entries
-(instead of only first and seond) of the xfer_funcs array (in same file) are
-initialized to non-zero values (&xor_funcs).
-
-Solution: 
-Change 
-
-struct loop_func_table *xfer_funcs[MAX_LO_CRYPT] = {
-	&none_funcs,
-	&xor_funcs  
-};
-
-to
-
-struct loop_func_table *xfer_funcs[MAX_LO_CRYPT] = {
-	&none_funcs,
-	&xor_funcs,
-	0
-};
-
-in kernel version 2.4.20 there was only a comma after &xor_funcs:
-
-struct loop_func_table *xfer_funcs[MAX_LO_CRYPT] = {
-	&none_funcs,
-	&xor_funcs,
-};
-
-which worked as well, but I guess it's better when the code doesn't depend on a
-single comma.
-
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Miplitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

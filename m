@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262800AbUBZPM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 10:12:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbUBZPMV
+	id S262054AbUBZPXn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 10:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbUBZPXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 10:12:21 -0500
-Received: from netline-mail1.netline.ch ([195.141.226.27]:5641 "EHLO
-	netline-mail1.netline.ch") by vger.kernel.org with ESMTP
-	id S261989AbUBZPLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 10:11:05 -0500
-Subject: Re: [Linux-fbdev-devel] Re: fbdv/fbcon pending problems
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: Stuart Young <sgy-lkml@amc.com.au>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       James Simmons <jsimmons@infradead.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200402251812.26624.sgy-lkml@amc.com.au>
-References: <1077497593.5960.28.camel@gaston>
-	 <200402241657.37382.sgy-lkml@amc.com.au>
-	 <Pine.GSO.4.58.0402240935390.3187@waterleaf.sonytel.be>
-	 <200402251812.26624.sgy-lkml@amc.com.au>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1077808260.2677.98.camel@thor.asgaard.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 26 Feb 2004 16:11:01 +0100
-Content-Transfer-Encoding: 8bit
+	Thu, 26 Feb 2004 10:23:43 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:25542 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261948AbUBZPXl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 10:23:41 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E57033BC3F4@exa-atlanta.se.lsil.com>
+From: "Mukker, Atul" <Atulm@lsil.com>
+To: "'Matt Domsch'" <Matt_Domsch@dell.com>,
+       "'Jeff Garzik'" <jgarzik@pobox.com>
+Cc: "'Christoph Hellwig'" <hch@infradead.org>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Paul Wagland'" <paul@wagland.net>, Matthew Wilcox <willy@debian.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: RE: [SUBJECT CHANGE]: megaraid unified driver version 2.20.0.0-al
+	 pha1
+Date: Thu, 26 Feb 2004 10:21:39 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-25 at 08:14, Stuart Young wrote: 
-> On Tue, 24 Feb 2004 07:36 pm, Geert Uytterhoeven wrote:
-> >
-> > There should be an ANSI escape sequence for resetting the scroll region.
-> > Just send that to the console.
-> 
-> Yup there is. It's Esc [r , however this also returns the cursor to the top of 
-> the screen. You can use Esc [s & Esc [u to save and restore the current 
-> cursor position, so it's just a matter of putting them around it thus:
->  Esc [s Esc [r Esc [u
-> 
-> Or with echo (in a bash script - \\'s to escape it from the shell):
->  echo -ne \\033[s\\033[r\\033[u
-> 
-> Now there is a problem with this solution: This leaves the logo (and any 
-> boot-time drawn graphics in the unscrollable region) on the screen.
+ better name), loaded by both mptraid and megaraid automatically, which
+> handles registering the /dev/megaraid node dynamically.  In this case,
+> both mptraid and megaraid would register with lsiioctl for each
+> adapter discovered, and lsiioctl would essentially be a switch,
+> redirecting userspace tool ioctls to the appropriate driver.
+This seems to me a very interesting idea and good one. We would definitely
+explore this idea now and implement. Thanks Jeff, Matt.
 
-Should it? :)
-
-
--- 
-Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
-Libre software enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
-
+-Atul

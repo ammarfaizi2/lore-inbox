@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289013AbSAZILY>; Sat, 26 Jan 2002 03:11:24 -0500
+	id <S288956AbSAZIno>; Sat, 26 Jan 2002 03:43:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289033AbSAZILI>; Sat, 26 Jan 2002 03:11:08 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:10394 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S289013AbSAZIK4>;
-	Sat, 26 Jan 2002 03:10:56 -0500
-Date: Sat, 26 Jan 2002 09:10:24 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Patrick Mochel <mochel@osdl.org>,
-        Grover Andrew <andrew.grover@intel.com>, "'lwn@lwn.net'" <lwn@lwn.net>,
-        "Acpi-linux (E-mail)" <acpi-devel@lists.sourceforge.net>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Re: ACPI mentioned on lwn.net/kernel
-Message-ID: <20020126091024.E1735@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.33.0201251019230.800-100000@segfault.osdlab.org> <E16UBRa-0003IA-00@the-village.bc.nu> <20020126033703.E5730@kushida.apsleyroad.org>
+	id <S289036AbSAZIn2>; Sat, 26 Jan 2002 03:43:28 -0500
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:45980 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S288956AbSAZInP>; Sat, 26 Jan 2002 03:43:15 -0500
+Date: Sat, 26 Jan 2002 03:43:11 -0500
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
+Message-ID: <20020126084311.GA1530@opeth.ath.cx>
+In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020126033703.E5730@kushida.apsleyroad.org>; from lk@tantalophile.demon.co.uk on Sat, Jan 26, 2002 at 03:37:03AM +0000
+In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
+User-Agent: Mutt/1.3.27i
+From: Dan Chen <crimsun@email.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 26, 2002 at 03:37:03AM +0000, Jamie Lokier wrote:
-> Alan Cox wrote:
-> > > (*) Aside from any potential copyright infringement on the tables 
-> > > themselves. But, it is theoretically possible to override the DSDT with 
-> > 
-> > Criminal liability under the DMCA and five years in jail too, along with
-> > having your SF account pulled and losing your ISP access at the first
-> > suggestion of copyright issues - and since you posted that email you are
-> > clearly not doing so by accident.
-> 
-> Fortunately he was citing a legitimate purpose: to workaround ACPI table
-> bugs.  Perhaps some judges favour legitimacy while other ones favour
-> corruption; choose your judges wisely :-)
 
-I doubt that working around bugs is allowed either; one could argue that
-both region-coding and CSS are bugs disabling me from seeing particular
-DVD's and for sure that new CD-protection scheme is a bug, considering
-the "CD":s they produce don't even qualify as such according to
-Phillips(?)
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, Jan 25, 2002 at 12:40:00AM -0800, Andrew Morton wrote:
+> I'd be interested in feedback from testers, please.
 
-Regards: David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+_Wonderful_ patch. I've been testing for the past hour or so on my
+Yamaha CRW2200E (hooked up to hdc, ide1, on VIA vt82c686b (rev 40)), and
+the cpu load has rarely peaked 7-9% with cdparanoia.
+
+I have not had a chance to test with a SCSI reader yet because my local
+patchset has some unresolved symbols in a scsi module, but I expect to
+iron those out shortly.
+
+Thanks again, Andrew.
+
+--=20
+Dan Chen                 crimsun@email.unc.edu
+GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
+
+--wac7ysb48OaltWcw
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8UmwfMwVVFhIHlU4RApCAAJ9h4Ye4ooMuc/CENwNF6cynEOaG6QCfYfIe
+nIQ+7FbCjLZHNyH1tCgIcaw=
+=4J8j
+-----END PGP SIGNATURE-----
+
+--wac7ysb48OaltWcw--

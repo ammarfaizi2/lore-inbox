@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbUBWPaM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 10:30:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUBWP3x
+	id S261936AbUBWPgv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 10:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbUBWPgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 10:29:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:57808 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261927AbUBWP1l (ORCPT
+	Mon, 23 Feb 2004 10:36:51 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63915 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261936AbUBWPgs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 10:27:41 -0500
-Date: Mon, 23 Feb 2004 07:19:36 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Max Payne <"max..payne"@freemail.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3 vs. ibm xseries 445 (4 way)
-Message-Id: <20040223071936.7e49a664.rddunlap@osdl.org>
-In-Reply-To: <freemail.20040123144654.89434@fm1.freemail.hu>
-References: <freemail.20040123144654.89434@fm1.freemail.hu>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Feb 2004 10:36:48 -0500
+Date: Mon, 23 Feb 2004 10:36:57 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+cc: Fruhwirth Clemens <clemens-dated-1078360505.b6b1@endorphin.org>,
+       Christophe Saout <christophe@saout.de>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+In-Reply-To: <20040223134403.GA22682@certainkey.com>
+Message-ID: <Xine.LNX.4.44.0402231036210.19700-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Feb 2004 14:46:54 +0100 (CET) Max Payne <"max..payne"@freemail.hu> wrote:
+On Mon, 23 Feb 2004, Jean-Luc Cooke wrote:
 
-| Hi!
-| 
-| Hardware:
-| 
-| ibm xseries 445, 4 way intel pentium xeon 3GHz, 8GB RAM
-| 
-| with SuSE Linux SLES8 (2.4.19-64GB-SMP kernel) everything is
-| OK, i have 4 CPU (reported by "cat /proc/cpuinfo" and "top") 
-| 
-| with vanilla 2.6.3 i have only one CPU. Yes, SMP kernel. Any
-| idea?
-| 
-| .config attached
+> The analogy of:
+> 
+> for (i=0; i<len; i++)
+>   omac_encrypt(tfm, dst[i], src[i], nbytes);
+> 
+> Will not work with OMAC since it creates a MAC and not a ciphertext stream
+> like the other modes.
+> 
+> for (i=0; i<len; i++)
+>   omac_encrypt(tfm, dst[0], src[i], nbytes);
+> /*                      ^ see here!           */
+> memcpy(mac, dest, ...); /* store the mac */
+> 
+> Is more appropriate.  James - is this possible?
 
-Try changing
-CONFIG_NR_CPUS=32
-to see if that works.
+What exactly are you trying to do?
 
-There have been some issues with CPU number assignments (by
-BIOS) being rather sparse.
 
---
-~Randy
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

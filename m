@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268935AbTCARM3>; Sat, 1 Mar 2003 12:12:29 -0500
+	id <S268937AbTCARNI>; Sat, 1 Mar 2003 12:13:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268937AbTCARM3>; Sat, 1 Mar 2003 12:12:29 -0500
-Received: from r35h118.res.gatech.edu ([128.61.35.118]:14210 "EHLO
-	mail.overcode.net") by vger.kernel.org with ESMTP
-	id <S268935AbTCARM2>; Sat, 1 Mar 2003 12:12:28 -0500
-Date: Sat, 1 Mar 2003 12:22:51 -0500
-From: fauxpas@temp123.org
-To: Mikael Pettersson <mikpe@user.it.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IOAPIC on Via KT266a
-Message-ID: <20030301172251.GA30143@temp123.org>
-References: <20030227165248.GA12030@temp123.org> <15967.28629.35699.473056@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
-Content-Disposition: inline
-In-Reply-To: <15967.28629.35699.473056@gargle.gargle.HOWL>
-X-GPG-Key: http://temp123.org/~fauxpas/fauxpas.pgp
-X-GPG-Fingerprint: CFF3 EB2B 4451 DC3C A053  1E07 06B4 C3FC 893D 9228
-User-Agent: Mutt/1.5.3i
+	id <S268938AbTCARNI>; Sat, 1 Mar 2003 12:13:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54031 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S268937AbTCARNE>;
+	Sat, 1 Mar 2003 12:13:04 -0500
+Message-ID: <3E60EC7D.2040802@pobox.com>
+Date: Sat, 01 Mar 2003 12:23:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix warning in drivers/net/sis900.c
+References: <51890000.1046538667@[10.10.2.4]>
+In-Reply-To: <51890000.1046538667@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin J. Bligh wrote:
+> drivers/net/sis900.c: In function `set_rx_mode':
+> drivers/net/sis900.c:2100: warning: passing arg 2 of `set_bit' from incompatible pointer type
+> 
+> I just cast this. Seems to work fine at the moment, so presumably it's
+> correct.
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 28, 2003 at 03:19:01PM +0100, Mikael Pettersson wrote:
+Nope -- set_bit wants to work on a real unsigned long.  While your patch 
+will work, the proper fix is to not use set_bit :)
 
-> This is almost certainly a hardware problem: your machine's APIC bus
-> is corrupting messages, or some other agent than the CPU is creating
-> corrupt messages. This isn't exactly unheard of for non-Intel chipsets.
+	Jeff
 
-Hmmm... windows seems to have a workaround for at least part of the
-problem, I spent the last day trying to confuse the APIC unsuccessfully
-on that system.  Could it be a problem with the uhci driver perhaps?
-The only two persistant symptoms are the usb failure and the slew of=20
-messages.
 
-The APIC errors I receive are mostly 02(02) but a good deal of
-02(01), 01(02) and 01(01).  Checksum errors galore.
 
-This only happens with IO-APIC is enabled throughout:
-
-hub.c: new USB device 00:11.2-1, assigned address 2
-usb_control/bulk_msg: timeout
-usb.c: USB device not accepting new address=3D2 (error=3D-110)
-hub.c: new USB device 00:11.2-1, assigned address 3
-b.c: USB device not accepting new address=3D3 (error=3D-110)
-hub.c: new USB device 00:11.2-2, assigned address 4
-usb_control/bulk_msg: timeout
-usb.c: USB device not accepting new address=3D4 (error=3D-110)
-hub.c: new USB device 00:11.2-2, assigned address 5
-usb_control/bulk_msg: timeout
-usb.c: USB device not accepting new address=3D5 (error=3D-110)
-
---=20
-Josh Litherland (fauxpas@temp123.org)
-
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+YOxrBrTD/Ik9kigRAu/WAJ9Cf6SgEbf+yjj+JduqRTmhsfXZGgCdGXzc
-Q46j30DDAVe1SpjjrT4EMNQ=
-=6fEr
------END PGP SIGNATURE-----
-
---2oS5YaxWCcQjTEyO--

@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270621AbUJUIiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270665AbUJUIQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270621AbUJUIiw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 04:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270393AbUJUIe2
+	id S270665AbUJUIQm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 04:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270566AbUJUIEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 04:34:28 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8637 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270642AbUJUIcA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 04:32:00 -0400
-Date: Thu, 21 Oct 2004 10:31:29 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Adam Hunt <kinema@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: I/O scheduler recomendation for Linux as a VMware guest
-Message-ID: <20041021083126.GX10531@suse.de>
-References: <b476569a0410201616415b0600@mail.gmail.com>
+	Thu, 21 Oct 2004 04:04:12 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:38072 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S270408AbUJUIAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 04:00:05 -0400
+Date: Thu, 21 Oct 2004 10:00:07 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       sam@ravnborg.org
+Message-ID: <20041021080007.GA16549@wohnheim.fh-wedel.de>
+References: <4176FE65.4000507@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b476569a0410201616415b0600@mail.gmail.com>
+In-Reply-To: <4176FE65.4000507@osdl.org>
+User-Agent: Mutt/1.3.28i
+Subject: Re: [PATCH] checkstack: add x86_64 arch. support
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Rcpt-To: rddunlap@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org, sam@ravnborg.org
+X-SA-Exim-Mail-From: joern@wohnheim.fh-wedel.de
+X-SA-Exim-Version: 3.1 (built Son Feb 22 10:54:36 CET 2004)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20 2004, Adam Hunt wrote:
-> I am forced to spend quite a bit of time with my only relatively
-> powerful workstation booted into XP so I can do CAD work
-> (unfortunately Autodesk's Inventor only runs on Windows).  Because of
-> this unfortunate situation I am planning my first attempt to get the
-> Linux install that I have on the other drive in this workstation to
-> boot using VMware.  VMware has the ability to access raw disk
-> partitions (as apposed to partitions stored in a file on a host
-> partition) so I figure with some init and /etc magic I should be able
-> to boot the system using VMware and when I am not drawing in Inventor
-> I should be able to reboot and run Linux natively directly on the
-> hardware.
-> 
-> What I am wondering is what I/O scheduler should I be using when the
-> system is running within a VMware instance?  I figure that Windows
-> will be scheduling the access to the physical hardware so I would
-> assume that I want a bare bones priority based scheduler, something
-> with the lowest possible overhead.  Is this correct?  If so, what
-> would that scheduler be?
+Patch is trivial enough.  Added my line, in case that makes a
+difference.
 
-Probably deadline/cfq is the best fit, unless your host file is
-perfectly laid out on disk in which case you can play with noop. As
-Randy already pointed out, you can switch dynamically in the 2.6.9-bk
-snapshots - so the best thing for you to do if you want to know for
-sure, is to benchmark each of them for your workload. For most things
-there should not be a noticable difference between cfq and deadline,
-whether as makes a difference (for better or worse) is very work-load
-dependent.
+Jörn
 
 -- 
-Jens Axboe
+Don't worry about people stealing your ideas. If your ideas are any good,
+you'll have to ram them down people's throats.
+-- Howard Aiken quoted by Ken Iverson quoted by Jim Horning quoted by
+   Raph Levien, 1979
 
+Add support for x86_64 arch. to 'make checkstack' (checkstack.pl).
+
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
+
+diffstat:=
+ scripts/checkstack.pl |    3 +++
+ 1 files changed, 3 insertions(+)
+
+diff -Naurp ./scripts/checkstack.pl~checkstack_x64 ./scripts/checkstack.pl
+--- ./scripts/checkstack.pl~checkstack_x64	2004-10-18 14:53:45.000000000 -0700
++++ ./scripts/checkstack.pl	2004-10-20 16:52:14.434261304 -0700
+@@ -39,6 +39,9 @@ my (@stack, $re, $x, $xs);
+ 	} elsif ($arch =~ /^i[3456]86$/) {
+ 		#c0105234:       81 ec ac 05 00 00       sub    $0x5ac,%esp
+ 		$re = qr/^.*[as][du][db]    \$(0x$x{1,8}),\%esp$/o;
++	} elsif ($arch eq 'x86_64') {
++		#    2f60:	48 81 ec e8 05 00 00 	sub    $0x5e8,%rsp
++		$re = qr/^.*[as][du][db]    \$(0x$x{1,8}),\%rsp$/o;
+ 	} elsif ($arch eq 'ia64') {
+ 		#e0000000044011fc:       01 0f fc 8c     adds r12=-384,r12
+ 		$re = qr/.*adds.*r12=-(([0-9]{2}|[3-9])[0-9]{2}),r12/o;

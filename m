@@ -1,121 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268100AbTAKTFG>; Sat, 11 Jan 2003 14:05:06 -0500
+	id <S268037AbTAKTLM>; Sat, 11 Jan 2003 14:11:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268102AbTAKTFG>; Sat, 11 Jan 2003 14:05:06 -0500
-Received: from smtp.terra.es ([213.4.129.129]:51489 "EHLO tsmtp7.mail.isp")
-	by vger.kernel.org with ESMTP id <S268100AbTAKTFE>;
-	Sat, 11 Jan 2003 14:05:04 -0500
-Date: Sat, 11 Jan 2003 20:13:06 +0100
-From: ----- <grundig@teleline.es>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.56 lib/kobject.c "badness" (ppp bug?)
-Message-Id: <20030111201306.7513bc7e.grundig@teleline.es>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S268102AbTAKTLM>; Sat, 11 Jan 2003 14:11:12 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15571 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S268037AbTAKTLL>; Sat, 11 Jan 2003 14:11:11 -0500
+Date: Sat, 11 Jan 2003 20:19:52 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Tony <kernel@mail.vroon.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (revised) fix net/irda warnings for 2.4.21-pre3
+Message-ID: <20030111191952.GA21826@fs.tum.de>
+References: <20030111120432.GA28023@sawmill>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030111120432.GA28023@sawmill>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-while connected at inet:
+On Sat, Jan 11, 2003 at 01:04:32PM +0100, Tony wrote:
+> Patch download location:
+> http://www.chainsaw.cistron.nl/compile-fixes-irda.patch.gz
+> 
+> The patch I announced several hours ago had issues. I have replaced the 
+> file on the website with a correct version. If anyone had already 
+> downloaded the fix, please do so again.
+> This fixes the numerous "Concatenation of string literals with 
+> __FUNCTION__ is depricated" errors in net/irda. This should apply 
+> cleanly to both a 2.4.21-pre3 and a 2.4.21-pre3-ac3 tree.
+>...
 
-Jan 11 17:44:01 estel kernel: Badness in kobject_register at lib/kobject.c:129
-Jan 11 17:44:01 estel kernel: Call Trace:
-Jan 11 17:44:01 estel kernel:  [kobject_register+88/112] kobject_register+0x58/0x70
-Jan 11 17:44:01 estel kernel:  [register_netdevice+447/496] register_netdevice+0x1bf/0x1f0
-Jan 11 17:44:01 estel kernel:  [<d0873893>] ppp_create_interface+0x163/0x2f78c8d0 [ppp_generic]
-Jan 11 17:44:01 estel kernel:  [<d0874d01>] +0x9d/0x2f78b39c [ppp_generic]
-Jan 11 17:44:01 estel kernel:  [<d0870d8a>] ppp_unattached_ioctl+0x15a/0x2f78f3d0 [ppp_generic]
-Jan 11 17:44:01 estel kernel:  [<d0870c2b>] ppp_ioctl+0x78b/0x2f78fb60 [ppp_generic]
-Jan 11 17:44:01 estel kernel:  [cache_free_debugcheck+393/592] cache_free_debugcheck+0x189/0x250
-Jan 11 17:44:01 estel kernel:  [sys_ioctl+349/733] sys_ioctl+0x15d/0x2dd
-Jan 11 17:44:01 estel kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jan 11 17:44:01 estel kernel: 
-Jan 11 17:44:01 estel kernel:  printing eip:
-Jan 11 17:44:01 estel kernel: c0261f8c
-Jan 11 17:44:01 estel kernel: Oops: 0000
-Jan 11 17:44:01 estel kernel: CPU:    1
-Jan 11 17:44:01 estel kernel: EIP:    0060:[__dev_get_by_name+44/80]    Not tainted
-Jan 11 17:44:01 estel kernel: EFLAGS: 00010216
-Jan 11 17:44:01 estel kernel: EIP is at __dev_get_by_name+0x2c/0x50
-Jan 11 17:44:01 estel kernel: eax: ffffffff   ebx: c9fa5f0c   ecx: 0000000f   edx: 6b6b6b6b
-Jan 11 17:44:01 estel kernel: esi: 6b6b6b6b   edi: c9fa5f0c   ebp: c9fa5ed8   esp: c9fa5ecc
-Jan 11 17:44:01 estel kernel: ds: 007b   es: 007b   ss: 0068
-Jan 11 17:44:01 estel kernel: Process netspeed_applet (pid: 402, threadinfo=c9fa4000 task=ca2c6cc0)
-Jan 11 17:44:01 estel kernel: Stack: c9fa5f0c 00000001 c9fa5f0c c9fa5ee4 c0262034 c9fa5f0c c9fa5ef4 c02622f4 
-Jan 11 17:44:01 estel kernel:        c9fa5f0c 00008913 c9fa5f38 c02641e9 c9fa5f0c bfffd628 00000020 00000000 
-Jan 11 17:44:01 estel kernel:        30707070 08153900 00000050 00210f40 bfffd658 404a3837 081539c8 08171630 
-Jan 11 17:44:01 estel kernel: Call Trace:
-Jan 11 17:44:01 estel kernel:  [dev_get+52/80] dev_get+0x34/0x50
-Jan 11 17:44:01 estel kernel:  [dev_load+20/96] dev_load+0x14/0x60
-Jan 11 17:44:01 estel kernel:  [dev_ioctl+153/704] dev_ioctl+0x99/0x2c0
-Jan 11 17:44:01 estel kernel:  [inet_ioctl+194/224] inet_ioctl+0xc2/0xe0
-Jan 11 17:44:01 estel kernel:  [sock_ioctl+340/832] sock_ioctl+0x154/0x340
-Jan 11 17:44:01 estel kernel:  [sys_ioctl+349/733] sys_ioctl+0x15d/0x2dd
-Jan 11 17:44:01 estel kernel:  [math_state_restore+41/80] math_state_restore+0x29/0x50
-Jan 11 17:44:01 estel kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jan 11 17:44:01 estel kernel: 
-Jan 11 17:44:01 estel kernel: Code: ac ae 75 08 84 c0 75 f5 31 c0 eb 04 19 c0 0c 01 85 c0 74 07 
-Jan 11 17:44:02 estel pppd[694]: Exit.
-Jan 11 17:44:06 estel kernel:  <1>Unable to handle kernel paging request at virtual address 6b6b6b7f
-Jan 11 17:44:06 estel kernel:  printing eip:
-Jan 11 17:44:06 estel kernel: c029fbc1
-Jan 11 17:44:06 estel kernel: Oops: 0000
-Jan 11 17:44:06 estel kernel: CPU:    1
-Jan 11 17:44:06 estel kernel: EIP:    0060:[inet_gifconf+33/208]    Not tainted
-Jan 11 17:44:06 estel kernel: EFLAGS: 00010202
-Jan 11 17:44:06 estel kernel: EIP is at inet_gifconf+0x21/0xd0
-Jan 11 17:44:06 estel kernel: eax: 6b6b6b6b   ebx: 00000002   ecx: 00000000   edx: cb555600
-Jan 11 17:44:06 estel kernel: esi: 00000040   edi: cb555600   ebp: c99dbec4   esp: c99dbe84
-Jan 11 17:44:06 estel kernel: ds: 007b   es: 007b   ss: 0068
-Jan 11 17:44:06 estel kernel: Process netspeed_applet (pid: 699, threadinfo=c99da000 task=c4159320)
-Jan 11 17:44:06 estel kernel: Stack: cfe1cc50 0000000a c99dbf1d 00000000 00000000 000001d0 c99dbeb8 00000000 
-Jan 11 17:44:06 estel kernel:        bfffede0 c99dbec4 c01ae168 c99dbee0 bfffede0 00000002 00000040 cb555600 
-Jan 11 17:44:06 estel kernel:        c99dbef4 c0263579 cb555600 00000000 00000000 00000000 00000000 00000000 
-Jan 11 17:44:06 estel kernel: Call Trace:
-Jan 11 17:44:06 estel kernel:  [copy_from_user+72/76] copy_from_user+0x48/0x4c
-Jan 11 17:44:06 estel kernel:  [dev_ifconf+121/224] dev_ifconf+0x79/0xe0
-Jan 11 17:44:06 estel kernel:  [dev_ioctl+629/704] dev_ioctl+0x275/0x2c0
-Jan 11 17:44:06 estel kernel:  [sock_map_fd+293/336] sock_map_fd+0x125/0x150
-Jan 11 17:44:06 estel kernel:  [inet_ioctl+194/224] inet_ioctl+0xc2/0xe0
-Jan 11 17:44:06 estel kernel:  [sock_ioctl+340/832] sock_ioctl+0x154/0x340
-Jan 11 17:44:06 estel kernel:  [sys_ioctl+349/733] sys_ioctl+0x15d/0x2dd
-Jan 11 17:44:06 estel kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jan 11 17:44:06 estel kernel: 
-Jan 11 17:44:06 estel kernel: Code: 8b 40 14 85 c0 89 45 d0 0f 84 7f 00 00 00 90 8b 45 0c 85 c0 
+Did you try to compile all the files your patch changes?
 
+The following things are obvious typos:
 
-And after rebooting (because ppp did work)
-while calling my provider
+<--  snip  -->
 
-Jan 11 20:04:14 estel chat[947]: CONNECT
-Jan 11 20:04:14 estel chat[947]:  -- got it 
-Jan 11 20:04:14 estel chat[947]: send (\d)
-Jan 11 20:04:15 estel pppd[946]: Serial connection established.
-Jan 11 20:04:15 estel kernel:  printing eip:
-Jan 11 20:04:15 estel kernel: c0262060
-Jan 11 20:04:15 estel kernel: Oops: 0000
-Jan 11 20:04:15 estel kernel: CPU:    0
-Jan 11 20:04:15 estel kernel: EIP:    0060:[__dev_get_by_index+16/32]    Not tainted
-Jan 11 20:04:15 estel kernel: EFLAGS: 00210202
-Jan 11 20:04:15 estel kernel: EIP is at __dev_get_by_index+0x10/0x20
-Jan 11 20:04:15 estel kernel: eax: 6b6b6b6b   ebx: c77c7400   ecx: d0871110   edx: 00000005
-Jan 11 20:04:15 estel kernel: esi: c77c7200   edi: c77c7400   ebp: c2a87ea8   esp: c2a87ea8
-Jan 11 20:04:15 estel kernel: ds: 007b   es: 007b   ss: 0068
-Jan 11 20:04:15 estel kernel: Process pppd (pid: 946, threadinfo=c2a86000 task=c45260a0)
-Jan 11 20:04:15 estel kernel: Stack: c2a87eb4 c0264437 00000005 c2a87ed8 c02644cd c77c7400 c2a87eec c2a87ed8 
-Jan 11 20:04:15 estel kernel:        fffffffb 00000000 c77c7200 c77c7400 c2a87efc d0873893 c77c7400 d0874d01 
-Jan 11 20:04:15 estel kernel:        00000000 ffffffef cd6209a4 c004743e cd6209a4 c2a87f24 d0870d8a 00000000 
-Jan 11 20:04:15 estel kernel: Call Trace:
-Jan 11 20:04:15 estel kernel:  [dev_new_index+39/80] dev_new_index+0x27/0x50
-Jan 11 20:04:15 estel kernel:  [register_netdevice+109/496] register_netdevice+0x6d/0x1f0
-Jan 11 20:04:15 estel kernel:  [<d0873893>] ppp_create_interface+0x163/0x2f78c8d0 [ppp_generic]
-Jan 11 20:04:15 estel kernel:  [<d0874d01>] +0x9d/0x2f78b39c [ppp_generic]
-Jan 11 20:04:15 estel kernel:  [<d0870d8a>] ppp_unattached_ioctl+0x15a/0x2f78f3d0 [ppp_generic]
-Jan 11 20:04:15 estel kernel:  [<d0870c2b>] ppp_ioctl+0x78b/0x2f78fb60 [ppp_generic]
-Jan 11 20:04:15 estel kernel:  [cache_free_debugcheck+393/592] cache_free_debugcheck+0x189/0x250
-Jan 11 20:04:15 estel kernel:  [sys_ioctl+349/733] sys_ioctl+0x15d/0x2dd
-Jan 11 20:04:15 estel kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jan 11 20:04:15 estel kernel: 
-Jan 11 20:04:15 estel kernel: Code: 39 50 34 74 07 8b 40 28 85 c0 75 f4 5d c3 89 f6 55 89 e5 83 
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/include 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc 
+-iwithprefix include -DKBUILD_BASENAME=ircomm_event  -c -o 
+ircomm_event.o ircomm_event.c
+ircomm_event.c: In function `ircomm_do_event':
+ircomm_event.c:244: warning: too few arguments for format
+ircomm_event.c: In function `ircomm_next_state':
+ircomm_event.c:260: warning: unknown conversion type character `:' in format
+ircomm_event.c:260: warning: int format, pointer arg (arg 3)
+ircomm_event.c:260: warning: too many arguments for format
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/include 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc 
+-iwithprefix include -DKBUILD_BASENAME=irlan_common  -c -o 
+irlan_common.o irlan_common.c
+irlan_common.c: In function `irlan_open_data_tsap':
+irlan_common.c:479: parse error before `return'
+irlan_common.c: In function `irlan_set_multicast_filter':
+irlan_common.c:814: warning: too many arguments for format
+make[4]: *** [irlan_common.o] Error 1
+make[4]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/net/irda/irlan'
+
+<--  snip  -->
+
+> Thanks,
+> Tony Vroon.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

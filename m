@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270456AbRHIRph>; Thu, 9 Aug 2001 13:45:37 -0400
+	id <S270501AbRHIRqh>; Thu, 9 Aug 2001 13:46:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270481AbRHIRpR>; Thu, 9 Aug 2001 13:45:17 -0400
-Received: from imo-r06.mx.aol.com ([152.163.225.102]:13288 "EHLO
-	imo-r06.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S270456AbRHIRpM>; Thu, 9 Aug 2001 13:45:12 -0400
-From: Floydsmith@aol.com
-Message-ID: <6a.11d48002.28a42627@aol.com>
-Date: Thu, 9 Aug 2001 13:45:11 EDT
-Subject: can't get buffer cache to flush with /dev/ram with 2.4.4 using "update"/"sync" 
-To: linux-kernel@vger.kernel.org
-CC: Floydsmith@aol.com
+	id <S270492AbRHIRq1>; Thu, 9 Aug 2001 13:46:27 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:65432 "EHLO
+	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S270481AbRHIRqL>; Thu, 9 Aug 2001 13:46:11 -0400
+Importance: Normal
+Subject: Re:Kernel 2.4.6 & 2.4.7 networking performance: seeing serious delays in
+ TCP layer depending upon packet length 
+To: ron.flory@adtran.com
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF867C5EBC.F320CE04-ON87256AA3.00608124@boulder.ibm.com>
+From: "Shirley Ma" <xma@us.ibm.com>
+Date: Thu, 9 Aug 2001 10:46:19 -0700
+X-MIMETrack: Serialize by Router on D03NM037/03/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 08/09/2001 11:46:21 AM
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: AOL 4.0 for Windows 95 sub 14
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hi, Ron,
 
-I boot linux using "loadlin" with an "initrd" ram disk image ("minix" type 
-fs) of size 32 Meg with kernel 2.4.4. The /linuxrc (a C executable) runs and 
-it shows that the mounted file sysem is of proper type and size. Then my 
-"linuxrc" extracts a "tar" achrive (to populate the mounted /dev/ram [on 
-"/"]) with a small subset of  "linux" about (18 Meg) (as a "rescue" floppy 
-boot). Before the "extract", debug code shows that the "cached" entry in 
-"/proc/meminfo" to be practically zero (and thus plenty of "freemem"). 
-However, after the "extract", the "cached" line shows about "18Meg"  and I 
-can find nothing that works to "flush" it. I have tried "spawing" 
-"/sbin/update" and waiting several min. and running "/bin/sync" and also 
-waiting - no change in the "cahed" entry (or and increase in the "freemem").  
-(ps -ef shows a process "bdflush" running [spawned] on its own.) Thus, trying 
-to bring up a "logon" shell (and its "init" scripts) results in that process 
-being killed do to lack of "freemem". I have only 64M and less than 4 Meg 
-free after the "extract". Any suggestions greatly appreciated in advance. If 
-there any "syscall" I can make in "linuxrc" that will flush "all" buffers 
-without knowing anything like "file descriptors"? Is this "syscall" 
-"synchronus" - or do do I have wait several seconds for it to work?
+     I am interested the problem you posted. I tried to reproduce this
+problem on my machine and failed. Would you please point your programs to
+me, so I can reproduce this problem and do more investigation? If not,
+please let me know whether it is reproducible, and please collect both
+client/server ethereal log.
 
-This problem does NOT occur with 2.2.18.
+Thanks in advance.
+Shirley Ma
+Linux Technology Center Networking Group
 
-Floyd,
+"A journey of a thousand miles must begin with a single step"  -- LAO-TZU
+
+

@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261195AbRELHpU>; Sat, 12 May 2001 03:45:20 -0400
+	id <S261192AbRELHdi>; Sat, 12 May 2001 03:33:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261196AbRELHpJ>; Sat, 12 May 2001 03:45:09 -0400
-Received: from server1.cosmoslink.net ([208.179.167.101]:42603 "EHLO
-	server1.cosmoslink.net") by vger.kernel.org with ESMTP
-	id <S261195AbRELHoz>; Sat, 12 May 2001 03:44:55 -0400
-Message-ID: <007c01c0dab7$98406040$bba6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: "William Stearns" <wstearns@pobox.com>
-Cc: "ML-linux-kernel" <linux-kernel@vger.kernel.org>,
-        "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-In-Reply-To: <Pine.LNX.4.33.0105120126320.27728-100000@sparrow.websense.net>
-Subject: Re: Chat rooms for linux kernel developers
-Date: Sat, 12 May 2001 00:46:03 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S261195AbRELHd2>; Sat, 12 May 2001 03:33:28 -0400
+Received: from cs666822-22.austin.rr.com ([66.68.22.22]:10409 "HELO
+	hatchling.taral.net") by vger.kernel.org with SMTP
+	id <S261192AbRELHdK>; Sat, 12 May 2001 03:33:10 -0400
+Date: Sat, 12 May 2001 02:33:07 -0500
+From: Taral <taral@taral.net>
+To: linux-kernel@vger.kernel.org
+Subject: tty kill character handling problems
+Message-ID: <20010512023307.A9339@taral.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Bill,
+I think the current echok/echoke/echoe handling is wrong. The following
+patch should fix the problem, unless I've totally misunderstood this...
 
-Thank you very much for your reply and help.
+--- linux/drivers/char/n_tty.c.orig	Fri May 11 21:45:48 2001
++++ linux/drivers/char/n_tty.c	Fri May 11 22:00:52 2001
+@@ -352,7 +352,7 @@
+ 			spin_unlock_irqrestore(&tty->read_lock, flags);
+ 			return;
+ 		}
+-		if (!L_ECHOK(tty) || !L_ECHOKE(tty) || !L_ECHOE(tty)) {
++		if (!L_ECHOKE(tty)) {
+ 			spin_lock_irqsave(&tty->read_lock, flags);
+ 			tty->read_cnt -= ((tty->read_head - tty->canon_head) &
+ 					  (N_TTY_BUF_SIZE - 1));
 
-Best Regards,
-
-Jaswinder.
-
------ Original Message -----
-From: "William Stearns" <wstearns@pobox.com>
-To: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-Cc: "ML-linux-kernel" <linux-kernel@vger.kernel.org>
-Sent: Friday, May 11, 2001 10:27 PM
-Subject: Re: Chat rooms for linux kernel developers
-
-
-> Good day, Jaswinder,
->
-> On Fri, 11 May 2001, Jaswinder Singh wrote:
->
-> > Is there is any chat (IRC) for linux kernel developers .
->
-> See irc.linpeople.org, channel #kernelnewbies .
-> Cheers,
-> - Bill
->
-> --------------------------------------------------------------------------
--
->         "If you think technology can solve your security problems, then
-> you don't understand the problems and you don't understand the
-> technology."
->         -- Bruce Schneier, Secrets and Lies
-> --------------------------------------------------------------------------
-> William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
-> and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-> LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
-> --------------------------------------------------------------------------
->
-
+-- 
+Taral <taral@taral.net>
+Please use PGP/GPG encryption to send me mail.
+"Any technology, no matter how primitive, is magic to those who don't
+understand it." -- Florence Ambrose

@@ -1,52 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbTINQzc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 12:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbTINQzc
+	id S261202AbTINQvs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 12:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbTINQvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 12:55:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38405 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261215AbTINQz3 (ORCPT
+	Sun, 14 Sep 2003 12:51:47 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:45326 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S261202AbTINQvo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 12:55:29 -0400
-Message-ID: <3F649D70.4050901@ckloiber.com>
-Date: Sun, 14 Sep 2003 12:55:12 -0400
-From: Chris Kloiber <ckloiber@ckloiber.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Neil Brown <neilb@cse.unsw.edu.au>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-pre4 => NFSD problem on alpha
-References: <Pine.LNX.4.44.0309121528290.3893-100000@logos.cnet> <20030914113421.GA705@alpha.home.local> <16228.21909.391485.229455@notabene.cse.unsw.edu.au> <20030914121540.GA549@alpha.home.local>
-In-Reply-To: <20030914121540.GA549@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Sep 2003 12:51:44 -0400
+Date: Sun, 14 Sep 2003 18:51:42 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Dmitri Katchalov <dmitrik@users.sourceforge.net>
+Cc: Andries Brouwer <aebr@win.tue.nl>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test5 atkbd.c: Unknown key (100% reproduceable)
+Message-ID: <20030914185142.F3371@pclin040.win.tue.nl>
+References: <1063443074.3f62da82a7e24@webmail.netregistry.net> <20030913220743.B3295@pclin040.win.tue.nl> <1063527169.3f642301c00e7@webmail.netregistry.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1063527169.3f642301c00e7@webmail.netregistry.net>; from dmitrik@users.sourceforge.net on Sun, Sep 14, 2003 at 06:12:49PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> On Sun, Sep 14, 2003 at 09:48:37PM +1000, Neil Brown wrote:
->  
-> 
->>I know what broke it.  Please try this patch and let me know.
-> 
-> 
-> It fixed it, and it works OK now. Congratulations for being so fast, Neil !
-> 
-> Thanks,
-> Willy
+On Sun, Sep 14, 2003 at 06:12:49PM +1000, Dmitri Katchalov wrote:
+> Quoting Andries Brouwer <aebr@win.tue.nl>:
 
-Can you tell me how to get any recent kernel to compile on Alpha?  I run 
-Red Hat 7.2/Alpha on my UP2000 and can't get anything newer than a 
-2.4.9-32.7 to compile/run on it. Even the 2.4.18-27.7.x.hp supplied by 
-HP panics on boot. I filed some bugs on bugzilla.kernel.org against 
-2.6.0-test4-bk8 and they just sit there in NEW state. #1196 and 1197 
-IIRC if you are interested. Thanks.
+> > On Sat, Sep 13, 2003 at 06:51:14PM +1000, Dmitri Katchalov wrote:
+> > 
+> > > I'm consistently getting this error:
+> > > 
+> > > atkbd.c: Unknown key (set 2, scancode 0xab, on isa0060/serio0) pressed.
+> > > This happens whenever I type 'f' in "<F7>usbdevfs". 
 
--- 
-Chris Kloiber
+> > Can you enable DEBUG in i8042.c, repeat the error
+> > and mail me the resulting output?
+> 
+> See below. Hope it helps. 
+> 
+> Oh yes, it eats 'f' in "make menuconfig" 3 out of 4 times. 
+> The keyboard in question is "StudyMate" keyboard.
+> In addition to the usual keys it has left and right windows keys,
+> menu key, power, sleep, wake and Fn keys. These extra keys 
+> have never worked as far as I remember.
+> On the back it says: "Turbo-Track Keyboard" FCC ID: HQK BITS9001
+> The keyboard worked just fine in "the other" OS 
 
+OK. First the standard probing. Nothing unusual.
+
+> input: AT Set 2 keyboard on isa0060/serio0
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+...
+
+Then the "<F7>usbdevfs".
+
+> i8042.c: 41 <- i8042 (interrupt, kbd, 1) [80466]
+> i8042.c: c1 <- i8042 (interrupt, kbd, 1) [80561]
+F7, F7 release
+
+> i8042.c: 16 <- i8042 (interrupt, kbd, 1) [81692]
+> i8042.c: 96 <- i8042 (interrupt, kbd, 1) [81772]
+u, u release
+
+> i8042.c: 1f <- i8042 (interrupt, kbd, 1) [82032]
+> i8042.c: 9f <- i8042 (interrupt, kbd, 1) [82113]
+s, s release
+
+> i8042.c: 30 <- i8042 (interrupt, kbd, 1) [82347]
+> i8042.c: b0 <- i8042 (interrupt, kbd, 1) [82443]
+b, b release
+
+> i8042.c: 20 <- i8042 (interrupt, kbd, 1) [82661]
+> i8042.c: a0 <- i8042 (interrupt, kbd, 1) [82757]
+d, d release
+
+> i8042.c: 12 <- i8042 (interrupt, kbd, 1) [83018]
+> i8042.c: 92 <- i8042 (interrupt, kbd, 1) [83098]
+e, e release
+
+> i8042.c: 2f <- i8042 (interrupt, kbd, 1) [83304]
+> i8042.c: af <- i8042 (interrupt, kbd, 1) [83385]
+v, v release
+
+> i8042.c: 21 <- i8042 (interrupt, kbd, 1) [83675]
+f
+> i8042.c: ab <- i8042 (interrupt, kbd, 1) [83737]
+> atkbd.c: Unknown key (set 2, scancode 0xab, on isa0060/serio0) pressed.
+\ release
+
+> i8042.c: 1f <- i8042 (interrupt, kbd, 1) [84426]
+> i8042.c: 9f <- i8042 (interrupt, kbd, 1) [84507]
+s, s release
+
+It seems most likely that this keyboard is broken.
+Instead of 0xa1 (f release) you get 0xab (\ release).
+By some coincidence 0xab is f release in untranslated scancode set 2.
+(But you are in translated scancode set 2, otherwise the other letters
+would also have produced different codes.)
+
+Could you try to run "showkey -s" on the console under 2.4.*?
+Hit and release the f a few times. Type <F7>usbdevfs.
+
+Just a broken key is something I have seen lots of times.
+Since for most operating systems make codes are important
+while break codes (other than those for Shift, Ctrl, Alt)
+are not, a key with broken release code is usually harmless.
+
+This case seems interesting because, if I understand you correctly,
+the f in itself is not always broken, but this error occurs after
+a particular sequence of keystrokes.
+
+Andries
 

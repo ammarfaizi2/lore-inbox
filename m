@@ -1,90 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264785AbSJVRSR>; Tue, 22 Oct 2002 13:18:17 -0400
+	id <S261755AbSJVRQj>; Tue, 22 Oct 2002 13:16:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264787AbSJVRSR>; Tue, 22 Oct 2002 13:18:17 -0400
-Received: from adedition.com ([216.209.85.42]:16644 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S264785AbSJVRSM>;
-	Tue, 22 Oct 2002 13:18:12 -0400
-Date: Tue, 22 Oct 2002 13:24:04 -0400
+	id <S264777AbSJVRQj>; Tue, 22 Oct 2002 13:16:39 -0400
+Received: from netrealtor.ca ([216.209.85.42]:14852 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S261755AbSJVRQi>;
+	Tue, 22 Oct 2002 13:16:38 -0400
+Date: Tue, 22 Oct 2002 13:22:44 -0400
 From: Mark Mielke <mark@mark.mielke.cc>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: Use of yield() in the kernel
-Message-ID: <20021022172404.GB1314@mark.mielke.cc>
-References: <200210151536.39029.baldrick@wanadoo.fr> <200210191425.34627.baldrick@wanadoo.fr> <20021019220000.GC28445@atrey.karlin.mff.cuni.cz> <200210201110.33254.baldrick@wanadoo.fr>
+To: "Charles 'Buck' Krasic" <krasic@acm.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+Message-ID: <20021022172244.GA1314@mark.mielke.cc>
+References: <20021018185528.GC13876@mark.mielke.cc> <Pine.LNX.4.44.0210181209510.1537-100000@blue1.dev.mcafeelabs.com> <20021019065624.GA17553@mark.mielke.cc> <xu4y98utnn7.fsf@brittany.cse.ogi.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200210201110.33254.baldrick@wanadoo.fr>
+In-Reply-To: <xu4y98utnn7.fsf@brittany.cse.ogi.edu>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would it be sensible to add a "yield_short()" function to the kernel?
+On Sat, Oct 19, 2002 at 09:10:52AM -0700, Charles 'Buck' Krasic wrote:
+> Mark Mielke <mark@mark.mielke.cc> writes:
+> > They still represent an excessive complicated model that attempts to
+> > implement /dev/epoll the same way that one would implement poll()/select().
+> epoll is about fixing one aspect of an otherwise well established api.
+> That is, fixing the scalability of poll()/select() for applications
+> based on non-blocking sockets.
+
+epoll is not a poll()/select() enhancement (unless it is used in
+conjuction with poll()/select()). It is a poll()/select()
+replacement.
+
+Meaning... purposefully creating an API that is designed the way one
+would design a poll()/select() loop is purposefully limiting the benefits
+of /dev/epoll.
+
+It's like inventing a power drill to replace the common screw driver,
+but rather than plugging the power drill in, manually turning the
+drill as if it was a socket wrench for the drill bit.
+
+I find it an excercise in self defeat... except that /dev/epoll used the
+same way one would use poll()/select() happens to perform better even
+when it is crippled.
 
 mark
-
-
-On Sun, Oct 20, 2002 at 11:10:33AM +0200, Duncan Sands wrote:
-> > > Hi Pavel, I agree.  I have some questions about the code though:
-> > > when you come across a thread with (p->flags & PF_FROZEN), why
-> > > break out of the loop?  Why not just skip this thread and go on to
-> > > the
-> >
-> > There's "continue;" in there, and it should "just skip this thread".
-> > 									Pavel
-> 
-> I meant, why not just do as in the following code (I've changed
-> INTERESTING also, for same reason, as explained below):
-> 
-> 	do {
-> 		todo = 0;
-> 		read_lock(&tasklist_lock);
-> 		do_each_thread(g, p) {
-> 			unsigned long flags;
-> 
->                         if (
-> 				!(p->flags & PF_IOTHREAD) &&
-> 				(p != current) &&
-> 				(p->state != TASK_ZOMBIE) &&
-> 				!(p->flags & PF_FROZEN)
-> 			) {
-> 
-> 				/* FIXME: smp problem here: we may not access other process' flags
-> 				   without locking */
-> 				p->flags |= PF_FREEZE;
-> 				spin_lock_irqsave(&p->sig->siglock, flags);
-> 				signal_wake_up(p);
-> 				spin_unlock_irqrestore(&p->sig->siglock, flags);
-> 				todo++;
-> 			}
-> 		} while_each_thread(g, p);
-> 		read_unlock(&tasklist_lock);
-> 		yield();
-> 		if (time_after(jiffies, start_time + TIMEOUT)) {
-> 			printk( "\n" );
-> 			printk(KERN_ERR " stopping tasks failed (%d tasks remaining)\n", todo );
-> 			return todo;
-> 		}
-> 	} while(todo);
-> 
-> The reason is that yield(), which sends the current task to the expired list,
-> can take a long time before it runs again.  With the current code, every time
-> you meet, for example, a kernel thread you break out of the loop, perform
-> a yield (= wait a long time), before going on to the next thread.  This could
-> take forever.  With code like that above, you mark as many tasks frozen as
-> possible, with as few yields as possible.  Isn't that better?
-> 
-> Ciao,
-> 
-> Duncan.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
 mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________

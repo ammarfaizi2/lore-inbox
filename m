@@ -1,73 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269433AbRHCQEa>; Fri, 3 Aug 2001 12:04:30 -0400
+	id <S269451AbRHCQIU>; Fri, 3 Aug 2001 12:08:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269434AbRHCQEU>; Fri, 3 Aug 2001 12:04:20 -0400
-Received: from h24-76-184-93.vs.shawcable.net ([24.76.184.93]:33962 "HELO
-	md5.ca") by vger.kernel.org with SMTP id <S269433AbRHCQEJ>;
-	Fri, 3 Aug 2001 12:04:09 -0400
-Date: Fri, 3 Aug 2001 09:04:02 -0700
-From: Pavel Zaitsev <pavel@md5.ca>
-To: linux-kernel@vger.kernel.org
-Subject: df hangs after hung mount
-Message-ID: <20010803090402.A3649@md5.ca>
-Reply-To: pavel@md5.ca
+	id <S269438AbRHCQIK>; Fri, 3 Aug 2001 12:08:10 -0400
+Received: from nef.ens.fr ([129.199.96.32]:40974 "EHLO nef.ens.fr")
+	by vger.kernel.org with ESMTP id <S269437AbRHCQHw>;
+	Fri, 3 Aug 2001 12:07:52 -0400
+Date: Fri, 3 Aug 2001 18:07:49 +0200
+From: Thomas Pornin <Thomas.Pornin@ens.fr>
+To: ailinykh@usa.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fake loop
+Message-ID: <20010803180749.A42133@bolet.ens.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-X-Arbitrary-Number-Of-The-Day: 42
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010803155735.18620.qmail@nwcst31f.netaddress.usa.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20010803155735.18620.qmail@nwcst31f.netaddress.usa.net> you write:
+> #define prepare_to_switch()     do { } while(0)
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This one is a classic C trick; it is documented in the K&R book. With
+this fake loop, the macro can be used like a statement anywhere. For
+instance, compare the two following :
 
-Hi,
-I sometimes try to mount a CDROM drive, and mount hangs hard, in 'D' state =
- as specified in
-ps listing. Sometimes I do df, and that hangs as well. kill -9 doesn't work=
- on those proggies.
-That is with 2.4.3 and 2.4.7 kernels. Shouldn't they fail if cdrom is dysfu=
-nctional?
-thx,
-p.
+#define macro1()	{ /* some stuff */ }
+#define macro2()	do { /* some stuff */ } while (0)
 
-[pavel@calgary pavel]$ lspci
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (r=
-ev 03)
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev=
- 03)
-00:04.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-00:04.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-00:04.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
-00:04.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
-00:0a.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (r=
-ev 30)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/=
-2X (rev 5c)
+if (foo) macro1(); else bar;
+if (foo) macro2(); else bar;
 
---=20
-Take out your recursive cannons and shoot!
-110461387
-http://gpg.md5.ca
-http://perlpimp.com
+The second one is correct, but the first one is incorrect (the extra
+semi-colon unlinks the `else' from the `if').
 
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Besides, a fake loop, within or outside a macro, can be useful: you jump
+out of it with a `break' statement; you could do it with a `goto' but
+with the `break' you do not have to bother about managing label names.
 
-iD8DBQE7astyEhbFhd1U3E0RAli3AJ9wFlHRhST1UjA1qsHJBhWF8KLMygCfVJae
-+3RXy7CyuF0nIyifRG1JLrU=
-=S4xp
------END PGP SIGNATURE-----
 
---UugvWAfsgieZRqgk--
+	--Thomas Pornin

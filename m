@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbTKONM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 08:12:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbTKONM5
+	id S261687AbTKONNK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 08:13:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTKONNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 08:12:57 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:30894 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261681AbTKONMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 08:12:55 -0500
-Date: Sat, 15 Nov 2003 14:12:53 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6 BK Autoloading of modules regression?
-Message-ID: <20031115131253.GA11413@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+	Sat, 15 Nov 2003 08:13:10 -0500
+Received: from hades.mk.cvut.cz ([147.32.96.3]:8326 "EHLO hades.mk.cvut.cz")
+	by vger.kernel.org with ESMTP id S261687AbTKONNI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 08:13:08 -0500
+Message-ID: <3FB62662.8030609@kmlinux.fjfi.cvut.cz>
+Date: Sat, 15 Nov 2003 14:13:06 +0100
+From: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031029
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: loopback device + crypto = crash on 2.6.0-test7 ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using a recent Linux-2.6 (BK) with module-init-tools 0.9.15-pre3.
+I can confirm, having similar problem. I am using Debian Sid & 
+2.6.0-test9, with 4Gig highmem support (1.5G physical RAM). When reading 
+from cryptoloop (dd if=/dev/loop0 of=testoutput), it seems to produce 
+only noise. Each run of dd produces completely different heap of 
+garbage. When I disable highmem, getting rid of about 512 Megs, 
+cryptoloop seems to work as expected - I can do losetup & mke2fs & mount 
+& read/write files & unmount & losetup -d & again.. ad nauseam.
 
-I cannot autoload some modules in spite of (what I think) correct
-configuration.
-
-When I try to access /dev/nst0, I'd like the st module to be loaded.
-
-$ grep char-major-9\  /etc/modprobe.conf
-alias char-major-9 st
-$ mt -f /dev/nst0 status
-mt: No such device. Cannot open '/dev/nst0'.
-
-dmesg reports
-"request_module: failed /sbin/modprobe -s -- char-major-9-128. error = -1"
-
-Changing the alias to char-major-9-* or char-major-9* does not help.
-
-The st module is available, a manual modprobe st loads it fine.
-
-This worked with older post-2.6.0-test9 BK kernels with 0.9.15-pre2
-module-init-tools.
-
-
-The other issue I'm having is that apparently the kernel does not even
-try to autoload my "scanner" module. I have "alias char-major-180-48
-scanner" in modprobe.conf, /dev/usb/scanner0 which is a character special
-wit 180,48 is opened, but the module is not loaded. This has always been
-the case for 2.6.0-test9 for me.
-
-Did I do something wrong? Is there a kernel or module-init-tools
-problem?
-
+Regards,
 -- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+Jindrich Makovicka

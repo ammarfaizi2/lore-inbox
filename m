@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265300AbSJXDYL>; Wed, 23 Oct 2002 23:24:11 -0400
+	id <S265302AbSJXDs1>; Wed, 23 Oct 2002 23:48:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265302AbSJXDYL>; Wed, 23 Oct 2002 23:24:11 -0400
-Received: from host179.debill.org ([64.245.56.179]:19649 "EHLO mail.debill.org")
-	by vger.kernel.org with ESMTP id <S265300AbSJXDYK>;
-	Wed, 23 Oct 2002 23:24:10 -0400
-Date: Wed, 23 Oct 2002 22:30:22 -0500
-To: Chris Newland <chris.newland@emorphia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44 fs corruption
-Message-ID: <20021024033022.GA2334@debill.org>
-References: <20021023144620.GB1317@debill.org> <OAEPKDBINGEGKPCJJAJDKEMDHJAA.chris.newland@emorphia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OAEPKDBINGEGKPCJJAJDKEMDHJAA.chris.newland@emorphia.com>
-User-Agent: Mutt/1.3.28i
-From: erik@debill.org
+	id <S265303AbSJXDs1>; Wed, 23 Oct 2002 23:48:27 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:29120 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP
+	id <S265302AbSJXDs1>; Wed, 23 Oct 2002 23:48:27 -0400
+Message-ID: <3DB76EC0.F9EB4A36@verizon.net>
+Date: Wed, 23 Oct 2002 20:53:36 -0700
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.44 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [trivial] module.c double init?
+Content-Type: multipart/mixed;
+ boundary="------------343A2A36B592C87E961DF027"
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out002.verizon.net from [4.64.197.173] at Wed, 23 Oct 2002 22:54:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 04:13:52PM +0100, Chris Newland wrote:
-> My solution was to stick a USB->PS2 converter on my MS Intellimouse.
-> Disabling DMA on my hard disks also worked (but causes a massive performance
-> hit).
-> 
-> A good way to test if the problem has gone is to try to 'dd' the contents of
-> an entire partition into /dev/null. This used to have a 100% lockup rate
-> when I had the problem.
-> 
-> dd if=/dev/hda5 of=/dev/null bs=1048576
+This is a multi-part message in MIME format.
+--------------343A2A36B592C87E961DF027
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
+in 2.5.44: kernel/module.c, function s_start(), there is:
+	loff_t n = *pos;
 
-Well...  I went nuts with this and here's what I came up with:
+and then same "n = *pos" is done in the for-loop initializer.
+It's just a thinko, right?  or am I missing something?
 
-2.5.44 generic driver no DMA no mouse:  works fine
-2.5.44 + Viper driver no DMA no mouse:  works fine
-2.4.18 generic driver no DMA no mouse:  works fine
-2.4.18 generic driver + DMA no mouse:   works fine
-2.5.44 + Viper driver + DMA + mouse:    works fine
-2.5.44 + Viper driver + DMA no mouse:   lockup
+Patch attached (to 2.5.44).
 
-yes.  2.4.18 with the generic PCI DMA driver will let me set the drive
-to DMA.  And it works fine.  dd'd the whole drive.  The 2.5 generic
-driver won't let me set DMA.
+~Randy
+--------------343A2A36B592C87E961DF027
+Content-Type: text/plain; charset=us-ascii;
+ name="module-dblinit-2544.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="module-dblinit-2544.patch"
 
-Looks like either I'm just plain lucky under 2.4.18, or there's
-something bad w/ the Viper driver.  I've been running 2.4.18 since
-June 1 (and other 2.4 kernels before that) without any problems, so
-I'm inclined to blame the new kernel version.  It is, after all, a
-development kernel.
+--- ./kernel/module.c.fixit	Fri Oct 18 21:01:17 2002
++++ ./kernel/module.c	Wed Oct 23 19:54:10 2002
+@@ -1165,7 +1165,7 @@
+ 	if (!p)
+ 		return ERR_PTR(-ENOMEM);
+ 	lock_kernel();
+-	for (v = module_list, n = *pos; v; n -= v->nsyms, v = v->next) {
++	for (v = module_list; v; n -= v->nsyms, v = v->next) {
+ 		if (n < v->nsyms) {
+ 			p->mod = v;
+ 			p->index = n;
 
+--------------343A2A36B592C87E961DF027--
 
-Erik

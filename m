@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289324AbSA2KHG>; Tue, 29 Jan 2002 05:07:06 -0500
+	id <S289357AbSA2KOP>; Tue, 29 Jan 2002 05:14:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289328AbSA2KG4>; Tue, 29 Jan 2002 05:06:56 -0500
-Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:8590 "EHLO
-	DervishD.viadomus.com") by vger.kernel.org with ESMTP
-	id <S289324AbSA2KGo>; Tue, 29 Jan 2002 05:06:44 -0500
-To: ebiederm@xmission.com, raul@viadomus.com
-Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E16VVMw-0001oa-00@DervishD.viadomus.com>
-Date: Tue, 29 Jan 2002 11:20:02 +0100
-From: DervishD <raul@viadomus.com>
-Reply-To: DervishD <raul@viadomus.com>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S289330AbSA2KOG>; Tue, 29 Jan 2002 05:14:06 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:13063 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S289363AbSA2KNy>;
+	Tue, 29 Jan 2002 05:13:54 -0500
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <Pine.LNX.4.44.0201281918050.18405-100000@waste.org>
+	<87lmehft5b.fsf@fadata.bg> <E16VU2h-00009Y-00@starship.berlin>
+X-No-CC: Reply to lists, not to me.
+From: Momchil Velikov <velco@fadata.bg>
+Date: 29 Jan 2002 11:20:13 +0200
+In-Reply-To: <E16VU2h-00009Y-00@starship.berlin>
+Message-ID: <87g04pfr8y.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hello Eric :)
+>>>>> "Daniel" == Daniel Phillips <phillips@bonn-fries.net> writes:
 
->>     This header can be included or not? It works for me, with headers
->> from 2.4.17, so, is it just for backwards compatibility?
->Policy.  It is for forwards compatibility. The general policy on kernel
->headers is that if it breaks you get to keep the pieces.
+Daniel> On January 29, 2002 09:39 am, Momchil Velikov wrote:
+>> >>>>> "Oliver" == Oliver Xymoron <oxymoron@waste.org> writes:
+Oliver> you can't actually _share_ the page tables without marking the pages
+Oliver> themselves readonly.
+>> 
+>> Of course, ptes are made COW, just like now. Which brings up the
+>> question how much speedup we'll gain with a code that touches every
+>> single pte anyway ?
 
-    That is: I can include it if I just want the definition of a few
-ioctl's, but if in a future version all that is changed or even
-dissapears is completely my problem.
+Daniel> It's only touching the ptes on tables that are actually used, so if a parent
+Daniel> with a massive amount of mapped memory forks a child that only instantiates
+Daniel> a small portion of it (common situation) then the saving is pretty big.
 
-    Given the number of user-space apps that needs ioctl definitions
-and things like those (that are supposed not to change easily), those
-definitions should go in user-includable headers... IMHO.
+Umm, all the ptes af the parent ought to be made COW, no ?
 
-    Fortunately, we have some of them in libc headers now.
-
-    Thanks,
-    Raúl

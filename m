@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315779AbSFYRri>; Tue, 25 Jun 2002 13:47:38 -0400
+	id <S315760AbSFYRrb>; Tue, 25 Jun 2002 13:47:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315758AbSFYRrc>; Tue, 25 Jun 2002 13:47:32 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:40387 "EHLO
+	id <S315758AbSFYRr3>; Tue, 25 Jun 2002 13:47:29 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:35011 "EHLO
 	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S315754AbSFYRr2>; Tue, 25 Jun 2002 13:47:28 -0400
-Date: Tue, 25 Jun 2002 10:49:36 -0700
+	id <S315748AbSFYRr0>; Tue, 25 Jun 2002 13:47:26 -0400
+Date: Tue, 25 Jun 2002 10:47:07 -0700
 From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] /proc/scsi/map
+Subject: driverfs bus_id, name (was: [PATCH] /proc/scsi/map)
 To: Patrick Mochel <mochel@osdl.org>
 Cc: Nick Bellinger <nickb@attheoffice.org>, linux-kernel@vger.kernel.org,
        linux-scsi@vger.kernel.org
-Message-id: <3D18AD30.7040904@pacbell.net>
+Message-id: <3D18AC9B.8050306@pacbell.net>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii; format=flowed
 Content-transfer-encoding: 7BIT
@@ -22,39 +22,49 @@ References: <Pine.LNX.4.33.0206250920150.8496-100000@geena.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Why shouldn't there be a $DRIVERFS/net/ipv4@10.42.135.99/... style
->>hookup for iSCSI devices?  Using whatever physical addressing the
->>kernel uses there, which I assume wouldn't necessarily be restricted
->>to ipv4.  (And not exposing physical network topology -- routing! --
->>in driverfs.)
-> 
-> 
-> You can very well use driverfs to expose those attributes, and is one of 
-> the things that we've been discussing at the kernel summit. driverfs will 
-> take over the world. But, I still think the device is best represented as 
-> a child of the phsysical network device. 
+ > The bus_id of the device is intended to represent the bus-specific ID of
+ > the device, and is the name of the driverfs directory.
 
-Which one?  I'd certainly hope that drivers wouldn't have to choose which
-of the various network interfaces to register under, or register under
-every network interface concurrently.  (Or only the ones they might
-conceivably be routed to go out on...)  Given a bonded network link (going
-out over multiple physical drivers) that'd get hairy.  And what about
-devices that host several logical interfaces?  Or when the interfaces get
-moved to some other device?
+Right, I was just commenting that the SCSI folk seem to like a particular
+historical usage (based on driver enumeration order) that'd seem good to
+do away with ... since it's not necessary (given the _real_ bus-specific
+ID from their parent device) and has _always_ been problematic (those
+enumeration-related IDs can change unexpectedly).
 
-That's why I think a "non-physical" tree (not under $DRIVERFS/root) is more
-sensible in such cases.  Which is not to say it's without additional issues
-(like how to establish/maintain driver linkages that are DAGs not single
-parent trees) but it wouldn't require drivers to dig as deeply into lower
-levels of their stack.  (And some network interfaces might well live in
-such a non-physical tree, not just iSCSI...)
 
-I think that problem wouldn't quite be isomorphic to multipath access to
-devices, though it seems to be related.  "Driver stacking" is an area
-that "driverfs" doesn't seem to address quite yet ... not needed in the
-simpler driver scenarios, so that's what I'd expect at this stage.
+ > The name should user-friendly. It shouldn't be a unique name. Use
+ > something nice and pretty.
+
+I've been wondering about that.  Right now PCI and USB both use fairly
+unfriendly/unpretty values in device.name ... "{PCI,USB} device VVVV:PPPP".
+
+Let me make sure I understand you right here, by examples of two
+changes I'd like to see.  Correct me if these seem wrong:
+
+- It'd be more appropriate for PCI devices to copy pci_device.name into
+   device.name and get the user-friendly names from the PCI device name
+   database (when available), and only fallback to those nasty strings
+   when the more user-friendly names aren't available.
+
+- Likewise it'd be more appropriate for USB devices to take the
+   descriptive strings from the devices, like "Philips USB Digital
+   Speaker System", than "USB device 0471:0104".
+
+In both cases the current strings might make reasonable fallbacks
+for the case when something better isn't available.  But as examples,
+I don't think they match a "user friendly, pretty" model ... :)
+
+Would it be appropriate for device drivers to set the "name" in
+some cases, or is that something you'd only expect bus drivers
+to be setting up (once, and read-only)?
+
+Given that in one common usage the "bus_id" is the "true name" of
+those devices, I've thought that "description" might be a slightly
+better way identify that attribute.  "Name" is a word with a thousand
+meanings, all of them context-dependent, and easily confused.
 
 - Dave
+
 
 
 

@@ -1,73 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270805AbTG0ONe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 10:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270806AbTG0ONd
+	id S270803AbTG0OMo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 10:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270805AbTG0OMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 10:13:33 -0400
-Received: from diale221.ppp.lrz-muenchen.de ([129.187.28.221]:8340 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id S270805AbTG0ONa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 10:13:30 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: Daniel Egger <degger@fhm.edu>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Yury Umanets <umka@namesys.com>, Nikita Danilov <Nikita@Namesys.COM>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <3F23D38B.3020309@namesys.com>
-References: <3F1EF7DB.2010805@namesys.com>
-	 <1059062380.29238.260.camel@sonja>
-	 <16160.4704.102110.352311@laputa.namesys.com>
-	 <1059093594.29239.314.camel@sonja>
-	 <16161.10863.793737.229170@laputa.namesys.com>
-	 <1059142851.6962.18.camel@sonja>
-	 <1059143985.19594.3.camel@haron.namesys.com>
-	 <1059181687.10059.5.camel@sonja>
-	 <1059203990.21910.13.camel@haron.namesys.com>
-	 <1059228808.10692.7.camel@sonja>  <3F23D38B.3020309@namesys.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mMC31r85lhnL5BalAJLE"
-Message-Id: <1059315015.10692.207.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 27 Jul 2003 16:10:15 +0200
+	Sun, 27 Jul 2003 10:12:44 -0400
+Received: from galaxy.lunarpages.com ([64.235.234.165]:19637 "EHLO
+	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
+	id S270803AbTG0OMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 10:12:39 -0400
+Message-ID: <3F23E538.6010900@genebrew.com>
+Date: Sun, 27 Jul 2003 10:44:08 -0400
+From: Rahul Karnik <rahul@genebrew.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+CC: Marcelo Penna Guerra <eu@marcelopenna.org>,
+       lkml <linux-kernel@vger.kernel.org>, Laurens <masterpe@xs4all.nl>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
+References: <200307262309.20074.adq_dvb@lidskialf.net> <200307271301.41660.adq_dvb@lidskialf.net> <3F23DB4E.1000203@genebrew.com> <200307271514.00724.adq_dvb@lidskialf.net>
+In-Reply-To: <200307271514.00724.adq_dvb@lidskialf.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew de Quincey wrote:
+> Hmm, I have a suspicion it is not unfortunately, given the change in location 
+> of the MAC address. Or maybe nvidia have displaced the configuration 
+> registers by some amount?
 
---=-mMC31r85lhnL5BalAJLE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Dunno. Look in the list archives for earlier discussions on the topic. 
+It seems AMD audio is a clone of Intel audio, which is why Intel audio 
+works for NForce. Since both audio and ethernet match, it seems unlikely 
+that Nvidia would license a completely different ethernet chip, but who 
+knows?
 
-Am Son, 2003-07-27 um 15.28 schrieb Hans Reiser:
+Anyway, I want to put as much info out there as possible for someone to 
+use as they wish. So here's another tip:
 
-> it is suitable for any flash device that has wear leveling built into=20
-> the hardware (e.g. all compact flash cards)
+00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet 
+Controller (rev a1)
+00: de 10 66 00 07 00 b0 00 a1 00 00 02 00 00 00 00
+10: 00 00 00 e0 01 c4 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 62 14 0c 57
+30: 00 00 00 00 44 00 00 00 00 00 00 00 0b 01 01 14
+40: 62 14 0c 57 01 00 02 fe 00 01 00 00 04 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-Are you sure CF cards have wear leveling? I'm pretty confident that they
-have defect sector management but no wear leveling. There's a huge
-difference between those two.
+Note the first row reads:
+00: de 10 66 00 07 00 b0 00 a1 00 00 02 00 00 00 00
 
-> or for which a wear leveling block device driver is used (I don't know
-> if one exists for Linux).
+Before nvnet loads, the same row reads:
+00: de 10 66 00 03 00 b0 00 a1 00 00 02 00 00 00 00
 
-This is normally done by the filesystem (e.g. JFFS2).
+Don't know if that is significant.
 
---=20
-Servus,
-       Daniel
-
---=-mMC31r85lhnL5BalAJLE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/I91Gchlzsq9KoIYRApAPAKC6nQ5wpfKGewY9esyRqhkzYUWFDQCg5VUe
-U7FjQAyfKtdn5AS9q2T5uPU=
-=yHsv
------END PGP SIGNATURE-----
-
---=-mMC31r85lhnL5BalAJLE--
+-Rahul
+-- 
+Rahul Karnik
+rahul@genebrew.com
 

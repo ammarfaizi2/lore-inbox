@@ -1,109 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269673AbRHMBaZ>; Sun, 12 Aug 2001 21:30:25 -0400
+	id <S269683AbRHMBfh>; Sun, 12 Aug 2001 21:35:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269651AbRHMBaD>; Sun, 12 Aug 2001 21:30:03 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13966 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269644AbRHMB2B>;
-	Sun, 12 Aug 2001 21:28:01 -0400
-Date: Sun, 12 Aug 2001 21:28:12 -0400 (EDT)
+	id <S269672AbRHMBaW>; Sun, 12 Aug 2001 21:30:22 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:656 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269655AbRHMB3B>;
+	Sun, 12 Aug 2001 21:29:01 -0400
+Date: Sun, 12 Aug 2001 21:29:13 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fs/super.c fixes - second series (6/11)
-In-Reply-To: <Pine.GSO.4.21.0108122127320.7092-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0108122127560.7092-100000@weyl.math.psu.edu>
+Subject: [PATCH] fs/super.c fixes - second series (9/11)
+In-Reply-To: <Pine.GSO.4.21.0108122128400.7092-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0108122129000.7092-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Part 6/11
+Part 9/11
 
-	* get_sb_single() doesn't rely on kern_mount() being already done.
-It simply checks list_empty(&type->fs_supers) and if we already have a
-superblocks - grabs and returns it. If we don't have one it does the
-right thing - inserts preallocated superblock into the ->fs_supers (and
-super_blocks, indeed) and does ->read_super() on it, etc.
+Cleanup: invalidate_dquot() can rely on the fact that struct superblock is
+not reused.
 
-	It means that get_sb_single() works regardless of the kern_mount() -
-if the latter had been done the thing will pick the superblock as it used
-to do, if not - no problems.
-
-diff -urN S9-pre1-fs_supers/fs/super.c S9-pre1-get_sb_single/fs/super.c
---- S9-pre1-fs_supers/fs/super.c	Sun Aug 12 20:45:50 2001
-+++ S9-pre1-get_sb_single/fs/super.c	Sun Aug 12 20:45:50 2001
-@@ -1031,19 +1031,62 @@
- static struct super_block *get_sb_single(struct file_system_type *fs_type,
- 	int flags, void *data)
- {
--	struct super_block * sb;
-+	struct super_block * s = alloc_super();
-+	if (!s)
-+		return ERR_PTR(-ENOMEM);
-+	down_write(&s->s_umount);
- 	/*
- 	 * Get the superblock of kernel-wide instance, but
- 	 * keep the reference to fs_type.
- 	 */
- 	down(&mount_sem);
--	sb = fs_type->kern_mnt->mnt_sb;
--	if (!sb)
--		BUG();
--	atomic_inc(&sb->s_active);
--	down_write(&sb->s_umount);
--	do_remount_sb(sb, flags, data);
--	return sb;
-+retry:
-+	spin_lock(&sb_lock);
-+	if (!list_empty(&fs_type->fs_supers)) {
-+		struct super_block *old;
-+		old = list_entry(fs_type->fs_supers.next, struct super_block,
-+				s_instances);
-+		if (!grab_super(old))
-+			goto retry;
-+		atomic_dec(&s->s_active);
-+		put_super(s);
-+		do_remount_sb(old, flags, data);
-+		return old;
-+	} else {
-+		kdev_t dev = get_unnamed_dev();
-+		if (!dev) {
-+			atomic_dec(&s->s_active);
-+			put_super(s);
-+			up(&mount_sem);
-+			return ERR_PTR(-EMFILE);
-+		}
-+		s->s_dev = dev;
-+		s->s_flags = flags;
-+		s->s_type = fs_type;
-+		list_add (&s->s_list, super_blocks.prev);
-+		list_add (&s->s_instances, &fs_type->fs_supers);
-+		spin_unlock(&sb_lock);
-+		lock_super(s);
-+		if (!fs_type->read_super(s, data, 0))
-+			goto out_fail;
-+		unlock_super(s);
-+		return s;
-+
-+	out_fail:
-+		s->s_dev = 0;
-+		s->s_bdev = 0;
-+		s->s_type = NULL;
-+		unlock_super(s);
-+		atomic_dec(&s->s_active);
-+		spin_lock(&sb_lock);
-+		list_del(&s->s_list);
-+		list_del(&s->s_instances);
-+		spin_unlock(&sb_lock);
-+		put_super(s);
-+		put_unnamed_dev(dev);
-+		up(&mount_sem);
-+		return ERR_PTR(-EINVAL);
-+	}
+diff -urN S9-pre1-kern_mnt/fs/dquot.c S9-pre1-dquot/fs/dquot.c
+--- S9-pre1-kern_mnt/fs/dquot.c	Sat Aug 11 14:59:24 2001
++++ S9-pre1-dquot/fs/dquot.c	Sun Aug 12 20:45:51 2001
+@@ -325,7 +325,7 @@
+         memset(&dquot->dq_dqb, 0, sizeof(struct dqblk));
  }
  
- static void kill_super(struct super_block *sb)
+-static void invalidate_dquots(kdev_t dev, short type)
++static void invalidate_dquots(struct super_block *sb, short type)
+ {
+ 	struct dquot *dquot, *next;
+ 	int need_restart;
+@@ -335,12 +335,10 @@
+ 	need_restart = 0;
+ 	while ((dquot = next) != NULL) {
+ 		next = dquot->dq_next;
+-		if (dquot->dq_dev != dev)
++		if (dquot->dq_sb != sb)
+ 			continue;
+ 		if (dquot->dq_type != type)
+ 			continue;
+-		if (!dquot->dq_sb)	/* Already invalidated entry? */
+-			continue;
+ 		if (dquot->dq_flags & DQ_LOCKED) {
+ 			__wait_on_dquot(dquot);
+ 
+@@ -349,12 +347,10 @@
+ 			/*
+ 			 * Make sure it's still the same dquot.
+ 			 */
+-			if (dquot->dq_dev != dev)
++			if (dquot->dq_sb != sb)
+ 				continue;
+ 			if (dquot->dq_type != type)
+ 				continue;
+-			if (!dquot->dq_sb)
+-				continue;
+ 		}
+ 		/*
+ 		 *  Because inodes needn't to be the only holders of dquot
+@@ -1409,7 +1405,7 @@
+ 
+ 		/* Note: these are blocking operations */
+ 		remove_dquot_ref(sb, cnt);
+-		invalidate_dquots(sb->s_dev, cnt);
++		invalidate_dquots(sb, cnt);
+ 
+ 		/* Wait for any pending IO - remove me as soon as invalidate is more polite */
+ 		down(&dqopt->dqio_sem);
 
 

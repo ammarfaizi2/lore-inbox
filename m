@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbUCDQV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 11:21:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbUCDQV1
+	id S262000AbUCDQ2I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 11:28:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbUCDQ2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 11:21:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46026 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261876AbUCDQV0 (ORCPT
+	Thu, 4 Mar 2004 11:28:08 -0500
+Received: from main.gmane.org ([80.91.224.249]:1682 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262000AbUCDQ2G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 11:21:26 -0500
-Date: Thu, 4 Mar 2004 11:21:08 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Christoph Hellwig <hch@infradead.org>
-cc: Dave McCracken <dmccr@us.ibm.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 230-objrmap fixes for 2.6.3-mjb2
-In-Reply-To: <20040304154742.A12277@infradead.org>
-Message-ID: <Pine.LNX.4.44.0403041120450.20043-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Mar 2004 11:28:06 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [PATCH] Alpha ptrace.c
+Date: Thu, 04 Mar 2004 17:28:03 +0100
+Message-ID: <yw1x8yigd1bg.fsf@kth.se>
+References: <40475290.2050404@digital.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:PBzJaJnfCLKx0nfXbDeVFoE1EMQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Mar 2004, Christoph Hellwig wrote:
+Aneesh Kumar KV <aneesh.kumar@digital.com> writes:
 
-> void mlock_page(struct page *page)
-> {
-> 	if (!test_and_set_bit(PG_mlocked, &page->flags)
-> 		remove_from_lru_if_there();
-> 	atomic_inc(&page.some_union->mlock_count);
-> }
+> This patch was acknowledged by Richard
 
-Looks ok to me.
-
-> if so that would help me greatly for xfs, but I'd also need a 2.4 variant..
-
-I don't see why the same thing wouldn't work for 2.4 ...
+And what is the purpose of it?
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Måns Rullgård
+mru@kth.se
 

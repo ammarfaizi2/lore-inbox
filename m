@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317673AbSHZTYL>; Mon, 26 Aug 2002 15:24:11 -0400
+	id <S317624AbSHZTXy>; Mon, 26 Aug 2002 15:23:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317772AbSHZTYL>; Mon, 26 Aug 2002 15:24:11 -0400
-Received: from AMarseille-201-1-2-149.abo.wanadoo.fr ([193.253.217.149]:8048
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S317673AbSHZTYK>; Mon, 26 Aug 2002 15:24:10 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Daniel Egger <degger@fhm.edu>, Alan Cox <alan@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre4-ac2
-Date: Mon, 26 Aug 2002 22:37:20 +0200
-Message-Id: <20020826203720.1562@192.168.4.1>
-In-Reply-To: <1030388788.2797.13.camel@irongate.swansea.linux.org.uk>
-References: <1030388788.2797.13.camel@irongate.swansea.linux.org.uk>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
+	id <S317673AbSHZTXy>; Mon, 26 Aug 2002 15:23:54 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:32896 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317624AbSHZTXx>; Mon, 26 Aug 2002 15:23:53 -0400
+Date: Mon, 26 Aug 2002 15:29:17 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Aleksandar Kacanski <kacanski@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory leak
+In-Reply-To: <20020826190106.42208.qmail@web12706.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1020826152100.6296B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If it was x86 I'd say "keep it for 2.4, delete it in 2.5, in the 2.4 one
->add a printk advising people to switch driver". I don't know how the ppc
->world is accustomed to handling this though
+On Mon, 26 Aug 2002, Aleksandar Kacanski wrote:
 
-Well, we aren't not really accustomed to obsoleting a driver yet ;)
+> Hello,
+> I am running 2.4.18-3 version of the kernel on smp dual
+> processor and 1GB of RAM. My memory usage is increasing and
+> I can't find what exactly is eating memory. Top and proc
+> are reporting increases, but I would like to know of a
+> better way of tracing usage of memory and possible leak in
+> application(s).
+> 
+> Please reply to kacanski@yahoo.com
+> thanks                Sasha
+> 
+> 
 
-My original intend was just that (keep it in 2.4 and delete it in 2.5)
-but now, working sungem has been around 2.4 for quite some time and new
-machines aren't properly suported by it etc...
+Applications that use malloc() and friends, get more memory from
+the kernel by resetting the break address. It's called "morecore()".
+You can put a procedure, perhaps off SIGALRM, that periodically
+checks the break address and writes it to a log. Applications
+that end up with an ever-increasing break address have memory
+leaks. Note that the break address is almost never set back.
+This is not an error; malloc() assumes that if you used a lot
+of memory once, you'll probably use it again. Check out sbrk()
+and brk() in the man pages.
 
-The printk big bold warning on driver load may be the best option for 2.4
-
-Ben.
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

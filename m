@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277356AbRJJS3p>; Wed, 10 Oct 2001 14:29:45 -0400
+	id <S277352AbRJJSbz>; Wed, 10 Oct 2001 14:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277352AbRJJS3g>; Wed, 10 Oct 2001 14:29:36 -0400
-Received: from quattro-eth.sventech.com ([205.252.89.20]:29971 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S277356AbRJJS3V>; Wed, 10 Oct 2001 14:29:21 -0400
-Date: Wed, 10 Oct 2001 14:32:44 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.11 uhci problem ( and maybe more ) ...
-Message-ID: <20011010143244.C19707@sventech.com>
-In-Reply-To: <Pine.LNX.4.40.0110101041150.984-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.40.0110101041150.984-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Wed, Oct 10, 2001 at 10:54:12AM -0700
+	id <S277358AbRJJSbq>; Wed, 10 Oct 2001 14:31:46 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:34065 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S277359AbRJJSbe>;
+	Wed, 10 Oct 2001 14:31:34 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200110101831.WAA05257@ms2.inr.ac.ru>
+Subject: Re: [PATCH] Trivial patch for SIOCGIFCOUNT
+To: balbir.singh@wipro.COM (BALBIR SINGH)
+Date: Wed, 10 Oct 2001 22:31:44 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BC3DE5D.8000500@wipro.com> from "BALBIR SINGH" at Oct 10, 1 09:45:02 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001, Davide Libenzi <davidel@xmailserver.org> wrote:
-> Kernel 2.4.11 - gcc 3.0.1
-> I've got raced timeouts from uhci and a couple of complete kernel freeze.
-> No usb devices attached to my usb bus.
-> 2.4.x , x <= 10 are fine
+Hello!
 
-This patch will fix the problem.
+> application from Sun, HP-UX or AIX would just do
+> 
+> #define SIOCGIFNUM SIOCGIFCOUNT
 
-JE
+Grrr.... Listen what the hell did you call this ioctl with _another_ name,
+absent both in BSD and in SVR4??? :-)
 
-diff --minimal -Nru a/drivers/usb/uhci.c b/drivers/usb/uhci.c
---- a/drivers/usb/uhci.c	Wed Oct 10 07:32:38 2001
-+++ b/drivers/usb/uhci.c	Wed Oct 10 07:32:38 2001
-@@ -1594,9 +1594,7 @@
- 	}
- 
- 	uhci_unlink_generic(uhci, urb);
--	uhci_destroy_urb_priv(urb);
--
--	usb_dec_dev_use(urb->dev);
-+	uhci_call_completion(urb);
- 
- 	return ret;
- }
+I remember the patch doing the same thing and I zapped this crap
+exactly because it was another linuxish hack moving from bsd api
+and not moving closer to svr4.
+
+Alexey
+
+PS. Well, and did you think about one thing: "linux" port of any application
+which does not work with linuxes can smell a bit anti-social for many people,
+who do not compile from sources. And for all the people, if the port is binary.

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267015AbSL3R7F>; Mon, 30 Dec 2002 12:59:05 -0500
+	id <S267020AbSL3SHL>; Mon, 30 Dec 2002 13:07:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267020AbSL3R7F>; Mon, 30 Dec 2002 12:59:05 -0500
-Received: from dsl-213-023-051-002.arcor-ip.net ([213.23.51.2]:10475 "EHLO
-	gauss.milliways.de") by vger.kernel.org with ESMTP
-	id <S267015AbSL3R7E> convert rfc822-to-8bit; Mon, 30 Dec 2002 12:59:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Markus Pfeiffer <profmakx@profmakx.org>
-To: Sam Ravnborg <sam@ravnborg.org>, Larry McVoy <lm@work.bitmover.com>,
-       Hannes Reinecke <mail@hannes-reinecke.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Alpha port still maintained in 2.5
-Date: Mon, 30 Dec 2002 19:13:23 +0100
-User-Agent: KMail/1.4.3
-References: <3E10611D.10108@hannes-reinecke.de> <20021230152325.GB8766@work.bitmover.com> <20021230165010.GA2054@mars.ravnborg.org>
-In-Reply-To: <20021230165010.GA2054@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212301913.28503.profmakx@profmakx.org>
+	id <S267022AbSL3SHL>; Mon, 30 Dec 2002 13:07:11 -0500
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:43988 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S267020AbSL3SHL>; Mon, 30 Dec 2002 13:07:11 -0500
+Subject: Re: Current unclaimed 2.5 bugs on bugme.osdl.org
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: kernel-janitor-discuss@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <299610000.1041267777@titus>
+References: <129460000.1041214462@titus>
+	 <1041255152.544.14.camel@zion.wanadoo.fr>  <299610000.1041267777@titus>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041272200.550.7.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 30 Dec 2002 19:16:40 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 December 2002 17:50, Sam Ravnborg wrote:
-> On Mon, Dec 30, 2002 at 07:23:25AM -0800, Larry McVoy wrote:
-> > I have a spare Alpha box (in theory I made need it some day if we ever
-> > decide to support Tru64 but that seems like a small market).  I don't
-> > know how useful it is but I could put it up outside our firewall if
-> > that helped.  I'd have to install Linux on it and I'm booked up until
-> > Jan 9th but if you still need it then let me know.
->
-> Hi Larry, nice offer. But I personally would not have time hacking on
-> Alpha. Others may find it usefull though.
->
+On Mon, 2002-12-30 at 18:02, Martin J. Bligh wrote:
 
-Well, I have an Alpha System here myself and am also "hacking" on it. But one 
-has also to ask oneself if there is any demand (apart from my personal 
-demand) for a maintained Linux/Alpha >= 2.5...
+> OK, trouble is I need someone with a bugzilla account to assign these to.
+> I emailed James, if he doesn't want it, would you be willing to maintain
+> that subsection in bugzilla?
 
-Anyway, I just installed BitKeeper and start finding my way into the code...
+Anything related to radeonfb, atyfb, or endian issues yes. For other fbdev
+issues, I can try playing the "gateway" with the appropriate list/maintainer,
+though I can't promise doing it very regulary.
 
-Markus
+Ben.
+
+
+

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135322AbRA2K3Y>; Mon, 29 Jan 2001 05:29:24 -0500
+	id <S130980AbRA2KhF>; Mon, 29 Jan 2001 05:37:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135568AbRA2K3P>; Mon, 29 Jan 2001 05:29:15 -0500
-Received: from [24.67.108.36] ([24.67.108.36]:6528 "EHLO
-	ogah.cgma1.ab.wave.home.com") by vger.kernel.org with ESMTP
-	id <S135322AbRA2K3K>; Mon, 29 Jan 2001 05:29:10 -0500
-Date: Mon, 29 Jan 2001 03:26:37 -0700
-From: Harold Oga <ogah@home.com>
+	id <S131786AbRA2Kg4>; Mon, 29 Jan 2001 05:36:56 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16649 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S130980AbRA2Kgq>; Mon, 29 Jan 2001 05:36:46 -0500
+Date: Mon, 29 Jan 2001 11:36:42 +0100
+From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.1-pre11
-Message-ID: <20010129032637.A642@ogah.cgma1.ab.wave.home.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101281020540.3850-100000@penguin.transmeta.com> <E14NB8r-000063-00@roos.tartu-labor>
+Subject: Can't compile 2.2.18
+Message-ID: <20010129113642.A5234@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14NB8r-000063-00@roos.tartu-labor>; from mroos@linux.ee on Mon, Jan 29, 2001 at 12:02:33PM +0200
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 29, 2001 at 12:02:33PM +0200, Meelis Roos wrote:
->LT> I just uploaded it to kernel.org, and I expect that I'll do the final
->LT> 2.4.1 tomorrow, before leaving for NY and LinuxWorld. Please test that the
->LT> pre-kernel works for you..
->[...]
->LT> pre10:
->[...]
->LT>  - Andy Grover: APCI update
->
->I tried test11 yesterday. Works fine except when I enable ACPI instead of
->APM. Never tried this before but now I decided to give it a try.
->After initialising ACPI, the machine became slow as a 386 or a 286.
->
->AMD Duron 600, Soltek 75KV mobo w/VIA KT133 chipset, UP-APIC kernel, IDE-only
->system.
-Hi,
-   I'm seeing similar problems with my system on 2.4.1-pre10.  This is an
-AMD Thunderbird 900, MSI K7T Pro2-A mobo w/VIA KT133 chipset, UP, ide/scsi
-mix.  2.4.1-pre10 works fine if I don't configure ACPI.  I'll try to
-narrow down when this problem started showing up later today, as I
-initially moved from 2.4.1-pre3 straight to 2.4.1-pre10.
+clock@ghost:~$ gcc --version
+2.95.2.1
 
--Harold
--- 
-"Life sucks, deal with it!"
+libc5 
+
+make -C  arch/i386/kernel
+make[1]: Entering directory `/usr/src/linux-2.2.18/arch/i386/kernel'
+cc -D__KERNEL__ -I/usr/src/linux-2.2.18/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=586   -DEXPORT_SYMTAB -c i386_ksyms.c
+i386_ksyms.c:37: `__ioremap' undeclared here (not in a function)
+i386_ksyms.c:37: initializer element is not constant
+i386_ksyms.c:37: (near initialization for `__ksymtab___ioremap.value')
+i386_ksyms.c:38: `iounmap' undeclared here (not in a function)
+i386_ksyms.c:38: initializer element is not constant
+i386_ksyms.c:38: (near initialization for `__ksymtab_iounmap.value')
+make[1]: *** [i386_ksyms.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.2.18/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
+
+Clock
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264472AbTEaV74 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 17:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbTEaV7z
+	id S264473AbTEaWFl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 18:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264475AbTEaWFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 17:59:55 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9700 "HELO
+	Sat, 31 May 2003 18:05:41 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1764 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264472AbTEaV7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 17:59:55 -0400
-Date: Sun, 1 Jun 2003 00:13:09 +0200
+	id S264473AbTEaWFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 18:05:40 -0400
+Date: Sun, 1 Jun 2003 00:18:55 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: zipa24@suomi24.fi, perex@suse.cz, alsa-devel@alsa-project.org
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-mm3
-Message-ID: <20030531221309.GL29425@fs.tum.de>
-References: <Pine.LNX.4.50L0.0306010036140.3349-100000@limbo.dnsalias.org> <3E5AD46C0006FA51@webmail-fi1.sol.no1.asap-asp.net>
+To: greg@kroah.com, David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [2.5 patch] let USB_GADGET depend on USB
+Message-ID: <20030531221855.GM29425@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E5AD46C0006FA51@webmail-fi1.sol.no1.asap-asp.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 01, 2003 at 12:45:02AM +0300, zipa24@suomi24.fi wrote:
-> >On Sat, 31 May 2003, Andrew Morton wrote:
-> 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm3/
-> 
-> I get following OOPS when I try to load snd-ymfpci ALSA module:
->...
+USB_GADGET is still selectable even with USB disabled. It seems the 
+following is intended:
 
-Debian bug #193077 [1] lists a similar problem with current ALSA and 
-kernel 2.4 ...
+
+--- linux-2.5.70-mm3/drivers/usb/gadget/Kconfig.old	2003-06-01 00:15:30.000000000 +0200
++++ linux-2.5.70-mm3/drivers/usb/gadget/Kconfig	2003-06-01 00:15:49.000000000 +0200
+@@ -8,7 +8,7 @@
+ #
+ menuconfig USB_GADGET
+ 	tristate "Support for USB Gadgets"
+-	depends on EXPERIMENTAL
++	depends on USB && EXPERIMENTAL
+ 	help
+ 	   USB is a master/slave protocol, organized with one master
+ 	   host (such as a PC) controlling up to 127 peripheral devices.
+
+
 
 cu
 Adrian
-
-[1] http://bugs.debian.org/193077
 
 -- 
 

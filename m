@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272329AbRH3Qrn>; Thu, 30 Aug 2001 12:47:43 -0400
+	id <S271924AbRH3QyD>; Thu, 30 Aug 2001 12:54:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272330AbRH3Qre>; Thu, 30 Aug 2001 12:47:34 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:53902 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S272329AbRH3QrT>; Thu, 30 Aug 2001 12:47:19 -0400
-Date: Thu, 30 Aug 2001 12:47:36 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: Michael E Brown <michael_e_brown@dell.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blkgetsize64 ioctl
-In-Reply-To: <Pine.LNX.4.33.0108301131070.1213-100000@blap.linuxdev.us.dell.com>
-Message-ID: <Pine.LNX.4.33.0108301247130.12593-100000@toomuch.toronto.redhat.com>
+	id <S271986AbRH3Qxy>; Thu, 30 Aug 2001 12:53:54 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53771 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271924AbRH3Qxo>; Thu, 30 Aug 2001 12:53:44 -0400
+Date: Thu, 30 Aug 2001 09:50:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        David Lang <david.lang@digitalinsight.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <3B8E6CA3.6F5F6735@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.33.0108300949080.8027-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Aug 2001, Michael E Brown wrote:
 
-> And your last point about risking unexpected disk-io due to an incorrect
-> IOCTL, I would say that is a pretty unlikely in practice. First, I do
-> parameter checking on what was passed to the IOCTL, and if things don't
-> match, no io is done. Second, how likely is it that you a) call ioctl with
-> a (disk) block device, b) pass the wrong ioctl, c) pass along enough data
-> to pass the checks in the ioctl, and d) pass along a valid pointer to 512
-> bytes of data to overwrite something?
+On Thu, 30 Aug 2001, Christopher Friesen wrote:
+>
+> Wouldn't it have made more sense to make the 'len' parameter an unsigned int?
 
-e2fsprogs-1.23 on x86 does this.
+Oh yes.
 
-		-ben
+And wouldn't it be nicer if the sky was pink, and God came personally down
+to earth and stopped all wrans and made you king?
+
+You do realize that many things are signed, whether you want them to be or
+not?
+
+Like "off_t", which on the face of it sounds like it should be unsigned
+("offset within a file - oh, that can obviously never be negative").
+
+		Linus
 

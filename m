@@ -1,34 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267932AbTBRRPF>; Tue, 18 Feb 2003 12:15:05 -0500
+	id <S267947AbTBRRUE>; Tue, 18 Feb 2003 12:20:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267927AbTBRROt>; Tue, 18 Feb 2003 12:14:49 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:20682 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id <S267899AbTBRRMl>; Tue, 18 Feb 2003 12:12:41 -0500
-Date: Tue, 18 Feb 2003 17:24:16 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Pam Delaney <pdelaney@lsil.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] broken MPT Fusion build
-Message-ID: <Pine.LNX.4.44.0302181717440.7702-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S267941AbTBRRSb>; Tue, 18 Feb 2003 12:18:31 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:56254 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267937AbTBRRP2>;
+	Tue, 18 Feb 2003 12:15:28 -0500
+Subject: [Fastboot] [KEXEC][2.5.61][2.5.62] Untested patches available
+From: Andy Pfiffer <andyp@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: fastboot@osdl.org,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
+In-Reply-To: <1044918007.1705.22.camel@andyp.pdx.osdl.net>
+References: <1044918007.1705.22.camel@andyp.pdx.osdl.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1045589128.23988.34.camel@andyp.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 18 Feb 2003 09:25:28 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.62's removal of scsi_set_pci_device broke the MPT Fusion build.
+Eric,
 
---- 2.5.62/drivers/message/fusion/mptbase.h	Thu Jan  2 09:06:16 2003
-+++ linux/drivers/message/fusion/mptbase.h	Tue Feb 18 16:53:18 2003
-@@ -603,7 +603,7 @@
- 	dma_addr_t		 sense_buf_pool_dma;
- 	u32			 sense_buf_low_dma;
- 	int			 mtrr_reg;
--	void			*pcidev;	/* struct pci_dev pointer */
-+	struct pci_dev		*pcidev;
- 	u8			*memmap;	/* mmap address */
- 	struct Scsi_Host	*sh;		/* Scsi Host pointer */
- 	ScsiCfgData		spi_data;	/* Scsi config. data */
+I have carried forward the kexec patch set to 2.5.61 and 2.5.62.
+Other than basic compile testing, I have not yet finished kicking the
+tires on these patches.
+
+There were some syscall hijinks in the merge up to 2.5.61 and in 2.5.62,
+so you may need to edit/recompile the kexec tools for either of these to
+work.
+
+New in this set is a small change taken from the ppc64 tree via Suparna
+Bhattacharya that made kexec on 2.5.60 work for me on a 2-way x86
+system.
+
+(Suparna: I have not yet tried your newer version of hwfixes).
+
+The patches are available for download from OSDL's patch lifecycle
+manager (PLM):
+
+Patch Stack for 2.5.62:
+
+	kexec base for 2.5.62 (based upon the version for 2.5.54):
+	http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1560
+
+	kexec hwfixes for 2.5.62 (based upon the version for 2.5.5[89])
+	http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1561
+
+	kexec usemm change (allowed 2-way to work for me):
+	http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1562
+
+	optional change to defconfig (I used this for PLM-based builds)
+	http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1564
+
+Patch Stack for 2.5.61:
+
+	kexec base for 2.5.61 (based upon the version for 2.5.54):
+	http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1556
+
+	kexec hwfixes for 2.5.61 (based upon the version for 2.5.5[89])
+	http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1557
+
+	kexec usemm change (allowed 2-way to work for me):
+	http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1558
+
+	optional change to defconfig (I used this for PLM-based builds)
+	http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1559
+
+Regards,
+Andy
+
+
 

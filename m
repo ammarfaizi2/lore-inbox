@@ -1,128 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbULQWzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbULQWx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262223AbULQWzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 17:55:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbULQWwS
+	id S262220AbULQWx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 17:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbULQWwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 17:52:18 -0500
-Received: from natjimbo.rzone.de ([81.169.145.162]:2955 "EHLO
-	natjimbo.rzone.de") by vger.kernel.org with ESMTP id S262219AbULQWu3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 17:50:29 -0500
-Date: Fri, 17 Dec 2004 23:50:00 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.de>
-To: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] cpufrequtils-0.1 released
-Message-ID: <20041217225000.GA8245@dominikbrodowski.de>
-Mail-Followup-To: cpufreq@www.linux.org.uk,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Fri, 17 Dec 2004 17:52:51 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:2973 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262220AbULQWtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 17:49:50 -0500
+Date: Fri, 17 Dec 2004 16:49:44 -0600
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: linux-kernel@vger.kernel.org
+cc: wli@holomorphy.com, mingo@elte.hu
+Subject: Oops on 2.4.x invalid procfs i_ino value
+Message-ID: <Pine.SGI.4.61.0412171611120.27132@kzerza.americas.sgi.com>
+Organization: "Silicon Graphics, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've run into a number of crashes while closing procfs stat files
+when a system is under load.  I think I've found the problem, but
+am a little unsure how to proceed.  This all happens to be on a
+2.4.21 based kernel, but by my brief code inspection I think the
+problem still exists on more recent 2.4.x kernels.
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In procfs the fake_ino() macro is used to construct the inode number
+for each entry.
 
-cpufrequtils-0.1 is out and available at
+	#define fake_ino(pid,ino) (((pid)<<16)|(ino))
 
-http://www.kernel.org/pub/linux/utils/kernel/cpufreq/cpufrequtils-0.1.tar.b=
-z2
+In particular this is used in proc_pid_make_inode:
 
-and will arrive the same place at kernel.org mirrors soon.
+	inode->i_ino = fake_ino(task->pid, ino);
 
-It conists of the following elements:
+Note that a pid may be more than 16 bits in width (e.g. in IA64), and
+we're trying to stuff it into the upper 16 bits of the inode number.
+This isn't usually a problem, except when the lower 16 bits of the
+inode happen to be 0 (i.e. pids that are a multiple of 65536).
 
+Why does zero matter?  Glad you asked.
 
-libcpufreq
-----------
+In proc_delete_inode there is a check to see if the inode is is
+a "proper" (whatever that means) procfs inode.  The whole function
+is:
 
-"libcpufreq" is a library which offers a unified access method for userspac=
-e=20
-tools and programs to the cpufreq core and drivers in the Linux kernel. This
-allows for code reduction in userspace tools, a clean implementation of
-the interaction to the cpufreq core, and support for both the sysfs and proc
-interfaces [depending on configuration, see below].
+static void proc_delete_inode(struct inode *inode)
+{
+	struct proc_dir_entry *de = inode->u.generic_ip;
 
+	inode->i_state = I_CLEAR;
 
-utils
------
+	if (PROC_INODE_PROPER(inode)) {
+		proc_pid_delete_inode(inode);
+		return;
+	}
+	if (de) {
+		if (de->owner)
+			__MOD_DEC_USE_COUNT(de->owner);
+		de_put(de);
+	}
+}
 
-"cpufreq-info" determines current cpufreq settings, and provides useful
-debug information to users and bug-hunters.
-"cpufreq-set" allows to set a specific frequency and/or new cpufreq policies
-without having to type "/sys/devices/system/cpu/cpu0/cpufreq" all the time.
+PROC_INODE_PROPER() is:
 
+	#define PROC_INODE_PROPER(inode) ((inode)->i_ino & ~0xffff)
 
-debug
------
+In other words, it checks whether the top 16 bits of the inode number
+(equivalent to the bottom 16 bits of the pid) are non-zero.
 
-A few debug tools helpful for cpufreq have been merged into this package,
-but as they are highly architecture specific they are not built by default.
+Thus closing a proc entry for any task with a pid that is a multiple of
+65536 will fail this check, skip proc_pid_delete_inode, and call
+__MOD_DEC_USE_COUNT, more than likely causing a panic on an invalid
+memory access, and minimally corrupting something in memory otherwise.
 
+I don't have a solution coded up (mostly because I'm a bit bleary
+eyed after looking at crash dumps all day) -- but are there any
+thoughts on how to go about addressing this one?  An obvious workaround
+is setting kernel.pid_max to 65535, but that's only a workaround, not
+a solution.
 
-compilation and installation
-----------------------------
+On a related note, if it matters, on about half the crash dumps I've
+looked at, I see a pid of 0 has been assigned to a user process,
+tripping this same problem.  I suspect there's another bug somewhere
+that's allowing a pid of 0 to be chosen in the first place -- but I
+don't totally discount that this problem may lay in SGI's patches to
+this particular kernel -- I'll need to take a more thorough look.
 
-=2E/configure && make
-su
-make install
+Thanks,
+Brent
 
-should suffice on most systems. It builds default libcpufreq,
-cpufreq-set and cpufreq-info files and installs them in /usr/local/lib and
-/usr/local/bin, respectively. Due to the autotoolization by Mattia Dongili
-the standard options to make and make install, like "--prefix=3D/usr", can =
-be
-passed and (should) work correctly.
-
-
-options and dependencies
-------------------------
-
-=2E/configure by default enables the sysfs interface, but disables the
-deprecated /proc interface to the cpufreq core in the Linux kernel. For
-the sysfs interface to build and work correctly, you need "libsysfs", which
-is part of the "sysfsutils" package. Current requirement is
-	sysfsutils-1.0.0
-or later.
-
-To disable the sysfs interface, pass the option "--disable-sysfs" to
-=2E/configure.
-
-
-To enable the (deprecated) /proc interface support, pass the option
-"--enable-proc" to ./configure.
-
-
-THANKS
-------
-Many thanks to Mattia Dongili who wrote the autotoolization and
-libtoolization, the manpages and the italian language file for cpufrequtils=
-;=20
-to Dave Jones for his feedback and his dump_psb tool; to Bruno Ducrot for h=
-is=20
-powernow-k8-decode and intel_gsic tools as well as the french language file;
-and to various others commenting on the pre-releases of cpufrequtils-0.1.
-
-
-	Dominik
-
---MGYHOYXEY6WxJCY8
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBw2KYZ8MDCHJbN8YRAtFMAJ9BtIev5b2EzvH1RWVt63iAJpoa2ACdELkl
-cjxxsG0pCGk31V7hWjGwmxY=
-=FV+u
------END PGP SIGNATURE-----
-
---MGYHOYXEY6WxJCY8--
+-- 
+Brent Casavant                          If you had nothing to fear,
+bcasavan@sgi.com                        how then could you be brave?
+Silicon Graphics, Inc.                    -- Queen Dama, Source Wars

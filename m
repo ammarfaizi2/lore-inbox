@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264780AbUEYUER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265136AbUEYUKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264780AbUEYUER (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 16:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUEYUEQ
+	id S265136AbUEYUKq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 16:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUEYUKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 16:04:16 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:8862 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264780AbUEYUEP (ORCPT
+	Tue, 25 May 2004 16:10:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55731 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265136AbUEYUKm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 16:04:15 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: root@chaos.analogic.com
-Subject: Re: very low performance on SCSI disks if device node is in tmpfs
-Date: Tue, 25 May 2004 22:02:54 +0200
-User-Agent: KMail/1.6.2
-Cc: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org
-References: <20040525184732.GB26661@suse.de> <20040525193458.GA21120@suse.de> <Pine.LNX.4.53.0405251540410.803@chaos>
-In-Reply-To: <Pine.LNX.4.53.0405251540410.803@chaos>
+	Tue, 25 May 2004 16:10:42 -0400
+Date: Tue, 25 May 2004 16:10:29 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Phy Prabab <phyprabab@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 4g/4g for 2.6.6
+In-Reply-To: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405252202.54745.oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 25. Mai 2004 21:44 schrieb Richard B. Johnson:
-> On Tue, 25 May 2004, Olaf Hering wrote:
-> 
-> >  On Tue, May 25, Richard B. Johnson wrote unrelated stuff:
-> >
-> 
-> It is not unrelated stuff. If you think it is, you will
-> come to an incorrect conclusion with your experiments.
-> As I stated, you are not actually communicating with a
-> device-file except for the initial open().
+On Tue, 25 May 2004, Rik van Riel wrote:
 
-Exactly therefore the results are so extremely odd.
-Either looking up a device node is very expensive, or we have an
-unknown phenomenon.
+> The point is, people like to run bigger workloads on
+> bigger systems. Otherwise they wouldn't bother buying
+> those bigger systems.
 
-	Regards
-		Oliver
+Btw, you're right about the VMAs.  Looking through customer
+stuff a bit more the more common issues are low memory being
+eaten by dentry / inode cache - which you can't always reclaim
+due to files being open, and don't always _want_ to reclaim
+because that could well be a bigger performance hit than the
+4:4 split.
+
+The primary impact of the dentry / inode cache using memory
+isn't lowmem exhaustion, btw.  It's lowmem fragmentation.
+
+Fragmentation causes fork trouble (gone with the 4k stacks)
+and trouble for the network layer and kiobuf allocation,
+which still do need higher order allocations.
+
+Sure, the 4/4 kernel could also have problems with lowmem
+fragmentation, but it just seems to be nowhere near as bad.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

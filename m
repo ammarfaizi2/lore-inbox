@@ -1,34 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276709AbRJGWYn>; Sun, 7 Oct 2001 18:24:43 -0400
+	id <S276703AbRJGWXm>; Sun, 7 Oct 2001 18:23:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276708AbRJGWYd>; Sun, 7 Oct 2001 18:24:33 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:2544 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S276704AbRJGWYO>;
-	Sun, 7 Oct 2001 18:24:14 -0400
-Date: Mon, 8 Oct 2001 00:24:26 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.4.11pre3aa1
-Message-ID: <20011008002426.I726@athlon.random>
-In-Reply-To: <20011004225708.A724@athlon.random> <20011007013558.M724@athlon.random>
-Mime-Version: 1.0
+	id <S276704AbRJGWXd>; Sun, 7 Oct 2001 18:23:33 -0400
+Received: from mailb.telia.com ([194.22.194.6]:5647 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S276703AbRJGWX0>;
+	Sun, 7 Oct 2001 18:23:26 -0400
+Message-ID: <3BC0D5F9.3C6DCF93@canit.se>
+Date: Mon, 08 Oct 2001 00:23:53 +0200
+From: Kenneth Johansson <ken@canit.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [BUG] emu10k1 and SMP
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011007013558.M724@athlon.random>; from andrea@suse.de on Sun, Oct 07, 2001 at 01:35:58AM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 07, 2001 at 01:35:58AM +0200, Andrea Arcangeli wrote:
-> On Thu, Oct 04, 2001 at 10:57:09PM +0200, Andrea Arcangeli wrote:
-> > 2) Hugh's locking cleanups
-> 
-> checked now (of course it's just in pre4), very nice.
+I have a problem with my sblive card with some program when I compile
+2.4.10 and -ac8 for SMP.
 
-btw, while playing with the code I now noticed a swap_list_unlock
-leftover in vmscan.c.
+This happens with programs from loki and the machine stops or power down
+(yes an actuall power down). I'am sure this is sound related as stuff
+works if I don't load the emu10k1 driver and it only happens with SMP.
 
-Andrea
+

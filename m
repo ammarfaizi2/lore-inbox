@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVAaVEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVAaVIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVAaVEw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 16:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVAaVEh
+	id S261367AbVAaVIu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 16:08:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVAaVFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 16:04:37 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:42896 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261373AbVAaVEG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 16:04:06 -0500
-From: Tom Zanussi <zanussi@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 Jan 2005 16:05:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27036 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261367AbVAaVBJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 16:01:09 -0500
+Date: Mon, 31 Jan 2005 13:01:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: timur.tabi@ammasso.com, roland@topspin.com
+Subject: Re: Correct way to release get_user_pages()?
+Message-Id: <20050131130104.4ac732e5.akpm@osdl.org>
+In-Reply-To: <41FE53EA.4010101@ammasso.com>
+References: <52pszqw917.fsf@topspin.com>
+	<41FA7AE2.10209@ammasso.com>
+	<20050130021017.7ef1c764.akpm@osdl.org>
+	<41FE53EA.4010101@ammasso.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16894.40247.701998.555392@tut.ibm.com>
-Date: Mon, 31 Jan 2005 15:03:51 -0600
-To: karim@opersys.com
-Cc: Tom Zanussi <zanussi@us.ibm.com>, Andi Kleen <ak@muc.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>
-Subject: Re: [PATCH] relayfs redux, part 2
-In-Reply-To: <41FE89E0.9030802@opersys.com>
-References: <16890.38062.477373.644205@tut.ibm.com>
-	<m1d5volksx.fsf@muc.de>
-	<16892.26990.319480.917561@tut.ibm.com>
-	<20050131125758.GA23172@muc.de>
-	<16894.23610.315929.805524@tut.ibm.com>
-	<41FE89E0.9030802@opersys.com>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour writes:
- > 
- > Tom Zanussi wrote:
- > > OK, makes sense to me - I'll get rid of relay_reserve and replace it
- > > with the simple putc write and variant.
- > 
- > Please don't do that. Instead, bring back the ad-hoc mode code, that's
- > what is was for anyway.
- > 
+Timur Tabi <timur.tabi@ammasso.com> wrote:
+>
+> Andrew Morton wrote:
+> 
+> > no...  You should only dirty the page if it was modified, and then use
+> > set_page_dirty() or set_page_dirty_lock().
+> 
+> If the page was modified, then shouldn't it already be marked dirty?
 
-I don't think they need to be mutually exclusive - we could keep
-relay_reserve(), but the relay_write() that's currently built on top
-of relay_reserve() would use the putc code instead.  It's complicating
-the API a bit, but if it makes everyone happy...
+If the page is modified by a DMA transfer or by the CPU via the kernel's
+page mappings then there is no record of its having been altered.  Which is
+why we must do it in software.
 
-Tom
+> Also, should I always use set_page_dirty_lock() if I haven't already 
+> locked the page?
 
+If you don't have a reference on the page's inode, yes, you should use
+set_page_dirty_lock().  If the page came from get_user_pages() then surely
+you don't have a ref on the inode.

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278119AbRJRUIc>; Thu, 18 Oct 2001 16:08:32 -0400
+	id <S277868AbRJRUJx>; Thu, 18 Oct 2001 16:09:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278118AbRJRUIQ>; Thu, 18 Oct 2001 16:08:16 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:50629 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S277868AbRJRUGa>; Thu, 18 Oct 2001 16:06:30 -0400
-Message-ID: <3BCF36BE.DE10E221@nortelnetworks.com>
-Date: Thu, 18 Oct 2001 16:08:30 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S278118AbRJRUJo>; Thu, 18 Oct 2001 16:09:44 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:11278 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S277868AbRJRUJe>; Thu, 18 Oct 2001 16:09:34 -0400
+Date: Thu, 18 Oct 2001 16:48:37 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fork() failing
+In-Reply-To: <Pine.LNX.4.33L.0110181803540.3690-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.21.0110181647000.12429-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: how to see manually specified proxy arp entries using "ip neigh"
-In-Reply-To: <200110181925.XAA04814@ms2.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
 
-> > I (and others) have asked this a couple times here and on the netdev list, and
-> > so far nobody has answered it (not even negatively).
+
+On Thu, 18 Oct 2001, Rik van Riel wrote:
+
+> On Thu, 18 Oct 2001, Marcelo Tosatti wrote:
 > 
-> :-) And me answered to this hundred of times: "no way". :-)
+> > Imagine people changing the point where the
+> >
+> > 	if ((gfp_mask & __GFP_FAIL))
+> > 		return;
+> >
+> > check is done (inside the freeing routines).
+> >
+> > I would like to have a _defined_ meaning for a "fail easily" allocation,
+> > and a simple unique __GFP_FAIL flag can't give us that IMO.
+> 
+> Actually, I guess we could define this to be the same point
+> where we'd end up freeing memory in order to satisfy our
+> allocation.
+> 
+> This would result in __GFP_FAIL meaning "give me memory if
+> it's available, but don't waste time freeing memory if we
+> don't have enough free memory now".
+> 
+> Space-wise these semantics could change (say, pages_low
+> vs. pages_min), but they'll stay the same when you look at
+> "how hard to try" or "how much effort to spend".
 
-Whee, an answer!
+Just remember that if we give __GFP_FAIL a "give me memory if its
+available" meaning we simply can't use it for stuff like pagecache
+prefetching --- its _too_ fragile.
 
-> Ability to add/delete them with "ip neigh" will be removed in the next
-> snapshot as well. The feature is obsolete.
+Thats why I think we need the freeing levels, and thats why I think we
+should left all of that for 2.5. :)
 
-Oh?  Let me present a scenario in which I use it and then you can tell me how
-better to do it.
 
-I'm using the ethertap device (in 2.2, tun/tap in 2.4 should be similar) to pass
-stuff up to userspace. I have an ethernet link.  I want the kernel to proxy arp
-for the ip address assigned to the ethertap device with the mac address of the
-NIC, without enabling proxy arping for any other addresses.
 
-Currently I have been doing this by manually setting proxy arping on the NIC for
-the IP address assigned to the ethertap device.  If this feature is going to be
-removed, then how should I be doing this?
-
-Thanks,
-
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

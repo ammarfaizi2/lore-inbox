@@ -1,56 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264862AbTGBJMo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 05:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264864AbTGBJMo
+	id S262165AbTGBJVO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 05:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264810AbTGBJVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 05:12:44 -0400
-Received: from web11805.mail.yahoo.com ([216.136.172.159]:41309 "HELO
-	web11805.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264862AbTGBJMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 05:12:43 -0400
-Message-ID: <20030702092707.24387.qmail@web11805.mail.yahoo.com>
-Date: Wed, 2 Jul 2003 11:27:07 +0200 (CEST)
-From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
-Subject: Re: [PATCH RFC] 2.5.73 zlib #1 memmove
-To: linux-kernel@vger.kernel.org
+	Wed, 2 Jul 2003 05:21:14 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:61969 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S262165AbTGBJVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 05:21:12 -0400
+Date: Wed, 2 Jul 2003 19:35:16 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Thomas Spatzier <TSPAT@de.ibm.com>
+cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: crypto API and IBM z990 hardware support
+In-Reply-To: <OF1BACB1D3.F4409038-ONC1256D57.00247A0A-C1256D57.002701D8@de.ibm.com>
+Message-ID: <Mutt.LNX.4.44.0307021913540.31308-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+On Wed, 2 Jul 2003, Thomas Spatzier wrote:
 
-  I do not know if you are interrested, but I already did
- a lot work on zlib/gzlib in Gujin:
-http://gujin.sourceforge.net/
+> Hello James,
+> 
+> I'm currently looking at the crypto API and considering adding support for
+> new hardware instructions implemented in the IBM z990 architecture. Since I
+> found your name in most of the files I find it appropriate to ask for your
+> opinion on how to integrate the new code (from a design point of view).
+> z990 provides hardware support for AES, DES and SHA. The problem is, that
+> the respective instructions might not be implemented on all z990 systems
+> (export restrictions etc). Hence, a check must be run to test whether the
+> instruction set is present, and if not, a fall-back to the current software
+> implementation must be taken.
 
- There is a near complete rewrite of zlib, even removing the
- 32Kb window stuff. Unlike zlib, it is only licenced as GPL, and only
- tested on i386, in fact 32 bit processors. An unusual CRC32 function
- is also available, optimised to i386 instructions but without a table
- to reduce the data cache page misses and code size.
+Are there any details available on how all of this is implemented?  Are 
+these instructions synchronous?
 
- Have a look at gzcopy.c:
-gzcopy -t infile.gz    -> test the content of the file (-t0 for quite).
+> I basically have two solutions in mind: (1)
+> to integrate the new code into the current crypto files; add some #ifdef s
+> to prevent the code from being compiled when building a non-z990 kernel;
+> add some ifs for runtime check.
 
- The kind of testing done is in Makefile:
-testgzlib: gzcopy
-        find /mnt/cdrom/ -name "*.tgz" -o -name "*.gz" \
-                -exec ./gzcopy -t {} \; 2>&1 | tee log
+No, the core crypto code should not be altered with #ifdefs to handle some 
+arch specific issue.
 
- I did it on multi CDROMs collection like ftp.cdrom.com , it checks
- all files CRC32 - the only failure were unreadable files on the device
- and file not compressed by GZIP (GZIP can decompress .Z and .ZIP files)
- even if someone changed their name to *.gz
+> (2) include the new code into an arch/s390/crypto directory. The
+> advantage of (1) is that there are no seperate crypto directories, the
+> code doesn't drift apart. Furthermore, it's probably the best solution
+> with respect to the kernel module loader. On the other hand, the
+> hardware support is very arch-specific, which would fit in option (2).
+> (2) however has the disadvantage that there are multiple crypto modules;
+> the user has to select one to load -> must have different names for one
+> algorithm. What is your opinion on this subject?
 
- My aim there was code size reduction (4-5 Kbytes of code total).
- It does compile and work with GCC aliasing optimisation.
+The plan is to provide crypto/arch/ subdirectories where arch optimized 
+versions of the crypto algorithms are implemented, and built automatically 
+(via configuration defaults) instead of the generic C versions.
 
-  Cheers,
-  Etienne.
+So, there might be:
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com
+crypto/aes.c
+crypto/arch/i386/aes.s
+
+where on i386, aes.s would be built into aes.o and aes.c would not be 
+built.
+
+The simple solution for you might be something like:
+
+crypto/aes.c -> aes.o
+crypto/arch/s390/aes_z990.c -> aes_z990.o
+
+and the administrator of the system could configure modprobe.conf to alias 
+aes to aes_z990 if the latter is supported in hardware.
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+

@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129132AbQKHRFX>; Wed, 8 Nov 2000 12:05:23 -0500
+	id <S129208AbQKHRU6>; Wed, 8 Nov 2000 12:20:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129159AbQKHRFO>; Wed, 8 Nov 2000 12:05:14 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:59881 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129132AbQKHRFC>; Wed, 8 Nov 2000 12:05:02 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Szabolcs Szakacsits <szaka@f-secure.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Linus Torvalds <torvalds@transmeta.com>,
-        Ingo Molnar <mingo@elte.hu>
-Subject: Re: Looking for better VM
-In-Reply-To: <Pine.LNX.3.96.1001108172338.7153A-100000@artax.karlin.mff.cuni.cz>
-Organisation: SAP LinuxLab
-Date: 08 Nov 2000 18:03:09 +0100
-In-Reply-To: Mikulas Patocka's message of "Wed, 8 Nov 2000 17:36:40 +0100 (CET)"
-Message-ID: <qwwr94ml7le.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S129217AbQKHRUs>; Wed, 8 Nov 2000 12:20:48 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:60685 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S129208AbQKHRUh>;
+	Wed, 8 Nov 2000 12:20:37 -0500
+Date: Wed, 8 Nov 2000 09:20:50 -0800 (PST)
+From: James Simmons <jsimmons@suse.com>
+To: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@mit.edu,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Broken colors on console with 2.4.0-textXX
+In-Reply-To: <Pine.LNX.4.21.0011081029260.17375-100000@fs1.dekanat.physik.uni-tuebingen.de>
+Message-ID: <Pine.LNX.4.21.0011080920070.2704-100000@euclid.oak.suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mikulas,
 
-On Wed, 8 Nov 2000, Mikulas Patocka wrote:
-> BTW. Why does your OOM killer in 2.4 try to kill process that mmaped
-> most memory? mmap is hamrless. mmap on files can't eat memory and
-> swap.
+> You didnt read the config, etc. I posted - I dont have DRI - I
+> have an old P100 with 32Megs of ram and an old ATI Mach64 graphics
+> card. There really is nothing unusual with my setup - console
+> garbagling is even without loading the bttv module at all.
 
-Be careful: They may have shm segments mmaped!
-
-Greetings
-		Christoph
+Okay. So it is what I thought it was orginally.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

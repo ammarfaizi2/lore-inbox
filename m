@@ -1,43 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267749AbUH1AQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUH1ARM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267749AbUH1AQl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 20:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbUH1AQl
+	id S265701AbUH1ARM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 20:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267856AbUH1ARL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 20:16:41 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:28132 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267749AbUH1AQ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 20:16:26 -0400
-Date: Sat, 28 Aug 2004 01:16:24 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: "David S. Miller" <davem@davemloft.net>
-Cc: hch@infradead.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: drm fixup 1/2 - missing bus_address assignment
-In-Reply-To: <20040827171208.51f2811d.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.58.0408280114570.23054@skynet>
-References: <Pine.LNX.4.58.0408271510530.32411@skynet> <20040827152110.A31641@infradead.org>
- <Pine.LNX.4.58.0408280054580.23054@skynet> <20040827171208.51f2811d.davem@davemloft.net>
+	Fri, 27 Aug 2004 20:17:11 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:5589 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S265701AbUH1AQx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 20:16:53 -0400
+Date: Sat, 28 Aug 2004 02:19:03 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <1798850364.20040828021903@tnonline.net>
+To: Jamie Lokier <jamie@shareable.org>
+CC: Rik van Riel <riel@redhat.com>, Hans Reiser <reiser@namesys.com>,
+       David Masover <ninja@slaphack.com>, Linus Torvalds <torvalds@osdl.org>,
+       Diego Calleja <diegocg@teleline.es>, <christophe@saout.de>,
+       <vda@port.imtp.ilyichevsk.odessa.ua>, <christer@weinigel.se>,
+       <akpm@osdl.org>, <wichert@wiggy.net>, <jra@samba.org>, <hch@lst.de>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <flx@namesys.com>, <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <20040827154156.GA31757@mail.shareable.org>
+References: <412EEB75.1030401@namesys.com>
+ <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
+ <1888171711.20040827171520@tnonline.net>
+ <20040827154156.GA31757@mail.shareable.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> You really have to use the defined DMA apis for stuff like this.
->
-> I was going to bark about this too.
->
-> Check out Documentation/DMA-mapping.txt and friends.
+  
 
-I'll check it out and submit a patches ripping them all out .. there's a
-couple in the mga...
+> Spam wrote:
+>> > The problem is more fundamental than that.  Some of the
+>> > file streams proposed need to be backed up, while others
+>> > are alternative presentations of the file, which should
+>> > not be backed up.
+>> 
+>>   No, not really. This is a user decision and should be options in the
+>>   backup  software.  I don't think it is up to the kernel, filesystem,
+>>   or  the  OS  in  general to decide what information the user want to
+>>   retain or not.
 
-Dave.
+> It is helpful for the OS, or a naming convention, to indicate what
+> _is information_ though.
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+> It makes no sense to backup two or more copies of the _same
+> information_, and it makes even less sense to try to restore them as
+> it'll either be slow, fail (you can't always write to alternative
+> presentations), or cause unwanted side effects.
+
+> Just like when you backup a dynamic web site.  You store the files
+> which the server is using.  You don't use "wget" to store the
+> generated pages, that's not a useful backup and you can't restore from it.
+
+  I do not agree. Everything can be considered information, even if it
+  is derived from an already existing file.
+
+  If  the  user  wants  to  not  backup certain things then that is an
+  option to tell the backup program.
+
+>> > Currently I see no way to distinguish between the stuff
+>> > that should be backed up and the stuff that shouldn't.
+>> 
+>> > That problem needs to be resolved before we can even start
+>> > thinking about fixing archivers...
+>> 
+>>   The  archivers  should,  as  I  said,  allow  the user to choose. It
+>>   shouldn't be automatic. Default, should IMO be to store everything.
+
+> Don't try to store different views of the same thing.
+> When you try to restore, you _won't_ necessarily get back what you stored.
+
+  No, it would be restored as it were before with the meta information
+  intact.
+
+> Whereas if you follow the OS's advice, and skip virtual files, then
+> backup and restore will recreate the filesystem, which is what you want.
+
+> _That's_ storing everything.  It's what you want from a backup.
+
+  It would be storing everything but the virtual files.
+
+
+> -- Jamie
 

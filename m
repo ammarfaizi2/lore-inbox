@@ -1,77 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266061AbUA1PyS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 10:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUA1PyS
+	id S266064AbUA1Pmq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 10:42:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266058AbUA1Plb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 10:54:18 -0500
-Received: from c-24-19-70-33.client.comcast.net ([24.19.70.33]:56706 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id S266061AbUA1PxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 10:53:15 -0500
-Message-ID: <4017DAE3.90803@comcast.net>
-Date: Wed, 28 Jan 2004 07:53:07 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: en-us
+	Wed, 28 Jan 2004 10:41:31 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:7435 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S266054AbUA1Pkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 10:40:53 -0500
+Date: Wed, 28 Jan 2004 23:39:59 +0800 (WST)
+From: raven@themaw.net
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: [PATCH 4/8] autofs4-2.6 - to support autofs 4.1.x
+Message-ID: <Pine.LNX.4.58.0401282321530.17471@raven.themaw.net>
 MIME-Version: 1.0
-To: maneesh@in.ibm.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-mm2: BUG in kswapd? /  Oops in kobject_put during rsync
-References: <40153A6E.5030300@comcast.net> <400762F9.5010908@comcast.net> <20040116094037.GA1276@in.ibm.com> <20040116102211.GC1276@in.ibm.com> <40080A98.4080105@comcast.net> <20040128111333.GA2990@in.ibm.com>
-In-Reply-To: <20040128111333.GA2990@in.ibm.com>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.3, required 8,
+	NO_REAL_NAME, PATCH_UNIFIED_DIFF, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maneesh Soni wrote:
-> Hi Walt,
-> 
-> Earlier you had BUG in kswapd while running rsync and reverting this patch 
-> solved the problem.
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm3/broken-out/sysfs_remove_dir-vs-dcache_readdir-race-fix.patch
-> 
-> Did you get the kswapd BUG hit again on 2.6.1-mm3 with the debug patch I sent 
-> you earlier? If you have got any logs with this then please send them to me.
-> 
-> If I am not wrong the kobject_put() oops is the new one you are seeing now
-> and reverting this sysfs-pin-kobjects.patch solves this oops. The call trace
-> for kobject_put oops seems some what surprising to me because on -mm kernels
-> I don't think we can have sysfs dentries on the LRU list, sysfs dentries are 
-> not pruned due to any memory pressure. sysfs dentries are pinned in memory 
-> so there is no question of them being pruned due to memory pressure.
-> 
-> Now this is somewhat different in case of -mjb kernels as it has sysfs backing
-> store patches and with that I can think of sysfs dentires coming to LRU list
-> and getting pruned due to memory pressure. 
-> 
-> Are you using -mjb tree or the sysfs backing store patches? I would like
-> to take a look at the kobject_put() oops you are having. 
->  
-> Thanks
-> Maneesh
-> 
+ 
+Patch:
 
-Hi Maneesh,
+4-autofs4-2.6.0-test9-waitq2.patch
 
-Good memory. You are correct, this oops is new. Reverting the
-sysfs-pin-kobjects patch fixes it for me. I could reliably (like last
-time that is) trigger an oops during rsync.
+Adds a spin lock to serialize access to wait queue in the super block info
+struct.
 
-I'm running 2.6.2-rc1 with the -mm3 patchset and the mppe/mppc patches
-located at: http://www.polbox.com/h/hs001/
-No -mjb patches are used.
-
-I did patch 2.6.1-mm3 with the debug patch you sent earlier, but alas,
-it didn't BUG on me when I did the rsync with it. I don't believe that I
-gave it much opportunity though, because -mm4 was released shortly
-thereafter. Unfortunately, the BUG was nasty, in that it completely
-stopped the system forcing an emergency sync, unmount reboot situation,
-so I was anxious to get away from it ;)
-
--Walt
+diff -Nur linux-2.6.0-0.test9.waitq1/fs/autofs4/waitq.c linux-2.6.0-0.test9.waitq2/fs/autofs4/waitq.c
+--- linux-2.6.0-0.test9.waitq1/fs/autofs4/waitq.c	2003-11-30 08:58:47.000000000 +0800
++++ linux-2.6.0-0.test9.waitq2/fs/autofs4/waitq.c	2003-11-30 09:07:29.000000000 +0800
+@@ -16,6 +16,8 @@
+ #include <linux/file.h>
+ #include "autofs_i.h"
+ 
++static spinlock_t waitq_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
++
+ /* We make this a static variable rather than a part of the superblock; it
+    is better if we don't reassign numbers easily even across filesystems */
+ static autofs_wqt_t autofs4_next_wait_queue = 1;
+@@ -138,12 +140,14 @@
+ 	if ( name->len > NAME_MAX )
+ 		return -ENOENT;
+ 
++	spin_lock(&waitq_lock);
+ 	for ( wq = sbi->queues ; wq ; wq = wq->next ) {
+ 		if ( wq->hash == name->hash &&
+ 		     wq->len == name->len &&
+ 		     wq->name && !memcmp(wq->name,name->name,name->len) )
+ 			break;
+ 	}
++	spin_unlock(&waitq_lock);
+ 	
+ 	if ( !wq ) {
+ 		/* Create a new wait queue */
+@@ -164,11 +168,13 @@
+ 		wq->len = name->len;
+ 		wq->status = -EINTR; /* Status return if interrupted */
+ 		memcpy(wq->name, name->name, name->len);
++		spin_lock(&waitq_lock);
+ 		wq->next = sbi->queues;
+ 		sbi->queues = wq;
++		spin_unlock(&waitq_lock);
+ 
+ 		DPRINTK(("autofs_wait: new wait id = 0x%08lx, name = %.*s, nfy=%d\n",
+-			 wq->wait_queue_token, wq->len, wq->name, notify));
++			 (unsigned long) wq->wait_queue_token, wq->len, wq->name, notify));
+ 		/* autofs4_notify_daemon() may block */
+ 		wq->wait_ctr = 2;
+ 		if (notify != NFY_NONE) {
+@@ -179,7 +185,7 @@
+ 	} else {
+ 		wq->wait_ctr++;
+ 		DPRINTK(("autofs_wait: existing wait id = 0x%08lx, name = %.*s, nfy=%d\n",
+-			 wq->wait_queue_token, wq->len, wq->name, notify));
++			 (unsigned long) wq->wait_queue_token, wq->len, wq->name, notify));
+ 	}
+ 
+ 	/* wq->name is NULL if and only if the lock is already released */
+@@ -238,14 +244,19 @@
+ {
+ 	struct autofs_wait_queue *wq, **wql;
+ 
++	spin_lock(&waitq_lock);
+ 	for ( wql = &sbi->queues ; (wq = *wql) ; wql = &wq->next ) {
+ 		if ( wq->wait_queue_token == wait_queue_token )
+ 			break;
+ 	}
+-	if ( !wq )
++
++	if ( !wq ) {
++		spin_unlock(&waitq_lock);
+ 		return -EINVAL;
++	}
+ 
+ 	*wql = wq->next;	/* Unlink from chain */
++	spin_unlock(&waitq_lock);
+ 	kfree(wq->name);
+ 	wq->name = NULL;	/* Do not wait on this queue */
+ 
 

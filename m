@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270630AbTGNMkn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270626AbTGNMi2
+	id S270619AbTGNMhr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 08:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270584AbTGNMhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:38:28 -0400
-Received: from holomorphy.com ([66.224.33.161]:50638 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S270610AbTGNMbY (ORCPT
+	Mon, 14 Jul 2003 08:37:25 -0400
+Received: from maild.telia.com ([194.22.190.101]:49888 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id S270600AbTGNMZC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:31:24 -0400
-Date: Mon, 14 Jul 2003 05:47:21 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@codemonkey.org.uk>, John Bradford <john@grabjohn.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-Subject: Re: Linux v2.6.0-test1
-Message-ID: <20030714124721.GI15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Dave Jones <davej@codemonkey.org.uk>,
-	John Bradford <john@grabjohn.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	torvalds@osdl.org
-References: <200307141150.h6EBoe1P000738@81-2-122-30.bradfords.org.uk> <20030714115313.GA21773@suse.de> <20030714120009.GH15452@holomorphy.com> <1058186383.606.52.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
+	Mon, 14 Jul 2003 08:25:02 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Software suspend and RTL 8139too in 2.6.0-test1
+From: Peter Osterlund <petero2@telia.com>
+Date: 14 Jul 2003 14:37:47 +0200
+Message-ID: <m2wuelqo6c.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058186383.606.52.camel@dhcp22.swansea.linux.org.uk>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-14 at 13:00, William Lee Irwin III wrote:
->> Some work has been done here, though I'm not sure how much; I'll try to
->> get the IBM people involved with it to chime in.
+Hi!
 
-On Mon, Jul 14, 2003 at 01:39:44PM +0100, Alan Cox wrote:
-> The IBM india folks (being outside the DMCA zone) went through a long list of 
-> fixes and propogated them but there are lots of others some pretty critical such
-> as the fs/exec stuff and proc leaks
+This patch is needed to make software suspend work with the 8139too
+driver loaded.
 
-Well, that should cover it. Odd that I've not heard of those two.
+--- linux/drivers/net/8139too.c.old	Mon Jul 14 14:28:27 2003
++++ linux/drivers/net/8139too.c	Mon Jul 14 13:23:07 2003
+@@ -110,6 +110,7 @@
+ #include <linux/mii.h>
+ #include <linux/completion.h>
+ #include <linux/crc32.h>
++#include <linux/suspend.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ 
+@@ -1597,6 +1598,9 @@
+ 		timeout = next_tick;
+ 		do {
+ 			timeout = interruptible_sleep_on_timeout (&tp->thr_wait, timeout);
++			/* make swsusp happy with our thread */
++			if (current->flags & PF_FREEZE)
++				refrigerator(PF_IOTHREAD);
+ 		} while (!signal_pending (current) && (timeout > 0));
+ 
+ 		if (signal_pending (current)) {
 
-
--- wli
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

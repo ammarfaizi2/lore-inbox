@@ -1,385 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264231AbUENAmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264258AbUENAnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUENAmz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 20:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbUENAmz
+	id S264258AbUENAnE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 20:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbUENAnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 20:42:55 -0400
-Received: from thunk.org ([140.239.227.29]:37307 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S264231AbUENAmm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 20:42:42 -0400
-To: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: [RFC/RFT] [PATCH] EXT3: Retry allocation after journal commit
-From: "Theodore Ts'o" <tytso@mit.edu>
-Phone: (781) 391-3464
-Message-Id: <E1BOQmf-0005cP-4Q@thunk.org>
-Date: Thu, 13 May 2004 20:42:41 -0400
+	Thu, 13 May 2004 20:43:04 -0400
+Received: from mail.telpin.com.ar ([200.43.18.243]:42148 "EHLO
+	mail.telpin.com.ar") by vger.kernel.org with ESMTP id S264258AbUENAmw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 20:42:52 -0400
+Date: Thu, 13 May 2004 21:41:32 -0300
+From: Alberto Bertogli <albertogli@telpin.com.ar>
+To: linux-usb-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: BUG when removing USB flash drive
+Message-ID: <20040514004132.GA10537@telpin.com.ar>
+Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
+	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-It is possible for block allocation to fail, even if there is space in
-the filesystem, because all of the free blocks were recently deleted and
-so could not be allocated until after the currently running transaction
-is committed.   This can result in a very strange and surprising result
-where a system call such as a mkdir() will fail even though there is
-plenty of disk space apparently available.
+I've just hit a bug after removing a Kingston USB flash drive.
 
-This patch detects the case where a system call is apparently going to
-fail due to ENOSPC, even though there is space available, and forces the
-currently running transaction to complete before retrying the operation.
+I have removed it several (probably more than 40) times today without
+problems until now. I'm removing it while doing streaming write()s on
+the device (using /dev/sda) because I'm testing some things with the
+drive. This was just like all the other times, so it looks like a race
+somewhere.
 
-Unfortunately, it is necessary to hit so many high-level routines,
-instead of making a smaller change in a single low-level route, such as
-ext3_new_block(), because if we try to wait for the currently running
-transaction to complete while we are holding an active handle associated
-with that transaction, it will result in a deadlock.  Hence the retry
-has to happen outside of the journal_start().... journal_stop() code
-path.
+This is a stock 2.6.6 kernel, on a Pentium 4 with HT (the kernel is
+compiled with both SMP and preempt).
 
-						- Ted
+After the BUG the kernel doesn't detect the device anymore.
+
+Please let me know if you need any more information or if I can give you a
+hand with testing.
+
+Thanks a lot,
+		Alberto
 
 
-===== fs/ext3/balloc.c 1.20 vs edited =====
---- 1.20/fs/ext3/balloc.c	Mon Feb 23 00:24:13 2004
-+++ edited/fs/ext3/balloc.c	Thu May 13 14:57:38 2004
-@@ -465,6 +465,64 @@
- 	return -1;
- }
- 
-+static int ext3_has_free_blocks(struct super_block *sb)
-+{
-+	struct ext3_super_block *es;
-+	struct ext3_sb_info *sbi;
-+	int free_blocks, root_blocks;
-+
-+	sbi = EXT3_SB(sb);
-+	es = EXT3_SB(sb)->s_es;
-+
-+	free_blocks = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
-+	root_blocks = le32_to_cpu(es->s_r_blocks_count);
-+	if (free_blocks < root_blocks + 1 && !capable(CAP_SYS_RESOURCE) &&
-+		sbi->s_resuid != current->fsuid &&
-+		(sbi->s_resgid == 0 || !in_group_p (sbi->s_resgid))) {
-+		return 0;
-+	}
-+	return 1;
-+}
-+
-+/*
-+ * This function is called when an allocation is failed, and will
-+ * return true if it is profitable to retry an allocation.  There must
-+ * *NOT* be a currently active handle, so the retry has to happen at
-+ * the top-level ext3 function.  This is because this function will
-+ * attempt to force the currently running transaction to the log, and
-+ * block until it is completed.  If the current process is holding an
-+ * active handle, this will cause a deadlock.
-+ */
-+int ext3_should_retry_alloc(struct super_block *sb)
-+{
-+	transaction_t *transaction = NULL;
-+	journal_t *journal = EXT3_SB(sb)->s_journal;
-+	tid_t tid;
-+
-+	if (!ext3_has_free_blocks(sb))
-+		return 0;
-+
-+	spin_lock(&journal->j_state_lock);
-+
-+	/* Force everything buffered to the log... */
-+	if (journal->j_running_transaction) {
-+		transaction = journal->j_running_transaction;
-+		__log_start_commit(journal, transaction->t_tid);
-+	} else if (journal->j_committing_transaction)
-+		transaction = journal->j_committing_transaction;
-+
-+	if (!transaction) {
-+		spin_unlock(&journal->j_state_lock);
-+		return 0;	/* Nothing to retry */
-+	}
-+		
-+	tid = transaction->t_tid;
-+	spin_unlock(&journal->j_state_lock);
-+	log_wait_commit(journal, tid);
-+
-+	return 1;
-+}
-+
- /*
-  * ext3_new_block uses a goal block to assist allocation.  If the goal is
-  * free, or there is a free block within 32 blocks of the goal, that block
-@@ -485,7 +543,8 @@
- 	int target_block;			/* tmp */
- 	int fatal = 0, err;
- 	int performed_allocation = 0;
--	int free_blocks, root_blocks;
-+	int free_blocks;
-+	int num_free_bgroups = 0;
- 	struct super_block *sb;
- 	struct ext3_group_desc *gdp;
- 	struct ext3_super_block *es;
-@@ -512,11 +571,7 @@
- 	es = EXT3_SB(sb)->s_es;
- 	ext3_debug("goal=%lu.\n", goal);
- 
--	free_blocks = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
--	root_blocks = le32_to_cpu(es->s_r_blocks_count);
--	if (free_blocks < root_blocks + 1 && !capable(CAP_SYS_RESOURCE) &&
--		sbi->s_resuid != current->fsuid &&
--		(sbi->s_resgid == 0 || !in_group_p (sbi->s_resgid))) {
-+	if (!ext3_has_free_blocks(sb)) {
- 		*errp = -ENOSPC;
- 		goto out;
- 	}
-@@ -565,6 +620,7 @@
- 		if (free_blocks <= 0)
- 			continue;
- 
-+		num_free_bgroups++;
- 		brelse(bitmap_bh);
- 		bitmap_bh = read_block_bitmap(sb, group_no);
- 		if (!bitmap_bh)
-@@ -575,6 +631,10 @@
- 			goto out;
- 		if (ret_block >= 0) 
- 			goto allocated;
-+	}
-+
-+	if (num_free_bgroups) {
-+		jbd_debug(1, "%s: %d free blockgroups, but couldn't find free blocks\n", sb->s_id, num_free_bgroups);
- 	}
- 
- 	/* No space left on the device */
-===== fs/ext3/acl.c 1.16 vs edited =====
---- 1.16/fs/ext3/acl.c	Fri Mar 12 04:33:00 2004
-+++ edited/fs/ext3/acl.c	Thu May 13 15:18:23 2004
-@@ -428,7 +428,9 @@
- 	error = posix_acl_chmod_masq(clone, inode->i_mode);
- 	if (!error) {
- 		handle_t *handle;
-+		int retry = 0;
- 
-+	retry:
- 		handle = ext3_journal_start(inode, EXT3_DATA_TRANS_BLOCKS);
- 		if (IS_ERR(handle)) {
- 			error = PTR_ERR(handle);
-@@ -437,6 +439,9 @@
- 		}
- 		error = ext3_set_acl(handle, inode, ACL_TYPE_ACCESS, clone);
- 		ext3_journal_stop(handle);
-+		if (error == -ENOSPC && 
-+		    ext3_should_retry_alloc(inode->i_sb) && retry++ <= 3)
-+			goto retry;
- 	}
- out:
- 	posix_acl_release(clone);
-@@ -516,7 +521,7 @@
- {
- 	handle_t *handle;
- 	struct posix_acl *acl;
--	int error;
-+	int error, retry = 0;
- 
- 	if (!test_opt(inode->i_sb, POSIX_ACL))
- 		return -EOPNOTSUPP;
-@@ -535,11 +540,15 @@
- 	} else
- 		acl = NULL;
- 
-+retry:
- 	handle = ext3_journal_start(inode, EXT3_DATA_TRANS_BLOCKS);
- 	if (IS_ERR(handle))
- 		return PTR_ERR(handle);
- 	error = ext3_set_acl(handle, inode, type, acl);
- 	ext3_journal_stop(handle);
-+	if (error == -ENOSPC && ext3_should_retry_alloc(inode->i_sb) && 
-+	    retry++ <= 3)
-+		goto retry;
- 
- release_and_out:
- 	posix_acl_release(acl);
-===== fs/ext3/inode.c 1.94 vs edited =====
---- 1.94/fs/ext3/inode.c	Thu Apr 22 19:20:51 2004
-+++ edited/fs/ext3/inode.c	Thu May 13 15:12:45 2004
-@@ -1080,8 +1080,10 @@
- {
- 	struct inode *inode = page->mapping->host;
- 	int ret, needed_blocks = ext3_writepage_trans_blocks(inode);
-+	int retry = 0;
- 	handle_t *handle;
- 
-+retry:
- 	handle = ext3_journal_start(inode, needed_blocks);
- 	if (IS_ERR(handle)) {
- 		ret = PTR_ERR(handle);
-@@ -1098,6 +1100,9 @@
- prepare_write_failed:
- 	if (ret)
- 		ext3_journal_stop(handle);
-+	if (ret == -ENOSPC && ext3_should_retry_alloc(inode->i_sb) && 
-+	    retry++ <= 3)
-+		goto retry;
- out:
- 	return ret;
- }
-===== fs/ext3/namei.c 1.51 vs edited =====
---- 1.51/fs/ext3/namei.c	Wed Apr 14 21:37:52 2004
-+++ edited/fs/ext3/namei.c	Thu May 13 14:59:37 2004
-@@ -1628,8 +1628,9 @@
- {
- 	handle_t *handle; 
- 	struct inode * inode;
--	int err;
-+	int err, retry = 0;
- 
-+retry:
- 	handle = ext3_journal_start(dir, EXT3_DATA_TRANS_BLOCKS +
- 					EXT3_INDEX_EXTRA_TRANS_BLOCKS + 3 +
- 					2*EXT3_QUOTA_INIT_BLOCKS);
-@@ -1648,6 +1649,9 @@
- 		err = ext3_add_nondir(handle, dentry, inode);
- 	}
- 	ext3_journal_stop(handle);
-+	if (err == -ENOSPC && ext3_should_retry_alloc(dir->i_sb) && 
-+	    retry++ <= 3)
-+		goto retry;
- 	return err;
- }
- 
-@@ -1656,11 +1660,12 @@
- {
- 	handle_t *handle;
- 	struct inode *inode;
--	int err;
-+	int err, retry = 0;
- 
- 	if (!new_valid_dev(rdev))
- 		return -EINVAL;
- 
-+retry:
- 	handle = ext3_journal_start(dir, EXT3_DATA_TRANS_BLOCKS +
- 			 		EXT3_INDEX_EXTRA_TRANS_BLOCKS + 3 +
- 					2*EXT3_QUOTA_INIT_BLOCKS);
-@@ -1680,6 +1685,9 @@
- 		err = ext3_add_nondir(handle, dentry, inode);
- 	}
- 	ext3_journal_stop(handle);
-+	if (err == -ENOSPC && ext3_should_retry_alloc(dir->i_sb) && 
-+	    retry++ <= 3)
-+		goto retry;
- 	return err;
- }
- 
-@@ -1689,11 +1697,13 @@
- 	struct inode * inode;
- 	struct buffer_head * dir_block;
- 	struct ext3_dir_entry_2 * de;
-+	int retry = 0;
- 	int err;
- 
- 	if (dir->i_nlink >= EXT3_LINK_MAX)
- 		return -EMLINK;
- 
-+retry:
- 	handle = ext3_journal_start(dir, EXT3_DATA_TRANS_BLOCKS +
- 					EXT3_INDEX_EXTRA_TRANS_BLOCKS + 3 +
- 					2*EXT3_QUOTA_INIT_BLOCKS);
-@@ -1751,6 +1761,9 @@
- 	d_instantiate(dentry, inode);
- out_stop:
- 	ext3_journal_stop(handle);
-+	if (err == -ENOSPC && ext3_should_retry_alloc(dir->i_sb) && 
-+	    retry++ <= 3)
-+		goto retry;
- 	return err;
- }
- 
-@@ -2085,12 +2098,13 @@
- {
- 	handle_t *handle;
- 	struct inode * inode;
--	int l, err;
-+	int l, err, retry = 0;
- 
- 	l = strlen(symname)+1;
- 	if (l > dir->i_sb->s_blocksize)
- 		return -ENAMETOOLONG;
- 
-+retry:
- 	handle = ext3_journal_start(dir, EXT3_DATA_TRANS_BLOCKS +
- 			 		EXT3_INDEX_EXTRA_TRANS_BLOCKS + 5 +
- 					2*EXT3_QUOTA_INIT_BLOCKS);
-@@ -2129,6 +2143,9 @@
- 	err = ext3_add_nondir(handle, dentry, inode);
- out_stop:
- 	ext3_journal_stop(handle);
-+	if (err == -ENOSPC && ext3_should_retry_alloc(dir->i_sb) && 
-+	    retry++ <= 3)
-+		goto retry;
- 	return err;
- }
- 
-@@ -2137,11 +2154,12 @@
- {
- 	handle_t *handle;
- 	struct inode *inode = old_dentry->d_inode;
--	int err;
-+	int err, retry = 0;
- 
- 	if (inode->i_nlink >= EXT3_LINK_MAX)
- 		return -EMLINK;
- 
-+retry:
- 	handle = ext3_journal_start(dir, EXT3_DATA_TRANS_BLOCKS +
- 					EXT3_INDEX_EXTRA_TRANS_BLOCKS);
- 	if (IS_ERR(handle))
-@@ -2156,6 +2174,9 @@
- 
- 	err = ext3_add_nondir(handle, dentry, inode);
- 	ext3_journal_stop(handle);
-+	if (err == -ENOSPC && ext3_should_retry_alloc(dir->i_sb) && 
-+	    retry++ <= 3)
-+		goto retry;
- 	return err;
- }
- 
-===== fs/ext3/xattr.c 1.27 vs edited =====
---- 1.27/fs/ext3/xattr.c	Fri Feb  6 03:30:14 2004
-+++ edited/fs/ext3/xattr.c	Thu May 13 15:18:39 2004
-@@ -875,8 +875,9 @@
- 	       const void *value, size_t value_len, int flags)
- {
- 	handle_t *handle;
--	int error;
-+	int error, retry = 0;
- 
-+retry:
- 	handle = ext3_journal_start(inode, EXT3_DATA_TRANS_BLOCKS);
- 	if (IS_ERR(handle)) {
- 		error = PTR_ERR(handle);
-@@ -885,7 +886,13 @@
- 
- 		error = ext3_xattr_set_handle(handle, inode, name_index, name,
- 					      value, value_len, flags);
-+
- 		error2 = ext3_journal_stop(handle);
-+
-+		if (error == -ENOSPC && 
-+		    ext3_should_retry_alloc(inode->i_sb) && retry++ <= 3)
-+			goto retry;
-+
- 		if (error == 0)
- 			error = error2;
- 	}
-===== include/linux/ext3_fs.h 1.30 vs edited =====
---- 1.30/include/linux/ext3_fs.h	Fri Aug  1 05:31:19 2003
-+++ edited/include/linux/ext3_fs.h	Thu May 13 14:58:51 2004
-@@ -689,6 +689,7 @@
- extern struct ext3_group_desc * ext3_get_group_desc(struct super_block * sb,
- 						    unsigned int block_group,
- 						    struct buffer_head ** bh);
-+extern int ext3_should_retry_alloc(struct super_block *sb);
- 
- /* dir.c */
- extern int ext3_check_dir_entry(const char *, struct inode *,
+kernel BUG at drivers/usb/storage/usb.c:848!
+invalid operand: 0000 [#1]
+PREEMPT SMP
+CPU:    1
+EIP:    0060:[<c030843c>]    Not tainted
+EFLAGS: 00010202   (2.6.6)
+EIP is at usb_stor_release_resources+0xa3/0xcd
+eax: 00002832   ebx: c639e200   ecx: c04bd768   edx: debf2888
+esi: c04c6780   edi: c308ac00   ebp: c308ac24   esp: dededeb0
+ds: 007b   es: 007b   ss: 0068
+Process khubd (pid: 10, threadinfo=dedec000 task=dedef770)
+Stack: debf2888 debf2854 c02e9f48 c639e200 debf2854 de40a670 debf2864
+c04c67a0
+       c0272926 debf2864 debf288c debf2864 c308acd0 c0272a4d debf2864
+debf28bc
+       debf2864 c308acd0 c0271b06 debf2864 debf2864 c308ac00 c0271b57
+debf2864
+Call Trace:
+ [<c02e9f48>] usb_unbind_interface+0x7a/0x7c
+ [<c0272926>] device_release_driver+0x64/0x66
+ [<c0272a4d>] bus_remove_device+0x56/0x98
+ [<c0271b06>] device_del+0x5f/0x9d
+ [<c0271b57>] device_unregister+0x13/0x23
+ [<c02eff98>] usb_disable_device+0x71/0xac
+ [<c02eaa32>] usb_disconnect+0x9c/0xeb
+ [<c02ecb1d>] hub_port_connect_change+0x274/0x279
+ [<c02ec509>] hub_port_status+0x45/0xb0
+ [<c02ece0b>] hub_events+0x2e9/0x364
+ [<c02eceb3>] hub_thread+0x2d/0xe8
+ [<c0105f86>] ret_from_fork+0x6/0x14
+ [<c011a3a1>] default_wake_function+0x0/0x12
+ [<c02ece86>] hub_thread+0x0/0xe8
+ [<c0104271>] kernel_thread_helper+0x5/0xb
+
+Code: 0f 0b 50 03 05 a6 43 c0 e9 7c ff ff ff c7 80 e0 01 00 00 00
+
+
+Five seconds later, this comes out:
+
+ <1>Unable to handle kernel paging request at virtual address 31a875c8
+ printing eip:
+c0307b2b
+*pde = 00000000
+Oops: 0002 [#2]
+PREEMPT SMP
+CPU:    0
+EIP:    0060:[<c0307b2b>]    Not tainted
+EFLAGS: 00010002   (2.6.6)
+EIP is at usb_stor_control_thread+0x14d/0x2c9
+eax: 31a875c8   ebx: c639e200   ecx: c639e200   edx: 00002003
+esi: c639e600   edi: d3c84000   ebp: d3c84000   esp: d3c85f9c
+ds: 007b   es: 007b   ss: 0068
+Process usb-storage (pid: 10290, threadinfo=d3c84000 task=c76b0130)
+Stack: dec00800 c639e200 c76b0698 c639e310 c639e324 c76b0130 c13e5ca0
+dededda8
+       c0105f86 dedef770 c03079de 00000000 c639e200 00000000 00000000
+00000000
+       00000000 c03079de 00000000 00000000 00000000 c0104271 c639e200
+00000000
+Call Trace:
+ [<c0105f86>] ret_from_fork+0x6/0x14
+ [<c03079de>] usb_stor_control_thread+0x0/0x2c9
+ [<c03079de>] usb_stor_control_thread+0x0/0x2c9
+ [<c0104271>] kernel_thread_helper+0x5/0xb
+
+Code: f0 fe 08 0f 88 38 0b 00 00 8b 83 b8 00 00 00 81 b8 50 01 00
+ <6>note: usb-storage[10290] exited with preempt_count 1
+
+
+
+

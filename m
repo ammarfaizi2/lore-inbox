@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265225AbUGGQqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264959AbUGGRAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbUGGQqt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 12:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUGGQqt
+	id S264959AbUGGRAz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 13:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbUGGRAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 12:46:49 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:4926 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265225AbUGGQqm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 12:46:42 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-mm6
-Date: Wed, 7 Jul 2004 09:44:54 -0700
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20040705023120.34f7772b.akpm@osdl.org>
-In-Reply-To: <20040705023120.34f7772b.akpm@osdl.org>
+	Wed, 7 Jul 2004 13:00:55 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:46926 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S264959AbUGGRAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 13:00:54 -0400
+To: Helge Hafting <helge.hafting@hist.no>
+Cc: Davide Rossetti <davide.rossetti@roma1.infn.it>,
+       linux-kernel@vger.kernel.org
+Subject: Re: MSI to memory?
+X-Message-Flag: Warning: May contain useful information
+References: <200407011215.59723.bjorn.helgaas@hp.com>
+	<20040701115339.A4265@unix-os.sc.intel.com>
+	<40EBED33.3050707@roma1.infn.it> <40EBF07B.8040003@hist.no>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 07 Jul 2004 09:59:14 -0700
+In-Reply-To: <40EBF07B.8040003@hist.no> (Helge Hafting's message of "Wed, 07
+ Jul 2004 14:45:47 +0200")
+Message-ID: <52vfgzoisd.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407070944.54281.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 07 Jul 2004 16:59:14.0431 (UTC) FILETIME=[BB7CA0F0:01C46443]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, July 5, 2004 2:31 am, Andrew Morton wrote:
-> altix-serial-driver-2.patch
->   Altix serial driver updates
->   altix-serial-driver-fix
+    Helge> Won't that put a bad load on the bus?  Someone else might
+    Helge> need it: * Another cpu in a smp system * Any device doing
+    Helge> bus-master transfers, even in a UP system
 
-Now that John has accepted the LANANA device number request, can you please 
-merge this into the BK tree?  It fixes the panics we were seeing with the 
-8250 driver and also includes early printk support, which is really nice for 
-debugging early boot problems (and, as luck would have it, the ia64 tree has 
-one at the moment).
+Actually with MSI, the PCI device writes directly to a host address.
+In the proposed usage in this mail thread, the address is in host
+memory, so there's no bus load to poll the memory.  Presumably the
+memory will be pulled into cache for the duration of the poll loop, so
+there's not even any memory bandwidth consumed.  (Of course this only
+works on an architecture where PCI DMA is cache coherent)
 
-Thanks,
-Jesse
+ - Roland
+
+Date: Wed, 07 Jul 2004 09:59:04 -0700
+In-Reply-To: <40EBF07B.8040003@hist.no> (Helge Hafting's message of "Wed, 07 Jul 2004 14:45:47 +0200")
+Message-ID: <52wu1foisn.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through Obscurity, linux)

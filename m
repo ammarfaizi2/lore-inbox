@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272127AbRH3HWF>; Thu, 30 Aug 2001 03:22:05 -0400
+	id <S269274AbRH3Hsm>; Thu, 30 Aug 2001 03:48:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272128AbRH3HVz>; Thu, 30 Aug 2001 03:21:55 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:19464 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S272127AbRH3HVn>; Thu, 30 Aug 2001 03:21:43 -0400
-Date: Thu, 30 Aug 2001 01:27:20 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Erik Andersen <andersen@codepoet.org>, linux-kernel@vger.kernel.org
-Subject: Re: Novell Attacks Linux
-Message-ID: <20010830012720.A29707@vger.timpanogas.org>
-In-Reply-To: <20010825020114.A12724@vger.timpanogas.org> <3B8809A5.DB7B6764@baywinds.org> <20010825153009.B14524@vger.timpanogas.org> <9mcurg$cuo$1@forge.intermeta.de> <20010827122838.A20599@vger.timpanogas.org> <9mfka8$sb$1@forge.intermeta.de> <20010829210356.B29267@vger.timpanogas.org> <20010829212640.A4268@codepoet.org>
-Mime-Version: 1.0
+	id <S270031AbRH3Hsc>; Thu, 30 Aug 2001 03:48:32 -0400
+Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:24299 "EHLO
+	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
+	id <S269274AbRH3HsO>; Thu, 30 Aug 2001 03:48:14 -0400
+Message-ID: <3B8DEF9D.26F7544D@cisco.com>
+Date: Thu, 30 Aug 2001 13:17:41 +0530
+From: Manik Raina <manik@cisco.com>
+Organization: Cisco Systems
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: manik@cisco.com
+Subject: ioctl conflicts
+In-Reply-To: <20010828145304Z.haba@pdc.kth.se>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010829212640.A4268@codepoet.org>; from andersen@codepoet.org on Wed, Aug 29, 2001 at 09:26:40PM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 29, 2001 at 09:26:40PM -0600, Erik Andersen wrote:
-> 
->     "An Act to punish polygamy and other kindred offenses," approved February
->     4th, A.D. 1892, in so far as the same defines and imposes penalties for
->     polygamy, is hereby declared to be in force in the State of Utah. 
-> 
+I was grep-ing on a 2.4 source tree when i found the
+following :
 
-Odd, I drive by huge complexes on the road from Spanish Fork to Manti,
-and there's huge colonies of them down there on both sides of the roads.
-I'll give you directions if you like.
+./include/linux/videodev.h:#define VIDIOCGCAP          
+_IOR('v',1,struct video_capability)
+./include/linux/ext2_fs.h:#define  EXT2_IOC_GETVERSION  _IOR('v',1,
+long)   
 
-:-)
+Aren't these supposed to be conflicts ?
 
-Jeff
-
+-Manik

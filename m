@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264721AbTIDGdh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 02:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264731AbTIDGdh
+	id S264750AbTIDGs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 02:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264736AbTIDGs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 02:33:37 -0400
-Received: from bm-4a.paradise.net.nz ([202.0.58.23]:54269 "EHLO
-	linda-4.paradise.net.nz") by vger.kernel.org with ESMTP
-	id S264721AbTIDGdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 02:33:36 -0400
-Date: Thu, 04 Sep 2003 18:33:33 +1200 (NZST)
-From: Richard Procter <rnp@paradise.net.nz>
-Subject: Re: [PATCH] Fix SMP support on 3c527 net driver, take 2
-In-reply-to: <3F55EFD1.4020204@terra.com.br>
-To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.21.0309041758250.284-100000@ps2.local>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Sep 2003 02:48:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40579 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264750AbTIDGsz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 02:48:55 -0400
+From: John Cherry <cherry@osdl.org>
+Message-ID: <13539.4.5.59.77.1062658134.squirrel@www.osdl.org>
+Date: Wed, 3 Sep 2003 23:48:54 -0700 (PDT)
+Subject: IA32 - 4 New warnings
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On the nightly IA32 compiles, I am now flagging NEW warnings that were
+introduced into the build in the last 24 hours.  I'll send these out
+automatically for awhile with the builds as it has some value at this
+stage.
 
-Felipe, 
+drivers/net/wan/cosa.c:516: warning: implicit declaration of function `sti'
+drivers/net/wan/cosa.c:661: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+drivers/net/wan/cosa.c:669: warning: `MOD_DEC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:494)
+drivers/net/wan/cosa.c:729: warning: `MOD_DEC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:494)
 
-Just had a quick look at it. A couple of thoughts:        
+John
 
-* mc32_interrupt doesn't acquire the spinlock, rendering the critical
-  sections un-exclusive on SMP. 
-
-* sleep_on's remain in mc32_halt_transceiver and mc32_close. I think this 
-  could lead to deadlock on UP --- eg. thread sleeps with spinlock held,
-  subsequent interrupt then waits in vain. Might be less deadly on SMP?
-  (are interrupt handlers reentrant on SMP?) 
- 
-* Just noticed an old error in mc32_close --- sleep_on is called in
-  without first disabling interrupts. 
-
-I've had a go at testing it, but ran into troubles with the ibmmca.c
-driver carking on an uninitialised spinlock. Hopefully, I'll find some
-quality time in the weekend to get things going. 
-
-best, 
-Richard. 
-
-On Wed, 3 Sep 2003, Felipe W Damasio wrote:
-
-> 	Hi Richard,
-> 
-> 	Please try this patch instead.
-> 
-> 	This one holds the device lock before doing "finish_wait", which 
-> seems to be the Right Way to do it.
-> 
-> 	Thanks.
-> 
-> Felipe
-> 
 

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264088AbTKSOlz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 09:41:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbTKSOlz
+	id S264087AbTKSOdl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 09:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbTKSOdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 09:41:55 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8841 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264088AbTKSOly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 09:41:54 -0500
-Date: Mon, 17 Nov 2003 09:51:23 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       vojtech@ucw.cz
-Subject: Re: Corrected drivermodel for i8042.c
-Message-ID: <20031117085123.GF643@openzaurus.ucw.cz>
-References: <20031116131134.GA301@elf.ucw.cz> <200311161520.03425.dtor_core@ameritech.net>
+	Wed, 19 Nov 2003 09:33:41 -0500
+Received: from eik.ii.uib.no ([129.177.16.3]:54167 "EHLO mail.ii.uib.no")
+	by vger.kernel.org with ESMTP id S264087AbTKSOdk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 09:33:40 -0500
+Subject: Re: 2.6.0-test9-mm4 - kernel BUG at arch/i386/mm/fault.c:357!
+From: "Ronny V. Vindenes" <s864@ii.uib.no>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031119142230.GX22764@holomorphy.com>
+References: <1069246427.5257.12.camel@localhost.localdomain>
+	 <20031119130220.GT22764@holomorphy.com>
+	 <1069248455.5257.26.camel@localhost.localdomain>
+	 <20031119140222.GV22764@holomorphy.com>
+	 <1069251503.3390.1.camel@localhost.localdomain>
+	 <20031119142230.GX22764@holomorphy.com>
+Content-Type: text/plain
+Message-Id: <1069252411.5007.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311161520.03425.dtor_core@ameritech.net>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 19 Nov 2003 15:33:31 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.9 (+)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1AMTOh-0007Au-00*uItc3enZ6Dc*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > +static int i8042_resume_port(struct serio *port)
-> > +{
-> > +	struct serio_dev *dev = port->dev;
-> > +	if (dev) {
-> > +		dev->disconnect(port);
-> > +		dev->connect(port, dev);
-> > +	}
-> > +}
+On Wed, 2003-11-19 at 15:22, William Lee Irwin III wrote:
+> On Wed, Nov 19, 2003 at 03:18:23PM +0100, Ronny V. Vindenes wrote:
+> > bad nopage snd_pcm_mmap_data_nopage+0x0/0xc0 [snd_pcm]
+> > handle_mm_fault() returned bad status
 > 
-> You want to do that event if there was nothing attached to the port
-> as a mouse might get plugged in while the box is suspended. I think
-> serio_rescan() is more appropriate (it will do a disconnect if needed
-> for you).
+> 
+> diff -prauN mm4-2.6.0-test9-1/sound/core/pcm_native.c mm4-2.6.0-test9-dbg-1/sound/core/pcm_native.c
 
-I tried doing _rescan() but could not figure it out :-(.
-
-> Overall there is a problem with disconnect/connect method as it will 
-> cause a new input device created for the same hardware if old input
-> device is held open by some process. If ever serio_reconnect patches
-> will make in the tree then serio_reconnect() can be used instead of
-
-Where can I get _reconnect() patches?
+That fixed it, thanks!
 
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+Ronny V. Vindenes <s864@ii.uib.no>
 

@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269967AbRHWSnP>; Thu, 23 Aug 2001 14:43:15 -0400
+	id <S269937AbRHWSoO>; Thu, 23 Aug 2001 14:44:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269963AbRHWSnF>; Thu, 23 Aug 2001 14:43:05 -0400
-Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:31461 "HELO
-	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S269962AbRHWSmv>; Thu, 23 Aug 2001 14:42:51 -0400
-Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880B3F@xsj02.sjs.agilent.com>
-From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: RE: releasing driver to kernel in source+binary format
-Date: Thu, 23 Aug 2001 12:43:05 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S269963AbRHWSoF>; Thu, 23 Aug 2001 14:44:05 -0400
+Received: from stanis.onastick.net ([207.96.1.49]:61201 "EHLO
+	stanis.onastick.net") by vger.kernel.org with ESMTP
+	id <S269937AbRHWSnv>; Thu, 23 Aug 2001 14:43:51 -0400
+Date: Thu, 23 Aug 2001 14:44:06 -0400
+From: Disconnect <lkml@sigkill.net>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+Message-ID: <20010823144406.G25051@sigkill.net>
+In-Reply-To: <20010822030807.N120@pervalidus> <20010823103620.A6965@kittpeak.ece.umn.edu> <20010823115506.D25051@sigkill.net> <20010823182934Z16190-32383+1035@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010823182934Z16190-32383+1035@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, Qlogic also has their firmware released in binary format.
+On Thu, 23 Aug 2001, Daniel Phillips did have cause to say:
+> Take a close look at the word "just" in that sentence.  Kernel configuration 
+> is not a trivial task at all and it gets less trivial every time Linux gets 
+> more general.
 
-Any comment on that ?
+I don't disagree. But the point isn't how trivial or non-trivial the task
+of configuring the kernel is, the point is for a lot of people it is the
+ONLY task that they will use python for.  And everyone who builds a kernel
+will have gcc, so thats the 'ideal' dependency.  Second and third most
+likely, a C++ compiler or perl (depending on what you figure the
+installbase of each one is).  Forth, some form of java runtime.  And after
+that is python.  (I'm not advocating using any of the above for kernel
+configuration. But they are more likely to already be installed than
+python is.)
 
--hiren
+What this says is that either linux sources are going to grow (and the
+build process get more complex) by whatever the size of the python
+interpreter is, OR some method will be used that doesn't require a
+separate interpreter.
 
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Thursday, August 23, 2001 11:14 AM
-To: hiren_mehta@agilent.com
-Cc: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
-Subject: Re: releasing driver to kernel in source+binary format
+This is also in agreement with his statement about reducing the dependence
+on external tools, whereas requiring everyone to install python does not.  
+It could either be read as using straight gcc C -or- as including all the
+external tools in buildable form.  I'm betting on the former.
 
-
-> HBAs and make it part of the kernel source tree. Because of IP 
-> related issues, we can only release one part of the sources with 
-> GPL. We want to release the other part in the binary format (.o)
-> as a library which needs to be linked with the first part.
-> If somebody can advise me on how to go about this, I would
-> appreciate it. 
-
-Very simple. You can't link GPL and proprietary code together. You may be
-able to make your code a non free module distributed by yourselves if you
-can satisfy your lawyers that it is a seperate work. Take that one up with
-your lawyers. Also remember that the kernel code is GPL, so if you based
-your driver on existing GPL code (eg by copying an existing scsi drivers
-code as a basis) you will also have to sort that issue out too.
-
-> I went through the "SubmittingDrivers" file
-> which does not talk about this kind of special cases.
-
-Thats becase Linux is free software. We don't merge binary only drivers, and
-only maintain source level compatibility between different compiles of the
-kernel.
-
-The whole Linux concept is geared around free software, that means source
-code, source level compatibility, the ability for people to recompile and
-for sane debugging because we have all the sources.
-
-Alan
+---
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1 [www.ebb.org/ungeek]
+GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P- L+++>+++++ 
+E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t
+5--- X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
+------END GEEK CODE BLOCK------

@@ -1,82 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269285AbUJFPML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269277AbUJFPOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269285AbUJFPML (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 11:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269286AbUJFPMK
+	id S269277AbUJFPOL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 11:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269290AbUJFPOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 11:12:10 -0400
-Received: from h66-38-154-67.gtcust.grouptelecom.net ([66.38.154.67]:5061 "EHLO
-	pbl.ca") by vger.kernel.org with ESMTP id S269285AbUJFPLv (ORCPT
+	Wed, 6 Oct 2004 11:14:10 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:25053 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S269277AbUJFPNe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 11:11:51 -0400
-Message-ID: <41640C38.8010600@pbl.ca>
-Date: Wed, 06 Oct 2004 10:16:08 -0500
-From: Aleksandar Milivojevic <amilivojevic@pbl.ca>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Wed, 6 Oct 2004 11:13:34 -0400
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E57036623EC@exa-atlanta>
+From: "Ju, Seokmann" <sju@lsil.com>
+To: "'OHKUBO Katsuhiko '" 
+	<IMCEAMAILTO-ohkubo-k+40suri+2Eco+2Ejp@atl1.se.lsil.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "Mukker, Atul" <Atulm@lsil.com>
+Subject: RE: SCSI cache flush will be lack under some circumstances??
+Date: Wed, 6 Oct 2004 11:13:28 -0400 
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrea Arcangeli <andrea@novell.com>, Robert Love <rml@novell.com>,
-       Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org
-Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive (SCSI-libsata,
- VIA SATA))
-References: <4136E4660006E2F7@mail-7.tiscali.it> <41634236.1020602@pobox.com> <52is9or78f.fsf_-_@topspin.com> <4163465F.6070309@pobox.com> <41634A34.20500@yahoo.com.au> <41634CF3.5040807@pobox.com> <1097027575.5062.100.camel@localhost> <20041006015515.GA28536@havoc.gtf.org> <41635248.5090903@yahoo.com.au> <20041006020734.GA29383@havoc.gtf.org> <20041006031726.GK26820@dualathlon.random> <4163660A.4010804@pobox.com> <416369F9.7050205@yahoo.com.au> <41636D8B.8020401@pobox.com>
-In-Reply-To: <41636D8B.8020401@pobox.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> You're making my point for me.  If the bandaid (preempt) is not active, 
-> then the system can be accurated profiled.  If preempt is active, then 
-> it is potentially hiding trouble spots.
-> 
-> The moral of the story is not to use preempt, as it
-> * potentially hides long latency code paths
-> * potentially introduces bugs, as we've seen with net stack and many 
-> other pieces of code
-> * is simply not needed, if all code paths are fixed
+Hi,
 
-One can also look onto it from another angle:
-* conviniently resolves long latency code paths that can't be avoided
-* uncovers bugs that need to be fixed
-* implicitly fixes code paths
+There are two different cache involved in your concern.
+One is cache in each HDD to enhance write performance of it. The other one
+is cache in RAID controller.
+When you set cache to 'write back' using utility for RAID controller, it
+towards to cache in RAID controller.
+So, even though kernel doesn't flush SCSI cache, MegaRAID driver will make
+sure data consistency including data on both cache through driver's shutdown
+entry-point and F/W that controls each physical disk as well.
 
-It seems to me that you are mixing latency of the system, efficiency of 
-the driver functions, and performance of the system in the way it suits 
-your arguments.
+I hope this helps you.
 
-Those three influent each other, but should be looked at and solved 
-separately.
+Regards,
 
-Preempt is a fix for latency.  It doesn't (and can't) fix efficiency and 
-performace.  If you are using latency as a measure for efficiency and 
-performance, you are mixing apples and oranges with bananas.
 
-Unefficient driver function (or code path) will not become efficient if 
-you sprinkle it with cond_resched (it will only reduce the latency of 
-the system).  As you conviniently said, you are just putting band aid on 
-the problem, instead of fixing it.  Not different than using preept 
-kernel, really.  Only more time spent on it by developer, that might be 
-used better somewhere else (like making code path more efficient).
+Seokmann
 
-Performance of the system might be a bit lower with preempt kernel.  But 
-most of those that would notice or care (0.1% of users?  probably less) 
-would probably be happier without cond_resched executed thousands a time 
-per second too, and would happily sacrifice latency to high performance.
 
-Finally, the bugs.  Bugs need to be fixed.  Period.  If bug goes away 
-when somebody turns off preempt on uniprocessor system, it may as well 
-hit back when you move to non-preempt SMP system in even more obscure 
-ways (because than you really have code paths executed in parallel). 
-Telling somebody to try with non-preempt kernel should be debugging 
-step, not the solution.
+-----Original Message-----
+From: OHKUBO Katsuhiko [mailto:ohkubo-k@suri.co.jp]
+Sent: Friday, October 01, 2004 5:38 AM
+To: linux-kernel@vger.kernel.org
+Subject: SCSI cache flush will be lack under some circumstances??
 
--- 
-Aleksandar Milivojevic <amilivojevic@pbl.ca>    Pollard Banknote Limited
-Systems Administrator                           1499 Buffalo Place
-Tel: (204) 474-2323 ext 276                     Winnipeg, MB  R3T 1L7
+Dear developers,
+
+I am using Linux 2.6.8.1 with megaraid card.
+At boot time, I saw drive cache type was assumed to be 'write through'.
+
+------
+megaraid cmm: 2.20.2.0 (Release Date: Thu Aug 19 09:58:33 EDT 2004)
+megaraid: 2.20.3.1 (Release Date: Tue Aug 24 09:43:35 EDT 2004)
+megaraid: probe new device 0x1000:0x1960:0x1028:0x0520: bus 1:slot 2:func 0
+megaraid: fw version:[3.41] bios version:[1.06]
+scsi0 : LSI Logic MegaRAID driver
+scsi[0]: scanning scsi channel 0 [Phy 0] for non-raid devices
+  Vendor: SDR       Model: GEM318P           Rev: 1
+  Type:   Processor                          ANSI SCSI revision: 02
+scsi[0]: scanning scsi channel 1 [virtual] for logical drives
+  Vendor: MegaRAID  Model: LD0 RAID5 79796R  Rev: 3.41
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+  Vendor: MegaRAID  Model: LD1 RAID5     4R  Rev: 3.41
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sda: 573022208 512-byte hdwr sectors (293387 MB)
+sda: asking for cache data failed
+sda: assuming drive cache: write through
+...
+------
+
+If kernel cannot get cache type, write cache type (sdkp->WCE) is set
+to 'write through' mode (=0) in sd_read_cache_type() at drivers/scsi/sd.c.
+sdkp->WCE is only reffered in sd_shutdown() to decide
+whether SCSI cache flush is necessary or not.
+SCSI cache is flushed only at 'write back' mode (sdkp->WCE is 1).
+
+On such behavior, even if I configure my RAID card to 'write back' mode,
+Linux kernel assumes it is 'write through' mode because kernel cannot get
+write type, so kernel doesn't flush SCSI cache in sd_shutdown().
+I think it will be a disk consistency problem.
+
+To avoid such problem, I think write cache type must be assumed to be
+'write back' if kernel cannot get write cache type.
+
+--- drivers/scsi/sd.c.old       2004-10-01 17:32:06.000000000 +0900
++++ drivers/scsi/sd.c   2004-10-01 17:32:31.000000000 +0900
+@@ -1251,9 +1251,9 @@
+        }
+
+ defaults:
+-       printk(KERN_ERR "%s: assuming drive cache: write through\n",
++       printk(KERN_ERR "%s: assuming drive cache: write back\n",
+               diskname);
+-       sdkp->WCE = 0;
++       sdkp->WCE = 1;
+        sdkp->RCD = 0;
+ }
+
+
+If RAID card is configured to 'write through' mode, and if kernel assumes
+it is 'write back' mode, unnecessary cache flush request (no data to flush)
+will be done.
+
+
+Thanks in advance for any help, OHKUBO Katsuhiko.
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

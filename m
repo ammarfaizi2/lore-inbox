@@ -1,90 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbULMN7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262263AbULMN6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbULMN7J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 08:59:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbULMN7J
+	id S262263AbULMN6u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 08:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbULMN6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 08:59:09 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58127 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262269AbULMN63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 08:58:29 -0500
-Date: Mon, 13 Dec 2004 13:58:20 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Stefan Seyfried <seife@suse.de>
-Cc: Con Kolivas <kernel@kolivas.org>, Pavel Machek <pavel@suse.cz>,
-       linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: dynamic-hz
-Message-ID: <20041213135820.A24748@flint.arm.linux.org.uk>
-Mail-Followup-To: Stefan Seyfried <seife@suse.de>,
-	Con Kolivas <kernel@kolivas.org>, Pavel Machek <pavel@suse.cz>,
-	linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <41BD483B.1000704@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41BD483B.1000704@suse.de>; from seife@suse.de on Mon, Dec 13, 2004 at 08:43:55AM +0100
+	Mon, 13 Dec 2004 08:58:49 -0500
+Received: from mail45.messagelabs.com ([140.174.2.179]:48108 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S262263AbULMN6F convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 08:58:05 -0500
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-20.tower-45.messagelabs.com!1102946282!8365052!1
+X-StarScan-Version: 5.4.2; banners=-,-,-
+X-Originating-IP: [66.10.26.57]
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Unknown Issue.
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Date: Mon, 13 Dec 2004 08:57:59 -0500
+Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC4175@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Unknown Issue.
+Thread-Index: AcTgkJ/dRlq7soY5R9KEgCqtJn8YywAiXCUg
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: "Patrick" <nawtyness@gmail.com>, <linux-kernel@vger.kernel.org>,
+       <linux-xfs@oss.sgi.com>
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>,
+       "Jeff Garzik" <jgarzik@pobox.com>, "Linus Torvalds" <torvalds@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 08:43:55AM +0100, Stefan Seyfried wrote:
-> Con Kolivas wrote:
-> > Just being devils advocate here...
-> > 
-> > I had variable Hz in my tree for a while and found there was one 
-> > solitary purpose to setting Hz to 100; to silence cheap capacitors.
-> 
-> power savings? Having the cpu wake up 1000 times per second if the
-> machine is idle cannot be better than only waking it up 100 times.
-> 
-> Yes, i am always on the quest for the 5 extra minutes on battery :-)
+Patrick,
 
-This is an easy thing to grab hold of, but rather pointless in the
-overall scheme of things.  Those of us who have done power usage
-measurements know this already.
+I had the same problem on two machines with XFS.  Both slackware-current
+machines.  The kernel on the Dell GX1 was built with GCC-3.4.2 and on my
+main box was GCC-3.4.3.
 
-The only case where this really makes sense is where the CPU power
-usage outweighs the power consumption of all other peripherals by
-at least an order of magnitude such that the rest of the system is
-insignificant compared to the CPU power.
+There seems to be a bug in XFS with some configurations of 2.6.9 and
+2.6.10-rc series.
 
-Lets take an example.  Lets say that:
-* a CPU runs at about 245mA when active
-* 90mA when inactive
-* the timer interrupt takes 2us to execute 1000 times a second
-* no other processing is occuring
+After re-installing Slackware-10.0 and upgrading to -current, I have
+installed 2.6.10-rc3 and so far, I have not been able to reproduce the
+problem.
 
-This means that the average current consumption is about:
-	245mA * 2 * 10^-6 + 90mA * (1 - 2 * 10^-6) = 90.00031mA
+Some questions for you:
 
-This means that the timer interrupt has increased CPU power by
-0.00034%.
+1] What kernel are you running?
+2] What did you last change before you started getting these errors?
 
-Now, lets factor in the rest of a system.  Lets the rest of the
-system takes 84mA.  Recalculating (by increasing each figure by
-84mA) gives us 174.00031mA, or an increase in overall system
-power by about 0.00018%.
+As far as severity goes, I ran XFS' fsck from a KNOPPIX CD and as a
+result, I had about 500-600mb of files in my /lost+found directory when
+it was finished.  Files were missing from all parts of the file system.
+I had to restore from backup.  I would say stick with your previous
+2.6.9 configuration (if you were running it) or go back to 2.6.8.1, some
+2.6.9 configurations and 2.6.10-rc1 and/or 2.6.10-rc2 definitely cause
+file corruption with XFS.  So far, however, I have not been able to
+reproduce the error with 2.6.10-rc3.
 
-Assuming your battery normally lasts exactly 24 hours on a current
-drain of 174.00031mA, completely eliminating the tick gives you
-an extra 0.15 seconds battery life.
+Justin.
 
-Note: the above CPU power consumption figures were taken from
-the Intel PXA255 processor electrical specifications, and the
-"rest of the system" current consumption taken from a real life
-device.  The timer interrupt taking 2us is probably an over-
-estimation.  Only the battery lifetime of 24 hours is ficticious.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Patrick
+Sent: Sunday, December 12, 2004 4:15 PM
+To: linux-kernel@vger.kernel.org
+Subject: Unknown Issue.
 
-And yes, from time to time I keep thinking that it would be nice
-to eliminate the timer tick to save some power.  However, I've
-never been able to justify the extra code complexity against the
-power savings.  It really only makes sense if you can essentially
-_power off_ your system until the next timer interrupt (thereby,
-in the above example, reducing the power consumption by some 174mA)
+Hi, 
+
+I've got a computer running gentoo, on a clean install where i've got
+an odd problem :
+
+after a while, the computer refuses to spawn processes anymore : 
+
+-/bin/bash: /bin/ps: Input/output error
+-/bin/bash: /usr/bin/w: Input/output error
+-/bin/bash: /bin/df: Input/output error
+-/bin/bash: /bin/mount: Input/output error
+
+It happen's randomly, i've tried everything from changing the computer
+from running software raid ( scsi ) to running a hardware solution and
+reinstalling, I've run the memory through memtest as well as i've
+remounted the drives and i've tested the ram to make sure it was
+properly mounted.
+
+The only thing running on this box is mysql, which runs perfectly at
+7500 q/s ( running super smack ) now, i'm not sure if this is a linux
+kernel thing, or a gentoo thing, or a hardware thing.
+
+I've checked and i'm not running out of file descriptors ( by looking
+in /proc/sys/fs/file-nr ) and i've increased the ammount in (
+/proc/sys/fs/file-max ( if i member correctly ) ) by adding a 0 after
+the end of the value thus increasing it alot.
+
+It's running XFS on the root partition with a single partition, dual
+xeon 2.66 with hyperthreading enabled, dual intel gbe and a adaptec
+2120S AACraid card. Dual 36gb 10krpm scsi drives in raid1.
+
+Does anyone have any ideas on what i can do, what i can test, if it's
+hardware ? software ?
+
+guys ? 
+
+P
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+</N>
+
+------
+In the beginning, there was nothing. And God said, 'Let there be
+Light.' And there was still nothing, but you could see a bit better.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

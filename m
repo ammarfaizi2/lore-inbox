@@ -1,57 +1,38 @@
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263780AbTEYVRd (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 25 May 2003 17:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263781AbTEYVRc
+	id S263781AbTEYVim (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 25 May 2003 17:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263782AbTEYVim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 17:17:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3466 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263780AbTEYVRb
+	Sun, 25 May 2003 17:38:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8842 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263781AbTEYVil
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 17:17:31 -0400
-Date: Sun, 25 May 2003 22:30:40 +0100
+	Sun, 25 May 2003 17:38:41 -0400
+Date: Sun, 25 May 2003 22:51:50 +0100
 From: viro@parcelfarce.linux.theplanet.co.uk
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-   Alexander Viro <aviro@redhat.com>
-Subject: Re: oops with bk kernel as of 2003-05-25T13:00:00-07
-Message-ID: <20030525213040.GH6270@parcelfarce.linux.theplanet.co.uk>
-References: <3ED12727.1080907@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org,
+   AlexanderOD Viro <aviro@redhat.com>
+Subject: [PATCH] Re: oops with bk kernel as of 2003-05-25T13:00:00-07
+Message-ID: <20030525215150.GI6270@parcelfarce.linux.theplanet.co.uk>
+References: <3ED12727.1080907@redhat.com> <20030525213040.GH6270@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3ED12727.1080907@redhat.com>
+In-Reply-To: <20030525213040.GH6270@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 25, 2003 at 01:27:19PM -0700, Ulrich Drepper wrote:
-> Call Trace:
->  [<c0157a4e>] cdev_add+0x63/0x65
->  [<c01579c8>] exact_match+0x0/0x5
->  [<c01579cd>] exact_lock+0x0/0x1e
->  [<c01575d1>] register_chrdev+0xc6/0x10f
->  [<c039ec53>] init_netlink+0x1f/0x58
->  [<c039ec2e>] netlink_proto_init+0x47/0x4d
->  [<c0382880>] do_initcalls+0x27/0x93
->  [<c012ddc3>] init_workqueues+0xf/0x26
->  [<c01050a8>] init+0x4c/0x1a8
->  [<c010505c>] init+0x0/0x1a8
->  [<c0108a15>] kernel_thread_helper+0x5/0xb
- 
-> I looked at the code and the problem is that cdev_map == NULL when
-> cdev_add is called.  cdev_map is initialized in a constructor.  Maybe
-> the wrong order or a race...
+On Sun, May 25, 2003 at 10:30:40PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-Gack...  We have
+> Guess which one wins...  What a mess...  How about the following (untested,
+> but AFAICS should work)
 
-subsys_initcall(chrdev_init);
-in fs/char_dev.c
-and
-core_initcall(netlink_proto_init);
-in net/netlink/af_netlink.c
+[snip]
 
-Guess which one wins...  What a mess...  How about the following (untested,
-but AFAICS should work)
+or, to make it compile, the following:
 
 diff -urN linux/fs/char_dev.c linux2/fs/char_dev.c
 --- linux/fs/char_dev.c	Sun May 25 08:01:46 2003
@@ -61,7 +42,7 @@ diff -urN linux/fs/char_dev.c linux2/fs/char_dev.c
  }
  
 -static int __init chrdev_init(void)
-+void __init cdev_init(void)
++void __init chrdev_init(void)
  {
  	subsystem_register(&cdev_subsys);
  	kset_register(&kset_dynamic);
@@ -76,7 +57,7 @@ diff -urN linux/fs/dcache.c linux2/fs/dcache.c
  EXPORT_SYMBOL(d_genocide);
  
  extern void bdev_cache_init(void);
-+extern void cdev_init(void);
++extern void chrdev_init(void);
  
  void __init vfs_caches_init(unsigned long mempages)
  {
@@ -84,5 +65,6 @@ diff -urN linux/fs/dcache.c linux2/fs/dcache.c
  	files_init(mempages); 
  	mnt_init(mempages);
  	bdev_cache_init();
-+	cdev_init();
++	chrdev_init();
  }
+

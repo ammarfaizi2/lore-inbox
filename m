@@ -1,31 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263150AbSJBQ3x>; Wed, 2 Oct 2002 12:29:53 -0400
+	id <S263188AbSJBQrH>; Wed, 2 Oct 2002 12:47:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263152AbSJBQ3w>; Wed, 2 Oct 2002 12:29:52 -0400
-Received: from dsl-213-023-022-021.arcor-ip.net ([213.23.22.21]:15490 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S263150AbSJBQ3w>;
-	Wed, 2 Oct 2002 12:29:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] dump_stack() cleanup, BK-curr
-Date: Wed, 2 Oct 2002 18:35:33 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210021112020.6201-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0210021112020.6201-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17wmTG-0001Zn-00@starship>
+	id <S263191AbSJBQrH>; Wed, 2 Oct 2002 12:47:07 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:51952 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S263188AbSJBQqV>; Wed, 2 Oct 2002 12:46:21 -0400
+Date: Wed, 2 Oct 2002 09:44:17 -0700
+From: Chris Wright <chris@wirex.com>
+To: Robert Love <rml@tech9.net>
+Cc: Daniel Jacobowitz <dan@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Capabilities-related change in 2.5.40
+Message-ID: <20021002094417.D26557@figure1.int.wirex.com>
+Mail-Followup-To: Robert Love <rml@tech9.net>,
+	Daniel Jacobowitz <dan@debian.org>, linux-kernel@vger.kernel.org
+References: <20021001164907.GA25307@nevyn.them.org> <20021001134552.A26557@figure1.int.wirex.com> <20021001211210.GA8784@nevyn.them.org> <20021002003817.B26557@figure1.int.wirex.com> <20021002132331.GA17376@nevyn.them.org> <1033569212.24108.20.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1033569212.24108.20.camel@phantasy>; from rml@tech9.net on Wed, Oct 02, 2002 at 10:33:32AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 October 2002 11:22, Ingo Molnar wrote:
-> The attached (tested) patch modifies x86's dump_stack() to print out the
-> much friendlier backtrace.
+* Robert Love (rml@tech9.net) wrote:
+> On Wed, 2002-10-02 at 09:23, Daniel Jacobowitz wrote:
+> 
+> > How very odd.  I have been running 2.5 on that machine for a while, and
+> > the bug only showed up somewhere between 2.5.36 and 2.5.40.  Maybe a
+> > coincidence triggered by the PID hashing... your tabbing is a little
+> > odd but the patch looks right to me.  Thanks!
+> 
+> I too wonder if the bug is due to the pid changes and not me :)
 
-How about calling it backtrace(), since that's now what it is.
+No way man! ;-)
 
+> find_task_by_pid(0) should just return current, which was my intention
+> to avoid conditional code-paths.  Maybe I should of used
+> find_process_by_pid()... it seems in the latest 2.5 that still returns
+> current if !pid, at least.
+
+kernel/sched.c::static inline task_t *find_process_by_pid...
+
+Guess that won't work w/out more changes.  Perhaps it's simpler/safer
+to be just be explicit in this case.
+
+thanks,
+-chris
 -- 
-Daniel
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

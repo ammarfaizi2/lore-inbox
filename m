@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135206AbREHTD0>; Tue, 8 May 2001 15:03:26 -0400
+	id <S135210AbREHTL0>; Tue, 8 May 2001 15:11:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135210AbREHTDS>; Tue, 8 May 2001 15:03:18 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41223 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S135206AbREHTC6>; Tue, 8 May 2001 15:02:58 -0400
-Date: Tue, 8 May 2001 14:23:56 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mark Hemment <markhe@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH] allocation looping + kswapd CPU cycles 
-In-Reply-To: <Pine.LNX.4.21.0105081225520.31900-100000@alloc>
-Message-ID: <Pine.LNX.4.21.0105081419070.7774-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135213AbREHTLQ>; Tue, 8 May 2001 15:11:16 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3078 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S135210AbREHTLG>;
+	Tue, 8 May 2001 15:11:06 -0400
+Date: Tue, 8 May 2001 21:10:41 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Thiago Vinhas de Moraes <tvinhas@networx.com.br>
+Cc: Ben Fennema <bfennema@ix.netcom.com>, cacook@freedom.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: write to dvd ram
+Message-ID: <20010508211041.M505@suse.de>
+In-Reply-To: <91FD33983070D21188A10008C728176C09421202@LDMS6003> <20010508100129.19740@dragon.linux.ix.netcom.com> <20010508195030.J505@suse.de> <01050815594606.01919@zeus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01050815594606.01919@zeus>; from tvinhas@networx.com.br on Tue, May 08, 2001 at 03:59:46PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 08 2001, Thiago Vinhas de Moraes wrote:
+> 
+> Hi!
+> 
+> Can this new UDF driver do cd-rewriting ?
 
+No not in itself, but you can give the pktcdvd module a shot. It can do
+rw CD-RW mount so far, at least.
 
-On Tue, 8 May 2001, Mark Hemment wrote:
+*.kernel.org/pub/linux/kernel/people/axboe/packet/
 
-> 
->   In 2.4.3pre6, code in page_alloc.c:__alloc_pages(), changed from;
-> 
-> 	try_to_free_pages(gfp_mask);
-> 	wakeup_bdflush();
-> 	if (!order)
-> 		goto try_again;
-> to
-> 	try_to_free_pages(gfp_mask);
-> 	wakeup_bdflush();
-> 	goto try_again;
-> 
-> 
->   This introduced the effect of a non-zero order, __GFP_WAIT allocation
-> (without PF_MEMALLOC set), never returning failure.  The allocation keeps
-> looping in __alloc_pages(), kicking kswapd, until the allocation succeeds.
-> 
->   If there is plenty of memory in the free-pools and inactive-lists
-> free_shortage() will return false, causing the state of these
-> free-pools/inactive-lists not to be 'improved' by kswapd.
-> 
->   If there is nothing else changing/improving the free-pools or
-> inactive-lists, the allocation loops forever (kicking kswapd).
-> 
->   Does anyone know why the 2.4.3pre6 change was made?
+There's a packet-writing mailing list for the above patch, there is more
+info in the tar file above (subscribe info, archives, resources, etc).
 
-Because wakeup_bdflush(0) can wakeup bdflush _even_ if it does not have
-any job to do (ie less than 30% dirty buffers in the default config).  
-
-> 
->   The attached patch (against 2.4.5-pre1) fixes the looping symptom, by
-> adding a counter and looping only twice for non-zero order allocations.
-
-Looks good. (actually Rik had a patch similar to this which fixed a real
-case with cdda2wav just like you described)
+-- 
+Jens Axboe
 

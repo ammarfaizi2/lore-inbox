@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbUK0H0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUK0Hef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbUK0H0v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 02:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUK0G7y
+	id S261179AbUK0Hef (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 02:34:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbUK0G7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 01:59:54 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:32190 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261304AbUKZTHR (ORCPT
+	Sat, 27 Nov 2004 01:59:24 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:18110 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261290AbUKZTHq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:07:17 -0500
-Date: Thu, 25 Nov 2004 12:44:58 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-0
-Message-ID: <20041125114458.GA20831@elte.hu>
-References: <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041124112745.GA3294@elte.hu> <21889.195.245.190.93.1101377024.squirrel@195.245.190.93> <20041125111344.GA17786@elte.hu> <4798.195.245.190.93.1101379116.squirrel@195.245.190.93>
+	Fri, 26 Nov 2004 14:07:46 -0500
+Date: Fri, 26 Nov 2004 09:52:39 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Priority Inheritance Test (Real-Time Preemption)
+In-Reply-To: <20041126003713.GA5352@elte.hu>
+Message-Id: <Pine.OSF.4.05.10411260942260.27209-100000@da410.ifa.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4798.195.245.190.93.1101379116.squirrel@195.245.190.93>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I will look through your arguments when I get time (probably not
+before Sunday :-(). It does fit with the meassurements I have so far.
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+The reason for running 100000 samples is that for high depth and many
+tasks the statistics is quite pure at the end. So I can just as well set
+it high and do all the daily life stuff.
 
-> > how hard of a freeze is it? I.e. if you log in over the text console,
-> > and do:
-> >
-> > 	chrt -f 99 -p `pidof 'IRQ 1'`
-> > 	chrt -f 99 -p $$
-> >
-> > can you access the sysrq keys after the freeze happens?
+Esben
+
+On Fri, 26 Nov 2004, Ingo Molnar wrote:
+
 > 
-> The lockup is pretty hard indeed. Complete lockup. No sysrq, not even
-> any output thru serial console. The only action that has some visible
-> effect is turning the power/reset switch off :)
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > 
+> > * Ingo Molnar <mingo@elte.hu> wrote:
+> > 
+> > > the additional +1 msec comes from the fact that 1-deep lock/unlock of
+> > > lock1 is an allowed operation too - 2 msec would be the limit if the
+> > > only sequence is the 2-deep one.
+> > > 
+> > > so i think the numbers, at least in the 2-deep case, are quite close
+> > > to the theoretical boundary.
+> > 
+> > in the generic case i think the theoretical boundary should be something
+> > like:
+> > 
+> >    sum(i=1...n)(i) == (n+1) * n / 2
+> > 
+> > 	n=1	limit=1
+> > 	n=2	limit=3
+> > 	n=3	limit=6
+> > 	n=4	limit=10
+> > 
+> > this is quite close to what you have measured for n=1,2,3, and i think
+> > it's becoming exponentially harder to trigger the worst-case with higher
+> > N, so the measured results will likely be lower than that.
+> 
+> also, you might want to try the simpler N-deep-locking-only variant,
+> where the maximum latency should be 'n'. This likely needs some changes
+> to the blocker.c code though - i.e. set 'max' always to lock_depth.
+> 
+> 	Ingo
+> 
 
-note that unless you try the above, or the debug_direct_keyboard switch,
-'soft' lockups will have the same symptoms: no sysrq, no serial console,
-an apparently hung system. So unless you've done the equivalent already,
-please try my suggestions.
-
-	Ingo

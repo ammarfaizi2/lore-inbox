@@ -1,90 +1,535 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132211AbQKXLQU>; Fri, 24 Nov 2000 06:16:20 -0500
+        id <S132690AbQKXLUl>; Fri, 24 Nov 2000 06:20:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131736AbQKXLQL>; Fri, 24 Nov 2000 06:16:11 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:39685 "EHLO
-        mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-        id <S129280AbQKXLQE>; Fri, 24 Nov 2000 06:16:04 -0500
-Date: Fri, 24 Nov 2000 11:44:20 +0000
+        id <S132687AbQKXLUa>; Fri, 24 Nov 2000 06:20:30 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:27912 "EHLO
+        mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+        id <S131396AbQKXLUL>; Fri, 24 Nov 2000 06:20:11 -0500
+Date: Fri, 24 Nov 2000 11:48:23 +0000
 From: Heinz.Mauelshagen@t-online.de (Heinz J. Mauelshagen)
-To: linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: *** ANNOUNCEMENT *** LVM 0.8.1 and LVM 0.9 available at www.sistina.com
-Message-ID: <20001124114420.D9801@srv.t-online.de>
+To: Brian Kress <kressb@fsc-usa.com>
+Cc: mge@sistina.com, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Modularize /proc/partitons (was Re: /proc/partitions for LVM)
+Message-ID: <20001124114823.E9801@srv.t-online.de>
 Reply-To: Mauelshagen@sistina.com
+In-Reply-To: <3A1C3523.A111CDD9@fsc-usa.com> <20001122221152.B4406@srv.t-online.de> <3A1C3A57.9768247B@fsc-usa.com> <20001122235335.C4687@srv.t-online.de> <3A1D7587.D990B92E@fsc-usa.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3A1D7587.D990B92E@fsc-usa.com>; from kressb@fsc-usa.com on Thu, Nov 23, 2000 at 02:52:39PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Due to technical problems this might not have made it through...
-Sorry in advance if you get it twice.
-
-
-Hi all,
-
-Linux Logical Volume Manager 0.8.1 (this is 0.8final plus patches)
-and 0.9 are available for download at www.sistina.com.
-
-Please see further information below, test it and help us
-to make an even better LVM for Linux :-)
-
+Looks good to me.
 
 Regards,
 Heinz      -- The LVM guy --
 
+On Thu, Nov 23, 2000 at 02:52:39PM -0500, Brian Kress wrote:
+> "Heinz J. Mauelshagen" wrote:
+> > 
+> > On Wed, Nov 22, 2000 at 04:27:51PM -0500, Brian Kress wrote:
+> > > "Heinz J. Mauelshagen" wrote:
+> > > >
+> > > > On Wed, Nov 22, 2000 at 04:05:39PM -0500, Brian Kress wrote:
+> > > > >       Question about /proc/partitions and LVM.  LVM devices in
+> > > > > /proc/partitions currently show up as lvma, lvmb, etc, depending on
+> > > > > their device number.  This breaks things like mount by filesystem
+> > > > > name.  Back when LVM existed as a patch, I believe there was some
+> > > > > support in fs/partitions/check.c for showing the proper name for
+> > > > > the device (something like <vgname>/<lvname>).
+> > > >
+> > > > Yes.
+> > > > It actually was <vgname>/<lvname>.
+> > > >
+> > > > Linus didn't accept it though.
+> > > >
+> > > > The code is still available in case he changes his mind.
+> > >
+> > >       Yes, I can see that now looking through lvm.c.  (LVM_HD_NAME)
+> > > I'm guessing why he didn't take it is the minor hack of adding a
+> > > function pointer to genhd.c as a special case just for LVM.
+> > >       A general solution to this problem would be nice.  The
+> > > big switch statement in disk_name in fs/paritions/check.c is kind
+> > > of ugly as it has generic code have to know things about specific
+> > > drivers.
+> > 
+> > Yep.
+> > 
+> > >       How's this for an idea to generalize this.  Put a function
+> > > pointer in the gendisk structure for a specific function to call
+> > > for disk_name for disks for that gendisk.
+> > 
+> > Sounds resonable to me.
+> > 
+> > > That way, LVM gets its
+> > > <vgname>/<lvname>, IDE gets its two disks per major (special cased
+> > > right now), all the other special cases get what they need and future
+> > > drivers can call their devices whatever they like without touching
+> > > this file.  Makes the whole thing more modular.  Make a NULL for
+> > > this function default to the old <name>a, <name>b, etc.
+> > >       What to people think about this?  If this sounds reasonable
+> > > I can come up with a patch.
+> > 
+> > Very good. I'ld appreciate it.
+> > 
+> 
+> 
+> OK, here's the patch.  It has three sets of changes:
+> 
+> 1)  Add a function pointer to struct gendisk called hd_name.
+> 
+> 2)  Make disk_name in fs/partitions/check.c use that function
+>     pointer if its non-null.
+> 
+> 3)  Change the following drivers to use this method. (adding the
+>     driver specific method and removing the old code in check.c)
+> 
+> drivers/md/lvm.c
+> drivers/md/md.c
+> drivers/ide/ide-probe.c
+> drivers/scsi/sd.c
+> drivers/block/cpqarray.c
+> drivers/block/cciss.c
+> drivers/block/DAC960.c
+> 
+> 
+> 	Let me know what you think.  Think there's any chance we
+> can get this in the main kernel tree?
 
+Linus can answer that one ;-)
 
+> 
+> 
+> Brian Kress
+> kressb@fsc-usa.com
+> diff -u --recursive linux-2.4.0-test11/drivers/block/DAC960.c linux-2.4.0-test11-ppfix/drivers/block/DAC960.c
+> --- linux-2.4.0-test11/drivers/block/DAC960.c	Mon Nov 20 15:17:25 2000
+> +++ linux-2.4.0-test11-ppfix/drivers/block/DAC960.c	Thu Nov 23 14:29:37 2000
+> @@ -1885,6 +1885,21 @@
+>  }
+>  
+>  
+> +char *DAC960_disk_name(struct gendisk *hd, int minor, char *buf)
+> +
+> +{
+> +	int ctlr = hd->major - DAC960_MAJOR;
+> +	int disk = minor >> hd->minor_shift;
+> +	int part = minor & ((1 << hd->minor_shift) - 1);
+> +
+> +	if (part)
+> +		sprintf(buf, "%s/c%dd%dp%d", hd->major_name, ctlr, disk, part);
+> +	else
+> +		sprintf(buf, "%s/c%dd%d", hd->major_name, ctlr, disk);
+> +	return buf;
+> +}
+> +
+> +
+>  /*
+>    DAC960_RegisterBlockDevice registers the Block Device structures
+>    associated with Controller.
+> @@ -1945,6 +1960,7 @@
+>    Controller->GenericDiskInfo.nr_real = Controller->LogicalDriveCount;
+>    Controller->GenericDiskInfo.next = NULL;
+>    Controller->GenericDiskInfo.fops = &DAC960_BlockDeviceOperations;
+> +  Controller->GenericDiskInfo.hd_name = DAC960_disk_name;
+>    /*
+>      Install the Generic Disk Information structure at the end of the list.
+>    */
+> diff -u --recursive linux-2.4.0-test11/drivers/block/cciss.c linux-2.4.0-test11-ppfix/drivers/block/cciss.c
+> --- linux-2.4.0-test11/drivers/block/cciss.c	Mon Nov 20 15:17:25 2000
+> +++ linux-2.4.0-test11-ppfix/drivers/block/cciss.c	Thu Nov 23 14:22:55 2000
+> @@ -1749,6 +1749,20 @@
+>  	kfree(size_buff);
+>  }	
+>  
+> +char *cciss_disk_name(struct gendisk *hd, int minor, char *buf)
+> +
+> +{
+> +	int ctlr = hd->major - COMPAQ_CISS_MAJOR;
+> +	int disk = minor >> hd->minor_shift;
+> +	int part = minor & ((1 << hd->minor_shift) - 1);
+> +
+> +	if (part)
+> +		sprintf(buf, "%s/c%dd%dp%d", hd->major_name, ctlr, disk, part);
+> +	else
+> +		sprintf(buf, "%s/c%dd%d", hd->major_name, ctlr, disk);
+> +	return buf;
+> +}
+> +
+>  /*
+>   *  This is it.  Find all the controllers and register them.  I really hate
+>   *  stealing all these major device numbers.
+> @@ -1851,6 +1865,7 @@
+>  		hba[i]->gendisk.part = hba[i]->hd;
+>  		hba[i]->gendisk.sizes = hba[i]->sizes;
+>  		hba[i]->gendisk.nr_real = hba[i]->num_luns;
+> +		hba[i]->gendisk.hd_name = cciss_disk_name;
+>  
+>  		/* Get on the disk list */ 
+>  		hba[i]->gendisk.next = gendisk_head;
+> diff -u --recursive linux-2.4.0-test11/drivers/block/cpqarray.c linux-2.4.0-test11-ppfix/drivers/block/cpqarray.c
+> --- linux-2.4.0-test11/drivers/block/cpqarray.c	Mon Nov 20 15:20:29 2000
+> +++ linux-2.4.0-test11-ppfix/drivers/block/cpqarray.c	Thu Nov 23 14:14:03 2000
+> @@ -362,6 +362,20 @@
+>  }
+>  #endif /* MODULE */
+>  
+> +char *ida_disk_name(struct gendisk *hd, int minor, char *buf)
+> +
+> +{
+> +	int ctlr = hd->major - COMPAQ_SMART2_MAJOR;
+> +	int disk = minor >> hd->minor_shift;
+> +	int part = minor & ((1 << hd->minor_shift) - 1);
+> +
+> +	if (part)
+> +		sprintf(buf, "%s/c%dd%dp%d", hd->major_name, ctlr, disk, part);
+> +	else
+> +		sprintf(buf, "%s/c%dd%d", hd->major_name, ctlr, disk);
+> +	return buf;                                                   
+> +}
+> +
+>  /*
+>   *  This is it.  Find all the controllers and register them.  I really hate
+>   *  stealing all these major device numbers.
+> @@ -512,6 +526,7 @@
+>  		ida_gendisk[i].part = ida + (i*256);
+>  		ida_gendisk[i].sizes = ida_sizes + (i*256);
+>  		ida_gendisk[i].nr_real = 0; 
+> +		ida_gendisk[i].hd_name = ida_disk_name;
+>  	
+>  		/* Get on the disk list */
+>  		ida_gendisk[i].next = gendisk_head;
+> diff -u --recursive linux-2.4.0-test11/drivers/ide/ide-probe.c linux-2.4.0-test11-ppfix/drivers/ide/ide-probe.c
+> --- linux-2.4.0-test11/drivers/ide/ide-probe.c	Thu Aug  3 19:29:49 2000
+> +++ linux-2.4.0-test11-ppfix/drivers/ide/ide-probe.c	Thu Nov 23 12:32:16 2000
+> @@ -726,6 +726,40 @@
+>  	return 0;
+>  }
+>  
+> +char* ide_disk_name(struct gendisk *hd, int minor, char *buf)
+> +
+> +{
+> +	int unit = (minor >> hd->minor_shift) + 'a';                         
+> +	unsigned int part = minor & ((1 << hd->minor_shift) - 1);
+> +
+> +	switch (hd->major) {
+> +		case IDE9_MAJOR:
+> +			unit += 2;
+> +		case IDE8_MAJOR:
+> +			unit += 2;
+> +		case IDE7_MAJOR:
+> +			unit += 2;
+> +		case IDE6_MAJOR:
+> +			unit += 2;
+> +		case IDE5_MAJOR:
+> +			unit += 2;
+> +		case IDE4_MAJOR:
+> +			unit += 2;
+> +		case IDE3_MAJOR:
+> +			unit += 2;
+> +		case IDE2_MAJOR:
+> +			unit += 2;
+> +		case IDE1_MAJOR:
+> +			unit += 2;
+> +		case IDE0_MAJOR:
+> +	}
+> +	if (part)
+> +		sprintf(buf, "hd%c%d", unit, part);
+> +	else
+> +		sprintf(buf, "hd%c", unit);
+> +	return buf;                                                          
+> +}
+> +
+>  /*
+>   * init_gendisk() (as opposed to ide_geninit) is called for each major device,
+>   * after probing for drives, to allocate partition tables and other data
+> @@ -781,6 +815,7 @@
+>  	gd->fops        = ide_fops;             /* file operations */
+>  	gd->de_arr	= kmalloc (sizeof *gd->de_arr * units, GFP_KERNEL);
+>  	gd->flags	= kmalloc (sizeof *gd->flags * units, GFP_KERNEL);
+> +	gd->hd_name	= ide_disk_name;
+>  	if (gd->de_arr)
+>  		memset (gd->de_arr, 0, sizeof *gd->de_arr * units);
+>  	if (gd->flags)
+> diff -u --recursive linux-2.4.0-test11/drivers/md/lvm.c linux-2.4.0-test11-ppfix/drivers/md/lvm.c
+> --- linux-2.4.0-test11/drivers/md/lvm.c	Mon Nov 20 15:20:30 2000
+> +++ linux-2.4.0-test11-ppfix/drivers/md/lvm.c	Thu Nov 23 07:47:20 2000
+> @@ -213,9 +213,7 @@
+>  &lvm_proc_get_info;
+>  #endif
+>  
+> -#ifdef LVM_HD_NAME
+> -void lvm_hd_name(char *, int);
+> -#endif
+> +char *lvm_hd_name(struct gendisk *, int, char *);
+>  /* End external function prototypes */
+>  
+>  
+> @@ -230,9 +228,6 @@
+>  int lvm_snapshot_alloc(lv_t *);
+>  void lvm_snapshot_release(lv_t *); 
+>  
+> -#ifdef LVM_HD_NAME
+> -extern void (*lvm_hd_name_ptr) (char *, int);
+> -#endif
+>  static int lvm_map(struct buffer_head *, int);
+>  static int lvm_do_lock_lvm(void);
+>  static int lvm_do_le_remap(vg_t *, void *);
+> @@ -397,11 +392,6 @@
+>  		lvm_gendisk.next = NULL;
+>  	}
+>  
+> -#ifdef LVM_HD_NAME
+> -	/* reference from drivers/block/genhd.c */
+> -	lvm_hd_name_ptr = lvm_hd_name;
+> -#endif
+> -
+>  	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), DEVICE_REQUEST);
+>  	blk_queue_make_request(BLK_DEFAULT_QUEUE(MAJOR_NR), lvm_make_request_fn);
+>  	blk_queue_pluggable(BLK_DEFAULT_QUEUE(MAJOR_NR), lvm_plug_device_noop);
+> @@ -460,11 +450,6 @@
+>  	remove_proc_entry(LVM_NAME, &proc_root);
+>  #endif
+>  
+> -#ifdef LVM_HD_NAME
+> -	/* reference from linux/drivers/block/genhd.c */
+> -	lvm_hd_name_ptr = NULL;
+> -#endif
+> -
+>  	printk(KERN_INFO "%s -- Module successfully deactivated\n", lvm_name);
+>  
+>  	return;
+> @@ -1448,24 +1433,22 @@
+>   * internal support functions
+>   */
+>  
+> -#ifdef LVM_HD_NAME
+>  /*
+>   * generate "hard disk" name
+>   */
+> -void lvm_hd_name(char *buf, int minor)
+> +char *lvm_hd_name(struct gendisk *hd, int minor, char *buf)
+>  {
+>  	int len = 0;
+>  	lv_t *lv_ptr;
+>  
+>  	if (vg[VG_BLK(minor)] == NULL ||
+>  	    (lv_ptr = vg[VG_BLK(minor)]->lv[LV_BLK(minor)]) == NULL)
+> -		return;
+> +		return buf;
+>  	len = strlen(lv_ptr->lv_name) - 5;
+>  	memcpy(buf, &lv_ptr->lv_name[5], len);
+>  	buf[len] = 0;
+> -	return;
+> +	return buf;
+>  }
+> -#endif
+>  
+>  
+>  /*
+> @@ -2515,6 +2498,8 @@
+>  
+>  	blksize_size[MAJOR_NR] = lvm_blocksizes;
+>  	blk_size[MAJOR_NR] = lvm_size;
+> +
+> +	lvm_gendisk.hd_name=lvm_hd_name;
+>  
+>  	return;
+>  } /* lvm_gen_init() */
+> diff -u --recursive linux-2.4.0-test11/drivers/md/md.c linux-2.4.0-test11-ppfix/drivers/md/md.c
+> --- linux-2.4.0-test11/drivers/md/md.c	Mon Nov 20 15:20:30 2000
+> +++ linux-2.4.0-test11-ppfix/drivers/md/md.c	Thu Nov 23 07:56:06 2000
+> @@ -113,6 +113,8 @@
+>  extern struct block_device_operations md_fops;
+>  static devfs_handle_t devfs_handle;
+>  
+> +char *md_disk_name(struct gendisk*, int, char *);
+> +
+>  static struct gendisk md_gendisk=
+>  {
+>  	major: MD_MAJOR,
+> @@ -125,6 +127,7 @@
+>  	real_devices: NULL,
+>  	next: NULL,
+>  	fops: &md_fops,
+> +	hd_name: md_disk_name,
+>  };
+>  
+>  /*
+> @@ -215,6 +218,14 @@
+>  	MOD_INC_USE_COUNT;
+>  
+>  	return mddev;
+> +}
+> +
+> +char * md_disk_name(struct gendisk *hd, int minor, char* buf)
+> +
+> +{
+> +	int unit = (minor >> hd->minor_shift) + '0';
+> +	sprintf(buf, "%s%c", hd->major_name, unit);
+> +        return buf;
+>  }
+>  
+>  struct gendisk * find_gendisk (kdev_t dev)
+> diff -u --recursive linux-2.4.0-test11/drivers/scsi/sd.c linux-2.4.0-test11-ppfix/drivers/scsi/sd.c
+> --- linux-2.4.0-test11/drivers/scsi/sd.c	Mon Nov 20 15:17:18 2000
+> +++ linux-2.4.0-test11-ppfix/drivers/scsi/sd.c	Thu Nov 23 09:53:01 2000
+> @@ -1013,6 +1013,30 @@
+>  	return i;
+>  }
+>  
+> +char *scsi_disk_name(struct gendisk *hd, int minor, char *buf)
+> +
+> +{
+> +	int unit = (minor >> hd->minor_shift) + 'a';
+> +	unsigned int part = minor & ((1 << hd->minor_shift) - 1);
+> +
+> +	if (hd->major >= SCSI_DISK1_MAJOR && hd->major <= SCSI_DISK7_MAJOR) {
+> +		unit = unit + (hd->major - SCSI_DISK1_MAJOR + 1) * 16;
+> +		if (unit > 'z') {
+> +			unit -= 'z' + 1;
+> +			sprintf(buf, "sd%c%c", 'a' + unit / 26, 'a' + unit % 26);
+> +			if (part)
+> +				sprintf(buf + 4, "%d", part);
+> +			return buf;
+> +		}
+> +	}
+> +
+> +	if (part)
+> +		sprintf(buf, "sd%c%d", unit, part);
+> +	else
+> +		sprintf(buf, "sd%c", unit);
+> +	return buf;
+> +}
+> +
+>  /*
+>   * The sd_init() function looks at all SCSI drives present, determines
+>   * their size, and reads partition table entries for them.
+> @@ -1109,6 +1133,7 @@
+>  		sd_gendisks[i].next = sd_gendisks + i + 1;
+>  		sd_gendisks[i].real_devices =
+>  		    (void *) (rscsi_disks + i * SCSI_DISKS_PER_MAJOR);
+> +		sd_gendisks[i].hd_name=scsi_disk_name;
+>  	}
+>  
+>  	LAST_SD_GENDISK.next = NULL;
+> diff -u --recursive linux-2.4.0-test11/fs/partitions/check.c linux-2.4.0-test11-ppfix/fs/partitions/check.c
+> --- linux-2.4.0-test11/fs/partitions/check.c	Mon Nov 20 15:17:27 2000
+> +++ linux-2.4.0-test11-ppfix/fs/partitions/check.c	Thu Nov 23 14:30:45 2000
+> @@ -83,11 +83,10 @@
+>   */
+>  char *disk_name (struct gendisk *hd, int minor, char *buf)
+>  {
+> -	unsigned int part;
+>  	const char *maj = hd->major_name;
+>  	int unit = (minor >> hd->minor_shift) + 'a';
+> +	unsigned int part = minor & ((1 << hd->minor_shift) - 1);
+>  
+> -	part = minor & ((1 << hd->minor_shift) - 1);
+>  	if (hd->part[minor].de) {
+>  		int pos;
+>  
+> @@ -95,77 +94,8 @@
+>  		if (pos >= 0)
+>  			return buf + pos;
+>  	}
+> -	/*
+> -	 * IDE devices use multiple major numbers, but the drives
+> -	 * are named as:  {hda,hdb}, {hdc,hdd}, {hde,hdf}, {hdg,hdh}..
+> -	 * This requires special handling here.
+> -	 */
+> -	switch (hd->major) {
+> -		case IDE9_MAJOR:
+> -			unit += 2;
+> -		case IDE8_MAJOR:
+> -			unit += 2;
+> -		case IDE7_MAJOR:
+> -			unit += 2;
+> -		case IDE6_MAJOR:
+> -			unit += 2;
+> -		case IDE5_MAJOR:
+> -			unit += 2;
+> -		case IDE4_MAJOR:
+> -			unit += 2;
+> -		case IDE3_MAJOR:
+> -			unit += 2;
+> -		case IDE2_MAJOR:
+> -			unit += 2;
+> -		case IDE1_MAJOR:
+> -			unit += 2;
+> -		case IDE0_MAJOR:
+> -			maj = "hd";
+> -			break;
+> -		case MD_MAJOR:
+> -			unit -= 'a'-'0';
+> -			break;
+> -	}
+> -	if (hd->major >= SCSI_DISK1_MAJOR && hd->major <= SCSI_DISK7_MAJOR) {
+> -		unit = unit + (hd->major - SCSI_DISK1_MAJOR + 1) * 16;
+> -		if (unit > 'z') {
+> -			unit -= 'z' + 1;
+> -			sprintf(buf, "sd%c%c", 'a' + unit / 26, 'a' + unit % 26);
+> -			if (part)
+> -				sprintf(buf + 4, "%d", part);
+> -			return buf;
+> -		}
+> -	}
+> -	if (hd->major >= COMPAQ_SMART2_MAJOR && hd->major <= COMPAQ_SMART2_MAJOR+7) {
+> -		int ctlr = hd->major - COMPAQ_SMART2_MAJOR;
+> - 		int disk = minor >> hd->minor_shift;
+> - 		int part = minor & (( 1 << hd->minor_shift) - 1);
+> - 		if (part == 0)
+> - 			sprintf(buf, "%s/c%dd%d", maj, ctlr, disk);
+> - 		else
+> - 			sprintf(buf, "%s/c%dd%dp%d", maj, ctlr, disk, part);
+> - 		return buf;
+> - 	}
+> -	if (hd->major >= COMPAQ_CISS_MAJOR && hd->major <= COMPAQ_CISS_MAJOR+7) {
+> -                int ctlr = hd->major - COMPAQ_CISS_MAJOR;
+> -                int disk = minor >> hd->minor_shift;
+> -                int part = minor & (( 1 << hd->minor_shift) - 1);
+> -                if (part == 0)
+> -                        sprintf(buf, "%s/c%dd%d", maj, ctlr, disk);
+> -                else
+> -                        sprintf(buf, "%s/c%dd%dp%d", maj, ctlr, disk, part);
+> -                return buf;
+> -	}
+> -	if (hd->major >= DAC960_MAJOR && hd->major <= DAC960_MAJOR+7) {
+> -		int ctlr = hd->major - DAC960_MAJOR;
+> - 		int disk = minor >> hd->minor_shift;
+> - 		int part = minor & (( 1 << hd->minor_shift) - 1);
+> - 		if (part == 0)
+> - 			sprintf(buf, "%s/c%dd%d", maj, ctlr, disk);
+> - 		else
+> - 			sprintf(buf, "%s/c%dd%dp%d", maj, ctlr, disk, part);
+> - 		return buf;
+> - 	}
+> +	if (hd->hd_name) return hd->hd_name(hd, minor, buf);
+> +
+>  	if (part)
+>  		sprintf(buf, "%s%c%d", maj, unit, part);
+>  	else
+> diff -u --recursive linux-2.4.0-test11/include/linux/genhd.h linux-2.4.0-test11-ppfix/include/linux/genhd.h
+> --- linux-2.4.0-test11/include/linux/genhd.h	Mon Nov 20 15:31:01 2000
+> +++ linux-2.4.0-test11-ppfix/include/linux/genhd.h	Thu Nov 23 07:44:35 2000
+> @@ -72,6 +72,8 @@
+>  
+>  	devfs_handle_t *de_arr;         /* one per physical disc */
+>  	char *flags;                    /* one per physical disc */
+> +
+> +	char *(*hd_name) (struct gendisk *, int, char *);
+>  };
+>  #endif  /*  __KERNEL__  */
+>  
 
-The Logical Volume Manager (LVM) is a subsystem for online disk storage
-management which has become a de-facto standard for storage management
-under Linux.
-
-LVM 0.8.1 update to 0.8final:
------------------------------
-Supported on:
-   - Linux 2.2.17
-   - Linux 2.4.0-test10 (and previous 2.4.0 test kernels)
-
-New features:
-   - Enhance pvmove(8) to operate on single physical volumes
-   - Added support for multiple ext2 resize commands via e2fsadm(8)
-   - Changed device specials to belong to group "disk"
-     to accomodate backup software
-   - Initial support for DEVFS
-
-Bug Fixes:
-     - LV on disk metadata offset faults
-     - Housekeeping for the metadata backup history file
-     - lvdisplay(8) and pvdisplay(8) option -c and -v handling
-
-
-LVM 0.9:
---------
-Supported on:
-   - Linux 2.4.0-test10 (and previous 2.4.0 test kernels)
-
-New Features:
-   - Persistent snapshots for logical volumes
-   - Resizable snapshot logical volumes
-   - API to request the usage rate of a snapshot logical volume
-   - Integration with VFS to consistently mount ReiserFS filesystems
-     on snapshots (VFS patch necessary)
-   - Physical Volume and Volume Group UUID support
-   - lv*(8) commands now use the Default Volume Group specifed in environment
-     variable LVM_VG_NAME
-   - A /proc/lvm/ directory hierarchy for use in parsing VGDA information
-   - Initial support for DEVFS
-
--- 
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 Heinz Mauelshagen                                 Sistina Software Inc.
 Senior Consultant/Developer                       Bartningstr. 12
-www.sistina.com                                   64289 Darmstadt
+                                                  64289 Darmstadt
                                                   Germany
 Mauelshagen@Sistina.com                           +49 6151 7103 86
                                                        FAX 7103 96

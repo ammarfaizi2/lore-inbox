@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264691AbUDVVuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264693AbUDVV4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264691AbUDVVuU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 17:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbUDVVuU
+	id S264693AbUDVV4f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 17:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264694AbUDVV4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 17:50:20 -0400
-Received: from mail.kroah.org ([65.200.24.183]:6555 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264691AbUDVVuM (ORCPT
+	Thu, 22 Apr 2004 17:56:35 -0400
+Received: from resin.csoft.net ([63.111.22.86]:61882 "HELO mail231.csoft.net")
+	by vger.kernel.org with SMTP id S264693AbUDVV4d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 17:50:12 -0400
-Date: Thu, 22 Apr 2004 14:49:48 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB fixes for 2.6.6-rc2
-Message-ID: <20040422214948.GA2142@kroah.com>
+	Thu, 22 Apr 2004 17:56:33 -0400
+Subject: 2.4.26-lck1
+From: Eric Hustvedt <lkml@plumlocosoft.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+klIh85CQ+zOZwqoGTCt"
+Message-Id: <1082670990.3327.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 22 Apr 2004 17:56:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Here are some important USB fixes for 2.6.6-rc2.  They are all pretty
-small and "obvious" (hopefully.)  The most important one is the uhci
-fix, as lots of people are hitting that recently.
+--=-+klIh85CQ+zOZwqoGTCt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/usb-2.6
+Updated the lck patchset. This is the patchset formerly known as the
+2.4-ck patchset.
 
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
+http://www.plumlocosoft.com/kernel/
 
-thanks,
+Includes:
+O(1) scheduler with batch scheduling, interactivity
+Preemptible kernel
+Low Latency
+Read Latency2
+Variable Hz
+64-bit jiffies
+Supermount-NG v1.2.11a
+Bootsplash v3.0.7
+POSIX ACL/xattr v0.8.71
+POSIX extended security attributes v0.8.71
+NTFS file system v2.1.6a
 
-greg k-h
+Added:
+- The extended security attribute patch from the POSIX ACL patchset has
+been incorporated.
 
- drivers/usb/class/cdc-acm.c   |   91 ++++++++++++++++------------
- drivers/usb/core/hcd-pci.c    |    5 +
- drivers/usb/gadget/ether.c    |   49 ++++++++-------
- drivers/usb/gadget/rndis.c    |  135 +++++++++++++++++++++++++++---------------
- drivers/usb/gadget/rndis.h    |    7 +-
- drivers/usb/host/ehci-hcd.c   |   17 ++++-
- drivers/usb/host/ehci-hub.c   |   16 +++-
- drivers/usb/host/uhci-hcd.c   |   36 ++++++-----
- drivers/usb/misc/tiglusb.c    |   52 ++++++++--------
- drivers/usb/net/usbnet.c      |    6 +
- drivers/usb/serial/ftdi_sio.c |    4 -
- drivers/usb/storage/dpcm.c    |    9 +-
- 12 files changed, 262 insertions(+), 165 deletions(-)
------
+Updated:
+- POSIX ACLs updated to latest version.
+- A few minor fixes for preemption on PPC hardware have been rolled in.
 
-<colin:colino.net>:
-  o USB: fix cdc-acm as it is still (differently) broken
+Pending:
+- GRsec update.
 
-<jan:ccsinfo.com>:
-  o USB: ftdi patch fixup
+-Eric
 
-Alan Stern:
-  o USB: Important bugfix for UHCI list management code
+--=-+klIh85CQ+zOZwqoGTCt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-David Brownell:
-  o USB: usbnet and pl2301/2302 reset
-  o USB: rndis gadget driver updates
-  o USB: ehci handles pci misbehavior better
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Greg Kroah-Hartman:
-  o USB: fix cdc-acm warnings due to previous patch
-  o USB: Don't try to suspend devices that do not support it
+iD8DBQBAiD+E8O0ZDXGTPEIRAgsQAJwPbhEgYxKuVubKfVGYezt02ueC1gCfSHcT
+qAJi+eTCXZk43LEVEVokPWI=
+=pKxb
+-----END PGP SIGNATURE-----
 
-Romain Lievin:
-  o USB: tiglusb: wrong timeout value
-
-William Lee Irwin III:
-  o USB: silence dpcm warning
+--=-+klIh85CQ+zOZwqoGTCt--
 

@@ -1,42 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130247AbQJaOtf>; Tue, 31 Oct 2000 09:49:35 -0500
+	id <S129026AbQJaPCI>; Tue, 31 Oct 2000 10:02:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130235AbQJaOt0>; Tue, 31 Oct 2000 09:49:26 -0500
-Received: from kanga.kvack.org ([209.82.47.3]:41999 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id <S130211AbQJaOtU>;
-	Tue, 31 Oct 2000 09:49:20 -0500
-Date: Tue, 31 Oct 2000 09:48:04 -0500 (EST)
-From: <kernel@kvack.org>
-To: Brian Gerst <bgerst@didntduck.org>
-cc: Andi Kleen <ak@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kmalloc() allocation.
-In-Reply-To: <39FEC1FE.A6AB5C2A@didntduck.org>
-Message-ID: <Pine.LNX.3.96.1001031094639.27969B-100000@kanga.kvack.org>
+	id <S129033AbQJaPB6>; Tue, 31 Oct 2000 10:01:58 -0500
+Received: from mail-gw.fol.uk.net ([193.218.222.20]:19726 "EHLO
+	mail-gw.fol.uk.net") by vger.kernel.org with ESMTP
+	id <S129026AbQJaPBk>; Tue, 31 Oct 2000 10:01:40 -0500
+Message-ID: <069c01c0434b$ad0c5a50$1400000a@farmline.com>
+From: "Geoff Winkless" <geoff@farmline.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.17 & VM: do_try_to_free_pages failed / eepro100
+Date: Tue, 31 Oct 2000 15:03:06 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Oct 2000, Brian Gerst wrote:
+Hi
 
-> Andi Kleen wrote:
-> > 
-> > On Tue, Oct 31, 2000 at 01:11:29AM -0500, Brian Gerst wrote:
-> > > This was just changed in 2.4 so that vmalloced pages are faulted in on
-> > > demand.
-> > 
-> > Could you explain how it handles the vmalloc() -- vfree() -- vmalloc() of same
-> > virtual space but different physical race ?
-> 
-> As far as I can tell (I didn't write the code), vfree didn't change. 
-> It's only vmalloc that's lazy now.
+Searching through the archives I found this post on Tue, Sep 12, 2000 at
+09:41:13PM +0200 from Octave Klaba
 
-The code for vmalloc allocates the pages at vmalloc time, not after.  The
-TLB is populated lazily, but most definately not the page tables.
+> Hello,
+> On a high load server, kernel has some errors:
+>
+> VM: do_try_to_free_pages failed for httpd...
+> VM: do_try_to_free_pages failed for httpd...
+> eth0: Too much work at interrupt, status=0x4050.
+> eth0: Too much work at interrupt, status=0x4050.
+>
+> is there somewhere the new version of driver for eepro100
+> to make a test ?
 
-		-ben
+I'm wondering if anyone has found a solution for this: our mailserver is
+exhibiting the same error message (although no mention of the eth0
+interface, we do also use the eepro100):
+
+Oct 31 12:12:14 mail-client kernel: VM: do_try_to_free_pages failed for
+sendmail
+...
+Oct 31 12:12:14 mail-client last message repeated 2 times
+Oct 31 12:12:14 mail-client kernel: VM: do_try_to_free_pages failed for
+in.pop3d
+...
+Oct 31 12:12:14 mail-client kernel: VM: do_try_to_free_pages failed for
+klogd...
+
+Oct 31 12:12:23 mail-client last message repeated 14 times
+Oct 31 12:12:23 mail-client kernel: VM: do_try_to_free_pages failed for
+sendmail
+...
+Oct 31 12:12:23 mail-client last message repeated 15 times
+Oct 31 12:12:23 mail-client kernel: VM: do_try_to_free_pages failed for
+syslogd.
+..
+Oct 31 12:12:23 mail-client last message repeated 11 times
+Oct 31 12:12:23 mail-client kernel: VM: do_try_to_free_pages failed for
+in.pop3d
+...
+Oct 31 12:12:23 mail-client last message repeated 15 times
+Oct 31 12:12:23 mail-client kernel: VM: do_try_to_free_pages failed for
+sendmail
+...
+Oct 31 12:12:24 mail-client last message repeated 30 times
+Oct 31 12:12:24 mail-client kernel: VM: do_try_to_free_pages failed for
+kupdate.
+..
+Oct 31 12:12:24 mail-client kernel: VM: do_try_to_free_pages failed for
+sendmail
+...
+Oct 31 12:12:25 mail-client last message repeated 42 times
+Oct 31 12:12:25 mail-client kernel: VM: do_try_to_free_pages failed for
+kupdate.
+..
+Oct 31 12:12:25 mail-client kernel: VM: do_try_to_free_pages failed for
+sendmail
+...
+Oct 31 12:12:26 mail-client last message repeated 60 times
+Oct 31 12:12:26 mail-client kernel: VM: do_try_to_free_pages failed for
+kupdate.
+
+... etc etc
+
+To agree with Octave, this only appears to happen under load - over weekends
+(our quiet periods) the syslog is nearly empty. In extremis it has been
+necessary to reboot the machine by kicking the power button.
+
+Any thoughts appreciated.
+
+Running Redhat 6.2 (not my choice) on a single-processor PIII-650 with 128MB
+RAM and 256MB swap. Load average is usually around the 0.3 mark. Kernel
+(2.2.17) was compiled from source.
+
+I'm not subscribed to the list, but I guess this is the only way to find an
+answer - can you please copy me in on any replies. Thanks :0
+
+Geoff
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

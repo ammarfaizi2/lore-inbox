@@ -1,111 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130517AbRCLRhp>; Mon, 12 Mar 2001 12:37:45 -0500
+	id <S130516AbRCLR6F>; Mon, 12 Mar 2001 12:58:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130516AbRCLRhg>; Mon, 12 Mar 2001 12:37:36 -0500
-Received: from idefix.linkvest.com ([194.209.53.99]:13581 "EHLO
-	idefix.linkvest.com") by vger.kernel.org with ESMTP
-	id <S130515AbRCLRh0>; Mon, 12 Mar 2001 12:37:26 -0500
-Message-ID: <B45465FD9C23D21193E90000F8D0F3DF683A35@mailsrv.linkvest.com>
-From: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [NFS] Oops in 2.4.2 - please give advice
-Date: Mon, 12 Mar 2001 18:36:33 +0100
+	id <S130529AbRCLR54>; Mon, 12 Mar 2001 12:57:56 -0500
+Received: from [193.120.151.1] ([193.120.151.1]:42736 "EHLO mail.asitatech.com")
+	by vger.kernel.org with ESMTP id <S130516AbRCLR5r>;
+	Mon, 12 Mar 2001 12:57:47 -0500
+From: "John Brosnan" <jbrosnan@asitatech.ie>
+To: <tulip@scyld.com>, <linux-kernel@vger.kernel.org>
+Cc: "John Brosnan" <jbrosnan@asitatech.ie>
+Subject: Linux 2.2.16/Tulip Smartbits testing. 
+Date: Mon, 12 Mar 2001 18:18:04 -0000
+Message-ID: <015001c0ab20$c7ae0e70$8d7fa8c0@NTWIGGY.asitatech.ie>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-List-Help: <mailto:nfs-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <http://lists.sourceforge.net/lists/listinfo/nfs>,<mailto:nfs-request@lists.sourceforge.net?subject=subscribe>
-List-Unsubscribe: <http://lists.sourceforge.net/lists/listinfo/nfs>,<mailto:nfs-request@lists.sourceforge.net?subject=unsubscribe>
 Content-Type: text/plain;
 	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Hi,
-I have this Oops with the following config:
-- Stock 2.4.2 (no patch)
-- I have LVM volumes (0.9.1b5)
-- I have Raid0 + Raid5 volumes (v0.90)
-- Filesystems are ext2
-- The machine is a PII 733 with SCSI and IDE disks.
-- The chipset is a VIA but DMA is disabled (for IDE disks).
-Thanks for any help
--jec
+
+we've been running some throughput tests (Smartbits
+test box) using Donald Becker's tulip.c:v0.92 on Linux 2.2.16,
+on a Pentium 3 800Mhz and a 4 port Dlink DFE-570TX see log below.
+Basically Smartbits allows one to set the packet size, speed, protocol,
+etc. For example if you start at 64 byte size packets and set
+an initial rate of 20Mb/s and a max of 80 Mb/s it goes
+up and down until it finds the optimum rate. At the moment
+w're trying some UDP tests.
+
+The problem is that as the rate increases, the number of
+packets received decreases until is goes to zero, then for all
+further iterations of that 64 packet size test, no matter
+how slow the rate gets, the number of packets received is always
+0. It does not recover from being flooded until the Smartbits moves to
+the next packet size, performs learning frames and then the same
+eventually thing happens again.
+
+Has anybody ever run any tests like this before ?
+Is it a driver or a kernel issue ? Any ideas ?
+
+Performance also looks pretty bad for the smaller packet sizes
+but does improve as the packet size increases.
+
+We're just trying to figure out why absolutely no packets
+are received no matter how slow the rate gets.
+
+thanks in advance for any help,
+
+John.
 
 
-ksymoops 2.4.0 on i686 2.4.2-lb5-n3-6.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.2-lb5-n3-6/ (default)
-     -m /boot/System.map-2.4.2-lb5-n3-6 (specified)
+Mar  9 15:52:41 : tulip.c:v0.92 4/17/2000  Written by Donald Becker
+<becker@scyld.com>
+Mar  9 15:52:41 :   http://www.scyld.com/network/tulip.html
+Mar  9 15:52:41 : eth1: Digital DS21143 Tulip rev 65 at 0xc8812c00,
+00:80:C8:CF:BE:D1, IRQ 11.
+Mar  9 15:52:41 : eth1:  EEPROM default media type Autosense.
+Mar  9 15:52:41 : eth1:  Index #0 - Media MII (#11) described by a 21142 MII
+PHY (3) block.
+Mar  9 15:52:41 : eth1:  MII transceiver #1 config 3100 status 7869
+advertising 01e1.
+Mar  9 15:52:41 : eth2: Digital DS21143 Tulip rev 65 at 0xc8814800,
+00:80:C8:CF:BE:D2, IRQ 10.
+Mar  9 15:52:41 : eth2:  EEPROM default media type Autosense.
+Mar  9 15:52:41 : eth2:  Index #0 - Media MII (#11) described by a 21142 MII
+PHY (3) block.
+Mar  9 15:52:41 : eth2:  MII transceiver #1 config 3100 status 7869
+advertising 01e1.
+Mar  9 15:52:41 : eth3: Digital DS21143 Tulip rev 65 at 0xc8816400,
+00:80:C8:CF:BE:D3, IRQ 9.
+Mar  9 15:52:41 : eth3:  EEPROM default media type Autosense.
+Mar  9 15:52:41 : eth3:  Index #0 - Media MII (#11) described by a 21142 MII
+PHY (3) block.
 
-Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says
-c02086c0, System.map says c014f200.  Ignoring ksyms_base entry
-Mar 12 10:00:02 fatboy kernel: Unable to handle kernel paging request at
-virtual address 00b50008
-Mar 12 10:00:02 fatboy kernel: c0124407
-Mar 12 10:00:02 fatboy kernel: *pde = 00000000
-Mar 12 10:00:02 fatboy kernel: Oops: 0000
-Mar 12 10:00:02 fatboy kernel: CPU:    0
-Mar 12 10:00:02 fatboy kernel: EIP:    0010:[generic_file_readahead+415/708]
-Mar 12 10:00:02 fatboy kernel: EFLAGS: 00010206
-Mar 12 10:00:02 fatboy kernel: eax: c7fa0000   ebx: 00b50000   ecx: 0000000f
-edx: c7fb25e0
-Mar 12 10:00:02 fatboy kernel: esi: 0000022b   edi: c2f9e8a0   ebp: c200bea4
-esp: c377fef8
-Mar 12 10:00:02 fatboy kernel: ds: 0018   es: 0018   ss: 0018
-Mar 12 10:00:02 fatboy kernel: Process tar (pid: 20695, stackpage=c377f000)
-Mar 12 10:00:02 fatboy kernel: Stack: c10f36a8 00000001 c2f9e8a0 00000600
-c119c9e8 00000124 c7fb25e0 0000001f
-Mar 12 10:00:02 fatboy kernel:        00000111 00000013 00000020 000000f2
-0000022b c0124753 00000001 c2f9e8a0
-Mar 12 10:00:02 fatboy kernel:        c200be00 c10f36a8 00002800 0806d9c0
-00000000 bffffaac c10f36a8 00000000
-Mar 12 10:00:02 fatboy kernel: Call Trace: [do_generic_file_read+551/1412]
-[generic_file_read+99/128] [file_read_actor+0/84] [sys_read+142/196]
-[system_call+51/56]
-Mar 12 10:00:02 fatboy kernel: Code: 39 6b 08 75 f4 8b 74 24 14 39 73 0c 75
-eb 53 e8 c9 4e 00 00
-Using defaults from ksymoops -t elf32-i386 -a i386
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   39 6b 08                  cmp    %ebp,0x8(%ebx)
-Code;  00000003 Before first symbol
-   3:   75 f4                     jne    fffffff9 <_EIP+0xfffffff9> fffffff9
-<END_OF_CODE+37764c3a/???
-Code;  00000005 Before first symbol
-   5:   8b 74 24 14               mov    0x14(%esp,1),%esi
-Code;  00000009 Before first symbol
-   9:   39 73 0c                  cmp    %esi,0xc(%ebx)
-Code;  0000000c Before first symbol
-   c:   75 eb                     jne    fffffff9 <_EIP+0xfffffff9> fffffff9
-<END_OF_CODE+37764c3a/???
-Code;  0000000e Before first symbol
-   e:   53                        push   %ebx
-Code;  0000000f Before first symbol
-   f:   e8 c9 4e 00 00            call   4edd <_EIP+0x4edd> 00004edd Before
-first symbol
+Mar  9 15:52:41 : eth3:  MII transceiver #1 config 3100 status 7869
+advertising 01e1.
+Mar  9 15:52:41 : eth4: Digital DS21143 Tulip rev 65 at 0xc8818000,
+00:80:C8:CF:BE:D4, IRQ 12.
+Mar  9 15:52:41 : eth4:  EEPROM default media type Autosense.
+Mar  9 15:52:41 : eth4:  Index #0 - Media MII (#11) described by a 21142 MII
+PHY (3) block.
+Mar  9 15:52:41 : eth4:  MII transceiver #1 config 3100 status 7849
+advertising 01e1.
+Mar  9 15:52:41 : eth1: Setting full-duplex based on MII #1 link partner
+capability of 41e1.
+Mar  9 15:52:41 : eth2: Setting full-duplex based on MII #1 link partner
+capability of 41e1.
+Mar  9 15:52:41 : eth3: Setting full-duplex based on MII #1 link partner
+capability of 41e1.
+Mar  9 15:52:42
 
 
-1 warning issued.  Results may not be reliable.
-
-
-
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-Jean-Eric Cuendet
-Linkvest SA
-Av des Baumettes 19, 1020 Renens Switzerland
-Tel +41 21 632 9043  Fax +41 21 632 9090
-http://www.linkvest.com  E-mail: jean-eric.cuendet@linkvest.com
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-
-
-
-_______________________________________________
-NFS maillist  -  NFS@lists.sourceforge.net
-http://lists.sourceforge.net/lists/listinfo/nfs

@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264424AbUFMALX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264623AbUFMAUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264424AbUFMALX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 20:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUFMALW
+	id S264623AbUFMAUj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 20:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264670AbUFMAUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 20:11:22 -0400
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:10644 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S264424AbUFMALT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 20:11:19 -0400
-Subject: sys_close undefined on x86_64
-From: John Stebbins <john@stebbins.name>
-Reply-To: john@stebbins.name
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Home
-Message-Id: <1087085478.7036.13.camel@Homer>
+	Sat, 12 Jun 2004 20:20:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2276 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264623AbUFMAUg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 20:20:36 -0400
+Date: Sat, 12 Jun 2004 17:19:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Ford <david+challenge-response@blue-labs.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sound driver (opti) spinlock bug, 2.6.7-rc3
+Message-Id: <20040612171947.31218266.akpm@osdl.org>
+In-Reply-To: <40CB632B.2070706@blue-labs.org>
+References: <40CB632B.2070706@blue-labs.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 12 Jun 2004 17:11:18 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Ford <david+challenge-response@blue-labs.org> wrote:
+>
+> sound/isa/opti9xx/opti92x-ad1848.c:428: 
+>  spin_lock(sound/isa/opti9xx/opti92x-ad1848.c:cf40eea0) already locked by 
+>  sound/isa/opti9xx/opti92x-ad1848.c/604
 
-Can someone tell me if this is a kernel bug or a problem with the module
-I'm trying to compile?
+Like this?
 
-I'm attempting to compile an external module for the PVR-250 mpeg-2
-capture card (ivtv module).  The driver is a little behind the times,
-but various people have persuaded it to compile and load on 2.6
-systems.  I had it running on i386 arch 2.6 kernel earlier.  But I've
-since upgraded to x86_64.
+The locking in there seems fairly optimistic - looks like someone did a
+cli() translation on it.
 
-insmod fails with sys_close undefined message when attempting to load
-the module.
-
-The other sys_ functions seem to be there.
-
-If the use of sys_close has been deprecated or something, could someone
-please give me a pointer to the right way to do syscalls in the 2.6
-kernels.  I've done some digging and just can't find any useful
-information.
-
-I'll be lurking on the kernel-list archives.
-
-Thanks
-John
-
+--- 25/sound/isa/opti9xx/opti92x-ad1848.c~opti92x-ad1848-locking-fix	2004-06-12 17:09:38.699325296 -0700
++++ 25-akpm/sound/isa/opti9xx/opti92x-ad1848.c	2004-06-12 17:16:38.029577408 -0700
+@@ -601,13 +601,11 @@ __skip_base:
+ 	dma_bits |= 0x04;
+ #endif	/* CS4231 || OPTi93X */
+ 
+-	spin_lock_irqsave(&chip->lock, flags);
+ #ifndef OPTi93X
+-	 outb(irq_bits << 3 | dma_bits, chip->wss_base);
++	outb(irq_bits << 3 | dma_bits, chip->wss_base);
+ #else /* OPTi93X */
+ 	snd_opti9xx_write(chip, OPTi9XX_MC_REG(3), (irq_bits << 3 | dma_bits));
+ #endif /* OPTi93X */
+-	spin_unlock_irqrestore(&chip->lock, flags);
+ 
+ __skip_resources:
+ 	if (chip->hardware > OPTi9XX_HW_82C928) {
+_
 

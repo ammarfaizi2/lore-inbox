@@ -1,85 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbTDLA2t (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 20:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTDLA2t (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 20:28:49 -0400
-Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:38596 "EHLO
-	renegade") by vger.kernel.org with ESMTP id S261839AbTDLA2r (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 20:28:47 -0400
-Date: Fri, 11 Apr 2003 17:40:24 -0700
-From: Zack Brown <zbrown@tumblerings.org>
-To: Robert Love <rml@tech9.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: matching names to email addresses
-Message-ID: <20030412004024.GA10266@renegade>
-References: <20030411204352.GA2091@renegade> <1050094333.2291.340.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1050094333.2291.340.camel@localhost>
-User-Agent: Mutt/1.5.3i
+	id S262284AbTDLAiq (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 20:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTDLAiq (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 20:38:46 -0400
+Received: from bunyip.cc.uq.edu.au ([130.102.2.1]:45836 "EHLO
+	bunyip.cc.uq.edu.au") by vger.kernel.org with ESMTP id S262219AbTDLAin (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 20:38:43 -0400
+Message-ID: <3E97632F.1090104@torque.net>
+Date: Sat, 12 Apr 2003 10:51:59 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: SATA on SAS [was: ATAPI cdrecord issue 2.5.67]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 04:52:13PM -0400, Robert Love wrote:
-> On Fri, 2003-04-11 at 16:43, Zack Brown wrote:
-> 
-> Hi Zack,
+John Bradford wrote:
+ > > Alan Cox writes:
+ > > On Thu, 2003-04-10 at 20:53, H. Peter Anvin wrote:
+ > > > I think ide-scsi needs to be supported for some time
+ > > > going forward.
+ > > > After all, cdrecord, cdrdao, dvdrecord aren't going to be
+ > > > the only applications.
+ > >
+ > > And far longer than that. People seem to be testing and demoing
+ > > crazy things like SATA attached scanners, printers and
+ > > even enclosure services.
+ > >
+ > > ATAPI tape drives will need ide-scsi too, unless ide-tape
+ > > somehow got repaired lately. And some people already use
+ > > ide-scsi+st in
+ > > 2.4 since ide-tape doesn't always work reliably.
+ > >
+ > > ide-scsi isn't just for CD/DVD writers.
+ >
+ > How long will it be before somebody develops an ATAPI, SCSI host
+ > adaptor, I.E. a SCSI host adaptor which appears as an ATAPI device?
 
-Hey Robert,
+That is precisely what is planned when a SATA cdwriter is
+connected to a SAS host (read below).
 
-Thanks for the names. Between the list, private replies, and creative
-googling, the list is down to 14 addresses:
+ > (I know that ATAPI really is effectively just a SCSI transport, but
+ > you can already get SCSI, SCSI host adaptors, I.E. where the devices
+ > on the second-level adaptor appear as the logical units of the host
+ > adaptor, and there is no reason this couldn't be done using ATAPI).
 
-antoine hat ausone.whoknows
-dmitri hat users.sourceforge.net
-jackson hat realtek.com.tw
-kafai0928 hat yahoo.com
-linux-m68k.org hat mandrakesoft.com
-patch hat luckynet.dynu.com
-redbliss hat libero.it
-rfjak hat eircom.net
-rgcrettol hat datacomm.ch
-sam hat minnie.(none)
-sawa hat yamamoto.gr.jp
-suse.cz hat mastika.lnxw.com
-taral hat taral.net
-thchou hat ali.com.tw
+Spinning this discussion another way, with Serial Attached SCSI
+(SAS) real SATA disk drives can be attached to SAS host bus adapters
+(HBAs). For that matter cdwriters that use MMC (scsi instruction
+set) over ATAPI could be SATA devices connected to a SAS HBA.
 
-I suspect at least 6 or 7 of those are actual people or organizations who
-wouldn't mind being found.
+SAS HBAs will be compilicated beasts (at least in their plumbing)
+because they need to speak 3 protocols:
+   - SSP to "real" SAS devices. This carries the SCSI command set
+   - STP to SATA devices. This carries the ATA/ATAPI command set
+   - SMP, a management protocol, to talk to fanout devices, etc
 
-Be well,
-Zack
+So how does Linux handle a SATA disk on a SAS HBA?
+Possibilities:
+   - the scsi subsystem gets a new disk driver (called
+     "ad"?? (or perhaps "hd"!)) that speaks ATA
+   - the ide susbsystem supports SAS HBAs and can speak
+     all three SAS protocols
+   - after cleaning up "ide-scsi" we write another driver
+     that does the logical inverse ("scsi-ide" ??):
+     bridging upper layers of the IDE subsystem down into
+     the nether regions of the SCSI subsystem
+   - the SCSI subsystem hides SATA devices that speak ATA
+     (as opposed to ATAPI) with a SCSI to ATA transformation
+     layer.
 
-> 
-> > These folks have been mentioned in changelogs, but their real names are hard
-> > to find, or maybe I'm just all googled out right now. Change " followedby "
-> > to "@" (not that it matters for some of these)
-> 
-> Cause a lot of these are not email addresses but BK hosts Linus did a
-> pull from.
-> 
-> > hch followedby com.rmk.(none)
-> > hch followedby de.rmk.(none)
-> 
-> Christoph Hellwig.
-> 
-> > src followedby flint.arm.linux.org.uk
-> 
-> Russell King
-> 
-> > vs followedby tribesman.namesys.com
-> 
-> Vladimir Saveliev
-> 
-> 	Robert Love
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+This problem is a year or less away.
 
--- 
-Zack Brown
+Apologies for all the TLAs (three letter acronyms).
+More coffee anybody?
+
+Doug Gilbert
+

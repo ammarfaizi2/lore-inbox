@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131396AbRCNPUz>; Wed, 14 Mar 2001 10:20:55 -0500
+	id <S131407AbRCNPiH>; Wed, 14 Mar 2001 10:38:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131404AbRCNPUp>; Wed, 14 Mar 2001 10:20:45 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:64014 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S131396AbRCNPU2>; Wed, 14 Mar 2001 10:20:28 -0500
-Message-ID: <3AAF977D.DE602385@evision-ventures.com>
-Date: Wed, 14 Mar 2001 17:08:29 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
+	id <S131455AbRCNPh6>; Wed, 14 Mar 2001 10:37:58 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:60816 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S131407AbRCNPhw>;
+	Wed, 14 Mar 2001 10:37:52 -0500
+Date: Wed, 14 Mar 2001 10:36:40 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+cc: <linux-kernel@vger.kernel.org>, AmNet Computers <amnet@amnet-comp.com>
+Subject: magic device renumbering was -- Re: Linux 2.4.2ac20
+In-Reply-To: <3AAF8A71.1C71D517@faceprint.com>
+Message-ID: <Pine.SGI.4.31L.02.0103141026460.532128-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-To: Jonathan Morton <chromi@cyberspace.org>
-CC: Alex Baretta <alex@baretta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 5Mb missing...
-In-Reply-To: <Pine.LNX.4.33.0103070958110.1424-100000@mikeg.weiden.de> <l03130302b6d530a44df8@[192.168.239.101]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Morton wrote:
-> 
-> >> If crashes are routine on this machine, I'd recommend that you take
-> >> a serious look at your ram. (or if you're overclocking, don't)
-> >
-> >Crashes were routine, and I was not overclocking, so I took Mike's
-> >advice and bought a new 256MB DIMM. The computer hasn't crashed
-> >once since I installed it. Now, though, I have a curious though
-> >fairly irrelevant problem. My kernel apparently sees less RAM than
-> >I have.
-> 
-> The kernel itself takes up some RAM, which is simply subtracted from the
-> "total memory available" field in the memory summaries available to
-> user-mode processes.  This is perfectly normal.
 
-The kernel reserves 4m for hilself. The off by one error is a rounding
-bug.
+The problem:
+
+drivers change their detection schemes; and changes in the kernel can
+change the order in which devices are assigned names.
+
+For example, the DAC960(?) drivers changed their order of
+detecting controllers, and I did _not_ have fun, given that the machine in
+question had about 40 disks to deal with, spread across two controllers.
+
+This can create a lot of problems for people upgrading large, production
+quality systems -- as, in the worst case, the system won't complete the
+boot cycle; or in middle cases, the user/sysadmin is stuck rewriting X
+amount of files and trying again; or in small cases, you find out that
+your SMC and Intel ethernet cards are reversed, and have to go fix things
+...
+
+Possible solutions(?):
+
+Solaris uses an /etc/path_to_inst file, to keep track of device ordering,
+et al.
+
+Maybe we should consider something similar, where a physical device to
+logical device map is kept and used to keep things consistent on
+kernel/driver changes; device addition/removal, and so forth ...
+
+I am, of course, open to better solutions.
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
+
+

@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbVCDXn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263696AbVCEEfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263126AbVCDXn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:43:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263230AbVCDXiv
+	id S263696AbVCEEfm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 23:35:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263359AbVCDXRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:38:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52931 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S263264AbVCDVeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 16:34:16 -0500
-Message-ID: <4228D43E.1040903@pobox.com>
-Date: Fri, 04 Mar 2005 16:33:50 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, chrisw@osdl.org,
-       torvalds@osdl.org
-Subject: Re: Linux 2.6.11.1
-References: <20050304175302.GA29289@kroah.com> <20050304124431.676fd7cf.akpm@osdl.org>
-In-Reply-To: <20050304124431.676fd7cf.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Mar 2005 18:17:54 -0500
+Received: from mail.kroah.org ([69.55.234.183]:41634 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263188AbVCDUy5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:54:57 -0500
+Cc: c-d.hailfinger.devel.2005@gmx.net
+Subject: [PATCH] pci/quirks.c: unhide SMBus device on Samsung P35 laptop
+In-Reply-To: <11099696373155@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 4 Mar 2005 12:53:57 -0800
+Message-Id: <1109969637195@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Greg KH <greg@kroah.com> wrote:
-> 
->>A few of us $suckers will be trying to maintain a 2.6.x.y set of
->> 	releases that happen after 2.6.x is released.
-> 
-> 
-> Just to test things out a bit...
-> 
-> Here's the list of things which we might choose to put into 2.6.11.2.  I was
-> planning on sending them in for 2.6.12 when that was going to be
-> errata-only.
-> 
-> 
->>From 2.6.11-mm1:
-> 
-> cramfs-small-stat2-fix.patch
-> setup_per_zone_lowmem_reserve-oops-fix.patch
-> dv1394-ioctl-retval-fix.patch
-> ppc32-compilation-fixes-for-ebony-luan-and-ocotea.patch
-> nfsd--sgi-921857-find-broken-with-nohide-on-nfsv3.patch
-> nfsd--exportfs-reduce-stack-usage.patch
+ChangeSet 1.1998.11.20, 2005/02/17 15:06:37-08:00, c-d.hailfinger.devel.2005@gmx.net
 
-Unless it's crashing for people, stack usage is IMO a wanted-fix not 
-needed-fix.
+[PATCH] pci/quirks.c: unhide SMBus device on Samsung P35 laptop
+
+this patch is needed to make the SMBus device on my Samsung P35
+laptop visible. By default, it doesn't appear as a pci device.
+
+Patch tested, works perfectly for me. Please apply.
+
+Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
-> nfsd--svcrpc-add-a-per-flavor-set_client-method.patch
+ drivers/pci/quirks.c    |    6 ++++++
+ include/linux/pci_ids.h |    2 ++
+ 2 files changed, 8 insertions(+)
 
-is this critical?
 
-	Jeff
-
+diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+--- a/drivers/pci/quirks.c	2005-03-04 12:41:55 -08:00
++++ b/drivers/pci/quirks.c	2005-03-04 12:41:55 -08:00
+@@ -807,6 +807,12 @@
+ 			case 0x0001: /* Toshiba Satellite A40 */
+ 				asus_hides_smbus = 1;
+ 			}
++       } else if (unlikely(dev->subsystem_vendor == PCI_VENDOR_ID_SAMSUNG)) {
++               if (dev->device ==  PCI_DEVICE_ID_INTEL_82855PM_HB)
++                       switch(dev->subsystem_device) {
++                       case 0xC00C: /* Samsung P35 notebook */
++                               asus_hides_smbus = 1;
++                       }
+ 	}
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82845_HB,	asus_hides_smbus_hostbridge );
+diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	2005-03-04 12:41:55 -08:00
++++ b/include/linux/pci_ids.h	2005-03-04 12:41:55 -08:00
+@@ -1905,6 +1905,8 @@
+ #define PCI_DEVICE_ID_OXSEMI_16PCI954PP	0x9513
+ #define PCI_DEVICE_ID_OXSEMI_16PCI952	0x9521
+ 
++#define PCI_VENDOR_ID_SAMSUNG		0x144d
++
+ #define PCI_VENDOR_ID_AIRONET		0x14b9
+ #define PCI_DEVICE_ID_AIRONET_4800_1	0x0001
+ #define PCI_DEVICE_ID_AIRONET_4800	0x4500 // values switched?  see
 

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130204AbQLPBGW>; Fri, 15 Dec 2000 20:06:22 -0500
+	id <S129340AbQLPBLm>; Fri, 15 Dec 2000 20:11:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130245AbQLPBGM>; Fri, 15 Dec 2000 20:06:12 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3851 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130204AbQLPBGD>; Fri, 15 Dec 2000 20:06:03 -0500
-Subject: Re: lock_kernel() / unlock_kernel inconsistency Don't do this!
-To: george@mvista.com (george anzinger)
-Date: Sat, 16 Dec 2000 00:37:53 +0000 (GMT)
-Cc: jwohlgem@mindspring.com (Jason Wohlgemuth), linux-kernel@vger.kernel.org
-In-Reply-To: <3A3AB515.26227812@mvista.com> from "george anzinger" at Dec 15, 2000 04:19:33 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129352AbQLPBLd>; Fri, 15 Dec 2000 20:11:33 -0500
+Received: from mail-03-real.cdsnet.net ([63.163.68.110]:51209 "HELO
+	mail-03-real.cdsnet.net") by vger.kernel.org with SMTP
+	id <S129340AbQLPBLM>; Fri, 15 Dec 2000 20:11:12 -0500
+Message-ID: <3A3AB9FD.B58049C4@mvista.com>
+Date: Fri, 15 Dec 2000 16:40:29 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+In-Reply-To: <200012141308.eBED8Oh06198@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1475MO-00026g-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Both of these methods have problems, especially with the proposed
-> preemptions changes.  The first case causes the thread to run with the
-> BKL for the whole time.  This means that any other task that wants the
-> BKL will be blocked.  Surly the needed protections don't require this. 
+Russell King wrote:
+> 
+> Rogier Wolff writes:
+> > Alan Cox wrote:
+> > > What better interactivity ;)
+> > Thus to me, 2.4 FEELS much less interactive. When I move windows they
+> > don't follow the mouse in real-time.
+> 
+> Interesting observation: in a scrolling rxvt, kernel 2.0 is smoother than
+> 2.2, which is smoother than 2.4.  I hope this trend isn't going to
+> continue to 2.6. ;(
 
-The BKL is dropped on rescheduling of that task. Its an enforcement of the
-old unix guarantees against other code making the same assumptions. Its also
-the standard 2.4 locking for several things still
+Could this be due to the shorter times caculated by the scheduler
+recaculate code with the change that moved "nice" into the task_struct? 
 
-
+George
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

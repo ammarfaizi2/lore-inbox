@@ -1,87 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265077AbSKAQSE>; Fri, 1 Nov 2002 11:18:04 -0500
+	id <S265332AbSKAQXG>; Fri, 1 Nov 2002 11:23:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265081AbSKAQSE>; Fri, 1 Nov 2002 11:18:04 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:30382 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265077AbSKAQSC>;
-	Fri, 1 Nov 2002 11:18:02 -0500
-Date: Fri, 1 Nov 2002 11:24:28 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Gerd Knorr <kraxel@bytesex.org>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Re: 2.5.45: initrd broken?
-In-Reply-To: <20021101123132.GA30901@bytesex.org>
-Message-ID: <Pine.GSO.4.21.0211011117450.20793-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265337AbSKAQXF>; Fri, 1 Nov 2002 11:23:05 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:62599 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265332AbSKAQXF>; Fri, 1 Nov 2002 11:23:05 -0500
+Subject: Re: [STATUS 2.5]  October 30, 2002
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Dave Jones <davej@codemonkey.org.uk>,
+       boissiere@adiglobal.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m1ela5gzb5.fsf@frodo.biederman.org>
+References: <20021030161708.GA8321@suse.de>
+	<m1iszjgmaz.fsf@frodo.biederman.org> <20021031230136.GE4331@elf.ucw.cz> 
+	<m1ela5gzb5.fsf@frodo.biederman.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 01 Nov 2002 16:49:48 +0000
+Message-Id: <1036169388.12534.48.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2002-11-01 at 14:05, Eric W. Biederman wrote:
+> When you have a correctable ECC error on a page you need to rewrite the
+> memory to remove the error.  This prevents the correctable error from becoming
+> an uncorrectable error if another bit goes bad.  Also if you have a
+> working software memory scrub routine you can be certain multiple
+> errors from the same address are actually distinct.  As opposed to
+> multiple reports of the same error.
 
-
-On Fri, 1 Nov 2002, Gerd Knorr wrote:
-
-> Updated today to the latest bk tree.  Still doesn't boot, but crashes
-> in a different way ...
-
-OK, that's my fuckup in rd.c (not on initrd path, actually) + couple of
-fuckups from Pat (mine: forgot to bump ->bd_count in rd_open(), Pat's:
-dropped reference to gendisk on del_gendisk(), resulting in use of
-kfree'd object + tried to remove a symlink that didn't exit).
-
-Patch below fixes these.  It also changes order of blkdev_put()/del_gendisk()
-in initrd_release() - better safe than sorry.
-
-It got initrd working on my boxen...
-
-diff -urN C45-no-rq_dev/drivers/block/rd.c C45-current/drivers/block/rd.c
---- C45-no-rq_dev/drivers/block/rd.c	Wed Oct 30 20:15:11 2002
-+++ C45-current/drivers/block/rd.c	Fri Nov  1 11:12:33 2002
-@@ -300,6 +300,8 @@
- {
- 	extern void free_initrd_mem(unsigned long, unsigned long);
- 
-+	blkdev_put(inode->i_bdev, BDEV_FILE);
-+
- 	spin_lock(&initrd_users_lock);
- 	if (!--initrd_users) {
- 		spin_unlock(&initrd_users_lock);
-@@ -309,8 +311,6 @@
- 	} else {
- 		spin_unlock(&initrd_users_lock);
- 	}
--		
--	blkdev_put(inode->i_bdev, BDEV_FILE);
- 	return 0;
- }
- 
-@@ -348,6 +348,7 @@
- 	 */
- 	if (rd_bdev[unit] == NULL) {
- 		struct block_device *bdev = inode->i_bdev;
-+		atomic_inc(&bdev->bd_count);
- 		rd_bdev[unit] = bdev;
- 		bdev->bd_openers++;
- 		bdev->bd_block_size = rd_blocksize;
-diff -urN C45-no-rq_dev/fs/partitions/check.c C45-current/fs/partitions/check.c
---- C45-no-rq_dev/fs/partitions/check.c	Fri Nov  1 08:17:14 2002
-+++ C45-current/fs/partitions/check.c	Fri Nov  1 10:39:22 2002
-@@ -535,12 +535,13 @@
- 	disk->time_in_queue = 0;
- 	disk->stamp = disk->stamp_idle = 0;
- 	devfs_remove_partitions(disk);
--	kobject_unregister(&disk->kobj);
--	sysfs_remove_link(&disk->kobj, "device");
- 	if (disk->driverfs_dev) {
-+		sysfs_remove_link(&disk->kobj, "device");
- 		sysfs_remove_link(&disk->driverfs_dev->kobj, "block");
- 		put_device(disk->driverfs_dev);
- 	}
-+	kobject_get(&disk->kobj);	/* kobject model is fucked in head */
-+	kobject_unregister(&disk->kobj);
- }
- 
- struct dev_name {
+Note that this area has some extremely "interesting" properties. For one
+you have to be very careful what operation you use to scrub and its
+platform specific. On x86 for example you want to do something like lock
+addl $0, mem. A simple read/write isnt safe because if the memory area
+is a DMA target your read then write just corrupted data and made the
+problem worse not better!
 

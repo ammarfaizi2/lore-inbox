@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUDDIYN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 04:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbUDDIYN
+	id S262266AbUDDJHY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 05:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbUDDJHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 04:24:13 -0400
-Received: from A88da.a.pppool.de ([213.6.136.218]:16000 "EHLO susi.maya.org")
-	by vger.kernel.org with ESMTP id S261752AbUDDIYL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 04:24:11 -0400
-Message-ID: <406FC621.1090507@A88da.a.pppool.de>
-Date: Sun, 04 Apr 2004 10:24:01 +0200
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040212
-X-Accept-Language: de, en-us, en
+	Sun, 4 Apr 2004 05:07:24 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:28357 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262266AbUDDJHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 05:07:22 -0400
+Date: Sun, 4 Apr 2004 05:07:36 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: [PATCH][2.6-mm] setup_identity_mappings depends on zone init.
+In-Reply-To: <20040315205201.7699e1c1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0404040437190.16677@montezuma.fsmlabs.com>
+References: <20040310233140.3ce99610.akpm@osdl.org>
+ <16465.3163.999977.302378@notabene.cse.unsw.edu.au> <20040311172244.3ae0587f.akpm@osdl.org>
+ <16465.20264.563965.518274@notabene.cse.unsw.edu.au> <20040311235009.212d69f2.akpm@osdl.org>
+ <16466.57738.590102.717396@notabene.cse.unsw.edu.au>
+ <16469.2797.130561.885788@notabene.cse.unsw.edu.au> <20040315091843.GA21587@elte.hu>
+ <16470.22982.831048.924954@notabene.cse.unsw.edu.au> <20040315205201.7699e1c1.akpm@osdl.org>
 MIME-Version: 1.0
-To: Mikhail Ramendik <mr@ramendik.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4 : 100% CPU use on EIDE disk operarion, VIA chipset
-References: <fa.g80v5s8.b2ofhi@ifi.uio.no> <fa.ljb660n.d2ofa9@ifi.uio.no>
-In-Reply-To: <fa.ljb660n.d2ofa9@ifi.uio.no>
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikhail Ramendik wrote:
-> Hello,
-> 
-> Andreas Hartmann wrote:
-> 
->> > It turned out that on disk-intensive operation, the "system" CPU usage
->> > skyrockets. With a mere "cp" of a large file to the same direstory
->> > (tested with ext3fs and FAT32 file systems), it is 100% practically all
->> > of the time !
->> But you're right, 2.6.4 is slower than 2.4.25. See the thread "Very poor 
->> performance with 2.6.4" here in the list.
-> 
-> As recommended there, I have tried 2.6.5-rc3-mm4.
-> 
-> No change. Still 100% CPU usage; the performance seems teh same.
+On Mon, 15 Mar 2004, Andrew Morton wrote:
 
-Yes. But it's curious:
-Take a tar-file, e.g. tar the compiled 2.6 kernel directory. Than, untar 
-it again - the machine behaves total normaly. And the 2.6-kernel is about 
-23% faster than the 2.4-kernel.
+> Calling page_address_init() earlier isn't the fix though - pmd pages aren't
+> in highmem so we should never have got that far.  Looks like the pgd or the
+> pmd page contains garbage.  Did you try it without CONFIG_DEBUG_SLAB?
+>
+> Nick was seeing slab 0x6b patterns on the NUMAQ, inside the pmd, so there's
+> some consistency there.  We do have one early setup fix from Manfred, but
+> it's unlikely to cure this.
+>
+> I'll have a play with your .config, see if I can reproduce it.  If not I'll
+> squeeze off -mm3 and would ask you to retest on that if poss.
 
+I spent a bit of time on this today, and the problem appears to be that we haven't
+done mem_map or zone initialisation, so mem_map[pfn]->flags is also wrong
+(e.g. PG_highmem tests). This is still triple faulting on 2.6.5-rc3-mm4 on my
+boxes. CONFIG_HIGHMEM and any setup without 4MB pages should do it. The
+following patch got an approving nod from Bill.
 
-> Yours, Mikhail Ramendik
-> 
-> P.S. Sorry for making all comments into answers to your letter. I just
-> don't want to break the thread. 
-
-No problem - it's easier to read with comment directly in the text.
-
-
-Regards,
-Andreas Hartmann
+Index: linux-2.6.5-rc3-mm4/arch/i386/mm/init.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.5-rc3-mm4/arch/i386/mm/init.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 init.c
+--- linux-2.6.5-rc3-mm4/arch/i386/mm/init.c	2 Apr 2004 03:55:20 -0000	1.1.1.1
++++ linux-2.6.5-rc3-mm4/arch/i386/mm/init.c	4 Apr 2004 09:04:48 -0000
+@@ -206,7 +206,7 @@ void setup_identity_mappings(pgd_t *pgd_
+ 			if (!pmd_present(*pmd))
+ 				pte_base = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+ 			else
+-				pte_base = (pte_t *) page_address(pmd_page(*pmd));
++				pte_base = (pte_t *) pmd_page_kernel(*pmd);
+ 			pte = pte_base;
+ 			for (k = 0; k < PTRS_PER_PTE; pte++, k++) {
+ 				vaddr = i*PGDIR_SIZE + j*PMD_SIZE + k*PAGE_SIZE;

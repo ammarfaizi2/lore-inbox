@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292752AbSCGVld>; Thu, 7 Mar 2002 16:41:33 -0500
+	id <S293362AbSCGVsY>; Thu, 7 Mar 2002 16:48:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293490AbSCGVlZ>; Thu, 7 Mar 2002 16:41:25 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:9235 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S292752AbSCGVlR>;
-	Thu, 7 Mar 2002 16:41:17 -0500
-Date: Thu, 7 Mar 2002 14:41:05 -0700
-From: yodaiken@fsmlabs.com
-To: michael bernstein <bernstein.46@osu.edu>
-Cc: Larry McVoy <lm@bitmover.com>, Andrew Morton <akpm@zip.com.au>,
-        Troy Benjegerdes <hozer@drgw.net>, Pavel Machek <pavel@ucw.cz>,
-        Kent Borg <kentborg@borg.org>,
+	id <S293490AbSCGVsP>; Thu, 7 Mar 2002 16:48:15 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:51172 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S293362AbSCGVr4>; Thu, 7 Mar 2002 16:47:56 -0500
+Message-Id: <5.1.0.14.2.20020307213915.00b2b9d0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 07 Mar 2002 21:47:40 +0000
+To: Andrew Morton <akpm@zip.com.au>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Petition Against Official Endorsement of BitKeeper by
+  Linux  Maintainers
+Cc: Troy Benjegerdes <hozer@drgw.net>, Pavel Machek <pavel@ucw.cz>,
+        Larry McVoy <lm@work.bitmover.com>, Kent Borg <kentborg@borg.org>,
         The Open Source Club at The Ohio State University 
 	<opensource-admin@cis.ohio-state.edu>,
         linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020307144105.A3137@hq.fsmlabs.com>
-In-Reply-To: <20020307121509.I20271@work.bitmover.com> <10B32CBD-320F-11D6-BAF0-003065C60BC2@osu.edu>
+In-Reply-To: <3C87DA57.1B6CFC22@zip.com.au>
+In-Reply-To: <20020305165233.A28212@fireball.zosima.org>
+ <20020305163809.D1682@altus.drgw.net>
+ <20020305165123.V12235@work.bitmover.com>
+ <20020306095434.B6599@borg.org>
+ <20020306085646.F15303@work.bitmover.com>
+ <20020306221305.GA370@elf.ucw.cz>
+ <20020306221305.GA370@elf.ucw.cz>
+ <20020307101701.S1682@altus.drgw.net>
+ <3C87C583.C8565E4B@zip.com.au>
+ <3C87C583.C8565E4B@zip.com.au>
+ <20020307145031.V1682@altus.drgw.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <10B32CBD-320F-11D6-BAF0-003065C60BC2@osu.edu>; from bernstein.46@osu.edu on Thu, Mar 07, 2002 at 04:05:33PM -0500
-Organization: FSM Labs
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 04:05:33PM -0500, michael bernstein wrote:
-> Serve others, not yourself.
+At 21:23 07/03/02, Andrew Morton wrote:
+>It'd be nicer if the web interface was more up-to-date, but I am told
+>that's a person thing, not a tool thing.
 
-Spending a lot of time working at the homeless shelter, eh? 
+Perhaps it could be made a tool thing though. If a cron job could be setup 
+on  Linus' master bk repository to do periodic pushes to the web interface 
+or the other way round, if Larry would be given access to Linus' master 
+repository so he can setup periodic pulls to bkbits.net web repository it 
+would become a tool thing, no?
+
+Anton - only starting to use bitkeeper but already signed onto the bk fan 
+club (-:
 
 
-
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,197 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTLELQl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 06:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbTLELQl
+	id S263653AbTLELLl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 06:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263857AbTLELLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 06:16:41 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:39638 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S263930AbTLELQf
+	Fri, 5 Dec 2003 06:11:41 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:64269 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263653AbTLELLk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 06:16:35 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Cc: <Valdis.Kletnieks@vt.edu>, "Peter Chubb" <peter@chubb.wattle.id.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Linux GPL and binary module exception clause? 
-Date: Fri, 5 Dec 2003 03:16:27 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEJHIHAA.davids@webmaster.com>
+	Fri, 5 Dec 2003 06:11:40 -0500
+Message-ID: <3FD06A77.4050901@aitel.hist.no>
+Date: Fri, 05 Dec 2003 12:22:31 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: rob@landley.net
+CC: Szakacsits Szabolcs <szaka@sienet.hu>, linux-kernel@vger.kernel.org
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+References: <200312041432.23907.rob@landley.net> <Pine.LNX.4.58.0312042300550.2330@ua178d119.elisa.omakaista.fi> <200312041802.52067.rob@landley.net>
+In-Reply-To: <200312041802.52067.rob@landley.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.58.0312042245350.9125@home.osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Landley wrote:
+> On Thursday 04 December 2003 15:10, Szakacsits Szabolcs wrote:
+> 
+>>On Thu, 4 Dec 2003, Rob Landley wrote:
+>>
+>>>What are the downsides of holes?  [...] is there a performance penalty to
+>>>having a file with 1000 4k holes in it, etc...)
+>>
+>>Depends what you do, what fs you use. Using XFS XFS_IOC_GETBMAPX you might
+>>get a huge improvement, see e.g. some numbers,
+>>
+>>	http://marc.theaimsgroup.com/?l=reiserfs&m=105827549109079&w=2
+>>
+>>The problem is, 0 general purpose (like cp, tar, cat, etc) util supports
+>>it, you have to code your app accordingly.
+> 
+> 
+> Okay, I'll bite.  How would one go about adding hole support to cat? :)
 
+Easy.  Look at the data you're writing. Don't ever write zeroes, seek
+ahead in the file being written instead.  The filesystem will create a hole
+if possible.  You may want to optimize this a bit by not seeking past
+very small runs of zeroes.
 
-> On Thu, 4 Dec 2003, David Schwartz wrote:
+Of course cat is sometimes used to write to things that aren't regular
+files, so make sure seek is supported and fall back to ordinary writing
+when it isn't.
 
-> > The GPL gives you the unrestricted right to *use* the original work.
-> > This implicitly includes the right to peform any step necessary to use
-> > the work.
-
-> No it doesn't.
->
-> Your logic is fundamentally flawed, and/or your reading skills are
-> deficient.
-
-	I stand by my conclusions.
-
-> The GPL expressly states that the license does not restrict the act of
-> "running the Program" in any way, and yes, in that sense you may "use" the
-> program in whatever way you want.
-
-	Please tell me how you use the Linux kernel source code. Please tell me how
-you run the Linux kernel source code without creating a derived work.
-
-> But that "use" is clearly limited to running the resultant program. It
-> very much does NOT say that you can "use the header files in any way you
-> want, including building non-GPL'd programs with them".
-
-	Huh? What "resultant program"? Are you talking about an executable that's a
-derived work of the Linux kernel source code?
-
-	Modules are derived works of the Linux kernel source code, not the kernel
-executable. So the license that would be relevent would be a license that
-restricts how you can use the source code or derived works of the source
-code. License to run a program, when you have source code, is license to
-compile that source code.
-
-	For example, 2b says:
-
-    b) You must cause any work that you distribute or publish, that in
-    whole or in part contains or is derived from the Program or any
-    part thereof, to be licensed as a whole at no charge to all third
-    parties under the terms of this License.
-
-	You don't seriously think that's talking about derived works that are
-derived from *executables*, do you?
-
-> In fact, it very much says the reverse. If you use the source code to
-> build a new program, the GPL _explicitly_ says that that new program has
-> to be GPL'd too.
-
-	I download the Linux kernel sources from kernel.org. Please tell me what I
-can do with them without agreeing to the GPL. Is it your position that I
-cannot compile them without agreeing to the GPL? If so, how can running the
-program be unrestricted? How can you run the linux kernel soruce code
-without compiling it?
-
-> > Please tell me how you use a kernel header file, other than by including
-> > it in a code file, compiling that code file, and executing the result.
->
-> You are a weasel, and you are trying to make the world look the way you
-> want it to, rather than the way it _is_.
-
-	That is a serious example of projection.
-
-> You use the word "use" in a sense that is not compatible with the GPL. You
-> claim that the GPL says that you can "use the program any way you want",
-> but that is simply not accurate or even _close_ to accurate. Go back and
-> read the GPL again. It says:
->
-> 	"The act of running the Program is not restricted"
->
-> and it very much does NOT say
->
-> 	"The act of using parts of the source code of the Program is not
-> 	 restricted"
-
-	You run a piece of source code by compiling it. If a header file is
-protected by the GPL, permission to "run" it means permission to include it
-in files you compile.
-
-	The GPL says:
-
-  0. This License applies to any program or other work which contains
-a notice placed by the copyright holder saying it may be distributed
-under the terms of this General Public License.  The "Program", below,
-refers to any such program or work, and a "work based on the Program"
-means either the Program or any derivative work under copyright law:
-that is to say, a work containing the Program or a portion of it,
-
-	The work that was placed under the GPL is the Linux kernel source. The
-"program" is the source code. Please, tell me how you "run" the Linux kernel
-source code other than by compiling it to form a derived work.
-
-	Perhaps you misunderstand the GPL to mean that a 'program' must be an
-executable? Not only does section zero clearly refute that, but if it were
-true, it would mean that a module is not a derived work from a GPL'd work!
-It is a program that's placed under the GPL, and a module is not a derived
-work from any other executable.
-
-> In short: you do _NOT_ have the right to use a kernel header file (or any
-> other part of the kernel sources), unless that use results in a GPL'd
-> program.
-
-	The phrase "results in a GPL'd program" is one that I cannot understand. I
-have no idea what you mean by it. You have the right to "run" the header
-file, the GPL gives it to you. The way you "run" a header file is by first
-compiling a source code that includes it into an executable.
-
-> What you _do_ have the right is to _run_ the kernel any way you please
-> (this is the part you would like to redefine as "use the source code",
-> but that definition simply isn't allowed by the license, however much you
-> protest to the contrary).
-
-	How can I run the kernel without compiling it? And how can I compile it
-without creating a derived work? The GPL says:
-
-  5. You are not required to accept this License, since you have not
-signed it.  However, nothing else grants you permission to modify or
-distribute the Program or its derivative works.  These actions are
-prohibited by law if you do not accept this License.  Therefore, by
-modifying or distributing the Program (or any work based on the
-Program), you indicate your acceptance of this License to do so, and
-all its terms and conditions for copying, distributing or modifying
-the Program or works based on it.
-
-	Of course, the second sentence is utterly false. Fair use and necessary
-step provisions do just that.
-
-> So you can run the kernel and create non-GPL'd programs while running it
-> to your hearts content. You can use it to control a nuclear submarine, and
-> that's totally outside the scope of the license (but if you do, please
-> note that the license does not imply any kind of warranty or similar).
->
-> BUT YOU CAN NOT USE THE KERNEL HEADER FILES TO CREATE NON-GPL'D BINARIES.
->
-> Comprende?
-
-	I have no idea what you mean by a "NON-GPL'D BINARY". *Any* binary you
-create from a kernel header file is, at least to some extent, a derived work
-of that header file. However, the question for whether it would be covered
-by the GPL is whether you exercised a privilege in creating that work that
-you were only granted by the GPL.
-
-	Again, what I'm trying to say is that the term "program" in the GPL means
-whatever it is that's placed under the GPL (which can be an executable
-and/or source code). Of course, placing an executable under the GPL
-effectively places its source code under the GPL (as soon as you distribute
-it to someone else, as you are required to do, who is limited only by the
-GPL).
-
-	In the case of the Linux kernel, the source code was initially placed under
-the GPL. Once source code is placed under the GPL, your right to "run the
-program" means a right to compile the source code. In the case of header
-files, this means the right to include the header file in code files and
-thereby produce and use derived works. (Whether or not you can distribute
-those derived works is, of course, a whole different argument.)
-
-	So my point is that the GPL isn't really even relevant here. You have all
-the rights you need without agreeing to it. "Activities other than copying,
-distribution and modification are not
-covered by this License; they are outside its scope." Including a header
-file in your own class file is not copying, distribution, or modification of
-that header file. It is use, mere use.
-
-	DS
-
+Helge Hafting
 

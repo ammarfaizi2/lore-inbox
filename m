@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317463AbSGEOqC>; Fri, 5 Jul 2002 10:46:02 -0400
+	id <S317467AbSGEOqs>; Fri, 5 Jul 2002 10:46:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317466AbSGEOqB>; Fri, 5 Jul 2002 10:46:01 -0400
-Received: from molly.vabo.cz ([160.216.153.99]:9223 "EHLO molly.vabo.cz")
-	by vger.kernel.org with ESMTP id <S317463AbSGEOqA>;
-	Fri, 5 Jul 2002 10:46:00 -0400
-Date: Fri, 5 Jul 2002 16:48:28 +0200 (CEST)
-From: Tomas Konir <moje@molly.vabo.cz>
-X-X-Sender: moje@moje.ich.vabo.cz
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM Desktar disk problem?
-In-Reply-To: <20020705142619.GN1007@suse.de>
-Message-ID: <Pine.LNX.4.44L0.0207051643580.709-100000@moje.ich.vabo.cz>
-References: <Pine.LNX.4.43.0207051524480.9092-100000@cibs9.sns.it>
- <Pine.LNX.4.44L0.0207051606050.32493-100000@moje.ich.vabo.cz>
- <20020705142619.GN1007@suse.de>
+	id <S317466AbSGEOqr>; Fri, 5 Jul 2002 10:46:47 -0400
+Received: from [193.14.93.89] ([193.14.93.89]:37380 "HELO acolyte.hack.org")
+	by vger.kernel.org with SMTP id <S317467AbSGEOqo>;
+	Fri, 5 Jul 2002 10:46:44 -0400
+To: Alan Cox <alan@www.linux.org.uk>
+Cc: proski@gnu.org (Pavel Roskin), linux-kernel@vger.kernel.org,
+       dhinds@sonic.net (David Hinds), mj@ucw.cz (Martin Mares)
+Subject: Re: Cyrix IRQ routing is wrong?
+References: <Pine.LNX.4.44.0207031946230.4282-100000@marabou.research.att.com>
+	<E17QTp2-0004Ay-00@www.linux.org.uk>
+From: Christer Weinigel <wingel@acolyte.hack.org>
+Date: 05 Jul 2002 16:49:13 +0200
+In-Reply-To: Alan Cox's message of "Fri, 5 Jul 2002 15:12:32 +0100 (BST)"
+Message-ID: <m3wusa44d2.fsf@acolyte.hack.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jul 2002, Jens Axboe wrote:
+Alan Cox <alan@www.linux.org.uk> writes:
 
-> > hi i have similar problem.
-> > No dead disks, but after two days testing tcq patches (on 2.4). I 
-> > got the two ATA errors (smartctl said). 
-> > I think that it's no good to test tcq on IBM disks. My disk was without 
-> > any problems one year. Two problems now is not normal.
+> > 1) 2.4.17 was using the code I want to restore.  Where was your hanging 
+> > box then?
 > 
-> I find this hard to believe (why would using a different set of
-> read/write commands show problems?!), and so far the evidence is far
-> from conclusive. I'll be watching it, though.
+> Hanging. Thats why I fixed it when Nat Semi documentation for the old cyrix
+> appeared
 
-If it helps I'll send you complete Log error structure from smartct.
+So your BIOS probably has a buggy PIRQ table.  
 
-Error Log Structure 1:
-DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
- 00   08   80   ee   88   a2    e0   cc     1210341
- 00   08   08   ee   88   a2    e0   a2     1210341
- 00   08   87   04   1d   20    e0   cc     1210341
- 00   00   00   04   1d   20    e0   00     1210341
- 00   00   80   06   42   67    e1   c8     1210341
- 00   84   00   85   42   67    e1   51     0
-Error condition:   0    Error State:       3
+>From page 155 of the CS5530 manual found at:
 
-Error Log Structure 2:
-DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
- 00   80   00   3e   66   23    e1   c7     1386233
- 00   80   08   3e   66   23    e0   a2     1386233
- 00   80   30   be   66   23    e1   c7     1386233
- 00   80   80   be   66   23    e1   c4     1386233
- 00   08   08   26   32   a4    e0   cc     1386237
- 00   84   00   2d   32   a4    e0   51     0
-Error condition:   0    Error State:       3
+    http://www.national.com/ds/CS/CS5530.pdf
 
-> 
-> > For final i think, that tcq patch is not fully stable, becouse on high 
-> > disk load i get oops and have to reboot. I have no problem when i remove 
-> > tcq patches.
-> > (high load i mean copy cca 20GiB between two IBM disks).
-> 
-> Any reason you haven't reported this?! Please do so.
+Index 5Ch PCI Interrupt Steering Register 1 (R/W) Reset Value = 00h
 
-sorry but this oops was only on screen and i were no time for log this 
-to the paper. After second error i removed tcq from my kernel.
-(I have no money for new disk now).
+7:4 INTB# Target Interrupt: Selects target interrupt for INTB#
+3:0 INTA# Target Interrupt: Selects target interrupt for INTA#
 
-	MOJE 
- 
+Index 5Dh PCI Interrupt Steering Register 2 (R/W) Reset Value = 00h
+7:4 INTD# Target Interrupt: Selects target interrupt for INTD#
+3:0 INTC# Target Interrupt: Selects target interrupt for INTC#
+
+So I have to switch that code around on most GX1 boards that I use or
+I'll get a lot of messages about IRQ routing conflicts.
+
+  /Christer
+
 -- 
-Tomas Konir
-Brno
-ICQ 25849167
-
-
+"Just how much can I get away with and still go to heaven?"

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264809AbTGHQ5x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 12:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbTGHQ5w
+	id S264893AbTGHQ7u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 12:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbTGHQ7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 12:57:52 -0400
-Received: from ns.suse.de ([213.95.15.193]:8460 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264809AbTGHQ5w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 12:57:52 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AES for CryptoAPI - i586-optimized
-References: <20030708152755.GA24331@ghanima.endorphin.org.suse.lists.linux.kernel>
-	<20030708174907.A18997@infradead.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 08 Jul 2003 19:12:27 +0200
-In-Reply-To: <20030708174907.A18997@infradead.org.suse.lists.linux.kernel>
-Message-ID: <p737k6tq6x0.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 8 Jul 2003 12:59:50 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:52356 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264893AbTGHQ7t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 12:59:49 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 8 Jul 2003 10:06:46 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Eric Varsanyi <e0216@foo21.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: epoll vs stdin/stdout
+In-Reply-To: <20030708160206.GP9328@srv.foo21.com>
+Message-ID: <Pine.LNX.4.55.0307081005500.4792@bigblue.dev.mcafeelabs.com>
+References: <20030707154823.GA8696@srv.foo21.com>
+ <Pine.LNX.4.55.0307071153270.4704@bigblue.dev.mcafeelabs.com>
+ <20030707194736.GF9328@srv.foo21.com> <Pine.LNX.4.55.0307071511550.4704@bigblue.dev.mcafeelabs.com>
+ <Pine.LNX.4.55.0307071624550.4704@bigblue.dev.mcafeelabs.com>
+ <20030708154636.GM9328@srv.foo21.com> <Pine.LNX.4.55.0307080840400.4544@bigblue.dev.mcafeelabs.com>
+ <20030708160206.GP9328@srv.foo21.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+On Tue, 8 Jul 2003, Eric Varsanyi wrote:
 
-> On Tue, Jul 08, 2003 at 05:27:55PM +0200, Fruhwirth Clemens wrote:
-> > 
-> > Due to the recent discussion about the asm-optimized version of AES which is
-> > included in loop-AES, I'd like to point out that I've ported this
-> > implementation - Dr. Brian Gladman's btw. - to CryptoAPI a long time ago.
-> 
-> Cool, that means we just need to hash out the framework for optimized
-> implementations now..
+> On Tue, Jul 08, 2003 at 08:42:29AM -0700, Davide Libenzi wrote:
+> > It is not that events are delivered per-fd. If 3 and 4 refer to the same
+> > file* and you register both 3 and 4 with EPOLLIN, you'll get two events if
+> > an EPOLLIN happen. One for 3 and one for 4.
+>
+> Agreed 100%, this is roughly what would happen with select() as well which
+> IMO is good (not surprising behaviour) for event loop writers: it would
+> return with both bits set. The EEXIST we were getting before this patch
+> would be analogous to select() returning an error if you set 2 bits that
+> where for fd's sharing an object (even across read/write bit vectors).
+>
+> One could argue at the logic of having 2 fd's get read events on a
+> shared underlying object, but one read and the other write certainly
+> makes sense as discussed earlier.
 
-It's not cool. Pentium Classic tuning is quite useless for PPro+
-The Pentium Classic had a quite weird pipeline and code optimized
-for it tends to be suboptimal for more modern designs.
+I did not have the time to test the patch in your scenario, but if you can
+confirm me it is working fine I'll push it.
 
-I didn't benchmark, but I suspect the C version compiled with a good compiler
-for the correct CPU is faster than that on a modern CPU.
 
--Andi
+- Davide
+

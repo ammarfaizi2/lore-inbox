@@ -1,67 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273769AbRIQXvw>; Mon, 17 Sep 2001 19:51:52 -0400
+	id <S273779AbRIRACO>; Mon, 17 Sep 2001 20:02:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273770AbRIQXvm>; Mon, 17 Sep 2001 19:51:42 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:14056 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S273768AbRIQXv3>;
-	Mon, 17 Sep 2001 19:51:29 -0400
-Date: Mon, 17 Sep 2001 16:51:11 -0700
-Message-Id: <200109172351.QAA29928@napali.hpl.hp.com>
-From: David Mosberger <davidm@hpl.hp.com>
-To: viro@math.psu.edu, torvalds@transmeta.com, linux@arm.linux.org.uk,
-        ralf@gnu.ai.mit.edu
-cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: __emul_prefix() problem
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-to: davidm@hpl.hp.com
+	id <S273781AbRIRACF>; Mon, 17 Sep 2001 20:02:05 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:24434 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S273779AbRIRAB5>; Mon, 17 Sep 2001 20:01:57 -0400
+Date: Tue, 18 Sep 2001 02:01:39 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: dhowells@redhat.com, Ulrich.Weigand@de.ibm.com, manfred@colorfullife.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Deadlock on the mm->mmap_sem
+Message-ID: <20010918020139.B698@athlon.random>
+In-Reply-To: <001701c13fc2$cda19a90$010411ac@local> <200109172339.f8HNd5W13244@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200109172339.f8HNd5W13244@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Sep 17, 2001 at 04:39:05PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been toying with __emul_prefix() on ia64 linux as a means to
-deal with x86 programs that use absolute paths when loading shared
-objects (such as PAM or the GTK themes).  This works quite well, but
-it breaks the traditional UNIX way of translating a relative path
-into an absolute path.  The OpenOffice installer does this, for
-example.  What happens precisely is that the installer attempts to
-create an absolute path by stat()ing "/." and then walking the parent
-directory chain until it finds the directory entry with a matching
-i-node number.  This doesn't work because if an x86 binary stat()s
-this path, it will get the i-node number of /emul/ia32-linux/ (in the
-ia64 linux case) and things quickly go downhill from there.
+On Mon, Sep 17, 2001 at 04:39:05PM -0700, Linus Torvalds wrote:
+> [ David, Andrea - can you check this out? ]
+> 
+> In article <001701c13fc2$cda19a90$010411ac@local>,
+> Manfred Spraul <manfred@colorfullife.com> wrote:
+> >> What happens is that proc_pid_read_maps grabs the mmap_sem as a
+> >> reader, and *while it holds the lock*, does a copy_to_user.  This can
+> >> of course page-fault, and the handler will also grab the mmap_sem
+> >> (if it is the same task).
+> >
+> >Ok, that's a bug.
+> >You must not call copy_to_user with the mmap semaphore acquired - linux
+> >semaphores are not recursive.
+> 
+> No, that's not the bug.
 
-I'm not sure there is a clean fix to this, but one proposal is
-attached below: it causes __emul_lookup_dentry() to ignore the
-alternate root for paths that resolve to a directory.  This obviously
-could create other problems, but I suspect there is no solution that
-works 100% in all cases (the fundamental being that we now have two
-different root nodes...).
+agreed.
 
-Comments?
+> The mmap semaphore is a read-write semaphore, and it _is_ permissible to
+> call "copy_to_user()" and friends while holding the read lock.
+> 
+> The bug appears to be in the implementation of the write semaphore -
+> down_write() doesn't undestand that blocked writes must not block new
+> readers, exactly because of this situation. 
 
-	--david
+Exactly, same reason for which we need the same property from the rw
+spinlocks (to be allowed to read_lock without clearing irqs). Thanks so
+much for reminding me about this! Unfortunately my rwsemaphores are
+blocking readers at the first down_write (for the better fairness
+property issuse, but I obviously forgotten that doing so I would
+introduce such a deadlock). The fix is a few liner for my
+implementation, here it is:
 
-PS: I cc'd all the platform maintainers that use a non-NULL
-    emul_prefix, except for Dave Miller who in private mail indicated
-    that he doesn't care about this problem
-
---- fs/namei.c~	Sat Jul 21 20:20:40 2001
-+++ fs/namei.c	Mon Sep 17 15:10:20 2001
-@@ -604,10 +604,14 @@
- static int __emul_lookup_dentry(const char *name, struct nameidata *nd)
- {
- 	if (path_walk(name, nd))
--		return 0;
-+		return 0;		/* something went wrong... */
+--- 2.4.10pre10aa2/lib/rwsem_spinlock.c.~1~	Mon Sep 17 19:17:24 2001
++++ 2.4.10pre10aa2/lib/rwsem_spinlock.c	Tue Sep 18 01:59:06 2001
+@@ -73,11 +73,13 @@
  
--	if (!nd->dentry->d_inode) {
-+	if (!nd->dentry->d_inode || S_ISDIR(nd->dentry->d_inode->i_mode)) {
- 		struct nameidata nd_root;
-+		/*
-+		 * NAME was not found in alternate root or it's a directory.  Try to find
-+		 * it in the normal root:
-+		 */
- 		nd_root.last_type = LAST_ROOT;
- 		nd_root.flags = nd->flags;
- 		read_lock(&current->fs->lock);
+ void down_read(struct rw_semaphore *sem)
+ {
++	int count;
+ 	CHECK_MAGIC(sem->__magic);
+ 
+ 	spin_lock(&sem->lock);
++	count = sem->count;
+ 	sem->count += RWSEM_READ_BIAS;
+-	if (__builtin_expect(sem->count, 0) < 0)
++	if (__builtin_expect(count < 0 && !(count & RWSEM_READ_MASK), 0))
+ 		rwsem_down_failed(sem, RWSEM_READ_BLOCKING_BIAS);
+ 	spin_unlock(&sem->lock);
+ }
 
+it will be applied to next -aa. For the mainline semaphores I assume
+David will take care of that.
+
+For the record, I'm using spinlock based rwsemphores. Last time I
+checked my asm semaphores I found a small race in up_write, I didn't
+checked if the mainlines semaphores were affected too but I just
+preferred to stay safe with the spinlock in the meantime (in the
+microbenchmark the spinlock based rwsems weren't that much slower
+[and my optimized version is much faster than the mainline spinlock
+based rwsem] so using asm it's not a noticeable improvement in the macro
+real life benchmarks and the robustness of the spinlock is quite
+unvaluable, even more now that allowed me to do a bugfix without
+panicing in doing those changes).  I think I will return to the asm
+rwsem only after proofing my implementation with math or after writing
+an automated simulation that checks their correctness in all possible
+race combinations (assuming they're mutex and with a variable number of
+threads).
+
+Andrea

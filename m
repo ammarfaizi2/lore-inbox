@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVCOBEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVCOBGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbVCOBEE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 20:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVCOBEE
+	id S262184AbVCOBGx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 20:06:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVCOBGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 20:04:04 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:62470 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262169AbVCOBEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 20:04:00 -0500
-Date: Tue, 15 Mar 2005 02:03:58 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: akpm@osdl.org, pfg@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] gcc4 fix for sn_serial.c
-Message-ID: <20050315010358.GF3207@stusta.de>
-References: <200503141132.39284.jbarnes@engr.sgi.com>
+	Mon, 14 Mar 2005 20:06:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58821 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262184AbVCOBGp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 20:06:45 -0500
+Date: Mon, 14 Mar 2005 20:06:32 -0500
+From: Dave Jones <davej@redhat.com>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: AGP module removal impossible ?
+Message-ID: <20050315010631.GA8512@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Brice Goglin <Brice.Goglin@ens-lyon.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <42361E33.4020903@ens-lyon.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503141132.39284.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <42361E33.4020903@ens-lyon.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 11:32:39AM -0800, Jesse Barnes wrote:
-> The sal_console and sal_console_uart structures have a circular relationship 
-> since they both initialize member fields to pointers of one another.  The 
-> current code forward declares sal_console_uart as extern so that sal_console 
-> can take its address, but gcc4 complains about this since the real definition 
-> of sal_console_uart is marked 'static'.  This patch just removes the static 
-> qualifier from sal_console_uart to avoid the inconsistency.  Does it look ok 
-> to you, Pat?
->...
-> ===== drivers/serial/sn_console.c 1.12 vs edited =====
-> --- 1.12/drivers/serial/sn_console.c	2005-03-07 20:41:31 -08:00
-> +++ edited/drivers/serial/sn_console.c	2005-03-14 10:57:19 -08:00
-> @@ -801,7 +801,7 @@
->  
->  #define SAL_CONSOLE	&sal_console
->  
-> -static struct uart_driver sal_console_uart = {
-> +struct uart_driver sal_console_uart = {
->  	.owner = THIS_MODULE,
->  	.driver_name = "sn_console",
->  	.dev_name = DEVICE_NAME,
+On Tue, Mar 15, 2005 at 12:28:51AM +0100, Brice Goglin wrote:
+ > Hi Dave,
+ > 
+ > I can't remove the AGP chipset module on my boxes.
+ > Looks like the AGP chipset driver holds a reference on itself and
+ > thus makes removal impossible.
+ > 
+ > From what I understand, as soon as intel_agp is loaded, agp_intel_probe
+ > is called. It gets a reference on intel_agp module through
+ > !try_module_get(bridge->driver->owner) in agp_add_bridge.
+ > Then this reference can only be released through module_put in
+ > agp_remove_bridge which is called agp_intel_remove which is only called
+ > when removing the module.
+ > 
+ > Thus it looks impossible to remove this module at all.
+ > And I think the problem occurs with all other AGP chipset drivers.
+ > 
+ > I hope the reason is not just that module removal support is not important
+ > in 2.6 :) It looks strange to implement a module removal routine if we
+ > know it can't be used :)
 
-Why can't you solve this without making sal_console_uart global?
+The locking is screwed up and has been for some time.
+I've been meaning to take a look at it for a while, but keep finding
+more important things to do.  It should be fixed to lock/unlock when
+the device is opened, as it was in 2.4
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+		Dave
 

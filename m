@@ -1,106 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266627AbUBLWCW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 17:02:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266630AbUBLWCW
+	id S266505AbUBLWMK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 17:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266652AbUBLWMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 17:02:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24272 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266627AbUBLWCT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 17:02:19 -0500
-Date: Thu, 12 Feb 2004 14:03:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jim Houston <jim.houston@ccur.com>
-Cc: thockin@sun.com, torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org, george@mvista.com
-Subject: Re: PATCH - raise max_anon limit
-Message-Id: <20040212140356.70be613f.akpm@osdl.org>
-In-Reply-To: <1076606773.990.165.camel@new.localdomain>
-References: <20040211203306.GI9155@sun.com>
-	<Pine.LNX.4.58.0402111236460.2128@home.osdl.org>
-	<20040211210930.GJ9155@sun.com>
-	<20040211135325.7b4b5020.akpm@osdl.org>
-	<20040211222849.GL9155@sun.com>
-	<20040211144844.0e4a2888.akpm@osdl.org>
-	<20040211233852.GN9155@sun.com>
-	<20040211155754.5068332c.akpm@osdl.org>
-	<20040212003840.GO9155@sun.com>
-	<20040211164233.5f233595.akpm@osdl.org>
-	<20040212010822.GP9155@sun.com>
-	<20040211172046.37e18a2f.akpm@osdl.org>
-	<1076606773.990.165.camel@new.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Feb 2004 17:12:10 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:41465 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S266505AbUBLWKk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 17:10:40 -0500
+In-Reply-To: <qdj1xp06k6z.fsf@pom.rchland.ibm.com>
+References: <qdj1xp06k6z.fsf@pom.rchland.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v612)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <37529C28-5DA8-11D8-9AB8-000A95A0560C@us.ibm.com>
 Content-Transfer-Encoding: 7bit
+Cc: LKML <linux-kernel@vger.kernel.org>, linuxppc64-dev@lists.linuxppc.org
+From: Hollis Blanchard <hollisb@us.ibm.com>
+Subject: Re: [ppc64] support for dma-mapping
+Date: Thu, 12 Feb 2004 16:10:07 -0600
+To: Dave Boutcher <sleddog@us.ibm.com>
+X-Mailer: Apple Mail (2.612)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Houston <jim.houston@ccur.com> wrote:
+On Feb 12, 2004, at 3:51 PM, Dave Boutcher wrote:
+[snip]
+> include/asm-ppc64/dma-mapping.h
 >
-> On Wed, 2004-02-11 at 20:20, Andrew Morton wrote:
-> > Tim Hockin <thockin@sun.com> wrote:
-> > > No, it doesn't store the counter with the id.  They expect you to do that.
-> > > My best understanding is that thi sis to prevent re-use of the same key.
-> > > I'm not sure I grok why it is useful.  If you release a key, it should be
-> > > safe to reuse.  Period.  I assume there was some use case that brought about
-> > > this "feature" but if so, I don't know what it is.  The big comment about it
-> > > is just confusing me.
-> > 
-> > Maybe Jim can tell us why it's there.  Certainly, the idr interface would
-> > be more useful if it just returned id's which start from zero.
-> 
-> Hi Andrew, Everyone,
-> 
-> If this new use of idr.c as a sparse bitmap catches on,
+> +static inline int
+> +dma_supported(struct device *dev, u64 mask)
+> +{
+> +	if (dev->bus == &pci_bus_type) return 
+> pci_dma_supported(to_pci_dev(dev), mask);
+> +	if (dev->bus == &vio_bus_type) return 
+> vio_dma_supported(to_vio_dev(dev), mask);
+> +	BUG();
+> +}
 
-I think it should catch on - it is a fairly common kernel requirement.  The
-max_anon thing requires it, and I am also pressing it upon the scsi guys to
-handle enormous numbers of disks (depends on how they end up doing that). 
-In neither case is the associated pointer needed.
+The thing is that there is such an obvious cleanup here:
 
-> When I wrote the original code, I was thinking of allocating process
-> id values where there is a tradition of allocating sequential values.
++static inline int
++dma_supported(struct device *dev, u64 mask)
++{
++	if (dev->bus)
++		return dev->bus->dma_supported(dev, mask);
++	BUG();
++}
 
-File descriptors are like that too.
+This would require modifying include/linux/device.h for struct bus_type 
+(impacting PCI and USB at least). In fact I'm sure the original author 
+of include/asm-generic/dma-mapping.h knew that even when they wrote it:
 
-> George Anzinger rewrote most of my code.  The r in idr.c is for
-> immediate reuse.  His version picks the lowest available bit in the
-> sparse bitmap.  The RESERVED_BITS comments seem to be stale.
-> 
-> The rational for avoiding immediate reuse of id values is to catch
-> application errors.   Consider:
-> 
-> 	fd1 = open_like_call(...);
-> 	read(fd1,...);
-> 	close(fd1);
-> 	fd2 = open_like_call(...);
-> 	write(fd1...);
-> 
-> If fd2 has a different value than the recently closed fd1, the
-> error is detected immediately.
-> 
+static inline int
+dma_supported(struct device *dev, u64 mask)
+{
+     BUG_ON(dev->bus != &pci_bus_type);
+     return pci_dma_supported(to_pci_dev(dev), mask);
+}
 
-In this case the debug capability is getting in the way of real-world
-requirements, which is not good.
+It's just begging to be generalized.
 
-idr_pre_get() is not very good IMO.  For a start, it's racy:
-
-	idr_pre_get();
-	lock();
-	idr_get_new();
-	unlock();
-
-how do we know that some other CPU didn't come in and steal our
-preallocation?  That's why I (buggily) converted unnamed_dev_lock from a
-spinlock to a semaphore, so we could perform the preallocation under the
-same locking.
-
-It would be better, and more idiomatic if idr_get_new() were to take a gfp
-mask and to perform its own allocation.  That has its own problems and if
-the code is under really heavy stress one might need to emulate
-radix_tree_preload()/radix_tree_preload_end(), but for most things that's a
-bit over the top.
-
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTFXKn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 06:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTFXKn4
+	id S261852AbTFXKl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 06:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTFXKl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 06:43:56 -0400
-Received: from mail018.syd.optusnet.com.au ([210.49.20.176]:14287 "EHLO
-	mail018.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261872AbTFXKnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 06:43:15 -0400
-Date: Tue, 24 Jun 2003 20:56:05 +1000
-To: trivial@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL PATCH] Fix for no boot logo
-Message-ID: <20030624105605.GB8052@cancer>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Stewart Smith <stewart@linux.org.au>
+	Tue, 24 Jun 2003 06:41:59 -0400
+Received: from [62.75.136.201] ([62.75.136.201]:39063 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261852AbTFXKl5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 06:41:57 -0400
+Message-ID: <3EF82E3D.7030409@g-house.de>
+Date: Tue, 24 Jun 2003 12:55:57 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: lord@sgi.com, owner-xfs@oss.sgi.com
+Subject: module xfs: Relocation overflow vs section 9
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Discussed a while ago, someone submitted this patch to get the boot logo to reappear. Russell King resubmitted it a while ago, but it doesn't seem to have come up anywhere, so I'm taking the job of trivializing it :)
+i can't use XFS in 2.5.72 on linux Alpha, inserting the module gives:
 
-Worked for me when I tried it :)
+kernel: module xfs: Relocation overflow vs section 9
+modprobe: FATAL: Error inserting xfs
+(/lib/modules/2.5.72/kernel/fs/xfs/xfs.ko): Invalid module format
 
---- linux-2.5.73/drivers/video/cfbimgblt.c	2003-05-05 09:53:31.000000000 +1000
-+++ linux-2.5.73-stew1/drivers/video/cfbimgblt.c	2003-06-24 20:53:17.000000000 +1000
-@@ -325,7 +325,7 @@
- 		else 
- 			slow_imageblit(image, p, dst1, fgcolor, bgcolor,
- 					start_index, pitch_index);
--	} else if (image->depth == bpp) 
-+	} else if (image->depth <= bpp) 
- 		color_imageblit(image, p, dst1, start_index, pitch_index);
- }
- 
+in the log.
 
+i've compiled with gcc3.3, other modules are ok. on ia32 XFS is fine, 
+but not on this Alpha EV45 (Avanti). more info available, of course.
 
+Thanks,
+Christian.
 
--- 
-Stewart Smith
-Vice President, Linux Australia
-http://www.linux.org.au (personal: http://www.flamingspork.com)

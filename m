@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312694AbSCZUbV>; Tue, 26 Mar 2002 15:31:21 -0500
+	id <S312706AbSCZUdm>; Tue, 26 Mar 2002 15:33:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312680AbSCZUbL>; Tue, 26 Mar 2002 15:31:11 -0500
-Received: from x101-184-43-dhcp.reshalls.umn.edu ([128.101.184.43]:4739 "EHLO
-	minerva") by vger.kernel.org with ESMTP id <S312670AbSCZUa6>;
-	Tue, 26 Mar 2002 15:30:58 -0500
-Date: Tue, 26 Mar 2002 14:30:56 -0600
-From: Matt Reppert <matt@nyu.dyn.dhs.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SSSCA Hits the Senate
-Message-Id: <20020326143056.6563932d.matt@nyu.dyn.dhs.org>
-In-Reply-To: <001b01c1d444$22d91040$b0d3fea9@pcs686>
-Organization: Arashi no Kaze
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-message-flag: : This mail sent from host minerva, please respond.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S312708AbSCZUdW>; Tue, 26 Mar 2002 15:33:22 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:44292
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S312706AbSCZUdT>; Tue, 26 Mar 2002 15:33:19 -0500
+Date: Tue, 26 Mar 2002 12:32:53 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Stephen Samuel <samuel@bcgreen.com>,
+        Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>,
+        linux-kernel@vger.kernel.org
+Subject: CBDTPA (Re: SSSCA Hits the Senate) son of SSSCA
+In-Reply-To: <3CA0671D.2020808@ngforever.de>
+Message-ID: <Pine.LNX.4.10.10203261232190.2450-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Mar 2002 16:29:23 -0500
-"Matthew D. Pitts" <mpitts@suite224.net> wrote:
 
-> This bill seems to be an extension of the DMCA... at least to me. And as far
-> as I am conserned, this bill will not get very far.
+http://www.politechbot.com/docs/cbdtpa/
 
-That's what people said about the DMCA, four years ago.
+On Tue, 26 Mar 2002, Thunder from the hill wrote:
 
-Granted, society hasn't ended because of it, but it's still very much
-there. If you don't think it's an issue, perhaps you'd like to take it
-up with, oh, Colen McMillen, Dmitri Sklyarov, or the people in charge
-of bnetd? :)
+> Stephen Samuel wrote:
+> > But how are you going to compile your FIRST kernel?? At some point
+> > you'll need a compiler, and they'll insist that the limitations go into
+> > that first compiler that someone gets.
+> So either you can spell bytecode (but then you'll need an editor) or you
+> have it done before SSSCA takes over your computer.
+> Another problem: if it also applies to hardware, why did I get this new
+> raid5 controller a year ago? And what about all those people who just 
+> got latest hardware? Is it illegal?
+> I think there'll be another kind of dealers after that.
+> 
+> Regards,
+> Thunder
+> -- 
+> Thunder from the hill.
+> Citizen of our universe.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Honestly, I hope you're right. Then again, I'm not willing to hedge
-anything on the bet that you are, since in a way we've been there
-before with interesting results.
+Andre Hedrick
+LAD Storage Consulting Group
 
-Matt

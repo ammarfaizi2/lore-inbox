@@ -1,89 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264176AbRFFVns>; Wed, 6 Jun 2001 17:43:48 -0400
+	id <S264181AbRFFVp6>; Wed, 6 Jun 2001 17:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264181AbRFFVni>; Wed, 6 Jun 2001 17:43:38 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:53518 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264176AbRFFVna>; Wed, 6 Jun 2001 17:43:30 -0400
-Date: Wed, 6 Jun 2001 17:07:41 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: [PATCH] Reap dead swap cache earlier v2
-Message-ID: <Pine.LNX.4.21.0106061705250.3769-100000@freak.distro.conectiva>
+	id <S264182AbRFFVps>; Wed, 6 Jun 2001 17:45:48 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49936 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264181AbRFFVph>; Wed, 6 Jun 2001 17:45:37 -0400
+Subject: Re: Linux 2.4.5-ac9
+To: t.sailer@alumni.ethz.ch
+Date: Wed, 6 Jun 2001 22:43:31 +0100 (BST)
+Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3B1DF4BC.6A8C5CBC@scs.ch> from "Thomas Sailer" at Jun 06, 2001 11:15:40 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E157l5P-0000VT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Looks bogus. Independent processes can open the same device
+> once for reading and once for writing, now you are serializing
+> needlessly these processes. Please revert.
 
-Hi, 
-
-As suggested by Linus, I've cleaned the reapswap code to be contained
-inside an inline function. (yes, the if statement is really ugly) 
-
-Tested and against 2.4.6pre1. 
-
+Some of the serializing is not a bug but I agree that patch is not yet
+right. Think for example about
 
 
---- linux.orig/mm/vmscan.c	Wed Jun  6 18:16:45 2001
-+++ linux/mm/vmscan.c	Wed Jun  6 18:28:26 2001
-@@ -407,6 +407,27 @@
- 	memory_pressure++;
- 	return page;
- }
-+/*
-+ * Check for dead swap cache pages and clean them, forcing 
-+ * those pages to be freed earlier.
-+ */
-+static inline int clean_dead_swap_page (struct page* page)
-+{
-+	int ret = 0;
-+	if (!TryLockPage (page)) { 
-+		if (PageSwapCache(page) && PageDirty(page) &&
-+				(page_count(page) - !!page->buffers) == 1 &&
-+				swap_count(page) == 1) { 
-+			ClearPageDirty(page);
-+			ClearPageReferenced(page);
-+			page->age = 0;
-+			ret = 1;
-+		}
-+		UnlockPage(page);
-+	}
-+	return ret;
-+}
-+
- 
- /**
-  * page_launder - clean dirty inactive pages, move to inactive_clean list
-@@ -456,6 +477,12 @@
- 			continue;
- 		}
- 
-+		/*
-+		 * Check for dead swap cache pages 
-+		 * before doing any other checks.
-+		 */
-+		clean_dead_swap_page(page);
-+			
- 		/* Page is or was in use?  Move it to the active list. */
- 		if (PageReferenced(page) || page->age > 0 ||
- 				page->zone->free_pages > page->zone->pages_high ||
-@@ -666,6 +693,15 @@
- 			printk("VM: refill_inactive, wrong page on list.\n");
- 			list_del(page_lru);
- 			nr_active_pages--;
-+			continue;
-+		}
-+		
-+		/*
-+		 * Special case for dead swap cache pages.
-+		 */
-+		if (clean_dead_swap_page(page)) {
-+			deactivate_page_nolock(page);
-+			nr_deactivated++;
- 			continue;
- 		}
- 
+		thread1			thread2
+
+	write
+		blocks			 mmap
+
+Also parallel buffer allocations 
+
+Alan
 

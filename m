@@ -1,46 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270651AbTGUTIw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 15:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270653AbTGUTIw
+	id S270659AbTGUTJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 15:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270667AbTGUTJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 15:08:52 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:46344 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S270651AbTGUTIr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 15:08:47 -0400
-Date: Mon, 21 Jul 2003 12:23:43 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: Re: Kernel 2.4 CPU Arch issues]
-Message-ID: <20030721192343.GA5537@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3F1B25C2.8010403@jmu.edu> <1058745605.6299.4.camel@dhcp22.swansea.linux.org.uk> <3F1B32E6.4020107@jmu.edu> <1058769556.6977.2.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 21 Jul 2003 15:09:57 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:63130 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S270659AbTGUTJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 15:09:53 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Mon, 21 Jul 2003 21:24:53 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: marcelo@conectiva.com.br, mason@suse.com, riel@redhat.com,
+       linux-kernel@vger.kernel.org, maillist@jg555.com
+Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
+Message-Id: <20030721212453.4139a217.skraw@ithnet.com>
+In-Reply-To: <20030721162033.GA4677@x30.linuxsymposium.org>
+References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
+	<1058297936.4016.86.camel@tiny.suse.com>
+	<Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
+	<20030718112758.1da7ab03.skraw@ithnet.com>
+	<20030721162033.GA4677@x30.linuxsymposium.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058769556.6977.2.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: This message may cause mental anguish to the close-minded. Read at your own risk.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 07:39:16AM +0100, Alan Cox wrote:
-> On Llu, 2003-07-21 at 01:25, William M. Quarles wrote:
-> > Well, wouldn't changing the gcc -march option and/or adding -mcpu 
-> > options for the various processors in the Makefile make a difference, as 
-> > the patchfile suggests?
+On Mon, 21 Jul 2003 12:20:33 -0400
+Andrea Arcangeli <andrea@suse.de> wrote:
+
+> > I managed to freeze the pre7 box within these few hours. There was no nfs
+> > involved, only tar-to-tape.
+> > I switched back to 2.4.21 to see if it is still stable.
+> > Is there a possibility that the i/o-scheduler has another flaw somewhere
+> > (just like during mount previously) ...
 > 
-> Currently - no. gcc knows a lot more processor names that require individual
-> unique optimisation
+> is it a scsi tape?
 
-no && s/that/than/  
+yes.
 
+> Is the tape always involved?
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+No, I experience both freeze during nfs-only action and freeze during
+tar-to-scsi-tape.
+My feelings are that the freeze does (at least in the nfs case) not happen
+during high load but rather when load seems relatively light. Handwaving one
+could say it looks rather like an I/O sched starvation issue than breakdown
+during high load. Similar to the last issue.
 
-		Remember Cernan and Schmitt
+> there are st.c updates
+> between 2.4.21 to 22pre7. you can try to back them out.
+
+Hm, which?
+
+> [...]
+> You should also provide a SYSRQ+P/T of the hang or we can't debug it at
+> all.
+
+Well, I really tried hard to produce something, but failed so far, if I had
+more time I would try a serial console hoping that it survives long enough to
+show at least _something_.
+The only thing I ever could see was the BUG in page-alloc thing from the
+beginning of this thread.
+
+Regards,
+Stephan
+

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287396AbSALUGd>; Sat, 12 Jan 2002 15:06:33 -0500
+	id <S287404AbSALUSS>; Sat, 12 Jan 2002 15:18:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287388AbSALUGX>; Sat, 12 Jan 2002 15:06:23 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:35346 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S287408AbSALUGL>;
-	Sat, 12 Jan 2002 15:06:11 -0500
-Date: Sat, 12 Jan 2002 21:05:38 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BIO Usage Error or Conflicting Designs
-Message-ID: <20020112210538.F19814@suse.de>
-In-Reply-To: <200201121828.g0CISaM342258@saturn.cs.uml.edu> <Pine.LNX.4.10.10201121040040.13034-200000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S287408AbSALUSL>; Sat, 12 Jan 2002 15:18:11 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:62069 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S287404AbSALURy>; Sat, 12 Jan 2002 15:17:54 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Can't compile 2.5.2-pre11: error in fbdev
+From: Sebastian Krause <krause@sdbk.de>
+Date: Sat, 12 Jan 2002 21:17:50 +0100
+Message-ID: <krause.87lmf3pbm9.fsf@sdbk.de>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10201121040040.13034-200000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12 2002, Andre Hedrick wrote:
-> 
-> Jens,
-> 
-> Below is a single sector read using ACB.
-> If I do not use the code inside "#ifdef USEBIO" and run UP/SMP but no
-> highmem, it runs and works like a charm.  It is also 100% unchanged code
-> from what is in 2.4 patches.  The attached oops is generate under
-> SMP without highmem and running the USEBIO code.
-> 
-> CONFIG_NOHIGHMEM=y
+When I try to compile 2.5.2-pre11, I get the following error:
 
-Is this with the highmem debug stuff enabled? That's the only way I can
-see this BUG triggering, otherwise q->bounce_pfn _cannot_ be smaller
-than the max_pfn.
+ld -m elf_i386  -r -o sounddrivers.o soundcore.o sound.o sb.o sb_lib.o uart401.o
+make[3]: Leaving directory `/usr/src/v2.5/linux/drivers/sound'
+make[2]: Leaving directory `/usr/src/v2.5/linux/drivers/sound'
+make -C video
+make[2]: Entering directory `/usr/src/v2.5/linux/drivers/video'
+make -C riva
+make[3]: Entering directory `/usr/src/v2.5/linux/drivers/video/riva'
+make all_targets
+make[4]: Entering directory `/usr/src/v2.5/linux/drivers/video/riva'
+gcc -D__KERNEL__ -I/usr/src/v2.5/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o fbdev.o fbdev.c
+fbdev.c: In function `riva_set_fbinfo':
+fbdev.c:1814: incompatible types in assignment
+make[4]: *** [fbdev.o] Error 1
+make[4]: Leaving directory `/usr/src/v2.5/linux/drivers/video/riva'
+make[3]: *** [first_rule] Error 2
+make[3]: Leaving directory `/usr/src/v2.5/linux/drivers/video/riva'
+make[2]: *** [_subdir_riva] Error 2
+make[2]: Leaving directory `/usr/src/v2.5/linux/drivers/video'
+make[1]: *** [_subdir_video] Error 2
+make[1]: Leaving directory `/usr/src/v2.5/linux/drivers'
+make: *** [_dir_drivers] Error 2
 
--- 
-Jens Axboe
+I'm using gcc 2.95.4 under Debian Woody. 2.4.17 works without any
+problems. What do I make wrong?
 
+Sebastian

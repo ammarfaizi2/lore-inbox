@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314444AbSDRUaL>; Thu, 18 Apr 2002 16:30:11 -0400
+	id <S314435AbSDRUex>; Thu, 18 Apr 2002 16:34:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314450AbSDRUaK>; Thu, 18 Apr 2002 16:30:10 -0400
-Received: from boink.boinklabs.com ([162.33.131.250]:42765 "EHLO
-	boink.boinklabs.com") by vger.kernel.org with ESMTP
-	id <S314444AbSDRUaK>; Thu, 18 Apr 2002 16:30:10 -0400
-Date: Thu, 18 Apr 2002 16:29:43 -0400
-From: Charlie Wilkinson <cwilkins@boinklabs.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hard lock-ups on RH7.2 install - Via Chipset?
-Message-ID: <20020418162943.A7808@boink.boinklabs.com>
-In-Reply-To: <20020221105756.A9728@boink.boinklabs.com> <E16dw9r-0007R1-00@the-village.bc.nu>
+	id <S314451AbSDRUew>; Thu, 18 Apr 2002 16:34:52 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:17037 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314435AbSDRUew>;
+	Thu, 18 Apr 2002 16:34:52 -0400
+Date: Thu, 18 Apr 2002 22:33:06 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Lang <david.lang@digitalinsight.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Vojtech Pavlik <vojtech@suse.cz>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: eNBD on loopback [was Re: [PATCH] 2.5.8 IDE 36]
+Message-ID: <20020418203304.GB1327@elf.ucw.cz>
+In-Reply-To: <E16xVSi-0000FN-00@the-village.bc.nu> <Pine.LNX.4.33.0204160849540.1244-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-X-Home-Sweet-Home: RedHat 6.0 / Linux 2.2.12 on an AMD K6-225
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 21, 2002 at 04:33:23PM +0000, Alan Cox waxed eloquent:
->.
-> > I can confirm that it still locks up.  :/  What can I do to help?
->.
-> I'm assuming its a hardware issue. It works on non VIA for multiple people
-> it fails on VIA for multiple people
+Hi!
 
-I think I found a solution.  At the very least, I've found something
-that drastically affects reliability of this hardware combo.
+> Btw, while I'm at it - who out there actually uses the new "enbd"
+> (Enhanced NBD)? I have this feeling that that would be the better choice,
+> since unlike plain nbd it should be deadlock-free on localhost (ie you
+> don't need a remote machine).
 
-The combo in question is a KT133 chipset (Phoenix BIOS), Athlon 1.3GHz,
-2 Promise Ultra100 IDE controllers with an IBM 75gb drive on each channel
-(4 drives).  Doing anything that beat on all 4 drives sufficiently
-(such as software RAID5) would hang the system hard.
+How does eNBD manage to do that? It was pretty hard last time I
+checked...
 
-The magic settings that had a drastic impact on reliability were the PCI
-device latency timers.  The early settings I tried just changed how long
-the system would run before it crashed (in some cases making things *much*
-worse).  Then after more of something one could loosely term "research", I
-hit on some settings that seem to have resulted in a fully stable system!
-
-Forthwith and to wit:
-
-setpci -v -d *:* latency_timer=b0
-setpci -v -d 105a:* latency_timer=ff
-
-Yes, that's a baseline setting of 176 for everything, then max settings
-for the two Promise cards.  Rather drastic?  Perhaps, but it works.
-More research and tweaking is probably in order.
-
-I wanted to get the news out -- even if a bit premature -- in hopes that
-it might relieve someone else's grief.  It's really sucked having all
-this hardware for three months and not being able to put it to good use
-(unless crash testing counts...)
-
--cw-
+What if their enbd server is swapped out, and all memory is in dirty
+pages waiting for writeback to eNBD?
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

@@ -1,123 +1,238 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUFUKq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266185AbUFUKrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266187AbUFUKq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 06:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUFUKq3
+	id S266185AbUFUKrg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 06:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUFUKrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 06:46:29 -0400
-Received: from golobica.uni-mb.si ([164.8.100.4]:21150 "EHLO
-	golobica.uni-mb.si") by vger.kernel.org with ESMTP id S266187AbUFUKqW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 06:46:22 -0400
-Message-ID: <40D6BC5F.4070200@utrip.net>
-Date: Mon, 21 Jun 2004 12:45:51 +0200
-From: Milan Gabor <milan.gabor@utrip.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Cordes <peter@cordes.ca>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [discuss] x86-64: double timer interrupts in recent 2.4.x
-References: <20040616192826.GD14043@cordes.ca>
-In-Reply-To: <20040616192826.GD14043@cordes.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 06:47:36 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:29444 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S266185AbUFUKrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 06:47:17 -0400
+Subject: Re: 2.6.7-bk way too fast
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040621014837.6b52fa2e.akpm@osdl.org>
+References: <40D64DF7.5040601@pobox.com>
+	 <20040621014837.6b52fa2e.akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-frWLMeWBysRiM/kBUnV8"
+Date: Mon, 21 Jun 2004 12:47:10 +0200
+Message-Id: <1087814830.1691.9.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I have Suse 9.0 and dual Opteron on MSI K8T Master 2 motherboard.
-I also get  interrupts only on one cpu and my clock is ticking strange, 
-so I have to synchronize it with NTP server frequently.
+--=-frWLMeWBysRiM/kBUnV8
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-This is from my system:
-            CPU0       CPU1
-   0:      30434   16139843    IO-APIC-edge  timer
-   1:        944          0    IO-APIC-edge  keyboard
-   2:          0          0          XT-PIC  cascade
-  14:         30          1    IO-APIC-edge  ide0
-  16:     657371          0   IO-APIC-level  eth0
-  20:     261267          0   IO-APIC-level  libata
-NMI:     694146     873271
-LOC:   16167676   16167576
-ERR:          1
-MIS:          0
+On Mon, 2004-06-21 at 01:48 -0700, Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> >
+> > Something is definitely screwy with the latest -bk.
+> 
+> Would you believe that there is a totally separate bug in the latest -mm
+> which has exactly the same symptoms?
 
-Linux www 2.4.21-226-smp #1 SMP Tue Jun 15 09:14:10 UTC 2004 x86_64 
-x86_64 x86_64 GNU/Linux
+Applying Andrew's two following patches solved my problems with time
+skewing.
+
+Thanks!
+
+--=-frWLMeWBysRiM/kBUnV8
+Content-Disposition: attachment; filename=abs
+Content-Type: text/plain; name=abs; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+>From linux-kernel-owner@vger.kernel.org Mon Jun 21 11:01:42 2004
+Return-Path:
+	<linux-kernel-owner+felipe_alfaro=40linuxmail.org-s266164abufuitj@vger.kernel.org>
+Received: from kerberos.felipe-alfaro.com ([unix socket]) by
+	kerberos.felipe-alfaro.com (Cyrus v2.2.3) with LMTP; Mon, 21 Jun 2004
+	11:01:42 +0200
+X-Sieve: CMU Sieve 2.2
+Received: from localhost (localhost.localdomain [127.0.0.1]) by
+	kerberos.felipe-alfaro.com (Postfix) with ESMTP id E1F3642E32 for
+	<yo@felipe-alfaro.com>; Mon, 21 Jun 2004 11:01:39 +0200 (CEST)
+Delivered-To: felipe_alfaro:linuxmail.org@linuxmail.org
+Received: from pop24.pr.outblaze.com [205.158.62.125] by localhost with
+	POP3 (fetchmail-6.1.0) for yo@felipe-alfaro.com (single-drop); Mon, 21 Jun
+	2004 11:01:39 +0200 (CEST)
+Received: (qmail 5531 invoked by uid 0); 21 Jun 2004 08:51:24 -0000
+X-OB-Received: from unknown (205.158.62.147) by mta45-1.us4.outblaze.com;
+	21 Jun 2004 08:51:24 -0000
+Received: from vger.kernel.org (vger.kernel.org [12.107.209.244]) by
+	spf5-2.us4.outblaze.com (Postfix) with ESMTP id 11D0419A94A for
+	<felipe_alfaro@linuxmail.org>; Mon, 21 Jun 2004 08:51:24 +0000 (GMT)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id
+	S266164AbUFUItj (ORCPT <rfc822;felipe_alfaro@linuxmail.org>); Mon, 21 Jun
+	2004 04:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266165AbUFUItj
+	(ORCPT <rfc822;linux-kernel-outgoing>); Mon, 21 Jun 2004 04:49:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32748 "EHLO mail.osdl.org") by
+	vger.kernel.org with ESMTP id S266164AbUFUIth (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>); Mon, 21 Jun 2004 04:49:37 -0400
+Received: from bix (build.pdx.osdl.net [172.20.1.2]) by mail.osdl.org
+	(8.11.6/8.11.6) with SMTP id i5L8nVr24333; Mon, 21 Jun 2004 01:49:31 -0700
+Date:	Mon, 21 Jun 2004 01:48:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-bk way too fast
+Message-Id: <20040621014837.6b52fa2e.akpm@osdl.org>
+In-Reply-To: <40D64DF7.5040601@pobox.com>
+References: <40D64DF7.5040601@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List:	linux-kernel@vger.kernel.org
+X-Evolution-Source: imap://falfaro;auth=GSSAPI@192.168.0.1/
+Content-Transfer-Encoding: 8bit
+
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> Something is definitely screwy with the latest -bk.
+
+Would you believe that there is a totally separate bug in the latest -mm
+which has exactly the same symptoms?
+
+mark_offset_tsc() does
+
+	if (lost && abs(delay - delay_at_last_interrupt) > (900000/HZ))
+		jiffies_64++;
+
+which is doing abs(unsigned long).
+
+Which works OK if abs() in a function, but I made it a macro.
+
+This fixes it up.
 
 
-I am also running irq_balance and acpi=off set from grub boot menu.
-Without acpi=off system never boots.
+diff -puN include/linux/kernel.h~abs-fix-fix include/linux/kernel.h
+--- 25/include/linux/kernel.h~abs-fix-fix	2004-06-21 01:42:24.283873616 -0700
++++ 25-akpm/include/linux/kernel.h	2004-06-21 01:43:08.150204920 -0700
+@@ -55,7 +55,12 @@ void __might_sleep(char *file, int line)
+ #endif
+ 
+ #define abs(x) ({				\
+-		typeof(x) __x = (x);		\
++		int __x = (x);			\
++		(__x < 0) ? -__x : __x;		\
++	})
++
++#define labs(x) ({				\
++		long __x = (x);			\
+ 		(__x < 0) ? -__x : __x;		\
+ 	})
+ 
+_
 
-Is there any solution, so clock will work OK and interrupts will be on 
-both CPUs?
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-MIlan
+--=-frWLMeWBysRiM/kBUnV8
+Content-Disposition: attachment; filename=mpparse
+Content-Type: text/plain; name=mpparse; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+>From linux-kernel-owner@vger.kernel.org Mon Jun 21 10:00:43 2004
+Return-Path:
+	<linux-kernel-owner+felipe_alfaro=40linuxmail.org-s266143abufuhs6@vger.kernel.org>
+Received: from kerberos.felipe-alfaro.com ([unix socket]) by
+	kerberos.felipe-alfaro.com (Cyrus v2.2.3) with LMTP; Mon, 21 Jun 2004
+	10:00:43 +0200
+X-Sieve: CMU Sieve 2.2
+Received: from localhost (localhost.localdomain [127.0.0.1]) by
+	kerberos.felipe-alfaro.com (Postfix) with ESMTP id 9F99242E42 for
+	<yo@felipe-alfaro.com>; Mon, 21 Jun 2004 10:00:43 +0200 (CEST)
+Delivered-To: felipe_alfaro:linuxmail.org@linuxmail.org
+Received: from pop24.pr.outblaze.com [205.158.62.125] by localhost with
+	POP3 (fetchmail-6.1.0) for yo@felipe-alfaro.com (single-drop); Mon, 21 Jun
+	2004 10:00:43 +0200 (CEST)
+Received: (qmail 12717 invoked by uid 0); 21 Jun 2004 07:22:01 -0000
+X-OB-Received: from unknown (205.158.62.52) by mta45-1.us4.outblaze.com; 21
+	Jun 2004 07:22:01 -0000
+Received: from vger.kernel.org (vger.kernel.org [12.107.209.244]) by
+	spf5-3.us4.outblaze.com (Postfix) with ESMTP id 2F4FE3CF2A for
+	<felipe_alfaro@linuxmail.org>; Mon, 21 Jun 2004 07:17:50 +0000 (GMT)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id
+	S266143AbUFUHS6 (ORCPT <rfc822;felipe_alfaro@linuxmail.org>); Mon, 21 Jun
+	2004 03:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUFUHS6
+	(ORCPT <rfc822;linux-kernel-outgoing>); Mon, 21 Jun 2004 03:18:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5803 "EHLO mail.osdl.org") by
+	vger.kernel.org with ESMTP id S266144AbUFUHRV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>); Mon, 21 Jun 2004 03:17:21 -0400
+Received: from bix (build.pdx.osdl.net [172.20.1.2]) by mail.osdl.org
+	(8.11.6/8.11.6) with SMTP id i5L7H5r10678; Mon, 21 Jun 2004 00:17:05 -0700
+Date:	Mon, 21 Jun 2004 00:16:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: lkml@lpbproduction.scom
+Cc: lkml@lpbproductions.com, cs@tequila.co.jp, torvalds@osdl.org, norberto+linux-kernel@bensa.ath.cx, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: 2.6.7-bk way too fast
+Message-Id: <20040621001612.176bf8e1.akpm@osdl.org>
+In-Reply-To: <200406210018.04883.lkml@lpbproductions.com>
+References: <40D64DF7.5040601@pobox.com>
+	 <Pine.LNX.4.58.0406202313510.11274@ppc970.osdl.org>
+	 <40D688D1.7020308@tequila.co.jp>
+	 <200406210018.04883.lkml@lpbproductions.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List:	linux-kernel@vger.kernel.org
+X-Evolution-Source: imap://falfaro;auth=GSSAPI@192.168.0.1/
+Content-Transfer-Encoding: 8bit
+
+"Matt H." <lkml@lpbproductions.com> wrote:
+>
+> I can confirm simular behavior here. I loaded 2.6.7-mm1 tonite  and  tried  
+> Andrew's  patch ( which didn't work ) and then Linus's  ( which also didn't 
+> work ).
+> 
+
+hm.  This worked for me.  Could you double-check?
 
 
-Peter Cordes wrote:
+diff -puN arch/i386/kernel/mpparse.c~double-clock-speed-fix arch/i386/kernel/mpparse.c
+--- 25/arch/i386/kernel/mpparse.c~double-clock-speed-fix	2004-06-20 23:28:16.655299120 -0700
++++ 25-akpm/arch/i386/kernel/mpparse.c	2004-06-20 23:28:20.468719392 -0700
+@@ -1017,7 +1017,6 @@ void __init mp_config_acpi_legacy_irqs (
+ 
+ 		for (idx = 0; idx < mp_irq_entries; idx++)
+ 			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
+-				(mp_irqs[idx].mpc_dstapic == ioapic) &&
+ 				(mp_irqs[idx].mpc_srcbusirq == i ||
+ 				mp_irqs[idx].mpc_dstirq == i))
+ 					break;
+diff -puN arch/x86_64/kernel/mpparse.c~double-clock-speed-fix arch/x86_64/kernel/mpparse.c
+--- 25/arch/x86_64/kernel/mpparse.c~double-clock-speed-fix	2004-06-20 23:28:16.672296536 -0700
++++ 25-akpm/arch/x86_64/kernel/mpparse.c	2004-06-20 23:28:20.469719240 -0700
+@@ -861,7 +861,6 @@ void __init mp_config_acpi_legacy_irqs (
+ 
+ 		for (idx = 0; idx < mp_irq_entries; idx++)
+ 			if (mp_irqs[idx].mpc_srcbus == MP_ISA_BUS &&
+-				(mp_irqs[idx].mpc_dstapic == ioapic) &&
+ 				(mp_irqs[idx].mpc_srcbusirq == i ||
+ 				mp_irqs[idx].mpc_dstirq == i))
+ 					break;
+_
 
->  Nobody replied to this message on debian-amd64@lists.d.o, or
-> discuss@x86-64.org.  Hopefully I've found the right places to send this this
-> time around.  Actually, Roland Fehrenbacher saw my message in a list archive
-> and mailed me to confirm that he saw the same double-speed clock problem on
-> two different machines, so it's not just Tyan S2880 boards.  He suggested I
-> mail Andi and lkml, so here goes.  (I haven't tested again with anything more
-> recent than 2.4.27-pre2, so if this is fixed, sorry.)
-> 
-> -----
-> 
->  I just noticed that on my Opteron cluster, the nodes that are running 64bit
-> kernels have their clocks ticking at double speed.  This happens with
-> Linux 2.4.26, and 2.4.27-pre2, compiled with gcc 3.3.3 (Debian 20040401) in a
-> Debian pure64 chroot. Linux 2.4.25, compiled on Debian Woody + bi-arch gcc
-> 3.3.2 20030908, does _not_ have the problem.  The config options were pretty
-> much the same for all kernels, and all the kernels are plain vanilla flavour
-> from www.ca.kernel.org.
-> 
->  If I run ntpdate to set the clock, then 10 seconds later it will be 10
-> seconds fast.  Running date(1), the system time advances 20 seconds in 10
-> seconds of real time.  (I haven't done anything weird with adjtimex(8).)
-> time sleep 10 takes 5 seconds, but bash reports its real time as 10 seconds.
-> The timer interrupt counter is increasing at a rate of 200/real second, so
-> it seems like the system is getting timer interrupts twice as fast as it
-> should.  (With 2.4.25, it is 100/sec, same as HZ).
-> 
->  Linux says it is using the PIT and TSC timers.  I have HPET enabled in my
-> Linux config, but I guess Tyan's S2880 mobo doesn't have one.  This is a
-> dual-Opteron 240 machine, BTW.
-> 
->  i386 Linux on the same machines has no problems with timekeeping.  (But I
-> haven't tested versions later than 2.4.25 in legacy mode.)
-> 
->  I spent some time poking around the timer code that increments xtime, but I
-> guess the fact that the timer irqs are coming at double speed indicates that
-> the problem lies elsewhere.  Maybe the code that sets up the timer?
-> 
-> $ uname -a
-> Linux node6.cs.dal.ca 2.4.26 #2 SMP Fri May 14 14:46:42 ADT 2004 x86_64 x86_64 x86_64 GNU/Linux
-> $ cat /proc/interrupts
->            CPU0       CPU1
->   0:    4415908          0    IO-APIC-edge  timer
->   1:          2          0    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->   9:          0          0   IO-APIC-level  acpi
->  14:      17861          1    IO-APIC-edge  ide0
->  19:          0          0   IO-APIC-level  usb-ohci, usb-ohci
->  24:     563942          0   IO-APIC-level  eth0
->  25:     564331          0   IO-APIC-level  eth1
-> NMI:      19097      19097
-> LOC:    2211090    2211095
-> ERR:          0
-> MIS:          0
-> 
->  Only CPU0 is getting the timer interrupt, but at least we know it's not
-> that both CPUs are getting the timer interrupt.  (Both CPUs get 100 LOC:
-> (local APIC) interrupts/sec, but that happens on the non-buggy 2.4.25, too.)
-> 
->  Thanks for any help,
->  
->  I'm not subscribed to the lkml, so please CC me on any followups.
-> 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+--=-frWLMeWBysRiM/kBUnV8--
+

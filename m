@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292251AbSBBIBt>; Sat, 2 Feb 2002 03:01:49 -0500
+	id <S292248AbSBBIGj>; Sat, 2 Feb 2002 03:06:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292252AbSBBIBk>; Sat, 2 Feb 2002 03:01:40 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:61105 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S292251AbSBBIBb>;
-	Sat, 2 Feb 2002 03:01:31 -0500
-Date: Sat, 2 Feb 2002 03:01:29 -0500
+	id <S292247AbSBBIG3>; Sat, 2 Feb 2002 03:06:29 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:63665 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S292248AbSBBIGW>;
+	Sat, 2 Feb 2002 03:06:22 -0500
+Date: Sat, 2 Feb 2002 03:06:20 -0500
 From: Jeff Garzik <garzik@havoc.gtf.org>
-To: David Wagner <daw@mozart.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Continuing /dev/random problems with 2.4
-Message-ID: <20020202030129.B20865@havoc.gtf.org>
-In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <20020201124300.G763@lynx.adilger.int> <3C5AF6B5.5080105@zytor.com> <20020201152829.A2497@havoc.gtf.org> <a3ffls$tsv$1@abraham.cs.berkeley.edu>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Andrew Morton <akpm@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "David S. Miller" <davem@redhat.com>, vandrove@vc.cvut.cz,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org, paulus@samba.org,
+        davidm@hpl.hp.com, ralf@gnu.org
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
+Message-ID: <20020202030620.C20865@havoc.gtf.org>
+In-Reply-To: <20020131.145904.41634460.davem@redhat.com> <E16WQYs-0003Ux-00@the-village.bc.nu> <20020202021242.GA6770@tapu.f00f.org> <3C5B56A4.B762948F@zip.com.au> <20020202073020.GA7014@tapu.f00f.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <a3ffls$tsv$1@abraham.cs.berkeley.edu>; from daw@mozart.cs.berkeley.edu on Sat, Feb 02, 2002 at 01:33:48AM +0000
+In-Reply-To: <20020202073020.GA7014@tapu.f00f.org>; from cw@f00f.org on Fri, Feb 01, 2002 at 11:30:20PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 02, 2002 at 01:33:48AM +0000, David Wagner wrote:
-> Hmm.  I don't quite follow your reasoning.  Does the kernel already
-> perform fitness tests on random data from other drivers?  I don't
-> think so.
-> 
-> The i810 rng seems much less prone to entropy failure than the data
-> currently collected from I/O events.  Why are fitness tests for it more
-> important than for the existing entropy sources that are currently in
-> the kernel?
-> 
-> What am I missing?
+On Fri, Feb 01, 2002 at 11:30:20PM -0800, Chris Wedgwood wrote:
+> A really smart linker (if given enough compiler help) could build a
+> directional graph and still remove this code even if blem called foo.
 
-The "random" data from the RNG might suddenly become non-random.  If you
-are telling the system you are trusting this source, you better make
-sure it truly is random.
+Agreed and this has been my objection to the function-sections patch.
+There is no need for it if you make the toolchain smarter.
 
-RNGs are different than other entropy sources in the kernel because it's
-a black box.
+For example I would love to see a !CONFIG_MODULES build rip out all the
+code that was not actively referenced, such as EXPORT_SYMBOL functions
+which are never called.
 
 	Jeff
 

@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272959AbRIHFsY>; Sat, 8 Sep 2001 01:48:24 -0400
+	id <S272964AbRIHGRt>; Sat, 8 Sep 2001 02:17:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272960AbRIHFsG>; Sat, 8 Sep 2001 01:48:06 -0400
-Received: from mclean.mail.mindspring.net ([207.69.200.57]:36612 "EHLO
-	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S272959AbRIHFrp>; Sat, 8 Sep 2001 01:47:45 -0400
-Subject: Re: Feedback on preemptible kernel patch
-From: Robert Love <rml@tech9.net>
-To: grue@lakesweb.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010908052256.A3DE9597C5@g-box.vf.shawcable.net>
-In-Reply-To: <20010908052256.A3DE9597C5@g-box.vf.shawcable.net>
-Content-Type: text/plain
+	id <S272963AbRIHGRi>; Sat, 8 Sep 2001 02:17:38 -0400
+Received: from juicer47.bigpond.com ([144.135.25.134]:23522 "EHLO
+	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S272965AbRIHGR2>; Sat, 8 Sep 2001 02:17:28 -0400
+Message-ID: <003001c1382d$f483d9d0$010da8c0@uglypunk>
+From: "Kingsley Foreman" <kingsley@wintronics.com.au>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B99A8C2.56E88CE3@isn.net>
+Subject: Re: 2.4.10-pre5
+Date: Sat, 8 Sep 2001 15:44:31 +0930
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.05.07.08 (Preview Release)
-Date: 08 Sep 2001 01:47:43 -0400
-Message-Id: <999928066.903.18.camel@phantasy>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-09-08 at 01:22, grue@lakesweb.com wrote:
-> I am running 2.4.10-pre4 with the rml-preempt patch.
-> built and rebooted this on my workstation yesterday when I saw the patch
-> posted and it's been working great.
+Yes i got this too
+anyone got a fix
 
-_Very_ glad to hear this.
 
-> I'm running it on a dual P3-550 with 256MB ram with CONFIG_SMP and no
-> problems whatsoever although it hasn't been worked 'real' hard yet.
-> (load no higher than 4) ;)
+----- Original Message -----
+From: "Garst R. Reese" <reese@isn.net>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: <torvalds@transmeta.com>
+Sent: Saturday, September 08, 2001 2:42 PM
+Subject: 2.4.10-pre5
 
-I am surprised you have no problems with CONFIG_SMP=y &&
-CONFIG_PREEMPT=y.  Promising.
 
-> Figured I'd give some positive feedback about the patch. If you want,
-> Rob, I could run some benchmarks on this against an unpatched kernel, or
-> if you have some ideas for me to really stress this thing to see if it
-> breaks, let me know.
+> gcc-3.0
+> log should be self explanatory.
+> cc me if rqd.
+> Garst
 
-I would love this.  We could use some SMP datapoints badly.
 
-You can run some of the tests made especially for testing latency, like
-an audio benchmark.  One such test is at
-http://www.gardena.net/benno/linux/latencytest-0.42.tar.gz
+----------------------------------------------------------------------------
+----
 
-Obviously a heavily tasked I/O benchmark is useful, I have used dbench
-in the past (ftp://samba.org/pub/tridge/dbench/) (try it with 16
-processes or so), but I have been told I should use bonnie.
 
-You can time normal things, too. `time make dep clean bzImage' is always
-a favorite :)
-
-Under UP, enabling preemption helps all of this (the recent linuxdevices
-article on preemption shows a 30x decrease in latency.).  Both myself
-and Nigel have run dbench with good results for -16.  See
-http://kpreempt.sourceforge.net/ for some more.
-
-whatever you can... anyhow, thank you for the positive feedback.
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+> make[2]: Entering directory `/usr/src/linux/drivers/block'
+>
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-tri
+graphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpre
+ferred-stack-boundary=2 -march=i586 -DMODULE   -c -o rd.o rd.c
+> rd.c: In function `rd_ioctl':
+> rd.c:262: invalid type argument of `->'
+> rd.c: In function `rd_cleanup':
+> rd.c:375: too few arguments to function `blkdev_put'
+> make[2]: *** [rd.o] Error 1
+> make[2]: Leaving directory `/usr/src/linux/drivers/block'
+> make[1]: *** [_modsubdir_block] Error 2
+> make[1]: Leaving directory `/usr/src/linux/drivers'
+> make: *** [_mod_drivers] Error 2
+> Command exited with non-zero status 2
+> 4.13user 0.37system 0:04.50elapsed 99%CPU (0avgtext+0avgdata
+0maxresident)k
+> 0inputs+0outputs (3849major+4162minor)pagefaults 0swaps
+>
 

@@ -1,50 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264693AbUEMUaC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264687AbUEMUne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264693AbUEMUaC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 16:30:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbUEMU21
+	id S264687AbUEMUne (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 16:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264737AbUEMUnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 16:28:27 -0400
-Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:4613 "EHLO
-	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
-	id S264693AbUEMU14 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 16:27:56 -0400
-Date: Thu, 13 May 2004 17:25:30 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
-To: =?iso-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
-Cc: Eric Valette <eric.valette@free.fr>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-mm2 : suddent lost of keyboard. Everything else OK.
-Message-ID: <20040513202530.GB730@lorien.prodam>
-Mail-Followup-To: =?iso-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>,
-	Eric Valette <eric.valette@free.fr>, akpm@osdl.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040513195250.GA3303@debian>
+	Thu, 13 May 2004 16:43:33 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:39593 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264687AbUEMUn2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 16:43:28 -0400
+Subject: Re: Random file I/O regressions in 2.6
+From: Ram Pai <linuxram@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: alexeyk@mysql.com, nickpiggin@yahoo.com.au, peter@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+In-Reply-To: <20040511141717.719f3ac8.akpm@osdl.org>
+References: <200405022357.59415.alexeyk@mysql.com>
+	 <200405050301.32355.alexeyk@mysql.com>
+	 <20040504162037.6deccda4.akpm@osdl.org>
+	 <200405060204.51591.alexeyk@mysql.com>
+	 <20040506014307.1a97d23b.akpm@osdl.org>
+	 <1084218659.6140.459.camel@localhost.localdomain>
+	 <20040510132151.238b8d0c.akpm@osdl.org>
+	 <1084228767.6140.832.camel@localhost.localdomain>
+	 <20040510160740.5db8c62c.akpm@osdl.org>
+	 <1084308706.25954.28.camel@localhost.localdomain>
+	 <20040511141717.719f3ac8.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1084480888.22208.26.camel@dyn319386.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20040513195250.GA3303@debian>
-User-Agent: Mutt/1.4.2i
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 May 2004 13:41:29 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, May 13, 2004 at 04:52:50PM -0300, Ramón Rey Vicente escreveu:
+On Tue, 2004-05-11 at 14:17, Andrew Morton wrote:
+> Ram Pai <linuxram@us.ibm.com> wrote:
+ 
+I am yet to get my machine fully set up to run a DSS benchmark. But
+thought I will update you on the following comment.
+ 
+> 
+> multiline comment layout:
+> 
+> 		/*
+> 		 * To avoid rounding errors, ensure that 'average' tends
+> 		 * towards the value of ra->serial_cnt.
+> 		 */
+> 
+> (I said "minor").
+> 
+> I can't say that I immediately understand what is the issue here with
+> rounding errors?
 
-| El jue, 13 de may de 2004, a las 09:15:29 +0200, Eric Valette dijo:
-| 
-| > I tested 2.6.6-mm2 this afternoon and twice I totally lost my
-| keyboard. 
-| > Everything else is working, I can rlogin, shutdown the system. It also
-| > happens in console mode and looks like either keyboard irq or more 
-| > likely its post processing just do not process queued characters.
-| 
-| In my system this is happening when I press the "caps lock" key.
+Say the i/o size is 20 pages.
 
- I think you found the problem, here it locks when I press "caps
-lock" too.
+Our algorithm starts by a initial average i/o size of 'ra_pages/2' which
+is mostly say 16.
 
--- 
-Luiz Fernando N. Capitulino
-<http://www.telecentros.sp.gov.br>
+Now every time we take a average, the 'average' progresses as follows
+(16+20)/2=18
+(18+20)/2=19
+(19+20)/2=19
+(19+20)/2=19.....
+and the rounding error makes it never touch 20
+
+However the code can be further optimized to :
+
+ 		/* 
+                 * to avoid rounding errors, ensure that 'average' 
+                 * tends towards the value of ra->serial_cnt.
+                 */
+                if (ra->average < ra->serial_cnt) {
+                        average = ra->average + 1;
+                }
+
+I will send a updated patch with all your comments incorporated as soon
+as I see good benchmark numbers.(probably by tomorrow).
+
+RP
+
+
+
+
+
+
+> 
+> 
+> > +                if(ra->average > ra->serial_cnt) {
+> 
+> space between "if" and "("
+> 
+> > +			ra->next_size = (ra->average > max ?  
+> > +				max : ra->average); 
+> 
+> 	min(max, ra->average) ?
+> 
+> 
+> 
+

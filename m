@@ -1,90 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbUBZXfM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbUBZXek
+	id S261231AbUBZXRb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:17:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUBZWyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:34:40 -0500
-Received: from alt.aurema.com ([203.217.18.57]:5510 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S261285AbUBZXbe (ORCPT
+	Thu, 26 Feb 2004 17:54:47 -0500
+Received: from dp.samba.org ([66.70.73.150]:43215 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261231AbUBZWyJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:31:34 -0500
-Date: Fri, 27 Feb 2004 10:29:55 +1100
-From: Kingsley Cheung <kingsley@aurema.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davidm@hpl.hp.com, peter@chubb.wattle.id.au, linux-kernel@vger.kernel.org,
-       dan@debian.org
-Subject: Re: /proc visibility patch breaks GDB, etc.
-Message-ID: <20040227102955.B21764@aurema.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, davidm@hpl.hp.com,
-	peter@chubb.wattle.id.au, linux-kernel@vger.kernel.org,
-	dan@debian.org
-References: <16445.37304.155370.819929@wombat.chubb.wattle.id.au> <20040225224410.3eb21312.akpm@osdl.org> <16446.19305.637880.99704@napali.hpl.hp.com> <20040226120959.35b284ff.akpm@osdl.org> <20040227085941.A21764@aurema.com> <20040226151917.404af252.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040226151917.404af252.akpm@osdl.org>; from akpm@osdl.org on Thu, Feb 26, 2004 at 03:19:17PM -0800
+	Thu, 26 Feb 2004 17:54:09 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "Steven J. Hill" <sjhill@realitydiluted.com>
+Cc: Jeremy Higdon <jeremy@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.6.2, Partition support for SCSI CDROM... 
+In-reply-to: Your message of "Tue, 24 Feb 2004 17:06:26 -0000."
+             <20040224170626.A25066@infradead.org> 
+Date: Fri, 27 Feb 2004 09:51:54 +1100
+Message-Id: <20040226225419.27FFA2C363@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 03:19:17PM -0800, Andrew Morton wrote:
-> Kingsley Cheung <kingsley@aurema.com> wrote:
-> >
-> > Am I correct to assume though that the corresponding change in
-> > proc_task_lookup() should stay?  The existing behaviour there was that
-> > one could do say,
-> > 
-> > cat /proc/<pid>/task/<tid>/stat, where tid could be any thread and not
-> > a part of the thread group pid.  
+In message <20040224170626.A25066@infradead.org> you write:
+> +MODULE_PARM(partitions, "i");
 > 
-> That sounds especially broken - let's hope that nobody has started using it
-> (but how did you even discover this?  Code audit?)
+> please make this module_param so it works at boot-time aswell.
 
-Completely an accident on my part.  While writing code to traverse
-threads in a group and obtain their data usage, I was comparing what I
-could see from the output with the shell and I just happened to do a
-typo on the tid value... To my suprise it worked.
+But beware: there's another MODULE_PARM in the same module.  You can't
+mix them, you'll need to find and fix that too.
 
-> 
-> How's this?
-
-Looks like proc_pid_lookup() was never changed at all :)
-
-> 
-> diff -puN fs/proc/base.c~proc-thread-visibility-revert fs/proc/base.c
-> --- 25/fs/proc/base.c~proc-thread-visibility-revert	Thu Feb 26 15:17:48 2004
-> +++ 25-akpm/fs/proc/base.c	Thu Feb 26 15:17:48 2004
-> @@ -1582,13 +1582,14 @@ struct dentry *proc_pid_lookup(struct in
->  	read_unlock(&tasklist_lock);
->  	if (!task)
->  		goto out;
-> -	if (!thread_group_leader(task))
-> -		goto out_drop_task;
->  
->  	inode = proc_pid_make_inode(dir->i_sb, task, PROC_TGID_INO);
->  
-> -	if (!inode)
-> -		goto out_drop_task;
-> +
-> +	if (!inode) {
-> +		put_task_struct(task);
-> +		goto out;
-> +	}
->  	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
->  	inode->i_op = &proc_tgid_base_inode_operations;
->  	inode->i_fop = &proc_tgid_base_operations;
-> @@ -1613,8 +1614,6 @@ struct dentry *proc_pid_lookup(struct in
->  		goto out;
->  	}
->  	return NULL;
-> -out_drop_task:
-> -	put_task_struct(task);
->  out:
->  	return ERR_PTR(-ENOENT);
->  }
-> 
-> _
-
--- 
-		Kingsley
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

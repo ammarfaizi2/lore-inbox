@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261987AbSIYOhI>; Wed, 25 Sep 2002 10:37:08 -0400
+	id <S261989AbSIYOid>; Wed, 25 Sep 2002 10:38:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261988AbSIYOhI>; Wed, 25 Sep 2002 10:37:08 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:12972 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S261987AbSIYOhH>;
-	Wed, 25 Sep 2002 10:37:07 -0400
-Message-ID: <1032964936.3d91cb48b1cca@kolivas.net>
-Date: Thu, 26 Sep 2002 00:42:16 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@digeo.com>
-Subject: [BENCHMARK] fork_load module tested for contest
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S261990AbSIYOid>; Wed, 25 Sep 2002 10:38:33 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:24083 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S261989AbSIYOib>;
+	Wed, 25 Sep 2002 10:38:31 -0400
+Date: Wed, 25 Sep 2002 16:44:25 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: alternate event logging proposal
+Message-ID: <20020925144424.GG1102@marowsky-bree.de>
+References: <20020924073051.363D92C1A7@lists.samba.org> <3D90C183.5020806@pobox.com> <3D90C3B0.8090507@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3D90C3B0.8090507@nortelnetworks.com>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2002-09-24T15:57:36,
+   Chris Friesen <cfriesen@nortelnetworks.com> said:
+
+I have cut the Cc/To list severely. Couldn't stand it.
+
+> >"What do you want to log?" is as important to me as "how do you want to 
+> >log it?"  And the answers to the two questions are very much intertwined.
+> Also related is "how can userspace be notified of kernel events?". 
+> There is no way for a userspace app to be notified that, for instance, 
+> an ATM device got a loss of signal.  The drivers print it out, but the 
+> userspace app has no clue.
+
+This is a very generic problem. For example, the Open Clustering Framework
+also has a lots of events going back and forth - node membership changes,
+distributed locks gained or lost, messages pending etc.
+
+The interesting issue here is that the provider or consumer may be implemented
+in kernel or user space depending on the task and the given implementation;
+ie, what we would ideally need is a common coherent infrastructure for event
+distribution on Linux, as I expect this to be a common task for many
+scenarios.
+
+Joe DiMartino of OSDL has developed a very nice Event API (I think) for
+user-space (a fixed version with some updates we agreed upon in the last two
+weeks is pending), and we are currently evaluating how to interface with the
+kernel space.
+
+It would be _very nice_ if someone would pick up the lead wrt to "Event
+Processing", so that work is not duplicated between so many (already
+overloaded) groups.
+
+Just my few euro-cents.
 
 
-I've been trialling a new load module for the contest benchmark
-(http://contest.kolivas.net) which simply forks a process that does nothing,
-waits for it to die, then repeats. Here are the results I have obtained so far:
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-noload:
-Kernel                  Time            CPU             Ratio
-2.4.19                  72.90           99%             1.00
-2.4.19-ck7              71.55           100%            0.98
-2.5.38                  73.86           99%             1.01
-2.5.38-mm2              73.93           99%             1.01
+-- 
+Principal Squirrel
+Research and Development, SuSE Linux AG
+ 
+``Immortality is an adequate definition of high availability for me.''
+	--- Gregory F. Pfister
 
-fork_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  100.05          69%             1.37
-2.4.19-ck7              74.65           95%             1.02
-2.5.38                  77.35           95%             1.06
-2.5.38-mm2              76.99           95%             1.06
-
-ck7 uses O1, preempt, low latency
-Preempt=N for all other kernels
-
-Clearly you can see the 2.5 kernels have a substantial lead over the current
-stable kernel.
-
-This load module is not part of the contest package yet. I could certainly
-change it to fork n processes but I'm not really sure just how many n should be.
-
-Comments?
-
-Con Kolivas
-
-P.S. Results have negligible differences on repeat testing.

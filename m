@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbTIDUhF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 16:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbTIDUhF
+	id S262105AbTIDUse (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 16:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbTIDUse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 16:37:05 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:45534 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262086AbTIDUhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 16:37:00 -0400
-Date: Thu, 4 Sep 2003 16:36:56 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scaling noise
-In-Reply-To: <25950000.1062601832@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0309041634250.14715-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Sep 2003 16:48:34 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:64396 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262105AbTIDUsd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 16:48:33 -0400
+Date: Thu, 4 Sep 2003 21:48:16 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Chris Heath <chris@heathens.co.nz>
+Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org, vojtech@ucw.cz,
+       Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Subject: Re: keyboard - was: Re: Linux 2.6.0-test4
+Message-ID: <20030904204816.GD31590@mail.jlokier.co.uk>
+References: <20030903235647.C765.CHRIS@heathens.co.nz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030903235647.C765.CHRIS@heathens.co.nz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003, Martin J. Bligh wrote:
+Chris Heath wrote:
+> 1. I assume it is OK to defer processing the code e0 until the following
+> byte arrives.  Are there any keyboards out there with e0 in the keyboard
+> ID?  This could break the atkbd probe for such keyboards.  (The
+> alternative would be to pass the repeated key releases through to atkbd,
+> and let that layer remove the duplicates.)
+> 
+> 2. The event that appears between two repeated key releases is always a
+> key release and not a key press.
+> 
+> 3. There will only be at most one key event in between two repeated key 
+> releases.
 
-> The real core use of NUMA is to run one really big app on one machine,
-> where it's hard to split it across a cluster. You just can't build an
-> SMP box big enough for some of these things.
+Why so many complicated assumptions?  Just maintain a bitmap if key
+up/down states (initialised to up), and if you receive a release event
+when the key is in the up state, ignore the event.
 
-That only works when the NUMA factor is low enough that
-you can effectively treat the box as an SMP system.
-
-It doesn't work when you have a NUMA factor of 15 (like
-some unspecified box you are very familiar with) and
-half of your database index is always on the "other half"
-of the two-node NUMA system.
-
-You'll end up with half your accesses being 15 times as
-slow, meaning that your average memory access time is 8
-times as high!  Good way to REDUCE performance, but most
-people won't like that...
-
-If the NUMA factor is low enough that applications can
-treat it like SMP, then the kernel NUMA support won't
-have to be very high either...
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+-- Jamie

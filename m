@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbTENIxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 04:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTENIxQ
+	id S261300AbTENI62 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 04:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbTENI62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 04:53:16 -0400
-Received: from pat.uio.no ([129.240.130.16]:49365 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261158AbTENIxP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 04:53:15 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16066.1778.401988.753875@charged.uio.no>
-Date: Wed, 14 May 2003 11:05:54 +0200
-To: Andrew Morton <akpm@digeo.com>
+	Wed, 14 May 2003 04:58:28 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:53 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261300AbTENI61 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 04:58:27 -0400
+Date: Wed, 14 May 2003 02:12:29 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: trond.myklebust@fys.uio.no
 Cc: tytso@mit.edu, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] htree nfs fix
-In-Reply-To: <20030513174425.2bc49803.akpm@digeo.com>
+Message-Id: <20030514021229.35e74ccd.akpm@digeo.com>
+In-Reply-To: <16066.1778.401988.753875@charged.uio.no>
 References: <16065.35997.348432.385925@charged.uio.no>
 	<20030513174425.2bc49803.akpm@digeo.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: Please contact postmaster@uio.no for more information
-X-UiO-MailScanner: Found to be clean
+	<16066.1778.401988.753875@charged.uio.no>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 May 2003 09:11:10.0319 (UTC) FILETIME=[C28E37F0:01C319F8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andrew Morton <akpm@digeo.com> writes:
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+>
+> >>>>> " " == Andrew Morton <akpm@digeo.com> writes:
+> 
+>      > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+>     >>
+>     >> If you're unhappy with the state of readdir, then fix the
+>     >> VFS/glibc.
+> 
+>      > What should be done?
+> 
+> Either we have to agree that we break legacy 32-bit getdents() and
+> treat all cookies as signed 32/64-bit, or we break getdents64(), and
+> treat all cookies as unsigned. (This applies to both 2.5.x and 2.4.x)
+> 
 
-     > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-    >>
-    >> If you're unhappy with the state of readdir, then fix the
-    >> VFS/glibc.
+Or we do nothing.
 
-     > What should be done?
+What would you recommend?
 
-Either we have to agree that we break legacy 32-bit getdents() and
-treat all cookies as signed 32/64-bit, or we break getdents64(), and
-treat all cookies as unsigned. (This applies to both 2.5.x and 2.4.x)
 
-The former will (IIRC) break setups with those IRIX servers that like
-to use 0xFFFFFFFF as an end-of-readdir marker. It also requires an
-extra patch in order to mangle the otherwise unsigned NFS
-cookies. (This patch has been ready but withheld from the official
-kernel tree pending a decision on this issue for at least 2 years -
-hence my irritation whenever this subject comes up)
-
-The latter will break glibc, which likes to abuse getdents64() and
-simply test for signed 32-bit overflow in place of using the 32-bit
-getdents().
-
-Cheers,
-  Trond

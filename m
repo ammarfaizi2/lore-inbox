@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264920AbSLBUFA>; Mon, 2 Dec 2002 15:05:00 -0500
+	id <S264940AbSLBUJl>; Mon, 2 Dec 2002 15:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264940AbSLBUFA>; Mon, 2 Dec 2002 15:05:00 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:33716 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S264920AbSLBUE7>; Mon, 2 Dec 2002 15:04:59 -0500
-Date: Mon, 02 Dec 2002 12:20:55 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: Till Immanuel Patzschke <tip@inw.de>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-cc: lse-tech@lists.sourceforge.net
-Subject: Re: [Q] Which kernel + special patches ???
-Message-ID: <30790000.1038860455@w-hlinder>
-In-Reply-To: <3DE5D2AD.72686009@inw.de>
-References: <3DE5D2AD.72686009@inw.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264975AbSLBUJl>; Mon, 2 Dec 2002 15:09:41 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:58884 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S264940AbSLBUJf>; Mon, 2 Dec 2002 15:09:35 -0500
+Date: Mon, 2 Dec 2002 23:16:24 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: "'Richard Henderson'" <rth@twiddle.net>,
+       "'Bjoern Brauel'" <bjb@gentoo.org>, linux-kernel@vger.kernel.org
+Subject: Re: kernel build of 2.5.50 fails on Alpha
+Message-ID: <20021202231624.A1571@jurassic.park.msu.ru>
+References: <20021201201122.A31609@twiddle.net> <001001c29a3c$d65eaf80$3640a8c0@boemboem>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <001001c29a3c$d65eaf80$3640a8c0@boemboem>; from folkert@vanheusden.com on Mon, Dec 02, 2002 at 08:55:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Thursday, November 28, 2002 12:24:14 AM -0800 Till Immanuel Patzschke 
-<tip@inw.de> wrote:
+On Mon, Dec 02, 2002 at 08:55:59PM +0100, Folkert van Heusden wrote:
+> I'm afraid that one won't compile:
+> 
+> arch/alpha/kernel/pci.c: In function `pcibios_fixup_final':
+> arch/alpha/kernel/pci.c:128: `ALPHA_ALCOR_MAX_DMA_ISA_ADDRESS' undeclared
 
-> Given an SMP system with many thousand processes and a potentially high
-> network and IO load, what is the best combination of source and patch, to
-> make best use of SMP, keep load low and throughput high?
+My fault. Please try this.
 
-Hello Till,
+Ivan.
 
-	This is a great question to ask on the Linux Scalability
-mailing list: lse-tech@lists.sourceforge.net. We are devoted to
-helping make Linux scale to large systems. Check out our work
-at:
-
-http://lse.sourceforge.net
-http://sourceforge.net/projects/lse
-
->
-> Is it 2.4.x + rmap or aa or O(1) or ac or some combination
-> OR ist it 2.5.x + one (or more) of the above patches ???
-
-In my opinion 2.5 has more new functionality for scalability and
-increased performance than 2.4 does right now. Since 2.5 is the
-development kernel for new features and 2.4 is the stable series.
-Expect to see backports of the best 2.5 features to 2.4 after they
-have proven themselves.
-
-Please let us know the results of running on your very large systems.
-
-Hanna Linder
-IBM Linux Technology Center
-
+--- 2.5.50/include/asm-alpha/dma.h	Wed Nov  6 01:44:33 2002
++++ linux/include/asm-alpha/dma.h	Mon Dec  2 23:07:29 2002
+@@ -112,9 +112,9 @@
+ # elif defined(CONFIG_ALPHA_RUFFIAN)
+ #  define MAX_ISA_DMA_ADDRESS		ALPHA_RUFFIAN_MAX_ISA_DMA_ADDRESS
+ # elif defined(CONFIG_ALPHA_SABLE)
+-#  define MAX_ISA_DMA_ADDRESS		ALPHA_SABLE_MAX_DMA_ISA_ADDRESS
++#  define MAX_ISA_DMA_ADDRESS		ALPHA_SABLE_MAX_ISA_DMA_ADDRESS
+ # elif defined(CONFIG_ALPHA_ALCOR)
+-#  define MAX_ISA_DMA_ADDRESS		ALPHA_ALCOR_MAX_DMA_ISA_ADDRESS
++#  define MAX_ISA_DMA_ADDRESS		ALPHA_ALCOR_MAX_ISA_DMA_ADDRESS
+ # else
+ #  define MAX_ISA_DMA_ADDRESS		ALPHA_MAX_ISA_DMA_ADDRESS
+ # endif

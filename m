@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314548AbSFJMuv>; Mon, 10 Jun 2002 08:50:51 -0400
+	id <S313628AbSFJMkh>; Mon, 10 Jun 2002 08:40:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314485AbSFJMtq>; Mon, 10 Jun 2002 08:49:46 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:32007 "EHLO
+	id <S313743AbSFJMkF>; Mon, 10 Jun 2002 08:40:05 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:19463 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314835AbSFJMtT>; Mon, 10 Jun 2002 08:49:19 -0400
-Message-ID: <3D04928C.4080401@evision-ventures.com>
-Date: Mon, 10 Jun 2002 13:50:36 +0200
+	id <S314082AbSFJMj0>; Mon, 10 Jun 2002 08:39:26 -0400
+Message-ID: <3D04903C.3040101@evision-ventures.com>
+Date: Mon, 10 Jun 2002 13:40:44 +0200
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
 X-Accept-Language: en-us, pl
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.21 kill warnings 19/19
+Subject: [PATCH] 2.5.21 kill warnings 10/19
 In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com>
 Content-Type: multipart/mixed;
- boundary="------------060106070308090309060403"
+ boundary="------------030804050706040208030502"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------060106070308090309060403
+--------------030804050706040208030502
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-and now the final irda offender :-).
+This time for iriap_event.
 
---------------060106070308090309060403
+--------------030804050706040208030502
 Content-Type: text/plain;
- name="warn-2.5.21-19.diff"
+ name="warn-2.5.21-10.diff"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline;
- filename="warn-2.5.21-19.diff"
+ filename="warn-2.5.21-10.diff"
 
-diff -urN linux-2.5.21/net/irda/wrapper.c linux/net/irda/wrapper.c
---- linux-2.5.21/net/irda/wrapper.c	2002-06-09 07:27:50.000000000 +0200
-+++ linux/net/irda/wrapper.c	2002-06-09 20:49:58.000000000 +0200
+diff -urN linux-2.5.21/net/irda/iriap_event.c linux/net/irda/iriap_event.=
+c
+--- linux-2.5.21/net/irda/iriap_event.c	2002-06-09 07:28:42.000000000 +02=
+00
++++ linux/net/irda/iriap_event.c	2002-06-09 20:55:55.000000000 +0200
 @@ -1,5 +1,5 @@
  /*********************************************************************
 - *               =20
 + *
-  * Filename:      wrapper.c
-  * Version:       1.2
-  * Description:   IrDA SIR async wrapper layer
-@@ -10,17 +10,17 @@
+  * Filename:      iriap_event.c
+  * Version:       0.1
+  * Description:   IAP Finite State Machine
+@@ -8,17 +8,17 @@
+  * Created at:    Thu Aug 21 00:02:07 1997
+  * Modified at:   Wed Mar  1 11:28:34 2000
   * Modified by:   Dag Brattli <dagb@cs.uit.no>
-  * Modified at:   Fri May 28  3:11 CST 1999
-  * Modified by:   Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 - *=20
-- *     Copyright (c) 1998-2000 Dag Brattli <dagb@cs.uit.no>,=20
+- *     Copyright (c) 1997, 1999-2000 Dag Brattli <dagb@cs.uit.no>,=20
 + *
-+ *     Copyright (c) 1998-2000 Dag Brattli <dagb@cs.uit.no>,
++ *     Copyright (c) 1997, 1999-2000 Dag Brattli <dagb@cs.uit.no>,
   *     All Rights Reserved.
 - *    =20
 - *     This program is free software; you can redistribute it and/or=20
@@ -71,268 +73,506 @@ r
   *     provided "AS-IS" and at no charge.
   *
   ********************************************************************/
-@@ -39,22 +39,22 @@
+@@ -28,48 +28,48 @@
+ #include <net/irda/iriap.h>
+ #include <net/irda/iriap_event.h>
 =20
- static inline int stuff_byte(__u8 byte, __u8 *buf);
+-static void state_s_disconnect   (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_s_disconnect   (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_s_connecting   (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_s_connecting   (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_s_call         (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_s_call         (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
 =20
--static void state_outside_frame(struct net_device *dev,=20
--				struct net_device_stats *stats,=20
-+static void state_outside_frame(struct net_device *dev,
-+				struct net_device_stats *stats,
- 				iobuff_t *rx_buff, __u8 byte);
--static void state_begin_frame(struct net_device *dev,=20
--			      struct net_device_stats *stats,=20
-+static void state_begin_frame(struct net_device *dev,
-+			      struct net_device_stats *stats,
- 			      iobuff_t *rx_buff, __u8 byte);
--static void state_link_escape(struct net_device *dev,=20
--			      struct net_device_stats *stats,=20
-+static void state_link_escape(struct net_device *dev,
-+			      struct net_device_stats *stats,
- 			      iobuff_t *rx_buff, __u8 byte);
--static void state_inside_frame(struct net_device *dev,=20
--			       struct net_device_stats *stats,=20
-+static void state_inside_frame(struct net_device *dev,
-+			       struct net_device_stats *stats,
- 			       iobuff_t *rx_buff, __u8 byte);
+-static void state_s_make_call    (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_s_make_call    (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_s_calling      (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_s_calling      (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_s_outstanding  (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_s_outstanding  (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_s_replying     (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_s_replying     (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_s_wait_for_call(struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_s_wait_for_call(struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_s_wait_active  (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_s_wait_active  (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
 =20
--static void (*state[])(struct net_device *dev, struct net_device_stats *=
-stats,=20
--		       iobuff_t *rx_buff, __u8 byte) =3D=20
--{=20
-+static void (*state[])(struct net_device *dev, struct net_device_stats *=
-stats,
-+		       iobuff_t *rx_buff, __u8 byte) =3D
-+{
- 	state_outside_frame,
- 	state_begin_frame,
- 	state_link_escape,
-@@ -64,14 +64,14 @@
- /*
-  * Function async_wrap (skb, *tx_buff, buffsize)
-  *
-- *    Makes a new buffer with wrapping and stuffing, should check that=20
-+ *    Makes a new buffer with wrapping and stuffing, should check that
-  *    we don't get tx buffer overflow.
-  */
- int async_wrap_skb(struct sk_buff *skb, __u8 *tx_buff, int buffsize)
+-static void state_r_disconnect   (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_r_disconnect   (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_r_call         (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_r_call         (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_r_waiting      (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_r_waiting      (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_r_wait_active  (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_r_wait_active  (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_r_receiving    (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_r_receiving    (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_r_execute      (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_r_execute      (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+-static void state_r_returning    (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
++static void state_r_returning    (struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
+ 				  struct sk_buff *skb);
+=20
+-static void (*iriap_state[])(struct iriap_cb *self, IRIAP_EVENT event,=20
+-			     struct sk_buff *skb) =3D {=20
++static void (*iriap_state[])(struct iriap_cb *self, IRIAP_EVENT event,
++			     struct sk_buff *skb) =3D {
+ 	/* Client FSM */
+ 	state_s_disconnect,
+ 	state_s_connecting,
+ 	state_s_call,
+-=09
++
+ 	/* S-Call FSM */
+ 	state_s_make_call,
+ 	state_s_calling,
+@@ -90,7 +90,7 @@
+ 	state_r_returning,
+ };
+=20
+-void iriap_next_client_state(struct iriap_cb *self, IRIAP_STATE state)=20
++void iriap_next_client_state(struct iriap_cb *self, IRIAP_STATE state)
  {
- 	struct irda_skb_cb *cb =3D (struct irda_skb_cb *) skb->cb;
- 	int xbofs;
-- 	int i;
-+	int i;
- 	int n;
- 	union {
- 		__u16 value;
-@@ -86,11 +86,11 @@
- 	 *  Send  XBOF's for required min. turn time and for the negotiated
- 	 *  additional XBOFS
- 	 */
--=09
-+
- 	if (cb->magic !=3D LAP_MAGIC) {
--		/*=20
-+		/*
- 		 * This will happen for all frames sent from user-space.
--		 * Nothing to worry about, but we set the default number of=20
-+		 * Nothing to worry about, but we set the default number of
- 		 * BOF's
- 		 */
- 		IRDA_DEBUG(1, __FUNCTION__ "(), wrong magic in skb!\n");
-@@ -116,7 +116,7 @@
- 	for (i=3D0; i < skb->len; i++) {
- 		/*
- 		 *  Check for the possibility of tx buffer overflow. We use
--		 *  bufsize-5 since the maximum number of bytes that can be=20
-+		 *  bufsize-5 since the maximum number of bytes that can be
- 		 *  transmitted after this point is 5.
- 		 */
- 		ASSERT(n < (buffsize-5), return n;);
-@@ -124,7 +124,7 @@
- 		n +=3D stuff_byte(skb->data[i], tx_buff+n);
- 		fcs.value =3D irda_fcs(fcs.value, skb->data[i]);
- 	}
--=09
-+
- 	/* Insert CRC in little endian format (LSB first) */
- 	fcs.value =3D ~fcs.value;
- #ifdef __LITTLE_ENDIAN
-@@ -144,9 +144,9 @@
-  *
-  *    Byte stuff one single byte and put the result in buffer pointed to=
- by
-  *    buf. The buffer must at all times be able to have two bytes insert=
-ed.
-- *=20
-+ *
-  */
--static inline int stuff_byte(__u8 byte, __u8 *buf)=20
-+static inline int stuff_byte(__u8 byte, __u8 *buf)
- {
- 	switch (byte) {
- 	case BOF: /* FALLTHROUGH */
-@@ -174,7 +174,7 @@
- inline void async_bump(struct net_device *dev, struct net_device_stats *=
-stats,
- 		       __u8 *buf, int len)
- {
--       	struct sk_buff *skb;
-+	struct sk_buff *skb;
-=20
- 	skb =3D dev_alloc_skb(len+1);
- 	if (!skb)  {
-@@ -184,10 +184,10 @@
-=20
- 	/* Align IP header to 20 bytes */
- 	skb_reserve(skb, 1);
--=09
-+
-         /* Copy data without CRC */
--	memcpy(skb_put(skb, len-2), buf, len-2);=20
--=09
-+	memcpy(skb_put(skb, len-2), buf, len-2);
-+
- 	/* Feed it to IrLAP layer */
- 	skb->dev =3D dev;
- 	skb->mac.raw  =3D skb->data;
-@@ -196,7 +196,7 @@
- 	netif_rx(skb);
-=20
- 	stats->rx_packets++;
--	stats->rx_bytes +=3D len;=09
-+	stats->rx_bytes +=3D len;
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D IAS_MAGIC, return;);
+@@ -98,7 +98,7 @@
+ 	self->client_state =3D state;
  }
 =20
- /*
-@@ -205,21 +205,21 @@
-  *    Parse and de-stuff frame received from the IrDA-port
-  *
-  */
--inline void async_unwrap_char(struct net_device *dev,=20
--			      struct net_device_stats *stats,=20
-+inline void async_unwrap_char(struct net_device *dev,
-+			      struct net_device_stats *stats,
- 			      iobuff_t *rx_buff, __u8 byte)
+-void iriap_next_call_state(struct iriap_cb *self, IRIAP_STATE state)=20
++void iriap_next_call_state(struct iriap_cb *self, IRIAP_STATE state)
  {
- 	(*state[rx_buff->state])(dev, stats, rx_buff, byte);
- }
--	=20
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D IAS_MAGIC, return;);
+@@ -118,12 +118,12 @@
+ {
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D IAS_MAGIC, return;);
+-=09
 +
- /*
-  * Function state_outside_frame (dev, rx_buff, byte)
-  *
-  *    Not receiving any frame (or just bogus data)
-  *
-  */
--static void state_outside_frame(struct net_device *dev,=20
--				struct net_device_stats *stats,=20
-+static void state_outside_frame(struct net_device *dev,
-+				struct net_device_stats *stats,
- 				iobuff_t *rx_buff, __u8 byte)
- {
- 	switch (byte) {
-@@ -245,8 +245,8 @@
-  *    Begin of frame detected
-  *
-  */
--static void state_begin_frame(struct net_device *dev,=20
--			      struct net_device_stats *stats,=20
-+static void state_begin_frame(struct net_device *dev,
-+			      struct net_device_stats *stats,
- 			      iobuff_t *rx_buff, __u8 byte)
- {
- 	/* Time to initialize receive buffer */
-@@ -283,27 +283,27 @@
-  *    Found link escape character
-  *
-  */
--static void state_link_escape(struct net_device *dev,=20
--			      struct net_device_stats *stats,=20
-+static void state_link_escape(struct net_device *dev,
-+			      struct net_device_stats *stats,
- 			      iobuff_t *rx_buff, __u8 byte)
- {
- 	switch (byte) {
- 	case BOF: /* New frame? */
--		IRDA_DEBUG(1, __FUNCTION__=20
-+		IRDA_DEBUG(1, __FUNCTION__
- 			   "(), Discarding incomplete frame\n");
- 		rx_buff->state =3D BEGIN_FRAME;
- 		irda_device_set_media_busy(dev, TRUE);
- 		break;
- 	case CE:
--		WARNING(__FUNCTION__ "(), state not defined\n");
-+		WARNING("%s: state not defined\n", __FUNCTION__);
- 		break;
- 	case EOF: /* Abort frame */
- 		rx_buff->state =3D OUTSIDE_FRAME;
- 		break;
- 	default:
--		/*=20
--		 *  Stuffed char, complement bit 5 of byte=20
--		 *  following CE, IrLAP p.114=20
-+		/*
-+		 *  Stuffed char, complement bit 5 of byte
-+		 *  following CE, IrLAP p.114
- 		 */
- 		byte ^=3D IRDA_TRANS;
- 		if (rx_buff->len < rx_buff->truesize)  {
-@@ -324,15 +324,15 @@
-  *    Handle bytes received within a frame
-  *
-  */
--static void state_inside_frame(struct net_device *dev,=20
-+static void state_inside_frame(struct net_device *dev,
- 			       struct net_device_stats *stats,
- 			       iobuff_t *rx_buff, __u8 byte)
- {
--	int ret =3D 0;=20
-+	int ret =3D 0;
+ 	self->r_connect_state =3D state;
+ }
 =20
- 	switch (byte) {
- 	case BOF: /* New frame? */
--		IRDA_DEBUG(1, __FUNCTION__=20
-+		IRDA_DEBUG(1, __FUNCTION__
- 			   "(), Discarding incomplete frame\n");
- 		rx_buff->state =3D BEGIN_FRAME;
- 		irda_device_set_media_busy(dev, TRUE);
-@@ -343,7 +343,7 @@
- 	case EOF: /* End of frame */
- 		rx_buff->state =3D OUTSIDE_FRAME;
- 		rx_buff->in_frame =3D FALSE;
+-void iriap_do_client_event(struct iriap_cb *self, IRIAP_EVENT event,=20
+-			   struct sk_buff *skb)=20
++void iriap_do_client_event(struct iriap_cb *self, IRIAP_EVENT event,
++			   struct sk_buff *skb)
+ {
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D IAS_MAGIC, return;);
+@@ -131,30 +131,30 @@
+ 	(*iriap_state[ self->client_state]) (self, event, skb);
+ }
+=20
+-void iriap_do_call_event(struct iriap_cb *self, IRIAP_EVENT event,=20
+-			 struct sk_buff *skb)=20
++void iriap_do_call_event(struct iriap_cb *self, IRIAP_EVENT event,
++			 struct sk_buff *skb)
+ {
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D IAS_MAGIC, return;);
+-=09
++
+ 	(*iriap_state[ self->call_state]) (self, event, skb);
+ }
+=20
+-void iriap_do_server_event(struct iriap_cb *self, IRIAP_EVENT event,=20
+-			   struct sk_buff *skb)=20
++void iriap_do_server_event(struct iriap_cb *self, IRIAP_EVENT event,
++			   struct sk_buff *skb)
+ {
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D IAS_MAGIC, return;);
+-=09
++
+ 	(*iriap_state[ self->server_state]) (self, event, skb);
+ }
+=20
+-void iriap_do_r_connect_event(struct iriap_cb *self, IRIAP_EVENT event, =
+
+-			      struct sk_buff *skb)=20
++void iriap_do_r_connect_event(struct iriap_cb *self, IRIAP_EVENT event,
++			      struct sk_buff *skb)
+ {
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D IAS_MAGIC, return;);
+-=09
++
+ 	(*iriap_state[ self->r_connect_state]) (self, event, skb);
+ }
+=20
+@@ -165,8 +165,8 @@
+  *    S-Disconnect, The device has no LSAP connection to a particular
+  *    remote device.
+  */
+-static void state_s_disconnect(struct iriap_cb *self, IRIAP_EVENT event,=
+=20
+-			       struct sk_buff *skb)=20
++static void state_s_disconnect(struct iriap_cb *self, IRIAP_EVENT event,=
+
++			       struct sk_buff *skb)
+ {
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D IAS_MAGIC, return;);
+@@ -192,8 +192,8 @@
+  *    S-Connecting
+  *
+  */
+-static void state_s_connecting(struct iriap_cb *self, IRIAP_EVENT event,=
+=20
+-			       struct sk_buff *skb)=20
++static void state_s_connecting(struct iriap_cb *self, IRIAP_EVENT event,=
+
++			       struct sk_buff *skb)
+ {
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D IAS_MAGIC, return;);
+@@ -223,10 +223,10 @@
+  *
+  *    S-Call, The device can process calls to a specific remote
+  *    device. Whenever the LSAP connection is disconnected, this state
+- *    catches that event and clears up=20
++ *    catches that event and clears up
+  */
+-static void state_s_call(struct iriap_cb *self, IRIAP_EVENT event,=20
+-			 struct sk_buff *skb)=20
++static void state_s_call(struct iriap_cb *self, IRIAP_EVENT event,
++			 struct sk_buff *skb)
+ {
+ 	ASSERT(self !=3D NULL, return;);
+=20
+@@ -248,8 +248,8 @@
+  *    S-Make-Call
+  *
+  */
+-static void state_s_make_call(struct iriap_cb *self, IRIAP_EVENT event, =
+
+-			      struct sk_buff *skb)=20
++static void state_s_make_call(struct iriap_cb *self, IRIAP_EVENT event,
++			      struct sk_buff *skb)
+ {
+ 	ASSERT(self !=3D NULL, return;);
+=20
+@@ -257,7 +257,7 @@
+ 	case IAP_CALL_REQUEST:
+ 		skb =3D self->skb;
+ 		self->skb =3D NULL;
 -	=09
 +
- 		/* Test FCS and signal success if the frame is good */
- 		if (rx_buff->fcs =3D=3D GOOD_FCS) {
- 			/* Deliver frame */
-@@ -352,24 +352,22 @@
- 			break;
- 		} else {
- 			/* Wrong CRC, discard frame!  */
--			irda_device_set_media_busy(dev, TRUE);=20
-+			irda_device_set_media_busy(dev, TRUE);
-=20
- 			IRDA_DEBUG(1, __FUNCTION__ "(), crc error\n");
- 			stats->rx_errors++;
- 			stats->rx_crc_errors++;
--		}		=09
-+		}
+ 		irlmp_data_request(self->lsap, skb);
+ 		iriap_next_call_state(self, S_OUTSTANDING);
  		break;
- 	default: /* Must be the next byte of the frame */
- 		if (rx_buff->len < rx_buff->truesize)  {
- 			rx_buff->data[rx_buff->len++] =3D byte;
- 			rx_buff->fcs =3D irda_fcs(rx_buff->fcs, byte);
- 		} else {
--			IRDA_DEBUG(1, __FUNCTION__=20
-+			IRDA_DEBUG(1, __FUNCTION__
- 			      "(), Rx buffer overflow, aborting\n");
- 			rx_buff->state =3D OUTSIDE_FRAME;
+@@ -275,8 +275,8 @@
+  *    S-Calling
+  *
+  */
+-static void state_s_calling(struct iriap_cb *self, IRIAP_EVENT event,=20
+-			    struct sk_buff *skb)=20
++static void state_s_calling(struct iriap_cb *self, IRIAP_EVENT event,
++			    struct sk_buff *skb)
+ {
+ 	IRDA_DEBUG(0, __FUNCTION__ "(), Not implemented\n");
+ }
+@@ -287,8 +287,8 @@
+  *    S-Outstanding, The device is waiting for a response to a command
+  *
+  */
+-static void state_s_outstanding(struct iriap_cb *self, IRIAP_EVENT event=
+,=20
+-				struct sk_buff *skb)=20
++static void state_s_outstanding(struct iriap_cb *self, IRIAP_EVENT event=
+,
++				struct sk_buff *skb)
+ {
+ 	ASSERT(self !=3D NULL, return;);
+=20
+@@ -302,7 +302,7 @@
+ 	default:
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), Unknown event %d\n", event);
+ 		break;
+-	}	=09
++	}
+ }
+=20
+ /*
+@@ -310,8 +310,8 @@
+  *
+  *    S-Replying, The device is collecting a multiple part response
+  */
+-static void state_s_replying(struct iriap_cb *self, IRIAP_EVENT event,=20
+-			     struct sk_buff *skb)=20
++static void state_s_replying(struct iriap_cb *self, IRIAP_EVENT event,
++			     struct sk_buff *skb)
+ {
+ 	IRDA_DEBUG(0, __FUNCTION__ "(), Not implemented\n");
+ }
+@@ -322,8 +322,8 @@
+  *    S-Wait-for-Call
+  *
+  */
+-static void state_s_wait_for_call(struct iriap_cb *self, IRIAP_EVENT eve=
+nt,=20
+-				  struct sk_buff *skb)=20
++static void state_s_wait_for_call(struct iriap_cb *self, IRIAP_EVENT eve=
+nt,
++				  struct sk_buff *skb)
+ {
+ 	IRDA_DEBUG(0, __FUNCTION__ "(), Not implemented\n");
+ }
+@@ -335,15 +335,15 @@
+  *    S-Wait-Active
+  *
+  */
+-static void state_s_wait_active(struct iriap_cb *self, IRIAP_EVENT event=
+,=20
+-				struct sk_buff *skb)=20
++static void state_s_wait_active(struct iriap_cb *self, IRIAP_EVENT event=
+,
++				struct sk_buff *skb)
+ {
+ 	IRDA_DEBUG(0, __FUNCTION__ "(), Not implemented\n");
+ }
+=20
+ /***********************************************************************=
+***
+- *=20
+- *  Server FSM=20
++ *
++ *  Server FSM
+  *
+  ***********************************************************************=
+***/
+=20
+@@ -353,27 +353,27 @@
+  *    LM-IAS server is disconnected (not processing any requests!)
+  *
+  */
+-static void state_r_disconnect(struct iriap_cb *self, IRIAP_EVENT event,=
+=20
+-			       struct sk_buff *skb)=20
++static void state_r_disconnect(struct iriap_cb *self, IRIAP_EVENT event,=
+
++			       struct sk_buff *skb)
+ {
+ 	struct sk_buff *tx_skb;
+-=09
++
+ 	switch (event) {
+ 	case IAP_LM_CONNECT_INDICATION:
+ 		tx_skb =3D dev_alloc_skb(64);
+ 		if (tx_skb =3D=3D NULL) {
+-			WARNING(__FUNCTION__ "(), unable to malloc!\n");
++			WARNING("%s: unable to malloc!\n", __FUNCTION__);
+ 			return;
  		}
+=20
+ 		/* Reserve space for MUX_CONTROL and LAP header */
+ 		skb_reserve(tx_skb, LMP_MAX_HEADER);
+-	=09
++
+ 		irlmp_connect_response(self->lsap, tx_skb);
+ 		/*LM_Idle_request(idle); */
+-	=09
++
+ 		iriap_next_server_state(self, R_CALL);
+-	=09
++
+ 		/*
+ 		 *  Jump to R-Connect FSM, we skip R-Waiting since we do not
+ 		 *  care about LM_Idle_request()!
+@@ -382,22 +382,19 @@
+=20
+ 		if (skb)
+ 			dev_kfree_skb(skb);
+-	=09
++
+ 		break;
+ 	default:
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), unknown event %d\n", event);
+ 		break;
+-	}	=09
++	}
+ }
+=20
+ /*
+  * Function state_r_call (self, event, skb)
+- *
+- *   =20
+- *
+  */
+-static void state_r_call(struct iriap_cb *self, IRIAP_EVENT event,=20
+-			 struct sk_buff *skb)=20
++static void state_r_call(struct iriap_cb *self, IRIAP_EVENT event,
++			 struct sk_buff *skb)
+ {
+ 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
+=20
+@@ -405,7 +402,7 @@
+ 	case IAP_LM_DISCONNECT_INDICATION:
+ 		/* Abort call */
+ 		iriap_next_server_state(self, R_DISCONNECT);
+-		iriap_next_r_connect_state(self, R_WAITING);	=09
++		iriap_next_r_connect_state(self, R_WAITING);
+ 		break;
+ 	default:
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), unknown event!\n");
+@@ -413,24 +410,21 @@
+ 	}
+ }
+=20
+-/*=20
+- *  R-Connect FSM=20
+-*/
++/*
++ *  R-Connect FSM
++ */
+=20
+ /*
+  * Function state_r_waiting (self, event, skb)
+- *
+- *   =20
+- *
+  */
+-static void state_r_waiting(struct iriap_cb *self, IRIAP_EVENT event,=20
+-			    struct sk_buff *skb)=20
++static void state_r_waiting(struct iriap_cb *self, IRIAP_EVENT event,
++			    struct sk_buff *skb)
+ {
+ 	IRDA_DEBUG(0, __FUNCTION__ "(), Not implemented\n");
+ }
+=20
+-static void state_r_wait_active(struct iriap_cb *self, IRIAP_EVENT event=
+,=20
+-				struct sk_buff *skb)=20
++static void state_r_wait_active(struct iriap_cb *self, IRIAP_EVENT event=
+,
++				struct sk_buff *skb)
+ {
+ 	IRDA_DEBUG(0, __FUNCTION__ "(), Not implemented\n");
+ }
+@@ -441,15 +435,15 @@
+  *    We are receiving a command
+  *
+  */
+-static void state_r_receiving(struct iriap_cb *self, IRIAP_EVENT event, =
+
+-			      struct sk_buff *skb)=20
++static void state_r_receiving(struct iriap_cb *self, IRIAP_EVENT event,
++			      struct sk_buff *skb)
+ {
+ 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
+=20
+ 	switch (event) {
+ 	case IAP_RECV_F_LST:
+ 		iriap_next_r_connect_state(self, R_EXECUTE);
+-	 	=09
++
+ 		iriap_call_indication(self, skb);
+ 		break;
+ 	default:
+@@ -465,26 +459,26 @@
+  *    The server is processing the request
+  *
+  */
+-static void state_r_execute(struct iriap_cb *self, IRIAP_EVENT event,=20
+-			    struct sk_buff *skb)=20
++static void state_r_execute(struct iriap_cb *self, IRIAP_EVENT event,
++			    struct sk_buff *skb)
+ {
+ 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
+=20
+ 	ASSERT(skb !=3D NULL, return;);
+-=09
++
+ 	if (!self || self->magic !=3D IAS_MAGIC) {
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), bad pointer self\n");
+ 		return;
+-	}=09
++	}
+=20
+ 	switch (event) {
+ 	case IAP_CALL_RESPONSE:
+-		/* =20
++		/*
+ 		 *  Since we don't implement the Waiting state, we return
+ 		 *  to state Receiving instead, DB.
+ 		 */
+ 		iriap_next_r_connect_state(self, R_RECEIVING);
+-	 	=09
++
+ 		irlmp_data_request(self->lsap, skb);
+ 		break;
+ 	default:
+@@ -493,19 +487,15 @@
+ 	}
+ }
+=20
+-static void state_r_returning(struct iriap_cb *self, IRIAP_EVENT event, =
+
+-			      struct sk_buff *skb)=20
++static void state_r_returning(struct iriap_cb *self, IRIAP_EVENT event,
++			      struct sk_buff *skb)
+ {
+ 	IRDA_DEBUG(0, __FUNCTION__ "(), event=3D%d\n", event);
+=20
+ 	switch (event) {
+ 	case IAP_RECV_F_LST:
+-	=09
+ 		break;
+ 	default:
  		break;
  	}
  }
+-
 -
 -
 
---------------060106070308090309060403--
+--------------030804050706040208030502--
 

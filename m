@@ -1,14 +1,15 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291684AbSBTGt7>; Wed, 20 Feb 2002 01:49:59 -0500
+	id <S291678AbSBTGuT>; Wed, 20 Feb 2002 01:50:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291679AbSBTGtk>; Wed, 20 Feb 2002 01:49:40 -0500
-Received: from web12302.mail.yahoo.com ([216.136.173.100]:25005 "HELO
-	web12302.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S291678AbSBTGte>; Wed, 20 Feb 2002 01:49:34 -0500
-Message-ID: <20020220064933.41773.qmail@web12302.mail.yahoo.com>
-Date: Wed, 20 Feb 2002 06:49:33 +0000 (GMT)
+	id <S291679AbSBTGuK>; Wed, 20 Feb 2002 01:50:10 -0500
+Received: from web12307.mail.yahoo.com ([216.136.173.105]:22029 "HELO
+	web12307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S291678AbSBTGtu>; Wed, 20 Feb 2002 01:49:50 -0500
+Message-ID: <20020220064949.77661.qmail@web12307.mail.yahoo.com>
+Date: Wed, 20 Feb 2002 06:49:49 +0000 (GMT)
 From: =?iso-8859-1?q?nimeesh?= <nimeesh24@yahoo.com>
+Subject: mounting problem
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII

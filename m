@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbULGVKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbULGVNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbULGVKx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 16:10:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbULGVKw
+	id S261941AbULGVNP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 16:13:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbULGVNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 16:10:52 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:49643 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261900AbULGVKn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 16:10:43 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Subject: Re: [PATCH] 2.6.10-rc2-mm4 panic on AMD64
-Date: Tue, 7 Dec 2004 22:14:25 +0100
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, ak@suse.de
-References: <1102369238.2826.8.camel@dyn318077bld.beaverton.ibm.com> <200412070022.23645.rjw@sisk.pl> <1102380640.2826.13.camel@dyn318077bld.beaverton.ibm.com>
-In-Reply-To: <1102380640.2826.13.camel@dyn318077bld.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200412072214.25719.rjw@sisk.pl>
+	Tue, 7 Dec 2004 16:13:15 -0500
+Received: from news.cistron.nl ([62.216.30.38]:23213 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S261939AbULGVMb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 16:12:31 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: Rereading disk geometry without reboot
+Date: Tue, 7 Dec 2004 21:12:27 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <cp56br$glj$1@news.cistron.nl>
+References: <20041206202356.GA5866@thumper2> <20041207172812.GD11423@lnx-holt.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1102453947 17075 62.216.29.200 (7 Dec 2004 21:12:27 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 of December 2004 01:50, Badari Pulavarty wrote:
-> Ok !! Here is the patch to fix the problem. It works
-> fine on my 4-way AMD64 box. 
-> 
-> Rafael, can you verify on yours ?
+In article <20041207172812.GD11423@lnx-holt.americas.sgi.com>,
+Robin Holt  <holt@sgi.com> wrote:
+>On Mon, Dec 06, 2004 at 02:23:56PM -0600, Andy wrote:
+>> I am using linux kernel 2.6.9 on a san.  I have file systems on
+>> non-partitioned disks.  I can resize the disk on the SAN, reboot and grow
+>> the XFS file system those disks.  What I would like to avoid rebooting or
+>> even unmounting the filesystem if possible.
+>> 
+>> Is there any way to get the kernel to re-read the disk geometry and change
+>> the information it holds without rebooting or reloading the module (which is
+>> as bad as a reboot in my case)?
+>
+>Does anybody know if lvm can do this?
 
-It works just fine.
+Yes, with LVM and XFS you can grow a logical volume and resize XFS
+to fit without taking the filesytem offline.
 
-Thanks,
-RJW
+Mike.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

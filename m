@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265674AbSJXUzp>; Thu, 24 Oct 2002 16:55:45 -0400
+	id <S265672AbSJXUwG>; Thu, 24 Oct 2002 16:52:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265678AbSJXUzp>; Thu, 24 Oct 2002 16:55:45 -0400
-Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:17083 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S265674AbSJXUzo> convert rfc822-to-8bit; Thu, 24 Oct 2002 16:55:44 -0400
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT] faster athlon/duron memory copy implementation
-Date: Thu, 24 Oct 2002 23:01:53 +0200
-User-Agent: KMail/1.4.7
-Cc: Manfred Spraul <manfred@colorfullife.com>, Robert Love <rml@tech9.net>
-References: <200210242251.26776.Dieter.Nuetzel@hamburg.de>
-In-Reply-To: <200210242251.26776.Dieter.Nuetzel@hamburg.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+	id <S265673AbSJXUwG>; Thu, 24 Oct 2002 16:52:06 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:28234 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265672AbSJXUwF>; Thu, 24 Oct 2002 16:52:05 -0400
+Date: Thu, 24 Oct 2002 22:41:08 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: chrisl@vmware.com
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       chrisl@gnuchina.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: writepage return value check in vmscan.c
+Message-ID: <20021024204108.GU3354@dualathlon.random>
+References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <20021024175718.GA1398@vmware.com> <20021024183327.GS3354@dualathlon.random> <20021024191531.GD1398@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200210242301.53292.Dieter.Nuetzel@hamburg.de>
+In-Reply-To: <20021024191531.GD1398@vmware.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 24. Oktober 2002 22:51 schrieb Dieter Nützel:
-> Rober Love wrote:
-> > The majority of the program is inline assembly so I do not think
-> > compiler is playing a huge role here.
->
-> I think they are...
->
-> > Regardless, the numbers are all pretty uniform in saying the new no
-> > prefetch method is superior so its a mute point.
->
-> But all "your" numbers are slow.
-> Look at mine with the "right" (TM) flags ;-)
->
-> processor       : 0
-> vendor_id       : AuthenticAMD
-> cpu family      : 6
-> model           : 6
-> model name      : AMD Athlon(tm) MP 1900+
+On Thu, Oct 24, 2002 at 12:15:32PM -0700, chrisl@vmware.com wrote:
+> Yes, but even now days it will able to lockup machine by doing that.
+> 
+> Try the test bigmm program I attach to this mail. It will simulate vmware's
+> memory mapping. It can easily lockup the machine even though there is
+> enough disk space.
+> 
+> See the comment at the source for parameter. basically, if you want
+> 3 virtual machine, each have 2 process, using 1 G ram each you can do:
+> 
+> bigmm -i 3 -t 2 -c 1024
+> 
+> I run it on two 4G and 8G smp machine. Both can dead lock if I mmap
+> enough memory.
 
-Ups, lost something during cut'n paste:
+I run the above command on my laptop with 256M of ram and 1G of swap
+with kde running (though idle) and the task was correctly killed:
 
-dual Athlon MP 1900+
-MSI MS-6501 Rev 1.0 (aka K7D Master-L), AMD 760MPX, BIOS 1.5
-2x 512MB DDR266, CL2, unregistered, NO ECC (stinky "normal" stuff ;-)
+Oct 24 22:29:32 x30 kernel: VM: killing process bigmm
 
-Cheers,
-	Dieter
+the machine never deadlocked. Probably it's one of the oom deadlocks
+that I fixed in my 2.4 -aa tree and that the oom killer heuristic in
+mainline cannot figure out. Please try to reproduce with 2.4.20pre11aa1.
+thanks.
+
+> Prepare to reset the machine if you try that, you have been warned :-)
+
+If you're running an oom deadlock prone kernel.
+
+> > to discard those pages and invaliding those posted writes. At least
+> > until a true solution will be available you should change vmware to
+> > preallocate the file, then it will work fine because you will catch the
+> > ENOSPC error during the preallocation. If you work on shmfs that will be
+> > very quick indeed.
+> 
+> Yes, shmfs seems to be the only choice so far.
+
+Agreed.
+
+Andrea

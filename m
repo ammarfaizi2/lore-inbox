@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbUCWFZv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 00:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUCWFZv
+	id S262000AbUCWFXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 00:23:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUCWFXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 00:25:51 -0500
-Received: from [202.125.86.130] ([202.125.86.130]:40937 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S262035AbUCWFZq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 00:25:46 -0500
-Content-class: urn:content-classes:message
+	Tue, 23 Mar 2004 00:23:09 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:64949 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262000AbUCWFXG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 00:23:06 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Tom Rini <trini@kernel.crashing.org>
+Subject: Re: [Kgdb-bugreport] Move eth into 'lite' series?
+Date: Tue, 23 Mar 2004 10:32:54 +0530
+User-Agent: KMail/1.5
+Cc: kgdb-bugreport@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040319210322.GA13141@smtp.west.cox.net> <200403201242.21578.amitkale@emsyssoft.com> <20040322144112.GA27175@smtp.west.cox.net>
+In-Reply-To: <20040322144112.GA27175@smtp.west.cox.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: Interrupts problem in 2.4.18-3smp kernel.
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Tue, 23 Mar 2004 10:51:01 +0530
-Message-ID: <1118873EE1755348B4812EA29C55A972176A2C@esnmail.esntechnologies.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Interrupts problem in 2.4.18-3smp kernel.
-thread-index: AcQQlqFX1FwFscaHRza1g4orfT///g==
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403231032.55545.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 22 Mar 2004 8:11 pm, Tom Rini wrote:
+> On Sat, Mar 20, 2004 at 12:42:21PM +0530, Amit S. Kale wrote:
+> > On Saturday 20 Mar 2004 2:33 am, Tom Rini wrote:
+> > > I was thinking, now that netpoll is in 2.6.5-rc1, should we move the
+> > > kgdboe driver into the -lite series?  I'd like to say Yes, with a quick
+> > > check over the include list.
+> >
+> > Let's wait till current session to push kgdb into mainline kernel is
+> > over. We need not push kgdboe into lite series, we can push it into
+> > mainline kernel itself :-)
+> >
+> > I was supposed to submit second version of lite patches monday this week,
+> > but was preempted by some other work. I'll post them on coming monday now
+>
+> Actually, I was thinking just the opposite.  Based on Linus' comments
+> (see http://www.ussg.iu.edu/hypermail/linux/kernel/0211.1/1861.html and
+> maybe http://www.ussg.iu.edu/hypermail/linux/kernel/0211.2/0089.html
+> too) we can always try and get the 8250 serial backend in once kgdb +
+> enet driver is already in.
 
-Hi,
+That's true. kgdboe wasn't quite ready last month, otherwise we could have 
+gone that way. Let's now change our direction right now. Let's push whatever 
+we have. If it doesn't go in, we'll switch to eth driver instead.
 
-We developed a device driver for 7x20 FM card under Linux 2.4.18-3 non
-SMP kernel. It was working fine under that kernel version. We have both
-SMP and non SMP kernels in one single CPU system. When we boot from non
-SMP kernel, the driver was working fine without any error messages. When
-we insert SD memory card into it, it is showing all the invoked function
-names. When we remove SD memory card then also it is showing all the
-functions names that are invoked. 
-
-But when we boot through 2.4.18-3smp kernel then there was no interrupts
-at all. Interrupts are not generating at all. What is the mistake in the
-code? Where we have to change the code? Why interrupts are not
-generating when we boot from 2.4.18-3smp kernel. Please anybody help in
-this regard. And interrupt signal is always glowing only. But when we
-boot from 2.4.18-3 non SMP kernel it was not showing any thing - not
-glowing continuously.
-
-Thanks in advance.
-
-Srinivas G
+-Amit
 

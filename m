@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRA3Qwe>; Tue, 30 Jan 2001 11:52:34 -0500
+	id <S129441AbRA3QyY>; Tue, 30 Jan 2001 11:54:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129632AbRA3QwZ>; Tue, 30 Jan 2001 11:52:25 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:59385 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S129051AbRA3QwE>; Tue, 30 Jan 2001 11:52:04 -0500
-Date: Tue, 30 Jan 2001 10:52:02 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
+	id <S129632AbRA3QyO>; Tue, 30 Jan 2001 11:54:14 -0500
+Received: from npt12056206.cts.com ([216.120.56.206]:33548 "HELO
+	forty.spoke.nols.com") by vger.kernel.org with SMTP
+	id <S129441AbRA3QyB>; Tue, 30 Jan 2001 11:54:01 -0500
+Date: Tue, 30 Jan 2001 08:53:59 -0800
+From: David Rees <dbr@spoke.nols.com>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <7085.980853087@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> 
-	<Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <Mdiqd.A.qe.yEvd6@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Subject: Re: klogd is acting strange with 2.4
+Message-ID: <20010130085359.A817@spoke.nols.com>
+Mail-Followup-To: David Rees <dbr@spoke.nols.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010130093035.A31970@dragon.universe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010130093035.A31970@dragon.universe>; from newsreader@mediaone.net on Tue, Jan 30, 2001 at 09:30:36AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from David Woodhouse <dwmw2@infradead.org> on Tue, 30 Jan
-2001 11:11:27 +0000
-
-
-> Note that this is _precisely_ the reason I'm advocating the removal of 
-> sleep_on(). When I was young and stupid (ok, "younger and stupider") I used 
-> sleep_on() in my code. I pondered briefly the fact that I really couldn't 
-> convince myself that it was safe, but because it was used in so many other 
-> places, I decided I had to be missing something, and used it anyway.
+On Tue, Jan 30, 2001 at 09:30:36AM -0500, newsreader@mediaone.net wrote:
+> celeron 433 intel i810.  320MB ram.
 > 
-> I was wrong. I was copying broken code. And now I want to remove all those 
-> bad examples - for the benefit of those who are looking at them now and are 
-> tempted to copy them.
+> Before 2.2.18.  Now I've tested with both
+> 2.4.1-pre12 and 2.4.1.  2.4 kernel klogd is
+> always using 99% cpu.  What gives?
+> 
+> I've three other less powerful boxes running
+> 2.4.x kernels and none of them behave
+> like this.  This server isn't taking any
+> more hits than it usually does.
+> 
+> What more information I should post here?
+> I've two apache servers, pgsql and sendmail
+> and some other processes running on this
+> server.
 
-What is wrong with sleep_on()?
+Can you try 2.4.0?  Are you using the 3c59x ethernet driver?  I've got the 
+same problem on one of my machines, (see message with subject "2.4.1-pre10 
+-> 2.4.1 klogd at 100% CPU ; 2.4.0 OK") and the last thing that is logged 
+is a message from the 3c59x ethernet driver.
 
+I'm doing a bit more digging to see what changed in the driver between 
+revisions.  /proc/pci lists my 3c905B as this:
+3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 48)
 
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
-
+-Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

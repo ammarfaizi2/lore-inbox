@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265102AbTL2UR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 15:17:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbTL2URI
+	id S264942AbTL2UQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 15:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbTL2UQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 15:17:08 -0500
-Received: from [62.116.46.196] ([62.116.46.196]:57604 "EHLO it-loops.com")
-	by vger.kernel.org with ESMTP id S264126AbTL2UPE (ORCPT
+	Mon, 29 Dec 2003 15:16:59 -0500
+Received: from fw.osdl.org ([65.172.181.6]:446 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264942AbTL2UPh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 15:15:04 -0500
-Date: Mon, 29 Dec 2003 21:14:59 +0100
-From: Michael Guntsche <mike@it-loops.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Network problems with b44 in 2.6.0
-Message-Id: <20031229211459.384b2de9.mike@it-loops.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Dec 2003 15:15:37 -0500
+Date: Mon, 29 Dec 2003 12:15:16 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Daniel Phillips <phillips@arcor.de>
+cc: William Lee Irwin III <wli@holomorphy.com>, mfedyk@matchmail.com,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Anton Ertl <anton@mips.complang.tuwien.ac.at>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Subpages (was: Page Colouring)
+In-Reply-To: <200312291501.32541.phillips@arcor.de>
+Message-ID: <Pine.LNX.4.58.0312291214030.2113@home.osdl.org>
+References: <179fV-1iK-23@gated-at.bofh.it> <20031229025507.GT22443@holomorphy.com>
+ <Pine.LNX.4.58.0312282000390.11299@home.osdl.org> <200312291501.32541.phillips@arcor.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-> As soon as I started the process, the following error messages started
-> appearing in my syslog.
-
->	b44: eth0: Link is down.
->	b44: eth0: Link is up at 100 Mbps, full duplex.
->	b44: eth0: Flow control is on for TX and on for RX.
->	b44: eth0: Link is down.
-
-I played around with various settings on my notebook and noticed that
-setting the link to 10BaseT-HD gave me a troughput of ~900KB/s.
-No error messages in syslog, but ifconfig is still showing lots of errors
-and collisions.
-
-eth0      Link encap:Ethernet  HWaddr 00:C0:9F:23:FA:FC  
-          inet addr:192.168.0.147  Bcast:192.168.0.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:89558 errors:21031 dropped:0 overruns:0 frame:21031
-          TX packets:65585 errors:0 dropped:0 overruns:0 carrier:26
-          collisions:22559 txqueuelen:1000 
-          RX bytes:99059807 (94.4 MiB)  TX bytes:3306603 (3.1 MiB)
-          Interrupt:5 
-
-I got this after copying 20 MB from the gateway to the notebook.
 
 
-/Michael
+On Mon, 29 Dec 2003, Daniel Phillips wrote:
+> 
+> I took a stab at implementing subpages some time ago in 2.4 and got it mostly 
+> working but not quite bootable.  I did find out roughly how invasive the 
+> patch is, which is: not very, unless I've overlooked something major.  I'll 
+> get busy on a 2.6 prototype, and of course I'll listen attentively for 
+> reasons why this plan won't work.
+
+Ah, ok. I thought it was further along than that.
+
+If so, let's consider that possibility a more long-range plan - it is 
+independent of just making PAGE_CACHE_SIZE be bigger.
+
+		Linus

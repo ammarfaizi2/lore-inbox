@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268147AbTBSI5n>; Wed, 19 Feb 2003 03:57:43 -0500
+	id <S268159AbTBSJ3J>; Wed, 19 Feb 2003 04:29:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268159AbTBSI5n>; Wed, 19 Feb 2003 03:57:43 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:12296 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S268147AbTBSI5l>;
-	Wed, 19 Feb 2003 03:57:41 -0500
-Date: Wed, 19 Feb 2003 10:07:43 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] morse code panics for 2.5.62
-Message-ID: <20030219090743.GK351@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030218135038.GA1048@louise.pinerecords.com> <20030218141757.GV351@lug-owl.de> <b2tl9c$48c$1@main.gmane.org> <20030218171247.GA351@lug-owl.de> <20030218224946.GB1048@louise.pinerecords.com>
+	id <S268161AbTBSJ3I>; Wed, 19 Feb 2003 04:29:08 -0500
+Received: from AMarseille-201-1-1-193.abo.wanadoo.fr ([193.252.38.193]:19751
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S268159AbTBSJ3I>; Wed, 19 Feb 2003 04:29:08 -0500
+Subject: Re: PATCH: clean up the IDE iops, add ones for a dead iface
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1045619583.25795.11.camel@irongate.swansea.linux.org.uk>
+References: <E18lC5R-00067P-00@the-village.bc.nu>
+	 <20030218230910.A27653@flint.arm.linux.org.uk>
+	 <1045619583.25795.11.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045647562.12533.1.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LHVJ3yhMbk/VQvI5"
-Content-Disposition: inline
-In-Reply-To: <20030218224946.GB1048@louise.pinerecords.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 19 Feb 2003 10:39:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-02-19 at 02:53, Alan Cox wrote:
+> On Tue, 2003-02-18 at 23:09, Russell King wrote:
+> > On Tue, Feb 18, 2003 at 06:03:21PM +0000, Alan Cox wrote:
+> > > +static u8 ide_unplugged_inb (unsigned long port)
+> > > +{
+> > > +	return 0xFF;
+> > > +}
+> > 
+> > Shouldn't this return 0x7f, ie bit 7 clear, as if we have an interface
+> > without drive attached?
+> 
+> 0xFF is what most hardware returns for an unclaimed pci address. I'd rather
+> make sure it also works when we don't get the event, or the device 
+> summarily explodes than fake up something to make it look good. If
+> 0xff doesnt work we have a bug anyway, lets find them.
 
---LHVJ3yhMbk/VQvI5
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hrm... I tend to agree with Russell here... 0x7f is the "safe" value
+for IDE. IDE controllers with nothing wired shall have a pull down
+on D7. The reason is simple: busy loops in the IDE code waiting for
+BSY to go down.
 
-On Tue, 2003-02-18 23:49:46 +0100, Tomas Szepe <szepe@pinerecords.com>
-wrote in message <20030218224946.GB1048@louise.pinerecords.com>:
-> > [jbglaw@lug-owl.de]
-> >=20
-> > Then, you can have
-> > const char morses[] =3D {
-> > 	MORSE2('A', '.', '-'),
-> > 	MORSE4('B', '-', '.', '.', '.'),
-> > 	MORSE4('C', '-', '.', '-', '.'),
-> > 	MORSE3('D', '-', '.', '.'),
-> > 	MORSE1('E', '.'),
-> > 	MORSE4('F', '.', '.', '-', '.')
-> > 	...
-> > };
-> >=20
-> > That's going to take exactly the same memory in the compiled vmlinux
-> > image, *and* it's really readable:-) Of course, gcc will optimize any
-> > added "bloat" away...
->=20
-> Looks good to me, can you send an updated patch?
+Now, if your point is to keep BSY up and have wait loops timeout,
+then 0xff may actually make some sense ;)
 
-Okay, I'll first have to import your original patch:-) and have a real
-look at it (how does it exactly store the data...). Then, I'll do an
-undated patch. Please give me an hour ot two...
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet!
-   Shell Script APT-Proxy: http://lug-owl.de/~jbglaw/software/ap2/
-
---LHVJ3yhMbk/VQvI5
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+U0lfHb1edYOZ4bsRAhtBAJ9Y5yxkSGgkpC/kO+vw5FaNuDpoqwCfdW3F
-TrSGP4F2NXm/X7cJhTUMFHg=
-=cP+m
------END PGP SIGNATURE-----
-
---LHVJ3yhMbk/VQvI5--
+Ben.

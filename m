@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265561AbTF3RgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 13:36:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265564AbTF3RgJ
+	id S265578AbTF3RlP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 13:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265564AbTF3RlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 13:36:09 -0400
-Received: from h80ad2713.async.vt.edu ([128.173.39.19]:46992 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265561AbTF3RgH (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 13:36:07 -0400
-Message-Id: <200306301750.h5UHo8NS029671@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andre Hedrick <andre@linux-ide.org>
+	Mon, 30 Jun 2003 13:41:15 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36751
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S265578AbTF3RlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 13:41:15 -0400
+Subject: Re: PROBLEM: 2.4.21 ICH5 SATA related hang during boot
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Mock <jeff@mock.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dell vs. GPL 
-In-Reply-To: Your message of "Mon, 30 Jun 2003 09:54:33 PDT."
-             <Pine.LNX.4.10.10306300946190.5840-100000@master.linux-ide.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.10.10306300946190.5840-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1957552480P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+In-Reply-To: <5.1.0.14.2.20030629135412.03c1d940@mail.mock.com>
+References: <5.1.0.14.2.20030629135412.03c1d940@mail.mock.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Mon, 30 Jun 2003 13:50:08 -0400
+Organization: 
+Message-Id: <1056995562.17567.16.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Jun 2003 18:52:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1957552480P
-Content-Type: text/plain; charset=us-ascii
+On Sul, 2003-06-29 at 23:37, Jeff Mock wrote:
+> I'm running a 2.4.21 kernel on a redhat 9.0 system.
+> 
+> I'm having a problem when using serial ATA drives on an Intel 875P/ICH5
+> motherboard where the kernel will hang at approximately the same place
+> in the boot process about 25% of the time.
 
-On Mon, 30 Jun 2003 09:54:33 PDT, Andre Hedrick said:
+Set the bios setting to legacy mode
 
-> Treat the GPL license as the Kernel, you trust what you have tested.
-> I have ZERO trust in GPL, given all the violations I personally know about
-> and have seen.  All of these are still blocked from revealing until NDA's
-> expire.
 
-I find it difficult to believe that the terms of the NDA actually prohibit you
-from revealing illegal activity.
-
---==_Exmh_-1957552480P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/AHhQcC3lWbTT17ARAip1AJoD1mETl+wBSbus2EECMTP/WW5f5wCgrapX
-WPrZ/Cwa4Lgf+5USIUvP4S8=
-=Za88
------END PGP SIGNATURE-----
-
---==_Exmh_-1957552480P--

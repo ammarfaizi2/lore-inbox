@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281215AbRKPHSS>; Fri, 16 Nov 2001 02:18:18 -0500
+	id <S281222AbRKPHdC>; Fri, 16 Nov 2001 02:33:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281216AbRKPHSI>; Fri, 16 Nov 2001 02:18:08 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:22291 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S281215AbRKPHSD>; Fri, 16 Nov 2001 02:18:03 -0500
-Message-ID: <3BF4BD81.C3E4A4DC@zip.com.au>
-Date: Thu, 15 Nov 2001 23:17:21 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S281224AbRKPHcw>; Fri, 16 Nov 2001 02:32:52 -0500
+Received: from goliat.otpbank.hu ([195.228.126.225]:11270 "HELO
+	goliat.otptelebank.hu") by vger.kernel.org with SMTP
+	id <S281222AbRKPHcn>; Fri, 16 Nov 2001 02:32:43 -0500
+Message-ID: <3BF4C19A.10E7844F@otpbank.hu>
+Date: Fri, 16 Nov 2001 08:34:50 +0100
+From: Nagy Tibor <nagyt@otpbank.hu>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: hu, en
 MIME-Version: 1.0
-To: pmhahn@titan.lahn.de
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: [OOPS] net/8139too
-In-Reply-To: <Pine.LNX.4.33.0111160721120.6043-100000@titan.lahn.de>
+To: linux-kernel@vger.kernel.org
+CC: jesper@home.linuxpusher.dk, jalvo@mbay.net
+Subject: 2.2.14 hangs on Dell PowerEdge 6300
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philipp Matthias Hahn wrote:
-> 
-> Hello LKML!
-> 
-> Since linux-2.4.15-pre[14]+kdb+freeswan I get an oops when stopping my
-> 8139too network:
-> 
-> # ifdown eth0
-> eth0: unable to signal thread
+I am sorry, this the same message as yesterday, but I misstyped the
+version. It is about 2.4..., of cource.
 
-Oh gawd. What now?
+Hi,
 
-Could you please tell us what the return value is from kill_proc()?
+we were satisfied with linux kernel version 2.4.9. Our linux server is
+unusable with kernel version 2.4.10 and higher, also with 2.4.14
+declared to be stable.
 
+We are working on Dell PowerEdge 6300 (4 Pentium Xeon/550Mhz, 4GB RAM).
+Any kernel from 2.4.10 to 2.4.14 brings our machine to a hanging state.
+Nothing can be determined, I guess, something is wrong with memory
+management. Unfortunately there is no more information about the
+problem.
 
---- linux-2.4.15-pre4/drivers/net/8139too.c	Mon Nov 12 11:16:11 2001
-+++ linux-akpm/drivers/net/8139too.c	Thu Nov 15 23:14:14 2001
-@@ -2064,7 +2064,7 @@ static int rtl8139_close (struct net_dev
- 		wmb();
- 		ret = kill_proc (tp->thr_pid, SIGTERM, 1);
- 		if (ret) {
--			printk (KERN_ERR "%s: unable to signal thread\n", dev->name);
-+			printk (KERN_ERR "%s: unable to signal thread: %d\n", dev->name, ret);
- 			return ret;
- 		}
- 		wait_for_completion (&tp->thr_exited);
-
--
+------------------------------------------------------------------------
+Tibor Nagy
+National Savings and Commercial Bank Ltd (OTP Bank)
+H-1051 Budapest Nador u. 16.
+Tel: 00 36 1 374 6990	Fax: 00 36 1 374 6981	E-mail: nagyt@otpbank.hu
+------------------------------------------------------------------------

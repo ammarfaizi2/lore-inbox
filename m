@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVBBUYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVBBUTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbVBBUYY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 15:24:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVBBUTv
+	id S262466AbVBBUTI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 15:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVBBULT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 15:19:51 -0500
-Received: from gw.c9x.org ([213.41.131.17]:12716 "HELO
-	nerim.mx.42-networks.com") by vger.kernel.org with SMTP
-	id S262614AbVBBUJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 15:09:11 -0500
-Date: Wed, 2 Feb 2005 21:08:40 +0059
-From: "Frank Denis \(Jedi/Sector One\)" <lkml@pureftpd.org>
-To: linux-kernel@vger.kernel.org
-Subject: -jedi kernel patches
-Message-ID: <20050202200902.GA4860@c9x.org>
+	Wed, 2 Feb 2005 15:11:19 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:30852 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262309AbVBBTqi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 14:46:38 -0500
+Subject: [PATCH 1/4] Fix MUX mode disabling.
+In-Reply-To: <20050202194622.GA3794@ucw.cz>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Wed, 2 Feb 2005 20:46:53 +0100
+Message-Id: <11073736133233@twilight.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/for-linus
+
+===================================================================
+
+ChangeSet@1.1977.1.1, 2005-01-28 21:11:52+01:00, vojtech@silver.ucw.cz
+  input: Fix MUX mode disabling.
   
-  This is the unique announcement that will be sent to LKML.
-  
-  I'm maintaining a small patch against the -mm tree that might be useful to
-other people.
+  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
 
-  Almost every time Andrew releases a new -mm version, it brings nice bug
-fixes, and it also often introduces new exciting features.
 
-  Unfortunately, there are often nasty buglets. Like typos that prevent the
-kernel from compiling, like nasty bugs that get fixed 5 minutes later with a
-2-lines patch, etc.
+ i8042.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-  These buglets are fixed in the next -mm release, but since the next
-release introduces new experimental stuff, it also introduces new buglets,
-etc.
+===================================================================
 
-  The -jedi patches contains the last-minute fixes against the -mm tree.
-There's no new feature here, nor new code to test. It only contains
-important bug fixes that are discussed on LKML just after a new -mm release.
-If you read LKML and if you're testing -mm kernels, you probably already
-applied the same patches. The -jedi patch is just here to make things easier
-to apply.
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	2005-02-02 20:29:55 +01:00
++++ b/drivers/input/serio/i8042.c	2005-02-02 20:29:55 +01:00
+@@ -482,7 +482,7 @@
+ 	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0x0f)
+ 		return -1;
+ 	param = mode ? 0x56 : 0xf6;
+-	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0xa9)
++	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != (mode ? 0xa9 : 0x09))
+ 		return -1;
+ 	param = mode ? 0xa4 : 0xa5;
+ 	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param == (mode ? 0x5b : 0x5a))
+@@ -787,7 +787,8 @@
+  * Disable MUX mode if present.
+  */
+ 
+-	i8042_set_mux_mode(0, NULL);
++	if (i8042_mux_present)
++		i8042_set_mux_mode(0, NULL);
+ 
+ /*
+  * Restore the original control register setting.
 
-  In addition, it also includes the latest device-mapper updates and the
-requirements for EVMS.
-
-  The patches can be downloaded from:
-  
-  ftp://ftp.c9x.org/pub/linux-kernel/
-  
-  Mirrors are welcome.
-  
-      -Frank.
-      

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267793AbUHJWne@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267794AbUHJWnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267793AbUHJWne (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 18:43:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267795AbUHJWne
+	id S267794AbUHJWnY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 18:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267795AbUHJWnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 18:43:34 -0400
-Received: from holomorphy.com ([207.189.100.168]:65004 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267793AbUHJWnO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 18:43:14 -0400
-Date: Tue, 10 Aug 2004 15:43:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Picco <Robert.Picco@hp.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc4-mm1
-Message-ID: <20040810224308.GC11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Picco <Robert.Picco@hp.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040810002110.4fd8de07.akpm@osdl.org> <200408100937.47451.jbarnes@engr.sgi.com> <20040810212033.GY11200@holomorphy.com> <41194EA5.80706@hp.com> <20040810222840.GA11200@holomorphy.com> <20040810223006.GB11200@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040810223006.GB11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 10 Aug 2004 18:43:23 -0400
+Received: from digitalimplant.org ([64.62.235.95]:1494 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S267794AbUHJWnM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 18:43:12 -0400
+Date: Tue, 10 Aug 2004 15:42:59 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: David Brownell <david-b@pacbell.net>
+cc: Pavel Machek <pavel@suse.cz>, "" <linux-kernel@vger.kernel.org>,
+       "" <benh@kernel.crashing.org>
+Subject: Re: [RFC] Fix Device Power Management States
+In-Reply-To: <200408101136.38387.david-b@pacbell.net>
+Message-ID: <Pine.LNX.4.50.0408101541580.28789-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
+ <Pine.LNX.4.50.0408092156480.24154-100000@monsoon.he.net>
+ <20040810101308.GE9034@atrey.karlin.mff.cuni.cz> <200408101136.38387.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 03:28:40PM -0700, William Lee Irwin III wrote:
->> Please, let's do this instead:
 
-On Tue, Aug 10, 2004 at 03:30:06PM -0700, William Lee Irwin III wrote:
-> +task_t * __init __fork_idle(int cpu, struct pt_regs *regs)
-> +{
-> +	task_t *task = copy_process(CLONE_VM, 0, regs, 0, NULL, NULL, 0);
->  	if (!task)
->  		return ERR_PTR(-ENOMEM);
->  	init_idle(task, cpu);
+On Tue, 10 Aug 2004, David Brownell wrote:
 
-This still doesn't eliminate the branch in ia64's copy_thread().
-The best solution possible would be to redo the whole affair as an
-ia64-specific cleanup pass, and to find some initial setting of regs
-that works for all architectures (it seems memset(&regs, 0, ...) doesn't).
+> Keep in mind that to properly quiesce a USB controller, you've
+> got to quiesce every driver for every device hooked up to
+> that USB bus.  There's no escaping the bottom-up suspend
+> or top-down-resume processes, which makes me wonder
+> how Patrick's proposed patch can work for it...
+
+Hey, I'm willing to capitulate. :)
+
+I will change the ordering, as well as the proposed change in the last
+email.
 
 
--- wli
+	Pat

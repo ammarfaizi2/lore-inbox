@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287179AbRL2LCM>; Sat, 29 Dec 2001 06:02:12 -0500
+	id <S287184AbRL2LDd>; Sat, 29 Dec 2001 06:03:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287178AbRL2LCC>; Sat, 29 Dec 2001 06:02:02 -0500
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:15367 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
-	id <S287179AbRL2LBt>; Sat, 29 Dec 2001 06:01:49 -0500
-Date: Sat, 29 Dec 2001 13:01:47 +0200
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: zImage not supported for 2.2.20?
-Message-ID: <20011229130147.A2226@elektroni.ee.tut.fi>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <4.3.2.7.2.20011228173505.00aa3da0@192.168.124.1> <E16K1bW-0001K0-00@the-village.bc.nu> <20011228223604.A370@elektroni.ee.tut.fi> <a0j9i2$tkr$1@cesium.transmeta.com>
-Mime-Version: 1.0
+	id <S287194AbRL2LDY>; Sat, 29 Dec 2001 06:03:24 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:44807 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S287182AbRL2LDG>; Sat, 29 Dec 2001 06:03:06 -0500
+Message-ID: <3C2DA1C9.8EB54896@zip.com.au>
+Date: Sat, 29 Dec 2001 02:58:17 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: alad@hss.hns.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Mapped pages handling in shrink_cache()
+In-Reply-To: <65256B31.0038FC61.00@sandesh.hss.hns.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <a0j9i2$tkr$1@cesium.transmeta.com>; from hpa@zytor.com on Fri, Dec 28, 2001 at 06:25:06PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 28, 2001 at 06:25:06PM -0800, H. Peter Anvin wrote:
-> Machine/motherboard/chipset/BIOS info?
+alad@hss.hns.com wrote:
+> 
+> Hi, In the following code from shrink_cache()
+> 
+>           if (PageDirty(page) && is_page_cache_freeable(page) && page->mapping)
+> {
+>                .
+>                .
+>                .
+> 
+>                int (*writepage)(struct page *);
+> 
+>                writepage = page->mapping->a_ops->writepage;
+>                if ((gfp_mask & __GFP_FS) && writepage) {
+>                     ClearPageDirty(page);
+>                     SetPageLaunder(page);
+>                     page_cache_get(page);
+>                     spin_unlock(&pagemap_lru_lock);
+> 
+>                     writepage(page);
+>                     page_cache_release(page);
+> 
+>                     spin_lock(&pagemap_lru_lock);
+>                     continue;      <<<<<<< shouldn't the page be unlocked before
+>  continuing with the next page <<<<<
+>                }
+> 
 
-I don't know if this is needed any more, in case Alan has a pending patch
-already. But none of my three home machines can boot 2.2.20 zImages from
-LILO:
-
-486 (133 MHz): motherboard MG-PCI 486, chipset UMC880, AMIBIOS from year
-1993.
-
-pentium (MMX 150 MHz): IBM Thinkpad 310 E.
-
-athlon (TB 1400 MHz): motherboard Abit KG7-RAID, AMD760/VIA686, Award BIOS.
+The page is unlocked when IO completes, in interrupt context.
+See end_buffer_io_async().

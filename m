@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129075AbRBTLxX>; Tue, 20 Feb 2001 06:53:23 -0500
+	id <S129159AbRBTMCq>; Tue, 20 Feb 2001 07:02:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129129AbRBTLxN>; Tue, 20 Feb 2001 06:53:13 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13064 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129075AbRBTLxI>; Tue, 20 Feb 2001 06:53:08 -0500
-Subject: Re: kernel problems
-To: janez@kud-kontrabant.si (Janez Vrenjak)
-Date: Tue, 20 Feb 2001 11:53:06 +0000 (GMT)
-Cc: linux-alert@redhat.com (linux-alert),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <3A923176.3EE76624@kud-kontrabant.si> from "Janez Vrenjak" at Feb 20, 2001 09:57:26 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129161AbRBTMCh>; Tue, 20 Feb 2001 07:02:37 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:7256 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129159AbRBTMCZ>; Tue, 20 Feb 2001 07:02:25 -0500
+Date: Tue, 20 Feb 2001 06:02:05 -0600 (CST)
+From: Philipp Rumpf <prumpf@mandrakesoft.com>
+Reply-To: Philipp Rumpf <prumpf@mandrakesoft.com>
+To: BERECZ Szabolcs <szabi@inf.elte.hu>
+cc: linux-kernel@vger.kernel.org, prumpf@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] new setprocuid syscall
+In-Reply-To: <Pine.A41.4.31.0102192312330.174604-100000@pandora.inf.elte.hu>
+Message-ID: <Pine.LNX.3.96.1010220055423.9350A-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14VBLx-0006RO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello I'm getting this messages all the time.
-> After two or three such messages my computer freeses :-(=
-> I tried with 2.2, 2.4.0, 2.4.1, 2.4.1ac7-ac18 kernels
-> and the same thing happened.
-> Does any body have any idea what could be wrong.
+> diff -urN linux-2.4.1/arch/i386/kernel/entry.S
+> linux-2.4.1-setprocuid/arch/i386/kernel/entry.S
+> --- linux-2.4.1/arch/i386/kernel/entry.S        Thu Nov  9 02:09:50 2000
+> +++ linux-2.4.1-setprocuid/arch/i386/kernel/entry.S     Mon Feb 19
+> 22:12:00 2001
+> @@ -645,6 +645,7 @@
+>         .long SYMBOL_NAME(sys_madvise)
+>         .long SYMBOL_NAME(sys_getdents64)       /* 220 */
+>         .long SYMBOL_NAME(sys_fcntl64)
+> +       .long SYMBOL_NAME(sys_setprocuid)
+>         .long SYMBOL_NAME(sys_ni_syscall)       /* reserved for TUX */
+> 
+>         /*
 
-Generally its indicative of hardwae when you get dcache corruption especially
-with late 2.2, but it might be more complex. Does the box pass memtest86 ?
+You stole TUX's syscall slot.
+
+> +       p = find_task_by_pid(pid);
+> +       p->fsuid = p->euid = p->suid = p->uid = uid;
+
+p might be NULL.
 

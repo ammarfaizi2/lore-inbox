@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273515AbRJDSDh>; Thu, 4 Oct 2001 14:03:37 -0400
+	id <S273534AbRJDSKh>; Thu, 4 Oct 2001 14:10:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273534AbRJDSD2>; Thu, 4 Oct 2001 14:03:28 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:44224 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S273515AbRJDSDT>;
-	Thu, 4 Oct 2001 14:03:19 -0400
-Message-ID: <3BBCA47A.FE108239@candelatech.com>
-Date: Thu, 04 Oct 2001 11:03:38 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
-X-Accept-Language: en
+	id <S273724AbRJDSKa>; Thu, 4 Oct 2001 14:10:30 -0400
+Received: from gw1-mail.cict.fr ([195.220.59.20]:37388 "EHLO gw1-mail.cict.fr")
+	by vger.kernel.org with ESMTP id <S273534AbRJDSKK>;
+	Thu, 4 Oct 2001 14:10:10 -0400
+Message-ID: <3BBCA5B7.F4DC8594@irit.fr>
+Date: Thu, 04 Oct 2001 20:08:55 +0200
+From: Jerome AUGE <auge@irit.fr>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-3 i686)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: hps@intermeta.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.GSO.4.30.0110032057000.8016-100000@shell.cyberus.ca> <3BBC05EC.AA9BFB4F@candelatech.com> <9ph3qu$g9b$1@forge.intermeta.de> <3BBC89CC.D791C8FA@candelatech.com> <9pi6em$itf$1@forge.intermeta.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] opl3sa2.c: DMA timeout when recording
+Content-Type: multipart/mixed;
+ boundary="------------03E06DDFBD4A878CB69AD7F6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Henning P. Schmiedehausen" wrote:
+This is a multi-part message in MIME format.
+--------------03E06DDFBD4A878CB69AD7F6
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> >several 2-port EEPRO based NICs out there that work really well
-> >too, but they are expensive...
-> 
-> Hm. If I really need more NICs than PCI slots, I normally use a
-> Router. And I've even toyed a little with a Gigabit card linked to a
-> Cisco C3524XL using a certain 802.1q unofficial extension to the Linux
-> kernel to try and provide 24 100 MBit Ethernet Interfaces from a
-> single Linux Box [2].
+Hi,
 
-I wrote (one of) the VLAN patch, and I've brought up 4k
-VLAN interfaces.  Let me or the vlan@scry.wanfear.com mailing list
-know if you have trouble with my VLAN patch...  My vlan patch
-can be found:
-http://www.candelatech.com/~greear/vlan.html
+Here is a patch that fix a problem with the opl3sa2 driver. The problem
+is that if you use two distinct DMA channels, then you can play but
+can't record OR record and can't play, you get the message "DMA timeout
+(...)"
+The dma and dma2 are not initialized with the real DMA channels and they
+remain at -1.
 
+--
+--------------03E06DDFBD4A878CB69AD7F6
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-opl3sa2-dma-init"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-opl3sa2-dma-init"
 
-Enjoy,
-Ben
+diff -ur linux.orig/drivers/sound/opl3sa2.c linux/drivers/sound/opl3sa2.c
+--- linux.orig/drivers/sound/opl3sa2.c	Wed Oct  3 09:36:16 2001
++++ linux/drivers/sound/opl3sa2.c	Wed Oct  3 09:41:28 2001
+@@ -862,9 +862,9 @@
+ 
+ 	/* Our own config: */
+ 	hw_cfg->io_base = dev->resource[4].start;
+-	hw_cfg->irq     = 0;
+-	hw_cfg->dma     = -1;
+-	hw_cfg->dma2    = -1;
++	hw_cfg->irq     = dev->irq_resource[0].start;
++	hw_cfg->dma     = dev->dma_resource[0].start;
++	hw_cfg->dma2    = dev->dma_resource[1].start;
+ 	
+ 	/* The MSS config: */
+ 	mss_cfg->io_base      = dev->resource[1].start;
+@@ -944,9 +944,9 @@
+ 			 *  give pretty output from conf_printf. :)
+ 			 */
+ 			cfg[card].io_base = io;
+-			cfg[card].irq     = 0;
+-			cfg[card].dma     = -1;
+-			cfg[card].dma2    = -1;
++			cfg[card].irq     = irq;
++			cfg[card].dma     = dma;
++			cfg[card].dma2    = dma2;
+ 	
+ 			/* The MSS config: */
+ 			cfg_mss[card].io_base      = mss_io;
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+--------------03E06DDFBD4A878CB69AD7F6--
+

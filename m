@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265177AbSKUWsx>; Thu, 21 Nov 2002 17:48:53 -0500
+	id <S265099AbSKUWge>; Thu, 21 Nov 2002 17:36:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265246AbSKUWsx>; Thu, 21 Nov 2002 17:48:53 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:5603 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id <S265177AbSKUWsb>;
-	Thu, 21 Nov 2002 17:48:31 -0500
-Subject: Re: Unsupported AGP-bridge on VIA VT8633
-From: Stian Jordet <liste@jordet.nu>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021121224035.GA28094@suse.de>
-References: <1037916067.813.7.camel@chevrolet.hybel>
-	 <20021121221134.GA25741@suse.de>
-	 <1037917231.3ddd5c2f5d98a@webmail.jordet.nu>
-	 <20021121224035.GA28094@suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037919383.856.3.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 21 Nov 2002 23:56:23 +0100
-Content-Transfer-Encoding: 7bit
+	id <S265102AbSKUWge>; Thu, 21 Nov 2002 17:36:34 -0500
+Received: from mail44-s.fg.online.no ([148.122.161.44]:35498 "EHLO
+	mail44.fg.online.no") by vger.kernel.org with ESMTP
+	id <S265099AbSKUWgc>; Thu, 21 Nov 2002 17:36:32 -0500
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Kent Borg <kentborg@borg.org>
+Subject: Re: Where is ext2/3 secure delete ("s") attribute?
+References: <200211211920.07414.m.c.p@wolk-project.de>
+From: Harald Arnesen <harald@skogtun.org>
+Date: Thu, 21 Nov 2002 23:43:25 +0100
+In-Reply-To: <200211211920.07414.m.c.p@wolk-project.de> (Marc-Christian
+ Petersen's message of "Thu, 21 Nov 2002 19:20:07 +0100")
+Message-ID: <87fztuczn6.fsf@basilikum.skogtun.org>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i386-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor, 2002-11-21 kl. 23:40 skrev Dave Jones:
-> On Thu, Nov 21, 2002 at 11:20:31PM +0100, Stian Jordet wrote:
-> 
->  > You were not really clear here. I tried it as a boot-time argument, because I
->  > have agp-support compiled in. But I guess I could and should try it as a module.
-> 
-> Yup. Then do a `modprobe agpgart agp_try_unsupported=1'
-> 
->  > I'll do that now. But why do I have to use agp_try_unsupported=1?
-> 
-> Because if it works, we can then add it to the ID table.
+Marc-Christian Petersen <m.c.p@wolk-project.de> writes:
 
-It works, i think. I get this message when I load it:
+> BUGS AND LIMITATIONS
+>        As  of  Linux  2.2,  the  `c',  's',  and `u' attribute are not honored
+>        by the kernel filesystem code. These attributes will be implemented in
+>        a future ext2 fs version.
+>
+> Curious to see when the future is ;)
 
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: Trying generic Via routines for device id: 3091
-agpgart: AGP aperture is 64M @ 0xf8000000
-
-Thank you very much. I'm very sorry if this was a lame question.
-
-Thanks.
-
-Regards,
-Stian Jordet
-
+Anyway, it would be false security. Any government agency (or IBAS in
+Norway) may be able to reconstruct any data on your hd, or they may not.
+But you can't know it. So if you _really_ want to have private data on
+you computer, strong encryption is the only solution. And be sure that
+every temporary file is encrypted!
+-- 
+Hilsen Harald.

@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129868AbQLNS6j>; Thu, 14 Dec 2000 13:58:39 -0500
+	id <S132656AbQLNS7A>; Thu, 14 Dec 2000 13:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132620AbQLNS63>; Thu, 14 Dec 2000 13:58:29 -0500
-Received: from mailhost.digitalselect.net ([209.136.236.13]:18439 "EHLO
-	mailhost.digitalselect.net") by vger.kernel.org with ESMTP
-	id <S129868AbQLNS6U>; Thu, 14 Dec 2000 13:58:20 -0500
-Date: Thu, 14 Dec 2000 13:29:18 -0500
-From: James Lewis Nance <jlnance@intrex.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: test13-1, no subversion change on the Makefile
-Message-ID: <20001214132918.A1145@bessie.dyndns.org>
-In-Reply-To: <1839463874.976797040@primetime2>
-Mime-Version: 1.0
+	id <S132654AbQLNS6u>; Thu, 14 Dec 2000 13:58:50 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3844 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132620AbQLNS6m>; Thu, 14 Dec 2000 13:58:42 -0500
+Subject: Re: Fwd: [Fwd: [PATCH] cs89x0 is not only an ISA card]
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Thu, 14 Dec 2000 18:29:50 +0000 (GMT)
+Cc: rmk@arm.linux.org.uk (Russell King), J.A.K.Mouw@ITS.TUDelft.NL (Erik Mouw),
+        nico@cam.org (Nicolas Pitre), morton@nortelnetworks.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A38FC9D.7B2F2B7D@mandrakesoft.com> from "Jeff Garzik" at Dec 14, 2000 12:00:13 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <1839463874.976797040@primetime2>; from fdavis@andrew.cmu.edu on Thu, Dec 14, 2000 at 12:30:40PM -0500
+Content-Transfer-Encoding: 7bit
+Message-Id: <E146d8Z-00008m-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2000 at 12:30:40PM -0500, Frank Davis wrote:
-> Hello,
->     I downloaded test13-1.gz, and noticed that it didn't have a subversion 
-> change in it.
+> For an embedded board that supports cs89x0, as you suggest, defining
+> CONFIG_ISA is a much better option.  Or, making cs89x0 dependent on
 
-Looks like Linus is planning on this being a 2.4.0 proper :-)
+No its completely wrong. You can have a CS89xx series device without the
+slightest hint of ISA bus. 
 
-Jim
+What would be a lot cleaner though would be to build a custom config.in for
+such embedded devices not referencing the mainstream one
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

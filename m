@@ -1,78 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314194AbSEBAvr>; Wed, 1 May 2002 20:51:47 -0400
+	id <S314154AbSEBA5i>; Wed, 1 May 2002 20:57:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314200AbSEBAvr>; Wed, 1 May 2002 20:51:47 -0400
-Received: from oss.SGI.COM ([128.167.58.27]:52622 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id <S314194AbSEBAvp>;
-	Wed, 1 May 2002 20:51:45 -0400
-Date: Wed, 1 May 2002 17:51:33 -0700
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Andrea Arcangeli <andrea@suse.de>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: discontiguous memory platforms
-Message-ID: <20020501175133.A30649@dea.linux-mips.net>
-In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <E171aOa-0001Q6-00@starship> <20020429153500.B28887@dualathlon.random> <E172K9n-0001Yv-00@starship> <20020501042341.G11414@dualathlon.random> <20020501180547.GA1212440@sgi.com> <20020502011750.M11414@dualathlon.random> <20020501232343.GA1214171@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Accept-Language: de,en,fr
+	id <S314200AbSEBA5h>; Wed, 1 May 2002 20:57:37 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:44815 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S314154AbSEBA5h>; Wed, 1 May 2002 20:57:37 -0400
+Message-Id: <200205011405.g41E5XX04713@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "Scott A. Sibert" <kernel@hollins.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.11 and smbfs
+Date: Wed, 1 May 2002 17:08:22 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3CCEF32B.6060807@hollins.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 01, 2002 at 04:23:43PM -0700, Jesse Barnes wrote:
+On 30 April 2002 17:40, Scott A. Sibert wrote:
+> I don't know if anyone's mentioned this (I tried searching through the
+> recent list archives).  I have 2.5.11 compiled on a dual P3/800 with
+> preempt enabled.  smbfs and 3c905c are compiled into the kernel (not
+> modules).  It has 1gb memory and I have high memory (4gb) compiled.
+>
+> I can mount other samba shares fine (ie. Samba-2.2.2 from OSX 10.1.4 and
+> Samba-2.2.2 from Tru64 5.1) and the directories look fine.  When I mount
+> a share from a Windows 2000 server I only get the first letter of the
+> entry in the shared folder which, of course, makes no sense and
+> generates errors when just trying to get an "ls" of the share.  The
+> Win2K servers are both regular server and Adv Server, both with SP2 and
+> the latest patches.  The linux machine is running RedHat 7.2 with almost
+> all of the latest updates and 2.5.11 compiled.
 
-> On Thu, May 02, 2002 at 01:17:50AM +0200, Andrea Arcangeli wrote:
-> > so ia64 is one of those archs with a ram layout with huge holes in the
-> > middle of the ram of the nodes? I'd be curious to know what's the
-> 
-> Well, our ia64 platform is at least, but I think there are others.
-> 
-> > hardware advantage of designing the ram layout in such a way, compared
-> > to all other numa archs that I deal with. Also if you know other archs
-> > with huge holes in the middle of the ram of the nodes I'd be curious to
-> > know about them too. thanks for the interesting info!
-> 
-> AFAIK, some MIPS platforms (both NUMA and non-NUMA) have memory
-> layouts like this too.  I've never done hardware design before, so I'm
-> not sure if there's a good reason for such layouts.  Ralf or Daniel
-> might be able to shed some more light on that...
-
-Just to give a few examples of memory layouts on MIPS systems. Sibyte 1250
-is as follows:
-
- - 256MB at physical address 0
- - 512MB at physical address 0x80000000
- - 256MB at physical address 0xc0000000
- - The entire rest of the memory is mapped contiguously from physical
-   address 0x1:00000000 up.
- All available memory is mapped from the lowest address up.
-
-Origin 200/2000.  Each node has an address space of 2GB, each node has 4
-  memory banks, that is each bank takes 512MB of address space.  Even
-  unpopulated or partially populated banks take the full 512MB address
-  space.  Memory in partially populated banks is mapped at the beginning
-  of the bank's address space; each node must have have at least one
-  bank with memory in it, that is something like
-
- - 32MB @ physical address 0x00:00000000
- - 32MB @ physical address 0x00:80000000
- - 32MB @ physical address 0x01:00000000
- ...
- - 32MB @ physical address 0x7f:00000000
-
-  would be a valid configuration.  That's 8GB of RAM scattered in tiny
-  chunks of just 32mb throughout 256MB address space.  In theory nodes
-  might not even have to exist, so
-
- - 32MB @ physical address 0x00:00000000
- - 32MB @ physical address 0x7f:00000000
-
-  would be a valid configuration as well.
-
-There are other examples more but #1 is becoming a widespread chip and #2
-is a rather extreme example just to show how far discontiguity may go.
-
-  Ralf
+Let's try to isolate the cause. Does 2.4 kernel fail too?
+--
+vda

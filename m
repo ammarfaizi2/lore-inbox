@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262876AbUKTNDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262833AbUKTNMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262876AbUKTNDa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 08:03:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbUKTNDa
+	id S262833AbUKTNMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 08:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbUKTNMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 08:03:30 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:45577 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262876AbUKTND2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 08:03:28 -0500
-Subject: Re: [patch 07/10]  mtd/amd_flash: replace 	schedule_timeout() with
-	msleep()
-From: David Woodhouse <dwmw2@infradead.org>
-To: janitor@sternwelten.at
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nacc@us.ibm.com
-In-Reply-To: <E1CVL5L-0001V3-BQ@sputnik>
-References: <E1CVL5L-0001V3-BQ@sputnik>
-Content-Type: text/plain
-Date: Sat, 20 Nov 2004 12:59:35 +0000
-Message-Id: <1100955575.8600.29.camel@localhost.localdomain>
+	Sat, 20 Nov 2004 08:12:09 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7176 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262833AbUKTNMF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 08:12:05 -0500
+Date: Sat, 20 Nov 2004 13:11:59 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Paul Fulghum <paulkf@microgate.com>
+Subject: Re: Fwd: [Bug 3592] New: pppd "IPCP: timeout sending Config-Requests"
+Message-ID: <20041120131159.C13550@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Paul Fulghum <paulkf@microgate.com>
+References: <20041019131240.A20243@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.0 (+)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (1.0 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.0 SUBJ_HAS_SPACES        Subject contains lots of white space
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041019131240.A20243@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Tue, Oct 19, 2004 at 01:12:40PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-11-20 at 03:34 +0100, janitor@sternwelten.at wrote:
+On Tue, Oct 19, 2004 at 01:12:40PM +0100, Russell King wrote:
+> ----- Forwarded message from bugme-daemon@osdl.org -----
 > 
+> Date: Tue, 19 Oct 2004 04:53:50 -0700
+> From: bugme-daemon@osdl.org
+> To: rmk@arm.linux.org.uk
+> Subject: [Bug 3592] New: pppd "IPCP: timeout sending Config-Requests"
 > 
-> Any comments would be appreciated.
+> http://bugme.osdl.org/show_bug.cgi?id=3592
 > 
-> Description: Use msleep() instead of schedule_timeout()
-> to guarantee the task delays as expected.
+>            Summary: pppd "IPCP: timeout sending Config-Requests"
+>     Kernel Version: 2.6.9-rc4
+>             Status: NEW
+>           Severity: normal
+>              Owner: rmk@arm.linux.org.uk
+>          Submitter: vovan@planet.nl
 
-Applied; thanks. Likewise the ones for cfi_cmdset_0002.c and
-cfi_cmdset_0020.c. The one for cfi_cmdset_0001.c doesn't apply any more
--- that just uses the cfi_udelay() helper function. So I fixed that too.
-All in bk://linux-mtd.bkbits.net/mtd-2.6 and hence should be -mm$NEXT.
+So, what can I do with this bug?  Just close or reject it, or what?
+Maybe Alan or Paul would like to assign this bug to themselves?
+
+Thanks.
 
 -- 
-dwmw2
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265837AbVBDSqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVBDSeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265837AbVBDSqe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 13:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265835AbVBDSqd
+	id S261389AbVBDSeE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 13:34:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbVBDSYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 13:46:33 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:41901 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S264804AbVBDSp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 13:45:58 -0500
-Date: Fri, 4 Feb 2005 19:45:23 +0100
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [compile fix] 2.6.11-rc3-mm1 (acpi Kconfig)
-Message-ID: <20050204184523.GA3492@ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
-X-Spam-Report: *  1.1 NO_DNS_FOR_FROM Domain in From header has no MX or A DNS records
+	Fri, 4 Feb 2005 13:24:55 -0500
+Received: from alog0217.analogic.com ([208.224.220.232]:2432 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264398AbVBDSVW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 13:21:22 -0500
+Date: Fri, 4 Feb 2005 13:21:29 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Can't remove a module because of new policy
+Message-ID: <Pine.LNX.4.61.0502041311400.5242@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
 
-I had the following errors while compiling 2.6.11-rc3-mm1:
+There is more and more policy being put into the kernel
+and utilities. Now I can't remove a module because whoever
+made the new module-init-tools decided that they didn't like
+its name even though it was installed and running.
 
-In file included from include/asm/fixmap.h:27,
-                 from arch/i386/kernel/asm-offsets.c:12:
-		 include/asm/acpi.h: In function `acpi_noirq_set':
-		 include/asm/acpi.h:160: error: `acpi_noirq' undeclared
-		 (first use in this function)
-		 include/asm/acpi.h:160: error: (Each undeclared
-		 identifier is reported only once
-		 include/asm/acpi.h:160: error: for each function it
-		 appears in.)
-		 include/asm/acpi.h: In function `acpi_disable_pci':
-		 include/asm/acpi.h:163: error: `acpi_pci_disabled'
-		 undeclared (first use in this function)
+In the following I explicitly tell `rmmod` to remove a module
+with the name "DAS-Link". The "(!@$*!@#^(" program decides
+that I don't know what I am doing and attempts to
+remove "DAS_Link" which I never typed, never called for,
+and should never have even been even guessed.
 
+Script started on Fri 04 Feb 2005 01:07:41 PM EST
+# lsmod | grep DAS
+DAS-Link                6788  0 
+# grep DAS /proc/modules
+DAS-Link 6788 0 - Live 0xf0a95000
+# rmmod DAS-Link
+ERROR: Module DAS_Link does not exist in /proc/modules
+# lsmod --version module-init-tools version 3.0-pre10 
+# exit
+Script done on Fri 04 Feb 2005 01:08:51 PM EST
 
-The following patch fixes it (it looks like bk-kconfig-acpi-fix.patch
-was incorrect).
+So, I suppose this name is no longer valid?? If so, this
+means that hundreds of installed machines can't be updated
+in the field.
 
-Regards,
-
-Benoit
-
-
---- linux-clean/drivers/acpi/Kconfig	2005-02-04 19:36:49.000000000 +0100
-+++ linux/drivers/acpi/Kconfig	2005-02-04 19:36:45.000000000 +0100
-@@ -42,7 +42,7 @@ config ACPI
- 
- config ACPI_BOOT
- 	bool
--	depends on X86_HT
-+	depends on ACPI || X86_HT
- 	default y
- 
- if ACPI
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

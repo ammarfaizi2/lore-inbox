@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129756AbQKAQ1i>; Wed, 1 Nov 2000 11:27:38 -0500
+	id <S130484AbQKAQ1t>; Wed, 1 Nov 2000 11:27:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131248AbQKAQ12>; Wed, 1 Nov 2000 11:27:28 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:31517 "EHLO
-	amsmta06-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129756AbQKAQ1T>; Wed, 1 Nov 2000 11:27:19 -0500
-Date: Wed, 1 Nov 2000 18:35:12 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: J{rvensivu Riku <galaxy@cs.tut.fi>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Q: HPT370 RAID support?
-In-Reply-To: <Pine.GSO.4.21.0011011454170.28486-100000@korppi.cs.tut.fi>
-Message-ID: <Pine.LNX.4.21.0011011833060.20580-100000@server.serve.me.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131248AbQKAQ1i>; Wed, 1 Nov 2000 11:27:38 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:23718 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S130484AbQKAQ1X>; Wed, 1 Nov 2000 11:27:23 -0500
+Date: Wed, 01 Nov 2000 08:29:48 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+Subject: Re: Linus's poll variation
+To: linux-kernel@vger.kernel.org, Lyle Coder <lcoder@webunwired.com>
+Reply-to: dank@alumni.caltech.edu
+Message-id: <3A0044FC.DEE2C02@alumni.caltech.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Lyle asked:
+> Is someone working on Linus's poll variation discussed in this list a week ago? 
 
-> Hello,
-> 
-> The Highpoint Technologies HPT370 ATA-100 + RAID chip is supported well
-> the lastest releases but it's RAID features are not implemented. I've
-> heard rumours telling that this chip isn't a real RAID chip possessing
-> only minimal (if any) hardware RAID capabilities and even those are
-> undocumented. Is this right or are there any plans to implement some RAID
-> features, as far as it would do any difference compared to the
-> really nicely working software-RAID? (Andre Hedrick?)
+I think the interface still needs some discussion.
+The interface Linus proposed is IMHO oriented towards ease of 
+kernel implementation, and doesn't appear to be easy to use
+for all applications.
+cf. recent posts by John Gardiner Myers <jgmyers@netscape.com>
+e.g. 
+http://boudicca.tux.org/hypermail/linux-kernel/2000week44/0966.html
+http://boudicca.tux.org/hypermail/linux-kernel/2000week45/0212.html
+IMHO kqueue()/kevent() is closer to what the apps want.
 
-The RAID is a BIOS with some nice routines. It basically is a dual IDE
-controller with some crappy peace of software. Should even be allowed to
-be called 'RAID'.
-
-The're giving custumers the impression they get RAID for $2, while a real
-RAID setup costs a lot more. I call this misleading.
-
-
-
-	Igmar
-	
-
-
-
+Mike Jagdis, however, has done some work on speeding up the
+existing poll() system call, and has an eye on implementing
+the /dev/poll interface.  See
+http://boudicca.tux.org/hypermail/linux-kernel/2000week45/0266.html
+- Dan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

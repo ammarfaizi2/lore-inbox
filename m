@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263280AbSITSmc>; Fri, 20 Sep 2002 14:42:32 -0400
+	id <S262792AbSITSk1>; Fri, 20 Sep 2002 14:40:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263323AbSITSmb>; Fri, 20 Sep 2002 14:42:31 -0400
-Received: from adsl-64-160-52-243.dsl.snfc21.pacbell.net ([64.160.52.243]:37828
-	"EHLO gateway.sf.frob.com") by vger.kernel.org with ESMTP
-	id <S263280AbSITSl5>; Fri, 20 Sep 2002 14:41:57 -0400
-Date: Fri, 20 Sep 2002 11:40:43 -0700
-Message-Id: <200209201840.g8KIehO28302@magilla.sf.frob.com>
+	id <S263254AbSITSk1>; Fri, 20 Sep 2002 14:40:27 -0400
+Received: from mallaury.noc.nerim.net ([62.4.17.82]:53258 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id <S262792AbSITSk0>; Fri, 20 Sep 2002 14:40:26 -0400
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: "Yann E. MORIN" <yann.morin.1998@anciens.enib.fr>
+Organization: ENIB - Anciens
+To: sane-devel@www.mostang.com
+Subject: USB - scanner - devel
+Date: Fri, 20 Sep 2002 20:45:27 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+X-Eric-Conspiracy: There is no conspiracy
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: phil-list@redhat.com
-Cc: Luca Barbieri <ldb@ldb.ods.org>, Ulrich Drepper <drepper@redhat.com>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: Ingo Molnar's message of  Friday, 20 September 2002 13:19:35 +0200 <Pine.LNX.4.44.0209201317540.3831-100000@localhost.localdomain>
-X-Zippy-Says: ...PENGUINS are floating by...
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020920184530.84F7F6511A@mallaury.noc.nerim.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 20 Sep 2002, Luca Barbieri wrote:
-> 
-> > Great, but how about using code similar to the following rather than
-> > hand-coded asm operations?
-> > 
-> > extern struct pthread __pt_current_struct asm("%gs:0");
-> > #define __pt_current (&__pt_current_struct)
+Hi all!
 
-Try that under -fpic and you will see the problem.
+I've just had a brand new Canon CanoScan N676U. I hope it works great as it
+is not yet supported by Sane. That's why I volunteer to add support for this
+device in Sane.
+
+Could someone please point me to documents / source code / URLs / RFC /
+whatever is of interest to start coding a new backend for sane and to
+understand USB programming (kernel Guys, ideas?) ?
+
+As I've got a full-time job during the day, I won't be very fast at coding,
+but if I don't do it, I'll never be able to use my scanner (Woops, no windows
+at home!).
+
+Of course, if someone allready has some code,I'm ready to test it on my
+device, as well as get & tweak it.
+
+TIA,
+Yann.
+
+-- 
+.-----------------.--------------------.------------------.--------------------.
+|  Yann E. MORIN  | Real-Time Embedded | /"\ ASCII RIBBON | Erics' conspiracy: |
+|  0 662 376 056  | Software  Designer | \ / CAMPAIGN     |  ___               |
+| --==< °_° >==-- °---.----------------:  X  AGAINST      |  \e/  There is no  |
+| web: ymorin.free.fr | SETI@home  445 | / \ HTML MAIL    |   v   conspiracy.  |
+°---------------------°----------------°------------------°--------------------°

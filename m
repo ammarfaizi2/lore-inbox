@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264869AbRFYQdf>; Mon, 25 Jun 2001 12:33:35 -0400
+	id <S264871AbRFYQff>; Mon, 25 Jun 2001 12:35:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264877AbRFYQdZ>; Mon, 25 Jun 2001 12:33:25 -0400
-Received: from nic.lth.se ([130.235.20.3]:21174 "EHLO nic.lth.se")
-	by vger.kernel.org with ESMTP id <S264875AbRFYQdQ>;
-	Mon, 25 Jun 2001 12:33:16 -0400
-Date: Mon, 25 Jun 2001 18:33:06 +0200
-From: Jakob Borg <jakob@borg.pp.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP+USB still crashes in 2.4.6-pre5
-Message-ID: <20010625183306.A453@borg.pp.se>
-In-Reply-To: <E15E9NV-0008EE-00@the-village.bc.nu>
+	id <S264874AbRFYQfZ>; Mon, 25 Jun 2001 12:35:25 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:784 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S264871AbRFYQfK>;
+	Mon, 25 Jun 2001 12:35:10 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: joeja@mindspring.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD thunderbird oops 
+In-Reply-To: Your message of "Mon, 25 Jun 2001 12:24:11 -0400."
+             <Springmail.105.993486251.0.81762700@www.springmail.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15E9NV-0008EE-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux narayan 2.4.3 i686
+Date: Tue, 26 Jun 2001 02:35:04 +1000
+Message-ID: <1633.993486904@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 24, 2001 at 01:52:37PM +0100, Alan Cox wrote:
-> > Just wanted people to know that the same problem I reported about 2.4.4 a
-> > while back is still present in 2.4.6-pre6 (hard crash when doing "cat
-> > whatever > /dev/dsp1" where /dev/dsp1 is an external USB audio device, where
-> > "hard crash" means a freeze followed by "wait on irq" message as reported
-> > earlier).
-> 
-> Does this happen on 2.4.5-ac kernel as well ?
+On Mon, 25 Jun 2001 12:24:11 -0400, 
+joeja@mindspring.com wrote:
+>   The oops says something like 'kernel null pointer at address
+>0x000000'.  How do I 'catch' the output of an oops when the filesystem
+>goes and I get ext2fs errors and am forced to reboot and manually run
+>e2fsck?
 
-The same problem is present in -ac18.
+Read linux/Documentation/oops-tracing.txt.
 
-//jb

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281757AbRKUOlH>; Wed, 21 Nov 2001 09:41:07 -0500
+	id <S281675AbRKUOhs>; Wed, 21 Nov 2001 09:37:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281434AbRKUOk5>; Wed, 21 Nov 2001 09:40:57 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:365 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S281395AbRKUOkr>; Wed, 21 Nov 2001 09:40:47 -0500
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "David S. Miller" <davem@redhat.com>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.14 + Bug in swap_out.
-In-Reply-To: <Pine.LNX.4.33L.0111211219420.1491-100000@duckman.distro.conectiva>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Nov 2001 07:21:45 -0700
-In-Reply-To: <Pine.LNX.4.33L.0111211219420.1491-100000@duckman.distro.conectiva>
-Message-ID: <m1d72c19xi.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S281395AbRKUOhh>; Wed, 21 Nov 2001 09:37:37 -0500
+Received: from web13303.mail.yahoo.com ([216.136.175.39]:57357 "HELO
+	web13303.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S281255AbRKUOh1>; Wed, 21 Nov 2001 09:37:27 -0500
+Message-ID: <20011121143726.16204.qmail@web13303.mail.yahoo.com>
+Date: Wed, 21 Nov 2001 06:37:26 -0800 (PST)
+From: Joerg Pommnitz <pommnitz@yahoo.com>
+Subject: Re: copy to suer space
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
+Nick LeRoy <nleroy@cs.wisc.edu> wrote:
 
-> On 21 Nov 2001, Eric W. Biederman wrote:
-> 
-> > We only hold a ref count for the duration of swap_out_mm.
-> > Not for the duration of the value in swap_mm.
-> 
-> In that case, why can't we just take the next mm from
-> init_mm and just "roll over" our mm to the back of the
-> list once we're done with it ?
+ > Linux executables are "demand paged".  What this means is that they are
 
-Sounds good to me.  Unless we have another user for that list.
- 
-> Removing magic is good ;)
+ > loaded as they are "page faulted" in.  If low on memory, the kernel 
+ > may, at it's discression, discard text pages at any time.  When a 
+ > discarded page is referenced, a page fault occurs, and the page is re-
+ > loaded from the executable.  They are *never* written out to swap 
+ > space.  The kernel fully expects the text file and the text memory 
+ > pages to not be modified during execution.
 
-Definitely.  Things that are locally correct are much easier
-to verify and trust.  I'm satisfied for the moment that it isn't
-actually broken.  But more obvious code is definitely a plus
-if we can get it.
+Clean pages are never written to swap space. If the page is dirty, it's
+just another data page. If it were otherwise, non-PIC shared libraries
+that require fixups from the dynamic linker would not work.
 
-Eric
+Regards
+  Joerg
+
+
+=====
+-- 
+Regards
+       Joerg
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
+http://geocities.yahoo.com/ps/info1

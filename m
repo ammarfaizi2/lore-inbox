@@ -1,68 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265132AbUELR1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265142AbUELSAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265132AbUELR1H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 13:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUELR1H
+	id S265142AbUELSAv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 14:00:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUELSAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 13:27:07 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:6557 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265132AbUELR0h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 13:26:37 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: garski@poczta.onet.pl
-Subject: Re: SiI3112 Serial ATA - no response on boot
-Date: Wed, 12 May 2004 19:26:43 +0200
-User-Agent: KMail/1.5.3
-References: <200405112052.44979.garski@poczta.onet.pl> <40A12409.40808@dotnetitalia.it> <200405121851.42401.garski@poczta.onet.pl>
-In-Reply-To: <200405121851.42401.garski@poczta.onet.pl>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 12 May 2004 14:00:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58563 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265142AbUELSAP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 14:00:15 -0400
+Date: Wed, 12 May 2004 10:59:24 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: David Mosberger-Tang <davidm@hpl.hp.com>
+Cc: linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org
+Subject: GCC nested functions?
+Message-Id: <20040512105924.54a8211b@dell_ss3.pdx.osdl.net>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405121926.43050.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 of May 2004 18:51, Marcin Garski wrote:
-> [Please CC me on replies, I am not subscribed to the list, thanks]
->
-> Marco Adurno wrote:
-> > I've got the same problem some time ago.
-> > You have just to appen the string
-> > hdg=none
-> > in your boot loader config file
->
-> Thanks, that's working.
-> But isn't that a workaround for problem with probe (on NON SATA HDD
-> probe don't generate such errors) that should be fixed somehow?
+I used GCC nested functions in the (not released) bridge sysfs interface for 2.6.6.
+It seemed like a nice way to express the sysfs related interface without doing
+lots of code copying (or worse lots of macros).
 
-Yes, feel free to fix it. ;-)
+The code in question looks like:
+static ssize_t store_bridge_parm(struct class_device *cd,
+                                 const char *buf, size_t len,
+                                 void (*store)(struct net_bridge *, unsigned long))
+{
+        struct net_bridge *br = to_bridge(cd);
+        char *endp;
+        unsigned long val;
+                                                                                
+        if (!capable(CAP_NET_ADMIN))
+                return -EPERM;
+                                                                                
+        val = simple_strtoul(buf, &endp, 0);
+        if (endp == buf)
+                return -EINVAL;
+                                                                                
+        spin_lock_bh(&br->lock);
+        store(br, val);
+        spin_unlock_bh(&br->lock);
+        return len;
+}
+...
 
-> > Marcin Garski wrote:
-> > > Hi,
-> > >
-> > > I have a Abit NF7-S V2.0 mainboard (nForce2 chipset + SiI3112
-> > > SATA), with Seagate S-ATA connected to Sil3112.
-> > >
-> > > During boot i get following messages:
-> > > SiI3112 Serial ATA: IDE controller at PCI slot 0000:01:0b.0
-> > > SiI3112 Serial ATA: chipset revision 2
-> > > SiI3112 Serial ATA: 100% native mode on irq 11
-> > >     ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
-> > >     ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
-> > > hde: ST380013AS, ATA DISK drive
-> > > ide2 at 0xe083c080-0xe083c087,0xe083c08a on irq 11
-> > > hdg: no response (status = 0xfe)
-> > > hdg: no response (status = 0xfe), resetting drive
-> > > hdg: no response (status = 0xfe)
-> > >
-> > > Each "no response" message delays booting about 20 seconds.
-> > > I don't have any device connected to hdg.
-> > > I was wondering how to speed up booting, because this "hdg: no
-> > > response (status = 0xfe), resetting drive" info is little
-> > > irritating? I'm running on 2.6.6 kernel (on 2.6.4 this "no
-> > > response" messages also appear).
+static ssize_t store_forward_delay(struct class_device *cd, const char *buf,
+                                   size_t len)
+{
+        void store(struct net_bridge *br, unsigned long val)
+        {
+                unsigned long delay = clock_t_to_jiffies(val);
+                br->forward_delay = delay;
+                if (br_is_root_bridge(br))
+                        br->bridge_forward_delay = delay;
+        }
+                                                                                
+        return store_bridge_parm(cd, buf, len, store);
+}
+
+
+This works fine for GCC 2.95 and 3.X for i386 and x86_64 architectures, but the ia64
+(cross compiler) pukes with:
+
+ In function `store_forward_delay':
+: undefined reference to `__ia64_trampoline'
+
+Redoing it as separate functions is easy enough, but the questions are:
+	- Are gcc nested functions allowed in the kernel?  If not where should
+	  this restriction be put in Documentation? CodingStyles?
+	- Or is gcc on ia64 just too stupid? or do some more support routines
+	  need to exist in arch/ia64?
+	- Do other architectures (sparc, ppc) have similar problems?
+
+Thanks.
+
+
 

@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbTKOFS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 00:18:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTKOFS2
+	id S261473AbTKOFOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 00:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbTKOFOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 00:18:28 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17344 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261538AbTKOFS1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 00:18:27 -0500
-Message-ID: <3FB5B70D.3090309@pobox.com>
-Date: Sat, 15 Nov 2003 00:18:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sat, 15 Nov 2003 00:14:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:21158 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261473AbTKOFOG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 00:14:06 -0500
+Date: Fri, 14 Nov 2003 21:14:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PPC32: cancel syscall restart on signal delivery
+In-Reply-To: <16309.46013.862161.879144@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.44.0311142108060.9014-100000@home.osdl.org>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Jack Steiner <steiner@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: hot cache line due to note_interrupt()
-References: <Pine.LNX.4.44.0311141015050.1861-100000@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0311141015050.1861-100000@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> The fact is, irqdebug _has_ resulted in a few reports where instead of a 
-> silent and total lock-up, the kernel just said "I'll disable this irq" and 
-> the machine continued limping along.
 
+On Sat, 15 Nov 2003, Paul Mackerras wrote:
+> 
+> Now, when we resume that context we will call sys_restart_syscall
+> which will call restart_block.fn.  Which won't necessarily still point
+> to do_no_restart_syscall.  So I still think we have a problem.
 
-I strongly agree.
+Excellent point. We're actually much better off resetting it at signal
+return.
 
-There are two huge reasons I develop and debug drivers solely in 2.6 
-now: kksymoops and irqdebug.  Both have helped a great deal in tracking 
-down problems.  Indeed, screaming irqs that lead to lockups are 
-instantly detected in 2.6.
+Which should make all other resets unnecessary.
 
-But hey... I'm just a developer.  Who can say whether it should be on by 
-default?
+Yes, you can get out of a signal by using longjmp, but that doesn't
+matter: you can't longjump to a restart call (well, you can, but only if
+the user literally tries to do the restart by hand, ie he _intended_ to do
+it).
 
-	Jeff
+So the _proper_ fix (for x86) should be as appended. Agreed?
 
+		Linus
 
+----
+===== arch/i386/kernel/signal.c 1.33 vs edited =====
+--- 1.33/arch/i386/kernel/signal.c	Tue Nov 11 21:18:46 2003
++++ edited/arch/i386/kernel/signal.c	Fri Nov 14 21:13:09 2003
+@@ -132,6 +132,9 @@
+ {
+ 	unsigned int err = 0;
+ 
++	/* Always make any pending restarted system calls return -EINTR */
++	current_thread_info()->restart_block.fn = do_no_restart_syscall;
++
+ #define COPY(x)		err |= __get_user(regs->x, &sc->x)
+ 
+ #define COPY_SEG(seg)							\
+@@ -503,9 +506,6 @@
+ 	struct pt_regs * regs)
+ {
+ 	struct k_sigaction *ka = &current->sighand->action[sig-1];
+-
+-	/* Always make any pending restarted system calls return -EINTR */
+-	current_thread_info()->restart_block.fn = do_no_restart_syscall;
+ 
+ 	/* Are we from a system call? */
+ 	if (regs->orig_eax >= 0) {
 

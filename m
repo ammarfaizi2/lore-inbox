@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278954AbRJVVel>; Mon, 22 Oct 2001 17:34:41 -0400
+	id <S278966AbRJVVek>; Mon, 22 Oct 2001 17:34:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278956AbRJVVc7>; Mon, 22 Oct 2001 17:32:59 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2177 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S278958AbRJVVcT>;
-	Mon, 22 Oct 2001 17:32:19 -0400
-Date: Mon, 22 Oct 2001 14:32:20 -0700 (PDT)
-Message-Id: <20011022.143220.104032822.davem@redhat.com>
-To: god@yinyang.hjsoft.com
-Cc: gkade@bigbrother.net, linux-kernel@vger.kernel.org
-Subject: Re: linux-kernel-legal? was
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.40.0110221610350.18064-100000@yinyang.hjsoft.com>
-In-Reply-To: <Pine.LNX.4.33.0110221245530.31371-100000@tigger.unnerving.org>
-	<Pine.LNX.4.40.0110221610350.18064-100000@yinyang.hjsoft.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S278954AbRJVVc4>; Mon, 22 Oct 2001 17:32:56 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:26630 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S278956AbRJVVc3>; Mon, 22 Oct 2001 17:32:29 -0400
+Date: Mon, 22 Oct 2001 19:32:38 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: BH <bill@phoenixsoftware.ca>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.20-pre11
+In-Reply-To: <200110222131.OAA16160@phoenixsoftware.ca>
+Message-ID: <Pine.LNX.4.33L.0110221932190.22127-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Mr. Shannon Aldinger" <god@yinyang.hjsoft.com>
-   Date: Mon, 22 Oct 2001 16:21:23 -0400 (EDT)
-   
-   Here I thought we had Republicans fighting to make the US a republic and
-   Democrats fighting to make it a Democracy. Oh well, my mistake. Can
-   someone start a seperate mailing list maybe linux-kernel-legal. It would
-   be a good place for this and discussion of any other new laws, US and
-   other that effect the kernel hackers. As a bonus it wouldn't distract from
-   the patches.
+On Mon, 22 Oct 2001, BH wrote:
 
-The EFF and many other organizations concerned about the DMCA issues
-have suitable public lists for discussion of this topic.  I do not see
-a need for a new vger list.
+> 2.2.20pre11
+> o       Security fixes
+>         | Details censored in accordance with the US DMCA
+>
+> Is this a joke?
+>
+> I'm not American and do not plan to travel to the United States.
+> Is there a non-American changelog I can read please.
 
-You can just as well take this 2.2.x changelog thread there.  In fact,
-they're probably already talking about it :-)
+We're working on it.  I hope to have it available tomorrow
+evening or wednesday.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

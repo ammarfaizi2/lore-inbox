@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTERSoe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 14:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbTERSoe
+	id S262162AbTERS5I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 14:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbTERS5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 14:44:34 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:16774 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262161AbTERSoe (ORCPT
+	Sun, 18 May 2003 14:57:07 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:11018 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id S262162AbTERS5G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 14:44:34 -0400
-Date: Sun, 18 May 2003 20:56:50 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andi Kleen <ak@muc.de>
-cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 must-fix, v4
-In-Reply-To: <m3llx4hhwz.fsf@averell.firstfloor.org>
-Message-ID: <Pine.GSO.4.21.0305182056180.14757-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 18 May 2003 14:57:06 -0400
+Date: Sun, 18 May 2003 21:09:54 +0200
+Message-Id: <200305181909.h4IJ9sK02186@oboe.it.uc3m.es>
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: recursive spinlocks. Shoot.
+X-Newsgroups: linux.kernel
+In-Reply-To: <20030518182010$0541@gated-at.bofh.it>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 May 2003, Andi Kleen wrote:
-> But all hasn't been merged yet because Linus drops patches recently :-(
+In article <20030518182010$0541@gated-at.bofh.it> you wrote:
+> On Sun, 18 May 2003, Peter T. Breuer wrote:
+>> Here's a before-breakfast implementation of a recursive spinlock. That
 
-Aha, so I'm not the only one who noticed...
+> A looong time ago I gave to someone a recursive spinlock implementation
+> that they integrated in the USB code. I don't see it in the latest
+> kernels, so I have to guess that they found a better solution to do their
+> things. I'm biased to say that it must not be necessary to have the thing
+> if you structure your code correctly.
 
-Gr{oetje,eeting}s,
+Well, you can get rid of anything that way. The question is if the
+interface is an appropriate one to use or not - i.e. if it makes for
+better code in general, or if it make errors of programming less
+likely.
 
-						Geert
+I would argue that the latter is undoubtedly true - merely that
+userspace flock/fcntl works that way would argue for it, but there
+are a couple of other reasons too. 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Going against is the point that it may be slower.  Can you dig out your
+implementation and show me it?  I wasn't going for assembler in my hasty
+example.  I just wanted to establish that it's easy, so that it becomes
+known that its easy, and folks therefore aren't afraid of it.  That both
+you and I have had to write it implies that it's not obvious code to
+everyone.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 
+Peter

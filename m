@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131654AbRCOJyw>; Thu, 15 Mar 2001 04:54:52 -0500
+	id <S131648AbRCOJfI>; Thu, 15 Mar 2001 04:35:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131656AbRCOJym>; Thu, 15 Mar 2001 04:54:42 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:37519 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131654AbRCOJyc>;
-	Thu, 15 Mar 2001 04:54:32 -0500
-Date: Thu, 15 Mar 2001 10:52:25 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200103150952.KAA451302.aeb@vlet.cwi.nl>
-To: acahalan@cs.uml.edu, viro@math.psu.edu
-Subject: Re: [PATCH] Improved version reporting
-Cc: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk, linus@transmeta.com,
-        linux-kernel@vger.kernel.org, rhw@memalpha.cx,
-        seberino@spawar.navy.mil
+	id <S131654AbRCOJe6>; Thu, 15 Mar 2001 04:34:58 -0500
+Received: from [195.211.46.202] ([195.211.46.202]:19224 "EHLO serv02.lahn.de")
+	by vger.kernel.org with ESMTP id <S131648AbRCOJem>;
+	Thu, 15 Mar 2001 04:34:42 -0500
+Date: Thu, 15 Mar 2001 10:24:19 +0100 (CET)
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Reply-To: <pmhahn@titan.lahn.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS] 8139too
+In-Reply-To: <000d01c0acc7$1e8388e0$5517fea9@local>
+Message-ID: <Pine.LNX.4.33.0103151022220.1497-100000@titan.lahn.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+On Wed, 14 Mar 2001, Manfred Spraul wrote:
 
-    > On Wed, 14 Mar 2001 Andries.Brouwer@cwi.nl wrote:
+> > after APM laptop suspend to disk
+> > 8139too is build-in, not pcmcia
+> > I often get hangups after suspend-to-disk if I'm connected to a
+> > hub/switch.
+> > This is the first oops I've actually seen and copied it by hand:
+> Was the nic connected or not?
+The network was pluged in, but eth0 was not yet ifconfig'ed up.
 
-    >>> +o  Console Tools      #   0.3.3        # loadkeys -V
-    >>> +o  Mount              #   2.10e        # mount --version
-    >>
-    >> Concerning mount: (i) the version mentioned is too old,
+> It seems that rtl8139_resume() unconditionally enables the nic, even if
+> it wasn't open()'ed. Then an interrupt arrives and crashes because some
+> memory structures were not allocated.
+Will take a look myself after my exams.
 
-    Exactly why? Mere missing features don't make for a required
-    upgrade. Version number inflation should be resisted.
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
 
-These days you can mount filesystems several places.
-That means that the choice one used to have -- after
-	# mount dev dir
-both
-	# umount dev
-and
-	# umount dir
-would unmount -- has disappeared, and only
-	# umount dir
-is (guaranteed to be) right today.
-These days you can mount several filesystems at the same mount point.
-The old mount does not understand this at all.
-Recent versions of mount act better in this respect,
-even though it is still easy to confuse them.
-
-Such things mean that it is best to have a really recent mount
-(although, of course, if you only want the mount(2) system call
-executed some five year old version will also do that for you).
-
-On the other hand, there are no important changes between
-mount-2.10d and 2.10e, so I see no justification for writing 2.10e.
-It is difficult to say what the "right" version is. There is a
-long series of minor improvements. Probably I would write 2.10r.
-
-Andries

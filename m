@@ -1,25 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261853AbSI2X5B>; Sun, 29 Sep 2002 19:57:01 -0400
+	id <S261862AbSI3ANd>; Sun, 29 Sep 2002 20:13:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261851AbSI2X5A>; Sun, 29 Sep 2002 19:57:00 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:21465 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261848AbSI2X4W>;
-	Sun, 29 Sep 2002 19:56:22 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 30 Sep 2002 02:01:44 +0200 (MEST)
-Message-Id: <UTC200209300001.g8U01iY27223.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, acme@conectiva.com.br
-Subject: Re: [PATCH] net/Config.in
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S261857AbSI3ANc>; Sun, 29 Sep 2002 20:13:32 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:3737 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S261862AbSI3ANU>; Sun, 29 Sep 2002 20:13:20 -0400
+Message-ID: <3D9797FA.5090505@hotmail.com>
+Date: Sun, 29 Sep 2002 17:16:58 -0700
+From: walt <wa1ter@hotmail.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.1) Gecko/20020921
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: v2.6 vs v3.0
+References: <fa.e52m04v.plkfqo@ifi.uio.no> <fa.jgmettv.1hku79s@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks, accepted, I'm pushing to DaveM in some moments ...
+james wrote:
 
-OK, that was the configuration part.
-The kernel oopses at boot time in llc_sap_find().
-I seem to recall that I saw some such oopses on lk
-but didnt pay attention. Has this been fixed already?
+> ...If I was a marketing person I would call it linux 3.0.0 
+> enterprize edition, if we can get LVM2, raid and break the 2 terabyte 
+> filesystem limit...
 
-Andries
+If you were a marketing person you wouldn't know what any of those
+words mean.
+

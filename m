@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbTEKKXm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 06:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbTEKKXL
+	id S261260AbTEKKjX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 06:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTEKKXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 06:23:11 -0400
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:57443 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261232AbTEKKVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 06:21:36 -0400
-Date: Sun, 11 May 2003 12:31:04 +0200
-Message-Id: <200305111031.h4BAV4tC019724@callisto.of.borg>
+	Sun, 11 May 2003 06:23:03 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:24087 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261227AbTEKKVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 06:21:35 -0400
+Date: Sun, 11 May 2003 12:31:03 +0200
+Message-Id: <200305111031.h4BAV3JA019706@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Obsolete include/asm-ppc/linux_logo.h
+Subject: [PATCH] IDE iops clean ups
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgot to remove include/asm-ppc/linux_logo.h when integrating the new logo
-code.
+IDE I/O operations clean ups:
+  - Kill warning about void return type not being ignored
+  - Fix comment: Q40/Q60 also has a byte-swapped IDE interface
 
---- linux-2.5.x/include/asm-ppc/linux_logo.h.orig	Sun Sep 22 15:53:50 2002
-+++ linux-2.5.x/include/asm-ppc/linux_logo.h	Thu Jan  1 01:00:00 1970
-@@ -1,24 +0,0 @@
--/*
-- * include/asm-ppc/linux_logo.h: A linux logo to be displayed on boot
-- * (pinched from the sparc port).
-- *
-- * Copyright (C) 1996 Larry Ewing (lewing@isc.tamu.edu)
-- * Copyright (C) 1996 Jakub Jelinek (jj@sunsite.mff.cuni.cz)
-- *
-- * You can put anything here, but:
-- * LINUX_LOGO_COLORS has to be less than 224
-- * values have to start from 0x20
-- * (i.e. linux_logo_{red,green,blue}[0] is color 0x20)
-- */
--#ifdef __KERNEL__
-- 
--#include <linux/init.h>
--
--#define linux_logo_banner "Linux/PPC version " UTS_RELEASE
--
--#define LINUX_LOGO_HEIGHT	80
--#define LINUX_LOGO_WIDTH	80
--
--#include <linux/linux_logo.h>
--
--#endif /* __KERNEL__ */
+--- linux-2.5.x/drivers/ide/ide-iops.c	Tue Mar 25 10:32:34 2003
++++ linux-m68k-2.5.x/drivers/ide/ide-iops.c	Tue Mar 25 11:56:05 2003
+@@ -155,7 +155,7 @@
+ 
+ static void ide_outsl (unsigned long port, void *addr, u32 count)
+ {
+-	return outsl(port, addr, count);
++	outsl(port, addr, count);
+ }
+ 
+ void default_hwif_iops (ide_hwif_t *hwif)
+@@ -391,7 +391,7 @@
+ 		insw_swapw(IDE_DATA_REG, buffer, bytecount / 2);
+ 		return;
+ 	}
+-#endif /* CONFIG_ATARI */
++#endif /* CONFIG_ATARI || CONFIG_Q40 */
+ 	hwif->ata_input_data(drive, buffer, bytecount / 4);
+ 	if ((bytecount & 0x03) >= 2)
+ 		hwif->INSW(IDE_DATA_REG, ((u8 *)buffer)+(bytecount & ~0x03), 1);
+@@ -410,7 +410,7 @@
+ 		outsw_swapw(IDE_DATA_REG, buffer, bytecount / 2);
+ 		return;
+ 	}
+-#endif /* CONFIG_ATARI */
++#endif /* CONFIG_ATARI || CONFIG_Q40 */
+ 	hwif->ata_output_data(drive, buffer, bytecount / 4);
+ 	if ((bytecount & 0x03) >= 2)
+ 		hwif->OUTSW(IDE_DATA_REG, ((u8*)buffer)+(bytecount & ~0x03), 1);
 
 Gr{oetje,eeting}s,
 

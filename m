@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129514AbQKVWg4>; Wed, 22 Nov 2000 17:36:56 -0500
+        id <S129682AbQKVWh4>; Wed, 22 Nov 2000 17:37:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131123AbQKVWgq>; Wed, 22 Nov 2000 17:36:46 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:63752 "EHLO smtp1.cern.ch")
-        by vger.kernel.org with ESMTP id <S129514AbQKVWg1>;
-        Wed, 22 Nov 2000 17:36:27 -0500
+        id <S131454AbQKVWhr>; Wed, 22 Nov 2000 17:37:47 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:33007 "EHLO
+        brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+        id <S129682AbQKVWhh>; Wed, 22 Nov 2000 17:37:37 -0500
+Date: Wed, 22 Nov 2000 20:06:59 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
 To: Miles Lane <miles@speakeasy.org>
-Cc: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Alan Cox's e-mail address is hosed?
 In-Reply-To: <3A1CEBC9.8010109@speakeasy.org>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 22 Nov 2000 23:06:19 +0100
-In-Reply-To: Miles Lane's message of "Thu, 23 Nov 2000 02:04:57 -0800"
-Message-ID: <d3bsv7ll0k.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+Message-ID: <Pine.LNX.4.21.0011222005550.12459-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Miles" == Miles Lane <miles@speakeasy.org> writes:
+On Thu, 23 Nov 2000, Miles Lane wrote:
 
-Miles> I attempted to reply to a message from Alan and got the
-Miles> following response.
+> I attempted to reply to a message from Alan
+> and got the following response.
 
-No it isn't, Alan uses ORBS and you are obviously black listed there
-(www.orbs.org).
+> SMTP module(domain lxorguk.ukuu.org.uk) reports:
+>   host lightning.swansea.uk.linux.org says:
+>   550 rejected: administrative prohibition
 
-This one seems to come up every now and then, and always turns into a
-flamewar. Now it's Alan's choice so if you want to argue over this,
-take it somewhere else please.
+You're in ORBS. Fix your open relay and get out of ORBS ...
 
-Who is maintaining the FAQ? this might be a good idea to add to under
-the mailing list section.
+cheers,
 
-Jes
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+http://www.conectiva.com/		http://www.surriel.com/
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

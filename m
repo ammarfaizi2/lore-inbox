@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318643AbSIFOa4>; Fri, 6 Sep 2002 10:30:56 -0400
+	id <S318696AbSIFOeZ>; Fri, 6 Sep 2002 10:34:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318649AbSIFOa4>; Fri, 6 Sep 2002 10:30:56 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:19727
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318643AbSIFOa4>; Fri, 6 Sep 2002 10:30:56 -0400
-Subject: Re: [TRIVIAL PATCH] Remove list_t infection.
-From: Robert Love <rml@tech9.net>
-To: Dan Aloni <da-x@gmx.net>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, akpm@zip.com.au
-In-Reply-To: <20020906092829.GA32379@callisto.yi.org>
-References: <20020902003318.7CB682C092@lists.samba.org> 
-	<20020906092829.GA32379@callisto.yi.org>
+	id <S318704AbSIFOeZ>; Fri, 6 Sep 2002 10:34:25 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:41156 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318696AbSIFOeY>; Fri, 6 Sep 2002 10:34:24 -0400
+Subject: 0-order allocation failures in LTP run of Last nights bk tree
+From: Paul Larson <plars@austin.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 06 Sep 2002 10:35:24 -0400
-Message-Id: <1031322928.940.41.camel@phantasy>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 06 Sep 2002 09:27:03 -0500
+Message-Id: <1031322426.30394.4.camel@plars.austin.ibm.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-06 at 05:28, Dan Aloni wrote:
+In the nightly ltp run against the bk 2.5 tree last night I saw this
+show up in the logs.
 
-> task_t, anyone?
+It happened on the 2-way PIII-550, 2gb physical ram, but not on the
+smaller UP box I test on.
 
-I actually like task_t, and it is my lone typedef exception, but maybe I
-am the exception...
+mtest01: page allocation failure. order:0, mode:0x50
+mtest01: page allocation failure. order:0, mode:0x50
+mtest01: page allocation failure. order:0, mode:0x50
+klogd: page allocation failure. order:0, mode:0x50
+klogd: page allocation failure. order:0, mode:0x50
+mtest01: page allocation failure. order:0, mode:0x50
+klogd: page allocation failure. order:0, mode:0x50
+klogd: page allocation failure. order:0, mode:0x50
+klogd: page allocation failure. order:0, mode:0x50
+klogd: page allocation failure. order:0, mode:0x50
+klogd: page allocation failure. order:0, mode:0x50
+...
+...
 
-My real complaint against typedefs (and list_t in particular) is their
-inconsistent use.  I think we have done a good job universally using
-task_t vs struct task_struct, and thus its not an issue to keep it... 
-On the other hand, I would not scream too loudly over its removal.
+The past few nights it's been failing from compile errors such as the
+vmlinux.lds.S error and such so I'm not for certain that this was caused
+by something that got introduced yesterday.  It should be from something
+pretty recent though.
 
-Anyhow, I think any change should be ack'ed by Ingo because its his code
-and he deals with it a disappropriately large amount of the time.
-
-	Robert Love
+Thanks,
+Paul Larson
 

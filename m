@@ -1,22 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264513AbUEVCV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265037AbUEVCV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264513AbUEVCV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 22:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbUEVCSG
+	id S265037AbUEVCV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 22:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbUEUWjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 22:18:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6622 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264524AbUEVCQm (ORCPT
+	Fri, 21 May 2004 18:39:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28570 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266084AbUEUWd5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 22:16:42 -0400
-Date: Fri, 21 May 2004 19:16:09 -0700
+	Fri, 21 May 2004 18:33:57 -0400
+Date: Thu, 20 May 2004 23:36:39 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Slab cache reap and CPU availability
-Message-Id: <20040521191609.6f4a49a7.akpm@osdl.org>
-In-Reply-To: <200405211541.i4LFfpar001544@fsgi142.americas.sgi.com>
-References: <200405211541.i4LFfpar001544@fsgi142.americas.sgi.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: jakub@redhat.com, linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: [PATCH] Add FUTEX_CMP_REQUEUE futex op
+Message-Id: <20040520233639.126125ef.akpm@osdl.org>
+In-Reply-To: <40AD9C5E.1020603@redhat.com>
+References: <20040520093817.GX30909@devserv.devel.redhat.com>
+	<20040520155217.7afad53b.akpm@osdl.org>
+	<40AD9C5E.1020603@redhat.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,26 +26,43 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimitri Sivanich <sivanich@sgi.com> wrote:
+Ulrich Drepper <drepper@redhat.com> wrote:
 >
-> Hi all,
+> Andrew Morton wrote:
 > 
-> I have a fairly general question about the slab cache reap code.
+> > Is it safe to go adding a new argument to an existing syscall in this manner?
 > 
-> In running realtime noise tests on the 2.6 kernels (spinning to detect periods
-> of CPU unavailability to RT threads) on an IA/64 Altix system, I have found the
-> cache_reap code to be the source of a number of larger holdoffs (periods of
-> CPU unavailability).  These can last into the 100's of usec on 1300 MHz CPUs.
-> Since this code runs periodically every few seconds as a timer softirq on all
-> CPUs, holdoffs can occur frequently.
-> 
-> Has anyone looked into less interruptive alternatives to running cache_reap
-> this way (for the 2.6 kernel), or maybe looked into potential optimizations
-> to the routine itself?
+> Yes.  This is a multiplexed syscall and the opcode decides which syscall
+> parameter is used.
 > 
 
-Do you have stack backtraces?  I thought the problem was via the RCU
-softirq callbacks, not via the timer interrupt.  Dipankar spent some time
-looking at the RCU-related problem but solutions are not comfortable.
+Of course.
 
-What workload is triggering this?
+> > It'll work OK on x86 because of the stack layout but is the same true of
+> > all other supported architectures?
+> 
+> We add parameters at the end.  This does not influence how previous
+> values are passed.  And especially for syscalls it makes no difference.
+> 
+
+what we're effectively doing is:
+
+void foo(int a, int b, int c)
+{
+}
+
+and from another compilation unit:
+
+	foo(a, b);
+
+and we're expecting the a's and b's to line up across all architectures and
+compiler options.  I thought that on some architectures that only works out
+if the function has a vararg declaration.
+
+Does it do the right thing on stack-grows-up machines?
+
+If the compiler passes the first few args via registers and the rest on the
+stack, are we sure that it won't at some level of complexity decide to pass
+_all_ the args on the stack?  It's free to do so, I think.
+
+I have a vague memory of getting bitten by this trick once...

@@ -1,95 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135664AbRDXOy7>; Tue, 24 Apr 2001 10:54:59 -0400
+	id <S135670AbRDXO5j>; Tue, 24 Apr 2001 10:57:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135660AbRDXOyu>; Tue, 24 Apr 2001 10:54:50 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:8535 "EHLO
-	c0mailgw06.prontomail.com") by vger.kernel.org with ESMTP
-	id <S135668AbRDXOyc>; Tue, 24 Apr 2001 10:54:32 -0400
-Message-ID: <3AE59348.1DFE3E23@mvista.com>
-Date: Tue, 24 Apr 2001 07:52:56 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Gabriel Paubert <paubert@iram.es>
-CC: "Robert H. de Vries" <rhdv@rhdv.cistron.nl>,
-        high-res-timers-discourse@lists.sourceforge.net,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: high-res-timers start code.
-In-Reply-To: <Pine.HPX.4.10.10104241213530.2724-100000@gra-ux1.iram.es>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S135675AbRDXO5a>; Tue, 24 Apr 2001 10:57:30 -0400
+Received: from vega.digitel2002.hu ([213.163.0.181]:41622 "HELO
+	vega.digitel2002.hu") by vger.kernel.org with SMTP
+	id <S135673AbRDXO4o>; Tue, 24 Apr 2001 10:56:44 -0400
+Date: Tue, 24 Apr 2001 16:56:32 +0200
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Pjotr Kourzanoff <pjotr@suselinux.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
+Message-ID: <20010424165632.A7652@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <20010424163009.A7197@vega.digitel2002.hu> <Pine.LNX.4.31.0104241643400.17653-100000@zeus.suselinux.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.31.0104241643400.17653-100000@zeus.suselinux.hu>; from pjotr@suselinux.hu on Tue, Apr 24, 2001 at 04:49:57PM +0200
+X-Operating-System: vega Linux 2.2.19 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Paubert wrote:
-> 
-> On Mon, 23 Apr 2001, george anzinger wrote:
-> 
-> > "Robert H. de Vries" wrote:
-> > >
-> > > On Monday 23 April 2001 19:45, you wrote:
-> > >
-> > > > By the way, is the user land stuff the same for all "arch"s?
-> > >
-> > > Not if you plan to handle the CPU cycle counter in user space. That is at
-> > > least what I would propose.
+On Tue, Apr 24, 2001 at 04:49:57PM +0200, Pjotr Kourzanoff wrote:
+> On Tue, 24 Apr 2001, [iso-8859-2] Gábor Lénárt wrote:
 > >
-> > Just got interesting, lets let the world look in.
-> >
-> > What did you have in mind here?  I suspect that on some archs the cycle
-> > counter is not available to user code.  I know that on parisc it is
-> > optionally available (kernel can set a bit to make it available), but by
-> > it self it is only good for intervals.  You need to peg some value to a
-> > CLOCK to use it to get timeofday, for instance.
+> > Or even without xinetd. Just use local port forwarding eg 2525 -> 25, and
 > 
-> On Intel there is a also bit to disable unprivileged RDTSC, IIRC. On PPC
-> the timebase is always available (but the old 601 needs spacial casing: it
-> uses different registers and does not count in binary :-().
-> 
-> > On the other hand, if there is an area of memory that both users and
-> > system can read but only system can write, one might put the soft clock
-> > there.  This would allow gettimeofday (with the cycle counter) to work
-> > without a system call.  To the best of my knowledge the system does not
-> > have such an area as yet.
-> >
-> > comments?
-> 
-> Well, there may be work in this area, since x86-64 will not enter kernel
-> mode for gettimeofday() if I understand correctly what Andrea said. Linus
-> hinted once at exporting (kernel) code to user space.
-> 
-> Some data also will also need to be accessible but as long as you don't
-> guarantee compatibility on data layout, only AFAIU on interface for these
-> calls (it was not clear to me if it would be a fixed address forever or
-> dynamic linking with kernel exported symbols), it's not a problem.
+>   This is more like 25 -> 2525 :-)
 
-HPUX passes some kernel addresses to programs on the initial start up,
-i.e. the primary entry point where exec starts the task.  In this case
-the addresses are in registers.  I think HPUX also passes addresses back
-to the kernel at this time, but those are done with a system call.  In
-any case, such a change requires a user land relink, something that may
-want the kernel to move from 2.x.x to 3.x.x (depending on version
-conventions :).
+OK, that was a hard night for me, I need some sleeeeeep :)
 
-I think the real problem has more to do with the "minor" variations on
-various archs, for example the 601 ppc above and the i386 TSC is only
-available in the "newer" machines.  This would require user land
-configuration based on fine points of the arch, stuff "only the kernel
-knows for sure".
-
-So what do we do in the meantime?
-
-Comments?
-
-George
+> > use port 2525 as SMTP port in your MTA. I've succeed to setup such a
+> > configuration.
 > 
-> Of course it will SIGSEGV instead of returning -EFAULT but this is a good
-> thing IMHO, nobody checks for -EFAULT from gettimeofday(). I think
-> that system calls should rather force SIGSEGV than return -EFAULT anyway,
-> to make syscalls indistinguishable from pure library calls.
+>   This requires you to ensure that your MTA is started first on that
+>   port...Might be difficult to achieve reliably in an automatic way
+>   without root privileges :-(
 > 
->         Regards,
->         Gabriel.
+>   mailuser@foo% /etc/rc.d/init.d/sendmail stop
+>   badguy@foo% ./suck 2525
+>   mailuser@foo% /etc/rc.d/init.d/sendmail start
+
+Yes, you're right. But this is a mail server without any user on it
+(even users are authenticated from LDAP).
+
+-- 
+ --[ Gábor Lénárt ]---[ Vivendi Telecom Hungary ]---------[ lgb@lgb.hu ]--
+ U have 8 bit comp or chip of them and it's unused or to be sold? Call me!
+ -------[ +36 30 2270823 ]------> LGB <-----[ Linux/UNIX/8bit 4ever ]-----

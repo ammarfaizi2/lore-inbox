@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261407AbTCJSdx>; Mon, 10 Mar 2003 13:33:53 -0500
+	id <S261397AbTCJSqI>; Mon, 10 Mar 2003 13:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261410AbTCJSdx>; Mon, 10 Mar 2003 13:33:53 -0500
-Received: from mx01.cyberus.ca ([216.191.240.22]:6411 "EHLO mx01.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S261407AbTCJSdw>;
-	Mon, 10 Mar 2003 13:33:52 -0500
-Date: Mon, 10 Mar 2003 13:43:50 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: raarts@office.netland.nl, Linus Torvalds <torvalds@transmeta.com>,
-       "" <david.knierim@tekelec.com>, "" <alexander@netintact.se>,
-       Donald Becker <becker@scyld.com>, Greg KH <greg@kroah.com>,
-       Jeff Garzik <jgarzik@pobox.com>, "" <kuznet@ms2.inr.ac.ru>,
-       "" <linux-kernel@vger.kernel.org>,
-       Robert Olsson <Robert.Olsson@data.slu.se>
-Subject: Re: [fixed] Re: PCI init issues
-In-Reply-To: <20030307221916.A3679@localhost.park.msu.ru>
-Message-ID: <20030310134122.S88416@shell.cyberus.ca>
-References: <Pine.LNX.4.44.0303041046370.1426-100000@home.transmeta.com>
- <3E6601A3.2010201@netland.nl> <20030307221916.A3679@localhost.park.msu.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261400AbTCJSqI>; Mon, 10 Mar 2003 13:46:08 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54280 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S261397AbTCJSqH>; Mon, 10 Mar 2003 13:46:07 -0500
+Date: Mon, 10 Mar 2003 19:56:47 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
+Subject: Re: ioctl32 cleanup -- rest of architectures
+Message-ID: <20030310185647.GA11310@atrey.karlin.mff.cuni.cz>
+References: <20030310172832.GG5278@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030310172832.GG5278@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Ivan!
+> Could you cc myself or parisc-linux@parisc-linux.org in future
+> please?
 
-Thanks very much for your efforts.
-Is there more testing youd like to see done?
-Could we get this patch in to Marcello for inclusion in the pre 2.4.21?
+Yes, I'll try to cc you.
 
-cheers,
-jamal
+
+> first, you've called it `compact_sys_ioctl' -- it should be `compat_sys_ioctl'.
+> it's compatible, not really small ;-)
+
+Ouch, stupid typo. Sorry
+
+> second, you've not changed the definition in arch/parisc/kernel/syscall.S:
+> 
+> -	ENTRY_DIFF(ioctl)
+> +	ENTRY_COMP(ioctl)
+
+So I should take arch/parisc/kernel/syscall.S and change
+ENTRY_DIFF(ioctl) into ENTRY_COMP(ioctl)? Great, thanx.
+
+[BTW have you actually tested it or are these just first obvious
+mistakes?]
+
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

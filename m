@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267330AbTALIYV>; Sun, 12 Jan 2003 03:24:21 -0500
+	id <S267331AbTALIlD>; Sun, 12 Jan 2003 03:41:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267331AbTALIYV>; Sun, 12 Jan 2003 03:24:21 -0500
-Received: from cust.7.144.adsl.cistron.nl ([62.216.7.144]:5904 "EHLO sawmill")
-	by vger.kernel.org with ESMTP id <S267330AbTALIYU>;
-	Sun, 12 Jan 2003 03:24:20 -0500
-Date: Sun, 12 Jan 2003 09:28:06 +0100
-To: Adrian Bunk <bunk@fs.tum.de>
+	id <S267332AbTALIlC>; Sun, 12 Jan 2003 03:41:02 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24523 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267331AbTALIlC>; Sun, 12 Jan 2003 03:41:02 -0500
+Date: Sun, 12 Jan 2003 09:49:47 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Greg Ungerer <gerg@snapgear.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (revised) fix net/irda warnings for 2.4.21-pre3
-Message-ID: <20030112082806.GA30849@sawmill>
-References: <20030111120432.GA28023@sawmill> <20030112024225.GA28485@sawmill> <20030112072409.GL21826@fs.tum.de>
+Subject: [2.5 patch] remove kernel 2.0 code from mcfserial.h
+Message-ID: <20030112084947.GQ21826@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030112072409.GL21826@fs.tum.de>
 User-Agent: Mutt/1.4i
-From: Tony <kernel@mail.vroon.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh *smacks forehead*
+The patch below removes some #if'd code for kernel 2.0 from 
+drivers/serial/mcfserial.h.
 
-The right .options file would help.
-You're right, there were 5 bugs left.
-
-Well, this is my third and final try...
-
-http://www.chainsaw.cistron.nl/compile-fixes-irda.patch.gz
+Please apply
+Adrian
 
 
-Thanks for the testing, and I hope this one works.
-
-Tony.
+--- linux-2.5.56/drivers/serial/mcfserial.h.old	2003-01-12 09:44:38.000000000 +0100
++++ linux-2.5.56/drivers/serial/mcfserial.h	2003-01-12 09:45:04.000000000 +0100
+@@ -69,13 +69,8 @@
+ 	struct work_struct	tqueue_hangup;
+ 	struct termios		normal_termios;
+ 	struct termios		callout_termios;
+-#if LINUX_VERSION_CODE <= 0x020100
+-	struct wait_queue	*open_wait;
+-	struct wait_queue	*close_wait;
+-#else
+ 	wait_queue_head_t	open_wait;
+ 	wait_queue_head_t	close_wait;
+-#endif
+ 
+ };
+ 

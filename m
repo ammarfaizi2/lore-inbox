@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131028AbRCPT4F>; Fri, 16 Mar 2001 14:56:05 -0500
+	id <S131320AbRCPUKi>; Fri, 16 Mar 2001 15:10:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131079AbRCPTzz>; Fri, 16 Mar 2001 14:55:55 -0500
-Received: from [216.18.81.112] ([216.18.81.112]:23306 "EHLO
-	node0.opengeometry.com") by vger.kernel.org with ESMTP
-	id <S131028AbRCPTzo>; Fri, 16 Mar 2001 14:55:44 -0500
-Date: Fri, 16 Mar 2001 14:50:30 -0500
-From: William Park <parkw@better.net>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: VIA686B + 2.2.18 (was: VIA686A chipset crash under 2.4.2-ac20)
-Message-ID: <20010316145030.A7907@better.net>
-Mail-Followup-To: William Park <parkw@better.net>,
-	Andre Hedrick <andre@linux-ide.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4219755109.20010316192322@student.luth.se> <Pine.LNX.4.10.10103161041040.14210-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S131315AbRCPUK3>; Fri, 16 Mar 2001 15:10:29 -0500
+Received: from zmamail05.zma.compaq.com ([161.114.64.105]:13830 "HELO
+	zmamail05.zma.compaq.com") by vger.kernel.org with SMTP
+	id <S131313AbRCPUKU>; Fri, 16 Mar 2001 15:10:20 -0500
+Message-ID: <3AB27335.FF82FFAB@zk3.dec.com>
+Date: Fri, 16 Mar 2001 15:10:29 -0500
+From: Peter Rival <frival@zk3.dec.com>
+X-Mailer: Mozilla 4.6 [en] (Win98; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Doug Ledford <dledford@redhat.com>
+Cc: Ishikawa <ishikawa@yk.rim.or.jp>, Pete Zaitcev <zaitcev@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: scsi_scan problem.
+In-Reply-To: <3AB028BE.E8940EE6@redhat.com> <20010314213543.A30816@devserv.devel.redhat.com> <3AB030F6.246C6F23@redhat.com> <3AB24511.EA8BD2A2@yk.rim.or.jp> <3AB26A9A.9F1B3FAE@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.10.10103161041040.14210-100000@master.linux-ide.org>; from andre@linux-ide.org on Fri, Mar 16, 2001 at 10:42:26AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 16, 2001 at 10:42:26AM -0800, Andre Hedrick wrote:
-> 
-> Okay not to worry, I now have a my hands on a VIA 686B and will look
-> at the changes that happened to the VIA686A
-> 
-> Have you run 2.2.18 plus my patches off kernel.org?
+Doug, could you check how this patch works if you have the qla2x00 installed in an
+Alpha box?  I'm hoping this is part of the source of my problems, but I'm not
+positive.  (I'd do it, but my system is running benchmarks for the next several
+days.)  Thanks!
 
-Hi Andre, 
+ - Pete
 
-I'm running 2.2.18 on VIA686B (ABit VP6).  Some time ago, you mentioned
-that you got ~80Mb/s from 'hdparm -t /dev/hda'.  Please tell us how?
-Which hdparm/kernel options did you enable?
+Doug Ledford wrote:
 
-:wq --William Park, Open Geometry Consulting, Linux/Python, 8 CPUs.
+> Ishikawa wrote:
+> >
+> > Hi,
+> >
+> > I have an "old" Nakamichi CD changer.
+> > ("old" might be important consideration here. )
+> >
+> > Should I test the patch submitted and report what I found ?
+> > (Or maybe I don't have to bother at this stage at all
+> > and  simply wait for the 2.5 development and debugging cycle?)
+>
+> It would still be helpful because this problem has to be fixed before 2.5.
+> The only question is whether to fix it with a simple patch such as I just
+> submitted, or a more complex patch that uses REPORT LUNs.  Part of that answer
+> is how my simple patch works on your device.
+>
+> --
+>
+>  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+>       Please check my web site for aic7xxx updates/answers before
+>                       e-mailing me about problems
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

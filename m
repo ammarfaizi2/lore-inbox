@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282691AbRLQUVT>; Mon, 17 Dec 2001 15:21:19 -0500
+	id <S282817AbRLQU0j>; Mon, 17 Dec 2001 15:26:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282707AbRLQUVA>; Mon, 17 Dec 2001 15:21:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6159 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S282691AbRLQUU5>;
-	Mon, 17 Dec 2001 15:20:57 -0500
-Date: Mon, 17 Dec 2001 20:20:56 +0000
-From: Joel Becker <jlbec@evilplan.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT wierd behavior..
-Message-ID: <20011217202056.L31706@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011217195312.K31706@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.33.0112171156380.1380-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0112171156380.1380-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Dec 17, 2001 at 11:59:56AM -0800
-X-Burt-Line: Trees are cool.
+	id <S282771AbRLQU0T>; Mon, 17 Dec 2001 15:26:19 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:1770 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S282707AbRLQU0S>; Mon, 17 Dec 2001 15:26:18 -0500
+Date: Mon, 17 Dec 2001 21:26:10 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Simon Roscic <simon.roscic@chello.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: compile problem: es1371+gamepad
+In-Reply-To: <Pine.NEB.4.43.0112172057360.24574-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.NEB.4.43.0112172114170.24574-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 11:59:56AM -0800, Linus Torvalds wrote:
-> On Mon, 17 Dec 2001, Joel Becker wrote:
-> > 	/* Smart program handles partial writes */
-> > 	write(100k); = 50k
-> > 	write(remaining 50k); = -1/ENOSPC|EIO|etc
-> 
-> We do this, if the error is "hard". And "fatal" implies hardness, so we're
-> ok here.
+On Mon, 17 Dec 2001, Adrian Bunk wrote:
 
-	Right.  "hard" is also synonymous with "non-transient".
+>...
+> Simon: As an (untested) workaround until the bug I describe below is fixed
+>        it should work for you if select in the Character devices/Joysticks
+>        submenu the "Game port support" to be compiled statically into the
+>        kernel instead of compiling it as a module.
+>...
 
-> > 	/* Dumb program doesn't handle partial write */
-> > 	write(100k); = 50k
-> > 	close(fd); = -1/EIO
-> 
-> But we're not doing this.
+An addition to this (I should have tested it before I sent the mail...):
+To do this you need to compile "Input core support" in the submenu with
+the same name static instead of modular into the kernel.
 
-	IMHO we should be, and not just to comply with the letter of
-SUS/Unix98.  SUS specifies this behavior because a synchronous write()
-can return after copying data to the buffer cache.  However, the EIO can
-happen later when the buffer cache is trying to flush to disk.  The only
-way for an application to see this error is to either run O_SYNC or
-receive it upon close().
-
-Joel
+cu
+Adrian
 
 -- 
 
-"Every day I get up and look through the Forbes list of the richest
- people in America. If I'm not there, I go to work."
-        - Robert Orben
+Get my GPG key: finger bunk@debian.org | gpg --import
 
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
+
+

@@ -1,43 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290919AbSBQKpG>; Sun, 17 Feb 2002 05:45:06 -0500
+	id <S293129AbSBQO4q>; Sun, 17 Feb 2002 09:56:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292921AbSBQKo4>; Sun, 17 Feb 2002 05:44:56 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:10508 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S290919AbSBQKoh>;
-	Sun, 17 Feb 2002 05:44:37 -0500
-Date: Sat, 16 Feb 2002 23:46:18 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Vojtech Pavlik <vojtech@suse.cz>, Jens Axboe <axboe@suse.de>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: IDE cleanup for 2.5.4-pre3
-Message-ID: <20020216224618.GB602@elf.ucw.cz>
-In-Reply-To: <20020215204510.GD5019@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.10.10202151719420.10501-100000@master.linux-ide.org>
+	id <S293133AbSBQO4g>; Sun, 17 Feb 2002 09:56:36 -0500
+Received: from 217-126-141-228.uc.nombres.ttd.es ([217.126.141.228]:55820 "HELO
+	smtp.cespedes.org") by vger.kernel.org with SMTP id <S293129AbSBQO4W>;
+	Sun, 17 Feb 2002 09:56:22 -0500
+Date: Sun, 17 Feb 2002 15:56:15 +0100
+From: Juan Cespedes <cespedes@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: ptrace() bug
+Message-ID: <20020217145615.GB2064@thehackers.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10202151719420.10501-100000@master.linux-ide.org>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> I have looked over it and it seems reasonable and sane, and thanks for the
-> input but the timing is woefully wrong.  The multi-mode write is wrong by
-> the requirements of Linus.  I just now have a possible solution.
-> Could we just hold off until I fix the core?
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I do not think it would be good idea.
+Hi,
 
-That code needs to be cleaned up. Everything will be easier when it is
-clean.
+I am the author of "ltrace" and unfortunatelly it does not work in 2.4
+kernels, due to a bug in the kernel.  Unfortunately, I don't know when
+did this behaviour started and what could have caused it...
 
-Sorry.
-									Pavel
+Summary: if I use ptrace() witth a process that does fork(), and after
+the fork I modify with PTRACE_POKETEXT some of the code in the parent,
+the same modification is observed in the child.
+
+I need to modify the .text in order to introduce breakpoints, but with
+this bug ltrace does not work with any process which forks.
+
+The attached little program shows the bug: the child should not see the
+content of "sync" modified after it is alive.
+
+Thanks for your help,
+
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+    .+'''+.         .+'''+.         .+'''+.         .+'''+.         .+''
+ Juan Cespedes     /       \       /       \      cespedes@debian.org
+.+'         `+...+'         `+...+'         `+...+'         `+...+'
+
+--dDRMvlgZJXvWKvBx
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="test.c"
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/ptrace.h>
+#include <signal.h>
+
+void
+traced_process(void) {
+	if (ptrace(PTRACE_TRACEME, 0, 0, 0) < 0)
+		exit(1);
+	kill(getpid(), SIGCONT);
+	if (fork()) {
+		sleep(2);
+/*		printf("parent: *sync=%d\n", *(unsigned char*)sync); */
+	} else {
+		printf("child is alive (*sync=%d)\n", *(unsigned char*)sync);
+		sleep(1);
+		printf("child: *sync=%d\n", *(unsigned char*)sync);
+	}
+	exit(0);
+}
+
+int
+main(void) {
+	pid_t pid;
+	int status;
+	int i=0;
+
+	pid = fork();
+	if (!pid) traced_process();
+
+	while(1) {
+		if (wait(&status)==-1) {
+			break;
+		}
+		printf("ptrace(PTRACE_POKETEXT, %d, sync, %d)...\n", pid, ++i);
+		ptrace(PTRACE_POKETEXT, pid, sync, i);
+		ptrace(PTRACE_SYSCALL, pid, 0, 0);
+	}
+	exit(0);
+}
+
+--dDRMvlgZJXvWKvBx--

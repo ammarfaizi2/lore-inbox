@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266199AbUAUXbS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 18:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUAUX3w
+	id S266170AbUAUXZx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 18:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266172AbUAUXZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 18:29:52 -0500
-Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:20431 "EHLO
-	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266190AbUAUX3L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 18:29:11 -0500
-From: Christian Unger <chakkerz@optusnet.com.au>
-Reply-To: chakkerz@optusnet.com.au
-Organization: naiv.sourceforge.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: Nvidia drivers and 2.6.x kernel
-Date: Thu, 22 Jan 2004 10:28:59 +1100
-User-Agent: KMail/1.5.4
-References: <200401221012.17121.chakkerz@optusnet.com.au> <20040121231946.GA23176@irc.pl>
-In-Reply-To: <20040121231946.GA23176@irc.pl>
+	Wed, 21 Jan 2004 18:25:53 -0500
+Received: from smtp.sys.beep.pl ([195.245.198.13]:7942 "EHLO maja.beep.pl")
+	by vger.kernel.org with ESMTP id S266170AbUAUXZv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 18:25:51 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: modular ide + fixed legacy/ppc doesn't work when non modular on ppc
+Date: Thu, 22 Jan 2004 00:25:07 +0100
+User-Agent: KMail/1.5.94
+Cc: linux-kernel@vger.kernel.org
+References: <200401212354.45957.arekm@pld-linux.org> <200401220015.21827.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200401220015.21827.bzolnier@elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200401221028.59762.chakkerz@optusnet.com.au>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401220025.07135.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Complain to nVidia.
+Dnia czw 22. stycznia 2004 00:15, Bartlomiej Zolnierkiewicz napisa³:
+> Thanks, I have alternative fix.
+>
+> --- linux/drivers/ide/ppc/pmac.c.orig	2004-01-09 07:59:08.000000000 +0100
+> +++ linux/drivers/ide/ppc/pmac.c	2004-01-22 00:10:11.550746088 +0100
+> @@ -46,7 +46,7 @@
+>  #include <asm/sections.h>
+>  #include <asm/irq.h>
+>
+> -#include "ide-timing.h"
+> +#include "../ide-timing.h"
+>
+>  extern void ide_do_request(ide_hwgroup_t *hwgroup, int masked_irq);
+Works fine, thanks!
 
-yeah i did think about that, except
-"
-NVIDIA provides superior 3D graphics processors to the computer industry's 
-leading add-in card manufacturers and PC OEMs. We do not sell any products 
-directly to end users so we do not have a staff dedicated to end-user 
-technical support. If you are having a problem with any NVIDIA-based product, 
-please contact either the PC or board manufacturer of your product. 
-"
+> --bart
 
-So who writes the drivers??
 -- 
-with kind regards,
-  Christian Unger
-
-"You don't need eyes to see, you need vision" (Faithless - Reverence)
-
-  Mobile:            0402 268904
-  Internet:          http://naiv.sourceforge.net
-  NAIV Status:
-     Stable       Testing       Development
-      0.2.3r2      0.3.0         0.3.1 - File Handling
-
-"May there be mercy on man and machine for their sins" (Animatrix)
-
+Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
+arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux

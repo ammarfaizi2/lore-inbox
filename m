@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbTEORAE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 13:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264130AbTEORAE
+	id S264147AbTEORM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 13:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264150AbTEORM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 13:00:04 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:39675 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264129AbTEORAD convert rfc822-to-8bit
+	Thu, 15 May 2003 13:12:58 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:47798 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264147AbTEORMo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 13:00:03 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: Problem with e100 driver and latency on different packet sizes
-Date: Thu, 15 May 2003 10:12:34 -0700
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E010107D6D0@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problem with e100 driver and latency on different packet sizes
-Thread-Index: AcMa8valj1p1ADDeSQuVea4hTsN+CAAEV4Fg
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Corey Minyard" <cminyard@mvista.com>,
-       "LKML" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 15 May 2003 17:12:35.0224 (UTC) FILETIME=[2DB6B180:01C31B05]
+	Thu, 15 May 2003 13:12:44 -0400
+Subject: Re: [PATCH] linux-2.5.69_subarch-fix_A0.patch
+From: john stultz <johnstul@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+In-Reply-To: <20030515065120.GA3469@Wotan.suse.de>
+References: <1052966228.9630.69.camel@w-jstultz2.beaverton.ibm.com>
+	 <20030515065120.GA3469@Wotan.suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053019259.9630.91.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 15 May 2003 10:20:59 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've attached a small program to measure latency of 
-> round-trip time on UDP.  If I send 85-byte packets between 
-> two of my machines, I get 170us round-trip latency.  If I 
-> send 86-byte packets, I get 1329us latency. 
-> This seems quite odd.  If I test on the eepro100 driver, I 
-> get expected linear increase in round-trip time as the packet 
-> size increases, and it never gets close to 1300us.
+On Wed, 2003-05-14 at 23:51, Andi Kleen wrote:
+> On Wed, May 14, 2003 at 07:37:09PM -0700, john stultz wrote:
+> > All,
+> > 	This patch fixes a circular dependency (a function in mach_apic.h
+> > requires hard_smp_processor_id() and hard_smp_processor_id() requires
+> > macros from mach_apic.h) that has been in the subarch code for a bit,
+> > but was hacked around with some #ifdefs. 
+> > 
+> > With the inclusion of the generic-subarch the hack was dropped and
+> > bigsmp and summit promptly broke. So this makes things compile again. 
+> 
+> What broke exactly? I thought worked around this problem for the generic
+> subarchitecture.
 
-This sounds like a side-effect of the "CPU Cycle Saver" feature to
-bundle Rx packets per one interrupt.  See
-Documentation/networking/e100.txt.  I haven't tried your setup, but I
-would guess that you can play around with the BundleSmallFr module
-parameter, or better yet, if you want the lowest latencies, turn off CPU
-Saver (ucode=0).
 
-CPU Saver trades latency for reduced interrupts, resulting in CPU
-savings, hence the name.
+GET_APIC_ID was moved into mach_apic.h (it used to be wrapped in
+CONFIG_X86_SUMMIT in apicdef.h). However, init_apic_ldr()  in
+mach_apic.h uses hard_smp_processor_id() (in smp.h), which to complete
+the circle, requires GET_APIC_ID from mach_apic.h
 
-Hope this helps.
+You did get around it in the generic subarch (which I love, by the way,
+thanks so much for doing that work), but in a roundabout way. (via
+#ifdef APIC_DEFINITION trickery). 
 
--scott
+
+> Accessing the APIC directly this way just to work around a bad include
+> looks quite ugly to me.
+
+Yea, ok. I guess we can move GET_APIC_ID out into its own mach specific
+.h file. That will eliminate the circularity as well. I'll respin the
+patch later today.
+
+thanks
+-john
+
+

@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132514AbRCZRnN>; Mon, 26 Mar 2001 12:43:13 -0500
+	id <S132504AbRCZRsX>; Mon, 26 Mar 2001 12:48:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132513AbRCZRnD>; Mon, 26 Mar 2001 12:43:03 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:7952
+	id <S132503AbRCZRsO>; Mon, 26 Mar 2001 12:48:14 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:8720
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S132514AbRCZRmr>; Mon, 26 Mar 2001 12:42:47 -0500
-Date: Mon, 26 Mar 2001 09:41:43 -0800 (PST)
+	id <S132504AbRCZRr7>; Mon, 26 Mar 2001 12:47:59 -0500
+Date: Mon, 26 Mar 2001 09:46:54 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Uncle George <gatgul@voicenet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: slow latencies on IDE disk drives( controller? )
-In-Reply-To: <3ABF2679.B1E50DD7@voicenet.com>
-Message-ID: <Pine.LNX.4.10.10103260844310.12547-100000@master.linux-ide.org>
+To: "Zephaniah E. Hull" <warp@whitestar.soark.net>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Lovely crash with 2.4.2-ac24.
+In-Reply-To: <20010326121747.A3920@whitestar.soark.net>
+Message-ID: <Pine.LNX.4.10.10103260944170.12547-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello GAT,
+Zephaniah,
 
-Can you be more specific?  I need a kernel and hardware info and generally
-more info than what is given.  Is this a PIO/DMA process is it a laptop or
-unsupported hardware?
+Does this happen in a non-ac kernel?
+I have not updated code since around 2.4.0, but other have.
+You point ot a few times w/ ac18, but is there one before that which does
+not cause this to happen?
 
-On Mon, 26 Mar 2001, Uncle George wrote:
+The question is to gain isolation of the changes.
 
-> I am processing sound data on /dev/dsp. Generally the ~61k devive buffer
-> is enough to keep the device satiated && gives the program time to fill
-> up the device buffer when there is 16k of buffer space that needs to be
-> filled.
+On Mon, 26 Mar 2001, Zephaniah E. Hull wrote:
+
+> This had hit me a few times with ac18 (I'm not sure it was the same
+> crash though) and just hit me again with ac24.
 > 
-> But on occasion the /dev/dsp device "slurrs" ( sounds like what happens
-> when the speed of a tape recorder slows down due to a finger placed down
-> on the capstain ) unexpectedly. This was eventually traced to the usage
-> of an IDE disk drive. using the scsi drive does not cause the problem to
-
-How did you derive this path to the ATA driver?
-What is the drive, and how fast (or how slow) is it?
-
-> manifest itself( at least my ears say so ). but using "dd if=/dev/hda4
-> of=/dev/null ) does immediately cause the slurring to happen.
+> Alan cced due to it being in the ac kernels, Andre because the trace
+> seems to point to the IDE code.
 > 
+> Thanks.
 > 
-> I think I can create a simple pgm to demo this problem, but the DATA
-> file that gets feed into /dev/dsp is a little large for e-mail.
-
-The content of the barf is not important, but the process you are doing to
-create this issue is.
+> Zephaniah E. Hull.
+> 
+> -- 
+>  PGP EA5198D1-Zephaniah E. Hull <warp@whitestar.soark.net>-GPG E65A7801
+>     Keys available at http://whitestar.soark.net/~warp/public_keys.
+>            CCs of replies from mailing lists are encouraged.
+> 
+> <cas> Mercury: gpm isn't a very good web browser.  fix it.
+> 
 
 Andre Hedrick
 Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 

@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVACVDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVACVG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbVACVDA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 16:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVACVAt
+	id S261884AbVACVG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 16:06:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVACVDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 16:00:49 -0500
-Received: from av3-1-sn4.m-sp.skanova.net ([81.228.10.114]:50059 "EHLO
-	av3-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S261859AbVACU75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 15:59:57 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] synaptics: Remove unused struct member variable
-References: <20050103011113.6f6c8f44.akpm@osdl.org> <m3acrqutwe.fsf@telia.com>
-	<m3652eutqw.fsf_-_@telia.com> <m31xd2utno.fsf_-_@telia.com>
-	<m3wtuutesu.fsf_-_@telia.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 03 Jan 2005 21:58:46 +0100
-In-Reply-To: <m3wtuutesu.fsf_-_@telia.com>
-Message-ID: <m3sm5itek9.fsf_-_@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 Jan 2005 16:03:23 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:47066 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261871AbVACVCB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 16:02:01 -0500
+Message-Id: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl>
+To: Felipe Alfaro Solana <lkml@mac.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@debian.org>
+Subject: Re: starting with 2.7 
+In-Reply-To: Message from Felipe Alfaro Solana <lkml@mac.com> 
+   of "Mon, 03 Jan 2005 18:39:32 BST." <6D2C0E07-5DAE-11D9-9FD3-000D9352858E@mac.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Mon, 03 Jan 2005 17:59:24 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes an unused variable in the synaptics_data struct and
-deletes a no longer helpful comment. I don't think this has been used
-since the very first synaptics kernel patch I submitted that did all
-processing in kernel space instead of delegating most of it to the X
-server.
+Felipe Alfaro Solana <lkml@mac.com> said:
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
+[...]
 
- linux-petero/drivers/input/mouse/synaptics.h |    2 --
- 1 files changed, 2 deletions(-)
+> I would like to comment in that the issue is not exclusively targeted 
+> to stability, but the ability to keep up with kernel development. For 
+> example, it was pretty common for older versions of VMWare and NVidia 
+> driver to break up whenever a new kernel version was released.
 
-diff -puN drivers/input/mouse/synaptics.h~synaptics-unused-var drivers/input/mouse/synaptics.h
---- linux/drivers/input/mouse/synaptics.h~synaptics-unused-var	2005-01-03 21:14:50.995952160 +0100
-+++ linux-petero/drivers/input/mouse/synaptics.h	2005-01-03 21:14:51.011949728 +0100
-@@ -101,8 +101,6 @@ struct synaptics_data {
- 	unsigned long int ext_cap; 		/* Extended Capabilities */
- 	unsigned long int identity;		/* Identification */
- 
--	/* Data for normal processing */
--	int old_w;				/* Previous w value */
- 	unsigned char pkt_type;			/* packet type - old, new, etc */
- 	unsigned char mode;			/* current mode byte */
- };
-_
+That is the price for closed-source drivers.
 
+> I think it's a PITA for developers to rework some of the closed-source 
+> code to adopt the new changes in the Linux kernel.
+
+Open up the code. Most of the changes will then be done as a matter of
+course by others.
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,121 +1,354 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279903AbRKNAwk>; Tue, 13 Nov 2001 19:52:40 -0500
+	id <S279922AbRKNBJV>; Tue, 13 Nov 2001 20:09:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279912AbRKNAwa>; Tue, 13 Nov 2001 19:52:30 -0500
-Received: from sushi.toad.net ([162.33.130.105]:407 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S279903AbRKNAwN>;
-	Tue, 13 Nov 2001 19:52:13 -0500
-Subject: [PATCH] parport_pc to use pnpbios_register_driver() #3
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 13 Nov 2001 19:52:27 -0500
-Message-Id: <1005699149.25202.20.camel@thanatos>
+	id <S279926AbRKNBJN>; Tue, 13 Nov 2001 20:09:13 -0500
+Received: from gordon.ukservers.net ([217.10.138.217]:51972 "HELO
+	gordon.ukservers.net") by vger.kernel.org with SMTP
+	id <S279922AbRKNBI5>; Tue, 13 Nov 2001 20:08:57 -0500
+Date: Wed, 14 Nov 2001 01:10:18 +0000
+From: Mark Hymers <markh@linuxfromscratch.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: chaffee@cs.berkeley.edu
+Subject: MODULE_LICENSE tags for nls
+Message-ID: <20011114011018.A981@markcomp.blaydon.hymers.org.uk>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	chaffee@cs.berkeley.edu
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's an again-improved version of the patch.  Variable and
-function names are better considered.  Some '__devinit's have
-been added.
+There appear to be a set of module tags missing in >=2.4.15-pre4
+resulting in the kernel being tainted incorrectly (as far as I can see).
+The following .c files in fs/nls appear to be affected:
 
-It was suggested to me that I not explicitly initialize
-any members of structs that are initialized to zero or NULL.
-I know that space is saved in the kernel image when zero-
-initializers are omitted from definitions, but is this also
-true when one omits the initializer of only one element of
-a struct?
+nls_big5.c
+nls_cp932.c
+nls_cp936.c
+nls_cp949.c
+nls_cp950.c
+nls_euc-jp.c
+nls_euc-kr.c
+nls_gb2312.c
+nls_iso8859-1.c
+nls_iso8859-13.c
+nls_iso8859-14.c
+nls_iso8859-15.c
+nls_iso8859-2.c
+nls_iso8859-3.c
+nls_iso8859-4.c
+nls_iso8859-5.c
+nls_iso8859-6.c
+nls_iso8859-7.c
+nls_iso8859-8.c
+nls_iso8859-9.c
+nls_koi8-r.c
+nls_koi8-ru.c
+nls_koi8-u.c
+nls_sjis.c
+nls_tis-620.c
+nls_utf8.c
 
-It was suggested that the compilation condition not be
-   #if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
-but
-   #if defined (CONFIG_PNPBIOS) || (defined (CONFIG_PNPBIOS_MODULE)
-   && defined (MODULE)
-However, it is my understanding that this is not necessary because
-the parport_pc driver will be compiled integrally with pnpbios
-support only if the pnpbios driver is also compiled integrally.
-(Contrapositively, if pnpbios is a module then so is parport_pc.)
-Thus CONFIG_PNPBIOS_MODULE will never be defined here without
-MODULE being defined.  Is this right?
+All of the other nls files are described with the line:
+MODULE_LICENSE("BSD without advertising clause");
 
-I haven't looked at Russell King's serial driver code yet.
+If this is the correct tag, I've attached a patch below which adds this
+to all of the above files hopefully solving the problem.  This is my
+first mail to LKML so please be gentle ;-)
 
-The patch:
---- linux-2.4.13-ac8_ORIG/drivers/parport/parport_pc.c	Fri Oct 26 18:13:48 2001
-+++ linux-2.4.13-ac8/drivers/parport/parport_pc.c	Tue Nov 13 19:24:10 2001
-@@ -2822,7 +2822,7 @@
- 
- #define UNSET(res)   ((res).flags & IORESOURCE_UNSET)
- 
--int init_pnp040x(struct pci_dev *dev)
-+static int __devinit init_PNP040x(struct pci_dev *dev)
- {
- 	int io,iohi,irq,dma;
- 
-@@ -2879,6 +2879,30 @@
- 
- #endif 
- 
-+#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
-+static int __devinit parport_pc_pnpbios_probecb( struct pci_dev *dev, const struct pnpbios_device_id *id )
-+{
-+                return init_PNP040x(dev) ? 1 : 0;
-+}
-+
-+static struct pnpbios_device_id parport_pc_pnpbios_tbl[] __devinitdata = {
-+	/*  id, driver_data */
-+	{ "PNP0400",  },
-+	{ "PNP0401",  },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(pnpbios, parport_pc_pnpbios_tbl);
-+
-+static struct pnpbios_driver parport_pc_pnpbios_drv = {
-+	/* node: */
-+	name:         "parport_pc",
-+	id_table:     parport_pc_pnpbios_tbl,
-+	probe:        parport_pc_pnpbios_probecb,
-+	remove:       NULL
-+};
-+#endif
-+
- /* This function is called by parport_pc_init if the user didn't
-  * specify any ports to probe.  Its job is to find some ports.  Order
-  * is important here -- we want ISA ports to be registered first,
-@@ -2892,7 +2916,6 @@
- static int __init parport_pc_find_ports (int autoirq, int autodma)
- {
- 	int count = 0, r;
--	struct pci_dev *dev;
- 
- #ifdef CONFIG_PARPORT_PC_SUPERIO
- 	detect_and_report_winbond ();
-@@ -2900,11 +2923,7 @@
- #endif
- 
- #if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
--	dev=NULL;
--	while ((dev=pnpbios_find_device("PNP0400",dev)))
--		count+=init_pnp040x(dev);
--        while ((dev=pnpbios_find_device("PNP0401",dev)))
--                count+=init_pnp040x(dev);
-+	count += pnpbios_register_driver(&parport_pc_pnpbios_drv);
- #endif
- 
- 	/* Onboard SuperIO chipsets that show themselves on the PCI bus. */
-@@ -3015,6 +3034,10 @@
- 
- 	if (!user_specified)
- 		pci_unregister_driver (&parport_pc_pci_driver);
-+
-+#if defined (CONFIG_PNPBIOS) || defined (CONFIG_PNPBIOS_MODULE)
-+	pnpbios_unregister_driver(&parport_pc_pnpbios_drv);
-+#endif
- 
- 	while (p) {
- 		tmp = p->next;
+Mark
 
+PS - I hope this was CC'd to the right maintainer.
+
+-- 
+Mark Hymers					 BLFS Editor
+markh@linuxfromscratch.org
+
+
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_big5.c linux-2.4.15-pre4-new/fs/nls/nls_big5.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_big5.c	Mon Oct 16 20:58:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_big5.c	Wed Nov 14 01:00:19 2001
+@@ -42,7 +42,7 @@
+ 
+ module_init(init_nls_big5)
+ module_exit(exit_nls_big5)
+-
++MODULE_LICENSE("BSD without advertising clause");
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+  * Emacs will notice this stuff at the end of the file and automatically
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_cp932.c linux-2.4.15-pre4-new/fs/nls/nls_cp932.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_cp932.c	Fri Apr  6 18:51:19 2001
++++ linux-2.4.15-pre4-new/fs/nls/nls_cp932.c	Wed Nov 14 01:00:43 2001
+@@ -7904,6 +7904,7 @@
+ 
+ module_init(init_nls_cp932)
+ module_exit(exit_nls_cp932)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_cp936.c linux-2.4.15-pre4-new/fs/nls/nls_cp936.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_cp936.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_cp936.c	Wed Nov 14 01:00:51 2001
+@@ -11024,6 +11024,7 @@
+ 
+ module_init(init_nls_cp936)
+ module_exit(exit_nls_cp936)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_cp949.c linux-2.4.15-pre4-new/fs/nls/nls_cp949.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_cp949.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_cp949.c	Wed Nov 14 01:00:57 2001
+@@ -13941,6 +13941,7 @@
+ 
+ module_init(init_nls_cp949)
+ module_exit(exit_nls_cp949)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_cp950.c linux-2.4.15-pre4-new/fs/nls/nls_cp950.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_cp950.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_cp950.c	Wed Nov 14 01:01:04 2001
+@@ -9480,6 +9480,7 @@
+ 
+ module_init(init_nls_cp950)
+ module_exit(exit_nls_cp950)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_euc-jp.c linux-2.4.15-pre4-new/fs/nls/nls_euc-jp.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_euc-jp.c	Fri Apr  6 18:51:19 2001
++++ linux-2.4.15-pre4-new/fs/nls/nls_euc-jp.c	Wed Nov 14 01:01:13 2001
+@@ -581,6 +581,7 @@
+ 
+ module_init(init_nls_euc_jp)
+ module_exit(exit_nls_euc_jp)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_euc-kr.c linux-2.4.15-pre4-new/fs/nls/nls_euc-kr.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_euc-kr.c	Mon Oct 16 20:58:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_euc-kr.c	Wed Nov 14 01:01:20 2001
+@@ -42,6 +42,7 @@
+ 
+ module_init(init_nls_euc_kr)
+ module_exit(exit_nls_euc_kr)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_gb2312.c linux-2.4.15-pre4-new/fs/nls/nls_gb2312.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_gb2312.c	Mon Oct 16 20:58:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_gb2312.c	Wed Nov 14 01:01:27 2001
+@@ -42,6 +42,7 @@
+ 
+ module_init(init_nls_gb2312)
+ module_exit(exit_nls_gb2312)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-1.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-1.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-1.c	Wed Jul 19 06:48:33 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-1.c	Wed Nov 14 01:01:34 2001
+@@ -254,6 +254,7 @@
+ 
+ module_init(init_nls_iso8859_1)
+ module_exit(exit_nls_iso8859_1)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-13.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-13.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-13.c	Sun May 20 01:47:55 2001
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-13.c	Wed Nov 14 01:01:40 2001
+@@ -282,6 +282,7 @@
+ 
+ module_init(init_nls_iso8859_13)
+ module_exit(exit_nls_iso8859_13)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-14.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-14.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-14.c	Wed Jul 19 06:48:33 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-14.c	Wed Nov 14 01:01:46 2001
+@@ -338,6 +338,7 @@
+ 
+ module_init(init_nls_iso8859_14)
+ module_exit(exit_nls_iso8859_14)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-15.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-15.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-15.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-15.c	Wed Nov 14 01:01:52 2001
+@@ -304,6 +304,7 @@
+ 
+ module_init(init_nls_iso8859_15)
+ module_exit(exit_nls_iso8859_15)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-2.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-2.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-2.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-2.c	Wed Nov 14 01:01:58 2001
+@@ -305,6 +305,7 @@
+ 
+ module_init(init_nls_iso8859_2)
+ module_exit(exit_nls_iso8859_2)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-3.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-3.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-3.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-3.c	Wed Nov 14 01:02:04 2001
+@@ -305,6 +305,7 @@
+ 
+ module_init(init_nls_iso8859_3)
+ module_exit(exit_nls_iso8859_3)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-4.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-4.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-4.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-4.c	Wed Nov 14 01:02:10 2001
+@@ -305,6 +305,7 @@
+ 
+ module_init(init_nls_iso8859_4)
+ module_exit(exit_nls_iso8859_4)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-5.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-5.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-5.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-5.c	Wed Nov 14 01:02:16 2001
+@@ -269,6 +269,7 @@
+ 
+ module_init(init_nls_iso8859_5)
+ module_exit(exit_nls_iso8859_5)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-6.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-6.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-6.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-6.c	Wed Nov 14 01:02:21 2001
+@@ -260,6 +260,7 @@
+ 
+ module_init(init_nls_iso8859_6)
+ module_exit(exit_nls_iso8859_6)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-7.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-7.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-7.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-7.c	Wed Nov 14 01:02:29 2001
+@@ -314,6 +314,7 @@
+ 
+ module_init(init_nls_iso8859_7)
+ module_exit(exit_nls_iso8859_7)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-8.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-8.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-8.c	Fri Apr  6 18:51:19 2001
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-8.c	Wed Nov 14 01:02:34 2001
+@@ -42,6 +42,7 @@
+ 
+ module_init(init_nls_iso8859_8)
+ module_exit(exit_nls_iso8859_8)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-9.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-9.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-9.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-9.c	Wed Nov 14 01:02:40 2001
+@@ -269,6 +269,7 @@
+ 
+ module_init(init_nls_iso8859_9)
+ module_exit(exit_nls_iso8859_9)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_koi8-r.c linux-2.4.15-pre4-new/fs/nls/nls_koi8-r.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_koi8-r.c	Fri Jul 21 23:19:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_koi8-r.c	Wed Nov 14 01:02:47 2001
+@@ -320,6 +320,7 @@
+ 
+ module_init(init_nls_koi8_r)
+ module_exit(exit_nls_koi8_r)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_koi8-ru.c linux-2.4.15-pre4-new/fs/nls/nls_koi8-ru.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_koi8-ru.c	Sun May 20 01:47:55 2001
++++ linux-2.4.15-pre4-new/fs/nls/nls_koi8-ru.c	Wed Nov 14 01:02:52 2001
+@@ -80,6 +80,7 @@
+ 
+ module_init(init_nls_koi8_ru)
+ module_exit(exit_nls_koi8_ru)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_koi8-u.c linux-2.4.15-pre4-new/fs/nls/nls_koi8-u.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_koi8-u.c	Sun May 20 01:47:55 2001
++++ linux-2.4.15-pre4-new/fs/nls/nls_koi8-u.c	Wed Nov 14 01:02:57 2001
+@@ -327,6 +327,7 @@
+ 
+ module_init(init_nls_koi8_u)
+ module_exit(exit_nls_koi8_u)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_sjis.c linux-2.4.15-pre4-new/fs/nls/nls_sjis.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_sjis.c	Mon Oct 16 20:58:51 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_sjis.c	Wed Nov 14 01:03:04 2001
+@@ -42,6 +42,7 @@
+ 
+ module_init(init_nls_sjis)
+ module_exit(exit_nls_sjis)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_tis-620.c linux-2.4.15-pre4-new/fs/nls/nls_tis-620.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_tis-620.c	Fri Apr  6 18:51:19 2001
++++ linux-2.4.15-pre4-new/fs/nls/nls_tis-620.c	Wed Nov 14 01:03:10 2001
+@@ -42,6 +42,7 @@
+ 
+ module_init(init_nls_tis_620)
+ module_exit(exit_nls_tis_620)
++MODULE_LICENSE("BSD without advertising clause");
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_utf8.c linux-2.4.15-pre4-new/fs/nls/nls_utf8.c
+--- linux-2.4.15-pre4-orig/fs/nls/nls_utf8.c	Wed Jul 19 06:48:33 2000
++++ linux-2.4.15-pre4-new/fs/nls/nls_utf8.c	Wed Nov 14 01:03:17 2001
+@@ -58,3 +58,4 @@
+ 
+ module_init(init_nls_utf8)
+ module_exit(exit_nls_utf8)
++MODULE_LICENSE("BSD without advertising clause");

@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282910AbRLDUOa>; Tue, 4 Dec 2001 15:14:30 -0500
+	id <S283353AbRLDUOa>; Tue, 4 Dec 2001 15:14:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283411AbRLDUNG>; Tue, 4 Dec 2001 15:13:06 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38150 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283388AbRLDUMK>; Tue, 4 Dec 2001 15:12:10 -0500
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-To: emuller@learningpatterns.com (Edward Muller)
-Date: Tue, 4 Dec 2001 20:20:18 +0000 (GMT)
-Cc: davej@suse.de (Dave Jones), esr@thyrsus.com (Eric S. Raymond),
-        linux-kernel@vger.kernel.org, hch@caldera.de (Christoph Hellwig),
-        kaos@ocs.com.au (Keith Owens), kbuild-devel@lists.sourceforge.net,
-        torvalds@transmeta.com
-In-Reply-To: <1007495969.4621.9.camel@akira.learningpatterns.com> from "Edward Muller" at Dec 04, 2001 02:59:29 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S283388AbRLDUNJ>; Tue, 4 Dec 2001 15:13:09 -0500
+Received: from postfix1-2.free.fr ([213.228.0.130]:26562 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S283392AbRLDUMU> convert rfc822-to-8bit; Tue, 4 Dec 2001 15:12:20 -0500
+Date: Tue, 4 Dec 2001 18:18:51 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: "David S. Miller" <davem@redhat.com>, <hps@intermeta.de>,
+        <jgarzik@mandrakesoft.com>, <lm@bitmover.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Coding style - a non-issue 
+In-Reply-To: <30026.1007335642@ocs3.intra.ocs.com.au>
+Message-ID: <20011204181546.B2674-100000@gerard>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16BM38-0003K1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So anyone perfectly happy with an older distro that didn't
-> > ship python2-and-whatever-else gets screwed when they want to
-> > build a newer kernel. Nice.
-> 
-> That's been the case all along, sans python2. Newer kernels need newer
-> tools. That's always been the case.
 
-Not during stable releases. In fact we've jumped through hoops several times
-to try and keep egcs built kernels working
+On Mon, 3 Dec 2001, Keith Owens wrote:
+
+> On Sun, 02 Dec 2001 15:21:57 -0800 (PST),
+> "David S. Miller" <davem@redhat.com> wrote:
+> >   From: Keith Owens <kaos@ocs.com.au>
+> >   Date: Sat, 01 Dec 2001 12:17:03 +1100
+> >
+> >   What is ugly in aic7xxx is :-
+> >
+> >You missed:
+> >
+> >* #undef's "current"
+>
+> Where?  fgrep -ir current 2.4.17-pre2/drivers/scsi/aic7xxx did not find it.
+
+What is ugly is "David S. Miller" ?
+
+The 'Z' in the first name and the 'K' in the family name. :-)
+
+  Gérard.
+

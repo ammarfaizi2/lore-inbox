@@ -1,83 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261412AbSJ1RkB>; Mon, 28 Oct 2002 12:40:01 -0500
+	id <S261399AbSJ1Rrt>; Mon, 28 Oct 2002 12:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261409AbSJ1RjX>; Mon, 28 Oct 2002 12:39:23 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:528 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261412AbSJ1RX5>; Mon, 28 Oct 2002 12:23:57 -0500
-Date: Tue, 29 Oct 2002 02:30:19 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCHSET 18/23] add support for PC-9800 architecture (serial)
-Message-ID: <20021029023019.A2325@precia.cinet.co.jp>
-Mime-Version: 1.0
+	id <S261430AbSJ1Rrh>; Mon, 28 Oct 2002 12:47:37 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:25835 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261399AbSJ1Rfm>;
+	Mon, 28 Oct 2002 12:35:42 -0500
+Date: Mon, 28 Oct 2002 09:36:45 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>
+cc: Michael Hohnbaum <hohnbaum@us.ibm.com>, mingo@redhat.com,
+       habanero@us.ibm.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: NUMA scheduler  (was: 2.5 merge candidate list 1.5)
+Message-ID: <536200000.1035826605@flay>
+In-Reply-To: <200210281838.44556.efocht@ess.nec.de>
+References: <200210280132.33624.efocht@ess.nec.de> <3129290732.1035737182@[10.10.2.3]> <200210281838.44556.efocht@ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part 18/23 of patchset for add support NEC PC-9800 architecture,
-against 2.5.44.
+>> Schedbench 4:
+>>                              Elapsed   TotalUser    TotalSys     AvgUser
+>>               2.5.44-mm4       32.45       49.47      129.86        0.82
+>>       2.5.44-mm4-focht-1       38.61       45.15      154.48        1.06
+>>       2.5.44-mm4-hbaum-1       37.81       46.44      151.26        0.78
+>>      2.5.44-mm4-focht-12       23.23       38.87       92.99        0.85
+>>      2.5.44-mm4-hbaum-12       22.26       34.70       89.09        0.70
+>>         2.5.44-mm4-f1-h2       21.39       35.97       85.57        0.81
+> 
+> One more remarks:
+> You seem to have made the numa_test shorter. That reduces it to beeing
+> simply a check for the initial load balancing as the hackbench running in
+> the background (and aimed to disturb the initial load balancing) might
+> start too late. You will most probably not see the impact of node affinity
+> with such short running tests. But we weren't talking about node affinity,
+> yet...
 
-Summary:
- serial driver related modules.
-  - change IO port address and IRQ number.
-  - add new PNP device entry.
+I didn't modify what you sent me at all ... perhaps my machine is
+just faster than yours?
 
-diffstat:
- drivers/serial/8250_pnp.c |    7 +++++++
- include/asm-i386/serial.h |    7 +++++++
- 2 files changed, 14 insertions(+)
+/me ducks & runs ;-)
 
-patch:
-diff -urN linux/drivers/serial/8250_pnp.c linux98/drivers/serial/8250_pnp.c
---- linux/drivers/serial/8250_pnp.c	Sat Oct 19 13:01:08 2002
-+++ linux98/drivers/serial/8250_pnp.c	Sat Oct 19 16:20:53 2002
-@@ -193,6 +193,8 @@
- 	{	"MVX00A1",		0	},
- 	/* PC Rider K56 Phone System PnP */
- 	{	"MVX00F2",		0	},
-+	/* NEC 98NOTE SPEAKER PHONE FAX MODEM(33600bps) */
-+	{	"nEC8241",		0	},
- 	/* Pace 56 Voice Internal Plug & Play Modem */
- 	{	"PMC2430",		0	},
- 	/* Generic */
-@@ -376,7 +378,12 @@
- 			    ((port->min == 0x2f8) ||
- 			     (port->min == 0x3f8) ||
- 			     (port->min == 0x2e8) ||
-+#ifndef CONFIG_PC9800
- 			     (port->min == 0x3e8)))
-+#else
-+			     (port->min == 0x3e8) ||
-+			     (port->min == 0x8b0)))
-+#endif
- 				return 0;
- 	}
- 
-diff -urN linux/include/asm-i386/serial.h linux98/include/asm-i386/serial.h
---- linux/include/asm-i386/serial.h	Wed Oct 16 12:27:56 2002
-+++ linux98/include/asm-i386/serial.h	Fri Oct 18 10:12:09 2002
-@@ -50,12 +50,19 @@
- 
- #define C_P(card,port) (((card)<<6|(port)<<3) + 1)
- 
-+#ifndef CONFIG_PC9800
- #define STD_SERIAL_PORT_DEFNS			\
- 	/* UART CLK   PORT IRQ     FLAGS        */			\
- 	{ 0, BASE_BAUD, 0x3F8, 4, STD_COM_FLAGS },	/* ttyS0 */	\
- 	{ 0, BASE_BAUD, 0x2F8, 3, STD_COM_FLAGS },	/* ttyS1 */	\
- 	{ 0, BASE_BAUD, 0x3E8, 4, STD_COM_FLAGS },	/* ttyS2 */	\
- 	{ 0, BASE_BAUD, 0x2E8, 3, STD_COM4_FLAGS },	/* ttyS3 */
-+#else
-+#define STD_SERIAL_PORT_DEFNS			\
-+	/* UART CLK   PORT IRQ     FLAGS        */			\
-+	{ 0, BASE_BAUD, 0x30, 4, STD_COM_FLAGS },	/* ttyS0 */	\
-+	{ 0, BASE_BAUD, 0x238, 5, STD_COM_FLAGS },	/* ttyS1 */
-+#endif /* CONFIG_PC9800 */
- 
- 
- #ifdef CONFIG_SERIAL_MANY_PORTS
+M.
+

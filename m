@@ -1,74 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262578AbTDQUcf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 16:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbTDQUcf
+	id S262594AbTDQUcp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 16:32:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbTDQUcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 16:32:35 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:40945 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id S262578AbTDQUce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 16:32:34 -0400
-Date: Thu, 17 Apr 2003 21:46:26 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] stop swapoff 1/3 vm_enough_memory?
-Message-ID: <Pine.LNX.4.44.0304172142530.2039-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 17 Apr 2003 16:32:45 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:54227 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262594AbTDQUcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 16:32:43 -0400
+Date: Thu, 17 Apr 2003 13:45:12 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: rostedt@stny.rr.com, linux-kernel@vger.kernel.org, srostedt@goodmis.org
+Subject: Re: What's the reason that /dev/mem can't map unreserved RAM?
+Message-Id: <20030417134512.1623a926.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0304172036540.1966-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0304171414470.13337-100000@localhost.localdomain>
+	<Pine.LNX.4.44.0304172036540.1966-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Apr 2003 20:44:34.0455 (UTC) FILETIME=[27665270:01C30522]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of three small "stop swapoff" patches based on 2.5.67-mm3:
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> I did start out on eliminating PageReserved a few months ago,
+> but was persuaded to delay that until 2.7.  When that's done,
+> you will be able to mmap /dev/mem properly.
 
- include/linux/sched.h |    1 +
- mm/oom_kill.c         |    2 ++
- mm/swapfile.c         |   21 +++++++++++++++++----
- 3 files changed, 20 insertions(+), 4 deletions(-)
+I think we can almost do it now.  Just a few things like get_user_pages(),
+ptrace and core dumping may need to be taught about VM_RESERVED.
 
-stop swapoff 1/3 vm_enough_memory?
-
-Before embarking upon swapoff, check vm_enough_memory.  Mainly
-for consistency in the overcommit_memory 2 (strict accounting) case:
-fail with -ENOMEM if it wouldn't let the amount removed be committed.
-
-Will always succeed in the overcommit_memory 1 case, as it should in
-root-shoot-foot mode.  In the overcommit_memory 0 case, well, I don't
-care much either way, so opted for the simplest code: no special case.
-Which means it could now fail at the start; but that's unlikely (case 0
-is over-generous) and only when it would have got stuck later on anyway.
-
---- 2.5.67-mm3/mm/swapfile.c	Mon Apr 14 13:05:36 2003
-+++ swapoff1/mm/swapfile.c	Thu Apr 17 18:32:40 2003
-@@ -7,6 +7,7 @@
- 
- #include <linux/config.h>
- #include <linux/mm.h>
-+#include <linux/mman.h>
- #include <linux/slab.h>
- #include <linux/kernel_stat.h>
- #include <linux/swap.h>
-@@ -1030,12 +1031,18 @@
- 		}
- 		prev = type;
- 	}
--	err = -EINVAL;
- 	if (type < 0) {
-+		err = -EINVAL;
-+		swap_list_unlock();
-+		goto out_dput;
-+	}
-+	if (vm_enough_memory(p->pages))
-+		vm_unacct_memory(p->pages);
-+	else {
-+		err = -ENOMEM;
- 		swap_list_unlock();
- 		goto out_dput;
- 	}
--
- 	if (prev < 0) {
- 		swap_list.head = p->next;
- 	} else {
+Or we could simply change mmap_mem() to set VM_IO if any of the pages aren't
+valid.  That's probably an accurate reflection of what the app is trying to
+do, too.
 

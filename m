@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbUCVPfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 10:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUCVPfY
+	id S262062AbUCVPe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 10:34:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUCVPe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 10:35:24 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:52237 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262064AbUCVPfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 10:35:20 -0500
-Date: Mon, 22 Mar 2004 15:35:11 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Jens Axboe <axboe@suse.de>, Heikki Tuuri <Heikki.Tuuri@innodb.com>,
+	Mon, 22 Mar 2004 10:34:57 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:27410 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S262062AbUCVPez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 10:34:55 -0500
+Message-ID: <405F0B8D.8040408@techsource.com>
+Date: Mon, 22 Mar 2004 10:51:41 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Tigran Aivazian <tigran@veritas.com>
+CC: David Schwartz <davids@webmaster.com>, Justin Piszcz <jpiszcz@hotmail.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: True  fsync() in Linux (on IDE)
-Message-ID: <20040322153511.A21143@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jens Axboe <axboe@suse.de>, Heikki Tuuri <Heikki.Tuuri@innodb.com>,
-	linux-kernel@vger.kernel.org
-References: <023001c4100e$c550cd10$155110ac@hebis> <20040322132307.GP1481@suse.de> <20040322151712.GB32519@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040322151712.GB32519@merlin.emma.line.org>; from matthias.andree@gmx.de on Mon, Mar 22, 2004 at 04:17:12PM +0100
+Subject: Re: Linux Kernel Microcode Question
+References: <Pine.LNX.4.44.0403191721110.3892-100000@einstein.homenet>
+In-Reply-To: <Pine.LNX.4.44.0403191721110.3892-100000@einstein.homenet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 04:17:12PM +0100, Matthias Andree wrote:
-> If there is no such atomicity (except maybe in ext3fs data=journal or
-> the upcoming reiserfs4 - isn't there?), then nobody should claim so. If
-> the kernel cannot 100.00000000% guarantee the write is atomic, claiming
-> otherwise is plain fraud and nothing else.
 
-Who claims writes are atomic?
+
+Tigran Aivazian wrote:
+> On Thu, 18 Mar 2004, David Schwartz wrote:
+> 
+>>	It is at least theoeretically possible that a microcode update might cause
+>>an operation that's normally done very quickly (in dedicated hardware) to be
+>>done by a slower path (microcode operations) to fix a bug in the dedicated
+>>hardware
+> 
+> 
+> Did you dream that up or did you read it somewhere? If the latter, where?
+> 
+> All operations are done by "dedicated hardware" and microcode DOES modify
+> that hardware, or rather the way instructions are "digested". So, applying
+> microcode doesn't make anything slower per se, it's just replacing one
+> code sequence with another code sequence. If a new code happens to be
+> slower than the old one then of course the result will be slower, but the
+> reverse is also true. When you fix a bug in a particular software why
+> should a bugfix be apriori slower than the original code? Think about it.
+> 
+> So please do not spread misinformation that applying microcode makes 
+> something slower. If anything, it should make things faster, as long as 
+> the guys at Intel are writing the correct (micro)code.
+
+I don't see anything wrong with what he said.  As I understand it, 
+Pentium 4 CPUs don't use microcode for much of anything.  If an 
+instruction which was done entirely in dedicated hardware was buggy, and 
+it's replaced by microcode, then it will most certainly be slower.
+
+You seem to have missed where David used terms like "theoretically 
+possible" and "an operation".
 

@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269942AbRHJQPm>; Fri, 10 Aug 2001 12:15:42 -0400
+	id <S269943AbRHJQ3s>; Fri, 10 Aug 2001 12:29:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269943AbRHJQPd>; Fri, 10 Aug 2001 12:15:33 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:39944
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S269942AbRHJQPP>; Fri, 10 Aug 2001 12:15:15 -0400
-Date: Fri, 10 Aug 2001 12:25:32 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.6 ipconfig for NFS root
-Message-ID: <20010810122532.B15114@animx.eu.org>
-Mime-Version: 1.0
+	id <S269945AbRHJQ3i>; Fri, 10 Aug 2001 12:29:38 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17258 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S269943AbRHJQ33>; Fri, 10 Aug 2001 12:29:29 -0400
+To: jury gerold <geroldj@grips.com>
+Cc: Thodoris Pitikaris <thodoris@cs.teiher.gr>, linux-kernel@vger.kernel.org
+Subject: Re: is this a bug?
+In-Reply-To: <3B6FD644.7020409@cs.teiher.gr> <3B716E0A.8030005@grips.com>
+	<m1g0b0th21.fsf@frodo.biederman.org> <3B73D1E9.9020800@grips.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 10 Aug 2001 10:22:47 -0600
+In-Reply-To: <3B73D1E9.9020800@grips.com>
+Message-ID: <m1wv4bsx48.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried this on 2.4.6, 2.4.7 and 2.2.19.  No problems that I could see.
+jury gerold <geroldj@grips.com> writes:
 
-Comments?
+> Hi Eric
+> 
+> The CPU is a 1.1GHz tbird 200MHz FSB and i am running it this way.
+> The motherboard can do 100 and 133 MHz but i run
+> the SDRAM at 100MHz from the beginning, since i have seen lot's
+> of boards with memory problems and i wanted to be on the good side.
+> Both, the old 128MB and the new 256MB SDRAM where sold as PC133.
+> It is a single DIMM in both cases.
+> 
+> When i started to sue the SDRAM for the trouble i checked the SPD and found
+> the 128MB-PC133 was actually a PC100 with a few steps towards PC66 (major
+> brand).
+> 
+> So i tried a new one that, at least from the SPD, is a real PC133 and suddenly
+> ...
+> 
+> I have tried to kill it
+> 
+> kernel 2.4.7-xfs from cvs at the moment
+> athlon optimisations
+> UDMA on ide0 and ide1
+> 2 harddrives, 1 cdrom, 1 cd/rw
+> 
+> since then, but it works, works, works.
+> 
+> 
+> This weekend does not see me at home.
+> I will send the timings on sunday/monday.
+> 
+> What do you expect to get out of this ?
 
---- ../2.4.6-orig/net/ipv4/ipconfig.c	Tue Aug  7 10:02:21 2001
-+++ 2.4.6/net/ipv4/ipconfig.c	Tue Aug  7 09:34:54 2001
-@@ -1093,7 +1093,11 @@
- 	proc_net_create("pnp", 0, pnp_get_info);
- #endif /* CONFIG_PROC_FS */
- 
--	if (!ic_enable)
-+	if (!ic_enable
-+#if defined(IPCONFIG_DYNAMIC) && defined(CONFIG_ROOT_NFS)
-+	    && ROOT_DEV != MKDEV(UNNAMED_MAJOR, 255)
-+#endif
-+	   )
- 		return 0;
- 
- 	DBG(("IP-Config: Entered.\n"));
+Mostly I am curious about what is going on.  I work on linuxBIOS so
+(a) I might just have to figure out if there are software work arounds
+    if/when I port to this platform. 
+(b) I have written enough memory setup code that does SPD on the fly,
+    to compute the DIMM timings, that understanding DIMMS and memory
+    controllers is one of my areas of competence.
 
+If the ram was really PC100 mislabeled, as PC133 and it was being run
+at 133Mhz I can see the problem.  If it was only being run as PC100
+I have a problem seeing, why you would have a problem.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Eric

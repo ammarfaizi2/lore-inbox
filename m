@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136726AbRAHKvV>; Mon, 8 Jan 2001 05:51:21 -0500
+	id <S136830AbRAHKwc>; Mon, 8 Jan 2001 05:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135621AbRAHKvL>; Mon, 8 Jan 2001 05:51:11 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:22024 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S136726AbRAHKvB>; Mon, 8 Jan 2001 05:51:01 -0500
-Message-ID: <3A599B6D.E9757E5A@idb.hist.no>
-Date: Mon, 08 Jan 2001 11:50:21 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: no, da, en
-MIME-Version: 1.0
-To: nbreun@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: APIC-ERROR-Messages -
-In-Reply-To: <01010611131600.08129@nmb>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135621AbRAHKwW>; Mon, 8 Jan 2001 05:52:22 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:18308 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136920AbRAHKwG>;
+	Mon, 8 Jan 2001 05:52:06 -0500
+Date: Mon, 8 Jan 2001 02:34:52 -0800
+Message-Id: <200101081034.CAA17681@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: hch@caldera.de
+CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200101081039.LAA30397@ns.caldera.de> (message from Christoph
+	Hellwig on Mon, 8 Jan 2001 11:39:15 +0100)
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <200101081039.LAA30397@ns.caldera.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norbert Breun wrote:
-> 
-> Hallo,
-> 
-> sorry if this is a silly question...
-> as far as I understood my smp-board seem not well designed - so I get APIC
-> error messages nearly every 1-3 seconds. These mmessages do not help me
-> because -so I was told - it is not possible to fix the problem.
-> Is it possible to eliminate these error messages. My logfiles grow enormously
-> and are "trashed" with these messages...
-> 
-> I'm running Kernel 2.4.0ac2 successfully  hoping that "sudden death" will not
-> come back...
+   Date: Mon, 8 Jan 2001 11:39:15 +0100
+   From: Christoph Hellwig <hch@caldera.de>
 
-I don't know what board you have, but my abit BP6 improved with more
-cooling
-(better fans on the cpu's and a fan on another hot chip that only had a 
-heatsink before.)  And use thermal grease instead of the cleaner but
-inferior 
-rubber pads.
-  
-Lower clock frequency tends to help too, but nobody wants that. ;-)
+   don't you think the writepage file operation is rather hackish?
 
-Helge Hafting
+Not at all, it's simply direct sendfile support.  It does
+not try to be any fancier than that.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

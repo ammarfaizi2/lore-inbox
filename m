@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285935AbSAMPYG>; Sun, 13 Jan 2002 10:24:06 -0500
+	id <S286137AbSAMPYQ>; Sun, 13 Jan 2002 10:24:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286238AbSAMPX5>; Sun, 13 Jan 2002 10:23:57 -0500
-Received: from lilly.ping.de ([62.72.90.2]:30214 "HELO lilly.ping.de")
-	by vger.kernel.org with SMTP id <S285935AbSAMPXq>;
-	Sun, 13 Jan 2002 10:23:46 -0500
-Date: 13 Jan 2002 16:22:58 +0100
-Message-ID: <20020113162258.C1439@planetzork.spacenet>
+	id <S286238AbSAMPYI>; Sun, 13 Jan 2002 10:24:08 -0500
+Received: from lilly.ping.de ([62.72.90.2]:32262 "HELO lilly.ping.de")
+	by vger.kernel.org with SMTP id <S285745AbSAMPXu>;
+	Sun, 13 Jan 2002 10:23:50 -0500
+Date: 13 Jan 2002 16:18:23 +0100
+Message-ID: <20020113161823.B1439@planetzork.spacenet>
 From: jogi@planetzork.ping.de
-To: "Ed Sweetman" <ed.sweetman@wmich.edu>
-Cc: "Andrea Arcangeli" <andrea@suse.de>, yodaiken@fsmlabs.com,
-        "Robert Love" <rml@tech9.net>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-        nigel@nrg.org, "Rob Landley" <landley@trommello.org>,
+To: yodaiken@fsmlabs.com
+Cc: "Andrea Arcangeli" <andrea@suse.de>, "Robert Love" <rml@tech9.net>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
+        "Rob Landley" <landley@trommello.org>,
         "Andrew Morton" <akpm@zip.com.au>, linux-kernel@vger.kernel.org
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com> <20020112180016.T1482@inspiron.school.suse.de> <005301c19b9b$6acc61e0$0501a8c0@psuedogod>
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.15i
-In-Reply-To: <005301c19b9b$6acc61e0$0501a8c0@psuedogod>; from ed.sweetman@wmich.edu on Sat, Jan 12, 2002 at 02:00:17PM -0500
+In-Reply-To: <20020112095209.A5735@hq.fsmlabs.com>; from yodaiken@fsmlabs.com on Sat, Jan 12, 2002 at 09:52:09AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12, 2002 at 02:00:17PM -0500, Ed Sweetman wrote:
+On Sat, Jan 12, 2002 at 09:52:09AM -0700, yodaiken@fsmlabs.com wrote:
+> On Sat, Jan 12, 2002 at 04:07:14PM +0100, jogi@planetzork.ping.de wrote:
+> > I did my usual compile testings (untar kernel archive, apply patches,
+> > make -j<value> ...
 > 
-> 
-> > On Sat, Jan 12, 2002 at 09:52:09AM -0700, yodaiken@fsmlabs.com wrote:
-> > > On Sat, Jan 12, 2002 at 04:07:14PM +0100, jogi@planetzork.ping.de wrote:
-> > > > I did my usual compile testings (untar kernel archive, apply patches,
-> > > > make -j<value> ...
-> > >
-> > > If I understand your test,
-> > > you are testing different loads - you are compiling kernels that may
-> differ
-> > > in size and makefile organization, not to mention different layout on
-> the
-> > > file system and disk.
-> 
-> Can someone tell me why we're "testing" the preempt kernel by running
-> make -j on a build?  What exactly is this going to show us?  The only thing
-> i can think of is showing us that throughput is not damaged when you want to
-> run single apps by using preempt.  You dont get to see the effects of the
-> kernel preemption because all the damn thing is doing is preempting itself.
-> 
-> If you want to test the preempt kernel you're going to need something that
-> can find the mean latancy or "time to action" for a particular program or
-> all programs being run at the time and then run multiple programs that you
-> would find on various peoples' systems.   That is the "feel" people talk
-> about when they praise the preempt patch.  make -j'ing something and not
-> testing anything else but that will show you nothing important except "does
-> throughput get screwed by the preempt patch."   Perhaps checking the
-> latencies on a common program on people's systems like mozilla or konqueror
-> while doing a 'make -j N bzImage'  would be a better idea.
+> If I understand your test, 
+> you are testing different loads - you are compiling kernels that may differ
+> in size and makefile organization, not to mention different layout on the
+> file system and disk.
 
-That's the second test I am normally running. Just running xmms while
-doing the kernel compile. I just wanted to check if the system slows
-down because of preemption but instead it compiled the kernel even
-faster :-) But so far I was not able to test the latency and furthermore
-it is very difficult to "measure" skipping of xmms ...
+No, I use a script which is run in single user mode after a reboot. So
+there are only a few processes running when I start the script (see
+attachment) and the jobs should start from the same environment.
 
-> > Ouch, I assumed this wasn't the case indeed.
+> What happens when you do the same test, compiling one kernel under multiple
+> different kernels?
 
-Sorry for not answering immedeatly but I am compiling the same kernel
-source with the same .config and everything I could think of being the
-same! I even do a 'rm -rf linux' after every run and untar the same
-sources *every* time.
+That is exactly what I am doing. I even try to my best to have the exact
+same starting environment ...
 
 Regards,
 

@@ -1,119 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130869AbRAKRsT>; Thu, 11 Jan 2001 12:48:19 -0500
+	id <S131509AbRAKRsU>; Thu, 11 Jan 2001 12:48:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131509AbRAKRsK>; Thu, 11 Jan 2001 12:48:10 -0500
-Received: from mons.uio.no ([129.240.130.14]:10628 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S130869AbRAKRr5>;
-	Thu, 11 Jan 2001 12:47:57 -0500
-MIME-Version: 1.0
+	id <S131615AbRAKRsJ>; Thu, 11 Jan 2001 12:48:09 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:33038 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131509AbRAKRsB>; Thu, 11 Jan 2001 12:48:01 -0500
+Date: Thu, 11 Jan 2001 18:46:45 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
+Message-ID: <20010111184645.B828@athlon.random>
+In-Reply-To: <3A5C6417.6670FCB7@Hell.WH8.TU-Dresden.De> <20010110181516.X10035@nightmaster.csn.tu-chemnitz.de> <3A5C96BB.96B19DB@Hell.WH8.TU-Dresden.De> <200101110841.AAA01652@penguin.transmeta.com> <3A5D8583.F5F30BD2@Hell.WH8.TU-Dresden.De> <20010111111145.A19584@gruyere.muc.suse.de> <3A5D8B79.AD1E161D@Hell.WH8.TU-Dresden.De> <20010111183605.A828@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14941.61668.697523.866481@charged.uio.no>
-Date: Thu, 11 Jan 2001 18:44:04 +0100 (CET)
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Russell King <rmk@arm.linux.org.uk>,
-        Hubert Mantel <mantel@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Compatibility issue with 2.2.19pre7
-In-Reply-To: <3A5DDD09.C8C70D36@colorfullife.com>
-In-Reply-To: <20010110013755.D13955@suse.de>
-	<200101100654.f0A6sjJ02453@flint.arm.linux.org.uk>
-	<20010110163158.F19503@athlon.random>
-	<shszogy2jmr.fsf@charged.uio.no>
-	<3A5DDD09.C8C70D36@colorfullife.com>
-X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Disposition: inline
+In-Reply-To: <20010111183605.A828@athlon.random>; from andrea@suse.de on Thu, Jan 11, 2001 at 06:36:05PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Manfred Spraul <manfred@colorfullife.com> writes:
+On Thu, Jan 11, 2001 at 06:36:05PM +0100, Andrea Arcangeli wrote:
+> On Thu, Jan 11, 2001 at 11:31:21AM +0100, Udo A. Steinberg wrote:
+> >  CONFIG_MK7=y
+> 
+> I'm looking into it.
 
-     > Trond Myklebust wrote:
-    >>
-    >>
-    >> As for the issue of casting 'fh->data' as a 'struct knfsd' then
-    >> that is a perfectly valid operation.
-    >>
-     > No it isn't.
+The fxsr fixes from 2.4.1-pre1 allows athlon to correctly use FXSR too (when
+nofxsr isn't passed to the kernel of course).
 
-     > fh-> data is an array of characters, thus without any alignment
-     > restrictions.  'struct knfsd' begins with a pointer, thus it
-     > must be 4 or 8 byte aligned.
+So then this 3dnow breaks here:
 
-     > The portable 'struct nfs_fh' structure would be
+void *_mmx_memcpy(void *to, const void *from, size_t len)
+{
+	void *p=to;
+	int i= len >> 6;	/* len/64 */
 
-     > #define NFS_HANDLESIZE 64
-     > struct nfs_fh {
-     > 	unsigned short len; void* data[NFS_HANDLESIZE/sizeof(void*)];
-     > };
+	if (!(current->flags & PF_USEDFPU))
+		clts();
+	else
+	{
+		__asm__ __volatile__ ( " fnsave %0; fwait\n"::"m"(current->thread.i387));
+		current->flags &= ~PF_USEDFPU;
+	}
 
-Ok. I see your point now. How about the appended patch then? It means
-an extra copy operation, but it should be a lot less ugly than doing
-manual alignment...
+The 3dnow is hardcoding the usage of old fnsave, whereas it should be using the
+i387 operations in first place as all other parts of the kernel.
 
-Cheers,
-  Trond
+Then athlon will be able use both the faster fxsr and the 3dnow code
+at the same time (whereas in 2.4.0 it wasn't wrongly using fxsr).
 
-diff -u --recursive --new-file linux-2.2.18/fs/lockd/svcsubs.c linux-2.2.18-fix_ppc/fs/lockd/svcsubs.c
---- linux-2.2.18/fs/lockd/svcsubs.c	Mon Dec 11 01:49:44 2000
-+++ linux-2.2.18-fix_ppc/fs/lockd/svcsubs.c	Thu Jan 11 18:43:31 2001
-@@ -49,34 +49,37 @@
- nlm_lookup_file(struct svc_rqst *rqstp, struct nlm_file **result,
- 					struct nfs_fh *f)
- {
--	struct knfs_fh	*fh = (struct knfs_fh *) f->data;
-+	struct knfs_fh	fh;
- 	struct nlm_file	*file;
- 	unsigned int	hash;
- 	u32		nfserr;
+I also noticed this minor leftover:
+
+--- ./arch/i386/kernel/i386_ksyms.c.~1~	Thu Dec 14 22:33:59 2000
++++ ./arch/i386/kernel/i386_ksyms.c	Thu Jan 11 17:15:21 2001
+@@ -116,6 +116,7 @@
+ EXPORT_SYMBOL(mmx_clear_page);
+ EXPORT_SYMBOL(mmx_copy_page);
+ #endif
++EXPORT_SYMBOL(mmu_cr4_features);
  
-+	/* Copy filehandle to avoid pointer alignment issues */
-+	memcpy(&fh, f->data, sizeof(fh));
-+
- 	dprintk("lockd: nlm_file_lookup(%s/%u)\n",
--		kdevname(u32_to_kdev_t(fh->fh_dev)), fh->fh_ino);
-+		kdevname(u32_to_kdev_t(fh.fh_dev)), fh.fh_ino);
- 
--	hash = file_hash(u32_to_kdev_t(fh->fh_dev), u32_to_ino_t(fh->fh_ino));
-+	hash = file_hash(u32_to_kdev_t(fh.fh_dev), u32_to_ino_t(fh.fh_ino));
- 
- 	/* Lock file table */
- 	down(&nlm_file_sema);
- 
- 	for (file = nlm_files[hash]; file; file = file->f_next) {
--		if (file->f_handle.fh_dcookie == fh->fh_dcookie &&
--		    !memcmp(&file->f_handle, fh, sizeof(*fh)))
-+		if (file->f_handle.fh_dcookie == fh.fh_dcookie &&
-+		    !memcmp(&file->f_handle, &fh, sizeof(fh)))
- 			goto found;
- 	}
- 
- 	dprintk("lockd: creating file for %s/%u\n",
--		kdevname(u32_to_kdev_t(fh->fh_dev)), fh->fh_ino);
-+		kdevname(u32_to_kdev_t(fh.fh_dev)), fh.fh_ino);
- 	nfserr = nlm4_lck_denied_nolocks;
- 	file = (struct nlm_file *) kmalloc(sizeof(*file), GFP_KERNEL);
- 	if (!file)
- 		goto out_unlock;
- 
- 	memset(file, 0, sizeof(*file));
--	file->f_handle = *fh;
-+	memcpy(&file->f_handle, &fh, sizeof(file->f_handle));
- 	file->f_sema   = MUTEX;
- 
- 	/* Open the file. Note that this must not sleep for too long, else
-@@ -85,7 +88,7 @@
- 	 * We have to make sure we have the right credential to open
- 	 * the file.
- 	 */
--	if ((nfserr = nlmsvc_ops->fopen(rqstp, fh, &file->f_file)) != 0) {
-+	if ((nfserr = nlmsvc_ops->fopen(rqstp, &fh, &file->f_file)) != 0) {
- 		dprintk("lockd: open failed (nfserr %d)\n", ntohl(nfserr));
- 		goto out_free;
- 	}
+ #ifdef CONFIG_SMP
+ EXPORT_SYMBOL(cpu_data);
+
+
+Until I fix the 3dnow code to use the i387.c library please workaround
+this way:
+
+--- ./arch/i386/config.in.~1~	Thu Jan 11 17:52:05 2001
++++ ./arch/i386/config.in	Thu Jan 11 18:38:29 2001
+@@ -109,7 +109,7 @@
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 6
+    define_bool CONFIG_X86_TSC y
+    define_bool CONFIG_X86_GOOD_APIC y
+-   define_bool CONFIG_X86_USE_3DNOW y
++#   define_bool CONFIG_X86_USE_3DNOW y
+    define_bool CONFIG_X86_PGE y
+    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
+ fi
+
+
+FXSR on athlon works like a charm in the aa 2.2.x patchkit because in 2.2.x
+there are no special string operations that uses 3dnow.
+
+Sorry for having missed that.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

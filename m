@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318730AbSHWK3f>; Fri, 23 Aug 2002 06:29:35 -0400
+	id <S318741AbSHWKoE>; Fri, 23 Aug 2002 06:44:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318734AbSHWK3f>; Fri, 23 Aug 2002 06:29:35 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5393 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318730AbSHWK3f>; Fri, 23 Aug 2002 06:29:35 -0400
-Date: Fri, 23 Aug 2002 11:33:44 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Holger Schurig <h.schurig@mn-logistik.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cell-phone like keyboard driver anywhere?
-Message-ID: <20020823113344.B20722@flint.arm.linux.org.uk>
-References: <200208210932.36132.h.schurig@mn-logistik.de> <200208230954.11132.h.schurig@mn-logistik.de> <20020823103151.A19858@flint.arm.linux.org.uk> <200208231205.28764.h.schurig@mn-logistik.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208231205.28764.h.schurig@mn-logistik.de>; from h.schurig@mn-logistik.de on Fri, Aug 23, 2002 at 12:05:28PM +0200
+	id <S318743AbSHWKoE>; Fri, 23 Aug 2002 06:44:04 -0400
+Received: from h-64-105-137-141.SNVACAID.covad.net ([64.105.137.141]:20631
+	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S318741AbSHWKoD>; Fri, 23 Aug 2002 06:44:03 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 23 Aug 2002 03:48:06 -0700
+Message-Id: <200208231048.DAA02646@adam.yggdrasil.com>
+To: aebr@win.tue.nl
+Subject: Re: IDE-flash device and hard disk on same controller
+Cc: andre@linux-ide.org, ebiederm@xmission.com, jgarzik@mandrakesoft.com,
+       linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sorry, but I find what you just did extremely offensive.  I
-specifically did not copy lkml with my reply.  You therefore have
-no right to copy bits from my reply and post them to a public forum.
+>Date: Fri, 23 Aug 2002 11:54:21 +0200
+>From: Andries Brouwer <aebr@win.tue.nl>
 
-On Fri, Aug 23, 2002 at 12:05:28PM +0200, Holger Schurig wrote:
-> > The problems that need to be resolved with the kernel approach.  Lets
-> > look at the '1-1-1' case:
-> >
-> > 1. Do you queue the characters "a" "^h" "b" "^h" "c" ?
-> 
-> There is no '1-1-1' case, the case is '1-1-1-pause'. Only after the pause 
-> would the software (may it be kernel or user-space) know that and what 
-> character has been meant. At the '1-1-1' state the user might press again a 1 
-> and then wait, then this might be an '1-pause' case.
-> 
-> The idea is that in the case of '1-1-1-pause' the driver queues exactly one 
-> character, e.g. the "c".
+>Read e.g. ATA-6.
 
-Where is the user feedback normally associated with the action of
-pressing "1-1-1-pause" ?  Most keypads I know display "a" then "b"
-then "c" so the user knows what character they're going to get.
+> [If things work well, they may well be fast. But you are only entitled
+> to conclude that something is wrong after waiting for 31 s. In
+> particular, if you want to detect device 1 (the slave device), then
+> only after 31 s you know that it is absent.]
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+We're only talking about going fast if we detect that things have gone well.
 
+
+>See for example the Device power-on or hardware reset state diagram in 9.1.
+
+	Thanks for the reference.  Pointing to the actual standards
+makes these discussions a lot more efficient.
+
+	What I said to Andre about software reset also apparently
+applies to hardware reset.
+
+	The state diagram that you refer to for hardware reset is on
+page 312 of ATA/ATAPI-6 revision 3b, 28 February 2002 and
+page 85 of ATA/ATAPI-7 revision 0d, 8 July 2002.  As with
+software reset, BSY is asserted within 400ns of reset being asserted
+and remains set until the transition at the end of the diagram
+(D0HR3:Set_Status --> Device_idle_S).
+
+	So, I think that Eric Biederman's suggestion about waiting for
+BSY to clear, so as to accomodate Power On Self Test that can complete
+in under 31 seconds should be OK.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

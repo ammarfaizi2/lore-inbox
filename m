@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261426AbTAOEEq>; Tue, 14 Jan 2003 23:04:46 -0500
+	id <S261527AbTAOEK2>; Tue, 14 Jan 2003 23:10:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbTAOEEq>; Tue, 14 Jan 2003 23:04:46 -0500
-Received: from eamail1-out.unisys.com ([192.61.61.99]:45194 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S261426AbTAOEEp>; Tue, 14 Jan 2003 23:04:45 -0500
-Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD900@usslc-exch-4.slc.unisys.com>
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: "'Zwane Mwaikambo'" <zwane@holomorphy.com>,
-       "'Nakajima, Jun'" <jun.nakajima@intel.com>,
-       "'haveblue@us.ibm.com'" <haveblue@us.ibm.com>
-Subject: [BUG] SLAB.C:1617-error on boot
-Date: Tue, 14 Jan 2003 22:13:26 -0600
+	id <S261530AbTAOEK1>; Tue, 14 Jan 2003 23:10:27 -0500
+Received: from blizzard.bluegravity.com ([64.57.64.28]:61458 "HELO
+	blizzard.bgci.net") by vger.kernel.org with SMTP id <S261527AbTAOEK0>;
+	Tue, 14 Jan 2003 23:10:26 -0500
+Message-ID: <3E24E1B2.3050308@ryanflynn.com>
+Date: Tue, 14 Jan 2003 23:21:06 -0500
+From: ryan <ryan@ryanflynn.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.56 sound/oss/sb_mixer.c bounds check
+References: <3E24D1D5.5090200@ryanflynn.com> <200301141930.00567.akpm@digeo.com>
+In-Reply-To: <200301141930.00567.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the error below consistently on boot with 2.5.58. Didn't see it with
-2.5.56 (skipped 2.5.57).
+> Yup.
+> 
+> It would be better to do:
+> 
+> 	if (dev < 0 || dev >= ARRAY_SIZE(smw_mix_regs))
 
-.............................
-Detected 1899.559 MHz processor.
+yup, much better. i did a little housecleaning on the whole file, as 
+well as 2 more bounds checks in appropriate places.
 
-Console: colour VGA+ 80x25
+i'm sorry to ask, but i'm new -- i've got a ~500 line patch, and my 
+email client is wrapping at 80 chars (unfortunately some lines run over 
+80 chars), is sending an attachment in ascii format ok? i've seen some 
+patches sent as attachments, not sure.
 
-Calibrating delay loop... 3702.78 BogoMIPS
+waiting for a yes/no response, please cc me
 
-Memory: 3952476k/3997504k available (2436k kernel code, 43892k reserved,
-1280k data, 132k init, 3080000k highmem)
-
-Debug: sleeping function called from illegal context at mm/slab.c:1617
-
-Call Trace:
-
- [<c013b09c>] kmem_cache_alloc+0x74/0x76
-
- [<c013a2ca>] kmem_cache_create+0x72/0x5be
-
- [<c0105000>] _stext+0x0/0x56
-
-
-Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes)
-
-Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes)
-
-................
-
-
---Natalie

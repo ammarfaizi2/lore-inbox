@@ -1,73 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311338AbSCLUe7>; Tue, 12 Mar 2002 15:34:59 -0500
+	id <S311337AbSCLUe7>; Tue, 12 Mar 2002 15:34:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311339AbSCLUeu>; Tue, 12 Mar 2002 15:34:50 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:61959 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S311338AbSCLUeg>; Tue, 12 Mar 2002 15:34:36 -0500
-Date: Tue, 12 Mar 2002 21:34:28 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Sebastian Droege <sebastian.droege@gmx.de>
-Cc: Martin Dalecki <martin@dalecki.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] PIIX driver rewrite
-Message-ID: <20020312213428.A15278@ucw.cz>
-In-Reply-To: <E16kYXz-0001z3-00@the-village.bc.nu> <Pine.LNX.4.33.0203111431340.15427-100000@penguin.transmeta.com> <20020311234553.A3490@ucw.cz> <3C8DDFC8.5080501@evision-ventures.com> <20020312210035.A15175@ucw.cz> <20020312213505.1d229d95.sebastian.droege@gmx.de>
+	id <S311338AbSCLUev>; Tue, 12 Mar 2002 15:34:51 -0500
+Received: from [217.79.102.244] ([217.79.102.244]:43515 "EHLO
+	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
+	id <S311337AbSCLUed>; Tue, 12 Mar 2002 15:34:33 -0500
+Subject: Re: Sun GEM card looses TX on x86 32bit PCI
+From: Beezly <beezly@beezly.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020312.093134.35196670.davem@redhat.com>
+In-Reply-To: <1015881102.4312.10.camel@monkey>
+	<1015881814.4315.12.camel@monkey> <1015887102.2051.4.camel@monkey> 
+	<20020312.093134.35196670.davem@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-2G46QY2ZynEZdVAz4Lva"
+X-Mailer: Evolution/1.0.2 
+Date: 12 Mar 2002 20:34:29 +0000
+Message-Id: <1015965269.1937.22.camel@monkey>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020312213505.1d229d95.sebastian.droege@gmx.de>; from sebastian.droege@gmx.de on Tue, Mar 12, 2002 at 09:35:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 09:35:05PM +0100, Sebastian Droege wrote:
-> On Tue, 12 Mar 2002 21:00:35 +0100
-> Vojtech Pavlik <vojtech@suse.cz> wrote:
-> 
-> > On Tue, Mar 12, 2002 at 12:00:24PM +0100, Martin Dalecki wrote:
-> > > Hello Vojtech.
-> > > 
-> > > I have noticed that the ide-timings.h and ide_modules.h are running
-> > > much in aprallel in the purpose they serve. Are the any
-> > > chances you could dare to care about propagating the
-> > > fairly nice ide-timings.h stuff in favour of
-> > > ide_modules.h more.
-> > > 
-> > > BTW.> I think some stuff from ide-timings.h just belongs
-> > > as generic functions intro ide.c, and right now there is
-> > > nobody who you need to work from behind ;-).
-> > > 
-> > > So please feel free to do the changes you apparently desired
-> > > to do a long time ago...
-> > 
-> > Oh, by the way, here goes the PIIX rewrite ... unlike the AMD one, this
-> > is completely untested, and may not work at all - I only have the
-> > datasheets at hand, no PIIX hardware.
-> > 
-> > Differences from the previous PIIX driver:
-> > 
-> > * 82451NX MIOC isn't supported anymore. It's not an ATA controller, anyway ;)
-> > * 82371FB_0 PIIX ISA bridge isn't an ATA controller either.
-> > * 82801CA ICH3 support added. Only ICH3-M is supported by the original driver.
-> > * 82371MX MPIIX is not supported anymore. Too weird beast and doesn't do
-> >   DMA anyway, better handled by the generic PCI ATA routines.
-> > 
-> > * Cleaner, converted to ide-timing.[ch]
-> > 
-> > * May not work. ;)
-> But does work with an Intel Corp. 82371AB PIIX4 IDE (rev 01) IDE controller...
 
-Thanks a lot for the testing!
+--=-2G46QY2ZynEZdVAz4Lva
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> I'll do some more stress testing but it boots, works in DMA and the data transfer rates haven't decreased ;)
-> *playingwithhdparmanddbench* ;)
+Hi David,
 
-If you can (in addition to the benchmark numbers) also send me the
-output of 'cat /proc/ide/piix' and 'dmesg' and 'lspci -vvxxx'both my and
-the original version ... that'd help a lot too.
+This looks like it's working!
 
-Thanks again,
--- 
-Vojtech Pavlik
-SuSE Labs
+eth0      Link encap:Ethernet  HWaddr 00:03:BA:04:5B:D7
+          inet addr:10.0.0.12  Bcast:10.0.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::203:baff:fe04:5bd7/10 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:623264 errors:0 dropped:4 overruns:4 frame:4
+          TX packets:501679 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100
+          RX bytes:864388119 (824.3 MiB)  TX bytes:719041874 (685.7 MiB)
+          Interrupt:5 Base address:0x8400
+
+There are a few dropped packets, and the card misses a few incoming
+immediatly after a dropped packet although I guess this is it picking
+itself up off the ground after RX has hung.
+
+Also, regarding the missing MAC address on most architectures, I have it
+on good authority that the last six digits of the MAC address are stored
+in the Vital Product Data area on the PCI boards (presumably because the
+first 6 are the "standard" SUN MAC prefix).
+
+I had a quick fiddle around with pci_find_capability(<blah>,
+PCI_CAP_ID_VPD), but it always returns NULL (i.e. no VPD). However, I've
+also noticed that no-one appears to use that macro in any of the kernel
+source. Is there another way to look at the VPD?
+
+Many Thanks,
+
+Beezly
+
+On Tue, 2002-03-12 at 17:31, David S. Miller wrote:
+>    From: Beezly <beezly@beezly.org.uk>
+>    Date: 11 Mar 2002 22:51:42 +0000
+>=20
+>    Ok, I've been fiddling around with the driver tonight and have managed
+>    to get a little further by forcing the driver to do a full reset of th=
+e
+>    chip when the RX buffer over flows. I achieved this by sticking a retu=
+rn
+>    1; at the top of gem_rxmac_reset().
+>   =20
+>    I'm guessing this isn't an "optimal" reset for the situation but so fa=
+r
+>    it's having /reasonable/ results (i.e. I don't have to bring the
+>    interface up and down every 30 seconds!).
+>  ...  =20
+>    Hope this helps,
+>=20
+> I'll follow up on this and figure out why my RX reset code
+> isn't working after I finish up some 2.5.x work.
+>=20
+> But looking quickly I think I see what is wrong.  Please give
+> this a try (and remember to remove your hacks before testing
+> this :-):
+>=20
+> --- drivers/net/sungem.c.~1~	Mon Mar 11 04:24:13 2002
+> +++ drivers/net/sungem.c	Tue Mar 12 09:30:38 2002
+> @@ -357,6 +357,7 @@ static int gem_rxmac_reset(struct gem *g
+> =20
+>  		rxd->status_word =3D cpu_to_le64(RXDCTRL_FRESH(gp));
+>  	}
+> +	gp->rx_new =3D gp->rx_old =3D 0;
+> =20
+>  	/* Now we must reprogram the rest of RX unit. */
+>  	desc_dma =3D (u64) gp->gblock_dvma;
+
+
+--=-2G46QY2ZynEZdVAz4Lva
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8jmZVXu4ZFsMQjPgRAqzTAJ0RDr/R+ywLJ5Qpqj1hiNl+Z6PJjACeMAAy
+uKTy1BCM4c7EC9dSf2Jr+Fs=
+=0+b/
+-----END PGP SIGNATURE-----
+
+--=-2G46QY2ZynEZdVAz4Lva--

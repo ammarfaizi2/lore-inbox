@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263396AbREXH3O>; Thu, 24 May 2001 03:29:14 -0400
+	id <S263393AbREXHaY>; Thu, 24 May 2001 03:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263395AbREXH3E>; Thu, 24 May 2001 03:29:04 -0400
-Received: from smtp2.Stanford.EDU ([171.64.14.116]:63471 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S263396AbREXH2r>; Thu, 24 May 2001 03:28:47 -0400
-Message-Id: <200105240728.f4O7SkH23099@smtp2.Stanford.EDU>
-Content-Type: text/plain; charset=US-ASCII
-From: Praveen Srinivasan <praveens@stanford.edu>
-Organization: Stanford University
-To: torvalds@transmeta.com
-Subject: [PATCH] ftl.c - Null ptr fixes 2.4.4
-Date: Thu, 24 May 2001 00:29:52 -0700
-X-Mailer: KMail [version 1.2.2]
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, dwmw2@redhat.com
+	id <S263395AbREXHaG>; Thu, 24 May 2001 03:30:06 -0400
+Received: from [212.150.138.2] ([212.150.138.2]:38155 "EHLO
+	ntserver.voltaire.com") by vger.kernel.org with ESMTP
+	id <S263393AbREXH36>; Thu, 24 May 2001 03:29:58 -0400
+Message-ID: <20083A3BAEF9D211BDB600805F8B14F3F68E17@NTSERVER>
+From: Alon Ronen <alonr@voltaire.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: skbuffs under kernel 2.4.4
+Date: Thu, 24 May 2001 10:26:58 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="windows-1255"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Using the Stanford checker, we searched for null-pointer bugs in the linux
-kernel code. This patch fixes an unchecked pointer in an MTD driver (ftl.c).
 
-Praveen Srinivasan and Frederick Akalin
+Hi all!
 
---- ../linux/./drivers/mtd/ftl.c	Fri Feb  9 11:30:23 2001
-+++ ./drivers/mtd/ftl.c	Mon May  7 22:01:29 2001
-@@ -375,6 +375,11 @@
-     /* Set up virtual page map */
-     blocks = le32_to_cpu(header.FormattedSize) >> header.BlockSize;
-     part->VirtualBlockMap = vmalloc(blocks * sizeof(u_int32_t));
-+
-+    if(part->VirtualBlockMap==NULL) {
-+      return -1;
-+    }
-+
-     memset(part->VirtualBlockMap, 0xff, blocks * sizeof(u_int32_t));
-     part->BlocksPerUnit = (1 << header.EraseUnitSize) >> header.BlockSize;
+in sk_buff under kernel 2.4.4 there is a struct called skb_shared_info which
+lives at the end of the header
+data (at skb->end). one of it's fields is : struct sk_buff *frag_list. what
+is the purpose for it's existance?
+where in the tcp stack can I see the use for it, or where do I fill it? is
+there a relation between this field
+and the skb_frag_t frags[MAX_SKB_FRAGS] which also belongs to the same
+struct and is simply an array
+of objects the describe a fragment using page,offset & size?
+
+
+thanks in advance,
+
+--Alon
+

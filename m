@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268910AbRHBMaY>; Thu, 2 Aug 2001 08:30:24 -0400
+	id <S268917AbRHBMmy>; Thu, 2 Aug 2001 08:42:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268913AbRHBMaO>; Thu, 2 Aug 2001 08:30:14 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37392 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268910AbRHBMaJ>; Thu, 2 Aug 2001 08:30:09 -0400
-Subject: Re: booting SMP P6 kernel on P4 hangs.
-To: macro@ds2.pg.gda.pl (Maciej W. Rozycki)
-Date: Thu, 2 Aug 2001 13:30:53 +0100 (BST)
-Cc: arjanv@redhat.com (Arjan van de Ven), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.3.96.1010801134415.19537C-100000@delta.ds2.pg.gda.pl> from "Maciej W. Rozycki" at Aug 01, 2001 01:49:42 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268920AbRHBMmp>; Thu, 2 Aug 2001 08:42:45 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:55986 "EHLO zok.corp.sgi.com")
+	by vger.kernel.org with ESMTP id <S268919AbRHBMmj>;
+	Thu, 2 Aug 2001 08:42:39 -0400
+From: Jack Steiner <steiner@sgi.com>
+Message-Id: <200108021242.HAA02573@fsgi055.americas.sgi.com>
+Subject: Re: [Linux-ia64] [RFC] /proc/ksyms change for IA64 (fwd)
+To: linux-kernel@vger.kernel.org
+Date: Thu, 2 Aug 2001 07:42:45 -0500 (CDT)
+In-Reply-To: <22393.996723520@kao2.melbourne.sgi.com> from "Keith Owens" at Aug 02, 2001 01:38:40 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15SHcr-0000UF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 1 Aug 2001, Arjan van de Ven wrote:
+> with old modutils, modules will oops.  I don't see this as a problem,
+> the IA64 population is fairly small, in any case gcc cross compile for
+> IA64 has problems right now.
 > 
-> > Oh it is. And it's due to a recommendation Intel makes to bios writers. 
-> > As a result, every P4 I've encountered shares this bug. Intel knows it's
-> > an invalid MP table, but refuses to change the recommendation.
-> 
->  Where's the recommendation?  We might work it around somehow. 
-> 
->  Alternatively we may just disable the SMP mode if the bootstrap CPU's
-> real ID contradits the one in the MP table. 
 
-I think just disable SMP in that case. There are currently no SMP Pentium IV
-boxes and perhaps Intel will have fixed it by the time SMP Pentium IV exists
+The proposal looks fine. I have another question.
+
+What problems exist with cross compiling.
+
+We are still using the cross-compiler for all of our building & testing.
+We use:
+	gcc version 2.96-ia64-000717 snap 001117 (plus some patches that Ralf added last Dec).
+
+
+I know that at some point we need to convert to native builds but right now we
+dont have sufficient bigsur/lion boxes to do that.
+
+We have not seen any problems with the compiler we are using - at least we 
+have not attributed a problem to the compiler.
+
+Should we upgrade to gcc3.0 yet???
+
+
+Any info on this subject would be appreciated......
+
+-- 
+Thanks
+
+Jack Steiner    (651-683-5302)   (vnet 233-5302)      steiner@sgi.com
+

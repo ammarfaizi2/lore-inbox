@@ -1,71 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267311AbTBJKqJ>; Mon, 10 Feb 2003 05:46:09 -0500
+	id <S267321AbTBJKv0>; Mon, 10 Feb 2003 05:51:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267321AbTBJKqJ>; Mon, 10 Feb 2003 05:46:09 -0500
-Received: from dial-ctb04112.webone.com.au ([210.9.244.112]:56326 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S267311AbTBJKqI>;
-	Mon, 10 Feb 2003 05:46:08 -0500
-Message-ID: <3E478528.6030009@cyberone.com.au>
-Date: Mon, 10 Feb 2003 21:55:36 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Hans Reiser <reiser@namesys.com>, andrea@suse.de, jakob@unthought.net,
-       david.lang@digitalinsight.com, riel@conectiva.com.br,
-       ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3
- / aa / rmap with contest]
-References: <Pine.LNX.4.50L.0302100211570.12742-100000@imladris.surriel.com>	<Pine.LNX.4.44.0302092018180.15944-100000@dlang.diginsite.com>	<20030209203343.06608eb3.akpm@digeo.com>	<20030210045107.GD1109@unthought.net>	<3E473172.3060407@cyberone.com.au>	<20030210073614.GJ31401@dualathlon.random>	<3E47579A.4000700@cyberone.com.au>	<20030210080858.GM31401@dualathlon.random>	<20030210001921.3a0a5247.akpm@digeo.com>	<20030210085649.GO31401@dualathlon.random>	<20030210010937.57607249.akpm@digeo.com>	<3E4779DD.7080402@namesys.com> <20030210024810.43a57910.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267441AbTBJKv0>; Mon, 10 Feb 2003 05:51:26 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15620 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S267321AbTBJKvY>; Mon, 10 Feb 2003 05:51:24 -0500
+Date: Mon, 10 Feb 2003 12:01:09 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: levon@movementarian.org, linux-kernel@vger.kernel.org
+Subject: Re: Switch APIC (+nmi, +oprofile) to driver model
+Message-ID: <20030210110108.GE2838@atrey.karlin.mff.cuni.cz>
+References: <200302091407.PAA14076@kim.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302091407.PAA14076@kim.it.uu.se>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi!
 
->Hans Reiser <reiser@namesys.com> wrote:
->
->>readahead seems to be less effective for non-sequential objects.  Or at 
->>least, you don't get the order of magnitude benefit from doing only one 
->>seek, you only get the better elevator scheduling from having more 
->>things in the elevator, which isn't such a big gain.
->>
->>For the spectators of the thread, one of the things most of us learn 
->>from experience about readahead is that there has to be something else 
->>trying to interject seeks into your workload for readahead to make a big 
->>difference, otherwise a modern disk drive (meaning, not 30 or so years 
->>old) is going to optimize it for you anyway using its track cache.
->>
->>
->
->The biggest place where readahead helps is when there are several files being
->read at the same time.  Without readahead the disk will seek from one file
->to the next after having performed a 4k I/O.  With readahead, after performing
->a (say) 128k I/O.  It really can make a 32x difference.
->
->Readahead is brute force.  The anticipatory scheduler solves this in a
->smarter way.
->
->Yes, device readahead helps.  But I believe the caches are only 4-way
->segmented or thereabouts, so it is easy to thrash them.  Let's test:
->
-[snip results]
+> >Here's next attempt at moving APIC (+nmi, +oprofile) to the driver
+> >model. If it looks good I'l submit it to Linus.
+> 
+> I'm sorry to be a killjoy, but this still doesn't look right.
+> 
+> >--- clean/arch/i386/kernel/apic.c	2003-01-05 22:58:18.000000000 +0100
+> >+++ linux-swsusp/arch/i386/kernel/apic.c	2003-02-03 16:36:41.000000000 +0100
+> >-static void apic_pm_resume(void *data)
+> >+static int apic_resume(struct device *dev, u32 level)
+> > {
+> > 	unsigned int l, h;
+> > 	unsigned long flags;
+> > 
+> >+	if (level != RESUME_POWER_ON)
+> >+		return 0;
+> >+
+> >+	set_fixmap_nocache(FIX_APIC_BASE, apic_phys);		/* FIXME: this is needed for S3 resume, but why? */
+> 
+> This is horrible! The only reason this might be needed is if
+> the page tables weren't restored properly at resume, and that
+> indicates a bug somewhere else.
+> 
+> Also, apic_phys is (or should be) APIC_DEFAULT_PHYS_BASE, so
+> you shouldn't need to make apic_phys global.
 
->
->
->Still only 300%.  I'd expect to see much larger differences on some older
->SCSI disks I have here.
->
-It would be interesting to see numbers with and without anticipatory
-scheduling as well. I have tried two streaming readers.
-Speed with default readahead 13MB/s
-Speed with no readahead, no anticipation 7MB/s
-Speed with no readahead, anticipation 11.8MB/s
+Really?
 
-I suspect more readers will simply favour the anticipatory scheduler
-more.
+        /*
+         * If no local APIC can be found then set up a fake all
+         * zeroes page to simulate the local APIC and another
+         * one for the IO-APIC.
+         */
+        if (!smp_found_config && detect_init_APIC()) {
+                apic_phys = (unsigned long) alloc_bootmem_pages(PAGE_SIZE);
+                apic_phys = __pa(apic_phys);
+        } else
+                apic_phys = mp_lapic_addr;
 
-Nick
+        set_fixmap_nocache(FIX_APIC_BASE, apic_phys);
 
+So it seems to me it really is variable.
+
+> >--- clean/arch/i386/kernel/nmi.c	2003-01-05 22:58:19.000000000 +0100
+> >+++ linux-swsusp/arch/i386/kernel/nmi.c	2003-02-09 11:43:29.000000000 +0100
+> >@@ -118,10 +121,6 @@
+> > 	 * missing bits. Right now Intel P6/P4 and AMD K7 only.
+> > 	 */
+> > 	if ((nmi == NMI_LOCAL_APIC) &&
+> >-			(boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) &&
+> >-			(boot_cpu_data.x86 == 6 || boot_cpu_data.x86 == 15))
+> >-		nmi_watchdog = nmi;
+> >-	if ((nmi == NMI_LOCAL_APIC) &&
+> > 			(boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
+> > 	  		(boot_cpu_data.x86 == 6 || boot_cpu_data.x86 == 15))
+> > 		nmi_watchdog = nmi;
+> 
+> You just killed NMI_LOCAL_APIC support on Intel.
+
+Oops, sorry, I seen two identical blocks of code... and they were not
+identical. Sorry.
+
+> >--- clean/arch/i386/oprofile/nmi_int.c	2003-01-05 22:58:19.000000000 +0100
+> >+++ linux-swsusp/arch/i386/oprofile/nmi_int.c	2003-02-09 12:16:52.000000000 +0100
+> ...
+> >+	if (nmi_watchdog == NMI_LOCAL_APIC) {
+> >+		disable_apic_nmi_watchdog();
+> >+		nmi_watchdog = NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE;
+> >+	}
+> ...
+> >+	if (nmi_watchdog == NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE) {
+> >+		nmi_watchdog = NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE;
+> >+		setup_apic_nmi_watchdog();
+> >+	}
+> ...
+> >--- clean/include/asm-i386/apic.h	2002-10-20 16:22:45.000000000 +0200
+> >+++ linux-swsusp/include/asm-i386/apic.h	2003-02-09 11:46:09.000000000 +0100
+> >@@ -95,6 +95,7 @@
+> > #define NMI_IO_APIC	1
+> > #define NMI_LOCAL_APIC	2
+> > #define NMI_INVALID	3
+> >+#define NMI_LOCAL_APIC_SUSPENDED_BY_OPROFILE	4
+> 
+> This is ugly like h*ll. Surely oprofile could just do:
+
+Yes, whole oprofile/nmi interaction is ugly like hell. This way it is
+at least explicit, so people *know* its ugly.
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

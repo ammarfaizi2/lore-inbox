@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265334AbRF0Rpm>; Wed, 27 Jun 2001 13:45:42 -0400
+	id <S265336AbRF0Rqm>; Wed, 27 Jun 2001 13:46:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265339AbRF0Rpc>; Wed, 27 Jun 2001 13:45:32 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:54033 "EHLO paip.net")
-	by vger.kernel.org with ESMTP id <S265334AbRF0RpQ>;
-	Wed, 27 Jun 2001 13:45:16 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] User chroot
-Date: 27 Jun 2001 17:42:55 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <9hd5uv$o95$2@abraham.cs.berkeley.edu>
-In-Reply-To: <200106271357.IAA27308@tomcat.admin.navo.hpc.mil>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 993663775 24869 128.32.45.153 (27 Jun 2001 17:42:55 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 27 Jun 2001 17:42:55 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S265337AbRF0Rqc>; Wed, 27 Jun 2001 13:46:32 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:63496 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265336AbRF0RqY>;
+	Wed, 27 Jun 2001 13:46:24 -0400
+Date: Wed, 27 Jun 2001 19:41:27 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to change DVD-ROM speed?
+Message-ID: <20010627194127.H17905@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0106271018000.32012-100000@heat.gghcwest.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0106271018000.32012-100000@heat.gghcwest.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard  wrote:
->2. Any penetration is limited to what the user can access.
+On Wed, Jun 27 2001, Jeffrey W. Baker wrote:
+> I am trying to change the spin rate of my IDE DVD-ROM drive.  My system is
+> an Apple PowerBook G4, and I am using kernel 2.4.  I want the drive to
+> spin at 1X when I watch movies.  Currently, it spins at its highest speed,
+> which is very loud and a large power load.
+> 
+> /proc/sys/dev/cdrom/info indicates that the speed of the drive can be
+> changed.  I use hdparm -E 1 /dev/dvd to attempt to set the speed, and it
+> reports success.  However, the drive continues to spin at its highest
+> speed.
 
-Sure, but in practice, this is not a limit at all.
+Linux still uses the old-style SET_SPEED command, which is probably not
+supported correctly by your newer drive. Just checking, I see latest Mt
+Fuji only lists it for CD-RW. For DVD, we're supposed to do
+SET_STREAMING to specify such requirements.
 
-Once a malicious party gains access to any account on your
-system (root or non-root), you might as well give up, on all
-but the most painstakingly careful configurations.  That's why
-chroot is potentially valuable.
+Feel free to implement it :-)
+
+-- 
+Jens Axboe
+

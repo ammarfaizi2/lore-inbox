@@ -1,45 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVAAQF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVAAQsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVAAQF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 11:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbVAAQF5
+	id S261159AbVAAQsV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 11:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVAAQsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 11:05:57 -0500
-Received: from mxsf06.cluster1.charter.net ([209.225.28.206]:64983 "EHLO
-	mxsf06.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261154AbVAAQFw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 11:05:52 -0500
-Message-Id: <3k77vr$fs05t3@mxip08a.cluster1.charter.net>
-X-Ironport-AV: i="3.88,96,1102309200"; 
-   d="scan'208"; a="532682659:sNHT12888836"
-From: "Joseph D. Wagner" <technojoecoolusa@charter.net>
-To: <jwendel10@comcast.net>, <mikeserv@bmts.com>, <zaitcev@redhat.com>
-Cc: "Fedora Development List" <fedora-devel-list@redhat.com>,
-       "Fedora List" <fedora-list@redhat.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Linux Newbie" <linux-newbie@vger.kernel.org>
-Subject: RE: Kernel 2.6.10 Can't Open Initial Console on FC3
-Date: Sat, 1 Jan 2005 10:05:57 -0600
+	Sat, 1 Jan 2005 11:48:21 -0500
+Received: from postfix3-1.free.fr ([213.228.0.44]:61092 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261160AbVAAQsM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 11:48:12 -0500
+Message-ID: <41D6D449.3080907@free.fr>
+Date: Sat, 01 Jan 2005 17:48:09 +0100
+From: Guilhem Lavaux <guilhem.lavaux@free.fr>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-thread-index: AcTwG8eVWTdgvowuR6OBuM+5B4JroQ==
+To: linux-kernel@vger.kernel.org
+Subject: PThreads, signals, futex and SMP
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RESOLVED.
+Hi,
 
-I enabled support for hotplug devices and installed an initrd; then it works.
+I am one of the developer of kaffe, a GPL implementation of the Java 
+Virtual Machine, and we encountered some problems on Linux/2.6/SMP. I am 
+currently running 2.6.8.1 Mandrake Kernel. I can try whether the problem 
+is reproduceable on a vanilla kernel but I don't think this part has 
+been touched.
 
-They tell me there's a way to make it work without initrd, but it's ugly, messy, and not recommended:
+Here is the problem: we have a regression test which is quite intense in 
+thread creation/destruction, each thread can start the garbage 
+collector. The garbage collector needs to stop all running thread to be 
+able to walk the heap/stack. For this, it uses a particular signal which 
+is sent to all threads. The signal handler calls sigwait to stop the 
+thread. 50% of the time everything is fine but from time to time, kaffe 
+has a deadlock. It appears that it always happen when we are in the 
+following configuration:
 
-http://fedora.redhat.com/docs/udev/
+Thread 1
+------------
 
-I haven't yet tested to see if it works with initrd and without support for hotplug devices, but from the documentation I've read my money is on no.
+sigwait
+<signal handler>
+futex syscall
+pthread_mutex_unlock
 
-Joseph D. Wagner
+Thread 2
+------------
+futex syscall
+pthread_mutex_lock
+Garbage Collector thread
 
+Now if we look at the futex code in the linux kernel, we see this:
+
+static int futex_wait(unsigned long uaddr, int val, unsigned long time)
+{
+       DECLARE_WAITQUEUE(wait, current);
+       int ret, curval;
+       struct futex_q q;
+
+       down_read(&current->mm->mmap_sem);
+
+the kernel then prepares the wait queue and unlock mmap_sem. 
+
+
+Concerning the mutex_unlock  part we have this:
+
+static int futex_wake(unsigned long uaddr, int nr_wake)
+{
+       union futex_key key;
+       struct futex_hash_bucket *bh;
+       struct list_head *head;
+       struct futex_q *this, *next;
+       int ret;
+
+       down_read(&current->mm->mmap_sem);
+
+and the kernel iterates the semaphores and wakes up all threads.
+
+
+What may happen if the signal handler is called after down_read in 
+futex_wake ? My guess is that we are not able to call futex_wait because 
+the application will deadlock because the first thread is frozen by a 
+sigwait.
+
+So either we have a limitation of the kernel either a bug if the 
+analysis is correct.
+The only point is that I am not sure whether a signal is allowed to 
+interrupt a syscall just in the middle of futex_wake. If this is not 
+possible there may be a bug in our application somewhere else.
+
+Regards,
+
+Guilhem Lavaux.

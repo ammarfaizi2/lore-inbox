@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317887AbSGZRtn>; Fri, 26 Jul 2002 13:49:43 -0400
+	id <S316824AbSGZRfw>; Fri, 26 Jul 2002 13:35:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317889AbSGZRtn>; Fri, 26 Jul 2002 13:49:43 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:31215 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S317887AbSGZRtl>; Fri, 26 Jul 2002 13:49:41 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 26 Jul 2002 11:50:27 -0600
-To: Kurt Garloff <garloff@suse.de>, Alexander Viro <viro@math.psu.edu>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] sd_many done right (1/5)
-Message-ID: <20020726175027.GC2746@clusterfs.com>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Alexander Viro <viro@math.psu.edu>,
-	Linux SCSI list <linux-scsi@vger.kernel.org>,
-	Linux kernel list <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <20020726154533.GD19721@nbkurt.etpnet.phys.tue.nl> <Pine.GSO.4.21.0207261245070.21586-100000@weyl.math.psu.edu> <20020726165411.GI19721@nbkurt.etpnet.phys.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020726165411.GI19721@nbkurt.etpnet.phys.tue.nl>
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S317867AbSGZRfw>; Fri, 26 Jul 2002 13:35:52 -0400
+Received: from cm61-15-171-191.hkcable.com.hk ([61.15.171.191]:12416 "EHLO
+	host1.home.shaolinmicro.com") by vger.kernel.org with ESMTP
+	id <S316824AbSGZRfv>; Fri, 26 Jul 2002 13:35:51 -0400
+Message-ID: <3D41892B.8020908@shaolinmicro.com>
+Date: Sat, 27 Jul 2002 01:38:51 +0800
+From: David Chow <davidchow@shaolinmicro.com>
+Organization: ShaoLin Microsystems Ltd.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: CPU load
+References: <1026312615.6584.18.camel@star15.staff.shaolinmicro.com> 	<20020710165443.GA15916@holomorphy.com> <1026323370.1352.70.camel@sinai>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 26, 2002  18:54 +0200, Kurt Garloff wrote:
-> On Fri, Jul 26, 2002 at 12:45:41PM -0400, Alexander Viro wrote:
-> > On Fri, 26 Jul 2002, Kurt Garloff wrote:
-> > > The patches are all available at
-> > > http://www.suse.de/~garloff/linux/scsi-many/
-> > 
-> > As long as you realize that it won't go in 2.5 in that form...
-> 
-> The sd parts can and should be ported to 2.5, I think.
-> The /proc/scsi/scsi extensions and other stuff I wrote to support it, 
-> won't be needed, as we have driverfs in 2.5.
-> And, of course, the device number management will be solved in a more
-> general way, but I do not yet see how. 
+Robert Love wrote:
 
-Actually, one interesting aspect of the EVMS vs. device-mapper argument
-going on that has totally been missed is that EVMS can do management of
-ALL disk block devices.
+>On Wed, 2002-07-10 at 09:54, William Lee Irwin III wrote:
+>
+>  
+>
+>>Examine the avenrun array declared in kernel/timer.c in a manner similar
+>>to how loadavg_read_proc() in fs/proc/proc_misc.c does.
+>>    
+>>
+>
+>David, I wanted to add that we formalized the locking rules on
+>avenrun[3] a couple kernel revisions ago.
+>
+>In 2.4, I believe it is implicitly assumed you will do a cli() before
+>accessing the data (if you want all 3 values to be in sync you need the
+>read to be safe).
+>
+>In 2.5, grab a read_lock on xtime_lock and go at it.
+>
+>	Robert Love
+>  
+>
 
-At startup time it "consumes" all of the disk block devices in order to
-generate the various mappings (LVM, RAID, etc) and at the end it spits
-out the resulting devices as EVMS major devices.  This includes devices
-that have not been remapped, like hdXY or sdMN.  EVMS has facilities
-to ensure that devices get repeatable major/minor numbers if needed,
-but they are allocated on an as-needed basis.
+Thanks for your information. I think having a generic interface to 
+deterining CPU load of the system can help developers to determine some 
+task schdeuling policy to make the system more efficient utilise the 
+systems processing power. For example, I would not want to do some 
+intensive processing job when CPU load is high, but I can leaving this 
+work util the CPU load is not high (for non-urgent tasks).
 
-Currently EVMS only has a single major number, but it is my understanding
-that they could easily take over all of the IDE and SCSI major numbers.
-We would not have to worry about sparse device number allocation anymore,
-and could have thousands of disks/partitions without any problems.
+regards,
+David
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+regards,
+David
 

@@ -1,33 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263692AbUECNMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263685AbUECNLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263692AbUECNMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 09:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263686AbUECNMP
+	id S263685AbUECNLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 09:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263686AbUECNLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 09:12:15 -0400
-Received: from bay18-f73.bay18.hotmail.com ([65.54.187.123]:34820 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263692AbUECNMM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 09:12:12 -0400
-X-Originating-IP: [141.156.159.253]
-X-Originating-Email: [jpiszcz@hotmail.com]
-From: "Justin Piszcz" <jpiszcz@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: General Kernel Questions Regarding Swap Size > 2GB
-Date: Mon, 03 May 2004 13:12:09 +0000
+	Mon, 3 May 2004 09:11:25 -0400
+Received: from ns.suse.de ([195.135.220.2]:54415 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263685AbUECNLX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 09:11:23 -0400
+Subject: Re: Deadlock problems
+From: Chris Mason <mason@suse.com>
+To: Jan Kara <jack@ucw.cz>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Eugene Crosser <crosser@average.org>
+In-Reply-To: <20040503115837.GC360@atrey.karlin.mff.cuni.cz>
+References: <20040503115837.GC360@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Message-Id: <1083589880.1607.9.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY18-F73OWO4fxUG0D00005487@hotmail.com>
-X-OriginalArrivalTime: 03 May 2004 13:12:09.0804 (UTC) FILETIME=[3DB9C8C0:01C43110]
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 03 May 2004 09:11:21 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two questions:
+On Mon, 2004-05-03 at 07:58, Jan Kara wrote:
+>   Hi Andrew!
+> 
+>   I've found hard to fix problem causing deadlock - call path is
+> generally following:
+>   some operation -> quota code -> read/write quota -> vfs -> needs a page ->
+> shrink caches -> free inodes -> free quota -> Ouch... (we need to acquire
+> some lock which is already held by the quota code)
+> 
+Ugh, for some reason I thought we were avoiding this one in 2.6.  This
+is why I made kinoded for the quota patches in 2.4.x
 
-At what kernel version is swap partitions > 2GB supported?
-At what util-linux(?) version can it handle > 2GB partitions for swap?
+-chris
 
-_________________________________________________________________
-MSN Toolbar provides one-click access to Hotmail from any Web page – FREE 
-download! http://toolbar.msn.com/go/onm00200413ave/direct/01/
 

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313943AbSDZNBf>; Fri, 26 Apr 2002 09:01:35 -0400
+	id <S314025AbSDZNMm>; Fri, 26 Apr 2002 09:12:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313988AbSDZNBe>; Fri, 26 Apr 2002 09:01:34 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:43798 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S313943AbSDZNBd>; Fri, 26 Apr 2002 09:01:33 -0400
-Subject: [BK-Patch-2.5.10] NTFS 2.0.3 submission for kernel inclusion
-From: Anton Altaparmakov <aia21@cantab.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 26 Apr 2002 14:01:30 +0100
-Message-Id: <1019826090.28441.7.camel@storm.christs.cam.ac.uk>
-Mime-Version: 1.0
+	id <S313996AbSDZNMl>; Fri, 26 Apr 2002 09:12:41 -0400
+Received: from web12504.mail.yahoo.com ([216.136.173.196]:262 "HELO
+	web12504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314025AbSDZNMk>; Fri, 26 Apr 2002 09:12:40 -0400
+Message-ID: <20020426131240.11007.qmail@web12504.mail.yahoo.com>
+Date: Fri, 26 Apr 2002 06:12:40 -0700 (PDT)
+From: sanjay kumar <sanjay_ara_in@yahoo.com>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Hi,
+Any file system like ext2, JFS etc are aware about the
+meta-data of filesystem and file-data, when it writes
+some file-blocks on disk. I want to know whether it is
+possible to differentiate between meta-data and
+file-data in block device layer (I mean without using
+file-system specific functions). In other words,
+whether it is possible to know that the given buffer
+(of buffer cache), contains the meta-data/file-data.
+Here meta-data means filesystem specific data like
+superblock, group descriptor, bitmap blocks (if file
+system supports), blocks containing inode and extent
+information, information about directories and files,
+blocks containing indirect pointers for any file
+(applicable in indirect addressing in ext2), etc.
 
-Following my submission of NTFS 2.0.2 Andrew Morton emailed me with a
-list of minor issues he found when reviewing the code. So I have updated
-NTFS to 2.0.3, fixing all reported bugs as well as applying an
-optimisation I had planned for a while and throwing out some dead code
-out. The result has been stress tested for over an hour and was fine.
+Is it true that all file systems (if not all, then
+mostly), use block_read_full_page() and
+block_write_full_page() to read/write the file-data ?
+And these functions are not used for reading/writing
+the meta-data.
 
-It would be great if you would do a bk pull from the ntfs tng bkbits
-repository:
+-Sanjay Kumar 
 
-        bk://linux-ntfs.bkbits.net/ntfs-tng-2.5
+PS - I am not the member of this group, so please CC
+me, when you are replying.
 
-If you would prefer a bitkeeper patch inline with an email, please let
-me know and I will generate one and email it to you ASAP...
 
-ps. For all non-bitkeeper users, normal diff -urNp patches for 2.5.10
-vanilla as well as an incremental patch from 2.5.10+ntfs-2.0.2 to
-ntfs-2.0.3 are available from Sourceforge:
-
-	http://linux-ntfs.sf.net/downloads.html
-
-Best regards,
-
-        Anton
-
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ &
-http://www-stu.christs.cam.ac.uk/~aia21/
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Games - play chess, backgammon, pool and more
+http://games.yahoo.com/

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129752AbRA3RGP>; Tue, 30 Jan 2001 12:06:15 -0500
+	id <S129880AbRA3RHf>; Tue, 30 Jan 2001 12:07:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129880AbRA3RGF>; Tue, 30 Jan 2001 12:06:05 -0500
-Received: from ns1.SuSE.com ([202.58.118.2]:29962 "HELO ns1.suse.com")
-	by vger.kernel.org with SMTP id <S129752AbRA3RFz>;
-	Tue, 30 Jan 2001 12:05:55 -0500
-Date: Tue, 30 Jan 2001 09:06:05 -0800 (PST)
-From: James Simmons <jsimmons@suse.com>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Multiplexing mouse input
-In-Reply-To: <Pine.SOL.4.30.0101300017310.12047-100000@ultra1.inconnect.com>
-Message-ID: <Pine.LNX.4.21.0101300905140.1857-100000@euclid.oak.suse.com>
+	id <S130687AbRA3RHZ>; Tue, 30 Jan 2001 12:07:25 -0500
+Received: from mlx3.unm.edu ([129.24.8.189]:16992 "HELO mlx3.unm.edu")
+	by vger.kernel.org with SMTP id <S129880AbRA3RHI>;
+	Tue, 30 Jan 2001 12:07:08 -0500
+Date: Tue, 30 Jan 2001 10:07:07 -0700 (MST)
+From: Todd <todd@unm.edu>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: <linux-kernel@vger.kernel.org>, <jmerkey@timpanogas.org>
+Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
+In-Reply-To: <20010130101958.A18047@vger.timpanogas.org>
+Message-ID: <Pine.A41.4.31.0101301004290.37454-100000@aix01.unm.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+folx,
 
-> Is this possible with the new "Input Drivers" in the 2.4 kernel?  Is
-> it possible with Linux at all?
+On Tue, 30 Jan 2001, Jeff V. Merkey wrote:
+> What numbers does G-Enet provide
+> doing userspace -> userspace transfers, and at what processor
+> overhead?
 
-Yes. For X do this:
+using stock 2.4 kernel and alteon acenic cards with stock firmware we're
+seeing 993 MBps userspace->userspace (running netperf UDP_STREAM tests,
+which run as userspace client and server) with 88% CPU utilization.
 
-        Section "Pointer"
-            Protocol    "ImPS/2"
-            Device      "/dev/input/mice"
-            ZAxisMapping 4 5
-        EndSection
+Using a modified version of the firmware that we wrote we're getting
+993Mbps with 55% CPU utilization.
 
+> I posted the **ACCURATE** numbers from my test, but I did clarify that I
+> was using a system with a limp PCI bus.
+>
+> Jeff
 
+i appreciate that.  i'm just trying to figure out why the numbers are so
+low compared to the network speed you mentioned.
+
+todd
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

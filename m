@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbTJXVpd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 17:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbTJXVpc
+	id S262672AbTJXVtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 17:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbTJXVtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 17:45:32 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:44477 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262665AbTJXVpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 17:45:31 -0400
-From: "Gemma snc" <lampada@runbox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Cristallo benefico
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-Reply-To: lampada@runbox.com
-Date: Fri, 24 Oct 2003 23.30.23 +0100
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Message-ID: <1AD9kE-2G9zZQ0@fmrl03.sul.t-online.com>
-X-Seen: false
-X-ID: XVt2+4ZFZewsPh-rs+6p5IwNMEgnuMNqZDPbZbBre2L8yfeaSGCMU7@t-dialin.net
+	Fri, 24 Oct 2003 17:49:25 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:36553 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262672AbTJXVtX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 17:49:23 -0400
+From: Andrew Theurer <habanero@us.ibm.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: Nick's scheduler v17
+Date: Fri, 24 Oct 2003 16:49:05 -0500
+User-Agent: KMail/1.5
+References: <3F996B10.4080307@cyberone.com.au>
+In-Reply-To: <3F996B10.4080307@cyberone.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310241649.05310.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 24 October 2003 13:10, Nick Piggin wrote:
+> Hi,
+> http://www.kerneltrap.org/~npiggin/v17/
+>
+> Still working on SMP and NUMA. Some (maybe) interesting things I put in are
+> - Sequential CPU balancing so you don't get a big storm of balances
+> every 1/4s.
+> - Balancing is trying to err more on the side of caution, I have to start
+>   analysing it more thoroughly though.
 
-Lampada di salgemma!
++
++	*imbalance /= 2;
++	*imbalance = (*imbalance + FPT - 1) / FPT;
 
-Le inviamo queste brevi righe per porre alla sua attenzione il nuovo
-cristallo terapeutico di salgemma.
+I think I see what is going on here, but would something like this work out 
+better?
 
-Cliccare su http://lampadadisale.4all.cc per vedere il cristallo con foto
-e descrizioni dettagliate
+	*imbalance = min(this_load - load_avg, load_avg - max_load)
 
-Questa lampada è ricavata dalle naturali cristallizzazioni di salgemma
-ed e quindi un’opera unica,interamente realizzata a mano. Diffonde una
-luce naturale molto suggestiva ed esercita un’azione purificatrice sull’aria
-di ambienti chiusi: neutralizza le cariche elettriche positive con la produzione
-di ioni negativi. L’effetto è paragonabile al fenomeno della ionizzazione che
-solitamente si verifica in prossimità di cascate o in alta montagna.
+That way you take just enough to either have busiest_queue or this_rq's length 
+be the load_avg.  I suppose you could take even less, but IMO, the /=2 is 
+what I really don't like.  Perhaps:
 
-Questo e' un invio unico;non ricevera' piu' email da parte nostra
+*imbalance = min(this_load - load_avg, load_avg - max_load);
+*imbalance = (*imbalance + FPT - 1) / FPT;
+
+This should work well for intranode balances, internode balances may need a 
+little optimization, since the load_avg really does not really represent the 
+load avg of the two nodes in question, just one cpu from one of them and all 
+the cpus from another.
+
+

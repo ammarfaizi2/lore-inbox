@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265172AbUD3Mcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265174AbUD3MsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265172AbUD3Mcj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 08:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbUD3Mcj
+	id S265174AbUD3MsS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 08:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265176AbUD3MsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 08:32:39 -0400
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:57642 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S265172AbUD3Mch (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 08:32:37 -0400
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-From: Bart Samwel <bart@samwel.tk>
-Reply-To: bart@samwel.tk
-To: Timothy Miller <miller@techsource.com>
-Cc: Paul Jackson <pj@sgi.com>, vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au,
-       jgarzik@pobox.com, Andrew Morton <akpm@osdl.org>,
-       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
-In-Reply-To: <40918AD2.9060602@techsource.com>
-References: <40904A84.2030307@yahoo.com.au>
-	 <200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
-	 <20040429133613.791f9f9b.pj@sgi.com>	<409175CF.9040608@techsource.com>
-	 <20040429144737.3b0c736b.pj@sgi.com>	<40917F1E.8040106@techsource.com>
-	 <20040429154632.4ca07cf9.pj@sgi.com>  <40918AD2.9060602@techsource.com>
-Content-Type: text/plain
+	Fri, 30 Apr 2004 08:48:18 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:63313 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265174AbUD3MsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 08:48:16 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org, maneesh@in.ibm.com
+Subject: Re: [RFC 1/2] kobject_set_name - error handling
+Date: Fri, 30 Apr 2004 07:48:13 -0500
+User-Agent: KMail/1.6.1
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Greg KH <greg@kroah.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+References: <20040417082206.GM24997@parcelfarce.linux.theplanet.co.uk> <20040430101333.GB25296@in.ibm.com> <20040430101401.GC25296@in.ibm.com>
+In-Reply-To: <20040430101401.GC25296@in.ibm.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1083328293.2204.53.camel@samwel.tk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 30 Apr 2004 14:31:34 +0200
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: bsamwel@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
+Message-Id: <200404300748.14151.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-04-30 at 01:08, Timothy Miller wrote:
-> Agreed.  And this is why I suggested not adding another knob but rather 
-> going with the existing nice value.
-> 
-> Mind you, this shouldn't necessarily be done without some kind of 
-> experimentation.  Put two knobs in the kernel and try varying them  to 
-> each other to see what sorts of jobs, if any, would benefit in a 
-> disparity between cpu-nice and io-nice.  If there IS a significant 
-> difference, then add the extra knob.  If there isn't, then don't.
+On Friday 30 April 2004 05:14 am, Maneesh Soni wrote:
 
-Thought experiment: what would happen when you set the hypothetical
-cpu-nice and io-nice knobs very differently?
+> diff -puN drivers/base/bus.c~kobject_set_name-cleanup-01 drivers/base/bus.c
+> --- linux-2.6.6-rc2-mm2/drivers/base/bus.c~kobject_set_name-cleanup-01	2004-04-30 15:14:03.000000000 +0530
+> +++ linux-2.6.6-rc2-mm2-maneesh/drivers/base/bus.c	2004-04-30 15:14:03.000000000 +0530
+> @@ -451,7 +451,9 @@ int bus_add_driver(struct device_driver 
+>  
+>  	if (bus) {
+>  		pr_debug("bus %s: add driver %s\n",bus->name,drv->name);
+> -		kobject_set_name(&drv->kobj,drv->name);
+> +		error = kobject_set_name(&drv->kobj,drv->name);
+> +		if (error)
+> +			return error;
 
-* cpu-nice 20, io-nice -20: Read I/O will finish immediately, but then
-the process will have to wait for ages to get a CPU slice to process the
-data, so why would you want to read it so quickly? The process can do as
-much write I/O as it wants, but why is it not okay to take ages to write
-the data if it's okay to take ages to produce it?
+Hi, I think you are leaking a reference here, put_bus() is needed.
 
-* cpu-nice -20, io-nice 20: Read I/O will take ages, but once the data
-gets there, the processor is immediately taken to process the data as
-fast as possible. If it was okay to take ages to read the data, why
-would you want to process it as soon as you can? It makes some sense for
-write I/O though: produce data as fast as the other processes will allow
-you to write it. But if you're going to hog the CPU completely, why give
-other processes the chance to do a lot of I/O while they don't get the
-CPU time to submit any I/O? Going for a smaller difference makes more
-sense.
+>  		drv->kobj.kset = &bus->drivers;
+>  		if ((error = kobject_register(&drv->kobj))) {
+>  			put_bus(bus);
 
-As far as I can tell, giving the knobs very different values doesn't
-make much sense. The same arguments go for medium-sized differences. And
-if we're going to give the knobs only *slightly* different values, we
-might as well make them the same. If we really need cpu-nice = 0 and
-io-nice = 3 somewhere, then I think that's a sign of a kernel problem,
-where the kernel's various nice-knobs aren't calibrated correctly to
-result in the same amount of "niceness" when they're set to the same
-value. And cpu-nice = io-nice = 3 would probably have about the same
-effect.
-
-
-BTW, if there *are* going to be more knobs, I suggest adding
-"memory-nice" as well. :) If you set memory-nice to 20, then the process
-will not kick out much memory from other processes (it will require more
-I/O -- but that can be throttled using io-nice). If you set memory-nice
-to -20, then the process will kick out the memory of all other processes
-if it needs to.
-
---Bart
+-- 
+Dmitry

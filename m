@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277366AbRKITL2>; Fri, 9 Nov 2001 14:11:28 -0500
+	id <S280028AbRKITQJ>; Fri, 9 Nov 2001 14:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280027AbRKITLT>; Fri, 9 Nov 2001 14:11:19 -0500
-Received: from [192.55.52.18] ([192.55.52.18]:33274 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S277366AbRKITLF>;
-	Fri, 9 Nov 2001 14:11:05 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C42D724@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Anders Peter Fugmann'" <afu@fugmann.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] fix ACPI multible power entries
-Date: Fri, 9 Nov 2001 11:10:59 -0800 
+	id <S280029AbRKITP7>; Fri, 9 Nov 2001 14:15:59 -0500
+Received: from zeke.inet.com ([199.171.211.198]:63741 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S280028AbRKITPq>;
+	Fri, 9 Nov 2001 14:15:46 -0500
+Message-ID: <3BEC2B55.E7873035@inet.com>
+Date: Fri, 09 Nov 2001 13:15:33 -0600
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: kmalloc(GFP_KERNEL) vs buffer cache
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We should already be handling multiple power button definitions, so I'm
-confused why you're still seeing the problem. Could you please send me your
-dmesg output and /proc/acpi/dsdt output?
+All,
 
-Thanks -- Regards -- Andy
+In dealing with a 2.2 kernel, I'm seeing what appears to be a
+kmalloc(GFP_KERNEL) failing to allocate memory because the buffer cache
+is using most of available RAM.  There are about 5k allocations of about
+2k each, done in a loop in an ioctl case (so it is in process context). 
+It looks like about 3MB of them succeed before one fails.
 
-> -----Original Message-----
-> From: Anders Peter Fugmann [mailto:afu@fugmann.dhs.org]
-> Sent: Friday, November 09, 2001 4:01 AM
-> To: andrew.grover@intel.com
-> Cc: linux-kernel@vger.kernel.org
-> Subject: [PATCH] fix ACPI multible power entries
-> Importance: High
-> 
-> 
-> Hi.
-> 
-> In trying to get ACPI to work on my system, i was stumbled to see two 
-> button entries under /proc/acpi/button/.
-> 
-> Attached is a patch which corrects this behaviour.
-> The patch applies to 2.4.14.
-> 
-> Regards
-> Anders Fugmann
-> 
-> 
-> 
+Is this hypothesis reasonable or not?  Why?
+According to LDD, GFP_KERNEL will try to swap to get memory if
+needed--If that is the case, why would it fail to get memory from the
+buffer cache?
+
+What is the correct way to allocate a large number of (relatively) small
+buffers?  Did this change between 2.2 and 2.4?
+
+TIA,
+
+Eli 
+--------------------.     Real Users find the one combination of bizarre
+Eli Carter           \ input values that shuts down the system for days.
+eli.carter(a)inet.com `-------------------------------------------------

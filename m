@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318348AbSIFG1o>; Fri, 6 Sep 2002 02:27:44 -0400
+	id <S318032AbSIFGmT>; Fri, 6 Sep 2002 02:42:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318357AbSIFG1o>; Fri, 6 Sep 2002 02:27:44 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:55303
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318348AbSIFG1n>; Fri, 6 Sep 2002 02:27:43 -0400
-Date: Thu, 5 Sep 2002 23:25:28 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@redhat.com>
-cc: Thomas Davis <tadavis@lbl.gov>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre5-ac3
-In-Reply-To: <200209052306.g85N6KR24300@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.10.10209052323530.11256-100000@master.linux-ide.org>
+	id <S318086AbSIFGmT>; Fri, 6 Sep 2002 02:42:19 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:57870 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S318032AbSIFGmS>; Fri, 6 Sep 2002 02:42:18 -0400
+Message-ID: <3D784F8A.CE0CF1DB@aitel.hist.no>
+Date: Fri, 06 Sep 2002 08:47:38 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: One more bio for for floppy users in 2.5.33..
+References: <Pine.LNX.4.33.0209051310190.5983-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Alan,
-
-I think is addressed for cdroms but maybe the same hammer needs to be
-applied to another batch of hardware cruft.
-
-On Thu, 5 Sep 2002, Alan Cox wrote:
-
-> > > > Sep  5 12:11:21 localhost cardmgr[854]: executing: './ide start hde'
-> > > > Sep  5 12:11:21 localhost kernel: hde: bad special flag: 0x03
+Linus Torvalds wrote:
+[...]
+> I do think we might make the read-ahead window configurable, and make slow
+> devices have slightly smaller windows.
 > 
-> Ok I can duplicate this but on remove not on insert and it seems to 
-> depend on the card the Fujitsu rebadged 340Mb drive does seem to hang my
-> thinkpad on remove
-> 
-> Andre - did the PCMCIA drive and irq masking stuff ever get fully resolved ?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> On the other hand, I don't think the 64kB IO actually _hurts_ per se, as
+> long as it doesn't delay the stuff we care about.
 
-Andre Hedrick
-LAD Storage Consulting Group
+I can think of one case where large readahead hurts for floppy, even
+with partial completion:
 
+1. Grab a stack of floppies
+2. Try mounting (or mount+ls) one after another,
+   in search of the right one.
+
+You'll get the results on screen fast enough 
+(mount succeeded/failed or ls showed the right/wrong files)
+but when it is the wrong floppy you have to wait for
+several tracks to read before you may eject and try
+the next one.  
+
+Sure, it is only reading so ejecting "by force" won't
+hurt the fs but then you have to wait on io errors instead.
+
+So I think a smaller readahead might make sense for floppies,
+unless people don't do this sort of search anymore.  I don't.
+
+Helge Hafting

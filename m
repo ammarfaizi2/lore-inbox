@@ -1,66 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbVAPEQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbVAPE3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbVAPEQe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 23:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVAPEQe
+	id S262422AbVAPE3l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 23:29:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbVAPE3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 23:16:34 -0500
-Received: from opersys.com ([64.40.108.71]:22286 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262421AbVAPEQ3 (ORCPT
+	Sat, 15 Jan 2005 23:29:41 -0500
+Received: from mail.joq.us ([67.65.12.105]:385 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262422AbVAPE3h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 23:16:29 -0500
-Message-ID: <41E9EC5A.7070502@opersys.com>
-Date: Sat, 15 Jan 2005 23:23:54 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Sat, 15 Jan 2005 23:29:37 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       paul@linuxaudiosystems.com, arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <200501071620.j07GKrIa018718@localhost.localdomain>
+	<1105132348.20278.88.camel@krustophenia.net>
+	<20050107134941.11cecbfc.akpm@osdl.org>
+	<20050107221059.GA17392@infradead.org>
+	<20050107142920.K2357@build.pdx.osdl.net>
+	<87mzvkxxck.fsf@sulphur.joq.us> <20050111212139.GA22817@elte.hu>
+	<87ekgnwaqx.fsf@sulphur.joq.us> <20050115144302.GG10114@elte.hu>
+	<87r7kmuw3i.fsf@sulphur.joq.us> <87r7kmf8kg.fsf@sulphur.joq.us>
+From: "Jack O'Quin" <joq@io.com>
+Date: Sat, 15 Jan 2005 22:30:26 -0600
+In-Reply-To: <87r7kmf8kg.fsf@sulphur.joq.us> (Jack O'Quin's message of "Sat,
+ 15 Jan 2005 19:48:15 -0600")
+Message-ID: <87y8euc7x9.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: tglx@linutronix.de, Tim Bird <tim.bird@am.sony.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: [RFC] Instrumentation (was Re: 2.6.11-rc1-mm1)
-References: <20050114002352.5a038710.akpm@osdl.org>  <1105742791.13265.3.camel@tglx.tec.linutronix.de>  <41E8543A.8050304@am.sony.com> <1105794499.13265.247.camel@tglx.tec.linutronix.de> <41E9CCEF.50401@opersys.com> <Pine.LNX.4.61.0501160352130.6118@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0501160352130.6118@scrub.home>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jack O'Quin <joq@io.com> writes:
 
-Hello Roman,
+> *** Terminated Sat Jan 15 18:15:13 CST 2005 ***
+> ************* SUMMARY RESULT ****************
+> Total seconds ran . . . . . . :   300
+> Number of clients . . . . . . :    20
+> Ports per client  . . . . . . :     4
+> Frames per buffer . . . . . . :    64
+> *********************************************
+> Timeout Count . . . . . . . . :(    1)
+> XRUN Count  . . . . . . . . . :    47
+> Delay Count (>spare time) . . :     0
+> Delay Count (>1000 usecs) . . :     0
+> Delay Maximum . . . . . . . . : 500544   usecs
+> Cycle Maximum . . . . . . . . :  1086   usecs
+> Average DSP Load. . . . . . . :    36.1 %
+> Average CPU System Load . . . :     8.2 %
+> Average CPU User Load . . . . :    26.3 %
+> Average CPU Nice Load . . . . :     0.0 %
+> Average CPU I/O Wait Load . . :     0.4 %
+> Average CPU IRQ Load  . . . . :     0.7 %
+> Average CPU Soft-IRQ Load . . :     0.0 %
+> Average Interrupt Rate  . . . :  1703.3 /sec
+> Average Context-Switch Rate . : 11600.6 /sec
+> *********************************************
+>
+> I think this means the starvation test was not the problem.  So far,
+> I've seen no proof that there is any problem with the 2.6.10
+> scheduler, just some evidence that nice --20 does not work for
+> multi-threaded realtime audio.
+>
+> If someone can suggest a way to run certain threads of a process with
+> a different nice value than the others, I can probably hack that into
+> JACK in some crude way.  That should tell us whether my intuition is
+> right about the source of scheduling interference.  
+>
+> Otherwise, I'm out of ideas at the moment.  I don't think SCHED_RR
+> will be any different from SCHED_FIFO in this test.  Even if it were,
+> I'm not sure what that would prove.
 
-Roman Zippel wrote:
-> On Sat, 15 Jan 2005, Karim Yaghmour wrote:
->>In addition, and this is a very important issue, quite a few
->>kernel developers mistook LTT for a kernel debugging tool, which
->>it was never meant to be. When, in fact, if you ask those who have
->>looked at using it for that purpose (try Marcelo or Andrea) you will
->>see that they didn't find it to be appropriate for them. And
->>rightly so, it was never meant for that purpose. Even lately, when
->>I suggested Ingo try using relayfs instead of his custom tracing
->>code for his preemption work, he looked at it and said that it
->>wasn't suited, but would consider reusing parts of it if it were
->>in the kernel.
-> 
-> Well, that's really a core problem. We don't want to duplicate 
-> infrastructure, which practically does the same. So if relayfs isn't 
-> usable in this kind of situation, it really raises the question whether 
-> relayfs is usable at all. We need to make relayfs generally usable, 
-> otherwise it will join the fate of devfs.
+Studying the test script, I discovered that it starts a separate
+program running in the background.  So, I hacked the script to run it
+with nice -15 in order not to interfere with the realtime threads.
+The XRUNS didn't get much better, but the maximum delay went way down,
+from 1/2 sec to a much more believable (but still too high) 32.5 msec.
+I ran this with the same patched scheduler.
 
-Hmm, coming from you I will take this is a pretty strong endorsement
-for what I was suggesting earlier: provide a basic buffering mode
-in relayfs to be used in kernel debugging. However, it must be
-understood that this is separate from the existing modes and ltt,
-for example, could not use such a basic infrastructure. If this is
-ok with you, and no one wants to complain too loudly about this, I
-will go ahead and add this to our to-do list for relayfs.
+*** Terminated Sat Jan 15 21:22:00 CST 2005 ***
+************* SUMMARY RESULT ****************
+Total seconds ran . . . . . . :   300
+Number of clients . . . . . . :    20
+Ports per client  . . . . . . :     4
+Frames per buffer . . . . . . :    64
+*********************************************
+Timeout Count . . . . . . . . :(    0)
+XRUN Count  . . . . . . . . . :    43
+Delay Count (>spare time) . . :     0
+Delay Count (>1000 usecs) . . :     0
+Delay Maximum . . . . . . . . : 32518   usecs
+Cycle Maximum . . . . . . . . :   820   usecs
+Average DSP Load. . . . . . . :    34.9 %
+Average CPU System Load . . . :     8.5 %
+Average CPU User Load . . . . :    23.8 %
+Average CPU Nice Load . . . . :     0.0 %
+Average CPU I/O Wait Load . . :     0.0 %
+Average CPU IRQ Load  . . . . :     0.7 %
+Average CPU Soft-IRQ Load . . :     0.0 %
+Average Interrupt Rate  . . . :  1688.5 /sec
+Average Context-Switch Rate . : 11704.9 /sec
+*********************************************
 
-Karim
+This supports my intuition that lack of per-thread granularity is the
+main problem.  Where I was able to isolate some non-realtime code and
+run it at lower priority, it helped quite a bit.
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+  joq

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265177AbTLFOdA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 09:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265179AbTLFOdA
+	id S265179AbTLFOsO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 09:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265191AbTLFOsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 09:33:00 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:3456 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S265177AbTLFOc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 09:32:59 -0500
-Date: Sat, 6 Dec 2003 14:37:55 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200312061437.hB6EbtFs000167@81-2-122-30.bradfords.org.uk>
-To: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20031206084032.A3438@animx.eu.org>
-References: <Law9-F31u8ohMschTC00001183f@hotmail.com>
- <Pine.LNX.4.58.0312060011130.2092@home.osdl.org>
- <3FD1994C.10607@stinkfoot.org>
- <20031206084032.A3438@animx.eu.org>
-Subject: Re: cdrecord hangs my computer
+	Sat, 6 Dec 2003 09:48:13 -0500
+Received: from zork.zork.net ([64.81.246.102]:9603 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S265179AbTLFOsN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 09:48:13 -0500
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Colin Coe <colin@coesta.com>, linux-kernel@vger.kernel.org
+Subject: Re: IRQ balancing
+References: <3350.192.168.1.3.1070677965.squirrel@www.coesta.com>
+	<20031206024251.GG8039@holomorphy.com>
+	<6u1xri2eng.fsf_-_@zork.zork.net>
+Reply-To: Sean Neakums <sneakums@zork.net>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>, Colin Coe
+ <colin@coesta.com>,  linux-kernel@vger.kernel.org
+Date: Sat, 06 Dec 2003 14:48:09 +0000
+In-Reply-To: <6u1xri2eng.fsf_-_@zork.zork.net> (Sean Neakums's message of
+ "Sat, 06 Dec 2003 14:40:19 +0000")
+Message-ID: <6uwu9a0zpy.fsf@zork.zork.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At the moment, I don't have a burner on a 2.6.0 machine, however, why is
-> ide-scsi depreciated?
+Sean Neakums <sneakums@zork.net> writes:
 
-Basically IDE-SCSI is a work-around to allow userspace programs that
-were designed to talk to SCSI devices to use SCSI-like devices
-connected to an IDE bus.
+> I noticed something similar way back when, and what I took away from
+> the ensuing discussion (which may be complete poppycock) was:
 
-This works, but obviously it is better to support things natively.
-IDE CD recorders are probably the most popular SCSI-like IDE device
-and were therefore quickly supported.  Less common hardware, such as
-some IDE MO drives, continues to require IDE-SCSI for the time being.
+That is, what I took away from the discussion may be complete poppycock.
 
-> On every PC I have that has an ide cd drive, I use
-> ide-scsi.  I like the fact that scd0 is the cdrom drive.  Instead of
-> guessing if it's hdb hdc or hdd (in the case of this laptop, the dvd was hdb
-> and the modular cdrw was hdc).
-
-It's easy enough to write something in userspace to identify which
-devices are which and create devices such as /dev/cdrom
-automatically - no need to use IDE-SCSI for that.
-
-John.
+-- 
+Not bad, for a human.

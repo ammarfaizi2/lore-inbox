@@ -1,63 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283500AbRLIPPO>; Sun, 9 Dec 2001 10:15:14 -0500
+	id <S283486AbRLIPLe>; Sun, 9 Dec 2001 10:11:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283506AbRLIPPE>; Sun, 9 Dec 2001 10:15:04 -0500
-Received: from tsv.sws.net.au ([203.36.46.2]:53264 "HELO tsv.sws.net.au")
-	by vger.kernel.org with SMTP id <S283503AbRLIPOs>;
-	Sun, 9 Dec 2001 10:14:48 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: reiserfs-list@namesys.com
-Subject: per-char IO tests
-Date: Sun, 9 Dec 2001 16:14:30 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
+	id <S283503AbRLIPLY>; Sun, 9 Dec 2001 10:11:24 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:37562 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S283486AbRLIPLO>; Sun, 9 Dec 2001 10:11:14 -0500
+Date: 09 Dec 2001 14:06:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8EWhHLVmw-B@khms.westfalen.de>
+In-Reply-To: <20011207145535.A18152@codepoet.org>
+Subject: Re: On re-working the major/minor system
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20011209151431.2172397E@lyta.coker.com.au>
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <9urbtm$69e$1@cesium.transmeta.com> <E16CJnv-0005c0-00@the-village.bc.nu> <20011207135100.A17683@codepoet.org> <9urbtm$69e$1@cesium.transmeta.com> <20011207145535.A18152@codepoet.org>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have released a new experimental version of Bonnie++ that includes a 
-program to test per-char IO using putc()/getc(), putc()/getc() when linked in 
-a non-threaded way (significantly improves performance) 
-putc_unlocked()/getc_unlocked(), and write()/read().
+andersen@codepoet.org (Erik Andersen)  wrote on 07.12.01 in <20011207145535.A18152@codepoet.org>:
 
-Here's the results of testing my Thinkpad T20 with P3-650:
+> The C library, and the POSIX standard, etc, etc.
 
-Version  1.93          write   read putcNT getcNT   putc   getc  putcU  getcU
-lyta                     142    651   8189   9348   1763   1813  22174  44887
-lyta,142,651,8189,9348,1763,1813,22174,44887
+I think you'll find that there is *NOTHING* in either the C standard,  
+POSIX, or the Austin future-{POSIX,UNIX} standard that knows about major  
+or minor numbers.
 
-Here's the results of testing my Athlon 800 play machine:
-
-Version  1.93          write   read putcNT getcNT   putc   getc  putcU  getcU
-test                     146    607   7356   7280   1834   1971  41995  59100
-test,146,607,7356,7280,1834,1971,41995,59100
-
-Both machines run ReiserFS.  A quick test indicates that using Ext2 instead 
-of ReiserFS triples the  performance of write(fd, buf, 1), but this is 
-something I already knew (and had mentioned before on the ReiserFS list).
-
-Also based on previous tests I expect Solaris to outperform Linux with glibc 
-on putcNT, getcNT, putc, and getc.  The regular performance of putc() on 
-Solaris comes close to putc_unlocked() on Linux with glibc.
-
-
-
-
-I'd like to thank Andrew Morton for forwarding messages from L-K that 
-provoked me to write this new test program.
-
-I was tempted to subscribe to L-K to join this discussion, but it seems that 
-Linus is saying everything that needs to be said anyway so there's no point. 
-;)
-
--- 
-http://www.coker.com.au/bonnie++/     Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/       Postal SMTP/POP benchmark
-http://www.coker.com.au/projects.html Projects I am working on
-http://www.coker.com.au/~russell/     My home page
+MfG Kai

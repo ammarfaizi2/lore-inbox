@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318812AbSHES0l>; Mon, 5 Aug 2002 14:26:41 -0400
+	id <S318816AbSHESfb>; Mon, 5 Aug 2002 14:35:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318815AbSHES0l>; Mon, 5 Aug 2002 14:26:41 -0400
-Received: from angband.namesys.com ([212.16.7.85]:27356 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S318812AbSHES0k>; Mon, 5 Aug 2002 14:26:40 -0400
-Date: Mon, 5 Aug 2002 22:30:16 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+	id <S318818AbSHESfb>; Mon, 5 Aug 2002 14:35:31 -0400
+Received: from richardson.uni2.net ([130.227.52.104]:33169 "EHLO
+	richardson.uni2.net") by vger.kernel.org with ESMTP
+	id <S318816AbSHESfa>; Mon, 5 Aug 2002 14:35:30 -0400
+Subject: Re: i810 sound broken...
+From: Thomas Munck Steenholdt <tmus@get2net.dk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs blocks long on getdents64() during concurrent write
-Message-ID: <20020805223016.A14603@namesys.com>
-References: <20020805150436.A1176@namesys.com> <Pine.LNX.4.44.0208052014220.31879-100000@pc40.e18.physik.tu-muenchen.de>
+In-Reply-To: <1028561325.18478.55.camel@irongate.swansea.linux.org.uk>
+References: <Pine.LNX.4.43.0208051546120.8463-100000@cibs9.sns.it> 
+	<1028561325.18478.55.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 05 Aug 2002 20:38:52 +0200
+Message-Id: <1028572739.4406.2.camel@frasier>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208052014220.31879-100000@pc40.e18.physik.tu-muenchen.de>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, 2002-08-05 at 17:28, Alan Cox wrote:
+> On Mon, 2002-08-05 at 14:47, venom@sns.it wrote:
+> > Still OSS modules for i810 does not work with 2.5 kernels, actually 2.4
+> > is fine. No time to switch to alsa (and not interested for now too).
+> 
+> OSS for 2.5 is someone elses problem. I have no plan to do any work on
+> the old OSS drivers for the 2.5 tree or even to submit 2.4 updates into
+> 2.5 for it. 
+> 
 
-On Mon, Aug 05, 2002 at 08:19:05PM +0200, Roland Kuhn wrote:
-> > > > ftp://ftp.suse.com/pub/people/mason/patches/data-logging/02-commit_super-8-relocation.diff.gz 
-> >From there I get 'permission denied', but I got it somewhere else (google 
-> is great).
-> However, it does not apply cleanly to 2.4.19. It is already partly in, as 
-> it seems, but there are some rejects that are not obvious to fix for me. 
-> If this patch still makes sense, it would be great if someone with more 
-> knowledge/experience than me could have a look...
+So anyway - How should I go about determining the exact problem on my
+box... I've had it all along, and I know for a fact that the hardware is
+OK... Modules are loaded correctly, but it just does not work!
 
-In the same dir there is 
-03-data-logging-24.diff.gz
-It contains this patch and more stuff, you can try it.
+Thomas
 
-> > No, it is not possible to begin "new journal" in reiser3.
-> Is this going to change in reiser4?
-
-Sort of, there would be no static journal.
-
-Bye,
-    Oleg

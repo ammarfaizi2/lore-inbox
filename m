@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270593AbTGTBwl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 21:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270594AbTGTBwl
+	id S270594AbTGTBxf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 21:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270595AbTGTBxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 21:52:41 -0400
-Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:42764 "EHLO
-	amaryllis.anomalistic.org") by vger.kernel.org with ESMTP
-	id S270593AbTGTBwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 21:52:40 -0400
-Date: Sun, 20 Jul 2003 10:07:34 +0800
-From: Eugene Teo <eugene.teo@eugeneteo.net>
-To: Walter Harms <WHarms@bfs.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug alpha configure linux-2.6.0-test1
-Message-ID: <20030720020734.GA16983@eugeneteo.net>
-Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
-References: <vines.sxdD+KAO4zA@SZKOM.BFS.DE>
+	Sat, 19 Jul 2003 21:53:34 -0400
+Received: from dhcp160176008.columbus.rr.com ([24.160.176.8]:21001 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id S270594AbTGTBxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 21:53:30 -0400
+From: "Joseph Fannin" <jhf@rivenstone.net>
+Date: Sat, 19 Jul 2003 22:08:27 -0400
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Alvaro Lopes <alvieboy@alvie.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Oops with ALSA and OSS emulation - 2.6.0-test1
+Message-ID: <20030720020827.GA986@rivenstone.net>
+Mail-Followup-To: Takashi Iwai <tiwai@suse.de>,
+	Alvaro Lopes <alvieboy@alvie.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3F1815A1.4070409@alvie.com> <s5hbrvrkeja.wl@alsa2.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
 Content-Disposition: inline
-In-Reply-To: <vines.sxdD+KAO4zA@SZKOM.BFS.DE>
-X-Operating-System: Linux 2.2.20
+In-Reply-To: <s5hbrvrkeja.wl@alsa2.suse.de>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps you might want to first copy your dotconfig
-to /path/to/linux-version/ then run make menuconfig,
-then save it, then compile it. 
 
-> boolean symbol BINFMT_ZFLAT tested for 'm'? test forced to 'n'
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This means that it is a new boolean symbol that your
-config don't have.
+On Fri, Jul 18, 2003 at 06:03:53PM +0200, Takashi Iwai wrote:
+> At Fri, 18 Jul 2003 16:43:29 +0100,
+> Alvaro Lopes wrote:
+> >=20
+> > I'm getting the following oops when I start some audio applications:
+>=20
+> i've heard that this might happen if you compile without frame
+> pointer.  anyway it must be fixed...
 
-> arch/alpha/defconfig:244: trying to assign nonexistent symbol SCSI_NCR53C8XX
+    I can verify that this oops goes away when building the kernel
+with frame pointers.  I have a SiS 7012 and was seeing the same oops.
 
-I believe this is a symbol that exists in your config
-but the kernel doesn't have this in the menu anymore.
 
-Eugene
+--=20
+Joseph Fannin
+jhf@rivenstone.net
 
-> hope that helps
-> walter
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Rothchild's Rule -- "For every phenomenon, however complex, someone will
+eventually come up with a simple and elegant theory. This theory will
+be wrong."
+
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/GfmbWv4KsgKfSVgRAttZAJ9GPKm7cND6IHBIwWyOM4vY6MjCWwCfb1Xj
+mezmWoqgDyOP+Urn5watW9s=
+=TP1q
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--

@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbUJaUNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbUJaUPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbUJaUNo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 15:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbUJaUNo
+	id S261652AbUJaUPv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 15:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbUJaUPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 15:13:44 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:21700 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261427AbUJaUNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 15:13:40 -0500
-Message-ID: <4185489B.5070604@comcast.net>
-Date: Sun, 31 Oct 2004 12:18:35 -0800
-From: Z Smith <plinius@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sun, 31 Oct 2004 15:15:50 -0500
+Received: from THUNK.ORG ([69.25.196.29]:16863 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261652AbUJaUPI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 15:15:08 -0500
+Date: Sun, 31 Oct 2004 15:15:01 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>	 <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>	 <20041030222720.GA22753@hockin.org>	 <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>	 <1099176319.25194.10.camel@localhost.localdomain>	 <41843E10.1040800@comcast.net> <1099235990.16414.12.camel@localhost.localdomain>
-In-Reply-To: <1099235990.16414.12.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20041031201500.GA4498@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> <200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua> <1099170891.1424.1.camel@krustophenia.net> <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua> <20041030222720.GA22753@hockin.org> <4184193A.3060406@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4184193A.3060406@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Sat, Oct 30, 2004 at 06:44:10PM -0400, Jeff Garzik wrote:
+> Tim Hockin wrote:
+> >So you end up with the mindset of, for example, "if it's text it's XML".
+> >You have to parse everything as XML, when simple parsers would be tons
+> >faster and simpler and smaller.
+> 
+> hehehe.  One of the reasons why I like XML is that you don't have to 
+> keep cloning new parsers.
 
-> My X server seems to be running at about 4Mbytes, plus the frame buffer
-> mappings which make it appear a lot larger. I wouldn't be suprised if
-> half the 4Mb was pixmap cache too, maybe more.
+.... if you don't mind bloating your application:
 
-At first sight that sounds like a plausible explanation, however
-the facts in my case suggest something else is going on:
+% ls -l /usr/lib/libxml2.a
+4224 -rw-r--r--  1 root root 4312536 Oct 19 21:55 /usr/lib/libxml2.a
 
-My laptop's framebuffer is only 800x600x24bpp VESA, or 1406kB.
-But look at what X is doing:
+						- Ted
 
-root       632  6.1 17.5 22024 16440 ?       S    12:05   0:17 X :0
-
-The more apps in use, the more memory is used, but at the moment
-I've only got xterm, rxvt, thunderbird, xclock and xload. My wm is
-blackbox which is using 5 megs.
-
-Also, just curious but why would memory-mapped I/O be counted
-in the memory usage anyway? Shouldn't there be a separate number
-for framebuffer memory and the like?
-
-> I've helped write tiny UI kits (take a look at nanogui for example) but
-> they don't have the flexibility of X.
-
-In my experience, most of the flexibility is not necessary for
-97% of what I do, yet it evidently costs a lot in memory usage
-and speed.
-
-Zack

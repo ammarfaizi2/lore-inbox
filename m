@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264616AbSKDBhQ>; Sun, 3 Nov 2002 20:37:16 -0500
+	id <S264613AbSKDBed>; Sun, 3 Nov 2002 20:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264618AbSKDBhQ>; Sun, 3 Nov 2002 20:37:16 -0500
-Received: from holomorphy.com ([66.224.33.161]:48017 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264616AbSKDBhP>;
-	Sun, 3 Nov 2002 20:37:15 -0500
-Date: Sun, 3 Nov 2002 17:42:24 -0800
+	id <S264616AbSKDBed>; Sun, 3 Nov 2002 20:34:33 -0500
+Received: from holomorphy.com ([66.224.33.161]:45969 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264613AbSKDBec>;
+	Sun, 3 Nov 2002 20:34:32 -0500
+Date: Sun, 3 Nov 2002 17:39:37 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Love <rml@tech9.net>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hch@lst.de,
+       Benjamin LaHaise <bcrl@redhat.com>
 Subject: Re: interrupt checks for spinlocks
-Message-ID: <20021104014224.GR23425@holomorphy.com>
+Message-ID: <20021104013937.GQ23425@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Love <rml@tech9.net>, Pete Zaitcev <zaitcev@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <mailman.1036362421.16883.linux-kernel2news@redhat.com> <200211040028.gA40S8600593@devserv.devel.redhat.com> <20021104002813.GZ16347@holomorphy.com> <20021103194249.A1603@devserv.devel.redhat.com> <20021104005339.GA16347@holomorphy.com> <1036372685.752.7.camel@phantasy>
+	Davide Libenzi <davidel@xmailserver.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	hch@lst.de, Benjamin LaHaise <bcrl@redhat.com>
+References: <20021104003906.GB12891@holomorphy.com> <Pine.LNX.4.44.0211031731270.954-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1036372685.752.7.camel@phantasy>
+In-Reply-To: <Pine.LNX.4.44.0211031731270.954-100000@blue1.dev.mcafeelabs.com>
 User-Agent: Mutt/1.3.25i
 Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-11-03 at 19:53, William Lee Irwin III wrote:
->> This non-reentrant stuff hurts my head. Another patch down the
->> toilet, I guess.
+On Sun, Nov 03, 2002 at 05:39:29PM -0800, Davide Libenzi wrote:
+> It's not realy a graph Bill.  Each task has a list of acquired locks (
+> by address ). You keep __LINE__ and __FILE__ with you list items. When
+> there's a deadlock you'll have somewhere :
+>    TSK#N	TSK#M
+>    -------------
+>    ...		...
+>    LCK#I	LCK#J
+>    ...		...
+> -> LCK#J	LCK#I
+> Then with a SysReq key you dump the list of acquired locks for each task
+> who's spinning for a lock. IMO it might be usefull ...
 
-On Sun, Nov 03, 2002 at 08:18:04PM -0500, Robert Love wrote:
-> No, I think you have a good idea.  Pete is right, though, the current
-> interrupt is disabled... but normally the other interrupts are still
-> enabled.
-> Your ideas #2, #3, and #4 are good.
-> Because once the lock is tainted, you still want to ensure process
-> context disables interrupts before grabbing the lock.
-> 	Robert Love
-
-I'll go figure out why before posting a follow-up. This is not doing
-what I wanted it to because the only one I originally wanted was (1),
-having to do with interrupt-time recursion on rwlocks and writer
-starvation caused by it.
+Then you had something different in mind. I *thought* you meant
+maintaining a graph's arcs and dumping the specific deadlocking
+processes and their acquired locks at failure time. This scheme
+with limited reporting requires less work/code, but is still beyond
+the scope of what I was doing.
 
 
 Bill

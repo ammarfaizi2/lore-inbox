@@ -1,39 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267198AbTALPyt>; Sun, 12 Jan 2003 10:54:49 -0500
+	id <S267213AbTALP5P>; Sun, 12 Jan 2003 10:57:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267213AbTALPys>; Sun, 12 Jan 2003 10:54:48 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7062
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267198AbTALPys>; Sun, 12 Jan 2003 10:54:48 -0500
-Subject: Re: UnitedLinux violating GPL?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hubert Mantel <mantel@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030112131535.GA8594@suse.de>
-References: <200301111634.h0BGYGUt003680@eeyore.valparaiso.cl>
-	 <10213.1042313279@passion.cambridge.redhat.com>
-	 <20030112131535.GA8594@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042390241.15051.4.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 12 Jan 2003 16:50:43 +0000
+	id <S267237AbTALP5P>; Sun, 12 Jan 2003 10:57:15 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:52160 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S267213AbTALP5N>;
+	Sun, 12 Jan 2003 10:57:13 -0500
+Date: Sun, 12 Jan 2003 17:05:59 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200301121605.RAA02995@harpo.it.uu.se>
+To: torvalds@transmeta.com
+Subject: Re: 2.5.55/.56 instant reboot problem on 486
+Cc: bgerst@didntduck.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 13:15, Hubert Mantel wrote:
-> > In the opinion of many devlopers, the preferred form of the Linux kernel for
-> > maintaining it is a set of individual patches against the closest
-> > 'official' release, and not a tarball containing already-modified code. 
-> 
-> So you are saying that Alan Cox is violating the GPL since he releases his 
-> -ac kernels only as one single monolithic patch against the vanilla tree, 
-> not as individual patches (like Andrea Arcangeli does for example)?
-> 
-> I think the motivation for this ridiculous thread is very obvious.
+On Sat, 11 Jan 2003 20:17:19 -0800 (PST), Linus Torvalds wrote:
+>On Sun, 12 Jan 2003, Mikael Pettersson wrote:
+>>
+>> My '94 vintage 486 has problems booting 2.5.55 and 2.5.56.
+>
+>Should I take it that 2.5.54 works? Or you haven't tested?
+>...
+>Ho humm.. Sounds like the non-PSE case is broken. Which should probably
+>mean that even newer CPU's should show the same thing if we boot with
+>"mem=nopentium". Can you verify that with your other machine that
+>otherwise boots the same kernel fine?
 
-I think Dave needs to type "man diff" 8)
+2.5.54 works, but since the bug in 2.5.55/.56 is dependent on
+kernel size, and since I couldn't find anything in patch-2.5.55
+to explain the change in behaviour, I suspected that the bug has
+been around a bit longer: I just didn't manage to trigger it.
+
+mem=nopentium made no difference for the other machine: it still
+managed to boot the same kernel the 486 failed to boot.
+
+However, with the patch to one_page_table_init() that Brian Gerst
+posted earlier today (included below), my 486 boots 2.5.56 Ok.
+
+/Mikael
+
+diff -urN linux-2.5.56/arch/i386/mm/init.c linux/arch/i386/mm/init.c
+--- linux-2.5.56/arch/i386/mm/init.c	Sun Jan 12 00:16:22 2003
++++ linux/arch/i386/mm/init.c	Sun Jan 12 01:48:28 2003
+@@ -71,12 +71,16 @@
+  */
+ static pte_t * __init one_page_table_init(pmd_t *pmd)
+ {
+-	pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+-	set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+-	if (page_table != pte_offset_kernel(pmd, 0))
+-		BUG();	
++	if (pmd_none(*pmd)) {
++		pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
++		if (page_table != pte_offset_kernel(pmd, 0))
++			BUG();	
+ 
+-	return page_table;
++		return page_table;
++	}
++	
++	return pte_offset_kernel(pmd, 0);
+ }
+ 
+ /*
 

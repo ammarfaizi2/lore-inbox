@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264769AbTE1Pbt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 11:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbTE1Pbt
+	id S264772AbTE1Pm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 11:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbTE1Pm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 11:31:49 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:26633 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S264769AbTE1Pbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 11:31:48 -0400
-Date: Wed, 28 May 2003 19:44:27 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Two patches - ptrace single stepping + modpost.c
-Message-ID: <20030528194427.A16019@jurassic.park.msu.ru>
-References: <20030528125853.A30380@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030528125853.A30380@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Wed, May 28, 2003 at 12:58:53PM +0100
+	Wed, 28 May 2003 11:42:56 -0400
+Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:33035 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264772AbTE1Pmx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 11:42:53 -0400
+Date: Wed, 28 May 2003 17:56:04 +0200 (CEST)
+From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.70
+In-Reply-To: <2CE21B51D37@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.51L.0305281714500.24008@piorun.ds.pg.gda.pl>
+References: <2CE21B51D37@vcnet.vc.cvut.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 12:58:53PM +0100, Russell King wrote:
-> Other architectures which use similar schemes (eg, alpha) might also
-> like this; it looks like Alpha may be a little buggy; it appears
-> to carry the single stepping status across signal handling.  What
-> happens if the debugger decides to disable single stepping when
-> the debugged process receives a signal?
+On Wed, 28 May 2003, Petr Vandrovec wrote:
+> > Finally - I've started to worry if this kernel will be ever released
+> > When building framebuffer driver for my new Matrox G400 I get this
+> > error:
+> > 
+> > scripts/fixdep drivers/video/logo/.logo_linux_clut224.o.d drivers/video/logo/logo_linux_clut224.o 'gcc -Wp,-MD,drivers/video/logo/.logo_linux_clut224.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-protot
+> >   LD      drivers/video/logo/built-in.o
+> >   CC      drivers/video/matrox/matroxfb_base.o
+> > In file included from drivers/video/matrox/matroxfb_base.c:105:
+> > drivers/video/matrox/matroxfb_base.h:52: video/fbcon.h: No such file or directory
+> I just sent email there yesterday with URL of matroxfb patch I sent to
+> Linus for inclusion.
 
-Alpha was buggy, indeed. Hopefully fixed in current bk.
-However, we don't need special flag for single stepping - we use
-thread_info->bpt_nsaved as such flag.
+sorry - I haven't seen it...
 
-Ivan.
+> ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/mga-stripdown-2.5.70.gz
+
+Tnx - it builds fine now. After I'll be back home I'll check if it works 
+:)
+
+
+There is second problem - some unresolved symbols while make 
+modules_install:
+
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.70; fi
+WARNING: /lib/modules/2.5.70/kernel/arch/i386/kernel/cpu/cpufreq/powernow-k7.ko needs unknown symbol dmi_broken
+WARNING: /lib/modules/2.5.70/kernel/drivers/char/drm/radeon.ko needs unknown symbol mmu_cr4_features
+WARNING: /lib/modules/2.5.70/kernel/drivers/char/drm/r128.ko needs unknown symbol mmu_cr4_features
+WARNING: /lib/modules/2.5.70/kernel/drivers/char/drm/mga.ko needs unknown symbol mmu_cr4_features
+WARNING: /lib/modules/2.5.70/kernel/drivers/char/drm/i830.ko needs unknown symbol mmu_cr4_features
+WARNING: /lib/modules/2.5.70/kernel/drivers/char/drm/i810.ko needs unknown symbol mmu_cr4_features
+WARNING: /lib/modules/2.5.70/kernel/drivers/char/drm/gamma.ko needs unknown symbol mmu_cr4_features
+WARNING: /lib/modules/2.5.70/kernel/drivers/char/agp/nvidia-agp.ko needs unknown symbol agp_memory_reserved
+
+My kernel config:
+http://piorun.ds.pg.gda.pl/~blues/config-2.5.70.txt
+
+-- 
+pozdr.  Pawe³ Go³aszewski 
+---------------------------------
+worth to see: http://www.againsttcpa.com/
+CPU not found - software emulation...

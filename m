@@ -1,124 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281069AbRKDSex>; Sun, 4 Nov 2001 13:34:53 -0500
+	id <S277366AbRKDScW>; Sun, 4 Nov 2001 13:32:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281105AbRKDSds>; Sun, 4 Nov 2001 13:33:48 -0500
-Received: from lilly.ping.de ([62.72.90.2]:61197 "HELO lilly.ping.de")
-	by vger.kernel.org with SMTP id <S281086AbRKDScm>;
-	Sun, 4 Nov 2001 13:32:42 -0500
-Date: 4 Nov 2001 19:27:25 +0100
-Message-ID: <20011104192725.A847@planetzork.spacenet>
-From: jogi@planetzork.ping.de
-To: "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.14-pre8..
-In-Reply-To: <Pine.LNX.4.33.0111031740330.9962-100000@penguin.transmeta.com>
+	id <S281069AbRKDScM>; Sun, 4 Nov 2001 13:32:12 -0500
+Received: from unthought.net ([212.97.129.24]:49880 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S281086AbRKDSbk>;
+	Sun, 4 Nov 2001 13:31:40 -0500
+Date: Sun, 4 Nov 2001 19:31:34 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: John Levon <moz@compsoc.man.ac.uk>
+Cc: linux-kernel@vger.kernel.org, Daniel Phillips <phillips@bonn-fries.net>,
+        Tim Jansen <tim@tjansen.de>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011104193134.G14001@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Tim Jansen <tim@tjansen.de>
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011104163354.C14001@unthought.net> <160QM5-1HAz5sC@fmrl00.sul.t-online.com> <20011104172742Z16629-26013+37@humbolt.nl.linux.org> <20011104184159.E14001@unthought.net> <20011104175945.A91628@compsoc.man.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.33.0111031740330.9962-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 03, 2001 at 05:44:18PM -0800
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20011104175945.A91628@compsoc.man.ac.uk>; from moz@compsoc.man.ac.uk on Sun, Nov 04, 2001 at 05:59:45PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 03, 2001 at 05:44:18PM -0800, Linus Torvalds wrote:
+On Sun, Nov 04, 2001 at 05:59:45PM +0000, John Levon wrote:
+> On Sun, Nov 04, 2001 at 06:41:59PM +0100, Jakob Østergaard wrote:
 > 
-> Ok, this is hopefully the last 2.4.14 pre-kernel, and per popular demand I
-> hope to avoid any major changes between "last pre" and final. So give it a
-> whirl, and don't whine if the final doesn't act in a way you like it to.
+> > The "fuzzy parsing" userland has to do today to get useful information
+> > out of many proc files today is not nice at all.  It eats CPU, it's 
+> > error-prone, and all in all it's just "wrong".
 > 
-> Special thanks to Andrea - we spent too much time tracking down a subtle
-> sigsegv problem, but we got it in the end.
+> This is because the files are human-readable, nothing to do with binary vs. plain
+> text. proc should be made (entirely ?) of value-per-file trees, and a back-compat
+> compatprocfs union mounted for the files people and programs are expecting.
+
+So you want generaiton and parsing of text strings whenever we pass an int from
+the kernel ?
+
 > 
-> Also, I was able to reproduce the total lack of interactivity that the
-> google people complained about, and while I didn't run the google tests
-> themselves, at least the load I had is fixed.
+> > However - having a human-readable /proc that you can use directly with
+> > cat, echo,  your scripts,  simple programs using read(), etc.   is absolutely
+> > a *very* cool feature that I don't want to let go.  It is just too damn
+> > practical.
 > 
-> But most of the changes are actually trying to catch up with some of the
-> emails that I ignored while working on the VM issues. I hope the VM is
-> good to go, along with a real 2.4.14.
+> I don't see that it's at all useful: it just makes life harder. You yourself
+> state above that read(2) parsing of human readable files is "not nice at all",
+> and now you're saying it is "just too damn practical".
 
-The results for 2.4.14-pre8 of my kernel compile tests are following:
+cat /proc/mdstat    - that's practical !
+cat /proc/cpuinfo   - equally so
 
-                    j25       j50       j75      j100                                     
-                                                                                          
-2.4.13-pre5aa1:   5:02.63   5:09.18   5:26.27   5:34.36                                   
-2.4.13-pre5aa1:   4:58.80   5:12.30   5:26.23   5:32.14                                   
-2.4.13-pre5aa1:   4:57.66   5:11.29   5:45.90   6:03.53                                   
-2.4.13-pre5aa1:   4:58.39   5:13.10   5:29.32   5:44.49                                   
-2.4.13-pre5aa1:   4:57.93   5:09.76   5:24.76   5:26.79                                   
-                                                                                          
-2.4.14-pre6:      4:58.88   5:16.68   5:45.93   7:16.56                                   
-2.4.14-pre6:      4:55.72   5:34.65   5:57.94   6:50.58                                   
-2.4.14-pre6:      4:59.46   5:16.88   6:25.83   6:51.43                                   
-2.4.14-pre6:      4:56.38   5:18.88   6:15.97   6:31.72                                   
-2.4.14-pre6:      4:55.79   5:17.47   6:00.23   6:44.85                                   
-                                                                                          
-2.4.14-pre7:      4:56.39   5:22.84   6:09.05   9:56.59                                   
-2.4.14-pre7:      4:56.55   5:25.15   7:01.37   7:03.74                                   
-2.4.14-pre7:      4:59.44   5:15.10   6:06.78   12:51.39*                                 
-2.4.14-pre7:      4:58.07   5:30.55   6:15.37      *                                      
-2.4.14-pre7:      4:58.17   5:26.80   6:41.44      *
+Anyway - I won't involve myself in the argument whether we should keep
+the old /proc or not - I wanted to present my idea how we could overcome
+some fundamental problems in the existing framework,  non-intrusively.
 
-2.4.14-pre8:      4:57.14   5:10.72   5:54.42   6:37.39
-2.4.14-pre8:      4:59.57   5:11.63   6:34.97   11:23.77
-2.4.14-pre8:      4:58.18   5:16.67   6:07.88   6:32.38
-2.4.14-pre8:      4:56.23   5:16.57   6:15.01   7:02.45
-2.4.14-pre8:      4:58.53   5:19.98   5:39.09   12:08.69
+> 
+> Just drop the human-readable stuff from the new /proc, please.
 
-Is there anything else I can measure during the kernel compiles?
-Are the numbers for >= -pre6 slower because of measures taken to
-increase the "interactivity" / responsivness of the kernel?
+I don't care enough about it to discuss it now, but I'm sure others do  ;)
 
-The part that looks most suspicious to me is that the results
-for make -j100 vary so much ...
+> 
+> In what way is parsing /proc/meminfo in a script more practical than 
+> cat /proc/meminfo/total ?
 
+I see your point.
 
-Regards,
+There's some system overhead when converting text/integer values, but
+if you're polling so often I guess you have other problems anyway...
 
-   Jogi
+...
+> 
+> This just seems needless duplication, and fragile. Representing things as directory
+> hierarchies and single-value files in text seems to me to be much nicer, just as
+> convenient, and much nicer for fs/proc/ source...
 
+I like the idea of single-value files.
 
-These are the additional infos from time -v for make -j100:
+But then how do we get the nice summary information we have today ?
 
-User time (seconds): 261.63
-System time (seconds): 25.89
-Percent of CPU this job got: 72%
-Elapsed (wall clock) time (h:mm:ss or m:ss): 6:37.39
-Major (requiring I/O) page faults: 937515
-Minor (reclaiming a frame) page faults: 1059195
+Hmm...   How about:
 
-User time (seconds): 264.69
-System time (seconds): 28.47
-Percent of CPU this job got: 42%
-Elapsed (wall clock) time (h:mm:ss or m:ss): 11:23.77
-Major (requiring I/O) page faults: 999211
-Minor (reclaiming a frame) page faults: 1101511
+  /proc/meminfo    - as it was
+  /proc/.meminfo/  - as you suggested
 
-User time (seconds): 262.22
-System time (seconds): 25.11
-Percent of CPU this job got: 73%
-Elapsed (wall clock) time (h:mm:ss or m:ss): 6:32.38
-Major (requiring I/O) page faults: 935552
-Minor (reclaiming a frame) page faults: 1064976
+That way we keep /proc looking like it was, while offering the very nice
+single-value file interface to apps that needs it.
 
-User time (seconds): 262.22
-System time (seconds): 26.77
-Percent of CPU this job got: 68%
-Elapsed (wall clock) time (h:mm:ss or m:ss): 7:02.45
-Major (requiring I/O) page faults: 960273
-Minor (reclaiming a frame) page faults: 1075637
+I could even live with text encoding of the values - I just hate not being able
+to tell if it's supposed to be i32/u32/i64/u64/float/double/...  from looking
+at the variable.   Type-less interfaces with implicitly typed values are
+*evil*.
 
-User time (seconds): 263.20
-System time (seconds): 35.87
-Percent of CPU this job got: 41%
-Elapsed (wall clock) time (h:mm:ss or m:ss): 12:08.69
-Major (requiring I/O) page faults: 953770
-Minor (reclaiming a frame) page faults: 1105582
-
+I'd love to have type information passed along with the value.   Of course
+you could add a "f"_t file for each "f", and handle eventual discrepancies
+at run-time in your application.
 
 -- 
-
-Well, yeah ... I suppose there's no point in getting greedy, is there?
-
-    << Calvin & Hobbes >>
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,41 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264711AbTBXPfH>; Mon, 24 Feb 2003 10:35:07 -0500
+	id <S267008AbTBXPln>; Mon, 24 Feb 2003 10:41:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267008AbTBXPfH>; Mon, 24 Feb 2003 10:35:07 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:61595 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id <S264711AbTBXPfG>;
-	Mon, 24 Feb 2003 10:35:06 -0500
-Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
-From: Stian Jordet <liste@jordet.nu>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030224104256.GA21385@codemonkey.org.uk>
-References: <200302220716.54218.toptan@EUnet.yu>
-	 <JJEJKAPBMJAOOFPKFDFKKEKACEAA.camber@yakko.cs.wmich.edu>
-	 <20030224104256.GA21385@codemonkey.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046101518.893.6.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 24 Feb 2003 16:45:18 +0100
-Content-Transfer-Encoding: 7bit
+	id <S267187AbTBXPln>; Mon, 24 Feb 2003 10:41:43 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:45073 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S267008AbTBXPlm>; Mon, 24 Feb 2003 10:41:42 -0500
+Date: Mon, 24 Feb 2003 16:51:50 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: What's up with pre5?
+In-Reply-To: <20030224143729.GG27646@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.51.0302241651360.28724@dns.toxicfilms.tv>
+References: <20030224143729.GG27646@louise.pinerecords.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-man, 2003-02-24 kl. 11:42 skrev Dave Jones:
-> On Sat, Feb 22, 2003 at 06:07:46PM -0500, Edward Killips wrote:
->  >  
->  > The apeture is now set correctly. The ATI 4.2.0-2.5.1 drivers don't work but I 
->  > think that is a dri problem. Everything works fine with the vesa drivers using XFree86 4.2.99.
-> 
-> The ATI drivers rely on some additional changes to agpgart.
-> I've not yet figured out exactly what it is they're trying to do,
-> and as the code is quite messy, I haven't found the motivation^Wstomach
-> to go back and look at their code.
-Well, you would be my hero for all eternity if you found out :)
+> It's been 4 weeks since 2.4.21-pre4 went out and the pre4->current
+> diff is over 3 megabytes.  Anything special holding off -pre5?
+where do you get this pre4->current diff?
 
-Regards,
-Stian Jordet
+Maciej
 

@@ -1,74 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbTITB2r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 21:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTITB2r
+	id S261251AbTITBlX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 21:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTITBlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 21:28:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44202 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261195AbTITB2p
+	Fri, 19 Sep 2003 21:41:23 -0400
+Received: from dyn-ctb-210-9-246-80.webone.com.au ([210.9.246.80]:35589 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261251AbTITBlW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 21:28:45 -0400
-Date: Sat, 20 Sep 2003 02:28:44 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RFC: Attributes in /sys/cdev
-Message-ID: <20030920012844.GD7665@parcelfarce.linux.theplanet.co.uk>
-References: <20030919231046.4626.qmail@lwn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030919231046.4626.qmail@lwn.net>
-User-Agent: Mutt/1.4.1i
+	Fri, 19 Sep 2003 21:41:22 -0400
+Message-ID: <3F6BB01A.7060506@cyberone.com.au>
+Date: Sat, 20 Sep 2003 11:40:42 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: root@chaos.analogic.com, William Lee Irwin III <wli@holomorphy.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG at mm/memory.c:1501 in 2.6.0-test5
+References: <95932E0ADB@vcnet.vc.cvut.cz> <Pine.LNX.4.53.0309190838440.14130@chaos>
+In-Reply-To: <Pine.LNX.4.53.0309190838440.14130@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 19, 2003 at 05:10:46PM -0600, Jonathan Corbet wrote:
-> I assume that the (empty, currently) entries in /sys/cdev are there for
-> some purpose...  for purposes of my own, I've been thinking that it would
-> be nice to be able to find which device numbers got assigned when using the
-> new char dev registration functions.  Thus, the following patch, which adds
-> default "dev" and "count" attributes to /sys/cdev entries.
-> 
-> I have no idea whether this follows the original plan for /sys/cdev.
-> There *is* a plan for it, no...?
 
-They are more of a side effect.  The thing is, expected setup for character
-devices is the following:
-	* driver has embedded struct cdev in its data structures
-	* it has the thing registered in global search structure - as tty
-does, for example.
-	* open() on a character device finds the kobject of that cdev (same
-as block device open() finds kobject of gendisk) and uses it for the rest of
-work.  Namely, file_operations() are picked from it and inode->i_cdev /
-inode->i_cindex are set.  Then we call ->open().
-	* ->open() can use ->i_cdev to get whatever data structure driver
-had intended and avoid any lookups of its own (of course it's still perfectly
-free to look at the minor, mess with its own arrya/lists/whatnot - it's not
-mandatory anymore, but it certainly won't break).
 
-To avoid breaking the old drivers we do the following: register_chrdev()
-allocates a cdev itself, inserts it in search tree, etc., so open() on
-character device registered that way will work with the new scheme.  We'll
-find the cdev allocated by register_chrdev(), take the file_operations from
-it (register_chrdev() had stored the pointer when it had created cdev), set
-->i_cindex (potentially useful for ->open()) and ->i_cdev (useless for ->open(),
-since it has no relationship to any driver objects).  And call ->open().
+Richard B. Johnson wrote:
 
-FWIW, I would be just fine with not seeing these guys in sysfs - they don't
-have any intrinsic sense from the driver POV and they exist only for those
-who use old scheme, so putting them to any universal use is hopeless.
+>On Thu, 18 Sep 2003, Petr Vandrovec wrote:
+>
+>
+>>On 18 Sep 03 at 13:43, William Lee Irwin III wrote:
+>>
+>>>On Thu, Sep 18, 2003 at 10:27:58PM +0200, Petr Vandrovec wrote:
+>>>
+>>>>EIP:    0060:[<c015be10>]    Tainted: PF
+>>>>
+>>>                snprintf(buf, sizeof(buf), "Tainted: %c%c%c",
+>>>                        tainted & TAINT_PROPRIETARY_MODULE ? 'P' : 'G',
+>>>                        tainted & TAINT_FORCED_MODULE ? 'F' : ' ',
+>>>                        tainted & TAINT_UNSAFE_SMP ? 'S' : ' ');
+>>>
+>>>This is probably the reason you're not getting much in the way of a
+>>>response.
+>>>
+>>I explicitly stated that it happened shortly after I shut down VMware UI,
+>>and that I spent whole day trying to find what's going on, finally
+>>politely asking for help, hoping that someone could have a clue
+>>what went wrong.
+>>                                            Petr Vandrovec
+>>
+>>
+>
+>Okay. I'll be more specific. The "Tainted PF" shown above is
+>because you have installed a module that is [P]roprietary and
+>it was [F]orced to load.
+>
+>Any module running inside the kernel can destroy anything.
+>There is no protection inside the kernel. A simple bug in any
+>module can not only cause your machine to die, but it can, in
+>principle, destroy everything on your hard disk as well as
+>shutting down your LAN, causing millions of dollars of
+>damages (seriously). It is possible.
+>
+>Therefore, If you report a bug, and your system is tainted
+>with a proprietary module, nobody can help you because the
+>
 
-Real driver-registered cdevs are different story - they should bear whatever
-attributes driver wants them to bear.  Note that even for tty conversion is
-not complete - we still have sucky refcounting there and it has to be fixed
-first.  Once it's done, get_tty_driver() goes to hell and tty_driver embedded
-cdev will get sane attributes.
+You should send your report to the vendor. They might not be supporting
+2.6 yet though. Alternatively, try to reproduce the problem having never
+loaded closed source modules since booting: it is now much less
+frustrating for developers to track down and fix.
 
-BTW, I suspect that we need a way to say "this kobject and its children
-will *never* have any attributes and will never be seen in sysfs".  There
-are quite a few uses when we keep kobject as a refcounting vehicle, etc.,
-but have nothing meaningful to show in sysfs tree.  Keep in mind that
-sysfs nodes (including attributes) are not free - it's struct inode +
-struct dentry at the very least.  Both pinned down and permanently mapped...
+
+

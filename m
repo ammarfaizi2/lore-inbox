@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUHTHzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUHTIAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263664AbUHTHzh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 03:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbUHTHzh
+	id S264113AbUHTIAz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 04:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUHTIAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 03:55:37 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:8870 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S263664AbUHTHzc (ORCPT
+	Fri, 20 Aug 2004 04:00:55 -0400
+Received: from main.gmane.org ([80.91.224.249]:64979 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264113AbUHTIAx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 03:55:32 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: PF_MEMALLOC in 2.6
-Date: Fri, 20 Aug 2004 09:56:50 +0200
-User-Agent: KMail/1.6.2
-Cc: Hugh Dickins <hugh@veritas.com>, Pete Zaitcev <zaitcev@redhat.com>,
-       arjanv@redhat.com, alan@redhat.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org, riel@redhat.com, sct@redhat.com
-References: <Pine.LNX.4.44.0408191320320.17508-100000@localhost.localdomain> <200408192025.53536.oliver@neukum.org> <412563F6.1080202@yahoo.com.au>
-In-Reply-To: <412563F6.1080202@yahoo.com.au>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408200956.50972.oliver@neukum.org>
+	Fri, 20 Aug 2004 04:00:53 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Stefan Seyfried <seife@suse.de>
+Subject: swsusp: avoid emergency disk parking in "platform" mode
+Date: Fri, 20 Aug 2004 09:50:37 +0200
+Message-ID: <4125AD4D.7090102@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="------------010704060102000900070006"
+X-Complaints-To: usenet@sea.gmane.org
+Cc: Pavel Machek <pavel@suse.cz>
+X-Gmane-NNTP-Posting-Host: charybdis-ext.suse.de
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 20. August 2004 04:37 schrieb Nick Piggin:
-> So if this thing allocates memory on behalf of a read request, then
-> it is basically a bug. In practice you could probably get away with
-> servicing all writes with PF_MEMALLOC, however that could still lead
-> to situations where it consumes all your low memory on behalf of
-> highmem IO (though perhaps this won't deadlock if that memory is
-> going to be released as a matter of course?)
-> 
-> Another thing, having it always use PF_MEMALLOC means it can easily
-> wipe out the GFP_ATOMIC reserve.
-> 
-> So I'd say try to find a way to only use PF_MEMALLOC on behalf of
-> a PF_MEMALLOC thread or use a mempool or something.
+This is a multi-part message in MIME format.
+--------------010704060102000900070006
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Then the SCSI layer should pass down the flag.
+Hi,
 
-	Regards
-		Oliver
+although the issue seems fixed on normal shutdown and with swsusp in
+"shutdown" mode, i still get the ugly "clunk" of my emergency-parking
+disk in platform mode.
+The attached patch fixes this for me, although i am not sure this is the
+correct way to do. Probably some device_suspend(SOMETHING) would be
+better and maybe the device_power_down is no longer needed, but
+something needs to be done at this point.
+
+   Stefan
+
+--------------010704060102000900070006
+Content-Type: text/x-patch;
+ name="platform_device_shutdown.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="platform_device_shutdown.diff"
+
+diff -ru --exclude '*.o' linux-orig/kernel/power/disk.c linux/kernel/power/disk.c
+--- linux-orig/kernel/power/disk.c	2004-08-17 19:56:33.000000000 +0200
++++ linux/kernel/power/disk.c	2004-08-20 09:40:40.581304056 +0200
+@@ -49,6 +49,7 @@
+ 	local_irq_save(flags);
+ 	switch(mode) {
+ 	case PM_DISK_PLATFORM:
++		device_shutdown();
+ 		device_power_down(PM_SUSPEND_DISK);
+ 		error = pm_ops->enter(PM_SUSPEND_DISK);
+ 		break;
+
+--------------010704060102000900070006--
+

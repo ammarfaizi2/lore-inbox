@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264022AbTKJSfy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 13:35:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264056AbTKJSfy
+	id S264027AbTKJSh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 13:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264056AbTKJSh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 13:35:54 -0500
-Received: from mail.xor.ch ([212.55.210.163]:8969 "HELO mail.xor.ch")
-	by vger.kernel.org with SMTP id S264022AbTKJSfw (ORCPT
+	Mon, 10 Nov 2003 13:37:56 -0500
+Received: from JJ-POSTDOC.MIT.EDU ([18.19.0.210]:53150 "EHLO marbles.mit.edu")
+	by vger.kernel.org with ESMTP id S264027AbTKJShx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 13:35:52 -0500
-Message-ID: <3FAFDA82.864DC1BE@orpatec.ch>
-Date: Mon, 10 Nov 2003 19:35:47 +0100
-From: Otto Wyss <otto.wyss@orpatec.ch>
-Reply-To: otto.wyss@orpatec.ch
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
-MIME-Version: 1.0
-To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: USB-keyboard not recognized when not connected during startup
+	Mon, 10 Nov 2003 13:37:53 -0500
+Date: Mon, 10 Nov 2003 13:37:49 -0500
+From: David Roundy <droundy@abridgegame.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+Message-ID: <20031110183749.GB15667@jdj5.mit.edu>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3FAFD1E5.5070309@zytor.com> <Pine.LNX.4.44.0311101004150.2097-100000@bigblue.dev.mdolabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311101004150.2097-100000@bigblue.dev.mdolabs.com>
+User-Agent: Mutt/1.3.28i
+X-Uptime: 13:29:16 up 60 days, 22:13, 29 users,  load average: 8.28, 3.73, 1.57
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC, I'm not subscribed.
+On Mon, Nov 10, 2003 at 10:27:33AM -0800, Davide Libenzi wrote:
+> So the update of the rsync repo should do something like:
+> 
+> update file1
+> update repo
+> update file2
+> 
+> Isn't it? I do not understand how this guarantee coherency:
+> 
+> Kernel.org             Me
+>                        get file1 (old value)
+> update file1           get repo-file1 (old value)
+> update repo-file1
+> ...
+> update repo-fileJ
+> ...                    get repo-fileJ (new value)
+> update repo-fileN      get file2 (old value)
+> update file2
 
-I use an USB-keyboard via an USB-switchbox on 2 computers (PC and Mac).
-When I boot into Windows or MacOS9 it doesn't matter whether my USB is
-connected, the keyboard gets recognized when the connection happens. Not
-so on Linux (PC), there the keyboard gets only recognized if it's
-connected during startup. If I forget to switch the keyboard to the PC
-before I start Linux, it isn't recognized and unusable. This is mostly
-annoying because I can't get rid of my AT-keyboard and just use the
-USB-keyboard, a none working keyboard is identical to a system crash!
-When the USB-keyboard is connected during startup everything is okay.
+The kernel.org side goes
 
-I've seen this behavior with my Debian (sarge) system running my own
-built kernel 2.4.21 with USB input and keyboard drivers compiled in. I
-also see this problem when running Knoppix live CD, therefore it's
-common to any Debian based system, probably to any Linux system.
-
-Is this problem, not recognizing an USB-keyboard when not connected
-during startup, know and is there a solution for it? Is there a solution
-in the upcoming 2.6 kernel? 
-
-If anyone wants to test this and has a desktop system with USB, just
-disconnect your normal keyboard, start the system and connect an
-USB-keyboard after the login prompt is shown. You could use the keyboard
-of a Mac if you don't have any. Also your kernel has to have
-USB-input/USB-HID and USB-keyboard support compiled in.
-
-O. Wyss
-
+update file2
+update repo
+update file1
 -- 
-See "http://wxguide.sourceforge.net/" for ideas how to design your app
+David Roundy
+http://civet.berkeley.edu/droundy/

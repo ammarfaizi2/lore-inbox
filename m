@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264520AbUEELAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264514AbUEELGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264520AbUEELAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 07:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUEELAZ
+	id S264514AbUEELGX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 07:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUEELGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 07:00:25 -0400
-Received: from mail1.upco.es ([130.206.70.227]:25991 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S264520AbUEELAW (ORCPT
+	Wed, 5 May 2004 07:06:23 -0400
+Received: from mail.gmx.net ([213.165.64.20]:56453 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264514AbUEELFj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 07:00:22 -0400
-Date: Wed, 5 May 2004 13:00:20 +0200
-From: Romano Giannetti <romano@dea.icai.upco.es>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp documentation updates
-Message-ID: <20040505110020.GA21005@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>,
-	Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20040505094719.GA4259@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+	Wed, 5 May 2004 07:05:39 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Date: Wed, 5 May 2004 13:12:30 +0200
+User-Agent: KMail/1.6.2
+References: <20040505013135.7689e38d.akpm@osdl.org>
+In-Reply-To: <20040505013135.7689e38d.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040505094719.GA4259@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405051312.30626.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 05, 2004 at 11:47:19AM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> I'd like this to be included. People ask question I should have
-> answered in the documentation.
+On Wednesday 05 May 2004 10:31, you wrote:
+> +make-4k-stacks-permanent.patch
+>
+>  Fill my inbox.
 
-> +
-> +Q: Does linux support ACPI S4?
-> +
-> +A: No.
-> +
+Hi Andrew!
 
-...that is auite surprising, meaning that I haven't understood anything till
-now. I have a Sony vaio (http://perso.wanadoo.es/r_mano/vaio/vaio.html),
-with ACPI compiled in, and I did suspend with echo 4 > /proc/acpi/sleep...
+Is there any reason why this patch was applied? Because NVidia users can't 
+work with the original drivers now without removing this patch every time.
 
-...retreating in my shell... 
-
-                 Romano 
-
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+greets Dominik

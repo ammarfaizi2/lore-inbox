@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbTKXRfu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 12:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbTKXRfu
+	id S263819AbTKXRlr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 12:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTKXRlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 12:35:50 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:3968 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S263803AbTKXRft (ORCPT
+	Mon, 24 Nov 2003 12:41:47 -0500
+Received: from gprs145-34.eurotel.cz ([160.218.145.34]:40832 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263819AbTKXRlq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 12:35:49 -0500
-Date: Mon, 24 Nov 2003 17:35:27 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Jakob Lell <jlell@JakobLell.de>, linux-kernel@vger.kernel.org
-Subject: Re: hard links create local DoS vulnerability and security problems
-Message-ID: <20031124173527.GA1561@mail.shareable.org>
-References: <200311241736.23824.jlell@JakobLell.de> <Pine.LNX.4.53.0311241205500.18425@chaos>
+	Mon, 24 Nov 2003 12:41:46 -0500
+Date: Mon, 24 Nov 2003 18:42:28 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: jt@hpl.hp.com, "Mudama, Eric" <eric_mudama@maxtor.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031124174228.GC298@elf.ucw.cz>
+References: <785F348679A4D5119A0C009027DE33C105CDB514@mcoexc04.mlm.maxtor.com> <20031121000031.GA17869@bougret.hpl.hp.com> <20031121010155.GB10026@mcelrath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0311241205500.18425@chaos>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031121010155.GB10026@mcelrath.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> To prevent this, a user can set his default permissions so that
-> neither group nor world can read the files. This is usually done
-> by setting the attributes in the user's top directory.
+Hi!
 
-Correct, but the quota problem is genuine: what if I want to create a
-lot of files in /home/jamie that are readable by other users, but I
-want to be able to delete them at some later time and reuse my quota
-for something else?
+> > 	My point is : why buy this laptop if it's not 100%
+> > supported ? They are plenty of other laptops...
+> 
+> There are not plenty.  By the time you limit yourself to:
+>     1) No nvidia
+>     2) Supported wireless
+>     3) Non-winmodem
+>     4) OSS driver for sound 
+>     5) Not paying for windoze
+> you're left with a fairly small set of laptops and vendors, and I
+> haven't even started considering the hardware I *do* want yet.
+> (processor, HDD, RAM, screen, etc)
 
-This is quite a normal scenario on multi-user systems with quotas.
+Add "working ACPI" to the list.
 
-You seem to be suggesting that the only method is to have a separate
-partition for each user, which is absurd.
-
-Another method is "tree quotas" which have come up on this list
-before.  Hopefully they will be included one day; tree quotas seem
-like they would solve this problem and some others.
-
-> A setuid binary created with a hard-link will only work as a setuid
-> binary if the directory it's in is owned by root.
-
-That isn't true.
-
-> If you have users that can create files or hard-links within such
-> directories, you have users who either know the root password
-> already or have used some exploit to become root. In any case, it's
-> not a hard-link problem
-
-/tmp is owned by root and anyone can create a hard link in /tmp to
-other files, on a system where /tmp doesn't have its own filesystem.
-
-> No. Users must be able to create hard links to files that belong
-> to somebody else if they are readable. It's a requirement.
-
-I disagree.  The ability to create files and declare that someone else
-can't hard link to them would be useful in a multi-user environment.
-
--- Jamie
+							Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

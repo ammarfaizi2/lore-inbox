@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVDDWtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVDDWwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbVDDWtv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 18:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVDDWtv
+	id S261467AbVDDWwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 18:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVDDWuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 18:49:51 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:9259 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261270AbVDDWeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 18:34:21 -0400
-Subject: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-In-Reply-To: 
-X-Mailer: Roland's Patchbomber
-Date: Mon, 4 Apr 2005 15:09:00 -0700
-Message-Id: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	Mon, 4 Apr 2005 18:50:05 -0400
+Received: from galileo.bork.org ([134.117.69.57]:47285 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S261267AbVDDWlp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 18:41:45 -0400
+Date: Mon, 4 Apr 2005 18:41:45 -0400
+From: Martin Hicks <mort@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin Hicks <mort@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] meminfo: add Cached underflow check
+Message-ID: <20050404224145.GJ10693@localhost>
+References: <20050404151105.GG10693@localhost> <20050404151049.53a30133.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, openib-general@openib.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 04 Apr 2005 22:09:00.0335 (UTC) FILETIME=[E77EC3F0:01C53962]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050404151049.53a30133.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is an initial implementation of InfiniBand userspace verbs.  I
-plan to commit this code to the OpenIB repository shortly, and submit
-it for inclusion during the 2.6.13 cycle, so I am posting it early for
-comments.
 
-This code, in conjunction with the libibverbs and libmthca userspace
-libraries available from the subversion trees at
+On Mon, Apr 04, 2005 at 03:10:49PM -0700, Andrew Morton wrote:
+> Martin Hicks <mort@sgi.com> wrote:
+> >
+> > Working on some code lately I've been getting huge values
+> > for "Cached".  The cause is that get_page_cache_size() is an
+> > approximate value, and for a sufficiently small returned value
+> > of get_page_cache_size() the value underflows.
+> 
+> OK..
+> 
+> I think I'd prefer to do it this way - it's simpler and the original patch
+> had a teeny race wrt changes in total_swapcache_pages.
 
-    https://openib.org/svn/gen2/branches/roland-uverbs/src/userspace/libibverbs
-    https://openib.org/svn/gen2/branches/roland-uverbs/src/userspace/libmthca
+Fine by me.
 
-enables userspace processes to access InfiniBand HCAs directly.
+mh
 
-For those not familiar with the InfiniBand architecture, this
-so-called "userspace verbs" support allows userspace to post data path
-commands directly to the HCA.  Resource allocation and other control
-path operations still go through the kernel driver.
-
-Please take a look at this code if you have a chance.  I would
-appreciate high-level criticism of the design and implementation as
-well as nitpicky complaints about coding style and typos.
-
-In particular, the memory pinning code in in uverbs_mem.c could stand
-a looking over.  In addition, a sanity check of the write()-based
-scheme for passing commands into the kernel in uverbs_main.c and
-uverbs_cmd.c is probably worthwhile.
-
-Thanks,
-  Roland
-
-
+-- 
+Martin Hicks   ||   Silicon Graphics Inc.   ||   mort@sgi.com

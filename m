@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVCGJWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVCGJXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVCGJWP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 04:22:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVCGJWP
+	id S261722AbVCGJXv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 04:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVCGJWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 04:22:15 -0500
-Received: from orb.pobox.com ([207.8.226.5]:57232 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261720AbVCGJWM (ORCPT
+	Mon, 7 Mar 2005 04:22:45 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:50083 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S261709AbVCGJWe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 04:22:12 -0500
-Date: Mon, 7 Mar 2005 01:22:06 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Stefan Seyfried <seife@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       barryn@pobox.com, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [Bug 4298] swsusp fails to suspend if CONFIG_DEBUG_PAGEALLOC is   also enabled
-Message-ID: <20050307092206.GB5083@ip68-4-98-123.oc.oc.cox.net>
-References: <20050306030852.23eb59db.akpm@osdl.org> <20050306225730.GA1414@elf.ucw.cz> <20050306195954.6d13cff9.akpm@osdl.org> <422C0A6B.1060700@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422C0A6B.1060700@suse.de>
-User-Agent: Mutt/1.5.6i
+	Mon, 7 Mar 2005 04:22:34 -0500
+Message-ID: <422C1D57.9040708@candelatech.com>
+Date: Mon, 07 Mar 2005 01:22:31 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Christian Schmid <webmaster@rapidforum.com>, linux-kernel@vger.kernel.org
+Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
+References: <4229E805.3050105@rapidforum.com> <422BAAC6.6040705@candelatech.com> <422BB548.1020906@rapidforum.com> <422BC303.9060907@candelatech.com> <422BE33D.5080904@yahoo.com.au>
+In-Reply-To: <422BE33D.5080904@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 09:01:47AM +0100, Stefan Seyfried wrote:
-> Andrew Morton wrote:
-[snip]
-> > Isn't some Kconfig solution appropriate here?
+Nick Piggin wrote:
+> Ben Greear wrote:
 > 
-> Yes, but only for the CONFIG_DEBUG_PAGEALLOC case, it does not solve the
-> "cpu has no PSE" case for VIA CPUs. So the Kconfig solution is an extra
-> bonus.
+>> Christian Schmid wrote:
+>>
+>>> Ben Greear wrote:
+> 
+> 
+>>>> How many bytes are you sending with each call to write()/sendto() 
+>>>> whatever?
+>>>
+>>>
+>>>  
+>>> I am using sendfile-call every 100 ms per socket with the poll-api. 
+>>> So basically around 40 kb per round.
+>>
+>>
+>>
+>> My application is single-threaded, uses non-blocking IO, and 
+>> sends/rcvs from/to memory.
+>> It will be a good test of the TCP stack, but will not use the sendfile 
+>> logic,
+>> nor will it touch the HD.
+>>
+> 
+> I think you would have better luck in reproducing this problem if you
+> did the full sendfile thing.
+> 
+> I think it is becoming disk bound due to page reclaim problems, which
+> is causing the slowdown.
+> 
+> In that case, writing the network only test would help to confirm the
+> problem is not a networking one - so not useless by any means.
 
-Note that I've posted a Kconfig solution here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111017249931972&w=2
+It's not trivial to write something like this :)
 
-Regarding Pavel's patch, it seems to me that it might be better to print
-the message at boot time, instead of (or in addition to?) his patch.
-Maybe we should be disabling swsusp altogether at boot in that case, if
-that's not unreasonably hard to implement.
+I'll be using something I already have.  If I can't reproduce the problem,
+then perhaps it is due to sendfile and someone can write a customized
+test.  The main reason I offered is because people are ignoring the
+bug report for the most part and asking for a test case.  I may be able
+to offer an independent verification of the problem which might convince
+someone to write up a dedicated test case...
 
--Barry K. Nathan <barryn@pobox.com>
+Ben
+
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

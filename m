@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132027AbRDJO3I>; Tue, 10 Apr 2001 10:29:08 -0400
+	id <S131979AbRDJOYi>; Tue, 10 Apr 2001 10:24:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131990AbRDJO26>; Tue, 10 Apr 2001 10:28:58 -0400
-Received: from iris.mc.com ([192.233.16.119]:11247 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S131986AbRDJO2n>;
-	Tue, 10 Apr 2001 10:28:43 -0400
-Message-ID: <3AD30C29.3E8D47A0@mc.com>
-Date: Tue, 10 Apr 2001 09:35:37 -0400
-From: root <mbs@mc.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-CC: David Schleef <ds@schleef.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: No 100 HZ timer !
-In-Reply-To: <Pine.LNX.3.96.1010410155723.28395A-100000@artax.karlin.mff.cuni.cz>
+	id <S131986AbRDJOY2>; Tue, 10 Apr 2001 10:24:28 -0400
+Received: from [212.131.144.194] ([212.131.144.194]:35588 "HELO
+	oopsolo.aglorioso.com") by vger.kernel.org with SMTP
+	id <S131979AbRDJOYV>; Tue, 10 Apr 2001 10:24:21 -0400
+Date: Tue, 10 Apr 2001 16:28:45 +0200
+From: sama@aglorioso.com
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] FW: proposal for systems that do not require security
+Message-ID: <20010410162845.A18276@aglorioso.com>
+In-Reply-To: <27525795B28BD311B28D00500481B7601F11A6@ftrs1.intranet.ftr.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <27525795B28BD311B28D00500481B7601F11A6@ftrs1.intranet.ftr.nl>; from f.v.heusden@ftr.nl on Tue, Apr 10, 2001 at 02:35:52PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikulas Patocka wrote:
+On Tue, Apr 10, 2001 at 02:35:52PM +0200, Heusden, Folkert van wrote:
+> Hi,
+> 
+> I have an idea: I have a couple of linux-systems running in a intranet which
+> is not connected to do outside world in any way. Since they're only used for
+> calculations for which there is no harm if anyone would tamper with them,
+> security is not neccessary. The only thing important, is performance. Huge
+> amounts of data must be transferred inbetween these boxes.
+> So, I was wondering: isn't it a nice idea to have a switch in the
+> configuration menu to disable entropy-gathering in the interrupt-routines,
+> have some simplistic routine (like x'=(x * m + a) % p) which returns a non-
+> cryptographic value, and something similar symplistic for the network-
+> traffic routines?
 
-> BTW. Why we need to redesign timers at all? The cost of timer interrupt
-> each 1/100 second is nearly zero (1000 instances on S/390 VM is not common
-> case - it is not reasonable to degradate performance of timers because of
-> this).
->
-> Timers more precise than 100HZ aren't probably needed - as MIN_RTO is 0.2s
-> and MIN_DELACK is 0.04s, TCP would hardly benefit from them.
->
+Have you  already  tried  to  measure  how  much  impact has   entropy
+gathering on the overall performances?  Something like the Linux Trace
+Toolkit (http://www.opersys.com/LTT/) could be of help here.
 
-well, I can think dozens of real time applications off the top of my head that
-need beter than 1ms timing resolution (think sensor fusion)  1000 clock
-interrupts/sec is wasteful when what you need is 1 very precisely timed
-interrupt.
+I doubt  such optimization  is useful to  the mainstream  kernel tree,
+but it would be interesting to compare numbers nonetheless.
 
-why do we redesign anything?  to make it better.  TCP is not the only thing in
-the system.
+Ciao,
 
-
-if you are in love with the existing system, it shouldn't be hard to make it a
-config option.
-
+Andrea Glorioso

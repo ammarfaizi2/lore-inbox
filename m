@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbTEKR2C (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 13:28:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTEKR2C
+	id S261786AbTEKR15 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 13:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbTEKR15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 13:28:02 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:17537
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261790AbTEKR2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 13:28:00 -0400
-Date: Sun, 11 May 2003 13:31:32 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Daniel Ritz <daniel.ritz@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@diego.com>
-Subject: Re: [bug 2.5.69] xirc2ps_cs, irq 3: nobody cared, shutdown hangs
-In-Reply-To: <3EBE8768.4000007@pobox.com>
-Message-ID: <Pine.LNX.4.50.0305111324530.15337-100000@montezuma.mastecende.com>
-References: <200305111647.32113.daniel.ritz@gmx.ch>
- <Pine.LNX.4.50.0305111202510.15337-100000@montezuma.mastecende.com>
- <3EBE8768.4000007@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 May 2003 13:27:57 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:9858 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S261786AbTEKR15 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 13:27:57 -0400
+Date: Sun, 11 May 2003 19:38:17 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Damian =?utf-8?Q?Ko=C5=82kowski?= <deimos@deimos.one.pl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.69 - no setfont and loadkeys on tty > 1
+Message-ID: <20030511173817.GA2155@elf.ucw.cz>
+References: <20030509113358.GA14798@deimos.one.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030509113358.GA14798@deimos.one.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 May 2003, Jeff Garzik wrote:
+Hi!
 
-> If this patch works, it's mainly a signal to dig deeper.
+> I'am wondering why setfont and loadkeys in setting only on first tty.
+> It works (setting font map on all six tty) in 2.{2,4}.x.
 > 
-> If netif_device_present() returns false, we think the hardware has 
-> disappeared.  So that implies a bug in calling netif_device_detach() no 
-> a bug in the irq handler return value.
-> 
-> This is _especially_ true for pcmcia, even more than pci.  PCI ejects 
-> (including cardbus) are electrically safe, whereas pcmcia is different. 
->   If pcmcia hardware disappears on you, you _really_ don't want to be 
-> bitbanging its ports.
+> I'am using _radeonfb_ with rv250if, could it be the reason?
 
-Could possibly be a problem in CardServices, it appears to defer free'ing 
-interrupts.
-
+FYI, its same as vesafb here.
+								Pavel
 -- 
-function.linuxpower.ca
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

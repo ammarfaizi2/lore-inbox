@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbTISWax (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 18:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbTISWax
+	id S261797AbTISWYN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 18:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbTISWYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 18:30:53 -0400
-Received: from screech.rychter.com ([212.87.11.114]:35484 "EHLO
-	screech.rychter.com") by vger.kernel.org with ESMTP id S261769AbTISWau
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 18:30:50 -0400
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22 USB problem (uhci)
-References: <m2znh1pj5z.fsf@tnuctip.rychter.com>
-	<20030919190628.GI6624@kroah.com> <m2d6dwr3k8.fsf@tnuctip.rychter.com>
-	<20030919201751.GA7101@kroah.com> <m28yokr070.fsf@tnuctip.rychter.com>
-	<20030919204419.GB7282@kroah.com> <m2smmspjjq.fsf@tnuctip.rychter.com>
-	<20030919212232.GG7282@kroah.com>
-X-Spammers-Please: blackholeme@rychter.com
-From: Jan Rychter <jan@rychter.com>
-Date: Fri, 19 Sep 2003 15:30:41 -0700
-In-Reply-To: <20030919212232.GG7282@kroah.com> (Greg KH's message of "Fri,
- 19 Sep 2003 14:22:32 -0700")
-Message-ID: <m2brtgpg1a.fsf@tnuctip.rychter.com>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-MIME-Version: 1.0
+	Fri, 19 Sep 2003 18:24:13 -0400
+Received: from mail.kroah.org ([65.200.24.183]:51946 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261797AbTISWYK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 18:24:10 -0400
+Date: Fri, 19 Sep 2003 15:24:27 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: David Brownell <david-b@pacbell.net>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: USB APM suspend
+Message-ID: <20030919222427.GA7808@kroah.com>
+References: <Pine.LNX.4.44L0.0309191755590.763-100000@ida.rowland.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0309191755590.763-100000@ida.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Greg" == Greg KH <greg@kroah.com> writes:
+On Fri, Sep 19, 2003 at 06:14:29PM -0400, Alan Stern wrote:
+> 
+> P.S.: Greg, what on Earth does "GREG: gregindex = 0" mean?
 
-[...]
+Heh, using the linuxusb.bkbits.net/usb-2.5 tree are ya?  :)
 
- >> Please allow me to restate the original problem:
- >>
- >> -- I usually use uhci instead of usb-uhci, because it is able to go
- >> into "suspend mode" when no devices are plugged, which allows the
- >> CPU to enter C3 states,
- >>
- >> -- usb-uhci eats CPU power by keeping it in C2 constantly because of
- >> busmastering DMA activity, therefore being much less useful,
- >>
- >> -- uhci generally works for me just fine, but breaks in one
- >>    particular
- >> case, when removing the device causes a strange message to be
- >> printed and the system being unable to use the C3 states again,
- >> until uhci is unloaded and reloaded back again.
- >>
- >> Just as a reminder, this message is:
- >>
- >> uhci.c: efe0: host controller halted. very bad
- >>
- >> I hope if the message says "very bad", then this is something that
- >> can be fixed. I was therefore reporting a problem with "uhci" and
- >> kindly asking for help.
+It's some debugging code left in by me for some module loading code
+changes I've been working on in my spare time.  It's to implement only
+loading signed kernel modules.  That message means that the "gregindex"
+section in the elf records of the kernel module was not found.  It if
+is, lots of other code gets kicked off.  I'll try to clean it all up
+into a reasonable state next week and make a patch available for those
+that want to play with it.
 
- Greg> Ok, sorry for the confusion.  No I don't know of a fix for this
- Greg> problem, but one just went into the 2.6 kernel tree for the
- Greg> uhci-hcd driver that you might want to take a look at that fixed
- Greg> a problem almost exactly like this.
+Sorry about leaving that in there, I'll go delete it.  I try to make all
+my debugging code start with GREG: so I'll never send it off for
+inclusion in someone else's tree.
 
-Greg,
-
-I've looked at uhci.c, the message comes from line 2461, in
-uhci_interrupt. But there is no chance I will be able to fix it without
-first understanding thoroughly how uhci.c works.
-
-So I guess this goes into my "unfixed Linux bugs" bin.
-
---J.
+greg k-h

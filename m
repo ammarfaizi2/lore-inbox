@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264485AbUBEI2I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 03:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264361AbUBEI2I
+	id S264498AbUBEJXz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 04:23:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264507AbUBEJXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 03:28:08 -0500
-Received: from hermes.iil.intel.com ([192.198.152.99]:45723 "EHLO
-	hermes.iil.intel.com") by vger.kernel.org with ESMTP
-	id S264493AbUBEI2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 03:28:04 -0500
-From: Amir Noam <amir.noam@intel.com>
-To: "Bryan Whitehead" <driver@megahappy.net>, <ctindel@users.sourceforge.net>
-Subject: Re: [Bonding-devel] [PATCH 2.6.2] drivers/net/bonding/bond_alb.c
-Date: Thu, 5 Feb 2004 10:27:26 +0200
-User-Agent: KMail/1.5.3
-Cc: <bonding-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-References: <E6F7D288B394A64585E67497E5126BA601F991D5@hasmsx403.iil.intel.com>
-In-Reply-To: <E6F7D288B394A64585E67497E5126BA601F991D5@hasmsx403.iil.intel.com>
+	Thu, 5 Feb 2004 04:23:55 -0500
+Received: from mail46-s.fg.online.no ([148.122.161.46]:25773 "EHLO
+	mail46-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S264498AbUBEJXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 04:23:54 -0500
+To: "Andrew S. Johnson" <andy@asjohnson.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops with USB scanner in 2.6.2
+References: <200402042233.45790.andy@asjohnson.com>
+From: Harald Arnesen <harald@skogtun.org>
+Date: Thu, 05 Feb 2004 10:23:37 +0100
+In-Reply-To: <200402042233.45790.andy@asjohnson.com> (Andrew S. Johnson's
+ message of "Wed, 4 Feb 2004 22:33:45 -0600")
+Message-ID: <871xp9lw12.fsf@basilikum.skogtun.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402051027.26947.amir.noam@intel.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 February 2004 01:33 am, Bryan Whitehead wrote:
-> Building with gcc 3.3.2 on gentoo linux on Athlon x86 system I get
-> a warning:
->   CC [M]  drivers/net/bonding/bond_alb.o
-> drivers/net/bonding/bond_alb.c: In function `bond_alb_xmit':
-> drivers/net/bonding/bond_alb.c:1340: warning: comparison is always
-> true due to limited range of data
-> type                                                               
+"Andrew S. Johnson" <andy@asjohnson.com> writes:
 
-I've sent out patches that fix this for both 2.4 and 2.6 about a month 
-ago. The patches are in Jeff's netdev-2.* trees and will hopefully 
-make their way upstream soon.
+> This didn't happen with 2.4.22.  The scanner works OK until I turn it off.
+> Then I get the oops.  rmmod scanner hangs, with and without the -f switch.
 
+I just want to confirm that the same thing happens here.
 -- 
-Amir
-
+Hilsen Harald.

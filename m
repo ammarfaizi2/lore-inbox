@@ -1,142 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269602AbUI3WzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269614AbUI3W6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269602AbUI3WzX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 18:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269606AbUI3WzW
+	id S269614AbUI3W6u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 18:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269612AbUI3W6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 18:55:22 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:53956 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S269602AbUI3Wy7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 18:54:59 -0400
-Subject: [patch] inotify: rename slab-related stuff
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1096410792.4365.3.camel@vertex>
+	Thu, 30 Sep 2004 18:58:50 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:54955 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269607AbUI3W60 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 18:58:26 -0400
+Date: Thu, 30 Sep 2004 15:57:04 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Robert Love <rml@novell.com>
+Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch] inotify: make user visible types portable
+Message-Id: <20040930155704.16d71cec.pj@sgi.com>
+In-Reply-To: <1096583108.4203.86.camel@betsy.boston.ximian.com>
 References: <1096410792.4365.3.camel@vertex>
-Content-Type: multipart/mixed; boundary="=-cCa4ia+DrVqeFe4M6FPt"
-Date: Thu, 30 Sep 2004 18:53:36 -0400
-Message-Id: <1096584816.4203.98.camel@betsy.boston.ximian.com>
+	<1096583108.4203.86.camel@betsy.boston.ximian.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert wrote:
+> "__u32" just does not have the same ring to it as "unsigned long".
 
---=-cCa4ia+DrVqeFe4M6FPt
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Why not "u32"?
 
-Hey, John.
+$ grep '^typedef.* u32;$' include/asm-*/*.h
+include/asm-alpha/types.h:typedef unsigned int u32;
+include/asm-arm/types.h:typedef unsigned int u32;
+include/asm-arm26/types.h:typedef unsigned int u32;
+include/asm-cris/types.h:typedef unsigned int u32;
+include/asm-h8300/types.h:typedef unsigned int u32;
+include/asm-i386/types.h:typedef unsigned int u32;
+include/asm-ia64/types.h:typedef __u32 u32;
+include/asm-m32r/types.h:typedef unsigned int u32;
+include/asm-m68k/types.h:typedef unsigned int u32;
+include/asm-mips/types.h:typedef unsigned int u32;
+include/asm-parisc/types.h:typedef unsigned int u32;
+include/asm-ppc/types.h:typedef unsigned int u32;
+include/asm-ppc64/types.h:typedef unsigned int u32;
+include/asm-s390/types.h:typedef unsigned int u32;
+include/asm-sh/types.h:typedef unsigned int u32;
+include/asm-sh64/types.h:typedef unsigned int u32;
+include/asm-sparc/types.h:typedef unsigned int u32;
+include/asm-sparc64/types.h:typedef unsigned int u32;
+include/asm-v850/types.h:typedef unsigned int u32;
+include/asm-x86_64/types.h:typedef unsigned int u32;
 
-Following patch renames some slab-related stuff.
-
-First rename the "kevent_cache" variable to "event_cachep".  The name
-"kevent" sounds too close to the kernel event layer, which is going in.
-And the 'p' suffix is the standard for slab cache variables.  No idea
-why.
-
-Second rename the "watcher_cache" variable to "watch_cachep" as the
-thing is now a watch object, not a watcher.  Also, same thing with the
-'p'.
-
-We do not have to worry about namespace, since the variables are local
-to the file.
-
-Finally, give the slab caches more descriptive user-visible names:
-"inotify_watch_cache" and "inotify_event_cache".
-
-Patch is on top of 0.11.0 and my past indiscretions.
-
-	Robert Love
-
-
---=-cCa4ia+DrVqeFe4M6FPt
-Content-Disposition: attachment; filename=inotify-rename-slab-stuff-1.patch
-Content-Type: text/x-patch; name=inotify-rename-slab-stuff-1.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-rename slab-related things
-
-Signed-Off-By: Robert Love <rml@novell.com>
-
- drivers/char/inotify.c |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
-
-diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
---- linux-inotify/drivers/char/inotify.c	2004-09-30 18:44:21.131858232 -0400
-+++ linux/drivers/char/inotify.c	2004-09-30 18:48:10.334014208 -0400
-@@ -46,8 +46,8 @@
- #define MAX_INOTIFY_QUEUED_EVENTS 256	/* max events queued on the dev*/
- 
- static atomic_t watcher_count;
--static kmem_cache_t *watcher_cache;
--static kmem_cache_t *kevent_cache;
-+static kmem_cache_t *watch_cachep;
-+static kmem_cache_t *event_cachep;
- 
- /* For debugging */
- static int inotify_debug_flags;
-@@ -139,7 +139,7 @@
- {
- 	struct inotify_kernel_event *kevent;
- 
--	kevent = kmem_cache_alloc(kevent_cache, GFP_ATOMIC);
-+	kevent = kmem_cache_alloc(event_cachep, GFP_ATOMIC);
- 	if (!kevent) {
- 		iprintk(INOTIFY_DEBUG_ALLOC,
- 			"failed to alloc kevent (%d,%d)\n", wd, mask);
-@@ -181,7 +181,7 @@
- 	kevent->event.mask = 0;
- 
- 	iprintk(INOTIFY_DEBUG_ALLOC, "free'd kevent %p\n", kevent);
--	kmem_cache_free(kevent_cache, kevent);
-+	kmem_cache_free(event_cachep, kevent);
- }
- 
- #define inotify_dev_has_events(dev) (!list_empty(&dev->events))
-@@ -321,7 +321,7 @@
- {
- 	struct inotify_watch *watcher;
- 
--	watcher = kmem_cache_alloc(watcher_cache, GFP_KERNEL);
-+	watcher = kmem_cache_alloc(watch_cachep, GFP_KERNEL);
- 	if (!watcher) {
- 		iprintk(INOTIFY_DEBUG_ALLOC,
- 			"failed to allocate watcher (%p,%d)\n", inode, mask);
-@@ -344,7 +344,7 @@
- 		iprintk(INOTIFY_DEBUG_ERRORS,
- 			"Could not get wd for watcher %p\n", watcher);
- 		iprintk(INOTIFY_DEBUG_ALLOC, "free'd watcher %p\n", watcher);
--		kmem_cache_free(watcher_cache, watcher);
-+		kmem_cache_free(watch_cachep, watcher);
- 		return NULL;
- 	}
- 
-@@ -361,7 +361,7 @@
- {
- 	inotify_dev_put_wd(dev, watcher->wd);
- 	iprintk(INOTIFY_DEBUG_ALLOC, "free'd watcher %p\n", watcher);
--	kmem_cache_free(watcher_cache, watcher);
-+	kmem_cache_free(watch_cachep, watcher);
- }
- 
- /*
-@@ -975,11 +975,11 @@
- 
- 	inotify_debug_flags = INOTIFY_DEBUG_NONE;
- 
--	watcher_cache = kmem_cache_create("watcher_cache",
-+	watch_cachep = kmem_cache_create("inotify_watch_cache",
- 			sizeof(struct inotify_watch), 0, SLAB_PANIC,
- 			NULL, NULL);
- 
--	kevent_cache = kmem_cache_create("kevent_cache",
-+	event_cachep = kmem_cache_create("inotify_event_cache",
- 			sizeof(struct inotify_kernel_event), 0,
- 			SLAB_PANIC, NULL, NULL);
- 
-
---=-cCa4ia+DrVqeFe4M6FPt--
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

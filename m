@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRAYJa2>; Thu, 25 Jan 2001 04:30:28 -0500
+	id <S130188AbRAYJtw>; Thu, 25 Jan 2001 04:49:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129444AbRAYJaS>; Thu, 25 Jan 2001 04:30:18 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:18053 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129413AbRAYJaL>;
-	Thu, 25 Jan 2001 04:30:11 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S130507AbRAYJtm>; Thu, 25 Jan 2001 04:49:42 -0500
+Received: from 3dyn148.com21.casema.net ([212.64.94.148]:27914 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S130188AbRAYJti>;
+	Thu, 25 Jan 2001 04:49:38 -0500
+Date: Thu, 25 Jan 2001 11:42:01 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+Message-ID: <20010125114201.A32526@home.ds9a.nl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E14LawQ-000893-00@the-village.bc.nu> <Pine.SOL.4.21.0101250905140.15936-100000@orange.csi.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14959.61924.48548.388874@pizda.ninka.net>
-Date: Thu, 25 Jan 2001 01:29:08 -0800 (PST)
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
-In-Reply-To: <3A6F8415.8EC5DB23@uow.edu.au>
-In-Reply-To: <200101242123.NAA00986@pizda.ninka.net>
-	<3A6F8415.8EC5DB23@uow.edu.au>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <Pine.SOL.4.21.0101250905140.15936-100000@orange.csi.cam.ac.uk>; from jas88@cam.ac.uk on Thu, Jan 25, 2001 at 09:06:33AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 25, 2001 at 09:06:33AM +0000, James Sutherland wrote:
 
-Andrew Morton writes:
- > What I suggest we do here is to add a new flag to the per-device
- > table `HAS_HWCKSM' and use that to set the device capabilities,
- > rather than using the IS_CYCLONE stuff.  Then we can add cards
- > individually as confirmation comes in.
+> performance than it would for an httpd, because of the long-lived
+> sessions, but rewriting it as a state machine (no forking, threads or
+> other crap, just use non-blocking I/O) would probably make much more
+> sense.
 
-This idea sounds just fine.
+>From a kernel coders perspective, possibly. But a lot of SMB details are
+pretty convoluted. Statemachines may produce more efficient code but can be
+hell to maintain and expand. Bugs can hide in lots of corners.
 
- > I do have a 200-line 3c59x patch banked up - it does the following:
-...
- > So...  How to coordinate these diffs?  I'd propose that I implement
- > the HAS_HWCKSM thing, test zerocopy with it on the five NICs which
- > I have.  Then what?  Ask Linus to merge the non-zc parts?
+Regards,
 
-I have a better idea.  Look, all the dev->features and flag names are
-in the kernel tree already.  The only thing which hasn't propagated
-which the driver will reference are the skb frag things.  This code
-referencing the skb frags in the 3c59x hard_start_xmit method you can
-just protect with #ifdef MAX_SKB_FRAGS or similar.  See?
+bert hubert
 
-Later,
-David S. Miller
-davem@redhat.com
-
+-- 
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

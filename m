@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293423AbSCFJr1>; Wed, 6 Mar 2002 04:47:27 -0500
+	id <S293441AbSCFJqr>; Wed, 6 Mar 2002 04:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292986AbSCFJrS>; Wed, 6 Mar 2002 04:47:18 -0500
-Received: from ns.suse.de ([213.95.15.193]:40716 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293204AbSCFJrK>;
-	Wed, 6 Mar 2002 04:47:10 -0500
-To: Michael Cheung <vividy@justware.co.jp>
-Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: Re[2]: mount -o remount,ro cause error "device is busy"
-In-Reply-To: <20020306074908.GA342@matchmail.com>
-	<20020306011519.C963@lynx.adilger.int>
-	<20020306172418.C8A3.VIVIDY@justware.co.jp>
-X-Yow: I just got my PRINCE bumper sticker..
- But now I can't remember WHO he is...
-From: Andreas Schwab <schwab@suse.de>
-Date: Wed, 06 Mar 2002 10:47:02 +0100
-In-Reply-To: <20020306172418.C8A3.VIVIDY@justware.co.jp> (Michael Cheung's
- message of "Wed, 06 Mar 2002 17:33:45 +0900")
-Message-ID: <jeadtmgh9l.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2.50 (ia64-suse-linux)
+	id <S293204AbSCFJq1>; Wed, 6 Mar 2002 04:46:27 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:57861 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292986AbSCFJqP>; Wed, 6 Mar 2002 04:46:15 -0500
+Message-ID: <3C85E524.6000101@evision-ventures.com>
+Date: Wed, 06 Mar 2002 10:45:08 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+In-Reply-To: <E16iPv4-00052k-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Cheung <vividy@justware.co.jp> writes:
+Alan Cox wrote:
+>>Note that taskfiles are not being removed from IDE. Just direct (and
+>>parsed and filtered) interface to userspace. Does the scsi midlayer
+>>export the SCBs directly to userspace?
+>>
+> 
+> Yes. And whats more the scsi generic layer has a hell of a lot less ioctls
+> than IDE because of that. With something like scsi enclosure, scsi smart,
+> scsi scanners its a godsend to be able to just say "Ok OS take a hike, I
+> wish to chat with this device exactly as I damn well please".
 
-|> hi,
-|> 
-|> maybe i am wrong, but I really can't find any other process runing.
-|> 
-|> my step is:
-|> 1) "/" and "/usr" are busy
-|> 2) shut down to single user mode
-|> 3) "/" still busy
-|> 4) "/usr" can be unmounted, but can't mount -o ro,remount /usr, show busy error.
-|> 5) umount -a, after this, only /proc and / exist.
-|> 6) mount -o ro,remount /, show busy error.
-|> 
-|> I have mentioned I have used "ps aux" to check the process list,
-|> there are no user process left. except the following: (repost)
-|> root         1  0.1  0.7  1056  484 ?        S    15:46   0:04 init [S] 
-|> root         2  0.0  0.0     0    0 ?        SW   15:46   0:00 [keventd]
-|> root         3  0.0  0.0     0    0 ?        SWN  15:46   0:00 [ksoftirqd_CPU0]
-|> root         4  0.0  0.0     0    0 ?        SW   15:46   0:00 [kswapd]
-|> root         5  0.0  0.0     0    0 ?        SW   15:46   0:00 [bdflush]
-|> root         6  0.0  0.0     0    0 ?        SW   15:46   0:00 [kupdated]
-|> root      1042  0.0  0.7  1056  484 tty1     S    16:33   0:00 init [S] 
-|> root      1043  0.6  1.5  1840 1004 tty1     S    16:33   0:00 /bin/sh
-|> root      1045  0.0  1.0  2260  680 tty1     R    16:33   0:00 ps aux
-|> 
-|> and I also checked by fuser -v /usr,
-|> only used by kernel.
-|> and fuser -c /, show many process list above.
-|> 
-|> If i have a mistake, would you like to tell me where is the mistake?
+Please note that the plenthora of IDE ioctl comes from the fact that the
+ioctl interface is trying to export every single possible IDE command
+as an specific ioctl. This mechanism just got even extendid and called
+"taskfile".
 
-Check for references to deleted files (/proc/*/fd).  "init u" should help.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

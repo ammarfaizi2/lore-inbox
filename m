@@ -1,68 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266338AbUGJSdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266339AbUGJSny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266338AbUGJSdj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 14:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUGJSdj
+	id S266339AbUGJSny (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 14:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUGJSny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 14:33:39 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:2946 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S266338AbUGJSdb (ORCPT
+	Sat, 10 Jul 2004 14:43:54 -0400
+Received: from fep16.inet.fi ([194.251.242.241]:26523 "EHLO fep16.inet.fi")
+	by vger.kernel.org with ESMTP id S266339AbUGJSnx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 14:33:31 -0400
-Message-ID: <40F03665.90108@tlinx.org>
-Date: Sat, 10 Jul 2004 11:33:09 -0700
-From: L A Walsh <lkml@tlinx.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 10 Jul 2004 14:43:53 -0400
+From: Jan Knutar <jk-lkml@sci.fi>
 To: Chris Wedgwood <cw@f00f.org>
-CC: L A Walsh <lkml@tlinx.org>,
+Subject: Re: XFS: how to NOT null files on fsck?
+Date: Sat, 10 Jul 2004 21:43:49 +0300
+User-Agent: KMail/1.6.2
+Cc: L A Walsh <lkml@tlinx.org>,
        Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
        linux-kernel@vger.kernel.org
-Subject: Re: XFS: how to NOT null files on fsck?
 References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <40EEC9DC.8080501@tlinx.org> <20040709215955.GA24857@taniwha.stupidest.org>
 In-Reply-To: <20040709215955.GA24857@taniwha.stupidest.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407102143.49838.jk-lkml@sci.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My cases have been "vim" edited files.  I'd sorta think once vim has 
-exited, the
-data has been flushed, but that's just a WAG...
+On Saturday 10 July 2004 00:59, Chris Wedgwood wrote:
 
--l
+> I *never* see this even when beating the hell out of machines and
+> trying to break things.
 
-Chris Wedgwood wrote:
-
->On Fri, Jul 09, 2004 at 09:37:48AM -0700, L A Walsh wrote:
->
->>ven after multiple syncs, files edited within the past few days
->>will sometimes go mysteriously null.  Good reason to do daily
->>backups as the backups will usually contain the correct file...
->>    
->>
->I *never* see this even when beating the hell out of machines and
->trying to break things.
->
->I do see nulls in cases where the metadata was updated and the data
->didn't flush, that's supposed to happen.
->  
->
->>Now if we could just come up with a reproducable test case...but
->>when I try to reproduce it, it doesn't.  Grrr....it knows when I'm
->>scrutinizing!! :-)
->>    
->>
->Use anything that handles dotfiles or configuration badly (ie. KDE),
->make some changes or just 'run it' for a bit.  Every now something
->rewrites some files.  Yank the power a few times and sooner or later
->you'll end up with problems under KDE certainly.
->  
->
----
-    No desktop on this machine...it's a server I log into remotely for 
-the most part.
+I've seen this on a partition with NO other activity, than me editing a .c
+file with emacs in a project consisting of about 4 files in total, compiling
+and testingocasionally, editing again, etc... Then one day, powerloss, 
+when power came back, the file was nothing but null. Atleast it had 
+correct size and timestamp though, great comfort, that. :)
 

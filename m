@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264969AbSLKFnN>; Wed, 11 Dec 2002 00:43:13 -0500
+	id <S264729AbSLKFku>; Wed, 11 Dec 2002 00:40:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265587AbSLKFnM>; Wed, 11 Dec 2002 00:43:12 -0500
-Received: from mx11.dmz.fedex.com ([199.81.193.118]:1547 "EHLO
-	mx11.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S264969AbSLKFnL>; Wed, 11 Dec 2002 00:43:11 -0500
-Date: Wed, 11 Dec 2002 13:49:00 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.51 ide module problem
-Message-ID: <Pine.LNX.4.50.0212111337270.29848-100000@boston.corp.fedex.com>
+	id <S264969AbSLKFku>; Wed, 11 Dec 2002 00:40:50 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:33796 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id <S264729AbSLKFkt>;
+	Wed, 11 Dec 2002 00:40:49 -0500
+To: linux-kernel@vger.kernel.org
+Subject: incompatable pointer type warnings on some archs
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+Date: 11 Dec 2002 00:48:26 -0500
+Message-ID: <m37kehm7h1.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/11/2002
- 01:50:53 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/11/2002
- 01:50:55 PM,
-	Serialize complete at 12/11/2002 01:50:55 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I see that find_next_zero_bit() has a first arg of void* in about half
+of the archs and unsigned long* in the rest (incl asm-i386/bitops.h).
 
-My linux/.config ...
-CONFIG_IDE=m
-CONFIG_BLK_DEV_IDE=m
-CONFIG_BLK_DEV_IDEDISK=m
-CONFIG_BLK_DEV_IDECS=m
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDEFLOPPY=m
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_BLK_DEV_IDE_MODES=y
+Looking at incompatable pointer type warnings in a recent compile, I
+found one where the caller was passing a u64*, thus the error.
 
-System version ...
-	module-init-tools-0.9.3
-	linux-2.5.51
+Should all of the archs use a void* for this, or is there some reason
+not to?
 
-depmod will ecounter "Segmentation fault" if the ide.ko and ide-io.ps
-modules are in /lib/modules/2.5.51/kernel
+test_and_set_bit() and test_and_clear_bit() also have the same issue.
 
-After "rm ide.ko ide-io.ps", depmod runs fine, but that means ide won't
-load.
+-JimC
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]

@@ -1,104 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315478AbSEHBoK>; Tue, 7 May 2002 21:44:10 -0400
+	id <S315480AbSEHCNk>; Tue, 7 May 2002 22:13:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315479AbSEHBoJ>; Tue, 7 May 2002 21:44:09 -0400
-Received: from pop.gmx.net ([213.165.64.20]:62967 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S315478AbSEHBoI> convert rfc822-to-8bit;
-	Tue, 7 May 2002 21:44:08 -0400
-Reply-To: <bPObject@axelero.hu>
-From: "P. Breuer" <bPObject@gmx.ch>
-To: <andre@linux-ide.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: silent data corruption using HPT370 on an ABIT VP6
-Date: Wed, 8 May 2002 03:43:59 +0200
-Message-ID: <EGEOJJNFHLHGOKNADENLOEGCCFAA.bPObject@gmx.ch>
+	id <S315481AbSEHCNj>; Tue, 7 May 2002 22:13:39 -0400
+Received: from chello062179036163.chello.pl ([62.179.36.163]:28593 "EHLO
+	pioneer") by vger.kernel.org with ESMTP id <S315480AbSEHCNj>;
+	Tue, 7 May 2002 22:13:39 -0400
+Date: Wed, 8 May 2002 04:14:25 +0200 (CEST)
+From: Tomasz Rola <rtomek@cis.com.pl>
+To: Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>
+cc: Tomasz Rola <rtomek@cis.com.pl>, linux-kernel@vger.kernel.org
+Subject: Re: Can't Burn CDR's On 2.4.19pre8
+In-Reply-To: <20020507212201.GA12699@mail-infomine.ucr.edu>
+Message-ID: <Pine.LNX.3.96.1020508040909.2702J-100000@pioneer>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1. Silent disk corruption using HPT370 on an ABIT VP6
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-2. I have tracked down a crooked bug somewhere in the IDE driver
-   leading to a slow and silent data corruption, which is a most alarming threat
-   for the incautious. The case is simple: "cp file1 file2; diff file1 file2"
-   shows differences under certain conditions.
+On Tue, 7 May 2002, Johannes Ruscheinski wrote:
 
-3. Keywords: kernel, driver, ide, data corruption, i386
+> Also sprach Tomasz Rola:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > On Mon, 6 May 2002, Johannes Ruscheinski wrote:
+> > 
+> > > Hi,
+> > > 
+> > > I don't know whether I have a hardware problem or a kernel problem.  Here's
+> > > what I get when I try to dummy burn a data CDR on 2.4.19pre8:
+> > > 
+> > 
+> > Forgive me this insulting question, but have you tried to burn another CD?
+> It was a dummy burn.  I didn't realize that the CDR medium mattered here?
+> So just to be on the safe side I tried again with a different brand disc
+> and had a failure after about 70MiB of data.
 
-4. Kernel versions: 2.4.16 or 2.4.18 (error reproducible in both versions)
+Me idiot. Haven't noticed that "dummy" word. How about going back to some
+previous working kernel to try if it works? I have burnt quite a few CDRWs
+under 2.4.18 so I assume it's ok here. BTW, I always give right dev=x,y,z
+options, which I get from "cdrecord -scanbus".
 
-5. Hardware environment (details see below):
-   ABIT VP6 motherboard including: dual Pentium III, VIA APOLLO PRO chipset
-   VIA onboard EIDE controller,
-   HPT370 "raid" UDMA/100 controller, integrated on board
-   Promise TX2 (PDC) UDMA/100 PCI controller card
-   Hard disks (all masters):
-     2 x 6GB Quantum Fireball EX6.4A on VIA,
-     2 x 40GB Quantum FireballP AS40.0 on PDC,
-     2 x 40GB Quantum FireballP AS40.0 on HPT
+bye
+T.
 
-6. Software environment:
-   IDE driver (kernel-integrated)
-   raidtools-0.90-5 (optional)
-   General: four 40GB disks of identical geometry have three partitions each,
-     same partitioning, identified by /dev/hd[e,g,i,k][1-3],
-     /dev/md[0-2} are three RAID-5 arrays defined on the four disks accordingly
-     each out of three raid partitions are formatted ext3 with internal journal
+- --
+** A C programmer asked whether computer had Buddha's nature.      **
+** As the answer, master did "rm -rif" on the programmer's home    **
+** directory. And then the C programmer became enlightened...      **
+**                                                                 **
+** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
 
-7. ERROR description:
-   Let "file1" be a "large" data file, e.g. 1GB, on a RAID array described above.
-   Then "cp file1 file2; cmp -l file1 file2" shows (subtle) differences.
-   There are random differences on several random spots between the files.
-   The "spots" occur usually as blocks of few bytes in succession. The difference
-   is up to several dozens of bytes at a 1GB file copy.
 
-8. Tracking down the error:
-   I have conducted over 100 test cases: the error is consistent, though random.
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 5.0i for non-commercial use
+Charset: noconv
 
-   First I excluded an error in the raid software:
-     umount /dev/md[0-2]; raidstop /dev/md[0-2].
-   I used a script to read all four raw disks concurrent:
-   
-   for d in e, g, i, k; do \
-    (for i in 1 2 3 4 5; do \
-      dd if=/dev/hd"$d"1 count=2500000 \
-      2> /dev/null | md5sum; done \
-    ) >> trc"$d".md5sum done
-   
-   I found NO differences in trce.md5sum and trcg.md5sum (both disks are on the
-   Promise controller), but significant differences in trci.md5sum and trck.md5sum,
-   displaying 3 and 5 different read results out of 5 identical reads, resp.
-   (both disks are on the HPT370 controller).
-
-   Oops!!!
-
-   I stayed focused on the HPT370 controller, and compiled a small test environment with a
-   single processor motherboard and a HPT370A PCI controller card, which, in addition, has
-   the same HPT BIOS version (1.0.3b1) as the integrated one. I found no problem using this
-   configuration, so the error might well be related only to the SMP architecture.
-
-9. Solution or workaround?
-   I browsed through the HighPoint Software web pages and found a remarkable replacement
-   for the kernel IDE-driver. This is a SCSI IDE emulation module, called hpt37x2.o, that
-   can be built for "any" 2.4.x kernel. And IT WORKS, at least for me, since at least two days ;)
-   The only drawback is, that it is not GPL-d and the complete source is not available.
-   The existence of a working driver is a profound proof for the kernel driver to be in error!
-
-10. Attachments:
-   I have saved several files out of /proc, boot log, etc. from the test period,
-   i.e. by using the faulty driver. They are available upon request. Due to the fact, that the
-   HPT driver is not a native IDE-driver, but a SCSI-emulation, it is not possible to switch
-   between booting the old and new kernels very easily. One example, the raid arrays are not
-   recognised from the foreign configuration.
-
-Peter Breuer [P.Breuer@freemail.hu]
-   
+iQA/AwUBPNiKCBETUsyL9vbiEQKLmQCgjykrGtGsrdZxkwgegm/saT029DEAoNNm
+VeREzT/A9X6ga1D56XPZX2ly
+=HBJv
+-----END PGP SIGNATURE-----
 

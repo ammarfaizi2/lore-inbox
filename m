@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVC2JLB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVC2JMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262229AbVC2JLB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 04:11:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbVC2JLB
+	id S262253AbVC2JMs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 04:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbVC2JMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 04:11:01 -0500
-Received: from mail.dif.dk ([193.138.115.101]:16549 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262229AbVC2JKr (ORCPT
+	Tue, 29 Mar 2005 04:12:40 -0500
+Received: from mail.upce.cz ([195.113.124.33]:15530 "EHLO mail.upce.cz")
+	by vger.kernel.org with ESMTP id S262269AbVC2JMP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 04:10:47 -0500
-Date: Tue, 29 Mar 2005 11:10:37 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: krishna <krishna.c@globaledgesoft.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to measure time accurately.
-In-Reply-To: <4248E282.1000105@nortel.com>
-Message-ID: <Pine.LNX.4.62.0503291107000.3229@jjulnx.backbone.dif.dk>
-References: <424779F3.5000306@globaledgesoft.com> <4248E282.1000105@nortel.com>
+	Tue, 29 Mar 2005 04:12:15 -0500
+Message-ID: <42491BE4.8080609@seznam.cz>
+Date: Tue, 29 Mar 2005 11:12:04 +0200
+From: "kern.petr@seznam.cz" <kern.petr@seznam.cz>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: cs, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [SATA] libata-dev queue updated
+References: <422FDDCE.3020806@pobox.com>
+In-Reply-To: <422FDDCE.3020806@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Mar 2005, Chris Friesen wrote:
+Jeff Garzik napsal(a):
 
-> Date: Mon, 28 Mar 2005 23:07:14 -0600
-> From: Chris Friesen <cfriesen@nortel.com>
-> To: krishna <krishna.c@globaledgesoft.com>
-> Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-> Subject: Re: How to measure time accurately.
-> 
-> krishna wrote:
-> > Hi All,
-> > 
-> > Can any one tell me how to measure time accurately for a block of C code in
-> > device drivers.
-> > For example, If I want to measure the time duration of firmware download.
-> 
-> Most cpus have some way of getting at a counter or decrementer of various
-> frequencies.  Usually it requires low-level hardware knowledge and often it
-> needs assembly code.
-> 
-> 
-> On ppc you'd use the mftbu/mftbl instructions, as suggested by Lee on x86
-> you'd use the rdtsc instruction.
-> 
+> Merged recent upstream changes into libata-dev queue.  No new patches 
+> have found their way into libata-dev since last email.
+>
+> BK URL, Patch URL, and changelog attached.
+>
+> Note that the patch is diff'd against 2.6.11-bk6, which won't exist 
+> until four hours after this email is sent.
+>
+>     Jeff 
 
-In some cases you can simply count jiffies - depending on how accurate you 
-need to time things I'd say that often something like this is adequate :
+It is hard to add support for VIA VT6420 PATA channel (SATA works fine)? 
+Does anybody working on it? I can help with beta testing this driver. 
+(The way through via82cxxx.c don't working.)
 
+Is it possible add to To-do list to sata_via.c or add this support to 
+driver?
 
-unsigned long start, time_spent;
+sata_via.c:
+---cut here---
+   To-do list:
+   * VT6420 PATA support <= new line
+   * VT6421 PATA support
+ */
+---cut here---
 
-start = jiffies;
-/* do stuff */
-time_spent = jiffies - start;
-printk("stuff took %d jiffies (%d seconds)\n", time_spent, time_spent/HZ);
-
-
--- 
-Jesper Juhl
+Petr Novák,
+kern.petr@seznam.cz
 

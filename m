@@ -1,87 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268537AbTGLVcW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 17:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268539AbTGLVcW
+	id S268551AbTGLVeL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 17:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268552AbTGLVeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 17:32:22 -0400
-Received: from c180224.adsl.hansenet.de ([213.39.180.224]:668 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S268537AbTGLVcU
+	Sat, 12 Jul 2003 17:34:11 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:60811 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S268551AbTGLVeJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 17:32:20 -0400
-Message-ID: <3F1081D7.9090209@portrix.net>
-Date: Sat, 12 Jul 2003 23:47:03 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
-X-Accept-Language: en
+	Sat, 12 Jul 2003 17:34:09 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 12 Jul 2003 14:41:25 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Eric Varsanyi <e0206@foo21.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch][RFC] epoll and half closed TCP connections
+In-Reply-To: <20030712211941.GD15643@srv.foo21.com>
+Message-ID: <Pine.LNX.4.55.0307121436460.4720@bigblue.dev.mcafeelabs.com>
+References: <20030712181654.GB15643@srv.foo21.com> <20030712194432.GE10450@mail.jlokier.co.uk>
+ <20030712205114.GC15643@srv.foo21.com> <Pine.LNX.4.55.0307121346140.4720@bigblue.dev.mcafeelabs.com>
+ <20030712211941.GD15643@srv.foo21.com>
 MIME-Version: 1.0
-To: kraxel@bytesex.org
-CC: linux-kernel@vger.kernel.org
-Subject: Improve error handling for msp3400.c
-Content-Type: multipart/mixed;
- boundary="------------010803020408010601090404"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010803020408010601090404
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, 12 Jul 2003, Eric Varsanyi wrote:
 
-Hi,
+> I guess my only argument would be that edge triggered mode isn't really
+> workable with TCP connections if there's no way to solve the ambiguity
+> between EOF and no data in buffer (at least w/o an extra syscall). I just
+> realized that the race you mention in the man page (reading data from
+> the 'next' event that hasn't been polled into user mode yet) will lead to
+> the same issue: how do you know if you got this event because you consumed
+> the data on the previous interrupt or if this is an EOF condition.
 
-on read/send failure the msp3400 driver is trying three times to recover and 
-is printing a message each time. On a unloaded system this happens at a rate 
-of about 1/min while watching tv and is quite annoying, while non critical.
-This patchs gets rid of it and instead raises the final error message to 
-KERN_ERR if indeed the communication failed three times in a row.
+(Sorry, I missed this)
+You can work that out very easily. When your read/write returns a lower
+number of bytes, it means that it is time to stop processing this fd. If
+events happened meanwhile, you will get them at the next epoll_wait(). If
+not, the next time they'll happen. There's no blind spot if you follow
+this simple rule, and you do not even have the extra syscall with EAGAIN.
 
-Thanks,
 
-Jan
 
--- 
-Linux rubicon 2.5.75-mm1-jd10 #1 SMP Sat Jul 12 19:40:28 CEST 2003 i686
-
---------------010803020408010601090404
-Content-Type: text/plain;
- name="msp3400.remove.warning"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="msp3400.remove.warning"
-
---- linux-bk/drivers/media/video/msp3400.c	Fri May 30 20:29:35 2003
-+++ 2.5.75-bk1-jd2/drivers/media/video/msp3400.c	Sat Jul 12 23:41:19 2003
-@@ -192,13 +192,11 @@
- 		if (2 == i2c_transfer(client->adapter,msgs,2))
- 			break;
- 		err++;
--		printk(KERN_WARNING "msp34xx: I/O error #%d (read 0x%02x/0x%02x)\n",
--		       err, dev, addr);
- 		current->state = TASK_INTERRUPTIBLE;
- 		schedule_timeout(HZ/10);
- 	}
- 	if (3 == err) {
--		printk(KERN_WARNING "msp34xx: giving up, reseting chip. Sound will go off, sorry folks :-|\n");
-+		printk(KERN_ERR "msp34xx: giving up, reseting chip. Sound will go off, sorry folks :-|\n");
- 		msp3400c_reset(client);
- 		return -1;
- 	}
-@@ -221,13 +219,11 @@
- 		if (5 == i2c_master_send(client, buffer, 5))
- 			break;
- 		err++;
--		printk(KERN_WARNING "msp34xx: I/O error #%d (write 0x%02x/0x%02x)\n",
--		       err, dev, addr);
- 		current->state = TASK_INTERRUPTIBLE;
- 		schedule_timeout(HZ/10);
- 	}
- 	if (3 == err) {
--		printk(KERN_WARNING "msp34xx: giving up, reseting chip. Sound will go off, sorry folks :-|\n");
-+		printk(KERN_ERR "msp34xx: giving up, reseting chip. Sound will go off, sorry folks :-|\n");
- 		msp3400c_reset(client);
- 		return -1;
- 	}
-
---------------010803020408010601090404--
+- Davide
 

@@ -1,79 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284267AbRLBSz3>; Sun, 2 Dec 2001 13:55:29 -0500
+	id <S284272AbRLBTCT>; Sun, 2 Dec 2001 14:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282561AbRLBSzV>; Sun, 2 Dec 2001 13:55:21 -0500
-Received: from pop.gmx.net ([213.165.64.20]:5688 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S282567AbRLBSzP>;
-	Sun, 2 Dec 2001 13:55:15 -0500
-Date: Sun, 2 Dec 2001 19:55:05 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: Kenneth Johansson <ken@canit.se>
-Cc: ce@ruault.com, stephane@tuxfinder.org, jmerkey@timpanogas.org,
-        jjs@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: File system Corruption with 2.4.16
-Message-Id: <20011202195505.57363019.rene.rebe@gmx.net>
-In-Reply-To: <3C0A6ECF.82C34304@canit.se>
-In-Reply-To: <3C0954D5.6AA3532B@ruault.com>
-	<3C09580F.5F323195@pobox.com>
-	<3C095B0B.7EA478C1@ruault.com>
-	<003601c17ac2$7a8dec10$f5976dcf@nwfs>
-	<3C096DB3.204CE41C@pobox.com>
-	<001e01c17acb$a44b69c0$f5976dcf@nwfs>
-	<20011202023145.A1628@emeraude.kwisatz.net>
-	<3C09B3FA.61777E84@ruault.com>
-	<3C0A6ECF.82C34304@canit.se>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S284275AbRLBTCJ>; Sun, 2 Dec 2001 14:02:09 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:5567 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S284272AbRLBTB7>; Sun, 2 Dec 2001 14:01:59 -0500
+Date: Sun, 2 Dec 2001 12:01:58 -0700
+Message-Id: <200112021901.fB2J1wM11465@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] wait_for_devfsd_finished deadlock
+In-Reply-To: <20011201191113.A1034@holomorphy.com>
+In-Reply-To: <20011201191113.A1034@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 02 Dec 2001 19:11:27 +0100
-Kenneth Johansson <ken@canit.se> wrote:
-
-> I had problems with symlinks also. This is what I know about it so far.
+William Lee Irwin, III writes:
+> While testing 2.4.17-pre1 with some other patches, a situation
+> reminiscent of a deadlock arose. mutt(1) would block indefinitely
+> while opening a large mbox, and all further calls to sys_open()
+> would block indefinitely.
 > 
-> I only get/got this problem on a server running 2.4.10 using reiserfs and when the
-> files was used over NFS.
-> Once it got itself into this state it is possible to create symlinks by hand but when
-> untaring an archive 90% of all links was wrong. Doing the same on the server directly
-> showed no problem.
-> 
-> A reboot of the client did not help but rebooting the server did. I have since
-> upgraded to 2.4.16 but only run for a few hours the last time needed many days to show
-> this problem so it could still be there.
-> 
-> A nice program to use is symlinks that shows all links that points to a file not
-> existing
-> symlinks -r . | egrep "^dangling"
+> After some further testing to isolate the problem, I reproduced this
+> behavior in the vanilla 2.4.17-pre1 kernel. The sysrq output showed
+> a number of processes with the following call trace in the devfs
+> core:
 
-This general NFS v3 sym-link bug was fixed in 2.4.11 or .12 it was "only" caused
-by a non-zero terminated string ...
+Your sh process appears to be hung in wait_for_devfsd_finished(). It
+would be helpful to know what devfsd was doing at this time. If it
+were hung internally (in user-space), it would account for this
+behaviour. However, if devfsd crashes, then devfsd_close() will be
+called, which will wake any waiters.
 
-btw. my 2.4.16 file-server using ReiserFS on a soft-raid5 device of 3 IBM
-IDE disks has not yet shown a corruption (but could be a bit faster ...).
+> And the following call traces elsewhere:
 
-server1:~ # cat /proc/version 
-Linux version 2.4.16 (root@server1.localnet) (gcc version 2.95.3 20010315 (release)) #2 Tue Nov 27 18:58:48 CET 2001
-server1:~ # uptime
-  7:54pm  up 3 days,  4:02,  1 user,  load average: 0.01, 0.03, 0.00
+Are these related?
+cron		->	pipe_wait()
+procmail	->	interruptible_sleep_on_locked()
+exim		->	sys_wait4()
 
-[...]
+Maybe these are just waiting on mutt(1)?
 
-k33p h4ck1n6
-  René
+> Further diagnostic information is available upon request.
 
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+That's what I like to hear. Set CONFIG_DEVFS_DEBUG=y and boot with
+"devfs=dall" and send me the (verbose) kernel logs. That should show
+the sequence of events that lead to this.
 
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
+> Mr. Gooch, your attention to this matter is much appreciated.
 
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
+Just "Richard" is fine. I'm not a fan of formality.
 
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263967AbTEWJCB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 05:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTEWJCB
+	id S263969AbTEWJIv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 05:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263970AbTEWJIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 05:02:01 -0400
-Received: from N061P016.adsl.highway.telekom.at ([213.33.7.144]:55425 "EHLO
-	server.lan") by vger.kernel.org with ESMTP id S263967AbTEWJB7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 05:01:59 -0400
-From: Melchior FRANZ <mfranz@users.sourceforge.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-rc3
-Date: Fri, 23 May 2003 09:00:12 +0200
-User-Agent: KMail/1.5.9
-X-PGP: http://www.unet.univie.ac.at/~a8603365/melchior.franz
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <200305230900.18528@pflug3.gphy.univie.ac.at>
+	Fri, 23 May 2003 05:08:51 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:12570 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263969AbTEWJIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 05:08:50 -0400
+Date: Fri, 23 May 2003 02:24:54 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "Lothar Wassmann" <LW@KARO-electronics.de>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
+ 2.5.30(at least))
+Message-Id: <20030523022454.61a180dd.akpm@digeo.com>
+In-Reply-To: <16077.55787.797668.329213@ipc1.karo>
+References: <16076.50160.67366.435042@ipc1.karo>
+	<20030522151156.C12171@flint.arm.linux.org.uk>
+	<16077.55787.797668.329213@ipc1.karo>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 May 2003 09:21:56.0522 (UTC) FILETIME=[C170B8A0:01C3210C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Marcelo Tosatti -- Friday 23 May 2003 00:47:
-> Here goes the third release candidate of 2.4.21.
+"Lothar Wassmann" <LW@KARO-electronics.de> wrote:
+>
+> And maybe because *every* other call to flush_page_to_ram() has been
+>  replaced by one of the new interface macros except that one in
+>  filemap_nopage() in 'mm/filemap.c'.
+> 
 
-o The i2c "Philips style parallel port adapter" is only selectable
-  as a module in "make menuconfig", although the help text suggests
-  that it can be compiled in.
+flush_page_to_ram() has been deleted from the kernel.
 
-o With all i2c options activated, I still get this:
-  drivers/i2c/i2c.o: In function `scx200_i2c_setscl':
-  drivers/i2c/i2c.o(.text+0x636f): undefined reference to `scx200_gpio_base'
-  drivers/i2c/i2c.o(.text+0x6396): undefined reference to `scx200_gpio_shadow'
-  drivers/i2c/i2c.o(.text+0x63a1): undefined reference to `scx200_gpio_shadow'
-  drivers/i2c/i2c.o(.text+0x63b4): undefined reference to `scx200_gpio_shadow'
-  drivers/i2c/i2c.o: In function `scx200_i2c_setsda':
-  drivers/i2c/i2c.o(.text+0x63cf): undefined reference to `scx200_gpio_base'
-  drivers/i2c/i2c.o(.text+0x63f6): undefined reference to `scx200_gpio_shadow'
-  drivers/i2c/i2c.o(.text+0x6401): undefined reference to `scx200_gpio_shadow'
-  drivers/i2c/i2c.o(.text+0x6414): undefined reference to `scx200_gpio_shadow'
-  drivers/i2c/i2c.o: In function `scx200_i2c_getscl':
-  drivers/i2c/i2c.o(.text+0x6423): undefined reference to `scx200_gpio_base'
-  drivers/i2c/i2c.o: In function `scx200_i2c_getsda':
-  drivers/i2c/i2c.o(.text+0x6463): undefined reference to `scx200_gpio_base'
-  drivers/i2c/i2c.o: In function `scx200_i2c_init':
-  drivers/i2c/i2c.o(.text+0x64f0): undefined reference to `scx200_gpio_base'
-  drivers/i2c/i2c.o(.text+0x655b): undefined reference to `scx200_gpio_configure'
-  drivers/i2c/i2c.o(.text+0x6578): undefined reference to `scx200_gpio_configure'
+filemap_nopage() is a pagecache function and shouldn't be fiddling with
+cache and/or TLB operations.  Unless it touches the page by hand, which it
+does not.
 
-o Some help texts are missing, e.g for
-  "Generic PCI IDE Chipset Support"
-  i2c/"NatSemi SCx200 I2C using GPIO pins"
+Please, test a current kernel.
 
-Apart from that, 2.4.21-rc3 compiles, boots and runs OK.
 
-m.

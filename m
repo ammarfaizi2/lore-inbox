@@ -1,102 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVAMOEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVAMOHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVAMOEv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 09:04:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVAMOEv
+	id S261627AbVAMOHx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 09:07:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVAMOHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 09:04:51 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:147 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261624AbVAMOEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 09:04:47 -0500
-Date: Thu, 13 Jan 2005 14:04:46 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: propolice support for linux
-Message-ID: <20050113140446.GA22381@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20050113134620.GA14127@boetes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050113134620.GA14127@boetes.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 13 Jan 2005 09:07:53 -0500
+Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:34223 "EHLO
+	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261627AbVAMOHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 09:07:40 -0500
+Message-ID: <41E680A2.3010000@kolivas.org>
+Date: Fri, 14 Jan 2005 01:07:30 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
+Subject: 2.6.10-ck4
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig12038C89A387350008C08465"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- linux-2.6.3/Makefile	2004-02-17 22:58:39.000000000 -0500
-> +++ linux-2.6.3.ssp/Makefile	2004-03-03 10:20:29.000000000 -0500
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig12038C89A387350008C08465
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-2.6.3 is from stoneage..
+These are patches designed to improve system responsiveness. It is 
+configurable to any workload but the default ck4 patch is aimed at the 
+desktop and ck4-server is available with more emphasis on serverspace.
 
-> +ifdef CONFIG_HARDENED_SSP
-> +CFLAGS += -fstack-protector
-> +endif
+http://ck.kolivas.org/patches/2.6/2.6.10/2.6.10-ck4/
 
-What about just CONFIG_PROPOLICY?  The hardnedefoo naming is so childish
-(or gentooish, in the end it's the same anyway..)
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
 
-> diff -urN linux-2.6.3/include/linux/kernel.h linux-2.6.3.ssp/include/linux/kernel.h
-> --- linux-2.6.3/include/linux/kernel.h	2004-02-17 22:57:11.000000000 -0500
-> +++ linux-2.6.3.ssp/include/linux/kernel.h	2004-03-03 10:08:10.000000000 -0500
-> @@ -115,6 +115,10 @@
->  #define TAINT_FORCED_RMMOD		(1<<3)
->  
->  extern void dump_stack(void);
-> +#ifdef CONFIG_HARDENED_SSP
-> +extern int __guard;
-> +extern void __stack_smash_handler(int, char []);
-> +#endif
+I recommend all ck3 users upgrade.
 
-What do you need these prototypes for, they're not used at all.  Also
-no need to put ifdefs around them.
-
-> diff -urN linux-2.6.3/lib/propolice.c linux-2.6.3.ssp/lib/propolice.c
-> --- linux-2.6.3/lib/propolice.c	1969-12-31 19:00:00.000000000 -0500
-> +++ linux-2.6.3.ssp/lib/propolice.c	2004-03-03 17:52:48.000000000 -0500
-> @@ -0,0 +1,15 @@
-> +#include <linux/module.h>
-> +#include <linux/errno.h>
-
-What do you need errno for?
-
-> 
-> +
-> +EXPORT_SYMBOL_NOVERS(__guard);
-> +EXPORT_SYMBOL_NOVERS(__stack_smash_handler);
-> + 
-> +int __guard = '\0\0\n\777';
-> + 
-> +void 
-> +__stack_smash_handler (int damaged, char func[])
-> +{
-> +	static char *message = "propolice detects %x at function %s.\n" ;
-> +	panic (message, damaged, func);
-> +}
-
-ah, it seems you need them because you put the exports before the
-delaration.  This file should probably look more like:
-
-/*
- * Insert Copyright here.
- *
- * Insert small description here.
- */
-#include <linux/kernel.h>
-#include <linux/module.h>
-
-int __guard = '\0\0\n\777';
-EXPORT_SYMBOL_NOVERS(__guard);
- 
-static const char message[] = "propolice detects %x at function %s.\n";
-
-void __stack_smash_handler(int damaged, char func[])
-{
-	panic(message, damaged, func);
-}
-EXPORT_SYMBOL_NOVERS(__stack_smash_handler);
+2.6.10-ck3 was a brown paper bag release. A poorly considered last 
+minute change made for some odd starvation problems. For this release I 
+rewrote a large section of the staircase code that had been troubling me 
+and been getting steadily worse. In the process I've made the semantics 
+of resuming an old timeslice much simpler and more predictable.
 
 
+Changed:
+-cfq-ts-19g.diff
++cfq-ts-20.diff
+Jens' latest incarnation of the cfq-timeslices patch with i/o priority 
+support for read and write has much smoother read vs write 
+characteristics now.
+
+
+Added:
++s10_test1.diff
++s10_s10.1.diff
++s10.1_s10.2.diff
++s10.2_s10.3.diff
+Staircase updates
+
++1504_vmscan-writeback-pages.patch
+A fix for more oom-kill problems.
+
+
+Thanks to the many people involved in testing the staircase changes and 
+reporting back.
+
+Cheers,
+Con
+
+
+--------------enig12038C89A387350008C08465
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB5oClZUg7+tp6mRURArclAJ0cS0pz7yAi3cFEBueihghYtRXBJQCfeUDm
+/2nUe8sB6uF8xdwW4kUBbQA=
+=sMCd
+-----END PGP SIGNATURE-----
+
+--------------enig12038C89A387350008C08465--

@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261949AbREMXfi>; Sun, 13 May 2001 19:35:38 -0400
+	id <S261955AbREMXkS>; Sun, 13 May 2001 19:40:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261951AbREMXf3>; Sun, 13 May 2001 19:35:29 -0400
-Received: from femail24.sdc1.sfba.home.com ([24.0.95.149]:48350 "EHLO
+	id <S262016AbREMXkI>; Sun, 13 May 2001 19:40:08 -0400
+Received: from femail24.sdc1.sfba.home.com ([24.0.95.149]:58111 "EHLO
 	femail24.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S261949AbREMXfP>; Sun, 13 May 2001 19:35:15 -0400
-Date: Sun, 13 May 2001 19:35:06 -0400 (EDT)
+	id <S261951AbREMXj4>; Sun, 13 May 2001 19:39:56 -0400
+Date: Sun, 13 May 2001 19:39:48 -0400 (EDT)
 From: "Mike A. Harris" <mharris@opensourceadvocate.org>
 X-X-Sender: <mharris@asdf.capslock.lan>
-To: <Wayne.Brown@altec.com>
-cc: Hacksaw <hacksaw@hacksaw.org>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Not a typewriter
-In-Reply-To: <86256A49.00589003.00@smtpnotes.altec.com>
-Message-ID: <Pine.LNX.4.33.0105131928570.1590-100000@asdf.capslock.lan>
+To: Hacksaw <hacksaw@hacksaw.org>
+cc: <Wayne.Brown@altec.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Not a typewriter 
+In-Reply-To: <200105112143.f4BLhDu08419@habitrail.home.fools-errant.com>
+Message-ID: <Pine.LNX.4.33.0105131936120.1590-100000@asdf.capslock.lan>
 X-Unexpected-Header: The Spanish Inquisition
 X-Spam-To: uce@ftc.gov
 Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
@@ -23,33 +22,22 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 May 2001 Wayne.Brown@altec.com wrote:
+On Fri, 11 May 2001, Hacksaw wrote:
 
->>Heaven help us when tradition is more important than clarity.
->>
->
->If clarity is the most important consideration, then other things should be
->changed as well.  For instance, the command we use to search for text strings in
->files should be called "textsearch."  That's a lot more clear than "grep."
+>Well, I can't disagree. Unix's biggest turn off was the stupid command names.
 
-gnuregularexpressionparser?
+I agree partially with that, but as someone who's used DCL in
+VMS, I can say meaningful names are no better.  People don't want
+to type SHOW DIRECTORY or CREATE /DIRECTORY /PERMISSIONS=blah
+blah.. and when given DCL, once people understand how to create
+logical names (the equiv of aliases in unix) they alias the above
+verbose garbage down to 2-4 letter cryptic looking names.  I
+don't know anyone who has used VMS for more than 3 months who
+hasn't done the above.  Problem is that everyone chooses their
+own cryptic shortcuts from everyone else.  At least in UNIX, the
+short cryptic names are the same everywhere, and you can alias
+them to larger names if you like.
 
-
->why creat doesn't end in an "e;" and so forth.  I tell the
-
-What is the reason for that?  Also wondered why it is resolv.conf
-and not resolve.conf or resolver.conf...
-
-Were they afraid that "e" being the most widely used letter in
-the English language was going to war out thir xpnsiv kyboards if
-thy usd it all th tim?
-
-;o)
-
->I guess what I'm trying to say is that "Life With Unix" should be required
->reading for anyone who goes near a Unix (or Linux) system.
-
-I agree.  ;o)
 
 
 ------------------------------------------------------------------------

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131448AbRCWUmb>; Fri, 23 Mar 2001 15:42:31 -0500
+	id <S131454AbRCWUnV>; Fri, 23 Mar 2001 15:43:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131446AbRCWUmM>; Fri, 23 Mar 2001 15:42:12 -0500
-Received: from smtp.primusdsl.net ([209.225.164.93]:265 "EHLO
-	mailhost.digitalselect.net") by vger.kernel.org with ESMTP
-	id <S131448AbRCWUmI>; Fri, 23 Mar 2001 15:42:08 -0500
-Date: Fri, 23 Mar 2001 15:43:28 -0500
-From: James Lewis Nance <jlnance@intrex.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-Message-ID: <20010323154328.A14173@bessie.dyndns.org>
-In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com> <vba1yrr7w9v.fsf@mozart.stat.wisc.edu> <15032.1585.623431.370770@pizda.ninka.net> <vbay9ty50zi.fsf@mozart.stat.wisc.edu> <vbaelvp3bos.fsf@mozart.stat.wisc.edu> <20010322193549.D6690@unthought.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010322193549.D6690@unthought.net>; from jakob@unthought.net on Thu, Mar 22, 2001 at 07:35:49PM +0100
+	id <S131455AbRCWUnL>; Fri, 23 Mar 2001 15:43:11 -0500
+Received: from nrg.org ([216.101.165.106]:20275 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S131446AbRCWUm7>;
+	Fri, 23 Mar 2001 15:42:59 -0500
+Date: Fri, 23 Mar 2001 12:42:01 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: george anzinger <george@mvista.com>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <m14fjfA-001PKRC@mozart>
+Message-ID: <Pine.LNX.4.05.10103231215540.5839-100000@cosmic.nrg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 22, 2001 at 07:35:49PM +0100, Jakob Østergaard wrote:
+On Thu, 22 Mar 2001, Rusty Russell wrote:
+> Nigel's "traverse the run queue and mark the preempted" solution is
+> actually pretty nice, and cheap.  Since the runqueue lock is grabbed,
+> it doesn't require icky atomic ops, either.
 
-> My code here is quite template heavy, and I suspect that's what's triggering
-> it.  In fact, I can't compile our development code with optimization, because
-> GCC runs out of memory (it only allocates some 300-500 MB, but each page has
-> it's own map in /proc/pid/maps, and a wc -l /proc/pid/maps doesn't finish for
-> minutes).  My typical GCC eats 100-200 MB and runs for several minutes.
+You'd have to mark both the preempted tasks, and the tasks currently
+running on each CPU (which could become preempted before reaching a
+voluntary schedule point).
 
-Would it be possible for you to post the preprocessor outout to this list?
-It would be quite nice to have this testcase.
+> Despite Nigel's initial belief that this technique is fragile, I
+> believe it will become an increasingly fundamental method in the
+> kernel, so (with documentation) it will become widely understood, as
+> it offers scalability and efficiency.
 
-Jim
+Actually, I agree with you now that I've had a chance to think about
+this some more.
+
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
+
+MontaVista Software                             nigel@mvista.com
+

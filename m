@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290573AbSA3U35>; Wed, 30 Jan 2002 15:29:57 -0500
+	id <S290570AbSA3UcR>; Wed, 30 Jan 2002 15:32:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290565AbSA3U3i>; Wed, 30 Jan 2002 15:29:38 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:39141
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S290558AbSA3U3c>; Wed, 30 Jan 2002 15:29:32 -0500
-Date: Wed, 30 Jan 2002 21:29:22 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: grumph@pakistanmail.com, linux-kernel@vger.kernel.org,
-        Kalle Kivimaa <killeri@iki.fi>
-Subject: Re: Wanted: Volunteer to code a Patchbot
-Message-ID: <20020130212922.F821@jaquet.dk>
-In-Reply-To: <3c580adc.3d7c.0@pakistanmail.com> <E16VyMG-0000G7-00@starship.berlin>
-Mime-Version: 1.0
+	id <S290572AbSA3UcI>; Wed, 30 Jan 2002 15:32:08 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43780 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290570AbSA3Uby>; Wed, 30 Jan 2002 15:31:54 -0500
+Message-ID: <3C585824.50606@zytor.com>
+Date: Wed, 30 Jan 2002 12:31:32 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Ville Herva <vherva@niksula.hut.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: master.kernel.org status
+In-Reply-To: <3C57A9BF.60100@zytor.com> <20020130202648.GE341293@niksula.cs.hut.fi>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16VyMG-0000G7-00@starship.berlin>; from phillips@bonn-fries.net on Wed, Jan 30, 2002 at 06:17:16PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 06:17:16PM +0100, Daniel Phillips wrote:
-> I must say, I've been impressed with the insight of all three.  Would you be 
-> a fourth?  A mailing list has been set up (by Giacomo):
-> 
->    http://killeri.net/cgi-bin/alias/ezmlm-cgi
+Ville Herva wrote:
 
-It does not matter terribly but the list has been setup by
-Kalle Kivimaa <killeri@iki.fi>.
--- 
-        Rasmus(rasmus@jaquet.dk)
+> 
+>>Whew...
+>>
+>>Thanks to a tip from Leonard Zubkoff I've successfully reconstructed the 
+>>data on master.kernel.org. 
+> 
+> After the well-deserved sleep, would you (or Leonard) care to share the tip?
+>
+
+
+It's rather card-specific, but here goes:
+
+a) On a DAC960PRL, use the "daccf" utility, not "ezsetup" which is what
+the Mylex web page recommends (THIS ONE IS THE REASON FOR THE FAILURE IN
+THE FIRST PLACE.)
+
+b) After "ezsetup" screws over your configuration, you *may* be able to
+recover it by running "daccf -o" and restoring the configuration EXACTLY
+AS IT WAS ORIGINALLY SET UP.  DO NOT START A REBUILD OF THE ARRAY.
+
+c) After (b), DO NOT WRITE TO THE ARRAY.  (Boot from a floppy or
+SuperRescue CD, then try to access the drives readonly.)  Apparenly the
+firmware won't actually write to the disks and start any kind of
+reconstruction (which would be fatal to your data if you got step (b)
+wrong) until any write operations happen to the disk set.
+
+	-hpa
+
+

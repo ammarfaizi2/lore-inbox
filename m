@@ -1,67 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbTDEUrg (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 15:47:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbTDEUrg (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 15:47:36 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41232
+	id S262658AbTDEUva (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 15:51:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbTDEUva (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 15:51:30 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:42768
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262652AbTDEUrf (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 15:47:35 -0500
-Date: Sat, 5 Apr 2003 12:54:11 -0800 (PST)
+	id S262658AbTDEUv2 (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 15:51:28 -0500
+Date: Sat, 5 Apr 2003 12:58:14 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
-To: "Mudama, Eric" <eric_mudama@maxtor.com>
-cc: "'Chuck Ebbert '" <76306.1226@compuserve.com>,
-       "'linux-kernel '" <linux-kernel@vger.kernel.org>
-Subject: RE: PATCH: Fixes for ide-disk.c
-In-Reply-To: <785F348679A4D5119A0C009027DE33C102E0D069@mcoexc04.mlm.maxtor.com>
-Message-ID: <Pine.LNX.4.10.10304051227170.29290-100000@master.linux-ide.org>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Fixes for ide-disk.c
+In-Reply-To: <1049570711.3320.2.camel@laptop-linux.cunninghams>
+Message-ID: <Pine.LNX.4.10.10304051257060.29290-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Apr 2003, Mudama, Eric wrote:
 
-> In either case, according to the spec, when a FLUSH CACHE (normal or EXT,
-> doesn't matter) completes with "good" status (0x50) all the write cache has
-> been successfully flushed to the disk.
-> 
-> A 48-bit sized drive should still commit dirty data when issued the 28-bit
-> FLUSH CACHE command, it will simply have problems reporting potential error
-> locations if it gets a fatal error on the write.  
-> 
-> > You will not be allowed to push off the 48-bit feature set rules.
-> > Regardless if the new smart data is set the the GPL and not Smart
-> > Logs.
-> 
-> I don't understand what you mean.  I am looking at the ATA7 r1a spec now,
-> and don't see the 48-bit specific feature set rules that you're referring to
-> being "pushed off".
+Why?
 
-This is the result of a flush cache error returning a failure and the
-device logging the error.  If it was a 48-bit command it should commit to
-the GPL (smart extentions), otherwise a 28-bit would commit to 28-bit
-smart logs.  Since the Linux does not track the returns on completion, the
-report of any flush cache error is worthless.  Since the error reports the
-LBA where it happened but that request is long gone, the data is toast.
+Drive->blocked N times is still blocked.
 
-It will take 2.7 or later to address the data integrity and recovery on a
-device that fails completion on a flush.  This is a bad host, but the host
-is getting smarter.  The difference is this host's author knows the
-issues, and just needs to communicate them out.
-
-> >If you are suggesting a pole for completion on the FLUSH, say so.
-> >Otherwise, standard non-data INTQ completion is default.
-> 
-> Clearing of the busy bit with a status of 0x50 is what to look for.  Polled
-> or INTQ doesn't matter.
-> 
-> If the drive reports 0x50 without a completely clean write cache, it is
-> broken.
-
-This is a DEVICE side problem, the HOST can only respond to the content
-returned in the taskfiles.  The DEVICE can LIE all day long and the HOST
-can only follow the lead cue from the DEVICE.
+I refuse to play tracking games to figure out whose Drive->blocked is
+whose!
 
 Cheers,
+
+On Sun, 6 Apr 2003, Nigel Cunningham wrote:
+
+> Hi.
+> 
+> On Sun, 2003-04-06 at 04:46, Alan Cox wrote:
+> > Drive->blocked is a single bit field. Its not a counting lock. Either
+> > we are blocked or not.
+> 
+> Okay. We need a different solution then, but the problem remains - the
+> driver can get multiple, nexted calls to block and unblock. Can it
+> become a counting lock?
+> 
+> Regards,
+> 
+> Nigel
+> 
+> -- 
+> Nigel Cunningham
+> 495 St Georges Road South, Hastings 4201, New Zealand
+> 
+> Be diligent to present yourself approved to God as a workman who does
+> not need to be ashamed, handling accurately the word of truth.
+> 	-- 2 Timothy 2:14, NASB.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 Andre Hedrick
 LAD Storage Consulting Group

@@ -1,48 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUHOOOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUHOO1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266692AbUHOOOO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 10:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266701AbUHOOOO
+	id S266703AbUHOO1H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 10:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266704AbUHOO1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 10:14:14 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:52368 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S266692AbUHOOOK (ORCPT
+	Sun, 15 Aug 2004 10:27:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51903 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266703AbUHOO1F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 10:14:10 -0400
-Message-ID: <411F7067.8040305@colorfullife.com>
-Date: Sun, 15 Aug 2004 16:17:11 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
- pte
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Aug 2004 10:27:05 -0400
+Date: Sun, 15 Aug 2004 07:27:03 -0700
+From: John Cherry <cherry@osdl.org>
+Message-Id: <200408151427.i7FER3es031319@cherrypit.pdx.osdl.net>
+To: linux-kernel@vger.kernel.org
+Subject: IA32 (2.6.8.1 - 2004-08-14.21.30) - 4 New warnings (gcc 3.2.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph wrote:
-
->Well this is more an idea than a real patch yet. The page_table_lock
->becomes a bottleneck if more than 4 CPUs are rapidly allocating and using
->memory. "pft" is a program that measures the performance of page faults on
->SMP system. It allocates memory simultaneously in multiple threads thereby
->causing lots of page faults for anonymous pages.
->
->  
->
-Very odd. Why do you see a problem with the page_table_lock but no 
-problem from the mmap semaphore?
-The page fault codepath acquires both.
-How often is the page table lock acquired per page fault? Just once or 
-multiple spin_lock calls per page fault? Is the problem contention or 
-cache line trashing?
-
-Do you have profile/lockmeter output? Is the down_read() in 
-do_page_fault() a hot spot, too?
-
---
-    Manfred
+drivers/char/ipmi/ipmi_si_intf.c:1173: warning: passing arg 4 of `acpi_install_gpe_handler' from incompatible pointer type
+drivers/char/ipmi/ipmi_si_intf.c:1193: warning: passing arg 3 of `acpi_remove_gpe_handler' from incompatible pointer type
+init/main.c:99: warning: function declaration isn't a prototype
+init/main.c:99: warning: return type defaults to `int'

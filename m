@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265334AbUAFVQN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 16:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265346AbUAFVQN
+	id S264949AbUAFVfc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 16:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265346AbUAFVfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 16:16:13 -0500
-Received: from pop.gmx.de ([213.165.64.20]:65214 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265334AbUAFVQM (ORCPT
+	Tue, 6 Jan 2004 16:35:32 -0500
+Received: from [217.73.129.129] ([217.73.129.129]:8594 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S264949AbUAFVf2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 16:16:12 -0500
-X-Authenticated: #21388368
-Subject: Re: Kernel panic.. in 3.0 Enterprise Linux
-From: Lukas Postupa <postupa@gmx.de>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20040105134321.A8565@metallica.ki.plenum.de>
-References: <20040105115610.49148.qmail@web9505.mail.yahoo.com>
-	 <1073305477.4429.0.camel@laptop.fenrus.com>
-	 <20040105134321.A8565@metallica.ki.plenum.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mQL7r3d/PX4Dngdr1YHK"
-Message-Id: <1073423894.620.3.camel@linux>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 06 Jan 2004 22:18:14 +0100
+	Tue, 6 Jan 2004 16:35:28 -0500
+Date: Tue, 6 Jan 2004 23:35:10 +0200
+Message-Id: <200401062135.i06LZAOY005429@car.linuxhacker.ru>
+From: Oleg Drokin <green@linuxhacker.ru>
+Subject: Re: Suspected bug infilesystems (UFS,ADFS,BEFS,BFS,ReiserFS) related to sector_t being unsigned, advice requested
+To: linux-kernel@vger.kernel.org, mfedyk@matchmail.com
+References: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk> <3FFA7717.7080808@namesys.com> <Pine.LNX.4.56.0401061218320.7945@jju_lnx.backbone.dif.dk> <20040106174650.GD1882@matchmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---=-mQL7r3d/PX4Dngdr1YHK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Mike Fedyk <mfedyk@matchmail.com> wrote:
+MF> On Tue, Jan 06, 2004 at 12:28:34PM +0100, Jesper Juhl wrote:
+>> --- linux-2.6.1-rc1-mm2-orig/fs/reiserfs/inode.c        2004-01-06 01:33:08.000000000 +0100
+>> +++ linux-2.6.1-rc1-mm2/fs/reiserfs/inode.c     2004-01-06 12:16:16.000000000 +0100
+>> @@ -574,11 +574,6 @@ int reiserfs_get_block (struct inode * i
+>>      th.t_trans_id = 0 ;
+>>      version = get_inode_item_key_version (inode);
+>> 
+>> -    if (block < 0) {
+>> -       reiserfs_write_unlock(inode->i_sb);
+>> -       return -EIO;
+>> -    }
+>> -
+MF> Did you check the locking after this is removed?
 
-Kresimir Sparavec wrote:
-> the rest works unmodified (except NVIDIA
-> proprietary kernel driver which does not have 2.6.x support yet, but XFre=
-e86
-> driver works fine for me)=20
+Locking should be fine.
+As I remember, we take this lock near reiserfs_get_block() entrance,
+and then drop it on exit.
 
-Take a look at http://www.minion.de/ .
+MF> Maybe after the sector_t merges, this code covered a case that is left open
+MF> now...
 
-Lukas
+This code was never executing anyway.
 
---=-mQL7r3d/PX4Dngdr1YHK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/+yYV7NqD+yPvj1cRAhuuAJ4hOnV8CjUGQePLSIiT1Dhgi5zCUgCg7Buq
-ExC1h4DJEvRwvOyA9uam3YE=
-=eZqw
------END PGP SIGNATURE-----
-
---=-mQL7r3d/PX4Dngdr1YHK--
-
+Bye,
+    Oleg

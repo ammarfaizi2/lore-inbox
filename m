@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287676AbSAMACq>; Sat, 12 Jan 2002 19:02:46 -0500
+	id <S287869AbSAMANk>; Sat, 12 Jan 2002 19:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287875AbSAMACj>; Sat, 12 Jan 2002 19:02:39 -0500
-Received: from flrtn-4-m1-156.vnnyca.adelphia.net ([24.55.69.156]:24960 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S287868AbSAMACc>;
-	Sat, 12 Jan 2002 19:02:32 -0500
-Message-ID: <3C40CE82.4030301@pobox.com>
-Date: Sat, 12 Jan 2002 16:02:10 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Kenneth Johansson <ken@canit.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        arjan@fenrus.demon.nl, Rob Landley <landley@trommello.org>,
-        linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
+	id <S287871AbSAMAN3>; Sat, 12 Jan 2002 19:13:29 -0500
+Received: from zero.tech9.net ([209.61.188.187]:2833 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287869AbSAMANU>;
+	Sat, 12 Jan 2002 19:13:20 -0500
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PURC-000321-00@the-village.bc.nu> 	<3C409E3C.A4968CE@canit.se> <1010876470.3560.0.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rob Landley <landley@trommello.org>, yodaiken@fsmlabs.com, nigel@nrg.org,
+        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16PTOO-0002tO-00@the-village.bc.nu>
+In-Reply-To: <E16PTOO-0002tO-00@the-village.bc.nu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 12 Jan 2002 19:16:03 -0500
+Message-Id: <1010880963.3619.10.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Sat, 2002-01-12 at 14:00, Alan Cox wrote:
 
->Agreed.  Further, you can't put _any_ upper bound on the number of interrupts that could occur, preempt or not.  Sure, preempt can make it worse, but I don't see it. I have no bug reports to correlate.
->
+> I see absolutely _no_ evidence to support this repeated claim. I'm still
+> waiting to see any evidence that low latency patches are not sufficient, or
+> an explanation of who is going to fix all the drivers you break in subtle
+> ways
 
-OTOH we do have a pile of user reports which
-say the low latency patches give better results.
+I'll work on fixing things the patch breaks.  I don't think it will be
+that bad.  I've been working on preemption for a long long time, and
+before me others have been working for a long long time, and I just
+don't see the hordes of broken drivers or the tons of race-conditions
+due to per-CPU data.  I have seen some, and I have fixed them.
 
- From my view here, low latency provides a more
-silky feel when e.g. playing RtCW or Q3A -
+For a solution to latency concerns, I'd much prefer to lay a framework
+down that provides a proper solution and then work on fine tuning the
+kernel to get the desired latency out of it.
 
-BTW I have checked out 2.4.18pre2-aa2 and
-am now running 2.4.18-pre3 + mini low latency.
-
-* -aa absolutely kicks major booty in benchmarks.
-
-* -mini-low-latency seems to do no worse than
-stock kernel benchmark-wise, but seems to be
-somehow smoother. I played some mp3s while
-running dbench 16 and heard no hitches. Also
-the RtCW test was successful, e.g. movement
-was fluid and I was victorious in most skirmishes
-with win32 opponents.
-
-Regards,
-
-jjs
-
-
+	Robert Love
 

@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbUB2Tet (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 14:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbUB2Tet
+	id S262124AbUB2Tim (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 14:38:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbUB2Tim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 14:34:49 -0500
-Received: from smtp-out3.blueyonder.co.uk ([195.188.213.6]:39335 "EHLO
-	smtp-out3.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S262117AbUB2Ter (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 14:34:47 -0500
-Message-ID: <40423ED6.5040004@blueyonder.co.uk>
-Date: Sun, 29 Feb 2004 19:34:46 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Hugo Mills <hugo-lkml@carfax.org.uk>
-Subject: Re: Acer Aspire 1501LCe
-References: <40423148.6050600@blueyonder.co.uk> <20040229190239.GA9495@carfax.org.uk>
-In-Reply-To: <20040229190239.GA9495@carfax.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 29 Feb 2004 14:38:42 -0500
+Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:34974 "EHLO
+	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S262124AbUB2Tij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 14:38:39 -0500
+Subject: Re: Linux 2.6 Build System and Binary Modules
+From: Larry Reaves <larry@moonshinecomputers.com>
+To: Robbert Haarman <lkml@inglorion.net>
+Cc: Grzegorz Kulewski <kangur@polcom.net>,
+       kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040229192034.GB8057@shire.sytes.net>
+References: <20040229183143.GA8057@shire.sytes.net>
+	 <Pine.LNX.4.58.0402291940110.22146@alpha.polcom.net>
+	 <20040229192034.GB8057@shire.sytes.net>
+Content-Type: text/plain
+Message-Id: <1078083510.3942.23.camel@tux.moonshinecomputers.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 29 Feb 2004 14:38:30 -0500
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Feb 2004 19:34:46.0353 (UTC) FILETIME=[16752C10:01C3FEFB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugo Mills wrote:
-
->On Sun, Feb 29, 2004 at 06:36:56PM +0000, Sid Boyce wrote:
->  
->
->>Apologies to kernel mailing list. This Athlon-64 laptop is available 
->>here in the UK at quite an attractive price, sold with Windows XP Home, 
->>so fit for repartitioning as a Linux only box if an empty HD isn't an 
->>option. I wonder if anyone has Linux up and running on it or any other 
->>Althon-64 laptop.
->>    
->>
->
->   I don't have one myself, but if you head over to the Debian AMD64
->mailing list[1], or #debian-amd64 on irc.oftc.net, there are a couple
->of people with AMD64 laptops running (or sort-of running) Linux on
->them.
->
->   Don't expect much, though -- it's still early days in the Debian
->camp.
->
->   Hugo.
->
->[1] http://lists.debian.org/debian-amd64/
->
->  
->
-Thanks, I shall have a look over there. SuSE has a 64-bit distro I could 
-buy .... we shall see what problems/success  the debian guys have had.
-Regards
-Sid.
-
+That's were I'm stuck too...
+On Sun, 2004-02-29 at 14:20, Robbert Haarman wrote:
+> On Sun, Feb 29, 2004 at 07:42:45PM +0100, Grzegorz Kulewski wrote:
+> > > How do I get it to link in the .o file, without making it look for the like-named .c file?
+> > 
+> > I do not know if it will help You, but take a look at how makefile of new 
+> > nvidia driver is built... (patches from minion.de or newest driver from 
+> > nvidia.com)
+> 
+> Thanks, I got it now. Now just to see what I can do about missing __generic_copy_to_user and ..._from_user. :-)
+> 
+> ---
+> "One of the common denominators I have found is that expectations rise above that which is expected."
+> 	-- George W. Bush
 -- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+Larry Reaves <larry@moonshinecomputers.com>
 

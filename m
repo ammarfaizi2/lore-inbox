@@ -1,42 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263975AbUF0QbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264061AbUF0QdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263975AbUF0QbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 12:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbUF0QbZ
+	id S264061AbUF0QdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 12:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264076AbUF0QdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 12:31:25 -0400
-Received: from smtp.hia.no ([158.36.178.5]:24515 "EHLO smtp.hia.no")
-	by vger.kernel.org with ESMTP id S263975AbUF0QbX (ORCPT
+	Sun, 27 Jun 2004 12:33:24 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:38317 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S264061AbUF0QdX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 12:31:23 -0400
-Subject: Re: [ACPI] No APIC interrupts after ACPI suspend
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: David Eriksson <david@2good.nu>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-In-Reply-To: <1088268145.14987.248.camel@zion.2good.net>
-References: <1088160505.3702.4.camel@tyrosine>
-	 <1088268145.14987.248.camel@zion.2good.net>
-Content-Type: text/plain
-Date: Sun, 27 Jun 2004 17:27:47 +0100
-Message-Id: <1088353667.5113.1.camel@tyrosine>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Jun 2004 12:33:23 -0400
+Date: Sun, 27 Jun 2004 18:33:20 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: rtc: IRQ 0 is not free.
+In-Reply-To: <Pine.GSO.4.44.0406271719340.11811-100000@math.ut.ee>
+Message-ID: <Pine.LNX.4.58.0406271832350.3328@alpha.polcom.net>
+References: <Pine.GSO.4.44.0406271719340.11811-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-06-26 at 18:42 +0200, David Eriksson wrote:
+Just set:
 
-> Maybe you've found this bug?
-> 
-> http://bugme.osdl.org/show_bug.cgi?id=2643
+CONFIG_HPET_RTC_IRQ=y
 
-Yeah, that one was biting me, but it's not the one causing this bug.
-cat /proc/interrupts shows that the ACPI interrupt is correctly set to
-level triggered, but the ioapic isn't set up correctly so no interrupts
-make it through. The same seems to be true for all other level-triggered
-interrupts.
+to n instead of y.
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+
+Grzegorz Kulewski
 

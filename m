@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129091AbQKVTOI>; Wed, 22 Nov 2000 14:14:08 -0500
+        id <S129150AbQKVTR6>; Wed, 22 Nov 2000 14:17:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129150AbQKVTN5>; Wed, 22 Nov 2000 14:13:57 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:11789
-        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-        id <S129091AbQKVTNs>; Wed, 22 Nov 2000 14:13:48 -0500
-Date: Wed, 22 Nov 2000 10:43:37 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-cc: InClose Drive Bays <inclose@linux-ide.org>
-Subject: Removable Drive Bays, What am I using.
-Message-ID: <Pine.LNX.4.10.10011221034150.31851-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        id <S129765AbQKVTRt>; Wed, 22 Nov 2000 14:17:49 -0500
+Received: from duracef.shout.net ([204.253.184.12]:17681 "EHLO
+        duracef.shout.net") by vger.kernel.org with ESMTP
+        id <S129730AbQKVTRo>; Wed, 22 Nov 2000 14:17:44 -0500
+Date: Wed, 22 Nov 2000 12:48:30 -0600
+From: Michael Elizabeth Chastain <mec@shout.net>
+Message-Id: <200011221848.MAA05565@duracef.shout.net>
+To: jamagallon@able.es, peter@cadcamlab.org
+Subject: Re: beware of dead string constants
+Cc: jakub@redhat.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Jakub Jelinek claims to have fixed this particular bug in the last week
+> or so, although I have not downloaded and compiled recent CVS to verify
+> this.
 
-I have finally gone and picked a drive bay that looks to work well in all
-cases.  It does not appear to have any skew errors that are not inside the
-range of variations.  I just picked up a dozen kits for use.
+I have a compiler from gcc.gnu.org's CVS tree that's only a few days old,
+so I can verify Jakub's claim.
 
-I am working on a proposal to to a one week linux special purchase it
-discounted schedules.  InClose can not handle the direct shipping, but we
-are looking to find one of their distributors to give Linux users an
-advantage.
+It Works For Me (tm).
 
-All questions can be directed to "InClose Drive Bays" <inclose@linux-ide.org>
-and will be forward to the folks inhouse.
+There is a considerable amount of engineering and testing and releasology
+and distribution between "CVS compiler" and "production compiler for
+kernel builds" though.
 
-Regard,
+> and according to Jeff Law, this case is *not* fixed yet.
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+My compiler behaves as Jeff says.
 
-
+Michael Elizabeth Chastain
+<mailto:mec@shout.net>
+"love without fear"
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

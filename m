@@ -1,75 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbUCHNav (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 08:30:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUCHNau
+	id S262485AbUCHNil (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 08:38:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUCHNil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 08:30:50 -0500
-Received: from av1-1-sn3.vrr.skanova.net ([81.228.9.105]:17865 "EHLO
-	av1-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S262377AbUCHNas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 08:30:48 -0500
-Subject: Re: Strange DMA-errors and system hang with Promise 20268
-From: Henrik Persson <nix@syndicalist.net>
-To: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <c2dsha$psd$1@sea.gmane.org>
-References: <1078602426.16591.8.camel@vega>  <c2dsha$psd$1@sea.gmane.org>
-Content-Type: text/plain
-Message-Id: <1078752642.1239.14.camel@vega>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 08 Mar 2004 14:30:43 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Mar 2004 08:38:41 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:50862 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S262485AbUCHNih
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 08:38:37 -0500
+Subject: Re: blk_congestion_wait racy?
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF335311D8.7BCE1E48-ONC1256E51.0049DBF1-C1256E51.004AEA2A@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Mon, 8 Mar 2004 14:38:16 +0100
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 08/03/2004 14:38:18
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-03-07 at 02:05, Mario 'BitKoenig' Holbe wrote:
-> Same here:
-> 
-> Mar  4 01:01:06 darkside kernel: hde: dma_timer_expiry: dma status == 0x21
-> Mar  5 01:02:00 darkside kernel: hde: dma_timer_expiry: dma status == 0x21
-> Mar  6 01:10:22 darkside kernel: hde: dma_timer_expiry: dma status == 0x21
-> 
-> Can you somehow correlate this to start of S.M.A.R.T selftests?
 
-Nope. To this date I wasn't running anything of the sort. I ran a few
-selftest now though.. Nothing happened..
 
-> I suspect it having something to do with 2.4.25 new "One last
-> read after the timeout" in ide-iops.c and accessing the drive
-> while selftest running (possibly especially short selftest).
-> Here, daily at 01:00 smartmontools runs smart short selftests
-> and a bit later the machine hangs.
-> Today, I disabled that job and the machine stays stable.
 
-This happens every now and then.. Sometimes once a week or once a month.
-Sometimes it's once per hour. I can't correlate this behaviour with any
-activity that the box in question is doing (mysql, nfsd)..
 
-> > error another device, but it's allways a device on the promise
-> > controller, fails.
-> 
-> Dito... PDC20269 U133TX2
-> CONFIG_BLK_DEV_PDC202XX_NEW=y
-> 
-> And until now it was always hde connected to the promise
-> controller.
-> 
-> > I've seen this behaviour with 2.4.25, 2.4.24 and 2.4.23 (I think).
-> 
-> My machine did run at least since:
-> Jan 18 09:41:21 darkside kernel: Linux version 2.4.24
-> ...
-> Feb 28 01:43:48 darkside kernel: Linux version 2.4.24
-> Feb 28 04:58:47 darkside kernel: Linux version 2.4.25
-> 
-> First time the problem occured was Mar  4 01:01:06.
+> Gad, that'll make the VM scan its guts out.
+Yes, I expected something like this.
 
-I've had those problems for at least a month. ;/
+> > 2.6.4-rc2 + "fix" with 1 cpu
+> > sys     0m0.880s
+> >
+> > 2.6.4-rc2 + "fix" with 2 cpu
+> > sys     0m1.560s
+>
+> system time was doubled though.
+That would be the additional cost for not waiting.
 
-I just have no clue what's wrong with the damn thing.
+> Nope, something is obviously broken.   I'll take a look.
+That would be very much appreciated.
 
--- 
-Henrik Persson <nix@syndicalist.net>
+> Perhaps with two CPUs you are able to get kswapd and mempig running page
+> reclaim at the same time, which causes seekier swap I/O patterns than with
+> one CPU, where we only run one app or the other at any time.
+>
+> Serialising balance_pgdat() and try_to_free_pages() with a global semaphore
+> would be a way of testing that theory.
+
+Just tried the following patch:
+
+Index: mm/vmscan.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/mm/vmscan.c,v
+retrieving revision 1.45
+diff -u -r1.45 vmscan.c
+--- mm/vmscan.c   18 Feb 2004 17:45:28 -0000    1.45
++++ mm/vmscan.c   8 Mar 2004 13:30:56 -0000
+@@ -848,6 +848,7 @@
+  * excessive rotation of the inactive list, which is _supposed_ to be an LRU,
+  * yes?
+  */
++static DECLARE_MUTEX(reclaim_sem);
+ int try_to_free_pages(struct zone **zones,
+            unsigned int gfp_mask, unsigned int order)
+ {
+@@ -858,6 +859,8 @@
+      struct reclaim_state *reclaim_state = current->reclaim_state;
+      int i;
+
++     down(&reclaim_sem);
++
+      inc_page_state(allocstall);
+
+      for (i = 0; zones[i] != 0; i++)
+@@ -884,7 +887,10 @@
+            wakeup_bdflush(total_scanned);
+
+            /* Take a nap, wait for some writeback to complete */
++           up(&reclaim_sem);
+            blk_congestion_wait(WRITE, HZ/10);
++           down(&reclaim_sem);
++
+            if (zones[0] - zones[0]->zone_pgdat->node_zones < ZONE_HIGHMEM) {
+                  shrink_slab(total_scanned, gfp_mask);
+                  if (reclaim_state) {
+@@ -898,6 +904,9 @@
+ out:
+      for (i = 0; zones[i] != 0; i++)
+            zones[i]->prev_priority = zones[i]->temp_priority;
++
++     up(&reclaim_sem);
++
+      return ret;
+ }
+
+@@ -926,6 +935,8 @@
+      int i;
+      struct reclaim_state *reclaim_state = current->reclaim_state;
+
++     down(&reclaim_sem);
++
+      inc_page_state(pageoutrun);
+
+      for (i = 0; i < pgdat->nr_zones; i++) {
+@@ -974,8 +985,11 @@
+            }
+            if (all_zones_ok)
+                  break;
+-           if (to_free > 0)
++           if (to_free > 0) {
++                 up(&reclaim_sem);
+                  blk_congestion_wait(WRITE, HZ/10);
++                 down(&reclaim_sem);
++           }
+      }
+
+      for (i = 0; i < pgdat->nr_zones; i++) {
+@@ -983,6 +997,9 @@
+
+            zone->prev_priority = zone->temp_priority;
+      }
++
++     up(&reclaim_sem);
++
+      return nr_pages - to_free;
+ }
+
+
+It didn't help. Still needs almost a minute.
+
+blue skies,
+   Martin
 

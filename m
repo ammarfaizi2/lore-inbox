@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269551AbRHMABq>; Sun, 12 Aug 2001 20:01:46 -0400
+	id <S269584AbRHMAB0>; Sun, 12 Aug 2001 20:01:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269583AbRHMABg>; Sun, 12 Aug 2001 20:01:36 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:37136 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S269551AbRHMABY>; Sun, 12 Aug 2001 20:01:24 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM nuisance
-In-Reply-To: <9l5v9a$ha9$1@ns1.clouddancer.com>
-In-Reply-To: <Pine.LNX.4.33.0108121506100.18332-100000@druid.if.uj.edu.pl> <Pine.LNX.4.33L.0108102347050.3530-100000@imladris.rielhome.conectiva> <9l5v9a$ha9$1@ns1.clouddancer.com>
-Reply-To: klink@clouddancer.com
-Message-Id: <20010813000136.8BC4A78628@mail.clouddancer.com>
-Date: Sun, 12 Aug 2001 17:01:36 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+	id <S269583AbRHMABQ>; Sun, 12 Aug 2001 20:01:16 -0400
+Received: from cx552039-a.elcjn1.sdca.home.com ([24.177.44.17]:56743 "EHLO
+	tigger.azure-n-jade.foo") by vger.kernel.org with ESMTP
+	id <S269551AbRHMABE>; Sun, 12 Aug 2001 20:01:04 -0400
+Date: Sun, 12 Aug 2001 17:01:07 -0700 (PDT)
+From: Gregory Ade <gkade@bigbrother.net>
+X-X-Sender: <gkade@tigger.unnerving.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.8 compile error on sparc
+Message-ID: <Pine.LNX.4.31.0108121651250.8416-100000@tigger.unnerving.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In clouddancer.list.kernel, you wrote:
->
->> No.  The problem is that whenever I change something to
->> the OOM killer I get flamed.
->>
->> Both by the people for whom the OOM killer kicks in too
->> early and by the people for whom the OOM killer now doesn't
->> kick in.
->>
->> I haven't got the faintest idea how to come up with an OOM
->> killer which does the right thing for everybody.
->
->How about adding some sort of per-process priority (i.e. a la nice) which
->would determine the order in which they would be OOMed? Then we could
->safely run X with a kigh KillMe and Netscape with an even higher KillMe
->and we would probably avoid the something useing too much memory let's
->kill root's shell...
->
->[i.e. if a lower KillMe proc runs out of memory we kill off the process
->with the highest KillMe using most mem and can safely give this mem to the
->proc which just ran out]
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-Ah, so you kill X because of the high KillMe you've assigned?  I can
-see that this idea quickly leads to dependecies and their problems (if
-I kill X, I therefore have killed all Netscapes too...  but if I kill
-a dhcp, without killing Netscape first, netscape is useless ... blah
-blah blah).
+Hello.  Just downloaded linux-2.4.8.tar.bz2 and tried to build it on my
+SPARCstation 5 running SuSE Linux 7.1 for sparc.
 
+during the build (started with "make dep && make vmlinux && make
+modules"), it dies with the following messages:
 
-If there is insufficient memory for a process, tell it to sit on it
-and spin, especially since : "I haven't got the faintest idea..."
-Stop trying to make up for the sysadmin bozo.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.8/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -m32 -pipe -mno-fpu -fcall-used-g5 -fcall-used-g7    -c -o extable.o extable.c
+extable.c: In function `search_exception_table':
+extable.c:60: `modlist_lock' undeclared (first use in this function)
+extable.c:60: (Each undeclared identifier is reported only once
+extable.c:60: for each function it appears in.)
+make[2]: *** [extable.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.8/arch/sparc/mm'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.8/arch/sparc/mm'
+make: *** [_dir_arch/sparc/mm] Error 2
 
+Are there sparc-specific patches that I need to hunt down still?  I was
+under the impression everything's been merged.
 
--- 
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+Checking the versions of my installed software against the versions
+required as listed in /usr/src/linux/Documents/Changes, everything seems
+up-to-date. I was attempting a fairly all-inclusive build, heavy on the
+modules wherever possible, so as to support all my sparcstations with one
+build.
+
+Any help is appreciated.
+
+- -- 
++---------------------------------------------------------------------------+
+| Gregory K. Ade <gkade@bigbrother.net> | http://bigbrother.net/~gkade      |
++---------------------------------------------------------------------------+
+| GnuPG Key Fingerprint: F4FC CC7D 613D BDBF 5365 E3D0 7905 0460 EAF4 844B  |
++---------------------------------------------------------------------------+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7dxjJeQUEYOr0hEsRAuPdAJ99C9w+slux5ygWRYyUttqMWIoeSACfZ9oc
+fkJxF7OrkRGQQ26z7UuPziY=
+=ronf
+-----END PGP SIGNATURE-----
+
 

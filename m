@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262450AbUBXUj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 15:39:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUBXUiK
+	id S262454AbUBXUoI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 15:44:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbUBXUn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 15:38:10 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:62938 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S262453AbUBXUg4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 15:36:56 -0500
-From: "Nick Warne" <nick@ukfsn.org>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 24 Feb 2004 20:36:53 -0000
-MIME-Version: 1.0
-Subject: Re: 2.6.3 RT8139too NIC problems
-Message-ID: <403BB5E5.17054.156978FE@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Tue, 24 Feb 2004 15:43:56 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:53002 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262454AbUBXUng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 15:43:36 -0500
+Date: Tue, 24 Feb 2004 20:43:27 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Mukker, Atul" <Atulm@lsil.com>
+Cc: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>,
+       "'Paul Wagland'" <paul@wagland.net>, Matthew Wilcox <willy@debian.org>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH][BUGFIX] : megaraid patch for 2.10.1 (irq disable bug fix)
+Message-ID: <20040224204327.A27822@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Mukker, Atul" <Atulm@lsil.com>,
+	'James Bottomley' <James.Bottomley@SteelEye.com>,
+	'Arjan van de Ven' <arjanv@redhat.com>,
+	'Paul Wagland' <paul@wagland.net>,
+	Matthew Wilcox <willy@debian.org>,
+	"Bagalkote, Sreenivas" <sreenib@lsil.com>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+References: <0E3FA95632D6D047BA649F95DAB60E57033BC3DA@exa-atlanta.se.lsil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BC3DA@exa-atlanta.se.lsil.com>; from Atulm@lsil.com on Tue, Feb 24, 2004 at 11:04:21AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Funnily enough, I looked at this at work today and decided to check 
-> against 8139too.c from 2.6.2 and 2.6.3 trees.  There was a lot of 
-> changes, but it appeared only to that file (i.e. nothing referencing 
-> it) - so I have just built 2.6.3 with the 8139too.c source from 2.6.2 
-> just to make sure it isn't code elsewhere (i.e. pci stuff?) that is 
-> causing it.
-> 
-> So far it is running perfectly.  I will wait a while to test, and if 
-> it doesn't show any problems, we can presume it is the changes that 
-> caused this problem for me on my system.
-> 
-> Enquiries to the HantsLUG seem to be that no-one else gets this 
-> problem.
+On Tue, Feb 24, 2004 at 11:04:21AM -0500, Mukker, Atul wrote:
+> The driver package is available in usual location, too big to be inlined :-)
+> ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-unified-2.20.0.0.02.24
+> .2004-alpha1/
 
-This has solved the problem for me.  Please can anyone tell me what 
-details are required to provide a bug report on this strange one off 
-issue, as I wouldn't know where to start.
+James already mentioned the probing issue and looking further through the
+driver there's lots of need for improvement.  I think we should try to get
+2.6 merged up with all the changes from the last unified driver and additional
+fixes posted to the list (e.g. the dma_sync thing, did you have a chance to
+look at it?) so that we have a proben base until we look into it.
 
-To recap:
-
-rtl8139too cards worked on all kernels up until 2.6.3 (like 3 years).
-
-The timeout issues started with 2.6.3 (using make oldconfig)... new 
-settings applied.
-
-Tried lilo 'append="noapic"  -> problem still persisted.
-
-After reading I changed: 2.6.2 source-> 8139too.c to replace new 
-2.6.3 source-> 8139too.c -> rebuilt with same .config.  No timeouts - 
-all hunky dory.
-
-Thanks,
-
-Nick
-
-[root@Linux233 log]# lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C585VP [Apollo 
-VP1/VPX] (rev 23)
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA 
-[Apollo VP] (rev 27)
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 02)
-00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 
-(rev 10)
-00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 
-(rev 10)
-
-
--- 
-"When you're chewing on life's gristle,
-Don't grumble,
-Give a whistle
-And this'll help things turn out for the best."
+P.S. from  a sort look the fusion-based adapters seem to be completely
+different from existing megaraid adapters.  What non-trivial code is
+actually shared?
 

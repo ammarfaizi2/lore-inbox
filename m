@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbTDMQCK (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 12:02:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTDMQCK (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 12:02:10 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:47232 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263540AbTDMQCJ (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 12:02:09 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304131615.h3DGFp7t000811@81-2-122-30.bradfords.org.uk>
-Subject: Re: Benefits from computing physical IDE disk geometry?
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 13 Apr 2003 17:15:51 +0100 (BST)
-Cc: tmiller10@cfl.rr.com (Timothy Miller),
-       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <1050244174.24187.15.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 13, 2003 03:29:34 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id S263546AbTDMQLx (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 12:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbTDMQLx (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 12:11:53 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:1031 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S263546AbTDMQLx (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 12:11:53 -0400
+Date: Sun, 13 Apr 2003 18:23:38 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: lk-changelog.pl 0.96
+Message-ID: <20030413162338.GC22268@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030413104943.433A37EBE4@merlin.emma.line.org> <20030413144218.GB21855@renegade>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030413144218.GB21855@renegade>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So, what if one were to write a program which would perform a bunch of
-> > seek-time tests to estimate an IDE disk's physical geometry?  It could then
-> > make that information available to the kernel to use to reorder accesses
-> > more optimally.
+On Sun, 13 Apr 2003, Zack Brown wrote:
+
+> On Sun, Apr 13, 2003 at 12:49:43PM +0200, Matthias Andree wrote:
+> > This is a semi-automatic announcement.
+> > 
+> > lk-changelog.pl aka. shortlog version 0.96 has been released.
 > 
-> Its a common misconception that a disk looks something like it did 15
-> years ago. Your ATA disk is basically an entire standalone computer 
-> running a small OS. The physical disk layout does not divide neatly 
-> into equal sized cylinders and some blocks may even be in suprising
-> places due to bad block sparing or anything else the drive manufacturer
-> felt appropriate.
+> I think these emails from Alan and Linus actually appear in changelogs.
 
-Is the basic assumption that lower block numbers are generally located
-in zones nearer the outside of the disk still true, though?  I.E. do
-you know of any disks that 'start from the middle'?  I usually
-recommend that people place their swap and /var partitions near the
-beginning of the disk, (for a _slight_ improvement), but maybe there
-is a good reason not to do this for some disks?
-
-John.
+They are caught by the recently added regexp parser and don't need to be
+listed explicitly. If you're running ./lk-changelog.pl --selftest, it'll
+print a list of addresses that are matched by a regexp (the printout
+actually suggests the opposite, but that's an implementation detail;
+these lookups are tuned for speed).

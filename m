@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265851AbTAFC7j>; Sun, 5 Jan 2003 21:59:39 -0500
+	id <S265819AbTAFDCO>; Sun, 5 Jan 2003 22:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265854AbTAFC7j>; Sun, 5 Jan 2003 21:59:39 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:9481 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S265851AbTAFC7j>; Sun, 5 Jan 2003 21:59:39 -0500
-Date: Sun, 05 Jan 2003 20:08:10 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: David Lang <david.lang@digitalinsight.com>
-cc: Paul Rolland <rol@witbe.net>, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.54] Oops IDE-SCSI and failure AIC7xxx
-Message-ID: <446440000.1041822490@aslan.scsiguy.com>
-In-Reply-To: <Pine.LNX.4.44.0301051838180.23962-100000@dlang.diginsite.com>
-References: <Pine.LNX.4.44.0301051838180.23962-100000@dlang.diginsite.com>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+	id <S265830AbTAFDCO>; Sun, 5 Jan 2003 22:02:14 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29457 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265819AbTAFDCN>; Sun, 5 Jan 2003 22:02:13 -0500
+Date: Sun, 5 Jan 2003 22:08:37 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.54 + ACPI] Slow [Was: Re: [2.5.53] So sloowwwww......]
+In-Reply-To: <Pine.LNX.4.33L2.0301051133340.13312-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.3.96.1030105220648.6271C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I get the same 'failed memory mapped' error (and the inability to run 2.5
-> kernels)
+On Sun, 5 Jan 2003, Randy.Dunlap wrote:
 
-The messages and the inability to run 2.5 kernels are not related.  The
-diagnostic prints and the driver falls back to using the "safe" PIO method.
+> Sorry, I was looking at old source code.
+> apm=no-idle isn't in 2.5.54.
 
---
-Justin
+Could whoever removed it comment on either (a) what problem it caused or
+(b) what to use instead? It seems like a reasonable option to avoid
+problems with individual systems.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

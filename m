@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267519AbUBSTyM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 14:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267508AbUBSTux
+	id S267515AbUBSUAS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 15:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267516AbUBSUAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 14:50:53 -0500
-Received: from mail.tmr.com ([216.238.38.203]:2311 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S267512AbUBSTsn (ORCPT
+	Thu, 19 Feb 2004 15:00:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:165 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267515AbUBSUAN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 14:48:43 -0500
-Date: Thu, 19 Feb 2004 14:47:04 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Bas Mevissen <ml@basmevissen.nl>
-cc: "Theodore Ts'o" <tytso@mit.edu>, Jan Dittmer <j.dittmer@portrix.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext3 on raid5 failure
-In-Reply-To: <4034819E.7030004@basmevissen.nl>
-Message-ID: <Pine.LNX.3.96.1040219144500.23912D-100000@gatekeeper.tmr.com>
+	Thu, 19 Feb 2004 15:00:13 -0500
+Date: Thu, 19 Feb 2004 12:04:55 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Tridge <tridge@samba.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Jamie Lokier <jamie@shareable.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
+In-Reply-To: <40351306.1080207@zytor.com>
+Message-ID: <Pine.LNX.4.58.0402191202350.1439@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0402181422180.2686@home.osdl.org>
+ <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org>
+ <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org>
+ <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org>
+ <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org>
+ <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org>
+ <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+ <Pine.LNX.4.58.0402191150120.1270@ppc970.osdl.org> <40351306.1080207@zytor.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Feb 2004, Bas Mevissen wrote:
 
-> Bill Davidsen wrote:
-> > 
-> >> It looks like this only appeared once. The FS looks fine now. So I guess
-> >>  I won't be able to reproduce it. Let's just go to 2.6.[23] and see if
-> >> it happens again.
-> > 
-> > Did this go away on reboot, or did you have to fix it? If it went away
-> > on reboot, it could be that the copy of the inode in memory was borked.
-> > 
+
+On Thu, 19 Feb 2004, H. Peter Anvin wrote:
 > 
-> I really had to fix it. But, it never appeared again until now. So maybe 
-> this was just caused by some crash while experimenting with swsusp2.
+> How about a compomise - super-intelligent complete nincompoop bastard?
 
-Another WAG bites the dust, but at least it's clear that you had damage to
-the metadata on the media. Hopefully that would be useful if it comes back
-to visit again.
+Ok, but in the meantime I think I can save face by saying that you only 
+need two system calls, by simply making a "lseek(fd, 0, SEEK_SET)" 
+implicitly set the first bit. So then the "set second bit if first is set" 
+just becomes a "dcache fill complete" notifier.
 
-Glad you COULD fix it!
+So I'll take half credit.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+		Linus "super-complete bastard" Torvalds

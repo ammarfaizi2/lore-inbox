@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129802AbQLSWRP>; Tue, 19 Dec 2000 17:17:15 -0500
+	id <S129597AbQLSWUF>; Tue, 19 Dec 2000 17:20:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbQLSWRF>; Tue, 19 Dec 2000 17:17:05 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:16134 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129802AbQLSWQ4>; Tue, 19 Dec 2000 17:16:56 -0500
-Date: Tue, 19 Dec 2000 15:41:29 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: David Hinds <dhinds@valinux.com>
-Cc: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
-Subject: Re: PCMCIA modem (v.90 X2) not working with 2.4.0-test12 PCMCIA services
-Message-ID: <20001219154129.A1763@vger.timpanogas.org>
-In-Reply-To: <007101c067cc$0500c620$0b31a3ce@g1e7m6> <20001218154033.C11728@valinux.com> <20001219114614.A12948@valinux.com>
+	id <S129562AbQLSWTz>; Tue, 19 Dec 2000 17:19:55 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:59003
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129525AbQLSWTi>; Tue, 19 Dec 2000 17:19:38 -0500
+Date: Tue, 19 Dec 2000 22:49:04 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Torben Mathiasen <torben@kernel.dk>
+Cc: Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] Converting drivers/net/rcpci45.c to new PCI API
+Message-ID: <20001219224904.D639@jaquet.dk>
+In-Reply-To: <20001219004604.B761@jaquet.dk> <20001219095906.A5764@se1.cogenit.fr> <20001219220530.A1643@torben>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001219114614.A12948@valinux.com>; from dhinds@valinux.com on Tue, Dec 19, 2000 at 11:46:14AM -0800
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20001219220530.A1643@torben>; from torben@kernel.dk on Tue, Dec 19, 2000 at 10:05:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2000 at 11:46:14AM -0800, David Hinds wrote:
-> On Sat, Dec 16, 2000 at 05:52:30PM -0800, Miles Lane wrote:
-> > 
-> > Socket 1:
-> >     product info: "PCMCIA", "V.90 Communications Device ", "", ""
-> >     manfid: 0x018a, 0x0001
+On Tue, Dec 19, 2000 at 10:05:30PM +0100, Torben Mathiasen wrote:
 > 
-> Now I have another report of this card not working, under 2.2.
-> Perhaps it is a Winmodem?
+> You should release the irq when the adapter is closed, not removed,
+> unless there's some special case that can't be handled if you take
+> ints during init.
+
+You seem to be right. I have moved the free_irq to the close function.
+
 > 
-> -- Dave
-> -
+> And why would you unregister your netdev after releasing resources?
+> 
 
-David, 
+Instead of doing it before? Beats me :) I merely/blindly copied the 
+existing sequence, but after RTFS'ing I changed the sequence to:
 
-On a related topic, the 3c575_cb driver on an IBM Thinkpad 765D is getting
-tx errors on the 2.2.18 kernel with PCMCIA services 3.1.22.
+	unregister_netdev(dev);
+	iounmap((void *)dev->base_addr);
+	kfree(dev);
 
-Card is a 3Com 3CCFE575BT Cyclone Cardbus Adapter.
+Thank you for your comments.
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-Error is:
-
-eth0:  transmit timed out, tx_status 00 status e000.
-  diagnostics net 0cc2 media a800 dma 000000a0
-
-Windows NT 4 and W2K work flawlessly with the same hardware setup, and have
-for about 1 year.
-
-Jeff
-
-
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Freedom of the press is limited to those who own one.
+                                 - A.J. Liebling 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272123AbTGYOXV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 10:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272124AbTGYOXV
+	id S272124AbTGYOYg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 10:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272125AbTGYOYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 10:23:21 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:8909 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272123AbTGYOXT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 10:23:19 -0400
-Date: Fri, 25 Jul 2003 09:38:09 -0500
-Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: "J.A. Magallon" <jamagallon@able.es>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David McCullough <davidm@snapgear.com>, uclinux-dev@uclinux.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ihar Philips Filipau <filia@softhome.net>
-To: Otto Solares <solca@guug.org>
-From: Hollis Blanchard <hollisb@us.ibm.com>
-In-Reply-To: <20030725042235.GA7777@guug.org>
-Message-Id: <9CA735B0-BEAD-11D7-BEDE-000A95A0560C@us.ibm.com>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+	Fri, 25 Jul 2003 10:24:36 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:21890 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272124AbTGYOYe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 10:24:34 -0400
+Date: Fri, 25 Jul 2003 07:39:33 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Ga?l Le Mignot <kilobug@freesurf.fr>
+Cc: Larry McVoy <lm@bitmover.com>,
+       Leandro Guimar?es Faria Corsetti Dutra 
+	<lgcdutra@terra.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Switching to the OSL License, in a dual way.
+Message-ID: <20030725143933.GA13840@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Ga?l Le Mignot <kilobug@freesurf.fr>, Larry McVoy <lm@bitmover.com>,
+	Leandro Guimar?es Faria Corsetti Dutra <lgcdutra@terra.com.br>,
+	linux-kernel@vger.kernel.org
+References: <pan.2003.07.24.18.06.06.546220@terra.com.br> <Pine.LNX.4.10.10307241256360.16098-100000@master.linux-ide.org> <pan.2003.07.24.21.05.40.969654@terra.com.br> <20030724215744.GA7777@work.bitmover.com> <plopm3wue72alp.fsf@drizzt.kilobug.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <plopm3wue72alp.fsf@drizzt.kilobug.org>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, Jul 24, 2003, at 23:22 US/Central, Otto Solares wrote:
+On Fri, Jul 25, 2003 at 11:56:34AM +0200, Ga?l Le Mignot wrote:
+> 
+>  >   BK  already   provides   more   than  enough   in   the  way   of
+>  > interoperability,  both on  the way  in and on  the way  out.  It's
+>  > trivial to get your data out  of BK as well as your metadata.  It's
+>  > a small perl  script to get all the info out  and plop it into some
+>  >  other  system, we're  much  better about  that  than  any free  or
+>  > commercial system.
+> 
+> And MS  Word allows to  export data in  plain text or html.
 
-> On Thu, Jul 24, 2003 at 11:20:00PM +0200, J.A. Magallon wrote:
->> Or you just define must_inline, and let gcc inline the rest of 
->> 'inlines',
->> based on its own rule of functions size, adjusting the parameters
->> to gcc to assure (more or less) that what is inlined fits in cache of
->> the processor one is building for...
->> (this can be hard, help from gcc hackers will be needed...)
->
-> IMO just a CONFIG_INLINE_FUNCTIONS will work, if you
-> want to conserve space in detriment of speed simply
-> don't select this option, else you have speed but
-> a big kernel.
+Which is a lossy export.  Of course reverse engineering of Word is allowed,
+you didn't get all your data.  You can get *all* of your data out of BK,
+by definition.  BK can start with the data it exports and rebuild the 
+revision history.  So can you.  So you are needlessly arguing.
 
-Inlines don't always help performance (depending on cache sizes, branch 
-penalties, frequency of code access...), but they do always increase 
-code size.
+> This is  exactly the  same. As  long as there  is a  data format  or a
+> protocol involved,  European laws allow users to  reverse engineer it,
+> to  be  able to  create  another program  using  the  same format  and
+> protocols. 
 
-I believe the point Alan was trying to make is not that we should have 
-more or less inlines, but we should have smarter inlines. I.E. don't 
-just inline a function to "make it fast"; think about the implications 
-(and ideally measure it, though I think that becomes problematic when 
-so many other factors can affect the benefit of a single inlined 
-function). The specific example he gave was inlining code on the fast 
-path, while accepting branch/cache penalties for non-inlined code on 
-the slow path.
-
+Really?  Show me that law please.
 -- 
-Hollis Blanchard
-IBM Linux Technology Center
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

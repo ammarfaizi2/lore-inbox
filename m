@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264908AbUFCQCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265515AbUFCQCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264908AbUFCQCN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 12:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265233AbUFCP6t
+	id S265515AbUFCQCz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 12:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265233AbUFCQCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 11:58:49 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:59658 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S264908AbUFCPzx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 11:55:53 -0400
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: "Frediano Ziglio" <freddyz77@tin.it>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x partition breakage and dual booting
-References: <40BA2213.1090209@pobox.com> <20040603103907.GV23408@apps.cwi.nl>
-	<s5gaczkwvg8.fsf@patl=users.sf.net>
-	<200406031732.10919.bzolnier@elka.pw.edu.pl>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5g1xkwveuu.fsf@patl=users.sf.net>
-Date: 03 Jun 2004 11:55:51 -0400
-In-Reply-To: <200406031732.10919.bzolnier@elka.pw.edu.pl>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 3 Jun 2004 12:02:16 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27659 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265554AbUFCQBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 12:01:44 -0400
+Date: Thu, 3 Jun 2004 17:01:37 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Export swapper_space
+Message-ID: <20040603170137.E8244@flint.arm.linux.org.uk>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <20040603161909.D8244@flint.arm.linux.org.uk> <20040603153727.GA17798@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040603153727.GA17798@infradead.org>; from hch@infradead.org on Thu, Jun 03, 2004 at 04:37:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> writes:
-
-> > So one approach is to leave HDIO_GETGEO alone, and to have a
-> > userspace gadget run early to "fix" the kernel's notion of the
-> > geometry.  This would avoid the need to rewrite every partitioning
-> > tool.
+On Thu, Jun 03, 2004 at 04:37:27PM +0100, Christoph Hellwig wrote:
+> On Thu, Jun 03, 2004 at 04:19:10PM +0100, Russell King wrote:
+> > swapper_space appears to be needed by modules:
+> > 
+> >   Building modules, stage 2.
+> >   MODPOST
+> > *** Warning: "swapper_space" [drivers/block/loop.ko] undefined!
+> > *** Warning: "swapper_space" [drivers/scsi/st.ko] undefined!
+> > *** Warning: "swapper_space" [drivers/scsi/sg.ko] undefined!
 > 
-> This is a bandaid not a solution and it is just silly (you push
-> some values into kernel just to read them back by user-space).
+> Please not.  This seems to be some cache-flushing magic on the stranger
+> architectures again :)  Can you check how they're using it in the end
+> and hopefully fix it by uninlining something?
 
-It might be silly if we were designing all this from scratch.  But in
-the context of current practice and current tools, it is not so
-obvious, at least to me.  HDIO_GETGEO has existed forever, and it is
-used by all current partitioning tools (and some non-partitioning
-tools, such as dosemu).
+extern struct address_space swapper_space;
+static inline struct address_space *page_mapping(struct page *page)
+{
+        struct address_space *mapping = NULL;
+ 
+        if (unlikely(PageSwapCache(page)))
+                mapping = &swapper_space;
+        else if (likely(!PageAnon(page)))
+                mapping = page->mapping;
+        return mapping;
+}
 
-> Also what if kernel is compiled with CONFIG_PROC_FS=n
-> or if I decide to pull out /proc/ide/hdx/settings one day?
+I'll leave that for someone else to sort out.
 
-Then my code will break.  :-)
-
-I have no theoretical objection to eliminating HDIO_GETGEO and
-/proc/ide/hdx/settings.  But it would be polite to have a nice long
-deprecation period because these interfaces ARE in use.  It is the
-only way to use Parted for my application, for example.
-
- - Pat
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

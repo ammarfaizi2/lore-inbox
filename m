@@ -1,65 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288981AbSAZBIQ>; Fri, 25 Jan 2002 20:08:16 -0500
+	id <S288976AbSAZBQr>; Fri, 25 Jan 2002 20:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288978AbSAZBIH>; Fri, 25 Jan 2002 20:08:07 -0500
-Received: from ww.olm.fr ([212.43.237.40]:16900 "EHLO www.olm.fr")
-	by vger.kernel.org with ESMTP id <S288980AbSAZBH4>;
-	Fri, 25 Jan 2002 20:07:56 -0500
-Date: Sat, 26 Jan 2002 02:07:45 +0100
-Message-Id: <200201260107.CAA29227@www.olm.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Nouvelles acquisitions / New online
-From: "AaZbooks.com" <aazmace@aazbooks.com>
-Reply-To: <aazmace@aazbooks.com>
+	id <S288982AbSAZBQh>; Fri, 25 Jan 2002 20:16:37 -0500
+Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:62365 "HELO
+	mail.thock.com") by vger.kernel.org with SMTP id <S288975AbSAZBQX>;
+	Fri, 25 Jan 2002 20:16:23 -0500
+Message-ID: <3C52039C.7080901@thock.com>
+Date: Fri, 25 Jan 2002 19:17:16 -0600
+From: Dylan Griffiths <dylang@thock.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Loki Games
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Sorry about the accidental post.  I clicked the wrong address book entry in 
+my hast to educate my LUG about something I found interesting.
+-- 
+     www.kuro5hin.org -- technology and culture, from the trenches.
+                          -=-=-=-=-=-
+Those that give up liberty to obtain safety deserve neither.
+  -- Benjamin Franklin
+   http://www.zdnet.com/zdnn/stories/news/0,4586,2812463,00.html
+   http://slashdot.org/article.pl?sid=01/09/16/1647231
+                          -=-=-=-=-=-
 
-
-Chers bibliophiles,
-
-Cette semaine nous vous proposons nos nouvelles acquisitions (plus de 500). Vous y trouverez par exemple:
-
-SAINTE BEUVE C.A.
-MADAME DESBORDES VALMORE SA VIE ET SA CORRESPONDANCE
-Edition originale (rare). Ouvrage contenant un catalogue de Michl Lévy, libraire éditeur, de 36 p.Broché.IN8. LEVY Paris 1870 
-Réf.: 18337 (107,00 €)
-
-ou bien encore:
-
-FALLET RENE
-BANLIEUE SUD EST
-Roman. Edition originale (rare). DOMAT Paris 1947
-Réf.: 18313 (45,00 €)
-
-En vous souhaitant bonne lecture
-
-Toute l'équipe de AaZbooks.com
-
--------------------------------------------------------
-Dear bibliophiles,
-
-This week new online 500 books, for example:
-
-SAINTE BEUVE C.A.
-MADAME DESBORDES VALMORE SA VIE ET SA CORRESPONDANCE
-Edition originale (rare). Ouvrage contenant un catalogue de Michl Lévy, libraire éditeur, de 36 p.Broché.IN8. LEVY Paris 1870 
-Réf.: 18337 (107,00 €)
-
-FALLET RENE
-BANLIEUE SUD EST
-Roman. Edition originale (rare). DOMAT Paris 1947
-Réf.: 18313 (45,00 €)
-
-Regards
-
-AaZbooks' Team
-
- ----------------------------------------------------------
-AaZbooks.com - BP N°1 - La grande Bruyère - F72320 St-Maixent
-Tel.: +33 (0)2 43 71 00 70  - Fax: +33 (0)2 43 71 29 16 
-http://www.aazbooks.com 
- ----------------------------------------------------------
-Pour vous désinscrire cliquez ci-dessous 
-http://www.aazbooks.com\lnews\desinscription.php

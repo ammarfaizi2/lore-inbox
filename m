@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265784AbUGZUSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUGZUUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265784AbUGZUSo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 16:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265777AbUGZUSo
+	id S265909AbUGZUUr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 16:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265777AbUGZUSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 16:18:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10918 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265872AbUGZTi3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 15:38:29 -0400
-Date: Mon, 26 Jul 2004 12:37:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: kladit@t-online.de (Klaus Dittrich)
-Cc: linux-kernel@vger.kernel.org, kladit@t-online.de
-Subject: Re: dentry cache leak? Re: rsync out of memory 2.6.8-rc2
-Message-Id: <20040726123702.222ae654.akpm@osdl.org>
-In-Reply-To: <20040726150615.GA1119@xeon2.local.here>
-References: <20040726150615.GA1119@xeon2.local.here>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 26 Jul 2004 16:18:50 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:42133 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265879AbUGZThe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 15:37:34 -0400
+Subject: Re: bug with multiple mounts of filesystems in 2.6
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: John S J Anderson <jacobs@genehack.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <86oem2hgv8.fsf@mendel.genehack.org>
+References: <86oem2hgv8.fsf@mendel.genehack.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1090870651.6809.62.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 26 Jul 2004 15:37:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kladit@t-online.de (Klaus Dittrich) wrote:
->
-> >Can you narrow the onset of the problem down to any particular kernel
->  >snapshot?
+På må , 26/07/2004 klokka 12:29, skreiv John S J Anderson:
+>   Hi --
 > 
->  Did it and here is the answer.
-> 
->  kernel-2.6.7 and bk's up to 2.6.7-bk7 survived a du -s,
->  kernels starting with 2.6.7-bk8 did not.
+>   We're working on migrating to the 2.6 kernel series, and one big
+>   problem has popped up: we have a number of NFS mounts that are
+>   mounted read-only in one location and read-write in a distinct
+>   location (on the same machine). With 2.4 series kernels, this worked
+>   without issue, but with 2.6, it doesn't: it's not possible to mount
+>   the same filesystem twice with different options for each mount; the
+>   two mount points have to share the same mount options.
 
-Dammit, -bk7 to -bk8 is a 1.8M diff.  Relevant changes include the switch
-to the rcu callbacks (make them take an rcu_head* rather than a void*) and
-the introduction of /proc/sys/vm/vfs_cache_pressure.
+That behaviour is no longer supported as it meant that you would have
+different superblocks (and hence different out-of-sync caches) between
+the 2 mountpoint. It is in any case not a behaviour that is supported on
+any other Linux filesystems.
 
-So the immediate question is: please check the contents of your
-vfs_cache_pressure tunable.  It should be 100.  A setting of zero would
-cause this behaviour.
+If you want readonly to be an exception, then you will have to move the
+MS_RDONLY flag from being a superblock option to being a vfsmount
+option, then propagate that vfsmount information down to all the tests
+of IS_RDONLY(inode). Not a trivial task, and not one that looms high on
+my list of priorities...
 
-> 
->  Compiler gcc-3.4.1 
-
-It would be useful to try a different compiler version.
-
-There's _something_ different in your setup.  If we can work out what this
-factor is, it will lead us to the bug.
-
+Cheers,
+  Trond

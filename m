@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131236AbRDCU0L>; Tue, 3 Apr 2001 16:26:11 -0400
+	id <S132682AbRDCUrO>; Tue, 3 Apr 2001 16:47:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132670AbRDCU0D>; Tue, 3 Apr 2001 16:26:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27910 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131236AbRDCUZw>;
-	Tue, 3 Apr 2001 16:25:52 -0400
-Date: Tue, 3 Apr 2001 21:24:49 +0100
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-To: Vladimir Serov <vserov@infratel.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
-Subject: Re: 2.4.2,3 nbd problem, works OK in 2.4.2-ac20,28
-Message-ID: <20010403212449.D22569@flint.arm.linux.org.uk>
-In-Reply-To: <3AC9BF03.AC0A6661@infratel.com>
-Mime-Version: 1.0
+	id <S132692AbRDCUrE>; Tue, 3 Apr 2001 16:47:04 -0400
+Received: from denise.shiny.it ([194.20.232.1]:1803 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S132682AbRDCUqy>;
+	Tue, 3 Apr 2001 16:46:54 -0400
+Message-ID: <3AC8BEC7.CC5AA019@denise.shiny.it>
+Date: Mon, 02 Apr 2001 20:02:47 +0200
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2 ppc)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Earle Nietzel <nietzel@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Minor 2.4.3 Adaptec Driver Problems
+In-Reply-To: <003001c0ba23$217f81c0$1401a8c0@nietzel>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AC9BF03.AC0A6661@infratel.com>; from vserov@infratel.com on Tue, Apr 03, 2001 at 04:16:04PM +0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 03, 2001 at 04:16:04PM +0400, Vladimir Serov wrote:
-> Unfortunately the details of handling these requests aren't clear for me
-> and it's not simple to use Alan Cox patches on ARM cause there not
-> supported by Russell King and other people in ARM community (I mean no
-> patches again -acxx kernels) and i'm already overloaded by various beta
-> and alpha software.
 
-I'll look into the possibility of rooting out the fix in the -ac tree (if
-any) tomorrow and dropping it into the next ARM tree.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |        Russell King       linux@arm.linux.org.uk      --- ---
-  | | | |            http://www.arm.linux.org.uk/            /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+> I just got 2.4.3 up a running (on Abit BP6 Dual Celeron ) and
+> it reorderd my SCSI id's. Take a look. I don't like that my ZIP drive
+> becomes sda because if I ever remove it then I'll @#$% my harddrive dev
+> mappings again and have to change them again. Adaptec Driver 6.1.5
+> :-(
+
+That's what ext2 volume labels are for.
+
+
+Bye.
+

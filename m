@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261746AbSI2TEE>; Sun, 29 Sep 2002 15:04:04 -0400
+	id <S261751AbSI2TYP>; Sun, 29 Sep 2002 15:24:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261748AbSI2TEE>; Sun, 29 Sep 2002 15:04:04 -0400
-Received: from ns.suse.de ([213.95.15.193]:26886 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261746AbSI2TED>;
-	Sun, 29 Sep 2002 15:04:03 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
-References: <20020929152731.GA10631@averell.suse.lists.linux.kernel> <20020929182643.C8564@infradead.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 29 Sep 2002 21:09:26 +0200
-In-Reply-To: Christoph Hellwig's message of "29 Sep 2002 19:31:26 +0200"
-Message-ID: <p733crssjdl.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S261752AbSI2TYP>; Sun, 29 Sep 2002 15:24:15 -0400
+Received: from gate.perex.cz ([194.212.165.105]:22800 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S261751AbSI2TYN>;
+	Sun, 29 Sep 2002 15:24:13 -0400
+Date: Sun, 29 Sep 2002 21:28:48 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Arjan van de Ven <arjanv@fenrus.demon.nl>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ALSA update [6/10] - 2002/07/20
+In-Reply-To: <1033326744.2419.9.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0209292120171.591-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+On 29 Sep 2002, Arjan van de Ven wrote:
 
-> On Sun, Sep 29, 2002 at 05:27:31PM +0200, Andi Kleen wrote:
-> > -extern pgd_t *pgd_alloc(struct mm_struct *);
-> > +extern pgd_t *pgd_alloc(struct mm_struct *) malloc_function;
+> On Sun, 2002-09-29 at 20:51, Jaroslav Kysela wrote:
+> > +	sgbuf = snd_magic_cast(snd_pcm_sgbuf_t, substream->dma_private, return -EINVAL);
 > 
-> Anz chance you could make that __malloc?  That how the other
-> atrributes in the kernel (e.g. __init/__exit) work.
+> hummmm magic casts?? why ?
 
-No.
+We are trying to check if 'void *' pointers in structures are used 
+correctly. It's our tool for debugging.
 
+> > +		ptr = snd_malloc_pci_pages(sgbuf->pci, PAGE_SIZE, &addr);
 > 
-> > +/* Function allocates new memory and return cannot alias with anything */
-> > +#define malloc_function __attribute__((malloc))
-> > +/* Never inline */
-> > +#define noinline __attribute__((noinline))
-> > +#else
-> > +#define malloc_function
-> > +#define noinline
-> > +#endif
+> what is wrong with the PCI DMA API that makes ALSA wants a private
+> interface/implementation ?
+
+These lines (i386 arch):
+
+        if (hwdev == NULL || ((u32)hwdev->dma_mask != 0xffffffff))
+                gfp |= GFP_DMA;
+        ret = (void *)__get_free_pages(gfp, get_order(size));
+
+Note that some of soundcards have various PCI DMA transfer limits 
+(dma_mask is not set to use full 32-bits). In this case, restricting this 
+hardware to allocate these buffers in first 16MB is not a very good idea.
+Thus, we have own hacks to allocate memory in whole hardware area.
+
+> >  EXPORT_SYMBOL(snd_wrapper_kmalloc);
+> >  EXPORT_SYMBOL(snd_wrapper_kfree);
+> > +EXPORT_SYMBOL(snd_wrapper_vmalloc);
+> > +EXPORT_SYMBOL(snd_wrapper_vfree);
 > 
-> Dito for __noinline?  And IMHO compiler.h is the better place for this.
+> why do you need a wrapper for vfree? 
 
-Because I dislike all the __. It's just useless visual clutter and doesn't 
-follow the usual convention of prefixing only low level functions with this.
-Also now that the kernel has given up on ANSI/POSIX name space cleanliness
-it is double plus useless.
+Debugging. We enumerate all allocations, so we can check for memory leaks.
+I'm happy to say, that our code is very well debugged in this regard.
 
-Same thing for __get_cpu_var for example. The __ is completely useless.
+						Jaroslav
 
-I will move it into linux/compiler.h to add some more clutter to include hell,
-because it requires even more #include <linux/compiler.h>
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 
-> BTW, do you have any stats on the better optimization?
-
-With this it sings twice as loud and dances twice and a half times as fast.
-
-No, with gcc 3.2 it doesn't seem to make much difference.
-
-More important is that will allow better optimization by gcc in the future.
-In kernel land the gcc optimizer is already a bit crippled because of 
-the -fno-strict-aliasing use. This will hopefully help a bit.
-
--Andi

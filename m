@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132044AbRDDTd7>; Wed, 4 Apr 2001 15:33:59 -0400
+	id <S132049AbRDDTkA>; Wed, 4 Apr 2001 15:40:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132042AbRDDTdu>; Wed, 4 Apr 2001 15:33:50 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:9089 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S132038AbRDDTdg>; Wed, 4 Apr 2001 15:33:36 -0400
-Date: Wed, 4 Apr 2001 15:30:15 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Frank Cornelis <Frank.Cornelis@rug.ac.be>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.3 crashed my hard disk
-In-Reply-To: <Pine.GSO.4.10.10104042028270.13922-100000@eduserv2.rug.ac.be>
-Message-ID: <Pine.LNX.3.95.1010404145007.30656A-100000@chaos.analogic.com>
+	id <S132046AbRDDTjv>; Wed, 4 Apr 2001 15:39:51 -0400
+Received: from denise.shiny.it ([194.20.232.1]:32004 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S132042AbRDDTjj>;
+	Wed, 4 Apr 2001 15:39:39 -0400
+Message-ID: <3ACB7883.3DEBAD6A@denise.shiny.it>
+Date: Wed, 04 Apr 2001 21:39:47 +0200
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John William <jw2357@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2048 byte/sector problems with kernel 2.4
+In-Reply-To: <F38vnbEG10Gai4omRXf000005a9@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Apr 2001, Frank Cornelis wrote:
 
-> Hey,
-> 
-> After I did put in /etc/sysconfig/harddisks 
-> 	USE_DMA=1
-> my system did crash very badly, I guess after my hard disks did wake up
-[SNIPPED...]
+> >There WERE direct overwrite media for a while that would, in theory, be
+> >able to write the data directly, but a combination of high cost, >limited
+> >sources, and strong questions about the permanence of the recorded data
+> >severely limited the demand for these and I think that they have been
+> >withdrawn.
 
+I have 2 OW disks and they work just fine. According to specs their
+reliability is the same as nornal MO disks.
 
-> 
-> BTW: my motherboard runs at 112 Mhz, overclocked, was 100 Mhz.
-> Been running this configuration over more than 2 years now without such
-> major problems.
-> Could this be the cause?
-> 
-> Frank.
+> No, direct overwrite disks are expensive, but they are still available. I do
+> not know of any, and have not heard of any problems related to direct
+> overwrite technology. For some reason M/O never really caught on in the US,
+> and the high price of direct overwrite disks is what seems to be killing
+> them off. I have a bunch I use for backup and have never had any problems.
 
-Please don't ever report any errors to linux-kernel if you are running
-your machine over-clocked. All you need is to fetch ONE bad instruction
-and you can evaporate ALL the data on ALL your hard disks. Think what
-happens if a pointer to a structure containing the not-yet-written
-to disk blocks gets adjusted to point so some spent email buffer.
+RW CDs killed almost all removables.
 
+And about 2KB sectors related problems, I confirm what I wrote in my previous
+message: I have no problems. 640MB and 1.3GB both work fine here.
 
-Cheers,
-Dick Johnson
+(kernel 2.4.3, old aic7xxx driver, adaptec 2930CU, Fujitsu GigaMO, PowerPC
+750)
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Bye.

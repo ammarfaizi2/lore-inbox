@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137159AbRATGt7>; Sat, 20 Jan 2001 01:49:59 -0500
+	id <S136725AbRATGts>; Sat, 20 Jan 2001 01:49:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137184AbRATGts>; Sat, 20 Jan 2001 01:49:48 -0500
-Received: from mail3.mia.bellsouth.net ([205.152.144.15]:4283 "EHLO
-	mail3.mia.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S137159AbRATGth>; Sat, 20 Jan 2001 01:49:37 -0500
-Message-ID: <3A68EEA7.1A806E6C@bellsouth.net>
-Date: Sat, 20 Jan 2001 01:49:27 +0000
-From: Albert Cranford <ac9410@bellsouth.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre9 i586)
+	id <S137169AbRATGti>; Sat, 20 Jan 2001 01:49:38 -0500
+Received: from mtiwmhc24.worldnet.att.net ([204.127.131.49]:60545 "EHLO
+	mtiwmhc24.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S136725AbRATGt0>; Sat, 20 Jan 2001 01:49:26 -0500
+Message-ID: <3A69361F.EBBE76AA@att.net>
+Date: Sat, 20 Jan 2001 01:54:23 -0500
+From: Michael Lindner <mikel@att.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: 2.4.1-pre9 fails to compile drm r128 as module
+To: Dan Maas <dmaas@dcine.com>, linux-kernel@vger.kernel.org,
+        Chris Wedgwood <cw@f00f.org>
+Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data   
+ available
+In-Reply-To: <fa.nc2eokv.1dj8r80@ifi.uio.no> <fa.dcei62v.1s5scos@ifi.uio.no> <015e01c082ac$4bf9c5e0$0701a8c0@morph>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.1-pre9 changes to drivers/char/drm/drm.h are incorrect.
-Please reverse this small change to compile correctly.
+Dan Maas wrote:
+> 
+> > OK, if this is the case, how do I alter the scheduling class?
+> 
+> man sched_setscheduler
+> 
+> Set SCHED_FIFO or SCHED_RR; you'll need to be root to do this AFAIK.
+> 
+> I do agree though, Linux's scheduler (for SCHED_OTHER processes) is much
+> less "ruthless" than, say, the NT scheduler. It's based on slowly-decaying
+> priorities; unlike in other systems, a high-priority process won't
+> necessarily pre-empt a low-priority process immediately after waking up.
+> 
+> Another, less drastic thing to try is simply to increase the number of timer
+> interrupts per second (and thus the frequency at which scheduling decisions
+> are made) - see "#define HZ" in include/asm/param.h (you'll need to
+> recompile the kernel and all modules after changing it). The default for
+> Intel systems is 100, but I routinely tweak it to 1000. You could probably
+> go even higher without ill effects.
 
-r128_drv.c:124: `DRM_IOCTL_R128_PACKET' undeclared here (not in a function)
-r128_drv.c:124: nonconstant array index in initializer for `r128_ioctls'
-make[3]: *** [r128_drv.o] Error 1
-make[2]: *** [_modsubdir_drm] Error 2
-make[1]: *** [_modsubdir_char] Error 2
+Kernel mods are less drastic than a system call? :^)
 
---- linux-2.4.1-pre9/drivers/char/drm/drm.h.orig        Sat Jan 20 00:43:11 2001
-+++ linux/drivers/char/drm/drm.h        Sat Jan 20 00:49:17 2001
-@@ -382,7 +382,7 @@
- #define DRM_IOCTL_R128_BLIT            DRM_IOW( 0x4c, drm_r128_blit_t)
- #define DRM_IOCTL_R128_DEPTH           DRM_IOW( 0x4d, drm_r128_depth_t)
- #define DRM_IOCTL_R128_STIPPLE         DRM_IOW( 0x4e, drm_r128_stipple_t)
--#define DRM_IOCTL_R128_INDIRECT                DRM_IOWR(0x4f, drm_r128_indirect_t)
-+#define DRM_IOCTL_R128_PACKET          DRM_IOWR(0x4f, drm_r128_packet_t)
- 
- /* Radeon specific ioctls */
- #define DRM_IOCTL_RADEON_CP_INIT       DRM_IOW( 0x40, drm_radeon_init_t)
--- 
-Albert Cranford Deerfield Beach FL USA
-ac9410@bellsouth.net
+Reading the documentation for sched_setscheduler, it's unclear whether
+it would even suffice - it seems to deal with preempting other
+processes. I am not trying to get into the run queue ahead of other
+processes, the machine is sitting there IDLE and my process is still not
+getting to run for a full clock tick.
+
+You know, there's one other possibility, and that's if the data that is
+being sent isn't actually arriving until the next clock tick, which
+means the delay is in the appearance of sent data, not in select().
+Given that the two processes are on the same machine, I would expect a
+send() on a TCP socket to deliver the data to its destination faster
+than that, however.
+
+--
+Mike Lindner
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

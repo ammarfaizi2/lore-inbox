@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbTJETel (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 15:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbTJETel
+	id S263801AbTJETvA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 15:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTJETvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 15:34:41 -0400
-Received: from gaia.cela.pl ([213.134.162.11]:55563 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S263803AbTJETek (ORCPT
+	Sun, 5 Oct 2003 15:51:00 -0400
+Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:47791
+	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with SMTP id S263801AbTJETu6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 15:34:40 -0400
-Date: Sun, 5 Oct 2003 21:32:00 +0200 (CEST)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Andre Hedrick <andre@linux-ide.org>, Rob Landley <rob@landley.net>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-In-Reply-To: <1065378470.3157.146.camel@imladris.demon.co.uk>
-Message-ID: <Pine.LNX.4.44.0310052120440.12277-100000@gaia.cela.pl>
+	Sun, 5 Oct 2003 15:50:58 -0400
+Message-ID: <3F807621.9070702@tupshin.com>
+Date: Sun, 05 Oct 2003 12:50:57 -0700
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6a) Gecko/20030924
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test6 happiness
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You are so young and fresh to the game, it is cute.
-> 
-> http://www.gcom.com/home/support/whitepapers/linux-gnu-license.html
+I just wanted to give a *very* positive report about stock test6. In so 
+many ways, it's a giant step forward for me.
 
-Can a module even be considered LGPL?  After all a module interfaces with
-the kernel via including files from the kernel source - doesn't this
-automatically mean that it is a derived work of at least a few of the
-kernel headers (the module specific ones for example).  These headers
-contribute code to the module as well: INC_MOD_USE_COUNT and the like...
-And since the kernel is GPLed doesn't this mean that the entire module is
-GPLed?
+1) 7 days of uptime (and counting) on a moderately loaded server running 
+lvm2,xfs,nfs, and a whole bunch of services. Previous 2.5/2.6 record (up 
+through test5)  was 2 1/2 days before any one of a variety of exceptions 
+would occur. (Athlon XP system)
 
-On the other hand any running program on linux dynamically links (via 
-syscalls) against the kernel... I think everyone agrees that dynamically 
-linking against the kernel in this manner should be allowed and not a 
-violation of the GPL of the kernel source...
+2) Dramatically improved desktop interactivity, with no audio glitching. 
+(Different Athlon XP system)
 
+3) Fully functional Dell Inspiron laptop (P3). This is the first time I 
+have ever been able to boot this machine without disabling ACPI in the 
+kernel(2.4.x included). I've also had many problems with 802.11b 
+wireless pcmcia on this laptop, but it too works fine with this kernel. 
+(These improvements might be a couple of versions old...didn't try test4 
+or test5 on this machine).
+
+Kudos, commendations, and thanks.
+
+-Tupshin
 

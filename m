@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbTEBFBB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 01:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTEBFBB
+	id S261759AbTEBFZB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 01:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbTEBFZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 01:01:01 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25868 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261783AbTEBFBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 01:01:00 -0400
-Date: Thu, 1 May 2003 22:14:25 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Faster generic_fls
-In-Reply-To: <1051790452.8772.18.camel@rth.ninka.net>
-Message-ID: <Pine.LNX.4.44.0305012212190.5230-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 May 2003 01:25:01 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:55477 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261759AbTEBFZB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 01:25:01 -0400
+Message-Id: <200305020537.h425bE609292@zeus.kernel.org>
+From: erlJulie@email.com
+To: linux-kernel@vger.kernel.org
+Subject: us
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Fri, 2 May 2003 00:37:21 -0500
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 1 May 2003, David S. Miller wrote:
-> 
-> This actually is false.  GCC does not know what resources the
-> instruction uses, therefore it cannot perform accurate instruction
-> scheduling.
-
-Yeah, and sadly the fact that gcc-3.2.x does better instruction scheduling 
-has shown itself to not actually _matter_ that much. I'm quite impressed 
-by the new scheduler, but gcc-2.x seems to still generate faster code on 
-too many examples.
-
-CPU's are getting smarter, not dumber. And that implies, for example, that 
-instruction scheduling matters less and less. What matters on the P4, for 
-example, seems to be the _choice_ of instructions, not the scheduling of 
-them.
-
-			Linus
-
+http://www.hoop-buy.com/
+Hello,
+This is that website I was telling you about where I got a 5% 30 year fixed. It is amazing, lenders try and compete for your business. Here it is!
+http://www.hoop-buy.com/
+Thanks,
+Bill Murphy
+Remove:
+http://www.hoop-buy.com/rm.html

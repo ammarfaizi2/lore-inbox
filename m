@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284246AbRLZQ5n>; Wed, 26 Dec 2001 11:57:43 -0500
+	id <S281843AbRLZQzC>; Wed, 26 Dec 2001 11:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283876AbRLZQ5d>; Wed, 26 Dec 2001 11:57:33 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6929 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S282400AbRLZQ5R>; Wed, 26 Dec 2001 11:57:17 -0500
-Date: Wed, 26 Dec 2001 13:43:01 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] MAX_MP_BUSSES increase
-In-Reply-To: <200112200428.fBK4SNq29583@butler1.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.21.0112261341470.9842-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282400AbRLZQyw>; Wed, 26 Dec 2001 11:54:52 -0500
+Received: from [212.32.196.210] ([212.32.196.210]:54800 "EHLO
+	ns.gs7.saminfo.ru") by vger.kernel.org with ESMTP
+	id <S281843AbRLZQym>; Wed, 26 Dec 2001 11:54:42 -0500
+Message-Id: <200112262055.fBQKtS3F029346@ns.gs7.saminfo.ru>
+Date: Wed, 26 Dec 2001 20:55:29 +0400
+From: Jelnin Andrey <bsod@gs7.saminfo.ru>
+To: "Calin A. Culianu" <calin@ajvar.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: I have problem with SB-FMI16 radio
+In-Reply-To: <Pine.LNX.4.30.0112261147401.20982-100000@rtlab.med.cornell.edu>
+In-Reply-To: <200112262042.fBQKgj3F029225@ns.gs7.saminfo.ru>
+	<Pine.LNX.4.30.0112261147401.20982-100000@rtlab.med.cornell.edu>
+X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.10; Linux 2.4.7-ac9; i686)
+Organization: JSC Giprosvyaz
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+CAC> This is a stupid suggestion, but try running something like aumix or
+CAC> something to turn the volume on the output channels on.  For some reason,
+CAC> on some soundcards, the driver somehow initializes the board to have 0%
+CAC> volume on all output channels!!
 
-James, 
+I know about it - my first step after trying to control radio - was add mixer settings to maximum and set record on "on-line" chanel 
+But, thanx for this suggestion
 
-Don't remove the "#ifdef CONFIG_MULTIQUAD" on your patch: Let the old max
-(32) for non-multiquad machines.
-
-Please resend me the patch this way.
-
-On Wed, 19 Dec 2001, James Cleverdon wrote:
-
-> We've run into a bit of a problem with a forthcoming system.  The BIOS 
-> reserves so many PCI bus numbers for hotplug when maxed out PCI expansion 
-> box(es) are present that some arrays (mp_bus_id_to_node[], 
-> mp_bus_id_to_pci_bus[], etc) overflow, splattering important variables.
 

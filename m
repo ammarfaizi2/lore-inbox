@@ -1,197 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278666AbRJZQB0>; Fri, 26 Oct 2001 12:01:26 -0400
+	id <S278722AbRJZQFu>; Fri, 26 Oct 2001 12:05:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278694AbRJZQBH>; Fri, 26 Oct 2001 12:01:07 -0400
-Received: from air-1.osdl.org ([65.201.151.5]:24335 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S278666AbRJZQBE>;
-	Fri, 26 Oct 2001 12:01:04 -0400
-Message-ID: <3BD98768.6A99BD80@osdl.org>
-Date: Fri, 26 Oct 2001 08:55:20 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
+	id <S278723AbRJZQFh>; Fri, 26 Oct 2001 12:05:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34321 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278722AbRJZQF1>; Fri, 26 Oct 2001 12:05:27 -0400
+Date: Fri, 26 Oct 2001 09:04:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Zlatko Calusic <zlatko.calusic@iskon.hr>
+cc: Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
+In-Reply-To: <dnpu7asb37.fsf@magla.zg.iskon.hr>
+Message-ID: <Pine.LNX.4.33.0110260834540.2054-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <fletch@aracnet.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Patch to read/parse the MPC oem tables
-In-Reply-To: <3298454519.1004025834@[10.10.1.2]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin-
 
-Overall this looks like a mostly-clean patch.
+On 26 Oct 2001, Zlatko Calusic wrote:
+>
+> OK. Anyway, neither configuration works well, so the problem might be
+> somewhere else.
+>
+> While at it, could you give short explanation of those two parameters?
 
-Questions and comments below.
+Did you try the ones 2.4.14-2 does?
 
-~Randy
+Basically, the "queue_nr_requests" means how many requests there can be
+for this queue. Half of them are allocated to reads, half of them are
+allocated to writes.
 
+The "batch_requests" thing is something that kicks in when the queue has
+emptied - we don't want to "trickle" requests to users, because if we do
+that means that a new large write will not be able to merge its new
+requests sanely because it basically has to do them one at a time. So when
+we run out of requests (ie "queue_nr_requests" isn't enough), we start
+putting the freed-up requests on a "pending" list, and we release them
+only when the pending list is bigger than "batch_requests".
 
-"Martin J. Bligh" wrote:
-> 
-> This patch will parse the OEM extensions to the mps tables
-> (if present). This gives me a mapping to tell which device
-> lies in which NUMA node (the current code just guesses).
+Now, one thing to remember is that "queue_nr_requests" is for the whole
+queue (half of them for reads, half for writes), and "batch_requests" is a
+per-type thing (ie we batch reads and writes separately). So
+"batch_requests" must be less than half of "queue_nr_requests", or we will
+never release anything at all.
 
-So these extensions are OEM-specific, not part of the MP spec,
-right?
+Now, in Alan's tree, there is a separate tuning thing, which is the "max
+nr of _sectors_ in flight", which in my opinion is pretty bogus. It's
+really a memory-management thing, but it also does something else: it has
+low-and-high water-marks, and those might well be a good idea. It is
+possible that we should just ditch the "batch_requests" thing, and use the
+watermarks instead.
 
+Side note: all of this is relevant really only for writes - reads pretty
+much only care about the maximum queue-size, and it's very hard to get a
+_huge_ queue-size with reads unless you do tons of read-ahead.
 
-> Patch is against 2.4.13 - if it looks OK, please could you add it?
+Now, the "batching" is technically equivalent with water-marking if there
+is _one_ writer. But if there are multiple writers, water-marking may
+actually has some advantages: it might allow the other writer to make some
+progress when the first one has stopped, while the batching will stop
+everybody until the batch is released. Who knows.
 
-> diff -urN virgin-2.4.13/arch/i386/kernel/mpparse.c linux-2.4.13/arch/i386/kernel/mpparse.c
-> --- virgin-2.4.13/arch/i386/kernel/mpparse.c    Thu Oct  4 18:42:54 2001
-> +++ linux-2.4.13/arch/i386/kernel/mpparse.c     Thu Oct 25 10:13:18 2001
-> @@ -118,18 +120,37 @@
-> +static int mpc_record;
-> +static struct mpc_config_translation *translation_table[MAX_MPC_ENTRY];
+Anyway, the reason I think Alan's "max nr of sectors" is bogus is because:
 
-Could this array be __initdata or reduced in size some,
-for people who don't need it?  (more about this below)
-E.g., I bet most people don't need this static 4 KB array.
+ - it's a global count, and if you have 10 controllers and want to write
+   to all 10, you _should_ be able to - you can write 10 times as many
+   requests in the same latency, so there is nothing "global" with it.
 
-Also, could the array of structs <mp_irqs and mp_ioapics> (in
-mpparse.c) be made __initdata, so that they could be discarded
-after init?
-I tested this idea (without this patch, just by changing
-mp_irqs[] and mp_ioapics[] to __initdata, and it booted OK,
-and they are put into the .data.init section according to
-objdump.  Are there some other/different problems doing this, anyone?
-OTOH, with a 16 GB system, you won't worry much about saving a few KB,
-eh?
+   (It turns out that one advantage of the globalism is that it ends up
+   limiting MM write-outs, but I personally think that is a _MM_ thing, ie
+   we might want to have a "we have half of all our pages in flight, we
+   have to throttle now" thing in "writepage()", not in the queue)
 
+ - "nr of sectors" has very little to do with request latency on most
+   hardware. You can do 255 sectors (ie one request) almost as fast as you
+   can do just one, if you do them in one request. While just _two_
+   sectors might be much slower than the 255, if they are in separate
+   requests and cause seeking.
 
-> @@ -286,6 +313,62 @@
-> 
-> +static void __init MP_translation_info (struct mpc_config_translation *m)
-> +{
-> +       printk("Translation: record %d, type %d, quad %d, global %d, local %d\n", mpc_record, m->trans_type,
-> +               m->trans_quad, m->trans_global, m->trans_local);
-> +
-> +       if (mpc_record >= MAX_MPC_ENTRY)
-> +               printk("MAX_MPC_ENTRY exceeded!\n");
+   So from a latency standpoint, the "request" is a much better number.
 
-Add "else" here to keep from stepping out of the array bounds.
+So Alan almost never throttles on requests (on big machines, the -ac tree
+allows thousands of requests in flight per queue), while he _does_ have
+this water-marking for sectors.
 
-> +       translation_table[mpc_record] = m; /* stash this for later */
-> +}
-> +
-> +/*
-> + * Read/parse the MPC oem tables
-> + */
-> +
-> +static void __init smp_read_mpc_oem(struct mp_config_oemtable *oemtable, \
-> +       unsigned short oemsize)
-> +{
-> +       int count = sizeof (*oemtable); /* the header size */
-> +       unsigned char *oemptr = ((unsigned char *)oemtable)+count;
-> +
-> +       printk("Found an OEM MPC table at %08lx - parsing it ... \n", (u_long) oemtable);
+So I have two suspicions:
 
-BTW, "%p" prints pointers also, without casting them.
+ - 128 requests (ie 64 for writes) like the default kernel should be
+   _plenty_ enough to keep the disks busy, especially for streaming
+   writes. It's small enough that you don't get the absolutely _huge_
+   spikes you get with thousands of requests, while being large enough for
+   fast writers that even if they _do_ block for 32 of the 64 requests,
+   they'll have time to refill the next 32 long before the 32 pending one
+   have finished.
 
-> +       while (count < oemtable->oem_length) {
-> +               switch (*oemptr) {
-> +                       case MP_TRANSLATION:
-> +                       {
-> +                               struct mpc_config_translation *m=
-> +                                       (struct mpc_config_translation *)oemptr;
-> +                               MP_translation_info(m);
-> +                               oemptr += sizeof(*m);
-> +                               count += sizeof(*m);
-> +                               ++mpc_record;
-> +                               break;
-> +                       }
+   Also: limiting the write queue to 128 requests means that you can
+   pretty much guarantee that you can get at least a few read requests
+   per second, even if the write queue is constantly full, and even if
+   your reader is serialized.
 
->  /*
->   * Read/parse the MPC
->   */
-> @@ -330,6 +413,13 @@
->         /* save the local APIC address, it might be non-default */
->         mp_lapic_addr = mpc->mpc_lapic;
-> 
-> +       if (clustered_apic_mode && mpc->mpc_oemptr) {
-> +               /* We need to process the oem mpc tables to tell us which quad things are in ... */
-> +               mpc_record = 0;
-> +               smp_read_mpc_oem((struct mp_config_oemtable *) mpc->mpc_oemptr, mpc->mpc_oemsize);
-> +               mpc_record = 0;
+BUT:
 
-What's this =0 for?
+ - the hard "batch" count is too harsh. It works as a watermark in the
+   degenerate case, but doesn't allow a second writer to use up _some_ of
+   the requests while the first writer is blocked due to watermarking.
 
-> @@ -381,7 +471,13 @@
->                                 count+=sizeof(*m);
->                                 break;
->                         }
-> +                       default:
-> +                       {
-> +                               count = mpc->mpc_length;
-> +                               break;
-> +                       }
->                 }
-> +               ++mpc_record;
+   So with batching, when the queue is full and another process wants
+   memory, that _OTHER_ process will also always block untilt he queue has
+   emptied.
 
-And what's this increment for?
+   With watermarks, when the writer has filled up the queue and starts
+   waiting, other processes can still do some writing as long as they
+   don't fill up the queue again. So if you have MM pressure but the
+   writer is blocked (and some requests _have_ completed, but the writer
+   waits for the low-water-mark), you can still push out requests.
 
-> diff -urN virgin-2.4.13/include/asm-i386/mpspec.h linux-2.4.13/include/asm-i386/mpspec.h
-> --- virgin-2.4.13/include/asm-i386/mpspec.h     Thu Oct  4 18:42:54 2001
-> +++ linux-2.4.13/include/asm-i386/mpspec.h      Thu Oct 25 14:31:12 2001
-> @@ -16,7 +16,13 @@
->  /*
->   * a maximum of 16 APICs with the current APIC ID architecture.
->   */
-> +#ifdef CONFIG_MULTIQUAD
-> +#define MAX_APICS 256
-> +#else /* !CONFIG_MULTIQUAD */
->  #define MAX_APICS 16
-> +#endif /* CONFIG_MULTIQUAD */
-> +
-> +#define MAX_MPC_ENTRY 1024
+   That's also likely to be a lot more fair - batching tends to give the
+   whole batch to the big writer, while watermarking automatically allows
+   others to get a look at the queue.
 
-How about #defining MAX_MPC_ENTRY above here (depending on MULTIQUAD),
-so that it can be smaller for non-MULTIQUAD targets?
+I'll whip up a patch for testing (2.4.14-2 made the batching slightly
+saner, but the same "hard" behaviour is pretty much unavoidable with
+batching)
 
-> @@ -55,6 +61,7 @@
->  #define        MP_IOAPIC       2
->  #define        MP_INTSRC       3
->  #define        MP_LINTSRC      4
-> +#define        MP_TRANSLATION  192
+			Linus
 
-Where does this value (192) come from, and the
-mpc_config_oemtable and mpc_config_translation structs?
-Not in the MP 1.4 spec, right?  (yes, I searched)
-So maybe some comment about it being used by IBM would
-be good (or even qualified by CONFIG_MULTIQUAD somehow;
-that would be easy in the .h file, but not so easy
-in mpparse.c -- without being ugly).
-
-Or is it some de facto standard?
-Is it used by other large-systems manufacturers for the
-same purpose?
-
-> @@ -144,6 +151,27 @@
-> +struct mp_config_oemtable
-> +{
-> +       char oem_signature[4];
-> +#define MPC_OEM_SIGNATURE "_OEM"
-> +       unsigned short oem_length;      /* Size of table */
-> +       char  oem_rev;                  /* 0x01 */
-> +       char  oem_checksum;
-> +       char  mpc_oem[8];
-> +};
-> +
-> +struct mpc_config_translation
-> +{
-> +        unsigned char mpc_type;
-> +        unsigned char trans_len;
-> +        unsigned char trans_type;
-> +        unsigned char trans_quad;
-> +        unsigned char trans_global;
-> +        unsigned char trans_local;
-> +        unsigned short trans_reserved;
-> +};

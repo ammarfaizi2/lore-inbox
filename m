@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbTLOAZa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 19:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbTLOAZa
+	id S262794AbTLOARK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 19:17:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbTLOARK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 19:25:30 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:62407 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S262827AbTLOAZ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 19:25:28 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org, bitkeeper-users@bitmover.com
-Subject: Re: RFC - tarball/patch server in BitKeeper 
-In-reply-to: Your message of "Sun, 14 Dec 2003 15:44:23 -0800."
-             <20031214234423.GB15850@work.bitmover.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 15 Dec 2003 11:25:11 +1100
-Message-ID: <3034.1071447911@kao2.melbourne.sgi.com>
+	Sun, 14 Dec 2003 19:17:10 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:19562 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262794AbTLOARH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 19:17:07 -0500
+Date: Sun, 14 Dec 2003 19:17:05 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: More questions about 2.6 /proc/meminfo was: (Mem: and Swap:
+ lines in /proc/meminfo)
+In-Reply-To: <20031214014429.GB1769@matchmail.com>
+Message-ID: <Pine.LNX.4.44.0312141915550.26386-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44.0312141915552.26386@chimarrao.boston.redhat.com>
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Dec 2003 15:44:23 -0800, 
-Larry McVoy <lm@bitmover.com> wrote:
->On Mon, Dec 15, 2003 at 10:05:03AM +1100, Keith Owens wrote:
->> On Sun, 14 Dec 2003 09:21:56 -0800, 
->> Larry McVoy <lm@bitmover.com> wrote:
->> >I've prototyped an extension to BitKeeper that provides tarballs
->> >and patches.  ...
->> >... You need to understand that this is all you get,
->> >we're not going to extend this so you can do anything but track the most
->> >recent sources accurately.  No diffs.  No getting anything but the most
->> >recent version.  No revision history.  
->> 
->> Do we get the changelogs from each BK check in?  Without the
->> changelogs, patches are going to be much less useful.
->
->You already get those, use BK/Web.  It's all there and always has been.
+On Sat, 13 Dec 2003, Mike Fedyk wrote:
 
-Using update and BK/Web means manually reconciling two sets of data
-which may have different time bases.  If update has not been run for 23
-days, the user has to look at "Changesets in the last four weeks" and
-manually determine where in that log of 119 changesets (linux-2.5)
-their last update was done before they know which changesets are in the
-current update.
+> > > Are Dirty: and Writeback: counted in Inactive: or are they seperate?
+> > 
+> > They're unrelated statistics to active/inactive and will
+> > overlap with active/inactive.
+> 
+> Do they count anonymous memory, or are they strictly dirty/writeback
+> pagecache?
 
-What about this, assuming it does not give away information that you
-believe will be used for $SCM.  Treat the BK changelog as a file, and
-have update generate a patch from the last update for the changelog as
-well as the project files.
+Pagecache only, I think.
+
+> > > Does Mapped: include all files mmap()ed, or only the executable ones?
+> > 
+> > Mapped: includes all mmap()ed pages, regardless of executable
+> > status.
+> 
+> Is mmap() always pagecache backed, or can it be backed with anonymous
+> memory?  IE, can I subtract mapped from pagecache?
+
+Mapped includes all mapped memory, both pagecache and
+anonymous.
+
+> I'd love to find a more accurate way to get the amount of memory used for
+> apps, short of reading the output of ps and doing calculations on RSS,
+> VIRTUAL, and SHARED...
+
+That would be great, it would really help with tuning
+the VM further (if that turns out to be needed for
+special workloads).
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

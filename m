@@ -1,90 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288174AbSAMWNF>; Sun, 13 Jan 2002 17:13:05 -0500
+	id <S288185AbSAMWPF>; Sun, 13 Jan 2002 17:15:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288184AbSAMWM4>; Sun, 13 Jan 2002 17:12:56 -0500
-Received: from host5.mileniumnet.com.br ([200.199.222.5]:24840 "EHLO
-	strauss.mileniumnet.com.br") by vger.kernel.org with ESMTP
-	id <S288174AbSAMWMn>; Sun, 13 Jan 2002 17:12:43 -0500
-Date: Sun, 13 Jan 2002 17:23:11 -0200 (BRST)
-From: Thiago Rondon <maluco@mileniumnet.com.br>
-X-X-Sender: <maluco@freak.linuxms.com.br>
-To: Alan Cox <alan@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18pre3-ac1
-In-Reply-To: <200201132144.g0DLikH27385@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.33L.0201131721110.4750-100000@freak.linuxms.com.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288188AbSAMWO4>; Sun, 13 Jan 2002 17:14:56 -0500
+Received: from lilly.ping.de ([62.72.90.2]:59917 "HELO lilly.ping.de")
+	by vger.kernel.org with SMTP id <S288185AbSAMWOn>;
+	Sun, 13 Jan 2002 17:14:43 -0500
+Date: 13 Jan 2002 23:14:02 +0100
+Message-ID: <20020113231402.A9303@planetzork.spacenet>
+From: jogi@planetzork.ping.de
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <20020113211731.A6543@planetzork.spacenet> <Pine.LNX.4.33.0201131533530.14774-100000@coffee.psychology.mcmaster.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 13, 2002 at 03:35:08PM -0500, Mark Hahn wrote:
+> > > >         13-pre5aa1      18-pre2aa2      18-pre3         18-pre3s        18-pre3sp       18-pre3minill  
+> > > > j100:   6:59.79  78%    7:07.62  76%        *           6:39.55  81%    6:24.79  83%        *
+> > > > j100:   7:03.39  77%    8:10.04  66%        *           8:07.13  66%    6:21.23  83%        *
+> > > > j100:   6:40.40  81%    7:43.15  70%        *           6:37.46  81%    6:03.68  87%        *
+> > > > j100:   7:45.12  70%    7:11.59  75%        *           7:14.46  74%    6:06.98  87%        *
+> > > > j100:   6:56.71  79%    7:36.12  71%        *           6:26.59  83%    6:11.30  86%        *
+> > > > 		                                                                                          
+> > > > j75:    6:22.33  85%    6:42.50  81%    6:48.83  80%    6:01.61  89%    5:42.66  93%    7:07.56  77%
+> > > > j75:    6:41.47  81%    7:19.79  74%    6:49.43  79%    5:59.82  89%    6:00.83  88%    7:17.15  74%
+> > > > j75:    6:10.32  88%    6:44.98  80%    7:01.01  77%    6:02.99  88%    5:48.00  91%    6:47.48  80%
+> > > > j75:    6:28.55  84%    6:44.21  80%    9:33.78  57%    6:19.83  85%    5:49.07  91%    6:34.02  83%
+> > > > j75:    6:17.15  86%    6:46.58  80%    7:24.52  73%    6:23.50  84%    5:58.06  88%    7:01.39  77%
+> > > 
+> > > Again, preempt seems to reign supreme.  Where is all the information
+> > > correlating preempt is inferior?  To be fair, however, we should bench a
+> > > mini-ll+s test.
+> > 
+> > Your wish is granted. Here are the results for mini-ll + scheduler:
+> > 
+> > j100:   8:26.54
+> > j100:   7:50.35
+> > j100:   6:49.59
+> > j100:   6:39.30
+> > j100:   6:39.70
+> > j75:    6:01.02
+> > j75:    6:12.16
+> > j75:    6:04.60
+> > j75:    6:24.58
+> > j75:    6:28.00
+> 
+> how about a real benchmark like -j2 or so (is this a dual machine?)
 
-[maluco@freak maluco]$ finger @kernel.org
-[kernel.org]
-The latest stable version of the Linux kernel is:          2.4.17
-The latest prepatch for the stable Linux kernel tree is:   2.4.18-pre3
-The latest beta version of the Linux kernel is:            2.5.1
-The latest prepatch for the beta Linux kernel tree is:     2.5.2-pre11
-The latest -ac patch to the stable Linux kernels is:       2.4.13-ac8
+Why does everybody think this is no *real* benchmark? When I remember
+the good old days at the university the systems I tried to compile some
+applications on were *always* overloaded. Would it make a difference for
+you if I would run
 
-That message is "maintainer" by someone? The -ac tree isnt update.
+for a in lots_of.srpm; do
+  rpm --rebuild $a &
+done
 
-On Sun, 13 Jan 2002, Alan Cox wrote:
+Basically this gives the same result: lots of compile jobs running in
+parallel. All *I* am doing is doing it a little extreme since running
+the compile with make -j2 does not make a *noticable* difference at all.
+And as I said previously my idea was to get the system into high memory
+pressure and test the different vms (AA and RvR) ...
 
-> People keep bugging me about the -ac tree stuff so this is whats in my
-> current internal diff with the ll patch and the ide changes excluded.
->
-> Much of this is stuff just waiting to go to Marcelo but it has the 32bit
-> uid quota that some folks consider pretty critical and the rmap-11b VM
-> which I consider pretty essential
->
-> (Marcelo I'll be sending you stuff I've done from this anyway, if there
->  is other stuff you want extracting just ask)
->
-> Linux 2.4.18pre3-ac1
->
-> o	32bit uid quota
-> o	rmap-11b VM					(Rik van Riel,
-> 							 William Irwin etc)
-> o	Make scsi printer visible			(Stefan Wieseckel)
-> o	Report Hercules Fortissimo card			(Minya Sorakinu)
-> o	Fix O_NDELAY close mishandling on the following	(me)
-> 	sound cards: cmpci, cs46xx, es1370, es1371,
-> 	esssolo1, sonicvibes
-> o	tdfx pixclock handling fix			(Jurriaan)
-> o	Fix mishandling of file system size limiting	(Andrea Arcangeli)
-> o	generic_serial cleanups				(Rasmus Andersen)
-> o	serial.c locking fixes for SMP - move from cli	(Kees)
-> 	too
-> o	Truncate fixes from old -ac tree		(Andrew Morton)
-> o	Hopefully fix the i2o oops			(me)
-> 	| Not the right fix but it'll do till I rewrite this
-> o	Fix non blocking tty blocking bug		(Peter Benie)
-> o	IRQ routing workaround for problem HP laptops	(Cory Bell)
-> o	Fix the rcpci driver				(Pete Popov)
-> o	Fix documentation of aedsp location		(Adrian Bunk)
-> o	Fix the worst of the APM ate my cpu problems	(Andreas Steinmetz)
-> o	Correct icmp documentation			(Pierre Lombard)
-> o	Multiple mxser crash on boot fix	(Stephan von Krawczynski)
-> o	ldm header fix					(Anton Altaparmakov)
-> o	Fix unchecked kmalloc in i2o_proc	(Ragnar Hojland Espinosa)
-> o	Fix unchecked kmalloc in airo_cs	(Ragnar Hojland Espinosa)
-> o	Fix unchecked kmalloc in btaudio	(Ragnar Hojland Espinosa)
-> o	Fix unchecked kmalloc in qnx4/inode.c	(Ragnar Hojland Espinosa)
-> o	Disable DRM4.1 GMX2000 driver (4.0 required)	(me)
-> o	Fix sb16 lower speed limit bug			(Jori Liesenborgs)
-> o	Fix compilation of orinoco driver		(Ben Herrenschmidt)
-> o	ISAPnP init fix					(Chris Rankin)
-> o	Export release_console_sem			(Andrew Morton)
-> o	Output nat crash fix				(Rusty Russell)
-> o	Fix PLIP					(Tim Waugh)
-> o	Natsemi driver hang fix				(Manfred Spraul)
-> o	Add mono/stereo reporting to gemtek pci radio	(Jonathan Hudson)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Furthermore some people think this combination (sched+preempt) is only
+good for latency (if at all) all I can say is that this works *very*
+well for me latency wise. Since I don't know how to measure latency
+exactly I tried to run my compile script (make -j50) while running my
+usual desktop + xmms. Result: xmms was *not* skipping, although the
+system was ~70MB into swap and the load was >50. Changing workspaces
+worked immedeatly all the time. But I was able to get xmms to skip for
+a short while by starting galeon, StarOffice, gimp with ~10 pictures
+all at the same time. But when all applications came up xmms was not
+skipping any more and the system was ~130MB into swap. This is the best
+result for me so far but I have to admit that I did not test mini-ll
++sched in this area (I can test this earliest on wednesday, sorry).
 
+Since it is a little while since I posted my system specs here they are:
+
+- Athlon 1.2GHz (single proc)
+- 256 MB
+- IDE drive (quantum)
+
+> also, I've often found the user/sys/elapsed components to all be interesting;
+> how do they look?  (I'd expect preempt to have more sys, for instance.)
+
+        13-pre5aa1      18-pre2aa2      18-pre3         18-pre3s        18-pre3sp       18-pre3smini  
+        (sys) (user)
+j100:   30.78 297.07    32.40 294.38        *           27.74 296.02    27.55 292.95    28.30 297.67
+j100:   30.92 297.11    33.04 295.15        *           29.14 296.25    26.88 292.77    28.13 296.44
+j100:   29.58 297.90    34.01 294.16        *           27.56 295.76    26.25 293.79    27.96 296.47
+j100:   30.62 297.13    32.00 294.30        *           28.47 296.46    27.64 293.42    27.50 297.47
+j100:   30.48 299.43    32.28 295.42        *           27.77 296.44    27.53 292.10    27.23 297.24
+
+As expected the system and the user times are almost identical. The "fastest"
+compile results are always where the job gets the most %cpu time. So I guess
+it would be more interesting to see how much cpu time e.g. kswapd gets.
+
+Probably I have to enhance my script to run vmstat in the background ...
+Would this provide useful data?
+
+
+Regards,
+
+   Jogi
+
+
+-- 
+
+Well, yeah ... I suppose there's no point in getting greedy, is there?
+
+    << Calvin & Hobbes >>

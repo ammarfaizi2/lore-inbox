@@ -1,111 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268260AbUHTP0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267199AbUHTP3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268260AbUHTP0r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 11:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267343AbUHTPYw
+	id S267199AbUHTP3E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 11:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUHTP3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 11:24:52 -0400
-Received: from [193.12.224.70] ([193.12.224.70]:16075 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268230AbUHTPYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 11:24:01 -0400
-Date: Fri, 20 Aug 2004 17:23:17 +0200
-From: Erik Rigtorp <erik@rigtorp.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] make swsusp produce nicer screen output
-Message-ID: <20040820152317.GA7118@linux.nu>
-Reply-To: erik@rigtorp.com
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bg08WKrSYDhXBjb5"
-Content-Disposition: inline
+	Fri, 20 Aug 2004 11:29:03 -0400
+Received: from cantor.suse.de ([195.135.220.2]:11406 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267199AbUHTP2z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 11:28:55 -0400
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: mj@ucw.cz, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       kernel@wildsau.enemy.org, diablod3@gmail.com
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+	<d577e5690408190004368536e9@mail.gmail.com>
+	<4124A024.nail7X62HZNBB@burner> <20040819131026.GA9813@ucw.cz>
+	<4124AD46.nail80H216HKB@burner> <20040819135614.GA12634@ucw.cz>
+	<4124B314.nail8221CVOE9@burner> <20040819141442.GC13003@ucw.cz>
+	<20040819150704.GB1659@merlin.emma.line.org>
+	<4124C46B.nail83H31GJ2S@burner>
+From: Andreas Jaeger <aj@suse.de>
+Date: Fri, 20 Aug 2004 17:28:52 +0200
+In-Reply-To: <4124C46B.nail83H31GJ2S@burner> (Joerg Schilling's message of
+ "Thu, 19 Aug 2004 17:16:59 +0200")
+Message-ID: <hoy8k9kevf.fsf@reger.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Joerg Schilling <schilling@fokus.fraunhofer.de> writes:
 
-Hi!
+> Please let us cluse this duplicate discussion here.
+> It does not give new informstion and it takes a lot of my time.
+>
+>>From matthias.andree@gmx.de  Thu Aug 19 17:07:13 2004
+>
+>>Non-issue.  SuSE 9.1 PRO:
+>
+>>$ rpm -qf /usr/bin/cdrecord
+>>cdrecord-2.01a27-21
+>>$ /usr/bin/cdrecord -version
+>>ZY=EF=BF=BD$: Operation not permitted. WARNING: Cannot set RR-scheduler
+>>ZY=EF=BF=BD$: Permission denied. WARNING: Cannot set priority using setpr=
+iority().
+>>ZY=EF=BF=BD$: WARNING: This causes a high risk for buffer underruns.
+>
+> What you see is 2 SuSE created bugs :-(
+>
+> 1)	printing this message at all in this special case
+>
+> 2)	SuSE using non initialized variables.
 
-I made a small patch that makes swsusp produce a bit nicer screen output,
-it's still a little rough though.
+I agree and I'm sorry about that.
 
-/Erik
+Thanks, I've filed bugreports for those and those will be fixed soon,
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="swsusp-nicer-output.patch"
+Andreas
+=2D-=20
+ Andreas Jaeger, aj@suse.de, http://www.suse.de/~aj
+  SUSE Linux AG, Maxfeldstr. 5, 90409 N=FCrnberg, Germany
+   GPG fingerprint =3D 93A3 365E CE47 B889 DF7F  FED1 389A 563C C272 A126
 
-diff -Nru linux-2.6.8.1-mm2/kernel/power/disk.c linux-2.6.8.1-mm2-erkki/kernel/power/disk.c
---- linux-2.6.8.1-mm2/kernel/power/disk.c	2004-08-20 17:10:58.000000000 +0200
-+++ linux-2.6.8.1-mm2-erkki/kernel/power/disk.c	2004-08-20 15:47:00.000000000 +0200
-@@ -85,10 +85,17 @@
- 
- static void free_some_memory(void)
- {
--	printk("Freeing memory: ");
--	while (shrink_all_memory(10000))
--		printk(".");
--	printk("|\n");
-+	int i = 0;
-+	char *p = "-\\|/";
-+	
-+	printk("Freeing memory:  ");
-+	while (shrink_all_memory(10000)) {
-+		printk("\b%c", p[i]);
-+		i++;
-+		if (i > 3)
-+			i = 0;
-+	}
-+	printk("\bdone\n");
- }
- 
- 
-diff -Nru linux-2.6.8.1-mm2/kernel/power/swsusp.c linux-2.6.8.1-mm2-erkki/kernel/power/swsusp.c
---- linux-2.6.8.1-mm2/kernel/power/swsusp.c	2004-08-20 17:10:58.000000000 +0200
-+++ linux-2.6.8.1-mm2-erkki/kernel/power/swsusp.c	2004-08-20 16:13:29.000000000 +0200
-@@ -296,15 +296,16 @@
- {
- 	int error = 0;
- 	int i;
--
--	printk( "Writing data to swap (%d pages): ", nr_copy_pages );
-+	int mod = nr_copy_pages / 100;
-+	
-+	printk( "Writing data to swap (%d pages):     ", nr_copy_pages );
- 	for (i = 0; i < nr_copy_pages && !error; i++) {
--		if (!(i%100))
--			printk( "." );
-+		if (!(i%mod))
-+			printk( "\b\b\b\b%3d%%", i / mod );
- 		error = write_page((pagedir_nosave+i)->address,
- 					  &((pagedir_nosave+i)->swap_address));
- 	}
--	printk(" %d Pages done.\n",i);
-+	printk("\b\b\b\bdone\n");
- 	return error;
- }
- 
-@@ -1150,14 +1151,15 @@
- 	struct pbe * p;
- 	int error;
- 	int i;
--
-+	int mod = nr_copy_pages / 100;
-+	
- 	if ((error = swsusp_pagedir_relocate()))
- 		return error;
- 
--	printk( "Reading image data (%d pages): ", nr_copy_pages );
-+	printk( "Reading image data (%d pages):     ", nr_copy_pages );
- 	for(i = 0, p = pagedir_nosave; i < nr_copy_pages && !error; i++, p++) {
--		if (!(i%100))
--			printk( "." );
-+		if (!(i%mod))
-+			printk( "\b\b\b\b%3d%%", i / mod );
- 		error = bio_read_page(swp_offset(p->swap_address),
- 				  (void *)p->address);
- 	}
+--=-=-=
+Content-Type: application/pgp-signature
 
---bg08WKrSYDhXBjb5--
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBJhi2OJpWPMJyoSYRAn8BAKCEWcAZNGxJLQ+QOia4DGJPukWa1QCcDiBB
+rgAEOFaGw1mTgXw8TYjgNmc=
+=792p
+-----END PGP SIGNATURE-----
+--=-=-=--

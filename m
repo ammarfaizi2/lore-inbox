@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314330AbSEMRhG>; Mon, 13 May 2002 13:37:06 -0400
+	id <S314339AbSEMRj5>; Mon, 13 May 2002 13:39:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314338AbSEMRhF>; Mon, 13 May 2002 13:37:05 -0400
-Received: from inet-mail2.oracle.com ([148.87.2.202]:16634 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S314330AbSEMRhF>; Mon, 13 May 2002 13:37:05 -0400
-Date: Mon, 13 May 2002 10:36:56 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Oliver Kowalke <oliver.kowalke@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: libaio depends on libredhat-kernel.so.1 ???
-Message-ID: <20020513173654.GA1472@insight.us.oracle.com>
-In-Reply-To: <176wsc-0QOQ2yC@fwd03.sul.t-online.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Burt-Line: Trees are cool.
+	id <S314343AbSEMRj4>; Mon, 13 May 2002 13:39:56 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:20121 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S314339AbSEMRjz>; Mon, 13 May 2002 13:39:55 -0400
+Date: Mon, 13 May 2002 12:39:52 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Strange s390 code in 2.4.19-pre8
+In-Reply-To: <20020513123237.C6208@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0205131239000.19498-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 12, 2002 at 07:11:32PM +0200, Oliver Kowalke wrote:
-> because the linux-aio mailing list seams to be dead I'll posting to this list 
+On Mon, 13 May 2002, Pete Zaitcev wrote:
 
-	You've got a quick trigger finger!  Ben replied to you on
-linux-aio shortly after you mailed this note.  Please check there.
+> If ISDN people are willing to do that, it would be a great
+> relief. I did not raise this question because undoubtedly
+> they were using fsm.c first, so it was s390 mistake (accorting
+> to the comment in the drivers/s390/net/fsm.c).
 
-Joel
+If you ask nicely ;-)
 
--- 
+Okay, I sent Marcelo a patch to do so.
 
-Life's Little Instruction Book #337
+--Kai
 
-	"Reread your favorite book."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

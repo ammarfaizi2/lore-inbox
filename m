@@ -1,138 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbUDAEr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 23:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbUDAEr7
+	id S262226AbUDAEqk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 23:46:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbUDAEqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 23:47:59 -0500
-Received: from ozlabs.org ([203.10.76.45]:15000 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262221AbUDAEru (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 23:47:50 -0500
-Date: Thu, 1 Apr 2004 14:45:40 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
-Subject: Allow MAP_FIXED hugepage mappings on PPC64
-Message-ID: <20040401044540.GB13436@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+	Wed, 31 Mar 2004 23:46:40 -0500
+Received: from supermail.mweb.co.za ([196.2.53.171]:7691 "EHLO
+	supermail.mweb.co.za") by vger.kernel.org with ESMTP
+	id S262235AbUDAEqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 23:46:38 -0500
+Date: Thu, 1 Apr 2004 06:47:50 +0200
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc3-aa1
+Message-Id: <20040401064750.50d18c8d@bongani>
+In-Reply-To: <20040331212242.GP2143@dualathlon.random>
+References: <20040331030921.GA2143@dualathlon.random>
+	<20040331211620.19a8f725@bongani>
+	<20040331212242.GP2143@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i586-mandrake-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Thu__1_Apr_2004_06_47_50_+0200_hl1YvOS2V=3BwUHP"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply:
+--Signature=_Thu__1_Apr_2004_06_47_50_+0200_hl1YvOS2V=3BwUHP
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-On PowerPC64 the "low" hugepage range (at 2-3G for use by 32-bit processes)
-needs to be activated before it can be used.  hugetlb_get_unmapped_area()
-automatically activates the range for hugepage mappings in 32-bit processes
-which are not MAP_FIXED.  However for MAP_FIXED mmap()s, even at a suitable
-address will fail if the region is not already activated, because there is
-no suitable callback from the generic MAP_FIXED code path into the arch code.
+On Wed, 31 Mar 2004 23:22:42 +0200
+Andrea Arcangeli <andrea@suse.de> wrote:
 
-This patch corrects this problem and allows PPC64 to do MAP_FIXED hugepage
-mappings in the low hugepage range.
+> On Wed, Mar 31, 2004 at 09:16:20PM +0200, Bongani Hlope wrote:
+> > On Wed, 31 Mar 2004 05:09:21 +0200
+> > Andrea Arcangeli <andrea@suse.de> wrote:
+> > 
+> > > The xfs warning during truncate will be fixed with a later update
+> > > (Nathan is currently working on it).
+> > > 
+> > > next thing to do is to fixup the merging in mprotect.
+> > > 
+> > 
+> > I'm running 2.6.5-rc2-aa4, when I woke-up in the morning almost all of
+> > my memory was gone, but my swap was never touched. I managed to get
+> > only the output of SysRq-M before it hard-locked. For some reason it
+> > doesn't swap. I'll try to reproduce.
+> 
+> weird, it really loks like it doesn't swap anything. At least it's not a
+> race condition. Which fs are you using?
+> 
+> can you try to actively push it into swap with a script like this?
+> 
+> #!/usr/bin/env python
+> 
+> while 1:
+> 	try:
+> 		a = 'a'
+> 		while 1:
+> 			a += a
+> 	except MemoryError:
+> 		pass
+> 
 
+I'm using ext3. and your script did push things to swap. I'm busy compiling 2.6.5-rc3-aa1 now.
 
+Thanx Andrea
 
-Index: working-2.6/include/asm-ppc64/page.h
-===================================================================
---- working-2.6.orig/include/asm-ppc64/page.h	2004-03-31 11:34:35.000000000 +1000
-+++ working-2.6/include/asm-ppc64/page.h	2004-04-01 14:32:36.362641240 +1000
-@@ -38,10 +38,17 @@
- #define TASK_HPAGE_END_32	(0xc0000000UL)
- 
- #define ARCH_HAS_HUGEPAGE_ONLY_RANGE
-+#define ARCH_HAS_PREPARE_HUGEPAGE_RANGE
-+
-+#define is_hugepage_low_range(addr, len) \
-+	(((addr) > (TASK_HPAGE_BASE_32-(len))) && ((addr) < TASK_HPAGE_END_32))
-+#define is_hugepage_high_range(addr, len) \
-+	(((addr) > (TASK_HPAGE_BASE-(len))) && ((addr) < TASK_HPAGE_END))
-+
- #define is_hugepage_only_range(addr, len) \
--	( ((addr > (TASK_HPAGE_BASE-len)) && (addr < TASK_HPAGE_END)) || \
--	  (current->mm->context.low_hpages && \
--	   (addr > (TASK_HPAGE_BASE_32-len)) && (addr < TASK_HPAGE_END_32)) )
-+	(is_hugepage_high_range((addr), (len)) || \
-+	 (current->mm->context.low_hpages \
-+	  && is_hugepage_low_range((addr), (len))))
- #define hugetlb_free_pgtables free_pgtables
- #define HAVE_ARCH_HUGETLB_UNMAPPED_AREA
- 
-Index: working-2.6/include/linux/hugetlb.h
-===================================================================
---- working-2.6.orig/include/linux/hugetlb.h	2004-02-28 23:14:36.000000000 +1100
-+++ working-2.6/include/linux/hugetlb.h	2004-04-01 14:32:36.370640024 +1000
-@@ -42,6 +42,13 @@
- #define hugetlb_free_pgtables(tlb, prev, start, end) do { } while (0)
- #endif
- 
-+#ifndef ARCH_HAS_PREPARE_HUGEPAGE_RANGE
-+#define prepare_hugepage_range(addr, len)	\
-+	is_aligned_hugepage_range(addr, len)
-+#else
-+int prepare_hugepage_range(unsigned long addr, unsigned long len);
-+#endif
-+
- #else /* !CONFIG_HUGETLB_PAGE */
- 
- static inline int is_vm_hugetlb_page(struct vm_area_struct *vma)
-@@ -62,6 +69,7 @@
- #define mark_mm_hugetlb(mm, vma)		do { } while (0)
- #define follow_huge_pmd(mm, addr, pmd, write)	0
- #define is_aligned_hugepage_range(addr, len)	0
-+#define prepare_hugepage_range(addr, len)	(-EINVAL)
- #define pmd_huge(x)	0
- #define is_hugepage_only_range(addr, len)	0
- #define hugetlb_free_pgtables(tlb, prev, start, end) do { } while (0)
-Index: working-2.6/mm/mmap.c
-===================================================================
---- working-2.6.orig/mm/mmap.c	2004-03-16 11:31:35.000000000 +1100
-+++ working-2.6/mm/mmap.c	2004-04-01 14:32:36.382638200 +1000
-@@ -807,9 +807,10 @@
- 			return -EINVAL;
- 		if (file && is_file_hugepages(file))  {
- 			/*
--			 * Make sure that addr and length are properly aligned.
-+			 * Check if the given range is hugepage aligned, and
-+			 * can be made suitable for hugepages.
- 			 */
--			ret = is_aligned_hugepage_range(addr, len);
-+			ret = prepare_hugepage_range(addr, len);
- 		} else {
- 			/*
- 			 * Ensure that a normal request is not falling in a
-Index: working-2.6/arch/ppc64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/hugetlbpage.c	2004-04-01 14:32:30.430607144 +1000
-+++ working-2.6/arch/ppc64/mm/hugetlbpage.c	2004-04-01 14:32:36.385637744 +1000
-@@ -298,6 +298,16 @@
- 	return 0;
- }
- 
-+int prepare_hugepage_range(unsigned long addr, unsigned long len)
-+{
-+	if (is_hugepage_high_range(addr, len))
-+		return 0;
-+	else if (is_hugepage_low_range(addr, len))
-+		return open_32bit_htlbpage_range(current->mm);
-+
-+	return -EINVAL;
-+}
-+
- int copy_hugetlb_page_range(struct mm_struct *dst, struct mm_struct *src,
- 			struct vm_area_struct *vma)
- {
+--Signature=_Thu__1_Apr_2004_06_47_50_+0200_hl1YvOS2V=3BwUHP
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFAa573+pvEqv8+FEMRAufLAJ47uVbqxHwqn9bTzBAX1nuh35X77gCghjyS
+axWau3wC8x60sNHqJjKJulo=
+=L8PU
+-----END PGP SIGNATURE-----
 
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+--Signature=_Thu__1_Apr_2004_06_47_50_+0200_hl1YvOS2V=3BwUHP--

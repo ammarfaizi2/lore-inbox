@@ -1,62 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267574AbTAGXJT>; Tue, 7 Jan 2003 18:09:19 -0500
+	id <S267571AbTAGXEv>; Tue, 7 Jan 2003 18:04:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267575AbTAGXJT>; Tue, 7 Jan 2003 18:09:19 -0500
-Received: from B5be6.pppool.de ([213.7.91.230]:61420 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S267574AbTAGXJS>; Tue, 7 Jan 2003 18:09:18 -0500
+	id <S267573AbTAGXEu>; Tue, 7 Jan 2003 18:04:50 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:43460 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S267571AbTAGXEC> convert rfc822-to-8bit; Tue, 7 Jan 2003 18:04:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: Andre Hedrick <andre@linux-ide.org>
 Subject: Re: Honest does not pay here ...
-From: Daniel Egger <degger@fhm.edu>
-To: hps@intermeta.de
+Date: Tue, 7 Jan 2003 17:09:55 -0600
+User-Agent: KMail/1.4.1
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ave8a5$tst$1@forge.intermeta.de>
-References: <200301041809.KAA06893@adam.yggdrasil.com>
-	 <1041900676.20298.15.camel@sbarn.net>  <ave8a5$tst$1@forge.intermeta.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c/m1o57Ml+CTFnAbOXQB"
-Organization: 
-Message-Id: <1041980678.1368.5.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 08 Jan 2003 00:04:38 +0100
+References: <Pine.LNX.4.10.10301071251280.421-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10301071251280.421-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301071709.56008.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 07 January 2003 02:58 pm, Andre Hedrick wrote:
+> On Tue, 7 Jan 2003, Jesse Pollard wrote:
+> > Personally, I view binary only drivers as evidence of incompetence, or
+> > embarassement over how poor a design is in the first place...
+>
+> Funny how you would call a persons work who you trust in open source now
+> becomes dirty in closed.  Next time you spout crap of this magnitude,
+> remember who made possible for the DCFL "Defense Computer Forensics Lab",
+> your cluster computers to use ATA by writing giving away almost all the
+> pci chipsets supported to date.
+>
+> I am not incompetence or embarassement, just want to pay the mortgage.
+> So why don't you offer to pay my mortgage and bills for the next 30 years?
+>
+> So from the "incompetence" and "embarassed" author of your disk drives,
+> you are welcome.
 
---=-c/m1o57Ml+CTFnAbOXQB
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Not quite the same thing. I'm referring to the hardware design. I've seen too
+much crap hidden in drivers to try and coverup crappy hardware
+design/implementation.
 
-Am Die, 2003-01-07 um 10.57 schrieb Henning P. Schmiedehausen:
+I would presume your cut would come from my willingness to purchace the
+hardware. Your added value is a software demonstration of capability. My
+contribution is to test your source under other versions of the kernel, and if
+I improve/fix bugs that are then returned to the community which you then
+merge into your driver back to the company. Then more hardware would get
+sold, and you get another cut.
 
-> Install Linux for your grandma, show her how to use it and then don't
-> answer her phone calls for about two weeks. Rinse. Repeat with
-> Windows. You will be surprised about the outcome. Rinse. Repeat with a
-> non-english speaker and a localized version of Linux / Windows. You
-> will be surprised even more. BTDTGTT.
+If they don't pay you for support, then you are not required to provide
+additional support by merging, redesigning, or extending. Your contribution
+to the company is to improve their sales.
 
-Interesting you mention it: I'm "supporting" several equally skilled=20
-family members' computers, half of them running Windows (XP Prof, ME,
-98SE - you pick the flavour) half of them running Debian testing, guess
-which call more often? Oh yes, and if they call: The Linux people call
-in advance *before* making decisions (like buying new hardware) while
-the Windows people only call me to clean up the messed system...
+I used to develop drivers for DEC hardware, for OSs that were NOT from DEC.
+I was paid by those who used that hardware for additional sales (actually, 
+they leased equipment/services for oil surveys). Why was DEC equipment
+used?
 
---=20
-Servus,
-       Daniel
+1. full hardware documentation was available
+2. it was the least expensive hardware
+3. the devices worked (well.. up until they started trying to kill the PDP11s)
 
---=-c/m1o57Ml+CTFnAbOXQB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+Out of the hardware designed by the company (not DEC), the only parts they
+would NOT release was a piece of crap that was a radio ranging interface. It
+did not even provide a synchronous parallel interface (we were forced to read
+the device twice and compair the reads. If they didn't match, then we had to 
+read it again and compair. If this didn't match the preceeding answer, we had 
+to start over... If two of them matched then we got a good read... 90 times 
+out of a 100...)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Oh, I almost forgot the other crappy one - a spread spectrum modem that would 
+receive 130 to 140 bytes for every 128 bytes sent... We had to implement a 
+full packet protocol just to send 15 bytes (it wouldn't start tansmitting 
+until the 16th byte was sent to the device). Then we had to be sure to send
+AT LEAST enough to fill out 128 bytes, even if we didn't have that much data.
+(I don't think it stopped transmitting until it had sent 128) and nulls 
+weren't accepted for some reason. I could not convince the designer that
+it would be much better to put the packet protocol in the modem itself and
+hide those bad bytes.
 
-iD8DBQA+G10Gchlzsq9KoIYRAu6mAJ42ZiT7cHB+Lg1pMHPVHHMDu0BosQCgztUr
-1TfeQQf09sUYKifTF8Rbhlw=
-=hogn
------END PGP SIGNATURE-----
+Neither of these were very acceptable to the clients... but we hid most of
+the crap in the drivers.
 
---=-c/m1o57Ml+CTFnAbOXQB--
+In your case, If I can't get the full specs (even to understand what the 
+device is supposed to do), then I don't really want it. If I recieve drivers
+that work, and available in source (all of mine currently are this way), then
+I'll use it, and I am willing to purchase more of them.
 
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

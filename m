@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290713AbSARPJ7>; Fri, 18 Jan 2002 10:09:59 -0500
+	id <S290721AbSARPRj>; Fri, 18 Jan 2002 10:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290714AbSARPJt>; Fri, 18 Jan 2002 10:09:49 -0500
-Received: from [202.87.41.13] ([202.87.41.13]:21741 "HELO postfix.baazee.com")
-	by vger.kernel.org with SMTP id <S290713AbSARPJa>;
-	Fri, 18 Jan 2002 10:09:30 -0500
-Message-ID: <001701c1a032$50c82ef0$3c00a8c0@baazee.com>
-Reply-To: "Anish Srivastava" <anishs@vsnl.com>
-From: "Anish Srivastava" <anishs@vsnl.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kswapd kills linux box with kernel 2.4.17
-Date: Fri, 18 Jan 2002 20:40:46 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S290720AbSARPRa>; Fri, 18 Jan 2002 10:17:30 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:31238 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S290721AbSARPRS>;
+	Fri, 18 Jan 2002 10:17:18 -0500
+Date: Fri, 18 Jan 2002 13:17:16 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        boissiere@mediaone.net (Guillaume Boissiere),
+        linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  January 18, 2002
+Message-ID: <20020118151716.GB7976@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	boissiere@mediaone.net (Guillaume Boissiere),
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C477B7F.22875.11D4078A@localhost> <E16RW8L-0006WP-00@the-village.bc.nu> <20020118150951.GA7976@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020118150951.GA7976@conectiva.com.br>
+User-Agent: Mutt/1.3.25i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Em Fri, Jan 18, 2002 at 01:09:51PM -0200, Arnaldo Carvalho de Melo escreveu:
+> Em Fri, Jan 18, 2002 at 10:20:29AM +0000, Alan Cox escreveu:
+> > You seem to be short
+> > 
+> > NetBEUI network stack			Arnaldo Carvalho de Melo (from
+> > 					Procom donated code)
+> 
+> Right, the 802.2 code as well
 
-I am having a box with 8GB RAM and 8 CPU's.
+Also please put the 802.2 stack in another line because Jay Schullist is
+working with me in this and has contributed the support for PF_LLC sockets,
+as the procom code had 802.2 available only for higher level protocols,
+with Jay's work it is now possible to use 802.2 sockets from userspace.
 
-I just changed updated the kernel to 2.4.17 and it booted up fine.....but as
-soon as it started warming up
-and using some memory.....kswapd came in and locked the CPU and the box
-overall. The load went
-upto about 29. It locked up the box and the CPU usage was at 99%
-
-After sometime it did finish and I regained control on my system, but then
-after some time the same problem
-
-Can any of you help??
-
-Thanks in anticipation.
-
-Regards,
-Anish Srivastava
-
+- Arnaldo

@@ -1,42 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263698AbUDPUcR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 16:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUDPUcM
+	id S263785AbUDPUfR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 16:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbUDPUex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 16:32:12 -0400
-Received: from zero.aec.at ([193.170.194.10]:64779 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263698AbUDPUby (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 16:31:54 -0400
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS and kernel 2.6.x
-References: <1Lql8-6O3-1@gated-at.bofh.it> <1LquO-6TK-5@gated-at.bofh.it>
-	<1LqOg-76p-19@gated-at.bofh.it> <1LrKo-7Sn-21@gated-at.bofh.it>
-	<1LtM3-12d-5@gated-at.bofh.it> <1Luf2-1kK-1@gated-at.bofh.it>
-	<1LDBL-uY-3@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 16 Apr 2004 22:31:50 +0200
-In-Reply-To: <1LDBL-uY-3@gated-at.bofh.it> (Marcelo Tosatti's message of
- "Fri, 16 Apr 2004 17:40:11 +0200")
-Message-ID: <m3y8ovis09.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+	Fri, 16 Apr 2004 16:34:53 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:35846 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263782AbUDPUeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 16:34:21 -0400
+Date: Fri, 16 Apr 2004 21:34:17 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Timothy Miller <miller@techsource.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: radeonfb broken
+In-Reply-To: <40800213.8010106@techsource.com>
+Message-ID: <Pine.LNX.4.44.0404162134060.9917-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
->
-> Maaybe TCP should be the default then ? In case no one finds the reason 
-> why NFS over UDP is slower on 2.6.x than 2.4.x. It seems there are
-> quite a few reports confirming the slowdown. Maybe Jamie Lokier is right in 
-> theory?
 
-Problem is that older linux knfsd  (early 2.4) tend to crash or hang
-after some time when they have to talk TCP. But I guess it would
-be still a better default ... 
+Thanks for the fix.
 
--Andi
+
+On Fri, 16 Apr 2004, Timothy Miller wrote:
+
+> 
+> Andrew Morton asked me to repost the patch for the Radeon FB off-by-one 
+> bug.  I'll see about making a proper patch when I get home, but if you 
+> want to fix it quicker, I'll just tell you what to change.
+> 
+> 
+> In the druvers/video/radeonfb.c, there is a function called 
+> fbcon_radeon_bmove.  In there, you'll see this code:
+> 
+> 	if (srcy < dsty) {
+>                  srcy += height;
+>                  dsty += height;
+>          } else
+>                  dp_cntl |= DST_Y_TOP_TO_BOTTOM;
+> 
+>          if (srcx < dstx) {
+>                  srcx += width;
+>                  dstx += width;
+>          } else
+>                  dp_cntl |= DST_X_LEFT_TO_RIGHT;
+> 
+> 
+> Those adds need to be reduced by one.  The code should look like this:
+> 
+> 
+> 	if (srcy < dsty) {
+>                  srcy += height - 1;
+>                  dsty += height - 1;
+>          } else
+>                  dp_cntl |= DST_Y_TOP_TO_BOTTOM;
+> 
+>          if (srcx < dstx) {
+>                  srcx += width - 1;
+>                  dstx += width - 1;
+>          } else
+>                  dp_cntl |= DST_X_LEFT_TO_RIGHT;
+> 
+> 
+> 
+> This bug is in the mainline kernel, and since I have direct experience 
+> programming for the Radeon, I knew how to fix it, but I also noticed 
+> that the Red Hat kernel "2.4.18-27.7.x" has the proper fix in it.
+> 
+> 
+> Whenever I download a new 2.4 kernel for gentoo, I have to manually make 
+> that fix.  I'm also disappointed that acceleration for Radeon has 
+> disappeared completely from 2.6.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

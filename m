@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270692AbTGUUBe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 16:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270696AbTGUUBe
+	id S270691AbTGUUAX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 16:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270692AbTGUUAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 16:01:34 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:48297 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP id S270692AbTGUUAu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 16:00:50 -0400
-Date: Mon, 21 Jul 2003 13:18:26 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: Support sharp zaurus C-750
-In-reply-to: <20030720230530.GA2075@elf.ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: dbrownell@users.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Message-id: <3F1C4A92.2000305@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-References: <20030720230530.GA2075@elf.ucw.cz>
+	Mon, 21 Jul 2003 16:00:23 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:1483 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S270691AbTGUUAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 16:00:18 -0400
+Date: Mon, 21 Jul 2003 22:14:17 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: James Simmons <jsimmons@infradead.org>, Amit Shah <shahamit@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1: Framebuffer problem
+In-Reply-To: <1058620026.22005.0.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0307212205550.27306-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> This adds support for another handheld from sharp to 2.6.0-test1,
-> please apply:
+On 19 Jul 2003, Alan Cox wrote:
+> On Sad, 2003-07-19 at 07:02, Geert Uytterhoeven wrote:
+> > No, that's not so simple, because vesafb requests the linear frame buffer,
+> > while vga16fb requests the VGA region.
 
-I'll tweak it a bit, so that it's identifed as a C-7x0 not as
-an A-300, and merge it through Greg into 2.6 and 2.4.  Thanks
-for the patch!
+Correction:
+  - vesafb uses
+      o request_mem_region() on the linear frame buffer
+      o request_region() on the 32 VGA registers (but the return code is
+	ignored because of vgacon)
+  - vga16fb doesn't use resource management (ugh)
+  - vgacon uses
+      o request_region() on the MDA/CGA/EGA/VGA registers
 
-Here's where I wish Sharp took a more enlightened approach to
-their firmware:  they _could_ just modify the firmware revision
-number and descriptive strings.  They're gratuitously requiring
-a new host-side driver for each new product variant, which is
-just a PITA.  Maybe by the time these get distributed in the US,
-that can be resolved.
+> In standard usage mode both of them use the vga registers for palette control..
 
-You wouldn't happen to have the C-760 product ID too, would you?
-(That's got more flash and battery power.)
+Vesafb may use a protected mode BIOS call instead.
 
-- Dave
+An additional complexity is that not only vesafb/vga16fb may claim the VGA
+registers, but also vgacon. And it's allowed for vesafb/vga16fb to take over
+vgacon.
 
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263720AbUCVWXl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 17:23:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbUCVWXl
+	id S262266AbUCVW3X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 17:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbUCVW3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 17:23:41 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21452 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263720AbUCVWXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 17:23:37 -0500
-Date: Mon, 22 Mar 2004 23:23:29 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Jos Hulzink <jos@hulzink.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 22 Mar 2004 17:29:23 -0500
+Received: from smtp.terra.es ([213.4.129.129]:55010 "EHLO tsmtp1.mail.isp")
+	by vger.kernel.org with ESMTP id S262266AbUCVW3W convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 17:29:22 -0500
+Date: Mon, 22 Mar 2004 23:27:23 +0100
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: jos@hulzink.net, linux-kernel@vger.kernel.org
 Subject: Re: OSS: cleanup or throw away
-Message-ID: <20040322222329.GW16746@fs.tum.de>
-References: <200403221955.52767.jos@hulzink.net> <20040322202220.GA13042@mulix.org> <20040322215921.GU16746@fs.tum.de> <20040322220326.GF13042@mulix.org>
+Message-Id: <20040322232723.780ab026.diegocg@teleline.es>
+In-Reply-To: <20040322215709.GT16746@fs.tum.de>
+References: <200403221955.52767.jos@hulzink.net>
+	<20040322215709.GT16746@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040322220326.GF13042@mulix.org>
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 23, 2004 at 12:03:27AM +0200, Muli Ben-Yehuda wrote:
-> On Mon, Mar 22, 2004 at 10:59:21PM +0100, Adrian Bunk wrote:
-> > On Mon, Mar 22, 2004 at 10:22:21PM +0200, Muli Ben-Yehuda wrote:
-> > >...
-> > > I've seen
-> > > multiple bug reports of cards that work with OSS and don't work with
-> > > ALSA (and vice versa), so keeping both seems the proper thing to
-> > >...
-> > 
-> > Wouldn't it be better to get the ALSA drivers working in such cases?
-> 
-> It would; but until they do, ditching OSS is a regression. 
->...
+El Mon, 22 Mar 2004 22:57:09 +0100 Adrian Bunk <bunk@fs.tum.de> escribió:
 
-Clearly.
+> OSS will stay in 2.6 (2.6 is a stable kernel series) but it will most
+> likely be removed in 2.7.
 
-Ditching OSS at the beginning of 2.7 will give several years to identify 
-and fix such regressions.
-
-> Cheers, 
-> Muli 
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Personally, as an user, I'd like to have the OSS drivers which don't have
+a ALSA equivalent for my old hardware. There're several
+sound cards with both ALSA and OSS drivers where ALSA works
+much better 99% of the time. Those could be safely removed
+(even in the 2.6 timeframe, I'd argue) but I'd like to keep the ones
+without an alsa equivalent for my old hardware (specially now that we
+have a -tiny tree ;) however I can understand that if they don't
+have a maintainer they'll get removed...

@@ -1,99 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265941AbUFTUk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265944AbUFTUti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265941AbUFTUk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 16:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUFTUk6
+	id S265944AbUFTUti (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 16:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265945AbUFTUti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 16:40:58 -0400
-Received: from cantor.suse.de ([195.135.220.2]:64971 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265941AbUFTUkz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 16:40:55 -0400
-Subject: Re: Stop the Linux kernel madness
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <40D5B09A.E1B582F2@users.sourceforge.net>
-References: <40D232AD.4020708@opensound.com>
-	 <mailman.1087541100.18231.linux-kernel2news@redhat.com>
-	 <20040618124716.183669f8@lembas.zaitcev.lan>
-	 <40D46B6C.9618B196@users.sourceforge.net>
-	 <20040619205253.GO28927@marowsky-bree.de>
-	 <40D5B09A.E1B582F2@users.sourceforge.net>
-Content-Type: text/plain
-Organization: SUSE Labs
-Message-Id: <1087764291.19400.134.camel@winden.suse.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 20 Jun 2004 22:44:51 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Jun 2004 16:49:38 -0400
+Received: from handhelds.org ([192.58.209.91]:52627 "EHLO handhelds.org")
+	by vger.kernel.org with ESMTP id S265944AbUFTUtf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 16:49:35 -0400
+From: Joshua Wise <joshua@joshuawise.com>
+Organization: JoshuaWise.com DevStudios
+To: Ian Molton <spyro@f2s.com>
+Subject: Re: DMA API issues... summary
+Date: Sun, 20 Jun 2004 16:49:33 -0400
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net,
+       James.Bottomley@SteelEye.com, greg@kroah.com, tony@atomide.com,
+       jamey.hicks@hp.com
+References: <1087582845.1752.107.camel@mulgrave> <1087603453.2135.224.camel@mulgrave> <20040619161153.3be26806.spyro@f2s.com>
+In-Reply-To: <20040619161153.3be26806.spyro@f2s.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406201649.34953.joshua@joshuawise.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-06-20 at 17:43, Jari Ruusu wrote:
-> Lars Marowsky-Bree wrote:
-> > On 2004-06-19T19:35:56,
-> >    Jari Ruusu <jariruusu@users.sourceforge.net> said:
-> > > Last time I checked, SUSE kernels include " characters in EXTRAVERSION
-> > > and KERNELRELEASE Makefile strings. Those " characters need to be
-> > > filtered out before EXTRAVERSION and KERNELRELEASE strings can be
-> > > used.
-> > >
-> > > Just another SUSE sillyness.
-> > 
-> > What kind of crap 've you been smokin'? Sue your dealer.
-> 
-> First 6 lines of Kernel Makefile (SuSE 8 ES on AMD64 Opteron):
-> 
-> VERSION = 2
-> PATCHLEVEL = 4
-> SUBLEVEL = 21
-> EXTRAVERSION = -$(CONFIG_RELEASE)-$(CONFIG_CFGNAME)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Indeed, that was a bug. In our current tree we have this, which gets rid
-of the superfluous quotes:
+Jumping into the discussion from the middle of nowhere ......
 
-EXTRAVERSION = -$(shell echo $(CONFIG_RELEASE)-$(CONFIG_CFGNAME))
+> Single chip devices may be able to either access system memory directly, or
+> may only be able to access their internal SRAM pool. in the case of the
+> latter the system can either directly access the SRAM or not, depending on
+> the device/bus setup. Its possible the devices may have more than one
+> non-continuous SRAM mapping.
+>
+> The same goes for SOC devices, however they could come in two 'classes'. In
+> one type, we would essentially have multiple independant devices in a
+> single chip. In another case (which appears to be fairly common) we can
+> have multiple devices sharing a common SRAM pool. its also possible to have
+> some devices sharing the pool and some having their own in the same chip.
 
-> KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
-> 
-> 
-> Last 7 lines of .config (SuSE 8 ES on AMD64 Opteron):
-> 
-> #
-> # Build options
-> #
-> # CONFIG_SUSE_KERNEL is not set
-> CONFIG_UNITEDLINUX_KERNEL=y
-> CONFIG_CFGNAME="smp"
-> CONFIG_RELEASE=207
-> 
-> 
-> Those " characters around "smp" will not go away automatically.
-> To see the difference try these lines in Makefile:
-> 
->     echo $(KERNELRELEASE)
->     echo '$(KERNELRELEASE)'
+First off ... Why just say the internal SRAM pool? I think it woudl be better 
+to say that the devices can only access their own address space, and can only 
+DMA from a subset of that (which may be the full original set, QED)
 
-Well, it depends in which context you use the string, which is why we
-didn't catch the bug for a long time. I agree that the quotes shouldn't
-be there. Mistakes happen.
+Second... Remember that the SOC can also be the CPU! At least on XScale, there 
+are some portions that we can DMA from main memory (I think USB is one).
 
-> Those " characters make quite difference in Makefile code like this:
-> 
-> ifneq ($(KERNELRELEASE),$(shell uname -r))
->     @echo You compiled this for wrong kernel
-> endif
+Of course this might not be at all relevant to the discussion, and of course I 
+could be using my rectally-based knowledge, but I _THINK_ that this is 
+correct.
 
-This test may often turn out not to be very useful: For example, we are
-building modules for different kernels without booting into each of
-those kernels. Cross-compiling is another case where the above test
-doesn't work.
+joshua
+- -- 
+Joshua Wise | www.joshuawise.com
+GPG Key     | 0xEA80E0B3
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-
-Regards,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX AG
-
-
+iD8DBQFA1fhdPn9tWOqA4LMRAuwVAKCq2kcu0V1nnBtZZgwSkTAM2a/izACbBAKu
+0ef8cBr9EfxqeYILtdzrgvw=
+=B2Yf
+-----END PGP SIGNATURE-----

@@ -1,39 +1,221 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbTIMOTg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 10:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbTIMOTg
+	id S262159AbTIMOUr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 10:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbTIMOUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 10:19:36 -0400
-Received: from luli.rootdir.de ([213.133.108.222]:28875 "HELO luli.rootdir.de")
-	by vger.kernel.org with SMTP id S262156AbTIMOTb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 10:19:31 -0400
-Date: Sat, 13 Sep 2003 16:19:20 +0200
-From: Claas Langbehn <claas@rootdir.de>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq@lidskialf.net>,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: [2.6.0-test5-mm1] Suspend to RAM problems
-Message-ID: <20030913141920.GA1217@rootdir.de>
-References: <20030911124530.GA7695@rootdir.de> <Pine.LNX.4.33.0309110852020.984-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0309110852020.984-100000@localhost.localdomain>
-Reply-By: Tue Sep 16 16:18:45 CEST 2003
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.0-test5-mm1 i686
-X-No-archive: yes
-X-Uptime: 16:18:45 up  3:55,  5 users,  load average: 0.36, 0.67, 0.45
-User-Agent: Mutt/1.5.4i
+	Sat, 13 Sep 2003 10:20:47 -0400
+Received: from fed1mtao05.cox.net ([68.6.19.126]:60344 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S262159AbTIMOUE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 10:20:04 -0400
+Message-ID: <3F632790.1020002@cox.net>
+Date: Sat, 13 Sep 2003 07:20:00 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+References: <20030913125103.GE27368@fs.tum.de>
+In-Reply-To: <20030913125103.GE27368@fs.tum.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
+Adrian Bunk wrote:
+
+> I'd appreciate it if more people could try this patch and report whether 
+> their kernel compiles and works.
+
+Compiling with config below produces linking errors:
+
+arch/i386/lib/lib.a(usercopy.o): In function `__copy_to_user_ll':
+usercopy.o(.text+0x279): undefined reference to `movsl_mask'
+arch/i386/lib/lib.a(usercopy.o): In function `__copy_from_user_ll':
+usercopy.o(.text+0x2e9): undefined reference to `movsl_mask'
+
+.config:
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_EMBEDDED=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_X86_PC=y
+CONFIG_CPU_K7=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_ACPI_HT=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_PCI=y
+CONFIG_PCI_GODIRECT=y
+CONFIG_PCI_DIRECT=y
+CONFIG_HOTPLUG=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_SIS5513=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_3W_XXXX_RAID=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_TUN=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MMIO=y
+CONFIG_NET_PCI=y
+CONFIG_NATSEMI=y
+CONFIG_SIS900=y
+CONFIG_NS83820=y
+# Token Ring devices (depends on LLC=y)
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_EVDEV=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_AGP=y
+CONFIG_AGP_SIS=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_R128=y
+CONFIG_EXT2_FS=y
+CONFIG_XFS_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_FB=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_ATY128=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_INTEL8X0=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_DYNAMIC_MINORS=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_OHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_USBNET=y
+CONFIG_USB_CDCETHER=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_X86_BIOS_REBOOT=y
 
 
-or do I need to setup something particular in my system BIOS?
-
-
-Claas

@@ -1,54 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267261AbTGNLV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 07:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270077AbTGNLV0
+	id S270077AbTGNLYr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 07:24:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270096AbTGNLYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 07:21:26 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:54209
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S267261AbTGNLVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 07:21:25 -0400
-Subject: Re: Linux v2.6.0-test1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <200307141139.h6EBd09g000700@81-2-122-30.bradfords.org.uk>
-References: <200307141139.h6EBd09g000700@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058182417.561.47.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 14 Jul 2003 07:24:47 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:7646 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S270077AbTGNLYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 07:24:46 -0400
+Date: Mon, 14 Jul 2003 12:39:21 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030714113921.GA5187@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Maneesh Soni <maneesh@in.ibm.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030711140219.GB16433@suse.de> <20030714065116.GB1214@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jul 2003 12:33:38 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030714065116.GB1214@in.ibm.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-14 at 12:39, John Bradford wrote:
-> > > > The point of the test versions is to make more people realize that they
-> > > > need testing
-> > > 
-> > > Are all the known security issues in 2.4 now fixed in 2.6.0-test1?
-> >
-> > No, and several more have been added in 2.6-test only.
-> 
-> As far as I know, they are only information disclosure ones, not
-> directly exploitable vulnerabilities, or am I wrong?
+On Mon, Jul 14, 2003 at 12:21:16PM +0530, Maneesh Soni wrote:
+ > Can you add the following two points appended to the Generic VFS changes list?
+ > 
+ > Thanks
+ > Maneesh
 
-Last time I checked there were remote DoS attacks and local root attacks
-present in 2.5.7x
+I had considered putting such things in there a while ago, but wanted
+the doc to just let _users_ know what changes they should be aware of.
+This sort of thing really belongs in a 2.5-api-changes.txt or the likes.
+(Which I did ponder doing at one point, but time got the better of me).
 
-> > > This has been the only major reason for keeping of most of my
-> > > production machines running 2.4 for quite a while.  If not, can we get
-> > > the fixes in at the earliest opportunity?
-> >
-> > Sure.. send the fixes to Linus
-> 
-> Is anybody even keeping track of this, though?  Picking thorough LKML
-> to see what did and didn't go in doesn't seem particularly exciting to
-> me.
+		Dave
 
-Then you'll just have to wait a few months
 
+ > On Fri, Jul 11, 2003 at 02:04:59PM +0000, Dave Jones wrote:
+ > [...]
+ > > 
+ > > Generic VFS changes.
+ > > ~~~~~~~~~~~~~~~~~~~~
+ > > - Since Linux 2.5.1 it is possible to atomically move a subtree to
+ > >   another place. The call is...
+ > >    mount --move olddir newdir
+ > > - Since 2.5.43, dmask=value sets the umask applied to directories only.
+ > >   The default is the umask of the current process.
+ > >   The fmask=value sets the umask applied to regular files only.
+ > >   Again, the default is the umask of the current process.
+ >   - Since 2.5.62, dcache lookup is dcache_lock free. This does not affect
+ >     normal filesystems as long as they follow proper dcache interfaces. Care
+ >     should be taken (like holding per dentry lock) if one is racing with 
+ >     d_lookup bringing a new dentry in dcache.
+ >   - Since 2.5.75-bk1 onwards separate lock is used for vfsmounts instead of
+ >     dcache_lock.
+ >  
+ > 
+ > -- 
+ > Maneesh Soni
+ > IBM Linux Technology Center, 
+ > IBM India Software Lab, Bangalore.
+ > Phone: +91-80-5044999 email: maneesh@in.ibm.com
+ > http://lse.sourceforge.net/
+---end quoted text---

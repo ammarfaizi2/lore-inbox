@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263634AbRFFREA>; Wed, 6 Jun 2001 13:04:00 -0400
+	id <S263648AbRFFREu>; Wed, 6 Jun 2001 13:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263630AbRFFRDu>; Wed, 6 Jun 2001 13:03:50 -0400
-Received: from 24-168-195-81.ff.cox.rr.com ([24.168.195.81]:9481 "EHLO
-	24-168-195-81.ff.cox.rr.com") by vger.kernel.org with ESMTP
-	id <S263648AbRFFRDi>; Wed, 6 Jun 2001 13:03:38 -0400
-To: linux-kernel@vger.kernel.org
-Path: localhost!not-for-mail
-From: gsh@cox.rr.com (Greg Hennessy)
-Newsgroups: list.linux
-Subject: Re: Requirement: swap = RAM x 2.5 ??
-Date: 6 Jun 2001 13:05:27 -0400
-Organization: An installed InterNetNews site
-Message-ID: <9flnsn$532$1@24-168-195-81.ff.cox.rr.com>
-In-Reply-To: <200106061612.f56GCbA14901@vindaloo.ras.ucalgary.ca>
+	id <S263653AbRFFREn>; Wed, 6 Jun 2001 13:04:43 -0400
+Received: from olsinka.site.cas.cz ([147.231.11.16]:10113 "EHLO
+	twilight.suse.cz") by vger.kernel.org with ESMTP id <S263648AbRFFREf>;
+	Wed, 6 Jun 2001 13:04:35 -0400
+Date: Wed, 6 Jun 2001 19:04:18 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [driver] New life for Serial mice
+Message-ID: <20010606190418.A2098@suse.cz>
+In-Reply-To: <20010606125556.A1766@suse.cz> <Pine.LNX.4.10.10106060916130.5244-100000@transvirtual.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10106060916130.5244-100000@transvirtual.com>; from jsimmons@transvirtual.com on Wed, Jun 06, 2001 at 09:17:56AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200106061612.f56GCbA14901@vindaloo.ras.ucalgary.ca>,
-Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
-> > Swap is "extra space to be used if we have it" and nothing else.
-> 
-> Sure. But Linux still works without swap. It's just that if you *do*
-> have swap, it works best with 2* RAM.
+On Wed, Jun 06, 2001 at 09:17:56AM -0700, James Simmons wrote:
 
-There is a large difference between saying Linux works best with
-2*RAM, and Linux requires 2*RAM.
+> Is it possible to move serio.c and serport.c up into drivers/char. I'm
+> finding many drivers that use this and it is a mess to have to enable
+> joysticks just to use other types of devices like touchscreens.
 
+Possible it indeed is.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

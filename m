@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263953AbTFBVD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 17:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbTFBVD6
+	id S263979AbTFBVFe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 17:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbTFBVFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 17:03:58 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:64499 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S263953AbTFBVD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 17:03:56 -0400
-Date: Mon, 2 Jun 2003 14:13:16 -0700
-From: Chris Wright <chris@wirex.com>
-To: Greg KH <greg@kroah.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.5 patch] SECURITY_ROOTPLUG must depend on USB
-Message-ID: <20030602141316.A15203@figure1.int.wirex.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@fs.tum.de>,
-	linux-kernel@vger.kernel.org
-References: <20030601184436.GD29425@fs.tum.de> <20030602172016.GB4992@kroah.com>
+	Mon, 2 Jun 2003 17:05:34 -0400
+Received: from gw.netgem.com ([195.68.2.34]:2570 "EHLO gw.dev.netgem.com")
+	by vger.kernel.org with ESMTP id S263979AbTFBVFc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 17:05:32 -0400
+Subject: Re: [BUG] ieee1394 sbp2 driver is broken for kernel >= 2.4.21-rc2
+From: Jocelyn Mayer <jma@netgem.com>
+To: Georg Nikodym <georgn@somanetworks.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030602163443.2bd531fb.georgn@somanetworks.com>
+References: <1054582582.4967.48.camel@jma1.dev.netgem.com>
+	 <20030602163443.2bd531fb.georgn@somanetworks.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054588832.4967.77.camel@jma1.dev.netgem.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030602172016.GB4992@kroah.com>; from greg@kroah.com on Mon, Jun 02, 2003 at 10:20:16AM -0700
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 02 Jun 2003 23:20:32 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH (greg@kroah.com) wrote:
-> On Sun, Jun 01, 2003 at 08:44:36PM +0200, Adrian Bunk wrote:
-> > The following patch lets SECURITY_ROOTPLUG depend on USB (otherwise
-> > there are link errors since Root Plug Support needs
-> > usb_bus_list{,_lock}):
+On Mon, 2003-06-02 at 22:34, Georg Nikodym wrote:
+> On 02 Jun 2003 21:36:22 +0200
+> Jocelyn Mayer <jma@netgem.com> wrote:
 > 
-> Applied, thanks.
+> > ... at least for PPC targets.
+> 
+> As a datapoint, works fine for me with my x86 laptop:
 
-While we're at it, here's a tiny cleanup for a compile warning from John
-Cherry's build stats[1].  You may have a cleaner way you'd rather handle
-this.
+Hi,
 
-  CC [M]  security/root_plug.o
-security/root_plug.c:57:1: warning: "dbg" redefined
-In file included from security/root_plug.c:30:
-include/linux/usb.h:979:1: warning: this is the location of the previous definition
+OK, so it should be an endianness related problem...
+I didn't test this on a PC because I need (want ?)
+to always use the same kernel on my Mac & my PC
+so I can test my patches always in the same conditions.
+It gives me a start point to investigate...
 
-thanks,
--chris
+Regards.
 
-[1] http://www.osdl.org/archive/cherry/stability/linux-2.5.69.results/2.5.69.allmodconfig.modules.txt
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Jocelyn Mayer <jma@netgem.com>
+> 
 
-===== security/root_plug.c 1.2 vs edited =====
---- 1.2/security/root_plug.c	Wed Dec 18 15:09:26 2002
-+++ edited/security/root_plug.c	Mon Jun  2 11:42:21 2003
-@@ -54,6 +54,9 @@
- #define MY_NAME "root_plug"
- #endif
- 
-+#ifdef dbg
-+#undef dbg
-+#endif
- #define dbg(fmt, arg...)					\
- 	do {							\
- 		if (debug)					\

@@ -1,124 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbUKOWQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbUKOWXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbUKOWQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 17:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbUKOWQ1
+	id S261473AbUKOWXt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 17:23:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbUKOWXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 17:16:27 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:12956 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261460AbUKOWQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 17:16:13 -0500
-Subject: Re: Old thread: Nobody cared, chapter 10^3rd
-From: Len Brown <len.brown@intel.com>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org, Bjorn Helgaas <bjorn.helgaas@hp.com>
-In-Reply-To: <200411150052.22271.gene.heskett@verizon.net>
-References: <200411150052.22271.gene.heskett@verizon.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1100556963.5875.970.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 15 Nov 2004 17:16:03 -0500
+	Mon, 15 Nov 2004 17:23:49 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:15121 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261473AbUKOWXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 17:23:46 -0500
+Message-ID: <41992C5C.9060201@techsource.com>
+Date: Mon, 15 Nov 2004 17:23:24 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Roland Dreier <roland@topspin.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel Corp. 82801BA/BAM not supported by ALSA?
+References: <419914F9.7050509@techsource.com> <52is86lqur.fsf@topspin.com>
+In-Reply-To: <52is86lqur.fsf@topspin.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any difference when you tested with "pci=routeirq"?
-
--Len
-
-
-On Mon, 2004-11-15 at 00:52, Gene Heskett wrote:
-> Greetings;
+Roland Dreier wrote:
+>     Timothy> When I do 'lspci | grep -i audio', I get this:
+>     Timothy> 0000:00:1f.5 Multimedia audio controller: Intel
+>     Timothy> Corp. 82801BA/BAM AC'97 Audio (rev 04)
 > 
-> Board is a Biostar N7-NCD-Pro, Athlon 2800XP mounted, gig of ram.
+> I would guess it should be supported by snd_intel8x0.  What are the
+> exact device ID's (shown by lspci -n)?
 > 
-> Booting to 2.6.10-rc2 just now, I see that the dmesg log shows this:
+>  - R.
 > 
-> PCI: Using ACPI for IRQ routing
-> ** PCI interrupts are no longer routed automatically.  If this
-> ** causes a device to stop working, it is probably because the
-> ** driver failed to call pci_enable_device().  As a temporary
-> ** workaround, the "pci=routeirq" argument restores the old
-> ** behavior.  If this argument makes the device work again,
-> ** please email the output of "lspci" to bjorn.helgaas@hp.com
-> ** so I can fix the driver.
-> spurious 8259A interrupt: IRQ7.
-> [...]
-
-> ACPI: PCI interrupt 0000:02:00.0[A] -> GSI 5 (level, low) -> IRQ 5
-> [drm] Initialized radeon 1.11.0 20020828 on minor 0: ATI Technologies
-> Inc RV280 [Radeon 9200 SE]
-> ipmi message handler version v33
-> ipmi device interface version v33
-> irq 12: nobody cared!
->  [<c0130bea>] __report_bad_irq+0x2a/0x90
->  [<c01305a0>] handle_IRQ_event+0x30/0x70
->  [<c0130cdc>] note_interrupt+0x6c/0xd0
->  [<c0130710>] __do_IRQ+0x130/0x160
->  [<c01043fe>] do_IRQ+0x3e/0x60
->  =======================
->  [<c01028aa>] common_interrupt+0x1a/0x20
->  [<c011a470>] __do_softirq+0x30/0x90
->  [<c0104501>] do_softirq+0x41/0x50
->  =======================
->  [<c0130564>] irq_exit+0x34/0x40
->  [<c0104405>] do_IRQ+0x45/0x60
->  [<c01028aa>] common_interrupt+0x1a/0x20
->  [<c0130999>] setup_irq+0x99/0x120
->  [<c024d050>] i8042_interrupt+0x0/0x190
->  [<c0130b91>] request_irq+0x81/0xb0
->  [<c042e372>] i8042_check_aux+0x32/0x170
->  [<c024d050>] i8042_interrupt+0x0/0x190
->  [<c042e8f0>] i8042_init+0x130/0x1b0
->  [<c041681b>] do_initcalls+0x2b/0xc0
->  [<c0433c3d>] sock_init+0x3d/0x80
->  [<c0100440>] init+0x0/0x110
->  [<c010046f>] init+0x2f/0x110
->  [<c010086c>] kernel_thread_helper+0x0/0x14
->  [<c0100871>] kernel_thread_helper+0x5/0x14
-> handlers:
-> [<c024d050>] (i8042_interrupt+0x0/0x190)
-> Disabling IRQ #12
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-> [...]
-> Nov 15 00:35:40 coyote alsasound: Starting sound driver: snd-intel8x0
-> Nov 15 00:35:40 coyote kernel: ACPI: PCI Interrupt Link [LACI] enabled
-> at IRQ 12
-> Nov 15 00:35:40 coyote kernel: ACPI: PCI interrupt 0000:00:06.0[A] ->
-> GSI 12 (level, low) -> IRQ 12
-> Nov 15 00:35:40 coyote kernel: intel8x0_measure_ac97_clock: measured
-> 49922 usecs
-> Nov 15 00:35:40 coyote kernel: intel8x0: clocking to 47451
-> Nov 15 00:35:40 coyote alsasound: done
-> Nov 15 00:35:40 coyote rc: Starting alsasound:  succeeded
-> 
-> So there seems to be some confusion re the use of IRQ 12
-> 
-> Also during the early boot when its running on a vga 80x25 screen,
-> there are no fonts, just the occassional flicker of the curser
-> as it moves back and forth across the bottom of the screen, so
-> my early boot, after about 10 lines at the initiation, is invisible.
-> 
-> Later on it switches to an 80x30 screen, at which point I can
-> see the rest of the boot proceedure.  What causes this?
-> 
-> -- 
-> Cheers, Gene
-> "There are four boxes to be used in defense of liberty:
->  soap, ballot, jury, and ammo. Please use in that order."
-> -Ed Howdershelt (Author)
-> 99.28% setiathome rank, not too shabby for a WV hillbilly
-> Yahoo.com attorneys please note, additions to this message
-> by Gene Heskett are:
-> Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
+0000:00:00.0 Class 0600: 8086:2530 (rev 04)
+0000:00:01.0 Class 0604: 8086:2532 (rev 04)
+0000:00:1e.0 Class 0604: 8086:244e (rev 04)
+0000:00:1f.0 Class 0601: 8086:2440 (rev 04)
+0000:00:1f.1 Class 0101: 8086:244b (rev 04)
+0000:00:1f.2 Class 0c03: 8086:2442 (rev 04)
+0000:00:1f.3 Class 0c05: 8086:2443 (rev 04)
+0000:00:1f.4 Class 0c03: 8086:2444 (rev 04)
+0000:00:1f.5 Class 0401: 8086:2445 (rev 04)
+0000:01:00.0 Class 0300: 1002:5961 (rev 01)
+0000:01:00.1 Class 0380: 1002:5941 (rev 01)
+0000:02:0c.0 Class 0200: 10b7:9200 (rev 78)
+
+
+I don't get any sound out of the device when I WANT it, but I do 
+periodically get the odd crackling and popping.
+
+
+Thanks.

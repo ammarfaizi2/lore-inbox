@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270050AbRHUArt>; Mon, 20 Aug 2001 20:47:49 -0400
+	id <S270073AbRHUBGP>; Mon, 20 Aug 2001 21:06:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270087AbRHUArk>; Mon, 20 Aug 2001 20:47:40 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2828 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S270050AbRHUArU>; Mon, 20 Aug 2001 20:47:20 -0400
-Date: Mon, 20 Aug 2001 21:47:29 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alexandre Hautequest <hquest@fesppr.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IPX in 2.4.[5-9]
-Message-ID: <20010820214729.F14353@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alexandre Hautequest <hquest@fesppr.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <998343425.3b818301718cd@webmail.fesppr.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <998343425.3b818301718cd@webmail.fesppr.br>; from hquest@fesppr.br on Mon, Aug 20, 2001 at 06:37:05PM -0300
-X-Url: http://advogato.org/person/acme
+	id <S270087AbRHUBGE>; Mon, 20 Aug 2001 21:06:04 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:17044 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S270073AbRHUBGA>; Mon, 20 Aug 2001 21:06:00 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <stimits@idcomm.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: /dev/random in 2.4.6
+Date: Mon, 20 Aug 2001 18:06:13 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMMEFIDFAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3B81955A.C95A271E@idcomm.com>
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Aug 20, 2001 at 06:37:05PM -0300, Alexandre Hautequest escreveu:
 
-> What's the actual IPX support in linux? Is it broken since 2.4.7? Or i
+> Why is it required to use only the time between irq's of a single device
+> for start/stop times (time delta measurement)? If the time period were
+> instead calculated not on the time between irq of a single device, but
+> instead start and stop times were based on different device irq's, then
+> many pseudo entropy sources could become full entropy sources...to
+> accurately/precisely snoop eth0 traffic and determine it's irq would no
+> longer be helpful if the time involved the starting of a timer from
+> eth0, but the stop (and thus delta) was derived from something else like
+> hard drive activity. Force the attacker to monitor more than one irq,
+> plus require the attacker to know which irq device corresponds to the
+> stop irq of a particular timer.
+>
+> A variation on the theme would be to rotate which entropy source is used
+> as the stop event whenever a pseudo entropy source starts a timer. E.G.,
+> eth0 irq starts a timer, and the hard drive is set to stop the timer on
 
-no, it had bugs before for SMP configs and even for UP in some cases 8)
+	This makes no difference at all. It comes down to, ultimately, the
+difference between adding 'X' and 'Y' to an entropy pool or 'X' and 'X+Y'.
+The set 'X','Y' has the same amount of entropy as the set 'X','X+Y'. Either
+the time at which events occur contains entropy or it doesn't. No amount of
+math can increase the amount of entropy present in those times. Sorry.
 
-> just need to recompile my tools against a new kernel version -- the old
-> ones was compiled in a 2.4.5 -- with any patch, option, whatever?
+	DS
 
-nothing as far as IPX is concerned
- 
-> hquest@condor:~$ dmesg
-> (snip)
-> IPX Portions Copyright (c) 1995 Caldera, Inc.
-> IPX Portions Copyright (c) 2000, 2001 Conectiva, Inc.
-
-you forgot the most important line, the version
-
-> hquest@condor:~$ /sbin/ifconfig -v eth0    
-> eth0      Link encap:Ethernet  HWaddr 00:00:F8:08:BD:A1  
->           inet addr:172.16.40.2  Bcast:172.16.255.255  Mask:255.255.0.0
->           IPX/Ethernet 802.2 addr:AC100000:0000F808BDA1
-> (snip)
-> hquest@condor:~$ slist
-> slist: Server not found (0x8847) in ncp_open
-> hquest@condor:~$ _
-> 
-> Not flaming anyone, just questioning.
-
-I see ;) But Petr, that is the maintainer for ncpfs has already answered,
-please do what he asks you to do, as the above message is mostly related
-to ncpfs than to IPX.
-
-If the problem persists and you think that is IPX related, please let me
-know and I'll take a look, but I haven't received other reports related to
-what you describe here.
- 
-- Arnaldo

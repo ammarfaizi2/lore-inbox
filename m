@@ -1,70 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVAUUsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbVAUUvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262502AbVAUUsp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 15:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVAUUso
+	id S262501AbVAUUvu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 15:51:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbVAUUtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 15:48:44 -0500
-Received: from web53808.mail.yahoo.com ([206.190.36.203]:16982 "HELO
-	web53808.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262509AbVAUUo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 15:44:29 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=eYpjtf2C4PooujPaiutD3fog89DV6X0dbxZEm9iS/jfs0zNtMWs63pfBdS3qtP8TRE4cleEMAOjarODLrEfEannoSnuFs1LzwKTP2cQ6C7cJci/uF+5n3irt3vaZrn9sfaYleYgx1qHvyMqmQAU4t6pAgAQ/ZMC/vS5JvlrzdIg=  ;
-Message-ID: <20050121204422.85137.qmail@web53808.mail.yahoo.com>
-Date: Fri, 21 Jan 2005 12:44:22 -0800 (PST)
-From: Carl Spalletta <cspalletta@yahoo.com>
-Subject: Linux-tracecalls, a clarification
+	Fri, 21 Jan 2005 15:49:33 -0500
+Received: from [83.146.86.58] ([83.146.86.58]:59660 "EHLO mail.ward.six")
+	by vger.kernel.org with ESMTP id S262501AbVAUUqv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 15:46:51 -0500
+Date: Sat, 22 Jan 2005 01:46:46 +0500
+From: Denis Zaitsev <zzz@anda.ru>
 To: linux-kernel@vger.kernel.org
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>
-In-Reply-To: <200501192037.j0JKbpuA008501@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
+Cc: linux-net@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: [BUG] Onboard Ethernet Pro 100 on a SMP box: a very strange errors
+Message-ID: <20050122014646.A1038@natasha.ward.six>
+Mail-Followup-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+	nfs@lists.sourceforge.net
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.linuxrd.com/~carl/cgi-bin/lnxtc.pl?help
+The long story is:
 
---- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Re: [ANNOUNCE] Linux-tracecalls, a new tool for Kernel development, released 
-> 
-> If it can't find out where a function could be called through a pointer
-> (very common due to the OOP-in-C style in the kernel) it has no chance.
+There is a Dual-processor Intel Server Board STL2 with two P-III/800
+and an onboard Intel 82557-based ethernet card.  The box has all the
+/usr and nearly all of the /var filesystems mounted over NFS.  And the
+box works for months without any problems around the NFS.  So, I think
+that the ethernet card just works fine.
 
-Dear Doctor von Brand,
+But I have some enigmatic problems when I copying _some_ files from an
+NFS to the local fs: the process is freezes on the middle.
 
-  I believe the following should clear up your misunderstanding, perhaps due
-to my poor original choice of words.
+1) Only _some_ files can't be copied.  There are:
 
-Carl Spalletta
+   gcc-testsuite-3.4-20041217.tar.bz2
 
-PATCH #2
---- lnxtc-2.6.10.pl-    2005-01-21 00:16:33.000000000 -0500
-+++ lnxtc-2.6.10.pl     2005-01-21 00:50:11.000000000 -0500
-@@ -517,10 +517,22 @@
-     $leaf_node = 0;
-     $debug and print STDERR "\ncscope line is $full_caller_cscope";
+   krb5-1.3.6-signed.tar
 
--    #Target is a callback
-+    #TARGET IS A PSEUDO-CALLBACK, AN ARTIFACT OF CSCOPE:
-+    #
-+    #The name of an operations structure member, wrongly interpreted by
-+    #cscope as the name of an actual function - it should be ignored,
-+    #since it has been confused by cscope with the name of some actual
-+    #caller. HOWEVER the callbacks are found anyway, under their actual names.
-+    #and if any function pointed to by a callback is part of a chain to
-+    #our initial target it _will_ be found, the same as any other caller.
-+    #
-     if($full_caller_cscope =~ /\w+\s*->\s*${target_filefunc}\s*\(/)
-     {
--      $debug and print STDERR "callback $target_filefunc ignored.\n";
-+      $debug and
-+        print STDERR "pseudo-callback $target_filefunc ignored.\n";
-       next;
-     }
+   X430src-1.tgz
 
+   They are the well-known sources from the well-known ftp and web
+   places.  And I don't think that it's the full list, just the files
+   for which I have met the problem.
 
+2) Only _these_ files can't be copied.  Any other is copied plainly.
 
+3) These files _never_ can be copied.
 
+4) The copy process always freezes at the same place (per file - the
+   each file has its own place).
+
+In short: it's a list of files, on which the copying is always freezes
+and always freezes exactly the same way.  And there are no any
+exception - I have freezeng each time.
+
+The freezing is forever.  The freezed process is in D state, its
+/proc/PID/wchan contains page_sync.  Each such process eats 1.0 from
+/proc/loadavg.  And the process can't be killed by any signal.
+
+Then, copying by dd bs=1024 ... just succeeds.  After that cp succeeds
+too - I think it's because of caching.
+
+Then, there is no visual correlation with the size of the file.  So,
+it seems that the content of the file is involved...  But it is
+enigmatic.
+
+The NIC works fine all the other time, so there no suspicions about
+hardware problems.
+
+The other NIC - 3C905 PCI external card doesn't show the problem - all
+the files are just copied.
+
+An either driver for Ethernet Pro 100 - e100 or eepro100 - show the
+same result, but eepro100 logs periodicaly:
+
+        eth0: wait_for_cmd_done timeout!
+
+e100 logs nothing.
+
+So, it doesn't ever look like a driver bug...
+
+The kernels tested: 2.6.8.1, 2.6.9, 2.6.10.
+
+GLIBC used: 2.3.2.

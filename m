@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283385AbRK2Skp>; Thu, 29 Nov 2001 13:40:45 -0500
+	id <S283381AbRK2ShZ>; Thu, 29 Nov 2001 13:37:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278932AbRK2Skj>; Thu, 29 Nov 2001 13:40:39 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:3600 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283389AbRK2SkT>;
-	Thu, 29 Nov 2001 13:40:19 -0500
-Date: Thu, 29 Nov 2001 19:39:56 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Dirk Pritsch <dirk@enterprise.in-berlin.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops with 2.5.1-pre3 in ide-scsi module
-Message-ID: <20011129193956.S10601@suse.de>
-In-Reply-To: <20011129191938.A1402@Enterprise.in-berlin.de>
+	id <S283384AbRK2ShQ>; Thu, 29 Nov 2001 13:37:16 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:18425 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S283381AbRK2ShM>;
+	Thu, 29 Nov 2001 13:37:12 -0500
+Date: Thu, 29 Nov 2001 11:36:55 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: "Nathan G. Grennan" <ngrennan@okcforum.org>
+Cc: Oktay Akbal <oktay.akbal@s-tec.de>, linux-kernel@vger.kernel.org
+Subject: Re: Unresponiveness of 2.4.16 revisited
+Message-ID: <20011129113655.L29249@lynx.no>
+Mail-Followup-To: "Nathan G. Grennan" <ngrennan@okcforum.org>,
+	Oktay Akbal <oktay.akbal@s-tec.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.42.0111291904190.2184-100000@omega.hbh.net> <1007057769.1528.7.camel@cygnusx-1.okcforum.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011129191938.A1402@Enterprise.in-berlin.de>
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <1007057769.1528.7.camel@cygnusx-1.okcforum.org>; from ngrennan@okcforum.org on Thu, Nov 29, 2001 at 12:16:07PM -0600
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 29 2001, Dirk Pritsch wrote:
-> Hi,
+On Nov 29, 2001  12:16 -0600, Nathan G. Grennan wrote:
+> On Thu, 2001-11-29 at 12:09, Oktay Akbal wrote:
+> > Why do you think that fstab matters for root-fs ? root-fs needs to be 
+> > mounted to read fstab. So autodetection must be done for root-fs.
+> > And if the fs has a journal it is ext3.
 > 
-> just tried the new 2.5.1-pre3 and got the following oops when trying to
-> burn a cd (ide-cd/rw with ide-scsi emulation).
-> 
-> I Hope this is some useful information.
-> 
-> 
-> ____
-> ksymoops 2.4.3 on i586 2.5.1-pre3.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.5.1-pre3/ (default)
->      -m /boot/System.map-2.5.1-pre3 (default)
-> 
-> Warning: You did not tell me where to find
-> symbol information.  I will
-> assume that the log matches the kernel and
-> modules that are running
-> right now and I'll use the default options
-> above for symbol resolution.
-> If the current kernel and/or modules do not
-> match the log, you can get
-> more accurate output by telling me the kernel
-> version and where to find
-> map, modules, ksyms etc.  ksymoops -h explains
-> the options.
-> 
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address
-> 00000038
-> c01af582
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0010:[idescsi_queue+1158/1396]    Not tainted
+> Actually, I think it should respect fstab. It does mount it, then fsck
+> it while mounted read-only, then remounts(key point) read-write. IMHO it
+> should remount it with whatever fstab says. I realize this could be a
+> little tricky, but I bet doable.
 
-Hmm, I bet the problem is not really bio but the fact that someone is
-still sending down a scatterlist with ->address set instead of
-->page/offset.
+Well, then you would be wrong.  The only case where this really matters
+is if you are using ext3/ext2 because all other cases will be autodetected
+as only a single fs type (OK, maybe msdos/vfat, but who would use that as
+root, I don't know, and it still has the same issues).
 
-Let me hack a quick fix up for you to test... 2 minutes.
+Once the root filesystem is mounted, and init (+ rc.sysinit or whatever
+your startup scripts are) is run, your filesystem is in use.  How do you
+expect to remount it as a different filesystem while it is in use?  Note
+that _today's_ ext2 and ext3 are totally separate drivers, so you cannot
+"remount" from one driver to another.  Maybe in the future it would be
+possible for the ext3 filesystem driver to support ext2 (i.e. unjournaled),
+but not today, and it would be even less likely to allow stopping journaling
+on the filesystem once it is started (journaling is complex business).
 
--- 
-Jens Axboe
+> > If you do not want that  behaviour
+> > you might use a option to lilo, but I don't know of any option to specify
+> > the root-fs-tyoe. Or you need to use an initrd to mount explicit as ext2
+> > and pivot-root it to / ?
+
+Well, the lilo option you want is "rootfstype=ext2".  It is part of 2.4.15.
+Put it into an "append=" statement in lilo (per kernel, or global).  Even
+so, 99.9% of people who can use ext3 do not want to go back to ext2.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311406AbSCMWYz>; Wed, 13 Mar 2002 17:24:55 -0500
+	id <S311405AbSCMW1Z>; Wed, 13 Mar 2002 17:27:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311411AbSCMWYq>; Wed, 13 Mar 2002 17:24:46 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62473 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S311407AbSCMWYf>; Wed, 13 Mar 2002 17:24:35 -0500
-Date: Wed, 13 Mar 2002 17:22:50 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
-In-Reply-To: <Pine.LNX.4.33.0203132006310.28859-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1020313171800.5467C-100000@gatekeeper.tmr.com>
+	id <S311407AbSCMW1P>; Wed, 13 Mar 2002 17:27:15 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13832 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311405AbSCMW1B>; Wed, 13 Mar 2002 17:27:01 -0500
+Subject: Re: IO-APIC -- lockup on machine if enabled
+To: mikpe@csd.uu.se (Mikael Pettersson)
+Date: Wed, 13 Mar 2002 22:41:59 +0000 (GMT)
+Cc: davej@suse.de, fryman@cc.gatech.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <200203132052.VAA08581@harpo.it.uu.se> from "Mikael Pettersson" at Mar 13, 2002 09:52:14 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16lHRX-0007fR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Mar 2002, Ingo Molnar wrote:
+> 2.5.6 has the original version of the patch kit, which includes the
+> workarounds for Dell laptops but doesn't include the newer blacklist
+> rules for the Thinkpad T20 and the MSI-6163.
 
-> 
-> On Wed, 13 Mar 2002, Martin Wilck wrote:
-> 
-> > First of all, we see that virtually 100% of all IRQs are handled by
-> > CPU 0. I have seen this reported a number of times before. I guess it
-> > can become a severe performance problem in IRQ-intensive situations.
-> 
-> i've written a patch for this, it's enclosed in this email. It implements
-> a brownean motion of IRQs, based on load patterns. The concept works
-> really well on Foster CPUs - eg. it will redirect IRQs to idle CPUs - but
-> if all CPUs are idle then the IRQs are randomly and evenly distributed
-> between CPUs.
+BTW does 2.5.6 have the VIA/AMD one in it (See the AMD76x errata about
+what happens if you mix AMD north and VIA south bridges with APIC mode)
 
-If several processors are idle, say CPU0 busy and CPU[123] idle, does it
-preferentially use a "CPU" on another chip? And does that make any
-difference? It's not clear to me if the HT CPUs share cache or not, they
-obviously share bandwidth from L2 to RAM.
+> 2.4.19-pre3 has the relevant core changes, but lacks the actual DMI
+> rules and local APIC workarounds. I believe the -ac versions also
+> only include the core changes.
 
-I'm looking at P4 chips and boards, my 2Q02 budget has some $$ for a
-system. I also will be getting some laptops 3Q02, does the new P4-M mobile
-chip by any chance have HT? If so a good reason to go Intel, assuming that
-either the BIOS or Linux can get it to use the feature ;-)
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+If there is stuff you think I should have feed me updates

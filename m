@@ -1,110 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266376AbUHBSCD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266678AbUHBSD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266376AbUHBSCD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 14:02:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266670AbUHBSCC
+	id S266678AbUHBSD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 14:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUHBSD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 14:02:02 -0400
-Received: from fire.osdl.org ([65.172.181.4]:49054 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S266376AbUHBSBz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 14:01:55 -0400
-Subject: Re: 2.6.8-rc2-mm2 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040802015527.49088944.akpm@osdl.org>
-References: <20040802015527.49088944.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1091469597.2526.16.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 02 Aug 2004 10:59:57 -0700
+	Mon, 2 Aug 2004 14:03:28 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:21679 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S266678AbUHBSDF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 14:03:05 -0400
+Message-ID: <410E81C3.2070804@us.ibm.com>
+Date: Mon, 02 Aug 2004 11:02:43 -0700
+From: Ian Romanick <idr@us.ibm.com>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jon Smirl <jonsmirl@yahoo.com>
+CC: lkml <linux-kernel@vger.kernel.org>, Dave Airlie <airlied@linux.ie>,
+       "DRI developer's list" <dri-devel@lists.sourceforge.net>
+Subject: Re: DRM code reorganization
+References: <20040802155312.56128.qmail@web14923.mail.yahoo.com>
+In-Reply-To: <20040802155312.56128.qmail@web14923.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Jon Smirl wrote:
+>>4) DRM code reorganization. There were several requests to reorganize
+>>DRM to more closely follow the Linux kernel guidelines. This
+>>reorganization should occur before new features are added.
+> 
+> What should be the model for reorganizing DRM? An obvious change is
+> eliminate the naming macros. 
+> 
+> Another is to change to a personality with helper library model like
+> fbdev has. All of the common DRM code would go into a library module.
+> Each card would then have a small device specific module which depends
+> on the library module for common code. 
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.8-rc2-mm2     0w/0e     4w/5e    87w/9e    4w/0e   1w/0e     80w/0e
-2.6.8-rc2-mm1     0w/0e     0w/0e    83w/9e    3w/0e   1w/0e     81w/0e
-2.6.8-rc1-mm1     0w/0e     0w/0e    88w/9e    5w/0e   1w/0e     87w/0e
-2.6.7-mm7         0w/0e     0w/0e    89w/9e    5w/0e   1w/0e     84w/0e
-2.6.7-mm6         0w/0e     0w/0e    85w/9e    5w/0e   1w/0e     80w/0e
-2.6.7-mm5         0w/0e     0w/0e    92w/0e    5w/0e   1w/0e     87w/0e
-2.6.7-mm4         0w/0e     0w/0e    94w/0e    5w/0e   1w/0e     89w/0e
-2.6.7-mm3         0w/0e     0w/0e    90w/6e    5w/0e   1w/0e     86w/0e
-2.6.7-mm2         0w/0e     0w/0e   109w/0e    7w/0e   1w/0e    106w/0e
-2.6.7-mm1         0w/0e     5w/0e   108w/0e    5w/0e   1w/0e    104w/0e
-2.6.7-rc3-mm2     0w/0e     5w/0e   105w/10e   5w/0e   2w/0e    100w/2e
-2.6.7-rc3-mm1     0w/0e     5w/0e   104w/10e   5w/0e   2w/0e    100w/2e
-2.6.7-rc2-mm2     0w/0e     5w/0e   109w/10e   5w/0e   2w/0e    105w/2e
-2.6.7-rc2-mm1     0w/0e    12w/0e   158w/13e   5w/0e   3w/0e    153w/4e
-2.6.7-rc1-mm1     0w/0e     6w/0e   108w/0e    5w/0e   2w/0e    104w/0e
-2.6.6-mm5         0w/0e     0w/0e   109w/5e    5w/0e   2w/0e    110w/0e
-2.6.6-mm4         0w/0e     0w/0e   112w/9e    5w/0e   2w/5e    106w/1e
-2.6.6-mm3         3w/9e     0w/0e   120w/26e   5w/0e   2w/0e    114w/10e
-2.6.6-mm2         4w/11e    0w/0e   120w/24e   6w/0e   2w/0e    118w/9e
-2.6.6-mm1         1w/0e     0w/0e   118w/25e   6w/0e   2w/0e    114w/10e
-2.6.6-rc3-mm2     0w/0e     0w/0e   117w/ 0e   8w/0e   2w/0e    116w/0e
-2.6.6-rc3-mm1     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
-2.6.6-rc2-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
-2.6.6-rc2-mm1     0w/0e     0w/0e   115w/ 0e   7w/0e   3w/0e    116w/0e
-2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
-2.6.5-mm6         0w/0e     0w/0e   123w/ 0e   7w/0e   4w/0e    124w/0e
-2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
-2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
-2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
-2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
-2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
-2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
-2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
-2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
-2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
-2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
-2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
-2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
-2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
-2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
-2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
-2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+This would be *very* non-trivial to do.  Doing the DRM like this has 
+come up probably a dozen times (or more) over the last 3 years.  The 
+problem is that each driver has different needs based on hardware 
+functionality.  We've managed to classify these needs into a few groups, 
+and drivers can select which functionality they need via a set of 
+defines.  These per-driver defines determine what code gets compiled 
+into the different routines (as well as which routines even get built).
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+Trying to make this into a library would just be a mess.  It would 
+either break cases where multiple DRMs are built (or loaded) into the 
+kernel or result in a *ton* of unused, nearly duplicate routines being 
+built into the library.
 
-John
+If this is something that we really want to pursue, someone needs to dig 
+in and figure out:
 
+1. How much / which code can be "trivially" shared?
+2. How much / which code can be shared with very little work?
+3. How much / which code would we rather get a root-canal than try to 
+make shared?
 
+The concern has been that, by making a "generic" library layer, we'd 
+actually make the DRM more difficult to maintain.  Nobody has really had 
+the time to do the research required to either substantiate or refute 
+those claims.  Based on the little experience I have in the DRM, I tend 
+to believe them.
 
+> ian: what about splitting the current memory management code into a
+> module that can be swapped for your new version?
+
+AFAIK, the only drivers that have any sort of in-kernel memory manager 
+are the radeon (only used by the R200 driver) and i830.  That memory 
+manager only exists to support an NV_vertex_array_range-like extension 
+that some Tungsten customers needed.  I don't think there would be any 
+benefit to making that swappable.
+
+Once the new memory manager is in, 80% (or more) of the code will be in 
+user-mode anyway.  The code that will be in the kernel should be generic 
+enough to be completely sharable (i.e., in a generic DRM library).
+
+> Are other structure changes needed?

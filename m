@@ -1,83 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276953AbRJIDTi>; Mon, 8 Oct 2001 23:19:38 -0400
+	id <S277708AbRJIDW3>; Mon, 8 Oct 2001 23:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277010AbRJIDT3>; Mon, 8 Oct 2001 23:19:29 -0400
-Received: from [216.191.240.114] ([216.191.240.114]:21638 "EHLO
-	shell.cyberus.ca") by vger.kernel.org with ESMTP id <S276953AbRJIDTU>;
-	Mon, 8 Oct 2001 23:19:20 -0400
-Date: Mon, 8 Oct 2001 23:17:00 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Scott Laird <laird@internap.com>
-cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-        Bernd Eckenfels <ecki@lina.inka.de>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.LNX.4.33.0110081717030.5961-100000@laird.sea.internap.com>
-Message-ID: <Pine.GSO.4.30.0110082241170.5996-100000@shell.cyberus.ca>
+	id <S277706AbRJIDWU>; Mon, 8 Oct 2001 23:22:20 -0400
+Received: from ip122-15.asiaonline.net ([202.85.122.15]:64418 "EHLO
+	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
+	id <S277010AbRJIDWF>; Mon, 8 Oct 2001 23:22:05 -0400
+Message-ID: <3BC26BDE.45D893A6@rcn.com.hk>
+Date: Tue, 09 Oct 2001 11:15:42 +0800
+From: David Chow <davidchow@rcn.com.hk>
+Organization: Resources Computer Network Ltd.
+X-Mailer: Mozilla 4.76 [zh_TW] (X11; U; Linux 2.4.4-1DC i686)
+X-Accept-Language: zh_TW, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alistair Riddell <ali@gwc.org.uk>
+CC: raid@ddx.a2000.nu, linux-kernel@vger.kernel.org,
+        linux-raid@vger.kernel.org
+Subject: Re: write/read cache raid5
+In-Reply-To: <Pine.LNX.4.21.0110082213240.29428-100000@frank.gwc.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alistair Riddell ¼g¹D¡G
+> 
+> On Mon, 8 Oct 2001 raid@ddx.a2000.nu wrote:
+> 
+> > So there is no way i can Speedup write to the raid5 array ?
+> > (memory will be ecc and the server will be on ups)
+> 
+> Your disks go as fast as they go, that is a physical limitation.
+> 
+> More RAM means your server can store up data blocks to be written when the
+> disks are less busy. But the data still has to be written to disk
+> sometime.
+> 
+> More RAM will certainly help by caching reads though.
+> 
+> 6 disks raided together means the bottleneck will likely be your network,
+> unless your server is on gigabit ethernet and has a ton of clients and/or
+> gigabit to the desktop.
+> 
+> --
+> Alistair Riddell - BOFH
+> IT Manager, George Watson's College, Edinburgh
+> Tel: +44 131 447 7931 Ext 176       Fax: +44 131 452 8594
+> Microsoft - because god hates us
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
-On Mon, 8 Oct 2001, Scott Laird wrote:
-
->
->
-> On Mon, 8 Oct 2001, jamal wrote:
-> >
-> > Several things to note/observe:
-> > - They use some very specialized piece of hardware (with two PCI buses).
->
-> Huh?  It was just an L440GX, which was probably the single most common PC
-> server board for a while in 1999-2000.  Most of VA Linux's systems used
-> them.  I wouldn't call them "very specialized."
->
-
-Ok, sorry you are right, not very high end, but not exactly cheap even at
-the time to have a motherboard with two PCI busses (i for one would have
-been delighted to have had access to one even today);
-Nevertheless, impressive numbers still.
-I could do achieve MLFR of ~200Kpps on an elcheapo PII with 4port znyx
-cards on an ASUS that has a single PCI bus; and from what Donald Becker
-was saying we could probably do better with 4 interface cards rather than
-a single 4-port card due to bus mastership issues.
-I suppose thats why Robert can pull more packets on only two gige NICs on
-a single bus. He's more than likely hitting PCI bottlenecks at this point.
-A second PCI bus with a second set of cards should help (dis)prove this
-theory.
-
-> > - Roberts results on a single PCI bus hardware was showing ~360Kpps
-> > routing vs clicks 435Kpps. This is not "far off" given the differences in
-> > hardware. What would be really interesting is to have the click folks
-> > post their latency results. I am curious as to what a purely polling
-> > scheme they have would achieve (as opposed to NAPI which is a mixture of
-> > interupts and polls).
->
-> Their 'TOCS00' paper lists a 29us one-way latency on page 22.
->
-
-Thats a very good number. I wonder what it means though and at what rates
-those numbers are extracted. For example some of the tests i run on the
-znyx card with only two ports generating traffic -- you can observe a
-rough latency of around 33us upto about the MLFFR and then the latency
-jumps sharply to hunderds of us. Infact at 147Kpps input, you observe
-anywhere in the range of upto 800us although we are clearly flat at the
-MLFFR throughput on the output. These numbers might also be affected by
-the latency measurement scheme used,
-
-> Click looks interesting, much more so then most academic network projects,
-> but I'm still not sure if it'd really be useful in most "real"
-
-agreed, although i think we need to have more research of the type that
-click is bringing ...
-
-> environments.  It looks too flexible for most people to manage.  It'd be
-> an interesting addition to my test lab, though :-).
-
-indeed.
-
-cheers,
-jamal
-
+Yes my server serve lots of clients and have lots of NICs even
+gigabit... how can I increase write/read cache on RAID5 ? It is better
+performed when big cache allows on top (before) raid computation work
+and physical disk writes.

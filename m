@@ -1,43 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262603AbTCIUj1>; Sun, 9 Mar 2003 15:39:27 -0500
+	id <S262609AbTCIUpE>; Sun, 9 Mar 2003 15:45:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262608AbTCIUj1>; Sun, 9 Mar 2003 15:39:27 -0500
-Received: from gjs.xs4all.nl ([80.126.25.16]:19624 "EHLO mail.gjs.cc")
-	by vger.kernel.org with ESMTP id <S262603AbTCIUj0>;
-	Sun, 9 Mar 2003 15:39:26 -0500
-From: GertJan Spoelman <kl@gjs.cc>
-To: Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Module XXX can not be unloaded
-Date: Sun, 9 Mar 2003 21:49:03 +0100
-User-Agent: KMail/1.6
-References: <Pine.LNX.4.44.0303091500250.4012-100000@bilbo.tmr.com>
-In-Reply-To: <Pine.LNX.4.44.0303091500250.4012-100000@bilbo.tmr.com>
+	id <S262619AbTCIUpD>; Sun, 9 Mar 2003 15:45:03 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:56279 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262609AbTCIUo4>;
+	Sun, 9 Mar 2003 15:44:56 -0500
+Date: Sun, 9 Mar 2003 14:31:12 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: "Tomasz Torcz, BG" <zdzichu@irc.pl>, <linux-kernel@vger.kernel.org>,
+       <akpm@digeo.com>
+Subject: Re: Kernel bug in dcache.h:266; 2.5.64, EIP at sysfs_remove_dir
+In-Reply-To: <Pine.LNX.4.33.0303091205280.994-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0303091427100.994-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200303092149.03634.kl@gjs.cc>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 March 2003 21:19, davidsen wrote:
-> My logs are filled with this message, in spite of:
->  1 - nothing is trying to unload these modules
 
-Are you sure?, some distro's have a default cronjob which do a rmmod -as every 
-hour or maybe even more frequent.
-The -s logs the message to syslog instead of the terminal.
+On Sun, 9 Mar 2003, Patrick Mochel wrote:
 
->  2 - my kernels are built w/o module unloading because I have never yet
->      found any module which *could* be unloaded by the new code.
->
-> I presume this should be replaced by a message saying that module
-> unloading is not configured, and that it should only happen when a program
-> tries to unload a module, rather than generating many lines of meaningless
-> log babble.
--- 
+> 
+> On Sun, 9 Mar 2003, Martin J. Bligh wrote:
+> 
+> > Look for akpm's latest -mm tree release notes - the patch is embedded
+> > in there.
+> 
+> Actually, sysfs is officially fscked in 2.5.64. I'm looking into it, so 
+> more reports of it crashing are not necessary. :) I apologize for the 
+> inconveniences this has caused.
 
-    GertJan
+I was able to reproduce the Oops with a USB device on multiple insert/
+removals. The patch below fixes the Oops for me. Could people who have 
+seen the Oops try it out and let me know if it helps them? 
+
+[ Unfortunately, I can't test some of the exact failure scenarios, as I 
+don't use ppp, and my one system with PCMCIA has decided that it doesn't 
+want to let me (physically) insert cards anymore.. ]
+
+Thanks,
+
+	-pat
+
+
+===== fs/sysfs/dir.c 1.4 vs edited =====
+--- 1.4/fs/sysfs/dir.c	Sat Mar  8 23:42:32 2003
++++ edited/fs/sysfs/dir.c	Sun Mar  9 14:25:26 2003
+@@ -98,7 +98,6 @@
+ 			 * Unlink and unhash.
+ 			 */
+ 			spin_unlock(&dcache_lock);
+-			d_delete(d);
+ 			simple_unlink(dentry->d_inode,d);
+ 			dput(d);
+ 			spin_lock(&dcache_lock);
+===== fs/sysfs/inode.c 1.83 vs edited =====
+--- 1.83/fs/sysfs/inode.c	Mon Mar  3 17:11:29 2003
++++ edited/fs/sysfs/inode.c	Sun Mar  9 14:25:45 2003
+@@ -93,19 +93,14 @@
+ 		/* make sure dentry is really there */
+ 		if (victim->d_inode && 
+ 		    (victim->d_parent->d_inode == dir->d_inode)) {
+-			simple_unlink(dir->d_inode,victim);
+-			d_delete(victim);
+-
+ 			pr_debug("sysfs: Removing %s (%d)\n", victim->d_name.name,
+ 				 atomic_read(&victim->d_count));
+-			/*
+-			 * Drop reference from initial sysfs_get_dentry().
+-			 */
+-			dput(victim);
++
++			simple_unlink(dir->d_inode,victim);
++
+ 		}
+-		
+-		/**
+-		 * Drop the reference acquired from sysfs_get_dentry() above.
++		/*
++		 * Drop reference from sysfs_get_dentry() above.
+ 		 */
+ 		dput(victim);
+ 	}
+
+

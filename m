@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280588AbRLLPML>; Wed, 12 Dec 2001 10:12:11 -0500
+	id <S280805AbRLLPWm>; Wed, 12 Dec 2001 10:22:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280664AbRLLPMC>; Wed, 12 Dec 2001 10:12:02 -0500
-Received: from mail.ccur.com ([208.248.32.212]:44811 "EHLO mail.ccur.com")
-	by vger.kernel.org with ESMTP id <S280588AbRLLPLx>;
-	Wed, 12 Dec 2001 10:11:53 -0500
-Subject: Re: [RFC] Multiprocessor Control Interfaces
-From: Jason Baietto <jason.baietto@ccur.com>
-To: Tim Hockin <thockin@sun.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C164D93.A52BC1C2@sun.com>
-In-Reply-To: <200112110138.fBB1cqS09363@www.hockin.org>
-	<1008088311.16656.4.camel@soybean>  <3C164D93.A52BC1C2@sun.com>
-Content-Type: text/plain
+	id <S280814AbRLLPWc>; Wed, 12 Dec 2001 10:22:32 -0500
+Received: from crunchy.sound.net ([205.242.194.25]:37827 "HELO
+	crunchy.sound.net") by vger.kernel.org with SMTP id <S280805AbRLLPWS>;
+	Wed, 12 Dec 2001 10:22:18 -0500
+Message-ID: <3C177767.8132794F@sound.net>
+Date: Wed, 12 Dec 2001 09:27:35 -0600
+From: A Duston <hald@sound.net>
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: en,el
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bio and "old" block drivers
+In-Reply-To: <Pine.GSO.4.10.10112111539180.5913-100000@sound.net> <20011212101957.GE7562@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 12 Dec 2001 10:11:43 -0500
-Message-Id: <1008169908.22359.2.camel@soybean>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-12-11 at 13:16, Tim Hockin wrote:
-> Jason Baietto wrote:
->
-> > support it in my "run" tool, though I fear that it would always be
-> > functionally limited without /proc present.
+Jens Axboe wrote:
 > 
-> Adding /proc/ interfaces like cpus_allowed or similar is just gravy
-> on top of pset, which I think is a good interface.
+> On Tue, Dec 11 2001, Hal Duston wrote:
+> > I'm looking at the bio changes for ps2esdi.  The driver
+> > appears to no longer work compiled when into the kernel.
+> > The ps2esdi_init call has been removed from
+> > ll_rw_blk.c:blk_dev_init.  Where is the new/correct place
+> > to call this from?  This appears to be the same way with
+> > many of the other "old" block drivers as well.
+> 
+> Just use module_init to make this happen automagically.
 
-Sorry for the ambiguity.  My comment was about the functionality of
-the "run" tool itself being limited without /proc support.
+Sorry, I am not understanding you here.  Could you spell it 
+out please?  My root filesystem is on the ps2esdi disk, do 
+I need to set up an initrd, and load the ps2esdi driver as 
+a module?  Or do you mean that I should change things to 
+have module_init call it even when it isn't built as a 
+module?  Or something else?
 
-Although I agree that ultimately "run" is gravy, our customers think
-it's pretty tasty gravy :-)  It's very convenient to write a shell
-script to start up a complex application without having to reference
-pids anywhere and without having to modify any of the programs in
-the application to make them CPU affinity aware.  Combined with run's
-ability to tune scheduling parameters, you have a very simple but
-powerful way to experiment with and tune application performance.
-
-The run tool also allows you to quickly move processes around by
-specifying lists of pids, process names, process groups or users,
-but /proc is needed for anything more interesting than pids.
-
-Take care,
-Jason
---
-Jason Baietto
-jason.baietto@ccur.com
-http://www.ccur.com/realtime/oss
-
+Thanks,
+Hal Duston
+hald@sound.net

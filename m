@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316662AbSHGIKc>; Wed, 7 Aug 2002 04:10:32 -0400
+	id <S317102AbSHGIiK>; Wed, 7 Aug 2002 04:38:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317140AbSHGIKc>; Wed, 7 Aug 2002 04:10:32 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:29451 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S316662AbSHGIKb>; Wed, 7 Aug 2002 04:10:31 -0400
-Message-ID: <3D50D6E5.5A81710F@aitel.hist.no>
-Date: Wed, 07 Aug 2002 10:14:29 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.30 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Disk (block) write strangeness
-References: <20020805184921.GC2671@unthought.net> <1028578632.18156.71.camel@irongate.swansea.linux.org.uk> <20020805190706.GD2671@unthought.net> <3D4FE0B9.751A3E92@daimi.au.dk>
-Content-Type: text/plain; charset=us-ascii
+	id <S317107AbSHGIiK>; Wed, 7 Aug 2002 04:38:10 -0400
+Received: from 205-158-62-111.outblaze.com ([205.158.62.111]:4881 "HELO
+	ws1-10.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S317102AbSHGIiJ>; Wed, 7 Aug 2002 04:38:09 -0400
+Message-ID: <20020807084133.17787.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Ana Yuseepi" <anayuseepi@asia.com>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 07 Aug 2002 03:41:33 -0500
+Subject: lost interrupt and inb()
+X-Originating-Ip: 210.159.65.4
+X-Originating-Server: ws1-10.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kasper Dupont wrote:
+hello all,
+ 
+i tried to made a program in the form of a module. This program would attempt to read/poll status register of IDE until the value for the status register is 0x50. 
+ 
+here is the algorithm:
+ 
+ save_flag();
+ disable_interrupt();
+ poll_or_read_or_get_input_from_IDE_status_register();
+ enable_interrupt();
+ restore_flags();
+ 
+ this program would run fine, but after the program is finished executing, it would display a message:
+ ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
+ hdc: lost interrupt
+ 
+the OS doesn't hang. because normal operation would resume after this program exit.
+ OS=linux 7.3, kernel=2.4.18-3
+ 
+my question is:
+how can i solve this error such that the error message would not appear anymore?
+ 
+i have lots of other questions, but that of the above is the most important..
+ 
+hope to hear your reply,
+ 
+-Ana
+-- 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 
-> I think it should be possible for the firmware on a good disk to
-> prevent such artifacts. But I think you can find disks that just
-> keeps trying to write even while power is failing.
-> 
-That could might give you some (sub)blocks out of order, if the disk
-firmware falsely believes that it is free to reorder anything
-that reach its internal cache.   Writing to the bitter end
-will turn at least one block to garbage as write current fail
-in the middle.
+Get 4 DVDs for $.49 cents! plus shipping & processing. Click to join. 
+http://adfarm.mediaplex.com/ad/ck/990-1736-3566-59
 
-Alan Cox wrote:
-> *) or the disk internal logic bears no resemblance to the antiquated API
-> it fakes for the convenience of interface hardware and software
-
-One may then wonder if journalling is a safe thing to do,
-with out-of-order writes exposed by a power failure...
-
-Helge Hafting

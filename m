@@ -1,47 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVBWXOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVBWXOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVBWXOy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 18:14:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVBWXNN
+	id S261677AbVBWXOx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 18:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVBWXOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 18:13:13 -0500
-Received: from fire.osdl.org ([65.172.181.4]:5334 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261687AbVBWXMz (ORCPT
+	Wed, 23 Feb 2005 18:14:04 -0500
+Received: from waste.org ([216.27.176.166]:64744 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261677AbVBWXLo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 18:12:55 -0500
-Date: Wed, 23 Feb 2005 15:17:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Thomas S. Iversen" <zensonic@zensonic.dk>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Help tracking down problem --- endless loop in
- __find_get_block_slow
-Message-Id: <20050223151756.22c8c48d.akpm@osdl.org>
-In-Reply-To: <421D029E.8010600@zensonic.dk>
-References: <4219BC1A.1060007@zensonic.dk>
-	<20050222011821.2a917859.akpm@osdl.org>
-	<20050223120013.GA28169@zensonic.dk>
-	<20050223041036.5f5df2ff.akpm@osdl.org>
-	<20050223130251.GA31851@zensonic.dk>
-	<20050223120928.133778a4.akpm@osdl.org>
-	<421D029E.8010600@zensonic.dk>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 23 Feb 2005 18:11:44 -0500
+Date: Wed, 23 Feb 2005 15:11:30 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Helge Hafting <helge.hafting@aitel.hist.no>
+Subject: Re: 2.6.11-rc4-mm1 : IDE crazy numbers, hdb renumbered to hdq ?
+Message-ID: <20050223231130.GF3163@waste.org>
+References: <20050223014233.6710fd73.akpm@osdl.org> <421C7FC2.1090402@aitel.hist.no> <20050223121207.412c7eeb.akpm@osdl.org> <421D0582.9090100@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <421D0582.9090100@free.fr>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Thomas S. Iversen" <zensonic@zensonic.dk> wrote:
->
-> > I'd be suspecting that the sector remapping is the cause of the problem. 
-> > How is it implemented?
+On Wed, Feb 23, 2005 at 11:36:50PM +0100, Laurent Riffard wrote:
+> Le 23.02.2005 21:12, Andrew Morton a ?crit :
+> >Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+> >
+> >>This kernel came up, but my boot script complained about no /dev/hdb3
+> >>when trying to mount /var.
+> >>(I have two IDE disks on the same cable, and an IDE cdrom on another.)
+> >>They are usually hda, hdb, and hdc.
+> >>
+> >>MAKEDEV hdq did not help.  Looking at sysfs, it turns out that
+> >>/dev/hdq1 is at major:3 minor:1025 if I interpret things right.
+> >>(/dev/hda1 is at 3:1, which is correct.)
+> >>These numbers did not work with my mknod, it created 7:1 instead.
+> >>So I didn't get to test this mysterious device.
+> >>
+> >>But I assume this is a mistake of some sort, I haven't heard about any
+> >>change in the IDE numbering coming up?  2.6.1-rc3-mm1 works as expected.
+> >>
+> >>It may be interesting to note that my root raid-1 came up fine,
+> >>consisting of hdq1 and hda1 instead of the usual hdb1 and hda1.
+> >
+> >
+> >I don't know what could be causing that.  Please send .config.  If you set
+> >CONFIG_BASE_FULL=n, try setting it to `y'.
+> >
 > 
-> Quite simple actually. You're most welcome to see the code, but I have 
-> just done a test like the one below. Never mind the performance figures, 
->   correctness comes as a very first priority. It does not block, cause 
-> endless loops or anything funny if I take the filsystem out of the 
-> question and access the raw devicemapped block device.
+> this is just a "me too"...
 > 
-> This should assert that it is not a fault in my code, right?
+> Here is some few lines from dmesg :
+> 
+> hdb: cache flushes supported
+>  hdq: hdq1 hdq2 < hdq5 hdq6 hdq7 hdq8 >
 
-I don't know.   Can you describe how your driver implements the remapping?
+Neat.
+
+> ~$ ls -l  /dev/hd*
+> brw-rw----  1 root    disk   3,    0 f?v 23 22:45 /dev/hda
+> brw-rw----  1 root    disk   3,    1 f?v 23 22:45 /dev/hda1
+> brw-rw----  1 root    disk   3,   10 f?v 23 22:45 /dev/hda10
+> brw-rw----  1 root    disk   3,    2 f?v 23 22:45 /dev/hda2
+> brw-rw----  1 root    disk   3,    3 f?v 23 22:45 /dev/hda3
+> brw-rw----  1 root    disk   3,    4 f?v 23 22:45 /dev/hda4
+> brw-rw----  1 root    disk   3,    5 f?v 23 22:45 /dev/hda5
+> brw-rw----  1 root    disk   3,    6 f?v 23 22:45 /dev/hda6
+> brw-rw----  1 root    disk   3,    7 f?v 23 22:45 /dev/hda7
+> brw-rw----  1 root    disk   3,    8 f?v 23 22:45 /dev/hda8
+> brw-rw----  1 root    disk   3,    9 f?v 23 22:45 /dev/hda9
+> brw-rw----  1 laurent cdrom 22,    0 f?v 23 22:45 /dev/hdc
+> brw-------  1 root    root  22,   64 f?v 23 22:45 /dev/hdd
+> brw-rw----  1 root    disk   3, 1024 f?v 23 22:45 /dev/hdq
+
+Looks like you're using udev. 
+
+> CONFIG_BASE_FULL=y
+> CONFIG_BASE_SMALL=0
+
+Ok, that's unrelated to the weird IDE numbering then.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

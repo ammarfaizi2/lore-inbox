@@ -1,59 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbUARRID (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 12:08:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUARRID
+	id S262153AbUARRPR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 12:15:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbUARRPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 12:08:03 -0500
-Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:9344
-	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
-	id S262901AbUARRIB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 12:08:01 -0500
-Subject: Re: [RFC] kill sleep_on
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Andrew Morton <akpm@osdl.org>, dwmw2@infradead.org,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <400A4147.4090405@colorfullife.com>
-References: <40098251.2040009@colorfullife.com>
-	 <1074367701.9965.2.camel@imladris.demon.co.uk>
-	 <20040117201000.GL21151@parcelfarce.linux.theplanet.co.uk>
-	 <1074383111.9965.4.camel@imladris.demon.co.uk>
-	 <20040117224139.5585fb9c.akpm@osdl.org>
-	 <1074409074.1569.12.camel@nidelv.trondhjem.org>
-	 <20040117233618.094c9d22.akpm@osdl.org> <400A396B.4090207@colorfullife.com>
-	 <1074412980.1574.40.camel@nidelv.trondhjem.org>
-	 <400A4147.4090405@colorfullife.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1074445656.1602.7.camel@nidelv.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 18 Jan 2004 12:07:36 -0500
+	Sun, 18 Jan 2004 12:15:17 -0500
+Received: from red-corpb4-7-68.telnor.net ([200.76.246.68]:24543 "EHLO
+	pubserv01.bajawireless.net") by vger.kernel.org with ESMTP
+	id S262153AbUARRPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 12:15:09 -0500
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEPBJJAA.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKKEPBJJAA.davids@webmaster.com>
+Subject: Re: License question
+To: David Schwartz <davids@webmaster.com>
+Message-ID: <opr1zelegnq5eh14@localhost>
+From: Misshielle Wong <mwl@bajoo.net>
+Content-Type: text/plain; format=flowed; charset=utf-8
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Date: Sun, 18 Jan 2004 09:23:28 -0800
+User-Agent: Opera7.23/Linux M2 build 518
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På su , 18/01/2004 klokka 03:18, skreiv Manfred Spraul:
+Hello
 
-> I think the purpose of i_sem or lock_kernel is to protect the file 
-> pointer. Most local filesystems use i_sem, it's noticably faster - 
-> global vs. per-object locking.
+On Sat, 17 Jan 2004 14:06:32 -0800, David Schwartz <davids@webmaster.com> 
+wrote:
 
-Err... Not in the case where someone else has the file open for writing.
-In that case, the i_sem can be held for quite long periods of time 'cos
-NFS has to flush out conflicting writes, and it has to serialize w/r
-reads on pages.
+>
+>
+>> > Is it possile to include in the kernel distro some code with this
+>> > BSD-style license ?
+>
+>> Let me see
+>
+> 	Yes, in general. No, not this license.
+>
 
-> Btw, generic_mapping_read should also lock it's accesses to f_pos: right 
-> now it reads and writes f_pos without any locking...
+Hahaha
 
-Is there really any sane application that relies on 2 threads sharing
-the same file descriptor, and doing llseek()/read()/write() without some
-form of userland serialization mechanism?
-It sounds to me as if that is going to be pretty much broken whether or
-not we protect the integrity of f_pos in the kernel.
+>> > - Redistributions of source code must retain the above copyright
+>> > notice, this list of conditions and the following disclaimers.
+>
+> 	Sorry, that's an "additional restriction" not permitted under the GPL.
+>
 
-Cheers,
-  Trond
+This is no restriction. This here just asks for copyright notice and 
+conditions to NOT be removed, which is perfectly fine. Section 6 never 
+overrides this. Section 6 asks not to restrict rights, and above clause 
+does not restrict rights.
+
+>> > - Redistributions in binary form must reproduce the above copyright
+>> > notice, this list of conditions and the following disclaimers in the
+>> > documentation and/or other materials provided with the distribution.
+>
+> 	I believe this is an additional restriction as well.
+
+I find perfectly fine. Is just a request to include the copyright notice 
+and conditions along with the binary. Section 2, clause c does not 
+override. Does not infringe Section 6 either. What is the problem?
+
+>
+>> Mmmm... I think yes. Code in kernel must be licensed GPL. Above allow
+>> sublicense so ok
+>
+> 	They allow sublicensing, but the sublicense can't remove the additional 
+> restriction. See section 6 of the GPL.
+>
+> 	To make this license GPL compatible, the two restrictions above would 
+> have to be modified to be identical to, or a proper subset of, section 2 
+> clauses b and c of the GPL.
+>
+
+Hahaha, those are no restrictions, so no problem. Summarizing this 
+license, it ends up like this: "Copyright bla bla bla. Keep 'em goddamn 
+copyrights and disclaimer or else you have no rights to copy, modify, 
+sublicense, redistribute, sublicense bla bla bla. Software provided 'as 
+is'. Clear?"
+
+GPL is ok with that.
+
+
+> 	DS
+>
+>
+>
+
+
+
+-- 
+Using M2, Opera's revolutionary e-mail client: http://www.opera.com/m2/

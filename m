@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132559AbRDAUjO>; Sun, 1 Apr 2001 16:39:14 -0400
+	id <S132555AbRDAVA5>; Sun, 1 Apr 2001 17:00:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132560AbRDAUjE>; Sun, 1 Apr 2001 16:39:04 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:59664 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S132559AbRDAUjC>;
-	Sun, 1 Apr 2001 16:39:02 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104012038.f31Kc2L43476@saturn.cs.uml.edu>
+	id <S132557AbRDAVAq>; Sun, 1 Apr 2001 17:00:46 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:14925 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S132555AbRDAVAd>; Sun, 1 Apr 2001 17:00:33 -0400
+Date: Sun, 1 Apr 2001 15:59:34 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: lm@bitmover.com, linux-kernel@vger.kernel.org
 Subject: Re: bug database braindump from the kernel summit
-To: greg@linuxpower.cx (Gregory Maxwell)
-Date: Sun, 1 Apr 2001 16:38:01 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), lm@bitmover.com (Larry McVoy),
-   linux-kernel@vger.kernel.org
-In-Reply-To: <20010401162101.E17271@xi.linuxpower.cx> from "Gregory Maxwell" at Apr 01, 2001 04:21:01 PM
-X-Mailer: ELM [version 2.5 PL2]
+In-Reply-To: <001c01c0bae2$e523fc90$5517fea9@local>
+Message-ID: <Pine.LNX.3.96.1010401155736.28121J-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregory Maxwell writes:
-> On Sun, Apr 01, 2001 at 03:43:52PM -0400, Albert D. Cahalan wrote:
+On Sun, 1 Apr 2001, Manfred Spraul wrote:
+> > There was a lot of discussion about possible tools
+> > that would dig out the /proc/pci info
+> 
+> I think the tools should not dig too much information out of the system.
+> I remember some Microsoft (win98 beta?) bugtracking software that
+> insisted on sending a several hundert kB long compressed blob with every
+> bug report.
+> IMHO it must be possible to file bugreports without the complete hw info
+> if I know that the bug isn't hw related.
 
->> I'm really sick of being buried in useless information. The signal
->> gets lost in the noise. It is easy to discard automatically generated
->> bug reports, and way too annoying to wade through the crud.
->>
->> When network connections hang, the console-tools package version
->> isn't likely to be of any use. When ramfs leaks memory, nobody needs
->> the content of /proc/pci.
->>
->> Sometimes the bit of crud are HUGE. Imagine the hardware info
->> for a 64-way SGI or Sun box with plenty of devices attached.
->
-> Disk space is 'free'.
+Two comments --
+* It's only disk space.  It's better to have and not need, than need and
+  not have.  Please do give me 200kb bug reports!  :)
+* There should be a way to allow the user to omit hw info, because the
+  user may not want to disclose some parts of their system.
 
-Disk space isn't the issue. Just a few days ago I tried to help
-somebody who posted one of the bloated fill-in-the-form bug reports.
-I gave him a useless answer, because I didn't see amid all the junk
-that he had no problems with a 2.2.xx kernel. The good information
-had been buried in fluff.
+Regards,
+
+	Jeff
+
+
+
 

@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269132AbUJQOAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269135AbUJQOP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269132AbUJQOAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 10:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269133AbUJQOAZ
+	id S269135AbUJQOP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 10:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269136AbUJQOP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 10:00:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14721 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269132AbUJQOAW
+	Sun, 17 Oct 2004 10:15:59 -0400
+Received: from out006pub.verizon.net ([206.46.170.106]:35239 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S269135AbUJQOP5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 10:00:22 -0400
-Message-ID: <41727AE9.9050703@pobox.com>
-Date: Sun, 17 Oct 2004 10:00:09 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Sun, 17 Oct 2004 10:15:57 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: I/O card vs linux
+Date: Sun, 17 Oct 2004 10:15:55 -0400
+User-Agent: KMail/1.7
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+References: <200410160423.43597.gene.heskett@verizon.net> <20041017121831.GH5033@lug-owl.de>
+In-Reply-To: <20041017121831.GH5033@lug-owl.de>
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Hang on x86-64, 2.6.9-rc3-bk4
-References: <41719537.1080505@pobox.com>	<417196AA.3090207@pobox.com>	<20041016154818.271a394b.akpm@osdl.org>	<4171B23F.6060305@pobox.com>	<20041016171458.4511ad8b.akpm@osdl.org>	<4171C20D.1000105@pobox.com> <20041016182116.33b3b788.akpm@osdl.org> <4171E978.6060207@pobox.com> <41720740.2030901@yahoo.com.au> <417273F9.6050605@pobox.com> <41727866.3000009@yahoo.com.au>
-In-Reply-To: <41727866.3000009@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410171015.55605.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.58.180] at Sun, 17 Oct 2004 09:15:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Jeff Garzik wrote:
-> 
->> Nick Piggin wrote:
+On Sunday 17 October 2004 08:18, Jan-Benedict Glaw wrote:
+>On Sat, 2004-10-16 04:23:43 -0400, Gene Heskett
+> <gene.heskett@verizon.net>
+>
+>wrote in message <200410160423.43597.gene.heskett@verizon.net>:
+>> Greetings;
 >>
->>> Hi Jeff, my patch has gone to Linus... but if you have time can
->>> you just verify that it works without the added cond_resched()
->>> please?
->>>
->>> Thanks.
->>
->>
->>
->>
->> Wouldn't akpm's patch be better?
->>
-> 
-> Doesn't actually fix the problem. Well *sigh*, it does but it doesn't
-> if you know what I mean. It "fixed" the problem because your other
-> (non-empty) zones will now increase total_scanned, which means the busy
-> loop will turn into a sleepy loop and you don't notice a problem.
-> 
->> I would tend to prefer that a one-liner hang fix go into -final, as 
->> it's easier to review and verify at this late stage.
->>
-> 
-> Apart from the above, akpm's patch does fix *a* bug, but actually changes
-> much more common case code a lot more than my patch, and has less obvious
-> consequences. It really wants a full cycle for performance regressions to
-> appear.
+>> This may be OT, but can anyone advise me on a pci card thats
+>> basicly an 8255 with a 34 pin or greater port on the card or back
+>> panel to bring out all 3 ports, and a suitable linux compatible
+>> driver for it?
+>
+>For input? Output? Both? In the output-only with low "bandwith"
+> being okay, just think about attaching a number of
+> serial-in-parallel-out shift registers to your parport. I use
+> something like that for switching on and off computers...
+>
+>MfG, JBG
 
+Both, to drive a small homemade cnc milling machine. I found a pci 
+card with 3 each 8255's on it for about 75$, but I don't think it 
+meets the pci std, I don't think there's a bios on it.  We'll see 
+when it gets here.
 
-
-Well, I'll let you and Andrew and Linus fight over it, then.
-
-_Someone_ just please get _something_ into 2.6.9-final, so that the 
-kernel doesn't hang under heavy I/O (someone else ack'd the problem, and 
-the fix, privately as well, under a totally different test case).
-
-	Jeff
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

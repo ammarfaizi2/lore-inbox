@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288778AbSAELY6>; Sat, 5 Jan 2002 06:24:58 -0500
+	id <S288769AbSAELeW>; Sat, 5 Jan 2002 06:34:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288773AbSAELYr>; Sat, 5 Jan 2002 06:24:47 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:30960 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S288769AbSAELYh>; Sat, 5 Jan 2002 06:24:37 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020105025042.A23360@baldur.yggdrasil.com> 
-In-Reply-To: <20020105025042.A23360@baldur.yggdrasil.com> 
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Patch: linux-2.5.2-pre8/drivers/mtd compilation fixes 
+	id <S288773AbSAELeM>; Sat, 5 Jan 2002 06:34:12 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:62470 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288769AbSAELeB>;
+	Sat, 5 Jan 2002 06:34:01 -0500
+Date: Sat, 5 Jan 2002 12:33:46 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Peter Osterlund <petero2@telia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.2-pre3] Harddisk Performance
+Message-ID: <20020105123346.X8673@suse.de>
+In-Reply-To: <20011229162930.GA317@elfie.cavy.de> <20011229181717.C1821@suse.de> <m2sn9m5bcv.fsf@pengo.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 05 Jan 2002 11:24:23 +0000
-Message-ID: <4082.1010229863@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <m2sn9m5bcv.fsf@pengo.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 04 2002, Peter Osterlund wrote:
+> Jens Axboe <axboe@suse.de> writes:
+> 
+> > On Sat, Dec 29 2001, Heinz Diehl wrote:
+> > >
+> > > Running 2.5.2-pre3, hdparm shows up very poor harddisk performance
+> > > on my system compared to 2.4.x:
+> >
+> > Yes I just noticed that too (someone else reported it) -- seems to be
+> > due to missed merges, I'm investigating.
+> 
+> I have found that if the elevator says BACK_MERGE or FRONT_MERGE, but
+> the request queue doesn't allow the merge, the request will be put
+> last in the queue instead of next to the request where the merge would
+> have been done if allowed.
 
-adam@yggdrasil.com said:
-> 	The following patch updates linux-2.5.2-pre8/drivers/mtd to compile.
-> This entails some kdev_t fixes and other updates for changes to the
-> block device driver interface.
+Excellent spotting! Applied.
 
-Looks sane - thanks. I see no harm in sending it to Linus. Could you run 
-the blkmtd.c changes past spse@secret.org.uk first, though?
-
-> 	In the case of one routine (ftl_reread_partitions), there was a goto
-> to a nonexistant label (goto leave), so I think there may have been an
-> incomplete patch applied to this subdirectory to begin with
-
-Not in my tree - strange. Oh well, I'll deal with it when 2.5 stabilises 
-and I stop ignoring it.
-
-> (also, drivers/mtd/bootldr.c refers to a nonexistant "struct tag", but that
-> file is apparently not currently compiled anyhow). 
-
-Currently, it's only compiled in the iPAQ kernel tree, where it works - I'm
-waiting for the iPAQ people and Russell to stop arguing about how it should
-be done, so the result will work in the proper ARM tree (and hence Linus'
-tree) too.
-
-Btw, where did you get the address 'mtd@infradead.org' from? The list moved 
-a while ago, and I was going to remove the forwarding some time soon.
-
---
-dwmw2
-
+-- 
+Jens Axboe
 

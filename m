@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262328AbSKDLau>; Mon, 4 Nov 2002 06:30:50 -0500
+	id <S264646AbSKDLdj>; Mon, 4 Nov 2002 06:33:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262484AbSKDLau>; Mon, 4 Nov 2002 06:30:50 -0500
-Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:46345 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S262328AbSKDLat>; Mon, 4 Nov 2002 06:30:49 -0500
-Date: Mon, 4 Nov 2002 12:37:19 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Need help with BK ChangeSet mail addresses
-Message-ID: <20021104113719.GA3675@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S264647AbSKDLdj>; Mon, 4 Nov 2002 06:33:39 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58655 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264646AbSKDLdN>; Mon, 4 Nov 2002 06:33:13 -0500
+Date: Mon, 4 Nov 2002 06:39:17 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Robert Love <rml@tech9.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@suse.de>
+Subject: Re: Some functions are not inlined by gcc 3.2, resulting code is ugly
+Message-ID: <20021104063917.G10988@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <200211031125.gA3BP4p27812@Port.imtp.ilyichevsk.odessa.ua> <1036340502.29642.36.camel@irongate.swansea.linux.org.uk> <1036372893.752.11.camel@phantasy> <200211041112.gA4BCmp32103@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200211041112.gA4BCmp32103@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Mon, Nov 04, 2002 at 02:04:42PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Nov 04, 2002 at 02:04:42PM -0200, Denis Vlasenko wrote:
+> Frankly, I'd say we should not inline anything large
+> regardless of number of call sites, for reasons outlined above.
+> 
+> The limit is designed exactly for this purpose I think.
 
-Hi,
+But the limit doesn't work that way. First of all, the limit
+ATM is O(tree nodes) where it is not known how many tree nodes
+will be one instruction or how many instructions will one tree node expand
+into. That all depends on the exact code being inlined and how well
+can it be optimized. Nice example are kernel's constant stringop inlines.
+And also, there is the problem with inlining from inlines, it may very well
+happen that gcc will inline a big function which is almost at the limit
+boundary, but then not inline any of tiny functions which should be inlined
+in it.
 
-I have difficulties figuring out the real names of the people behind
-these addresses (BK linux-2.4, since v2.4.19 to current):
+As kernel is using inline explicitely and not -O3, I think best would be
+to use bigger inline limit and remove inline keywords from big functions
+which should not be inlined.
+Of course, improving gcc tree inliner is very desirable too.
 
-If anyone can tell me the real name behind either of these addresses, or
-knows for sure a team name (info@usblcd.de and
-jfs.adm@hostme.bitkeeper.com are candidates for that), please let me
-know, and please don't mangle your name removing umlauts or other
-national characters.
-
-The results are meant to become part of my lk-changelog.pl script and
-for later merge into bk://gkernel.bkbits.net/BK-kernel-tools/
-
-My sources comprise the lbdb of mails to linux-kernel and a quick
-google.com search for the mail address in double quotes
-(http://www.google.com/search?q=%22fubar@us.ibm.com%22).
-
-Thanks in advance for any help. Here's the list.
-
-aaron.baranoff@tsc.tdk.com
-antoine@ausone.whoknows
-dan.zink@hp.com
-fubar@us.ibm.com
-info@usblcd.de
-jackson@realtek.com.tw
-jeb.j.cramer@intel.com
-jfs.adm@hostme.bitkeeper.com
-kafai0928@yahoo.com
-mashirle@us.ibm.com
-oliver@oenone.homelinux.org
-rgcrettol@datacomm.ch
-schoenfr@gaaertner.de
-sparker@sun.com
-suncobalt.adm@hostme.bitkeeper.com
-th122948@scl1.sfbay.sun.com
-th122948@scl3.sfbay.sun.com
-
-- -- 
-Matthias Andree
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9xlvvFmbjPHp/pcMRAtSsAJ932i8CelJHwga71QbL4q8Z4RQSJACeNz5A
-a9Wv4OEXnaQ4X68mpdhmSDA=
-=eqru
------END PGP SIGNATURE-----
+	Jakub

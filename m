@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbUAIUHA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 15:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264583AbUAIUHA
+	id S264547AbUAIUEc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 15:04:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264553AbUAIUEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 15:07:00 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:62218 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264305AbUAIUGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 15:06:11 -0500
-Date: Fri, 9 Jan 2004 20:06:06 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Kronos <kronos@kronoz.cjb.net>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] New FBDev patch
-In-Reply-To: <20040109171733.GA13027@dreamland.darkstar.lan>
-Message-ID: <Pine.LNX.4.44.0401092005410.27985-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Jan 2004 15:04:32 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:61964 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S264547AbUAIUE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 15:04:29 -0500
+Date: Fri, 9 Jan 2004 18:15:14 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-rc1-tiny1 tree for small systems
+Message-ID: <20040109201514.GG18853@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
+References: <20040103030814.GG18208@waste.org> <m13cawi2h8.fsf@ebiederm.dsl.xmission.com> <20040104084005.GU18208@waste.org> <m1ekufgt72.fsf@ebiederm.dsl.xmission.com> <20040105170938.GY18208@waste.org> <m1wu82i6tm.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1wu82i6tm.fsf@ebiederm.dsl.xmission.com>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> > http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+Em Thu, Jan 08, 2004 at 12:22:29PM -0700, Eric W. Biederman escreveu:
+> Matt Mackall <mpm@selenic.com> writes:
 > 
-> > <kronos@kronoz.cjb.net> (03/09/17 1.1267.40.1)
-> >    Add new API framebuffer_alloc and framebuffer_release.
-> >    
-> >    Framebuffer info structure (ie. struct fb_info) must be obtained from
-> >    framebuffer_alloc. When it is no longer needed (after unregister_framebuffer
-> >    and clean up) it can be released using framebuffer_release.
-> >    
-> >    If the framebuffer is not registered yet (eg. on error path) then fb_info must
-> >    be released via kfree. 
+> > On Sun, Jan 04, 2004 at 05:00:49PM -0700, Eric W. Biederman wrote:
+> > > On the side of useless ugly.  But interesting in what I had to touch
+> > > the following patch is a first crude stab at removing block device
+> > > support from the kernel.
+> > 
+> > This looks good. If you can send me a version with
+> > /BLOCK_DEVICE/BLOCK/, etc., I'll put it in.
 > 
-> 
-> Are we sure that we want this for 2.6? Greg KH has a much less intrusive
-> patch, maybe you should take that instead and keep my work 2.7.
-> 
-> If you decide to go with framebuffer_alloc then I have more patches for
-> you ;)
+> Ok.  I have just had a chance to clean some things up.  Attached
+> is my latest and hopefully clean set up diffs against 2.6.1-rc1-tiny1
+ 
+> diff -uNr -X linux-ignore-files linux-2.6.1-rc1-tiny1.compile-fixes/include/linux/fs.h linux-2.6.1-rc1-tiny1.config-block/include/linux/fs.h
+> --- linux-2.6.1-rc1-tiny1.compile-fixes/include/linux/fs.h	Sun Jan  4 00:03:57 2004
+> +++ linux-2.6.1-rc1-tiny1.config-block/include/linux/fs.h	Thu Jan  8 11:29:14 2004
+> @@ -1210,7 +1214,11 @@
+>  extern void sync_supers(void);
+>  extern void sync_filesystems(int wait);
+>  extern void emergency_sync(void);
+> +#ifdef CONFIG_bLOCK
+                 ^
+                 |
+                 |
+                 |
+                 |
 
-I have been using it for awhile on various cards. 
-
-
+oops :)

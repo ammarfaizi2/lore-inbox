@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283265AbRL0Xks>; Thu, 27 Dec 2001 18:40:48 -0500
+	id <S283097AbRL0XmK>; Thu, 27 Dec 2001 18:42:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283080AbRL0Xki>; Thu, 27 Dec 2001 18:40:38 -0500
-Received: from bitmover.com ([192.132.92.2]:20383 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S283056AbRL0XkX>;
-	Thu, 27 Dec 2001 18:40:23 -0500
-Date: Thu, 27 Dec 2001 15:40:22 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Troy Benjegerdes <hozer@drgw.net>
-Cc: Dana Lacoste <dana.lacoste@peregrine.com>,
-        "'Larry McVoy'" <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: BK scales, Bitmover doesn't [was Re: BK stuff ]
-Message-ID: <20011227154022.R25698@work.bitmover.com>
-Mail-Followup-To: Troy Benjegerdes <hozer@drgw.net>,
-	Dana Lacoste <dana.lacoste@peregrine.com>,
-	'Larry McVoy' <lm@bitmover.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A3B@ottonexc1.ottawa.loran.com> <20011227133951.M25698@work.bitmover.com> <20011227155956.G25200@altus.drgw.net> <20011227142359.O25698@work.bitmover.com> <20011227170941.I25200@altus.drgw.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011227170941.I25200@altus.drgw.net>; from hozer@drgw.net on Thu, Dec 27, 2001 at 05:09:42PM -0600
+	id <S283054AbRL0Xl6>; Thu, 27 Dec 2001 18:41:58 -0500
+Received: from ns.suse.de ([213.95.15.193]:52489 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S283056AbRL0Xks>;
+	Thu, 27 Dec 2001 18:40:48 -0500
+Date: Fri, 28 Dec 2001 00:40:47 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: James A Sutherland <james@sutherland.net>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Steven Walter <srwalter@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
+In-Reply-To: <T581707b200ac1785e72b2@pcow029o.blueyonder.co.uk>
+Message-ID: <Pine.LNX.4.33.0112280027541.15706-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Troy's worries deleted]
+On Thu, 27 Dec 2001, James A Sutherland wrote:
 
-Unless someone other than Troy objects, I think this is better handled 
-offline.  Troy has some issues that have nothing to do with the kernel
-team.  If anyone has any issues with our products, please take them up
-with me, the kernel list really doesn't care.
+> I'd add one level of abstraction: have each filename map to a "module" name.
+> In this case, each filename relating to devfs would map to module "devfs";
+> there would then be an entry mapping devfs <-> Richard.
+> (Perhaps a hierarchy - fs.devfs - with people like Al listed for "fs"?)
+
+Could work, but there are some bits that have no maintainer as such,
+eg, the pci irq routing. There have been several interested parties
+hacking on it however. A means of having people add themselves to the
+list would be a 'must have' feature.
+
+> It should be a little easier having a mapping to a module - in most cases,
+> there's a clear "module" to which each file belongs. Then just track who's
+> "subscribed to" that module...
+
+Having a mapping from kernel source filename -> email address would
+still be preferred personally.
+
+$ cclist devfs
+
+is really not much of an improvement over
+
+$ grep -C3 -i devfs MAINTAINERS
+
+Other than the addition of extra 'interested, cc me too' people.
+
+The only problem with my original idea is that its a pita to keep
+up to date. kernel files get added and removed on a weekly (sometimes
+daily) basis. Whoever is dumb^Wwonderful enough to volunteer to
+maintain such a database is likely to have their work cut out for
+them, so maybe your module idea is preferable.
+
+Hmmm..
+
+Dave.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

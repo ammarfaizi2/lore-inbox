@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262708AbSJ0WsN>; Sun, 27 Oct 2002 17:48:13 -0500
+	id <S262730AbSJ0Wwa>; Sun, 27 Oct 2002 17:52:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262712AbSJ0WsG>; Sun, 27 Oct 2002 17:48:06 -0500
-Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:29195 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S262708AbSJ0Wri>;
-	Sun, 27 Oct 2002 17:47:38 -0500
-Date: Sun, 27 Oct 2002 14:53:46 -0800
-From: Simon Kirby <sim@netnation.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: Pauses in 2.5.44 (some kind of memory policy change?)
-Message-ID: <20021027225345.GA16431@netnation.com>
-References: <200210272127.NAA03536@adam.yggdrasil.com> <3DBC5DC3.8641A66C@digeo.com>
-Mime-Version: 1.0
+	id <S262722AbSJ0Ww3>; Sun, 27 Oct 2002 17:52:29 -0500
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:16115 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S262730AbSJ0Wvt>; Sun, 27 Oct 2002 17:51:49 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DBC5DC3.8641A66C@digeo.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15804.28536.3553.712306@wombat.chubb.wattle.id.au>
+Date: Mon, 28 Oct 2002 09:58:00 +1100
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Switching from IOCTLs to a RAMFS
+In-Reply-To: <717068543@toto.iv>
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 27, 2002 at 01:42:27PM -0800, Andrew Morton wrote:
+>>>>> "Jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
 
-> "Adam J. Richter" wrote:
-> >...
-> >  3  0  2      0   9196  31420 178172    0    0     0 17152 6939   259  3 97  0
-> >  1  0  1      0   2452  31420 185112    0    0     0  4056 4061   278  9 91  0
-> 
-> Sorry, don't know.
-> 
-> It's possible that your X server got paged out, but the system
-> doesn't seem to be under any sort of stress, and there's not
-> much page reclaim happening and no evidence of executable pagein.
-> 
-> I'm assuming that everything is on local disks apart from that
-> mail file.  Really, you haven't told me much.  What's all that
-> `bo' activity there?  What filesystems are in use?
 
-The "bi" and "bo" are accidentally reversed in the kernel. :)
-I can't believe nobody else has noticed this.
+Jeff> Like I touched on in IRC, there is room for both sysfs and per-driver 
+Jeff> filesystems.
 
-(I'm pretty sure I checked that vmstat was not reversing them.  The
-numbers in /proc/vmstat were backwards...)
+Jeff> I think just about everyone agrees that ioctls are a bad idea and a huge 
+Jeff> maintenance annoyance.  
 
-Simon-
+I note that the P1003.26 ballot has just been announced...
 
-[        Simon Kirby        ][        Network Operations        ]
-[     sim@netnation.com     ][     NetNation Communications     ]
-[  Opinions expressed are not necessarily those of my employer. ]
+  Title: P1003.26:  Information Technology -- Portable Operating  
+  System Interface (POSIX) -- Part 26:  Device Control  
+  Application Program Interface (API) [C Language] 
+ 
+  Scope: This work will define an application program interface to  
+  device drivers.  The interface will be modeled on the  
+  traditional ioctl() function, but will have enhancements  
+  designed to address issues such as "type safety" and  
+  reentrancy. 
+ 
+
+It may be worth looking at what the draft standard says before
+committing to yet another interface specification.
+
+Peter C

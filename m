@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132252AbRAYL43>; Thu, 25 Jan 2001 06:56:29 -0500
+	id <S132572AbRAYMPR>; Thu, 25 Jan 2001 07:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132942AbRAYL4T>; Thu, 25 Jan 2001 06:56:19 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:44301 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132252AbRAYL4M>;
-	Thu, 25 Jan 2001 06:56:12 -0500
-Date: Thu, 25 Jan 2001 12:56:09 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, kuznet@ms2.inr.ac.ru,
-        Manfred Spraul <manfred@colorfullife.COM>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
-Message-ID: <20010125125609.A16226@gruyere.muc.suse.de>
-In-Reply-To: <3A6E02E6.B3261E1@colorfullife.com> <200101242003.XAA21040@ms2.inr.ac.ru> <20010124215634.A2992@gruyere.muc.suse.de> <14960.3804.197814.496909@pizda.ninka.net> <20010125124036.A15952@gruyere.muc.suse.de> <14960.4487.540768.312023@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14960.4487.540768.312023@pizda.ninka.net>; from davem@redhat.com on Thu, Jan 25, 2001 at 03:44:07AM -0800
+	id <S132733AbRAYMPH>; Thu, 25 Jan 2001 07:15:07 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:46068 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S132572AbRAYMOv>; Thu, 25 Jan 2001 07:14:51 -0500
+Date: Thu, 25 Jan 2001 12:14:48 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: bert hubert <ahu@ds9a.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <20010125114201.A32526@home.ds9a.nl>
+Message-ID: <Pine.SOL.4.21.0101251213100.651-100000@orange.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 25, 2001 at 03:44:07AM -0800, David S. Miller wrote:
+On Thu, 25 Jan 2001, bert hubert wrote:
+
+> On Thu, Jan 25, 2001 at 09:06:33AM +0000, James Sutherland wrote:
 > 
-> Andi Kleen writes:
->  > > BSD and Solaris both make these kinds of packets, therefore it is must
->  > > to handle them properly.  So we will fix Linux, there is no argument.
->  > 
->  > How do you propose to handle them? Queue the data anyways or just process
->  > the ACK?
+> > performance than it would for an httpd, because of the long-lived
+> > sessions, but rewriting it as a state machine (no forking, threads or
+> > other crap, just use non-blocking I/O) would probably make much more
+> > sense.
 > 
-> tcp_sequence returns two flag bits instead of it's current binary
-> state.  One bit says "accept data", the other says "accept control
-> bits" (such as RST, ACK, etc.)
+> From a kernel coders perspective, possibly. But a lot of SMB details are
+> pretty convoluted. Statemachines may produce more efficient code but can be
+> hell to maintain and expand. Bugs can hide in lots of corners.
 
-Sounds ugly @) tcp_sequence is already far too complicated.
-
-
-> 
-> tcp_sequence also will truncate the data len of the SKB area if
-> necessary, BSD really puts total crap in the probe byte.
-> 
-> Callers of tcp_sequence check the return value bits accordingly.
-> This is all slow path code, so there are no performance issues.
-
-How about simply queueing the data in that case if it already fits into the
-receive buffer? The alternative would be to skb_trim() it to 0 in the slow path
-of tcp_sequence and queue, but that looks wasteful.  Basically it would accept
-the acks with the data in most cases except when the application has totally 
-stopped reading and in that case it doesn't harm to ignore the acks. 
-
-I have been played with a different embedded stack and it uses that 
-approach and it seems to work and makes much simpler code. 
+I said they were good from a performance PoV - I didn't say they were
+easy! Obviously there are reasons why the Samba guys have done what they
+have. In fact, some parts of Samba ARE implemented as state machines to
+some extent; presumably the remainder were considered too difficult to
+reimplement that way for the time being.
 
 
--Andi
+James.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

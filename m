@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269580AbRHHWGr>; Wed, 8 Aug 2001 18:06:47 -0400
+	id <S269584AbRHHWMs>; Wed, 8 Aug 2001 18:12:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269583AbRHHWGi>; Wed, 8 Aug 2001 18:06:38 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:37528 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S269580AbRHHWGT>; Wed, 8 Aug 2001 18:06:19 -0400
-Date: Thu, 9 Aug 2001 01:06:01 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: =?iso-8859-1?Q?Samuli_K=E4rkk=E4inen?= <skarkkai@woods.iki.fi>
+	id <S269591AbRHHWMh>; Wed, 8 Aug 2001 18:12:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5643 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269584AbRHHWMd>;
+	Wed, 8 Aug 2001 18:12:33 -0400
+Date: Wed, 8 Aug 2001 23:12:42 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Wrong free inodes count in kernels 2.0 and 2.2
-Message-ID: <20010809010601.A63773@niksula.cs.hut.fi>
-In-Reply-To: <20010502194621.D22433@woods.iki.fi>
+Subject: Re: [PATCH] parport_pc.c PnP BIOS sanity check
+Message-ID: <20010808231242.D22093@flint.arm.linux.org.uk>
+In-Reply-To: <no.id> <E15UV8M-0005SE-00@the-village.bc.nu> <9ksclk$k45$1@cesium.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010502194621.D22433@woods.iki.fi>; from skarkkai@woods.iki.fi on Wed, May 02, 2001 at 07:46:21PM +0300
+In-Reply-To: <9ksclk$k45$1@cesium.transmeta.com>; from hpa@zytor.com on Wed, Aug 08, 2001 at 02:58:12PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 02, 2001 at 07:46:21PM +0300, [Samuli Kärkkäinen] claimed:
-> I get repeatably both in 2.0 and 2.2 serieses of kernels the following kind
-> of errors:
-> 
-> 2.2 kernels (several, including 2.2.18):
->   EXT2-fs error (device ide1(22,6)): ext2_check_inodes_bitmap: Wrong free inodes count in group 768, stored = 984, counted = 717
->   EXT2-fs error (device ide1(22,6)): ext2_check_inodes_bitmap: Wrong free inodes count in group 769, stored = 1005, counted = 717
->   EXT2-fs error (device ide1(22,6)): ext2_check_inodes_bitmap: Wrong free inodes count in group 777, stored = 998, counted = 901
->   [ many similar lines deleted ]
-> 
-> and sometimes with 2.2 kernel, soon after the errors above:
->   EXT2-fs error (device ide1(22,1)): ext2_new_inode: Free inodes count corrupted in group 414 
->   last message repeated 795 times
+On Wed, Aug 08, 2001 at 02:58:12PM -0700, H. Peter Anvin wrote:
+> IRQ 0 is hardwired to the system timer in PC systems, though, so it
+                                         ^^^^^^^^^^^^^
 
-I get these messages as well on 2.2.18pre19:
+Linux doesn't run on only PC systems though, and other systems use
+IRQ0 as the (superio-based) parallel port IRQ.
 
-EXT2-fs error (device md(9,0)): ext2_new_inode: Free inodes count
-corrupted in group 501                                                                  
-EXT2-fs error (device md(9,0)): ext2_new_inode: Free inodes count
-corrupted in group 501                                                                  
+> Good riddance, all this crap...
 
-I've applied ide, raid and ext2compr patches. While they sound like strong
-suspects for they cause of the problem (the fs in question is on ide,
-softraid 1 and is ext2compr'ed), I understand Samuli sees these messages on
-a stock kernel (ide and scsi), which makes me suspect this is a core kernel
-issue.
+Indeed - please check the ARM port for our solution to this.  We've
+had the NO_IRQ construct for literally years in include/asm-arm/irq.h:
 
-I've been running fairly heavy rsync backups onto the fs in question for
-more than a year, and only now I have begun to get these errors.
+#define NO_IRQ  ((unsigned int)(-1))
 
-> problem always comes back. The backup script is essentially like this:
-> 
-> following night second differential:
->   cp -al /backup/backup2 /backup/backup3
->   rsync --archive --hard-links --whole-file --sparse --one-file-system --delete --force / /backup/backup3
+Naturally, a similar NO_DMA is defined in dma.h.  The sooner we can get
+rid of the "IRQ0 cannot be used" crap from the kernel the better.
 
-My backup script is a tad different, but the principle is the same: do an
-initial snapshot, then cp -al it as the next day's snapshot and rsync the new
-snapshot up to date. This of course introduces huge number of dir entries
-and lots of inodes with big hard link counts.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-BTW: What happens if the hard link count for an inode overflows? 
-
-
--- v --
-
-v@iki.fi

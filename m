@@ -1,42 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267645AbTCETEm>; Wed, 5 Mar 2003 14:04:42 -0500
+	id <S267559AbTCETBg>; Wed, 5 Mar 2003 14:01:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267547AbTCETEm>; Wed, 5 Mar 2003 14:04:42 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:21896 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267645AbTCETEl>; Wed, 5 Mar 2003 14:04:41 -0500
-Date: Wed, 5 Mar 2003 14:17:50 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: turm eric <turmeric2@hotmail.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel issue
-In-Reply-To: <20030305182213.GB13420@gtf.org>
-Message-ID: <Pine.LNX.3.95.1030305140701.5906A-100000@chaos>
+	id <S267560AbTCETBg>; Wed, 5 Mar 2003 14:01:36 -0500
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:33165 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S267559AbTCETBa>; Wed, 5 Mar 2003 14:01:30 -0500
+Message-ID: <3E665AD7.5030600@wanadoo.fr>
+Date: Wed, 05 Mar 2003 20:15:19 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: oprofile-list@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John Levon <levon@movementarian.org>
+Subject: Re: Oops running oprofile in 2.5.62
+References: <3E5DB057.60503@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Hansen wrote:
+> This happened while running dbench on 2.5.62.  I haven't seen it before,
+> but I thought I'd report it anyway.  I'm using the 0.5 version of the
+> userspace tools.
+> 
+> I'm pretty sure it happened on this line in oprofile_add_sample():
+> 	cpu_buf->buffer[cpu_buf->pos].eip = eip;
 
-On Wed, Mar 05, 2003 at 04:50:38PM +0000, turm eric wrote:
+yes, in the last chunk of code in oprofile_add_sample()
 
-> I was just wondering how you all felt about linux being used by the army to 
-> crush the world under the jackboot of the US empire, and to kill babies?
-> Thank you.
+> Unable to handle kernel paging request at virtual address f8c3c000
+> c0212022
+> *pde = 00000000
+> Oops: 0002
+> CPU:    13
+> EIP:    0060:[<c0212022>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010046
+> eax: 40082d94   ebx: 00000340   ecx: 00002000   edx: f8c2c000
+                                        ^^^^^^^^
 
-I think it's great! Now, the world will know what Penguin power
-is all about. When I was killing babies in Vietnam, we didn't have
-the authority to turn anything as powerful as the Penguin loose.
-In fact, Penguin-Power didn't exist yet, and you were still pissing
-the bed. But now, just let them babies come stomping across the
-desert, the mighty Penguin, the mother-of-all-operating-systems,
-will whack their butts into the stone-age.
+buffer overrrun by one entry (8192 entry by default of 8 bytes
+each on x86), potentially oprofile_add_sample() add 3 events
+in buffer but the protection at begin of code protect against
+two addition not three
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+The bug is rare because add_sample use three entry in rare case,
+and thing are wrong only when cpu_buf->pos == buffer_size - 2
+the code is not fixed in 2.5.64, John if you have not already
+a patch pending for this can you push it in your tree ?
 
+void oprofile_add_sample(unsigned long eip, unsigned int is_kernel,
+	unsigned long event, int cpu)
+.....
+-	if (cpu_buf->pos > buffer_size - 2) {
++ 
+if (cpu_buf->pos > buffer_size - 3) {
+		cpu_buf->sample_lost_overflow++;
+		goto out;
+	}
+
+>>>EIP; c0212022 <oprofile_add_sample+102/128>   <=====
+>>
+> 
+>>>edi; c0310f00 <cpu_buffer+340/800>
+>>
+> 
+> Trace; c02139f0 <ppro_check_ctrs+4c/80>
+> Trace; c0213291 <nmi_callback+21/28>
+> Trace; c010a1eb <do_nmi+2b/48>
+> Trace; c010962e <nmi+1e/30>
+> 
+> Code;  c0212022 <oprofile_add_sample+102/128>
+> 00000000 <_EIP>:
+> Code;  c0212022 <oprofile_add_sample+102/128>   <=====
+>    0:   89 04 ca                  mov    %eax,(%edx,%ecx,8)   <=====
+
+ecx == cpu_bufffer->pos == buffer_size ... boom ...
+
+regards,
+Philippe Elie
 

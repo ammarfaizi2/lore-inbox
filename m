@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265828AbUGDWoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265833AbUGDWw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265828AbUGDWoM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 18:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265833AbUGDWoM
+	id S265833AbUGDWw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 18:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265840AbUGDWw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 18:44:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26824 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265828AbUGDWoJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 18:44:09 -0400
-Date: Sun, 4 Jul 2004 15:43:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org,
-       olaf+list.linux-kernel@olafdietsche.de
-Subject: Re: procfs permissions on 2.6.x
-Message-Id: <20040704154303.4eb0fbaf.akpm@osdl.org>
-In-Reply-To: <20040704221302.GW12308@parcelfarce.linux.theplanet.co.uk>
-References: <20040703202242.GA31656@MAIL.13thfloor.at>
-	<20040703202541.GA11398@infradead.org>
-	<20040703133556.44b70d60.akpm@osdl.org>
-	<20040703210407.GA11773@infradead.org>
-	<20040703143558.5f2c06d6.akpm@osdl.org>
-	<20040704213527.GV12308@parcelfarce.linux.theplanet.co.uk>
-	<20040704145542.4d1723f5.akpm@osdl.org>
-	<20040704221302.GW12308@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 4 Jul 2004 18:52:29 -0400
+Received: from mail5.tpgi.com.au ([203.12.160.101]:56007 "EHLO
+	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S265833AbUGDWw2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 18:52:28 -0400
+Subject: Re: [PATCH] kernel/power/swsusp.c
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Erik Rigtorp <erik@rigtorp.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040704114920.GA7820@linux.nu>
+References: <20040703172843.GA7274@linux.nu>
+	 <20040703204647.GE31892@elf.ucw.cz>  <20040704114920.GA7820@linux.nu>
+Content-Type: text/plain
+Message-Id: <1088981417.2647.1.camel@nigel-laptop.wpcb.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 05 Jul 2004 08:50:18 +1000
 Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
->
-> On Sun, Jul 04, 2004 at 02:55:42PM -0700, Andrew Morton wrote:
-> > 
-> > Some do.  On my test box 1000-odd /proc inodes get allocated and fully
-> > freed on each `ls -R /proc'.  65 /proc inodes are freed during `ls -lR
-> > /proc/net'.  So maybe it isn't working completely.
-> > 
-> > But proc_notify_change() copies the inode's uid, gid and mode into the
-> > proc_dir_entry, so they get correctly initialised when the inode is
-> > reinstantiated, so afaict we have no bug here.
-> 
-> Why on the earth do we ever want to allow chown/chmod on procfs in the first
-> place?
+Hi.
 
-We always have done, even current 2.4 permits it.  But the changes go away
-when the /proc file is closed.
+On Sun, 2004-07-04 at 21:49, Erik Rigtorp wrote:
+> That is infact my intention. I've looked some at the swsusp2 code but it
+> looks ugly. My plan is to create a general kernel level interface to
+> bootsplash, then add hooks in swsusp. This code should probably live in the
+> bootsplash patch.
 
-> Al, who'd missed that stuff back in 2.5.42, but would love to hear explanation
-> anyway.
+Yes. I'd love a better in kernel interface. Could you make it so that
+for an arbitrary vt, we easily detect if bootsplash is on, switch
+between silent and verbose and set the progress bar value?
 
-That change made the chown/chgrp/chmod changes persist after the file is
-closed, which seems sensible.
+Regards,
 
-The alternative would be to disallow these changes altogether.  That might
-break something, but it seems doubtful.
+Nigel
 
-As for why anyone would _want_ to change these things: no idea.

@@ -1,97 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266016AbRGKT2T>; Wed, 11 Jul 2001 15:28:19 -0400
+	id <S265972AbRGKT27>; Wed, 11 Jul 2001 15:28:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265891AbRGKT2J>; Wed, 11 Jul 2001 15:28:09 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:41008 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S265807AbRGKT17>; Wed, 11 Jul 2001 15:27:59 -0400
-Message-ID: <3B4CA8A0.507@blue-labs.org>
-Date: Wed, 11 Jul 2001 15:27:28 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010710
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Josh Logan <josh@wcug.wwu.edu>
-CC: Andrea Arcangeli <andrea@suse.de>,
-        Trond Myklebust <trond.myklebust@fys.uio.no>,
+	id <S265024AbRGKT2l>; Wed, 11 Jul 2001 15:28:41 -0400
+Received: from sloth.wcug.wwu.edu ([140.160.176.172]:425 "HELO
+	sloth.wcug.wwu.edu") by vger.kernel.org with SMTP
+	id <S265807AbRGKT20>; Wed, 11 Jul 2001 15:28:26 -0400
+Date: Wed, 11 Jul 2001 12:28:27 -0700 (PDT)
+From: Josh Logan <josh@wcug.wwu.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
         Andrew Morton <andrewm@uow.edu.au>,
         Klaus Dittrich <kladit@t-online.de>,
         Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: 2.4.7p6 hang
-In-Reply-To: <Pine.BSO.4.21.0107111129150.26715-100000@sloth.wcug.wwu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20010711210502.M3496@athlon.random>
+Message-ID: <Pine.BSO.4.21.0107111217490.30480-100000@sloth.wcug.wwu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the hang for me.
 
-Thank you,
-David
 
-Josh Logan wrote:
+On Wed, 11 Jul 2001, Andrea Arcangeli wrote:
 
->I'm having a hang right after the floppy is initialised with pre5 and pre6
->(2.4.3 works fine)  I tried this patch, but it did not make any
->improvments.  The machine still has SysRq commands available.  Please let
->me know what other information you would like to debug this problem.
->
->BTW, I also tried to disable the floppy in the BIOS and got:
->...
->Floppy OK
->task queue still active
-><HANG>
->
->							Later, JOSH
->
->
->On Wed, 11 Jul 2001, Andrea Arcangeli wrote:
->
->>On Wed, Jul 11, 2001 at 04:22:04PM +0200, Trond Myklebust wrote:
->>
->>>>>>>>" " == Andrew Morton <andrewm@uow.edu.au> writes:
->>>>>>>>
->>>     > Trond Myklebust wrote:
->>>    >>
->>>    >> ...  I have the same problem on my setup. To me, it looks like
->>>    >> the loop in spawn_ksoftirqd() is suffering from some sort of
->>>    >> atomicity problem.
->>>
->>>     > Does a `set_current_state(TASK_RUNNING);' in spawn_ksoftirqd()
->>>     > fix it?  If so we have a rogue initcall...
->>>
->>>Nope. The same thing happens as before.
->>>
->>>A couple of debugging statements show that ksoftirqd_CPU0 gets created
->>>fine, and that ksoftirqd_task(0) is indeed getting set correctly
->>>before we loop in spawn_ksoftirqd().
->>>After this the second call to kernel_thread() succeeds, but
->>>ksoftirqd() itself never gets called before the hang occurs.
->>>
->>ksoftirqd is quite scheduler intensive, and while its startup is
->>correct (no need of any change there), it tends to trigger scheduler
->>bugs (one of those bugs was just fixed in pre5). The reason I never seen
->>the deadlock I also fixed this other scheduler bug in my tree:
->>
->>	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.7pre5aa1/00_sched-yield-1
->>
->>this one I forgot to sumbit but here it is now for easy merging:
->>
->>--- 2.4.4aa3/kernel/sched.c.~1~	Sun Apr 29 17:37:05 2001
->>+++ 2.4.4aa3/kernel/sched.c	Tue May  1 16:39:42 2001
->>@@ -674,8 +674,10 @@
->> #endif
->> 	spin_unlock_irq(&runqueue_lock);
->> 
->>-	if (prev == next)
->>+	if (prev == next) {
->>+		current->policy &= ~SCHED_YIELD;
->> 		goto same_process;
->>+	}
->> 
->> #ifdef CONFIG_SMP
->>  	/*
->>
+> On Wed, Jul 11, 2001 at 11:33:40AM -0700, Josh Logan wrote:
+> > 
+> > I'm having a hang right after the floppy is initialised with pre5 and pre6
+> > (2.4.3 works fine)  I tried this patch, but it did not make any
+> 
+> is the problem introduced in pre5? Can you reproduce under 2.4.7pre4?
+
+I'll have to go try it...
+
+> 
+> > improvments.  The machine still has SysRq commands available.  Please let
+> > me know what other information you would like to debug this problem.
+> 
+> SYSRQ+T
+
+Floppy Drives(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+SysRq: Show State
+
+  task		     PC    stack    pid father child younger older
+swapper		D C03EDEC0  4980      1      0     7               (L-TLB)
+keventd		S C1234560  6624      2      1             3       (L-TLB)
+ksoftirqd_CPU   S C1232000  6468      3      1             4     2 (L-TLB)
+kswapd		S C1231FA8  6588      4      1             5     3 (L-TLB)
+kreclaimd	S 00000286  6656      5      1             6     4 (L-TLB)
+bdflush		S 00000286  6652      6      1             7     5 (L-TLB)
+kupdated	S C7F9BFC8  6620      7      1                   6 (L-TLB)
+
+I can add Call Traces if needed, this is done by hand.
+
+> 
+> > BTW, I also tried to disable the floppy in the BIOS and got:
+> > ...
+> > Floppy OK
+> > task queue still active
+> > <HANG>
+> 
+> I'll soon have a look at this message.
+> 
+> Andrea
+> 
+
+							Later, JOSH
 
 

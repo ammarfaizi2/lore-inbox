@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263397AbTJVDqj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 23:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTJVDqj
+	id S263368AbTJVEbs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 00:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTJVEbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 23:46:39 -0400
-Received: from mail.storm.ca ([209.87.239.66]:7080 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id S263397AbTJVDqi (ORCPT
+	Wed, 22 Oct 2003 00:31:48 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:42514 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S263368AbTJVEbr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 23:46:38 -0400
-Message-ID: <3F95FE2E.7000404@storm.ca>
-Date: Wed, 22 Oct 2003 11:49:02 +0800
-From: Sandy Harris <sandy@storm.ca>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] frandom - fast random generator module
-References: <3F8E552B.3010507@users.sf.net> <bn40oa$i4q$1@gatekeeper.tmr.com> <bn46q9$1rv$1@cesium.transmeta.com> <bn4aov$jf7$1@gatekeeper.tmr.com> <bn4l5q$v73$1@cesium.transmeta.com>
-In-Reply-To: <bn4l5q$v73$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Oct 2003 00:31:47 -0400
+Date: Tue, 21 Oct 2003 21:30:58 -0700
+From: Jeremy Higdon <jeremy@sgi.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: gwh@sgi.com, jbarnes@sgi.com, aniket_m@hotmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch to add support for SGI's IOC4 chipset
+Message-ID: <20031022043058.GC80096@sgi.com>
+References: <3F7CB4A9.3C1F1237@sgi.com> <200310162020.51303.bzolnier@elka.pw.edu.pl> <20031021063536.GA78855@sgi.com> <200310211639.28346.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310211639.28346.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
+On Tue, Oct 21, 2003 at 04:39:28PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> On Tuesday 21 of October 2003 08:35, Jeremy Higdon wrote:
+> > > - defining IDE_ARCH_ACK_INTR and ide_ack_intr() in sgiioc4.c is a no-op,
+> > >   it should be done <asm/ide.h> to make it work
+> > >   (I think the same problem is present in 2.4.x)
+> >
+> > The definition in <include/linux/ide.h> is only used if IDE_ARCH_ACK_INTR
+> > is not defined.  sgiioc4.c defines IDE_ARCH_ACK_INTR before including that
+> > file, so I believe we get the definition we want without touching ide.h,
+> > don't we?
+> 
+> ide_ack_intr() is used by ide-io.c.  If IDE_ARCH_ACK_INTR is not defined
+> in ide.h (and it won't be cause you are doing this only in sgiioc4.c
+> /sgiioc4.h in 2.4.x case/ about which ide-io.c has abolutely no idea)
+> ide_ack_intr() will turn into no-op and hwif->ack_intr() won't be called.
 
-> No, I mean that putting a piece of code in the kernel "so it can be
-> accessed from shell scripts" is idiotic.  Make a binary of it and put
-> it in the filesystem.
+I see what you mean.  Thanks for spotting and fixing this.
 
-I posted one of those here during a previous discussion.
-http://www.geocrawler.com/archives/3/35/2000/8/0/4192943/
-The version I posted was first draft code, quite likely buggy,
-but the general idea  was sound.
+I've run into a problem in testing.  For some reason, I've started to get
+ide timeouts, and the error recovery is not working correctly, due to a
+problem in the driver.
 
-This was a while back, before the /dev/random code was
-rewritten into a two-stage generator. Since my code
-was to add a second stage to old /dev/random, I doubt it
-is now a good idea.
+In sgiioc4_ide_dma_stop(), sgiioc4_ide_dma_end(), and sgiioc4_clearirq(),
+there are calls to xide_delay(), which uses schedule_timeout() to sleep.
+Since all of these sgiioc4_ functions can be called from interrupt context,
+that's an obvious problem.
 
-If the problem is that /dev/urandom is too slow, then
-we need to look at speeding it up, not adding a PRNG,
-let alone one in the kernel.
+In sgiioc4_clearirq(), the delay function is while we're waiting for the
+interrupt to clear.
 
-Would a block cipher second stage as in Yarrow or my
-example be faster than the hashing 2nd stage Ted used?
-Can we use a block cipher without legal hassles? Is
-there some third choice? A faster hash?
+In sgiioc4_ide_dma_stop(), we're waiting for the DMA bit to clear.
 
+In sgiioc4_ide_dma_end(), we're waiting for another DMA to finish.
+
+I believe that the right answer is to use udelay() and give up after
+a short period of time.  My question is what does the ide layer
+expect?  That is, if you call the dma_end function and the hardware
+driver can't succeed, what would you like us to do?  Is there a way
+to return error, or should we just fail and the ide infrastructure
+will pick it up later and reset things?
+
+I am new to Linux IDE, so forgive these questions if the answers should
+be obvious.
+
+thanks
+
+jeremy

@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131483AbRCQMdB>; Sat, 17 Mar 2001 07:33:01 -0500
+	id <S130516AbRCQMX1>; Sat, 17 Mar 2001 07:23:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131448AbRCQMcw>; Sat, 17 Mar 2001 07:32:52 -0500
-Received: from schmee.sfgoth.com ([63.205.85.133]:55044 "EHLO
-	schmee.sfgoth.com") by vger.kernel.org with ESMTP
-	id <S131483AbRCQMcg>; Sat, 17 Mar 2001 07:32:36 -0500
-Date: Sat, 17 Mar 2001 04:31:54 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-Subject: Re: [CHECKER] 120 potential dereference to invalid pointers errors for linux 2.4.1
-Message-ID: <20010317043154.B67406@sfgoth.com>
-In-Reply-To: <Pine.GSO.4.31.0103170126540.14147-100000@elaine24.Stanford.EDU>
+	id <S131448AbRCQMXR>; Sat, 17 Mar 2001 07:23:17 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:60522 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130516AbRCQMXK>; Sat, 17 Mar 2001 07:23:10 -0500
+Date: Sat, 17 Mar 2001 13:20:37 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jussi Hamalainen <count@theblah.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: LFS patch for 2.2.18
+Message-ID: <20010317132037.A1741@inspiron.random>
+In-Reply-To: <Pine.LNX.4.30.0103161524400.10334-100000@mir.senv.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.GSO.4.31.0103170126540.14147-100000@elaine24.Stanford.EDU>; from yjf@stanford.edu on Sat, Mar 17, 2001 at 01:30:54AM -0800
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0103161524400.10334-100000@mir.senv.net>; from count@theblah.org on Fri, Mar 16, 2001 at 03:24:58PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junfeng Yang wrote:
-> [BUG] fore200e_kmalloc can return NULL
-> /u2/acc/oses/linux/2.4.1/drivers/atm/fore200e.c:2032:fore200e_get_esi: ERROR:NULL:2020:2032: Using unknown ptr "prom" illegally! set by 'fore200e_kmalloc':2020
+On Fri, Mar 16, 2001 at 03:24:58PM +0200, Jussi Hamalainen wrote:
+> Where can I get the LFS patch for 2.2.18? Www.scyld.com doesn't
+> seem to be carrying it anymore.
 
-I don't see the bug - there is an explicit "if(!prom) return -ENOMEM;" after
-the allocation.  It looks fine to me.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.19pre7aa1/40_lfs-2.2.19pre6aa1-24.bz2
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.19pre17aa1.bz2
 
-> [BUG] break the while loop, but not the for loop
-> /u2/acc/oses/linux/2.4.1/drivers/atm/zatm.c:1817:zatm_detect: ERROR:NULL:1804:1817: Using NULL ptr "zatm_dev" illegally! set by 'kmalloc':1804
-
-Ah, good catch.  It'd be almost impossible to actually trigger this since
-you'd need multiple cards of different types (all of which are rare) and
-end up with really bad allocation luck, but it is technically a bug.
-Really line 1829 should be "if(!zatm_dev) return devs;"
-
-> [BUG] at line 1796
-> /u2/acc/oses/linux/2.4.1/net/atm/lec.c:1799:lec_arp_update: ERROR:NULL:1798:1799: Using unknown ptr "entry" illegally! set by 'make_entry':1798
-
-Yep, all three of the catches in lec.c are real bugs - great work as always.
-
--Mitch
+Andrea

@@ -1,93 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267422AbUHJEsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267427AbUHJEzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267422AbUHJEsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 00:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267425AbUHJEsJ
+	id S267427AbUHJEzo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 00:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267428AbUHJEzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 00:48:09 -0400
-Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:32131 "EHLO
-	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267422AbUHJEsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 00:48:03 -0400
-References: <1092082920.5761.266.camel@cube> <cone.1092092365.461905.29067.502@pc.kolivas.org> <1092099669.5759.283.camel@cube>
-Message-ID: <cone.1092113232.42936.29067.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
-       schilling@fokus.fraunhofer.de, axboe@suse.de
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Date: Tue, 10 Aug 2004 14:47:12 +1000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Aug 2004 00:55:44 -0400
+Received: from digitalimplant.org ([64.62.235.95]:12173 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S267427AbUHJEzl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 00:55:41 -0400
+Date: Mon, 9 Aug 2004 21:55:29 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, David Brownell <david-b@pacbell.net>
+Subject: Re: [RFC] Fix Device Power Management States
+In-Reply-To: <1092098425.14102.69.camel@gaston>
+Message-ID: <Pine.LNX.4.50.0408092131260.24154-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
+ <1092098425.14102.69.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan writes:
 
-> On Mon, 2004-08-09 at 18:59, Con Kolivas wrote:
->> Albert Cahalan writes:
->> 
->> 
->> > Joerg:
->> >    "WARNING: Cannot do mlockall(2).\n"
->> >    "WARNING: This causes a high risk for buffer underruns.\n"
->> > Fixed:
->> >    "Warning: You don't have permission to lock memory.\n"
->> >    "         If the computer is not idle, the CD may be ruined.\n"
->> > 
->> > Joerg:
->> >    "WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS)\n"
->> >    "WARNING: This causes a high risk for buffer underruns.\n"
->> > Fixed:
->> >    "Warning: You don't have permission to hog the CPU.\n"
->> >    "         If the computer is not idle, the CD may be ruined.\n"
->> 
->> Huh? That can't be right. Every cd burner this side of the 21st century has 
->> buffer underrun protection.
-> 
-> I'm pretty sure my FireWire CD-RW/CD-R is from
-> another century. Not that it's unusual in 2004.
-> 
->> I've burnt cds _while_ capturing and encoding 
->> video using truckloads of cpu and I/O without superuser privileges, had all 
->> the cdrecord warnings and didn't have a buffer underrun.
-> 
-> That's cool. My hardware won't come close to that.
-> Burning a coaster costs money.
-> 
-> Let me put it this way: $$ $ $$$ $$ $ $$$ $$ $
-> 
-> The warning, if re-worded, will save people from
-> frustration and wasted money.
+On Tue, 10 Aug 2004, Benjamin Herrenschmidt wrote:
 
-Sounds good; how about something less terrifying? That warning sounds like a 
-ruined cd is likely.
+> >   This is implemented by iterating through the list of struct classes,
+> >   then through each of their struct class_device's. The class_device is
+> >   the only argument to those functions.
+>
+> Hrm... I don't agree, that iteration should be done in bus ordering too.
+>
+> For example, if you stop operation of a USB host controller, you have to
+> do that after you have stopped operation of child devices. Same goes
+> with the ATA disk vs. controller. The ordering requirements for stopping
+> operations are the same as for PM
 
->> Last time I gave 
->> superuser privilege to cdrecord it locked my machine - clearly it wasn't 
->> rt_task safe.
-> 
-> So, you've been working on the scheduler anyway...
-> An option to reserve some portion of CPU time for
-> emergency use (say, 5% after 1 second has passed)
-> would let somebody get out of this situation.
+It's easy enough to change which order things get stopped/started in. What
+matters more is the conceptual shift in responsibility for who
+stops/starts the devices, or rather their interfaces.
 
-This breaks the real time policy entirely. That's why I run it SCHED_ISO ... 
-but of course this isn't available in mainline linux.
+It also requires a mapping from struct device -> struct class_device that
+the drivers will have to initialize.
 
-> Reporting and/or fixing the cdrecord bug is nice too.
+> What about passing the previous state to restore ? could be useful...
 
-It was a hard lockup and randomly happened during a cd write, creating my 
-first coaster in a long time... in rt mode ironically which is how it is 
-recommended to be run. So I removed the foolish superuser bit and have had 
-no problem since. Yes it was unaltered cdrecord source and it was the 
-so-called alpha branch and... Not much else I can say about it really?
+It's saved in dev->power.pm_resume, so drivers can check it.
 
-Cheers,
-Con
+> > - To struct bus_type:
+> >
+> > 	int             (*pm_power)(struct device *, struct pm_state *);
+> >
+> >   This method is used to do all power transitions, including both
+> >   shutdown/reset and device power management states.
+>
+> Who calls it ? It's the driver calling it's bus or what ? It make no
+> sense to power manage a device before suspending activity... I agree it
+> may be worth splitting dev_start/stop from PM transitions proper, that
+> would help dealing with various policies, however, there are still some
+> dependencies between those, and they all need to be tied to the bus
+> topology.
 
+The driver core calls it in device_power_down() (as was in the patch ;),
+in physical topological order. The ordering of the calls is up the power
+management core, but it just wouldn't make sense to power down a device
+that wasn't stopped. Would be easy enough to add a check for it..
+
+Note it would make sense to power down a device without stopping, if the
+device had no device driver bound to it (e.g. unclaimed devices that are
+in D0 unnecessarily; or unclaimed devices that need to be powered down
+during a suspend transition).
+
+> What about partial tree ? We need to suspend childs first and we need to
+> tied PM transition with dev_start/stop (or have some way to indicate the
+> device we want it to auto-resume when it gets a request, or something).
+> We need to work out policy a bit more here I suppose...
+
+Policy can come later; we have to have a working model first.
+
+As far as partial trees go, it can be done using the posted patch.  Think
+about why you want to suspend/resume a partial tree - to use a particular
+leaf device. You know what device it is, and by virtue of the driver
+model, you know each of its ancestors. So, you walk the tree up to the
+root, and restart all the way down. Then, you re-stop it all the way back
+up. Should be ~10 lines of code that is left as an exercise against the
+posted patch. :)
+
+
+	Pat

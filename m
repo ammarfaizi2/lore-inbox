@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVC3GmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVC3GmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVC3GmK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 01:42:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVC3GmI
+	id S261546AbVC3GmV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 01:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVC3GmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 01:42:08 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:20121 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261767AbVC3Glt (ORCPT
+	Wed, 30 Mar 2005 01:42:21 -0500
+Received: from verein.lst.de ([213.95.11.210]:939 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261546AbVC3Glx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 01:41:49 -0500
-Message-ID: <424A3FA0.9030403@colorfullife.com>
-Date: Wed, 30 Mar 2005 07:56:48 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, shai@scalex86.org
-Subject: Re: API changes to the slab allocator for NUMA memory allocation
-References: <20050315204110.6664771d.akpm@osdl.org> <42387C2E.4040106@colorfullife.com> <273220000.1110999247@[10.10.2.4]> <4238845E.5060304@colorfullife.com> <Pine.LNX.4.58.0503292126050.32140@server.graphe.net>
-In-Reply-To: <Pine.LNX.4.58.0503292126050.32140@server.graphe.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Mar 2005 01:41:53 -0500
+Date: Wed, 30 Mar 2005 08:41:45 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@lst.de>, wendyx@us.ltcfwd.linux.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fixup newly added jsm driver
+Message-ID: <20050330064145.GA12571@lst.de>
+References: <20050329210735.GA5664@lst.de> <20050329134734.71c16b54.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050329134734.71c16b54.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
+On Tue, Mar 29, 2005 at 01:47:34PM -0800, Andrew Morton wrote:
+> Christoph Hellwig <hch@lst.de> wrote:
+> >
+> > One more prematurely added drivers..
+> 
+> This driver was first sent out for review a month ago, was upissued twice
+> and generated over seventy linux-kernel emails including some from Russell
+> and some from Greg.  It was by no means a "premature" addition.
+> 
+> One could say that it was inadequately reviewed, but how is one to
+> determine that?  If the thing has been under discussion for a month and the
+> submitter says "I've addressed all comments" then it's going to get merged.
 
->The patch makes the following function calls available to allocate memory on
->a specific node without changing the basic operation of the slab
->allocator:
->
-> kmem_cache_alloc_node(kmem_cache_t *cachep, unsigned int flags, int node);
-> kmalloc_node(size_t size, unsigned int flags, int node);
->
->  
->
-I intentionally didn't add a kmalloc_node() function:
-kmalloc is just a wrapper around 
-kmem_find_general_cachep+kmem_cache_alloc. It exists only for 
-efficiency. The _node functions are slow, thus a wrapper is IMHO not 
-required. kmalloc_node(size,flags,node) is identical to 
-kmem_cache_alloc(kmem_find_general_cachep(size,flags),flags,node). What 
-about making kmem_find_general_cachep() public again and removing 
-kmalloc_node()?
+I don't think the submitter should say all issues have been addressed
+but that should come from a sufficiently trusted reviewer.
 
-And I don't know if it's a good idea to make kmalloc() a special case of 
-kmalloc_node(): It adds one parameter to every kmalloc call and 
-kmem_cache_alloc call, virtually everyone passes -1. Does it increase 
-the .text size?
-
---
-    Manfred

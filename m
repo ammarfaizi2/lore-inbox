@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129191AbRB0NF2>; Tue, 27 Feb 2001 08:05:28 -0500
+	id <S129175AbRB0NCS>; Tue, 27 Feb 2001 08:02:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129199AbRB0NFS>; Tue, 27 Feb 2001 08:05:18 -0500
-Received: from janeway.cistron.net ([195.64.65.23]:35844 "EHLO
-	janeway.cistron.net") by vger.kernel.org with ESMTP
-	id <S129191AbRB0NFB>; Tue, 27 Feb 2001 08:05:01 -0500
-Date: Tue, 27 Feb 2001 14:03:33 +0100
-From: Ivo Timmermans <irt@cistron.nl>
-To: linux-kernel@vger.kernel.org
-Subject: binfmt_script and ^M
-Message-ID: <20010227140333.C20415@cistron.nl>
-Mime-Version: 1.0
+	id <S129191AbRB0NCI>; Tue, 27 Feb 2001 08:02:08 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44557 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129175AbRB0NCA>; Tue, 27 Feb 2001 08:02:00 -0500
+Subject: Re: Linux 2.4.2 DMA Interrupt poblem?
+To: jsidhu@arraycomm.com (Jasmeet Sidhu)
+Date: Tue, 27 Feb 2001 13:05:16 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <5.0.2.1.2.20010226170434.026a7d68@pop.arraycomm.com> from "Jasmeet Sidhu" at Feb 26, 2001 05:07:59 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Xjoe-0003N1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When running a script (perl in this case) that has DOS-style newlines
-(\r\n), Linux 2.4.2 can't find an interpreter because it doesn't
-recognize the \r.  The following patch should fix this (untested).
+> Feb 24 14:00:52 bertha kernel: hdi: dma_intr: status=0x51 { DriveReady 
+> SeekComplete Error }
+> Feb 24 14:00:52 bertha kernel: hdi: dma_intr: error=0x40 { 
+> UncorrectableError }, LBAsect=42484802, sector=42484720
 
-Please Cc me on replies, I'm not on this list.  Thanks.
+Uncorrectable generally implies a hardware failure such as a bad block on
+the disk
 
 
---- binfmt_script.c~	Mon Feb 26 17:42:09 2001
-+++ binfmt_script.c	Tue Feb 27 13:39:47 2001
-@@ -36,6 +36,8 @@
- 	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
- 	if ((cp = strchr(bprm->buf, '\n')) == NULL)
- 		cp = bprm->buf+BINPRM_BUF_SIZE-1;
-+	if (cp - 1 == '\r')
-+	  cp--;
- 	*cp = '\0';
- 	while (cp > bprm->buf) {
- 		cp--;
-
--- 
-Ivo Timmermans

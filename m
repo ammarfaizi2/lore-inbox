@@ -1,104 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266262AbUHMRKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUHMRLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266262AbUHMRKM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 13:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUHMRKL
+	id S266242AbUHMRLc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 13:11:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUHMRKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 13:10:11 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:53476 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266244AbUHMRJj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 13:09:39 -0400
-Message-ID: <411CF5CD.9020207@embeddedintelligence.com>
-Date: Fri, 13 Aug 2004 13:09:33 -0400
-From: Stephen Glow <sglow@embeddedintelligence.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040726
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to generate hotplug events in drivers?
-References: <411C1EC0.3010302@embeddedintelligence.com> <20040813070643.GA6785@kroah.com>
-In-Reply-To: <20040813070643.GA6785@kroah.com>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Aug 2004 13:10:34 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:63441 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266242AbUHMRJV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 13:09:21 -0400
+Date: Fri, 13 Aug 2004 10:08:45 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Dominik Brodowski <linux@dominikbrodowski.de>,
+       Rusty Russell <rusty@rustcorp.com.au>, Greg KH <greg@kroah.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [UPDATED PATCH 1/2] export module parameters in sysfs for modules _and_ built-in code
+Message-ID: <20040813170845.GA25666@beaverton.ibm.com>
+References: <20040801165407.GA8667@dominikbrodowski.de> <1091426395.430.13.camel@bach> <20040802214710.GB7772@dominikbrodowski.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040802214710.GB7772@dominikbrodowski.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I finally tried this out, nice.
 
-Greg KH wrote:
-| udev needs to see a file called "dev" in the proper structure show up in
-| the sysfs tree in either /sys/class/* or /sys/block/*.  So, you need to
-| either use the misc char device interface, the block interface, some
-| other char interface that already has sysfs support, or add your own.
-| If you need to add your own, I suggest looking into the class_simple
-| interface, as that's a lot easier to work with to start out with.
-|
-| Hope this helps,
-|
-| greg k-h
+Is someone pushing it? I don't see it in 2.6.8-rc4-mm1.
 
-Hi Greg;
+-- Patrick Mansfield
 
-Thanks for the response, things seem to be working now.
+On Mon, Aug 02, 2004 at 11:47:10PM +0200, Dominik Brodowski wrote:
 
-I'm still a little fuzzy about how all this works together, but the
-picture is starting to become a bit clearer.  Here are the basic steps I
-took in my PCI driver to get the device node to show up, please let me
-know if anyone sees an error here:
-
-In the init module function, I create a new class_simple pointer:
-
-static struct class_simple *myclass;
-
-int init_module( void )
-{
-~    ...
-~    myclass = class_simple_create( THIS_MODULE, "myclassname" );
-~    ...
-}
-
-This causes the new class directory to show up under /sys/class
-
-In the PCI probe function I do the following:
-
-probe(...)
-{
-~   ...
-
-~   // Allocate a device numer
-~   dev_t mydev;
-~   alloc_chrdev_region( &mydev, 0, 1, "mydevicename" );
-
-~   // Add this device number to my class.  Note I'm passing NULL for
-~   // the device pointer.  I'm not exactly sure what this is for, but
-~   // most devices in the kernel tree seem to pass NULL here.
-~   class_simple_add_device( myclass, mydev, NULL, "mydevicename" );
-
-~   // Finally, I init and add my cdev structure.
-~   cdev_init( &mycdev, &myfops );
-~   mycdev.owner = THIS_MODULE;
-~   kobject_set_name( &mycdev.kobj, "mydevicename" );
-~   cdev_add( &mycdev, mydev, 1 );
-
-~   ...
-}
-
-Of course, my real code has error checking and does cleanup in the PCI
-remove function and the module exit function.
-
-Thanks again!
-
-Steve
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBHPXNDMBOo/wgA5QRAlAkAKCFrxmtrkEhVcCPQ8pBZzPQZccM5ACeJz/e
-G/ulXO9/OdoScmgwSBJJ3xM=
-=ylWm
------END PGP SIGNATURE-----
+> Create a new /sys top-level directory named "parameters", and make all
+> to-be-sysfs-exported module parameters available as attributes to kobjects.
+> Currently, only module parameters in _modules_ are exported in /sys/modules/,
+> while those of "modules" built into the kernel can be set by the kernel command 
+> line, but not read or set via sysfs.
+> 
+> For modules, a symlink
+> 
+> brodo@mondschein param $ ls -l /sys/module/ehci_hcd/ | grep param
+> lrwxrwxrwx  1 brodo brodo    0  1. Aug 17:50 parameters -> ../../parameters/ehci_hcd
+> 
+> is added. Removal of double module parameters export for modules is sent in a second
+> patch, so the diffstat
+> 
+>  include/linux/module.h      |    2
+>  include/linux/moduleparam.h |   14 +
+>  kernel/module.c             |   16 +
+>  kernel/params.c             |  368 ++++++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 399 insertions(+), 1 deletion(-)
+> 
+> looks worse than it is.
+> 
+> Much of this work is based on the current code for modules only to be found in
+> linux/kernel/module.c; many thanks to Rusty Russell for his code and his
+> feedback!
+> 
+> Signed-off-by: Dominik Brodowski <linux@brodo.de>

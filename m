@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbUDUVjf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbUDUVob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbUDUVjf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 17:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbUDUVjf
+	id S261263AbUDUVob (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 17:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUDUVob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 17:39:35 -0400
-Received: from mail.enyo.de ([212.9.189.167]:15889 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S261273AbUDUVjd (ORCPT
+	Wed, 21 Apr 2004 17:44:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4230 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261263AbUDUVoa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 17:39:33 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: "Fabian Uebersax" <fabian.uebersax@ch.tiscali.com>,
+	Wed, 21 Apr 2004 17:44:30 -0400
+Date: Wed, 21 Apr 2004 14:46:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: torvalds@osdl.org, andrea@suse.de, agruen@suse.de,
        linux-kernel@vger.kernel.org
-Subject: Re: tcp vulnerability?  haven't seen anything on it here...
-References: <435F241B01CDFC44B50865371254BC3702426157@ch-flu-exchange>
-	<20040421132642.60c21268.davem@redhat.com>
-From: Florian Weimer <fw@deneb.enyo.de>
-Date: Wed, 21 Apr 2004 23:39:26 +0200
-In-Reply-To: <20040421132642.60c21268.davem@redhat.com> (David S. Miller's
- message of "Wed, 21 Apr 2004 13:26:42 -0700")
-Message-ID: <874qrdggdt.fsf@deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: slab-alignment-rework.patch in -mc
+Message-Id: <20040421144647.7a0a82e6.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0404211910510.11762-100000@dbl.q-ag.de>
+References: <Pine.LNX.4.58.0404201146560.1775@ppc970.osdl.org>
+	<Pine.LNX.4.44.0404211910510.11762-100000@dbl.q-ag.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
-
-> On Wed, 21 Apr 2004 19:27:01 +0200
-> "Fabian Uebersax" <fabian.uebersax@ch.tiscali.com> wrote:
+Manfred Spraul <manfred@colorfullife.com> wrote:
 >
->> http://www.ietf.org/internet-drafts/draft-ietf-tcpm-tcpsecure-00.txt
->
-> Anyone who recommends responding to a RST packet, does not
-> understand TCP very well.
+> There is one additional point: right now slab uses ints for the bufctls.
+> Using short would save two bytes for each object. Initially I had used
+> short, but davem objected. IIRC because some archs do not handle short
+> effeciently. Should I allow arch overrides for the bufctls? On i386,
+> saving two bytes might allow a few additional anon_vma objects in each
+> page.
 
-This was my thought as well.  Surely you don't want to deploy such a
-drastic change to the TCP state engine after just so little
-investigation.
+There's one bufctl per object, yes?
 
-In the confined environment of BGP peerings, the risks can be
-controlled (RSTs are typically rate-limited on the receiving end
-anyway, for example).  On the net as a whole, you have to be
-compatible with all implementations ever written.  If some
-implementation replied to the ACK cookie with another RST with an
-suitable sequence number, there might be a few issues.
-
-(BTW, TCP connections used for BGP typically have port numbers from a
-very small set.  So there is no additional randomness from that which
-offers any additional protection.)
-
--- 
-Current mail filters: many dial-up/DSL/cable modem hosts, and the
-following domains: atlas.cz, bigpond.com, postino.it, tiscali.co.uk,
-tiscali.cz, tiscali.it, voila.fr.
+Sounds like a worthwhile optimisation.

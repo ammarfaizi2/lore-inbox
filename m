@@ -1,62 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVADVdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVAEAIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbVADVdv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 16:33:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVADVIv
+	id S262362AbVAEAIi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 19:08:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262295AbVADVnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:08:51 -0500
-Received: from gw.indranet.co.nz ([203.167.203.10]:32016 "EHLO
-	enso.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id S262008AbVADVGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:06:30 -0500
-In-Reply-To: <20041227210614.GA11052@nietzsche.lynx.com>
-References: <Pine.OSF.4.05.10412271655270.18818-100000@da410.ifa.au.dk> <1104165560.20042.108.camel@localhost.localdomain> <20041227210614.GA11052@nietzsche.lynx.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <ED17612C-5E64-11D9-9D1C-000D93C603C0@indranet.co.nz>
-Content-Transfer-Encoding: 7bit
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Shane Shrybman <shrybman@aei.ca>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>, emann@mrv.com,
-       Adam Heath <doogie@debian.org>, Steven Rostedt <rostedt@goodmis.org>,
-       "K.R. Foley" <kr@cybsft.com>, Lee Revell <rlrevell@joe-job.com>,
-       Esben Nielsen <simlo@phys.au.dk>, Amit Shah <amit.shah@codito.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Florian Schmidt <mista.tapas@gmx.net>
-From: Andrew McGregor <andrew@indranet.co.nz>
-Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15)
-Date: Wed, 5 Jan 2005 04:25:55 +1300
-To: Bill Huey (hui) <bhuey@lnxw.com>
-X-Mailer: Apple Mail (2.619)
+	Tue, 4 Jan 2005 16:43:45 -0500
+Received: from out014pub.verizon.net ([206.46.170.46]:20726 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S262291AbVADVk6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 16:40:58 -0500
+From: James Nelson <james4765@cwazy.co.uk>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Cc: paulus@samba.org, James Nelson <james4765@cwazy.co.uk>
+Message-Id: <20050104214115.21749.90823.19119@localhost.localdomain>
+In-Reply-To: <20050104214048.21749.85722.89116@localhost.localdomain>
+References: <20050104214048.21749.85722.89116@localhost.localdomain>
+Subject: [PATCH 4/7] ppc: remove cli()/sti() in arch/ppc/platforms/apus_setup.c
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [209.158.220.243] at Tue, 4 Jan 2005 15:40:55 -0600
+Date: Tue, 4 Jan 2005 15:40:58 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-On 28/12/2004, at 10:06 AM, Bill Huey (hui) wrote:
-
-> On Mon, Dec 27, 2004 at 11:39:20AM -0500, Steven Rostedt wrote:
->> Actually, I've had some success with NVIDIA on all my kernels (except 
->> of
->
-> Doesn't the NVidia driver use their own version of DRM/DRI ?
-> If so, then did you tell it to use the Linux kernel versions of that
-> driver ?
->
->> course the realtime ones). Unfortunately, there are the little crashes
->> here and there, but those usually happen with screen savers so I don't
->
-> I was just having a discussion about this last night with a friend
-> of mine and I'm going to pose this question to you and others.
->
-> Is a real-time enabled kernel still relevant for high performance
-> video even with GPUs being as fast as they are these days ?
-
-It is if you want to do any audio at the same time, as you usually do.
-
-Andrew
-
+diff -urN --exclude='*~' linux-2.6.10-mm1-original/arch/ppc/platforms/apus_setup.c linux-2.6.10-mm1/arch/ppc/platforms/apus_setup.c
+--- linux-2.6.10-mm1-original/arch/ppc/platforms/apus_setup.c	2004-12-24 16:34:58.000000000 -0500
++++ linux-2.6.10-mm1/arch/ppc/platforms/apus_setup.c	2005-01-03 19:29:40.720694742 -0500
+@@ -480,7 +480,7 @@
+ void
+ apus_restart(char *cmd)
+ {
+-	cli();
++	local_irq_disable();
+ 
+ 	APUS_WRITE(APUS_REG_LOCK,
+ 		   REGLOCK_BLACKMAGICK1|REGLOCK_BLACKMAGICK2);

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282925AbRK0UHs>; Tue, 27 Nov 2001 15:07:48 -0500
+	id <S282926AbRK0UJ2>; Tue, 27 Nov 2001 15:09:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282926AbRK0UHj>; Tue, 27 Nov 2001 15:07:39 -0500
-Received: from bossm1.bcg.com ([65.193.95.7]:4109 "EHLO bossm1.bcg.com")
-	by vger.kernel.org with ESMTP id <S282925AbRK0UH0>;
-	Tue, 27 Nov 2001 15:07:26 -0500
-Message-ID: <51577C8F7C6DD41194DD00508BAEE22D0475A63B@AMRMAIL2>
-From: Karim Lakhani <Karim@bcg.com>
-To: "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
-Cc: "Bob@Opensource" <Bob@bcg.com>
-Subject: [REQUEST] Linux Hacker Survey http://bcglinuxsurvey.com
-Date: Tue, 27 Nov 2001 15:06:56 -0500
+	id <S282928AbRK0UJT>; Tue, 27 Nov 2001 15:09:19 -0500
+Received: from sr1.terra.com.br ([200.176.3.16]:27520 "EHLO sr1.terra.com.br")
+	by vger.kernel.org with ESMTP id <S282926AbRK0UJD>;
+	Tue, 27 Nov 2001 15:09:03 -0500
+Message-ID: <3C03F2DC.30706@terra.com.br>
+Date: Tue, 27 Nov 2001 18:09:00 -0200
+From: Piter Punk <piterpk@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Absence of PS/2 keyboard causes spurious IRQ7? - Was Re:  'spurious 8259A interrupt: IRQ7'
+In-Reply-To: <1793.10.119.8.1.1006872608.squirrel@extranet.jtrix.com> <5.1.0.14.2.20011127193412.00acb450@pop.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux Kernel Hackers,
+Anton Altaparmakov wrote:
 
-We are a team from The Boston Consulting Group (BCG)(http://www.bcg.com), an
-international strategy and management consulting firm, researching the
-fascinating phenomenon of Free/Open Source software development. We would
-like to request your participation in an independent, confidential survey
-about your experience with Linux development.
+> Also when using the USB keyboard I get keyboard: Timeout - AT keyboard 
+> not present?(f4) messages popping up from time to time. Usually 
+> accompanied by a spurious IRQ7 message.
+> 
+> So at least on my VIA box there seems to be a relationship between the 
+> lack of PS/2 keyboard and the IRQ7 messages.
+> 
+> Note, with my PS/2 keyboard (before I upgraded to USB one) I never saw 
+> either of the above messages.
 
-The survey is located here: http://www.bcglinuxsurvey.com
-(It should not take more than 15 minutes to complete)
+Hi... i have (@work) a Duron with VIA82C686A and a PS/2 keyboard connected
 
-We are offering prizes for participation!!! To thank you for submitting
-completed surveys, we will enter you in a lottery to win gift certificates
-from ThinkGeek.com. We will be giving away 3 gift certificates valued at
-$200, $100, and $50 (USD). Winners will be notified by e-mail. To enter
-you in the drawing, we will need your response by December 11, 2001.
-
-All responses will be confidential. No one outside of our research team
-will have access to the responses.  We will make available all the aggregate
-data we collect and all of our analysis and findings to this list and to the
-public.
-
-Also note that this research is intended to shape BCG's independent point of
-view only - no other company has commissioned this study. 
+see the same error message "blablabla spurious irq7". I think the problem is 
+independent have or not the keyboard connected...
 
 
-Please contact us at opensource@bcg.com if you have any questions and
-concerns.  
+-- 
+   ____________
+  / Piter PUNK \_____________________________________________________
+|                                                                   |
+|      |        E-Mail: piterpk@terra.com.br         (personal)     |
+|     .|.               roberto.freires@gds-corp.com (professional) |
+|     /V\                                                           |
+|    // \\      UIN: 116043354  Homepage: www.piterpunk.hpg.com.br  |
+|   /(   )\                                                         |
+|    ^`~'^         ----> Slackware Linux - The Best One! <----      |
+|   #105432                                                         |
+`-------------------------------------------------------------------'
 
-Best regards,
-
-Karim Lakhani      Bob Wolf
-(karim@bcg.com)    (bob@bcg.com)

@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263343AbRFNVLJ>; Thu, 14 Jun 2001 17:11:09 -0400
+	id <S263402AbRFNVO3>; Thu, 14 Jun 2001 17:14:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264103AbRFNVK7>; Thu, 14 Jun 2001 17:10:59 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:6804 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S264108AbRFNVKv>;
-	Thu, 14 Jun 2001 17:10:51 -0400
-Message-ID: <3B292857.EE72EBE7@mandrakesoft.com>
-Date: Thu, 14 Jun 2001 17:10:47 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
+	id <S263418AbRFNVOT>; Thu, 14 Jun 2001 17:14:19 -0400
+Received: from pd1aje.xs4all.nl ([213.84.90.153]:6149 "EHLO root.4us.org")
+	by vger.kernel.org with ESMTP id <S263402AbRFNVON>;
+	Thu, 14 Jun 2001 17:14:13 -0400
+Date: Thu, 14 Jun 2001 23:13:50 +0200 (MEST)
+From: Martin Moerman <linuxham@4us.org>
+To: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+cc: James Sutherland <jas88@cam.ac.uk>, Pavel Machek <pavel@suse.cz>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 3com Driver and the 3XP Processor
+In-Reply-To: <Pine.LNX.4.30.0106141412370.17117-100000@biglinux.tccw.wku.edu>
+Message-ID: <Pine.LNX.4.21.0106142312240.23731-100000@root.4us.org>
 MIME-Version: 1.0
-To: Riley Williams <rhw@MemAlpha.CX>
-Cc: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
-In-Reply-To: <Pine.LNX.4.33.0106142155360.16844-100000@infradead.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Riley Williams wrote:
-> 
-> Hi Ion.
-> 
->  >> Shawn, I'd suggest you tell the said sales guy that IF he can
->  >> get you the FULL specs TOGETHER WITH permission to freely
->  >> distribute them...
-> 
->  > Permission to freely distribute the specs isn't necessary,
->  > although it is nice indeed. All that's needed is permission to
->  > GPL the driver sources written using knowledge from said specs.
-> 
-> That presupposes that the person they give the specs to is the person
-> writing the driver. I don't remember shawn offering to write a driver
-> or anything approaching that.
-> 
-> As I see it, if Shawn has permission to freely distribute the specs,
-> he can send a copy to Alan Cox for forwarding to the relevant driver
-> developers. However, if he has to sign an NDA to get them, they're
-> useless...
-> 
-> Alan: Am I right in assuming this?
-
-If you can find specs, I have tested cards and help write a driver...
-
-	Jeff
 
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+On Thu, 14 Jun 2001, Brent D. Norris wrote:
+
+> > Now, if the NIC were to integrate with OpenSSL and offload some of THAT
+> > donkey work... Just offloading DES isn't terribly useful, as Pavel says:
+> > apart from anything else, DES is a bit elderly now - SSH using 3DES or
+> > Blowfish etc... How dedicated is this card? Could it be used to offload
+> > other work?
+> 
+> Sorry my bad it is 3DES that they have on it, but I don't know how
+> in-grained it is in it.  Like I sad it just floated across my desk a few
+> days ago and it sounded like a cool bit of hardware.
+
+
+The card is offloading TCP/IP checksums, TCP/IP packet fragmentation, and
+does IPSEC through the ARM9 proc.
+
+I like the card. but no real real linux drivers yet. only basic network
+card drivers for linux.
+
+/Martin
+martin_moerman@eur.3com.com
+
+
+
+> 
+> Brent Norris
+> 
+> Executive Advisor -- WKU-Linux
+> 
+> System Administrator -- WKU-Center for Biodiversity
+>                         Best Mechanical
+> 
+> W: 270-745-8864
+> H: 270-563-9226
+> 
+> "The problem with the Linux learning curve is that it is _so_ steep once
+>  at the top you can't see the people at the bottom"  --Doug Hagan
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

@@ -1,81 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293459AbSBYTya>; Mon, 25 Feb 2002 14:54:30 -0500
+	id <S293460AbSBYTya>; Mon, 25 Feb 2002 14:54:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293460AbSBYTyW>; Mon, 25 Feb 2002 14:54:22 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22545 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S293459AbSBYTyM>; Mon, 25 Feb 2002 14:54:12 -0500
-Date: Mon, 25 Feb 2002 14:49:40 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: lse-tech@lists.sourceforge.net,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] NUMA scheduling
-In-Reply-To: <20020225110327.A22497@work.bitmover.com>
-Message-ID: <Pine.LNX.3.96.1020225142845.17391A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293470AbSBYTyV>; Mon, 25 Feb 2002 14:54:21 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:3507 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S293460AbSBYTyN>;
+	Mon, 25 Feb 2002 14:54:13 -0500
+Date: Mon, 25 Feb 2002 14:51:30 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rusty Russell <rusty@rustcorp.com.au>, mingo@elte.hu,
+        Matthew Kirkwood <matthew@hairy.beasts.org>,
+        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+Message-ID: <20020225145130.B1537@elinux01.watson.ibm.com>
+In-Reply-To: <Pine.LNX.4.33.0202250942110.8978-100000@penguin.transmeta.com> <E16fPWS-0005hU-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16fPWS-0005hU-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 25, 2002 at 06:06:48PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Feb 2002, Larry McVoy wrote:
+On Mon, Feb 25, 2002 at 06:06:48PM +0000, Alan Cox wrote:
+> > The most common case for any fast semaphores are for _threaded_
+> > applications. No shared memory, no nothing.
 
-> If you read the early hardware papers on SMP, they all claim "Symmetric
-> Multi Processor", i.e., you can run any process on any CPU.  Skip forward
-> 3 years, now read the cache affinity papers from the same hardware people.
-> You have to step back and squint but what you'll see is that these papers
-> could be summarized on one sentence:
+Well, but most threaded applications should actually take care of this
+without having to ditch into the kernel.
+
 > 
-> 	"Oops, we lied, it's not really symmetric at all"
+> Ok I see where you are coming from now -- that makes sense for a few cases.
+> POSIX thread locks have to be able to work interprocess not just between
+> threads though, so a full posix lock implementation couldn't be done without
+> being able to put these things on shared pages (hence I was coming from
+> the using shmfs as backing store angle).  Using a subset of shmfs also got
+> me resource management which happens to be nice.
+
+With respect to global POSIX locks:
+I talked to Bill Abt of the NGPT team and we planned of introducing 
+an asynchronous mechanism to the user level lock package that I submitted
+some 2 weeks ago. The problem here is that in NGPT like packages
+the underlying kernel thread can not be blocked on a wait call, because
+it constitutes a virtual CPU on which multiple user level threads are 
+run. So what we were thinking of is on a wait call to the kernel
+a datastructure is put in place on which to wait rather than blocking
+on the calling thread. On wakeup, the initial process will be signaled
+that one of the locks is available again. The user level thread scheduler
+can then pick up the lock (many mechanism possible) and continue
+the user level thread waiting on it.
 > 
-> You should treat each CPU as a mini system and think of a process reschedule
-> someplace else as a checkpoint/restart and assume that is heavy weight.  In
-> fact, I'd love to see the scheduler code forcibly sleep the process for 
-> 500 milliseconds each time it lands on a different CPU.  Tune the system
-> to work well with that, then take out the sleep, and you'll have the right
-> answer.
 
-  Unfortunately this is an overly simple view of how SMP works. The only
-justification for CPU latency is to preserve cache contents. Trying to
-express this as a single number is bound to produce suboptimal results.
-Consider:
+> The other user of these kind of fast locks is databases. Oracle for example
+> seems not to be a single mm threaded application.
+> 
+> If we are talking about being able to say "make this page semaphores" then I 
+> agree - the namespace is a seperate problem and up to whoever allocated the
+> backing store in the first place, and may well not involve a naming at all.
 
-+ the benefit from staying on the same processor drops with the number of
-cache lines reloaded, not the the time. On some systems you probably can
-measure this, I don't know of any use currently made of it. Actually given
-varying cache sizes you care about the lines not changed, still another
-thing (big cache doesn't devaluate as fast).
+What I implemented is what Linus recommended, namely indicate whether
+a memory region is capable of being utilized for user level locks.
+We need this for cleanup, i.e., when a process exits or dies, and the 
+vma area is closed/removed, we know when to call back the kernel subsystem
+holding the kernel locks associated with user level locks and clean
+up lingering objets.
 
-+ the cost of going to another processor is hardware and application
-dependent. It depends on memory bandwidth and the size of the working set.
-In addition, some hardware has several processors on a card, with
-both individual and shared cache. And the Intel hyperthreading provides
-two CPUs with totally shared cache (if I read the blurb right). This means
-that the cost of going to one processor isn't always the same as going to
-another.
+This works quite nice. I did this in my implementation and it requires
+basically 4 line changes in the kernel.
+The flag MAP_SEMAPHORE is to be introduced for mmap and shmat.
+One problem is that libc seems to mask out any flags that
+is currently not exposed by the kernel.
 
-+ tuning depends on what you want to optimize. If I have low memory and
-few processes, having a process using memory but not getting CPU is bad, I
-don't ever want a CPU idle when I don't have enough to go around. I don't
-even want a CPU idle if I have tons of memory, switch is actually not all
-THAT heavy an operation, if I have a small working set the cost is low, if
-I have a working set larger than cache the benefit of addinity is reduced. 
-And, if I have lots of memory and processes, and not much CPU, and limited
-memory bandwidth, then waiting for a CPU is fine, it keeps the CPUs
-running as fast as possible. 
+-- Hubertus
 
-  I believe there is room for improvement here, but I don't think setting
-affinity to some large values and then tuning the system to work well with
-that is even possible, given the benefits in responsiveness I see with low
-latency and preempt changes, I think it would lead to a dog-slow system no
-matter how you tune it.
-
-  To paraphrase one of my old sig files, simplify the algorithm as much as
-possible. Then stop.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

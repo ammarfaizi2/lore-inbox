@@ -1,43 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265267AbTLRSYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 13:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265268AbTLRSYZ
+	id S265276AbTLRSn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 13:43:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbTLRSn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 13:24:25 -0500
-Received: from [208.33.57.99] ([208.33.57.99]:1188 "EHLO mail.ibiquity.com")
-	by vger.kernel.org with ESMTP id S265267AbTLRSYW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 13:24:22 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: non-SMP kernels fail to compile
-Date: Thu, 18 Dec 2003 13:24:21 -0500
-Message-ID: <E3C9701D2F6B57468EBB36C053176EEF0172198F@mail.ibiquity.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: non-SMP kernels fail to compile
-Thread-Index: AcPFlCe35Dt91VK7RO+7QmYD3kJP8g==
-From: "Chandler, Neville" <chandler@ibiquity.com>
-To: <linux-kernel@vger.kernel.org>
+	Thu, 18 Dec 2003 13:43:28 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:31205 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S265276AbTLRSnQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 13:43:16 -0500
+Subject: Re: XFS trouble on 2.6.0-test11
+From: Russell Cattelan <cattelan@xfs.org>
+To: Knoppix User <ivg2@cornell.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3FE16E52.8090105@cornell.edu>
+References: <3FE16E52.8090105@cornell.edu>
+Content-Type: text/plain
+Message-Id: <1071772971.7162.211.camel@naboo.americas.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5-1mdk 
+Date: Thu, 18 Dec 2003 12:42:51 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
- 
-I'm having problems compiling Non-SMP versions of the linux kernel. 
-linux-2.4.23 and linux-2.4.24-pre1 fail to compile with SMP disabled.
-However, they do compile cleanly when SMP is enabled. Any help would be
-appreciated.
+Yes unfortunately this has been cropping in a few places recently,
+including 2.4.
 
-Thanks.
+We don't have much info as to what is going wrong at the point
+other than the panic is due to bad data on disk. 
+Tracking down when the bad data happened it always difficult.
 
-System: Redhat 9
-GCC:    3.3.2
+If anybody else hits this attach the output of xfs_check to:
+http://oss.sgi.com/bugzilla/show_bug.cgi?id=296
 
+If you're system is accessible and you would be willing to let
+somebody poke around you're system with xfs_db try to find us
+on irc: FreeNode #xfs
 
-chandler@ibiquity.com
+On Thu, 2003-12-18 at 03:07, Knoppix User wrote:
+> Congratulations on your 2.6.0 release. I hate to spoil it but I'm having 
+> some serious XFS trouble.
+> I was attempting to build an rpm of the latest kernel, when XFS crashed,
+> and over the next few boots ( while I was trying to fix program after 
+> program) completely managed
+> to mess up my system to the point when it no longer boots. In fact, it 
+> doesn't even mount
+> most of the time. Anyway, I managed to save the original error, so here 
+> it is (see below).
+> Any ideas as to what's wrong and how I can fix my filesystem? It's a 
+> miracle it actually mounted
+> under Knoppix so I could retrieve the error - it failed the last few 
+> times I tried to mount.
+> Apparently the recovery during mount is not doing its job, since the 
+> filesystem continually
+> corrupts everything I touch and is causing lots of damage. Note: I have 
+> not had any trouble
+> with XFS before and I have been running the 2.6.0-test11 kernel for a 
+> while (1-2 weeks?)
+> 
+> I will not be able to reply to this message for at least 24 hrs as I 
+> have to catch a flight very soon.
+> Unfortunately my computer's  not coming along, so I won't be able to 
+> help with any testing for a month.
+> 
+> Here's the error I got:
+> 
+> Filesystem "hda7": XFS internal error xfs_alloc_read_agf at line 2208 of 
+> file fs/xfs/xfs_alloc.c.  Caller 0xc01bb7ea
+> Call Trace:
+>  [<c01bbbc2>] xfs_alloc_read_agf+0xe2/0x1e0
+>  [<c01bb7ea>] xfs_alloc_fix_freelist+0x45a/0x470
+>  [<c01bb7ea>] xfs_alloc_fix_freelist+0x45a/0x470
+>  [<c01bb7ea>] xfs_alloc_fix_freelist+0x45a/0x470
+>  [<c01ff87b>] xlog_grant_log_space+0x12b/0x380
+>  [<c0142a5c>] cache_grow+0x17c/0x290
+>  [<c01bc0e3>] xfs_free_extent+0x93/0xf0
+>  [<c01ed116>] xfs_efd_init+0x116/0x140
+>  [<c020e518>] xfs_trans_get_efd+0x38/0x50
+>  [<c0205348>] xlog_recover_process_efi+0x188/0x200
+>  [<c0205415>] xlog_recover_process_efis+0x55/0xa0
+>  [<c0206b74>] xlog_recover_finish+0x24/0xf0
+>  [<c01b0ff3>] xfs_qm_newmount+0x93/0x190
+>  [<c01fd40c>] xfs_log_mount_finish+0x2c/0x30
+>  [<c020839f>] xfs_mountfs+0x8cf/0xfd0
+>  [<c0225710>] xfs_setsize_buftarg+0x40/0x80
+>  [<c01fa8fe>] xfs_ioinit+0x1e/0x40
+>  [<c02102df>] xfs_mount+0x33f/0x5e0
+>  [<c02263b4>] vfs_mount+0x34/0x40
+>  [<c02263b4>] vfs_mount+0x34/0x40
+>  [<c022619b>] linvfs_fill_super+0x9b/0x220
+>  [<c02373b7>] snprintf+0x27/0x30
+>  [<c018b262>] disk_name+0x62/0xb0
+>  [<c015cfb5>] sb_set_blocksize+0x25/0x60
+>  [<c015c954>] get_sb_bdev+0x124/0x160
+>  [<c022634f>] linvfs_get_sb+0x2f/0x60
+>  [<c0226100>] linvfs_fill_super+0x0/0x220
+>  [<c015cbc3>] do_kern_mount+0x63/0x110
+>  [<c017290a>] do_add_mount+0x6a/0x150
+>  [<c0172c30>] do_mount+0x150/0x1a0
+>  [<c0172a70>] copy_mount_options+0x80/0xf0
+>  [<c0172fff>] sys_mount+0xbf/0x140
+>  [<c0420c1f>] do_mount_root+0x2f/0xa0
+>  [<c0420ce4>] mount_block_root+0x54/0x120
+>  [<c0420f26>] mount_root+0x36/0x40
+>  [<c0420f75>] prepare_namespace+0x45/0x150
+>  [<c01050d7>] init+0x37/0x160
+>  [<c01050a0>] init+0x0/0x160
+>  [<c0109289>] kernel_thread_helper+0x5/0xc
+> 
+> Failed mount attempts also talk about error in  xfs_alloc_read_agf.
+> 
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

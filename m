@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318151AbSHDKC2>; Sun, 4 Aug 2002 06:02:28 -0400
+	id <S318141AbSHDKGd>; Sun, 4 Aug 2002 06:06:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318153AbSHDKC2>; Sun, 4 Aug 2002 06:02:28 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:8466 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S318151AbSHDKC1>; Sun, 4 Aug 2002 06:02:27 -0400
-Date: Sun, 4 Aug 2002 12:05:58 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Ged Haywood <ged@www2.jubileegroup.co.uk>
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-Subject: Re: RE:2.4.19 warnings with allnoconfig
-Message-ID: <20020804100558.GC28559@louise.pinerecords.com>
-References: <20020804081620.GA13316@alpha.home.local> <Pine.LNX.4.21.0208041045160.6405-100000@www2.jubileegroup.co.uk>
+	id <S318140AbSHDKGd>; Sun, 4 Aug 2002 06:06:33 -0400
+Received: from jalon.able.es ([212.97.163.2]:45780 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S318141AbSHDKGc>;
+	Sun, 4 Aug 2002 06:06:32 -0400
+Date: Sun, 4 Aug 2002 12:09:21 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 make allyesconfig - errors and warnings
+Message-ID: <20020804100921.GA1353@junk>
+References: <28360.1028454667@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0208041045160.6405-100000@www2.jubileegroup.co.uk>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 60 days, 21:35
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <28360.1028454667@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on dom, ago 04, 2002 at 11:51:07 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> and yes I use two spaces, not tabs, to indent, so I don't fall off the
-> page;
 
-You have other problems in your code than indent too wide then.
-Seriously.
+On 20020804 Keith Owens wrote:
+> 2.4.19 make allyesconfig got two errors and lots of warnings.
+> 
+> CONFIG_JFFS2_FS - duplicate symbols between jffs2 and ppp_deflate - an
+> oldy but goody.
+> 
 
-T.
+The only way to clean that for future is to include David Woodhouse's 
+shared zlib patch. It cleans jffs2 and some more things.
+
+-- 
+J.A. Magallon                           \                 Software is like sex:
+junk.able.es                             \           It's better when it's free
+Mandrake Linux release 9.0 (Cooker) for i586
+Linux 2.4.19-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-0.2mdk))

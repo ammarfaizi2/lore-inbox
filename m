@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266735AbTAOR2G>; Wed, 15 Jan 2003 12:28:06 -0500
+	id <S266731AbTAORYE>; Wed, 15 Jan 2003 12:24:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266736AbTAOR2G>; Wed, 15 Jan 2003 12:28:06 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:3078 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S266735AbTAOR2F>; Wed, 15 Jan 2003 12:28:05 -0500
-Date: Wed, 15 Jan 2003 18:36:56 +0100
-From: DervishD <raul@pleyades.net>
-To: Jakob Oestergaard <jakob@unthought.net>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Changing argv[0] under Linux. This MUST work...
-Message-ID: <20030115173656.GG86@DervishD>
-References: <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net> <20030114231141.GC4603@doc.pdx.osdl.net> <20030115044644.GA18608@mark.mielke.cc> <20030115082527.GA22689@pegasys.ws> <20030115114130.GD66@DervishD> <20030115131617.GA8621@unthought.net> <20030115162219.GB86@DervishD> <20030115164731.GB8621@unthought.net> <20030115171009.GF86@DervishD>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030115171009.GF86@DervishD>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	id <S266735AbTAORYE>; Wed, 15 Jan 2003 12:24:04 -0500
+Received: from eamail1-out.unisys.com ([192.61.61.99]:34806 "EHLO
+	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S266731AbTAORYD>; Wed, 15 Jan 2003 12:24:03 -0500
+Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD904@usslc-exch-4.slc.unisys.com>
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "'anton@samba.org'" <anton@samba.org>,
+       "'Nakajima, Jun'" <jun.nakajima@intel.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: 48GB NUMA-Q boots, with major IO-APIC hassles
+Date: Wed, 15 Jan 2003 11:32:26 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Jakob :)
+>(3) setup_ioapic_ids_from_mpc() panic()'s.
+>-- the clustered_apic_mode check and/or its current equivalent
+>-- no longer suffices with 16 IO-APIC's. Turn off all the
+>-- renumbering logic and hardcode the numbers to alternate
+>-- between 13 and 14, where they belong.
+>-- The real issue here is that the phys_id_present_map is not
+>-- properly per- APIC bus. The physid's of IO-APIC's are
+>-- irrelevant from the standpoint of the rest of the kernel,
+>-- but are inexplicably used to identify them throughout the
+>-- rest of arch/i386/ when physids are nothing resembling
+>-- unique identifiers in multiple APIC bus systems. This
 
-    Your solution of exec'ing ourselves MUST undoubtly work (well, I
-know that this an affirmation that I will lament XDDDD), because it
-only relies on 'exec()' passing the argv[0] you provide as the
-argv[0] of the invoked binary, and that should work or programs like
-'/bin/login' will stop working... They rely on the same principle,
-since they need to prepend an '-' to the shell name to make it a
-login shell :))) Didn't remember this until now!
+I also have a problem with setup_ioapic_ids_from_mpc(). I opt for 0xFF as
+max io_apic phys_id (and leave it alone!), because even though we have fewer
+IO-APICs than that, I'd like to keep the actual numbers from MP table or
+ACPI, because all APIC and IO-APIC id's on ES7000 are 8 bit, unique, and
+meaningful (used as a bitmaps) when I have to implement CPU, PCI hot plug
+and dynamic partitioning (I hate to think of possible confusing tables and
+dependencies I will have to maintain otherwise...). 
 
-    So, if you do 'execl(ourselves, "my new name", ..., NULL)', the
-argv[0] received by the binary specified in 'ourselves' MUST be 'my
-new name'. Otherwise '/bin/login' and a good bunch of shells won't
-work...
+Could this routine be made with alternative architecturally private path (as
+a hook or with a hook inside)?
 
-    If you happen to come to Spain at any point in the future, just
-tell me, I'll buy you a beer (or crack, or whatever you use XDDD).
+Thanks,
 
-    Thanks :)
-
-    Raúl
+--Natalie

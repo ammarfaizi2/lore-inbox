@@ -1,67 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbUKFOyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbUKFO4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbUKFOyG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 09:54:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbUKFOyG
+	id S261399AbUKFO4O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 09:56:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbUKFO4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 09:54:06 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:31220 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261397AbUKFOx7 (ORCPT
+	Sat, 6 Nov 2004 09:56:14 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:12770 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261409AbUKFOzR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 09:53:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=k8sGrBk3V5UB/3U2nX8DakHOCbk4T6qZ8jxkm76nalmaQGutlLHtQ9EdSYDosrQaTtgPqNJi7Nly3LhQbEHBCUQl13Qf00YJrQvvv+CO8WJKP4U+qy89gK8IE+Vu8jbJebf+B0fuq8rSdSXApPH13cds+xI1ZOHkze0xy8MKJUY=
-Message-ID: <8783be660411060653735238de@mail.gmail.com>
-Date: Sat, 6 Nov 2004 09:53:56 -0500
-From: Ross Biro <ross.biro@gmail.com>
-Reply-To: Ross Biro <ross.biro@gmail.com>
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: [PATCH 2/3] WIN_* -> ATA_CMD_* conversion: update WIN_* users to use ATA_CMD_*
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andre Hedrick <andre@pyxtechnologies.com>
-In-Reply-To: <20041106035522.GA13091@taniwha.stupidest.org>
+	Sat, 6 Nov 2004 09:55:17 -0500
+Date: Sat, 6 Nov 2004 16:57:20 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.18
+Message-ID: <20041106155720.GA14950@elte.hu>
+References: <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041103091101.GC22469@taniwha.stupidest.org>
-	 <418AE8C0.3040205@pobox.com>
-	 <58cb370e041105051635c15281@mail.gmail.com>
-	 <20041106032314.GC6060@taniwha.stupidest.org>
-	 <8783be660411051945252097c3@mail.gmail.com>
-	 <20041106035522.GA13091@taniwha.stupidest.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041103105840.GA3992@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Nov 2004 19:55:22 -0800, Chris Wedgwood <cw@f00f.org> wrote:
-> I assume for Windows they do that for all drives?  Even older ones?
 
-Most likely, but that doesn't imply that Windows XP works with ancient
-ata drives.
+i have released the -V0.7.18 Real-Time Preemption patch, which can be
+downloaded from:
 
-> 
-> I also wonder what happens with TCQ when you get an error?  Do you
-> just retry everything outstanding?
+   http://redhat.com/~mingo/realtime-preempt/
 
-My guess is yes, but I'll also bet the drive vendors have not tested
-this path well.
+this release includes fixes and cleanups.
 
-> It probably should get fixed, there just doesn't seem to be much
-> incentive to beat on the old IDE code though :( Minor cleanups seem
-> worthwhile but anything intrusive I worry will break some hard-to-test
-> platform for someone.
+Changes between -V0.7.12 and -V0.7.18:
 
-The best solution is probably to make it user selectable for now.  I
-know we need the reset/set features, or any sort of error causes a
-major melt down. We can default to the current behaviour, so it
-shouldn't break anything.
+ - merged to 2.6.10-rc1-mm3
 
-I'll make sure some patches for this are created sometime in the next
-couple of months.  I'll even try to make sure TCQ gets tested with
-them if TCQ works well enough with the current code.
+ - fixed the e1000 xmit warnings reported by Amit Shah. Same fix for tg3
+   too.
 
-    Ross
+ - added irq-latency fix from Thomas Gleixner: re-enable interrupts
+   before adding timings to the entropy pool.
 
-    Ross
+ - fixed excessive ksoftirqd overhead during outgoing TCP traffic. 
+   ksoftirqd kept getting re-woken while it had no way to progress.
+
+ - added upstream fix from Andi Kleen for the vmalloc bug causing module
+   load problems/crashes. Added ipc/shm fix too.
+
+Changes between -V0.7.1 and -V0.7.12:
+
+ - big source level cleanups: completely rearranged the mutex type
+   definitions and source files, to make it reflect the code. Made
+   all locking objects based on a new, central lock type: struct
+   rt_mutex. This type is never exposed externally, it is internal to
+   the RT code. Unified all the RT locking code in kernel/rt.c, this 
+   also simplified and sped things up. Undid collateral damage to the
+   generic rwsem code - it is now untouched and independent of the RT
+   code.
+
+ - rearranged the way spinlocks interact with the RT code and cleaned 
+   up the RT spinlock definitions. Found and fixed a bug in the process:
+   rwlocks were dropping the BKL upon contention.
+
+ - small x86 speedup: call __schedule not preempt_schedule_irq from
+   work_resched.
+
+ - ported PREEMPT_RT to x64. This resulted in the generalization of some
+   of the x86 changes.
+
+ - hopefully fixed fbcon kernel logging
+
+ - hacked reiser4 to make it work on PREEMPT_REALTIME.
+
+ - dropped the swap-layout-improvements patch. While it was working fine 
+   it's not necessary for latencies anymore under the PREEMPT_REALTIME
+   approach, and the swap-patch was getting intrusive.
+
+ - fixed preemption-bug in drain_cpu_caches() on SMP [bug introduced by
+   PREEMPT_REALTIME]
+
+ - new attempt at getting rid of the networking related deadlocks
+
+ - selinux deadlock fix and RCU-code conversion to RT semantics
+
+to create a -V0.7.18 tree from scratch, the patching order is:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc1.bz2
+   http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm3/2.6.10-rc1-mm3.bz2
+   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc1-mm3-V0.7.18
+
+	Ingo

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265560AbUBBCak (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 21:30:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265563AbUBBCak
+	id S265577AbUBBCml (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 21:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265580AbUBBCml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 21:30:40 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16545 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265560AbUBBCaj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 21:30:39 -0500
-Date: Sun, 1 Feb 2004 18:30:27 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Roland McGrath <roland@redhat.com>, Daniel Jacobowitz <dan@debian.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: More waitpid issues with CLONE_DETACHED/CLONE_THREAD
-In-Reply-To: <20040202032023.A28264@pclin040.win.tue.nl>
-Message-ID: <Pine.LNX.4.58.0402011824270.3405@home.osdl.org>
-References: <200402012225.i11MPEN1009925@magilla.sf.frob.com>
- <Pine.LNX.4.58.0402011653230.2229@home.osdl.org> <20040202032023.A28264@pclin040.win.tue.nl>
+	Sun, 1 Feb 2004 21:42:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50823 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265577AbUBBCmj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 21:42:39 -0500
+Message-ID: <401DB912.5030602@pobox.com>
+Date: Sun, 01 Feb 2004 21:42:26 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 EXTRAVERSION is bad for -rcX-bkY's
+References: <20040202020053.GB21554@earth.solarsys.private>
+In-Reply-To: <20040202020053.GB21554@earth.solarsys.private>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 2 Feb 2004, Andries Brouwer wrote:
+Mark M. Hoffman wrote:
+> E.g.
 > 
-> So, I think what happens is that PTRACE_KILL immediately after the PTRACE_CONT
-> works because there is no schedule in between, so the effect of PTRACE_KILL
-> is still seen by the (grand)child.
+> EXTRAVERSION for 2.6.2-rc3-bk1 is "-bk1"; it should be "-rc3-bk1" no?
+> 
+> http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fsnapshots%2Fpatch-2.6.2-rc3-bk1.bz2;z=1
 
-Well, Duh! You'r eobviously right.
 
-PTRACE_KILL is a special case, since it's supposed to work _regardless_ of 
-whether the process being traced is actually stopped for tracing or not.
+Yeah, that definitely sounds like a bug...
 
-And Roland is correct that PTRACE_KILL works fine _if_ it is stopped. 
+	Jeff
 
-But for the case where it isn't (and Daniel's program isn't, since it did 
-the PTRACE_CONT), PTRACE_KILL does nothing.
 
-> Maybe there is no bug.
 
-No, I do believe that PTRACE_KILL is supposed to kill the child even if it 
-wasn't synchronized. See the special case for "ptrace_check_attach()", 
-which allows a PTRACE_KILL to happen even for a nonsynchronized target.
-
-		Linus

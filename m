@@ -1,45 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262507AbTCRQaZ>; Tue, 18 Mar 2003 11:30:25 -0500
+	id <S262545AbTCRQfW>; Tue, 18 Mar 2003 11:35:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262508AbTCRQaY>; Tue, 18 Mar 2003 11:30:24 -0500
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:61636 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S262507AbTCRQaX>; Tue, 18 Mar 2003 11:30:23 -0500
-Date: Tue, 18 Mar 2003 16:41:15 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cantab.net>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: linux-ntfs-dev@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: NTFS byte swapping
-In-Reply-To: <Pine.GSO.4.21.0303181546500.17808-100000@vervain.sonytel.be>
-Message-ID: <Pine.SOL.3.96.1030318163951.16788B-100000@virgo.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262546AbTCRQfW>; Tue, 18 Mar 2003 11:35:22 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:55563 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S262545AbTCRQfU>;
+	Tue, 18 Mar 2003 11:35:20 -0500
+Date: Tue, 18 Mar 2003 17:46:05 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: green@namesys.com, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
+Subject: Re: kernel nfsd
+Message-Id: <20030318174605.7a4820f1.skraw@ithnet.com>
+In-Reply-To: <20030318174106.32065dcb.skraw@ithnet.com>
+References: <20030318155731.1f60a55a.skraw@ithnet.com>
+	<15991.15327.29584.246688@charged.uio.no>
+	<20030318164204.03eb683f.skraw@ithnet.com>
+	<20030318190733.A29438@namesys.com>
+	<20030318172825.07b7b66b.skraw@ithnet.com>
+	<20030318174106.32065dcb.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 18 Mar 2003 17:41:06 +0100
+Stephan von Krawczynski <skraw@ithnet.com> wrote:
 
-On Tue, 18 Mar 2003, Geert Uytterhoeven wrote:
-> When compiling NTFS support in 2.5.65 on a big-endian machine (m68k), I get:
+> On Tue, 18 Mar 2003 17:28:25 +0100
+> Stephan von Krawczynski <skraw@ithnet.com> wrote:
 > 
-> | fs/ntfs/compress.c:167: warning: passing arg 1 of `__swab16p' from incompatible pointer type
-> | fs/ntfs/compress.c:207: warning: passing arg 1 of `__swab16p' from incompatible pointer type
-> | fs/ntfs/compress.c:228: warning: passing arg 1 of `__swab16p' from incompatible pointer type
-> | fs/ntfs/compress.c:333: warning: passing arg 1 of `__swab16p' from incompatible pointer type
+> > On Tue, 18 Mar 2003 19:07:33 +0300
+> > Oleg Drokin <green@namesys.com> wrote:
+> > 
+> > > Hello!
+> > > 
+> > > On Tue, Mar 18, 2003 at 04:42:04PM +0100, Stephan von Krawczynski wrote:
+> > > 
+> > > > > The comment in the code just above the printk() reads
+> > > > >                 /* Now that IS odd.  I wonder what it means... */
+> > > > > Looks like you and Neil (and possibly the ReiserFS team) might want to
+> > > > > have a chat...
+> > > > I'm all for it. Who has a glue? I have in fact tons of these messages, it's
+> > > > a pretty large nfs server.
+> > > 
+> > > What is the typical usage pattern for files whose names are printed?
+> > > Are they created/deleted often by multiple clients/processes by any chance?
+> > 
+> > This is a nfs-server who serves web-servers (apache). I find a lot of these
+> > messages, but they (upto now) only point to 3 different filenames. And these
+> > are in fact all directories. The box never crashed and has currently 20 days
+> > uptime. It is dual P-III and has 6 GB of RAM.
+> > The questionable directories were created long before they first showed this
+> > message and have never changed (regarding name-change). Their contents were
+> > possible changed but surely not often meaning no more than once a day or once a
+> > week.
+> > It may well occur that multiple nfs-client systems _read_ them, as well as
+> > multiple processes on one client.
+> > The nfs-clients are 2.4.19 boxes and one 2.2.21.
 > 
-> The offending code does `le16_to_cpup(cb)', with cb a pointer to a u8.
+> And one addition:
+> They are all second level, meaning look like:
 
-Thanks for letting us know. I have fixed it now (just doing
-le16to_cpup((u16*)cb) instead which should fix the warnings. I will submit
-to Linus together with other changes later.
+Please ignore this rather silly comment. One should read code before commenting ;-)
 
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Regards,
+Stephan
 

@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277262AbRJVRfs>; Mon, 22 Oct 2001 13:35:48 -0400
+	id <S277253AbRJVRkA>; Mon, 22 Oct 2001 13:40:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277255AbRJVRem>; Mon, 22 Oct 2001 13:34:42 -0400
-Received: from hatrack.unc.edu.ar ([170.210.248.6]:21958 "EHLO
-	hatrack.unc.edu.ar") by vger.kernel.org with ESMTP
-	id <S277230AbRJVRda>; Mon, 22 Oct 2001 13:33:30 -0400
-Date: Mon, 22 Oct 2001 14:29:23 -0300 (ART)
-From: Marcos Dione <mdione@hal.famaf.unc.edu.ar>
-To: <linux-kernel@vger.kernel.org>
-Subject: kjournald and disk sleeping
-Message-ID: <Pine.LNX.4.30.0110221415460.19985-100000@multivac.famaf.unc.edu.ar>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277206AbRJVRik>; Mon, 22 Oct 2001 13:38:40 -0400
+Received: from [63.193.79.18] ([63.193.79.18]:7152 "HELO mwg.inxservices.lan")
+	by vger.kernel.org with SMTP id <S277260AbRJVRfr>;
+	Mon, 22 Oct 2001 13:35:47 -0400
+Date: Mon, 22 Oct 2001 10:35:53 -0700
+From: George Garvey <tmwg-linuxknl@inxservices.com>
+To: Wayne.Brown@altec.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+Message-ID: <20011022103553.I3276@inxservices.com>
+In-Reply-To: <86256AED.005FB443.00@smtpnotes.altec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <86256AED.005FB443.00@smtpnotes.altec.com>; from Wayne.Brown@altec.com on Mon, Oct 22, 2001 at 12:21:43PM -0500
+Organization: inX Services, Los Angeles, CA, USA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   So you want to make the decision for Alan to get into a lawsuit and
+possibly go to jail to fight the law? Will you pay his legal bills? Will
+you take over his maintenance duties if necessary? Will you give him a
+job when he's done if it comes to that?
+   That's a personal decision, don't you think? Who can judge another
+without knowing their circumstances? Do you understand the situation at
+all? Truthfully, I don't.
 
-	Hi. first of all, I'm not suscribed to the mailing list, so cc to
-me in the replies. thanks. and I'm running 2.4.10.
-
-	what I'm doing is to try to put the disks to sleep at night, or
-when I'm not using the machine. I found what proceses to shutdown, mainly
-those that do things from time to time, like the MTA. then I send a STOP
-signal to kupdated. so far, so good. that works.
-
-	then I switched to ext3 and kjournald started to appear on the
-processes list. and it commits the transactions very often. I know I can
-set the commit interval to a high value, but both I don't know exactly
-how, and I think that it's not the solution I need. sending STOP signals
-to kjournald doesn't work, it seems to ignore them. what can I do?
-
-	One thing I thought: how is this supposed to work on laptops? can
-they be suspended? a question related to this one: I also have ACPI turned
-on and APM turned off. how can I switch to stanby states? is there a way?
-again, how does it works on laptops?
-
-	remember to cc to me. bye.
-
--- 
-"y, bueno, yo soy muy ilogico. lo que pasa es que ustedes me toman
-demasiado en serio"
-                                          --JLB
-
+On Mon, Oct 22, 2001 at 12:21:43PM -0500, Wayne.Brown@altec.com wrote:
+> It's highly unlikely that Alan withholding information from a handful
+> of US Linux users and developers will have any effect on US laws.

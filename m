@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130638AbQKGDZM>; Mon, 6 Nov 2000 22:25:12 -0500
+	id <S130455AbQKGDlq>; Mon, 6 Nov 2000 22:41:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130767AbQKGDZD>; Mon, 6 Nov 2000 22:25:03 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:20234 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130638AbQKGDYw>;
-	Mon, 6 Nov 2000 22:24:52 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Tomasz Motylewski <motyl@stan.chemie.unibas.ch>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: ide-probe.c:400: `rtc_lock' undeclared and /lib/modules/..../build 
-In-Reply-To: Your message of "Tue, 07 Nov 2000 01:20:36 BST."
-             <Pine.LNX.4.21.0011070059120.24007-100000@crds.chemie.unibas.ch> 
-Mime-Version: 1.0
+	id <S130524AbQKGDlh>; Mon, 6 Nov 2000 22:41:37 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:59663
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130455AbQKGDl0>; Mon, 6 Nov 2000 22:41:26 -0500
+Date: Mon, 6 Nov 2000 19:41:07 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Frank Davis <fdavis112@juno.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Pentium 4 and 2.4/2.5
+In-Reply-To: <20001104.183646.-371331.1.fdavis112@juno.com>
+Message-ID: <Pine.LNX.4.10.10011061940200.18160-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 07 Nov 2000 14:24:45 +1100
-Message-ID: <9769.973567485@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2000 01:20:36 +0100 (CET), 
-Tomasz Motylewski <motyl@stan.chemie.unibas.ch> wrote:
->2.2.18pre19:
->And , whose idea was that "make modules_install" should create
->/lib/modules/..../build symlink to the kernel sources?
->It really breakes depmod -a (modutils 2.3.11)(*)
->
->(*) I could find a workaround, but if it hits me, it will hit lots of other
->people not reading linux-kernel regularly. In my opinion upgrading stable
->kernels should work without any modifications to the existing system.
 
-Agreed, I was unhappy that the build symlink was added to 2.2 kernels.
-Now you need modutils >= 2.3.14 for 2.2 kernels :(.  But nobody asks
-me, I'm just the kernel module.[ch] and modutils maintainer.
+Not to worry, some of us are working with the 'I' guys to do proper P4
+detection.
+
+Cheers,
+
+On Sat, 4 Nov 2000, Frank Davis wrote:
+
+> Hello,
+>   I noticed that Pentium 4 isn't an config option in 2.4.0-test10. Is
+> someone working on a patch for the the kernel (if needed) to support the
+> Pentium 4 after 2.4.0 is released?
+> 
+> Regards,
+> Frank
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

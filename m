@@ -1,62 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129294AbQJZXDJ>; Thu, 26 Oct 2000 19:03:09 -0400
+	id <S129314AbQJZXFj>; Thu, 26 Oct 2000 19:05:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129314AbQJZXC7>; Thu, 26 Oct 2000 19:02:59 -0400
-Received: from jalon.able.es ([212.97.163.2]:51871 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129294AbQJZXCm>;
-	Thu, 26 Oct 2000 19:02:42 -0400
-Date: Fri, 27 Oct 2000 00:57:01 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Marc_Schneider@ers.com
-Cc: lkml@dm.ultramaster.com, linux-kernel@vger.kernel.org
-Subject: Re: Problem with msgsnd
-Message-ID: <20001027005701.A788@werewolf.cps.unizar.es>
-In-Reply-To: <932AAD1413276B60852569840052D0B1.0052D14385256984@ers.com> <39F84A92.BDCB869C@ers.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <39F84A92.BDCB869C@ers.com>; from Marc_Schneider@ers.com on Thu, Oct 26, 2000 at 17:15:30 +0200
-X-Mailer: Balsa 1.0.pre2
+	id <S129805AbQJZXF3>; Thu, 26 Oct 2000 19:05:29 -0400
+Received: from ra.lineo.com ([207.179.37.37]:44969 "EHLO thor.lineo.com")
+	by vger.kernel.org with ESMTP id <S129314AbQJZXFY>;
+	Thu, 26 Oct 2000 19:05:24 -0400
+Message-ID: <39F8B966.E7757A34@lineo.com>
+Date: Thu, 26 Oct 2000 17:08:22 -0600
+From: pierre@lineo.com
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Miles Lane <miles@speakeasy.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: test10-pre5 won't boot on my Athlon machine (Irongate and Viper chip 
+ sets)
+In-Reply-To: <39F8ADF0.5050400@speakeasy.org>
+X-MIMETrack: Serialize by Router on thor/Lineo(Release 5.0.5 |September 22, 2000) at 10/26/2000
+ 05:05:23 PM,
+	Serialize complete at 10/26/2000 05:05:23 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Miles Lane wrote:
 
-On Thu, 26 Oct 2000 17:15:30 Marc Schneider wrote:
-> lkml@dm.ultramaster.com wrote:
-> > 
-> > Marc Schneider wrote:
-> > >
-> > > msgsnd seems to be corrupting memory around the msgbuf pointer.
-> > >
-> > > for example I have the following code:
-> > >
-> > > pMsgBuf = malloc(iPacketLen + 4 + 8);
-> > > bzero(pMsgBuf, iPacketLen + 4 + 8);
-> > > pMsgBuf += 4; /* Build a guard band */
-> > >
-> > > printf("PMQ:pMsgBuf: %p\n",pMsgBuf);
-> > > printf("PMQ:-4: %p\n", *(pMsgBuf-4));
-> > >
+> Perhaps this is related to the PCI issues that are being debated on the list now.
+> Would someone look at my bus configuration and let me know what to test or what patch to apply to get my kernel booting?
 
-Silly question: why do you :
+My Athlon box has a MSI A6195KMS bios. The motherboard has the IronGate and the Viper chipsets, and test10-pre5 works great on it.
 
-printf("PMQ:-4: %p\n", *(pMsgBuf-4));
+One possible caveats :
 
-instead of:
-                !!!
-printf("PMQ:-4: %d\n", *(pMsgBuf-4));, or whatever applies...(typeof pMsgBuf?)
+- USB doesn't work too well, because of a bug in the Viper USB controller. You may want to try to disable "PnP aware OS" in the bios. You may also try to download the latest rev of the A6195KMS bios
+available here :
 
-If you use %p, printf expects a pointer in stack, and depending on type of
-pMsgBuf (is a char * ?), *pMsgBuf can be passed as a char (I don't think so,
-C passes chars as ints, and I dont remenber any kind of option to modify this)
-or a short or an int...
+http://www.amdzone.com/files/bios/msi/a6195kms173.zip
 
-So, perhaps you dont put enough data on stack for a pointer and printf gets
-incorrect data (the zero in pMsgBuf plus the return value that stored in rc...).
+- Even when USB finally works, the ohci USB driver sends this kind of message all the time :
 
--- 
-Juan Antonio Magallon Lacarta                          mailto:jamagallon@able.es
+usb-ohci.c: bogus NDP=64 for OHCI usb-00:07.4
+usb-ohci.c: rereads as NDP=4
+
+but it shouldn't kill your machine. In any doubt, just disable USB.
+
+Otherwise, let me know if you want me to send you my .config and my BIOS settings, it you think they can help you.
+
+Take care !
+
+--
+ ______
+ _____   /      /   |   /  ___/   _  /
+ ____   /      /    |  /  /      /  /
+ ___   /      /  /    /  __/    /  /
+ __   /      /  /    /  /      /  /
+ _  _____/ _/ _/   _/ _____/ ____/
+
+                ////\
+                (@ @)
+------------oOOo-(_)-oOOo-------------
+Pierre-Philippe Coupard
+Software Engineer, Lineo, Inc.
+Email : pierre@lineo.com
+Phone : (801) 426-5001 x 208
+--------------------------------------
+
+A door is what a dog is perpetually on the wrong side of.
+                -- Ogden Nash
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129732AbQK0KIv>; Mon, 27 Nov 2000 05:08:51 -0500
+        id <S130245AbQK0Kd3>; Mon, 27 Nov 2000 05:33:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129930AbQK0KIl>; Mon, 27 Nov 2000 05:08:41 -0500
-Received: from mx1.eskimo.com ([204.122.16.48]:65294 "EHLO mx1.eskimo.com")
-        by vger.kernel.org with ESMTP id <S129732AbQK0KI3>;
-        Mon, 27 Nov 2000 05:08:29 -0500
-Date: Mon, 27 Nov 2000 01:38:25 -0800 (PST)
-From: Clayton Weaver <cgweav@eskimo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: reproducible 2.2.1x nethangs
-Message-ID: <Pine.SUN.3.96.1001127012545.5698A-100000@eskimo.com>
+        id <S130458AbQK0KdJ>; Mon, 27 Nov 2000 05:33:09 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:16915 "HELO
+        hermine.idb.hist.no") by vger.kernel.org with SMTP
+        id <S130245AbQK0KdF>; Mon, 27 Nov 2000 05:33:05 -0500
+Message-ID: <3A223159.EFB73263@idb.hist.no>
+Date: Mon, 27 Nov 2000 11:03:05 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries Brouwer <aeb@veritas.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+In-Reply-To: <20001125211939.A6883@veritas.com> <200011252211.eAPMBIo21200@gondor.apana.org.au> <20001125234624.A7049@veritas.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(from layer above device driver, imho)
+Andries Brouwer wrote:
+> 
+> On Sun, Nov 26, 2000 at 09:11:18AM +1100, Herbert Xu wrote:
+> 
+> > No information is lost.
+> 
+> Do I explain things so badly? Let me try again.
+> The difference between
+> 
+>   static int a;
+> 
+> and
+> 
+>   static int a = 0;
+> 
+> is the " = 0". The compiler may well generate the same code,
+> but I am not talking about the compiler. I am talking about
+> the programmer. This " = 0" means (to me, the programmer)
+> that the correctness of my program depends on this initialization.
+> Its absense means (to me) that it does not matter what initial
+> value the variable has.
 
-The fact that the http hang does not happen when connecting to
-the httpd server from an http client running on the same host
-as the server implicates the ethernet interface, but I would be
-shocked to find that the cause is a bug in specifically the tulip driver
-driving a real tulip card.
+Seems to me few other people think that way, thats why it is so
+har for them to get.  And thats why this style of coding isn't very
+helpful either.  It may be a real help for you, but not for others
+who merely get confused or irritated at the small but easy to eliminate
+micro-bloat.
 
-You can hang it with http with a tiny fraction of the packets that
-are transferred during an ftp session that doesn't bother it at all, so
-the device driver streams packets just fine. The http hang has many
-more individual connects and forks and connection shutdowns, however, so I
-would guess that somewhere in the interface between tcp/ip stack and
-device driver bottom half calls is where the bug hits.
+There are certainly people so used to the implicit zeroing that they
+think of "static int a;" as a zero initialization as explicit as
+anything, because that's the way the language works. And they will
+take just as much care if the "a-using" code is modified to run twice.
+The "=0" part don't make it clearer for them if it was clear already.
 
-I doubt that it matters at all which ethernet device driver it is
-exactly, other than perhaps different latencies affecting the timing on
-interrupt races (ie any card with the same average latency as an i21143
-tulip card will probably see the same problem in the same kernel
-versions).
-
-So, what code is different between a socket connection from a listening
-daemon to a pci ethernet device driver and a socket connection from the
-same listening daemon to a client connected via localhost? There is
-a race or other bug in the first that isn't in the second, and it is
-a race/bug that is not in 2.0.38. I can't knock 2.0.38 over at all with
-http over the same ethernet lan from the same client (but 2.0.38
-doesn't work with ipchains and doesn't have the dentry cache, vm
-improvements, etc, so this is worth fixing).
-
-(Note: i486, no SMP)
-
--- 
-
-Regards,
-
-Clayton Weaver
-<mailto:cgweav@eskimo.com>
-(Seattle)
-
-"Everybody's ignorant, just in different subjects."  Will Rogers
-
-
-
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

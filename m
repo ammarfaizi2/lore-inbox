@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264280AbRFTQt4>; Wed, 20 Jun 2001 12:49:56 -0400
+	id <S264288AbRFTQvP>; Wed, 20 Jun 2001 12:51:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264288AbRFTQtq>; Wed, 20 Jun 2001 12:49:46 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:22030 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S264280AbRFTQth>; Wed, 20 Jun 2001 12:49:37 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Pavel Machek <pavel@suse.cz>, Rik van Riel <riel@conectiva.com.br>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spindown
-Date: Wed, 20 Jun 2001 18:52:30 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20010615152306.B37@toy.ucw.cz> <20010618222131.A26018@paranoidfreak.co.uk> <20010619124627.A202@bug.ucw.cz>
-In-Reply-To: <20010619124627.A202@bug.ucw.cz>
+	id <S264321AbRFTQvF>; Wed, 20 Jun 2001 12:51:05 -0400
+Received: from be02.imake.com ([151.200.87.11]:32516 "EHLO be02.tfsm.com")
+	by vger.kernel.org with ESMTP id <S264288AbRFTQup>;
+	Wed, 20 Jun 2001 12:50:45 -0400
+Message-ID: <3B30D53E.6B180F9B@247media.com>
+Date: Wed, 20 Jun 2001 12:54:24 -0400
+From: Russell Leighton <russell.leighton@247media.com>
+X-Mailer: Mozilla 4.51 [en] (Win98; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01062018523007.00439@starship>
-Content-Transfer-Encoding: 7BIT
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>
+Subject: Re: [OT] Threads, inelegance, and Java
+In-Reply-To: <XFMail.20010620093214.davidel@xmailserver.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 June 2001 12:46, Pavel Machek wrote:
-> > > > Roger> It does if you are running on a laptop. Then you do not want
-> > > > Roger> the pages go out all the time. Disk has gone too sleep, needs
-> > > > Roger> to start to write a few pages, stays idle for a while, goes to
-> > > > Roger> sleep, a few more pages, ...
-> > > > That could be handled by a metric which says if the disk is spun
-> > > > down, wait until there is more memory pressure before writing.  But
-> > > > if the disk is spinning, we don't care, you should start writing out
-> > > > buffers at some low rate to keep the pressure from rising too
-> > > > rapidly.
-> > >
-> > > Notice that write is not free (in terms of power) even if disk is
-> > > spinning.  Seeks (etc) also take some power. And think about
-> > > flashcards. It certainly is cheaper tha spinning disk up but still not
-> > > free.
-> >
-> > Isn't this why noflushd exists or is this an evil thing that shouldn't
-> > ever be used and will eventually eat my disks for breakfast?
+
+....this is getting way OT...everyone wants make Linux work well for all programming
+methods as long as poor compromises are not made...most of the people that matter
+on this list can define "poor" so I am not worried about the future of Linux.
+
+Last 0.02 below and this should be take off the list.
+
+Davide Libenzi wrote:
+
 >
-> It would eat your flash for breakfast. You know, flash memories have
-> no spinning parts, so there's nothing to spin down.
 
-Yes, this doesn't make sense for flash, and in fact, it doesn't make sense to 
-have just one set of bdflush parameters for the whole system, it's really a 
-property of the individual device.  So the thing to do is for me to go kibitz 
-on the io layer rewrite projects and figure out how to set up the 
-intelligence per-queue, and have the queues per-device, at which point it's 
-trivial to do the write^H^H^H^H^H right thing for each kind of device.
+<snip>
 
-BTW, with nominal 100,000 erases you have to write 10 terabytes to your 100 
-meg flash disk before you'll see it start to degrade.  These devices are set 
-up to avoid continuous hammering on the same same page, and to take failed 
-pages out of the pool as soon as they fail to erase.  Also, the 100,000 
-figure is nominal - the average number of erases you'll get per page is 
-considerably higher.  The extra few sectors we see with the early flush patch 
-are just not going to affect the life of your flash to a measurable degree.
+> 1) HW is cheaper than software engineers time
+
+Most of the time this is true...kinda depends on the project and other constraints.
+I'd hate to make a system that has poor $$/hw when scaling it just because the programmers are lazy.
+
+>
+>
+> 2) to find Java developers is easier than to find C developers
+
+Good developers are hard to find , period.
+
+My experience is that there are a whole bunch of people out there that have
+ONLY coded Java and they should not be let near a computer.
+
+>
+>
+> 3) the ETA of the same project developed in Java is shorter than the same
+>         project done in C
+>
+
+Very debatable ... and the point I was making was not about C ... for example, Java servlets and JSP
+are probably a very big part of the Java app "world"...I'd take PHP over that
+any day for apps that require a DHTML GUI on a database...just depends on what you
+are doing and your requirements...would you write a device driver in Java?...
+what I find stunning about Java (and I said this before) is that :
+"Java is not particularly good at anything (jack of all trades master of none)."
+
+>
+> This depend heavily on the type of project but these are points that every
+> software Co. has to face when starting a new project.
+>
+
+Yup...hard decisions. No silver bullet.
+
+>
+> - Davide
 
 --
-Daniel
+---------------------------------------------------
+Russell Leighton    russell.leighton@247media.com
+---------------------------------------------------
+
+

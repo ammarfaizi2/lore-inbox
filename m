@@ -1,95 +1,191 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267346AbTALKF1>; Sun, 12 Jan 2003 05:05:27 -0500
+	id <S267352AbTALKJk>; Sun, 12 Jan 2003 05:09:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267348AbTALKF1>; Sun, 12 Jan 2003 05:05:27 -0500
-Received: from mx3.mail.ru ([194.67.57.13]:60946 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id <S267346AbTALKFZ>;
-	Sun, 12 Jan 2003 05:05:25 -0500
-From: "Andrey Borzenkov" <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.20 fix file_readahead for ide-cd and ide-floppy
+	id <S267353AbTALKJf>; Sun, 12 Jan 2003 05:09:35 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37578 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267352AbTALKJ3>; Sun, 12 Jan 2003 05:09:29 -0500
+Date: Sun, 12 Jan 2003 11:18:08 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] remove outdated fs/ChangeLog
+Message-ID: <20030112101808.GU21826@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [62.118.150.174]
-Date: Sun, 12 Jan 2003 13:14:13 +0300
-Reply-To: "Andrey Borzenkov" <arvidjaar@mail.ru>
-Content-Type: multipart/mixed;
-	boundary="----shgDRrfj-wl45XVXYW8pXoz7O:1042366453"
-Message-Id: <E18Xf89-000Iej-00@f8.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Al,
 
-------shgDRrfj-wl45XVXYW8pXoz7O:1042366453
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 8bit
+fs/ChangeLog is _very_ outdated. Is the patch below to remove it from 
+2.4 and 2.5 OK?
 
-The file_readahead setting in ide-cd and ide-floppy obviously
-assumed read-ahead values are kept as bytes. This made them
-totally useless. This patch unifies file_readahead with ide-disk
-making values be stored correctly as pages and displayed as KB.
+cu
+Adrian
 
-This also changes breada setting to match ide-disk as well (is it
-really used at all? It appears the only place where it is referenced
-is reiserfs).
-
-The patch is agains Mandrake sources but as I assume it should apply to vanilla kernel as well.
-
-cheers
-
--andrey
-
-
-------shgDRrfj-wl45XVXYW8pXoz7O:1042366453
-Content-Type: application/octet-stream; name="2.4.20-2mdk.file_readahead-ide-cd-ide-floppy.patch"
-Content-Disposition: attachment; filename="2.4.20-2mdk.file_readahead-ide-cd-ide-floppy.patch"
-Content-Transfer-Encoding: base64
-
-LS0tIC91c3Ivc3JjL2xpbnV4LTIuNC4yMC0ybWRrL2RyaXZlcnMvaWRlL2lkZS1jZC5jCTIwMDIt
-MTItMDkgMTQ6Mzg6MTcuMDAwMDAwMDAwICswMzAwCisrKyBkcml2ZXJzL2lkZS9pZGUtY2QuYwky
-MDAzLTAxLTExIDIyOjI1OjA2LjAwMDAwMDAwMCArMDMwMApAQCAtMjcxNyw4ICsyNzE3LDggQEAK
-IAlpbnQgbWFqb3IgPSBIV0lGKGRyaXZlKS0+bWFqb3I7CiAJaW50IG1pbm9yID0gZHJpdmUtPnNl
-bGVjdC5iLnVuaXQgPDwgUEFSVE5fQklUUzsKIAotCWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJImJy
-ZWFkYV9yZWFkYWhlYWQiLAlTRVRUSU5HX1JXLCBCTEtSQUdFVCwgQkxLUkFTRVQsIFRZUEVfSU5U
-LCAwLCAyNTUsIDEsIDIsICZyZWFkX2FoZWFkW21ham9yXSwgTlVMTCk7Ci0JaWRlX2FkZF9zZXR0
-aW5nKGRyaXZlLAkiZmlsZV9yZWFkYWhlYWQiLAlTRVRUSU5HX1JXLCBCTEtGUkFHRVQsIEJMS0ZS
-QVNFVCwgVFlQRV9JTlRBLCAwLCBJTlRfTUFYLCAxLCAxMDI0LCAmbWF4X3JlYWRhaGVhZFttYWpv
-cl1bbWlub3JdLAlOVUxMKTsKKwlpZGVfYWRkX3NldHRpbmcoZHJpdmUsCSJicmVhZGFfcmVhZGFo
-ZWFkIiwJU0VUVElOR19SVywgQkxLUkFHRVQsIEJMS1JBU0VULCBUWVBFX0lOVCwgMCwgMjU1LCAx
-LCAxLCAmcmVhZF9haGVhZFttYWpvcl0sIE5VTEwpOworCWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJ
-ImZpbGVfcmVhZGFoZWFkIiwJU0VUVElOR19SVywgQkxLRlJBR0VULCBCTEtGUkFTRVQsIFRZUEVf
-SU5UQSwgMCwgNDA5NiwgUEFHRV9TSVpFLCAxMDI0LCAmbWF4X3JlYWRhaGVhZFttYWpvcl1bbWlu
-b3JdLAlOVUxMKTsKIAlpZGVfYWRkX3NldHRpbmcoZHJpdmUsCSJtYXhfa2JfcGVyX3JlcXVlc3Qi
-LAlTRVRUSU5HX1JXLCBCTEtTRUNUR0VULCBCTEtTRUNUU0VULCBUWVBFX0lOVEEsIDEsIDI1NSwg
-MSwgMiwgJm1heF9zZWN0b3JzW21ham9yXVttaW5vcl0sIE5VTEwpOwogCWlkZV9hZGRfc2V0dGlu
-Zyhkcml2ZSwJImRzY19vdmVybGFwIiwJCVNFVFRJTkdfUlcsIC0xLCAtMSwgVFlQRV9CWVRFLCAw
-LCAxLCAxLAkxLCAmZHJpdmUtPmRzY19vdmVybGFwLCBOVUxMKTsKIH0KLS0tIC91c3Ivc3JjL2xp
-bnV4LTIuNC4yMC0ybWRrL2RyaXZlcnMvaWRlL2lkZS1mbG9wcHkuYwkyMDAyLTEyLTA5IDE0OjM4
-OjE3LjAwMDAwMDAwMCArMDMwMAorKysgZHJpdmVycy9pZGUvaWRlLWZsb3BweS5jCTIwMDMtMDEt
-MTIgMTI6Mjg6MDEuMDAwMDAwMDAwICswMzAwCkBAIC0yMDA3LDggKzIwMDcsOCBAQAogCWlkZV9h
-ZGRfc2V0dGluZyhkcml2ZSwJImJpb3NfY3lsIiwJCVNFVFRJTkdfUlcsCQkJCQktMSwJCQktMSwJ
-CQlUWVBFX0lOVCwJMCwJMTAyMywJCQkJMSwJMSwJJmRyaXZlLT5iaW9zX2N5bCwJCU5VTEwpOwog
-CWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJImJpb3NfaGVhZCIsCQlTRVRUSU5HX1JXLAkJCQkJLTEs
-CQkJLTEsCQkJVFlQRV9CWVRFLAkwLAkyNTUsCQkJCTEsCTEsCSZkcml2ZS0+Ymlvc19oZWFkLAkJ
-TlVMTCk7CiAJaWRlX2FkZF9zZXR0aW5nKGRyaXZlLAkiYmlvc19zZWN0IiwJCVNFVFRJTkdfUlcs
-CQkJCQktMSwJCQktMSwJCQlUWVBFX0JZVEUsCTAsCTYzLAkJCQkxLAkxLAkmZHJpdmUtPmJpb3Nf
-c2VjdCwJCU5VTEwpOwotCWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJImJyZWFkYV9yZWFkYWhlYWQi
-LAlTRVRUSU5HX1JXLAkJCQkJQkxLUkFHRVQsCQlCTEtSQVNFVCwJCVRZUEVfSU5ULAkwLAkyNTUs
-CQkJCTEsCTIsCSZyZWFkX2FoZWFkW21ham9yXSwJCU5VTEwpOwotCWlkZV9hZGRfc2V0dGluZyhk
-cml2ZSwJImZpbGVfcmVhZGFoZWFkIiwJU0VUVElOR19SVywJCQkJCUJMS0ZSQUdFVCwJCUJMS0ZS
-QVNFVCwJCVRZUEVfSU5UQSwJMCwJSU5UX01BWCwJCQkxLAkxMDI0LAkmbWF4X3JlYWRhaGVhZFtt
-YWpvcl1bbWlub3JdLAlOVUxMKTsKKwlpZGVfYWRkX3NldHRpbmcoZHJpdmUsCSJicmVhZGFfcmVh
-ZGFoZWFkIiwJU0VUVElOR19SVywJCQkJCUJMS1JBR0VULAkJQkxLUkFTRVQsCQlUWVBFX0lOVCwJ
-MCwJMjU1LAkJCQkxLAkxLAkmcmVhZF9haGVhZFttYWpvcl0sCQlOVUxMKTsKKwlpZGVfYWRkX3Nl
-dHRpbmcoZHJpdmUsCSJmaWxlX3JlYWRhaGVhZCIsCVNFVFRJTkdfUlcsCQkJCQlCTEtGUkFHRVQs
-CQlCTEtGUkFTRVQsCQlUWVBFX0lOVEEsCTAsCTQwOTYsCQkJUEFHRV9TSVpFLAkxMDI0LAkmbWF4
-X3JlYWRhaGVhZFttYWpvcl1bbWlub3JdLAlOVUxMKTsKIAlpZGVfYWRkX3NldHRpbmcoZHJpdmUs
-CSJtYXhfa2JfcGVyX3JlcXVlc3QiLAlTRVRUSU5HX1JXLAkJCQkJQkxLU0VDVEdFVCwJCUJMS1NF
-Q1RTRVQsCQlUWVBFX0lOVEEsCTEsCTI1NSwJCQkJMSwJMiwJJm1heF9zZWN0b3JzW21ham9yXVtt
-aW5vcl0sCU5VTEwpOwogCWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJInRpY2tzIiwJCVNFVFRJTkdf
-UlcsCQkJCQktMSwJCQktMSwJCQlUWVBFX0JZVEUsCTAsCTI1NSwJCQkJMSwJMSwJJmZsb3BweS0+
-dGlja3MsCQlOVUxMKTsKIAo=
-
-------shgDRrfj-wl45XVXYW8pXoz7O:1042366453--
-
+--- linux-2.5.56/fs/ChangeLog	2003-01-10 21:11:22.000000000 +0100
++++ /dev/null	2003-01-09 00:39:47.000000000 +0100
+@@ -1,159 +0,0 @@
+-Mon Oct 24 23:27:42 1994  Theodore Y. Ts'o  (tytso@rt-11)
+-
+-	* fcntl.c (sys_fcntl): Liberalize security checks which Alan Cox
+-		put in.
+-
+-Thu Oct 20 23:44:22 1994  Theodore Y. Ts'o  (tytso@rt-11)
+-
+-	* fcntl.c (sys_fcntl): Add more of a security check to the
+-		F_SETOWN fcntl().
+-
+-[Tons of changes missed, indeed. This list is worth restarting since
+-at least some fixes WILL break third-party filesystems. Sorry, but
+-there was no other way to fix rmdir/rename deadlock, for one.]
+-
+-Wed Dec  2 (Linus, fill the rest, please)
+-
+-	* namei.c (do_rmdir) and rmdir method in filesystems:
+-		Locking of directory we remove was taken to VFS.
+-		See comments in do_rmdir(). Unfixed filesystems
+-		will bloody likely deadlock in rmdir().
+-
+-Thu Dec  3 17:25:31 1998  Al Viro (viro@math.psu.edu)
+-
+-	* namei.c (do_rmdir):
+-		Reject non-directories here.
+-		Two (probably) obsolete checks moved here too: we fail if
+-		the directory we remove is the same as parent (BUG: we
+-		serve mountpoints later) or if it lives on a different
+-		device.
+-	* sysv/namei.c (sysv_rmdir):	See sysv/CHANGES
+-
+-Fri Dec  4 00:54:12 1998  AV
+-
+-	* namei.c (check_sticky): New function check_sticky(dir, inode).
+-		If dir is sticky check whether we can unlink/rmdir/rename
+-		the inode. Returns 1 if we can't. If dir isn't sticky -
+-		return 0 (i.e. no objections). Some filesystems require
+-		suser() here; some are fine with CAP_FOWNER. The later
+-		seems more reasonable.
+-	* namei.c (do_rmdir):
+-		Moved the check for sticky bit here.
+-	* affs/{inode,namei}.c:
+-		All AFFS directories have sticky semantics (i.e. non-owner
+-		having write permisssions on directory can unlink/rmdir/rename
+-		only the files he owns), but AFFS didn't set S_ISVTX on them.
+-		Fixed. NB: maybe this behaviour should be controlled by mount
+-		option. Obvious values being 'sticky' (current behaviour),
+-		'nonsticky' (normal behaviour) and maybe some play on 'D'
+-		permissions bit. FIXME.
+-	* qnx4/namei.c (qnx4_rmdir):
+-		Plugged inode leak.
+-	* ufs/namei.c (ufs_rmdir):
+-		Changed handling of busy directory to new scheme.
+-
+-Fri Dec  4 10:30:58 1998  AV
+-
+-	* namei.c (VFS_rmdir): New function. It gets inode of the parent and
+-		dentry of the victim, does all checks and applies fs-specific
+-		rmdir() method. It should be called with semaphores down
+-		on both the victim and its parent and with bumped d_count on
+-		victim (see comments in do_rmdir).
+-	* include/linux/fs.h: Added VFS_rmdir
+-	* kernel/ksyms.c: Added VFS_rmdir to export list (for NFSD).
+-	* nfsd/vfs.c: Fixed rmdir handling.
+-
+-Tue Dec  8 05:55:08 1998  AV
+-	* vfat/namei.c: Fixed the bug in vfat_rename() introduced in the
+-		first round of rmdir fixes.
+-
+-Wed Dec  9 03:06:10 1998  AV
+-	* namei.c (do_rename): part of fs-independent checks had been moved
+-		here (sticky bit handling, type mismatches). Cases of
+-		the source or target being append-only or immutable also went
+-		here - if we check it for parent we could as well do it for
+-		children.
+-	* {affs,ext2,minix,sysv,ufs}/namei.c (do_*_rename):
+-		Removed tests that went to VFS, it simplified the code big way.
+-		Fixed a race in check for empty target - we should check for
+-		extra owners _before_ checking for emptiness, not after it.
+-	* {ext2,ufs}/namei.c (do_*_rename):
+-		VERY nasty bug shot: if somebody mkdired /tmp/cca01234, went
+-		there, rmdired '.', waited till somebody created a file with
+-		the same name and said mv . /tmp/goodbye_sticky_bit... Well,
+-		goodbye sticky bit. Down, not across!
+-	* {minix,sysv}/namei.c (do_*_rename):
+-		Incorrect check for other owners (i_count instead of d_count).
+-		Fixed.
+-	* vfat: Looks like the changes above fixed a bug in VFAT - this beast
+-		used to allow renaming file over directory and vice versa.
+-
+-Wed Dec  9 08:00:27 1998  AV
+-	* namei.c (VFS_rename): New function. It gets the same arguments as
+-		->rename() method, does all checks and applies fs-specific
+-		rmdir() method. It should be called with semaphores down
+-		on both parents.
+-	* include/linux/fs.h: Added VFS_rename
+-	* kernel/ksyms.c: Added VFS_rename to export list (for NFSD).
+-	* nfsd/vfs.c: Changed rename handling (switched to VFS_rename).
+-
+-Wed Dec  9 18:16:27 1998  AV
+-	* namei.c (do_unlink): handling of sticky bit went here.
+-	* {affs,ext2,minix,qnx4,sysv,ufs}/namei.c (*_unlink):
+-		removed handling of sticky bit.
+-	* qnx4/namei.c (qnx4_unlink):
+-		Yet another inode leak. Fixed.
+-
+-Thu Dec 10 04:55:26 1998  AV
+-	* {ext2,minix,sysv,ufs}/namei.c (*_mknod):
+-		removed meaningless code handling attempts to mknod symlinks
+-		and directories. VFS protects us from _that_ and if this code
+-		would ever be called we'ld get a filesystem corruption.
+-
+-Thu Dec 10 16:58:50 1998  AV
+-	* namei.c (do_rename): Fixed dentry leak that had been introduced by
+-		the first round of rmdir fixes.
+-
+-Fri Dec 11 14:57:17 1998  AV
+-	* msdos/namei.c (msdos_rmdir): Fixed race in emptiness check.
+-
+-Sat Dec 12 19:59:57 1998  AV
+-	* msdos/namei.c (msdos_mkdir): Fixed the evil breakage introduced by
+-		the changes of rmdir locking scheme. We shouldn't call
+-		msdos_rmdir from there.
+-
+-Sun Dec 13 02:05:16 1998  AV
+-	* namei.c (do_unlink):
+-		Added new function: vfs_unlink, with the same arguments as
+-		->unlink() method.
+-	* kernel/ksyms.c: Made it exported.
+-	* include/linux/fs.h: Added prototype.
+-	* nfsd/vfs.c: Changed handling of unlink (switched to vfs_unlink)
+-	* {ext2,ufs}/namei.c (*_unlink): moved handling of imm./append-only to
+-		VFS.
+-
+-Wed Dec 16 06:10:04 1998  AV
+-	* namei.c (may_create, may_delete): New inline functions.
+-		They check whether creation/deletion is permitted.
+-		Checks from other places of namei.c went there.
+-		Looks like originally I misread permission-related stuff
+-		both here and in nfsd. In particular, checks for
+-		immutable are done in permission(). D'oh.
+-	* unlink on directory should return -EISDIR, not -EPERM as it used to
+-		do. Fixed.
+-	* rmdir of immutable/append-only directory shouldn't be allowed. Fixed.
+-
+-Remains unfixed:
+-	* rename's handling of races is, erm, not optimal. Looks like I know
+-		what to do, but this thing needs some more cleanup - we can
+-		take care of almost all races in VFS and be much more graceful
+-		wrt locking. Moreover, it would give strong lookup atomicity.
+-		But it's a lot of changes to lookup and dcache code, so it will
+-		go after the fs drivers' cleanup.
+-	* affs allows HARD links to directories. VFS is, to put it politely,
+-		not too ready to cope with _that_. And I'm not sure it should
+-		be - looks like they are pretty much similar to symlinks.
+-	* truncate doesn't give a damn about IO errors and disk overflows (on
+-		braindead filesystems). I've submitted a patch to Linus, but
+-		looks like it wasn't applied.
+-	* msdos: shouldn't we treat SYS as IMMUTABLE? Makes sense, IMHO.

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbTJSPoa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 11:44:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbTJSPo3
+	id S261437AbTJSPog (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 11:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTJSPof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 11:44:29 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:62367 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S261309AbTJSPo2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 11:44:28 -0400
-Date: Sun, 19 Oct 2003 08:40:50 -0700
-From: "Martin J. Bligh" <fletch@aracnet.com>
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>,
-       Adrian Bunk <bunk@fs.tum.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-Message-ID: <667400000.1066578050@[10.10.2.4]>
-In-Reply-To: <3F929C82.4020904@softhome.net>
-References: <H2MN.3cm.7@gated-at.bofh.it> <H366.3IC.9@gated-at.bofh.it> <H3fO.3VO.13@gated-at.bofh.it> <H3IO.4yt.9@gated-at.bofh.it> <HWvz.5PI.9@gated-at.bofh.it> <I1EP.5QO.1@gated-at.bofh.it> <3F9173FE.5080308@softhome.net> <20031019113743.GO12423@fs.tum.de> <3F929C82.4020904@softhome.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Oct 2003 11:44:35 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:17679 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S261437AbTJSPoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 11:44:34 -0400
+Date: Sun, 19 Oct 2003 17:36:50 +0200
+From: DervishD <raul@pleyades.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Console escape sequences
+Message-ID: <20031019153650.GG24310@DervishD>
+References: <20031018000531.GB17198@DervishD> <20031018112330.GH17198@DervishD> <20031019112647.GA8497@babylon.d2dc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031019112647.GA8497@babylon.d2dc.net>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Martin was ironically talking about people who are ignorant of machines
->> with _huge_ caches.
->> 
-> 
->    Oh. Sorry. Probably I need to work on my English bit more.
-> 
->> I the context of this thread he wanted to vote for making -Os 
->> conditionally and not unconditionally enabled by telling that he knows 
->> of situations where -O2 produces faster code.
-> 
->    Absolutely.
->    High-end toys, after all, optimized to handle this.
-> 
->    IMHO this should be settled on per-target basis: embedded system - -Os; servers - -O2; desktops - -O3 ;) So instead of CONFIG_EMBEDDED better to have CONFIG_TARGET=[desktop|server|embedded].
-> 
->    Inroducing one more variable into builds - is really painful. I was hit by gcc miscompiles and internal errors not once (especially with -O[23]). Tracking down this kind of issues would be made more problematic.
-> 
-> P.S. I'm really sorry for my rude response.
+    Hi Zephaniah :)
 
-;-) No problem. 
+ * Zephaniah E. Hull <warp@babylon.d2dc.net> dixit:
+> >     Is there any more up to date reference or any place in the source
+> > code? Thanks for the answer anyway :))) and thanks in advance for all
+> > your help, together with my excuses to the two persons who answered
+> > for having lost their emails.
+> The code that seems to handle it in 2.6.0-test7-mm1 is in
+> drivers/char/vt.c, starting in do_con_write and actually dealt with in
+> do_con_trol.
 
-But if someone with a small cache would actually *measure* the damned 
-thing, I'd be more impressed ... I've never seen that, but perhaps
-I just missed it. 
+    Thanks a lot, I'll take a look :)))
 
-Point is the same either way though ... we shouldn't unconditionally
-optimise for *anyone's* system. If it's faster on all systems that anyone
-can be bothered to measure, great. If it's faster on some, and slower on
-others, a config option seems more appropriate, defaulting to the majority
-of users.
+    Raúl Núñez de Arenas Coronado
 
-M.
-
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

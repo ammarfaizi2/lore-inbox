@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265853AbUA1FP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 00:15:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265854AbUA1FP4
+	id S265854AbUA1FQH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 00:16:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265856AbUA1FQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 00:15:56 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:57083 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265853AbUA1FPx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 00:15:53 -0500
-Date: Wed, 28 Jan 2004 10:50:29 +0530
+	Wed, 28 Jan 2004 00:16:07 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:1474 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265854AbUA1FQB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 00:16:01 -0500
+Date: Wed, 28 Jan 2004 10:50:38 +0530
 From: Maneesh Soni <maneesh@in.ibm.com>
 To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 Cc: LKML <linux-kernel@vger.kernel.org>, Dipankar Sarma <dipankar@in.ibm.com>,
        Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2.6] is_subdir-fix
-Message-ID: <20040128052029.GA1285@in.ibm.com>
+Subject: [PATCH 2.6] proc_check_dir-locking-fix
+Message-ID: <20040128052038.GB1285@in.ibm.com>
 Reply-To: maneesh@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,58 +25,49 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Please have a look at the following patch fixing locking in proc_check_root().
+It brings is_subdir() call under vfsmount_lock. Holding vfsmount_lock will 
+ensure mnt_mountpoint dentry is intact and the dentry does not go away while 
+it is being checked in is_subdir(). 
 
+ fs/proc/base.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-o The following patch fixes is_subdir() races with d_move. Due to concurrent
-  d_move, in is_subdir() we can end up accessing freed d_parent pointer in
-  case of pre-emptible kernel. To avoid this we can use rcu_read_lock() and
-  rcu_read_unlock().
-
-o This also fixes the seqlock uses in is_subdir() as we need to restart the 
-  the inner loop with the origianl new_dentry passed to the routine in case
-  of any rename occured while we are traversing d_parent links.
-
-
- fs/dcache.c |    9 +++++++++
- 1 files changed, 9 insertions(+)
-
-diff -puN fs/dcache.c~is_subdir-fix fs/dcache.c
---- linux-2.6.2-rc2/fs/dcache.c~is_subdir-fix	2004-01-27 22:38:17.000000000 +0530
-+++ linux-2.6.2-rc2-maneesh/fs/dcache.c	2004-01-27 23:43:17.000000000 +0530
-@@ -1429,15 +1429,23 @@ out:
-  *
-  * Returns 1 if new_dentry is a subdirectory of the parent (at any depth).
-  * Returns 0 otherwise.
-+ * Caller must ensure that "new_dentry" is pinned before calling is_subdir()
-  */
-   
- int is_subdir(struct dentry * new_dentry, struct dentry * old_dentry)
- {
- 	int result;
-+	struct dentry * saved = new_dentry;
- 	unsigned long seq;
+diff -puN fs/proc/base.c~proc_check_root-fix-locking fs/proc/base.c
+--- linux-2.6.2-rc2/fs/proc/base.c~proc_check_root-fix-locking	2004-01-27 22:28:07.000000000 +0530
++++ linux-2.6.2-rc2-maneesh/fs/proc/base.c	2004-01-27 22:28:07.000000000 +0530
+@@ -425,17 +425,15 @@ static int proc_check_root(struct inode 
+ 	mnt = vfsmnt;
  
- 	result = 0;
-+	/* need rcu_readlock to protect against the d_parent trashing due to
-+	 * d_move
-+	 */ 
-+	rcu_read_lock();
-         do {
-+		/* for restarting inner loop in case of seq retry */
-+		new_dentry = saved;
- 		seq = read_seqbegin(&rename_lock);
- 		for (;;) {
- 			if (new_dentry != old_dentry) {
-@@ -1451,6 +1459,7 @@ int is_subdir(struct dentry * new_dentry
- 			break;
- 		}
- 	} while (read_seqretry(&rename_lock, seq));
-+	rcu_read_unlock();
+ 	while (vfsmnt != our_vfsmnt) {
+-		if (vfsmnt == vfsmnt->mnt_parent) {
+-			spin_unlock(&vfsmount_lock);
++		if (vfsmnt == vfsmnt->mnt_parent)
+ 			goto out;
+-		}
+ 		de = vfsmnt->mnt_mountpoint;
+ 		vfsmnt = vfsmnt->mnt_parent;
+ 	}
+-	spin_unlock(&vfsmount_lock);
  
- 	return result;
+ 	if (!is_subdir(de, base))
+ 		goto out;
++	spin_unlock(&vfsmount_lock);
+ 
+ exit:
+ 	dput(base);
+@@ -444,6 +442,7 @@ exit:
+ 	mntput(mnt);
+ 	return res;
+ out:
++	spin_unlock(&vfsmount_lock);
+ 	res = -EACCES;
+ 	goto exit;
  }
 
 _
+
+
 
 -- 
 Maneesh Soni

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315779AbSHGWci>; Wed, 7 Aug 2002 18:32:38 -0400
+	id <S316541AbSHGWes>; Wed, 7 Aug 2002 18:34:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315806AbSHGWci>; Wed, 7 Aug 2002 18:32:38 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:43024 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S315779AbSHGWch>; Wed, 7 Aug 2002 18:32:37 -0400
-Date: Wed, 7 Aug 2002 18:30:10 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Steven Cole <elenstev@mesatop.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>,
-       Steven Cole <scole@lanl.gov>
-Subject: Re: Linux v2.4.19-rc5
-In-Reply-To: <1028688882.2376.105.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1020807182523.14463A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316548AbSHGWer>; Wed, 7 Aug 2002 18:34:47 -0400
+Received: from jalon.able.es ([212.97.163.2]:44177 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316541AbSHGWeq>;
+	Wed, 7 Aug 2002 18:34:46 -0400
+Date: Thu, 8 Aug 2002 00:36:36 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "Reed, Timothy A" <timothy.a.reed@lmco.com>
+Cc: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: Hyperthreading Options in 2.4.19
+Message-ID: <20020807223636.GC1537@werewolf.able.es>
+References: <9EFD49E2FB59D411AABA0008C7E675C009D8DEE3@emss04m10.ems.lmco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <9EFD49E2FB59D411AABA0008C7E675C009D8DEE3@emss04m10.ems.lmco.com>; from timothy.a.reed@lmco.com on Wed, Aug 07, 2002 at 20:22:05 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Aug 2002, Steven Cole wrote:
 
-> On Tue, 2002-08-06 at 19:09, Bill Davidsen wrote:
+On 2002.08.07 "Reed, Timothy A" wrote:
+>Hello All,
+>	I am going rounds with a sub-contractor of ours about what options
+>should and should not be compiled into the kernel in order for
+>Hyperthreading to work.  Can anyone make any suggestions and comments to the
+>options (below)  that I am planning on enforcing:
+>	MSR
+>	MTRR
+>	CPUID
 
-> > I assumed that the posted results were apples and apples. That may not be
-> 
-> Well, maybe Granny Smiths and Red Delicious. The problem with dbench is
-> that it checks how well they roll and bounce.  But even that can be
-> important sometimes. ;)
-> 
-> > the case. If this was one kernel tuned for dbench and one for something
-> > else, then the information content is pretty low, to me at least. But if
-> > it is both tuned or both stock, then I would hope 2.5 would be better. If
-> > the text said that and I read past it, I apologise.
-> 
-> All kernels were stock as patched with no special changes to 
-> /proc/sys/vm/bdflush for 2.4.x or to /proc/sys/vm/dirty* for 2.5.x.
-> Sorry, I didn't explicitly state that in the initial report.
+I thikn none is needed for ht. Of course, mtrr raises performance.
+The other are not needed, afaik.
 
-Actually that was what I was assuming when I noted that the 2.5 appeared
-to be slower by a good bit for some high load values of dbench. In a
-perfect world the kernel would hit the hardware spped, guess no one is
-claiming that until 2.7 ;-)
+>
+>	Lilo.conf : acpismp=force?? 
+>
 
-The initial results from the io scheduler, as posted here, look as if
-there will be a way to "take it up another notch" in the future.
+True for old kernels, not needed anymore.
 
-Thanks much for the clarification, the data are useful even if they do
-show room for improvement in the corner case.
+>	Are the following worth any thing of value to Hyperthreading:
+>	Microcode
+>	ACPI
+
+No.
+
+In summary, with 2.4.19 you do not have to do nothing to have hyperthreading.
+Other useful options are 'noht' to disable ht, and 'idle=poll', that I think
+improves latency.
+
+by
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.0 (Cooker) for i586
+Linux 2.4.20-pre1-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-0.2mdk))

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264425AbRFOPhQ>; Fri, 15 Jun 2001 11:37:16 -0400
+	id <S264426AbRFOPhq>; Fri, 15 Jun 2001 11:37:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264426AbRFOPg5>; Fri, 15 Jun 2001 11:36:57 -0400
-Received: from oscar.broadcom.ie ([192.107.110.20]:4365 "EHLO broadcom.ie")
-	by vger.kernel.org with ESMTP id <S264425AbRFOPgf>;
-	Fri, 15 Jun 2001 11:36:35 -0400
-Message-ID: <F491DB9E5447D51188DF00B0D0AA207503F45C@phoebe.broadcom.ie>
-From: Mark Smith <mark.smith@broadcom.ie>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Enabling Netfilters to Mark packets in Red-Hat
-Date: Fri, 15 Jun 2001 16:37:53 +0100
+	id <S264427AbRFOPhh>; Fri, 15 Jun 2001 11:37:37 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:55482 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264426AbRFOPh2>;
+	Fri, 15 Jun 2001 11:37:28 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15146.11179.315190.615024@pizda.ninka.net>
+Date: Fri, 15 Jun 2001 08:37:15 -0700 (PDT)
+To: Pete Wyckoff <pw@osc.edu>
+Cc: nick@snowman.net, Kip Macy <kmacy@netapp.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 3com Driver and the 3XP Processor
+In-Reply-To: <20010615111213.C2245@osc.edu>
+In-Reply-To: <15145.11935.992736.767777@pizda.ninka.net>
+	<Pine.LNX.4.21.0106141739140.16013-100000@ns>
+	<15145.12192.199302.981306@pizda.ninka.net>
+	<20010615111213.C2245@osc.edu>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to enable Netfilters to mark ip packets, (i.e. using
-iptables and iproute2).  My problem is that after upgrading from 2.2.4
-kernel to a 2.4 version, I did the following:
 
-make menuconfig - enabling the appropriate options
+Pete Wyckoff writes:
+ > We're currently working on using both processors
+ > of the Tigon in parallel.
 
-make dep
+It is my understanding that on the Tigon2, the second processor is
+only for working around hw bugs in the DMA controller of the board and
+cannot be used for other tasks.
 
-make bzImage
+WRT. tigon3, it was mentioned on this list that it is a pair of arm9
+cpus, one for rx and one for tx.
 
-make bzlilo
-
-
-The problem is I cannot get iptables or ipoute2 working.  I can see header
-files for iptables, but nothing eslse, and I cannot find any reference to
-iproute2 whatsoever.
-
-Can anyone mail me as to what I may be doing wrong?  I am a relative
-newcomer to linux.
-
-Cheers.
+Later,
+David S. Miller
+davem@redhat.com

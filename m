@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284461AbRLJQtz>; Mon, 10 Dec 2001 11:49:55 -0500
+	id <S284460AbRLJRAr>; Mon, 10 Dec 2001 12:00:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284460AbRLJQtq>; Mon, 10 Dec 2001 11:49:46 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:55959 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S284461AbRLJQtj>;
-	Mon, 10 Dec 2001 11:49:39 -0500
-Date: Mon, 10 Dec 2001 11:49:36 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux/Pro  -- clusters
-In-Reply-To: <UTC200112090859.IAA242651.aeb@cwi.nl>
-Message-ID: <Pine.GSO.4.21.0112101136490.14238-100000@binet.math.psu.edu>
+	id <S286308AbRLJRAi>; Mon, 10 Dec 2001 12:00:38 -0500
+Received: from colorfullife.com ([216.156.138.34]:52751 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S284460AbRLJRA1>;
+	Mon, 10 Dec 2001 12:00:27 -0500
+Message-ID: <3C14EA26.5060306@colorfullife.com>
+Date: Mon, 10 Dec 2001 18:00:22 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jack Steiner <steiner@sgi.com>
+CC: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
+In-Reply-To: <200112101633.KAA45958@fsgi055.americas.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jack Steiner wrote:
 
+>
+>BTW, I think Tony Luck (at Intel) is currently changing the slab allocator 
+>to be numa-aware. Are coordinating your work with his???
+>
 
-On Sun, 9 Dec 2001 Andries.Brouwer@cwi.nl wrote:
+Thanks, I wasn't aware that he's working on it.
+I haven't started coding, I'm still collecting what's needed.
 
-> [There is more to say, but I have to go, and maybe you and Linus
-> can start telling me why this mechanical approach is silly.
+* force certain alignments. e.g. ARM needs 1024 byte aligned objects for 
+the page tables.
+* NUMA support.
+* Add a "priority" to kmem_cache_shrink, to avoid that every 
+dcache/icache shrink causes an IPI to all cpus.
+* If possible: replace the division in kmem_cache_free_one with the 
+multiplication by the reciprocal. (I have a patch, but it's too ugly for 
+inclusion). Important for uniprocessor versions.
+* add reservation support - e.g. there must be a minimum amount of bio 
+structures available, otherwise the kernel could oom-deadlock. They must 
+be available, not hidden in the per-cpu caches of the other cpus.
 
-Basically you propose to take the current system, replace it with
-something without clear memory management ("let it leak") and then
-try to fix the resulting mess.
+--
+    Manfred
 
-I would rather switch code that uses kdev_t to use of dynamically
-allocated structures.  Subsystem-by-subsystem.  Keeping decent
-memory management on every step.
-
-It's _way_ easier than trying to fix leaks and dangling pointers in
-the fuzzy code we'd get with your approach.  Just look at the fun
-Richard has with devfs right now.
-
-It's easier to convert nth piece when you have n-1 done right and nothing
-else using the objects in question.  Putting the whole thing together
-first and the trying to fix it will be a living horror compared to that.
 

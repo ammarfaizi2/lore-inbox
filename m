@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbUKCXwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbUKCXzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbUKCXwE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 18:52:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUKCXsk
+	id S261975AbUKCXzy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 18:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUKCXx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 18:48:40 -0500
-Received: from zamok.crans.org ([138.231.136.6]:50582 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S261975AbUKCXrS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 18:47:18 -0500
-To: Russell Miller <rmiller@duskglow.com>
-Cc: Doug McNaught <doug@mcnaught.org>, Jim Nelson <james4765@verizon.net>,
-       DervishD <lkml@dervishd.net>, Gene Heskett <gene.heskett@verizon.net>,
-       linux-kernel@vger.kernel.org,
-       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: is killing zombies possible w/o a reboot?
-References: <200411030751.39578.gene.heskett@verizon.net>
-	<200411031644.58979.rmiller@duskglow.com>
-	<87k6t24jsr.fsf@asmodeus.mcnaught.org>
-	<200411031733.30469.rmiller@duskglow.com>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Thu, 04 Nov 2004 00:47:18 +0100
-In-Reply-To: <200411031733.30469.rmiller@duskglow.com> (Russell Miller's
-	message of "Wed, 3 Nov 2004 18:33:30 -0500")
-Message-ID: <877jp2sdfd.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 3 Nov 2004 18:53:59 -0500
+Received: from mail.kroah.org ([69.55.234.183]:9703 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261995AbUKCXsh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 18:48:37 -0500
+Date: Wed, 3 Nov 2004 15:46:49 -0800
+From: Greg KH <greg@kroah.com>
+To: Jonathan McDowell <noodles@earth.li>
+Cc: David Brownell <dbrownell@users.sourceforge.net>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] KC2190 support for usbnet.
+Message-ID: <20041103234649.GA31794@kroah.com>
+References: <20041103115142.GZ31945@earth.li>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041103115142.GZ31945@earth.li>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell Miller <rmiller@duskglow.com> disait dernièrement que :
+On Wed, Nov 03, 2004 at 11:51:42AM +0000, Jonathan McDowell wrote:
+> The patch below adds support for the KC2190 usb-to-usb networking
+> device; the version I have reports itself as:
+> 
+> Bus 001 Device 003: ID 050f:0190 KC Technology, Inc.
+> 
+> I was under the impression that support for this had been added a long
+> time ago, but searching through old kernel versions all I could find was
+> a comment about the chip, with no support. Patch is against 2.6.9 but is
+> pretty minimal.
+> 
+> I don't have a Windows box around to test interoperability with that
+> driver, but the patch appears to make it work perfectly between 2 Linux
+> boxes.
 
-> I am going to continue pursuing this at the risk of making a bigger fool of 
-> myself than I already am, but I want to make sure that I understand the 
-> issues - and I did read the message you are referring to.
->
-> I think what you are saying is that there is kind of a race condition here.  
-> When something is on the wait queue, it has to be followed through to 
-> completion.  An interrupt could be received at any time, and if it's taken 
-> off of the wait queue prematurely, it'll crash the kernel, because the 
-> interrupt has no way of telling that.
->
-> That's fine as it goes, I understand that.  But I submit that this is a 
-> horrible design.  I've been bitten by this more than once - usually regarding 
-> broken NFS connections.
+Applied, thanks.
 
-this is because nfs related syscalls are not interruptible by default.
-you can make them interruptible by mounting your nfs's with the 'intr' option.
-
--- 
-I love people saying 'we' even though they never contributed a single
-line of code to the project!
-
-	- Jens Axboe turning a troll down on linux-kernel
-
+greg k-h

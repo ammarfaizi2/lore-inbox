@@ -1,29 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263144AbRFFNm3>; Wed, 6 Jun 2001 09:42:29 -0400
+	id <S263086AbRFFNl7>; Wed, 6 Jun 2001 09:41:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263172AbRFFNmT>; Wed, 6 Jun 2001 09:42:19 -0400
-Received: from imr2.ericy.com ([12.34.240.68]:7398 "EHLO imr2.ericy.com")
-	by vger.kernel.org with ESMTP id <S263144AbRFFNmG>;
-	Wed, 6 Jun 2001 09:42:06 -0400
-Message-ID: <32CD630F6CBED411AE180008C7894CBC05DC74B7@lmc37.lmc.ericsson.se>
-From: "David Gordon (LMC)" <David.Gordon@ericsson.ca>
-To: "'Arjan van de Ven'" <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: RE: kHTTPd hangs 2.4.5 boot when moduled
-Date: Wed, 6 Jun 2001 09:41:46 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S263144AbRFFNlt>; Wed, 6 Jun 2001 09:41:49 -0400
+Received: from ns.caldera.de ([212.34.180.1]:50101 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S263086AbRFFNlc>;
+	Wed, 6 Jun 2001 09:41:32 -0400
+Date: Wed, 6 Jun 2001 15:40:50 +0200
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: t.sailer@alumni.ethz.ch
+Cc: Christoph Hellwig <hch@ns.caldera.de>,
+        Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac9
+Message-ID: <20010606154050.A6245@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch>, t.sailer@alumni.ethz.ch,
+	Christoph Hellwig <hch@ns.caldera.de>,
+	Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200106061051.f56App623652@ns.caldera.de> <3B1E16EB.9FEA94CA@scs.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B1E16EB.9FEA94CA@scs.ch>; from sailer@scs.ch on Wed, Jun 06, 2001 at 01:41:31PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is very strange. Does your kernel do the same if you compile IPv6
-> as module and khttpd off ?
+On Wed, Jun 06, 2001 at 01:41:31PM +0200, Thomas Sailer wrote:
+> Christoph Hellwig schrieb:
+> > 
+> > In article <20010605234928.A28971@lightning.swansea.linux.org.uk> you wrote:
+> > > 2.4.5-ac9
+> > 
+> > > o     Add es1371 sound driver locking                 (Frank Davis)
+> > 
+> > It's buggy.  The locking in ->read and ->write will give
+> > double ups when a signal is pending and remove a not added waitq
+> > when programming the dmabuf fails.
+> 
+> But Alan added a different patch than yours,
 
-No, the boot proceeds normally. I loaded ipv6 module manually after boot and
-ipv6 worked locally also (ping6 ::1). I didn't test network ipv6 (my
-personal computer is on an ipv4 network). Similarly, I was going to start
-khttpd manually after boot wheb it hung.
+Mine got _that_ right.
 
-David
+> that doesn't seem to have poll in the guard.
+> 
+> Also, both your and Frank Davis' patch don't care about dac, which
+> seems bogus to me.
+
+Yepp.
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269144AbTGJJrH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 05:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269145AbTGJJrH
+	id S269161AbTGJJyW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 05:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269163AbTGJJyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 05:47:07 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:9869 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S269144AbTGJJrE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 05:47:04 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	Thu, 10 Jul 2003 05:54:22 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26124 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S269161AbTGJJyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 05:54:19 -0400
+Date: Thu, 10 Jul 2003 11:08:56 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Michael Frank <mflt1@micrologica.com.hk>, daniel.ritz@gmx.ch,
+       linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+Subject: Re: 2.5.74-mm3 yenta-socket oops back
+Message-ID: <20030710110856.A1074@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Michael Frank <mflt1@micrologica.com.hk>, daniel.ritz@gmx.ch,
+	linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+References: <200307060039.34263.daniel.ritz@gmx.ch> <20030706231551.B16820@flint.arm.linux.org.uk> <200307101127.32590.mflt1@micrologica.com.hk> <20030709213010.1882a898.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16141.14720.980604.428130@laputa.namesys.com>
-Date: Thu, 10 Jul 2003 14:01:36 +0400
-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Are =?koi8-r?Q?=22?=,=?koi8-r?Q?=22=20?=and =?koi8-r?Q?=22?=..=?koi8-r?Q?=22=20?=in directory required=?koi8-r?Q?=3F?=
-In-Reply-To: <E19aWbo-00031x-00.arvidjaar-mail-ru@f16.mail.ru>
-References: <E19aWbo-00031x-00.arvidjaar-mail-ru@f16.mail.ru>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030709213010.1882a898.akpm@osdl.org>; from akpm@osdl.org on Wed, Jul 09, 2003 at 09:30:10PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Andrey Borzenkov"  writes:
- > 
- > Is it possible for readdir to return really empty directory - without
- > and entry, even "." and ".."?
+On Wed, Jul 09, 2003 at 09:30:10PM -0700, Andrew Morton wrote:
+> This one may not be.  How did we get here with no thread to handle the
+> event?  Do you have an oops trace on this one?
 
-Enter empty directory. Remove it by rmdir() by another process. Now you
-have a directory without dot and dotdot.
+It's correct.  Had the fan in my server not died last night, I'd have
+gotten some of these fixes to Linus.  God how I hate anything with fans
+in.  They're the number one cause of failure.
 
- > 
- > TIA
- > 
- > -andrey
+The problem is that the interrupts are claimed before pcmcia has been
+properly initialised, so the cs.c-private bits of pcmcia_socket aren't
+setup.
 
-Nikita.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

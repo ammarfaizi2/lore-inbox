@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274991AbRJFIiZ>; Sat, 6 Oct 2001 04:38:25 -0400
+	id <S275096AbRJFI7r>; Sat, 6 Oct 2001 04:59:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275096AbRJFIiQ>; Sat, 6 Oct 2001 04:38:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39052 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274991AbRJFIiC>;
-	Sat, 6 Oct 2001 04:38:02 -0400
-Date: Sat, 06 Oct 2001 01:38:19 -0700 (PDT)
-Message-Id: <20011006.013819.17864926.davem@redhat.com>
-To: paulus@samba.org
-Cc: jes@sunsite.dk, James.Bottomley@HansenPartnership.com,
-        linuxopinion@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: how to get virtual address from dma address
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15294.47999.501719.858693@cargo.ozlabs.ibm.com>
-In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain>
-	<d3n136tc48.fsf@lxplus014.cern.ch>
-	<15294.47999.501719.858693@cargo.ozlabs.ibm.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S275110AbRJFI7g>; Sat, 6 Oct 2001 04:59:36 -0400
+Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:27148 "EHLO
+	boris.prodako.se") by vger.kernel.org with ESMTP id <S275096AbRJFI7X>;
+	Sat, 6 Oct 2001 04:59:23 -0400
+Date: Sat, 6 Oct 2001 10:59:47 +0200 (CEST)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: <tori@boris.prodako.se>
+To: Simon Kirby <sim@netnation.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.11pre4 swapping out all over the place
+In-Reply-To: <20011006010656.A968@netnation.com>
+Message-ID: <Pine.LNX.4.33.0110061048140.29350-100000@boris.prodako.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Paul Mackerras <paulus@samba.org>
-   Date: Sat, 6 Oct 2001 18:06:23 +1000 (EST)
-   
-   The argument for supplying this functionality in the PCI DMA code
-   would be that if it was done there it could be done once, and in a
-   sophisticated and efficient (and SMP-safe :) fashion, rather than
-   ad-hoc in each driver.
+On Sat, 6 Oct 2001, Simon Kirby wrote:
 
-The argument against it is that if you provide such an easy way out,
-people will just blindly transform bus_to_virt/virt_to_bus without
-considering more straightforward methods when they exist.
+> 2.4.11pre4 is swapping out on me while burning a CD at 4x.
+> 2.4.11pre2 (or maybe it was pre1) seemed to be a lot better.
+> 2.4.10pre10 still seems to be the best for me so far...
 
-I can not even count on one hand how many people I've helped
-converting, who wanted a bus_to_virt() and when I showed them
-how to do it with information the device provided already they
-said "oh wow, I never would have thought of that".  That process
-won't happen as often with the suggested feature.
+I can confirm that in 2.4.11-pre4, the used-once pages are causing
+page-out activity, as opposed to 2.4.11-pre2 which did not.  Streaming i/o
+performce is down, and so is the interactive responsiveness (a lot).  To
+reproduce, run
 
-I am adamently against generic infrastructure to do this.  Yes, it's
-social engineering, tough cookies... it's social engineering that I
-know is working :-)
+	dd if=/dev/hde1 of=/dev/null bs=4k
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+This should not produce paging.  The block size is not important.
+
+/Tobias
+

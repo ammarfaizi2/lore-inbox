@@ -1,66 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVCVQj5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVCVQnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbVCVQj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 11:39:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVCVQjp
+	id S261422AbVCVQnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 11:43:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVCVQnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 11:39:45 -0500
-Received: from rproxy.gmail.com ([64.233.170.198]:11965 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261422AbVCVQje (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 11:39:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:organization:cc:mime-version:content-type:message-id;
-        b=CB2sH81qouU55eWnU540ez1Maci4nU/p+cO28b3XzoM3y+kYohcPqjeQBWBChhhPDaqDaHxqihAHoORYeLwA1MUqeXt3aGT8pao93jg441bkvYE5Qukl6wliOUjrEhkElWZIXIjfP9sLDudS6Y1Xp0HmZVbFVq8tfi6YlF1Ke+s=
-From: Vicente Feito <vicente.feito@gmail.com>
+	Tue, 22 Mar 2005 11:43:16 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:13067 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261422AbVCVQnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 11:43:11 -0500
+Date: Tue, 22 Mar 2005 16:37:09 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2.6.12-rc1-mm1] net/ethernet/eth.c - eth_header
-Date: Tue, 22 Mar 2005 13:38:08 +0000
-User-Agent: KMail/1.7.1
-Organization: none
-Cc: linux-kernel@vger.kernel.org
+cc: nickpiggin@yahoo.com.au, davem@davemloft.net, tony.luck@intel.com,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
+In-Reply-To: <20050322034053.311b10e6.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com> 
+    <20050322034053.311b10e6.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_A/BQCdrk2pbyfaF"
-Message-Id: <200503221338.08834.vicente.feito@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_A/BQCdrk2pbyfaF
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, 22 Mar 2005, Andrew Morton wrote:
+> 
+> With these six patches the ppc64 is hitting the BUG in exit_mmap():
+> 
+>         BUG_ON(mm->nr_ptes);    /* This is just debugging */
+> 
+> fairly early in boot.
 
-Hi,
-Please consider applying (or droping).
-Thank you.
+So ppc64 is in the same boat as sparc64 (yet ia64 okay so far).
 
-Description: This patch prevent drivers from calling eth_header with a 802.3 
-frame using a len>1536. In such a case returns -EINVAL, which was hard to 
-choose because the ETH_HLEN is supposed to return.
+Sorry, I'm still clueless.
 
-Signed-off-by: Vicente Feito <vicente.feito@gmail.com>
+I cannot see those arches doing pte_allocs outside their vmas,
+that of course could cause it.  And nr_ptes is initialized to 0
+once by memset and again by assignment, so it should be starting
+out even zeroer than most fields.
 
---Boundary-00=_A/BQCdrk2pbyfaF
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="eth.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="eth.patch"
+I should probably be paying more attention to the repellent
+notion that my code is broken.
 
---- linux-2.6.12-rc1-mm1/net/ethernet/eth.c.orig	2005-03-22 12:49:08.000000000 +0000
-+++ linux-2.6.12-rc1-mm1/net/ethernet/eth.c	2005-03-22 12:49:36.000000000 +0000
-@@ -78,6 +78,8 @@ int eth_header(struct sk_buff *skb, stru
+If you and David could try the lame patch below,
+it'll at least give us a slight clue of where to be looking -
+every mm exiting with nr_ptes 1 means something different from
+every mm exiting with nr_ptes -1 means something different from
+occasional mms exiting with nr_ptes something positive.
+
+I'm not sure whether the patch would ever get to show a more
+interesting proc name than "?".
+
+And does memory leak away into lost pagetables if you continue
+running, or does it actually carry on running fine, and the
+problem appear to be with the BUG_ON itself?
+
+Thanks,
+Hugh
+
+--- freepgt6/mm/mmap.c	2005-03-22 04:28:40.000000000 +0000
++++ testing/mm/mmap.c	2005-03-22 15:45:00.000000000 +0000
+@@ -1896,6 +1896,7 @@ EXPORT_SYMBOL(do_brk);
+ /* Release all mmaps. */
+ void exit_mmap(struct mm_struct *mm)
  {
- 	struct ethhdr *eth = (struct ethhdr *)skb_push(skb,ETH_HLEN);
++	static unsigned long good_mms, bad_mms;
+ 	struct mmu_gather *tlb;
+ 	struct vm_area_struct *vma = mm->mmap;
+ 	unsigned long nr_accounted = 0;
+@@ -1931,7 +1932,14 @@ void exit_mmap(struct mm_struct *mm)
+ 		vma = next;
+ 	}
  
-+	if (type == ETH_P_802_3 && len >= 1536)
-+		return -EINVAL;
- 	/* 
- 	 *	Set the protocol type. For a packet of type ETH_P_802_3 we put the length
- 	 *	in here instead. It is up to the 802.2 layer to carry protocol information.
-
---Boundary-00=_A/BQCdrk2pbyfaF--
+-	BUG_ON(mm->nr_ptes);	/* This is just debugging */
++	if (mm->nr_ptes && bad_mms < 250) {
++		printk(KERN_ERR "exit_mmap: %s nr_ptes %ld good_mms %lu\n",
++			current->mm == mm? current->comm: "?",
++			(long)mm->nr_ptes, good_mms);
++		good_mms = 0;
++		bad_mms++;
++	} else
++		good_mms++;
+ }
+ 
+ /* Insert vm structure into process list sorted by address

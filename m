@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281818AbRLBVYh>; Sun, 2 Dec 2001 16:24:37 -0500
+	id <S281823AbRLBV1H>; Sun, 2 Dec 2001 16:27:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281797AbRLBVY2>; Sun, 2 Dec 2001 16:24:28 -0500
-Received: from [194.168.151.1] ([194.168.151.1]:21252 "EHLO the-village.bc.nu")
-	by vger.kernel.org with ESMTP id <S281809AbRLBVYL>;
-	Sun, 2 Dec 2001 16:24:11 -0500
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-To: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sun, 2 Dec 2001 21:32:39 +0000 (GMT)
-Cc: lm@bitmover.com (Larry McVoy),
-        vonbrand@sleipnir.valparaiso.cl (Horst von Brand),
-        linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <m1u1v9wdd8.fsf@frodo.biederman.org> from "Eric W. Biederman" at Dec 02, 2001 01:55:47 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S281811AbRLBV05>; Sun, 2 Dec 2001 16:26:57 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:46720 "EHLO
+	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S281797AbRLBVYt>;
+	Sun, 2 Dec 2001 16:24:49 -0500
+Date: Sun, 2 Dec 2001 21:52:32 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Cc: braam@clusterfilesystem.com
+Subject: ENTRY macro (coda maintainers please listen)
+Message-ID: <20011202215232.A1751@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16AeE3-0004ct-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The next incremental step is to get some good distributed and parallel
-> file systems.  So you can share one filesystem across the cluster.
-> And there is some work going on in those areas.  luster, gfs,
-> intermezzo.
+Hi!
 
-gfs went proprietary - you want opengfs
+linux/linkage.h includes macro "ENTRY(a)", while linux/coda_linux
+includes ... macro "ENTRY".
 
-A lot of good work on the rest of that multi-node clustering is going on
-already - take a look at the compaq open source site.
+It would be good to rename one of them (they are probably not needed
+in one module, anyway, that's not clean)...
 
-cccluster is more for numa boxes, but it needs the management and SSI views
-that the compaq stuff offers simply because most programmers won't program
-for a cccluster or manage one.
-
-Alan
+Oh and there's no entry for CODA in MAINTAINERS file. You probably
+want to fix that.
+							Pavel
+-- 
+"I do not steal MS software. It is not worth it."
+                                -- Pavel Kankovsky

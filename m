@@ -1,33 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284580AbRLIWvh>; Sun, 9 Dec 2001 17:51:37 -0500
+	id <S284601AbRLIXBs>; Sun, 9 Dec 2001 18:01:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284588AbRLIWv2>; Sun, 9 Dec 2001 17:51:28 -0500
-Received: from [203.199.83.146] ([203.199.83.146]:8860 "HELO
-	mailweb22.rediffmail.com") by vger.kernel.org with SMTP
-	id <S284580AbRLIWvR> convert rfc822-to-8bit; Sun, 9 Dec 2001 17:51:17 -0500
-Date: 9 Dec 2001 22:51:43 -0000
-Message-ID: <20011209225143.30988.qmail@mailweb22.rediffmail.com>
-MIME-Version: 1.0
-From: "Sarita  N" <sarita_navuluru@rediffmail.com>
-Reply-To: "Sarita  N" <sarita_navuluru@rediffmail.com>
+	id <S284604AbRLIXBj>; Sun, 9 Dec 2001 18:01:39 -0500
+Received: from hermes.toad.net ([162.33.130.251]:5320 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S284601AbRLIXBb>;
+	Sun, 9 Dec 2001 18:01:31 -0500
+Subject: Re: PNP Bios
+From: Thomas Hood <jdthood@mail.com>
 To: linux-kernel@vger.kernel.org
-Subject: KERNEL SYSTEM CALLS DEFINITIONS
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Cc: victor1 torres <camel_3@hotmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 09 Dec 2001 18:02:48 -0500
+Message-Id: <1007938969.1038.0.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+V. Torres wrote:
+> I'll be happy to give any other details.
 
-Hello,
-         I am a grad student at the university of nebraska lincoln.
-I have to build a tool in C that would caputure the system calls and signals between a user application adn the operating system.  
+You tell us how you recompiled your kernel,
+but what does this information pertain to?
 
-I have started studying the Linux kernel.  Can I know how to go about it.  Where , in which Kernel file can I find the definitions of the various system calls - how have they been implemented in the kernel?
-
-How do I go about the project?
-
-Thanks and regards,
-Sarita Navuluru. 
 

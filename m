@@ -1,352 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbTI2NlI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 09:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbTI2NlI
+	id S263368AbTI2Ngi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 09:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTI2Ngi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 09:41:08 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:2965 "EHLO
+	Mon, 29 Sep 2003 09:36:38 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:43412 "EHLO
 	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263370AbTI2Nkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 09:40:55 -0400
-Date: Mon, 29 Sep 2003 15:40:54 +0200
+	id S263368AbTI2Ngf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 09:36:35 -0400
+Date: Mon, 29 Sep 2003 15:36:24 +0200
 From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
 To: Sam Ravnborg <sam@ravnborg.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
        Jamie Lokier <jamie@shareable.org>
-Subject: Re: [PATCH] check headers for complete includes, etc.
-Message-ID: <20030929134054.GA24014@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org> <20030928184642.GA1681@mars.ravnborg.org> <20030928191622.GA16921@wohnheim.fh-wedel.de> <20030928193150.GA3074@mars.ravnborg.org> <20030928194431.GB16921@wohnheim.fh-wedel.de> <20030929133624.GA14611@wohnheim.fh-wedel.de>
+Subject: [PATCH] check headers for complete includes, etc.
+Message-ID: <20030929133624.GA14611@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org> <20030928184642.GA1681@mars.ravnborg.org> <20030928191622.GA16921@wohnheim.fh-wedel.de> <20030928193150.GA3074@mars.ravnborg.org> <20030928194431.GB16921@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030929133624.GA14611@wohnheim.fh-wedel.de>
+In-Reply-To: <20030928194431.GB16921@wohnheim.fh-wedel.de>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell, you might not like the results from my testrun.  Should we
-really fix all the 286 headers or would that do more harm than good?
+On Sun, 28 September 2003 21:44:31 +0200, Jörn Engel wrote:
+> On Sun, 28 September 2003 21:31:50 +0200, Sam Ravnborg wrote:
+> > 
+> > That should do it. Can you also integrate the check Linus mentioned,
+> > to make sure no declarations are present.
+> 
+> If it's simple enough, you'll have it tomorrow.  Linus' check might
+> take a bit longer, I'm not sure yet how to define an empty object
+> file.  Is it enough if objdump -tT only shows sections?
+> 
+> > I would name the target: headercheck:
+> > to be consistent with the other targets.
+> 
+> ok.
 
-The declared symbols are a different problem, though.  Could be a nice
-janitor task.
-
-WARNING: Symbols may be declared: linux/acpi.h
-WARNING: Symbols may be declared: linux/atm_idt77105.h
-WARNING: Symbols may be declared: linux/atmdev.h
-WARNING: Symbols may be declared: linux/eeprom.h
-WARNING: Symbols may be declared: linux/efs_fs.h
-WARNING: Symbols may be declared: linux/ext3_jbd.h
-WARNING: Symbols may be declared: linux/ip.h
-WARNING: Symbols may be declared: linux/ipv6.h
-WARNING: Symbols may be declared: linux/isdn.h
-WARNING: Symbols may be declared: linux/ixjuser.h
-WARNING: Symbols may be declared: linux/mroute.h
-WARNING: Symbols may be declared: linux/netfilter_ipv4/ip_tables.h
-WARNING: Symbols may be declared: linux/netfilter_ipv4/ipt_multiport.h
-WARNING: Symbols may be declared: linux/netfilter_ipv6/ip6_tables.h
-WARNING: Symbols may be declared: linux/netfilter_ipv6/ip6t_multiport.h
-WARNING: Symbols may be declared: linux/nfsd/nfsfh.h
-WARNING: Symbols may be declared: linux/raid/linear.h
-WARNING: Symbols may be declared: linux/raid/md.h
-WARNING: Symbols may be declared: linux/raid/multipath.h
-WARNING: Symbols may be declared: linux/raid/raid0.h
-WARNING: Symbols may be declared: linux/raid/raid1.h
-WARNING: Symbols may be declared: linux/raid/raid5.h
-WARNING: Symbols may be declared: linux/raid/xor.h
-WARNING: Symbols may be declared: linux/tcp.h
-WARNING: Symbols may be declared: linux/udp.h
-WARNING: header doesn't build standalone: linux/ac97_codec.h
-WARNING: header doesn't build standalone: linux/acpi_serial.h
-WARNING: header doesn't build standalone: linux/adfs_fs.h
-WARNING: header doesn't build standalone: linux/adfs_fs_i.h
-WARNING: header doesn't build standalone: linux/adfs_fs_sb.h
-WARNING: header doesn't build standalone: linux/affs_fs_sb.h
-WARNING: header doesn't build standalone: linux/affs_hardblocks.h
-WARNING: header doesn't build standalone: linux/agp_backend.h
-WARNING: header doesn't build standalone: linux/agpgart.h
-WARNING: header doesn't build standalone: linux/aio.h
-WARNING: header doesn't build standalone: linux/amigaffs.h
-WARNING: header doesn't build standalone: linux/arcdevice.h
-WARNING: header doesn't build standalone: linux/atalk.h
-WARNING: header doesn't build standalone: linux/atm_tcp.h
-WARNING: header doesn't build standalone: linux/atm_zatm.h
-WARNING: header doesn't build standalone: linux/bfs_fs.h
-WARNING: header doesn't build standalone: linux/brlvger.h
-WARNING: header doesn't build standalone: linux/byteorder/big_endian.h
-WARNING: header doesn't build standalone: linux/byteorder/generic.h
-WARNING: header doesn't build standalone: linux/byteorder/little_endian.h
-WARNING: header doesn't build standalone: linux/byteorder/pdp_endian.h
-WARNING: header doesn't build standalone: linux/byteorder/swab.h
-WARNING: header doesn't build standalone: linux/byteorder/swabb.h
-WARNING: header doesn't build standalone: linux/cciss_ioctl.h
-WARNING: header doesn't build standalone: linux/cdev.h
-WARNING: header doesn't build standalone: linux/coda_fs_i.h
-WARNING: header doesn't build standalone: linux/coda_proc.h
-WARNING: header doesn't build standalone: linux/coda_psdev.h
-WARNING: header doesn't build standalone: linux/compat_ioctl.h
-WARNING: header doesn't build standalone: linux/console_struct.h
-WARNING: header doesn't build standalone: linux/cramfs_fs.h
-WARNING: header doesn't build standalone: linux/cramfs_fs_sb.h
-WARNING: header doesn't build standalone: linux/cyclades.h
-WARNING: header doesn't build standalone: linux/cycx_drv.h
-WARNING: header doesn't build standalone: linux/cycx_x25.h
-WARNING: header doesn't build standalone: linux/device-mapper.h
-WARNING: header doesn't build standalone: linux/devpts_fs.h
-WARNING: header doesn't build standalone: linux/dirent.h
-WARNING: header doesn't build standalone: linux/divert.h
-WARNING: header doesn't build standalone: linux/dma-mapping.h
-WARNING: header doesn't build standalone: linux/efs_dir.h
-WARNING: header doesn't build standalone: linux/efs_fs_i.h
-WARNING: header doesn't build standalone: linux/efs_fs_sb.h
-WARNING: header doesn't build standalone: linux/efs_vh.h
-WARNING: header doesn't build standalone: linux/eisa.h
-WARNING: header doesn't build standalone: linux/elevator.h
-WARNING: header doesn't build standalone: linux/errqueue.h
-WARNING: header doesn't build standalone: linux/etherdevice.h
-WARNING: header doesn't build standalone: linux/ethtool.h
-WARNING: header doesn't build standalone: linux/eventpoll.h
-WARNING: header doesn't build standalone: linux/ext2_fs.h
-WARNING: header doesn't build standalone: linux/ext3_fs.h
-WARNING: header doesn't build standalone: linux/ext3_fs_i.h
-WARNING: header doesn't build standalone: linux/fcdevice.h
-WARNING: header doesn't build standalone: linux/fcntl.h
-WARNING: header doesn't build standalone: linux/fddidevice.h
-WARNING: header doesn't build standalone: linux/filter.h
-WARNING: header doesn't build standalone: linux/flat.h
-WARNING: header doesn't build standalone: linux/fs_struct.h
-WARNING: header doesn't build standalone: linux/fsfilter.h
-WARNING: header doesn't build standalone: linux/ftape-header-segment.h
-WARNING: header doesn't build standalone: linux/futex.h
-WARNING: header doesn't build standalone: linux/gameport.h
-WARNING: header doesn't build standalone: linux/generic_serial.h
-WARNING: header doesn't build standalone: linux/hash.h
-WARNING: header doesn't build standalone: linux/hayesesp.h
-WARNING: header doesn't build standalone: linux/hdlc/ioctl.h
-WARNING: header doesn't build standalone: linux/hfs_fs_i.h
-WARNING: header doesn't build standalone: linux/hfs_fs_sb.h
-WARNING: header doesn't build standalone: linux/hiddev.h
-WARNING: header doesn't build standalone: linux/hpfs_fs_i.h
-WARNING: header doesn't build standalone: linux/hpfs_fs_sb.h
-WARNING: header doesn't build standalone: linux/i2c-dev.h
-WARNING: header doesn't build standalone: linux/i2o-dev.h
-WARNING: header doesn't build standalone: linux/i2o.h
-WARNING: header doesn't build standalone: linux/ibmtr.h
-WARNING: header doesn't build standalone: linux/icmp.h
-WARNING: header doesn't build standalone: linux/idr.h
-WARNING: header doesn't build standalone: linux/if_arcnet.h
-WARNING: header doesn't build standalone: linux/if_eql.h
-WARNING: header doesn't build standalone: linux/if_fc.h
-WARNING: header doesn't build standalone: linux/if_fddi.h
-WARNING: header doesn't build standalone: linux/if_frad.h
-WARNING: header doesn't build standalone: linux/if_ppp.h
-WARNING: header doesn't build standalone: linux/if_pppvar.h
-WARNING: header doesn't build standalone: linux/if_shaper.h
-WARNING: header doesn't build standalone: linux/if_strip.h
-WARNING: header doesn't build standalone: linux/if_tr.h
-WARNING: header doesn't build standalone: linux/if_tun.h
-WARNING: header doesn't build standalone: linux/if_tunnel.h
-WARNING: header doesn't build standalone: linux/if_wanpipe.h
-WARNING: header doesn't build standalone: linux/if_wanpipe_common.h
-WARNING: header doesn't build standalone: linux/in_systm.h
-WARNING: header doesn't build standalone: linux/inet.h
-WARNING: header doesn't build standalone: linux/inetdevice.h
-WARNING: header doesn't build standalone: linux/ip6_tunnel.h
-WARNING: header doesn't build standalone: linux/ipc.h
-WARNING: header doesn't build standalone: linux/ipmi_smi.h
-WARNING: header doesn't build standalone: linux/ipv6_route.h
-WARNING: header doesn't build standalone: linux/irda.h
-WARNING: header doesn't build standalone: linux/irq_cpustat.h
-WARNING: header doesn't build standalone: linux/isdn_divertif.h
-WARNING: header doesn't build standalone: linux/isicom.h
-WARNING: header doesn't build standalone: linux/iso_fs_sb.h
-WARNING: header doesn't build standalone: linux/istallion.h
-WARNING: header doesn't build standalone: linux/ite_gpio.h
-WARNING: header doesn't build standalone: linux/jffs2.h
-WARNING: header doesn't build standalone: linux/jffs2_fs_i.h
-WARNING: header doesn't build standalone: linux/jhash.h
-WARNING: header doesn't build standalone: linux/kernelcapi.h
-WARNING: header doesn't build standalone: linux/kmalloc_sizes.h
-WARNING: header doesn't build standalone: linux/kobj_map.h
-WARNING: header doesn't build standalone: linux/llc.h
-WARNING: header doesn't build standalone: linux/lockd/bind.h
-WARNING: header doesn't build standalone: linux/lockd/lockd.h
-WARNING: header doesn't build standalone: linux/lockd/share.h
-WARNING: header doesn't build standalone: linux/lockd/sm_inter.h
-WARNING: header doesn't build standalone: linux/mbcache.h
-WARNING: header doesn't build standalone: linux/mc6821.h
-WARNING: header doesn't build standalone: linux/minix_fs.h
-WARNING: header doesn't build standalone: linux/mm_inline.h
-WARNING: header doesn't build standalone: linux/mount.h
-WARNING: header doesn't build standalone: linux/mpage.h
-WARNING: header doesn't build standalone: linux/msdos_fs_sb.h
-WARNING: header doesn't build standalone: linux/msg.h
-WARNING: header doesn't build standalone: linux/mtd/cfi.h
-WARNING: header doesn't build standalone: linux/mtd/ftl.h
-WARNING: header doesn't build standalone: linux/mtd/nand_ecc.h
-WARNING: header doesn't build standalone: linux/mtd/partitions.h
-WARNING: header doesn't build standalone: linux/namei.h
-WARNING: header doesn't build standalone: linux/namespace.h
-WARNING: header doesn't build standalone: linux/nbd.h
-WARNING: header doesn't build standalone: linux/ncp_fs_i.h
-WARNING: header doesn't build standalone: linux/ncp_fs_sb.h
-WARNING: header doesn't build standalone: linux/netbeui.h
-WARNING: header doesn't build standalone: linux/netfilter_bridge/ebt_802_3.h
-WARNING: header doesn't build standalone: linux/netfilter_bridge/ebt_arp.h
-WARNING: header doesn't build standalone: linux/netfilter_bridge/ebt_arpreply.h
-WARNING: header doesn't build standalone: linux/netfilter_bridge/ebt_ip.h
-WARNING: header doesn't build standalone: linux/netfilter_bridge/ebt_log.h
-WARNING: header doesn't build standalone: linux/netfilter_bridge/ebt_mark_m.h
-WARNING: header doesn't build standalone: linux/netfilter_bridge/ebt_nat.h
-WARNING: header doesn't build standalone: linux/netfilter_bridge/ebt_pkttype.h
-WARNING: header doesn't build standalone: linux/netfilter_bridge/ebt_stp.h
-WARNING: header doesn't build standalone: linux/netfilter_bridge/ebt_vlan.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_conntrack.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_conntrack_ftp.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_conntrack_helper.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_conntrack_irc.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_conntrack_protocol.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_conntrack_tcp.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_conntrack_tftp.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_conntrack_tuple.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_nat_helper.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_nat_rule.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ip_queue.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipchains_core.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipfwadm_core.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_CLASSIFY.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_DSCP.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_ECN.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_SAME.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_TCPMSS.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_TOS.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_ULOG.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_ah.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_conntrack.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_dscp.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_ecn.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_esp.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_iprange.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_length.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_limit.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_mac.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_mark.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_owner.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_recent.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_tcpmss.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_tos.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv4/ipt_ttl.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_ah.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_esp.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_frag.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_hl.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_ipv6header.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_length.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_limit.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_mac.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_mark.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_opts.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_owner.h
-WARNING: header doesn't build standalone: linux/netfilter_ipv6/ip6t_rt.h
-WARNING: header doesn't build standalone: linux/netrom.h
-WARNING: header doesn't build standalone: linux/nfs.h
-WARNING: header doesn't build standalone: linux/nfs_fs_sb.h
-WARNING: header doesn't build standalone: linux/nfs_idmap.h
-WARNING: header doesn't build standalone: linux/nfs_page.h
-WARNING: header doesn't build standalone: linux/nfs_xdr.h
-WARNING: header doesn't build standalone: linux/nfsd/const.h
-WARNING: header doesn't build standalone: linux/nfsd/export.h
-WARNING: header doesn't build standalone: linux/nfsd/nfsd.h
-WARNING: header doesn't build standalone: linux/nfsd/state.h
-WARNING: header doesn't build standalone: linux/nfsd/syscall.h
-WARNING: header doesn't build standalone: linux/nfsd/xdr.h
-WARNING: header doesn't build standalone: linux/nfsd/xdr3.h
-WARNING: header doesn't build standalone: linux/nfsd/xdr4.h
-WARNING: header doesn't build standalone: linux/nls.h
-WARNING: header doesn't build standalone: linux/nubus.h
-WARNING: header doesn't build standalone: linux/pagevec.h
-WARNING: header doesn't build standalone: linux/parport_pc.h
-WARNING: header doesn't build standalone: linux/pid.h
-WARNING: header doesn't build standalone: linux/pipe_fs_i.h
-WARNING: header doesn't build standalone: linux/pkt_cls.h
-WARNING: header doesn't build standalone: linux/pkt_sched.h
-WARNING: header doesn't build standalone: linux/pmu.h
-WARNING: header doesn't build standalone: linux/ppp.h
-WARNING: header doesn't build standalone: linux/ppp_defs.h
-WARNING: header doesn't build standalone: linux/qic117.h
-WARNING: header doesn't build standalone: linux/qnx4_fs.h
-WARNING: header doesn't build standalone: linux/qnxtypes.h
-WARNING: header doesn't build standalone: linux/quota.h
-WARNING: header doesn't build standalone: linux/quotaio_v2.h
-WARNING: header doesn't build standalone: linux/radix-tree.h
-WARNING: header doesn't build standalone: linux/raid/md_k.h
-WARNING: header doesn't build standalone: linux/raid/md_p.h
-WARNING: header doesn't build standalone: linux/random.h
-WARNING: header doesn't build standalone: linux/reiserfs_fs_i.h
-WARNING: header doesn't build standalone: linux/reiserfs_fs_sb.h
-WARNING: header doesn't build standalone: linux/romfs_fs.h
-WARNING: header doesn't build standalone: linux/root_dev.h
-WARNING: header doesn't build standalone: linux/rose.h
-WARNING: header doesn't build standalone: linux/rtnetlink.h
-WARNING: header doesn't build standalone: linux/rwsem-spinlock.h
-WARNING: header doesn't build standalone: linux/scc.h
-WARNING: header doesn't build standalone: linux/sctp.h
-WARNING: header doesn't build standalone: linux/sdla_asy.h
-WARNING: header doesn't build standalone: linux/sdla_chdlc.h
-WARNING: header doesn't build standalone: linux/sdla_fr.h
-WARNING: header doesn't build standalone: linux/sdla_ppp.h
-WARNING: header doesn't build standalone: linux/sdla_x25.h
-WARNING: header doesn't build standalone: linux/sdladrv.h
-WARNING: header doesn't build standalone: linux/selection.h
-WARNING: header doesn't build standalone: linux/sem.h
-WARNING: header doesn't build standalone: linux/serial.h
-WARNING: header doesn't build standalone: linux/serial167.h
-WARNING: header doesn't build standalone: linux/serial_core.h
-WARNING: header doesn't build standalone: linux/shm.h
-WARNING: header doesn't build standalone: linux/shmem_fs.h
-WARNING: header doesn't build standalone: linux/smb.h
-WARNING: header doesn't build standalone: linux/smb_fs.h
-WARNING: header doesn't build standalone: linux/smb_fs_sb.h
-WARNING: header doesn't build standalone: linux/smb_mount.h
-WARNING: header doesn't build standalone: linux/stallion.h
-WARNING: header doesn't build standalone: linux/sunrpc/clnt.h
-WARNING: header doesn't build standalone: linux/sunrpc/gss_api.h
-WARNING: header doesn't build standalone: linux/sunrpc/gss_asn1.h
-WARNING: header doesn't build standalone: linux/sunrpc/msg_prot.h
-WARNING: header doesn't build standalone: linux/sunrpc/name_lookup.h
-WARNING: header doesn't build standalone: linux/sunrpc/rpc_pipe_fs.h
-WARNING: header doesn't build standalone: linux/swapops.h
-WARNING: header doesn't build standalone: linux/synclink.h
-WARNING: header doesn't build standalone: linux/sysfs.h
-WARNING: header doesn't build standalone: linux/sysrq.h
-WARNING: header doesn't build standalone: linux/sysv_fs.h
-WARNING: header doesn't build standalone: linux/tcp_diag.h
-WARNING: header doesn't build standalone: linux/times.h
-WARNING: header doesn't build standalone: linux/trdevice.h
-WARNING: header doesn't build standalone: linux/tty_driver.h
-WARNING: header doesn't build standalone: linux/tty_flip.h
-WARNING: header doesn't build standalone: linux/udf_fs_i.h
-WARNING: header doesn't build standalone: linux/udf_fs_sb.h
-WARNING: header doesn't build standalone: linux/ufs_fs_i.h
-WARNING: header doesn't build standalone: linux/uinput.h
-WARNING: header doesn't build standalone: linux/umem.h
-WARNING: header doesn't build standalone: linux/umsdos_fs.h
-WARNING: header doesn't build standalone: linux/un.h
-WARNING: header doesn't build standalone: linux/usb_gadget.h
-WARNING: header doesn't build standalone: linux/usbdevice_fs.h
-WARNING: header doesn't build standalone: linux/utime.h
-WARNING: header doesn't build standalone: linux/video_decoder.h
-WARNING: header doesn't build standalone: linux/video_encoder.h
-WARNING: header doesn't build standalone: linux/vt_buffer.h
-WARNING: header doesn't build standalone: linux/watchdog.h
-WARNING: header doesn't build standalone: linux/writeback.h
-WARNING: header doesn't build standalone: linux/x25.h
-WARNING: header doesn't build standalone: linux/zorro.h
+First version of the script.  Seems to work, but it catches a lot,
+maybe too much.
 
 Jörn
 
 -- 
-When in doubt, use brute force.
--- Ken Thompson
+"Error protection by error detection and correction."
+-- from a university class
+
+--- /dev/null	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.0-test5/scripts/checkheader.pl	2003-09-29 15:33:10.000000000 +0200
+@@ -0,0 +1,43 @@
++#!/usr/bin/perl -w
++use strict;
++
++my $normsymbols = "^\n"
++		. "lib/header.o:     file format elf32-i386\n"
++		. "\n"
++		. "SYMBOL TABLE:\n"
++		. "00000000 l    df \\*ABS\\*	00000000 header.c\n"
++		. "00000000 l    d  .text	00000000 \n"
++		. "00000000 l    d  .data	00000000 \n"
++		. "00000000 l    d  .bss	00000000 \n"
++		. "00000000 l    d  .comment	00000000 \n"
++		. "\n"
++		. "\n\$";
++
++#my @headers = ("linux/fs.h");
++my @headers = sort(split(/\n/, `(cd include/ && find linux -name "*.h")`));
++my $basename = "lib/header";
++
++foreach my $h (@headers) {
++	close(STDERR);
++	open(STDERR, ">", "$basename.err");
++
++	open(HC, '>', "$basename.c");
++	print(HC "#include <$h>\n");
++	close(HC);
++
++	# tests
++	if (system("make", "$basename.o") != 0) {
++		print("WARNING: header doesn't build standalone: $h\n");
++		next;
++	}
++
++	my $symbols = `objdump -t $basename.o`;
++	if ($symbols !~ /$normsymbols/) {
++		print("WARNING: Symbols may be declared: $h\n");
++	}
++} continue {
++	# cleanup
++	unlink("$basename.c");
++	unlink("$basename.err");
++	unlink("$basename.o");
++}
+--- linux-2.6.0-test5/Makefile~headercheck	2003-09-28 21:37:19.000000000 +0200
++++ linux-2.6.0-test5/Makefile	2003-09-29 15:31:13.000000000 +0200
+@@ -838,6 +838,9 @@
+ 		-name '*.[hcS]' -type f -print | sort \
+ 		| xargs $(PERL) -w scripts/checkincludes.pl
+ 
++headercheck:
++	$(PERL) scripts/checkheader.pl
++
+ versioncheck:
+ 	find * $(RCS_FIND_IGNORE) \
+ 		-name '*.[hcS]' -type f -print | sort \

@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbUADSsI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 13:48:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbUADSsH
+	id S262131AbUADSvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 13:51:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbUADSvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 13:48:07 -0500
-Received: from web8205.mail.in.yahoo.com ([203.199.70.126]:25508 "HELO
-	web8205.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S261967AbUADSsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 13:48:04 -0500
-Message-ID: <20040104184800.50182.qmail@web8205.mail.in.yahoo.com>
-Date: Sun, 4 Jan 2004 18:48:00 +0000 (GMT)
-From: =?iso-8859-1?q?Mr=20Amit=20Mehrotra?= <mehrotraamit@yahoo.co.in>
-Subject: Re: PROBLEM: PCMCIA in 2.6.0 and 2.4.23 not detecting card inserts.
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040104153438.B22480@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 4 Jan 2004 13:51:09 -0500
+Received: from amsfep13-int.chello.nl ([213.46.243.24]:9495 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262131AbUADSvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 13:51:05 -0500
+Subject: Re: gaim problems in 2.6.0
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040104172535.GA322@elf.ucw.cz>
+References: <20040104172535.GA322@elf.ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eJOMXURUhr907cMmBLTO"
+Message-Id: <1073242263.3764.6.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 04 Jan 2004 19:51:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I finally figured out a way to get grub to not report
-mem= to kernel. Thanks a bunch! Now my card insertions
-of Adaptec 1480A are recognized by the kernel.
 
-Amit
- --- Russell King <rmk+lkml@arm.linux.org.uk> wrote: >
-On Sun, Jan 04, 2004 at 02:37:55PM +0000, Mr Amit
-> Mehrotra wrote:
-> > Kernel command line: root=/dev/hda5 ro
-> mem=1048512K
->                                         
-> ^^^^^^^^^^^^
-> 
-> actually, I think this is your problem - you're
-> overriding the E820
-> memory map, and telling the kernel that anything
-> above 1048512K is
-> available for use.  Plainly this is not the case.
-> 
-> Please try booting without this argument.
-> 
-> -- 
-> Russell King
->  Linux kernel    2.6 ARM Linux   -
-> http://www.arm.linux.org.uk/
->  maintainer of:  2.6 PCMCIA      -
-> http://pcmcia.arm.linux.org.uk/
->                  2.6 Serial core 
+--=-eJOMXURUhr907cMmBLTO
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-________________________________________________________________________
-Yahoo! India Mobile: Download the latest polyphonic ringtones.
-Go to http://in.mobile.yahoo.com
+Hi,
+
+every since I started using 2.6; currently running 2.6.1-rc1 gaim fails
+to start, all it does it dump core. I haven't spend time on looking
+where though.
+
+Peter Zijlstra
+
+On Sun, 2004-01-04 at 18:25, Pavel Machek wrote:
+> Hi!
+>=20
+> I'm having bad problems with gaim... When I run gaim, my machine tends
+> to freeze hard (no blinking leds). I'm running vesafb -> that should
+> rule out X problems. Machine is rather strange pre-production athlon64
+> noteook, but I'm running 32-bit (on 32-bit kernel), and I can run gaim
+> under 2.4.X kernel.
+>=20
+> [Ugh, I was running with kgdb, but I recall same problem before, too.]
+>=20
+> Does anyone have similar problem?
+> 								Pavel
+
+--=-eJOMXURUhr907cMmBLTO
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/+GCXtCb2m4B45HIRAvVfAJoD95lrVwRciHFheJP4/HcZkuivbgCfRbLe
+RXcJlIAVuYjgGlYQFsv9ZiM=
+=g5ME
+-----END PGP SIGNATURE-----
+
+--=-eJOMXURUhr907cMmBLTO--
+

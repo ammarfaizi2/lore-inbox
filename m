@@ -1,58 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292409AbSB0Nx2>; Wed, 27 Feb 2002 08:53:28 -0500
+	id <S292458AbSB0OFy>; Wed, 27 Feb 2002 09:05:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292464AbSB0NxT>; Wed, 27 Feb 2002 08:53:19 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:43395 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S292339AbSB0NxG>;
-	Wed, 27 Feb 2002 08:53:06 -0500
-Date: Wed, 27 Feb 2002 05:51:02 -0800 (PST)
-Message-Id: <20020227.055102.75257130.davem@redhat.com>
-To: linux-kernel@vger.kernel.org
-CC: jgarzik@mandrakesoft.com, linux-net@vger.kernel.org
-Subject: [BETA-0.92] Third test release of Tigon3 driver
-From: "David S. Miller" <davem@redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S292464AbSB0OFe>; Wed, 27 Feb 2002 09:05:34 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:6066 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S292458AbSB0OFX>; Wed, 27 Feb 2002 09:05:23 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200202271405.g1RE5EK15866@devserv.devel.redhat.com>
+Subject: Re: [PATCH] kernel 2.5.5 - coredump sysctl
+To: msinz@wgate.com (Michael Sinz)
+Date: Wed, 27 Feb 2002 09:05:14 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+In-Reply-To: <3C7CE025.15DD5CD4@wgate.com> from "Michael Sinz" at Feb 27, 2002 08:33:25 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> BTW - are you looking at merging this into your tree (2.5 and/or 2.4)?
+> I belive I can continue doing the patching here but it would be nice
+> to have this generally available as some people (consulting clients of mine)
+> don't want to run kernels that I build but only ones from RedHat...
 
-In the usual place:
+I still can't decide if its worth the extra complexity.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/davem/TIGON3/tg3-0.92.patch.gz
+I don't btw think the '/' is a big problem - only root can set the core
+dump path, and current->comm is the "true" name of the program so won't
+have a / in it
 
-Three changes of note:
-
-[FEATURE] Yay, real HW acceleration hooks in the 802.1q VLAN layer.
-	  Tigon3 takes advantage of it.
-[BUG FIX] Let tg3_read_partno fail, some boards do not provide the
-          information and it isn't critical to the operation of the
-	  driver.
-[BUG FIX] Minor bug in ETHTOOL_GREGS length handling.
-[CLEANUP] Use netif_carrier_{ok,on,off}() to keep track of link state.
-
-If people with real VLANs can try to get the HW acceleration stuff
-working, I'd really appreciate it.  Especially the person who (GASP)
-wanted us to put the tasteless NICE stuff into our driver. :-)
-
-Adding support to the Acenic driver should be pretty easy and I'll
-try to do that before catching some sleep.  Jeff could also probably
-cook up something quick for the e1000.
-
-As previously mentioned, I'm mainly interested in "works/doesn't work"
-reports at this point.  And please accompany the:
-
-eth1: Tigon3 [partno(BCM95700A6) rev 7102 PHY(5401)] (PCI:33MHz:64-bit) 10/100/1000BaseT Ethernet 00:04:76:2f:e2:d0
-
-kernel log message with your failure/success reports (and any other
-interesting messages our driver prints out :-).
-
-The current goal is to be feature complete and have no probe failures
-or known bugs in basic operation by 0.95, then fine tuning and
-performance work will be done from 0.96 till 1.0  Sometime after 0.95
-occurs I will push the driver to Marcelo and Linus.
-
-Thanks in advance for the testing.

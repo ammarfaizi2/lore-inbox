@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136388AbRD2WB6>; Sun, 29 Apr 2001 18:01:58 -0400
+	id <S136384AbRD2V7h>; Sun, 29 Apr 2001 17:59:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136387AbRD2WBh>; Sun, 29 Apr 2001 18:01:37 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:57888 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S136386AbRD2WBe>; Sun, 29 Apr 2001 18:01:34 -0400
-Date: Mon, 30 Apr 2001 01:01:15 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-Cc: Duncan Gauld <duncan@gauldd.freeserve.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: question regarding cpu selection
-Message-ID: <20010430010115.L3529@niksula.cs.hut.fi>
-In-Reply-To: <01042919075101.01335@pc-62-31-91-135-dn.blueyonder.co.uk> <20010429145608.A703@better.net> <20010429223641.K3529@niksula.cs.hut.fi> <01042921284803.01335@pc-62-31-91-135-dn.blueyonder.co.uk> <20010429233250.G3682@niksula.cs.hut.fi> <20010429231312.I24579@arthur.ubicom.tudelft.nl>
+	id <S136385AbRD2V71>; Sun, 29 Apr 2001 17:59:27 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:2861 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S136384AbRD2V7S>; Sun, 29 Apr 2001 17:59:18 -0400
+Subject: Re: #define HZ 1024 -- negative effects?
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: Jim Gettys <jg@pa.dec.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200104292144.f3TLiBD03874@pachyderm.pa.dec.com>
+In-Reply-To: <200104292144.f3TLiBD03874@pachyderm.pa.dec.com>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 29 Apr 2001 17:59:16 -0400
+Message-Id: <988581556.7879.2.camel@gromit>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010429231312.I24579@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Sun, Apr 29, 2001 at 11:13:12PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 29, 2001 at 11:13:12PM +0200, you [Erik Mouw] claimed:
-> On Sun, Apr 29, 2001 at 11:32:51PM +0300, Ville Herva wrote:
-> > On Sun, Apr 29, 2001 at 09:28:48PM -0400, you [Duncan Gauld] claimed:
-> > > I would supply a patch, but I don't know how to write such a thing :)
-> > 
-> > It seems Erik Mouw already submitted a patch, altough I agree that "Celeron
-> > II" might be a better name for the thing than "Celeron (Coppermine)".
+Great. I'm running 4.02. How do I enable "silken mouse"?
+
+Thanks,
+
+-Michael
+
+On 29 Apr 2001 14:44:11 -0700, Jim Gettys wrote:
+> The biggest single issue in GUI responsiveness on Linux has been caused
+> by XFree86's implementation of mouse tracking in user space.
 > 
-> So what about this one? This time I had to change Configure.help and
-> setup.c as well to reflect the changes in config.in :)
+> On typical UNIX systems, the mouse was often controlled in the kernel
+> driver.  Until recently (XFree86 4.0 days), the XFree86 server's reads
+> of mouse/keyboard events were not signal driven, so that if the X server
+> was loaded, the cursor stopped moving.
+> 
+> On most (but not all) current XFree86 implementations, this is now
+> signal drive, and further the internal X schedular has been reworked to
+> make it difficult for a single client to monopolize the X server.
+> 
+> So the first thing you should try is to make sure you are using an X server
+> with this "silken mouse" enabled; anotherwords, run XFree86 4.0x and make
+> sure the implementation has it enabled....
+> 
+> There may be more to do in Linux thereafter, but until you've done this, you
+> don't get to discuss the matter further....
+>                                       - Jim Gettys
+> 
+> --
+> Jim Gettys
+> Technology and Corporate Development
+> Compaq Computer Corporation
+> jg@pa.dec.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Hmm. I just checked Intel's web site (should've done so earlier), and it
-appears that Intel still dubs the new revision as "Celeron", although I'm
-sure it was introduced as CeleronII in some sources (try
-http://www.google.com/search?q=CeleronII). So I'll just have admit that your
-first patch was technically correct, and I was wrong. Sorry for the
-inconvenience.
-
-I still think "Celeron II" is clearer, but heaven knows what Intel will sell
-by that name three years from now (just think of i860).
-
-
--- v --
-
-v@iki.fi

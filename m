@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293656AbSCFAC4>; Tue, 5 Mar 2002 19:02:56 -0500
+	id <S293733AbSCFAF4>; Tue, 5 Mar 2002 19:05:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293676AbSCFACr>; Tue, 5 Mar 2002 19:02:47 -0500
-Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:59266 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S293656AbSCFACo>;
-	Tue, 5 Mar 2002 19:02:44 -0500
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of
-	BitKeeper by Linux Maintainers
-From: Kenneth Johansson <ken@canit.se>
-To: Michael Bernstein <bernstein.46@osu.edu>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Colin Walters <walters@debian.org>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-In-Reply-To: <002f01c1c49e$874c3580$1900a8c0@sirius>
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org>
-	<20020305154147.A6211@vger.timpanogas.org>
-	<1015368059.25841.12.camel@space-ghost>
-	<20020305230143.GB5538@matchmail.com> 
-	<002f01c1c49e$874c3580$1900a8c0@sirius>
-Content-Type: text/plain
+	id <S293728AbSCFAFq>; Tue, 5 Mar 2002 19:05:46 -0500
+Received: from [216.250.138.66] ([216.250.138.66]:19406 "HELO guts.pl.net")
+	by vger.kernel.org with SMTP id <S293676AbSCFAFk>;
+	Tue, 5 Mar 2002 19:05:40 -0500
+Message-ID: <3C856E33.80F01C9A@utah-nac.org>
+Date: Tue, 05 Mar 2002 18:17:39 -0700
+From: "Jeff V. Merkey" <jmerkey@utah-nac.org>
+Organization: Utah Native American Church
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kevin Brown <kobalt711@yahoo.com>
+CC: jgarzik@mandrakesoft.com, jmerkey@vger.timpanogas.org,
+        linux-kernel@vger.kernel.org, Opensource@mail.cis.ohio-state.edu
+Subject: [OFF- TOPIC]Re: Petition Against Official Endorsement of BitKeeper by 
+ Linux Maintainers
+In-Reply-To: <20020305235015.70549.qmail@web14208.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 06 Mar 2002 01:02:07 +0100
-Message-Id: <1015372927.2571.8.camel@tiger>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-03-06 at 00:36, Michael Bernstein wrote:
 
-> However, when a whole movement based
-> on the idea of creating non-proprietary software decides to utilize
-> proprietary software in order to better create free software, I feel that
-> there is some hypocrisy going on.  Rather then griping about the
-> shortcomings of CVS or various other solutions, wouldn't it be better to
-> create a non-proprietary solution to the problem?  
+Kevin,
 
-This movement you speak of is doing another kernel and I would agree
-with this petition in that context but linux has never been about
-anything else than doing cool things and sharing it with others.
+The comments you responded to were someone else's attached to the
+original post, but since you addressed me I'll respond.   These
+gentlemen were telling us what we should use and what we should think
+about their views of open source.   Those opinions are fine, but Alan
+and other folks bascially said it is a matter of personal choice and
+freedom.  I'm sorry that we are  advocates of freedom rather than
+mindless lumps of clay you can twist to your will.
 
-> Are we forgetting why
-> Linux is around and where it came from? 
+I have a lot of bugs to fix and code to get ready to post, and will not
+respond to this thread beyond this post.
 
-Apparently!
+Jeff
 
-> agreement.  Also, it's amazing to see what kinds of levels people will sink
-> to when a real issue is brought forth.  The whole osu nazi thing, touching.
 
-You are new to this list I see :) 
+Kevin Brown wrote:
 
+> I'm not terribly concerned about the issue at-hand,
+> here, but I am motivated by the level of idiocy that's
+> appearing in my inbox right now.
+>
+> > How do they have any business telling me what to
+> advocate?
+> > That doesn't sound like free speech nor free thought
+> to me.
+>
+> I'm not sure free speech or free thought was at stake
+> here, Jeffs; the topic
+> was whether the use of bitkeeper compromised open
+> source ideology.  Colin
+> (and certain members of the club) were voicing their
+> concerns in a
+> professional manner.  Reducing that concern in an
+> altruistic shriek against
+> national socialism and your "violated freedoms" is a
+> bit simple-minded.
+> Your refusal to receive the petition in an
+> argumentative way is indicative
+> of *your* inability to exchange ideas.
+>
+> Mr. Merkey, I think you're better off continuing to
+> hand your two cents over
+> to Novell in the future.
+>
+> Cheers,
+>
+> Kevin
+>
+> __________________________________________________
+> Do You Yahoo!?
+> Try FREE Yahoo! Mail - the world's greatest free email!
+> http://mail.yahoo.com/
 

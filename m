@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263951AbTDHIBf (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 04:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263952AbTDHIBf (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 04:01:35 -0400
-Received: from mario.gams.at ([194.42.96.10]:18296 "EHLO mario.gams.at")
-	by vger.kernel.org with ESMTP id S263951AbTDHIBe convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 04:01:34 -0400
-X-Mailer: exmh version 2.6.1 18/02/2003 with nmh-1.0.4
-From: Bernd Petrovitsch <bernd@gams.at>
-To: Miles Bader <miles@gnu.org>
-cc: Daniel Egger <degger@fhm.edu>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       linux-mtd@lists.infradead.org
-Subject: Re: [ANNOUNCE] New kernel tree for embedded linux 
-References: <1049786306.27774.87.camel@localhost> 
-In-reply-to: Your message of "08 Apr 2003 09:18:27 +0200."
-             <1049786306.27774.87.camel@localhost> 
-X-url: http://www.luga.at/~bernd/
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 08 Apr 2003 10:12:39 +0200
-Message-ID: <1358.1049789559@frodo.gams.co.at>
+	id S263950AbTDHIDw (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 04:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263952AbTDHIDw (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 04:03:52 -0400
+Received: from grunt5.ihug.co.nz ([203.109.254.45]:55006 "EHLO
+	grunt5.ihug.co.nz") by vger.kernel.org with ESMTP id S263950AbTDHIDu (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 04:03:50 -0400
+Message-ID: <002501c2fe57$3dfb3b80$0b721cac@stacy>
+From: "dave" <davekern@ihug.co.nz>
+To: <linux-kernel@vger.kernel.org>
+Subject: help writing file system 
+Date: Tue, 8 Apr 2003 22:16:53 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 1
+X-MSMail-Priority: High
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Egger <degger@fhm.edu> wrote:
->Am Die, 2003-04-08 um 06.38 schrieb Miles Bader:
->
->> How about dealing with uClinux?  That's almost entirely embedded
->> systems.
+i am writing a 2.4.x device driver LNVRM I was going to use proc for debug
+and interface
+But proc dose not support report files because it dose not have OPEN and
+RELASE functions
 
-IMHO uClinux is a workaround the problem that the standard kernel 
-needs a 32bit CPU and a MMU.
+My report files work like this
+    1. OPEN
+        Memory is allocated and status information is loaded into the memory
+    2. READ
+        Normal read of the memory (report)
+    5. RELASE
+        The report memory is freed
 
->... without MMU. If you have one you better use it.
+so now I want my driver when is starts to make an mount point in /proc/lnvrm
+and then
+auto mount my FS also my FS will have whatever status info and a fixed file
+in it called
+device witch will be a char device node witch will point to my auto assigned
+mayor / minor
+number  I do not want to use 2.4.x vdev as this way just dose it all in one
 
-Absolutely ACK. Especially since "embedded systems" nowadays may come 
-with integrated (net-)snmp agents, a web server+CGI scripts or some 
-pseudo-shell for configuration, image download via tftp/ftp/http/
-[xyz]modem, etc.
-Then you want to use a MMU and try to convince product mgmt/whoever
-to get a MMU on the device.
+I have done proc code before but run into lots of brick wills I guest I need
+to know
+1. how do you make a mount point in /proc ?
+2. how do you auto mount that point ?
+3     how do you make a device node in proc ? (I wont use this but it is
+interesting to me)
 
-	Bernd
--- 
-Bernd Petrovitsch                              Email : bernd@gams.at
-g.a.m.s gmbh                                  Fax : +43 1 205255-900
-Prinz-Eugen-Straﬂe 8                    A-1040 Vienna/Austria/Europe
-                     LUGA : http://www.luga.at
+also I have written a read / write FS before but this was mainly by locking
+at outer peoples work
+is there some relay good info on writing a linux FS for free download ? (no
+I don't have any CC's)
+
+
+thank you
+
 
 

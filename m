@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbTEIVLY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 17:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTEIVLY
+	id S263467AbTEIVPt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 17:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTEIVPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 17:11:24 -0400
-Received: from siaab2ab.compuserve.com ([149.174.40.130]:2473 "EHLO
-	siaab2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S263462AbTEIVLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 17:11:23 -0400
-Date: Fri, 9 May 2003 17:22:04 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: The disappearing sys_call_table export.
-To: "root@chaos.analogic.com" <root@chaos.analogic.com>
-Cc: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <200305091723_MC3-1-3834-B648@compuserve.com>
-MIME-Version: 1.0
+	Fri, 9 May 2003 17:15:49 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:1118 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S263467AbTEIVPs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 17:15:48 -0400
+Subject: Re: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <randy.dunlap@verizon.net>
+In-Reply-To: <20030509140727.77d697cc.akpm@digeo.com>
+References: <1052323940.2360.7.camel@diemos>
+	 <1052336482.2020.8.camel@diemos> <20030507152856.2a71601d.akpm@digeo.com>
+	 <1052402187.1995.13.camel@diemos> <20030508122205.7b4b8a02.akpm@digeo.com>
+	 <1052503920.2093.5.camel@diemos>  <20030509140727.77d697cc.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052515722.2024.21.camel@diemos>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 09 May 2003 16:28:42 -0500
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tinfoil Hat wrote:
+On Fri, 2003-05-09 at 16:07, Andrew Morton wrote:
 
-> Microsoft installed Magic Lantern software within
-> the kernel and within all software updates, (service Pack 2 of
-> Win/2000/Prof as part of their deal with the Justice Department
-> when our attention was diverted after 9/11.
+> Well I'm darned if I can see a thing wrong there.  Are you using
+> ieee1394, or USB, or any fancy networking features?
 
- SP2 was released on 4 May 2001 and installed on this computer on
-15 May 2001.  :)
+ieee1394 is disabled, pretty basic network options
+(started from make defconfig)
+
+See my reponse to Arnd Bergmann for more details.
+I'm not thoroughly convinced it's USB either.
+I'm still collecting info and testing different versions
+to try and piece this together.
+
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+
+

@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbVDAPYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbVDAP0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbVDAPYa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbVDAPY3
+	id S262769AbVDAP0I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 10:26:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVDAPYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:24:29 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:23055 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262770AbVDAPYH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:24:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=TakCTyZnRG96hQoqMj9uQqiB5/LhavWdW9ojU+lbaiinc/Pfi98vuZZWVT8Mnl/2n6kbXge4qhhAWW3TFab9++Pa/dca8+9NqUzr0fJrxFXgJ7r2DxSCFU3MNTZ0EfWXwlNLfeN+k059IfTYDfzfgp+Pvgvcr7LwBug0zm1cgIQ=
-Message-ID: <d120d500050401072423259b6d@mail.gmail.com>
-Date: Fri, 1 Apr 2005 10:24:06 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: linux-os@analogic.com
-Subject: Re: [RFC] : remove unreliable, unused and unmainained arch from kernel.
-Cc: Renate Meijer <kleuske@xs4all.nl>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0504011001550.13262@chaos.analogic.com>
+	Fri, 1 Apr 2005 10:24:42 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:16132 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262771AbVDAPYO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 10:24:14 -0500
+Date: Sat, 2 Apr 2005 01:23:25 +1000
+To: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org
+Subject: Re: [RFC] CryptoAPI & Compression
+Message-ID: <20050401152325.GB4150@gondor.apana.org.au>
+References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <11123574931907@2ka.mipt.ru>
-	 <Pine.LNX.4.61.0504010805130.12910@chaos.analogic.com>
-	 <f3db21ceb79616110118e303fe9a5db2@xs4all.nl>
-	 <Pine.LNX.4.61.0504011001550.13262@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 1, 2005 10:16 AM, Richard B. Johnson <linux-os@analogic.com> wrote:
-> On Fri, 1 Apr 2005, Renate Meijer wrote:
+On Fri, Apr 01, 2005 at 03:36:23PM +0100, Artem B. Bityuckiy wrote:
 > 
-> >
-> > On Apr 1, 2005, at 3:09 PM, linux-os wrote:
-> >
-> >>
-> >> [PATCH snipped]
-> >>
-> >> Cruel joke. Now 80 percent of the Intel clones won't boot.
-> >> Those are the ones that run industry, you know, the stuff that
-> >> is necessary to earn money.
-> >>
-> >> Without i386 support, you don't have any embedded systems. You
-> >> need to use the garbage Motorola CPUs and the proprietary
-> >> operating systems in embedded stuff.
-> >
-> > Have you checked your calender yet?
-> >
-> I'm quite aware of the date and time, thank you. The 'i386 architecture
-> is the Intel-like stuff that doesn't have all the newer gee-whiz
-> things that are of little value in the embedded area.
-...
-> So, basically, you guys think you can single-handedly
-> remove Linux from the embedded market and re-do it just
-> for servers? Or are you going to leave some capability
-> for desk-tops, too?
+> In our code we do zlib_deflate(stream, Z_SYNC_FLUSH), so we always flush 
+> the output. So the final zlib_deflate(stream, Z_FINISH) requires 1 byte 
+> for the EOB marker and 4 bytes for adler32 (5 bytes total). Thats all. If 
+> we compress a huge buffer, then we still need to output those 5 bytes as 
+> well. I.e, the overhead of each block *is not accumulated* ! I even need 
+> to make the reserved space less then 12 bytes!
 
-Please check the calendar again. Don't worry about the year part,
-concentrate on the month and day... ;)
+I thought stored blocks (incompressible blocks) were limited to 64K
+in size, no? Please double check zlib_deflate/deflate.c and
+zlib_deflate/deftree.c.
 
+Cheers,
 -- 
-Dmitry
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

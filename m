@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbUBHJIo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 04:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbUBHJIo
+	id S262965AbUBHJJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 04:09:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUBHJJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 04:08:44 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:48878 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S262913AbUBHJIm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 04:08:42 -0500
-Date: Sun, 8 Feb 2004 01:08:30 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Francis, Chong Chan Fai" <francis.ccf@polyu.edu.hk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB 2.0 mass storage problem
-Message-ID: <20040208090830.GC18674@srv-lnx2600.matchmail.com>
-Mail-Followup-To: "Francis, Chong Chan Fai" <francis.ccf@polyu.edu.hk>,
-	linux-kernel@vger.kernel.org
-References: <20040208063447.GB18674@srv-lnx2600.matchmail.com> <200402080657.i186v7p10163@mailgate01.ctimail.com>
+	Sun, 8 Feb 2004 04:09:16 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:64004 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262965AbUBHJJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 04:09:13 -0500
+Date: Sun, 8 Feb 2004 10:08:54 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Len Brown <len.brown@intel.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BKPATCH] ACPI for 2.4
+Message-ID: <20040208090854.GE29363@alpha.home.local>
+References: <1076145024.8687.32.camel@dhcppc4> <20040208082059.GD29363@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200402080657.i186v7p10163@mailgate01.ctimail.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040208082059.GD29363@alpha.home.local>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 08, 2004 at 02:58:17PM +0800, Francis, Chong Chan Fai wrote:
-> > Probably a problem with pcmcia.
-> 
-> > I've used a usb 2.0 pci card, but the cpu usage is so high that it's just
-> as
-> > fast as the same card using the uhci-hcd driver -- and uhci uses *much*
-> > less cpu.
-> 
-> Thank you for your reply.
-> 
-> I don't have the performance problem with USB2.0, it read a file lightning
-> fast (compare with USB 1.0), but just hang shortly after a few files.
+Replying to myself...
 
-It was a pII 300... not a dino, but getting old.
-
+On Sun, Feb 08, 2004 at 09:20:59AM +0100, Willy Tarreau wrote:
 > 
-> I using USB 1.0 as a work around, but my disk is 120G and the speed is
-> terrible.
-> 
-> Because the command " lspci " show the PCMCIA bus correctly, I didn't
-> thought it could be a problem. If it is the case, what can I do? 
+> So I've added printk's into acpi_power_off(), and I see that the system
+> doesn't return from acpi_enter_sleep_state_prep(S5), which itself hangs
+> on the call to acpi_evaluate_object(NULL, "\\_PTS",...). If I comment
+> out this line, it now goes on through the next calls, then normally leaves
+> acpi_enter_sleep_state_prep(), then powers off correctly.
 
-Can you run "dd < /dev/sda > /dev/null" on the usb drive without a hang/crash?
+Searching for _PTS on google directed me to the ACPI spec. I found in
+section 9 that _PTS (prepare to sleep) is only used for S1-S4, but 9.1.7
+says that it should be called for S5 too. I suspect that depending on the
+paragraph they read, hardware makers do or don't implement _PTS(S5) correctly
+:-/ BTW, 9.1.5 says that "S5 is not a sleeping state, but a G2 state". So it
+might seem logical not to call something named "prepare to sleep" in this
+case.
 
-Turn on the nmi_watchdog.  There is documentation in the kernel source
-tree, and on the web...
+I checked the last working version. It was acpi-030424 + the two little
+patches I sent to you at this time and which were merged. This version
+called _PTS and _GTS in acpi_enter_sleep_state_prep(), while now we call
+_PTS, _GTS, and _SI._SST. So I'm amazed that in previous version, _PTS
+worked and that it does not anymore !
+
+Regards,
+Willy
+

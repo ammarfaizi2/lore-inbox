@@ -1,104 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129588AbQKXVed>; Fri, 24 Nov 2000 16:34:33 -0500
+        id <S129518AbQKXVhn>; Fri, 24 Nov 2000 16:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130134AbQKXVeY>; Fri, 24 Nov 2000 16:34:24 -0500
-Received: from pc101-gui2.cable.ntl.com ([62.252.3.101]:48912 "EHLO
-        cyberelk.elk.co.uk") by vger.kernel.org with ESMTP
-        id <S129588AbQKXVeK>; Fri, 24 Nov 2000 16:34:10 -0500
-Date: Fri, 24 Nov 2000 21:04:00 +0000
-From: Tim Waugh <tim@cyberelk.demon.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] 2.2.18pre23: user access checking in pipe_read/pipe_write
-Message-ID: <20001124210400.A27115@cyberelk.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+        id <S130154AbQKXVhd>; Fri, 24 Nov 2000 16:37:33 -0500
+Received: from [209.143.110.29] ([209.143.110.29]:39947 "HELO
+        mail.the-rileys.net") by vger.kernel.org with SMTP
+        id <S129518AbQKXVhX>; Fri, 24 Nov 2000 16:37:23 -0500
+Message-ID: <3A1ED883.9AD8136A@the-rileys.net>
+Date: Fri, 24 Nov 2000 16:07:15 -0500
+From: David Riley <oscar@the-rileys.net>
+X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.6-15apmac ppc)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        linuxppc-dev@lists.linuxppc.org
+Subject: asm-ppc/elf.h error
+Content-Type: multipart/mixed;
+ boundary="------------418C4271965BDC49095F50E4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is an untested patch intended to fix the following behaviour:
+This is a multi-part message in MIME format.
+--------------418C4271965BDC49095F50E4
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-$ cat a.c
-#include <unistd.h>
-int main (int argc, char **arghhh)
-{
-  int fd[2];
-  pipe (fd);
-  write (fd[1], NULL, 1);
-}
-$ gcc -o a a.c
-$ strace -ewrite ./a
-write(4, NULL, 1)                       = 1
-$ 
+In asm-ppc/elf.h, <asm/types.h> is not included.  This breaks
+compilations of anything that compiles it (e.g. binutils) because the
+vector registers for Altivec aren't defined elsewhere.  Included is a
+quick diff.  I didn't know which PPC maintainer to send this to, so I
+posted it to the linuxppc-dev list.
 
-Tim.
-*/
+Thanks,
+	David
+--------------418C4271965BDC49095F50E4
+Content-Type: text/plain; charset=us-ascii;
+ name="elf.h.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="elf.h.diff"
 
---- linux-2.2.18pre23/fs/pipe.c.cfu	Fri Nov 24 20:55:11 2000
-+++ linux-2.2.18pre23/fs/pipe.c	Fri Nov 24 21:00:11 2000
-@@ -31,7 +31,7 @@
- 			 size_t count, loff_t *ppos)
- {
- 	struct inode * inode = filp->f_dentry->d_inode;
--	ssize_t chars = 0, size = 0, read = 0;
-+	ssize_t chars = 0, size = 0, read = 0, err = 0;
-         char *pipebuf;
+--- linux/include/asm-ppc/elf.h.old	Fri Nov 24 15:42:44 2000
++++ linux/include/asm-ppc/elf.h	Fri Nov 24 15:43:54 2000
+@@ -4,6 +4,7 @@
+ /*
+  * ELF register definitions..
+  */
++#include <linux/config.h>
+ #include <asm/ptrace.h>
  
+ #define ELF_NGREG	48	/* includes nip, msr, lr, etc. */
+@@ -25,9 +26,11 @@
+ typedef double elf_fpreg_t;
+ typedef elf_fpreg_t elf_fpregset_t[ELF_NFPREG];
  
-@@ -67,11 +67,14 @@
- 			chars = size;
- 		read += chars;
-                 pipebuf = PIPE_BASE(*inode)+PIPE_START(*inode);
-+		if (copy_to_user(buf, pipebuf, chars )) {
-+			err = -EFAULT;
-+			break;
-+		}
- 		PIPE_START(*inode) += chars;
- 		PIPE_START(*inode) &= (PIPE_BUF-1);
- 		PIPE_LEN(*inode) -= chars;
- 		count -= chars;
--		copy_to_user(buf, pipebuf, chars );
- 		buf += chars;
- 	}
- 	PIPE_LOCK(*inode)--;
-@@ -80,9 +83,9 @@
- 		UPDATE_ATIME(inode);
- 		return read;
- 	}
--	if (PIPE_WRITERS(*inode))
-+	if (!err && PIPE_WRITERS(*inode))
- 		return -EAGAIN;
--	return 0;
-+	return err;
- }
- 	
- static ssize_t pipe_write(struct file * filp, const char * buf,
-@@ -109,7 +112,7 @@
- 		down(&inode->i_sem);
- 		return -ERESTARTSYS;
- 	}
--	while (count>0) {
-+	while (count>0 && !err) {
- 		while ((PIPE_FREE(*inode) < free) || PIPE_LOCK(*inode)) {
- 			if (!PIPE_READERS(*inode)) { /* no readers */
- 				send_sig(SIGPIPE,current,0);
-@@ -134,10 +137,13 @@
- 			if (chars > free)
- 				chars = free;
-                         pipebuf = PIPE_BASE(*inode)+PIPE_END(*inode);
-+			if (copy_from_user(pipebuf, buf, chars )) {
-+				err = -EFAULT;
-+				break;
-+			}
- 			written += chars;
- 			PIPE_LEN(*inode) += chars;
- 			count -= chars;
--			copy_from_user(pipebuf, buf, chars );
- 			buf += chars;
- 		}
- 		PIPE_LOCK(*inode)--;
++#ifdef CONFIG_ALTIVEC
+ /* Altivec registers */
+ typedef __vector128 elf_vrreg_t;
+ typedef elf_vrreg_t elf_vrregset_t[ELF_NVRREG];
++#endif
+ 
+ #ifdef __KERNEL__
+ 
+
+--------------418C4271965BDC49095F50E4--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

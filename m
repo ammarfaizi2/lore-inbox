@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135364AbRAGWW5>; Sun, 7 Jan 2001 17:22:57 -0500
+	id <S135304AbRAGWY1>; Sun, 7 Jan 2001 17:24:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135304AbRAGWWs>; Sun, 7 Jan 2001 17:22:48 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:27155 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135658AbRAGWWd>; Sun, 7 Jan 2001 17:22:33 -0500
-Message-ID: <3A58EC10.4C99F976@transmeta.com>
-Date: Sun, 07 Jan 2001 14:22:08 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S135780AbRAGWYR>; Sun, 7 Jan 2001 17:24:17 -0500
+Received: from inje.iskon.hr ([213.191.128.16]:42251 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S135304AbRAGWX6>;
+	Sun, 7 Jan 2001 17:23:58 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] mm-cleanup-1 (2.4.0)
+In-Reply-To: <Pine.LNX.4.21.0101071917250.21675-100000@duckman.distro.conectiva>
+Reply-To: zlatko@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko@iskon.hr>
+Date: 07 Jan 2001 23:23:38 +0100
+In-Reply-To: Rik van Riel's message of "Sun, 7 Jan 2001 19:18:31 -0200 (BRDT)"
+Message-ID: <873dev57dh.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Peisino,Ak(B)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Cyrix III boot fix and bug report
-In-Reply-To: <E14FNek-0003Nt-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Rik van Riel <riel@conectiva.com.br> writes:
+
+> On 7 Jan 2001, Zlatko Calusic wrote:
 > 
-> > (Could this code have been written by someone who was confused between
-> > MSR 0x80000001 and CPUID 0x80000001?)
+> > OK, maybe I was too fast in concluding with that change. I'm
+> > still trying to find out why is MM working bad in some
+> > circumstances (see my other email to the list).
+> > 
+> > Anyway, I would than suggest to introduce another /proc entry
+> > and call it appropriately: max_async_pages. Because that is what
+> > we care about, anyway. I'll send another patch.
 > 
-> It looks like thats what happened. The docs say it has 3dnow and mmx but
-> I think your diagnosis is correct
+> In fact, that's NOT what we care about.
+> 
+> What we really care about is the number of disk seeks
+> the VM subsystem has queued to disk, since it's seek
+> time that causes other requests to suffer bad latency.
+> 
 
-Especially since it's bit 31 in EDX.  I don't think Cyrixi uses MSRs in
-the 0x8000xxxx range.  I bet this should have been CPUID.
+Yes, but that's not what we have in the code now. I'm just trying to
+make it little easier for the end user to tune his system. Right now
+things are quite complicated and misleading for the uninitiated.
 
-I suspect that that whole code should look more like this.  The MSR
-access shouldn't have any effect on the extended CPUID flags, so that
-shouldn't need to be there at all, unless there are Cyrix III's out there
-which fail to report it in CPUID.
+If we are to optimize things better in the future, then be it, but I
+would like first to clean some historical cruft.
 
-	-hpa
-
-	case 6: /* Cyrix III */
-		rdmsr (0x1107, lo, hi);
-		lo |= (1<<1 | 1<<7);    /* Report CX8 & enable PGE */
-                wrmsr (0x1107, lo, hi);
-
-		/* Update the feature flags to include just revealed ones */
-		c->x86_capability[0] = cpuid_edx(1);
-
-		get_model_name(c);
-		display_cacheinfo(c);
-                break;
-
-
+I'm a quite pedantical guy, you know. :)
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Zlatko
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267655AbTGHU7m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 16:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbTGHU7m
+	id S267638AbTGHU6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 16:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267642AbTGHU6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 16:59:42 -0400
-Received: from adicia.telenet-ops.be ([195.130.132.56]:17575 "EHLO
-	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S267655AbTGHU7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 16:59:39 -0400
-Date: Tue, 8 Jul 2003 23:16:22 +0200
-From: Vincent Touquet <vincent.touquet@pandora.be>
-To: Vincent Touquet <vincent.touquet@pandora.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug report] System lockups on Tyan S2469 and lots of io [smp boot time problems too :(]
-Message-ID: <20030708211621.GB17673@ns.mine.dnsalias.org>
-Reply-To: vincent.touquet@pandora.be
-References: <20030706210243.GA25645@lea.ulyssis.org> <20030707124747.GF7233@ns.mine.dnsalias.org>
+	Tue, 8 Jul 2003 16:58:16 -0400
+Received: from outbound04.telus.net ([199.185.220.223]:8950 "EHLO
+	priv-edtnes15-hme0.telusplanet.net") by vger.kernel.org with ESMTP
+	id S267638AbTGHU6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 16:58:16 -0400
+Subject: SBP2 and IEEE1394 in 2.5.74
+From: Bob Gill <gillb4@telusplanet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057698811.6911.8.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030707124747.GF7233@ns.mine.dnsalias.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 08 Jul 2003 15:13:31 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another way to lockup the system:
-dd if=/dev/zero of=/array/file bs=1024k count=10000
+I have at long last had reasonable success building 2.5.74 (I configured
+ACPI out, and along with it went scheduling_while_atomic).  The only
+issue now is firewire, specifically modules SBP2 and IEEE1394.  I looked
+at the source and found it to be amazingly small (not many files and
+none larger that about 30 bytes).  Is there any timeline when these will
+be joining the kernel?  I would switch over to using 2.5.X tomorrow if
+these could be completed/working.  Is there a 2.4.X retrograde patch
+that could be applied to make these work before the complete 2.5.X
+version is completed?  Thanks,
 
-So now I didn't even use any code that came near ide
-(unless you take into account swapping ?)
+Bob
 
-The process ends again in a hangup:
-Jul  8 22:54:55 kalimero kernel: 3w-xxxx: scsi0: AEN drain failed,
-retrying.
-Jul  8 22:54:55 kalimero kernel: 3w-xxxx: scsi0: Controller errors, card
-not responding, check all cabling.
-Jul  8 22:54:55 kalimero kernel: 3w-xxxx: scsi0: Reset sequence failed.
-Jul  8 22:54:55 kalimero kernel: 3w-xxxx: scsi0: Unit #0: Command
-(f7c1cc00) timed out, resetting card.
+-- 
+Bob Gill <gillb4@telusplanet.net>
 
-Some interesting bits in the traces show the scsi being in a limbo:
-Jul  8 22:54:55 kalimero kernel: kupdated      D 00000046  5052     7
-1             8     6 (L-TLB)
-Jul  8 22:54:55 kalimero kernel: Call Trace:
-[call_reschedule_interrupt+5/11] [__down+192/352] [__down_failed+11/20]
-[.text.lock.super+279/518] [sync_old_buffers+102/336]
-Jul  8 22:54:55 kalimero kernel:   [kupdate+418/480] [kupdate+0/480]
-[arch_kernel_thread+46/64] [kupdate+0/480]
-Jul  8 22:54:55 kalimero kernel: scsi_eh_0     R F7C64080  5760     8
-1             9     7 (L-TLB)
-Jul  8 22:54:55 kalimero kernel: Call Trace:
-[tw_scsi_eh_abort+504/768] [scsi_try_to_abort_command+136/208]
-[__down_interruptible+373/416]
-[scsi_unjam_host+2045/2672] [scsi_error_handler+376/608]
-Jul  8 22:54:55 kalimero kernel:   [arch_kernel_thread+46/64]
-[scsi_error_handler+0/608]
-
-And of course the dd process is in state 'D'...
-
-I should start browsing the sources for these scsi_* functions.
-
-I would really like to know if I'm looking at a software or a hardware
-issue here.
-
-best regards,
-
-Vincent

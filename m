@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318069AbSGWO2M>; Tue, 23 Jul 2002 10:28:12 -0400
+	id <S318072AbSGWObV>; Tue, 23 Jul 2002 10:31:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318071AbSGWO2M>; Tue, 23 Jul 2002 10:28:12 -0400
-Received: from letterman.noris.net ([62.128.1.26]:37505 "EHLO
-	letterman.noris.net") by vger.kernel.org with ESMTP
-	id <S318069AbSGWO2M>; Tue, 23 Jul 2002 10:28:12 -0400
+	id <S318073AbSGWObV>; Tue, 23 Jul 2002 10:31:21 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:57018 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S318072AbSGWObT>; Tue, 23 Jul 2002 10:31:19 -0400
+Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
+From: Steven Cole <elenstev@mesatop.com>
+To: Craig Kulesa <ckulesa@as.arizona.edu>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Ed Tomlinson <tomlins@cam.org>
+In-Reply-To: <Pine.LNX.4.44.0207221520301.14311-100000@loke.as.arizona.edu>
+References: <Pine.LNX.4.44.0207221520301.14311-100000@loke.as.arizona.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 23 Jul 2002 08:31:05 -0600
+Message-Id: <1027434665.12588.78.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Message-Id: <p05111700b963180b03ed@[10.2.6.42]>
-Date: Tue, 23 Jul 2002 16:31:04 +0200
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@noris.de>
-Subject: Re: using bitkeeper to backport subsystems?
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars:
->   Larry McVoy <lm@bitmover.com> said:
->  > Thanks, we agree completely.  It's actually an impossible problem
->  > for a program since it requires semantic knowledge of the content
->  > under revision control.
->
->  So, another option would be to have the developer define explicit 
->dependencies
->  for his changesets, but I fear that might prove to cumbersome, too.
->
-If you spend the effort to do _that_, you might as well clone your BK 
-tree and prune it back to a state which conceivably has only the 
-changes which you depend on.
+On Mon, 2002-07-22 at 16:36, Craig Kulesa wrote:
+> 
+> On Mon, 22 Jul 2002, William Lee Irwin III wrote:
+> 
+> > The pte_chain mempool was ridiculously huge and the use of mempool for
+> > this at all was in error.
+> 
+[snipped]
+> 
+> in dquot.c.  It'll be tested and fixed on the next go. :)
 
-Another problem with that approach, however, is that if everybody 
-does it then the kernel's version tree, as evident in "bk revtool", 
-gets totally unreadable. It is already an order of magnitude too 
-complicated.  :-(
+1st the good news.  The 2.5.27-rmap-2b-dqcache patch fixed the compile
+problem with CONFIG_QUOTA=y.
 
--- 
-Matthias Urlichs
+Then, I patched in 2.5.27-rmap-3-slaballoc from Craig's site and the
+test machine got much further in the boot, but hung up here:
+
+Starting cron daemon
+/etc/rc.d/rc3.d/S50inet: fork: Cannot allocate memory
+
+Sorry, no further information was available.
+
+Steven
+

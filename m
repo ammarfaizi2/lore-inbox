@@ -1,35 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUCKMwC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 07:52:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUCKMwC
+	id S261230AbUCKNAW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 08:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUCKNAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 07:52:02 -0500
-Received: from [202.125.86.130] ([202.125.86.130]:35735 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S261238AbUCKMwA convert rfc822-to-8bit (ORCPT
+	Thu, 11 Mar 2004 08:00:22 -0500
+Received: from athmta03.forthnet.gr ([193.92.150.22]:28266 "EHLO forthnet.gr")
+	by vger.kernel.org with ESMTP id S261230AbUCKNAQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 07:52:00 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: interruptible_sleep_on() from tasklet?
-X-MIMEOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Thu, 11 Mar 2004 18:18:15 +0530
-Message-ID: <1118873EE1755348B4812EA29C55A9721764AB@esnmail.esntechnologies.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: interruptible_sleep_on() from tasklet?
-Thread-Index: AcQHZx7BguI8Mq3SRrO66s1dSWWG+Q==
-From: "Jinu M." <jinum@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+	Thu, 11 Mar 2004 08:00:16 -0500
+Subject: Kernel panics on VIA motherboard with USB devices
+From: Emm Vasilakis <evas@agn.forthnet.gr>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1079010015.30872.12.camel@sylvester.rd.forthnet.gr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 11 Mar 2004 15:00:15 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hi all,
 
-Can we do interruptible_sleep_on or interruptible_sleep_on_timeout from a tasklet?
+I'm trying to get my new machine to work with Linux, but I'm having some
+problems.
 
-Regards,
--Jinu
+Machine specs:
+ASUS A7V600-X motherboard (KT600 & VIA 8237)
+Athlon XP 2400+
+512MB RAM
+WD 80G HD on primary IDE
+TV-Tuner (bt848)
+Initio UW-SCSI card
+Nvidia Ti 4200 gfx card
+
+I'm running gentoo linux, 2.4.25-pre kernel and the latest hotplug.
+
+The mobo has a total of 4 USB ports 2.0 at the back. The problem lies at
+the usb devices, and hotplug. 
+
+I have a usb bluetooth dongle connected, and a usb to serial adaptor.
+This setup gets me to KDE ok, and everything works, including some usb
+storage devices that I may plug during up-time.
+
+But, if I try to restart hotplug, I get kernel oops. From there on,
+pretty much everything will seg fault when I try to load it, I can not
+login to a console, and when the machine tries to reboot, it hangs.
+strace shows that apps hang when trying to access /dev/tty.
+
+Similar problems exist even with kernel 2.6.4. I have tried the same usb
+devices in 2 more similar PC's (with the same mobo), and all produce the
+same error. When more usb devices are connected at boot, things can lead
+to a total lockup during boot.
+
+Anyone has any ideas what I can do about this? Are there any known
+problems with VIA chips and linux? I have the results from ksymoops on
+those oop'ses at home, if anyone is interested, I can send them.
+
+Thanks,
+Emmanuel
+
+

@@ -1,73 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130287AbRAAD3e>; Sun, 31 Dec 2000 22:29:34 -0500
+	id <S130877AbRAADjy>; Sun, 31 Dec 2000 22:39:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130877AbRAAD3X>; Sun, 31 Dec 2000 22:29:23 -0500
-Received: from baldur.fh-brandenburg.de ([195.37.0.5]:16341 "HELO
-	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
-	id <S130287AbRAAD3Q>; Sun, 31 Dec 2000 22:29:16 -0500
-Date: Mon, 1 Jan 2001 03:50:45 +0100 (MET)
-From: Roman Zippel <zippel@fh-brandenburg.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Generic deferred file writing
-In-Reply-To: <Pine.LNX.4.10.10012311726230.1671-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.10.10101010332330.1050-100000@zeus.fh-brandenburg.de>
+	id <S130747AbRAADjp>; Sun, 31 Dec 2000 22:39:45 -0500
+Received: from c954190-a.saltlk1.ut.home.com ([24.13.131.161]:34286 "EHLO
+	newton.uucp") by vger.kernel.org with ESMTP id <S130696AbRAADjf>;
+	Sun, 31 Dec 2000 22:39:35 -0500
+Message-ID: <XFMail.20001231201053.thoth@leapdragon.net>
+X-Mailer: XFMail 1.4.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Sun, 31 Dec 2000 20:10:53 -0700 (MST)
+Organization: Bauhaus Weimar, 1919
+From: Desert Dragon <thoth@leapdragon.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-prerelease & 2048-byte FAT sectors
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sun, 31 Dec 2000, Linus Torvalds wrote:
+Just installed 2.4.0-prerelease, and it looks like FAT
+filesystems on hardware 2048-byte sectors are still not
+working.
 
-> 		cached_allocation = NULL;
-> 
-> 	repeat:
-> 		spin_lock();
-> 		result = try_to_find_existing();
-> 		if (!result) {
-> 			if (!cached_allocation) {
-> 				spin_unlock();
-> 				cached_allocation = allocate_block();
-> 				goto repeat;
-> 			}
-> 			result = cached_allocation;
-> 			add_to_datastructures(result);
-> 		}
-> 		spin_unlock();
-> 		return result;
-> 
-> This is quite standard, and Linux does it in many places. It doesn't have
-> to be complex or ugly.
+Are there any plans to fix this, or should I consider
+such devices obsolete? I'm keeping 2.2.17 around and
+rebooting every time I have to access my MO drives --
+rather inconvenient.
 
-No problem with that.
 
-> Also, I don't see why you claim the current get_block() is recursive and
-> hard to use: it obviously isn't. If you look at the current ext2
-> get_block(), the way it protects most of its data structures is by the
-> super-block-global lock. That wouldn't work if your claims of recursive
-> invocation were true. 
-
-I just rechecked that, but I don't see no superblock lock here, it uses
-the kernel_lock instead. Although Al could give the definitive answer for
-this, he wrote it. :)
-
-> The way the Linux MM works, if the lower levels need to do buffer
-> allocations, they will use GFP_BUFFER (which "bread()" does internally),
-> which will mean that the VM layer will _not_ call down recursively to
-> write stuff out while it's already trying to write something else. This is
-> exactly so that filesystems don't have to release and re-try if they don't
-> want to.
-> 
-> In short, I don't see any of your arguments.
-
-Then I must have misunderstood Al. Al?
-If you were right here, I would see absolutely no reason for the current
-complexity. (Me is a bit confused here.)
-
-bye, Roman
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

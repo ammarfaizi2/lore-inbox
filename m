@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265079AbTFUFD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 01:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbTFUFD0
+	id S262033AbTFUF0B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 01:26:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbTFUF0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 01:03:26 -0400
-Received: from p68.rivermarket.wintek.com ([208.13.56.68]:22491 "EHLO
-	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
-	id S265079AbTFUFDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 01:03:25 -0400
-Date: Sat, 21 Jun 2003 00:20:16 -0500 (EST)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, george anzinger <george@mvista.com>,
-       Christian Kujau <evil@g-house.de>,
-       Daniel Whitener <dwhitener@defeet.com>, johnstul@us.ibm.com,
-       Clemens Schwaighofer <cs@tequila.co.jp>
-Subject: Re: [patch] fix wrong uptime on non-i386 platforms
-In-Reply-To: <Pine.LNX.4.33.0306202341050.7684-100000@gans.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.56.0306201754160.1455@dust>
-References: <Pine.LNX.4.33.0306202341050.7684-100000@gans.physik3.uni-rostock.de>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+	Sat, 21 Jun 2003 01:26:00 -0400
+Received: from web10704.mail.yahoo.com ([216.136.130.212]:4207 "HELO
+	web10704.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262033AbTFUFZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 01:25:58 -0400
+Message-ID: <20030621054000.66503.qmail@web10704.mail.yahoo.com>
+Date: Fri, 20 Jun 2003 22:40:00 -0700 (PDT)
+From: BalaKrishna Mallipeddi <bkmallipeddi@yahoo.com>
+Subject: Bad address problem while reading from hard disk(using sys_read).
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jun 2003, Tim Schmielau wrote:
+Hi,
+    I developed a kernel module. Within that i am
+dynamically allocating memory(using kmalloc and
+vmalloc) for a buffer to read data. After that while
+trying to read into this buffer from the hard disk
+using sys_read i am getting an error. And the same
+error i am getting while writing into another buffer,
+which was allocated in the same way, using sys_write.
+The error number set is -14(EFAULT) i.e., Bad address.
 
-> Here are most of the missing wall_to_monotonic initializations that the
-> non-i386 architectures still need to pick up.
-> This should fix the reported uptime inconsistencies.
-> 
-> Disclaimer: completely untested, since I don't have (most of) the hardware.
 
-Incidently, I haven't had the absurdly high uptime bug strike again since 
-the first time it happened.  I'll try out your patch as soon as I get a 
-chance.
+   Give me any idea to resolve the problem.
 
--- 
-Alex Goddard
-agoddard@purdue.edu
+  If anyone help me i am gretful to them.
+
+Thanks & Regards
+
+
+=====
+BalaKrishna Mallipeddi
+Member Technical Staff Software
+Innomedia Technologies Pvt. Ltd.,
+#3278, 12th Main, HAL 2nd stage,
+Bangalore-560008,
+INDIA
+Phone : 5278389 + 123
+
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286147AbSAEAmz>; Fri, 4 Jan 2002 19:42:55 -0500
+	id <S286148AbSAEAtP>; Fri, 4 Jan 2002 19:49:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286148AbSAEAmq>; Fri, 4 Jan 2002 19:42:46 -0500
-Received: from white.pocketinet.com ([12.17.167.5]:5142 "EHLO
-	white.pocketinet.com") by vger.kernel.org with ESMTP
-	id <S286147AbSAEAmk>; Fri, 4 Jan 2002 19:42:40 -0500
+	id <S286161AbSAEAtF>; Fri, 4 Jan 2002 19:49:05 -0500
+Received: from jalon.able.es ([212.97.163.2]:42449 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S286148AbSAEAst>;
+	Fri, 4 Jan 2002 19:48:49 -0500
+Date: Sat, 5 Jan 2002 01:52:15 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Two hdds on one channel - why so slow?
+Message-ID: <20020105015215.A1506@werewolf.able.es>
+In-Reply-To: <20020104191906.5fe0efe9.skraw@ithnet.com> <E16MZEf-00053p-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <nknight@pocketinet.com>
-Reply-To: nknight@pocketinet.com
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-        "Phil Oester" <kernel@theoesters.com>
-Subject: Re: 1gb RAM + 1gb SWAP + make -j bzImage = OOM
-Date: Fri, 4 Jan 2002 16:42:43 -0800
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <004b01c1955e$ecbc9190$6400a8c0@philxp> <20020104220240.233ae66a.skraw@ithnet.com>
-In-Reply-To: <20020104220240.233ae66a.skraw@ithnet.com>
-MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-ID: <WHITExcPbVzv2N2Ku2000000c76@white.pocketinet.com>
-X-OriginalArrivalTime: 05 Jan 2002 00:41:08.0199 (UTC) FILETIME=[AA34C770:01C19581]
+In-Reply-To: <E16MZEf-00053p-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 04, 2002 at 19:38:33 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 January 2002 01:02 pm, Stephan von Krawczynski wrote:
-> On Fri, 4 Jan 2002 12:32:27 -0800
+
+On 20020104 Alan Cox wrote:
+>> all. With IDE you are busted, because no vendor has any warranty lasting long
+>> enough. Don't try to argue that this is unfair comparison, warranty counts. 
+>> Don't tell me this is not going to work, because it _does_.
 >
-> "Phil Oester" <kernel@theoesters.com> wrote:
-> > On 2.4.17, I can't make -j bzImage without OOM kicking in. 
-> > Relatively light .config here - bzImage compiles to less than 1mb.
-> >
-> > Seems with 1 gb of RAM and swap, the box should be able to handle
-> > this (box is dual P3 600 btw).
-> >
-> > Is this unreasonable?  How much RAM should it take to accomplish
-> > this???
->
-> You should give a bit more info on that, especially vmstat and the
-> like. I cannot reproduce this. Neither on 1GB/256MB nor on 2GB/256MB
-> RAM/SWAP. (P3-1GHz, dual SMP, 2.4.17)
+>Right at the moment the same process seems to work for IDE drives with 1
+>year warranties.
 >
 
+Yup, we are making IBM eat up its 'crystal plate' new drives. I have seen
+two of them dying on a month. And we will return also the third without
+even waiting it to fail.
 
-I have absilutely no trouble reproducing on an 800MHz Athlon with 256MB 
-RAM/256MB swap on 2.4.17
-
-The one catch is that -j is specified without a number.
-
-from man make:
-       -j jobs
-            Specifies  the  number  of  jobs  (commands) to run 
-simultaneously.  If there is more than one -j
-            option, the last one is effective.
-**If the -j option is given without an argument, make will not limit 
-the number of jobs that can run simultaneously.**
-
-(emphasis mine)
-
-Hence, unlimited number of jobs, theoreticaly unlimited amount of 
-memory usage.
-The last number of processes I saw in top before the system was 
-basically dead and I just hit A-SYSRQ-S and A-SYSRQ-B was 416, and all 
-the top processes were make or cc
-
-Somehow I doubt this is a kernel issue and is instead a make and user 
-issue. A make issue because it's probably poor design to have an option 
-that's specified with a number be normaly harmless and useful, be 
-potentialy lethal when the number is left off, so if you forget the 
-number, your system is dead. A user issue because it seems the user is 
-using the option without fully comprehending the consequences.
-
-> Regards,
-> Stephan
->
+(btw, I am still using -in low end linux boxen- Quantum SCSI drives that
+came with prehistoric macs, SEs and so on, so they can be about 8 years
+old. They work, slow for today standars, but work. Can anybody say the
+same about ide drives ?)
+ 
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre1-beo #1 SMP Fri Jan 4 02:25:59 CET 2002 i686

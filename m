@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261914AbSJNGnh>; Mon, 14 Oct 2002 02:43:37 -0400
+	id <S261921AbSJNGrj>; Mon, 14 Oct 2002 02:47:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261916AbSJNGnh>; Mon, 14 Oct 2002 02:43:37 -0400
-Received: from white-ippp0.koehntopp.de ([195.244.233.49]:8412 "EHLO
-	white.koehntopp.de") by vger.kernel.org with ESMTP
-	id <S261914AbSJNGng>; Mon, 14 Oct 2002 02:43:36 -0400
-Date: Mon, 14 Oct 2002 08:49:22 +0200
-From: Kristian Koehntopp <kris@koehntopp.de>
-To: Larry McVoy <lm@work.bitmover.com>, Richard Stallman <rms@gnu.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper outragem, old and new
-Message-ID: <20021014064922.GA16052@white.koehntopp.de>
-References: <E180rX3-0005dL-00@fencepost.gnu.org> <20021013171840.B1011@work.bitmover.com>
+	id <S261922AbSJNGrj>; Mon, 14 Oct 2002 02:47:39 -0400
+Received: from angband.namesys.com ([212.16.7.85]:29625 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S261921AbSJNGrh>; Mon, 14 Oct 2002 02:47:37 -0400
+Date: Mon, 14 Oct 2002 10:53:23 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+Cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH] 2.5.42: UML build error
+Message-ID: <20021014105323.A5883@namesys.com>
+References: <877kgn7kmk.fsf@goat.bogus.local> <Pine.LNX.4.44.0210121145510.17947-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20021013171840.B1011@work.bitmover.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <Pine.LNX.4.44.0210121145510.17947-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 13, 2002 at 05:18:40PM -0700, Larry McVoy wrote:
-> 3) If you had built a decent system instead of sitting around and whining,
->    we could be doing something else instead of sitting around listening 
->    to your whining.
+Hello!
 
-Larry, rest assured that exactly this is happinging right now
-all over the world. You are not feeling the backlash now,
-because it takes time, but it will happen, and you made pretty
-much sure of that. 
+On Sat, Oct 12, 2002 at 11:49:35AM -0500, Kai Germaschewski wrote:
 
-You are pulling a Qt. By changing the license to BK to
-discourage development of BK alternatives you made sure that
-Subversion and other projects get plenty of new and highly
-motivated developers - you actually encouraged the development
-of BK alternatives just like the non-free license of Qt as the
-foundation of KDE spawned the Gnome project.
+> > When building 2.5.42 UML it fails with:
+> > [...]
+> Okay, so here's a patch which fixes the UML build for me (i386) -
+> generally, UML could use some more kbuild work, but I'll leave that for
+> post-freeze ;)
 
-The clock just started ticking and when we reevaluate this
-discussion in one or two years time, the complete strategic
-stupidity of this particular license change from BKs POV view
-will be evident.
+Actually this patch does not work for make ARCH=um distclean (at least it does
+not work for me) because there is no Makefile in arch/um/include/sysdep/
+(something like a fix attached).
+Also after "distclean", you cannot build UML anymore.
+It fails to execute "prepare" target and therefore include/asm/arch
+symlink (and others ) is not made and build fails.
 
-Kristian
+  gcc -Wp,-MD,arch/um/sys-i386/util/.mk_thread_kern.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2  -fno-strict-aliasing -fno-common -g  -U__i386__ -Ui386 -D__arch_um__ -DSUBARCH=\"i386\" -D_LARGEFILE64_SOURCE -I/home/green/bk/linux-2.5/arch/um/include -Derrno=kernel_errno -nostdinc -iwithprefix include    -DKBUILD_BASENAME=mk_thread_kern   -c -o arch/um/sys-i386/util/mk_thread_kern.o arch/um/sys-i386/util/mk_thread_kern.c
+In file included from include/linux/posix_types.h:46,
+                 from include/linux/types.h:11,
+                 from include/linux/capability.h:16,
+                 from include/linux/sched.h:9,
+                 from arch/um/sys-i386/util/mk_thread_kern.c:2:
+include/asm/posix_types.h:4: asm/arch/posix_types.h: No such file or directory
+
+
+===== arch/um/Makefile-i386 1.2 vs edited =====
+--- 1.2/arch/um/Makefile-i386	Sat Oct 12 20:47:35 2002
++++ edited/arch/um/Makefile-i386	Mon Oct 14 09:54:09 2002
+@@ -28,4 +28,4 @@
+ 
+ sysclean :
+ 	rm -f $(SYS_HEADERS)
+-	@$(call descend,$(SYS_DIR),clean)
++	@$(call descend,$(SYS_UTIL_DIR),clean)
+
+
+Bye,
+    Oleg

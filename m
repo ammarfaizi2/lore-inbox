@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281794AbRKVWC1>; Thu, 22 Nov 2001 17:02:27 -0500
+	id <S281796AbRKVWD5>; Thu, 22 Nov 2001 17:03:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281796AbRKVWCT>; Thu, 22 Nov 2001 17:02:19 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:12205 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S281794AbRKVWCJ>; Thu, 22 Nov 2001 17:02:09 -0500
-Message-ID: <3BFD769A.376003D5@nortelnetworks.com>
-Date: Thu, 22 Nov 2001 17:05:14 -0500
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.15-pre5 i686)
+	id <S281797AbRKVWDr>; Thu, 22 Nov 2001 17:03:47 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:23955 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S281796AbRKVWDl>;
+	Thu, 22 Nov 2001 17:03:41 -0500
+Message-ID: <3BFD7633.2525641E@pobox.com>
+Date: Thu, 22 Nov 2001 14:03:31 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-pre8-tux i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: problem accessing /dev/port
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: sunrpc woes with tux2 in 2.4.15-pre8,9
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-To begin, I'm running 2.2.17 with some patches.
+In 2.4.15-pre8 I applied the tux2 patches to
+take it for a spin - well, it's insanely fast, thanks
+Ingo - but I am having a problem with the sun
+rpc module:
 
-I'm attempting to have a userspace app read and write I/O ports on a powerpc
-machine.  The obvious method (iopl()) doesn't seem to be available (using glibc,
-but sys/io.h doesn't exist).
+depmod gives the following result on -pre8
+and -pre9:
 
-When I try and access /dev/port with a small utility that works fine on my PIII,
-I get the error message "Device not configured".  The file exists in /dev and
-has the same permissions on both machines.
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.15-pre9/kernel/net/sunrpc/sunrpc.o
+depmod:         atomic_dec_and_lock_R648ef859
 
-Do I need to enable something in the kernel to support this?  Where is this
-configured?
+Just a heads-up -
 
-Thanks,
+cu
 
-Chris
+jjs
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+
+

@@ -1,82 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbTICLTS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 07:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbTICLTS
+	id S261904AbTICLUR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 07:20:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTICLUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 07:19:18 -0400
-Received: from smtp5.clb.oleane.net ([213.56.31.25]:20190 "EHLO
-	smtp5.clb.oleane.net") by vger.kernel.org with ESMTP
-	id S261940AbTICLTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 07:19:12 -0400
-Subject: Re: [ACPI] Where do I send APIC victims?
-From: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
-To: linux-kernel@vger.kernel.org
-Cc: Roger Luethi <rl@hellgate.ch>, Andrew de Quincey <adq@lidskialf.net>,
-       Danny ter Haar <dth@ncc1701.cistron.net>,
-       Len Brown <len.brown@intel.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gPhcDtqI1RH2+BmB1YDz"
-Organization: Adresse personelle
-Message-Id: <1062587931.3679.5.camel@ulysse.olympe.o2t>
+	Wed, 3 Sep 2003 07:20:17 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:60616 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261904AbTICLUL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 07:20:11 -0400
+Date: Wed, 3 Sep 2003 04:19:34 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+Message-ID: <20030903111934.GF10257@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Brown, Len" <len.brown@intel.com>,
+	Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Wed, 03 Sep 2003 13:18:51 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 03, 2003 at 05:41:39AM -0400, Brown, Len wrote:
+> > Latency is not bandwidth.
+> 
+> Bingo.
+> 
+> The way to address memory latency is by increasing bandwidth and
+> increasing parallelism to use it -- thus amortizing the latency.  
 
---=-gPhcDtqI1RH2+BmB1YDz
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+And if the app is a pointer chasing app, as many apps are, that doesn't
+help at all.
 
-Roger Luethi wrote :
-=20
-> As the maintainer of via-rhine, I get bug reports that almost in their
-> entirety are "fixed" by turning off APIC and/or ACPI. This has been going
-> on for several months now. Every now and then, something promising gets
-> posted on LKML, but so far if anything I've seen an _increase_ in those b=
-ug
-> reports. Maybe a fix is floating around and this will be a non-issue RSN.=
- I
-> simply can't tell, since I don't have any IO-APIC hardware to play with.
+It's pretty much analogous to file systems.  If bandwidth was the answer
+then we'd all be seeing data moving at 60MB/sec off the disk.  Instead 
+we see about 4 or 5MB/sec.
 
-> Instead of just telling everybody to turn off APIC, I'd like to point bug
-> reporters to the proper place and tell them what information they should
-> provide so it can get fixed for real. According to MAINTAINERS, Ingo Moln=
-ar
-> does Intel APIC, but the problems are with VIA chip sets. So where do I
-> send my users? Any takers?
-
-As far as I can say (as a lowly 2.6 Via user) for 2.5/2.6 the relevant
-bug is :
-
-http://bugzilla.kernel.org/show_bug.cgi?id=3D845
-
-Just tell your users to open a new bug (with system info, dmesg,
-interrupts, dmidecode,  acpidmp, etc) and make it block bug #845
-resolution.
-
-(btw the first registered via acpi bug is november 2002 bug #10, it just
-got an initial fix that also worked for another #845 child bug. So
-crossing fingers all this will be resolved soonish)
-
-Cheers,
-
---=20
-Nicolas Mailhot
-
---=-gPhcDtqI1RH2+BmB1YDz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/Vc4ZI2bVKDsp8g0RAj3VAKCEAAybwXNekqlfPO0TN4DI/jAbSgCguhP3
-mz2q4QCLnRuDr5nyM08nAsQ=
-=G5JW
------END PGP SIGNATURE-----
-
---=-gPhcDtqI1RH2+BmB1YDz--
-
+Expecting more bandwidth to help your app is like expecting more platter
+speed to help your file system.  It's not the platter speed, it's the
+seeks which are the problem.  Same thing in system doesn't, it's not the
+bcopy speed, it's the cache misses that are the problem.  More bandwidth
+doesn't do much for that.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

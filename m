@@ -1,93 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284111AbRLFPCC>; Thu, 6 Dec 2001 10:02:02 -0500
+	id <S284118AbRLFPFx>; Thu, 6 Dec 2001 10:05:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284117AbRLFPBw>; Thu, 6 Dec 2001 10:01:52 -0500
-Received: from alquanto.nextra.it ([193.43.2.90]:51133 "EHLO
-	alquanto.nextra.it") by vger.kernel.org with ESMTP
-	id <S284111AbRLFPBn>; Thu, 6 Dec 2001 10:01:43 -0500
-Date: Thu, 6 Dec 2001 16:01:33 +0100
-From: Fabio Parodi <fabio.parodi@fredreggiane.com>
-To: linux-kernel@vger.kernel.org
-Subject: WAIT_DRQ and ATA flash
-Message-ID: <20011206160133.A31127@freemail.it>
+	id <S284122AbRLFPFo>; Thu, 6 Dec 2001 10:05:44 -0500
+Received: from [212.169.100.200] ([212.169.100.200]:35566 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S284118AbRLFPFe>; Thu, 6 Dec 2001 10:05:34 -0500
+Date: Thu, 6 Dec 2001 16:11:30 +0100
+From: Morten Helgesen <admin@nextframe.net>
+To: torvalds@transmeta.com, marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5] converting drivers/net/wan/lmc/lmc_main.c from suser() to capable()
+Message-ID: <20011206161130.D122@sexything>
+Reply-To: admin@nextframe.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-Operating-System: Linux 2.4.14 on a i686
-X-Organization: Debian Linux Users
-X-Disclaimer: Linux - The choice of a GNU generation!
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guys,
+Hey Linus, Marcelo and the rest of you.
 
-We use a Samsung ATA flash as /dev/hda. Filesystem is ext3 but the same
-occurs with minix. It worked fine up to kernel 2.4.10. But from kernel
-2.4.11 (2.4.12) onward a troublesome problem crept in.
+The code mentioned in the subject does not seem to have a maintainer. I sent the patch to those mentioned
+in lmc_main.c, and from Andrew Stanley-Jones I got the following answer:
 
-We fixed it by modifying the timeout value of WAIT_DRQ. 
+"I'm not sure it's really being maintained, but I was the last one to work
+ on it afaik.  Feel free to apply it.
+ -Andrew"
 
-IDE specs allow up to 20ms, standard Linux kernel allows up to
-50ms, but Samsung ATA CF needs 100ms. 
+So I guess, if the patch looks good, it is just for you to apply it ... it is against 2.5.1-pre5, but should
+apply cleanly to 2.4 as well ...
 
-What should we do? We have four options:
+== Morten
 
-A - keep this patch for us. Stop bothering.
-B - #define WAIT_DRQ (10*HZ/100) in standard kernel tree
-C - put a parameter to be adjusted at boot time 
-D - write some code that autoadjusts WAIT_DRQ depending on device type
+-- 
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net
 
-We think that option B should not harm other users - after all, 
-this timeout only occurs in case of errors. 
+--- /usr/src/linux-2.5.1-pre5/drivers/net/wan/lmc/lmc_main.c    Fri Sep 14 01:04:43 2001
++++ /usr/src/patched-linux-2.5.1-pre5/drivers/net/wan/lmc/lmc_main.c    Thu Dec  6 13:17:21 2001
+@@ -176,7 +176,7 @@
 
-If you are interested in details, this is an excerpt from dmesg:
+     case LMCIOCSINFO: /*fold01*/
+         sp = &((struct ppp_device *) dev)->sppp;
+-        if (!suser ()) {
++        if (!capable(CAP_NET_ADMIN)) {
+             ret = -EPERM;
+             break;
+         }
+@@ -211,7 +211,7 @@
+             u_int16_t  old_type = sc->if_type;
+             u_int16_t  new_type;
 
-Linux version 2.4.16 (root@devel-linux) (gcc version 2.95.2 19991024
-(release)) 
-...
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-CS5530: IDE controller on PCI bus 00 dev 92
-CS5530: chipset revision 0
-CS5530: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:pio, hdd:pio
-hda: SAMSUNG ATA CF, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14 
-hda: 123392 sectors (63 MB) w/1KiB Cache, CHS=964/4/32
-Partition check:
- hda: hda1        
-...
+-           if (!suser ()) {
++           if (!capable(CAP_NET_ADMIN)) {
+                ret = -EPERM;
+                break;
+            }
+@@ -291,7 +291,7 @@
+         break;
 
+     case LMCIOCCLEARLMCSTATS: /*fold01*/
+-        if (!suser ()){
++        if (!capable(CAP_NET_ADMIN)){
+             ret = -EPERM;
+             break;
+         }
+@@ -305,7 +305,7 @@
+         break;
 
-After one minute from the boot, the ide driver
-prints these messages:
+     case LMCIOCSETCIRCUIT: /*fold01*/
+-        if (!suser ()){
++        if (!capable(CAP_NET_ADMIN)){
+             ret = -EPERM;
+             break;
+         }
+@@ -323,7 +323,7 @@
+         break;
 
-hda: status timeout: status=0xd0 { Busy }
-hda: no DRQ after issuing WRITE
-ide0: reset: master: error (0x00?)
-hda: status error: status=0x59 { DriveReady SeekComplete DataRequest Error }
-hda: status error: error=0x00 { }
-hda: drive not ready for command
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: drive not ready for command
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: drive not ready for command
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: drive not ready for command
-ide0: reset: master: error (0x00?)
-end_request: I/O error, dev 03:01 (hda), sector 2
-end_request: I/O error, dev 03:01 (hda), sector 16
-end_request: I/O error, dev 03:01 (hda), sector 18
-end_request: I/O error, dev 03:01 (hda), sector 20
-end_request: I/O error, dev 03:01 (hda), sector 22
-end_request: I/O error, dev 03:01 (hda), sector 24
-end_request: I/O error, dev 03:01 (hda), sector 26
-end_request: I/O error, dev 03:01 (hda), sector 28
-end_request: I/O error, dev 03:01 (hda), sector 30       
+     case LMCIOCRESET: /*fold01*/
+-        if (!suser ()){
++        if (!capable(CAP_NET_ADMIN)){
+             ret = -EPERM;
+             break;
+         }
+@@ -356,7 +356,7 @@
+         {
+             struct lmc_xilinx_control xc; /*fold02*/
 
-The system becomes unstable.
+-            if (!suser ()){
++            if (!capable(CAP_NET_ADMIN)){
+                 ret = -EPERM;
+                 break;
+             }
 
-Fabio Parodi

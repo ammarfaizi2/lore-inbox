@@ -1,78 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbUDJLxG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 07:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUDJLxG
+	id S262007AbUDJMKf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 08:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUDJMKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 07:53:06 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:35601 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262003AbUDJLxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 07:53:02 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2.2/2.4/2.6] broken memsets in net/sk_mca.c (multicast)
-Date: Sat, 10 Apr 2004 14:52:51 +0300
-User-Agent: KMail/1.5.4
-Cc: Alfred Arnold <aarnold@elsa.de>, Jeff Garzik <jgarzik@pobox.com>
-References: <20040410102040.022ffb3c.khali@linux-fr.org>
-In-Reply-To: <20040410102040.022ffb3c.khali@linux-fr.org>
-MIME-Version: 1.0
+	Sat, 10 Apr 2004 08:10:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12553 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262007AbUDJMKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 08:10:32 -0400
+Date: Sat, 10 Apr 2004 13:10:28 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [RFC] Force build error on undefined symbols
+Message-ID: <20040410131028.A4221@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404101450.55800.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 April 2004 11:20, Jean Delvare wrote:
-> [Please CC: me on reply, I'm not subscribed (yet)]
->
-> Hi all,
->
-> I just found two very weird memsets in drivers/net/sk_mca.c. I am not
-> working on that driver at all, but some grepping of the kernel source
-> pointed me to it so I thought I wouldn't keep quiet about it.
->
-> Here is the offending code:
->
-> static void skmca_set_multicast_list(struct net_device *dev)
-> {
-> 	(...)
-> 	if (dev->flags & IFF_ALLMULTI) {	/* get all multicasts */
-> 		memset(block.LAdrF, 8, 0xff);
-> 	} else {		/* get selected/no multicasts */
-> 		(...)
-> 		memset(block.LAdrF, 8, 0x00);
-> 		(...)
-> 	}
-> 	(...)
-> }
->
-> Is it just me, or are these two memsets just plain broken? Not only the
-> size is hardcoded, but the parameters are swapped! I guess that this
-> driver never worked in multicast mode. The correct memsets are
-> obviously:
-> 		memset(block.LAdrF, 0xff, sizeof(block.LAdrF));
-> and
-> 		memset(block.LAdrF, 0x00, sizeof(block.LAdrF));
-> respectively.
->
-> The odd thing is that the bug is there since the driver was introduced
-> in the 2.2.10 kernel. So, 2.2, 2.4 and 2.6 kernels are all affected.
->
-> I admit I'm a bit surprized that this could survive until today, so just
-> tell me if it's me missing the point ;)
+Hi,
 
-Good catch!
+I've checked the date, and it isn't April Fools day.  I wish it was
+though.
 
-No, I don't think you're missing the point. There are lots of drivers,
-and unlike core kernel code, drivers have corner cases which are never
-tested. Work on drivers is always welcome.
+It appears that all binutils versions for ARM which are capable of
+building 2.6 kernels which have been tested so far contain a serious
+bug - it is possible to successfully link an object and still have
+various symbols undefined.  Currently, these binutils have been
+tested on ARM (as cross-compilers and/or native) and found wanting:
 
-Feel free to make patch and submit it to Jeff Garzik <jgarzik@pobox.com>.
-For 2.2 and 2.4, I think you can CC kernel maintainers too.
---
-vda
+GNU assembler 2.13.90.0.18 20030206
+GNU assembler 2.14 20030612
+GNU assembler 2.14.90 20031229
+GNU ld version 2.14.90.0.7 20031029 Debian GNU/Linux
+Assembleur GNU 2.15.90.0.1 20040303
 
+So far, we have discovered two cases:
+
+1. When building a certain file, an undefined symbolic constant
+   (TI_USED_CP) ended up in the symbol table without a relocation,
+   and the value the assembler decided to use was '0'.  The effect
+   of this is that we ended up setting bits in thread_info->flags.
+
+   This appears to be a binutils "as" error.
+
+2. When building the decompressor for ARM kernels, GCC appears to
+   inexplicably emit ".global" directives for symbols not defined
+   in the files being built, even though the symbols themselves are
+   not actually used.  I'm not sure whether this is a real bug;
+   binutils on x86 appears to accept and link such objects.
+
+In both cases, the linker successfully created executable programs
+which ran.  In the first case, it is a silent error; the kernel had
+been linked, and able to run, but the program is not correct.
+
+Obviously, the one true correct solution is to fix the toolchain and
+upgrade to the latest version.  However, since we have potentially
+multiple binutils versions spread across more than a year affected,
+I think we need to detect such errors as well.
+
+Therefore, I propose the following patch to detect undefined symbols
+in the final image and force an error if this is the case.
+
+Comments?
+
+--- orig/Makefile	Sat Apr 10 12:31:36 2004
++++ linux/Makefile	Sat Apr 10 13:01:05 2004
+@@ -502,7 +502,8 @@ define cmd_vmlinux__
+ 	$(net-y) \
+ 	--end-group \
+ 	$(filter .tmp_kallsyms%,$^) \
+-	-o $@
++	-o $@; \
++	$(NM) $@ | egrep -q '^ +U ' && { echo "Link failed: undefined symbols found in final object."; $(NM) $@ | egrep '^ +U '; rm -f $@; exit 1; } || :
+ endef
+ 
+ #	set -e makes the rule exit immediately on error
+--- orig/arch/arm/boot/compressed/Makefile	Sat Apr 10 12:31:36 2004
++++ linux/arch/arm/boot/compressed/Makefile	Sat Apr 10 13:01:13 2004
+@@ -68,6 +68,7 @@ LDFLAGS_vmlinux := -p -X \
+ $(obj)/vmlinux: $(obj)/vmlinux.lds $(obj)/$(HEAD) $(obj)/piggy.o \
+ 	 	$(addprefix $(obj)/, $(OBJS)) FORCE
+ 	$(call if_changed,ld)
++	@$(NM) $@ | egrep -q '^ +U ' && { echo "Link failed: undefined symbols found in final object."; $(NM) $@ | egrep '^ +U '; rm -f $@; exit 1; } || :
+ 	@:
+ 
+ 
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278880AbRJVU0a>; Mon, 22 Oct 2001 16:26:30 -0400
+	id <S278887AbRJVU2U>; Mon, 22 Oct 2001 16:28:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278884AbRJVU0U>; Mon, 22 Oct 2001 16:26:20 -0400
-Received: from cc668399-a.ewndsr1.nj.home.com ([24.180.97.113]:61436 "EHLO
-	eriador.mirkwood.net") by vger.kernel.org with ESMTP
-	id <S278880AbRJVU0P>; Mon, 22 Oct 2001 16:26:15 -0400
-Date: Mon, 22 Oct 2001 16:27:30 -0400 (EDT)
-From: PinkFreud <pf-kernel@mirkwood.net>
-To: linux-kernel@vger.kernel.org
+	id <S278886AbRJVU2K>; Mon, 22 Oct 2001 16:28:10 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:61652 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S278885AbRJVU2D>;
+	Mon, 22 Oct 2001 16:28:03 -0400
 Subject: Re: Linux 2.2.20pre10
-Message-ID: <Pine.LNX.4.20.0110221617470.309-100000@eriador.mirkwood.net>
+To: brian@worldcontrol.com
+Date: Mon, 22 Oct 2001 21:34:28 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        matthias.andree@stud.uni-dortmund.de (Matthias Andree),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20011022122722.A369@top.worldcontrol.com> from "brian@worldcontrol.com" at Oct 22, 2001 12:27:22 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15vlmG-0003Ff-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > 2.2.20pre11
-> > > o Security fixes
-> > > | Details censored in accordance with the US DMCA
-> > > Care to elaborate?                             
->                       
-> On a list that reaches US citizens - no. File permissions and userids may
-> constitute and be used for rights management.                            
->                                              
-> Alan
+> On Mon, Oct 22, 2001 at 01:29:14PM +0100, Alan Cox wrote:
+> >    "Until they become conscious they will never rebel, and until after
+> >     they have rebelled they cannot become conscious."
+> 
+> While I've been generally saddened by Alan Cox's and others
+> anti-America attitude,  I am somewhat surprised to find that
+> Alan believes the US bombing of Afghanistan is justified and so
+> is the collateral damage as they call it.
 
-Why not take that a step further?  It would seem to me that your
-insane interpretation of that insane law would mean that unix and it's
-derivatives (Linux, anyone?) would be illegal to use as well.
-
-You're preaching to the choir here.  By withholding these changes from US
-citizens, you're not going to pressure any politicians.  I doubt there are
-many politicians who count on this issue reading this list.  I think most
-of the US citizens reading this list, though, are enlightened enough to
-know the harm the DMCA causes.
-
-Please don't tell me you woke up this morning and had a sudden attack of
-conscience that you were violating US law.  You've posted such changes
-here since the DMCA was put into effect, not to mention that lists like
-Bugtraq are still operating in the US - and I think many of us managed to
-read about the symlink and ptrace holes in kernels <= 2.2.19.
-
-
-	Mike Edwards
-
-Brainbench certified Master Linux Administrator
-http://www.brainbench.com/transcript.jsp?pid=158188
------------------------------------
-Unsolicited advertisments to this address are not welcome.
+That quote is rather older than the US bombing of Afghanistan. You read 
+totally inappropriate things into it. 
 

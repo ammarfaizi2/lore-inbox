@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263484AbUDUREy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263464AbUDURKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263484AbUDUREy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 13:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbUDUREy
+	id S263464AbUDURKh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 13:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbUDURKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 13:04:54 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:60327 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263484AbUDUREx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 13:04:53 -0400
-Date: Wed, 21 Apr 2004 19:03:40 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: tcp vulnerability?  haven't seen anything on it here...
-Message-ID: <20040421170340.GB24201@wohnheim.fh-wedel.de>
-References: <40869267.30408@nortelnetworks.com> <Pine.LNX.4.53.0404211153550.1169@chaos> <4086A077.2000705@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4086A077.2000705@nortelnetworks.com>
-User-Agent: Mutt/1.3.28i
+	Wed, 21 Apr 2004 13:10:37 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:23817 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263464AbUDURKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 13:10:36 -0400
+Date: Wed, 21 Apr 2004 18:10:27 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Jean Delvare <khali@linux-fr.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Permissions on include/video/neomagic.h
+In-Reply-To: <20040418202223.6b226e19.khali@linux-fr.org>
+Message-ID: <Pine.LNX.4.44.0404211810070.8561-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 April 2004 12:25:27 -0400, Chris Friesen wrote:
+
+I'm preparing new neofb patch for Andrew Morton. They will fix this.
+
+
+On Sun, 18 Apr 2004, Jean Delvare wrote:
+
+> Hi all, hi Linus,
 > 
-> The impression I got was that some equipment was much more vulnerable 
-> due to having a) massive windows, and b) using sequential source ports, 
-> making it much easier to guess even if you can't tap the line.
+> In linux-2.6.5.tar, include/video/neomagic.h has permissions 0640. It
+> obviously should be 0644.
+> 
+> This has already been reported 8 months ago:
+> http://lkml.org/lkml/2003/8/9/150
+> 
+> Shouldn't it be fixed?
+> 
+> Thanks.
+> 
+> 
 
-Heise.de made it appear, as if the only news was that with tcp
-windows, the propability of guessing the right sequence number is not
-1:2^32 but something smaller.  They said that 64k packets would be
-enough, so guess what the window will be.
-
-Obvious solution would be to use a small window, which would cost
-performance.  Different solution would be to use a different window
-size for reset, like, say, 1.  Not sure if that would still be
-standard, though.
-
-Jörn
-
--- 
-The cost of changing business rules is much more expensive for software
-than for a secretaty.
--- unknown

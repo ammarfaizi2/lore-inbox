@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbTFDHjH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 03:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTFDHjH
+	id S263077AbTFDHmV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 03:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbTFDHmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 03:39:07 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:1520 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263062AbTFDHjG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 03:39:06 -0400
-Date: Wed, 4 Jun 2003 00:53:02 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Vojtech Pavlik <vojtech@ucw.cz>
-Cc: linux-yoann@ifrance.com, linux-kernel@vger.kernel.org, vojtech@suse.cz,
-       acahalan@cs.uml.edu
-Subject: Re: another must-fix: major PS/2 mouse problem
-Message-Id: <20030604005302.41f3b0b8.akpm@digeo.com>
-In-Reply-To: <20030604094737.C5345@ucw.cz>
-References: <1054431962.22103.744.camel@cube>
-	<3EDD87FD.6020307@ifrance.com>
-	<20030603232155.1488c02f.akpm@digeo.com>
-	<20030604094737.C5345@ucw.cz>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 4 Jun 2003 03:42:21 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:43990 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263077AbTFDHmU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 03:42:20 -0400
+Date: Wed, 04 Jun 2003 00:51:45 -0700 (PDT)
+Message-Id: <20030604.005145.98890243.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: niv@us.ibm.com, kuznet@ms2.inr.ac.ru, jmorris@intercode.com.au,
+       gandalf@wlug.westbo.se, linux-kernel@vger.kernel.org,
+       linux-ia64@linuxia64.org, netdev@oss.sgi.com, akpm@digeo.com
+Subject: Re: fix TCP roundtrip time update code
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <16093.36723.418623.698303@napali.hpl.hp.com>
+References: <16093.34022.445246.52398@napali.hpl.hp.com>
+	<3EDD8BD2.9040008@us.ibm.com>
+	<16093.36723.418623.698303@napali.hpl.hp.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Jun 2003 07:52:35.0843 (UTC) FILETIME=[432F0530:01C32A6E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@ucw.cz> wrote:
->
-> On Tue, Jun 03, 2003 at 11:21:55PM -0700, Andrew Morton wrote:
-> 
-> > We believe that it may be due to the ethernet driver holding interrupts off
-> > for too long when the traffic is heavy.
-> 
-> Note that this doesn't necessarily mean that the ethernet driver
-> disables the interrupts for a too long time, it just means that the
-> computer is only servicing the network interrupts at that time, and
-> since the mouse interrupt does have a lower priority, it's serviced
-> not very often and with huge delays.
-> 
-> In such a case the network driver should either use interrupt mitigation
-> if the cards supports it (reading many packets per one interrupt) or
-> switch to a polled mode.
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Tue, 3 Jun 2003 23:19:31 -0700
+   
+   Yes, the "connection hangs/disappearances" where triggered by
+   TCPAbortOnTimeout;
 
-Has this problem been observed in 2.4 kernels?
+This is correct.
 
+And it is the reason the connection dies silently.  Because
+such write timeouts invoke tcp_done() which closes the connection
+off silently.  This is correct behavior (sans the RTT bug David fixed
+of course :)) because a host which hasn't responded at all from
+so many repeated retransmission attempts isn't likely to get any
+reset we send either :)

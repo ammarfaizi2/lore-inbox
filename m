@@ -1,54 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264400AbTEaS1k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 14:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbTEaS1k
+	id S264387AbTEaS0b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 14:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264469AbTEaS0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 14:27:40 -0400
-Received: from vitelus.com ([64.81.243.207]:518 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id S264403AbTEaS1h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 14:27:37 -0400
-Date: Sat, 31 May 2003 11:40:23 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: wli@holomorphy.com, alexander.riesen@synopsys.COM, scrosby@cs.rice.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
-Message-ID: <20030531184023.GA14878@vitelus.com>
-References: <20030531063040.GI8978@holomorphy.com> <20030530.233353.28798744.davem@redhat.com> <20030531064138.GJ8978@holomorphy.com> <20030530.234529.88485326.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030530.234529.88485326.davem@redhat.com>
-User-Agent: Mutt/1.5.4i
+	Sat, 31 May 2003 14:26:31 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:14208
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264454AbTEaS03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 14:26:29 -0400
+Date: Sat, 31 May 2003 14:29:23 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Pasi Savolainen <psavo@iki.fi>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] amd76x_pm port to 2.5.70
+In-Reply-To: <20030531183321.GA3408@varg.dyndns.org>
+Message-ID: <Pine.LNX.4.50.0305311422250.32537-100000@montezuma.mastecende.com>
+References: <20030531183321.GA3408@varg.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 30, 2003 at 11:45:29PM -0700, David S. Miller wrote:
->    From: William Lee Irwin III <wli@holomorphy.com>
->    Date: Fri, 30 May 2003 23:41:38 -0700
->    
->    If it's literally that trivial I'll put digging around the machine
->    descriptions on my TODO list.
+On Sat, 31 May 2003, Pasi Savolainen wrote:
+
+> Attached is a simplistic port of amd76x_pm to 2.5.70.
+> There is a mention about being non-preempt safe, and I can't tell
+> spinlock from semaphore, so can do nada about it.
+> zwane told me on #kernelnewbies that 
 > 
-> Look at TARGET_RTX_COSTS, thats where all of this happens.
+>   pm_idle = old_pm_idle; wmb();
+> 
+> should take care about the processor syncing, but I do get total hangs
+> on rmmod.
 
-Reading the code that handles this stuff (expmed.c) always cracks me up.
+pm_idle = NULL_or_previous_handler;
+synchronize_kernel();
+unload_module;
 
+> +amd76x_up_idle(void)
+> +{
+> +	// FIXME: Optionally add non-smp idle loop here
+> +}
+> +#endif
 
-  /* We might want to refine this now that we have division-by-constant
-     optimization.  Since expand_mult_highpart tries so many variants, it is
-     not straightforward to generalize this.  Maybe we should make an array
-     of possible modes in init_expmed?  Save this for GCC 2.7.  */
- 
-        /* We could just as easily deal with negative constants here,
-           but it does not seem worth the trouble for GCC 2.6.  */
+This is going to really suck power wise, at least do a rep_nop or some 
+such otherwise you spin in a tight polling loop around need_resched.
 
-        /* This is extremely similar to the code for the unsigned case
-           above.  For 2.7 we should merge these variants, but for
-           2.6.1 I don't want to touch the code for unsigned since that
-           get used in C.  The signed case will only be used by other
-           languages (Ada).  */
+> +static void
+> +amd76x_smp_idle(void)
+> +{
+> +	/*
+> +	 * Exit idle mode immediately if the CPU does not change.
+> +	 * Usually that means that we have some load on another CPU.
+> +	 */
+> +
+> +	if (prs[0].idle && prs[1].idle && amd76x_pm_cfg.last_pr == smp_processor_id()) {
+> +		prs[0].idle = 0;
+> +		prs[1].idle = 0;
+> +		/* This looks redundent as it was just checked in the if() */
+> +		/* amd76x_pm_cfg.last_pr = smp_processor_id(); */
 
-Sometimes I wish the gcc code was tame enough for me to work on.
+One is a comparison the other an assignment, what's going on here?
+
+> +static void __exit
+> +amd76x_pm_cleanup(void)
+> +{
+> +#ifndef AMD76X_NTH
+> +	pm_idle = amd76x_pm_cfg.orig_idle;
+> +	wmb();
+> +	//__asm__ __volatile__ ("wbinvd;"); // propagate through SMP
+
+synchronize_kernel() here, then you should be safe to unload.
+
+-- 
+function.linuxpower.ca

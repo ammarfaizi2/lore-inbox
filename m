@@ -1,51 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265256AbUBIQnc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 11:43:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbUBIQnb
+	id S265253AbUBIQkl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 11:40:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUBIQkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 11:43:31 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:16570 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S265256AbUBIQna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 11:43:30 -0500
-Date: Mon, 09 Feb 2004 08:43:18 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Timothy Miller <miller@techsource.com>,
-       Nick Piggin <piggin@cyberone.com.au>
-cc: Rick Lindsley <ricklind@us.ibm.com>, Anton Blanchard <anton@samba.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
-Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
-Message-ID: <144560000.1076344998@[10.10.2.4]>
-In-Reply-To: <4027B758.8060908@techsource.com>
-References: <200402062311.i16NBdF14365@owlet.beaverton.ibm.com> <40242152.5030606@cyberone.com.au> <231480000.1076110387@flay> <4024261E.5070702@cyberone.com.au> <232690000.1076111266@flay> <40242D14.6070908@cyberone.com.au> <4027B758.8060908@techsource.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 9 Feb 2004 11:40:41 -0500
+Received: from mail.timesys.com ([65.117.135.102]:14715 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S265253AbUBIQkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 11:40:37 -0500
+Message-ID: <4027B7D3.2020107@timesys.com>
+Date: Mon, 09 Feb 2004 11:39:47 -0500
+From: Pratik Solanki <pratik.solanki@timesys.com>
+Organization: TimeSys Corporation
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Minor cross-compile issues
+Content-Type: multipart/mixed;
+ boundary="------------060205020302080404050200"
+X-OriginalArrivalTime: 09 Feb 2004 16:34:07.0578 (UTC) FILETIME=[89C85BA0:01C3EF2A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Can we keep current behaviour default, and if arches want to
->> override it they can? And if someone one day does testing to
->> show it really isn't a good idea, then we can change the default.
->> 
->> I like to try stick to the fairness first approach.
->> 
->> We got quite a few complaints about unfairness when the
->> scheduler used to keep 2 on one cpu and 1 on another, even in
->> development kernels. I suspect that most wouldn't have known
->> one way or the other if only top showed 66% each, but still.
-> 
-> Stupid question:  Does the balancing consider process priority?  Is it 
-> unfair to have two lower pri tasks always on one cpu while the highest 
-> pri of the three is always by itself?
+This is a multi-part message in MIME format.
+--------------060205020302080404050200
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-No, it doesn't take account of that. We've discussed that before at some 
-point, and yes, I  think it's wrong, but on the other hand, we want to be 
-reasonably fast at deciding what to take, and there are a whole bunch of 
-other criteria that we ought to be taking account as well - it's difficult.
+Attached are 2 patches
 
-M.
+asm-boot.patch - Fixes include path for build.c so that it finds 
+asm/boot.h. /usr/include/asm/boot.h may not be present when 
+cross-compiling on a non-Linux machine.
 
+shell.patch - Use $(CONFIG_SHELL) instead of sh.
+
+Pratik.
+
+--------------060205020302080404050200
+Content-Type: text/plain;
+ name="asm-boot.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="asm-boot.patch"
+
+===== arch/i386/boot/Makefile 1.28 vs edited =====
+--- 1.28/arch/i386/boot/Makefile	Thu Sep 11 06:01:23 2003
++++ edited/arch/i386/boot/Makefile	Thu Feb  5 15:56:28 2004
+@@ -31,6 +31,8 @@
+ 
+ host-progs	:= tools/build
+ 
++HOSTCFLAGS_build.o := -I$(TOPDIR)/include
++
+ # ---------------------------------------------------------------------------
+ 
+ $(obj)/zImage:  IMAGE_OFFSET := 0x1000
+
+--------------060205020302080404050200
+Content-Type: text/plain;
+ name="shell.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="shell.patch"
+
+===== init/Makefile 1.26 vs edited =====
+--- 1.26/init/Makefile	Sat Apr 26 14:43:03 2003
++++ edited/init/Makefile	Thu Feb  5 15:43:29 2004
+@@ -23,4 +23,4 @@
+ 
+ include/linux/compile.h: FORCE
+ 	@echo '  CHK     $@'
+-	@sh $(srctree)/scripts/mkcompile_h $@ "$(UTS_MACHINE)" "$(CONFIG_SMP)" "$(CC) $(CFLAGS)"
++	@$(CONFIG_SHELL) $(srctree)/scripts/mkcompile_h $@ "$(UTS_MACHINE)" "$(CONFIG_SMP)" "$(CC) $(CFLAGS)"
+
+--------------060205020302080404050200--

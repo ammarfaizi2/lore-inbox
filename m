@@ -1,34 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265360AbRFVHW2>; Fri, 22 Jun 2001 03:22:28 -0400
+	id <S265314AbRFVH23>; Fri, 22 Jun 2001 03:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265361AbRFVHWS>; Fri, 22 Jun 2001 03:22:18 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:14086 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S265360AbRFVHWO>; Fri, 22 Jun 2001 03:22:14 -0400
-Message-ID: <3B32F1BA.C43BBE8A@idb.hist.no>
-Date: Fri, 22 Jun 2001 09:20:26 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: no, en
+	id <S265313AbRFVH2U>; Fri, 22 Jun 2001 03:28:20 -0400
+Received: from web13605.mail.yahoo.com ([216.136.175.116]:26384 "HELO
+	web13605.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265112AbRFVH2C>; Fri, 22 Jun 2001 03:28:02 -0400
+Message-ID: <20010622072801.95429.qmail@web13605.mail.yahoo.com>
+Date: Fri, 22 Jun 2001 00:28:01 -0700 (PDT)
+From: Balbir Singh <balbir_soni@yahoo.com>
+Subject: Re: Is it useful to support user level drivers
+To: D.A.Fedorov@inp.nsk.su, Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+Cc: Balbir Singh <balbir_soni@yahoo.com>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SGI.4.10.10106221043470.3059659-100000@Sky.inp.nsk.su>
 MIME-Version: 1.0
-To: Thomas Weber <x@abyss.4t2.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.6pre iptables masquerading seems to kill eth0
-In-Reply-To: <3B31A652.85D2E597@idb.hist.no> <9gtmol$9ve$1@pandemonium.abyss.4t2.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Weber wrote:
+Thanks folks, I got some great comments, pointers a
+list of problems which I need to take care of.
+I promise that when I try and implement user
+level interrupts - it won't be a hack, all problems
+will be taken  care of based on good programming
+practices.
+
+I will look into the steps provided by people.
+Yes! we need to worry about shared interrupts, I will
+draw out a more detailed plan of problems and
+solutions.
+
+Later ...
+
+Thanks,
+Balbir
+
+
+--- "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+wrote:
+> On Thu, 21 Jun 2001, Oliver Neukum wrote:
 > 
-> I'm on 2.4.6pre3 + freeswan/ipsec on my gateway now for 5 days.
-> It's an old 486/66 32MB with several isdn links, a dsl uplink (with
-> iptables masquerading) behind a ne2k clone and a 3c509 to the inside network.
-> no problems at all with the interfaces (all compiled as modules).
+> > > > In addition, how do you handle shared
+> interrupts ?
+> > >
+> > > It is impossible, see my another message.
+> > 
+> > Which IMHO makes the concept pretty much useless.
+> > Interrupt sharing is pretty much the norm today.
+> And there is no evidence for 
+> > this to change in the near future. Rather the
+> opposite seems to happen in 
+> > fact.
+> > 
+> > Which devices were you thinking of, that need a
+> hardware IRQ and no kernel 
+> > driver ?
+> 
+> An ISA cards, mostly for data acquisition - edge
+> triggered interrupts,
+> no ack required immediately from interrupt handler.
+> Rest of hardware
+> handling can be deferred to user space.
+> IRQ sharing is possible there in spite of some
+> hardware hacking.
+> 
+> Yes, it is very limited range of hardware today but
+> it exists
+> and /dev/irq kernel module provide one of generic
+> mechanisms for user
+> space driver implementation.
+> 
 
-Nice to know it works for you.  The troubled machine is a dual celeron, 
-so it could be some sort of SMP problem.  I am trying pre5
-to see if it is better, I'll probably know in a few days.
 
-Helge Hafting
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265013AbUFAMa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265009AbUFAMjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265013AbUFAMa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 08:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUFAMa7
+	id S265009AbUFAMjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 08:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUFAMjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 08:30:59 -0400
-Received: from [213.239.201.226] ([213.239.201.226]:15296 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S265014AbUFAMa5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 08:30:57 -0400
-Message-ID: <40BC788A.3020103@shadowconnect.com>
-Date: Tue, 01 Jun 2004 14:37:30 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problem with ioremap which returns NULL in 2.6 kernel
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jun 2004 08:39:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2969 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265009AbUFAMjY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 08:39:24 -0400
+Date: Tue, 1 Jun 2004 13:39:22 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] explicitly mark recursion count
+Message-ID: <20040601123921.GN12308@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com> <20040526130047.GF12142@wohnheim.fh-wedel.de> <20040526130500.GB18028@devserv.devel.redhat.com> <20040526164129.GA31758@wohnheim.fh-wedel.de> <20040601055616.GD15492@wohnheim.fh-wedel.de> <20040601060205.GE15492@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040601060205.GE15492@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Jun 01, 2004 at 08:02:05AM +0200, Jörn Engel wrote:
+> Add recursion markers to teach automated test tools how bad documented
+> recursions really are.  Currently, there is only a single such too that
+> can use the information and there is always the danger of documentation
+> and reality getting out of sync.  But until there's a better tool...
+ 
+> +/**
+> + * RECURSION:	100
+> + * STEP:	register_proc_table
+> + */
 
-could someone help me with a ioremap problem. If there are two 
-controllers plugged in, the ioremap request for the first controller is 
-successfull, but the second returns NULL. Here is the output of the driver:
-
-i2o: Checking for PCI I2O controllers...
-i2o: I2O controller on bus 0 at 72.
-i2o: PCI I2O controller at 0xD0000000 size=134217728
-I2O: MTRR workaround for Intel i960 processor
-i2o/iop0: Installed at IRQ17
-i2o: I2O controller on bus 0 at 96.
-i2o: PCI I2O controller at 0xD8000000 size=134217728
-i2o: Unable to map controller.
-
-I've seen that there was a problem with 2.4 already, but didn't find it 
-with 2.6. Please could someone help me how to resolve this problem?
-
-Any help is appreciated.
-
-
-Best regards,
-
-
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
-
+This is too ugly for words ;-/  Who will maintain that data, anyway?

@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbULALZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbULALgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbULALZq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 06:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbULALZq
+	id S261372AbULALgq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 06:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbULALgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 06:25:46 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:23173 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261371AbULALZl (ORCPT
+	Wed, 1 Dec 2004 06:36:46 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:951 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261372AbULALgo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 06:25:41 -0500
-Date: Wed, 1 Dec 2004 12:25:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
-Message-ID: <20041201112520.GA20919@elte.hu>
-References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <20041129111634.GB10123@elte.hu> <41358.195.245.190.93.1101734020.squirrel@195.245.190.93> <20041129143316.GA3746@elte.hu> <20041129152344.GA9938@elte.hu> <48590.195.245.190.94.1101810584.squirrel@195.245.190.94> <20041130131956.GA23451@elte.hu> <17532.195.245.190.94.1101829198.squirrel@195.245.190.94> <20041201103251.GA18838@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041201103251.GA18838@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 1 Dec 2004 06:36:44 -0500
+Date: Wed, 1 Dec 2004 12:36:16 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Linus Torvalds <torvalds@osdl.org>, Alexandre Oliva <aoliva@redhat.com>,
+       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <20041129224404.GP26051@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.61.0412011227470.793@scrub.home>
+References: <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+ <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com>
+ <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
+ <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br> <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
+ <20041129224404.GP26051@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> New XRUN traces are attached, while running RT-V0.7.31-15 now.
-> However, I don't seem to get any notorious difference on the results,
-> since previous ones. All latencies traced ca. 26-27 usecs.
+On Mon, 29 Nov 2004, Al Viro wrote:
 
-another thing: could you try the latest jackd CVS tree too? I found
-spurious xruns in 99-0 (the last official release), while with 99-11 i
-dont see any xruns on my box, up until i completely saturate CPU time.
+> That leaves affs_fs.h containing only AFFS_SUPER_MAGIC declaration and
+> amigaffs.h also seriously cleaned up; it still has a bunch of defines that
+> are almost certainly never used in userland (they refer to ->b_data and
+> in-core affs superblock), but these might in theory be useful (similar
+> stuff for ext2 *is* used by userland code).
+> 
+> If Roman is OK with their removal, AFFS_DATA and friends should also get
+> moved to fs/affs/affs.h.
 
-I.e. both latest -RT kernels are needed for this (earlier RT kernels,
-prior the PI fixes still generated lots of xruns even with latest jack
-CVS), and latest jack CVS is needed.
+Looks good. Thanks.
+I wouldn't mind moving it all to fs/affs, I don't think there is any 
+userspace dependency here. I have a simple mkaffs tool, but that uses a 
+copy of it.
 
-	Ingo
+> +#if 0
+> +	s32	 i_original;			/* if != 0, this is the key of the original */
+> +	u32	 i_data[AFFS_MAX_PREALLOC];	/* preallocated blocks */
+> +	int	 i_cache_users;			/* Cache cannot be freed while > 0 */
+> +	unsigned char i_hlink;			/* This is a fake */
+> +	unsigned char i_pad;
+> +	s32	 i_parent;			/* parent ino */
+> +#endif
+
+That can be killed.
+
+bye, Roman

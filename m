@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVCJDYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVCJDvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbVCJDYh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 22:24:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbVCJBKL
+	id S261443AbVCJDvP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 22:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVCJDtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:10:11 -0500
-Received: from mail.kroah.org ([69.55.234.183]:39839 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262581AbVCJAmV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:21 -0500
-Cc: akpm@osdl.org
-Subject: [PATCH] tpm_atmel build fix
-In-Reply-To: <11104153223250@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:42:02 -0800
-Message-Id: <1110415322410@kroah.com>
+	Wed, 9 Mar 2005 22:49:40 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:6625
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261443AbVCJDsj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 22:48:39 -0500
+Date: Wed, 9 Mar 2005 19:47:44 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: bk commits and dates
+Message-Id: <20050309194744.6aef66b7.davem@davemloft.net>
+In-Reply-To: <1110422519.32556.159.camel@gaston>
+References: <1110422519.32556.159.camel@gaston>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2038, 2005/03/09 10:13:15-08:00, akpm@osdl.org
+On Thu, 10 Mar 2005 13:41:59 +1100
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-[PATCH] tpm_atmel build fix
+> I don't know if I'm the only one to have a problem with that, but it
+> would be nice if it was possible, when you pull a bk tree, to have the
+> commit messages for the csets in that tree be dated from the day you
+> pulled, and not the day when they went in the source tree.
 
-drivers/char/tpm/tpm_atmel.c:131: unknown field `fops' specified in initializer
-drivers/char/tpm/tpm_atmel.c:131: warning: missing braces around initializer
-
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/char/tpm/tpm_atmel.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/char/tpm/tpm_atmel.c b/drivers/char/tpm/tpm_atmel.c
---- a/drivers/char/tpm/tpm_atmel.c	2005-03-09 16:40:05 -08:00
-+++ b/drivers/char/tpm/tpm_atmel.c	2005-03-09 16:40:05 -08:00
-@@ -128,7 +128,7 @@
- 	.req_complete_mask = ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL,
- 	.req_complete_val = ATML_STATUS_DATA_AVAIL,
- 	.base = TPM_ATML_BASE,
--	.miscdev.fops = &atmel_ops,
-+	.miscdev = { .fops = &atmel_ops, },
- };
- 
- static int __devinit tpm_atml_init(struct pci_dev *pci_dev,
-
+When I'm working, I just do "bk csets" after I pull from Linus's
+tree to review what went in since the last time I pulled.

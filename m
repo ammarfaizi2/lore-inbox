@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVC2PG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVC2PHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbVC2PG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 10:06:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVC2PG0
+	id S262315AbVC2PHu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 10:07:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVC2PHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 10:06:26 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:1661 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262306AbVC2PGS (ORCPT
+	Tue, 29 Mar 2005 10:07:49 -0500
+Received: from colin2.muc.de ([193.149.48.15]:37389 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262305AbVC2PHY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 10:06:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=mMhGixw0sLLX+gi2TrJOcSvZHIir726gBLziHzcmaPD/o4d60krn2/82wK0fHrMfVhAYtgV+FFBTx2v8TQ0tQIbtcO+k1VXLLNHqtg+XZR//a3Uaqs0aOxnm46vbn5o2Do7f2DuBw57W+2nq6hwsCO+6EUZUXjzEUnMo0IRJKyc=
-Message-ID: <84fc9c00050329070625293d40@mail.gmail.com>
-Date: Tue, 29 Mar 2005 16:06:17 +0100
-From: Richard Guenther <richard.guenther@gmail.com>
-Reply-To: Richard Guenther <richard.guenther@gmail.com>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Subject: Re: memcpy(a,b,CONST) is not inlined by gcc 3.4.1 in Linux kernel
-Cc: linux-kernel@vger.kernel.org, gcc@gcc.gnu.org
-In-Reply-To: <200503291737.06356.vda@ilport.com.ua>
+	Tue, 29 Mar 2005 10:07:24 -0500
+Date: 29 Mar 2005 17:07:21 +0200
+Date: Tue, 29 Mar 2005 17:07:21 +0200
+From: Andi Kleen <ak@muc.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: folkert@vanheusden.com, Andrew Morton <akpm@osdl.org>,
+       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, jmorris@redhat.com,
+       herbert@gondor.apana.org.au
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Message-ID: <20050329150721.GB63268@muc.de>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org> <m1y8cc3mj1.fsf@muc.de> <424324F1.8040707@pobox.com> <20050327171934.GB18506@muc.de> <20050327185500.GP943@vanheusden.com> <424900BC.8030109@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <200503291737.06356.vda@ilport.com.ua>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424900BC.8030109@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Mar 2005 17:37:06 +0300, Denis Vlasenko <vda@ilport.com.ua> wrote:
-> Try testcase below the sig.
+On Tue, Mar 29, 2005 at 02:16:12AM -0500, Jeff Garzik wrote:
+> folkert@vanheusden.com wrote:
+> >>>pool.  The consensus was that the FIPS testing should be moved to 
+> >>>userspace.
+> >>
+> >>Consensus from whom? And who says the FIPS testing is useful anyways?
+> >>I think you just need to trust the random generator, it is like
+> >>you need to trust any other piece of hardware in your machine. Or do you 
+> >>check regularly if you mov instruction still works? @)
+> >
+> >
+> >For joe-user imho it's better to do a check from a cronjob once a day. But 
+> >for
 > 
-> This causes nearly one thousand calls to memcpy in my kernel
-> (not an allyesconfig one):
+> That would not catch the hardware failures seen in the field, in the past.
 
-> static inline void * __memcpy(void * to, const void * from, size_t n)
-> {
-> int d0, d1, d2;
-> __asm__ __volatile__(
->         "rep ; movsl\n\t"
->         "testb $2,%b4\n\t"
->         "je 1f\n\t"
->         "movsw\n"
->         "1:\ttestb $1,%b4\n\t"
->         "je 2f\n\t"
->         "movsb\n"
->         "2:"
->         : "=&c" (d0), "=&D" (d1), "=&S" (d2)
->         :"0" (n/4), "q" (n),"1" ((long) to),"2" ((long) from)
->         : "memory");
-> return (to);
-> }
+I am sure that all hardware in the field has failed in the past
+at some point - but that still does not mean we dont trust
+hardware in Linux. There simply is no choice.
 
-The question is, what reason does -Winline give for this inlining
-decision?  And then
-of course, how is the size estimate counted for the above.  What kind
-of tree node do
-we get for the ASM expression?
+I think we have a case here of the perfect being the enemy of the good.
 
-Richard.
+I just want a simple solution that works for near all users out of 
+the box without needing resource eating and hard to configure daemons
+of dubious value.
+
+You are extrapolating from extremly unlikely events and think
+it makes sense to handle them - which I think is wrong.
+
+The cronjob once a day or once an hour setup should catch
+the hardware failures anyways, and for shorter time amounts
+the random buffer in the kernel can handle bad input.
+
+-Andi (who should probably just resubmit the patch)

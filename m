@@ -1,101 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263298AbTFZTlK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 15:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbTFZTlK
+	id S263407AbTFZTnT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 15:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbTFZTnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 15:41:10 -0400
-Received: from fc.capaccess.org ([151.200.199.53]:52488 "EHLO fc.capaccess.org")
-	by vger.kernel.org with ESMTP id S263298AbTFZTlE (ORCPT
+	Thu, 26 Jun 2003 15:43:19 -0400
+Received: from pop.gmx.de ([213.165.64.20]:26328 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263407AbTFZTnP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 15:41:04 -0400
-Message-id: <fc.0010c7b200939d750010c7b200939d75.939d7c@capaccess.org>
-Date: Thu, 26 Jun 2003 15:57:12 -0400
-Subject: RAWBIT font 
+	Thu, 26 Jun 2003 15:43:15 -0400
+Date: Thu, 26 Jun 2003 21:57:28 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
 To: linux-kernel@vger.kernel.org
-From: "Rick A. Hohensee" <rickh@capaccess.org>
-MIME-Version: 1.0
+Subject: SCSI CDROM and NFS or AI?
+Message-Id: <20030626215728.025407b9.gigerstyle@gmx.ch>
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alancox=/dev/null
+Hi All,
 
-echo "
+I think my pc got some kind of AI:-) Yesterday I exported the scsi cdrom
+via nfs. Today, its very amusingly, my scsi cdrom opens the drawer
+suddenly. It's surely the fifth times this evening on which I close the
+drawer again 8).
 
-If you source this file into your Bash shell, and maybe other post-Korn
-shells, it should make a VGA font file named RAWBIT.VGAfont, using no
-programs external to Bash. RAWBIT.VGAfont is a degenerate font that's 9
-lines high and each glyph is vertical bitbars in the pattern of the ASCII
-value being displayed, plus a couple 7's and a blank line for visual
-indexing. It allows you to turn your unix workstation into a big UPC
-scandcode. RAWBIT.VGAfont is particularly good for studying things like
-Linus Torvalds' coding guidelines.
+Is this behavior normal;-) Is my PC bored?
 
-The data and routines used are from osimplay, my x86 assembler written in
-Bash, with which one can produce other binary oddities like OS kernels and
-VESA VBE 3.0 interfaces. Actually compembling a font line-by-line ala X
-bitmaps takes several minutes on a Pentium 1 in osimplay, but this
-degenerate little doohicky doesn't take long.
+And No it's not a joke!
 
+greets
 
-Rick Hohensee
-Precision Mojo Engineer
-
-" > $alancox
-
-
-
-declare -i      H       C
-octalbyte=({0,1,2,3}{0,1,2,3,4,5,6,7}{0,1,2,3,4,5,6,7})
-                ## several doodads to have meta listings notes
-
-
-hex=({0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f}{0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f})
-
-
-opnote          ( ) { #         internal                        =shasm
-        if test "$pass" = "2"           ; then
-                echo -n "                       "$*"    " >> $listing
-        fi
-        }
-
-allocated=yes
-output=RAWBIT.VGAfont
-listing=/dev/null
-pass=2
-
-ab              () { # assemble bytes.  pass-sensitive.         =shasm
-if test "$pass" = "2"   ; then
-        bytes $*
-else
-        H=H+$#
-                                fi
-                                }
-
-
-bytes           ( ) { #                 internal                =shasm
-        H=H+$#
-        for a in $*     ;do
-                if test $(($a)) -gt 255 ; then
-                        echo " H " $H ":  index into hex[] > 255"
-                fi
-                if test "$allocated" = "yes"    ;then
-                        echo -en \\${octalbyte[$a&0xff]}        >> $output
-                fi
-                if test $(($a)) -lt 0   ;then
-                        let a=$a+256
-                fi
-                echo -n ${hex[$a]}" "                   >> $listing
-        done
-                                                }
-
-
-let this=0
-while  test $this -lt 256 ; do
-        echo $this
-        ab $this $this $this $this $this $this 7 7 0
-        let this=$this+1
-done
-
+Marc

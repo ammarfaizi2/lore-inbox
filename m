@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261689AbTBLFLJ>; Wed, 12 Feb 2003 00:11:09 -0500
+	id <S263291AbTBLFVG>; Wed, 12 Feb 2003 00:21:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263291AbTBLFLJ>; Wed, 12 Feb 2003 00:11:09 -0500
-Received: from web20408.mail.yahoo.com ([66.163.169.96]:64648 "HELO
-	web20420.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261689AbTBLFLI>; Wed, 12 Feb 2003 00:11:08 -0500
-Message-ID: <20030212052057.39704.qmail@web20420.mail.yahoo.com>
-Date: Tue, 11 Feb 2003 21:20:56 -0800 (PST)
-From: devnetfs <devnetfs@yahoo.com>
-Subject: Re: compiling kernel with debug and optimization
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030210192324.GA154@elf.ucw.cz>
+	id <S266761AbTBLFVG>; Wed, 12 Feb 2003 00:21:06 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28166 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263291AbTBLFVF>; Wed, 12 Feb 2003 00:21:05 -0500
+Date: Tue, 11 Feb 2003 21:26:54 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+cc: LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
+       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <matthew@wil.cx>
+Subject: Re: [PATCH][COMPAT] compat_sys_futex 1/7 generic
+In-Reply-To: <20030212154716.7c101942.sfr@canb.auug.org.au>
+Message-ID: <Pine.LNX.4.44.0302112122130.3901-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Pavel Machek <pavel@ucw.cz> wrote:
-> Hi!
+
+On Wed, 12 Feb 2003, Stephen Rothwell wrote:
 > 
-> > Does compiling with -g option degrade performance? IMO it should
-> > NOT.
-> > If that's true, then why dont we compile kernels with both -g and
-> > -O2 always? 
-> 
-> Build with -g takes *a lot* of diskspace, like 1Gig.
-> 							Pavel
+> This patch creates compat_sys_futex and changes the 64 bit architextures
+> to use it.  This also changes sys_futex to take a "u32 *" as its first
+> argument as discussed with Rusty and yourself.
 
-Agreed. But can't distro's give two SET's of RPMS:
-   1. kernel-xyz.rpm
-   2. kernel-xyz-debug.rpm
+I'd prefer this much more if it just passed the timout around as jiffies
+(unconditionally), instead of converting them from one type of timespec to 
+another, and then converting that other timespec to jiffies, and having 
+multiple tests for NULL because of all that conversion confusion.
 
-where both 1,2 are same kernels compiled w/ same config and with -g.
-BUT rpm [1] is a 'strip -g' output of [2]. 
+In other words, make the do_futex() prototype be
 
-So people run [1] on their production systems. And developers analyze
-core-dump from these systems using [2]. Can this be done and will it
-work?
+	extern long do_futex(u32 *, int, int, unsigned long);
 
-Thanks in advance,
+and let all the callers simply do something like
 
-Regards,
-A.
+	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
 
+	if (utime) {
+		struct timespec ts;
+		if (copy_from_user(&ts, utime, sizeof(ts))
+			return -EFAULT;
+		timeout = timespec_to_jiffies(ts)+1;
+	}
+	do_futex(.. timeout);
 
-ps: Please Cc: me the reply. I am not subscribed to the list.
+instead. It's kind of silly to convert to kernel mode and carry around a 
+whole timespec, when the single actual _user_ doesn't even want one 
+anyway.
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Shopping - Send Flowers for Valentine's Day
-http://shopping.yahoo.com
+Hmm?
+
+		Linus
+

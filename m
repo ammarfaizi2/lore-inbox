@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbTKAXWl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 18:22:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbTKAXWl
+	id S261332AbTKAX03 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 18:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTKAX02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 18:22:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8662 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261267AbTKAXWk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 18:22:40 -0500
-Date: Sat, 1 Nov 2003 15:24:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: svdmade@planet.nl, linux-kernel@vger.kernel.org
-Subject: Re: Di-30 non working [bug 967]
-Message-Id: <20031101152453.42346338.akpm@osdl.org>
-In-Reply-To: <200311012228.29085.bzolnier@elka.pw.edu.pl>
-References: <3FA41703.1030408@planet.nl>
-	<200311012228.29085.bzolnier@elka.pw.edu.pl>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 1 Nov 2003 18:26:28 -0500
+Received: from turkey.mail.pas.earthlink.net ([207.217.120.126]:65246 "EHLO
+	turkey.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S261332AbTKAX01 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Nov 2003 18:26:27 -0500
+From: Richard <ratcheson@earthlink.net>
+Reply-To: ratcheson@earthlink.net
+To: linux-kernel@vger.kernel.org
+Subject: DMA unuseable on Compaq presario 1260
+Date: Sat, 1 Nov 2003 17:26:23 -0600
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311011726.23301.ratcheson@earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
->
-> Noticed by Stuart_Hayes@Dell.com:
-> 
-> I've noticed that, in the 2.6 (test 9) kernel, the "cmd" field (of type int)
-> in struct request has been removed, and it looks like all of the code in
-> ide-tape has just had a find & replace run on it to replace any instance of
-> rq.cmd or rq->cmd with rq.flags or rq->flags.
+I have a Compaq laptop with the OPTI 82C825 IDE chipset.  Up until 2.4.20 the 
+DMA worked fine.  Beginning with 2.4.20 i get the message HDIO_SET_DMA 
+FAILED: Operation not permitted each time I try to enable DMA.
 
-Nasty.
+Distro is SuSE 9.0 current kenel is 2.4..21-99. default
 
-> @@ -193,6 +193,11 @@ enum rq_flag_bits {
->  	__REQ_PM_SUSPEND,	/* suspend request */
->  	__REQ_PM_RESUME,	/* resume request */
->  	__REQ_PM_SHUTDOWN,	/* shutdown request */
-> +	__REQ_IDETAPE_PC1,	/* packet command (first stage) */
-> +	__REQ_IDETAPE_PC2,	/* packet command (second stage) */
-> +	__REQ_IDETAPE_READ,
-> +	__REQ_IDETAPE_WRITE,
-> +	__REQ_IDETAPE_READ_BUFFER,
->  	__REQ_NR_BITS,		/* stops here */
->  };
+If I go back to 2.4.19 dma works fine.  
 
-This takes us up to about 28 flags; we'll run out soon.
+I have RTFM, maillists, etc. since April and all I can find are references to 
+other systems with same problem and on in which Alan Cox says he changed 
+something which broke the Toshiba.   But no fixes for my machine. I waited 
+patiently for the 9.0 upgrade hoping it would be fixed but no joy.
 
-Probably it is time to split this into generic and private flags, as we did
-with bh_state_bits.  The scope of the "private" section needs to be
-defined: maybe "whoever created the queue"?
+Is there an easy fix or do I need to compile a special kernel for this one?
 
-blk_dump_rq_flags() will need updating.  Probably change it to only decode
-the "generic" flags, and print "bit XX" for the remainders.
-
-Your patch forgot to update rq_flags[] btw.
+TIA,
+Richard
 

@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbUJ0VIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262900AbUJ0Vmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262716AbUJ0VIE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 17:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbUJ0VGy
+	id S262900AbUJ0Vmn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbUJ0VhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 17:06:54 -0400
-Received: from basmati.dododge.net ([204.245.156.209]:56535 "HELO
-	basmati.dododge.net") by vger.kernel.org with SMTP id S262748AbUJ0VAT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:00:19 -0400
-Date: Wed, 27 Oct 2004 17:11:38 -0400
-From: Dave Dodge <dododge@dododge.net>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
-Cc: uclibc@uclibc.org, linux-kernel@vger.kernel.org
-Subject: Re: [uClibc] Re: [OT] Re: The naming wars continue...
-Message-ID: <20041027211138.GE24083@basmati>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041026203137.GB10119@thundrix.ch> <417F2251.7010404@zytor.com> <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua> <20041027154828.GA21160@thundrix.ch> <Pine.LNX.4.60.0410271803470.614@alpha.polcom.net> <20041027161402.GC21160@thundrix.ch> <Pine.LNX.4.60.0410271830430.614@alpha.polcom.net> <yw1xu0sgnkbb.fsf@mru.ath.cx>
+	Wed, 27 Oct 2004 17:37:23 -0400
+Received: from holomorphy.com ([207.189.100.168]:4994 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262916AbUJ0Vet (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 17:34:49 -0400
+Date: Wed, 27 Oct 2004 14:34:41 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, bzolnier@gmail.com,
+       rddunlap@osdl.org, axboe@suse.de
+Subject: Re: [PATCH] Re: news about IDE PIO HIGHMEM bug (was: Re: 2.6.9-mm1)
+Message-ID: <20041027213441.GC12934@holomorphy.com>
+References: <58cb370e041027074676750027@mail.gmail.com> <417FBB6D.90401@pobox.com> <1246230000.1098892359@[10.10.2.4]> <1246750000.1098892883@[10.10.2.4]> <417FCE4E.4080605@pobox.com> <20041027142914.197c72ed.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xu0sgnkbb.fsf@mru.ath.cx>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <20041027142914.197c72ed.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 07:27:04PM +0200, Måns Rullgård wrote:
-> Grzegorz Kulewski <kangur@polcom.net> writes:
-> > 5. I am thinking of changing directory structure (and some other
-> > things) some more... For example placing every package in its own dir
-> > - like /apps/gcc/3.4.2/<install date>/{bin,lib,...} and placing
-> 
-> I've been placing things in /opt/package/version for quite a while.
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>> However, pfn_to_page(page_to_pfn(page) + 1) might be safer. If
+>> rather slower. Is this patch acceptable to everyone?  Andrew?
 
-That's essentially what the GoboLinux distribution does, except that
-it does it for everything down to and including core stuff like "sh"
-and "ls".
+On Wed, Oct 27, 2004 at 02:29:14PM -0700, Andrew Morton wrote:
+> spose so.  The scatterlist API is being a bit silly there.
+> It might be worthwhile doing:
+> #ifdef CONFIG_DISCONTIGMEM
+> #define nth_page(page,n) pfn_to_page(page_to_pfn((page)) + n)
+> #else
+> #define nth_page(page,n) ((page)+(n))
+> #endif
 
-> I use a perl script to set the *PATH environment variables to point at
-> whatever versions I choose for each package.
+This is actually not quite good enough. Zones are not guaranteed
+to have adjacent mem_map[]'s even with CONFIG_DISCONTIGMEM=n. It may
+make sense to prevent merging from spanning zones, but frankly the
+overhead of the pfn_to_page()/page_to_pfn() is negligible in comparison
+to the data movement and (when applicable) virtual windowing, where in
+the merging code cpu overhead is a greater concern, particularly for
+devices that don't require manual data movement.
 
-If you have enough things installed you might run into problems with
-the size of PATH (perhaps unlikely on Linux, but I recall hitting
-the limit on Solaris at one point).
 
-When I used to do this on Solaris, my most recent solution was to use
-GNU stow to create symlinks from a single prefix to all of the
-installed packages.  Then I'd only need one additional entry in PATH,
-MANPATH, and so on.  stow made it easy enough to add and remove
-packages, though there were trouble spots with duplicate files such as
-the emacs info directory.
-
-If I recall correctly, in the GoboLinux case gcc 3.4.2 would be
-installed in "/Programs/GCC/3.4.2/{bin,lib,...}".  A symlink from
-"/Programs/GCC/Current" to "3.4.2" would select that as the current
-version.  The Current trees are symlinked into a single prefix (like I
-did with stow).  Gobo has scripts to manage all of this.  I believe
-"/bin" is a symlink to the bin directory in the main install prefix,
-but there are patches so that while "/bin" can be used for lookups it
-does not appear when you list "/".
-
-                                                  -Dave Dodge
+-- wli

@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261434AbSJZSxY>; Sat, 26 Oct 2002 14:53:24 -0400
+	id <S261463AbSJZS4V>; Sat, 26 Oct 2002 14:56:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSJZSxX>; Sat, 26 Oct 2002 14:53:23 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23700 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261434AbSJZSxX>;
-	Sat, 26 Oct 2002 14:53:23 -0400
-Date: Sat, 26 Oct 2002 14:59:39 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andreas Steinmetz <ast@domdv.de>
+	id <S261475AbSJZS4V>; Sat, 26 Oct 2002 14:56:21 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:15501 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S261463AbSJZS4U>;
+	Sat, 26 Oct 2002 14:56:20 -0400
+Date: Sat, 26 Oct 2002 12:06:08 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Toon van der Pas <toon@vanvergehaald.nl>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: rootfs exposure in /proc/mounts
-In-Reply-To: <3DBAE4A0.4090802@domdv.de>
-Message-ID: <Pine.GSO.4.21.0210261458460.29768-100000@steklov.math.psu.edu>
+Subject: Re: 2.5 Problem Report Status
+In-Reply-To: <20021026161830.E30058@vdpas.hobby.nl>
+Message-ID: <Pine.LNX.4.44.0210261205460.983-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Sat, 26 Oct 2002, Toon van der Pas wrote:
 
-On Sat, 26 Oct 2002, Andreas Steinmetz wrote:
-
-> Maybe I do oversee the obious but:
+> On Wed, Oct 23, 2002 at 10:03:51AM -0700, Patrick Mochel wrote:
+> > 
+> > ===== drivers/ide/ide.c 1.33 vs edited =====
+> > --- 1.33/drivers/ide/ide.c	Fri Oct 18 12:44:11 2002
+> > +++ edited/drivers/ide/ide.c	Wed Oct 23 09:42:27 2002
+> > @@ -3351,6 +3351,14 @@
+> >  	return 0;
+> >  }
+> >  
+> > +static void ide_drive_shutdown(struct device * dev)
+> > +{
+> > +	ide_drive_t * drive = container_of(dev,ide_drive_t,gendev);
+> > +	ide_driver_t * drive = drive->driver;
 > 
-> can somebody please explain why rootfs is exposed in /proc/mounts (I do 
-> mean the "rootfs / rootfs rw 0 0" entry) and if there is a good reason 
-> for the exposure?
+> Are you sure you didn't introduce a typo here?  (missing 'r')
+> Maybe you meant this line to be:
+> 
+> +	ide_driver_t * driver = drive->driver;
 
-Mostly the fact that it _is_ mounted and special-casing its removal from
-/proc/mounts is more PITA than it's worth.
+Uhm..yes. Sorry about that.
+
+	-pat
 

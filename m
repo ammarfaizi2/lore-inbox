@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272991AbTGaLD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 07:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272992AbTGaLD0
+	id S272986AbTGaLAA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 07:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272982AbTGaLAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 07:03:26 -0400
-Received: from main.gmane.org ([80.91.224.249]:63164 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S272991AbTGaLDY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 07:03:24 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 31 Jul 2003 07:00:00 -0400
+Received: from mailgate5.cinetic.de ([217.72.192.165]:15282 "EHLO
+	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
+	id S272986AbTGaK6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 06:58:43 -0400
+Date: Thu, 31 Jul 2003 12:58:41 +0200
+Message-Id: <200307311058.h6VAwfQ29574@mailgate5.cinetic.de>
+MIME-Version: 1.0
+Organization: http://freemail.web.de/
+From: "Dirk Huste" <dirkhuste@web.de>
 To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: DMA timeouts on SIS IDE
-Date: Thu, 31 Jul 2003 12:59:18 +0200
-Message-ID: <yw1xbrvbgdx5.fsf@users.sourceforge.net>
-References: <3F281C06.70707@inet6.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:5oXR2MWWsp8ri741EYYPiQrzuvI=
+Subject: Re: Majordomo results: <no subject>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lionel Bouton <Lionel.Bouton@inet6.fr> writes:
+don't want to disturbe ... maybe i didn't get the right mailing list, but general sounds good ....
 
-> the lspci output you previously sent confirmed that the SiS IDE driver
-> does set the UDMA timings correctly. Given this is out of the suspects
-> list, I'd advise to :
->
-> - test the hardware (uneasy on a notebook, 2.5" IDE drives aren't as
-> common as 3.5" ones)
+today i tried to compile a newer kernel version ... i thought i made anything right so far ... but things aren't always as easy as they seem to be, especially for a newbie ... 
 
-As you say, testing could be tricky.  However, the machine is only
-about one month old, so it shouldn't be dying already.
+configured kernel, created bzImage, modules ... installed them in  the correct paths ... configured lilo.conf and executed lilo ...
 
-> - try latest ACPI on sourceforge and enable ACPI in the BIOS if not
-> already done (seems to have helped once :
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=104212864518052&w=4)
+as result first "anything" works fine, while reboot, until lilo tries to load the new kernel:
 
-patch tells me those are already applied to 2.6.0-test2.  I tried
-booting with pci=noacpi, just in case, but the problem remains.  I
-can't find any BIOS settings relating to ACPI.
+Loading kernelxyz .... -> black screen: but the laptop ( gericom webshocks,with mini - pci - bussytem ) still seems to work in the background ...
 
--- 
-Måns Rullgård
-mru@users.sf.net
+still i would be glad if anybody, who knows what went wrong, could take some time and give me a hind about troubleshooting
+
+THX  DK :)
+______________________________________________________________________________
+Spam-Filter fuer alle - bester Spam-Schutz laut ComputerBild 15-03
+WEB.DE FreeMail - Deutschlands beste E-Mail - http://s.web.de/?mc=021120
 

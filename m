@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318018AbSHZKF5>; Mon, 26 Aug 2002 06:05:57 -0400
+	id <S318027AbSHZKJb>; Mon, 26 Aug 2002 06:09:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318027AbSHZKF5>; Mon, 26 Aug 2002 06:05:57 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:16901 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S318018AbSHZKF4>; Mon, 26 Aug 2002 06:05:56 -0400
-Date: Mon, 26 Aug 2002 12:09:31 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: barrie_spence@agilent.com
-Cc: andre@linux-ide.org, mru@users.sourceforge.net,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.4.19 - Promise TX2 Ultra133 (pdc20269) sticks at UDMA33
-Message-ID: <20020826100931.GG1529@louise.pinerecords.com>
-References: <C12D24916888D311BC790090275414BB0B724755@oberon.britain.agilent.com>
+	id <S318031AbSHZKJb>; Mon, 26 Aug 2002 06:09:31 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:20731 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318027AbSHZKJb>; Mon, 26 Aug 2002 06:09:31 -0400
+Subject: Re: kernel losing time
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Volker Kuhlmann <list0570@paradise.net.nz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020826011332.GA8440@paradise.net.nz>
+References: <20020825105500.GE11740@paradise.net.nz>
+	<Pine.LNX.4.44.0208250459500.3234-100000@hawkeye.luckynet.adm>
+	<20020825215515.GA2965@debill.org>
+	<1030320314.16766.25.camel@irongate.swansea.linux.org.uk> 
+	<20020826011332.GA8440@paradise.net.nz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 26 Aug 2002 11:15:36 +0100
+Message-Id: <1030356936.16651.37.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <C12D24916888D311BC790090275414BB0B724755@oberon.britain.agilent.com>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 4:20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've already tried "ideX=ata66" with no effect and they are definitely 80
-> pin cables (I thought the driver would complain if they weren't).
+On Mon, 2002-08-26 at 02:13, Volker Kuhlmann wrote:
+> Ok, Linux doesn't work with with a VIA 82C586 etc chipset. I plonked a
+> 16 bit ISA multi-I/O card with IDE interface into the box, some kind of
+> winbond chip. Both integrated IDE interfaces in the BIOS are disabled.
+> The problem was worst than ever. How does this happen?
 
-I have the exact same problem and loading the IDE core mod like this:
+ISA multi I/O without hdparm -u has sometimes done this kind of thing
+(since its slow and PIO). Thats seperate to the weird jumps we have seen
+from the VIA clock
 
-modprobe ide-mod options="ide2=ata66 ide3=ata66"
-
-solves it.
-
-->
-Aug 12 05:58:58 beth kernel: PDC20268: IDE controller on PCI bus 00 dev 30
-Aug 12 05:58:58 beth kernel: PDC20268: chipset revision 2
-Aug 12 05:58:58 beth kernel: PDC20268: not 100%% native mode: will probe irqs later
-Aug 12 05:58:58 beth kernel: PDC20268: ATA-66/100 forced bit set (WARNING)!!
-Aug 12 05:58:58 beth kernel:     ide2: BM-DMA at 0xf8b0-0xf8b7, BIOS settings: hde:pio, hdf:pio
-Aug 12 05:58:58 beth kernel: PDC20268: ATA-66/100 forced bit set (WARNING)!!
-Aug 12 05:58:58 beth kernel:     ide3: BM-DMA at 0xf8b8-0xf8bf, BIOS settings: hdg:pio, hdh:pio
-Aug 12 05:58:58 beth kernel: hde: WDC WD205BA, ATA DISK drive
-Aug 12 05:58:58 beth kernel: hdg: IBM-DJNA-351520, ATA DISK drive
-Aug 12 05:58:58 beth kernel: ide2 at 0xf898-0xf89f,0xf8aa on irq 9
-Aug 12 05:58:58 beth kernel: ide3 at 0xf8a0-0xf8a7,0xf8ae on irq 9
-Aug 12 05:58:58 beth kernel: hde: host protected area => 1
-Aug 12 05:58:58 beth kernel: hde: 40088160 sectors (20525 MB) w/2048KiB Cache, CHS=39770/16/63, UDMA(66)
-Aug 12 05:58:58 beth kernel: hdg: host protected area => 1
-Aug 12 05:58:58 beth kernel: hdg: 30033360 sectors (15377 MB) w/430KiB Cache, CHS=29795/16/63, UDMA(33)
-
-Are you getting the ATA66 bit forced warnings?
-
-T.

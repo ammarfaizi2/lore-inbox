@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264000AbUD0Laz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264012AbUD0Lgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264000AbUD0Laz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 07:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264010AbUD0Lay
+	id S264012AbUD0Lgx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 07:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264014AbUD0Lgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 07:30:54 -0400
-Received: from users.linvision.com ([62.58.92.114]:44265 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S264000AbUD0Lax (ORCPT
+	Tue, 27 Apr 2004 07:36:53 -0400
+Received: from ozlabs.org ([203.10.76.45]:10114 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264012AbUD0Lgu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 07:30:53 -0400
-Date: Tue, 27 Apr 2004 13:30:52 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH COW] sys_copyfile
-Message-ID: <20040427113052.GD6620@harddisk-recovery.com>
-References: <20040426092045.GC895@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
+	Tue, 27 Apr 2004 07:36:50 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040426092045.GC895@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+Content-Transfer-Encoding: 7bit
+Message-ID: <16526.17872.872703.799153@cargo.ozlabs.ibm.com>
+Date: Tue, 27 Apr 2004 21:36:48 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Keith Owens <kaos@sgi.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.6.6-rc2 Allow architectures to reenable interrupts on contended spinlocks 
+In-Reply-To: <6087.1083051952@kao2.melbourne.sgi.com>
+References: <1083048850.11576.19.camel@gaston>
+	<6087.1083051952@kao2.melbourne.sgi.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 26, 2004 at 11:20:45AM +0200, J?rn Engel wrote:
-> Adds a new syscall, copyfile() which does as the name sais.
+Keith Owens writes:
 
-I think it's actually better to use sendfile() rather then creating a
-new syscall:
+> On Tue, 27 Apr 2004 16:54:11 +1000, 
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> >Looks good, except as paulus noted that using 0 for flags in the
+> >_raw_spin_lock() case is wrong, since 0 is a valid flags value
+> >for some archs that could mean anything... 
+> 
+> 0 is valid for ia64, which is the only architecture that currently
+> defines __HAVE_ARCH_RAW_SPIN_LOCK_FLAGS.  If other architectures want
+> to define __HAVE_ARCH_RAW_SPIN_LOCK_FLAGS and they need a different
+> flag value to indicate 'no flags available' then the 0 can be changed
+> to an arch defined value.  Worry about that if it ever occurs.
 
-  ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
+I was just thinking yesterday that it would be good to reenable
+interrupts during spin_lock_irq on ppc64.  I am hacking on the
+spinlocks for ppc64 at the moment and this looks like something worth
+adding.
 
-In that way you can create the file in the usual way and copy the
-contents with an already existing syscall.
+Why not keep _raw_spin_lock as it is and only use _raw_spin_lock_flags
+in the spin_lock_irq{,save} case?
 
-IMHO sendfile() has been a wrong name in the first place, copyfd()
-would have been better. Why limit it to network traffic only?
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Paul.

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275060AbRIYPr6>; Tue, 25 Sep 2001 11:47:58 -0400
+	id <S275061AbRIYPvI>; Tue, 25 Sep 2001 11:51:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275061AbRIYPrr>; Tue, 25 Sep 2001 11:47:47 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:6798 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S275060AbRIYPrg>; Tue, 25 Sep 2001 11:47:36 -0400
-Date: Tue, 25 Sep 2001 08:44:39 -0700
-From: Greg KH <gregkh@us.ibm.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-Message-ID: <20010925084439.B6396@us.ibm.com>
-In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.4.9-ac15 (i686)
+	id <S275062AbRIYPu6>; Tue, 25 Sep 2001 11:50:58 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16393 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275061AbRIYPus>; Tue, 25 Sep 2001 11:50:48 -0400
+Date: Tue, 25 Sep 2001 08:50:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10 VM: what avoids from having lots of unwriteable inactive
+ pages
+In-Reply-To: <Pine.LNX.4.33L.0109251203560.26091-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0109250849480.7353-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 24, 2001 at 12:40:44PM -0400, Arjan van de Ven wrote:
-> 
-> I'm composing a list of all existing binary only modules, 
 
-Argus System's PitBull for Linux modifies the kernel.  No source or
-patches for these modifications can be found on the web, so I'm guessing
-that it's closed source:
-	http://www.argus-systems.com/
+On Tue, 25 Sep 2001, Rik van Riel wrote:
+> >
+> > swap_out() will deactivate everything it finds to be not-recently used,
+> > and that's how the inactive list ends up getting replenished.
+>
+> mlock()
 
-greg k-h
+Hey, if you've mlock'ed more than your available memory, there's nothing
+the VM layer can do. Except maybe a nice printk("Kiss your *ss goodbye");
+
+		Linus
+

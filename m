@@ -1,69 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268401AbRGXRzM>; Tue, 24 Jul 2001 13:55:12 -0400
+	id <S268403AbRGXR5W>; Tue, 24 Jul 2001 13:57:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268400AbRGXRyw>; Tue, 24 Jul 2001 13:54:52 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:16258 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268401AbRGXRyr>; Tue, 24 Jul 2001 13:54:47 -0400
-Date: Tue, 24 Jul 2001 13:54:37 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Damien TOURAINE <damien.touraine@limsi.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Call to the scheduler...
-In-Reply-To: <3B5DB110.3080606@limsi.fr>
-Message-ID: <Pine.LNX.3.95.1010724134717.32263A-100000@chaos.analogic.com>
+	id <S268406AbRGXR5M>; Tue, 24 Jul 2001 13:57:12 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63497 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268400AbRGXR4z>; Tue, 24 Jul 2001 13:56:55 -0400
+Subject: Re: Externally transparent routing
+To: jordiv@steva.nl (Jordi Verwer)
+Date: Tue, 24 Jul 2001 18:56:48 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <no.id> from "Jordi Verwer" at Jul 24, 2000 10:45:02 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15P6QK-0000aq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, Damien TOURAINE wrote:
+> To prevent my NAT-box from showing up on traceroutes I'd like to let it
+> route without decreasing the TTL. I was told that proxy arp also archieves
 
-> Hi !
-> I would like to implement a system to actively wait something but 
-> without eating a lot of CPU.
-> Thus, I would like to know if there is any way to force the scheduler of 
-> Linux to pre-empt the current process/thread, like the "sginap(0)" 
-> function within IRIX.
-> Moreover, I don't want to have to be root to execute such function.
-> 
-> Friendly
->     Damien TOURAINE
-> 
+And what happens if you get a routing loop ?
 
-Try sched_yield(). Accounting may still be messed up so the process
-may be 'charged' for CPU time that it gave up. Also, usleep(n) works
-very well with accounting working.
-
-This works, does not seem to load the system, but `top` shows
-99+ CPU time usage:
-
-main()
-{
-    for(;;) sched_yield();
-
-}
-
-This works and `top` shows nothing being used:
-
-main()
-{
-
-    for(;;) usleep(1);
-
-}
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+A NAT box really does need to drop the TTL. Nothing stops you giving it a
+more bizarre name, or indeed you can do what a few folks have found
+excruciatingly funny to do to tracerouters which is to spoof totally bogus
+icmp unreachables so they see crazy paths

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132244AbQL1Bt7>; Wed, 27 Dec 2000 20:49:59 -0500
+	id <S131216AbQL1CNh>; Wed, 27 Dec 2000 21:13:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132260AbQL1Btt>; Wed, 27 Dec 2000 20:49:49 -0500
-Received: from p3EE3C826.dip.t-dialin.net ([62.227.200.38]:20996 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S132244AbQL1Btb>; Wed, 27 Dec 2000 20:49:31 -0500
-Date: Thu, 28 Dec 2000 02:18:59 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.19pre3
-Message-ID: <20001228021859.A4661@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E149GRm-0003sX-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E149GRm-0003sX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 22, 2000 at 00:52:32 +0000
+	id <S132266AbQL1CN1>; Wed, 27 Dec 2000 21:13:27 -0500
+Received: from box-26.rosh.inter.net.il ([213.8.204.26]:9220 "EHLO
+	callisto.yi.org") by vger.kernel.org with ESMTP id <S132260AbQL1CNV>;
+	Wed, 27 Dec 2000 21:13:21 -0500
+Date: Thu, 28 Dec 2000 03:41:05 +0200 (IST)
+From: Dan Aloni <karrde@callisto.yi.org>
+To: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>, Zlatko Calusic <zlatko@iskon.hr>,
+        "Marco d'Itri" <md@Linux.IT>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexander Viro <viro@math.psu.edu>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: innd mmap bug in 2.4.0-test12
+In-Reply-To: <Pine.LNX.4.21.0012280235240.5692-100000@callisto.yi.org>
+Message-ID: <Pine.LNX.4.21.0012280339210.998-100000@callisto.yi.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Somewhat late, but not too late; Alan Cox wrote:
+On Thu, 28 Dec 2000, Dan Aloni wrote:
 
-> 2.2.19pre1
-...
-> o	VIA686a timer reset to 18Hz background		(Vojtech Pavlik)
+> On Wed, 27 Dec 2000, Philipp Rumpf wrote:
+> 
+> > On Wed, Dec 27, 2000 at 03:41:04PM -0800, Linus Torvalds wrote:
+> > > It must be wrong.
+> > > 
+> > > If we have a dirty page on the LRU lists, that page _must_ have a mapping.
+> > 
+> > What about pages with a mapping but without a writepage function ? or pages
+> > whose writepage function fails ?  The current code seems to simply put the
+> > page onto the active list in that case, which seems just as wrong to me.
+> 
+> I noticed the offset of 'mapping' in struct page doesn't match the offset
+> which get resolved at obsolute address 0x0000000c according to the Oops,
+> but it does matches the offset of a_ops in struct address_space, which
+> makes me wonder if it's possible that a_ops == NULL. Suggestions?
 
-I patched my 2.2.18-ma2 with that patch to see if that helps me off my
-sys time slowness, but it does unfortunately not help.
-
-I have my system clock drift roughly -1 s/min, though my CMOS clock is
-fine unless tampered with.
-
-What can I do?
+I was confused, or maybe temporal insanity, ignore that ;-)
 
 -- 
-Matthias Andree
+Dan Aloni 
+dax@karrde.org
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

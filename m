@@ -1,74 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVAOLZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVAOLnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbVAOLZk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 06:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVAOLZk
+	id S262261AbVAOLnl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 06:43:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVAOLnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 06:25:40 -0500
-Received: from web8509.mail.in.yahoo.com ([202.43.219.171]:47276 "HELO
-	web8509.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S262259AbVAOLZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 06:25:32 -0500
-Message-ID: <20050115112529.9759.qmail@web8509.mail.in.yahoo.com>
-Date: Sat, 15 Jan 2005 11:25:29 +0000 (GMT)
-From: Dinesh Ahuja <mdlinux7@yahoo.co.in>
-Subject: Accessing runqueue from device driver
-To: linux-kernel@vger.kernel.org
+	Sat, 15 Jan 2005 06:43:41 -0500
+Received: from smtp-vbr11.xs4all.nl ([194.109.24.31]:43531 "EHLO
+	smtp-vbr11.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262261AbVAOLni convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 06:43:38 -0500
+From: "Udo van den Heuvel" <udovdh@xs4all.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: VIA Rhine ethernet driver bug
+Date: Sat, 15 Jan 2005 12:43:33 +0100
+Message-ID: <001001c4faf7$71a26230$450aa8c0@hierzo>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 1 (Highest)
+X-MSMail-Priority: High
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: High
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hello,
 
-I am visulaizing a one of the use of char device
-driver.
-I need to write a char device which will prompt me by
-printing on my pseudo terminal if there is any zombie
-element in a runqueue on a specific processor. 
+On my firewall (VIA EPIA CL-6000 with VIA Rhine network chips running FC3
+and custom kernels) I see messages like:
 
-Is it possible to keep a track on runqueue through a
-function defined in a char device ? If I provied the
-information about zombies via /proc filesystem, then a
-user needs to read file again and again and would not
-be able to keep a constant watch on the zombies. Is it
-possible that my char device goes to sleep on a
-waitqueue and wakes up's only when a zombies process
-is present in a runqueue and then after giving details
-of that zombie process, my char device driver again
-goes to sleep and wait for new zombies in a runqueue.
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame spanned multiple
+buffers, entry 0x4 length 0 status 00000600!
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame ccf80040 vs
+ccf80040.
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame spanned multiple
+buffers, entry 0x5 length 0 status 00000400!
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame ccf80050 vs
+ccf80050.
 
-Could anyone guide me is the above thought can be
-implemented.
+[...]
+
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame spanned multiple
+buffers, entry 0xf length 0 status 00000400!
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame ccf800f0 vs
+ccf800f0.
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame spanned multiple
+buffers, entry 0x0 length 0 status 00000400!
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame ccf80000 vs
+ccf80000.
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame spanned multiple
+buffers, entry 0x1 length 0 status 00000400!
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame ccf80010 vs
+ccf80010.
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame spanned multiple
+buffers, entry 0x2 length 0 status 00000400!
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame ccf80020 vs
+ccf80020.
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame spanned multiple
+buffers, entry 0x3 length 0 status 00000581!
+Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame ccf80030 vs
+ccf80030.
+
+every 3 or 4 days or so when I really use the card. (please notice all 16
+entries are used and the length is 0)
+Eth1 is connected to an Alcatel Speedtouch Home at 10 Mbits, Half Duplex.
+This problem did not occur when I wsa using other hardware for the firewall.
+
+While googlin' I saw that this is an old bug which was not fixed for years.
+I am in contact with the maintainer and currently am trying to see what
+effect a smaller mtu and/or older driver versions might have.
+
+Because of the impact of this nasty bug (many users have these chips in
+their hardware) I would like to ask if others could have a look into this
+problem as well. Please email me your experiences (2.6.x kernel? Same bug or
+no problem? Fixes? Etc).
+PLEASE help!
+
+Thanks,
+Udo
 
 
-Can anybody guide me that how to use this_rq in a
-kernel module ? I get following error:
-
-CharRunQueue.o: unresolved symbol this_rq
-
-Including sched.h wonot help as macro is defined in
-sched.c. If I include sched.c, then I get lots of
-errors which are as follows:
-CharRunQueue.o: unresolved symbol immediate_bh
-CharRunQueue.o: unresolved symbol timer_bh
-CharRunQueue.o: unresolved symbol __switch_to
-CharRunQueue.o: unresolved symbol cpu_gdt_table
-CharRunQueue.o: unresolved symbol __mmdrop
-CharRunQueue.o: unresolved symbol tqueue_bh
-CharRunQueue.o: unresolved symbol default_ldt
-CharRunQueue.o: unresolved symbol show_trace_task
-CharRunQueue.o: unresolved symbol init_timervecs
-CharRunQueue.o: unresolved symbol __put_task_struct
-
-Please let me know where I am going wrong.
-
-
-Regards
-Dinesh
-
-
-________________________________________________________________________
-Yahoo! India Matrimony: Find your life partner online
-Go to: http://yahoo.shaadi.com/india-matrimony

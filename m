@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265276AbSKFBSe>; Tue, 5 Nov 2002 20:18:34 -0500
+	id <S265263AbSKFBLF>; Tue, 5 Nov 2002 20:11:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbSKFBSe>; Tue, 5 Nov 2002 20:18:34 -0500
-Received: from pcp02781107pcs.eatntn01.nj.comcast.net ([68.85.61.149]:60910
-	"EHLO linnie.riede.org") by vger.kernel.org with ESMTP
-	id <S265276AbSKFBSb>; Tue, 5 Nov 2002 20:18:31 -0500
-Date: Tue, 5 Nov 2002 20:25:06 -0500
-From: Willem Riede <wriede@riede.org>
-To: linux-kernel@vger.kernel.org
-Subject: ide-scsi problem in 2.5.44
-Message-ID: <20021106012506.GE3664@linnie.riede.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.4.1
+	id <S265264AbSKFBLF>; Tue, 5 Nov 2002 20:11:05 -0500
+Received: from packet.digeo.com ([12.110.80.53]:56487 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265263AbSKFBLC>;
+	Tue, 5 Nov 2002 20:11:02 -0500
+Message-ID: <3DC86DAC.4EBB59C8@digeo.com>
+Date: Tue, 05 Nov 2002 17:17:32 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: linux-aio@kvack.org, lkml <linux-kernel@vger.kernel.org>, bcrl@redhat.com
+Subject: Re: [PATCH 2/2] 2.5.46 AIO support for raw/O_DIRECT
+References: <200211060103.gA613a321256@eng2.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Nov 2002 01:17:32.0113 (UTC) FILETIME=[47E95C10:01C28532]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I realize Linus doesn't like ide-scsi, but while it exists I need it to work 
-:-)
+Badari Pulavarty wrote:
+> 
+> Hi,
+> 
+> This is (part 2/2) 2.5.46 patch to support AIO for raw/O_DIRECT.
+> 
+> This patch adds AIO support for DIO code path. This patch also
+> has a work around for calling set_page_dirty() from interrupt
+> context problem.
+> 
+> Andrew, could you please check to see if I did "set_page_dirty()"
+> hack (you suggested) correctly (in the right place) ?
+> 
 
-In 2.5.44 ide-scsi doesn't work with my OnStream DI-30 IDE Tape Drive.
-Works fine with 2.4.18 on the same hardware. It's not an osst (the driver
-for these devices, which I maintain) problem, the error comes from the
-scsi host (ide-scsi).
+Looks like it.  It's such a hack, I want to hide ;)
 
-When I try it, I get the following errors:
+Sigh.  I think I'd prefer to just go and make ->page_lock
+and ->private_lock irq-safe.
 
-Nov  5 17:54:58 fallguy kernel: osst :I: Tape driver with OnStream support 
-version 0.9.10
-Nov  5 17:54:58 fallguy kernel: osst :I: $Id: osst.c,v 1.65 2001/11/11 
-20:38:56 riede Exp $
-Nov  5 17:54:58 fallguy kernel: osst :I: Attached OnStream SC-30 tape at 
-scsi0, channel 0, id 0, lun 0 as osst0
-Nov  5 17:54:58 fallguy kernel: osst :I: Attached OnStream DI-30 tape at 
-scsi4, channel 0, id 1, lun 0 as osst1
-Nov  5 17:55:10 fallguy kernel: osst1:W: Warning 2 (sugg. bt 0x0, driver bt 
-0x0, host bt 0x0).
-Nov  5 17:55:10 fallguy kernel: osst1:I: This warning may be caused by your 
-scsi controller,
-Nov  5 17:55:10 fallguy kernel: osst1:I: it has been reported with some 
-Buslogic cards.
-Nov  5 17:55:10 fallguy kernel: hdc: status error: status=0x50 { DriveReady 
-SeekComplete }
-Nov  5 17:55:10 fallguy kernel: ide-scsi: Strange, packet command initiated 
-yet DRQ isn't asserted
-Nov  5 17:55:10 fallguy kernel: osst1:W: Warning 2 (sugg. bt 0x0, driver bt 
-0x0, host bt 0x0).
-Nov  5 17:55:10 fallguy kernel: osst1:W: Warning 2 (sugg. bt 0x0, driver bt 
-0x0, host bt 0x0).
-Nov  5 17:55:10 fallguy kernel: osst1:I: Device did not become Ready in open
-Nov  5 18:08:54 fallguy kernel: osst :I: Unloaded.
+Or not proceed with this patch at all.  If this is to be the
+only code which wishes to perform page list motion at interrupt
+time, perhaps it's not justifiable?
 
-Note the "hdc:" and the "ide-scsi:" lines.
+I really don't have a feeling for how valuable this is, nor
+do I know whether there will be other code which wants to
+perform page list manipulation at interrupt time.
 
-Does anyone know what ide-scsi's status is, and what might have gone wrong for 
-me?
-
-Thanks, Willem Riede.
-
+In fact I also don't know where the whole AIO thing sits at
+present.  Is it all done and finished?  Is there more to come,
+and if so, what??

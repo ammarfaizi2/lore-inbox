@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262807AbSJaQnO>; Thu, 31 Oct 2002 11:43:14 -0500
+	id <S263277AbSJaQeI>; Thu, 31 Oct 2002 11:34:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262800AbSJaQnN>; Thu, 31 Oct 2002 11:43:13 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:25604 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S262665AbSJaQmh>;
-	Thu, 31 Oct 2002 11:42:37 -0500
-Date: Thu, 31 Oct 2002 11:51:13 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Rasmus Andersen <rasmus@jaquet.dk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_TINY
-Message-ID: <20021031165113.GB8565@mark.mielke.cc>
-References: <20021030233605.A32411@jaquet.dk> <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de> <20021031011002.GB28191@opus.bloom.county> <20021031053310.GB4780@mark.mielke.cc> <20021031143301.GC28191@opus.bloom.county>
+	id <S263256AbSJaQdF>; Thu, 31 Oct 2002 11:33:05 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:37130 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S263232AbSJaQcL>;
+	Thu, 31 Oct 2002 11:32:11 -0500
+Date: Thu, 31 Oct 2002 17:38:34 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: PROBLEM REPORT 2.4.20-rc1: sundance.c
+Message-Id: <20021031173834.4514603a.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021031143301.GC28191@opus.bloom.county>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 07:33:01AM -0700, Tom Rini wrote:
-> > If gcc regularly generates larger code with -Os the answer is to talk to
-> > the gcc people, not to avoid using -Os...
-> It's not that it does regularly, it's that it can, and if it does, it's
-> not really a gcc bug from what I recall.  So I don't think CONFIG_TINY
-> should prefer -Os over -O2 but instead we should just ask the user what
-> level of optimization they want.  Remember, one of the real important
-> parts of embedded systems is flexibility.
+Hello all,
 
-Not to stretch this point too long, but turning off inlined functions 'can'
-make code bigger too. It usually doesn't.
-
-I have no problem with the other suggestion that CONFIG_TINY specify a
-template for a set of build options, but if CONFIG_TINY is used (either
-as an option, or a template of options) -Os should always be preferred
-over -O2. Whether the user can still override this or not is a different
-issue from whether -Os should be preferred over -O2 when CONFIG_TINY is
-specified.
-
-Or specified more clearly: If the compiler optimization flag is configurable,
-choosing CONFIG_TINY should default the optimization flag to -Os before it
-defaults the optimization flag to -O2.
-
-mark
-
+I'd like to point out that (at least) the network driver sundance.c has weird
+flaws when trying to use more than MAX_UNITS (8) cards at the same time. Since
+this driver can be used for DFE-580TX 4 port network card it is really easy to
+get more than 8 ports :-)
+In fact the driver does check against MAX_UNITS, but does _not_ fail if you go
+through the roof. Instead you can expect really interesting ifconfig-outputs
+;-)
+IMHO it should check and fail. I wonder what other card drivers do in such a
+case ...
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Regards,
+Stephan

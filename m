@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUIMTK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268884AbUIMTLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268861AbUIMTK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 15:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268884AbUIMTK2
+	id S268884AbUIMTLy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 15:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUIMTLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 15:10:28 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:18638 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268861AbUIMTKU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 15:10:20 -0400
-Date: Mon, 13 Sep 2004 21:07:41 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Paul Jakma <paul@clubi.ie>, Toon van der Pas <toon@hout.vanvergehaald.nl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial of Service Attack
-Message-ID: <20040913190741.GD19399@thundrix.ch>
-References: <002301c498ee$1e81d4c0$0200a8c0@wolf> <1095008692.11736.11.camel@localhost.localdomain> <20040912192331.GB8436@hout.vanvergehaald.nl> <Pine.LNX.4.61.0409130413460.23011@fogarty.jakma.org> <Pine.LNX.4.61.0409130425440.23011@fogarty.jakma.org> <20040913041846.GD2780@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iVCmgExH7+hIHJ1A"
+	Mon, 13 Sep 2004 15:11:54 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:19289 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S268884AbUIMTLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 15:11:15 -0400
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [uml-devel] [PATCH] nptl/sys_clone fix for i386/ppc
+Date: Mon, 13 Sep 2004 20:50:08 +0200
+User-Agent: KMail/1.6.1
+Cc: user-mode-linux-devel@lists.sourceforge.net,
+       David Jeffery <djeffery@britsys.net>, linux-kernel@vger.kernel.org
+References: <20040826020626.GA28471@malice.crymeariver.org> <200409121752.07398.blaisorblade_spam@yahoo.it> <20040913031014.GA13184@ccure.user-mode-linux.org>
+In-Reply-To: <20040913031014.GA13184@ccure.user-mode-linux.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040913041846.GD2780@alpha.home.local>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409132050.08856.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 13 September 2004 05:10, Jeff Dike wrote:
+> On Sun, Sep 12, 2004 at 05:52:44PM +0200, BlaisorBlade wrote:
+> > It worked no worse than current version (which is broken). In fact the
+> > 2.4 clone had 2 arguments. So it's obvious.
+>
+> In fact, it worked better.  It worked on a modern Debian filesystem, where
+> my old code didn't.
+Oh, well, your version gets the fifth arg right, indeed.
+> > However, this is non-standard. I've added just a comment for now, since
+> > you may have reason to keep the current code, but such behaviour calls
+> > for breakage when things change.
 
---iVCmgExH7+hIHJ1A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Yeah, I not sure why I did things the way I did.  That's very old code, and
+> there may have been some good reason for it which has since disappeared.
 
-Salut,
-
-On Mon, Sep 13, 2004 at 06:18:47AM +0200, Willy Tarreau wrote:
-> > The BGP state machine should instead, in normal operation, have=20
-> > only treated Hold time expired as the definitive sign of "peer is=20
-> > down" and allowed reconnects.
->=20
-> It should not necessarily wait for the time-out, but at least wait for
-> a few reconnect errors.
-
-Problem  there: you  can fake  connection errors  almost as  easily as
-sending an RST packet, so the DoS might reappear, might it not?
-
-				Tonnerre
-
---iVCmgExH7+hIHJ1A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD4DBQFBRe/8/4bL7ovhw40RAns4AKCEHPFN5dKLrmwgdJuE+UK2w5pdNQCXdE7t
-Ipp+iizNsDSClV0ExUFb+w==
-=RsZd
------END PGP SIGNATURE-----
-
---iVCmgExH7+hIHJ1A--
+> Offhand, it looks like doing things in the standard way will clean up
+> copy_thread a bit.
+I agree completely.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbTJJIBH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 04:01:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTJJIBH
+	id S262497AbTJJH5L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 03:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbTJJH5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 04:01:07 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8647 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262555AbTJJIBF (ORCPT
+	Fri, 10 Oct 2003 03:57:11 -0400
+Received: from rth.ninka.net ([216.101.162.244]:10657 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S262497AbTJJH5I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 04:01:05 -0400
-Date: Fri, 10 Oct 2003 10:01:00 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.7 "thoughts"] V0.3
-Message-ID: <20031010080100.GO1232@suse.de>
-References: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
+	Fri, 10 Oct 2003 03:57:08 -0400
+Date: Fri, 10 Oct 2003 00:57:03 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: karim@opersys.com
+Cc: jmorris@redhat.com, zanussi@us.ibm.com, linux-kernel@vger.kernel.org,
+       bob@watson.ibm.com
+Subject: Re: [PATCH][RFC] relayfs (1/4) (Documentation)
+Message-Id: <20031010005703.0daf3e19.davem@redhat.com>
+In-Reply-To: <3F859DF1.8000602@opersys.com>
+References: <Pine.LNX.4.44.0310091311440.14415-100000@thoron.boston.redhat.com>
+	<3F859DF1.8000602@opersys.com>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10 2003, Frederick, Fabian wrote:
-> 2.7 "thoughts"
-> Thanks to Gabor, Stuart, Stephan and others
-> Don't hesitate to send me more or comment.
+On Thu, 09 Oct 2003 13:42:09 -0400
+Karim Yaghmour <karim@opersys.com> wrote:
 
-Please, do we really have to look at this from now and until 2.7 opens?
-If I see more nice "features" from people that are never going to write
-them anyways, I think I'll scream.
+> 
+> James Morris wrote:
+> > It should be possible to make Netlink sockets mmapable (like the packet 
+> > socket).
+> 
+> So would you consider running printk on Netlink sockets? Do you think Netlink
+> could accomodate something as intensive as tracing? etc.
 
-> * Software RAID 0+1 perhaps?
->                 A lot of hardware RAID cards support it, why not the
->                 kernel?  By RAID 0+1 I mean mirror-RAIDing two (or more)
->                 stripe-RAID arrays.  (Or can this be done already?)
+Of course it can.  Look, netlink is used on routers to transfer
+hundreds of thousands of routing table entries in one fell swoop
+between a user process and the kernel every time the next hop Cisco
+has a BGP routing flap.
 
-What's wrong with raid X on top of raid Y? IOW, this works perfectly
-fine since, hang on, 2.2 + new raid.
+If you must have "enterprise wide client server" performance, we can
+add mmap() support to netlink sockets just like AF_PACKET sockets support
+such a thing.  But I _really_ doubt you need this and unlike netlink sockets
+relayfs has no queueing model, whereas not only does netlink have one it's
+been tested in real life.
 
--- 
-Jens Axboe
-
+You guys are really out of your mind if you don't just take the netlink
+printk thing I did months ago and just run with it.  When someone first
+told showed me this relayfs thing, I nearly passed out in disbelief that
+people are still even considering non-netlink solutions.

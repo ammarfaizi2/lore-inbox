@@ -1,72 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263850AbUGYKUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263851AbUGYK1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbUGYKUX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 06:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUGYKUX
+	id S263851AbUGYK1G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 06:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbUGYK1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 06:20:23 -0400
-Received: from mail-out.m-online.net ([212.18.0.9]:57800 "EHLO
-	mail-out.m-online.net") by vger.kernel.org with ESMTP
-	id S263850AbUGYKUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 06:20:17 -0400
-Subject: Tuning (stv0299.ko) with SkyStar2/DVB not working with 2.6.8-rc*
-	anymore
-From: Florian Huber <florian.huber@mnet-online.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1090750814.17579.15.camel@suprafluid.huber.lan>
+	Sun, 25 Jul 2004 06:27:06 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:32717 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S263851AbUGYK1B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 06:27:01 -0400
+Date: Sun, 25 Jul 2004 12:27:00 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: "Bc. Michal Semler" <cijoml@volny.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3C905 and ethtool
+Message-ID: <20040725102700.GN18676@lug-owl.de>
+Mail-Followup-To: "Bc. Michal Semler" <cijoml@volny.cz>,
+	linux-kernel@vger.kernel.org
+References: <200407251016.22001.cijoml@volny.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 25 Jul 2004 12:20:14 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Lqu5hkAdORZH7CMT"
+Content-Disposition: inline
+In-Reply-To: <200407251016.22001.cijoml@volny.cz>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello ML,
-I had my SkyStar2 dvb-s card working with 2.6.7-bk21, but with the 2.6.8
-release candidate's I cannot tune different channels anymore.
-Explicitly testet on 2.6.8-rc2-bk1 and 2.6.8-rc1-bk4 (preempt)
 
-mplayer dvb:// works
-e.g. mplayer dvb://ZDF does not
+--Lqu5hkAdORZH7CMT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-mplayer hangs at: dvb_tune Freq: 11953000
+On Sun, 2004-07-25 10:16:21 +0200, Bc. Michal Semler <cijoml@volny.cz>
+wrote in message <200407251016.22001.cijoml@volny.cz>:
+> I wanted to get info about my NIC via ethtool, but it writes:
+> # ethtool eth0
+> Cannot get device settings: Operation not supported
+> # ethtool eth1
+> Cannot get device settings: Operation not supported
+>=20
+> 00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] =
+(rev 30)
+> 01:08.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang]
+>=20
+> Any possibility to add this support into this driver?
 
-strace:
----
-write(1, "dvb_tune Freq: 11953000\n", 24dvb_tune Freq: 11953000
-) = 24
-ioctl(5, 0x80a86f3d, 0x7fbfffbd40)      = 0
-ioctl(5, 0x6f42, 0x1)                   = 0
-ioctl(5, 0x6f43, 0x1)                   = 0
-nanosleep({0, 15000000}, NULL)          = 0
-ioctl(5, 0x40076f3f, 0x7fbfffbd30)      = 0
-nanosleep({0, 0}, NULL)                 = 0
-nanosleep({0, 15000000}, NULL)          = 0
-ioctl(5, 0x6f41, 0)                     = 0
-nanosleep({0, 15000000}, NULL)          = 0
-ioctl(5, 0x6f42, 0)                     = 0
-nanosleep({0, 100000000}, NULL)         = 0
-ioctl(5, 0x80286f4e, 0x7fbfffbd00)      = -1 EAGAIN (Resource
-temporarily unavai
-lable)
-ioctl(5, 0x40246f4c, 0x7fbfffbdf0)      = 0
-poll([{fd=5, events=POLLPRI, revents=POLLPRI}], 1, 10000) = 1
-ioctl(5, 0x80286f4e, 0x7fbfffbd00)      = 0
-poll([{fd=5, events=POLLPRI, revents=POLLPRI}], 1, 10000) = 1
-ioctl(5, 0x80286f4e, 0x7fbfffbd00)      = 0
-[...last line repeating...]
----
+Feel free to do it:)  Some other cards support it, so their code should
+give you an idea about how that is done...
 
+MfG, JBG
 
-output from dmesg:
----
-drivers/media/dvb/b2c2/skystar2.c: FlexCopIIB(rev.195) chip found
-drivers/media/dvb/b2c2/skystar2.c: the chip has 38 hardware filters
-DVB: registering new adapter (Technisat SkyStar2 driver).
-probe_tuner: try to attach to Technisat SkyStar2 driver
-drivers/media/dvb/frontends/stv0299.c: setup for tuner Samsung
-TBMU24112IMB
-DVB: registering frontend 0:0 (STV0299/TSA5059/SL1935 based)...
----
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
+  O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
+--Lqu5hkAdORZH7CMT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBA4r0Hb1edYOZ4bsRArRQAJ94I+UZF/V8K2ZfaOI0Pg1CRd28ZACfVWSH
+hU4Wcr9GAeJ74Som3REWkeY=
+=J1EA
+-----END PGP SIGNATURE-----
+
+--Lqu5hkAdORZH7CMT--

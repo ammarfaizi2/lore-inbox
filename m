@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbRAHUjP>; Mon, 8 Jan 2001 15:39:15 -0500
+	id <S130642AbRAHUkz>; Mon, 8 Jan 2001 15:40:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbRAHUjG>; Mon, 8 Jan 2001 15:39:06 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:50926 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S129532AbRAHUix>;
-	Mon, 8 Jan 2001 15:38:53 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101082038.f08Kcds16098@webber.adilger.net>
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-In-Reply-To: <Pine.GSO.4.21.0101081504200.4061-100000@weyl.math.psu.edu>
- "from Alexander Viro at Jan 8, 2001 03:12:40 pm"
-To: Alexander Viro <viro@math.psu.edu>
-Date: Mon, 8 Jan 2001 13:38:39 -0700 (MST)
-CC: Andreas Dilger <adilger@turbolinux.com>, Chris Mason <mason@suse.com>,
-        Alan Cox <alan@redhat.com>, Stefan Traby <stefan@hello-penguin.com>,
-        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S130690AbRAHUkp>; Mon, 8 Jan 2001 15:40:45 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:59388 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130642AbRAHUkh>; Mon, 8 Jan 2001 15:40:37 -0500
+Date: Mon, 8 Jan 2001 18:40:21 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Linux-2.4.x patch submission policy
+In-Reply-To: <20010108223343.O10035@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.21.0101081837520.21675-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro writes:
-> Andreas Dilger wrote:
-> > Actually, this is wrong.  The ext2 inode limit is 2^32 512-byte sectors,
-> > not 2^32 blocksize blocks.  Yes this is a wart and Ted wants to fix it, as
+On Mon, 8 Jan 2001, Ingo Oeser wrote:
+> On Sun, Jan 07, 2001 at 02:37:47PM -0200, Rik van Riel wrote:
+> > Once we are sure 2.4 is stable for just about anybody I
+> > will submit some of the really trivial enhancements for
+> > inclusion; all non-trivial patches I will maintain in a
+> > VM bigpatch, which will be submitted for inclusion around
+> > 2.5.0 and should provide one easy patch for those distribution
+> > vendors who think 2.4 VM performance isn't good enough for
+> > them ;)
 > 
-> ??? Where? Oh, wait... ->i_blocks? I'ld rather refuse to grow past 2^32 -
-> sparse files can legitimately have large offsets and very low ->i_blocks.
-> But yes, we need to check for overflows. BTW, 2^32-1 is not good enough -
-> indirect blocks also contribute, so limiting ->i_size by 2Tb is not
-> guaranteed to keep ->i_blocks low.
+> Hmm, could you instead follow Andreas approach and have a
+> directory with little patches, that do _exactly_ one thing and a
+> file along to describe what is related, dependend and what each
+> patch does?
 
-Yes, I was thinking i_blocks, but you are correct - I wasn't accounting for
-the indirect blocks.  This limit is still {2,4,8,16} times smaller than the
-limit you were calculating for i_size.  If we do the i_blocks limit checking
-at block allocation time (for large sparse files) this is even better, but
-so far it wasn't done...
+I wasn't aware Andrea switched the way he stored his patches
+lately ;)
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+But seriously, you're right that this is a good thing. I'll
+work on splitting out my patches and documenting what each
+part does.
+
+(but not now, I'm headed off for Australia ... maybe I can
+split out the patches on my way there and cvs commit when
+I'm there)
+
+OTOH, the advantage of having a big patch means that it's
+easier for me to get people to test all of the things I
+have. Guess I'll need to find a way to easily get both the
+small and the big patches ;)
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

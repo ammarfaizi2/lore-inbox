@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbULCJd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbULCJfD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbULCJd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 04:33:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbULCJd0
+	id S262119AbULCJfD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 04:35:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbULCJfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 04:33:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61152 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262116AbULCJdW (ORCPT
+	Fri, 3 Dec 2004 04:35:03 -0500
+Received: from mail.gmx.de ([213.165.64.20]:47513 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262119AbULCJeu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 04:33:22 -0500
-Date: Fri, 3 Dec 2004 01:32:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Olivier RAMAT" <olrt@ifrance.com>
-Cc: linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: Kernel 2.6.9 oops during data transfer to noname usb key
-Message-Id: <20041203013254.55534ef8.akpm@osdl.org>
-In-Reply-To: <0412030857.370100@th00.idoo.com>
-References: <0412030857.370100@th00.idoo.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Dec 2004 04:34:50 -0500
+X-Authenticated: #4512188
+Message-ID: <41B03337.5090408@gmx.de>
+Date: Fri, 03 Dec 2004 10:34:47 +0100
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041114)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: axboe@suse.de, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
+Subject: Re: Time sliced CFQ io scheduler
+References: <20041202130457.GC10458@suse.de>	<20041202134801.GE10458@suse.de>	<20041202114836.6b2e8d3f.akpm@osdl.org>	<20041202195232.GA26695@suse.de>	<20041202121938.12a9e5e0.akpm@osdl.org>	<41AF94B8.8030202@gmx.de>	<20041203070108.GA10492@suse.de>	<41B02DFD.9090503@gmx.de> <20041203012645.21377669.akpm@osdl.org>
+In-Reply-To: <20041203012645.21377669.akpm@osdl.org>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigCAF226BFECE58BA6FBB562D3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Olivier RAMAT" <olrt@ifrance.com> wrote:
->
-> Hello !
-> This is my first post to the linux.kernel mailing list so please
-> apologize ;-)
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigCAF226BFECE58BA6FBB562D3
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Andrew Morton schrieb:
+> "Prakash K. Cheemplavam" <prakashkc@gmx.de> wrote:
 > 
-> Here's the oops that I experienced while copying files to my noname
-> usb key :
+>>>Can you try with the patch that is in the parent of this thread? The
+>>
+>> > above doesn't look that bad, although read performance could be better
+>> > of course. But try with the patch please, I'm sure it should help you
+>> > quite a lot.
+>> > 
+>>
+>> It actually got worse: Though the read rate seems accepteble, it is not, as 
+>> interactivity is dead while writing.
+> 
+> 
+> Is this a parallel IDE system?  SATA?  SCSI?  If the latter, what driver
+> and what is the TCQ depth?
 
-A few things have been fixed since then.  Please test either 2.6.10-rc2
-plus
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.10-rc2-bk16.gz
-or test 2.6.10-rc3 when it is released.  And then send a followup report.
+Hmm yes, this is a RAID0 configuration, so the regression of time 
+slieced CFQ might me related to it, but the problem of unresponsiveness 
+while writing as such was on my single disk, as well. Here one HD is 
+SATA (libata silicon image) and one on IDE controller (nforce2). No TCQ. 
+BTW, I haven't checked the problem on my ide disk only on SATA. Wil try 
+to free some space and do so...
 
+Prakash
 
-> Nov 10 07:47:40 darkstar kernel:  [<c0103f25>]
-> kernel_thread_helper+0x5/0x10
-> Nov 10 07:47:40 darkstar kernel: SCSI error : <0 0 0 0> return code =
-> 0x70000
-> Nov 10 07:47:40 darkstar kernel: end_request: I/O error, dev sda, sector
-> 348970
-> Nov 10 07:47:40 darkstar kernel: Buffer I/O error on device sda1,
-> logical block 348907
-> Nov 10 07:47:40 darkstar kernel: lost page write due to I/O error on
-> sda1
-> Nov 10 07:47:50 darkstar kernel: ------------[ cut here ]------------
-> Nov 10 07:47:50 darkstar kernel: kernel BUG at
-> /usr/src/linux-2.6.9/drivers/block/as-iosched.c:1853!
+--------------enigCAF226BFECE58BA6FBB562D3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Ouch.  Haven't seen that before.  Maybe scsi error recovery screwed up the
-request queueing.  James, have we fixed anything in that area post-2.6.9?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
+iD8DBQFBsDM3xU2n/+9+t5gRAh6mAKDVLBkKuqsJUkHzBT51fVWylkcV/wCfSuUH
+q5a4mqZp288Ak1szIZrgD9k=
+=Fclg
+-----END PGP SIGNATURE-----
+
+--------------enigCAF226BFECE58BA6FBB562D3--

@@ -1,96 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264949AbUFRCRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264955AbUFRCYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264949AbUFRCRM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 22:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264955AbUFRCRM
+	id S264955AbUFRCYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 22:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUFRCYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 22:17:12 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:20501 "HELO mproxy.gmail.com")
-	by vger.kernel.org with SMTP id S264949AbUFRCRG (ORCPT
+	Thu, 17 Jun 2004 22:24:16 -0400
+Received: from ns1.lanforge.com ([66.165.47.210]:57294 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S264955AbUFRCYO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 22:17:06 -0400
-Message-ID: <5b18a542040617191740fa8e61@mail.gmail.com>
-Date: Thu, 17 Jun 2004 22:17:04 -0400
-From: Erik Harrison <erikharrison@gmail.com>
-To: 4Front Technologies <dev@opensound.com>
-Subject: Re: Stop the Linux kernel madness
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <40D2474D.8030303@opensound.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 17 Jun 2004 22:24:14 -0400
+Message-ID: <40D25247.3050509@candelatech.com>
+Date: Thu, 17 Jun 2004 19:24:07 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: poll
+References: <Pine.LNX.4.53.0406170954190.702@chaos> <40D21C8E.4040500@candelatech.com> <Pine.LNX.4.53.0406171958570.3414@chaos>
+In-Reply-To: <Pine.LNX.4.53.0406171958570.3414@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk> <40D23EBD.50600@opensound.com> <40D24606.6040009@yahoo.com.au> <40D2474D.8030303@opensound.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jun 2004 18:37:17 -0700, 4Front Technologies
-<dev@opensound.com> wrote:
+Richard B. Johnson wrote:
+> On Thu, 17 Jun 2004, Ben Greear wrote:
 > 
-> Nick Piggin wrote:
-> > 4Front Technologies wrote:
-> >
-> >>
-> >> It's time everybody started to pay some attention to in-kernel
-> >> interfaces because
-> >> Linux has graduated out of your personal sandbox to where other people
-> >> want to use
-> >> Linux and they aren't kernel developers.
-> >>
-> >
-> > No, it is still our personal sandbox actually, and it is you
-> > who must pay attention to in-kernel interfaces.
-> > 
-> The problem is that we ARE paying attention to in-kernel interfaces or else
-> why would our software work on Linux 2.6.7 or Fedora or Mandrake?
 > 
+>>Richard B. Johnson wrote:
+>>
+>>>Hello,
+>>>Is it okay to use the 'extra' bits in the poll return value for
+>>>something? In other words, is the kernel going to allow a user-space
+>>>program to define some poll-bits that it waits for, these bits
+>>>having been used in the driver?
+>>
+>>Can't you just do a read and determine from the results of the read
+>>what you actually got?  If not, add framing to your message so that
+>>you *CAN* determine one message type from another...
+>>
+>>Ben
+>>
+> 
+> 
+> The mailbox read(s) is/are 32-bit int(s). There is no way to identify
+> it as being "new" or something that was written two weeks ago.
+> That's why we use poll. Poll says 'I got something new for you'.
 
-Because the patched kernels shipped by Redhat and Mandrake didn't
-introduce this particular bug?
+Then use 3 different file descriptors to poll/read.  That seems more
+efficient anyway as it doesn't wake the folks who don't care.
 
-Look, I sympathize a bit. I am Joe User, and I have run a hand
-configured stock kernel for about as long as I've known how, for much
-the reasons you describe. I am in the happy position of not having any
-users other than myself.
+Ben
 
-Novell/SuSE don't have that luxury, and for various reasons run
-patched kernels. If this weren't common knowledge, there might be some
-legitimate complaint that a bug in SuSE is improperly seen as a bug in
-Linux proper. But it's not like SuSE (or Redhat, or Debian) has some
-man behind a curtain pulling strings and patching kernels while
-Dorothy watches on oblivious. No one was lied to. It's just a bug,
-file it with the maintainer (SuSE), and get on with your life.
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
-However I for one, would like to see more of these vendor patches in
-the mainline. I think it's the wrong place for the vendor to add
-value, most of the time. The peer review of getting into Linus's tree
-would make me sleep better at night if I depended on features provided
-by vendor patches. Hopefully, there will be a day when the idea of
-shipping a patched kernel is ridiculous for 99% of vendor needs.
-
--Erik
-
-> > Or were you hoping that we're all here just to make your life
-> > easier?
-> > 
-> I don't expect you to make my life easier. Why don't we all take
-> a huge plunge backwards to circa 1958 and start programming by throwing
-> switches?. Are you against making linux better or what?
-> 
-> 
-> 
-> 
-> best regards
-> 
-> Dev Mazumdar
-> ---------------------------------------------------------------------
-> 4Front Technologies
-> 4035 Lafayette Place, Unit F, Culver City, CA 90232, USA
-> Tel: 310 202 8530   Fax: 310 202 0496   URL: http://www.opensound.com
-> ---------------------------------------------------------------------
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318014AbSGLVWR>; Fri, 12 Jul 2002 17:22:17 -0400
+	id <S318018AbSGLVZR>; Fri, 12 Jul 2002 17:25:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318015AbSGLVWQ>; Fri, 12 Jul 2002 17:22:16 -0400
-Received: from pc132.utati.net ([216.143.22.132]:15237 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S318014AbSGLVWP>; Fri, 12 Jul 2002 17:22:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: linux-kernel@vger.kernel.org
-Subject: No rule to make autoconf.h in 2.4.19-rc1?
-Date: Fri, 12 Jul 2002 11:26:44 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: marcelo@conectiva.com.br
+	id <S318019AbSGLVZQ>; Fri, 12 Jul 2002 17:25:16 -0400
+Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:65158 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318018AbSGLVZP>; Fri, 12 Jul 2002 17:25:15 -0400
+Date: Fri, 12 Jul 2002 15:27:25 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Rob Landley <landley@trommello.org>
+cc: linux-kernel@vger.kernel.org, <marcelo@connectiva.com.br>
+Subject: Re: No rule to make autoconf.h in 2.4.19-rc1?
+In-Reply-To: <20020712205136.8D3648B5@merlin.webofficenow.com>
+Message-ID: <Pine.LNX.4.44.0207121526421.3421-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020712210434.271CA8B5@merlin.webofficenow.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Retry with a hopefully correct address for Marcelo.  (There's only one n in 
-conectiva.  Right.)
+Hi,
 
-------------------
+On Fri, 12 Jul 2002, Rob Landley wrote:
+> What does the kernel use autoconf for?  (When did this get added?  I wrote a 
+> kernel output parser and didn't see autoconf, and I'd expect it to run in ake 
+> dep anyway...)
 
-I'm trying to put together a linux from scratch system (3.3 with extensive 
-tweaks) using a build script that happily built 2.4.18 but is dying at the 
-start of make bzImage in 19-rc1, complaining there's no rule to make 
-include/linux/autoconf.h (needed by include/config/MARKER).
+This is your kernel configuration. Please run make 
+configure/oldconfig/menuconfig before running make dep.
 
-I've confirmed I got the right patch and that it applied correctly (or at 
-least reproducibly without rejects and changed the version numbers in the top 
-level makefile)...  I untarred the 2.4.18 tarball into a fresh directory, 
-applied the patch, did "make dep" followed by "make clean" (I tried omitting 
-make clean and it didn't help) followed by make bzImage, at which point the 
-build process went off into the corner to sulk.
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
-Maybe I'm doing something small and simple wrong (although 2.4.18 built), but 
-I can't spot it.  I grepped the last couple weeks of my linux-kernel folder 
-and the only mention of autoconf.h was in patches, no descriptive text.
-
-I also tried "touch include/linux/autoconf.h", which just makes 
-scripts/split-include die in find...
-
-What does the kernel use autoconf for?  (When did this get added?  I wrote a 
-kernel output parser and didn't see autoconf, and I'd expect it to run in ake 
-dep anyway...)
-
-Er... Help?
-
-Rob

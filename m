@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265701AbRFXBn5>; Sat, 23 Jun 2001 21:43:57 -0400
+	id <S265696AbRFXBrh>; Sat, 23 Jun 2001 21:47:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265699AbRFXBnr>; Sat, 23 Jun 2001 21:43:47 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:62848 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265700AbRFXBnd>; Sat, 23 Jun 2001 21:43:33 -0400
-Date: Sat, 23 Jun 2001 21:43:05 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Wan Hing Wah <50191914@uxmail.cityu.edu.hk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: GPIB support
-In-Reply-To: <Pine.GSO.4.33.0106231213430.19291-100000@moscow>
-Message-ID: <Pine.LNX.3.95.1010623213228.21862A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265700AbRFXBr1>; Sat, 23 Jun 2001 21:47:27 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:5381 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S265696AbRFXBrM>;
+	Sat, 23 Jun 2001 21:47:12 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: stimits@idcomm.com
+cc: kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: Is this part of newer filesystem hierarchy? 
+In-Reply-To: Your message of "Sat, 23 Jun 2001 19:09:12 CST."
+             <3B353DB8.578F43FB@idcomm.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 24 Jun 2001 11:47:04 +1000
+Message-ID: <18859.993347224@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Jun 2001, Wan Hing Wah wrote:
+On Sat, 23 Jun 2001 19:09:12 -0600, 
+"D. Stimits" <stimits@idcomm.com> wrote:
+>There is a directory on RH 7.1 x86, /lib/i686/. When checking with ldd
+>to various applications, as to which libc they link to, it turns out
+>that the /lib/libc.so.6 is not used. They all seem to point at
+>/lib/i686/libc.so.6 (this is the version with debugging symbols) by
+>default. The odd thing is that there are NO LD_ style path variables set
+>on this system, there is NO /etc/ld.so.preload, and /etc/ld.so.conf does
+>not contain any reference to /lib/i686/. So there is a question of just
+>how it is possible for ld to use that directory and ignore /lib/ for
+>libc.so.6.
 
-> I'm doing a project which port a component testing program in DOS which
-> use GPIB to linux
-> Does the Linux kernel support GPIB?
-> 
-> 
-> I find a linux gpib driver in the  linux lab project
-> http://www.llp.fu-berlin.de/
-> 
+15 minutes with a few commands, man pages and the source of glibc will
+show you this ...
 
-GPIB is terribly device-specific. What board do you intend to use?
-National Instruments has a so-called driver for their TNT4882 on
-their web-site. I was never able to get it to even compile, much
-less work.
+# /sbin/ldconfig -p | fgrep -w libc
+libc.so.6 (libc6, hwcap: 0x8000000000000, OS ABI: Linux 2.4.1) => /lib/i686/libc.so.6
+libc.so.6 (libc6, OS ABI: Linux 2.2.5) => /lib/libc.so.6
 
-I have a driver written for that chip. It's not GPLed, but it
-could be if there is enough interest. In any event, I could send
-you the source to try out. Just don't publish it yet. Let me
-know because I could use additional input for testing. In other
-words, if asked, I would just say that you are helping to test
-a driver...
+The data is coming from /etc/ld.so.cache which is build by ldconfig.
+A quick scan of the source for ldconfig.c in glibc 2.2.2 shows that it
+starts with standard paths /lib and /usr/lib then searches those
+directories and all their subdirectories looking for libraries.  That
+explains why it finds /lib/i686 without being explicitly specified.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+Note the hwcap entry in /lib/i686/libc.so.6.  The dynamic linker no
+longer takes the first entry it finds for a library, instead it looks
+for the first entry that matches the current hardware.  This is
+required for machines like ia64 which can also run i386 binaries and
+for sparc which can run 32 or 64 bit apps.
 

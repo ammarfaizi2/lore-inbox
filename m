@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbUALWqI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 17:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbUALWqI
+	id S261190AbUALWvk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 17:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUALWvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 17:46:08 -0500
-Received: from [217.73.129.129] ([217.73.129.129]:37260 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S263310AbUALWp6 (ORCPT
+	Mon, 12 Jan 2004 17:51:40 -0500
+Received: from [66.35.79.110] ([66.35.79.110]:58544 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S261190AbUALWvf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 17:45:58 -0500
-Date: Tue, 13 Jan 2004 00:45:34 +0200
-Message-Id: <200401122245.i0CMjYbn015552@car.linuxhacker.ru>
-From: Oleg Drokin <green@linuxhacker.ru>
-Subject: Re: loopback over reiserfs broken in 2.6.1-mm1
-To: luto@myrealbox.com, linux-kernel@vger.kernel.org
-References: <4002F317.2070102@myrealbox.com>
+	Mon, 12 Jan 2004 17:51:35 -0500
+Date: Mon, 12 Jan 2004 14:50:23 -0800
+From: Tim Hockin <thockin@hockin.org>
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+Cc: raven@themaw.net, Jim Carter <jimc@math.ucla.edu>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+Message-ID: <20040112225023.GA21399@hockin.org>
+References: <Pine.LNX.4.33.0401101325280.2403-100000@wombat.indigo.net.au> <40029C19.409@sun.com> <Pine.LNX.4.58.0401122356100.6362@raven.themaw.net> <4002CAB6.3000800@sun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4002CAB6.3000800@sun.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Jan 12, 2004 at 11:26:30AM -0500, Mike Waychison wrote:
+> /usr   /man1   server:/usr/man1   \
+>          /man2   server:/usr/man2
+> 
+> is the same as the two distinct entries:
+> 
+> /usr/man1   server:/usr/man1
+> /usr/man2   server:/usr/man2
+> 
+> Now that I think about it, the discussion in my proposal paper about 
+> multimounts with no root offsets probably isn't required.
 
-Andy Lutomirski <luto@myrealbox.com> wrote:
+The latter requires /usr/man1 and /usr/man2 to exist.  The former only
+requires /usr to exist, right?
 
-AL> on 2.6.1-mm1, where /var is reiserfs:
-AL> [root@luto var]# dd if=/dev/zero of=foo count=1024
-AL> 1024+0 records in
-AL> 1024+0 records out
-AL> [root@luto var]# losetup /dev/loop0 foo
-AL> ioctl: LOOP_SET_FD: Invalid argument
-
-Hm. Works with 2.6.1 for me.
-Does it work with 2.6.1 for you as well?
-
-Bye,
-    Oleg

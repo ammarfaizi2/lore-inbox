@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbUK3Sya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUK3S6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbUK3Sya (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 13:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUK3Sx6
+	id S262256AbUK3S6N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 13:58:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbUK3S43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 13:53:58 -0500
-Received: from fire.osdl.org ([65.172.181.4]:16787 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262265AbUK3Sva (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 13:51:30 -0500
-Message-ID: <41ACA5C0.1060509@osdl.org>
-Date: Tue, 30 Nov 2004 08:54:24 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Yihan Li <Yihan.Li@Edgewater.CA>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora Core 3
-References: <000901c4d70c$0ecf1bd0$8500a8c0@WS055>
-In-Reply-To: <000901c4d70c$0ecf1bd0$8500a8c0@WS055>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 30 Nov 2004 13:56:29 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:64925 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262265AbUK3Syy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 13:54:54 -0500
+Subject: Re: [patch 6/6] s390: qeth network driver.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41ACB253.9090202@pobox.com>
+References: <20041130151013.GG4758@mschwid3.boeblingen.de.ibm.com>
+	 <41ACB253.9090202@pobox.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1101837055.25617.70.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 30 Nov 2004 17:50:56 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yihan Li wrote:
-> Help needed!
-> I am trying to patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora 
-> Core 3.
-> The following steps are what I was following:
+On Maw, 2004-11-30 at 17:48, Jeff Garzik wrote:
+> > +		/* String must not be longer than PAGE_SIZE. So we check for
+> > +		 * length >= 3900 here. Then we can savely display the next
+> > +		 * IPv6 address and our info message below */
+> > +		if (i >= 3900) {
+> > +			i += sprintf(buf + i,
+> > +				     "... Too many entries to be displayed. "
+> > +				     "Skipping remaining entries.\n");
+> > +			break;
+> > +		}
 > 
-> I download a varnilla version of linux-2.6.9 from www.kernel.org,
-> Unpack the kernel source:
-> # cd /usr/src
-> # tar xvjf linux-2.6.9.tar.bz2
-> # ln -s linux-2.6.9 linux
 > 
-> Unpack or copy RTAI to  /usr/src/fusion-0.6.4.tar.bz2
-> # ln -s fusion-0.6.4  rtai
-> 
-> Patch the kernel:
-> # cd /usr/src/linux
-> # patch -p1 < ../rtai/arch/i386/patches/adeos-linux-2.6.9-i386-r8.patch
-> Copy the existing (Fedora) kernel config file to /usr/src/linux
-> # cp /boot/config-2.6.xxxx /usr/src/linux/.configConfigure the kernel:
-> # make menuconfig
-> # make
-> 
-> After 8 mins, I get error messages as following:
-> drivers/scsi/qla2xxx/qla_os.c: In function `qla2x00_queuecommand':
-> drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed in
-> call to 'qla2x00_callback': function not considered for inlining
-> drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from here
-> drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed in
-> call to 'qla2x00_callback': function not considered for inlining
-> drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from here
-> make[3]: *** [drivers/scsi/qla2xxx/qla_os.o] Error 1
-> make[2]: *** [drivers/scsi/qla2xxx] Error 2
-> make[1]: *** [drivers/scsi] Error 2
-> make: *** [drivers] Error 2
-> 
-> My guess is my configuration is not right, and don't know what to do, 
-> really
-> need a hand ...
-> 
-> I wish to be personally CC'ed the answers/comments in response to my
-> posting.
+> ACK, although I dislike the open-coding of the magic number 3900.
 
-Some functions (inline) and function prototypes in that driver are
-not in the order needed.  It's been fixed for some time now.
-Check linux-2.6.10-rc2 or the -mm patches.
+Use snprintf and the problem goes away I think
+	
+	static char *errorstring = "...  "
 
--- 
-~Randy
+	errorlen = strlen(errorstring);
+
+	If(i < PAGE_SIZE - errorlen)
+		i += snprintf(buf + i, PAGE_SIZE - i, ...)
+	else {
+		memcpy(buf+i, errorstring, errorlen);
+		i += errorlen;
+		break;
+	}

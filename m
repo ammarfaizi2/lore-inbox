@@ -1,35 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262474AbSJOMmt>; Tue, 15 Oct 2002 08:42:49 -0400
+	id <S262617AbSJOMvM>; Tue, 15 Oct 2002 08:51:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262490AbSJOMmt>; Tue, 15 Oct 2002 08:42:49 -0400
-Received: from mnh-1-02.mv.com ([207.22.10.34]:17924 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S262474AbSJOMms>;
-	Tue, 15 Oct 2002 08:42:48 -0400
-Message-Id: <200210151352.IAA02057@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Oleg Drokin <green@namesys.com>, Mike Anderson <andmike@us.ibm.com>
-cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: uml-patch-2.5.42-1 
-In-Reply-To: Your message of "Tue, 15 Oct 2002 10:42:10 +0400."
-             <20021015104210.A1335@namesys.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 15 Oct 2002 08:52:17 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S262621AbSJOMvM>; Tue, 15 Oct 2002 08:51:12 -0400
+Received: from mta02ps.bigpond.com ([144.135.25.134]:4556 "EHLO
+	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262617AbSJOMvL> convert rfc822-to-8bit; Tue, 15 Oct 2002 08:51:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Srihari Vijayaraghavan <harisri@bigpond.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.20-pre10aa1 oops report (was Re: Linux-2.4.20-pre8-aa2 oops report. [solved])
+Date: Tue, 15 Oct 2002 23:05:32 +1000
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <fd1cf102287.102287fd1cf@bigpond.com>
+In-Reply-To: <fd1cf102287.102287fd1cf@bigpond.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210152305.32641.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-green@namesys.com said:
-> For some reason I now need this patch to make bk-current to compile 
+Hello Andrea,
 
-That patch is against stock 2.5.42, so I don't make any guarantees about
-bk-current.
+> > this smells like a problem with one of your modules. Please make 100%
+> > sure you use exactly the same .config for both 2.4.20pre10 and
+> > 2.4.20pre10aa1 and please try to find which is the module that is
+> > crashing the kernel after it's being loaded. Expect always different
+> > kind of crashes and oopses. You can also try to turn on the slab
+> > debugging option in the kernel hacking menu.
 
-However the __i386__ thing should be taken care of by Makefile-i386 doing
-	CFLAGS += -U__i386__
+That precisely is the reason. The bad news is that system crashes when agpgart 
+and radeon are compiled as modules, and the good news is that I am unable to 
+crash it when they are not.
 
-I might have messed up the patch, I'll check and fix it if so.
+Mainline (2.4.20-pre10) is stable when agpgart and radeon are compiled as 
+modules.
 
-				Jeff
+The problem is much easier to reproduce than I thought, just log in and log 
+out of XFree86/Gnome few times (3 or more times in my case) is more than 
+adequate to crash it.
+
+Here is the .config which is stable in -aa1:
+CONFIG_AGP=y
+CONFIG_AGP_AMD=y
+CONFIG_DRM=y
+CONFIG_DRM_NEW=y
+CONFIG_DRM_RADEON=y
+
+Here is the .config which destabilises the -aa1 kernel:
+CONFIG_AGP=m
+CONFIG_AGP_AMD=y
+CONFIG_DRM=y
+CONFIG_DRM_NEW=y
+CONFIG_DRM_RADEON=m
+
+Unfortunately system just reboots without leaving oops information in the 
+system logs. If you want I can try few older versions of -aa to find from 
+when it started happening.
+
+Thanks for your help.
+-- 
+Hari
+harisri@bigpond.com
 

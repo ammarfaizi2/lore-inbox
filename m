@@ -1,75 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUIMGey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUIMGfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266155AbUIMGey (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 02:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUIMGey
+	id S266181AbUIMGfe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 02:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266183AbUIMGfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 02:34:54 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:19179 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S266155AbUIMGew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 02:34:52 -0400
-Date: Mon, 13 Sep 2004 08:34:44 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Jay Lan <jlan@sgi.com>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, John Hesterberg <jh@sgi.com>
-Subject: Re: [patch 2.6.8.1] BSD accounting: update chars transferred value
-Message-ID: <20040913063444.GA17636@frec.bull.fr>
-References: <20040908112909.GA10036@frec.bull.fr> <41423480.8090104@sgi.com>
+	Mon, 13 Sep 2004 02:35:34 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:54748 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266181AbUIMGfT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 02:35:19 -0400
+Date: Mon, 13 Sep 2004 08:35:48 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, Linus Torvalds <torvalds@osdl.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Yielding processor resources during lock contention
+Message-ID: <20040913063548.GA11661@elte.hu>
+References: <7F740D512C7C1046AB53446D372001730232E11C@scsmsx402.amr.corp.intel.com>
 Mime-Version: 1.0
-In-Reply-To: <41423480.8090104@sgi.com>
-User-Agent: Mutt/1.5.6+20040722i
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 13/09/2004 08:40:23,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 13/09/2004 08:40:28,
-	Serialize complete at 13/09/2004 08:40:28
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <7F740D512C7C1046AB53446D372001730232E11C@scsmsx402.amr.corp.intel.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 04:10:56PM -0700, Jay Lan wrote:
-> This patch is a subset of csa_io with your patch deals with character
-> IO only.
 
-Yes you are right. This patch only deals with character IO because I 
-don't know yet how to get information for blocks IO. As I said my goal 
-is to provide a good solution for accounting. BSD-accounting is already 
-in the kernel and CSA provide more metrics so I think it could be good 
-to add some CSA accounting values in the BSD-accounting. 
+* Nakajima, Jun <jun.nakajima@intel.com> wrote:
 
-> I can see that merge csa_io's change at vfs_writev() and vfs_readv()
-> into your change at do_readv_writev(). However, the code change is
-> not really common code in that a) the operation type is different and
-> 2) the fields to add to are different, so you end up doing extra check 
-> of file operation type (READ vs WRITE). I would be happy if either
-> your patch or mine is accepted, but i think it does extra work to put
-> the changes into the common routine (ie do_readv_writev).
+> The instruction mwait is just a hint for the processor to enter an
+> (implementation-specific) optimized state, and in general it cannot
+> cause indefinite delays because of various break events, including
+> interrupts. If an interrupt happens, then the processor gets out of
+> the mwait state. [...]
 
-As you notice, vfs_writev() and vfs_readv() both call do_readv_writev()
-and as fields to add are different I added a test on the operation type.
-I though that it was interesting to put a changes in the common routine
-but you are right that it has a cost (the file operation check). As the 
-changes can be done in vfs_readv() and vfs_writev() instead of one single 
-routine (do_readv_writev()) I though this choice was good but if the
-extra cost is a problem I agree with your solution. Thank you to point
-this out.
+the problem is, there is no guarantee that an interrupt may happen on a
+CPU from that point on _ever_. Currently we do have a periodic timer
+interrupt but this is not cast into stone. So we cannot really use MWAIT
+for the idle loop either - at most as a replacement for HLT without any
+latency assumptions. We could monitor the idle task's ->need_resched
+flag.
 
-> Shall we combine your patch and SGI's csa_io patch?
+> [...] The instruction does not support a restart at the mwait
+> instruction. In other words the processor needs to redo the mwait
+> instruction to reenter the state after a break event. Event time-outs
+> may take the processor out of the state, depending on the
+> implementation.
 
-IMHO, it could be very interesting to combine your patch and mine.
-BSD-accounting is doing per-process accounting and CSA also doing
-per-process accounting even if the goal is a per-job accounting. Thus, I
-think that it can be good to combine both. It isn't necessary to have
-two different accounting systems in the kernel. 
+this is not a problem. The proper way to fix MWAIT for spinlocks (as i
+suggested in the first email) would be to monitor a given cacheline's
+existence in the L2 cache. I.e. to snoop for invalidates of that 
+cacheline. That would make it possible to do:
 
-Is it difficult for you to add what you are doing with CSA in the
-BSD-accounting file? Maybe the solution is to remove BSD-accounting in
-favor of CSA accounting? Personally, I don't care if we keep
-BSD-accounting or if we remove it to add CSA accounting.
+	while (!spin_trylock(lock)) {
+		MONITOR(lock);
+		if (spin_is_locked(lock))
+			MWAIT(lock);
+	}
 
-Best,
-Guillaume
+the first spin_trylock() test brings the cacheline into the L2 cache. 
+There is no guarantee that by the time MONITOR executes it will still be
+there but the likelyhood is high. Then we execute MONITOR which clears
+the event flag. The second spin_is_locked() test brings the cacheline
+into the L2 for sure - then we enter MWAIT which waits until the
+event-flag is clear. If at any point another CPU moves the cacheline
+into Exclusive (and then Modified) state then this CPU _must_ invalidate
+the lock cacheline - hence the event flag will be set and MWAIT
+immediately exits. I know that this is not how MONITOR/MWAIT works right
+now but this is how MONITOR/MWAIT could work well for spinlocks.
+
+(if the cache is not MESI but MOESI then the second test has to be
+spin_trylock() as well [which dirties the cacheline] - since in that
+case there would be no guarantee that the spin_is_locked() read-only
+test would invalidate the possibly dirty cacheline on the spinlock owner
+CPU.)
+
+	Ingo

@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUHISGD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264953AbUHISJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266218AbUHISGD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:06:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUHISF5
+	id S264953AbUHISJp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266814AbUHISJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:05:57 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:3004 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S264953AbUHISFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:05:45 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Filip Van Raemdonck <filipvr@xs4all.be>
-Subject: 2.6.8-rc3: vfat problem [was: Re: [Problem] 2.6.8-rc3: usb-storage devices are read-only (NOT related to iocharset)]
-Date: Mon, 9 Aug 2004 20:15:40 +0200
-User-Agent: KMail/1.5
+	Mon, 9 Aug 2004 14:09:44 -0400
+Received: from server02.akkaya.de ([213.168.83.203]:23389 "EHLO
+	server02.akkaya.de") by vger.kernel.org with ESMTP id S264953AbUHISJl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 14:09:41 -0400
+From: Juergen Pabel <jpabel@akkaya.de>
+Organization: Akkaya Consulting GmbH
+To: Eric Lammerts <eric@lammerts.org>
+Subject: Re: [PATCH] Masking kernel commandline parameters (2.6.7)
+Date: Mon, 9 Aug 2004 20:12:34 -0400
+User-Agent: KMail/1.6.2
 Cc: linux-kernel@vger.kernel.org
-References: <200408082157.35469.rjwysocki@sisk.pl> <200408082208.02328.rjwysocki@sisk.pl> <20040809095652.GB12667@debian>
-In-Reply-To: <20040809095652.GB12667@debian>
+References: <200408080413.29905.jpabel@akkaya.de> <200408081430.59840.jpabel@akkaya.de> <Pine.LNX.4.58.0408081204270.7223@vivaldi.madbase.net>
+In-Reply-To: <Pine.LNX.4.58.0408081204270.7223@vivaldi.madbase.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200408092015.40499.rjwysocki@sisk.pl>
+Message-Id: <200408092012.34255.jpabel@akkaya.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Description: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 of August 2004 11:56, Filip Van Raemdonck wrote:
-> On Sun, Aug 08, 2004 at 10:09:23PM +0200, R. J. Wysocki wrote:
-> > On Sunday 08 of August 2004 21:57, R. J. Wysocki wrote:
-> > > On 2.6.8-rc3 and 2.6.8-rc2-mm2 I get:
-> > >
-> > > chimera:~ # mount  -t vfat -o iocharset=iso8859-2 /dev/sdd1
-> > > /media/pendrive [snip]
-> > > chimera:~ # mount  -t vfat -o codepage=437 /dev/sdd1 /media/pendrive
-> > > [snip]
->
-> Does it work if you specify both iocharset and codepage?
+> I'm sure you can do something similar for dmcrypt.
 
-Yes.  They may be contradictory, however (eg if I specify codepage=437 and 
-iocharset=iso8859-2 it kind of "works", but I don't think it's OK).
+yes, there is....but just like you dislike my way, I disliked the approach you
+mentioned (which is actually, how I've set up rootfs encryption
+in the past here at work - due to the lack of an alternative approach).
 
-Thanks,
-RJW
+i just find my approach more suitable (from a philosophical design point of
+view) - as it provides a generic way for submitting sensitive data
+during/before the boot phase to the kernel.
 
--- 
-Rafael J. Wysocki
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+jp
+

@@ -1,64 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267539AbSLLWaq>; Thu, 12 Dec 2002 17:30:46 -0500
+	id <S267519AbSLLWjq>; Thu, 12 Dec 2002 17:39:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267536AbSLLWap>; Thu, 12 Dec 2002 17:30:45 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:13267 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S267535AbSLLWan>;
-	Thu, 12 Dec 2002 17:30:43 -0500
-Date: Fri, 13 Dec 2002 00:38:30 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Andreani Stefano <stefano.andreani.ap@h3g.it>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: Kernel bug handling TCP_RTO_MAX?
-Message-ID: <20021212223830.GH32122@mea-ext.zmailer.org>
-References: <047ACC5B9A00D741927A4A32E7D01B73D66176@RMEXC01.h3g.it>
+	id <S267525AbSLLWjq>; Thu, 12 Dec 2002 17:39:46 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:43651 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267519AbSLLWjp>; Thu, 12 Dec 2002 17:39:45 -0500
+Message-Id: <200212122247.gBCMlHgY011021@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions)
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <047ACC5B9A00D741927A4A32E7D01B73D66176@RMEXC01.h3g.it>
+Content-Type: multipart/signed; boundary="==_Exmh_-338121838P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 12 Dec 2002 17:47:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 12, 2002 at 08:15:42PM +0100, Andreani Stefano wrote:
-> Problem: I need to change the max value of the TCP retransmission timeout. 
-...
-> #define TCP_RTO_MAX	((unsigned)(6*HZ)) //It was: ((unsigned)(120*HZ))
-> 
-> Then I recompiled the kernel, rebooted the machine and tested the 
-> solution. The result I obtained was the same I had before this 
-> modification. 
+--==_Exmh_-338121838P
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_-3381710880"
 
-  Oh, you want to cap the retransmit time to 6 seconds so that
-  TCP works (at least somehow) in a terribly lossy network ?
+This is a multipart MIME message.
 
-  Having that _low_ value at it isn't advisable in the general
-  internet, but these modern mobile networks with paketized data
-  are pain with dramatically varying latencies.  TCP works
-  badly in such environments.  X.25 works better - to a degree..
+--==_Exmh_-3381710880
+Content-Type: text/plain; charset=us-ascii
 
+> PCI: Device 02:00.0 not available because of resource collisions
+> PCI: Device 02:00.1 not available because of resource collisions
 
-  Changeing the value, and doing "make clean; make bzImage"
-  should give you a kernel with it in.
+Been there. Done that. Does the attached patch help? It did for me.
+
+/Valdis
 
 
-..
-> Could it be a bug on the RTO calculation algorithm, or there is 
-> something I mistook?
 
-  Possibly omitting "make clean" -- short-cutting it can be done
-  by:  "rm net/ipv4/*.o"   I think..
+--==_Exmh_-3381710880
+Content-Type: text/plain ; name="pcmcia.patch"; charset=us-ascii
+Content-Description: pcmcia.patch
+Content-Disposition: attachment; filename="pcmcia.patch"
 
-> This is the first time I get into the linux kernel, so please be 
-> patient!
-> 
-> Thanks,
-> Stefano.
-> -------------------------------
->         Stefano Andreani
->     Freelance ICT Consultant
->       H3G IOT Team - Italy
->       tel. +39 347 8215965
->    stefano.andreani.ap@h3g.it
+--- drivers/pcmcia/cardbus.c.dist	2002-12-03 01:49:29.000000000 -0500
++++ drivers/pcmcia/cardbus.c	2002-12-03 01:50:23.000000000 -0500
+@@ -283,8 +283,6 @@
+ 		dev->hdr_type = hdr & 0x7f;
+ 
+ 		pci_setup_device(dev);
+-		if (pci_enable_device(dev))
+-			continue;
+ 
+ 		strcpy(dev->dev.bus_id, dev->slot_name);
+ 
+@@ -302,6 +300,8 @@
+ 			pci_writeb(dev, PCI_INTERRUPT_LINE, irq);
+ 		}
+ 
++		if (pci_enable_device(dev))
++			continue;
+ 		device_register(&dev->dev);
+ 		pci_insert_device(dev, bus);
+ 	}
 
-/Matti Aarnio  
+--==_Exmh_-3381710880--
+
+
+--==_Exmh_-338121838P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE9+RH1cC3lWbTT17ARAp8PAKCphoDmrvovTFS6Mir+hzCw/1WP4gCg8+k8
+EIRcXln0uIdGmpB82Ao5nfc=
+=sdyX
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-338121838P--

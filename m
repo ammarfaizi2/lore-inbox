@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261825AbSIXVds>; Tue, 24 Sep 2002 17:33:48 -0400
+	id <S261821AbSIXVaX>; Tue, 24 Sep 2002 17:30:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261824AbSIXVdr>; Tue, 24 Sep 2002 17:33:47 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60168 "EHLO
+	id <S261822AbSIXVaX>; Tue, 24 Sep 2002 17:30:23 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59144 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261823AbSIXVdI>; Tue, 24 Sep 2002 17:33:08 -0400
-Date: Tue, 24 Sep 2002 17:30:27 -0400 (EDT)
+	id <S261821AbSIXVaR>; Tue, 24 Sep 2002 17:30:17 -0400
+Date: Tue, 24 Sep 2002 17:27:55 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Con Kolivas <conman@kolivas.net>, linux-kernel@vger.kernel.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: Con Kolivas <conman@kolivas.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       gcc@gcc.gnu.org
 Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
-In-Reply-To: <Pine.LNX.3.95.1020923102813.3315A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.3.96.1020924172838.19732G-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.4.44.0209230945260.2917-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.3.96.1020924172145.19732F-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Sep 2002, Richard B. Johnson wrote:
+On Mon, 23 Sep 2002, Ingo Molnar wrote:
 
-> Yes I like that, but does this measure "goodness of the test" or
-> something else? To make myself clear, let's look at some ridiculous
-> extreme condition. Your test really takes 1 second, but during your
-> tests there is a ping-flood that causes your test to take an hour.
+> 
+> On Mon, 23 Sep 2002, Con Kolivas wrote:
+> 
+> > IO Full Load:
+> > 2.5.38                  170.21          42%
+> > 2.5.38-gcc32            230.77          30%
+> 
+> > This time only the IO loads showed a statistically significant
+> > difference.
+> 
+> how many times are you running each test? You should run them at least
+> twice (ideally 3 times at least), to establish some sort of statistical
+> noise measure. Especially IO benchmarks tend to fluctuate very heavily
+> depending on various things - they are also very dependent on the initial
+> state - ie. how the pagecache happens to lay out, etc. Ie. a meaningful
+> measurement result would be something like:
 
-If you run in single user mode as suggested that's pretty unlikely. I
-would think having the power go off and your laptop drop into power save
-slow mode more likely ;-)
+Do note that the instructions for the benchmark suggest you boot single
+user, which cuts down one problem, and since Con adopted my suggestion to
+allow the user to set the location of the test file, I put the big file in
+a filesystem which is formatted just before the test (I knew I'd find a
+use for all that disk ;-) so that stays pretty constant.
+
+The problem of memory size on the halfmem io is more serious, on a large
+system the writes are all in memory, on a small system they cause
+thrashing. I run in 256m for all tests just for this reason.
+
+Not disagreeing with what you said, but the test is not inherently subject
+to much jitter given care in running it.
 
 -- 
 bill davidsen <davidsen@tmr.com>

@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbUCBQMq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 11:12:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUCBQMq
+	id S261705AbUCBQeb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 11:34:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUCBQeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 11:12:46 -0500
-Received: from web20909.mail.yahoo.com ([216.136.226.231]:51209 "HELO
-	web20909.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261702AbUCBQMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 11:12:43 -0500
-Message-ID: <20040302161239.79676.qmail@web20909.mail.yahoo.com>
-Date: Tue, 2 Mar 2004 08:12:39 -0800 (PST)
-From: Anonymous <anon78344@yahoo.com>
-Subject: init dies after reboot
-To: linux-kernel@vger.kernel.org
+	Tue, 2 Mar 2004 11:34:31 -0500
+Received: from SMTP2.andrew.cmu.edu ([128.2.10.82]:64384 "EHLO
+	smtp2.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S261705AbUCBQe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 11:34:29 -0500
+Message-ID: <4044B787.7080301@andrew.cmu.edu>
+Date: Tue, 02 Mar 2004 11:34:15 -0500
+From: Peter Nelson <pnelson@andrew.cmu.edu>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040221)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Hans Reiser <reiser@namesys.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+       jfs-discussion@oss.software.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
+Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
+References: <4044119D.6050502@andrew.cmu.edu> <4044366B.3000405@namesys.com>
+In-Reply-To: <4044366B.3000405@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Hans Reiser wrote:
 
-I encountered a strange problem, and i'm not sure that
-it originates or not in the kernel.
-the probl. is that on many slack boxes init dies after
-some time, but the OS is still up and running.
-if I 'ps aux' the machine,no init, and /proc/1 doesn't
-exist.
-although, `lsof | grep init` shows:init          1  
-root  cwd    DIR        8,3        472         2 /
-init          1   root  rtd    DIR        8,3       
-472         2 /
-init          1   root  txt    REG        8,3    
-468916     15607 /sbin/init
-init          1   root    0r   CHR        1,3         
-       5659 /dev/null
-init          1   root    1u   CHR        1,3         
-       5659 /dev/null
-init          1   root    2u   CHR        1,3         
-       5659 /dev/null
-init          1   root   10u  FIFO        8,3         
-     137774 /dev/initctl
+> Are you sure your benchmark is large enough to not fit into memory, 
+> particularly the first stages of it?  It looks like not.  reiser4 is 
+> much faster on tasks like untarring enough files to not fit into ram, 
+> but (despite your words) your results seem to show us as slower unless 
+> I misread them....
 
+I'm pretty sure most of the benchmarking I am doing fits into ram, 
+particularly because my system has 1GB of it, but I see this as 
+realistic.  When I download a bunch of debs (or rpms or the kernel) I'm 
+probably going to install them directly with them still in the file 
+cache.  Same with rebuilding the kernel after working on it.
 
-Any kind of ideea?
+For untarring reiser4 is the fastest other than ext2.  A somewhat less 
+ambiguous conclusion:
 
-Thanks,
-Uwe Bower
+    * Reiser4 is exceptionally fast at copying the system and the
+      fastest other than Ext2 at untaring, but is very slow at the
+      real-world debootstrap and kernel compiles.
 
+> Reiser4 performs best on benchmarks that use the disk drive, and we 
+> usually only run benchmarks that use the disk drive.
 
+I'm confused as to why performing a benchmark out of cache as opposed to 
+on disk would hurt performance?
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Search - Find what you’re looking for faster
-http://search.yahoo.com
+> Here is summary of the results based upon what I am calling "dead" 
+> time calculated as `total time - user time`.
+>
+> You should be able to script out the user time.
+
+I'm working with a friend of mine here at CMU doing hard drive research 
+to create a execution trace and test that directly instead of performing 
+all of the script actions.
+
+-Peter Nelson

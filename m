@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292993AbSBVUqz>; Fri, 22 Feb 2002 15:46:55 -0500
+	id <S292990AbSBVUrG>; Fri, 22 Feb 2002 15:47:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292991AbSBVUqe>; Fri, 22 Feb 2002 15:46:34 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:8452 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S292990AbSBVUq1>; Fri, 22 Feb 2002 15:46:27 -0500
-Date: Fri, 22 Feb 2002 12:34:12 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Greg KH <greg@kroah.com>
-cc: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <20020222202917.GF9558@kroah.com>
-Message-ID: <Pine.LNX.4.10.10202221227260.2519-100000@master.linux-ide.org>
+	id <S292991AbSBVUqz>; Fri, 22 Feb 2002 15:46:55 -0500
+Received: from varenorn.icemark.net ([212.40.16.200]:64150 "EHLO
+	varenorn.internal.icemark.net") by vger.kernel.org with ESMTP
+	id <S292990AbSBVUqo>; Fri, 22 Feb 2002 15:46:44 -0500
+Date: Fri, 22 Feb 2002 21:43:31 +0100 (CET)
+From: Benedikt Heinen <beh@icemark.net>
+X-X-Sender: beh@berenium.icemark.ch
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Thomas Hood <jdthood@mail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17: oops in kapm-idled?   (on IBM Thinkpad A30P [2653-66U])
+In-Reply-To: <E16eLsl-0002w4-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0202222133570.1183-100000@berenium.icemark.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Feb 2002, Greg KH wrote:
+> Is there a reason for using all this non standard stuff. Can you reproduce
+> the problem if you don't load ALSA (I dont think alsa is prime candidate
+> here)
 
-> On Fri, Feb 22, 2002 at 12:09:47PM -0800, Andre Hedrick wrote:
-> > 
-> > Does INT13/INT19 Bios call mean anything?
-> 
-> To me, no.  I do not know anything about IDE.  :)
-> 
-> I thought we were talking about SCSI PCI drivers here.
+*smile*
+Apparently, that's where you're wrong... I tried removing some
+modules, until I found the one causing the trouble:
 
-Under x86 SCSI is hooked w/ INT13/INT19 calls, that is how you can boot a
-SCSI "Direct-Access", that is why I moved away from ATA and was hoping it
-would be "generic storage"
+	snd-card-intel8x0
 
-> > The problem is how do you deal with multiple HOSTs given there drivers are
-> > not (have not checked lately) capable of discrete HOST addition and
-> > removal.
-> > 
-> > SCSI/ATA share the same problem IIRC, the host/chipset drivers load all
-> > the device hosts who match that driver code.
-> > 
-> > What am I missing?
-> 
-> Nothing.  It is the same problem for IDE PCI drivers.  In order for PCI
-> Hotplug to work on these devices, they have to implement the 2.4 pci
-> interface.  If they do that, they work with PCI hotplug systems.  If
-> they do not, they don't.
+... :(
 
-Okay, but where is a card that is capable, and cardbus is not the same
-issue.
 
-Cheers,
+I guess it's time to check for newer version on that... :/
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+
+
+
+On another question, is there a way to find out a hardware config -
+I can't switch off all individual devices in the notebook, but if I
+use the prism2 driver from linux-wlan.com, I can't get the full
+performance out of it - but just something like ~20kb/s throughput
+in ftp  (Win2K gets more than 500kb/s)...
+Some people on the linux-wlan mailing list suggested, it might be a
+hardware conflict, but they couldn't give me a better idea on HOW
+to locate it...
+Any clue, how I could go about that?
+
+
+
+      Benedikt
+
+  BEAUTY, n.  The power by which a woman charms a lover and terrifies a
+    husband.
+			(Ambrose Bierce, The Devil's Dictionary)
 

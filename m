@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbTIYBAz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 21:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbTIYBAz
+	id S261631AbTIYBH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 21:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbTIYBH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 21:00:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29059 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261623AbTIYBAy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 21:00:54 -0400
-Date: Thu, 25 Sep 2003 02:00:52 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Douglas Gilbert <dougg@torque.net>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: rfc: test whether a device has a partition table
-Message-ID: <20030925010052.GD7665@parcelfarce.linux.theplanet.co.uk>
-References: <UTC200309242029.h8OKTo008219.aeb@smtp.cwi.nl> <3F723A04.2000609@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F723A04.2000609@torque.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 24 Sep 2003 21:07:59 -0400
+Received: from inova102.correio.tnext.com.br ([200.222.67.102]:17889 "HELO
+	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id S261631AbTIYBH6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 21:07:58 -0400
+X-Analyze: Velop Mail Shield v0.0.3
+Date: Wed, 24 Sep 2003 22:07:55 -0300 (E. South America Standard Time)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <0@pervalidus.tk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PS2 keyboard & mice mandatory again ?
+Message-ID: <Pine.WNT.4.58.0309242202410.3564@pervalidus>
+X-X-Sender: fredlwm@imap.fastmail.fm
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 25, 2003 at 10:42:44AM +1000, Douglas Gilbert wrote:
-> I have a USB 500 MB USB key that confuses linux (both 2.4 and
-> 2.6) since it has no partition table. It shows up on my laptop as:
+Nicolas Mailhot wrote:
 
-Confuses it in which sense?
- 
-> $ cat /proc/scsi/scsi
-> Attached devices:
-> Host: scsi0 Channel: 00 Id: 00 Lun: 00
->   Vendor: Prolific Model: USBFlashDisk     Rev: 1.00
->   Type:   Direct-Access                    ANSI SCSI revision: 02
-> 
-> I can mount it with:
-> $ mount /dev/sda /mnt/extra
+> Please revert this change.
 
-So it works fine.  what's the problem?
+Agreed.
+
+But it was much worse when someone removed CONFIG_NETLINK in
+some 2.4 release (mainly ?) because Red Hat had a dependency
+for it in some init script and people were complaining.
+
+-- 
+How to contact me - http://www.pervalidus.net/contact.html

@@ -1,111 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTKIE2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 23:28:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTKIE2Y
+	id S262176AbTKIEa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 23:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTKIEa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 23:28:24 -0500
-Received: from cap175-219-202.pixi.net ([207.175.219.202]:39812 "EHLO
-	beaucox.com") by vger.kernel.org with ESMTP id S262174AbTKIE2W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 23:28:22 -0500
-From: "Beau E. Cox" <beau@beaucox.com>
-Organization: BeauCox.com
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: PATCH for 2.4.23-pre4 and up hang on one system
-Date: Sat, 8 Nov 2003 18:27:28 -1000
-User-Agent: KMail/1.5.4
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-MIME-Version: 1.0
+	Sat, 8 Nov 2003 23:30:29 -0500
+Received: from mail.kroah.org ([65.200.24.183]:54145 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262176AbTKIEa1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 23:30:27 -0500
+Date: Sat, 8 Nov 2003 20:29:37 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Bug (?) in subsystem kset refcounts
+Message-ID: <20031109042936.GA8583@kroah.com>
+References: <Pine.LNX.4.44L0.0311082209330.7127-100000@netrider.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311081341.38553.beau@beaucox.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.44L0.0311082209330.7127-100000@netrider.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-submitted Sat Nov  8 13:08:55 HST 2003 by Beau E. Cox <beau@beaucox.com>
+On Sat, Nov 08, 2003 at 10:20:03PM -0500, Alan Stern wrote:
+> I hesitate to say this is definitely a bug, since it might be intended 
+> behavior.  But it is rather strange.
+> 
+> Subsystems included an embedded kset, which itself includes an embedded 
+> kobject and so is subject to reference counting.  Whenever a kobject 
+> belonging to the kset is destroyed, the kset's reference count is 
+> decremented.  However, kobjects can be added to a kset via the three 
+> macros
+> 
+> 	kobj_set_kset_s, kset_set_kset_s, and subsys_set_kset
+> 
+> and these do _not_ increment the kset's reference count.  As a result, the 
+> reference count only goes down, not up, quickly becoming negative.
 
-[1.] One line summary of the problem:
+See the patch that went into Linus's tree yesterday to fix where this
+would happen.
 
-Patch that fixes my problem:
-Starting with 2.4.23-pre4 my system hangs during startup and/or is
-generally unstable (see patch in [ X. ] below.)
+But yes, usages of these macros is touchy, and we need to get it
+correct.  Your proposed patch will never allow the reference counts to
+go back to zero.
 
-[2.] Full description of the problem/report:
+Also, notice that when the kobject is initialized, the kset set by these
+macros is then incremented.
 
-Origionally I had catagorized this problem with the startup sequence;
-the system always seemed to hang when squid was started before
-mysql, etc. Moving squid near the end of the startup process, I
-thought the problem was in hand. However, the system (pre9) proved
-unstable (would not stay up for longer than one day.)
+thanks,
 
-The problem exhibits itself with a solid 'hang'; no oops, no dumps,
-nada.
-
-[ 3. ] - [ 7. ]
-
-See previous posting; no hardware or configuration changes.
-
-[X.] Other notes, patches, fixes, workarounds:
-
-This patch to net/ipv4/netfilter/ip_nat_core.c fixed my problem
-in all 2.4.23 versions pre4 - pre9:
-
---- linux-2.4.23-pre4/net/ipv4/netfilter/ip_nat_core.c	2003-11-08 
-03:01:59.000000000 -1000
-+++ linux-2.4.23-pre3/net/ipv4/netfilter/ip_nat_core.c	2003-11-08 
-03:00:47.000000000 -1000
-@@ -157,8 +157,8 @@
- 				continue;
- 		}
- 
--		if (!(mr->range[i].flags & IP_NAT_RANGE_PROTO_SPECIFIED)
--		    || proto->in_range(&newtuple, IP_NAT_MANIP_SRC,
-+		if ((mr->range[i].flags & IP_NAT_RANGE_PROTO_SPECIFIED)
-+		    && proto->in_range(&newtuple, IP_NAT_MANIP_SRC,
- 				       &mr->range[i].min, &mr->range[i].max))
- 			return 1;
- 	}
-
-It is simply a rollback of changes to ip_nat_core.c made in
-pre4.
-
-Since my patch is to ip_nat_core.c, I should mention that I use
-NAT via iptables. Here is an the relevant section if my iptables
-startup script:
-
-[...]
-# setup nat
-echo "  applying nat rules"
-echo ""
-$iptables -F FORWARD
-$iptables -F -t nat
-$iptables -P FORWARD DROP
-$iptables -A FORWARD -i eth0 -j ACCEPT
-$iptables -A INPUT -i eth0 -j ACCEPT
-$iptables -A OUTPUT -o eth0 -j ACCEPT
-$iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-$iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -o eth1 -j SNAT --to-source 
-x.x.x.x
-[...]
-
-All the information I can think of relating to this problem is at:
-
-ftp://beaucox.com/pub/kernel/2.4.23-pre4-bug
-
-Please see the README file.
-
----------------------------WARNING--------------------------
-I am NOT a kernel programmer. The patch above was arrived at
-by hit-or-miss. I REALLY don't know what I am doing (but
-my system works now!)
----------------------------WARNING--------------------------
-
-Aloha => Beau;
-
-PS: Please let me know if you need more information.
-
-
-
+greg k-h

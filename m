@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265469AbTANXEv>; Tue, 14 Jan 2003 18:04:51 -0500
+	id <S265174AbTANXCw>; Tue, 14 Jan 2003 18:02:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbTANXEv>; Tue, 14 Jan 2003 18:04:51 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11784 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265469AbTANXEu>; Tue, 14 Jan 2003 18:04:50 -0500
-Date: Tue, 14 Jan 2003 23:13:41 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: TTY subsystem maintainership
-Message-ID: <20030114231341.D4077@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S265242AbTANXCw>; Tue, 14 Jan 2003 18:02:52 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:4482 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S265174AbTANXCv>;
+	Tue, 14 Jan 2003 18:02:51 -0500
+Date: Tue, 14 Jan 2003 15:11:41 -0800
+From: Bob Miller <rem@osdl.org>
+To: DervishD <raul@pleyades.net>
+Cc: Philippe Troin <phil@fifi.org>, root@chaos.analogic.com,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Changing argv[0] under Linux.
+Message-ID: <20030114231141.GC4603@doc.pdx.osdl.net>
+References: <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com> <87iswrzdf1.fsf@ceramic.fifi.org> <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030114230418.GB4603@doc.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Before anyone gets any smart ideas, I'd like to make the following point
-completely crystal clear.
-
-I am _not_ repeat _not_ going to take over maintainership for the TTY
-subsystem.  I have too much other stuff to look after to take on that
-job.
-
-However, I will review patches to the TTY layer from time to time,
-and provide (hopefully) useful feedback.  The patches I review will
-be decided by myself, and will depend on what they touch, how complex
-they are and how busy I am.
-
-And, just for completeness of the message, please do not send TTY layer,
-TTY line discipline layer, nor random TTY driver patches to me either.
-
-Thanks.
+On Tue, Jan 14, 2003 at 03:04:18PM -0800, Bob Miller wrote:
+> On Tue, Jan 14, 2003 at 11:04:01PM +0100, DervishD wrote:
+> >     Hi Philippe :)
+> > 
+> > > You just overwrote all your arguments (argv[0] and others) and part of
+> > > the environment.
+> > 
+> >     Oh, sh*t, you're true, and that is the problem I was afraid to
+> > suffer from. Then, all I can do is overwrite argv[0] with a new
+> > string whose length is less or equal than the existing one.
+> > 
+> >     Well, I suppose I must go with that limitation.
+> > 
+> >     Thanks, Philippe, for the code snipped and the explanation.
+> > 
+> >     Raúl
+> > -
+> 
+> Or you can copy your all your args and env to a temporary place and
+> then re-build your args and env with the new argv[0] in it's place.
+> But you must be carefull that your new argv[0] length plus the 
+> length of all remaining args, envp and pointers is not greater than
+> the system defined size for this space.
+> 
+In thinking about this more this will NOT work.  The user stack starts
+right after your envp.  So, writing more info there would blow away
+your stack.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17

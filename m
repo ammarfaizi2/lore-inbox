@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273372AbRJJBnc>; Tue, 9 Oct 2001 21:43:32 -0400
+	id <S273364AbRJJBow>; Tue, 9 Oct 2001 21:44:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273364AbRJJBnY>; Tue, 9 Oct 2001 21:43:24 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:13067 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273269AbRJJBnS>;
-	Tue, 9 Oct 2001 21:43:18 -0400
-Date: Tue, 9 Oct 2001 22:43:37 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Xuan Baldauf <xuan--lkml@baldauf.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: dynamic swap prioritizing
-In-Reply-To: <3BC373A8.CD94917B@baldauf.org>
-Message-ID: <Pine.LNX.4.33L.0110092242350.2847-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273565AbRJJBok>; Tue, 9 Oct 2001 21:44:40 -0400
+Received: from [202.135.142.194] ([202.135.142.194]:24843 "EHLO wagner")
+	by vger.kernel.org with ESMTP id <S273364AbRJJBoM>;
+	Tue, 9 Oct 2001 21:44:12 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Richard Henderson <rth@twiddle.net>
+Cc: pmckenne@us.ibm.com, lse-tech@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion 
+In-Reply-To: Your message of "Tue, 09 Oct 2001 09:11:01 MST."
+             <20011009091101.A27319@twiddle.net> 
+Date: Wed, 10 Oct 2001 11:39:37 +1000
+Message-Id: <E15r8LR-0000wm-00@wagner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001, Xuan Baldauf wrote:
+In message <20011009091101.A27319@twiddle.net> you write:
+> On Tue, Oct 09, 2001 at 07:03:37PM +1000, Rusty Russell wrote:
+> > I don't *like* making Alpha's wmb() stronger, but it is the
+> > only solution which doesn't touch common code.
+> 
+> It's not a "solution" at all.  It's so heavy weight you'd be
+> much better off with locks.  Just use the damned rmb_me_harder.
 
-> Does the linux kernel already implement such an
-> optimization? Is it planned?
+Wow!  I'm glad you're volunteering to audit all the kernel code to fix
+this Alpha-specific bug by inserting rmb_me_harder() in all the
+critical locations!
 
-No and no.  But feel free to try to implement it.
+Don't miss any!
 
-I'm not sure if it would be a win to have the
-system do this dynamic swap priority readjustment,
-but I wouldn't be surprised if it was, either.
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+I look forward to seeing your patch,
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

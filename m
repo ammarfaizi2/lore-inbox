@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbTKPQaG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 11:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTKPQaG
+	id S262986AbTKPQoy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 11:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbTKPQoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 11:30:06 -0500
-Received: from poros.telenet-ops.be ([195.130.132.44]:45696 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S262955AbTKPQaB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 11:30:01 -0500
-Subject: [Bug 1303] 2.6.0-test4, test5, test6, test7, test8, test9 very
-	very slow with smp kernel
-From: Zatalian <zatalian@pandora.be>
+	Sun, 16 Nov 2003 11:44:54 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:30993 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S262986AbTKPQox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 11:44:53 -0500
+Message-ID: <3FB81B0D.8010009@myrealbox.com>
+Date: Sun, 16 Nov 2003 16:49:17 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.6a) Gecko/20031108
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: DiegoCG@teleline.es
-In-Reply-To: <200311161500.hAGF0Hbh005350@fire-1.osdl.org>
-References: <200311161500.hAGF0Hbh005350@fire-1.osdl.org>
-Content-Type: text/plain
-Message-Id: <1069000200.4225.11.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 16 Nov 2003 17:30:00 +0100
+Subject: Re: kernel.bkbits.net off the air
+References: <fa.gj5f2rq.1u42v9u@ifi.uio.no> <fa.d7qik9h.1q644ip@ifi.uio.no>
+In-Reply-To: <fa.d7qik9h.1q644ip@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1303
+Sven Dowideit wrote:
+> On Sat, 2003-11-15 at 04:43, Larry McVoy wrote:
+> 
+>>The points are
+>>    a) I'm not at all convinced this is going to make anyone other than you
+>>       happy.  They all want a BK replacement, not a tarball+patch replacement.
 
-Hi,
+> ...so all I'd like is to be able to do a get/update to the head revision of
+> the repository, and if possible get/convert to a tagged version. 
+> 
+> having the second would have made chasing down what version of the
+> kernel broke my pcmcia support easier :)
 
-Diego suggested sending my bug to this email-adress so maybe some
-kernel-developer can tell me what is happening with my computer and if
-other people suffer the same problem.
-
-This is what i get : 
-
-Since kernel 2.6.0-test4 my system becomes very slow when using an
-smp-kernel.
-
-I have a DELL poweredge 2400 dual PIII 733 Mhz machine with 768 Mb sdram
-and some SCSI disks 
-I use ext3 for my boot partition and reiserfs for my root partition.
-
-Right now I use kernel 2.6.0-test2 with smp without any problems.
-
-This problem is not X related. Just booting without loading the nvidia
-module, logging into the console and shutting down takes more than 10
-minutes. With a normal kernel, this would take max. 2 minutes. Most
-things become very slow (but other commands like "dmesg >
-dmesg.2.6.0-test9" are as fast as always).
-
-The only thing I found different between a normal working kernel and a
-buggy kernel are the following lines in my dmesg : 
-
-
->> Losing too many ticks!
->> TSC cannot be used as a timesource. (Are you running with SpeedStep?)
->> Falling back to a sane timesource.
-
-I don't have them when running a normal kernel.
-
-I hope somebody can tell me what's going on here.
-
-Thanks.
-
-Zatalian.
-
+Just a MeeToo for the record.  Of course, I'm perfectly happy using the free
+full-version of bk for pulling from Linus's tree, but I don't use all the other
+functions.

@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVBAW4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVBAXBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbVBAW4v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 17:56:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVBAW4u
+	id S262159AbVBAXBR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:01:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVBAXBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 17:56:50 -0500
-Received: from mail.kroah.org ([69.55.234.183]:16083 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262149AbVBAW4k (ORCPT
+	Tue, 1 Feb 2005 18:01:17 -0500
+Received: from gate.crashing.org ([63.228.1.57]:11702 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262159AbVBAXBG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 17:56:40 -0500
-Date: Tue, 1 Feb 2005 14:56:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] driver core: export MAJOR/MINOR to the hotplug env
-Message-ID: <20050201225625.GA14962@kroah.com>
-References: <20050123041911.GA9209@vrfy.org>
+	Tue, 1 Feb 2005 18:01:06 -0500
+Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Brian King <brking@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Andi Kleen <ak@muc.de>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20050201174758.GE10088@parcelfarce.linux.theplanet.co.uk>
+References: <41ED27CD.7010207@us.ibm.com>
+	 <1106161249.3341.9.camel@localhost.localdomain>
+	 <41F7C6A1.9070102@us.ibm.com> <1106777405.5235.78.camel@gaston>
+	 <1106841228.14787.23.camel@localhost.localdomain>
+	 <41FA4DC2.4010305@us.ibm.com> <20050201072746.GA21236@kroah.com>
+	 <41FF9C78.2040100@us.ibm.com>
+	 <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk>
+	 <41FFBDC9.2010206@us.ibm.com>
+	 <20050201174758.GE10088@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Date: Wed, 02 Feb 2005 10:00:34 +1100
+Message-Id: <1107298834.5624.15.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050123041911.GA9209@vrfy.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 23, 2005 at 05:19:11AM +0100, Kay Sievers wrote:
-> This patch sequence moves the creation of the sysfs "dev" file of the class
-> devices into the driver core. The struct class_device contains a dev_t
-> value now. If set, the driver core will create the "dev" file containing
-> the major/minor numbers automatically.
+On Tue, 2005-02-01 at 17:47 +0000, Matthew Wilcox wrote:
+> On Tue, Feb 01, 2005 at 11:35:05AM -0600, Brian King wrote:
+> > >If we've done a write to config space while the adapter was blocked,
+> > >shouldn't we replay those accesses at this point?
+> > 
+> > I did not think that was necessary.
 > 
-> The MAJOR/MINOR values are also exported to the hotplug environment. This
-> makes it easy for userspace, especially udev to know if it should wait for
-> a "dev" file to create a device node or if it can just ignore the event.
-> We currently carry a compiled in blacklist around for that reason.
+> We have to do *something*.  We can't just throw away writes.
+
+I think we can in fact. Again, nobody outside of the driver has
+legitimacy to write to the config space of a device, especially if the
+device is "unreachable" (either doing a BIST or power managed).
+
+> I see a few options:
 > 
-> It would also be possible to run some "tiny udev" while sysfs is not
-> available - just by reading the hotplug call or the netlink-uevent.
+>  - Log all pending writes to config space and replay the log when the
+>    device is unblocked.
+>  - Fail writes to config space while the device is blocked.
 
-This is great, thanks for doing this.  I've applied all of these patches
-to my trees, and they'll show up in the next -mm release.
+I agree that returning an error in this case would be a good idea.
 
-Hm, that class_simple interface is looking like the way we should move
-toward, as it's "simple" to use, instead of the more complex class code.
-I'll have to look at migrating more code to use it over time, or move
-that interface back into the class code itself...
+>  - Write to the saved config space and then blat the saved config space
+>    back to the device upon unblocking.
+> 
+> Any other ideas?
+> 
+> BTW, you know things like XFree86 go completely around the kernel's PCI
+> accessors and poke at config space directly?
 
-thanks,
+Not anymore afaik. They use /proc/bus/pci
 
-greg k-h
+Ben.
+
+

@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129249AbRBUCo5>; Tue, 20 Feb 2001 21:44:57 -0500
+	id <S130047AbRBUCrh>; Tue, 20 Feb 2001 21:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130388AbRBUCos>; Tue, 20 Feb 2001 21:44:48 -0500
-Received: from vestel-usa.com ([209.232.112.242]:13066 "HELO
-	cronus.vestel-usa.com") by vger.kernel.org with SMTP
-	id <S129249AbRBUCoj>; Tue, 20 Feb 2001 21:44:39 -0500
-Message-ID: <3A932B77.FC105893@vestel-usa.com>
-Date: Tue, 20 Feb 2001 18:44:07 -0800
-From: Sedat Sengul <sedat.sengul@vestel-usa.com>
-Reply-To: sedat.sengul@vestel-usa.com
-Organization: Vestel USA, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greeen-III <greeen@iii.org.tw>
-CC: linux-mips-request@fnet.fr,
-        LinuxKernelMailList <linux-kernel@vger.kernel.org>,
-        LinuxEmbeddedMailList <linux-embedded@waste.org>
-Subject: Need help as a Linux newcomer
-In-Reply-To: <009b01c0916b$55b61b60$4c0c5c8c@trd.iii.org.tw>
+	id <S130115AbRBUCr1>; Tue, 20 Feb 2001 21:47:27 -0500
+Received: from [210.77.38.126] ([210.77.38.126]:64516 "EHLO
+	ns.turbolinux.com.cn") by vger.kernel.org with ESMTP
+	id <S130047AbRBUCrS>; Tue, 20 Feb 2001 21:47:18 -0500
+Date: Wed, 21 Feb 2001 10:44:30 +0800
+From: michaelc <michaelc@turbolinux.com.cn>
+X-Mailer: The Bat! (v1.48) UNREG / CD5BF9353B3B7091
+Reply-To: michaelc <michaelc@turbolinux.com.cn>
+X-Priority: 3 (Normal)
+Message-ID: <544126968.20010221104430@turbolinux.com.cn>
+To: linux-kernel@vger.kernel.org
+Subject: can somebody explain how linux support 64G memory
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guys;
-I am a newcomer for Linux world. I used largely pSOS and a little bit
-WinCE. I tried to find some sort of documents about Kernel structure,
-linux directory structure and dependency of source files in Linux. 
-I am interested in Embedded Linux due to some resource restrictions.
-All I found from web so far, are installation informations and tool
-usage definitions.
+Hi,
+   How does linux support more than 4G memory? I 've read the
+   documentation of  Intel IA-32 Architecture, I knew that OS
+   just address up to 4G physical address space, If OS want to
+   access additional 4-GByte section of physical memory, it must
+   change the pointer in register CR3 or entries in the
+   page-directory-pointer table. That means that Linux just has
+   up to 4-GByte page mapping at one time , is that right?
 
-Your help is much appreciated.
-Thanks
+  
 
-Sedat Sengul
+-- 
+Best regards,
+ michael chen                          mailto:michaelc@turbolinux.com.cn
+
+

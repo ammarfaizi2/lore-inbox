@@ -1,58 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbUKJOEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbUKJOEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbUKJOEr (ORCPT <rfc822;willy@w.ods.org>);
+	id S261887AbUKJOEr (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 10 Nov 2004 09:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUKJODM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbUKJOBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:03:12 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:53971 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261906AbUKJOAV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 09:00:21 -0500
-Date: Wed, 10 Nov 2004 16:01:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.23
-Message-ID: <20041110150136.GA8668@elte.hu>
-References: <20041021132717.GA29153@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <200411101452.36007.annabellesgarden@yahoo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411101452.36007.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 10 Nov 2004 09:01:03 -0500
+Received: from ppsw-3.csi.cam.ac.uk ([131.111.8.133]:60897 "EHLO
+	ppsw-3.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261887AbUKJNpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 08:45:52 -0500
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH 22/26] NTFS 2.1.22 - Bug and race fixes and improved error handling.
+Message-Id: <E1CRsn2-0006SP-Im@imp.csi.cam.ac.uk>
+Date: Wed, 10 Nov 2004 13:45:36 +0000
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is patch 22/26 in the series.  It contains the following ChangeSet:
 
-* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+<aia21@cantab.net> (04/11/05 1.2026.1.57)
+   NTFS: Minor cleanup of fs/ntfs/debug.c.
+   
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-> Hi
-> 
-> On SMP/HT/P4 I get:
->  BUG: lock held at task exit time!
+Best regards,
 
-> sh/5429: BUG in __up_mutex at /home/ka/kernel/2.6/linux-2.6.9-rc1-mm3-RT/kernel/rt.c:1064
-> BUG: sleeping function called from invalid context sh(5429) at /home/ka/kernel/2.6/linux-2.6.9-rc1-mm3-RT/kernel/rt.c:1314
-> in_atomic():1 [00000003], irqs_disabled():0
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 
-hm, apparently something leaked a BKL count. Unfortunately we dont know
-precisely what did it, only that it happened. Did this happen during
-bootup, or during normal use. Can you trigger it arbitrarily?
+===================================================================
 
-	Ingo
+diff -Nru a/fs/ntfs/debug.c b/fs/ntfs/debug.c
+--- a/fs/ntfs/debug.c	2004-11-10 13:45:40 +00:00
++++ b/fs/ntfs/debug.c	2004-11-10 13:45:40 +00:00
+@@ -127,8 +127,8 @@
+ 	va_start(args, fmt);
+ 	vsnprintf(err_buf, sizeof(err_buf), fmt, args);
+ 	va_end(args);
+-	printk(KERN_DEBUG "NTFS-fs DEBUG (%s, %d): %s(): %s\n",
+-		file, line, flen ? function : "", err_buf);
++	printk(KERN_DEBUG "NTFS-fs DEBUG (%s, %d): %s(): %s\n", file, line,
++			flen ? function : "", err_buf);
+ 	spin_unlock(&err_buf_lock);
+ }
+ 
+@@ -141,8 +141,7 @@
+ 
+ 	if (!debug_msgs)
+ 		return;
+-	printk(KERN_DEBUG "NTFS-fs DEBUG: Dumping runlist (values "
+-			"in hex):\n");
++	printk(KERN_DEBUG "NTFS-fs DEBUG: Dumping runlist (values in hex):\n");
+ 	if (!rl) {
+ 		printk(KERN_DEBUG "Run list not present.\n");
+ 		return;
+@@ -157,14 +156,14 @@
+ 			if (index > -LCN_ENOENT - 1)
+ 				index = 3;
+ 			printk(KERN_DEBUG "%-16Lx %s %-16Lx%s\n",
+-				(rl + i)->vcn, lcn_str[index],
+-				(rl + i)->length, (rl + i)->length ?
+-				"" : " (runlist end)");
++					(rl + i)->vcn, lcn_str[index],
++					(rl + i)->length, (rl + i)->length ?
++					"" : " (runlist end)");
+ 		} else
+ 			printk(KERN_DEBUG "%-16Lx %-16Lx  %-16Lx%s\n",
+-				(rl + i)->vcn, (rl + i)->lcn,
+-				(rl + i)->length, (rl + i)->length ?
+-				"" : " (runlist end)");
++					(rl + i)->vcn, (rl + i)->lcn,
++					(rl + i)->length, (rl + i)->length ?
++					"" : " (runlist end)");
+ 		if (!(rl + i)->length)
+ 			break;
+ 	}

@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263629AbTDTQtd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 12:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbTDTQtd
+	id S263639AbTDTQ5y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 12:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTDTQ5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 12:49:33 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:21777 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263629AbTDTQtc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 12:49:32 -0400
-Date: Sun, 20 Apr 2003 19:01:19 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: John Bradford <john@grabjohn.com>
-Cc: josh@stack.nl, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+	Sun, 20 Apr 2003 12:57:54 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:32128 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263639AbTDTQ5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 12:57:52 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304201712.h3KHCsBu000709@81-2-122-30.bradfords.org.uk>
 Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Message-Id: <20030420190119.048d3a43.skraw@ithnet.com>
-In-Reply-To: <200304201640.h3KGeTs6000657@81-2-122-30.bradfords.org.uk>
-References: <20030420180720.099b4c34.skraw@ithnet.com>
-	<200304201640.h3KGeTs6000657@81-2-122-30.bradfords.org.uk>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: skraw@ithnet.com (Stephan von Krawczynski)
+Date: Sun, 20 Apr 2003 18:12:54 +0100 (BST)
+Cc: john@grabjohn.com (John Bradford), alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030420185512.763df745.skraw@ithnet.com> from "Stephan von Krawczynski" at Apr 20, 2003 06:55:12 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Apr 2003 17:40:29 +0100 (BST)
-John Bradford <john@grabjohn.com> wrote:
-
-> > > Fault tolerance in a filesystem layer means in practical terms
-> > > that you are guessing what a filesystem should look like, for the
-> > > disk doesn't answer that question anymore. IMHO you don't want
-> > > that to be done automagically, for it might go right sometimes,
-> > > but also might trash everything on RW filesystems.
+> 
+> On Sun, 20 Apr 2003 14:59:00 +0100 (BST)
+> John Bradford <john@grabjohn.com> wrote:
+> 
+> > > Ok, you mean active error-recovery on reading. My basic point is the
+> > > writing case. A simple handling of write-errors from the drivers level and
+> > > a retry to write on a different location could help a lot I guess.
 > > 
-> > Let me clarify again: I don't want fancy stuff inside the filesystem that
-> > magically knows something about right-or-wrong. The only _very small_
-> > enhancement I would like to see is: driver tells fs there is an error while
-> > writing a certain block => fs tries writing the same data onto another
-> > block. That's it, no magic, no RAID stuff. Very simple.
+> > A filesystem is not the place for that - it could either be done at a
+> > lower level, like I suggested in a separate post, or at a much higher
+> > level - E.G. a database which encounters a write error could dump it's
+> > entire contents to a tape drive, shuts down, and page an
+> > administrator, on the basis that the write error indicated impending
+> > drive failiure.
 > 
-> That doesn't belong in the filesystem.
-> 
-> Imagine you have ten blocks free, and you allocate data to all of them
-> in the filesystem.  The write goes to cache, and succeeds.
-> 
-> 30 seconds later, the write cache is flushed, and an error is reported
-> back from the device.
+> Can you tell me what is so particularly bad about the idea to cope a
+> little bit with braindead (or just-dying) hardware?
 
-And where's the problem?
-Your case:
-Immediate failure. Disk error.
+Nothing - what is wrong is to implement it in a filesystem, where it
+does not belong.
 
-My case:
-Immediate failure. Disk error (no space left for replacement)
+> See, a car (to name a real good example) is not primarily built to have
+> accidents.
 
-There's no difference.
+Stunt cars are built to survive accidents.  All cars _could_ be built
+like stunt cars, but they aren't.
 
+> Anyway everybody might agree that having a safety belt built into it
+> is a good idea, just to make the best out of a bad situation - even
+> if it never happens - , or not?
 
-Thing is: If there are 11 blocks free and not ten, then you fail and I succeed
-(if there's one bad block). You loose data, I don't.
+Exactly, that is why most modern hard disks retry on write failiure.
 
-
-Regards,
-Stephan
+John.

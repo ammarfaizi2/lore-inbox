@@ -1,115 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUHQQBa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268298AbUHQQE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268335AbUHQQBa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 12:01:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268272AbUHQQAq
+	id S268298AbUHQQE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 12:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268272AbUHQQE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 12:00:46 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:11169 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S268322AbUHQP7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 11:59:36 -0400
-Date: Tue, 17 Aug 2004 17:59:27 +0200
+	Tue, 17 Aug 2004 12:04:57 -0400
+Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:35022 "EHLO
+	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S268322AbUHQQDa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 12:03:30 -0400
+Message-ID: <41222C16.7070700@ttnet.net.tr>
+Date: Tue, 17 Aug 2004 19:02:30 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: Ballarin.Marc@gmx.de, fsteiner-mail@bio.ifi.lmu.de, christer@weinigel.se
-Subject: [PATCH] 2.6.8.1 Mis-detect CRDW as CDROM
-Message-ID: <20040817155927.GA19546@proton-satura-home>
-References: <411FD919.9030702@comcast.net> <20040816231211.76360eaa.Ballarin.Marc@gmx.de> <4121A689.8030708@bio.ifi.lmu.de> <200408171311.06222.satura@proton>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <200408171311.06222.satura@proton>
-User-Agent: Mutt/1.5.6+20040722i
-From: Andreas Messer <andreas.messer@gmx.de>
-X-ID: GEHzPaZDZe1SAlYf2r3tfjj328zFewB0zsLRt1w-j5eUe2ssTf8XZA@t-dialin.net
+CC: marcelo.tosatti@cyclades.com
+Subject: [PATCH] [2.4.28-pre1] two __FUNCTION__ patches
+Content-Type: multipart/mixed;
+	boundary="------------090803040304030505040301"
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again,
+This is a multi-part message in MIME format.
+--------------090803040304030505040301
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
+Content-Transfer-Encoding: 7bit
 
-as i get informed, that the kmail emailclient has not made
-what i want, i decided to use mutt for next time. I will
-include the patch again to make it readable. I have also
-changed the thing with MODE_SELECT_10 to write mode 
-because Christer Weinig figured out, that this CMD may
-be insecure in connection with harddisks.
-The changes to cdrom.h made by Marc Ballarin have not yet 
-been included.
-But i think, that the security model should made more 
-precise - deciding only upon the commands does not give
-the effekt of much improved security.
+Here are two __FUNCTION__ patches from the -ac/-pac tree.
+Review and please apply to 2.4.28.
 
-Here ist the patch.
+Regards,
+Ozkan Sezer
 
---- linux-2.6.8.1/drivers/block/scsi_ioctl.c	2004-08-16 21:44:53.000000000 +0200
-+++ linux/drivers/block/scsi_ioctl.c	2004-08-17 17:41:54.000000000 +0200
-@@ -156,6 +156,54 @@
- 		safe_for_write(WRITE_16),
- 		safe_for_write(WRITE_BUFFER),
- 		safe_for_write(WRITE_LONG),
-+
-+
-+		/* Some additional defs for recording/reading CDs */
-+
-+		/* 0x01 REZERO_UNIT used by k3b, but also work without */
-+               
-+		/* read-mode */
-+		safe_for_read(GPCMD_GET_CONFIGURATION),
-+		safe_for_read(GPCMD_GET_EVENT_STATUS_NOTIFICATION),
-+		safe_for_read(GPCMD_GET_PERFORMANCE),
-+		safe_for_read(GPCMD_MECHANISM_STATUS),
-+
-+		/* should this allowed for read ? */
-+		safe_for_read(GPCMD_LOAD_UNLOAD),
-+		safe_for_read(GPCMD_SET_SPEED),
-+		safe_for_read(GPCMD_PAUSE_RESUME),   /* playing audio cd */
-+		safe_for_read(SEEK_10),              /* playing audio cd */
-+		safe_for_read(GPCMD_SET_READ_AHEAD),
-+		safe_for_read(GPCMD_SET_STREAMING),
-+		safe_for_read(GPCMD_STOP_PLAY_SCAN), /* playing audio cd */
-+
-+		/* k3b wont work without read - maybe bug in k3b, but 
-+		   MODE_SELECT_10 seems to destroy data in conjunction
-+                   with harddisk */
-+		safe_for_write(GPCMD_MODE_SELECT_10), 
-+
-+		/* write-mode */
-+		safe_for_write(GPCMD_BLANK), 
-+		safe_for_write(GPCMD_CLOSE_TRACK),
-+		safe_for_write(0x2c),        /* ERASE_10 */ 
-+		safe_for_write(GPCMD_FORMAT_UNIT),
-+		safe_for_write(GPCMD_PREVENT_ALLOW_MEDIUM_REMOVAL),
-+		safe_for_write(0x5c),        /* READ_BUFFER_CAPACITY */
-+		safe_for_write(GPCMD_READ_FORMAT_CAPACITIES),
-+		safe_for_write(GPCMD_REPAIR_RZONE_TRACK),
-+		safe_for_write(GPCMD_RESERVE_RZONE_TRACK),
-+		safe_for_write(0x5d),        /* SEND_CUE_SHEET */
-+		safe_for_write(0xbf),        /* SEND_DVD_STRUCTURE */
-+		safe_for_write(GPCMD_SEND_KEY),
-+		safe_for_write(GPCMD_SEND_OPC),
-+		safe_for_write(SYNCHRONIZE_CACHE),
-+		safe_for_write(VERIFY),
-+
-+		/* Disabled, may change firmware 
-+		   safe_for_write(0x3b),  WRITE_BUFFER */
-+		/* Disabled due useless without WRITE_BUFFER 
-+		   safe_for_write(0x3c),  READ_BUFFER */
-+
- 	};
- 	unsigned char type = cmd_type[cmd[0]];
- 
-@@ -173,6 +221,14 @@
- 	if (capable(CAP_SYS_RAWIO))
- 		return 0;
- 
-+        /* Added for debugging*/
-+       
-+	if(file->f_mode & FMODE_WRITE)
-+	  printk(KERN_WARNING "SCSI-CMD Filter: 0x%x not allowed with write-mode\n",cmd[0]);
-+	else
-+	  printk(KERN_WARNING "SCSI-CMD Filter: 0x%x not allowed with read-mode\n",cmd[0]);
-+
-+
- 	/* Otherwise fail it with an "Operation not permitted" */
- 	return -EPERM;
+
+--------------090803040304030505040301
+Content-Type: text/plain;
+	name="F01.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="F01.diff"
+
+diff -urN 28pre1/drivers/char/ftape/lowlevel/ftape-tracing.h 28pre1ac/drivers/char/ftape/lowlevel/ftape-tracing.h
+--- 28pre1/drivers/char/ftape/lowlevel/ftape-tracing.h	2000-09-03 21:22:09.000000000 +0300
++++ 28pre1ac/drivers/char/ftape/lowlevel/ftape-tracing.h	2004-08-16 16:09:03.000000000 +0300
+@@ -70,8 +70,8 @@
+ #define TRACE(l, m, i...)						\
+ {									\
+ 	if ((ft_trace_t)(l) == FT_TRACE_TOP_LEVEL) {			\
+-		printk(KERN_INFO"ftape"__FILE__"("__FUNCTION__"):\n"	\
+-		       KERN_INFO m".\n" ,##i);				\
++		printk(KERN_INFO"ftape"__FILE__"(%s):\n"		\
++		       KERN_INFO m".\n" ,__FUNCTION__, ##i);		\
+ 	}								\
  }
+ #define SET_TRACE_LEVEL(l)      if ((l) == (l)) do {} while(0)
+
+--------------090803040304030505040301
+Content-Type: text/plain;
+	name="F02.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="F02.diff"
+
+diff -urN 28pre1/net/irda/irlmp.c 28pre1ac/net/irda/irlmp.c
+--- 28pre1/net/irda/irlmp.c	2003-06-13 17:51:39.000000000 +0300
++++ 28pre1ac/net/irda/irlmp.c	2004-08-16 16:09:05.000000000 +0300
+@@ -1241,7 +1241,7 @@
+ 	/* Get the number of lsap. That's the only safe way to know
+ 	 * that we have looped around... - Jean II */
+ 	lsap_todo = HASHBIN_GET_SIZE(self->lsaps);
+-	IRDA_DEBUG(4, __FUNCTION__ "() : %d lsaps to scan\n", lsap_todo);
++	IRDA_DEBUG(4, "%s() : %d lsaps to scan\n", __FUNCTION__, lsap_todo);
+ 
+ 	/* Poll lsap in order until the queue is full or until we
+ 	 * tried them all.
+@@ -1255,7 +1255,7 @@
+ 			/* Note that if there is only one LSAP on the LAP
+ 			 * (most common case), self->flow_next is always NULL,
+ 			 * so we always avoid this loop. - Jean II */
+-			IRDA_DEBUG(4, __FUNCTION__ "() : searching my LSAP\n");
++			IRDA_DEBUG(4, "%s() : searching my LSAP\n", __FUNCTION__);
+ 
+ 			/* We look again in hashbins, because the lsap
+ 			 * might have gone away... - Jean II */
+@@ -1274,14 +1274,14 @@
+ 
+ 		/* Next time, we will get the next one (or the first one) */
+ 		self->flow_next = (struct lsap_cb *) hashbin_get_next(self->lsaps);
+-		IRDA_DEBUG(4, __FUNCTION__ "() : curr is %p, next was %p and is now %p, still %d to go - queue len = %d\n", curr, next, self->flow_next, lsap_todo, IRLAP_GET_TX_QUEUE_LEN(self->irlap));
++		IRDA_DEBUG(4, "%s() : curr is %p, next was %p and is now %p, still %d to go - queue len = %d\n", __FUNCTION__, curr, next, self->flow_next, lsap_todo, IRLAP_GET_TX_QUEUE_LEN(self->irlap));
+ 
+ 		/* Inform lsap user that it can send one more packet. */
+ 		if (curr->notify.flow_indication != NULL)
+ 			curr->notify.flow_indication(curr->notify.instance, 
+ 						     curr, flow);
+ 		else
+-			IRDA_DEBUG(1, __FUNCTION__ "(), no handler\n");
++			IRDA_DEBUG(1, "%s(), no handler\n", __FUNCTION__);
+ 	}
+ }
+ 
+
+--------------090803040304030505040301--

@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285812AbRLHElP>; Fri, 7 Dec 2001 23:41:15 -0500
+	id <S285821AbRLHE5E>; Fri, 7 Dec 2001 23:57:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285814AbRLHElG>; Fri, 7 Dec 2001 23:41:06 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:10374 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S285812AbRLHEkt>; Fri, 7 Dec 2001 23:40:49 -0500
-Date: Fri, 7 Dec 2001 23:40:48 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: zaitcev@redhat.com
-Subject: Would the father of init_mem_lth please stand up
-Message-ID: <20011207234048.A31442@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S285824AbRLHE4y>; Fri, 7 Dec 2001 23:56:54 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:51473 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S285822AbRLHE4h>; Fri, 7 Dec 2001 23:56:37 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: "David S. Miller" <davem@redhat.com>, <riel@conectiva.com.br>
+Cc: <matthias.andree@stud.uni-dortmund.de>, <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.17-pre5
+Date: Fri, 7 Dec 2001 20:56:46 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBAEFJEDAA.znmeb@aracnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20011206.125834.77061382.davem@redhat.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Really someone needs slapping across. What kind of code is that
-(in 2.5.1-pre6):
+They have Krispy Kremes in Europe??
+--
+Take Your Trading to the Next Level!
+M. Edward Borasky, Meta-Trading Coach
 
-drivers/scsi/sd.c:sd_init()
+znmeb@borasky-research.net
+http://www.meta-trading-coach.com
+http://groups.yahoo.com/group/meta-trading-coach
 
-        /* allocate memory */
-#define init_mem_lth(x,n)       x = kmalloc((n) * sizeof(*x), GFP_ATOMIC)
-#define zero_mem_lth(x,n)       memset(x, 0, (n) * sizeof(*x))
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of David S. Miller
+> Sent: Thursday, December 06, 2001 12:59 PM
+> To: riel@conectiva.com.br
+> Cc: matthias.andree@stud.uni-dortmund.de; linux-kernel@vger.kernel.org
+> Subject: Re: Linux 2.4.17-pre5
+>
+>
+>    From: Rik van Riel <riel@conectiva.com.br>
+>    Date: Thu, 6 Dec 2001 18:14:23 -0200 (BRST)
+>
+>    Wait for Dave at the lokal Krispy Kream and don't allow
+>    him access to the donuts until he writes a changelog ?
+>
+> Actually, Macelo gets a full changelog.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
-        init_mem_lth(rscsi_disks, sd_template.dev_max);
-        init_mem_lth(sd_sizes, maxparts);
-        init_mem_lth(sd_blocksizes, maxparts);
-        init_mem_lth(sd, maxparts);
-        init_mem_lth(sd_gendisks, N_USED_SD_MAJORS);
-        init_mem_lth(sd_max_sectors, sd_template.dev_max << 4);
-
-        if (!rscsi_disks || !sd_sizes || !sd_blocksizes || !sd || !sd_gendisks)
-                goto cleanup_mem;
-#undef init_mem_lth
-#undef zero_mem_lth
-.....................
-cleanup_mem:
-        kfree(sd_gendisks);
-        kfree(sd);
-        kfree(sd_blocksizes);
-        kfree(sd_sizes);
-        kfree(rscsi_disks);
-
-
-However, it's not only about the puking and keyboard cleanups.
-The code is buggy as well. Scenario:
-
- 0. User inserts a large number of FC-AL adapters with 56 disks each
- 1. modprobe sd_mod
-    No SCSI hosts, sd_init() is NOT called.
- 2. modprobe qla_something
-    sd_init is called and fails on sd_gendisks. modprobe fails.
-    sd_sizes, sd_blocksizes, etc. are LEFT DANGLING
- 3. modprobe qla_something
-    sd_init is called and fails on sd_sizes.
-    kfree is called with a bunch of dangling pointers
-
-I stringly urge Linus to drop this so-called "cleanup" from 2.5.1.
-
-No doubt, the existing code was bad. I fixed it somewhat for 2.4,
-and am feeding it to Marcelo. I can forward-port that to 2.5
-if anyone is interested.
-
--- Pete

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267106AbTBVRIm>; Sat, 22 Feb 2003 12:08:42 -0500
+	id <S267137AbTBVRJr>; Sat, 22 Feb 2003 12:09:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267137AbTBVRIl>; Sat, 22 Feb 2003 12:08:41 -0500
-Received: from angband.namesys.com ([212.16.7.85]:40832 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S267106AbTBVRIl>; Sat, 22 Feb 2003 12:08:41 -0500
-Date: Sat, 22 Feb 2003 20:18:45 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: thetech@folkwolf.net,
+	id <S267159AbTBVRJr>; Sat, 22 Feb 2003 12:09:47 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34946
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267137AbTBVRJp>; Sat, 22 Feb 2003 12:09:45 -0500
+Subject: Re: Minutes from Feb 21 LSE Call
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Box freezes if I enable "AMD 76x native power management"
-Message-ID: <20030222201845.A2865@namesys.com>
-References: <20030222163057.A884@namesys.com> <1045935866.4723.3.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <20030222001618.GA19700@work.bitmover.com>
+References: <96700000.1045871294@w-hlinder>
+	 <20030222001618.GA19700@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045938019.5034.9.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1045935866.4723.3.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.22.1i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 22 Feb 2003 18:20:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sat, 2003-02-22 at 00:16, Larry McVoy wrote:
+> In terms of the money and in terms of installed seats, the small Linux
+> machines out number the 4 or more CPU SMP machines easily 10,000:1.
+> And with the embedded market being one of the few real money makers
+> for Linux, there will be huge pushback from those companies against
+> changes which increase memory footprint.
 
-On Sat, Feb 22, 2003 at 05:44:27PM +0000, Alan Cox wrote:
-> >    Starting from 2.4.20 until now (including 2.4.21-pre4 and 2.4.21-pre4-ac5",
-> >    whenever I enable "AMD 76x native power management" in my kernel config, I get
-> >    kernel that hangs at boot after reporting elevator stuff about my IDE drives.
-> >    Is anybody interested?
-> It doesnt work with some tyan boards. I've never found out why. Most of them you
-> load the module, it stops, you poke the button and it wakes up again and then works
+I think people overestimate the numbner of large boxes badly. Several IDE
+pre-patches didn't work on highmem boxes. It took *ages* for people to
+actually notice there was a problem. The desktop world is still 128-256Mb
+and some of the crap people push is problematic even there. In the embedded
+space where there is a *ton* of money to be made by smart people a lot
+of the 2.5 choices look very questionable indeed - but not all by any
+means, we are for example close to being able to dump the block layer,
+shrink stacks down by using IRQ stacks and other good stuff.
 
-This is not my case it seems. No matter what I press, it is dead.
-But I compile it statically into kernel, though. Have not tried with a
-module yet, though.
+I'm hoping the Montavista and IBM people will swat each others bogons 8)
 
-Bye,
-    Oleg
+Alan
+

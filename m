@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265031AbUETKLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265095AbUETKQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265031AbUETKLo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 06:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265042AbUETKL0
+	id S265095AbUETKQN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 06:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbUETKQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 06:11:26 -0400
-Received: from [211.108.90.8] ([211.108.90.8]:4016 "HELO vermontel.net")
-	by vger.kernel.org with SMTP id S265076AbUETKLN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 06:11:13 -0400
-To: <linux-kernel@vger.kernel.org>
-From: "kory" <nikitagod@bekloppt.com>
-Date: Thu, 20 May 2004 22:12:45 GMT
-Message-Id: <1085091165-14993@excite.com>
-Subject: Save a bundle on Windows XP!
-Content-Type: text/plain;
+	Thu, 20 May 2004 06:16:13 -0400
+Received: from gprs212-127.eurotel.cz ([160.218.212.127]:3456 "EHLO
+	midnight.ucw.cz") by vger.kernel.org with ESMTP id S265095AbUETKQL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 06:16:11 -0400
+Date: Thu, 20 May 2004 12:15:48 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Olaf Hering <olh@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] out of bounds access in hiddev_cleanup
+Message-ID: <20040520101548.GD425@ucw.cz>
+References: <20040519173929.GA25589@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040519173929.GA25589@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Incredible DEALS on SOFTWARE you NEED!
+On Wed, May 19, 2004 at 07:39:29PM +0200, Olaf Hering wrote:
+> 
+> hiddev_table[] is an array of pointers. the minor number is used as an
+> offset. hiddev minors start either with zero, or with 96.
+> If they start with 96, the offset must be reduced by HIDDEV_MINOR_BASE
+> because only 16 minors are available.
+> unplugging a hiddevice will zero data outside the hiddev_table array.
+> 
+> this was spotted by Takashi Iwai.
+> 
+> --- linux-2.6.5/drivers/usb/input/hiddev.c-dist	2004-05-16 17:16:20.260126241 +0200
+> +++ linux-2.6.5/drivers/usb/input/hiddev.c	2004-05-16 17:16:55.285207314 +0200
+> @@ -232,7 +232,7 @@ static int hiddev_fasync(int fd, struct 
+>  static struct usb_class_driver hiddev_class;
+>  static void hiddev_cleanup(struct hiddev *hiddev)
+>  {
+> -	hiddev_table[hiddev->hid->minor] = NULL;
+> +	hiddev_table[hiddev->hid->minor - HIDDEV_MINOR_BASE] = NULL;
+>  	usb_deregister_dev(hiddev->hid->intf, &hiddev_class);
+>  	kfree(hiddev);
+>  }
+ 
+Already applied to my tree, thanks for forwarding it anyway.
 
-Save 40% on Windows XP Professional!
-Save 40% on Microsoft Office 2003 Professional!
-Save $90 on Adobe Photoshop!
-Save 60% on Norton AntiVirus!!
-
-Save your company thousands of dollars when it needs software!
-
-That promotion just got closer...
-
-Click here!!
-http://teddychoice.biz/index.php?s=7555
-
-
-Software packages you can save big on:
-
-Windows XP Professional
-Norton Antivirus 2004
-Adobe Photoshop 7.0
-Microsoft Office XP Professional
-Microsoft Office 2003 Professional
-Microsoft Money 2004
-Microsoft 2000 Professional
-Adobe Photoshop CS
-Adobe Pagemaker 7.0
-Adobe Illustrator 10
-Corel Draw Graphics Suite 11
-Adobe Acrobat 6.0 Professional
-Borland Delphi 7 Professional
-Visual Studio.Net Enterprise Architecht
-MS SQL Server 2000 Enterprise
-MS Windows Server 2003 Enterprise
-MS Windows 2000 Server
-Red Hat Linux 7.3
-
-
-
-Click here!!
-http://teddychoice.biz/index.php?s=7555
-
-
-
-
-
-
-
-
-
-image tacobellzhongguo eugene yoda malcolm goat excalibu 
-khan alisonuser1 gray aylmer
-aylmer kenneth monopoly 
-
-REMOV3: http://teddychoice.biz/soft/chair.php
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

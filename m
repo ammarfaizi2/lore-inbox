@@ -1,91 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310633AbSCHBT3>; Thu, 7 Mar 2002 20:19:29 -0500
+	id <S310634AbSCHBdD>; Thu, 7 Mar 2002 20:33:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310634AbSCHBTU>; Thu, 7 Mar 2002 20:19:20 -0500
-Received: from ns.suse.de ([213.95.15.193]:19465 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S310633AbSCHBTM>;
-	Thu, 7 Mar 2002 20:19:12 -0500
-Date: Fri, 8 Mar 2002 02:19:09 +0100
-From: Dave Jones <davej@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Jonathan A. George" <JGeorge@greshamstorage.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
-Message-ID: <20020308021909.L29587@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Rik van Riel <riel@conectiva.com.br>,
-	"Jonathan A. George" <JGeorge@greshamstorage.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C87FD12.8060800@greshamstorage.com> <Pine.LNX.4.44L.0203072057510.2181-100000@imladris.surriel.com>
+	id <S310636AbSCHBcx>; Thu, 7 Mar 2002 20:32:53 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:23450 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S310634AbSCHBcr>; Thu, 7 Mar 2002 20:32:47 -0500
+Date: Fri, 8 Mar 2002 01:32:23 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Terje Eggestad <terje.eggestad@scali.com>,
+        Ben Greear <greearb@candelatech.com>,
+        Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: a faster way to gettimeofday? rdtsc strangeness
+Message-ID: <20020308013222.B14779@kushida.apsleyroad.org>
+In-Reply-To: <E16iz57-0002SW-00@the-village.bc.nu> <1015515815.4373.61.camel@pc-16.office.scali.no> <a68bo4$b18$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44L.0203072057510.2181-100000@imladris.surriel.com>; from riel@conectiva.com.br on Thu, Mar 07, 2002 at 08:59:47PM -0300
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <a68bo4$b18$1@cesium.transmeta.com>; from hpa@zytor.com on Thu, Mar 07, 2002 at 10:32:36AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 08:59:47PM -0300, Rik van Riel wrote:
+H. Peter Anvin wrote:
+> > Can /proc/cpuinfo really be trusted in figuring out how long a cycle is?
+> 
+> It uses RDTSC, so yes.
 
- > 3) graphical 2-way merging tool like bitkeeper has
- >    (this might not seem essential to people who have
- >    never used it, but it has saved me many many hours)
+Yes and no.  The kernel's measurement isn't as accurate as it could be.
 
- For me, this is the 'killer feature' of bk, and is my sole reason
- for spending the last few days beating up Larry to make some minor-ish
- improvements.
+I have some code which calibrates TSC cycles against gettimeofday().
 
- Say for example I want to push Linus reiserfs bits from my tree.
+Considering that gettimeofday() works by using the kernel's frequency
+estimate that it shows in /proc/cpuinfo, the results from the code
+should match /proc/cpuinfo very precisely ndeed.
 
- Old method:
- - diff linux-vanilla linux-dj >dj.diff
- - grepdiff reiser dj.diff | xargs -n1 filterdiff dj.diff -i >reiser.diff
- - copy this file to reiser-1.diff reiser-2.diff with the intention
-   of making each diff have only one 'theme'
- - vi reiser1.diff, chop out unneeded bits
- - repeat for all remaining files
- - check they all apply on top of Linus' latest.
- (If during any of the steps above, Linus puts out a new pre that
-  touches any of the files these patches do, resync, and go back to step #1)
+However, over a million gettimeofday() calls, the frequency of the 100Hz
+tick would tend to dominate the result, showing any error in the
+kernel's estimate which appears in /proc/cpuinfo (which is derived from
+measuring the length of a 100Hz tick in TSC cycles).
 
-This, takes a long time. And for some of the more compilicated bits,
-it's a pita to do.
+With 10^6 gettimeofday() calls, and linear regression through the set of
+measurements when an interrupt didn't happen (checked by reading TSC
+before and after the system call and filtering on the minimum), I get
+superb results on a FreeBSD box:
 
-The new method:
- - bk pull
- - bk citool
- - tag reiserfs files in cset
- - hide bits in this delta that don't apply to this csets 'theme' [1]
- - Once I have the grouped together cset, I generate a diff.
- If during any of these steps Linus changes any of these files, I
- bk pull, and with luck, bk does the nasty bits for me, and fires up
- the conflict resolution tool if needbe.
+	Kernel reports clock frequency:  746.154 MHz
+	Measured clock frequency:        746.154 MHz
 
- The above steps look about equal in number, but in speed of operation
- for this work, bk wins hands down.
- 
- I'm not aware of anything other than bk that has the functionality
- of citool and fmtool combined.  My usage pattern above doesn't fit
- the usual approach, as suggested in Jeff's minihowto, where I'd
- have multiple 'themed' trees for each cset I'd want to push Linus'
- way. With a 6MB diff, I'd need to grow a lot of themes, and fortunatly,
- bk can be quite easily bent into shape to fit my lazy needs.
+On various Linux boxes, however:
 
- I'm going to be trying it out for the next round of merging with Linus
- (which is partly the reason I've not pushed anything his way recently)
- As soon as I'm done moving house this weekend, I'll be having quite a
- long play with bk, to see how much quicker and easier my life becomes.
+	Kernel reports clock frequency:  596.924 MHz
+	Measured clock frequency:        596.929 MHz
 
- And the usual Larry disclaimer applies. I'll try it, and if it doesn't
- work out, I'll go back to my old way of working.
- 
- Regards,
- Dave.
+	Kernel reports clock frequency:  866.708 MHz
+	Measured clock frequency:        866.675 MHz
 
-[1] This is what Larry has been working on for me the last few days
-    For the most part, it's done, just needs some niggles working out.
+	Kernel reports clock frequency:  664.597 MHz
+	Measured clock frequency:        664.582 MHz
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+	Kernel reports clock frequency:  366.601 MHz
+	Measured clock frequency:        366.584 MHz
+
+As you can see, the kernel consistently overestimates the CPU clock
+frequency, or more precisely it overestimates the number of cycles in a
+"100Hz" system clock tick.  This is something that could be improved in
+the kernel code, as FreeBSD demonstrates.  Note that the clock frequency
+probably varies by a similar order of magnitude to this error due to
+thermal and power variation anyway.  But it would be nice if the
+measurements matched as they do in FreeBSD!
+
+I have one of those laptops that Alan mentioned which does change the
+CPU clock rate.  It's a Toshiba 4070CDT, here running in fast then slow
+mode:
+
+	Kernel reports clock frequency:  366.601 MHz
+	Measured clock frequency:        366.584 MHz
+
+	Kernel reports clock frequency:  366.601 MHz
+	Measured clock frequency:        184.503 MHz
+
+It can switch between fast and slow modes while a program is running,
+which occurs either when you press a special key combination, or the
+mains power cuts off.
+
+enjoy,
+-- Jamie

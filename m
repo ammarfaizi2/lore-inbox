@@ -1,98 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbTDONcr (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 09:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbTDONcr 
+	id S261378AbTDONlD (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 09:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbTDONlD 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 09:32:47 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:39836 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S261482AbTDONcn 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 09:32:43 -0400
-From: Balram Adlakha <b_adlakha@softhome.net>
-To: john@grabjohn.com
-Subject: Re: module for sony network walkman
-Date: Tue, 15 Apr 2003 19:18:19 +0000
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
+	Tue, 15 Apr 2003 09:41:03 -0400
+Received: from watch.techsource.com ([209.208.48.130]:26040 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S261378AbTDONlC 
+	(for <rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 09:41:02 -0400
+Message-ID: <3E9C1208.7070801@techsource.com>
+Date: Tue, 15 Apr 2003 10:07:04 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Robert White <rwhite@casabyte.com>
+CC: Riley Williams <Riley@williams.name>,
+       Linux Kernel List <Linux-Kernel@vger.kernel.org>
+Subject: Re: kernel support for non-English user messages
+References: <PEEPIDHAKMCGHDBJLHKGKEIFCHAA.rwhite@casabyte.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304151918.19936.b_adlakha@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Is there any driver available for accessing the flash memory of my sony usb
-> >network walkman (nw-e5)? This thing was quite expensive and I really would
-> >like it to work. 
 
->At a guess, it might just act like a disk device. Without a lot more
->information, I can't help you any further. What does lsusb say about
->it?
+
+Robert White wrote:
+
+>Message codes would be *VERY BAD* anyway.  As soon as you start that, then
+>you need a numbering authority and all that nonsense.
 >
->John. 
+>However, it should be "reasonably easy" to preprocess (in the gcc -E sense)
+>all the files in a kernel directory and the gather up nearly all the
+>prototype strings.  (you would still have the occasional person who wrote
+>"char Message[] = "INode: %d invalid"; printk(Message,number);" instead of
+>having the string in place as just "printk("INode: %d invalid",number);" and
+>the later is easier to collect up 8-)
+>
+>The thing is "INode: %d invalid", as a string is easy to decompose into a
+>regular expression because it is mostly-constant and the non-constant parts
+>are represented with constant markers.  There are a small number of
+>degenerate cases [e.g. printk("Filename %s invalid: %s","Filename","invalid:
+>whitespace character")] that might need to be tweaked but nothing is
+>perfect.
+>
+>So "the magic tool" collects these imprint strings and builds a list of all
+>the strings (for the translator), a recognizer-table (perhaps hashes against
+>the constant leader word of each message and a regex for the message) that
+>points to the also-built hash/key into the table of all of the known
+>strings.
+>  
+>
 
-this is what lsusb says:
+I'm working on this right now.  My plan is as follows:
 
+- Use a C parser which takes .c or .i files and searches for the format 
+parameter to every printk call.
+- Provide that information to both a preprocessor and the printk function.
+- Pipe every .c or .i file through an intermediate preprocessor before 
+or after going to cpp but before the compiler.
+- Do automatic string replacement.
 
-Bus 001 Device 002: ID 054c:0035 Sony Corp.
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.10
-  bDeviceClass          255 Vendor Specific Class
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0         8
-  idVendor           0x054c Sony Corp.
-  idProduct          0x0035
-  bcdDevice            1.00
-  iManufacturer           1 Sony
-  iProduct                2 Network-Walkman
-  iSerial                 0
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           32
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0
-    bmAttributes         0x80
-    MaxPower              100mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol      0
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               none
-        wMaxPacketSize         64
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               none
-        wMaxPacketSize         64
-        bInterval               0
-  Language IDs: (length=4)
-     0409 English(US)
+Right now, I'm hovering somewhere around 40% compression on the text. 
+ When I have better results, I will write up a full report and post it 
+on lkml.
+
+And, BTW, I will ONLY be supporting English.  As far as I am concerned, 
+the internationalization is an concluded issue.  There's no benefit to 
+it, and Linus won't accept it into mainline anyhow.
 
 
-however, I am not able to just load the usb-storage, scsi disk and scsi 
-generic modules and mount it coz its not shown anywhere in /dev (devfs)
-Will it work if I try some of the flash memory writer modules? What can I try? 

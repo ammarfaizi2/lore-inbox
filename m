@@ -1,78 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267839AbUHPR7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267846AbUHPSAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267839AbUHPR7c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 13:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUHPR7b
+	id S267846AbUHPSAc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 14:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUHPR7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:59:31 -0400
-Received: from 130.67-18-18.reverse.theplanet.com ([67.18.18.130]:16325 "EHLO
-	server3.imagelinkusa.net") by vger.kernel.org with ESMTP
-	id S267838AbUHPR7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 13:59:47 -0400
+Received: from fire.osdl.org ([65.172.181.4]:53441 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S267837AbUHPR7U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 16 Aug 2004 13:59:20 -0400
-Subject: Re: growisofs stopped working with 2.6.8
-From: "Tony A. Lambley" <tal@vextech.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-In-Reply-To: <1092672062.20838.29.camel@localhost.localdomain>
-References: <1092674287.3021.19.camel@bony>
-	 <1092672062.20838.29.camel@localhost.localdomain>
+Subject: Re: Linux v2.6.8 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org>
 Content-Type: text/plain
-Message-Id: <1092679156.2393.8.camel@bony>
+Message-Id: <1092678960.19893.104.camel@cherrybomb.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 16 Aug 2004 13:59:16 -0400
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 16 Aug 2004 10:56:00 -0700
 Content-Transfer-Encoding: 7bit
-X-PopBeforeSMTPSenders: jo@vextech.net,vextech
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server3.imagelinkusa.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - vextech.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It still fails, but I get a different message with the patch:
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-$ growisofs -Z /dev/dvd=file.iso
-Executing 'builtin_dd if=file.iso of=/dev/dvd obs=32k seek=0'
-:-( unable to PREVENT MEDIA REMOVAL: Operation not permitted
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8-rc4      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8-rc3      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8-rc2      0w/0e       0w/0e    85w/ 0e   5w/0e   1w/0e     79w/0e
+2.6.8-rc1      0w/0e       0w/0e    87w/ 0e   5w/0e   1w/0e     82w/0e
+2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
+2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
+2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
+2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
+2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
+2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
+2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
+2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
+2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
+2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
+2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
+2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
+2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
+2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
+2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
 
-K3B fails with the same message as above.
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
 
-As you say, it does indeed burn fine as root.
+John
 
 
-On Mon, 2004-08-16 at 12:01, Alan Cox wrote:
-> On Llu, 2004-08-16 at 17:38, Tony A. Lambley wrote:
-> > Hi, burning a dvd iso now fails :(
-> > 
-> > $ growisofs -Z /dev/hdc=file.iso
-> > :-( unable to GET CONFIGURATION: Operation not permitted
-> > :-( non-MMC unit?
-> 
-> We fixed some security holes. In doing so we tightened up so a few apps
-> that worked before no longer work except as root. Thanks for the error
-> message. Thats helpful as it suggests the following patch.
-> 
-> (and does it help K3B ?)
-> 
-> 
-> 
-> 
-> 
-> 
-> ______________________________________________________________________
-> --- drivers/block/scsi_ioctl.c~	2004-08-16 18:01:36.627301624 +0100
-> +++ drivers/block/scsi_ioctl.c	2004-08-16 18:01:36.627301624 +0100
-> @@ -146,6 +146,7 @@
->  		safe_for_read(GPCMD_READ_TOC_PMA_ATIP),
->  		safe_for_read(GPCMD_REPORT_KEY),
->  		safe_for_read(GPCMD_SCAN),
-> +		safe_for_read(GPCMD_GET_CONFIGURATION),
->  
->  		/* Basic writing commands */
->  		safe_for_write(WRITE_6),
 

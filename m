@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317668AbSGJXPf>; Wed, 10 Jul 2002 19:15:35 -0400
+	id <S317671AbSGJXTP>; Wed, 10 Jul 2002 19:19:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317670AbSGJXPe>; Wed, 10 Jul 2002 19:15:34 -0400
-Received: from stephens.ittc.ku.edu ([129.237.125.220]:55425 "EHLO
-	stephens.ittc.ku.edu") by vger.kernel.org with ESMTP
-	id <S317668AbSGJXPd>; Wed, 10 Jul 2002 19:15:33 -0400
-Date: Wed, 10 Jul 2002 18:18:18 -0500 (CDT)
-From: Karthikeyan Nathillvar <ntkarthik@ittc.ku.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Process Memory Usage
-Message-ID: <Pine.LNX.4.33.0207101811550.4626-100000@plato.ittc.ku.edu>
+	id <S317672AbSGJXTO>; Wed, 10 Jul 2002 19:19:14 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:45193 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317671AbSGJXTN>;
+	Wed, 10 Jul 2002 19:19:13 -0400
+Date: Wed, 10 Jul 2002 16:21:08 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Compile error (starfire ethernet) on 2.5.25 for crc32_le
+Message-ID: <165080000.1026343268@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I get the following compile error if I try to use the starfire
+driver.
 
-  I want to find the memory usage of a particular process, to be precise
-the percentage memory utilization. I need to find it through a program
-other than "top".
+  ld -m elf_i386 -T arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/init.o --start-group arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o /home/mbligh/linux-2.5.25/arch/i386/lib/lib.a lib/lib.a /home/mbligh/linux-2.5.25/arch/i386/lib/lib.a drivers/built-in.o sound/sound.o arch/i386/pci/pci.o net/network.o --end-group -o vmlinux
+drivers/built-in.o: In function `set_rx_mode':
+drivers/built-in.o(.text+0x2138c): undefined reference to `crc32_le'
+make: *** [vmlinux] Error 1
 
- 1) I tried using getrusage() system call. But it is returning zero for
-all values(like ru_maxrss, etc..) except ru_utime and ru_stime. I am using
-2.2.18 kernel.
+starfire.c calls ether_crc_le which is defined in include/linux/crc32.h as
+#define ether_crc_le(length, data) crc32_le(~0, data, length)
 
- 2) I tried to read from /proc/<pid>/statm file. But, the process memory
-usage seems to be always in an increasing trend, even though lot of
-freeing is going on inside. All the values, size, resident, are always
-increasing.
+crc32_le is defined in lib/crc32.c .... which is only compiled if CONFIG_CRC32
+is set  ... setting this fixes the problem ... shouldn't drivers that need this turn it
+on automatically somehow?
 
-   Can anyone suggest me any other ways through which memory utilization
-of a program can be obtained.
-
-Thanking you in advance,
-ntk.
-
+M.
 

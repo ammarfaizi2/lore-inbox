@@ -1,54 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135183AbRAHWUx>; Mon, 8 Jan 2001 17:20:53 -0500
+	id <S135538AbRAHWWw>; Mon, 8 Jan 2001 17:22:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130195AbRAHWUm>; Mon, 8 Jan 2001 17:20:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17937 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130516AbRAHWUj>;
-	Mon, 8 Jan 2001 17:20:39 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101082214.WAA00962@raistlin.arm.linux.org.uk>
-Subject: Re: The advantage of modules?
-To: goemon@anime.net (Dan Hollis)
-Date: Mon, 8 Jan 2001 22:14:25 +0000 (GMT)
-Cc: meissner@spectacle-pond.org (Michael Meissner), ookhoi@dds.nl (Ookhoi),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101081414020.19299-100000@anime.net> from "Dan Hollis" at Jan 08, 2001 02:16:05 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S132260AbRAHWWn>; Mon, 8 Jan 2001 17:22:43 -0500
+Received: from [199.26.153.10] ([199.26.153.10]:55570 "EHLO fourelle.com")
+	by vger.kernel.org with ESMTP id <S130634AbRAHWWb>;
+	Mon, 8 Jan 2001 17:22:31 -0500
+Message-ID: <3A5A3D45.C73A5B7F@fourelle.com>
+Date: Mon, 08 Jan 2001 14:20:53 -0800
+From: Adam Scislowicz <adams@fourelle.com>
+Organization: Fourelle Systems, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11-ac4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: bigmem (2GB in this case) patches for the 2.0.x kernel.
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Hollis writes:
-> On Mon, 8 Jan 2001, Russell King wrote:
-> > I don't believe that is what it's trying to say.  There have been instances
-> > in the past where unplugging a SCSI device from a powered on SCSI bus can
-> > result in blown terminator power fuses and the like.  Whether this still
-> > applies today, I don't know (are active terminators better or worse than
-> > passive when it comes to this type of thing?)
-> 
-> The term SCSI is depreciated as purely a physical layer. We talk SCSI over
-> many different physical layers (1394, usb, ata). Of course many of these
-> support hot plug natively.
+I have had no luck finding a bigmem patch for the 2.0.x kernel. I am in
+the situation where I would rather not update the kernel,  do I have
+any options?
 
-And can you please explain how I can attach this USB Zip drive to this
-50-wire SCSI bus please?  Or would you prefer me to call it a bus?
-Something with 4 wheels maybe?  Maybe we should depreciate the term "bus"
-as well just to remove that confusion. ;)
+ -Adam Scislowicz <adams@fourelle.com>
 
-Seriously though, you can't depreciate a term for referring to a type of
-bus without providing some other term to describe said bus.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

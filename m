@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269494AbUI3UvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269497AbUI3UwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269494AbUI3UvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 16:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269498AbUI3UsB
+	id S269497AbUI3UwD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 16:52:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUI3UwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 16:48:01 -0400
-Received: from cantor.suse.de ([195.135.220.2]:55226 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269494AbUI3UpE (ORCPT
+	Thu, 30 Sep 2004 16:52:02 -0400
+Received: from smtpq2.home.nl ([213.51.128.197]:46524 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S269497AbUI3UuF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:45:04 -0400
-Date: Thu, 30 Sep 2004 22:45:02 +0200
-From: Andi Kleen <ak@suse.de>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [RFC PATCH] sched_domains: Make SD_NODE_INIT per-arch
-Message-ID: <20040930204502.GD28315@wotan.suse.de>
-References: <1096420339.15060.139.camel@arrakis> <415BC0BC.6040902@yahoo.com.au> <1096569412.20097.13.camel@arrakis>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096569412.20097.13.camel@arrakis>
+	Thu, 30 Sep 2004 16:50:05 -0400
+Date: Thu, 30 Sep 2004 22:50:01 +0200 (CEST)
+From: Erik Oomen <erik.oomen@home.nl>
+X-X-Sender: ooer@paris
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9rc2-mm1 (reiser4 related?) oops
+Message-ID: <Pine.LNX.4.58.0409302236360.2783@paris>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 11:36:52AM -0700, Matthew Dobson wrote:
-> On Thu, 2004-09-30 at 01:15, Nick Piggin wrote:
-> > Matthew Dobson wrote:
-> > > IA64 already has their own version of SD_NODE_INIT, tuned for their
-> > > extremely large machines.  I think that all arches would benefit from
-> > > having their own, arch-specific SD_NODE_INIT initializer, rather than
-> > > the one-size-fits-all variant we've got now.
-> > > 
-> > 
-> > I suppose the patch is pretty good (IIRC Martin liked the idea).
-> > I guess it will at least increase the incidence of copy+paste,
-> > if not getting people to think harder ;)
-> 
-> Thanks!  Martin does like the idea, and I think Andi Kleen likes the
-> idea of being able to tune sched_domains for x86_64, too.  Any comments,
-> Andi?
+This oops happened when I started mencoder for recording television
+broadcast to a reiser4 partition.
 
-It doesn't help me directly - what i need is the same thing 
-for SD_SIBLING_INIT for the CMP changes.
+/dev/hda1 is the reiser4 partition, /dev/hda3 is reiser3
 
-But it seems I need to do some other work to properly support the K8
-CMP first, so I'm defering attacking this a bit. 
+root@paris:~$ df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/hda3              28G   18G  9.6G  65% /
+/dev/hda1             9.3G   29M  9.3G   1% /var/movies
+tmpfs                  94M     0   94M   0% /dev/shm
 
-> The patch is pretty simple.  I don't think it will increase any
-> copy+pasting because I don't believe anyone has modified SD_NODE_INIT at
-> all since it's been implemented, and certainly not for many kernel
-> releases.  I think part of the reason for that is that it is currently
-> impossible to tweak the values for your architecture of choice because
-> modifying the values now will change EVERYONE's sched_domains timings. 
-> Which is bad. :(  If anyone wants to tweak SD_NODE_INIT, they shouldn't
-> be copying+pasting those values to all architectures.  Besides, IA64
-> already gets their own SD_NODE_INIT to play with, why shouldn't everyone
-> else! ;)
+System is an PIII-650 with 192Mb memory
 
-It would be nice if there was a SD_DEFAULT_NODE_INIT and a 
-SD_DEFAULT_SIBLING_INIT in some generic
-file that architecture code can use as a base for tweaking.
-For the CMP change I currently only want to remove SD_SHAREPOWER
-from SIBLING_INIT to get rid of SMT nice.
-
-Later we'll probably want a SD_DEFAULT_CMP_INIT too that gives
-generic values for a dual core. Dual cores should be soon pretty
-common and tuning for them will be needed on several architectures
-(ppc64, ia64, x86, x86-64, sparc, parisc? ...). But figuring out good
-values for this will require a lot of benchmarking first.
-
--Andi
+Unable to handle kernel paging request at virtual address 140007d8
+ printing eip:
+c01ec130
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+Modules linked in: snd_es1938 snd_opl3_lib snd_hwdep snd_mpu401_uart tuner
+msp3400 bttv video_buf firmware_class i2c_algo_bit v4l2_common btcx_risc
+videodev ohci_hcd usbcore sis_agp agpgart 8250_pnp sd_mod sg sr_mod
+scsi_mod autofs4 snd_bt87x snd_ens1371 snd_rawmidi snd_seq_device
+snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc
+snd soundcore 8250 serial_core lm78 i2c_sensor i2c_isa i2c_core rtc
+CPU:    0
+EIP:    0060:[<c01ec130>]    Not tainted VLI
+EFLAGS: 00010292   (2.6.9-rc2-mm1)
+EIP is at pre_commit_hook_bitmap+0x60/0x1b0
+eax: 14000808   ebx: cc902000   ecx: c2724e40   edx: cb06b500
+esi: 00000da8   edi: cac51000   ebp: 140007d8   esp: cb3a1dec
+ds: 007b   es: 007b   ss: 0068
+Process ktxnmgrd:hda1:t (pid: 960, threadinfo=cb3a0000 task=cb798550)
+Stack: 00000da8 00000003 01100100 00000da8 c2724eb0 c2724e40 c11d4400 00000000
+       00000000 00000000 00000000 000012a1 cb3a0000 cb06c800 cb3a0000 c11d4400
+       c01b52c5 c01bd17c c01c1cd9 c836546c c836546c cb3a0000 cb3a1ed8 c8365460
+Call Trace:
+ [<c01b52c5>] pre_commit_hook+0x5/0x10
+ [<c01bd17c>] reiser4_write_logs+0x2c/0x2b0
+ [<c01c1cd9>] release_prepped_list+0x109/0x140
+ [<c01c1cd9>] release_prepped_list+0x109/0x140
+ [<c01c18a8>] finish_fq+0x38/0x40
+ [<c01c190e>] finish_all_fq+0x5e/0xa0
+ [<c01b5e4a>] commit_current_atom+0x11a/0x200
+ [<c01b6772>] try_commit_txnh+0x122/0x1a0
+ [<c01b6827>] commit_txnh+0x37/0xb0
+ [<c01b563e>] txn_end+0x2e/0x40
+ [<c01b5658>] txn_restart+0x8/0x20
+ [<c01b61f1>] commit_some_atoms+0xc1/0x140
+ [<c01c232a>] scan_mgr+0x2a/0x50
+ [<c026ba2f>] snprintf+0x1f/0x30
+ [<c01c2234>] ktxnmgrd+0x174/0x200
+ [<c01c20c0>] ktxnmgrd+0x0/0x200
+ [<c010229d>] kernel_thread_helper+0x5/0x18
+Code: 8b 43 08 a8 08 0f 85 59 01 00 00 8b 44 24 14 8b 54 24 14 83 c0 70 89
+44 24 10 8b 42 70 39 44 24 10 8d 68 d0 74 1c 90 8d 74 26 00 <8b> 45 00 a8
+40 0f 85 95 00 00 00 8b 45 30 39 44 24 10 8d 68 d0
 

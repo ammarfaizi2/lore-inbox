@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279313AbRKVNcY>; Thu, 22 Nov 2001 08:32:24 -0500
+	id <S279556AbRKVNfO>; Thu, 22 Nov 2001 08:35:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279407AbRKVNcO>; Thu, 22 Nov 2001 08:32:14 -0500
-Received: from ns.suse.de ([213.95.15.193]:55052 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S279313AbRKVNcC> convert rfc822-to-8bit;
-	Thu, 22 Nov 2001 08:32:02 -0500
-To: Ado.Arnolds@dhm-systems.de
-Cc: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: fs/exec.c and binfmt-xxx in 2.4.14
-In-Reply-To: <3BFBDD32.434AB47B@web-systems.net>
-	<20011121211433.B1424@devcon.net> <3BFCE5BB.AD59B011@web-systems.net>
-X-Yow: While you're chewing, think of STEVEN SPIELBERG'S
- bank account..  This will have the same effect as
- two ``STARCH BLOCKERS''!
-From: Andreas Schwab <schwab@suse.de>
-Date: 22 Nov 2001 14:31:55 +0100
-In-Reply-To: <3BFCE5BB.AD59B011@web-systems.net> (Heinz-Ado Arnolds's message of "Thu, 22 Nov 2001 12:47:07 +0100")
-Message-ID: <jed72b7wz8.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.1.30
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+	id <S279509AbRKVNfE>; Thu, 22 Nov 2001 08:35:04 -0500
+Received: from 10fwd.cistron-office.nl ([195.64.65.197]:38157 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id <S279505AbRKVNew>; Thu, 22 Nov 2001 08:34:52 -0500
+Date: Thu, 22 Nov 2001 14:34:50 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] block_dev.c: fsync() on close() considered harmful
+Message-ID: <20011122143450.A28020@cistron.nl>
+Reply-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-NCC-RegID: nl.cistron
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de> writes:
+I'm running an INN usenet news server that uses raw partitions for
+storage. I.e. it opens /dev/sda7 etc. and mmap()s [which finally
+works in 2.4, hurray]
 
-|> Andreas Ferber wrote:
-|> > 
-|> > On Wed, Nov 21, 2001 at 05:58:26PM +0100, Heinz-Ado Arnolds wrote:
-|> > >
-|> > > When i now try to start an older binary in a.out format, which has a
-|> > > magic number of 0x010b0064, it is translated with the 'new' code to a
-|> > > request for "binfmt-0064" instead of "binfmt-267" as expected and
-|> > > properly handled by modprobe.
-|> > 
-|> > Then add
-|> > 
-|> > alias binfmt-0064 binfmt_aout
-|> > 
-|> > to /etc/modules.conf. Simple, isn't it?
-|> 
-|> That's a nice idea but I wouldn't rely on the fact that the third
-|> and the fourth byte of a file are sufficient to identify the type.
+Even though the server is keeping those devices open, when a utility
+program (sm) opens that file/device and closes() it the close() causes
+a fsync() on the device, something that is not wanted.
 
-Moreover, it is not endian clean.  But that was also true for the old
-scheme.
+I applied the following patch which fixes it for me, it prevents
+the sync-after-close if it was close() calling blkdev_put()
+and we're not the last one to call blkdev_put().
 
-Andreas.
+That means fsync() will still be done on unmounts or when the
+last user of the device closes it, but not otherwise.
 
+Is this correct or am I overlooking something?
+
+--- linux-2.4.15-pre8/fs/block_dev.c.orig	Thu Oct 25 22:58:35 2001
++++ linux-2.4.15-pre8/fs/block_dev.c	Wed Nov 21 13:32:16 2001
+@@ -603,7 +603,7 @@
+ 
+	down(&bdev->bd_sem);
+	lock_kernel();
+-	if (kind == BDEV_FILE)
++	if (kind == BDEV_FILE && bdev->bd_openers == 1)
+		__block_fsync(bd_inode);
+	else if (kind == BDEV_FS)
+		fsync_no_super(rdev);
+
+
+Mike.
 -- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.

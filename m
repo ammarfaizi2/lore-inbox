@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289062AbSA3Kb1>; Wed, 30 Jan 2002 05:31:27 -0500
+	id <S289081AbSA3Ker>; Wed, 30 Jan 2002 05:34:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289080AbSA3KbR>; Wed, 30 Jan 2002 05:31:17 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:58319 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S289062AbSA3KbD>;
-	Wed, 30 Jan 2002 05:31:03 -0500
-Date: Wed, 30 Jan 2002 05:31:01 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Raul Sanchez Sanchez <raul@dif.um.es>
+	id <S289085AbSA3Keh>; Wed, 30 Jan 2002 05:34:37 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33039 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289081AbSA3KeY>; Wed, 30 Jan 2002 05:34:24 -0500
+Subject: Re: 2.4.18-pre7 Ali chipset performance
+To: david@atrey.karlin.mff.cuni.cz
+Date: Wed, 30 Jan 2002 10:46:47 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Via Sound Mantainer
-Message-ID: <20020130053101.B12928@havoc.gtf.org>
-In-Reply-To: <1012385915.558.23.camel@raul>
-Mime-Version: 1.0
+In-Reply-To: <20020130112541.A1215@pidaibm.in.idoox.com> from "David Hajek" at Jan 30, 2002 11:25:41 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1012385915.558.23.camel@raul>; from raul@dif.um.es on Wed, Jan 30, 2002 at 11:18:35AM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16VsGN-0006zA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 11:18:35AM +0100, Raul Sanchez Sanchez wrote:
-> Could anybody tell me who is the via sound mantainer? I have some
-> questions to him/her and i don't know who is.
+> I can get around ~8mb/s with hdparm. With 
+> stock 2.4.9-21 redhat kernel I can get 18mb/s, but
+> random lookups occured. 
 
-There is no via sound maintainer...  I used to do it, but have long
-since lost Via hardware needed to adequately support it.  Further, ALSA
-will go into 2.5.x sometime (hopefully), and they support Via audio...
+I'd be interested to know how 2.4.18pre7-ac1 behaves - that has the newer
+Andre IDE driver work and some other changes that may be relevant. 
 
-I can answer questions but it's really not much more than what you see
-in the datasheet.
-
-	Jeff
-
-
+Also if you can get lockups from 2.4.9-21 please do stick a bug in
+https://bugzilla.redhat.com/bugzilla with whatever diagnostics you can get
+(if any) and the hw info

@@ -1,54 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbUA3RVB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 12:21:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbUA3RVB
+	id S262960AbUA3RYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 12:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbUA3RYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 12:21:01 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:36743 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262827AbUA3RU7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 12:20:59 -0500
-Date: Fri, 30 Jan 2004 18:20:57 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Timothy Miller <miller@techsource.com>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, John Bradford <john@grabjohn.com>,
-       chakkerz@optusnet.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
-In-Reply-To: <401A8E0E.6090004@techsource.com>
-Message-ID: <Pine.LNX.4.55.0401301812380.10311@jurand.ds.pg.gda.pl>
-References: <4017F2C0.4020001@techsource.com> <200401291211.05461.chakkerz@optusnet.com.au>
- <40193136.4070607@techsource.com> <200401291629.i0TGTN7S001406@81-2-122-30.bradfords.org.uk>
- <40193A67.7080308@techsource.com> <200401291718.i0THIgbb001691@81-2-122-30.bradfords.org.uk>
- <4019472D.70604@techsource.com> <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk>
- <40195AE0.2010006@techsource.com> <401A33CA.4050104@aitel.hist.no>
- <401A8E0E.6090004@techsource.com>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 30 Jan 2004 12:24:24 -0500
+Received: from mail.kroah.org ([65.200.24.183]:25308 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262960AbUA3RX2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 12:23:28 -0500
+Date: Fri, 30 Jan 2004 09:23:11 -0800
+From: Greg KH <greg@kroah.com>
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 015 release
+Message-ID: <20040130172310.GB5265@kroah.com>
+References: <20040126215036.GA6906@kroah.com> <401A8A35.1020105@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <401A8A35.1020105@gmx.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jan 2004, Timothy Miller wrote:
-
-> > Another reason to drop VGA then - money.
+On Fri, Jan 30, 2004 at 05:45:41PM +0100, Prakash K. Cheemplavam wrote:
+> Hi Greg,
 > 
-> As soon as PC BIOS's don't require it, we can drop it.
+> perhaps you remember me being a gentoo user wanting to switch to udev. 
+> Well I did so, but am having some problems:
+> 
+> 1.) Minor one: Nodes for Nvidia (I am using binary display modules 
+> 1.0.5328) ar not created. I have to do it by hand each start-up (written 
+> into loacal.start.):
+> mknod /dev/nvidia0 c 195 0
+> mknod /dev/nvidiactl c 195 255
 
- No PC BIOS recognizes a VGA.  The PC/AT firmware uses int 0x10 to
-communicate with the console and as long as there is a handler there,
-console output works.  Most systems will actually run without a handler,
-too, but they'll usually complain to the speaker.  The handler is provided
-by the ROM firmware of the primary graphics adapter.
+Heh, and you expect me to be able to modify a binary driver to work with
+udev how?  :)
 
- Old PC/AT firmware actually did recognize a few display adapters, namely
-the CGA and the MDA which had no own firmware.  These days support for
-these option is often absent, even though the setup program may provide an
-option to select between CGA40/CGA80/MDA/none (the latter being equivalent
-to an option such as an EGA or a VGA, providing its own firmware).
+You're on your own here...
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+> 2.) More probelmatic: I am having some serious troubles with my Epson 
+> Perfection USB scanner:
+> a) I am to dumb to write a rule for it to map it to /dev/usb/scanner0
+> 
+> I don't exactly know which SYSFS_ field to use as the don't match the 
+> lsusb descriptor. I tried various ones, but the scanner always gets 
+> mapped to /dev/scanner0. I managed to get my HP printer to be mapped to 
+> usb/lp0 by using its serial. This is my (latest non working )line for 
+> the scanner:
+
+What does:
+	usbinfo -a -p /sys/class/usb/scanner0
+say?
+
+That should help you generate a proper rule.
+
+> Now the serious issue: When rebooting or disconnecting the scanner I get 
+> a kernel oops:
+
+That's because you shouldn't be using the scanner driver at all :)
+Please just use the latest xscane, it can talk to the scanner through
+usbfs/libusb with no kernel module needed.  This is a well known bug if
+you search the lkml archives...
+
+Hope this helps.
+
+greg k-h

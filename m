@@ -1,71 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283245AbRLQX5f>; Mon, 17 Dec 2001 18:57:35 -0500
+	id <S283243AbRLRAAF>; Mon, 17 Dec 2001 19:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283223AbRLQX5Z>; Mon, 17 Dec 2001 18:57:25 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:41745 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S283204AbRLQX5N>;
-	Mon, 17 Dec 2001 18:57:13 -0500
-Message-Id: <200112172357.AAA17058@webserver.ithnet.com>
-Date: Tue, 18 Dec 2001 00:57:01 +0100
-Subject: Re: [patch] mempool-2.5.1-D2
-In-Reply-To: <Pine.LNX.4.33.0112172140430.17088-100000@localhost.localdomain>
-To: <mingo@elte.hu>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S283223AbRLQX7z>; Mon, 17 Dec 2001 18:59:55 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:62728 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S283204AbRLQX7q>; Mon, 17 Dec 2001 18:59:46 -0500
+Message-ID: <3C1E86BD.43EAB279@zip.com.au>
+Date: Mon, 17 Dec 2001 15:58:53 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
-Cc: bcrl <bcrl@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
-From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: war <war@starband.net>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Limits broken in 2.4.x kernel.
+In-Reply-To: <3C1E5A88.57F5A68A@starband.net>,
+		<3C1E5A88.57F5A68A@starband.net> <shspu5dv3w4.fsf@charged.uio.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->                                                                     
-> On Mon, 17 Dec 2001, Stephan von Krawczynski wrote:                 
->                                                                     
-> > [...] You will obviously _not_ shoot down allocated and still used
-> > bios, no matter how long they are going to take. So your fixed    
-size                                                                  
-> > pool will run out in certain (maybe weird) conditions. If you     
-cannot                                                                
-> > resize (alloc additional mem from standard VM) you are just dead. 
->                                                                     
-> sure, the pool will run out under heavy VM load. Will it stay empty 
-> forever? Nope, because all mempool users are *required* to          
-deallocate the                                                        
-> buffer after some (reasonable) timeout. (such as IO latency.) This  
-is                                                                    
-> pretty much by definition. (Sure there might be weird cases like IO 
-> failure timeouts, but sooner or later the buffer will be returned,  
-and it                                                                
-> will be reused.)                                                    
-                                                                      
-Hm, and where is the real-world-difference to standard VM? I mean     
-today your bad-ass application gets shot down by L's oom-killer and   
-your VM will "refill". So you're not going to die for long in the     
-current situation either.                                             
-I have yet to see the brilliance in mempools. I mean, for sure I can  
-imagine systems that are going to like it (e.g. embedded) a _lot_. But
-these are far off the "standard" system profile.                      
-I asked this several times now, and I will continue to, where is the  
-VM _design_ guru that explains the designed short path to drop page   
-caches when in need of allocable mem, regarding a system with         
-aggressive caching like 2.4? This _must_ exist. If it does not, the   
-whole issue is broken, and it is obvious that nobody will ever find an
-acceptable implementation.                                            
-I turned this problem about a hundred times round now, and as far as I
-can see everything comes down to the simple fact, that VM has to      
-_know_ the difference between a only-cached page and a _really-used_  
-one. And I do agree with Rik, that the only-cached pages need an aging
-algorithm, probably a most-simple approach (could be list-ordering).  
-This should answer the question: who's dropped next?                  
-On the other hand you have aging in the used-pages for finding out    
-who's swapped out next. BUT I would say that swapping should only     
-happen when only-cached pages are down to a minimum level (like 5% of 
-memtotal).                                                            
-Forgive my simplistic approach, where are the guys to shoot me?       
-And where the hell is the need for mempool in this rough design idea? 
-                                                                      
-Regards,                                                              
-Stephan                                                               
-                                                                      
+Trond Myklebust wrote:
+> 
+> >>>>> " " == war  <war@starband.net> writes:
+> 
+>      > Problem: Per-user process limits to not work correctly with a
+>      > 2.4.x kernel.
+> 
+>      > Say I want to limit a user to [5] processes.
+> 
+>      > Example: Edit [/etc/security/limits.conf]
+>      >               user hard nproc 5 -or- @group hard nproc 5
+> 
+>      > The result: The user cannot login.
+> 
+>      > How to fix?
+> 
+> One thing I noticed when doing the BSD cred patch for 2.5.x is that
+> somebody broke the process accounting in 2.[45].x at least for the
+> case of reparent_to_init():
+
+That would be me.
+
+> If you just charge current->user without moving over the process from
+> the old uid to the new uid (such as is done in kernel/sys.c with the
+> set_user() routine) then you risk seriously corrupting the counters.
+>
+> I'm not sure really what the point was of setting the user in
+> reparent_to_init() in the first place, since it doesn't setreuid().
+
+reparent_to_init() is there to cope with various strange things
+which occur when a kernel thread is parented by a userspace process.
+It's called after daemonize(), so the thread can no longer participate
+in filesystem related things.
+
+I think what you've pointed out here is yet another problem with
+the idea of having kernel threads parented by user processes: they
+articificially increase the user's process count.
+
+I didn't have a clear reason for moving the UID to root's - it just
+didn't seem a good idea to have kernel threads running with non-root
+UIDs.   But we have a reason now - process accounting.
+
+reparent_to_init() needs to decrement current->user's processes count,
+and increment root's.  I'll do a patch.
+
+-

@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132574AbRDAWuh>; Sun, 1 Apr 2001 18:50:37 -0400
+	id <S132580AbRDAXYE>; Sun, 1 Apr 2001 19:24:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132577AbRDAWu2>; Sun, 1 Apr 2001 18:50:28 -0400
-Received: from monza.monza.org ([209.102.105.34]:16909 "EHLO monza.monza.org")
-	by vger.kernel.org with ESMTP id <S132574AbRDAWuN>;
-	Sun, 1 Apr 2001 18:50:13 -0400
-Date: Sun, 1 Apr 2001 15:49:05 -0700
-From: Tim Wright <timw@splhi.com>
-To: Philip Blundell <philb@gnu.org>
-Cc: LA Walsh <law@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: unistd.h and 'extern's and 'syscall' "standard(?)"
-Message-ID: <20010401154905.B4455@kochanski>
-Reply-To: timw@splhi.com
-Mail-Followup-To: Philip Blundell <philb@gnu.org>, LA Walsh <law@sgi.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3AC75DBF.31594195@sgi.com> <jelmpktors.fsf@hawking.suse.de> <3AC78E24.98DEA986@sgi.com> <law@sgi.com> <E14jocC-0008Jg-00@kings-cross.london.uk.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <E14jocC-0008Jg-00@kings-cross.london.uk.eu.org>; from philb@gnu.org on Sun, Apr 01, 2001 at 09:38:24PM +0100
+	id <S132577AbRDAXXy>; Sun, 1 Apr 2001 19:23:54 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:39976 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S132582AbRDAXXq>; Sun, 1 Apr 2001 19:23:46 -0400
+Date: Sun, 1 Apr 2001 18:21:29 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: David Lang <dlang@diginsite.com>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+   "Albert D. Cahalan" <acahalan@cs.uml.edu>, lm@bitmover.com,
+   linux-kernel@vger.kernel.org
+Subject: Re: bug database braindump from the kernel summit
+In-Reply-To: <Pine.LNX.4.33.0104011559590.25794-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.3.96.1010401181724.28121i-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And furthermore, it's been around in Unix and unix-like systems for a very long
-time. Sounds like the lack of man page is an oversight. Anybody want to write
-one ?
+On Sun, 1 Apr 2001, David Lang wrote:
+> if we want to get the .config as part of the report then we need to make
+> it part of the kernel in some standard way (the old /proc/config flamewar)
+> it's difficult enough sometimes for the sysadmin of a box to know what
+> kernel is running on it, let alone a bug reporting script.
 
-Tim
+Let's hope it's not a flamewar, but here goes :)
 
-On Sun, Apr 01, 2001 at 09:38:24PM +0100, Philip Blundell wrote:
-> >of action to take.  Seeing as you work for suse, would you know
-> >where this 'syscall(3)' interface should be documented?  Is it
-> >supposed to be present in all distro's?  
-> 
-> It's documented in the glibc manual.  Yes, it should be present in all glibc 
-> based distributions.
-> 
-> p.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+We -need- .config, but /proc/config seems like pure bloat.
 
--- 
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-Interested in Linux scalability ? Look at http://lse.sourceforge.net/
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
+If a sysadmin (note I don't say "user") has no clue what his kernel
+config is, or has no clue what kernel is running on his box, then
+they should be fired before the day is out.
+
+	Jeff
+
+
+

@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266059AbRGHXdw>; Sun, 8 Jul 2001 19:33:52 -0400
+	id <S266983AbRGHXiv>; Sun, 8 Jul 2001 19:38:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266981AbRGHXdm>; Sun, 8 Jul 2001 19:33:42 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:25115 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S266059AbRGHXdX>; Sun, 8 Jul 2001 19:33:23 -0400
-Date: Mon, 9 Jul 2001 01:33:19 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mark Hemment <markhe@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] copy_from_high_bh
-Message-ID: <20010709013319.C20908@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0107081102410.7044-100000@penguin.transmeta.com> <Pine.LNX.4.33.0107081918350.9756-100000@alloc.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0107081918350.9756-100000@alloc.wat.veritas.com>; from markhe@veritas.com on Sun, Jul 08, 2001 at 07:26:01PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S266981AbRGHXib>; Sun, 8 Jul 2001 19:38:31 -0400
+Received: from avocet.mail.pas.earthlink.net ([207.217.121.50]:25281 "EHLO
+	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S266983AbRGHXiT>; Sun, 8 Jul 2001 19:38:19 -0400
+Message-ID: <3B48EF12.9020504@earthlink.net>
+Date: Sun, 08 Jul 2001 16:38:58 -0700
+From: SubSolar <subsolar@earthlink.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010708
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: natsemi trouble with netgear fa311 in 2.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 08, 2001 at 07:26:01PM +0100, Mark Hemment wrote:
-> On Sun, 8 Jul 2001, Linus Torvalds wrote:
-> > On Sun, 8 Jul 2001 markhe@veritas.com wrote:
-> > >
-> > >   mm/highmem.c/copy_from_high_bh() blocks interrupts while copying "down"
-> > > to a bounce buffer, for writing.
-> > >   This function is only ever called from create_bounce() (which cannot
-> > > be called from an interrupt context - it may block), and the kmap
-> > > 'KM_BOUNCE_WRITE' is only used in copy_from_high_bh().
-> >
-> > If so it's not just the interrupt disable that is unnecessary, the
-> > "kmap_atomic()" should also be just a plain "kmap()", I think.
-> 
->   That might eat through kmap()'s virtual window too quickly.
+I have a NetGear FA311 pci card that uses the natsemi.c driver and have 
+had no
+problems with it in all kernels 2.4.0 through 2.4.5.  However with 2.4.6 
+(also
+tried 2.4.6-ac2) I am getting strange behavior.  As soon as an ip is 
+given to it
+(with either dhcp or manual ip) this error message keeps repeating:
 
-certainly not more quickly than a flood of allocation of highmem pages
-in anon mem. I don't see your point. kmap has to work just fine over
-there and the __cli/__sti was obviously useless. (should be faster
-because we won't need to invlpg at every bounce, but OTOH we'll flush
-the whole tlb after the wrap around but as said above if flushing the
-tlb too frequently is the issue we should simply improve kmap because
-the flood of kmap will happen anyways in the very fast paths regardless
-of the bounces)
+eth0:  Something Wicked happened! 18000
 
->   I did think about adding a test to see if the page was already mapped,
-> and falling back to kmap_atomic() if it isn't.  That should give the best
-> of both worlds?
-> 
-> Mark
+and I can't ping anything else except itself.  It's always 18000.  I've 
+tried
+switching the card to another pci slot, checked the cables, etc.  When I 
+switch back
+to kernel 2.4.5 everything works perfectly.
 
+The bootup message is:  eth0: Setting full-duplex based on negotiated link
+capability.
+And lspci shows:  Ethernet controller: National Semiconductor 
+Corporation: Unknown
+device 0020
 
-Andrea
+The computer is a k6-2 400 with an ASUS P5A motherboard (ALi chipset)
+

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263972AbUGHPf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUGHPgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263972AbUGHPf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 11:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUGHPf1
+	id S264389AbUGHPgt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 11:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUGHPgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 11:35:27 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:41222 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263972AbUGHPfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 11:35:22 -0400
-Message-ID: <40ED6F1A.7080101@techsource.com>
-Date: Thu, 08 Jul 2004 11:58:18 -0400
-From: Timothy Miller <miller@techsource.com>
+	Thu, 8 Jul 2004 11:36:48 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:35016 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S264389AbUGHPgm convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 11:36:42 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: kronos@kronoz.cjb.net
-CC: linux-kernel@vger.kernel.org, programming@johnwross.com
-Subject: Re: Increasing IDE Channels
-References: <20040707225635.GA26832@dreamland.darkstar.lan>
-In-Reply-To: <20040707225635.GA26832@dreamland.darkstar.lan>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: Power Management in Linux
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Thu, 8 Jul 2004 21:03:31 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB34811038B3B@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Power Management in Linux
+Thread-Index: AcRlAOysyB+cqPsmS2K2GZxWwSUz2Q==
+From: "Srinivas G." <srinivasg@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Surendra I." <surendrai@esntechnologies.co.in>,
+       "Subramanyam B." <subramanyamb@esntechnologies.co.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I have installed SuSe linux 9.1 on my HP Laptop. I was wondering if
+Hibernation is supported in SuSe linux 9.1.  If yes, how to enable it?
+Please instruct me the steps to enable Hibernation.
 
-Kronos wrote:
-> John W. Ross <programming@johnwross.com> ha scritto:
+Also, I am developing a block driver for a PCI device under kernel
+2.6.x.x. I would like to add PM features like Suspend, Wakeup and
+Hibernation in Block driver. I have seen few character drivers
+implementing PM features using pci_module_init()function. Will this
+function work for Block devices? Also, there is no callback for
+Hibernation, why?
 
-> 
-> Because hwifs are statically allocated, see drivers/ide/ide.c:
-> 
-> ide_hwif_t ide_hwifs[MAX_HWIFS];        /* master data repository */
-> 
-> Also if names are ide0..ide9, the following would be ide: and ide; (see
-> init_hwif_data in drivers/ide/ide.c).
-> 
-
-
-Why wouldn't they be ide10 and ide11?
-
+Thanks
+Srinivas G

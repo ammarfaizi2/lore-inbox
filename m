@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbTGAM7m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 08:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTGAM7m
+	id S262316AbTGAM6i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 08:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTGAM6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 08:59:42 -0400
-Received: from ip252-142.choiceonecom.com ([216.47.252.142]:50704 "EHLO
-	explorer.reliacomp.net") by vger.kernel.org with ESMTP
-	id S262319AbTGAM7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 08:59:38 -0400
-Message-ID: <3F0188FE.90603@cendatsys.com>
-Date: Tue, 01 Jul 2003 08:13:34 -0500
-From: Edward King <edk@cendatsys.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21 IDE problems (lost interrupt, bad DMA status)
-References: <20030630221542.GA17416@alf.amelek.gda.pl>
-In-Reply-To: <20030630221542.GA17416@alf.amelek.gda.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jul 2003 08:58:38 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:51394 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262316AbTGAM6h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 08:58:37 -0400
+Message-Id: <200307011312.h61DC6F2002208@eeyore.valparaiso.cl>
+To: Samium Gromoff <deepfire@ibe.miee.ru>
+cc: linux-kernel@vger.kernel.org, gcc-bugs@gcc.gnu.org
+Subject: Re: [GCC] gcc vs. indentation 
+In-Reply-To: Message from Samium Gromoff <deepfire@ibe.miee.ru> 
+   of "Mon, 30 Jun 2003 09:20:15 +0400." <20030630092015.49dd6969.deepfire@ibe.miee.ru> 
+X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
+Date: Tue, 01 Jul 2003 09:12:06 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Samium Gromoff <deepfire@ibe.miee.ru> said:
 
+[...]
 
-Marek Michalkiewicz wrote:
+> 	Surprisingly enough i`ve realised soon that indeed some indentation changes
+>  give gcc a reason to produce different code.
 
->Hi,
->
->After upgrading the kernel from 2.4.20 to 2.4.21, sometimes I see
->the following messages:
->
->hda: dma_timer_expiry: dma status == 0x24
->hda: lost interrupt
->hda: dma_intr: bad DMA status (dma_stat=30)
->hda: dma_intr: status=0x50 { DriveReady SeekComplete }
->
->It happens especially when there is a lot of disk I/O (which stops
->for a few seconds when these messages appear), with three different
->disks (very unlikely they all decided to die at the same time...),
->  
->
+[...]
 
-Are you using software raid or devfs?
+> --- ./origDAC960.o.d    2003-06-29 21:02:55.000000000 +0400
+> +++ ./newDAC960.o.d     2003-06-29 22:13:46.000000000 +0400
+> -    52ae:      7d 0d                   jge    52bd <DAC960_V1_ProcessCompletedCommand+0x7d>
+> +    52ae:      7c 0d                   jl     52bd <DAC960_V1_ProcessCompletedCommand+0x7d>
 
-I was losing interrupts and disabling devfs removed the problem (very 
-reproducable with software raid 5 -- never really tried much heavy disk 
-use without raid.)
+[...]
 
-Edward King
+> -    542b:      8f 0d 27 00 00 00       popl   0x27
+> +    542b:      8e 0d 27 00 00 00       movl   0x27,%cs
 
+[...]
 
+> -    6ba8:      bc 11 27 00 00          mov    $0x2711,%esp
+> +    6ba8:      bb 11 27 00 00          mov    $0x2711,%ebx
+
+This looks like 1-bit errors to my eye...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265135AbUEYVwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUEYVyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265135AbUEYVwA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 17:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265131AbUEYVuT
+	id S265106AbUEYVyh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 17:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbUEYVyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 17:50:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65152 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265111AbUEYVtn (ORCPT
+	Tue, 25 May 2004 17:54:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46979 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265099AbUEYVyd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 17:49:43 -0400
-Date: Tue, 25 May 2004 14:47:59 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "Feldman, Scott" <scott.feldman@intel.com>
-Cc: marcelo.tosatti@cyclades.com, doug@easyco.com,
-       linux-kernel@vger.kernel.org, cramerj@intel.com, john.ronciak@intel.com,
-       ganesh.venkatesan@intel.com, jgarzik@pobox.com
-Subject: Re: Hard Hang with __alloc_pages: 0-order allocation failed
- (gfp=0x20/1) - Not out of memory
-Message-Id: <20040525144759.0e51cfd9.davem@redhat.com>
-In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0103AF618C@orsmsx402.amr.corp.intel.com>
-References: <C6F5CF431189FA4CBAEC9E7DD5441E0103AF618C@orsmsx402.amr.corp.intel.com>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 25 May 2004 17:54:33 -0400
+Date: Tue, 25 May 2004 14:54:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: "David S. Miller" <davem@redhat.com>, wesolows@foobazco.org,
+       willy@debian.org, Andrea Arcangeli <andrea@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@elte.hu,
+       bcrl@kvack.org, linux-mm@kvack.org,
+       Linux Arch list <linux-arch@vger.kernel.org>
+Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
+In-Reply-To: <1085521251.24948.127.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org>
+References: <1085369393.15315.28.camel@gaston>  <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
+  <1085371988.15281.38.camel@gaston>  <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
+  <1085373839.14969.42.camel@gaston>  <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
+  <20040525034326.GT29378@dualathlon.random>  <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
+  <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk> 
+ <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>  <20040525153501.GA19465@foobazco.org>
+  <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>  <20040525102547.35207879.davem@redhat.com>
+  <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>  <20040525105442.2ebdc355.davem@redhat.com>
+  <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org> <1085521251.24948.127.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 May 2004 14:20:23 -0700
-"Feldman, Scott" <scott.feldman@intel.com> wrote:
 
-> Marcelo Tosatti wrote:
-> 
-> > It seems we are calling alloc_skb(GFP_KERNEL) from inside an 
-> > interrupt handler. Oops. 
-> 
-> We're calling dev_alloc_skb() from hard interrupt context, but it uses
-> GFP_ATOMIC, not GFP_KERNEL, so this is OK, right?  I don't see the
-> problem with e1000.
 
-Neither do I, where is the detailed backtrace of this GFP_KERNEL
-allocation supposedly from interrupt context?
+On Wed, 26 May 2004, Benjamin Herrenschmidt wrote:
+> 
+> Well, just setting one of those 2 bits doesn't require a hash table
+> invalidate as long as nothing else changes.
+
+Ok. And nothing ever writes to the SW page tables outside the page table 
+lock, right? So on ppc64, we could just do
+
+	#define ptep_update_dirty_accessed(ptep, entry, dirty) \
+		*(ptep) = (entry)
+
+and be done with it. No?
+
+I'm not going to do it without a big ack from you.
+
+		Linus

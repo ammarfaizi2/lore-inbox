@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbSIZPCq>; Thu, 26 Sep 2002 11:02:46 -0400
+	id <S261349AbSIZPAf>; Thu, 26 Sep 2002 11:00:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261357AbSIZPCq>; Thu, 26 Sep 2002 11:02:46 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:19961
+	id <S261352AbSIZPAf>; Thu, 26 Sep 2002 11:00:35 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:16889
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261356AbSIZPCo>; Thu, 26 Sep 2002 11:02:44 -0400
-Subject: Re: [PATCH] fix ide-iops for big endian archs
+	id <S261349AbSIZPAe>; Thu, 26 Sep 2002 11:00:34 -0400
+Subject: Re: AMD 768 erratum 10 (solved: AMD 760MPX DMA lockup)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-In-Reply-To: <20020925224428.5676@192.168.4.1>
-References: <Pine.LNX.4.33.0209251120590.1817-100000@penguin.transmeta.com>
-	 <20020925224428.5676@192.168.4.1>
+To: 20020912161258.A9056@informatics.muni.cz
+Cc: linux-kernel@vger.kernel.org, Mark Hahn <hahn@physics.mcmaster.ca>,
+       kernel@street-vision.com, Petr Konecny <pekon@informatics.muni.cz>,
+       "Bruno A. Crespo" <bruno@conectatv.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <20020925132422.GC14381@fi.muni.cz>
+References: <20020925132422.GC14381@fi.muni.cz>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Sep 2002 16:11:51 +0100
-Message-Id: <1033053111.1269.33.camel@irongate.swansea.linux.org.uk>
+Date: 26 Sep 2002 16:08:10 +0100
+Message-Id: <1033052890.1269.28.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-25 at 23:44, Benjamin Herrenschmidt wrote:
-> properly on BE, further cleanup of the iops is pending, I'm waiting
-> for Alan own experiments before I push again my own that remove
-> all "p" iops and all of the {IN,OUT}{BYTE,WORD,LONG} macros.
-
-Thats true in current -ac. I killed the _p crap. Nobody uses it, the
-switching for handling it is bogus anyway. If anyone has such broken
-code they can implement ide-iops-speak-slowly-after-the-tone.c
-
+Looks like the obvious fix is to simply disable the APIC on all such
+systems
 

@@ -1,53 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269641AbRIVNP2>; Sat, 22 Sep 2001 09:15:28 -0400
+	id <S269645AbRIVNQi>; Sat, 22 Sep 2001 09:16:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269645AbRIVNPS>; Sat, 22 Sep 2001 09:15:18 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:1268 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S269641AbRIVNPJ>;
-	Sat, 22 Sep 2001 09:15:09 -0400
-Date: Sat, 22 Sep 2001 15:14:53 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Roger Larsson <roger.larsson@norran.net>
-Cc: Robert Love <rml@tech9.net>, Andre Pang <ozone@algorithm.com.au>,
-        linux-kernel@vger.kernel.org, safemode@speakeasy.net,
-        Dieter.Nuetzel@hamburg.de, iafilius@xs4all.nl, ilsensine@inwind.it,
-        george@mvista.com
-Subject: Re: ksoftirqd? (Was: Re: [PATCH] Preemption Latency Measurement Tool)
-Message-ID: <20010922151453.B976@athlon.random>
-In-Reply-To: <1000939458.3853.17.camel@phantasy> <1001131036.557760.4340.nullmailer@bozar.algorithm.com.au> <1001139027.1245.28.camel@phantasy> <200109221301.f8MD1n129687@mailc.telia.com>
+	id <S270201AbRIVNQa>; Sat, 22 Sep 2001 09:16:30 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:34834 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S269645AbRIVNQR>;
+	Sat, 22 Sep 2001 09:16:17 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Tainting kernels for non-GPL or forced modules
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200109221301.f8MD1n129687@mailc.telia.com>; from roger.larsson@norran.net on Sat, Sep 22, 2001 at 02:56:58PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Date: Sat, 22 Sep 2001 23:15:29 +1000
+Message-ID: <27975.1001164529@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 22, 2001 at 02:56:58PM +0200, Roger Larsson wrote:
-> Hi,
-> 
-> We have a new kid on the block since we started thinking of a preemptive 
-> kernel.
-> 
-> ksoftirqd...
-> 
-> Running with nice 19 (shouldn't it really be -19?)
-> Or have a RT setting? (maybe not since one of the reasons for
-> softirqd would be lost - would be scheduled in immediately)
-> Can't a high prio or RT process be starved due to missing
-> service (bh) after an interrupt?
+I have started work on the patch for /proc/sys/kernel/tainted with the
+corresponding modutils and ksymoops changes.  insmod of a non-GPL
+module ORs /proc/sys/kernel/tainted with 1, insmod -f ORs with 2.
 
-It cannot be starved, if ksoftirqd is never scheduled the do_softirq()
-will be run by the next timer irq or apic_timer irq.
+What to do about modules with no license?  Complain and taint or
+silently ignore?  A lot of modules in -ac14 have no MODULE_LICENSE,
+probably because they have no MODULE_AUTHOR.  IMHO the default should
+be complain and taint, even though it will generate lots of newbie
+questions to l-k.
 
-> This will not show up in latency profiling patches since
-> the kernel does what is requested...
-> 
-> Previously it was run directly after interrupt,
-> before returning to the interrupted process...
-
-It is still the case, that's also the common case actually.
-
-Andrea

@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268397AbUHaMwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268464AbUHaM5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268397AbUHaMwc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 08:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268383AbUHaMta
+	id S268464AbUHaM5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 08:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbUHaM5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 08:49:30 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:10119 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268215AbUHaMrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 08:47:18 -0400
-Subject: Re: Driver retries disk errors.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-In-Reply-To: <20040830163931.GA4295@bitwizard.nl>
-References: <20040830163931.GA4295@bitwizard.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093952715.32684.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 31 Aug 2004 12:45:15 +0100
+	Tue, 31 Aug 2004 08:57:11 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:58503 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S268329AbUHaMxm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 08:53:42 -0400
+Date: Tue, 31 Aug 2004 08:53:29 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jeba Anandhan A <jeba_career@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Filesystem Programming
+In-Reply-To: <20040831124138.35309.qmail@web50607.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.53.0408310851130.24913@chaos>
+References: <20040831124138.35309.qmail@web50607.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-30 at 17:39, Rogier Wolff wrote:
-> We encounter "bad" drives with quite a lot more regularity than other
-> people (look at the Email address). We're however, wondering why the
-> IDE code still retries a bad block 8 times? By the time the drive
-> reports "bad block" it has already tried it several times, including a
-> bunch of "recalibrates" etc etc. For comparison, the Scsi-disk driver
-> doesn't do any retrying.
+On Tue, 31 Aug 2004, Jeba Anandhan A wrote:
 
-It helps for some things like magneto-opticals. For generic hard drives
-its only relevant for older devices.
+> i like to write filesystem programming .
+> how to start ?.
+>
+> i am studying filesystem concepts and filesystem
+> objects.
+> how to access the superblock info of mounted
+> filesystem .
+>
 
-> (*) Note: Tested last month: The driver still works for MFM
-> drives. However, the initialization apparently is not enough
-> anymore. The drive did not work when the BIOS didn't think there was a
-> drive.
+Just read the raw device. You can get the source-code
+of all the ext2/3 untilities off the net. This will
+show everything you need to know (except how to put
+the file-system back together after your first mistake)(^.
 
-Please file a bug report if 2.6 also shows that problem.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 

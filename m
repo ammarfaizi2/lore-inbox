@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266866AbUBMKD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 05:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266882AbUBMKD0
+	id S266902AbUBMKPd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 05:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266904AbUBMKPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 05:03:26 -0500
-Received: from ss1000-dmz.ms.mff.cuni.cz ([195.113.20.8]:18669 "EHLO
-	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266866AbUBMKDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 05:03:10 -0500
-Date: Fri, 13 Feb 2004 11:02:57 +0100
-From: Rudo Thomas <rudo@matfyz.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: bug, or is it? - SCHED_RR and FPU related
-Message-ID: <20040213100257.GA19072@ss1000.ms.mff.cuni.cz>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040212205708.GA1679@ss1000.ms.mff.cuni.cz> <402C050B.2040803@cyberone.com.au> <20040213004727.GA20680@ss1000.ms.mff.cuni.cz> <402C2105.1030905@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <402C2105.1030905@cyberone.com.au>
-User-Agent: Mutt/1.5.4i-ja.1
+	Fri, 13 Feb 2004 05:15:32 -0500
+Received: from mail-07.iinet.net.au ([203.59.3.39]:22223 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266902AbUBMKP0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 05:15:26 -0500
+Message-ID: <402CA267.4090202@cyberone.com.au>
+Date: Fri, 13 Feb 2004 21:09:43 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Michael Frank <mhf@linuxmail.org>
+CC: Andrew Morton <akpm@osdl.org>, Giuliano Pochini <pochini@shiny.it>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+References: <200402130615.10608.mhf@linuxmail.org> <XFMail.20040213095802.pochini@shiny.it> <20040213011012.12645046.akpm@osdl.org> <200402131749.19758.mhf@linuxmail.org>
+In-Reply-To: <200402131749.19758.mhf@linuxmail.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again.
 
-> I think xmms changes the way it runs depending on whether realtime
-> scheduling is set or not, but I could be wrong.
 
-Yes, it does, but I am not sure whether this is the case.
+Michael Frank wrote:
 
-Anyway, you were right, it was not the kernel. Nothing more to be seen here 8-)
+>On Friday 13 February 2004 17:10, Andrew Morton wrote:
+>
+>>
+>>Yes, 80 cols sucks and the world would be a better place had CodingStyle
+>>mandated 96 columns five years ago.  But it didn't happen.
+>>
+>>
+>
+>As to "five years ago", what about review the coding style situation before 
+>starting 2.7:
+>
+>In view of better hardware, increasing linelength a little to 96 could be 
+>considered without increasing the number of indentation levels.
+>
+>
 
-Have a nice weekend.
+I hope not, I usually use 80 columns. Email's using 80 columns.
+And lines start becoming difficult for the eyes to follow as they
+get longer. Maybe this isn't so much a problem with C code due to
+indentation and the sparseness of the lines.
 
-Rudo.

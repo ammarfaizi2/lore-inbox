@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271718AbRICOZF>; Mon, 3 Sep 2001 10:25:05 -0400
+	id <S271716AbRICOS0>; Mon, 3 Sep 2001 10:18:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271719AbRICOY4>; Mon, 3 Sep 2001 10:24:56 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:2309 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271718AbRICOYo>; Mon, 3 Sep 2001 10:24:44 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Subject: Re: Editing-in-place of a large file
-Date: Mon, 3 Sep 2001 16:31:55 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        mcelrath+linux@draal.physics.wisc.edu (Bob McElrath)
-In-Reply-To: <E15drHT-0001TX-00@the-village.bc.nu>
-In-Reply-To: <E15drHT-0001TX-00@the-village.bc.nu>
+	id <S271718AbRICOSQ>; Mon, 3 Sep 2001 10:18:16 -0400
+Received: from pop.ewave.at ([62.173.128.67]:50693 "HELO mail.ewave.at")
+	by vger.kernel.org with SMTP id <S271716AbRICOR7>;
+	Mon, 3 Sep 2001 10:17:59 -0400
+Message-ID: <3B938B06.E38D36A9@ewave.at>
+Date: Mon, 03 Sep 2001 15:52:06 +0200
+From: Thomas Ackermann <atze-lists@ewave.at>
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010903142500Z16351-32383+3245@humbolt.nl.linux.org>
+To: Steve Kieu <haiquy@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: boot problems with older machines, kernels 2.4.x
+In-Reply-To: <20010817232756.50772.qmail@web10402.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 3, 2001 12:48 pm, Alan Cox wrote:
-> > That is reimplementing file system functionality in user space. 
-> > I'm in doubts that this is considered good design...
-> 
-> Keeping things out of the kernel is good design. Your block indirections
-> are no different to other database formats. Perhaps you think we should
-> have fsql_operation() and libdb in kernel 8)
+Steve Kieu schrieb:
 
-For that matter, he could use a database file.  I don't know if Postgres (for 
-example) supports streaming read/write from a database record, but if it 
-doesn't it could be made to.
+> strange! I use a rather old 486 20M ram here and no
+> problem.
 
-Or if he doesn't want to hack Postgres today, he can put his "metadata" in a 
-database file and the video data in a separate file.
+indeed is is quite strange, if i compile that kernel on the 486 the machine
+works,
+only doesn`t work when i untar the system built on the k7 onto the 486...
+something in the system has to be wrong, maybe libs i think, but don't have a
+clue what it could be..
+not even a init startup message..
 
---
-Daniel

@@ -1,106 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312581AbSEHJai>; Wed, 8 May 2002 05:30:38 -0400
+	id <S312582AbSEHJdn>; Wed, 8 May 2002 05:33:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312582AbSEHJah>; Wed, 8 May 2002 05:30:37 -0400
-Received: from grisu.bik-gmbh.de ([194.233.237.82]:5637 "EHLO
-	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP
-	id <S312581AbSEHJaf>; Wed, 8 May 2002 05:30:35 -0400
-Date: Wed, 8 May 2002 11:32:23 +0200
-To: linux-kernel@vger.kernel.org
-Subject: [Ext3] kernel assertion failed
-Message-ID: <20020508093222.GA358@bik-gmbh.de>
+	id <S312590AbSEHJdn>; Wed, 8 May 2002 05:33:43 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:3100 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S312582AbSEHJdl>; Wed, 8 May 2002 05:33:41 -0400
+Date: Wed, 8 May 2002 11:34:28 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Pozsar Balazs <pozsy@uhulinux.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Subject: Re: 2.4.19pre8aa2
+Message-ID: <20020508113428.D31998@dualathlon.random>
+In-Reply-To: <20020504165440.C1260@dualathlon.random> <Pine.GSO.4.30.0205080424500.4222-200000@balu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Florian Hars <hars@bik-gmbh.de>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To whom it may concern:
+On Wed, May 08, 2002 at 04:27:23AM +0200, Pozsar Balazs wrote:
+> On Sat, 4 May 2002, Andrea Arcangeli wrote:
+> 
+> > This basically fixes a few compile problems (most of them noticed by
+> > Eyal incidentally in CC) with some driver that I don't use myself and it
+> > cleanups some other bit like with vmalloc_to_page. Nothing important
+> > here if aa1 just compiled for you.
+> 
+> Unfortunately I still have a compile problem.
+> With CONFIG_BLK_DEV_UMEM=m I get this:
+> 
+> make -C block modules
+> make[2]: Entering directory `/home/pozsy/DEV/kernel/compile/2.4.19-pre8-aa2/drivers/block'
+> gcc -D__KERNEL__ -I/home/pozsy/DEV/kernel/compile/2.4.19-pre8-aa2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /home/pozsy/DEV/kernel/compile/2.4.19-pre8-aa2/include/linux/modversions.h  -nostdinc -I /usr/lib/gcc-lib/i386-pc-linux-gnu/2.95.3/include -DKBUILD_BASENAME=umem  -c -o umem.o umem.c
+> umem.c:955: warning: `set_bh_page' redefined
+> /home/pozsy/DEV/kernel/compile/2.4.19-pre8-aa2/include/linux/modules/buffer.ver:8: warning: this is the location of the previous definition
+> umem.c:136: field `tasklet' has incomplete type
+> umem.c: In function `mm_start_io':
+> umem.c:343: warning: right shift count >= width of type
+> umem.c: In function `mm_unplug_device':
+> umem.c:386: warning: implicit declaration of function `local_bh_disable'
+> umem.c:388: warning: implicit declaration of function `local_bh_enable'
+> umem.c: In function `mm_interrupt':
+> umem.c:646: warning: implicit declaration of function `tasklet_schedule'
+> umem.c: In function `mm_pci_probe':
+> umem.c:1178: warning: implicit declaration of function `tasklet_init_Ra5808bbf'
+> umem.c: In function `mm_pci_remove':
+> umem.c:1313: warning: implicit declaration of function `tasklet_kill_R79ad224b'
+> make[2]: *** [umem.o] Error 1
+> make[2]: Leaving directory `/home/pozsy/DEV/kernel/compile/2.4.19-pre8-aa2/drivers/block'
+> make[1]: *** [_modsubdir_block] Error 2
+> make[1]: Leaving directory `/home/pozsy/DEV/kernel/compile/2.4.19-pre8-aa2/drivers'
+> make: *** [_mod_drivers] Error 2
 
-My system just became unuseable during a rm -rf of three rather small
-directories on an ext3-volume (some seconds after a rmdir failed because
-they were not empty) with an assertion failure in the file revoke.c,
-line 330: J_ASSERT_BH(bh, !test_bit(BH_Revoked, &bh->b_state));
-The rm got a SIGSEGV.
+--- 2.4.19pre8aa3/drivers/block/umem.c.~1~	Fri May  3 02:12:07 2002
++++ 2.4.19pre8aa3/drivers/block/umem.c	Wed May  8 11:32:44 2002
+@@ -42,6 +42,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/timer.h>
+ #include <linux/pci.h>
++#include <linux/interrupt.h>
+ 
+ #include <linux/fcntl.h>        /* O_ACCMODE */
+ #include <linux/hdreg.h>  /* HDIO_GETGEO */
 
-After that, I could continue to do something, but all processes
-accessing the problematic filesystem (/var) started to hang, so I
-had to do a hard reboot after a while.
-
-I use a 2.4.18-pre9 with the via-driver from 2.5.2 with assorted fixes
-(to have support for my rather new southbridge), and the filesystem
-resides on a lvm volume.
-
-This happens reliably when I install and immediately purge a debian
-package cyrus21-common.
-
-After some fighting with kernel-recompiles and mount options, I have
-been lucky to be able to copy and paste some output from xconsole
-(/var/log was of course dead by the time this happened) to a file on a
-clean filesystem, here it is:
-
-
-May  8 11:11:58 prony kernel:      b_jbd:0 b_frozen_data:00000000 b_committed_data:00000000
-May  8 11:11:58 prony kernel:      b_transaction:0 b_next_transaction:0 b_cp_transaction:0 b_trans_is_running:0
-May  8 11:11:58 prony kernel:      b_trans_is_comitting:0 b_jcount:0 
-May  8 11:11:58 prony kernel:  ext3_forget() [inode.c:81] call ext3_journal_revoke
-May  8 11:11:58 prony kernel:      b_state:0x3011 b_list:BUF_CLEAN b_jlist:BJ_None on_lru:0
-May  8 11:11:58 prony kernel:      cpu:0 on_hash:1 b_count:1 b_blocknr:30403
-May  8 11:11:58 prony kernel:      b_jbd:0 b_frozen_data:00000000 b_committed_data:00000000
-May  8 11:11:58 prony kernel:      b_transaction:0 b_next_transaction:0 b_cp_transaction:0 b_trans_is_running:0
-May  8 11:11:58 prony kernel:      b_trans_is_comitting:0 b_jcount:0 
-May  8 11:11:58 prony kernel:  journal_revoke() [revoke.c:286] enter
-May  8 11:11:58 prony kernel:      b_state:0x3011 b_list:BUF_CLEAN b_jlist:BJ_None on_lru:0
-May  8 11:11:58 prony kernel:      cpu:0 on_hash:1 b_count:1 b_blocknr:30403
-May  8 11:11:58 prony kernel:      b_jbd:0 b_frozen_data:00000000 b_committed_data:00000000
-May  8 11:11:58 prony kernel:      b_transaction:0 b_next_transaction:0 b_cp_transaction:0 b_trans_is_running:0
-May  8 11:11:58 prony kernel:      b_trans_is_comitting:0 b_jcount:0 
-May  8 11:11:58 prony kernel:  __brelse() [buffer.c:1163] entry
-May  8 11:11:58 prony kernel:      b_state:0x3011 b_list:BUF_CLEAN b_jlist:BJ_None on_lru:0
-May  8 11:11:58 prony kernel:      cpu:0 on_hash:1 b_count:2 b_blocknr:30403
-May  8 11:11:58 prony kernel:      b_jbd:0 b_frozen_data:00000000 b_committed_data:00000000
-May  8 11:11:58 prony kernel:      b_transaction:0 b_next_transaction:0 b_cp_transaction:0 b_trans_is_running:0
-May  8 11:11:58 prony kernel:      b_trans_is_comitting:0 b_jcount:0 
-May  8 11:11:58 prony kernel:  print_buffer_trace() [jbd-kernel.c:260] 
-May  8 11:11:58 prony kernel:      b_state:0x3011 b_list:BUF_CLEAN b_jlist:BJ_None on_lru:0
-May  8 11:11:58 prony kernel:      cpu:0 on_hash:1 b_count:1 b_blocknr:30403
-May  8 11:11:58 prony kernel:      b_jbd:0 b_frozen_data:00000000 b_committed_data:00000000
-May  8 11:11:58 prony kernel:      b_transaction:0 b_next_transaction:0 b_cp_transaction:0 b_trans_is_running:0
-May  8 11:11:58 prony kernel:      b_trans_is_comitting:0 b_jcount:0 
-May  8 11:11:58 prony kernel: b_next:00000000, b_blocknr:30403 b_count:1 b_flushtime:14565
-May  8 11:11:58 prony kernel: b_next_free:00000000 b_prev_free:00000000 b_this_page:da862c00 b_reqnext:00000000
-May  8 11:11:58 prony kernel: b_pprev:dffcc06c b_data:da8e8000 b_page:c16a3a00 b_inode:00000000 b_list:0
-May  8 11:11:58 prony kernel: daea7d08 da862c00 da862c00 da862c00 df918800 c014638f da862c00 c01603ff 
-May  8 11:11:58 prony kernel:        da862c00 da862c00 00000000 d953a480 d98acbc0 c015249b d98acbc0 000076c3 
-May  8 11:11:58 prony kernel:        da862c00 000076c3 da86b000 d98acbc0 d953a480 80008800 000076c3 da86b000 
-May  8 11:11:58 prony kernel: Call Trace: [buffer_assertion_failure+15/32] [journal_revoke+319/608] [ext3_forget+251/400] [ext3_clear_blocks+319/368] [journal_get_write_access+64/96] 
-May  8 11:11:58 prony kernel:    [ext3_free_data+236/416] [ext3_free_branches+616/640] [ext3_free_branches+230/640] [ext3_free_branches+230/640] [ext3_truncate+200/976] [ext3_truncate+743/976] 
-May  8 11:11:58 prony kernel:    [journal_start+166/208] [start_transaction+92/144] [ext3_delete_inode+0/288] [ext3_delete_inode+163/288] [ext3_delete_inode+0/288] [iput+183/416] 
-May  8 11:11:58 prony kernel:    [d_delete+76/112] [vfs_unlink+247/304] [sys_unlink+168/288] [system_call+51/56] 
-May  8 11:11:58 prony kernel: 
-May  8 11:11:58 prony kernel: invalid operand: 0000
-May  8 11:11:58 prony kernel: CPU:    0
-May  8 11:11:58 prony kernel: EIP:    0010:[journal_revoke+360/608]    Not tainted
-May  8 11:11:58 prony kernel: EFLAGS: 00210286
-May  8 11:11:58 prony kernel: eax: 000000c4   ebx: da862c00   ecx: df4d8000   edx: 00000001
-May  8 11:11:58 prony kernel: esi: da862c00   edi: da862c00   ebp: df918800   esp: daea7d18
-May  8 11:11:58 prony kernel: ds: 0018   es: 0018   ss: 0018
-May  8 11:11:58 prony kernel: Process rm (pid: 636, stackpage=daea7000)
-May  8 11:11:58 prony kernel: Stack: c0296e80 c0296f7f c0296dd3 0000014a c0297080 da862c00 00000000 d953a480 
-May  8 11:11:58 prony kernel:        d98acbc0 c015249b d98acbc0 000076c3 da862c00 000076c3 da86b000 d98acbc0 
-May  8 11:11:58 prony kernel:        d953a480 80008800 000076c3 da86b000 d98acbc0 c01544df d98acbc0 00000000 
-May  8 11:11:58 prony kernel: Call Trace: [ext3_forget+251/400] [ext3_clear_blocks+319/368] [journal_get_write_access+64/96] [ext3_free_data+236/416] [ext3_free_branches+616/640] 
-May  8 11:11:58 prony kernel:    [ext3_free_branches+230/640] [ext3_free_branches+230/640] [ext3_truncate+200/976] [ext3_truncate+743/976] [journal_start+166/208] [start_transaction+92/144] 
-May  8 11:11:58 prony kernel:    [ext3_delete_inode+0/288] [ext3_delete_inode+163/288] [ext3_delete_inode+0/288] [iput+183/416] [d_delete+76/112] [vfs_unlink+247/304] 
-May  8 11:11:58 prony kernel:    [sys_unlink+168/288] [system_call+51/56] 
-May  8 11:11:58 prony kernel: 
-May  8 11:11:58 prony kernel: Code: 0f 0b 83 c4 14 8d 76 00 b8 0c 00 00 00 0f ab 46 18 b8 0d 00 
-
-
-I hope I have not reported something that was fixed between -pre9 and
--rc3, but the changelog doesn't mention any ext3 or journaling changes.
-
-Yours, Florian Hars
+Andrea

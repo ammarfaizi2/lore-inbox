@@ -1,70 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265424AbUF3Ken@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUF3Knm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265424AbUF3Ken (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 06:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUF3Ken
+	id S266181AbUF3Knm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 06:43:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266579AbUF3Knm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 06:34:43 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:43491 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265424AbUF3Kel (ORCPT
+	Wed, 30 Jun 2004 06:43:42 -0400
+Received: from everest.2mbit.com ([24.123.221.2]:30118 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S266181AbUF3Knj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 06:34:41 -0400
-Date: Wed, 30 Jun 2004 12:35:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'andrebalsa@altern.org'" <andrebalsa@altern.org>,
-       "'Richard E. Gooch'" <rgooch@atnf.csiro.au>,
-       "'rml@tech9.net'" <rml@tech9.net>, "'akpm@osdl.org'" <akpm@osdl.org>,
-       "'Con Kolivas'" <kernel@kolivas.org>
-Subject: Re: Preemption of the OS system call due to expiration of the time-sl ice for: a) SCHED_NORMAL (aka SCHED_OTHER) b) SCHED_RR
-Message-ID: <20040630103531.GA24347@elte.hu>
-References: <313680C9A886D511A06000204840E1CF08F42FAE@whq-msgusr-02.pit.comms.marconi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <313680C9A886D511A06000204840E1CF08F42FAE@whq-msgusr-02.pit.comms.marconi.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 30 Jun 2004 06:43:39 -0400
+Message-ID: <40E29945.6080107@greatcn.org>
+Date: Wed, 30 Jun 2004 18:43:17 +0800
+From: Coywolf Qi Hunt <coywolf@greatcn.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Coywolf Qi Hunt <coywolf@greatcn.org>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, rmk+lkml@arm.linux.org.uk
+References: <40E03F71.8010902@greatcn.org>
+In-Reply-To: <40E03F71.8010902@greatcn.org>
+X-Scan-Signature: 343c02c2eb63e9fdf8bb9e8b0a6769b7
+X-SA-Exim-Connect-IP: 218.24.174.116
+X-SA-Exim-Mail-From: coywolf@greatcn.org
+Subject: [BUG FIX]  fork_init() OOM bug on big highmem machine
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
+	*      [218.24.174.116 listed in cnkrbl.ahbl.org]
+X-SA-Exim-Version: 4.0 (built Wed, 05 May 2004 12:02:20 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Coywolf Qi Hunt wrote:
 
-* Povolotsky, Alexander <Alexander.Povolotsky@marconi.com> wrote:
+> Hello all,
+>
+> On machine with 16G(or 8G if 4k stacks) or more memory, high 
+> max_threads could let system run out of low memory.
+> This patch decides max_threads by the amount of low memory instead of 
+> the total physical memory.
+> Systems without high memory would not be affected. 
 
-> Con - thanks for your kind answers !
-> 
-> Preemption (due to the expiration of the time-slice) of the process,
-> while it executes OS system call, - by another process (of equal or
-> higher priority) when running under following scheduling policies:
-> 
->  a) SCHED_NORMAL (aka SCHED_OTHER)
->  b) SCHED_RR 
-> 
-> Is it possible in Linux 2.6 ? Linux 2.4 ?
+This patch should be ok by taking ``max_low_pfn - min_low_pfn'' and also 
+becomes more accurate.
 
-this is possible in 2.6 in CONFIG_PREEMPT is on. There's no guaranteed
-latency due to non-preemptability of interrupts and critical sections
-but the practical latencies are well below 1 msec. A bad driver or some
-rare codepath we missed could introduce long latencies - but these are
-usually easy to fix.
+On those systems where physical RAM doesn't start at address 0, we 
+should initialize min_low_pfn.
+Anyway min_low_pfn is already defined on all platforms. The bug of 
+forgetting min_low_pfn initialization
+on those platforms isn't more severe than this bug.
 
-The core 2.6 kernel itself is very latency-friendly, in a very
-controlled hardware environment utilizing well-reviewed userspace code,
-a slimmed down kernel, no block IO and no high-rate interrupt source
-(other than the interrupt source the application cares about) i'd say
-it's quite close to hard-RT: all kernel functions have bound latency,
-'all' you have to take care of are latencies introduced by hardware
-interrupts.
+====================================================================
 
-in 2.4 kernel-preemption is done too in lots of places conditionally
-(cooperatively), by kernel code. Unlike 2.6 there's no forced preemption
-of kernel code.
+diff -rup linux-2.6.7/init/main.c linux-2.6.7-cy/init/main.c
+--- linux-2.6.7/init/main.c	Wed Jun  9 00:07:40 2004
++++ linux-2.6.7-cy/init/main.c	Thu Jun 17 04:55:54 2004
+@@ -467,7 +467,7 @@ asmlinkage void __init start_kernel(void
+ 	if (efi_enabled)
+ 		efi_enter_virtual_mode();
+ #endif
+-	fork_init(num_physpages);
++	fork_init(max_low_pfn - min_low_pfn);
+ 	proc_caches_init();
+ 	buffer_init();
+ 	unnamed_dev_init();
+diff -rup linux-2.6.7/kernel/fork.c linux-2.6.7-cy/kernel/fork.c
+--- linux-2.6.7/kernel/fork.c	Wed Jun  9 00:07:40 2004
++++ linux-2.6.7-cy/kernel/fork.c	Mon Jun 28 22:55:50 2004
+@@ -224,8 +224,8 @@ void __init fork_init(unsigned long memp
+ 
+ 	/*
+ 	 * The default maximum number of threads is set to a safe
+-	 * value: the thread structures can take up at most half
+-	 * of memory.
++	 * value: the thread structures can take up at most 1/8
++	 * of low memory.
+ 	 */
+ 	max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 8;
+ 	/*
 
-	Ingo
+
+-- 
+Coywolf Qi Hunt
+Admin of http://GreatCN.org and http://LoveCN.org
+

@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269312AbUIIDhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269316AbUIIEYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269312AbUIIDhT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 23:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269315AbUIIDhT
+	id S269316AbUIIEYP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 00:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269334AbUIIEYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 23:37:19 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:45186 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269312AbUIIDhR (ORCPT
+	Thu, 9 Sep 2004 00:24:15 -0400
+Received: from main.gmane.org ([80.91.224.249]:37568 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269316AbUIIEYN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 23:37:17 -0400
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-From: john stultz <johnstul@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: george anzinger <george@mvista.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.58.0409082005370.28366@schroedinger.engr.sgi.com>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
-	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
-	 <4137CB3E.4060205@mvista.com> <1094193731.434.7232.camel@cube>
-	 <41381C2D.7080207@mvista.com>
-	 <1094239673.14662.510.camel@cog.beaverton.ibm.com>
-	 <4138EBE5.2080205@mvista.com>
-	 <1094254342.29408.64.camel@cog.beaverton.ibm.com>
-	 <41390622.2010602@mvista.com>
-	 <1094666844.29408.67.camel@cog.beaverton.ibm.com>
-	 <413F9F17.5010904@mvista.com>
-	 <1094691118.29408.102.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0409082005370.28366@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1094700768.29408.124.camel@cog.beaverton.ibm.com>
+	Thu, 9 Sep 2004 00:24:13 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: [BUG] r200 dri driver deadlocks
+Date: Thu, 09 Sep 2004 10:24:21 +0600
+Message-ID: <cholt7$uuj$1@sea.gmane.org>
+References: <d577e569040904021631344d2e@mail.gmail.com>	 <1094321696.31459.103.camel@admin.tel.thor.asgaard.local>	 <d577e56904090413365f5e223d@mail.gmail.com>	 <1094366099.31457.112.camel@admin.tel.thor.asgaard.local>	 <d577e56904090501224f252dbc@mail.gmail.com>	 <1094406055.31464.118.camel@admin.tel.thor.asgaard.local>	 <d577e569040905131870fa14a3@mail.gmail.com>	 <1094429682.29921.6.camel@krustophenia.net>	 <d577e569040906040147c2277f@mail.gmail.com>	 <1094494329.31464.187.camel@admin.tel.thor.asgaard.local> <d577e5690409070207448961a4@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 08 Sep 2004 20:32:49 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 51-150.dial.utk.ru
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: en-us, en
+In-Reply-To: <d577e5690409070207448961a4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-08 at 20:14, Christoph Lameter wrote:
-> On Wed, 8 Sep 2004, john stultz wrote:
+Patrick McFarland wrote:
+> On Mon, 06 Sep 2004 14:12:08 -0400, Michel Dänzer <michel@daenzer.net> wrote:
 > 
-> > Why must we use jiffies to tell when a timer expires? Honestly I'd like
-> > to see xtime and jiffies both disappear, but I'm not very familiar w/
-> > the soft-timer code, so forgive me if I'm misunderstanding.
-> >
-> > So instead of calculating delta_jiffies, just mark the timer to expire
-> > at B. Then each interrupt, you use get_fast_timestamp() to decide if now
-> > is greater then B. If so, expire it.
-> >
-> > Then we can look at being able to program timer interrupts to occur as
-> > close as possible to the next soft-timer's expiration time.
+>>You can test the r200_dri.so from the snapshot with the DRM from the
+>>kernel...
 > 
-> Would it not be best to have some means to determine the time in
-> nanoseconds since the epoch and then use that for long waits? 
+> 
+> And drum roll please...
 
-The proposal has get_lowres_timeofday() which does just that, although
-for timer stuff, I would guess monotonic_clock() or
-get_lowres_timestamp(), which returns the number of (ntp adjusted)
-nanoseconds the system has been running, would be better.  
+Too early :(
 
+> The dri cvs snapshot works fine on both it's own kernel module, and
+> the one that comes
+> with 2.6.8.1. So now what? (And does this mean it isn't a kernel bug?)
 
-> One can then calculate the wait time in nanoseconds which may then be
-> passed to another timer routine which may take the appropriate action
-> depending on the time frame involved. I.e. for a few hundred nsecs do busy
-> wait. If longer reschedule and if even longer queue the task on some
-> event queue that is handled by the timer tick or something else.
+I have compiled both the kernel module and the replacement X server from 
+the yesterday's CVS checkout of DRI (but according to "outdated" 
+instructions in the Wiki). It made a difference against XFree86 4.4.0 + 
+in-kernel radeon.ko.
 
-I'm not sure about the busy wait bit, but yes, at some point I'd like to
-see the timer subsystem use the timeofday subsystem instead of jiffies
-for its timekeeping. 
+The difference is that, instead of just hanging, after several minutes 
+of run time applications (e.g. "really slick screensavers") print:
 
-thanks
--john
+drmRadeonIrqWait: -16
+
+and exit with status 1.
+
+After that, 2D works, but the _next_ fullscreen OpenGL application hangs 
+the system immediately on start.
+
+-- 
+Alexander E. Patrakov
 

@@ -1,62 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266627AbUBGFJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 00:09:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266634AbUBGFJQ
+	id S266784AbUBGFCY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 00:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266817AbUBGFCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 00:09:16 -0500
-Received: from h80ad250c.async.vt.edu ([128.173.37.12]:2944 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S266627AbUBGFJO (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 00:09:14 -0500
-Message-Id: <200402070505.i17553g6002224@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: James Morris <jmorris@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: 2.6.2-mm1, selinux, and initrd 
-In-Reply-To: Your message of "Fri, 06 Feb 2004 22:39:45 EST."
-             <Xine.LNX.4.44.0402062238390.17854-100000@thoron.boston.redhat.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <Xine.LNX.4.44.0402062238390.17854-100000@thoron.boston.redhat.com>
+	Sat, 7 Feb 2004 00:02:24 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39116 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266784AbUBGFCV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 00:02:21 -0500
+Date: Fri, 6 Feb 2004 21:04:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Manfreds patch to distribute boot allocations across nodes
+Message-Id: <20040206210428.17ee63db.akpm@osdl.org>
+In-Reply-To: <20040207042559.GP19011@krispykreme>
+References: <20040207042559.GP19011@krispykreme>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-634023388P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sat, 07 Feb 2004 00:05:02 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-634023388P
-Content-Type: text/plain; charset=us-ascii
+Anton Blanchard <anton@samba.org> wrote:
+>
+> Manfred had a patch to distribute kmallocs across nodes during boot.
 
-On Fri, 06 Feb 2004 22:39:45 EST, James Morris said:
+He's a handy guy.
 
-> Can you please try the patch below against  the 2.6.2-mm1 kernel and let 
-> me know if you still see the problem.
+> ...
+> 
+> Change in free memory due to patch:
+> 
+> Node 7 -54.08 MB
+> Node 6  -6.33 MB
+> Node 5  -6.09 MB
+> Node 4  -6.14 MB
+> Node 3 -22.15 MB
+> Node 2  -6.05 MB
+> Node 1  -6.12 MB
+> Node 0 107.35 MB
 
-> diff -urN -X dontdiff linux-2.6.2-mm1.o/fs/super.c linux-2.6.2-mm1.w/fs/super
-.c
-> --- linux-2.6.2-mm1.o/fs/super.c	2004-02-05 09:24:12.000000000 -0500
-> +++ linux-2.6.2-mm1.w/fs/super.c	2004-02-06 22:32:43.309927664 -0500
-> @@ -709,7 +709,6 @@
->  	struct super_block *sb = ERR_PTR(-ENOMEM);
->  	struct vfsmount *mnt;
->  	int error;
-> -	char *secdata = NULL;
+OK.
 
-Yes, backing out that part of the 3 patches that hits fs/super.c makes
-a kernel that boots with selinux enabled.
+> +#ifdef CONFIG_NUMA
 
---==_Exmh_-634023388P
-Content-Type: application/pgp-signature
+Is this a thing which all NUMA machines want to be doing?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> +static __init unsigned long get_boot_pages(unsigned int gfp_mask, unsigned int order)
+> +{
+> +static int nodenr;
+> +	int i = nodenr;
+> +	struct page *page;
+> +
+> +	for (;;) {
+> +		if (i > nodenr + numnodes)
+> +			return 0;
+> +		if (node_present_pages(i%numnodes)) {
+> +			struct zone **z;
+> +			/* The node contains memory. Check that there is 
+> +			 * memory in the intended zonelist.
+> +			 */
+> +			z = NODE_DATA(i%numnodes)->node_zonelists[gfp_mask & GFP_ZONEMASK].zones;
+> +			while (*z) {
+> +				if ( (*z)->free_pages > (1UL<<order))
+> +					goto found_node;
+> +				z++;
+> +			}
+> +		}
+> +		i++;
+> +	}
+> +found_node:
+> +	nodenr = i+1;
+> +	page = alloc_pages_node(i%numnodes, gfp_mask, order);
+> +	if (!page)
+> +		return 0;
+> +	return (unsigned long) page_address(page);
+> +}
+> +#endif
 
-iD8DBQFAJHH+cC3lWbTT17ARAlxkAKDemKjxYkWCbX7skDNHxbd19izIgQCgk2we
-9vaCVIyxj2vHacJPS5JhIYA=
-=pZve
------END PGP SIGNATURE-----
+Should this not search for the emptiest node?
 
---==_Exmh_-634023388P--
+> @@ -688,6 +724,10 @@
+>  {
+>  	struct page * page;
+>  
+> +#ifdef CONFIG_NUMA
+> +	if (unlikely(!system_running))
+> +		return get_boot_pages(gfp_mask, order);
+> +#endif
+
+Is non-__init code allowed to call __init code?  I thought that caused
+linkage errors on some setups.  Pretty sure about that.  I think, maybe.

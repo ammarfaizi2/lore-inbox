@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbTDXItE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 04:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbTDXItD
+	id S261899AbTDXIsr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 04:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTDXIsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 04:49:03 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27829 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261903AbTDXItB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 04:49:01 -0400
-Date: Thu, 24 Apr 2003 09:00:51 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Nuno Silva <nuno.silva@vgertech.com>
-Cc: Bernhard Kaindl <bernhard.kaindl@gmx.de>,
-       Yusuf Wilajati Purna <purna@sm.sony.co.jp>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, rmk@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org, arjanv@redhat.com,
-       Bernhard Kaindl <bk@suse.de>
-Subject: Re: [PATCH][2.4+ptrace] fix side effects of the kmod/ptrace secfix
-Message-ID: <20030424090051.D24363@devserv.devel.redhat.com>
-References: <3E9E3FA9.6060509@sm.sony.co.jp> <Pine.LNX.4.53.0304190532520.1887@hase.a11.local> <3EA4CD3F.9040902@sm.sony.co.jp> <Pine.LNX.4.53.0304222236040.2341@hase.a11.local> <3EA778E7.5040903@vgertech.com>
+	Thu, 24 Apr 2003 04:48:46 -0400
+Received: from [12.47.58.68] ([12.47.58.68]:37905 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261899AbTDXIsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 04:48:45 -0400
+Date: Thu, 24 Apr 2003 02:01:45 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: mbligh@aracnet.com, ncunningham@clear.net.nz, gigerstyle@gmx.ch,
+       geert@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: Fix SWSUSP & !SWAP
+Message-Id: <20030424020145.5066acbf.akpm@digeo.com>
+In-Reply-To: <20030424002544.GC2925@elf.ucw.cz>
+References: <1051136725.4439.5.camel@laptop-linux>
+	<1584040000.1051140524@flay>
+	<20030423235820.GB32577@atrey.karlin.mff.cuni.cz>
+	<20030423170759.2b4e6294.akpm@digeo.com>
+	<20030424002544.GC2925@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EA778E7.5040903@vgertech.com>; from nuno.silva@vgertech.com on Thu, Apr 24, 2003 at 06:40:55AM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Apr 2003 09:00:47.0289 (UTC) FILETIME=[FEF06290:01C30A3F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 24, 2003 at 06:40:55AM +0100, Nuno Silva wrote:
-> Good morning! :)
+Pavel Machek <pavel@suse.cz> wrote:
+>
+> Hi!
 > 
-> I'd like to ear an "official" word on this subject, please. :)
-> Is this patch still secure?
+> > > If you really want to "solve" it reliably, you can always
+> > > 
+> > > swapon /dev/hdfoo666
+> > > 
+> > 
+> > Seems that using a swapfile instead of a swapdev would fix that neatly.
+> > 
+> > But iirc, suspend doesn't work with swapfiles.  Is that correct?  If so,
+> > what has to be done to get it working?
+> 
+> Swapfile does not work, because even readonly mount wants to replay
+> logs, and that'd be disk corruption.
+> 
 
-The check is loosend too much.
+I don't get it.   Can you explain some more?

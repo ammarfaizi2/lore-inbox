@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318448AbSGSEfZ>; Fri, 19 Jul 2002 00:35:25 -0400
+	id <S318450AbSGSEgF>; Fri, 19 Jul 2002 00:36:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318450AbSGSEfZ>; Fri, 19 Jul 2002 00:35:25 -0400
-Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:59909 "EHLO
-	Midgard.attbi.com") by vger.kernel.org with ESMTP
-	id <S318448AbSGSEfY> convert rfc822-to-8bit; Fri, 19 Jul 2002 00:35:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
-To: linux-kernel@vger.kernel.org
+	id <S318455AbSGSEgF>; Fri, 19 Jul 2002 00:36:05 -0400
+Received: from bitmover.com ([192.132.92.2]:40834 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S318450AbSGSEf6>;
+	Fri, 19 Jul 2002 00:35:58 -0400
+Date: Thu, 18 Jul 2002 21:38:57 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Rob Landley <landley@trommello.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-Date: Thu, 18 Jul 2002 23:38:21 -0500
-User-Agent: KMail/1.4.2
+Message-ID: <20020718213857.E23208@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
 References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net>
-In-Reply-To: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207182338.21253.kelledin+LKML@skarpsey.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net>; from landley@trommello.org on Thu, Jul 18, 2002 at 06:33:54PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 July 2002 05:33 pm, Rob Landley wrote:
-> I've been sitting on this question for years, hoping I'd come
-> across the answer, and I STILL don't know what the "i" is
-> short for.  Somebody here has got to know this. :)
+On Thu, Jul 18, 2002 at 06:33:54PM -0400, Rob Landley wrote:
+> I've been sitting on this question for years, hoping I'd come across the 
+> answer, and I STILL don't know what the "i" is short for.  Somebody here has 
+> got to know this. :)
 
-"index," perhaps?
-
+Incore node, I believe.  In the original Unix code there was dinode and
+inode if I remember correctly, for disk node and incore node.
 -- 
-Kelledin
-"If a server crashes in a server farm and no one pings it, does 
-it still cost four figures to fix?"
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

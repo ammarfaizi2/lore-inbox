@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289832AbSBKQAE>; Mon, 11 Feb 2002 11:00:04 -0500
+	id <S289829AbSBKP7O>; Mon, 11 Feb 2002 10:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289834AbSBKP75>; Mon, 11 Feb 2002 10:59:57 -0500
-Received: from h108-129-61.datawire.net ([207.61.129.108]:3855 "HELO
-	mail.datawire.net") by vger.kernel.org with SMTP id <S289832AbSBKP7q>;
-	Mon, 11 Feb 2002 10:59:46 -0500
-Subject: Re: IBM ThinkPad - Redundant entry in serial pci_table
-From: Shawn Starr <shawn.starr@datawire.net>
-To: Andrey Panin <pazke@orbita1.ru>
-Cc: Linux <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020211125453.GA429@pazke.ipt>
-In-Reply-To: <1013029931.15007.2.camel@unaropia>
-	<20020208103353.GA741@pazke.ipt> <1013178614.369.7.camel@unaropia> 
-	<20020211125453.GA429@pazke.ipt>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99 (Preview Release)
-Date: 11 Feb 2002 11:02:49 -0500
-Message-Id: <1013443369.19792.155.camel@unaropia>
+	id <S289832AbSBKP7E>; Mon, 11 Feb 2002 10:59:04 -0500
+Received: from f207.law11.hotmail.com ([64.4.17.207]:1290 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S289829AbSBKP6y>;
+	Mon, 11 Feb 2002 10:58:54 -0500
+X-Originating-IP: [129.237.125.187]
+From: "Akarapu Mahesh" <mahesh_a6@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: doubt About large socket buffers on 2.4 kernels
+Date: Mon, 11 Feb 2002 15:58:48 
 Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F207mVFOh1vdkmyCF1H000024bf@hotmail.com>
+X-OriginalArrivalTime: 11 Feb 2002 15:58:48.0895 (UTC) FILETIME=[FE38FCF0:01C1B314]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll, try this out. Thanks.
 
-On Mon, 2002-02-11 at 07:54, Andrey Panin wrote:
-> Hi Shawn,
-> 
-> can you try the attached patch ?
-> 
-> Best regards.
-> 
-> -- 
-> Andrey Panin            | Embedded systems software engineer
-> pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
-> ----
-> 
+HI,
+I am using 2.4.9-13 kernel. I want to use large socket buffers .I set 
+maximum values for /proc/sys/net/core/rmem_max and 
+/proc/sys/net/core/wmem_max and also made sure the maximum value is high for 
+/proc/sys/net/ipv4/tcp_wmem and /proc/sys/net/ipv4/tcp_rmem. But when i run 
+some ttcp tests i observe that the advertised window of the receiver starts 
+from 5792 bytes even though i use large windows.I read that 2.4 kernels do 
+auto-tuning. Is there anyway i can make the advertised windows larger than 
+5792 . OR please suggest some resources where i can find the information 
+about the socket buffer implementations. I need this information very much
 
-> diff -urN -X /usr/dontdiff /linux.vanilla/drivers/char/serial.c /linux/drivers/char/serial.c
-> --- /linux.vanilla/drivers/char/serial.c	Sat Feb  9 19:24:23 2002
-> +++ /linux/drivers/char/serial.c	Sun Feb 10 17:00:21 2002
-> @@ -4852,6 +4859,10 @@
->  
->  	/* Xircom Cardbus/Ethernet combos */
->  	{	PCI_VENDOR_ID_XIRCOM, PCI_DEVICE_ID_XIRCOM_X3201_MDM,
-> +		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-> +		pbn_xircom_combo },
-> +
-> +	{	PCI_VENDOR_ID_XIRCOM, 0x000c,
->  		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
->  		pbn_xircom_combo },
->  
--- 
-Shawn Starr
-Developer Support Engineer
-Datawire Communication Networks Inc.
-10 Carlson Court, Suite 300
-Toronto, ON, M9W 6L2
-T: 416-213-2001 ext 179  F: 416-213-2008
+Awaiting a reply from some of you.
+
+Thanks
+Mahesh
+
+
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
 

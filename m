@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264032AbTJ1QpT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 11:45:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264035AbTJ1QpT
+	id S264040AbTJ1Qvw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 11:51:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264041AbTJ1Qvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 11:45:19 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:29271 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S264032AbTJ1QpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 11:45:16 -0500
-Date: Tue, 28 Oct 2003 11:45:14 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-cc: James Morris <jmorris@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make selinux LSM vm_enough_memory call stackable
-In-Reply-To: <Pine.LNX.4.44.0310281138041.24733-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.44.0310281142090.24733-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 28 Oct 2003 11:51:52 -0500
+Received: from main.gmane.org ([80.91.224.249]:30645 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264040AbTJ1Qvv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 11:51:51 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [PATCH] Autoregulate vm swappiness cleanup
+Date: Tue, 28 Oct 2003 17:51:48 +0100
+Message-ID: <yw1xy8v54863.fsf@kth.se>
+References: <3F9E707B.7030609@freemail.hu> <Pine.LNX.4.53.0310280936550.20004@chaos>
+ <200310281539.h9SFdixF024951@turing-police.cc.vt.edu>
+ <Pine.LNX.4.53.0310281048130.21561@chaos>
+ <200310281637.h9SGb5xF026894@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:OxGF1nI+No0Jv3XaKCSk2doACqY=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Oct 2003, Rik van Riel wrote:
+Valdis.Kletnieks@vt.edu writes:
 
-> the following (trivial, but untested) patch
+> And I'm *positive* that *nobody* on this list has done that,
+> forgotten to rename the variables, and then wondered why module1 has
+> 'debug_level = 1;' in it and the debugging output starts and then
+> mysteriously stops some random time after (because module2 has
+> 'debug_level = 0;' in it...)
 
-Hmmm, wait, this patch is TOO trivial and will result in
-memory being accounted multiple times.
-
-Making this piece of code stackable is a bit harder than
-I thought at first. I have some ideas on how to do it,
-but not yet any ideas on how to do it cleanly ...
-
-Guess I'll be back with another patch soon ;)
+Doing that mistake would give a linker error.
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Måns Rullgård
+mru@kth.se
 

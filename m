@@ -1,26 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266696AbRHFEWK>; Mon, 6 Aug 2001 00:22:10 -0400
+	id <S266688AbRHFE2a>; Mon, 6 Aug 2001 00:28:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266715AbRHFEWA>; Mon, 6 Aug 2001 00:22:00 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:9479 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S266706AbRHFEVz>;
-	Mon, 6 Aug 2001 00:21:55 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: R.E.Wolff@BitWizard.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: rio_init, tty_io call confusion.  2.4.8-pre4
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Aug 2001 14:22:00 +1000
-Message-ID: <32756.997071720@ocs3.ocs-net>
+	id <S266706AbRHFE2V>; Mon, 6 Aug 2001 00:28:21 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:21252 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266688AbRHFE2C>; Mon, 6 Aug 2001 00:28:02 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: /proc/<n>/maps getting _VERY_ long
+Date: Mon, 6 Aug 2001 04:26:50 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9kl6aa$87l$1@penguin.transmeta.com>
+In-Reply-To: <20010805171202.A20716@weta.f00f.org> <20010805204143.A18899@alcove.wittsend.com> <9kkq9k$829$1@penguin.transmeta.com> <9kkr7r$mov$1@cesium.transmeta.com>
+X-Trace: palladium.transmeta.com 997072062 31404 127.0.0.1 (6 Aug 2001 04:27:42 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 6 Aug 2001 04:27:42 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/char/tty_io calls rio_init and gets a link error when rio is
-linked into the kenrel because rio_init is declared as static.  However
-rio_init is also declared as module_init() so it gets called twice, one
-from tty_io and once from the kernel initcall code.  One of those calls
-has to go.  If you keep the tty_io call then rio_init cannot be static.
+In article <9kkr7r$mov$1@cesium.transmeta.com>,
+H. Peter Anvin <hpa@zytor.com> wrote:
+>
+>Do you count applications which selectively mprotect()'s memory (to
+>trap SIGSEGV and maintain coherency with on-disk data structures) as
+>"broken applications"?
+>
+>Such applications *can* use large amounts of mprotect()'s.
+
+Note that such applications tend to not get any advantage from merging -
+it does in fact only slow things down (because then the next mprotect
+just has to split the thing again).
+
+No, they aren't broken, but they should know that the use of lots of
+small memory segments (even if it is a design goal) can and will slow
+down page faulting, and use more memory for MM management for example. 
+
+Linux does have a log(n) vma lookup, so the slowdown isn't huge.
+
+		Linus
 

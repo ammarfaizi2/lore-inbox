@@ -1,28 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267489AbRGMPCO>; Fri, 13 Jul 2001 11:02:14 -0400
+	id <S266898AbRGMO54>; Fri, 13 Jul 2001 10:57:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267490AbRGMPBz>; Fri, 13 Jul 2001 11:01:55 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:5385 "EHLO
+	id <S266900AbRGMO5o>; Fri, 13 Jul 2001 10:57:44 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:1801 "EHLO
 	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S267489AbRGMPBo>; Fri, 13 Jul 2001 11:01:44 -0400
-Date: Fri, 13 Jul 2001 08:01:35 -0700 (PDT)
+	id <S266898AbRGMO5h>; Fri, 13 Jul 2001 10:57:37 -0400
+Date: Fri, 13 Jul 2001 07:57:20 -0700 (PDT)
 From: James Simmons <jsimmons@transvirtual.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-mips@oss.sgi.com, linux-mips-kernel@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] Secondary mips tree.
-In-Reply-To: <20010709120243.A39@toy.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10107130800230.30223-100000@transvirtual.com>
+To: Pim Zandbergen <P.Zandbergen@macroscoop.nl>
+cc: David Monro <davidm@amberdata.demon.co.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: IBM E15 framebuffer patch for kernel 2.4.6
+In-Reply-To: <0firktsi53rv7qudvo36p8tlvuldk0lbgd@4ax.com>
+Message-ID: <Pine.LNX.4.10.10107130755500.30223-100000@transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Good. I should definitely take a look. [Do you care about vr4130 or about
-> tx3912, too?]
+> Now the E15 frambuffer patches for kernel 2.2.18 that SuSE use
+> (http://www.amberdata.demon.co.uk/carolina/ibm_e15fb.diff.gz)
+> won't apply at all to kernel 2.4. And it also seems the
+> interface has changed.
+> 
+> So, has anyone ported this framebuffer code to kernel 2.4?
 
-Yes. If you want to work on it no problem. 
-
+Never heard of this driver. Thanks for pointing it out. I guess I can take
+a look at it. Please note I don't have this hardware.
 

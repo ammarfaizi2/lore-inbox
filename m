@@ -1,82 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271167AbUJVCUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271209AbUJVCTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271167AbUJVCUl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 22:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271192AbUJVCUP
+	id S271209AbUJVCTc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 22:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271194AbUJVCT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 22:20:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6037 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271167AbUJVCSH (ORCPT
+	Thu, 21 Oct 2004 22:19:27 -0400
+Received: from gate.crashing.org ([63.228.1.57]:41649 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S271087AbUJVCRf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 22:18:07 -0400
-Date: Thu, 21 Oct 2004 19:16:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       guillaume.thouvenin@bull.net
-Subject: Re: [Lse-tech] [PATCH 2.6.9 1/2] enhanced accounting data
- collection
-Message-Id: <20041021191608.06b74417.akpm@osdl.org>
-In-Reply-To: <41786344.9070504@engr.sgi.com>
-References: <41785FE3.806@engr.sgi.com>
-	<41786344.9070504@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 21 Oct 2004 22:17:35 -0400
+Subject: [PATCH] ppc: Disable IRQ probe on ppc
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1098411405.6008.50.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 22 Oct 2004 12:16:45 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan <jlan@engr.sgi.com> wrote:
->
-> 1/2: acct_io
-> 
-> Enahanced I/O accounting data collection.
-> 
+Hi !
 
-It's nice to use `diff -p' so people can see what functions you're hitting.
+The current "generic" implementation of IRQ probing isn't well suited
+for ppc in it's current form, and causes issues with yenta_socket
+(and possibly others) on pmac laptops. We didn't have a probe implementation
+in the past, we probably don't need one anyway, so for now, the fix is to
+make this optional and enable it on x86 and x86_64 but not ppc and ppc64
+(the 4 archs to use the generic IRQ code).
 
-> +			current->syscr++;
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Should these metrics be per-thread or per-heavyweight process?
+Index: linux-work/kernel/irq/Makefile
+===================================================================
+--- linux-work.orig/kernel/irq/Makefile	2004-10-22 10:40:03.000000000 +1000
++++ linux-work/kernel/irq/Makefile	2004-10-22 11:32:45.105850448 +1000
+@@ -1,4 +1,5 @@
+ 
+-obj-y := autoprobe.o handle.o manage.o spurious.o
++obj-y := handle.o manage.o spurious.o
++obj-$(CONFIG_GENERIC_IRQ_PROBE) += autoprobe.o
+ obj-$(CONFIG_PROC_FS) += proc.o
+ 
+Index: linux-work/include/linux/interrupt.h
+===================================================================
+--- linux-work.orig/include/linux/interrupt.h	2004-10-20 13:01:04.000000000 +1000
++++ linux-work/include/linux/interrupt.h	2004-10-22 11:45:24.742368144 +1000
+@@ -252,8 +252,24 @@
+  * or zero if none occurred, or a negative irq number
+  * if more than one irq occurred.
+  */
++
++#if defined(CONFIG_GENERIC_HARDIRQS) && !defined(CONFIG_GENERIC_IRQ_PROBE) 
++static inline unsigned long probe_irq_on(void)
++{
++	return 0;
++}
++static inline int probe_irq_off(unsigned long val)
++{
++	return 0;
++}
++static inline unsigned int probe_irq_mask(unsigned long val)
++{
++	return 0;
++}
++#else
+ extern unsigned long probe_irq_on(void);	/* returns 0 on failure */
+ extern int probe_irq_off(unsigned long);	/* returns 0 or negative on failure */
+ extern unsigned int probe_irq_mask(unsigned long);	/* returns mask of ISA interrupts */
++#endif
+ 
+ #endif
+Index: linux-work/arch/x86_64/Kconfig
+===================================================================
+--- linux-work.orig/arch/x86_64/Kconfig	2004-10-21 11:47:01.000000000 +1000
++++ linux-work/arch/x86_64/Kconfig	2004-10-22 11:36:04.036608376 +1000
+@@ -346,6 +346,10 @@
+ 	bool
+ 	default y
+ 
++config GENERIC_IRQ_PROBE
++	bool
++	default y
++
+ menu "Power management options"
+ 
+ source kernel/power/Kconfig
+Index: linux-work/arch/i386/Kconfig
+===================================================================
+--- linux-work.orig/arch/i386/Kconfig	2004-10-21 11:47:00.000000000 +1000
++++ linux-work/arch/i386/Kconfig	2004-10-22 11:35:11.273629568 +1000
+@@ -1207,6 +1207,10 @@
+ 	bool
+ 	default y
+ 
++config GENERIC_IRQ_PROBE
++	bool
++	default y
++
+ config X86_SMP
+ 	bool
+ 	depends on SMP && !X86_VOYAGER
 
-> +	if (ret > 0) {
-> +		current->rchar += ret;
-> +	}
-
-It's conventional to omit the braces if there is only one statement in the
-block.
-
-> ===================================================================
-> --- linux.orig/include/linux/sched.h	2004-10-01 17:01:21.412848229 -0700
-> +++ linux/include/linux/sched.h	2004-10-01 17:09:42.723482260 -0700
-> @@ -591,6 +591,9 @@
->  	struct rw_semaphore pagg_sem;
-
-There is no `pagg_sem' in the kernel, so this will spit a reject.
-
->  #endif
->  
-> +/* i/o counters(bytes read/written, #syscalls */
-> +	unsigned long rchar, wchar, syscr, syscw;
-> +
-
-These will overflow super-quick.  Shouldn't they be 64-bit?
-
-> --- linux.orig/kernel/fork.c	2004-10-01 17:01:21.432379595 -0700
-> +++ linux/kernel/fork.c	2004-10-01 17:09:42.732271376 -0700
-> @@ -995,6 +995,7 @@
->  	p->real_timer.data = (unsigned long) p;
->  
->  	p->utime = p->stime = 0;
-> +	p->rchar = p->wchar = p->syscr = p->syscw = 0;
-
-We generally prefer
-
-	p->rchar = 0;
-	p->wchar = 0;
-	etc.
-
-yes, the code which is there has already sinned - feel free to clean it up
-while you're there ;)
 

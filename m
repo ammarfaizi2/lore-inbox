@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289042AbSA3KEH>; Wed, 30 Jan 2002 05:04:07 -0500
+	id <S289046AbSA3KEH>; Wed, 30 Jan 2002 05:04:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289044AbSA3KDr>; Wed, 30 Jan 2002 05:03:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23567 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289042AbSA3KDn>; Wed, 30 Jan 2002 05:03:43 -0500
-Subject: Re: A modest proposal -- We need a patch penguin
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 30 Jan 2002 10:14:49 +0000 (GMT)
-Cc: phillips@bonn-fries.net (Daniel Phillips),
-        viro@math.psu.edu (Alexander Viro), mingo@elte.hu (Ingo Molnar),
-        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org,
-        riel@conectiva.com.br (Rik van Riel)
-In-Reply-To: <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 29, 2002 11:48:05 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289042AbSA3KDs>; Wed, 30 Jan 2002 05:03:48 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:38407 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S289036AbSA3KDj>; Wed, 30 Jan 2002 05:03:39 -0500
+Message-ID: <3C57C4DB.3020101@namesys.com>
+Date: Wed, 30 Jan 2002 13:03:07 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@zip.com.au>
+CC: Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-list] Re: [reiserfs-dev] Re: Note describing poordcache   utilization under high memory pressure
+In-Reply-To: <3C56FE14.15EA248E@zip.com.au> <Pine.LNX.4.44.0201300113120.25123-100000@waste.org> <3C57A1A9.E31CDB13@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16VrlR-0006vL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How many other people are actually using bitkeeper already for the kernel?
-> I know the ppc guys have, for a long time, but who else is? bk, unlike
-> CVS, should at least be _able_ to handle a "network of people" kind of
-> approach.
+Andrew Morton wrote:
 
-I gave up on CVS for internal stuff with the -ac patches. I ended up keeping
-a running patch and a complete archive of the submissions. The archive so
-I can ensure info gets back and forth neatly.
+>
+>But what we do *not* want to do is to reclaim memory "fairly" from
+>all caches.  The value of a cached page should be measured in terms
+>of the number of seeks required to repopulate it.  That's all.
+>
 
-(tangientially further)
+This is a good point, and I would like it to be considered by ReiserFS 
+developers in regards to internal nodes, and why Sizif's making internal 
+nodes have a longer lifetime in his experimental code for squid helped 
+performance.
 
-Larry - can bitkeeper easily be persuaded to take "messages" back all the way 
-to the true originator of a change. Ie if a diff gets to Linus he can reject
-a given piece of change and without passing messages back down the chain
-ensure they get the reply as to why it was rejected, and even if
-nobody filled anything in that it was looked at and rejected by xyz at
-time/date ?
+Hans
+

@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbUBZHtX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 02:49:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbUBZHtX
+	id S262721AbUBZHxW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 02:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbUBZHxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 02:49:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3300 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262719AbUBZHtT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 02:49:19 -0500
-Message-ID: <403DA4F0.6060109@pobox.com>
-Date: Thu, 26 Feb 2004 02:49:04 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-CC: "Mukker, Atul" <Atulm@lsil.com>, "'Matt Domsch'" <Matt_Domsch@dell.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Paul Wagland'" <paul@wagland.net>, Matthew Wilcox <willy@debian.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: Re: [SUBJECT CHANGE]: megaraid unified driver version 2.20.0.0-al
- pha1
-References: <0E3FA95632D6D047BA649F95DAB60E57033BC3EA@exa-atlanta.se.lsil.com> <20040226074317.GC32246@devserv.devel.redhat.com>
-In-Reply-To: <20040226074317.GC32246@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Feb 2004 02:53:22 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:22691 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S262721AbUBZHxU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 02:53:20 -0500
+Date: Thu, 26 Feb 2004 18:52:48 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: akpm@osdl.org, linus@osdl.org, anton@samba.org, paulus@samba.org,
+       axboe@suse.de, piggin@cyberone.com.au,
+       viro@parcelfarce.linux.theplanet.co.uk, hch@lst.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] iSeries virtual disk
+Message-Id: <20040226185248.5cfce622.sfr@canb.auug.org.au>
+In-Reply-To: <403DA056.8030007@pobox.com>
+References: <20040123163504.36582570.sfr@canb.auug.org.au>
+	<20040122221136.174550c3.akpm@osdl.org>
+	<20040226172325.3a139f73.sfr@canb.auug.org.au>
+	<403DA056.8030007@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Thu__26_Feb_2004_18_52_48_+1100_NcYlsBgZLjb=qjJ_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> BTW it would be really nice if the various raid controller drivers could
-> come up with a joint common IOCTL api since it seems every raid controller
-> driver right now has a largely overlapping but yet different set of ioctls.
+--Signature=_Thu__26_Feb_2004_18_52_48_+1100_NcYlsBgZLjb=qjJ_
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
+Hi Jeff,
 
-Well.....   we should be moving away from ioctls for this.
+Thanks for your comments, sorry I missed you first time around.
 
-For addressing raid arrays, inject REQ_SPECIAL requests directly into 
-the request_queue.
+Firstly, even considering your comments below, would you object to
+the driver being included now and being fixed up later?
 
-For addressing elements above raid array level (such as when creating 
-new arrays, etc.) there should be a character device that talks to the 
-host driver.
+On Thu, 26 Feb 2004 02:29:26 -0500 Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> 1) return an error instead of BUG() (and no error return) in the generic 
+> DMA routines that can return a meaningful value
 
-And please let's not bring that godawful SNIA API into the kernel ;-)
+These routines are a work in progress and arch specific. The current
+version is enough to get all the current supported drivers working.
+There will be updates in due course.
 
-	Jeff
+I will address the rest later - I am late for dinner/LUG meeting.
 
+> Hey, I just merged iSeries veth, so I had to give you some more work... ;-)
 
+Thanks, its just what I needed :-(
+
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Thu__26_Feb_2004_18_52_48_+1100_NcYlsBgZLjb=qjJ_
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAPaXQFG47PeJeR58RArVMAKCZOMbVoZB58k2iyn5o67KQfw0d0gCdGSqh
+ncCdV1aqGpyyh8PSD4jDtHk=
+=Fnmi
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__26_Feb_2004_18_52_48_+1100_NcYlsBgZLjb=qjJ_--

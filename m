@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271006AbTG1CZN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 22:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271003AbTG1AAv
+	id S271002AbTG1CZO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 22:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271001AbTG1AAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:00:51 -0400
+	Sun, 27 Jul 2003 20:00:43 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:14071 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272950AbTG0XCT (ORCPT
+	by vger.kernel.org with ESMTP id S272952AbTG0XCV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:02:19 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davem@redhat.com, arjanv@redhat.com,
-       Linus Torvalds <torvalds@transmeta.com>, greg@kroah.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove module reference counting. 
-In-reply-to: Your message of "26 Jul 2003 00:24:49 +0100."
-             <1059175489.1206.11.camel@dhcp22.swansea.linux.org.uk> 
-Date: Mon, 28 Jul 2003 04:48:35 +1000
-Message-Id: <20030727193919.6C7452C315@lists.samba.org>
+	Sun, 27 Jul 2003 19:02:21 -0400
+Date: Sun, 27 Jul 2003 21:13:53 +0200
+From: Martin Loschwitz <madkiss@madkiss.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with Linux 2.6.0-test1-bk3 regarding ACPI
+Message-ID: <20030727191353.GA2845@minerva.local.lan>
+References: <20030727174108.GA2208@minerva.local.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
+Content-Disposition: inline
+In-Reply-To: <20030727174108.GA2208@minerva.local.lan>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1059175489.1206.11.camel@dhcp22.swansea.linux.org.uk> you write:
-> On Gwe, 2003-07-25 at 20:26, Stephen Hemminger wrote:
-> > > 	If module removal is to be a rare and unusual event, it
-> > > doesn't seem so sensible to go to great lengths in the code to handle
-> > > just that case.  In fact, it's easier to leave the module memory in
-> > > place, and not have the concept of parts of the kernel text (and some
-> > > types of kernel data) vanishing.
-> 
-> Uggh. There is a difference between taking the approach that some stuff
-> is hard to handle and gets into trouble for using MOD_INC/DEC so is
-> unsafe, and doing the locking from the caller, or arranging that you
-> know the device is quiescent in the unload path and not allowing
-> unloading to work properly.
 
-We can do this everywhere: we have the technology.  But as I pointed
-out, at least some hackers who know what they are doing have balked at
-what that involves.  This is apart from the subsystems which are still
-not safe as it stands.
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I've got drivers that use MOD_INC/DEC and are technically unsafe, they
-> by default now don't unload and its an incentive to fix them. I'd hate
-> to have my box cluttering up and have to keep rebooting to test drivers
-> because of inept implementations however.
+On Sun, Jul 27, 2003 at 07:41:08PM +0200, Martin Loschwitz wrote:
+> Hello folks,
+>=20
+> I am experiencing an unexpected problem with Linux 2.6.0-test1-bk3 on
+> my Acer TravelMate 800LCi Centrino Notebook (Intel 855PM, Pentim M at
+> 1.3GHz). It appears ACPI loads fine at boot time but after I logged in,=
+=20
+> there is no /proc/acpi/sleep which is necessary to send the notebook=20
+> into sleep state and the like. Is this maybe a known problem is a fix=20
+> for it available somewhere? If you need other information like the=20
+> dmesg output or something else, let me know please.
+>=20
+Uh, it appears I ran into the problem that ACPI sleep states need software=
+=20
+suspend to be enabled. After enabling swsusp, I was able to enable the
+"Sleep states". Since I can't see how these two things are related to each
+other, I guess they should be changed to be independent.
 
-But OTOH, this patch would make those modules perfectly safe: no
-fixing needed.
+--=20
+  .''`.   Martin Loschwitz           Debian GNU/Linux developer
+ : :'  :  madkiss@madkiss.org        madkiss@debian.org
+ `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
+   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
 
-One modification is to tally up the deleted modules in /proc/modules
-under a "[deleted]" entry or somesuch, but allow you to "rmmod
-[deleted]" and actually free that memory (and taint your kernel). eg:
+--pWyiEgJYm5f9v55/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-	# lsmod
-	Module                  Size  Used by
-	loop                    8144   0
-	[deleted]	       12345
-	# rmmod '[deleted]'
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Thoughts?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+iD8DBQE/JCRxHPo+jNcUXjARAg5ZAJ9A2YCbSclki2BNAtVIPJzpk7C39QCfRySL
+Gxu1gAcrUWxO2R1KSe58dzc=
+=bf7M
+-----END PGP SIGNATURE-----
+
+--pWyiEgJYm5f9v55/--

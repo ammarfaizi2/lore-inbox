@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263798AbTEMXT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 19:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTEMXT7
+	id S263804AbTEMXX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 19:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbTEMXX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 19:19:59 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12447
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263798AbTEMXT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 19:19:58 -0400
-Subject: Re: [patch] 2.4 fix to allow vmalloc at interrupt time
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: mjacob@quaver.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030513140629.I83125@mailhost.quaver.net>
-References: <20030512225654.GA27358@cm.nu>
-	 <20030513140629.I83125@mailhost.quaver.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052865254.1205.7.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 13 May 2003 19:23:27 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:30353 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S263804AbTEMXXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 19:23:25 -0400
+Date: Tue, 13 May 2003 16:34:52 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-mm4 fails to boot
+Message-ID: <20030513233452.GO32128@ca-server1.us.oracle.com>
+Mail-Followup-To: akpm@digeo.com, linux-kernel@vger.kernel.org
+References: <20030513221435.GI32128@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 May 2003 23:34:15 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030513221435.GI32128@ca-server1.us.oracle.com>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-05-13 at 22:11, Matthew Jacob wrote:
-> This fixes a buglet wrt doing vmalloc at interrupt time for 2.4.
-> 
-> get_vm_area should call kmalloc with GFP_ATOMIC- after all, it's
-> set up to allow for an allocation failure. As best as I read
-> the 2.4 code, the rest of the path through _kmem_cache_alloc
-> should be safe.
+On Tue, May 13, 2003 at 03:14:36PM -0700, Joel Becker wrote:
+> Andrew,
+> 	2.5.69-mm4 is failing to boot.  It completes init_rootfs() in
+> mnt_init() but does not complete init_mount_tree().  Call me dumb, but
 
-You aren't allow to vmalloc in an IRQ. The kmalloc is the least of
-your programs - you have to worry about the page table handling.
+	Ok, looks like it is waiting at read_lock(&tasklist_lock) in
+init_mount_tree().  I wonder what has the lock.  Off to check.
 
+Joel
 
+-- 
+
+"When I am working on a problem I never think about beauty. I
+ only think about how to solve the problem. But when I have finished, if
+ the solution is not beautiful, I know it is wrong."
+         - Buckminster Fuller
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

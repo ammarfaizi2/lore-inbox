@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131847AbQLRRjp>; Mon, 18 Dec 2000 12:39:45 -0500
+	id <S129757AbQLRRxK>; Mon, 18 Dec 2000 12:53:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131844AbQLRRjf>; Mon, 18 Dec 2000 12:39:35 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:2821 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S131776AbQLRRjT>; Mon, 18 Dec 2000 12:39:19 -0500
-Date: Mon, 18 Dec 2000 11:08:47 -0600
-To: Dana Lacoste <dana.lacoste@peregrine.com>
+	id <S130017AbQLRRxB>; Mon, 18 Dec 2000 12:53:01 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:21636 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129757AbQLRRwl>; Mon, 18 Dec 2000 12:52:41 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20001218122853.A32153@oasis.fireblue.com> 
+In-Reply-To: <20001218122853.A32153@oasis.fireblue.com> 
+To: Abraham vd Merwe <abz@frogfoot.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linus's include file strategy redux
-Message-ID: <20001218110847.J3199@cadcamlab.org>
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com> <91bnoc$vij$2@enterprise.cistron.net> <20001215155741.B4830@ping.be> <01cf01c066ab$036fc030$890216ac@ottawa.loran.com> <20001216164151.J3199@cadcamlab.org> <024701c0690a$56f9ba10$890216ac@ottawa.loran.com>
+Subject: Re: booting without VGA 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <024701c0690a$56f9ba10$890216ac@ottawa.loran.com>; from dana.lacoste@peregrine.com on Mon, Dec 18, 2000 at 10:51:09AM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+Date: Mon, 18 Dec 2000 17:19:51 +0000
+Message-ID: <26759.977159991@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Dana Lacoste]
-> - I write an external/third party kernel module
-> - For various reasons, I must have this kernel module installed to boot
->   (i can't compile without my module running)
+abz@frogfoot.net said:
+>  I'm currently wokring on a embedded system for a camera device. It
+> runs linux and we use the M-Systems DiskOnChip driver (a seperate
+> module available from their site) for storage and as a boot device.
 
-In that case "compile script for dummies" will probably fail anyway.
-If you need it to boot, you probably need to either (a) compile it
-directly into the kernel (not modular) or (b) use a custom initrd after
-compiling.  Neither option is easy to automate for the clueless user.
+> The problem is if we boot with a kernel WITH vga support enabled, it
+> boots fine. If we disable vga support it doesn't seem to boot. What
+> makes it even stranger is that if we boot with that same non-vga
+> kernel using an IDE disk as boot device it also boots fine. 
 
-> How can I know where the 'correct' Linux kernel headers are in such a
-> way that is as transparent as possible to the user doing the
-> compiling?
+You're using binary-only code. You shouldn't expect anyone on the l-k 
+mailing list to give your problem a second thought.
 
-The official correct answer is
+Does it work if you use the GPL'd DiskOnChip driver which is in 
+2.4.0-test12? You can also use it in 2.2 kernels.
 
-  /lib/modules/{version}/build/include
 
-The only time this fails is if the user has moved or deleted his kernel
-tree since installing, and if he does that, obviously he doesn't want
-to compile any external modules.
+--
+dwmw2
 
-The difficulty here is determining {version}.  It is `uname -r` for the
-currently running kernel, but could be anything at all for other
-kernels.
 
-So when in doubt, generate a list of `cd /lib/modules; echo *` and have
-the user pick one.
-
-> I think the biggest problem so far has been that many developers
-> don't recognize just how varied the linux development universe is!
-> For me personally, it's nothing to cross-compile for other hardware
-> platforms, and any solution that doesn't take that possibility into
-> account is just being silly :)
-
-I think the biggest problem is trying to cater to users who don't know
-how the kernel compile process works.  If you're going to compile your
-own kernel and/or modules, you had better do your homework, is what I
-say.  All the problems we are discussing magically go away as soon as
-you assume a user with a quarter of a clue.
-
-Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

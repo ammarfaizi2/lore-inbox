@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287447AbSADSmQ>; Fri, 4 Jan 2002 13:42:16 -0500
+	id <S288699AbSADSn4>; Fri, 4 Jan 2002 13:43:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288675AbSADSl5>; Fri, 4 Jan 2002 13:41:57 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:34775 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S287447AbSADSlw>; Fri, 4 Jan 2002 13:41:52 -0500
-Date: Fri, 4 Jan 2002 11:41:47 -0700
-Message-Id: <200201041841.g04IflL23687@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Dave Jones <davej@suse.de>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH 2.5.2.7: io.h cleanup and userspace nudge
-In-Reply-To: <Pine.LNX.4.33.0201041940150.20620-100000@Appserv.suse.de>
-In-Reply-To: <200201041831.g04IVAD23320@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.33.0201041940150.20620-100000@Appserv.suse.de>
+	id <S288689AbSADSnh>; Fri, 4 Jan 2002 13:43:37 -0500
+Received: from quechua.inka.de ([212.227.14.2]:24150 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S288675AbSADSnc>;
+	Fri, 4 Jan 2002 13:43:32 -0500
+From: Bernd Eckenfels <usenet2001-12@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Who uses hdx=bswap or hdx=swapdata?
+In-Reply-To: <Pine.LNX.4.33.0201041751360.5790-100000@opal.biophys.uni-duesseldorf.de>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E16MZJV-0001eK-00@sites.inka.de>
+Date: Fri, 4 Jan 2002 19:43:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones writes:
-> On Fri, 4 Jan 2002, Richard Gooch wrote:
-> 
-> > Please test this change on a libc5 system before unleashing a
-> > potential horror. All the world *is not* glibc!
-> 
-> Am I alone in finding the idea of running 2.5/2.6 on a libc5
-> system a little strange ?
+In article <Pine.LNX.4.33.0201041751360.5790-100000@opal.biophys.uni-duesseldorf.de> you wrote:
 
-Not if you want a lightweight C library. Such as when running off a CF
-card.
+> Since hdx=swapdata only works on disks replacing this with a byteswapping
+> loop device sounds fine (loopback being used for anything
+> kernel-internally now :-)
 
-				Regards,
+It does not make sense to swap all data in data blocks, because:
+tid eo son tameks neest  owspaa lld ta anid ta albcosk
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Greetings
+Bernd

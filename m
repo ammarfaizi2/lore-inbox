@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316538AbSFJE2n>; Mon, 10 Jun 2002 00:28:43 -0400
+	id <S316617AbSFJEit>; Mon, 10 Jun 2002 00:38:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316548AbSFJE2m>; Mon, 10 Jun 2002 00:28:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:33461 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316538AbSFJE2l>;
-	Mon, 10 Jun 2002 00:28:41 -0400
-Date: Sun, 09 Jun 2002 21:24:22 -0700 (PDT)
-Message-Id: <20020609.212422.70462475.davem@redhat.com>
-To: Oliver.Neukum@lrz.uni-muenchen.de
-Cc: roland@topspin.com, linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+	id <S316623AbSFJEis>; Mon, 10 Jun 2002 00:38:48 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48309 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316617AbSFJEir>;
+	Mon, 10 Jun 2002 00:38:47 -0400
+Date: Sun, 09 Jun 2002 21:34:40 -0700 (PDT)
+Message-Id: <20020609.213440.04716391.davem@redhat.com>
+To: greearb@candelatech.com
+Cc: mark@mark.mielke.cc, cfriesen@nortelnetworks.com,
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: RFC: per-socket statistics on received/dropped packets
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200206090640.g596e6X14829@fachschaft.cup.uni-muenchen.de>
+In-Reply-To: <3D039D22.2010805@candelatech.com>
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -20,26 +21,19 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-   Date: Sun, 9 Jun 2002 08:45:49 +0200
-
-   Am Sonntag, 9. Juni 2002 07:29 schrieb David S. Miller:
-   >    From: Roland Dreier <roland@topspin.com>
-   >    Date: 08 Jun 2002 18:26:12 -0700
-   >
-   >    Just to make sure I'm reading this correctly, you're saying that as
-   >    long as a buffer is OK for DMA, it should be OK to use a
-   >    sub-cache-line chunk as a DMA buffer via pci_map_single(), and
-   >    accessing the rest of the cache line should be OK at any time before,
-   >    during and after the DMA.
-   >
-   > Yes.
+   From: Ben Greear <greearb@candelatech.com>
+   Date: Sun, 09 Jun 2002 11:23:30 -0700
    
-   Does this mean that this piece of memory does have to be declared
-   uncacheable until DMA is finished ?
-   How else do you solve th problem of validity during DMA and
-   especially after DMA ?
+   I need to account for packets on a per-session basis, where a
+   session endpoint is a UDP port.  So, knowing global protocol numbers is
+   good, but it is not very useful for the detailed accounting I
+   need.
 
-You flush either before/after depending upon whether the cpu caches
-are writeback in nature or not, and the cpu is not allowed to touch
-those addresses while the device is doing the DMA.
+Why can't you just disable the other UDP services, and then there is
+no question which UDP server/client is causing the drops.
+
+Every argument I hear is one out of lazyness.  And that is not a
+reason to add something.  Simply put, I don't want to add all of this
+per-socket counter bumping that only, at best, 1 tenth of 1 percent
+of people will use.  This means that the rest of the world eats the
+overhead just for this small group that actually uses it.

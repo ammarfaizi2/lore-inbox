@@ -1,63 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265986AbUFOWGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265977AbUFOWGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265986AbUFOWGP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 18:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265993AbUFOWGO
+	id S265977AbUFOWGg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 18:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265993AbUFOWGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 18:06:14 -0400
-Received: from hadar.amcc.com ([192.195.69.168]:47750 "EHLO hadar.amcc.com")
-	by vger.kernel.org with ESMTP id S265986AbUFOWGN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 18:06:13 -0400
-From: "Adam Radford" <aradford@amcc.com>
-To: Peter Maas <fedora@rooker.dyndns.org>, linux-kernel@vger.kernel.org
-Subject: RE: 3ware 9500S Drivers (mm kernel)
-Date: Tue, 15 Jun 2004 15:05:22 -0700
-Organization: AMCC
-X-Sent-Folder-Path: Sent Items
-X-Mailer: Oracle Connector for Outlook 9.0.4 51114 (9.0.6627)
+	Tue, 15 Jun 2004 18:06:36 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:24740 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265977AbUFOWGb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 18:06:31 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <HZDEQB01.6HW@hadar.amcc.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16591.29411.71049.949613@alkaid.it.uu.se>
+Date: Wed, 16 Jun 2004 00:06:27 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Matthew Denner <matt@denner.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 45 minute boot time with 2.6.4/2.6.6-mm5 kernel on 1.7GHz laptop
+In-Reply-To: <40CF43E3.3080504@denner.demon.co.uk>
+References: <40CEFC9E.2030508@denner.demon.co.uk>
+	<16590.65369.579162.568380@alkaid.it.uu.se>
+	<40CF43E3.3080504@denner.demon.co.uk>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter,
+Matthew Denner writes:
+ > Mikael Pettersson wrote:
+ > > Matthew Denner writes:
+ > >  > On Saturday I installed SuSE 9.1 Personal on my laptop and I'm beginning 
+ > >  > to wonder whether this was a bad idea.  It takes my laptop (a Pentium-M 
+ > >  > Centrino 1.7Ghz with 1GB DDR RAM and 40GB HDD) 45 minutes to boot (from 
+ > >  > selecting "linux" in GRUB to having the KDE interface up and running). 
+ > >  > It spends about 20-25 minutes in the boot procedure before it even gets 
+ > >  > to starting X.  Yesterday I managed to tidy my front room, put some 
+ > > 
+ > > Sounds a lot like a BIOS MTRR problem we've seen before, where
+ > > the BIOS fails to make the top-most part of physical RAM cacheable.
+ > > 
+ > > Send the contents of /proc/mtrr and the head of dmesg (the part
+ > > that shows the physical memory map) to LKML.
+ > 
+ > I would have done this ealier, had I not broken everything with my last 
+ > kernel rebuild and had to re-install!  Kernel is back to 2.6.4.
+ > 
+ > The output of /proc/mtrr is:
+ > 
+ > reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
+ > reg01: base=0x20000000 ( 512MB), size= 256MB: write-back, count=1
+ > reg02: base=0x30000000 ( 768MB), size= 128MB: write-back, count=1
+ > reg03: base=0x38000000 ( 896MB), size=  64MB: write-back, count=1
+ > reg04: base=0x3c000000 ( 960MB), size=  32MB: write-back, count=1
+ > reg05: base=0x3e000000 ( 992MB), size=  16MB: write-back, count=1
+ > reg06: base=0xf0000000 (3840MB), size=   4MB: write-combining, count=1
+ > 
+ > And the physical RAM map bit is:
+ > 
+ > BIOS-provided physical RAM map:
+ >   BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ >   BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ >   BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ >   BIOS-e820: 0000000000100000 - 000000003f7d0000 (usable)
+ >   BIOS-e820: 000000003f7d0000 - 000000003f7df000 (ACPI data)
+ >   BIOS-e820: 000000003f7df000 - 000000003f800000 (ACPI NVS)
+ >   BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
 
-The 3ware management tools quit working when we removed the proc_name interface 
-during the re-write and created sysfs attributes.  We are modifying the 3ware
-management tools to use the sysfs interface for rescan's, etc.
+And here we see a, possibly the, problem.
+The BIOS gives us usable memory up to 0x3f7cffff, but the
+corresponding MTTR stops short at 0x3effffff, which leaves
+the 8MB in [0x3f000000,0x3f7cffff] usable but uncached.
 
-I am also working with Bruce Allen (smartmontools developer) to make the
-3w-9xxx driver work with smartmontools.  This shouldn't require any driver changes.
+Any access to that range will be sloooow.
 
--Adam
+This is unfortunately not an uncommon BIOS error. You may want to
+check for BIOS updates, or file a bug report with the HW vendor.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Peter Maas
-Sent: Tuesday, June 15, 2004 2:05 PM
-To: linux-kernel@vger.kernel.org
-Subject: 3ware 9500S Drivers (mm kernel)
+Booting with "mem=1008M" appended to the kernel's options
+should fix the performance issue.
 
-
-I've been using the 3ware 9500 drivers in the mm kernel for a while now
-without any problems, this is on a dual opteron with a 9500S-12 controller
-with 6 disk formatted as a raid-5. Are these going to be included in the
-vanilla kernel soon?
-
-My only complaints with the drivers are that smartctl doesnt work with them
-(fedora core 2), and the 3ware management tools from the 3ware cd wont work
-with the mm drivers (wont detect controller).
-
-Thanks
-
-Peter Maas
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+/Mikael

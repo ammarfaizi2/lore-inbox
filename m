@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129306AbRA3Lc4>; Tue, 30 Jan 2001 06:32:56 -0500
+	id <S129282AbRA3Lij>; Tue, 30 Jan 2001 06:38:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129360AbRA3Lcq>; Tue, 30 Jan 2001 06:32:46 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:21352 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S129306AbRA3Lck>; Tue, 30 Jan 2001 06:32:40 -0500
-Date: Tue, 30 Jan 2001 22:47:02 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Stephen Rothwell <sfr@linuxcare.com>
-cc: linux-kernel@vger.kernel.org
-Subject: 2.2.18: apm initialised before dmi_scan?
-Message-ID: <Pine.LNX.4.05.10101302229400.12161-100000@marina.lowendale.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129360AbRA3Li3>; Tue, 30 Jan 2001 06:38:29 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:52081
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129282AbRA3LiT>; Tue, 30 Jan 2001 06:38:19 -0500
+Date: Tue, 30 Jan 2001 12:38:12 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Chris Wedgwood <cw@f00f.org>, "David S. Miller" <davem@redhat.com>,
+        David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] guard mm->rss with page_table_lock (241p11)
+Message-ID: <20010130123812.O3298@jaquet.dk>
+In-Reply-To: <20010131001737.C6620@metastasis.f00f.org> <Pine.LNX.4.21.0101300921480.1321-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0101300921480.1321-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Jan 30, 2001 at 09:23:27AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephen,
+On Tue, Jan 30, 2001 at 09:23:27AM -0200, Rik van Riel wrote:
+> Why bother ?
+> 
+> In most places where we update mm->rss, we are *already*
+> holding the spinlock anyway, this correction is just for
+> a few places.
+> 
+> The big patch Rasmus made seems to contain spin_lock(&foo)
+> in places where we already have the lock, leading to
+> instant SMP deadlock. I suspect Rasmus' patch should be
+> about half the size it is currently...
 
-Looking more closely at a 2.2.18 bootup tonight I see that apm stuff
-appears in dmesg before dmi_scan does (I added "#define DUMP_DMI" in
-dmi_scan.c).
+After donning my brown paper bag yesterday I looked at 
+the call-paths again and removed one more lock pair
+(the one in swapfile). The others seemed OK so I made 
+a SMP-on-UP kernel and ran my usual stuff (X, mozilla, 
+kernel compiles) alongside mmap001, mmap002 and misc001
+with no ill effects.
 
-If this implies that apm is initialised *before* the dmi_scan then there
-is potentially a problem with buggy BIOSen that oops instead of reporting
-power status, given:
+I will beat on it some more today and tomorrow, but if
+real SMP is needed for testing I need some help to do
+that.
 
-* passing the boot-parameter apm=debug causes a power status report as apm
-is initialised
-
-* dmi_scan is identifying at least one machine that oopses when the power
-status report BIOS call is invoked.
-
-... so with a buggy BIOS and "apm=debug" it's vital that the dmi_scan is
-completed *before* apm is initialised - which is not what I am seeing with
-2.2.18 (nor can I see where the order of such things is set).  The test
-would be to boot a buggy Dell with "apm=debug" (and "#define DUMP_DMI" in
-dmi_scan.c - but if my theory is right it won't get that far) and watch
-for smoke leakage.
-
-I think it's obvious that this would all go away if apm is a module (as it
-can be with 2.4).
 
 Regards,
-Neale.
-
+   Rasmus 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

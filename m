@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261531AbTCOUCO>; Sat, 15 Mar 2003 15:02:14 -0500
+	id <S261532AbTCOUHK>; Sat, 15 Mar 2003 15:07:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261532AbTCOUCN>; Sat, 15 Mar 2003 15:02:13 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:50109 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S261531AbTCOUCL>; Sat, 15 Mar 2003 15:02:11 -0500
-Message-Id: <200303152012.h2FKCulK283698@pimout2-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: dan carpenter <d_carpenter@sbcglobal.net>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: Any hope for ide-scsi (error handling)?
-Date: Sat, 15 Mar 2003 03:52:21 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, "" <wrlk@riede.org>
-References: <Pine.LNX.4.50.0303151343140.9158-100000@montezuma.mastecende.com> <200303151926.h2FJQLnB103490@pimout1-ext.prodigy.net> <Pine.LNX.4.50.0303151453010.9158-100000@montezuma.mastecende.com>
-In-Reply-To: <Pine.LNX.4.50.0303151453010.9158-100000@montezuma.mastecende.com>
+	id <S261530AbTCOUHI>; Sat, 15 Mar 2003 15:07:08 -0500
+Received: from comtv.ru ([217.10.32.4]:49067 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id <S261532AbTCOUHB>;
+	Sat, 15 Mar 2003 15:07:01 -0500
+X-Comment-To: Andrew Morton
+To: Andrew Morton <akpm@digeo.com>
+Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] remove BKL from ext2's readdir
+References: <m3vfyluedb.fsf@lexa.home.net>
+	<20030315023614.3e28e67b.akpm@digeo.com>
+	<20030315030322.792fa598.akpm@digeo.com>
+	<m3wuj0fvls.fsf@lexa.home.net>
+	<20030315121125.48294975.akpm@digeo.com>
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: 15 Mar 2003 23:09:42 +0300
+In-Reply-To: <20030315121125.48294975.akpm@digeo.com>
+Message-ID: <m3smto4cjd.fsf@lexa.home.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 March 2003 08:53 pm, Zwane Mwaikambo wrote:
-> On Sat, 15 Mar 2003, dan carpenter wrote:
-> > On Saturday 15 March 2003 07:55 pm, Zwane Mwaikambo wrote:
-> > > bad: scheduling while atomic!
-> > > Call Trace:
-> >
-> >    887          spin_lock_irqsave(&ide_lock, flags);
-> >    888          while (HWGROUP(drive)->handler) {
-> >    889                  HWGROUP(drive)->handler = NULL;
-> >    890                  schedule_timeout(1);
-> >    891          }
-> >
-> > Here is at least one bad call to schedule() in
-> > static int idescsi_reset (Scsi_Cmnd *cmd)
->
-> Apart from the schedule with the ide_lock held, what is that code actually
-> doing?
->
-> 	Zwane
+>>>>> Andrew Morton (AM) writes:
 
-Hm...  Good question.  I have no idea what the while loop is for.
 
-regards,
-dan carpenter
+ AM> grep again.
+
+ AM> I've made the change to ext2 and ext3.  Other filesystems will
+ AM> require some thought to verify that the lock_kernel()s are not
+ AM> protecting against some other random codepath.
+
+
+hmm:
+
+[root@proto edited]# head Makefile 
+VERSION = 2
+PATCHLEVEL = 5
+SUBLEVEL = 64
+EXTRAVERSION =
+
+
+fs/ext2/dir.c:
+
+struct file_operations ext2_dir_operations = {
+        .read           = generic_read_dir,
+        .readdir        = ext2_readdir,
+        .ioctl          = ext2_ioctl,
+        .fsync          = ext2_sync_file,
+};
+
+
+
+fs/read_write.c:
+
+static inline loff_t llseek(struct file *file, loff_t offset, int origin)
+{
+        loff_t (*fn)(struct file *, loff_t, int);
+
+        fn = default_llseek;
+        if (file->f_op && file->f_op->llseek)
+                fn = file->f_op->llseek;
+        return fn(file, offset, origin);
+}
+

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267008AbTCEAcQ>; Tue, 4 Mar 2003 19:32:16 -0500
+	id <S266948AbTCEAaF>; Tue, 4 Mar 2003 19:30:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbTCEAbb>; Tue, 4 Mar 2003 19:31:31 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27922 "EHLO
+	id <S266907AbTCEAaE>; Tue, 4 Mar 2003 19:30:04 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26386 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266810AbTCEAaP>; Tue, 4 Mar 2003 19:30:15 -0500
-Date: Wed, 5 Mar 2003 00:40:42 +0000
+	id <S266987AbTCEA3i>; Tue, 4 Mar 2003 19:29:38 -0500
+Date: Wed, 5 Mar 2003 00:40:04 +0000
 From: Russell King <rmk@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT] PCI probing for cardbus (5/5)
-Message-ID: <20030305004042.F25251@flint.arm.linux.org.uk>
+Subject: Re: [CFT] PCI probing for cardbus (3/5)
+Message-ID: <20030305004004.D25251@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 References: <20030305003635.A25251@flint.arm.linux.org.uk>
 Mime-Version: 1.0
@@ -21,133 +21,190 @@ In-Reply-To: <20030305003635.A25251@flint.arm.linux.org.uk>; from rmk@arm.linux.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u orig/drivers/pci/probe.c linux/drivers/pci/probe.c
---- orig/drivers/pci/probe.c	Tue Feb 25 23:46:00 2003
-+++ linux/drivers/pci/probe.c	Tue Feb 25 23:47:51 2003
-@@ -228,41 +228,57 @@
- 	return b;
+diff -u orig/drivers/pci/bus.c linux/drivers/pci/bus.c
+--- orig/drivers/pci/bus.c	Mon Mar  3 21:24:55 2003
++++ orig/drivers/pci/bus.c	Mon Mar  3 21:26:41 2003
+@@ -12,6 +12,10 @@
+ #include <linux/pci.h>
+ #include <linux/errno.h>
+ #include <linux/ioport.h>
++#include <linux/proc_fs.h>
++#include <linux/init.h>
++
++#include "pci.h"
+ 
+ /**
+  * pci_bus_alloc_resource - allocate a resource from a parent bus
+@@ -64,6 +68,47 @@
+ 	return ret;
  }
  
--struct pci_bus * __devinit pci_add_new_bus(struct pci_bus *parent, struct pci_dev *dev, int busnr)
-+static struct pci_bus * __devinit
-+pci_alloc_child_bus(struct pci_bus *parent, struct pci_dev *bridge, int busnr)
- {
- 	struct pci_bus *child;
--	int i;
- 
- 	/*
- 	 * Allocate a new bus, and inherit stuff from the parent..
- 	 */
- 	child = pci_alloc_bus();
- 
--	list_add_tail(&child->node, &parent->children);
--	child->self = dev;
--	dev->subordinate = child;
--	child->parent = parent;
--	child->ops = parent->ops;
--	child->sysdata = parent->sysdata;
--	child->dev = &dev->dev;
-+	if (child) {
-+		int i;
- 
--	/*
--	 * Set up the primary, secondary and subordinate
--	 * bus numbers.
--	 */
--	child->number = child->secondary = busnr;
--	child->primary = parent->secondary;
--	child->subordinate = 0xff;
--
--	/* Set up default resource pointers and names.. */
--	for (i = 0; i < 4; i++) {
--		child->resource[i] = &dev->resource[PCI_BRIDGE_RESOURCES+i];
--		child->resource[i]->name = child->name;
-+		child->self = bridge;
-+		child->parent = parent;
-+		child->ops = parent->ops;
-+		child->sysdata = parent->sysdata;
-+		child->dev = &bridge->dev;
++/**
++ * pci_bus_add_devices - insert newly discovered PCI devices
++ * @bus: bus to check for new devices
++ *
++ * Add newly discovered PCI devices (which are on the bus->devices
++ * list) to the global PCI device list, add the sysfs and procfs
++ * entries.  Where a bridge is found, add the discovered bus to
++ * the parents list of child buses, and recurse.
++ *
++ * Call hotplug for each new devices.
++ */
++void __devinit pci_bus_add_devices(struct pci_bus *bus)
++{
++	struct pci_dev *dev;
++
++	list_for_each_entry(dev, &bus->devices, bus_list) {
++		/*
++		 * Skip already-present devices (which are on the
++		 * global device list.)
++		 */
++		if (!list_empty(&dev->global_list))
++			continue;
++
++		device_register(&dev->dev);
++		list_add_tail(&dev->global_list, &pci_devices);
++#ifdef CONFIG_PROC_FS
++		pci_proc_attach_device(dev);
++#endif
++		pci_create_sysfs_dev_files(dev);
 +
 +		/*
-+		 * Set up the primary, secondary and subordinate
-+		 * bus numbers.
++		 * If there is an unattached subordinate bus, attach
++		 * it and then scan for unattached PCI devices.
 +		 */
-+		child->number = child->secondary = busnr;
-+		child->primary = parent->secondary;
-+		child->subordinate = 0xff;
-+
-+		/* Set up default resource pointers and names.. */
-+		for (i = 0; i < 4; i++) {
-+			child->resource[i] = &bridge->resource[PCI_BRIDGE_RESOURCES+i];
-+			child->resource[i]->name = child->name;
++		if (dev->subordinate && list_empty(&dev->subordinate->node)) {
++			list_add_tail(&dev->subordinate->node, &dev->bus->children);
++			pci_bus_add_devices(dev->subordinate);
 +		}
-+
-+		bridge->subordinate = child;
- 	}
- 
- 	return child;
- }
- 
-+struct pci_bus * __devinit pci_add_new_bus(struct pci_bus *parent, struct pci_dev *dev, int busnr)
-+{
-+	struct pci_bus *child;
-+
-+	child = pci_alloc_child_bus(parent, dev, busnr);
-+	if (child)
-+		list_add_tail(&child->node, &parent->children);
-+	return child;
++	}
 +}
 +
-+static unsigned int __devinit pci_scan_child_bus(struct pci_bus *bus);
-+
- /*
-  * If it's a bridge, configure it and scan the bus behind it.
-  * For CardBus bridges, we don't scan behind as the devices will
-@@ -289,12 +305,12 @@
- 		 */
- 		if (pass)
- 			return max;
--		child = pci_add_new_bus(bus, dev, 0);
-+		child = pci_alloc_child_bus(bus, dev, 0);
- 		child->primary = buses & 0xFF;
- 		child->secondary = (buses >> 8) & 0xFF;
- 		child->subordinate = (buses >> 16) & 0xFF;
- 		child->number = child->secondary;
--		cmax = pci_do_scan_bus(child);
-+		cmax = pci_scan_child_bus(child);
- 		if (cmax > max) max = cmax;
- 	} else {
- 		/*
-@@ -307,18 +323,27 @@
- 		/* Clear errors */
- 		pci_write_config_word(dev, PCI_STATUS, 0xffff);
+ void pci_enable_bridges(struct pci_bus *bus)
+ {
+ 	struct pci_dev *dev;
+@@ -78,4 +123,5 @@
+ }
  
--		child = pci_add_new_bus(bus, dev, ++max);
-+		child = pci_alloc_child_bus(bus, dev, ++max);
- 		buses = (buses & 0xff000000)
- 		      | ((unsigned int)(child->primary)     <<  0)
- 		      | ((unsigned int)(child->secondary)   <<  8)
- 		      | ((unsigned int)(child->subordinate) << 16);
-+
-+		/*
-+		 * yenta.c forces a secondary latency timer of 176.
-+		 * Copy that behaviour here.
-+		 */
-+		if (is_cardbus)
-+			buses = (buses & 0x00ffffff) | (176 << 24);
-+			
+ EXPORT_SYMBOL(pci_bus_alloc_resource);
++EXPORT_SYMBOL(pci_bus_add_devices);
+ EXPORT_SYMBOL(pci_enable_bridges);
+diff -u orig/drivers/pci/probe.c linux/drivers/pci/probe.c
+--- orig/drivers/pci/probe.c	Mon Mar  3 21:24:47 2003
++++ linux/drivers/pci/probe.c	Mon Mar  3 21:25:47 2003
+@@ -221,6 +221,7 @@
+ 	b = kmalloc(sizeof(*b), GFP_KERNEL);
+ 	if (b) {
+ 		memset(b, 0, sizeof(*b));
++		INIT_LIST_HEAD(&b->node);
+ 		INIT_LIST_HEAD(&b->children);
+ 		INIT_LIST_HEAD(&b->devices);
+ 	}
+@@ -477,10 +478,18 @@
+ 	return dev;
+ }
+ 
+-struct pci_dev * __devinit pci_scan_slot(struct pci_bus *bus, int devfn)
++/**
++ * pci_scan_slot - scan a PCI slot on a bus for devices.
++ * @bus: PCI bus to scan
++ * @devfn: slot number to scan (must have zero function.)
++ *
++ * Scan a PCI slot on the specified PCI bus for devices, adding
++ * discovered devices to the @bus->devices list.  New devices
++ * will have an empty dev->global_list head.
++ */
++int __devinit pci_scan_slot(struct pci_bus *bus, int devfn)
+ {
+-	struct pci_dev *first_dev = NULL;
+-	int func;
++	int func, nr = 0;
+ 
+ 	for (func = 0; func < 8; func++, devfn++) {
+ 		struct pci_dev *dev;
+@@ -489,22 +498,19 @@
+ 		if (!dev)
+ 			continue;
+ 
+-		if (func == 0) {
+-			first_dev = dev;
+-		} else {
++		if (func != 0)
+ 			dev->multifunction = 1;
+-		}
+ 
+ 		/* Fix up broken headers */
+ 		pci_fixup_device(PCI_FIXUP_HEADER, dev);
+ 
  		/*
- 		 * We need to blast all three values with a single write.
+-		 * Link the device to both the global PCI device chain and
+-		 * the per-bus list of devices and add the /proc entry.
+-		 * Note: this also runs the hotplug notifiers (bad!) --rmk
++		 * Add the device to our list of discovered devices
++		 * and the bus list for fixup functions, etc.
  		 */
- 		pci_write_config_dword(dev, PCI_PRIMARY_BUS, buses);
+-		device_register(&dev->dev);
+-		pci_insert_device (dev, bus);
++		INIT_LIST_HEAD(&dev->global_list);
++		list_add_tail(&dev->bus_list, &bus->devices);
++		nr++;
+ 
+ 		/*
+ 		 * If this is a single function device,
+@@ -513,17 +519,15 @@
+ 		if (!dev->multifunction)
+ 			break;
+ 	}
+-	return first_dev;
++	return nr;
+ }
+ 
+-unsigned int __devinit pci_do_scan_bus(struct pci_bus *bus)
++static unsigned int __devinit pci_scan_child_bus(struct pci_bus *bus)
+ {
+-	unsigned int devfn, max, pass;
+-	struct list_head *ln;
++	unsigned int devfn, pass, max = bus->secondary;
+ 	struct pci_dev *dev;
+ 
+ 	DBG("Scanning bus %02x\n", bus->number);
+-	max = bus->secondary;
+ 
+ 	/* Go find them, Rover! */
+ 	for (devfn = 0; devfn < 0x100; devfn += 8)
+@@ -550,6 +554,20 @@
+ 	 * Return how far we've got finding sub-buses.
+ 	 */
+ 	DBG("Bus scan for %02x returning with max=%02x\n", bus->number, max);
++	return max;
++}
 +
- 		if (!is_cardbus) {
- 			/* Now we can scan all subordinate buses... */
--			max = pci_do_scan_bus(child);
-+			max = pci_scan_child_bus(child);
- 		} else {
- 			/*
- 			 * For CardBus bridges, we leave 4 bus numbers
++unsigned int __devinit pci_do_scan_bus(struct pci_bus *bus)
++{
++	unsigned int max;
++
++	max = pci_scan_child_bus(bus);
++
++	/*
++	 * Make the discovered devices available.
++	 */
++	pci_bus_add_devices(bus);
++
+ 	return max;
+ }
+ 
+--- orig/include/linux/pci.h	Tue Feb 25 23:34:29 2003
++++ linux/include/linux/pci.h	Tue Feb 25 23:37:27 2003
+@@ -549,7 +549,8 @@
+ {
+ 	return pci_alloc_primary_bus_parented(NULL, bus);
+ }
+-struct pci_dev *pci_scan_slot(struct pci_bus *bus, int devfn);
++int pci_scan_slot(struct pci_bus *bus, int devfn);
++void pci_bus_add_devices(struct pci_bus *bus);
+ int pci_proc_attach_device(struct pci_dev *dev);
+ int pci_proc_detach_device(struct pci_dev *dev);
+ int pci_proc_attach_bus(struct pci_bus *bus);
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

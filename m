@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291689AbSBAKzn>; Fri, 1 Feb 2002 05:55:43 -0500
+	id <S291692AbSBALGn>; Fri, 1 Feb 2002 06:06:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291688AbSBAKze>; Fri, 1 Feb 2002 05:55:34 -0500
-Received: from smtp.cogeco.net ([216.221.81.25]:36074 "EHLO fep8.cogeco.net")
-	by vger.kernel.org with ESMTP id <S291687AbSBAKzZ>;
-	Fri, 1 Feb 2002 05:55:25 -0500
-Subject: Re: A modest proposal -- We need a patch penguin
-From: "Nix N. Nix" <nix@go-nix.ca>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Troy Benjegerdes <hozer@drgw.net>, Rob Landley <landley@trommello.org>,
-        Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Eli Carter <eli.carter@inet.com>,
-        Georg Nikodym <georgn@somanetworks.com>, Ingo Molnar <mingo@elte.hu>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Tom Rini <trini@kernel.crashing.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020131091914.L1519@work.bitmover.com>
-In-Reply-To: <20020130195154.R22323@work.bitmover.com>
-	<20020131002355.X14339@altus.drgw.net>
-	<20020130223711.L18381@work.bitmover.com>
-	<20020131074924.QZMB10685.femail14.sdc1.sfba.home.com@there>
-	<20020131111337.Y14339@altus.drgw.net> 
-	<20020131091914.L1519@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99+cvs.2002.01.14.17.03 (Preview Release)
-Date: 01 Feb 2002 05:55:20 -0500
-Message-Id: <1012560924.1572.7.camel@tux>
+	id <S291694AbSBALGc>; Fri, 1 Feb 2002 06:06:32 -0500
+Received: from pc-62-31-74-110-ed.blueyonder.co.uk ([62.31.74.110]:44160 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S291692AbSBALGI>; Fri, 1 Feb 2002 06:06:08 -0500
+Date: Fri, 1 Feb 2002 11:05:52 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Joe Thornber <thornber@fib011235813.fsnet.co.uk>, lvm-devel@sistina.com,
+        Jim McDonald <Jim@mcdee.net>, Andreas Dilger <adilger@turbolabs.com>,
+        linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+        evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: [ANNOUNCE] LVM reimplementation ready for beta testing
+Message-ID: <20020201110552.B2149@redhat.com>
+In-Reply-To: <OFBCE93B66.F7B9C14E-ON85256B52.006B8AB3@raleigh.ibm.com> <20020131125211.A8934@fib011235813.fsnet.co.uk> <20020201045518.A10893@devserv.devel.redhat.com> <20020131130913.A8997@fib011235813.fsnet.co.uk> <20020201051251.B10893@devserv.devel.redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020201051251.B10893@devserv.devel.redhat.com>; from arjanv@redhat.com on Fri, Feb 01, 2002 at 05:12:51AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-01-31 at 12:19, Larry McVoy wrote: 
-> On Thu, Jan 31, 2002 at 11:13:37AM -0600, Troy Benjegerdes wrote:
-> > Can you detect the 'collapsed vs full version' thing, and force it to be 
-> > a merge conflict? That, and working LOD support would probably get most 
-> > of what I want (until I try the new version and find more stuff I want 
-> > :P)
+Hi,
+
+On Fri, Feb 01, 2002 at 05:12:51AM -0500, Arjan van de Ven wrote:
+> On Thu, Jan 31, 2002 at 01:09:13PM +0000, Joe Thornber wrote:
+> > 
+> > Now our hero decides to PV move PV2 to PV4:
+> > 
+> > 1. Suspend our LV (254:3), this starts queueing all io, and flushes
+> >    all pending io. 
 > 
-> Are you sure you want that?  If so, that would work today, it's about a
-> 20 line script.  You clone the tree, collapse all the stuff into a new
-> changeset, and pull.  It will all automerge.  But now you have the detailed
-> stuff and the non-detailed stuff in the same tree, which I doubt is what
-> you want.  I thought the point was to remove information, not double it.
+> But "flushes all pending io" is *far* from trivial. there's no current
+> kernel functionality for this, so you'll have to do "weird shit" that will
+> break easy and often.
 
-Sounds to me like you should have the /option/ to double your info,
-which does not mean that the whole world should start seeing your stuff
-double. You must "fool" the other trees into believing that you are the
-second Mozart (you get everything right the first time around) and only
-to yourself will you admit that it took 15 different tries and you
-dead-ended yourself 15 different ways.  Under these conditions you would
-have all your blunders documented, but only for yourself.
+I've been all through this with Joe.  He *does* track pending IO in
+device_mapper, and he's got a layered device_mirror driver which can
+be overlayed on top of the segments of the device that you want to
+copy.  His design looks solid and the necessary infrastructure for
+getting the locking right is all there.
 
+> Also "suspending" is rather dangerous because it can deadlock the machine
+> (think about the VM needing to write back dirty data on this LV in order to
+>  make memory available for your move)...
 
+There's a copy thread which preallocates a fully-populated kiobuf for
+the data.  There's no VM pressure, and since it uses unbuffered IO,
+there are no cache coherency problems like current LVM has.
 
-Regards.
+Arjan, I *told* you they have thought this stuff through.  :-)
 
-> -- 
-> ---
-> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+Cheers,
+ Stephen

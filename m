@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311382AbSCMVp3>; Wed, 13 Mar 2002 16:45:29 -0500
+	id <S311385AbSCMVu7>; Wed, 13 Mar 2002 16:50:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311383AbSCMVpT>; Wed, 13 Mar 2002 16:45:19 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:58775 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311382AbSCMVpK>; Wed, 13 Mar 2002 16:45:10 -0500
-Message-ID: <3C8FC84B.1060704@us.ibm.com>
-Date: Wed, 13 Mar 2002 13:44:43 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020311
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: Anton Blanchard <anton@samba.org>, lse-tech@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-In-Reply-To: <20020313085217.GA11658@krispykreme> <460695164.1016001894@[10.10.2.3]>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S311390AbSCMVut>; Wed, 13 Mar 2002 16:50:49 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:9979
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S311385AbSCMVub>; Wed, 13 Mar 2002 16:50:31 -0500
+Date: Wed, 13 Mar 2002 13:51:18 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT] delayed allocation and multipage I/O patches for 2.5.6.
+Message-ID: <20020313215118.GA460@matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C8D9999.83F991DB@zip.com.au> <E16kkcq-0001rV-00@starship> <3C8E6C63.E8B72195@zip.com.au> <E16l7Oe-0000Dk-00@starship> <3C8FAD88.1C425F9B@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C8FAD88.1C425F9B@zip.com.au>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
->>Due to the final link and compress stage, there is a fair amount of idle
->>time at the end of the run. Its going to be hard to push that number
->>lower by adding cpus.
+On Wed, Mar 13, 2002 at 11:50:32AM -0800, Andrew Morton wrote:
+> Now, I think it's fair to say that the ext2/ext3 inter-file fragmentation
+> issue is one of the three biggest performance problems in Linux.  (The
+> other two being excessive latency in the page allocator due to VM writeback
+> and read latency in the I/O scheduler).
 > 
-> I think we need to fix the final phase .... anyone got any ideas
-> on parallelizing that?
-The final linking stage in the makefile looks like this:
+> The fix for interfile fragmentation lies inside ext2/ext3, not inside
+> any generic layers of the kernel.    And this really is a must-fix,
+> because the completion time for writeback is approximately proportional
+> to the size of the filesystem.  So we're getting, what? Fifty percent
+> slower per year?
+> 
+> The `tar xfz linux.tar.gz ; sync' workload can be sped up 4x-5x by
+> using find_group_other() for directories.  I spent a week or so
+> poking at this when it first came up.  Basically, *everything*
+> which I did to address the rapid-growth problem ended up penalising
+> the slow-growth fragmentation - long-term intra-file fragmentation
+> suffered at the expense of short-term inter-file fragmentation.
 
-vmlinux: piggy.o $(OBJECTS)
-	$(LD) $(ZLINKFLAGS) -o vmlinux $(OBJECTS) piggy.o
+I know ReiserFS has similar problems.
 
-ld has a "-r" option
-        `--relocateable'
-            Generate relocatable output---i.e., generate an output
-            file that can in turn serve as input to `ld'.  This is
-            often  called  partial  linking.  As a side effect, in
-            environments that support standard Unix magic numbers,
-            this  option  also sets the output file's magic number
-            to `OMAGIC'.  If this  option  is  not  specified,  an
-            absolute file is produced.  When linking C++ programs,
-            this option will not resolve references  to  construc­
-            tors; to do that, use -Ur.
-
-If we link in chunks, we can parallelize this.
-Image 26 object files: [a-z].o
-
-ld -r -o abcd.o [abcd].o
-ld -r -o efgh.o [efgh].o
-...
-ld -r -o abcdefgh.o {abcd,efgh,...}.o
-
-then, instead of the old final link stage:
-$(LD) $(ZLINKFLAGS) -o vmlinux {abcdefgh,...}.o piggy.o
-
-The final link will still take a while, but we will have at least broken 
-up SOME of the work.  I'm going to see if this will actually work now. 
-Any comments?
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
-
+Can anyone say wheather JFS or XFS has this problem also?

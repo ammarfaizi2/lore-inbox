@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318851AbSHLWWJ>; Mon, 12 Aug 2002 18:22:09 -0400
+	id <S318850AbSHLWUb>; Mon, 12 Aug 2002 18:20:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318852AbSHLWWJ>; Mon, 12 Aug 2002 18:22:09 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:29690 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S318851AbSHLWWI>; Mon, 12 Aug 2002 18:22:08 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
+	id <S318851AbSHLWUa>; Mon, 12 Aug 2002 18:20:30 -0400
+Received: from dhcp80ff237d.dynamic.uiowa.edu ([128.255.35.125]:10624 "EHLO
+	localhost") by vger.kernel.org with ESMTP id <S318850AbSHLWUa>;
+	Mon, 12 Aug 2002 18:20:30 -0400
+Date: Sun, 11 Aug 2002 14:28:58 -0500
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.30: undefined references in sound/sound.o and net/network.o
+Message-ID: <20020811192858.GA5809@digitasaru.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15704.13792.150136.849896@wombat.chubb.wattle.id.au>
-Date: Tue, 13 Aug 2002 08:25:36 +1000
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Phil Auld <pauld@egenera.com>, viro@math.psu.edu,
-       marcelo@connectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.19 revert block_llseek behavior to standard
-In-Reply-To: <266483518@toto.iv>
-X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+From: "Johnnie Q. Hacker" <trelane@paulus.neurotek.dnsalias.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
+Got the following errors when making bzImage for 2.5.30.  Thought y'all
+  might like to see 'em.
 
-Christoph>   What's the behaviour of other unix
-Christoph> systems when seeking beyond the end of block devices? 
+ld -m elf_i386 -T arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/init.o --start-group arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o security/built-in.o /usr/local/src/kernel/linux-2.5.30/arch/i386/lib/lib.a lib/lib.a /usr/local/src/kernel/linux-2.5.30/arch/i386/lib/lib.a drivers/built-in.o sound/sound.o arch/i386/pci/pci.o net/network.o --end-group -o vmlinux
+sound/sound.o: In function `snd_cs4281_gameport':
+sound/sound.o(.text+0x2f739): undefined reference to `gameport_register_port'
+sound/sound.o: In function `snd_cs4281_free':
+sound/sound.o(.text+0x2f755): undefined reference to `gameport_unregister_port'
+net/network.o: In function `sock_init':
+net/network.o(.text.init+0x65): undefined reference to `bluez_init'
+make: *** [vmlinux] Error 1
 
-The seek succeeds; 
-
-On a disc-like device, attempts to write at that offset return -1 EFBIG;
-the first attempt to read at that offset returns 0; subequent ones
-return -1 and ENXIO.
-
-After the seek, lseek(fd, 0, SEEK_CURRENT) returns the (after end of
-file) current offset.
-
-At least for the ones I've been able to test on (UNIXWare, Solaris).
-
-
---
-Dr Peter Chubb				    peterc@gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories, all almost the same.
+-- 
+Joseph======================================================jap3003@ksu.edu
+"Linux has restored innovation in software development, and the form of
+this innovation is not in finding new ways to charge customers or lock them
+in to obscure file formats. Linux innovation is about the individual, about
+freedom, and yes, about just working."    --Brian Jamison

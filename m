@@ -1,79 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262080AbTCRBkD>; Mon, 17 Mar 2003 20:40:03 -0500
+	id <S262118AbTCRBnZ>; Mon, 17 Mar 2003 20:43:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262082AbTCRBkD>; Mon, 17 Mar 2003 20:40:03 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:64227 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262080AbTCRBkB>;
-	Mon, 17 Mar 2003 20:40:01 -0500
-Message-ID: <3E767953.2040908@us.ibm.com>
-Date: Mon, 17 Mar 2003 17:41:39 -0800
+	id <S262126AbTCRBnZ>; Mon, 17 Mar 2003 20:43:25 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:56495 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262118AbTCRBnW>;
+	Mon, 17 Mar 2003 20:43:22 -0500
+Message-ID: <3E767A36.5020300@us.ibm.com>
+Date: Mon, 17 Mar 2003 17:45:26 -0800
 From: Matthew Dobson <colpatch@us.ibm.com>
 Reply-To: colpatch@us.ibm.com
 Organization: IBM LTC
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Trivial Patch Monkey <trivial@rustcorp.com.au>
-CC: Andrew Morton <akpm@zip.com.au>, Martin Bligh <mjbligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: [patch][trivial] GFP_ZONEMASK fix
+To: Trivial Patch Monkey <trivial@rustcorp.com.au>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       Patrick Mochel <mochel@osdl.org>
+Subject: [patch] Fix error handling in sysfs registration
 Content-Type: multipart/mixed;
- boundary="------------070209040707050001010205"
+ boundary="------------070903020902050608050208"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070209040707050001010205
+--------------070903020902050608050208
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-GFP_ZONEMASK is set up as 0xf, meaning the low four bits specify the 
-zone type.  As there are only 3 zone types (DMA, NORMAL, & HIGHMEM), and 
-only 2 of them (DMA & HIGHMEM) have flags (NORMAL is the default), this 
-is wrong.  This simple patch changes one comment, and changes the value 
-of GFP_ZONEMASK from 0xf to 0x3.
-
-I'm not sure if this was specified this way to allow for future 
-expansion, or what.  If so, please ignore this.  If anyone can tell me 
-why this is set to four bits, I'm all ears.
+The cpu, memblk, and node driver/device registration should be a little 
+more clean in the way it handles registration failures.  Or at least 
+*consistent* amongst the topology elements.  Right now, failures are 
+either silent, obscure, or leave things in an inconsistent state.
 
 Cheers!
 
 -Matt
 
---------------070209040707050001010205
+--------------070903020902050608050208
 Content-Type: text/plain;
- name="GFP_ZONEMASK_fix-2.5.65.patch"
+ name="sysfs_topo_cleanup-2.5.65.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="GFP_ZONEMASK_fix-2.5.65.patch"
+ filename="sysfs_topo_cleanup-2.5.65.patch"
 
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/include/linux/gfp.h linux-2.5.64-gfp_zonemask_fix/include/linux/gfp.h
---- linux-2.5.64-vanilla/include/linux/gfp.h	Tue Mar  4 19:29:03 2003
-+++ linux-2.5.64-gfp_zonemask_fix/include/linux/gfp.h	Mon Mar 17 14:16:28 2003
-@@ -7,7 +7,7 @@
- /*
-  * GFP bitmasks..
-  */
--/* Zone modifiers in GFP_ZONEMASK (see linux/mmzone.h - low four bits) */
-+/* Zone modifiers in GFP_ZONEMASK (see linux/mmzone.h - low two bits) */
- #define __GFP_DMA	0x01
- #define __GFP_HIGHMEM	0x02
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/drivers/base/cpu.c linux-2.5.64-sysfs_cleanup/drivers/base/cpu.c
+--- linux-2.5.64-vanilla/drivers/base/cpu.c	Tue Mar  4 19:29:15 2003
++++ linux-2.5.64-sysfs_cleanup/drivers/base/cpu.c	Mon Mar 17 14:08:59 2003
+@@ -48,6 +48,9 @@
  
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/include/linux/mmzone.h linux-2.5.64-gfp_zonemask_fix/include/linux/mmzone.h
---- linux-2.5.64-vanilla/include/linux/mmzone.h	Tue Mar  4 19:29:22 2003
-+++ linux-2.5.64-gfp_zonemask_fix/include/linux/mmzone.h	Mon Mar 17 14:16:28 2003
-@@ -162,7 +162,7 @@
- 	struct zone *zones[MAX_NUMNODES * MAX_NR_ZONES + 1]; // NULL delimited
- };
+ int __init cpu_dev_init(void)
+ {
+-	devclass_register(&cpu_devclass);
+-	return driver_register(&cpu_driver);
++	int error;
++	if (!(error = devclass_register(&cpu_devclass)))
++		if (error = driver_register(&cpu_driver))
++			devclass_unregister(&cpu_devclass);
++	return error;
+ }
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/drivers/base/memblk.c linux-2.5.64-sysfs_cleanup/drivers/base/memblk.c
+--- linux-2.5.64-vanilla/drivers/base/memblk.c	Tue Mar  4 19:29:54 2003
++++ linux-2.5.64-sysfs_cleanup/drivers/base/memblk.c	Mon Mar 17 14:09:42 2003
+@@ -47,9 +47,12 @@
+ }
  
--#define GFP_ZONEMASK	0x0f
-+#define GFP_ZONEMASK	0x03
  
- /*
-  * The pg_data_t structure is used in machines with CONFIG_DISCONTIGMEM
+-static int __init register_memblk_type(void)
++int __init register_memblk_type(void)
+ {
+-	int error = devclass_register(&memblk_devclass);
+-	return error ? error : driver_register(&memblk_driver);
++	int error;
++	if (!(error = devclass_register(&memblk_devclass)))
++		if (error = driver_register(&memblk_driver))
++			devclass_unregister(&memblk_devclass);
++	return error;
+ }
+ postcore_initcall(register_memblk_type);
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/drivers/base/node.c linux-2.5.64-sysfs_cleanup/drivers/base/node.c
+--- linux-2.5.64-vanilla/drivers/base/node.c	Tue Mar  4 19:29:00 2003
++++ linux-2.5.64-sysfs_cleanup/drivers/base/node.c	Mon Mar 17 14:09:52 2003
+@@ -89,9 +89,12 @@
+ }
+ 
+ 
+-static int __init register_node_type(void)
++int __init register_node_type(void)
+ {
+-	int error = devclass_register(&node_devclass);
+-	return error ? error : driver_register(&node_driver);
++	int error;
++	if (!(error = devclass_register(&node_devclass)))
++		if (error = driver_register(&node_driver))
++			devclass_unregister(&node_devclass);
++	return error;
+ }
+ postcore_initcall(register_node_type);
 
---------------070209040707050001010205--
+--------------070903020902050608050208--
 

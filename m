@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312323AbSDCSmi>; Wed, 3 Apr 2002 13:42:38 -0500
+	id <S312325AbSDCSpT>; Wed, 3 Apr 2002 13:45:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312325AbSDCSm3>; Wed, 3 Apr 2002 13:42:29 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:8979 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S312323AbSDCSmT>;
-	Wed, 3 Apr 2002 13:42:19 -0500
-Date: Wed, 3 Apr 2002 10:39:58 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Pavan Kumar Achanta <achantap@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: problem with System call!!
-In-Reply-To: <20020403031442.98584.qmail@web13801.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33L2.0204031029020.22448-100000@dragon.pdx.osdl.net>
+	id <S312331AbSDCSpJ>; Wed, 3 Apr 2002 13:45:09 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:1529 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S312325AbSDCSo5>;
+	Wed, 3 Apr 2002 13:44:57 -0500
+Message-ID: <3CAB4D7C.29DB808D@mvista.com>
+Date: Wed, 03 Apr 2002 10:44:12 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Vincent Legoll <vlegoll@apsydev.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: Is CLOCK_REALTIME the same as the clock under gettimeofday()
+In-Reply-To: <014701c1db2b$d1f537f0$820314ac@fdvlegoll01>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Apr 2002, Pavan Kumar Achanta wrote:
+Vincent Legoll wrote:
+> 
+> After reading that message from you on lkml archive, I asked me a question:
+> How would you know you have drifted more than one second, if timer expires
+> after a very long time ? It'll be too late...
 
-| Hi Randy,
-|
-|   Thank you for your response....
-[snip]
+You are right.  I am still trying to figure out a sane way to do this. 
+I suppose we could check from time to time to see what the drift is and
+redo all the nanosleep abs timers if it ever drifts more than some
+value.  We have to redo them when there is a gross clock set anyway, so
+we do need to know how to do this.
+> 
+> Did I misread you ? (my english is not omnipotent)
+> ---------------------------------------------------------------------------
+> -----
+> From: george anzinger (george@mvista.com)
+> Date: Wed Mar 27 2002 - 15:50:43 EST
+> 
+> Another solution to this issue is to program the clock_nanosleep() calls
+> to wake up a second or so prior to the requested time and then fine tune
+> the wake up to happen as close as possible to the requested time. This
+> calculation might take into account the current ntp drift rate.
 
-|   Thank you
-|   pavan
-
-Hi pavan,
-
-Without fixing the code for you, I'd suggest that you
-look at these:
-
-entire thread:
-  http://marc.theaimsgroup.com/?l=linux-arm-kernel&m=98221298606238&w=2
-
-entire thread:
-  http://marc.theaimsgroup.com/?l=user-mode-linux-user&m=101672780607093&w=2
-
-entire thread:
-  http://marc.theaimsgroup.com/?l=linux-kernel&m=101578774231718&w=2
-
-web page (probably out of date, but should help):
-  http://fossil.wpi.edu/docs/howto_add_systemcall.html
-  Maybe you could update it...
-
-~Randy
-
-
-| --- "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-| > On Tue, 2 Apr 2002, Pavan Kumar Achanta wrote:
-| >
-| > | and what is the right
-| > | way to add a system call ....
-| >
-| > Yeah, there should be a simple writeup on that somewhere.
-| > Did you search for one?
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVBQK23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262260AbVBQKaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262183AbVBQK23 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 05:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVBQK23
+	id S262260AbVBQKaG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 05:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVBQKaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 05:28:29 -0500
-Received: from gate.firmix.at ([80.109.18.208]:21635 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S262183AbVBQK2Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 05:28:25 -0500
-Subject: Re: Bug in SLES8 kernel 2.4.x freezing HP DL740/760
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Oliver Antwerpen <olli@giesskaennchen.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4213B519.7040202@giesskaennchen.de>
-References: <4213AB2B.2050604@giesskaennchen.de>
-	 <4213B1FC.4020706@tiscali.de>  <4213B519.7040202@giesskaennchen.de>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Message-Id: <1108636102.15172.2.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Thu, 17 Feb 2005 11:28:23 +0100
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Feb 2005 05:30:05 -0500
+Received: from simmts12.bellnexxia.net ([206.47.199.141]:50129 "EHLO
+	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262260AbVBQK3y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 05:29:54 -0500
+Message-ID: <4428.10.10.10.24.1108636051.squirrel@linux1>
+In-Reply-To: <e030fd01c5625a80b90382e69843213f@e18.physik.tu-muenchen.de>
+References: <20050214020802.GA3047@bitmover.com>
+    <58cb370e05021404081e53f458@mail.gmail.com>
+    <20050214150820.GA21961@optonline.net>
+    <20050214154015.GA8075@bitmover.com>
+    <7579f7fb0502141017f5738d1@mail.gmail.com>
+    <20050214185624.GA16029@bitmover.com>
+    <1108469967.3862.21.camel@crazytrain> <42131637.2070801@tequila.co.jp>
+    <20050216154321.GB34621@dspnet.fr.eu.org>
+    <4213E141.5040407@tequila.co.jp>
+    <e9d587a22ff0b23ccbb6fa112377dbee@e18.physik.tu-muenchen.de>
+    <42145128.4030202@tequila.co.jp>
+    <e030fd01c5625a80b90382e69843213f@e18.physik.tu-muenchen.de>
+Date: Thu, 17 Feb 2005 05:27:31 -0500 (EST)
+Subject: Re: [BK] upgrade will be needed
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Roland Kuhn" <rkuhn@e18.physik.tu-muenchen.de>
+Cc: "Clemens Schwaighofer" <cs@tequila.co.jp>,
+       "Olivier Galibert" <galibert@pobox.com>, kernel@crazytrain.com,
+       linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a-7
+X-Mailer: SquirrelMail/1.4.3a-7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-16 at 22:03 +0100, Oliver Antwerpen wrote:
-> Matthias-Christian Ott schrieb:
-> > Oliver Antwerpen wrote:
-> >> SuSE has patched UNICON into the kernel which will cause these servers 
-> >> to hang when booted with vga=normal. The system will run fine in 
-> >> fb-mode, but not in plain text.
-> >
-> > Well if you don't need unicon, then remove the patch from the .spec file 
-> > and rebuild the kernel (from the source rpm). Or report it their bug 
-> > tracking system.
-> 
-> My problem ist, that when I change .config, then I lose my support. So
-> SuSE or HP have to tell me to do so.
+On Thu, February 17, 2005 4:27 am, Roland Kuhn said:
 
-And they listen here to you?
+> The difference comes after the merge. Suppose Andrew didn't push
+> everything to Linus. Then new patches come in, both trees change. In
+> this situation it is very time consuming with subversion to work out
+> the changes which still have to go from Andrew's tree to Linus' tree.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+Since Andrew does this all by hand now, subversion / arch / whatever could
+only improve the situation.  And the kicker is that using a free system
+would mean the result could be dumped into BK for those that want to use
+it.   The reverse unfortunately isn't true; not because of technical
+reasons, but because of license restrictions.
+
+Sean
+
 

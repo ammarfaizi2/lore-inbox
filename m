@@ -1,98 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262554AbTCRTwj>; Tue, 18 Mar 2003 14:52:39 -0500
+	id <S262515AbTCRUCx>; Tue, 18 Mar 2003 15:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262557AbTCRTwj>; Tue, 18 Mar 2003 14:52:39 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:65432 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S262554AbTCRTwh>; Tue, 18 Mar 2003 14:52:37 -0500
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Brian Gerst <bgerst@didntduck.org>
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
-Date: Tue, 18 Mar 2003 21:03:23 +0100
-User-Agent: KMail/1.5
-Cc: Kevin Pedretti <ktpedre@sandia.gov>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0303181113590.13708-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0303181113590.13708-100000@home.transmeta.com>
+	id <S262536AbTCRUCx>; Tue, 18 Mar 2003 15:02:53 -0500
+Received: from sex.inr.ac.ru ([193.233.7.165]:58845 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S262515AbTCRUCw>;
+	Tue, 18 Mar 2003 15:02:52 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200303182013.XAA05239@sex.inr.ac.ru>
+Subject: Re: 2.4 delayed acks don't work, fixed
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Tue, 18 Mar 2003 23:13:42 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com, ak@suse.de
+In-Reply-To: <20030318193458.GY30541@dualathlon.random> from "Andrea Arcangeli" at Mar 18, 3 08:34:58 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_Mu3d+dqmGEEdqwK";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200303182103.24316.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---Boundary-02=_Mu3d+dqmGEEdqwK
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+> what is the point of this:
+> 
+> #define TCP_DELACK_MAX	((unsigned)(HZ/5))	/* maximal time to delay before sending an ACK */
 
-Am Dienstag, 18. M=E4rz 2003 20:21 schrieb Linus Torvalds:
-> On Tue, 18 Mar 2003, Brian Gerst wrote:
-> > Here's a few more data points:
->
-> Ok, this shows the behaviour I was trying to explain:
-> > vendor_id       : AuthenticAMD
-> > cpu family      : 5
-> > model           : 8
-> > model name      : AMD-K6(tm) 3D processor
-> > stepping        : 12
-> > cpu MHz         : 451.037
-> > empty overhead=3D105 cycles
-> > load overhead=3D-2 cycles
-> > I$ load overhead=3D30 cycles
-> > I$ load overhead=3D90 cycles
-> > I$ store overhead=3D95 cycles
->
-> ie loading from the same cacheline shows bad behaviour, most likely due to
-> cache line exclusion. Does anybody have an original Pentium to see if I
-> remember that one right?
+It is maximal delack for generic (transactional) traffic. It is not used
+in stream mode. Big clamp of 500msec is hardwired to tcp_send_delayed_ack,
+I simply was not able to invent name for it.
 
-Yes, you are right!
-=46or an old Pentium-I with 133MHz (running FreeBSD, so I cannot provide=20
-cpuinfo-data :-( ) I get following:
+> and finally by the delack timer (if it was set to 1):
 
-empty overhead=3D73 cycles
-load overhead=3D0 cycles
-I$ load overhead=3D88 cycles
-I$ load overhead=3D96 cycles
-I$ store overhead=3D72 cycles
+It is the place. Session stops to be tranasaction, when we
+experience the first delack timeout.
 
-And just to provide data for the AMD K6-III :
 
-vendor_id       : AuthenticAMD
-cpu family      : 5
-model           : 9
-model name      : AMD-K6(tm) 3D+ Processor
-stepping        : 1
-cpu MHz         : 450.791
-cache size      : 256 KB
+> tcp_enter_quickack_mode is called every time we have to disable delayed
+> acks like when we send duplicate acks or when there's packet reordering
+> or whatever similar error.
 
-empty overhead=3D142 cycles
-load overhead=3D89 cycles
-I$ load overhead=3D95 cycles
-I$ load overhead=3D99 cycles
-I$ store overhead=3D91 cycles
+Also correct. Delacks are disabled while recovery periods.
 
-       Thomas
---Boundary-02=_Mu3d+dqmGEEdqwK
-Content-Type: application/pgp-signature
-Content-Description: signature
+> how can 'pingpong' relate to the direction of the stream? I see no
+> relation at all.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+It is set, when we see traffic in both directions. It is cleared
+when we see the first delack timeout. Logically, it should be cleared
+when we do not see data flowing in opposite direction for some time,
+but as soon as we do not see delack timeouts, it does not matter.
 
-iD8DBQA+d3uMYAiN+WRIZzQRAthOAKDwxj4nHLhiCUjyCz+QsKAuJidmpQCgoHnq
-wbFQZLfikzL6W8YiLSDio/g=
-=kxea
------END PGP SIGNATURE-----
 
---Boundary-02=_Mu3d+dqmGEEdqwK--
+> since it's never re-activated,
 
+If you do not see any delack timeouts, clearing pingpong does not make
+difference.
+
+
+> this is only true if pingpong was just 0. but if pingpong is 0 it won't
+> send delayed acks in the first place because quick will very rarely get
+> down to 0.
+
+Stop here. quick quickly must become zero. In your case, when window
+is one packet, it happens exactly after the first packet.
+
+I am confused. Please, check.
+
+
+>             segments there SHOULD be an ACK for at least every second
+>             segment.
+
+SHOULD, not MUST. :-)
+
+Jokes apart, it is simply wrong statement. Right one reads: "when right
+egde of window advanced by at least two segments". It is supposed to provide
+ACK clock, but when window stalled, such acks are pure abuse, they are simply
+ignored by clocking mechanism.
+
+
+> 			if (eaten) {
+> 				if (tcp_in_quickack_mode(tp)) {
+> 					tcp_send_ack(sk);
+> 				} else {
+> 					tcp_send_delayed_ack(sk);
+> 				}
+> 
+> it's not checking if more than one segment arrived.
+
+"eaten" is special path, it happens when this function is subroutine
+of tcp_recvmsg(), where the same code is executed upon return
+from the function.
+
+Alexey

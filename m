@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271222AbUJVLiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271226AbUJVLls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271222AbUJVLiF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 07:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271226AbUJVLiE
+	id S271226AbUJVLls (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 07:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271227AbUJVLls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 07:38:04 -0400
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:34465 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S271222AbUJVLhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 07:37:53 -0400
-Message-ID: <4178F108.1080101@kolivas.org>
-Date: Fri, 22 Oct 2004 21:37:44 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Fri, 22 Oct 2004 07:41:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20645 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S271226AbUJVLlI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 07:41:08 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@ucw.cz>,
+       M <mru@mru.ath.cx>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
+References: <41650CAF.1040901@unimail.com.au>
+	<20041007103210.GA32260@atrey.karlin.mff.cuni.cz>
+	<yw1x7jq2n6k3.fsf@mru.ath.cx>
+	<20041007143245.GA1698@openzaurus.ucw.cz>
+	<1097956343.2148.17.camel@krustophenia.net>
+	<1097963167.13226.4.camel@localhost.localdomain>
+	<1097976283.2148.34.camel@krustophenia.net>
+	<1097979705.13269.9.camel@localhost.localdomain>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 22 Oct 2004 08:40:55 -0300
+In-Reply-To: <1097979705.13269.9.camel@localhost.localdomain>
+Message-ID: <oroeiv3rqw.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: linux <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Staircase cpu scheduler v9.0
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigF4DE7D8EBD6694C85940E4F8"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigF4DE7D8EBD6694C85940E4F8
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Oct 16, 2004, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-The latest version of the staircase cpu scheduler policy rewrite is now 
-available for 2.6.9 and 2.6.9-mm1. v9.0 is v8.K renamed to keep in sync 
-with the mainline version numbering.
+> Yes, and most laptops have this problem. They use SMM traps to talk to
+> the battery
 
-http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9_to_staircase9.0.diff
+Hmm...  Since the SMM on this AMD64 notebook we've been talking about
+on the thread about USB handoff isn't exactly AMD64-compliant, could
+this be the reason why I can't get battery information?  I'm yet to
+install a 32-bit-only system on this box to see whether it makes any
+difference.
 
-http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-mm1/2.6.9-mm1_to_staircase9.0.diff
-
-For those who are unaware, all the bugs that were brought to light in 
-testing from the version in 2.6.8-rc2-mm2 till now have been addressed. 
-Please retest if you have been waiting for a stable version. This is the 
-same version that is in 2.6.9-ck1.
-
-Cheers,
-Con
-
---------------enigF4DE7D8EBD6694C85940E4F8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBePEOZUg7+tp6mRURAlqHAJ4rPYl2QffyGU9lPpX+N9ug+3WeOACeL2YX
-gtY0EjQHqgUeErjF2p50WB4=
-=tPyW
------END PGP SIGNATURE-----
-
---------------enigF4DE7D8EBD6694C85940E4F8--
+-- 
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

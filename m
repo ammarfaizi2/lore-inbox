@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288787AbSAaAjR>; Wed, 30 Jan 2002 19:39:17 -0500
+	id <S287386AbSAaAlH>; Wed, 30 Jan 2002 19:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287386AbSAaAjH>; Wed, 30 Jan 2002 19:39:07 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:2529 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S289369AbSAaAiv>;
-	Wed, 30 Jan 2002 19:38:51 -0500
-Date: Wed, 30 Jan 2002 19:38:49 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: David Dyck <dcd@tc.fluke.com>, linux-kernel@vger.kernel.org,
-        R.E.Wolff@BitWizard.nl
-Subject: Re: 2.5.3 missing <linux/malloc.h>
-Message-ID: <20020130193849.A18001@havoc.gtf.org>
-In-Reply-To: <Pine.LNX.4.33.0201301239370.19671-100000@dd.tc.fluke.com> <20020130154434.L763@lynx.adilger.int>
+	id <S290775AbSAaAk5>; Wed, 30 Jan 2002 19:40:57 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8972 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S287386AbSAaAku>; Wed, 30 Jan 2002 19:40:50 -0500
+Date: Thu, 31 Jan 2002 00:40:41 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-mips@oss.sgi.com,
+        Linux ARM mailing list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: Re: [PATCH] Migration to input api for keyboards
+Message-ID: <20020131004041.K19292@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.10.10201301553260.7609-100000@www.transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020130154434.L763@lynx.adilger.int>; from adilger@turbolabs.com on Wed, Jan 30, 2002 at 03:44:34PM -0700
+In-Reply-To: <Pine.LNX.4.10.10201301553260.7609-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Wed, Jan 30, 2002 at 04:13:40PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 03:44:34PM -0700, Andreas Dilger wrote:
-> > and I've noticed that many source files have
-> >   #include <linux/slab.h>     /* kmalloc(), kfree() */
-> > instead of trying to include linux/malloc.h
-> 
-> That's because they have been updated, and the other ones have not.
-> Don't ask me _why_ it was changed that way, but it was.
+On Wed, Jan 30, 2002 at 04:13:40PM -0800, James Simmons wrote:
+>    As some on you know the input api drivers for the PS/2 keyboard/mice
+> have gone into the dj tree for 2.5.X. I need people on other platforms
+> besides ix86 to test it out. I made the following patch that forces the
+> use of the new input drivers so people can test it. Shortly this patch
+> will be placed into the DJ tree but before I do this I want to make sure
+> it works for all platforms. Here is the patch to do this. Thank you.  
 
-Cuz malloc.h has been an empty shell since the 2.0.x days or so.
+Oops.
 
-	Jeff
+> +CONFIG_SERIO_I8042=y
+> +CONFIG_I8042_REG_BASE=60
+> +CONFIG_I8042_KBD_IRQ=1
+> +CONFIG_I8042_AUX_IRQ=12
 
+Out of those 3 ARM machines, only 1 or maybe 2 has an 8042-compatible
+port.
 
+CONFIG_PC_KEYB != i8042 controller present.  Please look more closely
+at stuff in include/asm-arm/arch-*/keyboard.h
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

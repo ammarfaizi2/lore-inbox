@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbTEPSvD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 14:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTEPSvD
+	id S264590AbTEPS5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 14:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264607AbTEPS5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 14:51:03 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:32743 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S264540AbTEPSvC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 14:51:02 -0400
-Subject: Re: 2.5.69-mm5: pccard oops while booting: resolved
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: Andrew Morton <akpm@digeo.com>, rmk@arm.linux.org.uk,
-       LKML <linux-kernel@vger.kernel.org>, davej@suse.de
-In-Reply-To: <20030516181331.GP433@phunnypharm.org>
-References: <1052964213.586.3.camel@teapot.felipe-alfaro.com>
-	 <20030514191735.6fe0998c.akpm@digeo.com>
-	 <1052998601.726.1.camel@teapot.felipe-alfaro.com>
-	 <20030515130019.B30619@flint.arm.linux.org.uk>
-	 <1053004615.586.2.camel@teapot.felipe-alfaro.com>
-	 <20030515144439.A31491@flint.arm.linux.org.uk>
-	 <1053037915.569.2.camel@teapot.felipe-alfaro.com>
-	 <20030515160015.5dfea63f.akpm@digeo.com>
-	 <1053090184.653.0.camel@teapot.felipe-alfaro.com>
-	 <20030516181331.GP433@phunnypharm.org>
-Content-Type: text/plain
-Message-Id: <1053111794.586.4.camel@teapot.felipe-alfaro.com>
+	Fri, 16 May 2003 14:57:24 -0400
+Received: from www.hostsharing.net ([212.42.230.151]:57254 "EHLO
+	pima.hostsharing.net") by vger.kernel.org with ESMTP
+	id S264590AbTEPS5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 14:57:22 -0400
+Date: Fri, 16 May 2003 21:11:43 +0200
+From: Elimar Riesebieter <riesebie@lxtec.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: radeonfb and high mem
+Message-ID: <20030516191143.GA669@gandalf.home.lxtec.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030515194118.GA696@gandalf.home.lxtec.de> <20030516083939.GB1687@deimos.one.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 16 May 2003 21:03:14 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Content-Disposition: inline
+In-Reply-To: <20030516083939.GB1687@deimos.one.pl>
+Organization: LXTEC
+X-gnupg-key-fingerprint: BE65 85E4 4867 7E9B 1F2A  B2CE DC88 3C6E C54F 7FB0
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-16 at 20:13, Ben Collins wrote:
-> > 1. Simply by changing KOBJ_NAME_LEN from 20 to 16 fixes the problem.
-> > This leads me to think there are some parts of the kernel (a driver, to
-> > be more exact) that are corrupting memory or doing something really
-> > nasty that is affecting PCI ID's tables and pci_bus_match() function.
 
-> Are you sure you have a pristine source and everything is rebuilt
-> against the new header? It'd be very easy for one object file to have the
-> incorrect name len and cause this problem.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm 200% sure:
+On Fri, 16 May 2003 the mental interface of=20
+Damian Ko?kowski told:
 
-1. tar jxvf linux-2.5.69.tar.bz2
-2. zcat 2.5.69-mm6.gz | patch  -p1
-3. make menuconfig
+> On Thu, May 15, 2003 at 09:41:18PM +0200, Elimar Riesebieter wrote:
+> > I am running 2.4.21.rc2-ac2 with 1 GB RAM. The radeonfb can't map
+> > FB. If I boot with mem=3D840MB the framebuffer runs. I thought it will
+> > be fixed with the vesa_highmem fix but isn't with vesafb at all. The
+> > same happens with noacpi ;-) The RAM is tested as good with memtest!
+>=20
+> Use that:
+> 	http://gate.crashing.org/~ajoshi/radeonfb-0.1.8.diff.gz
 
-There is something in the Yamaha DS-XG PCI driver (I think the problem
-lies in alsa_card_ymfpci_init()) that is somewhat corrupting the PCI
-ID's table, or something else, that's causing the pci_bus_match()
-function to oops.
+radeonfb works only at mem=3D840 or less ;-)
 
-I'm no kernel expert, so I've been unable to guess much more than this.
+Ciao
 
+Elimar
+
+--=20
+  >what IMHO then?
+  IMHO - Inhalation of a Multi-leafed Herbal Opiate ;)
+              --posting from alex in debian-user--
+
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+xTfv3Ig8bsVPf7ARAiqoAJ9mxlDDVXcrF97a2bj9OwIOqsU86wCgiq5k
+3chbCqiewb9FRrscoWHLpQU=
+=p8ag
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--

@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVBJBi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbVBJBbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbVBJBi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 20:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVBJBi0
+	id S262004AbVBJBbG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 20:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVBJBbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 20:38:26 -0500
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:48037 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S262006AbVBJBhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 20:37:46 -0500
-Subject: Re: [PATCH 01/04] Adding cipher mode context information to
-	crypto_tfm
-From: Christophe Saout <christophe@saout.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Fruhwirth Clemens <clemens@endorphin.org>, jmorris@redhat.com,
-       linux-kernel@vger.kernel.org, michal@logix.cz, davem@davemloft.net,
-       adam@yggdrasil.com
-In-Reply-To: <20050209171943.05e9816e.akpm@osdl.org>
-References: <Xine.LNX.4.44.0502091859540.6222-100000@thoron.boston.redhat.com>
-	 <1107997358.7645.24.camel@ghanima>  <20050209171943.05e9816e.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-snR+X6xpFnYgfRsHGL+v"
-Date: Thu, 10 Feb 2005 02:37:36 +0100
-Message-Id: <1107999456.12483.18.camel@leto.cs.pocnet.net>
+	Wed, 9 Feb 2005 20:31:06 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:23407 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262004AbVBJBbB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 20:31:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=RK9m17e+LWzW6U7SXSenQimOE5OJKa663fNAb8ZlIyvjwgME96uW3nEhac5qtkYPQh4uYa08iNWB5PQ6vZ1+F2jZY29LWtv4l0hdMHeW7Cuztfxs1ros/M488bNljF+7YcTNatY5H65oBtjqdzPIklwsF4WeUP4LGR6jKrnd0FI=
+Message-ID: <58cb370e05020917312994f531@mail.gmail.com>
+Date: Thu, 10 Feb 2005 02:31:00 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: [rfc][patch] ide: fix unneeded LBA48 taskfile registers access
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <420AB049.4040705@gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.GSO.4.58.0502062348200.2763@mion.elka.pw.edu.pl>
+	 <4206F2E5.7020501@gmail.com>
+	 <200502070959.54973.bzolnier@elka.pw.edu.pl>
+	 <420AA476.1040406@gmail.com>
+	 <58cb370e050209162437808733@mail.gmail.com>
+	 <420AB049.4040705@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 10 Feb 2005 09:52:25 +0900, Tejun Heo <htejun@gmail.com> wrote:
+> 
+>   Okay, another quick question.
+> 
+>   To fix the io_32bit race problem in ide_taskfile_ioctl() (and later
+> ide_cmd_ioctl() too), it seems simplest to mark the taskfile with
+> something like ATA_TFLAG_IO_16BIT flag and use the flag in task_in_intr().
+> 
+>   However, ATA_TFLAG_* are used by libata, and I think that, although
+> sharing hardware constants is good if the hardware is similar, sharing
+> driver-specific flags isn't such a good idea.  So, what do you think?
+> 
+>   1. Add ATA_TFLAG_IO_16BIT to ata.h
+>   2. Make ide's own set of task flags, maybe IDE_TFLAG_* (including
+>      IDE_TFLAG_LBA48)
 
---=-snR+X6xpFnYgfRsHGL+v
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Please add it to <ata.h> (unless Jeff complains loudly),
+I have a patch converting ide_task_t to use struct ata_taskfile
+(except ->protocol for now).
 
-Am Mittwoch, den 09.02.2005, 17:19 -0800 schrieb Andrew Morton:
-
-> > It must be
-> >  possible to process more than 2 mappings in softirq context.
->=20
-> Adding a few more fixmap slots wouldn't hurt anyone.  But if you want an
-> arbitrarily large number of them then no, we cannot do that.
->=20
-> Possibly one could arrange for the pages to not be in highmem at all.
-
-In the case of the LRW use in dm-crypt only plain- and ciphertext need
-to be accessible through struct page (both are addressed through BIO
-vectors). The LRW tweaks could simply be kmalloced. So instead of
-passing "struct scatterlist *tweaksg" we could just pass a "void
-*tweaksg".
-
-Some of the hard work on the generic scatterlist walker would be for
-nothing then. :(
-
-
---=-snR+X6xpFnYgfRsHGL+v
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCCrrgZCYBcts5dM0RAtCoAKCJt2BoWNfmBjHB2CPh1pNraCjkrQCeOuPQ
-AU7v6YudUXM9r4/HKoJyqJ4=
-=nCBL
------END PGP SIGNATURE-----
-
---=-snR+X6xpFnYgfRsHGL+v--
-
+Bartlomiej

@@ -1,58 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311749AbSGYMaT>; Thu, 25 Jul 2002 08:30:19 -0400
+	id <S311025AbSGYM1V>; Thu, 25 Jul 2002 08:27:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312558AbSGYMaT>; Thu, 25 Jul 2002 08:30:19 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:41098 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S311749AbSGYMaS>; Thu, 25 Jul 2002 08:30:18 -0400
-Date: Thu, 25 Jul 2002 05:30:28 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: linux-kernel@vger.kernel.org
-cc: rmk@arm.linux.org.uk
-Subject: [PATCH] fix unresolved syms for serial drivers, 2.5.28
-Message-ID: <Pine.LNX.4.44.0207250520290.17973-100000@loke.as.arizona.edu>
+	id <S311749AbSGYM1V>; Thu, 25 Jul 2002 08:27:21 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41226
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S311025AbSGYM1U>; Thu, 25 Jul 2002 08:27:20 -0400
+Date: Thu, 25 Jul 2002 05:25:15 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Mike Insch <vofka@hotpop.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Oddities with HighPoint HPT374, 2.4.19-pre10-ac2
+In-Reply-To: <200207251249.02531.vofka@hotpop.com>
+Message-ID: <Pine.LNX.4.10.10207250507480.4719-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The oddities are the fact I have not finished creating the channel and
+drive set inner-lock sequence code :-/  If you run it in master mode only
+one drive per channel, it is perfectly safe.  The problem happens the
+instant you pair drives on the channels.  I have not figured out the
+correct interrupt sequence ordering and blocking recipe.
 
-The following two patches seem to be needed to export the requisite 
-symbols needed for fully modular builds of the new serial drivers in 
-2.5.28.  Sound sane?
+The issue stands to deal with double hwgroups locking and having more than
+two channels to the effective HBA.
 
---- linux-2.5.28/drivers/serial/core.c~	Wed Jul 24 20:56:15 2002
-+++ linux-2.5.28/drivers/serial/core.c	Wed Jul 24 23:40:31 2002
-@@ -2469,6 +2469,8 @@
- EXPORT_SYMBOL(uart_unregister_driver);
- EXPORT_SYMBOL(uart_register_port);
- EXPORT_SYMBOL(uart_unregister_port);
-+EXPORT_SYMBOL(uart_add_one_port);
-+EXPORT_SYMBOL(uart_remove_one_port);
- 
- MODULE_DESCRIPTION("Serial driver core");
- MODULE_LICENSE("GPL");
+Instead of 
 
+HPT374
+  ide4
+  ide5
+HPT374
+  ide6
+  ide7
 
---- linux-2.5.28/drivers/char/tty_io.c~	Wed Jul 24 20:56:01 2002
-+++ linux-2.5.28/drivers/char/tty_io.c	Wed Jul 24 23:41:31 2002
-@@ -545,6 +545,7 @@
- #endif
- 	do_tty_hangup((void *) tty);
- }
-+EXPORT_SYMBOL(tty_vhangup);
- 
- int tty_hung_up_p(struct file * filp)
- {
+It has to evlolve to
 
+HPT374
+  ide4p
+  ide4s
+  ide5p
+  ide5s
 
-They can also be obtained here:
-	http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/2.5.28/
+This means extened minor on the second half of each major must be created.
+There is not enough sane bandwith in the driver, nor would anybody take
+such an exotic solution.
 
+Sorry,
 
-Craig Kulesa
-Steward Obs.
-Univ. of Arizona
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Thu, 25 Jul 2002, Mike Insch wrote:
+
+> Hi,
+> 
+> I have a system with an ABIT AT7 Motherboard (Duron 1200, 256MB PC2100 RAM), 
+> and have 8 80GB Maxtor IDE HDD's connected to the HPT374 controller on the 
+> board, configured as a single RAID-0 Array in hardware.
+> 
+> When copying data from another disk connected to the VIA IDE Controller, the 
+> kernel oopses with an 'Unable to handle NULL pointer dereference at virtual 
+> address 00000004' after about 5MB has copied.  The process implicated by the 
+> oops is the kjournald process for the only partition on the RAID array.
+> 
+> Sorry I have no output from the oops - it locks totally, and the oops is never 
+> logged :(
+> 
+> Copying large amounts of data from a Samba Share on the network (over 15GB!) 
+> has produced no similar problems - so I'm guessing that kjournald, or the 
+> HPT374 drivers don't like the 640GB array when data is being committed too 
+> fast. (All the drives involved are UDMA 133 Drives, both the one on the VIA 
+> Controller, and all 8 on the HPT Controller).
+> 
+> I know it's hard to say without me giving more info, but does anyone have any 
+> idea what could possibly cause this?  Have there been updates in newer 
+> releases to either the HPT374 Code, or to the kjournald code that could solve 
+> this?  Is it worth me getting and compiling 2.4.19-rc3-ac3 to see if the 
+> problem is solved there?  Any and all info. which may help tracking down this 
+> gremlin would be greatly appreciated....
+> 
+> (I can post detailed info. about the hardware (lspci, dmesg etc), and kernel 
+> configurations if that would be of any use?)
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbVCDCfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbVCCXuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbVCDCfe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 21:35:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262833AbVCDCbp
+	id S262738AbVCCXuW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 18:50:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVCCXtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 21:31:45 -0500
-Received: from fire.osdl.org ([65.172.181.4]:14208 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262687AbVCDC2r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 21:28:47 -0500
-Date: Thu, 3 Mar 2005 18:28:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: greg@kroah.com, jgarzik@pobox.com, torvalds@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050303182820.46bd07a5.akpm@osdl.org>
-In-Reply-To: <1109894511.21781.73.camel@localhost.localdomain>
-References: <42268749.4010504@pobox.com>
-	<20050302200214.3e4f0015.davem@davemloft.net>
-	<42268F93.6060504@pobox.com>
-	<4226969E.5020101@pobox.com>
-	<20050302205826.523b9144.davem@davemloft.net>
-	<4226C235.1070609@pobox.com>
-	<20050303080459.GA29235@kroah.com>
-	<4226CA7E.4090905@pobox.com>
-	<Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-	<422751C1.7030607@pobox.com>
-	<20050303181122.GB12103@kroah.com>
-	<20050303151752.00527ae7.akpm@osdl.org>
-	<1109894511.21781.73.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 3 Mar 2005 18:49:39 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:56054 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262738AbVCCXWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 18:22:21 -0500
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [PATCH][14/26] IB/mthca: tweak MAP_ICM_page firmware command
+In-Reply-To: <2005331520.wYWJriF1rMlIY4lJ@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Thu, 3 Mar 2005 15:20:27 -0800
+Message-Id: <2005331520.6eBThkRRWYJ5HE5s@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: akpm@osdl.org
+Content-Transfer-Encoding: 7BIT
+From: Roland Dreier <roland@topspin.com>
+X-OriginalArrivalTime: 03 Mar 2005 23:20:27.0863 (UTC) FILETIME=[95D79E70:01C52047]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> On Iau, 2005-03-03 at 23:17, Andrew Morton wrote:
-> > Ideally, the 2.6.x.y maintainer wouldn't need any particular kernel
-> > development skills - it's just patchmonkeying the things which maintainers
-> > send him.
-> 
-> I would disagree, and I suspect anyone else who has maintained a distro
-> stable kernel would likewise. It needs one or more people who know who
-> to ask about stuff, are careful, have a good grounding in bug spotting,
-> races, common mistakes and know roughly how all the kernel works.
-> Maintainers aren't very good at it in general and they don't see
-> overlaps between areas very well.
-> 
+Have MAP_ICM_page() firmware command map assume pages are always the
+HCA-native 4K size rather than using the kernel's page size.  This
+will make handling doorbell pages for mem-free mode simpler.
 
-That is all inappropriate activity for a 2.6.x.y tree as it is being
-proposed.
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-Am I right?  All we're proposing here is a tree which has small fixups for
-reasonably serious problems.  Almost without exception it would consist of
-backports.
+
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_cmd.c	2005-03-03 14:12:58.283270213 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_cmd.c	2005-03-03 14:12:58.619197294 -0800
+@@ -1290,7 +1290,7 @@
+ 		return -ENOMEM;
+ 
+ 	inbox[0] = cpu_to_be64(virt);
+-	inbox[1] = cpu_to_be64(dma_addr | (PAGE_SHIFT - 12));
++	inbox[1] = cpu_to_be64(dma_addr);
+ 
+ 	err = mthca_cmd(dev, indma, 1, 0, CMD_MAP_ICM, CMD_TIME_CLASS_B, status);
+ 
 

@@ -1,81 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbTDRDUX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 23:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbTDRDUX
+	id S262834AbTDRDZF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 23:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbTDRDZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 23:20:23 -0400
-Received: from science.horizon.com ([192.35.100.1]:16947 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S262792AbTDRDUW
+	Thu, 17 Apr 2003 23:25:05 -0400
+Received: from dnvrdslgw14poolC198.dnvr.uswest.net ([63.228.86.198]:42335 "EHLO
+	q.dyndns.org") by vger.kernel.org with ESMTP id S262834AbTDRDZE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 23:20:22 -0400
-Date: 18 Apr 2003 03:32:13 -0000
-Message-ID: <20030418033213.32695.qmail@science.horizon.com>
-From: linux-kernel@horizon.com
-To: 76306.1226@compuserve.com
-Subject: Re: [PATCH] only use 48-bit lba when necessary
-Cc: linux-kernel@vger.kernel.org
+	Thu, 17 Apr 2003 23:25:04 -0400
+Date: Thu, 17 Apr 2003 21:37:13 -0600 (MDT)
+From: Benson Chow <blc@q.dyndns.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ac97, alc101+kt8235 sound (2.4.21-pre7-ac1)
+In-Reply-To: <1050406611.27745.34.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0304172107360.10001-100000@q.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
->> FYI, GCC as of 3.2.3 doesn't yet reduce the if(...) form to branchless
->> code but the & and && versions come out the same with -O2.
+Seems that the VT8235 has some issues with ac97 recording.  Using aumix,
+and setting the input to line-in, cat /dev/dsp returns the same byte over
+and over again, as if there is no signal.  Dumping this file and dumping
+back to /dev/dsp confirms the silence - no sound got record.  Messing
+around with the mixer doesn't appear to do much.  The mixer subsystem, I
+can control the volume of line-in and line-out, and hear the volume going
+up and down.  I also tried Windows, seems it works fine in Windows.
 
-And Chuck Ebbert replied:
->   The operands of & can be evaluated in any order, while && requires
-> left-to-right and does not evaluate the right operand if the left one
-> is false.  Only the simplest cases could possibly generate the same
-> code.
+I tried the same command sequence on my SiS735 (i810-compatible) AC97
+machine and the results differ (it works :-)  So it seems that there's
+something that's wrong with the kt8235 side of things?
 
-The code must execute AS IF the right operand is only evaluated if the left
-operand is true.
+Playback works fine.  Just cannot record.  Is the kt8235 driver not quite
+primetime yet?
 
-If an optimizer can prove that evaluating an operand has no side effects
-(which a halfway-decent optimizer can usually do for simple expressions),
-then it is free to evaluate it in any way that will produce the same
-result.
+Thanks,
 
-For example, if both operands of && have no side effects, then the compiler
-is free to convert
+-bc
 
-if ( expensive() && cheap() ) {...}
+On 15 Apr 2003, Alan Cox wrote:
 
-into
+> Date: 15 Apr 2003 12:36:51 +0100
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> To: Benson Chow <blc+lkml@q.dyndns.org>
+> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: Re: ac97, alc101+kt8235 sound
+>
+> On Maw, 2003-04-15 at 12:49, Benson Chow wrote:
+> > hoping that these via chips were pretty close.  Unfortunately no, it
+> > still doesn't work.  It did, however, find the AC97 codec fine (I added
+> > some printk's), but no sound is produced.  Any ideas on how to get this
+> > vt8235-based motherboard sound working?  (and ALSA-0.9.2 seems to do
+> > nothing but segfault it seems.)
+>
+> See 2.4.21pre - that has the driver for VIA8233/5
+>
 
-if ( cheap() && expensive() ) {...}
-
-although I expect most assume the programmer was sensible enough to
-put the most commonly failed tests first.
-
-
-The compiler is also free to do the same to
-
-if ( !!cheap() & !!expensive() ) {...}
-
-Again, it has to behave AS IF !!expensive() were evaluated in every
-case, but if it can prove that there are no side effects, it can
-skip expensive() entirely if there appears to be reason to do so.
-
-
-The upshot of this is that, if the conditions have no side effects and
-the compiler is decent, there should be NO DIFFERENCE in the compiled code.
-
-Since it is only legal to convert between && and & if the right operand
-has no side effects and does not depend on any side effects of the left
-operand, the only time it makes sense to choose one over the other for
-any reason but coding style is if A) the code is speed-critical, and B)
-you know the conditions are met but you don't think the optimizer can
-figure it out.
-
-Which is pretty uncommon.
+WARNING: All HTML emails get deleted.  DO NOT SEND HTML MAIL.
 
 
-Regarding style, personally I'm used to C's zero/non-zero boolean tests
-and prefer to write "while (p)" and "if (x & MASK)".  Using bare &
-between such expressions is more difficult to read for two reasons:
-A) the reader has to parse the "!!(...) " or "... != 0" clutter around
-   each operand, and
-B) the reader has to figure out that the "1 & 2" case never happens.
-
-With |. that can often be avoided, but not with pointer operands.

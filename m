@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278647AbRJ1TXH>; Sun, 28 Oct 2001 14:23:07 -0500
+	id <S278649AbRJ1USI>; Sun, 28 Oct 2001 15:18:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278648AbRJ1TW5>; Sun, 28 Oct 2001 14:22:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7950 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278647AbRJ1TWn>; Sun, 28 Oct 2001 14:22:43 -0500
-Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sun, 28 Oct 2001 19:29:27 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        zlatko.calusic@iskon.hr (Zlatko Calusic), axboe@suse.de (Jens Axboe),
-        marcelo@conectiva.com.br (Marcelo Tosatti), linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <Pine.LNX.4.33.0110281014300.7438-100000@penguin.transmeta.com> from "Linus Torvalds" at Oct 28, 2001 10:46:19 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278653AbRJ1UR6>; Sun, 28 Oct 2001 15:17:58 -0500
+Received: from mustard.heime.net ([194.234.65.222]:2181 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S278649AbRJ1URt>; Sun, 28 Oct 2001 15:17:49 -0500
+Date: Sun, 28 Oct 2001 21:18:22 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: compiling for alpha
+Message-ID: <Pine.LNX.4.30.0110282112450.13444-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15xvcd-0000FM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes. My question is more: does the dpt366 thing limit the queueing some
-> way?
+hi
 
-Nope. The HPT366 is a bog standard DMA IDE controller. At least unless Andre
-can point out something I've forgotten any behaviour seen on it should be
-the same as seen on any other IDE controller with DMA support.
+What CPU should I choose when compuling for an alpha-based computer whose
+/proc/cpuinfo gives the following:
 
-In practical terms that should mean you can obsere the same HPT366 problem
-he does on whatever random IDE controller is on your desktop box
+Thanks for any help.
 
-> But notice how that actually doesn't have anything to do with memory size,
-> and makes your "scale by max memory" thing illogical.
+Please cc: to me, as I'm not on the list
 
-When you are dealing with the VM limit which the limiter was originally
-added for then it makes a lot of sense. When you want to use it solely for
-other purposes then it doesnt.
+roy
+
+$ cat /proc/cpuinfo
+cpu                     : Alpha
+cpu model               : EV56
+cpu variation           : 7
+cpu revision            : 0
+cpu serial number       :
+system type             : Noritake
+system variation        : 0
+system revision         : 0
+system serial number    : NI93008321
+cycle frequency [Hz]    : 500000000
+timer frequency [Hz]    : 1024.00
+page size [bytes]       : 8192
+phys. address bits      : 40
+max. addr. space #      : 127
+BogoMIPS                : 497.02
+kernel unaligned acc    : 0 (pc=0,va=0)
+user unaligned acc      : 56 (pc=20000ac8d20,va=120352a22)
+platform string         : AlphaServer 800 5/500
+cpus detected           : 1
+
+
+---
+Praktiserende dyslektiker.
+La ikke ortografiske krumspring skygge for
+intensjonen bak denne fremstilling.
+
 

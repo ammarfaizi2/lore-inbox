@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVADJdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVADJdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVADJdb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 04:33:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVADJda
+	id S261586AbVADJdo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 04:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVADJdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 04:33:30 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:57736 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261584AbVADJd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 04:33:27 -0500
-Date: Tue, 4 Jan 2005 09:33:26 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Erik Mouw <erik@harddisk-recovery.com>, Adrian Bunk <bunk@stusta.de>,
-       Domen Puncer <domen@coderock.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] maintainers: remove moderated arm list
-Message-ID: <20050104093326.GA2408@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Erik Mouw <erik@harddisk-recovery.com>,
-	Adrian Bunk <bunk@stusta.de>, Domen Puncer <domen@coderock.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20041225170825.GA31577@nd47.coderock.org> <20041225172155.A26504@flint.arm.linux.org.uk> <20050103175438.GL2980@stusta.de> <20050104085437.GA26584@harddisk-recovery.com> <20050104090057.GA2035@infradead.org> <20050104092515.B9409@flint.arm.linux.org.uk>
+	Tue, 4 Jan 2005 04:33:44 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:14514 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261586AbVADJdj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 04:33:39 -0500
+Date: Tue, 4 Jan 2005 10:33:30 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-mm1
+Message-ID: <20050104093330.GA13602@elte.hu>
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050103115120.GB18408@infradead.org> <20050104090408.GA12197@elte.hu> <20050104092612.GA2371@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050104092515.B9409@flint.arm.linux.org.uk>
+In-Reply-To: <20050104092612.GA2371@infradead.org>
 User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 09:25:15AM +0000, Russell King wrote:
-> In that case, you can personally choose not to send mail there anymore.
-> It's completely up to you.  No one is forcing you to send email to any
-> address.
 
-I don't plan to force anyone to do anything with their mailinglists.
-But we shouldn't mention lists with stupid policies as maintainer contacts.
+* Christoph Hellwig <hch@infradead.org> wrote:
 
-> You may wish to have 100% open communities everywhere, but unfortunately
-> we live in the real world where politicians get to make laws for us, and
-> we have to abide by them.  If this means that people have to respect
-> peoples rights to privacy, and inform them when their privacy may not
-> be assured (and not violate that right to privacy without first doing
-> so.)
+> On Tue, Jan 04, 2005 at 10:04:08AM +0100, Ingo Molnar wrote:
+> > or is it the addition of _smp_processor_id() as a way to signal 'this
+> > smp_processor_id() call in a preemptible region is fine, trust me'?
 > 
-> I don't care if you personally agree with that or not.  That's not what
-> it's about.  It's about taking reasonable steps to cover ones own ass
-> and the communities ass to ensure survival in silly-law environments.
+> Yes.
+> 
+> > We
+> > could do smp_processor_id_preempt() or some other name - any better
+> > suggestions?
+> 
+> I'd just kill the debug check and rely on the eye of the review to not
+> let new users of smp_processor_id slip in.
 
-Maybe you should offshore your lists to conuntries with saner laws (or
-at least to less obedient people..)
+relying on that is quite futile. E.g. in the block IO code it needed 3-4
+iterations even after the first instance was found to get all the cases
+right. There are functions that are always called from under a lock then
+some unlocked call happens and we've got trouble. Often the bug is some
+very rare and obscure corruption of a statistics value, nobody really
+notices that.
 
+by today i think we've identified most of the places that can safely do
+smp_processor_id() in a preemptible section (in x86 and x64) - it's only
+around 3% of the total smp_processor_id() use. I'd rather allow these
+exceptions and flag new exceptions as they get added - they are added at
+least an order of magnitude more rarely than smp_processor_id() gets
+added.
+
+	Ingo

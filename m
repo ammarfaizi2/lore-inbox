@@ -1,50 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265759AbSKKQgK>; Mon, 11 Nov 2002 11:36:10 -0500
+	id <S265786AbSKKQq3>; Mon, 11 Nov 2002 11:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265786AbSKKQgK>; Mon, 11 Nov 2002 11:36:10 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:57561 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S265759AbSKKQgJ>; Mon, 11 Nov 2002 11:36:09 -0500
-Message-ID: <3DCFDE0A.1030506@nortelnetworks.com>
-Date: Mon, 11 Nov 2002 11:42:50 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S265787AbSKKQq3>; Mon, 11 Nov 2002 11:46:29 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:37088 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S265786AbSKKQq2>;
+	Mon, 11 Nov 2002 11:46:28 -0500
+Date: Mon, 11 Nov 2002 17:52:30 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Andre M. Hedrick" <andre@linux-ide.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] IDE out*() confusing argument names
+Message-ID: <Pine.GSO.4.21.0211111749060.21501-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: strange behaviour with statfs() call, looking for advice
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I seem to be getting some strange interactions between kernel space and 
-userspace with the statfs() call.
+Fix confusing arguments in the IDE access routines. The first arguments of the
+out*() routines are not addresses but values.
 
-On an nfs-mounted but unaccessable system, the statfs() call is 
-returning a block count of 4294967295.  Since the kernel statfs struct 
-has this field defined as a long and this is a 32-bit system, this is 
-somewhat confusing.
+BTW, I find it funny that the ide_mm_out*() routines are less confusing ;-)
 
-It turns out that the userspace headers define the "blocks" field as a 
-__fsblkcnt_t, which is then defined as __u_long.
+--- linux-2.5.47/drivers/ide/ide-iops.c	Mon Oct  7 22:04:22 2002
++++ linux-m68k-2.5.47/drivers/ide/ide-iops.c	Mon Nov 11 15:02:43 2002
+@@ -57,14 +57,14 @@
+ 	insl(port, addr, count);
+ }
+ 
+-static void ide_outb (u8 addr, ide_ioreg_t port)
++static void ide_outb (u8 value, ide_ioreg_t port)
+ {
+-	outb(addr, port);
++	outb(value, port);
+ }
+ 
+-static void ide_outw (u16 addr, ide_ioreg_t port)
++static void ide_outw (u16 value, ide_ioreg_t port)
+ {
+-	outw(addr, port);
++	outw(value, port);
+ }
+ 
+ static void ide_outsw (ide_ioreg_t port, void *addr, u32 count)
+@@ -72,9 +72,9 @@
+ 	outsw(port, addr, count);
+ }
+ 
+-static void ide_outl (u32 addr, ide_ioreg_t port)
++static void ide_outl (u32 value, ide_ioreg_t port)
+ {
+-	outl(addr, port);
++	outl(value, port);
+ }
+ 
+ static void ide_outsl (ide_ioreg_t port, void *addr, u32 count)
+--- linux-2.5.47/drivers/ide/pci/siimage.h	Mon Oct  7 22:04:23 2002
++++ linux-m68k-2.5.47/drivers/ide/pci/siimage.h	Mon Nov 11 15:03:59 2002
+@@ -62,14 +62,14 @@
+ //	while (count--) { *(u32 *)addr = readl(port); addr += 4; }
+ }
+ 
+-inline void sii_outb (u8 addr, u32 port)
++inline void sii_outb (u8 value, u32 port)
+ {
+-	writeb(addr, port);
++	writeb(value, port);
+ }
+ 
+-inline void sii_outw (u16 addr, u32 port)
++inline void sii_outw (u16 value, u32 port)
+ {
+-	writew(addr, port);
++	writew(value, port);
+ }
+ 
+ inline void sii_outsw (u32 port, void *addr, u32 count)
+@@ -77,9 +77,9 @@
+ 	while (count--) { writew(*(u16 *)addr, port); addr += 2; }
+ }
+ 
+-inline void sii_outl (u32 addr, u32 port)
++inline void sii_outl (u32 value, u32 port)
+ {
+-	writel(addr, port);
++	writel(value, port);
+ }
+ 
+ inline void sii_outsl (u32 port, void *addr, u32 count)
+--- linux-2.5.47/include/linux/ide.h	Mon Nov 11 10:19:43 2002
++++ linux-m68k-2.5.47/include/linux/ide.h	Mon Nov 11 15:03:04 2002
+@@ -299,9 +299,9 @@
+ 
+ typedef struct ide_io_ops_s {
+ 	/* insert io operations here! */
+-	void (*OUTB)(u8 addr, ide_ioreg_t port);
+-	void (*OUTW)(u16 addr, ide_ioreg_t port);
+-	void (*OUTL)(u32 addr, ide_ioreg_t port);
++	void (*OUTB)(u8 value, ide_ioreg_t port);
++	void (*OUTW)(u16 value, ide_ioreg_t port);
++	void (*OUTL)(u32 value, ide_ioreg_t port);
+ 	void (*OUTSW)(ide_ioreg_t port, void *addr, u32 count);
+ 	void (*OUTSL)(ide_ioreg_t port, void *addr, u32 count);
+ 
 
-What do I do?  Do I cast it to a long since I know that this is what the 
-kernel is using?
+Gr{oetje,eeting}s,
 
-The system in question is a yellowdog system, but the same problem is 
-present on a recent mandrake box as well.  Is this a redhat issue?
+						Geert
 
-Thanks,
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

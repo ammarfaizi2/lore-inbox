@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbULJQT4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbULJQWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbULJQT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 11:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbULJQT4
+	id S261192AbULJQWV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 11:22:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbULJQWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 11:19:56 -0500
-Received: from main.gmane.org ([80.91.229.2]:31105 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261750AbULJQTa (ORCPT
+	Fri, 10 Dec 2004 11:22:21 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:39593 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261192AbULJQWE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 11:19:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
-Date: Fri, 10 Dec 2004 11:19:28 -0500
-Message-ID: <87pt1i15yn.fsf@coraid.com>
-References: <87acsrqval.fsf@coraid.com>
-	<1102349564.2721.103.camel@laptop.fenrus.org>
+	Fri, 10 Dec 2004 11:22:04 -0500
+Subject: Re: [RFC PATCH] convert uhci-hcd to use debugfs
+From: Josh Boyer <jdub@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20041210152728.GA5827@kroah.com>
+References: <20041210005055.GA17822@kroah.com>
+	 <20041210005514.GB17822@kroah.com>
+	 <1102688117.26320.7.camel@weaponx.rchland.ibm.com>
+	 <20041210152728.GA5827@kroah.com>
+Content-Type: text/plain
+Message-Id: <1102695710.26320.48.camel@weaponx.rchland.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Arjan van de Ven <arjan@fenrus.demon.nl>
-X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:evB2LrTkonvBdIq12hnyHGqPxtk=
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 10 Dec 2004 10:21:50 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@fenrus.demon.nl> writes:
+On Fri, 2004-12-10 at 09:27, Greg KH wrote:
+> 
+> > > -#ifdef CONFIG_PROC_FS
+> > > -	ent = create_proc_entry(hcd->self.bus_name, S_IFREG|S_IRUGO|S_IWUSR, uhci_proc_root);
+> > > -	if (!ent) {
+> > > -		dev_err(uhci_dev(uhci), "couldn't create uhci proc entry\n");
+> > > +	dentry = debugfs_create_file(hcd->self.bus_name, S_IFREG|S_IRUGO|S_IWUSR, uhci_debugfs_root, uhci, &uhci_proc_operations);
+> > > +	if (!dentry) {
+> > 
+> > That won't work if debugfs is not configured.  You'll get back (void *)
+> > -ENODEV, which is not NULL.
+> 
+> That's exactly correct.  We do _not_ want NULL to be returned if debugfs
+> is not configured in.  We want to be able to detect if an error
+> happened, not if the feature was just not configured.  Otherwise, if we
+> did return NULL if debugfs was not enabled, this code would just fail
+> and the uhci startup would never happen.
+> 
+> This is why people have to wrap proc functions in #ifdef, and why no one
+> ever checks the return values from devfs calls.  It's a real problem and
+> I don't want to duplicate that again.
 
-[helpful suggestions]
-...
->> +struct Aoedev {
->> +	Aoedev *next;
->> +	uchar addr[6];		/* remote mac addr */
->> +	ushort flags;
->> +	ulong sysminor;
->> +	ulong aoemajor;
->> +	ulong aoeminor;
->
-> sounds like the wrong type, why not use dev_t ?
+Ah, ok I see now.  Good point.  I should have looked at the code instead
+of just trying to infer everything from the patch ;).
 
-These are ATA over Ethernet major and minor addresses, not device node
-major and minor numbers.
-
->> +	ulong nopen;		/* user count */
->
-> why do you need this ?
->
->> +static int
->> +aoeblk_release(struct inode *inode, struct file *filp)
->> +{
->> +	Aoedev *d;
->> +	ulong flags;
->> +
->> +	d = (Aoedev *) inode->i_bdev->bd_disk->private_data;
->> +
->> +	spin_lock_irqsave(&d->lock, flags);
->> +	if (--d->nopen == 0)
->
-> eh why not just a ->release function instead that uses the blocklayer
-> refcounting instead of doing your own ?
-
-Do you just mean we should use inode->i_bdev->bd_openers instead of
-having d->nopen?
-
->> +int
->> +aoeblk_make_request(request_queue_t *q, struct bio *bio)
->> +{
->> +	Aoedev *d;
->> +	Buf *buf;
->> +	struct sk_buff *sl;
->> +	ulong flags;
->> +
->> +	blk_queue_bounce(q, &bio);
->> +
->> +	buf = kallocz(sizeof *buf, GFP_KERNEL);
->
-> this is deadlocky; you HAVE to use a mempool for allocations here!
-
-OK.  Thanks for pointing that out.
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
+josh
 

@@ -1,92 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbTFJJbd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 05:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTFJJbd
+	id S262569AbTFJJm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 05:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTFJJm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 05:31:33 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:63974 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S262562AbTFJJbb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 05:31:31 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: scheduler interactivity - does this patch help?
-Date: Tue, 10 Jun 2003 19:39:20 +1000
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <36450000.1055137396@[10.10.2.4]> <1055186553.707.1.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1055186553.707.1.camel@teapot.felipe-alfaro.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Jun 2003 05:42:58 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:11017 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262569AbTFJJm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 05:42:57 -0400
+Subject: Re: 2.5.70-mm6
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>, Andrew Morton <akpm@digeo.com>,
+       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <64000000.1055189666@flay>
+References: <20030607151440.6982d8c6.akpm@digeo.com>
+	 <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
+	 <46580000.1055180345@flay>
+	 <Pine.LNX.4.51.0306092017390.25458@dns.toxicfilms.tv>
+	 <51250000.1055184690@flay>
+	 <1055189322.600.1.camel@teapot.felipe-alfaro.com>
+	 <64000000.1055189666@flay>
+Content-Type: text/plain
+Message-Id: <1055238993.586.0.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 10 Jun 2003 11:56:33 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306101939.20435.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jun 2003 05:22, Felipe Alfaro Solana wrote:
-> On Mon, 2003-06-09 at 07:43, Martin J. Bligh wrote:
-> > I've had this patch (I think from Ingo) kicking around in -mjb
-> > for a while. I'm going to drop it unless someone thinks it's useful
-> > for some testcase you have ... anyone interested?
-> >
-> > Thanks,
-> >
-> > M.
-> >
-> > diff -urpN -X /home/fletch/.diff.exclude 400-reiserfs_dio/kernel/sched.c
-> > 420-sched_interactive/kernel/sched.c ---
-> > 400-reiserfs_dio/kernel/sched.c	Fri May 30 19:26:34 2003
-> > +++ 420-sched_interactive/kernel/sched.c	Fri May 30 19:28:06 2003
-> > @@ -89,6 +89,8 @@ int node_threshold = 125;
-> >  #define STARVATION_LIMIT	(starvation_limit)
-> >  #define NODE_THRESHOLD		(node_threshold)
-> >
-> > +#define TIMESLICE_GRANULARITY (HZ/20 ?: 1)
-> > +
-> >  /*
-> >   * If a task is 'interactive' then we reinsert it in the active
-> >   * array after it has expired its current timeslice. (it will not
-> > @@ -1365,6 +1367,27 @@ void scheduler_tick(int user_ticks, int
-> >  			enqueue_task(p, rq->expired);
-> >  		} else
-> >  			enqueue_task(p, rq->active);
-> > +	} else {
-> > +		/*
-> > +		 * Prevent a too long timeslice allowing a task to monopolize
-> > +		 * the CPU. We do this by splitting up the timeslice into
-> > +		 * smaller pieces.
-> > +		 *
-> > +		 * Note: this does not mean the task's timeslices expire or
-> > +		 * get lost in any way, they just might be preempted by
-> > +		 * another task of equal priority. (one with higher
-> > +		 * priority would have preempted this task already.) We
-> > +		 * requeue this task to the end of the list on this priority
-> > +		 * level, which is in essence a round-robin of tasks with
-> > +		 * equal priority.
-> > +		 */
-> > +		if (!(p->time_slice % TIMESLICE_GRANULARITY) &&
-> > +			       		(p->array == rq->active)) {
-> > +			dequeue_task(p, rq->active);
-> > +			set_tsk_need_resched(p);
-> > +			p->prio = effective_prio(p);
-> > +			enqueue_task(p, rq->active);
-> > +		}
-> >  	}
-> >  out_unlock:
-> >  	spin_unlock(&rq->lock);
->
-> I'm currently testing it on a modified 2.5.70-mm6 kernel (with HZ set to
-> 1000) and seems to help a little with XMMS's chunky audio playback when
-> X is reniced to -20.
+On Mon, 2003-06-09 at 22:14, Martin J. Bligh wrote:
+> --On Monday, June 09, 2003 22:08:42 +0200 Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+> 
+> > On Mon, 2003-06-09 at 20:51, Martin J. Bligh wrote:
+> >> >> If you don't nice the hell out of X, does it work OK?
+> >> > No.
+> >> > 
+> >> > The way I reproduce the sound skips:
+> >> > run xmms, run evolution, compose a mail with gpg.
+> >> > on mm6 the gpg part stops the sound for a few seconds. (with X -10 and 0)
+> >> > on mm5 xmms plays without stops. (with X -10)
+> >> 
+> >> Does this (from Ingo?) do anything useful to it?
+> > 
+> > I can confirm that 2.5.70-mm6 with Ingo's patch and HZ set back to 1000
+> > is nearly perfect (it still takes some seconds for the scheduler to
+> > adjust dynamic priorities).
+> 
+> OK ... sorry to be pedantic, but I want to nail this down.
+> It's still broken with HZ=1000, but without Ingo's patch, right?
 
-I tried this patch way back when mingo first posted it and found it helped a 
-little. Have a close look at it, though; all it does is limit max timeslice 
-to 50ms when other tasks are running at the same priority. A better effect 
-can and is obtained by changing max_timeslice to 50ms...
+Well, Ingo's patch makes XMMS more resistant to audio skip when HZ=1000.
+Anyways, with HZ=1000 interactivity is much better than with HZ=100
+(with or without Ingo's patch).
 
-Con
 

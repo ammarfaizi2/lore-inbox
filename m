@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbTKDG3P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 01:29:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTKDG3P
+	id S263767AbTKDHIX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 02:08:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263768AbTKDHIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 01:29:15 -0500
-Received: from [217.30.254.34] ([217.30.254.34]:2176 "EHLO
-	alpha.linuxassembly.org") by vger.kernel.org with ESMTP
-	id S263760AbTKDG3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 01:29:14 -0500
-Date: Tue, 4 Nov 2003 09:30:28 +0300 (MSK)
-From: Konstantin Boldyshev <konst@linuxassembly.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <marcelo.tosatti@cyclades.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: minix fs corruption fix for 2.4
-In-Reply-To: <Pine.LNX.4.44.0311030851430.20373-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.43L.0311040919460.1136-100000@alpha.linuxassembly.org>
-Organization: Linux Assembly [http://linuxassembly.org]
+	Tue, 4 Nov 2003 02:08:23 -0500
+Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:32129
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263767AbTKDHIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 02:08:22 -0500
+Date: Tue, 4 Nov 2003 02:07:46 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.6] Dont use cpu_has_pse for WP test branch
+Message-ID: <Pine.LNX.4.53.0311040155150.20595@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Nov 2003, Linus Torvalds wrote:
+It appears that not all processors which support PSE have the PSE bit set, 
+possibly we should be checking with PSE36 too. But instead i've opted to 
+simply check for 586+
 
-> > Enclosed is a simple patch to fix corruption of minix filesystem
-> > when deleting character and block device nodes (special files).
-> > From what I've found out the bug was introduced somehwere in 2.3
-> > and is present in all 2.4 versions, and I guess also goes into 2.6.
->
-> Oops, yes.
->
-> The problem is that block and character devices put not a block
-> number but a _device_ number in the place where other files put
-> their block allocations.
+Celeron (Mendocino): fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat pse36 mmx fxsr
 
-Yes, it took some time to find out why particular blocks
-are being freed when I delete particular device nodes.
+Opteron 240: fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
+pse36 clflush mmx fxsr sse sse2 syscall mmxext lm 3dnowext 3dnow
 
-> Your patch is wrong, though - you shouldn't test for APPEND
-> and IMMUTABLE here. That should be done at higher layers.
-
-Perhaps. I just added the same check as ext2 code does in ext2_truncate().
-
--- 
-Regards,
-Konstantin
-
+Index: linux-2.6.0-test9/arch/i386/mm/init.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test9/arch/i386/mm/init.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 init.c
+--- linux-2.6.0-test9/arch/i386/mm/init.c	27 Oct 2003 07:12:18 -0000	1.1.1.1
++++ linux-2.6.0-test9/arch/i386/mm/init.c	4 Nov 2003 06:58:30 -0000
+@@ -388,8 +388,7 @@ void __init paging_init(void)
+ 
+ void __init test_wp_bit(void)
+ {
+-	if (cpu_has_pse) {
+-		/* Ok, all PSE-capable CPUs are definitely handling the WP bit right. */
++	if (boot_cpu_data.x86_model >= 5) {
+ 		boot_cpu_data.wp_works_ok = 1;
+ 		return;
+ 	}

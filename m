@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267339AbTAUXX5>; Tue, 21 Jan 2003 18:23:57 -0500
+	id <S267337AbTAUXZe>; Tue, 21 Jan 2003 18:25:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267342AbTAUXX5>; Tue, 21 Jan 2003 18:23:57 -0500
-Received: from packet.digeo.com ([12.110.80.53]:58087 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267339AbTAUXXz>;
-	Tue, 21 Jan 2003 18:23:55 -0500
-Message-ID: <3E2DD8A7.3F07C40E@digeo.com>
-Date: Tue, 21 Jan 2003 15:32:55 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.5.59_lost-tick_A0
-References: <1043189962.15683.82.camel@w-jstultz2.beaverton.ibm.com>
+	id <S267338AbTAUXZe>; Tue, 21 Jan 2003 18:25:34 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:23306 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S267337AbTAUXZa>; Tue, 21 Jan 2003 18:25:30 -0500
+Message-Id: <200301212334.h0LNYPF03207@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Andries.Brouwer@cwi.nl
+cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+Subject: Re: 3c509.c
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Jan 2003 23:32:55.0620 (UTC) FILETIME=[6CA34840:01C2C1A5]
+Date: Tue, 21 Jan 2003 18:34:25 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> 
-> All,
->         This patch addresses the following problem: Linux cannot properly
-> handle the case where interrupts are disabled for longer then two ticks.
-> 
+Please Don't do this:
 
-Question is: who is holding interrupts off for so long?
+ #include <linux/ethtool.h>
+ #include <linux/device.h>
+ #include <linux/eisa.h>
++#include <linux/mca-legacy.h>
+ 
+ #include <asm/uaccess.h>
 
-It might be better to implement a detection scheme inside
-the timer interrupt handler: if the time since last interrupt
-exceeds two ticks, whine and drop a backtrace.
+If you're getting MCA_NOTFOUND undefined, it's because CONFIG_MCA_LEGACY isn't 
+set when mca.h is included (either because it's not in your kernel config, or 
+possibly because config.h isn't included into the right place in the 
+driver---the latter doesn't look to be the problem for 3c509.c).
 
-That backtrace will point up into the local_irq_enable() in
-the offending code, and we can go fix it?
+James
+
+

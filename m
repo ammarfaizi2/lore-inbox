@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292187AbSBPE5f>; Fri, 15 Feb 2002 23:57:35 -0500
+	id <S292317AbSBPFCq>; Sat, 16 Feb 2002 00:02:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292315AbSBPE5P>; Fri, 15 Feb 2002 23:57:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5132 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292187AbSBPE5I>;
-	Fri, 15 Feb 2002 23:57:08 -0500
-Message-ID: <3C6DE6A1.2B5717BE@mandrakesoft.com>
-Date: Fri, 15 Feb 2002 23:57:05 -0500
+	id <S292315AbSBPFCg>; Sat, 16 Feb 2002 00:02:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11788 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292317AbSBPFCY>;
+	Sat, 16 Feb 2002 00:02:24 -0500
+Message-ID: <3C6DE7DC.59A92A6D@mandrakesoft.com>
+Date: Sat, 16 Feb 2002 00:02:20 -0500
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: esr@thyrsus.com, Dave Jones <davej@suse.de>,
-        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
-        linux-kernel@vger.kernel.org
+To: That Linux Guy <thatlinuxguy@hotmail.com>
+CC: esr@thyrsus.com, linux-kernel@vger.kernel.org
 Subject: Re: Disgusted with kbuild developers
-In-Reply-To: <E16br21-0004Vw-00@the-village.bc.nu>
+In-Reply-To: <20020215135557.B10961@thyrsus.com><200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com><20020215141433.B11369@thyrsus.com><20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com><20020215145421.A12540@thyrsus.com><20020215124255.F28735@work.bitmover.com><20020215153953.D12540@thyrsus.com> <1013811711.807.1066.camel@phantasy> <OE193Qime2yO9QJsWhz00006b54@hotmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Since the information is there in CML1 to generate the list of constraints
-> for any given option, its a reasonable assertion that the entire CML2
-> language rewrite is self indulgence from a self confessed language invention
-> freak.
+That Linux Guy wrote:
+> 
+> The amount of whining I've had to read today on this topic just astonishes
+> me.  People, please - devote 1/10th of the energy to helping esr finish and
+> fix CML2 to meet Linus' expectations.  Face the fact:  CML1 was good for
+> it's time, but that time is now gone.
+> 
+> If you spent as much time helping to get CML2 up and going as some of you
+> have trying to kill it (while not offering anything constructive to replace
+> it) it would have been DONE 6 months ago.
 
-Correct me if I'm wrong, but there are express two different types of
-situations, and CML1 isn't sufficient to express the second:
+I consider CML2 an albatross now, and the maintainer does not listen to
+feedback.
 
-1) CONFIG_FOO_OPTION requires CONFIG_FOO
+Contrary to what you think, I'm not trying to kill CML2.  In it's
+present state, according to kernel developers other than me, it is NOT
+ready for inclusion.  Now, by all appearances, Eric is trying to ram
+CML2 down Linus's throat without resolving the problems kernel
+developers have with it.
 
-2) CONFIG_SUBSYS2 requires CONFIG_SUBSYS1
-
-The reason why #2 is different, is the desired prompting and symbol
-behavior for the end user.
-
-If CONFIG_SUBSYS1=m or "", and CONFIG_SUBSYS2=y or m, then we gotta
-change the value of CONFIG_SUBSYS1 and options underneath
-CONFIG_SUBSYS1.  Re-prompt for CONFIG_SUBSYS1, perhaps?
-If CONFIG_SUBSYS1=y, value of CONFIG_SUBSYS2 isn't affected
-If CONFIG_SUBSYS1="" and CONFIG_SUBSYS2="", then we gotta prompt for
-CONFIG_SUBSYS1, but -after- CONFIG_SUBSYS2 is prompted for.
-
-I was tempted to introduce a "requires" token to express dependencies
-between subsystems, because I feel they are different from the other
-dependencies present, 
+I would be happy as a clam if Eric wanted to resolve the problems -we-
+have with CML1 and the config system, not just the problems he has with
+it.
 
 	Jeff
 

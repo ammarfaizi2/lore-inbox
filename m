@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132691AbRDCHde>; Tue, 3 Apr 2001 03:33:34 -0400
+	id <S132690AbRDCHiy>; Tue, 3 Apr 2001 03:38:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132693AbRDCHdY>; Tue, 3 Apr 2001 03:33:24 -0400
-Received: from infortrend.com.tw ([203.67.221.1]:15885 "EHLO infortrend.com.tw")
-	by vger.kernel.org with ESMTP id <S132691AbRDCHdL>;
-	Tue, 3 Apr 2001 03:33:11 -0400
-Reply-To: <warren@infortrend.com.tw>
-From: "warren" <warren@infortrend.com.tw>
-To: <linux-kernel@vger.kernel.org>
-Date: Tue, 3 Apr 2001 15:21:18 +0800
-Message-ID: <005501c0bc0e$ae026350$321ea8c0@saturn>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S132686AbRDCHip>; Tue, 3 Apr 2001 03:38:45 -0400
+Received: from dns.ipv6.univ-nantes.fr ([193.52.101.20]:57873 "HELO
+	popeye.ipv6.univ-nantes.fr") by vger.kernel.org with SMTP
+	id <S132673AbRDCHif>; Tue, 3 Apr 2001 03:38:35 -0400
+Subject: Re: Oracle 8I & Kernel 2.4.3 : Sane ?
+From: Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E14kCRR-0006ob-00@the-village.bc.nu>
+In-Reply-To: <E14kCRR-0006ob-00@the-village.bc.nu>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution/0.10+cvs.2001.04.01.08.00 (Preview Release)
+Date: 03 Apr 2001 09:37:44 +0200
+Message-Id: <986283464.10243.0.camel@olive>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    I have problems about the system calls on Linux. Please do me a favor.
+Le 02 Apr 2001 23:04:50 +0100, Alan Cox a écrit :
+> > I noticed that 2.4.3 contains some fixs for shared memory -
+> > So the final question IS :
+> > 
+> > Is oracle 8.1.5 + Kernel 2.4.3 a sane combination ?
+> 
+> Probably not yet but getting closer.
 
-The problem is:
+Ok, thanks for the quick answer. That's good news.
 
-If operation 1 that renames A to B and operation 2 that renames B to C, and
-the two operations run concurrently.
-Is it possible  that operation 2 is invoked and operation 1 does not return
-? How does Linux serialize the two operations?
+> 
+> > In general is oracle + Kernel 2.4 working ? 
+> 
+> Ditto.
+> 
+> The shm and rawio fixes are very recent
+> 
 
-Thanks in advance.
+Ok. That needs some test ...
 
-Warren
-
+Yann Dupont.
+-- 
+\|/ ____ \|/ Fac. des sciences de Nantes-Linux-Python-IPv6-ATM-BONOM....
+"@'/ ,. \@"  Tel :(+33) [0]251125865(AM)[0]251125857(PM)[0]251125868(Fax)
+/_| \__/ |_\ Yann.Dupont@sciences.univ-nantes.fr
+   \__U_/    http://www.unantes.univ-nantes.fr/~dupont
 

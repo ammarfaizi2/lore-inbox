@@ -1,59 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318067AbSHHWV1>; Thu, 8 Aug 2002 18:21:27 -0400
+	id <S318093AbSHHW1X>; Thu, 8 Aug 2002 18:27:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318071AbSHHWV1>; Thu, 8 Aug 2002 18:21:27 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18703 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318067AbSHHWV0>; Thu, 8 Aug 2002 18:21:26 -0400
-Date: Thu, 8 Aug 2002 15:26:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Hubertus Franke <frankeh@us.ibm.com>
-cc: Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
-       Andrew Morton <akpm@zip.com.au>, <andrea@suse.de>, <davej@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>, Paul Larson <plars@austin.ibm.com>
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-In-Reply-To: <Pine.LNX.4.44.0208081500550.9114-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208081519010.1661236-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318092AbSHHW1X>; Thu, 8 Aug 2002 18:27:23 -0400
+Received: from mailhost1-chcgil.chcgil.ameritech.net ([206.141.192.67]:57023
+	"EHLO mailhost.chi1.ameritech.net") by vger.kernel.org with ESMTP
+	id <S318093AbSHHW1W>; Thu, 8 Aug 2002 18:27:22 -0400
+Date: Thu, 8 Aug 2002 17:31:33 -0500
+From: Mark J Roberts <mjr@znex.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-usb-devel@lists.sourceforge.net, vojtech@suse.cz
+Subject: USBLP_WRITE_TIMEOUT too short for Kyocera FS-1010.
+Message-ID: <20020808223133.GA3776@znex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Key: 0x025D0C28
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Printing complicated postscript documents makes my Kyocera FS-1010
+hit that timeout. I increased it to 240 seconds and the problem
+seems to have disappeared.
 
-On Thu, 8 Aug 2002, Linus Torvalds wrote:
-> 
-> So let's just try Andries approach, suggested patch as follows..
-
-"ps" seems to do ok from a visual standpoint at least up to 99 million. 
-Maybe it won't look that good after that, I'm too lazy to test.
-
-The following trivial program is useful for efficiently allocating pid
-numbers without blowing chunks on the VM subsystem and spending all the
-time on page table updates - for people who want to test (look out: I've
-got dual 2.4GHz CPU's with HT, so getting up to 10+ million was easy, your
-milage may wary and at some point you should just compile a kernel that
-starts higher ;).
-
-		Linus
-
----
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-
-int main()
-{
-        int i;
-        for (i = 1; i < 250000; i++) {
-                if (!vfork())
-                        exit(1);
-                if (waitpid(-1, NULL, WNOHANG) < 0)
-                        perror("waitpid");
-        }
-        return 0;
-}
-
-
+I guess there ought to be a blacklist or something.

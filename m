@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132941AbRDERZ6>; Thu, 5 Apr 2001 13:25:58 -0400
+	id <S132938AbRDERZR>; Thu, 5 Apr 2001 13:25:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132944AbRDERZt>; Thu, 5 Apr 2001 13:25:49 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:1040 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S132941AbRDERZg>; Thu, 5 Apr 2001 13:25:36 -0400
-Message-Id: <200104051724.f35HOms47087@aslan.scsiguy.com>
-To: Igor Mozetic <igor.mozetic@uni-mb.si>
-cc: Eric Valette <valette@crf.canon.fr>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.3 + aic7xxx-6.1.9 doesn't boot 
-In-Reply-To: Your message of "Thu, 05 Apr 2001 15:19:28 +0200."
-             <15052.28896.299341.145765@ravan.camtp.uni-mb.si> 
-Date: Thu, 05 Apr 2001 11:24:48 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S132941AbRDERY6>; Thu, 5 Apr 2001 13:24:58 -0400
+Received: from firewall.spacetec.no ([192.51.5.5]:11481 "EHLO
+	pallas.spacetec.no") by vger.kernel.org with ESMTP
+	id <S132938AbRDERYy>; Thu, 5 Apr 2001 13:24:54 -0400
+Date: Thu, 5 Apr 2001 19:24:10 +0200
+Message-Id: <200104051724.TAA09779@pallas.spacetec.no>
+Mime-Version: 1.0
+X-Newsreader: knews 0.9.8
+In-Reply-To: <fa.j9vo8pv.1rj8up9@ifi.uio.no>
+    <fa.dkui9av.1ulsbjm@ifi.uio.no>
+In-Reply-To: <fa.dkui9av.1ulsbjm@ifi.uio.no>
+From: tor@spacetec.no (Tor Arntsen)
+Subject: Re: [QUESTION] 2.4.x nice level
+X-Original-Newsgroups: fa.linux.kernel
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The latest aic7xxx-6.1.9 doesn't boot, I can see something like:
->
->scsi1:0:0:0: Attempting to queue an ABORT message 
->scsi1:0:0:0: Command found on device queue 
->aic7xxx_abort returns 8194 
+LA Walsh <law@sgi.com> writes:
+>	I was running 2 copies of setiathome on a 4 CPU server
+>@ work.  The two processes ran nice'd -19.  The builds we were 
+>running still took 20-30% longer as opposed to when setiathome wasn't
+>running (went from 45 minutes up to about an hour).  This machine
+>has 1G, so I don't think it was hurting from swapping.
 
-Either disable the initial bus reset in SCSI-Select or lower
-the bus settle delay from 15000ms to something like 5000ms
-in your kernel config.  Because I enforce the bus settle
-delay by blocking incoming commands from the SCSI layer, yet
-the low level drivers are not responsible for timeout handling,
-the top level starts timeing out probe requests with short timeouts.
-The current strategy allows the system to finish inializing other
-devices while the bus settle expires, but it has this vulnerability.
+It would be nice to have IRIX weightless processes on Linux.. 
+setiathome on SGI computers don't affect anything else except
+in extreme cases.
 
-It is also my fault for not properly testing the default bus settle
-delay.  The system I tested it on had initial bus resets disabled
-from a prior test of that scenario.  Oops.
-
---
-Justin
+-Tor

@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266809AbSLJWfn>; Tue, 10 Dec 2002 17:35:43 -0500
+	id <S266841AbSLJWf6>; Tue, 10 Dec 2002 17:35:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266841AbSLJWfm>; Tue, 10 Dec 2002 17:35:42 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:39373 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S266809AbSLJWfm>;
-	Tue, 10 Dec 2002 17:35:42 -0500
-Date: Wed, 11 Dec 2002 00:43:25 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: IBM spamms me with error messages
-Message-ID: <20021210224325.GE32122@mea-ext.zmailer.org>
-References: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz>
+	id <S266842AbSLJWf6>; Tue, 10 Dec 2002 17:35:58 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:45325 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266841AbSLJWf5>;
+	Tue, 10 Dec 2002 17:35:57 -0500
+Date: Tue, 10 Dec 2002 14:42:31 -0800
+From: Greg KH <greg@kroah.com>
+To: Stelian Pop <stelian@popies.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH 2.4.20-BK] usbnet typo
+Message-ID: <20021210224230.GF8145@kroah.com>
+References: <20021210162820.G18849@deep-space-9.dsnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20021210162820.G18849@deep-space-9.dsnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 09:56:11PM +0100, Pavel Machek wrote:
-> Hi!
+On Tue, Dec 10, 2002 at 04:28:20PM +0100, Stelian Pop wrote:
+> There is a typo in the latest usbnet driver which disables
+> the compile of iPAQ specific code. 
 > 
-> I replied to some mail on l-k and IBM spammed me with 20+ error
-> messages. Now it is apparently going to do that again.
+> With the attached patch, the new driver recognises the iPAQ
+> and even works :*)
 
-   Still/again ?
+Thanks, I've added this to my tree and will send it on to Marcelo.
 
-> IBM: I asked your postmasters to fix your mail systems, and you
-> apparently don't know how to do that. Can you fix it?!
-> 
-> I don't know what broken mailserver substituted my email address as
-> pavel%internet.vnet@RCHGATE.RCHLAND.IBM.COM, and I do not care much,
-> but STOP SPAMMING ME.
-> 							Pavel
-
-   It is same type of MTA misbehaviour as is exhibited by
-   various M$ email virus scanners.  Visible "From:" header
-   has absolutely nothing to do with what is the correct
-   address to send the message to.  (Or "To:"/"Cc:" headers..)
-
-> RCHGATE.RCHLAND.IBM.COM unable to deliver following mail to
-> recipient(s):
->     <tinglett@rchmail.rchland.ibm.com>
-> RCHGATE.RCHLAND.IBM.COM received negative reply:
-> 501 5.1.8 <@RCHGATE.RCHLAND.IBM.COM:PAVEL@INTERNET.RSCS>... Domain of
-> sender address PAVEL@INTERNET.RSCS does not exist
-
-   Tinglett isn't subscribed.  Yet the message is quite fresh...
-
->            ** Text of Mail follows **
-> Received:  by RCHGATE.RCHLAND.IBM.COM (IBM VM SMTP Level 3A0) via
-> spool with SMTP id 6538 ; Tue, 10 Dec 2002 14:45:57 CST
-> Received: by RCHGATE (cvtto822 5.1.7) via <pavel@internet> id 2652
-> (NOTE)
->           for <tinglett@rchland>; Tue, 10 Dec 2002 14:45:57 -0600
-> Date:  Tue, 10 Dec 2002 21:40:31 +0100
-> From: "Pavel Machek" <pavel%internet.vnet@RCHGATE.RCHLAND.IBM.COM>
-> To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+greg k-h

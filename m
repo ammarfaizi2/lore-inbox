@@ -1,41 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265163AbTLFNb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 08:31:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265165AbTLFNb1
+	id S265166AbTLFNgS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 08:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265167AbTLFNgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 08:31:27 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:58002
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S265163AbTLFNb0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 08:31:26 -0500
-Date: Sat, 6 Dec 2003 08:40:32 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: cdrecord hangs my computer
-Message-ID: <20031206084032.A3438@animx.eu.org>
-References: <Law9-F31u8ohMschTC00001183f@hotmail.com> <Pine.LNX.4.58.0312060011130.2092@home.osdl.org> <3FD1994C.10607@stinkfoot.org>
+	Sat, 6 Dec 2003 08:36:18 -0500
+Received: from legolas.restena.lu ([158.64.1.34]:7075 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S265166AbTLFNgQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 08:36:16 -0500
+Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
+From: Craig Bradney <cbradney@zip.com.au>
+To: Ian Kumlien <pomac@vapor.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1070676480.1989.15.camel@big.pomac.com>
+References: <1070676480.1989.15.camel@big.pomac.com>
+Content-Type: text/plain
+Message-Id: <1070717770.13004.11.camel@athlonxp.bradney.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <3FD1994C.10607@stinkfoot.org>; from Ethan Weinstein on Sat, Dec 06, 2003 at 03:54:36AM -0500
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 06 Dec 2003 14:36:13 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've noted this at boot several times with 2.6.0-test11
+On Sat, 2003-12-06 at 03:08, Ian Kumlien wrote: 
+> Craig Bradney wrote:
+> > All the interrupts are the same...except:
+> > 0, timer is now IO-APIC-edge.
 > 
-> Dec  4 23:59:21 e-d0uble kernel: ide-scsi is deprecated for cd burning! 
-> Use ide-cd and give dev=/dev/hdX as device
+> Same here... 
+> 
+> > Im not getting any NMI counts.. should I use nmi-watchdog=1?
+> 
+> I got nmi counts with nmi_watchdog=2...  I never tested with =1... if
+> you get nmi's 1 lemme know.
+> 
+> > Ian, from looking back, you have an A7N8X-X bios 1007.
+> > Interesting that my USB hcis are still sharing IRQs there.
+> 
+> Your? i only see one... But you share it with sound and eth0... 
+> 
+> > Any idea how I can get them apart, or if I should try.
+> 
+> You could always move eth0 to a different slot. Other than that, you can
+> do manual config for the irq's in the bios, but it shouldn't be
+> needed...
 
-At the moment, I don't have a burner on a 2.6.0 machine, however, why is
-ide-scsi depreciated?  On every PC I have that has an ide cd drive, I use
-ide-scsi.  I like the fact that scd0 is the cdrom drive.  Instead of
-guessing if it's hdb hdc or hdd (in the case of this laptop, the dvd was hdb
-and the modular cdrw was hdc).
+eth0 is the 3com onboard on the a7n8x deluxe... 
 
-On a side note, has anyone had any luck with Acard's SCSIDE AEC-7722 adapter
-on dvd burners?  I was planning on this adapter on an optorite dd0401 dvd
-burner.
+> > My system was pretty stable as I've stated.. but the patch has changed
+> > things slightly re the timer.
+> 
+> As i stated in my prev email, i had to do 2 full greps at a sizable
+> amount of data to recreate the crash... =P
+> 
+> And, please CC since i'm not on this ml =P
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Having finally woken up (me not the pc), uptime here is now 12 hours..
+(without the CPU Disconnect athcool run, just the kernel patch). I did
+run the athcool program to check the result though:
+
+nVIDIA nForce2 (10de 01e0) found
+'Halt Disconnect and Stop Grant Disconnect' bit is enabled.
+
+Do others have the same value 10de 01e0 when they run athcool stat? Even
+with the same motherboard (a7n8x deluxe)?
+
+Im running a grep -R kernel /usr/* and another grep on my 4gb DVD and
+compiling a Qt 3.2.3 upgrade now.
+
+For me idle time never seemed to be a problem which I guess relates to
+the CPU Disconnect on low usage/low power issue
+
+Perhaps my motherboard and cpu doesnt have a problem with disconnect and
+just the IRQ issue, perhaps because its only a few weeks old. It would
+make sense in some ways given that my system has only one of the
+problems given the uptime I have been able to reach.
+
+My hangs have always been when I have used the PC.. and often completed
+a task and then a few seconds later it goes.
+
+Will see in time I guess
+
+Craig
+
+

@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265143AbSKSDjZ>; Mon, 18 Nov 2002 22:39:25 -0500
+	id <S265171AbSKSDjd>; Mon, 18 Nov 2002 22:39:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265171AbSKSDjZ>; Mon, 18 Nov 2002 22:39:25 -0500
-Received: from mail.gmx.net ([213.165.64.20]:8587 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S265143AbSKSDjY>;
-	Mon, 18 Nov 2002 22:39:24 -0500
-Message-ID: <3DD9B3F8.DC291106@gmx.de>
-Date: Tue, 19 Nov 2002 04:46:00 +0100
-From: Edgar Toernig <froese@gmx.de>
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S265174AbSKSDjc>; Mon, 18 Nov 2002 22:39:32 -0500
+Received: from findaloan-online.cc ([216.209.85.42]:21775 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S265171AbSKSDjb>;
+	Mon, 18 Nov 2002 22:39:31 -0500
+Date: Mon, 18 Nov 2002 22:53:45 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Dan Kegel <dank@kegel.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [rfc] epoll interface change and glibc bits ...
-References: <Pine.LNX.4.44.0211181533501.979-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <20021119035345.GA16798@mark.mielke.cc>
+References: <Pine.LNX.4.44.0211181520140.979-100000@blue1.dev.mcafeelabs.com> <3DD97D4D.3010801@kegel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3DD97D4D.3010801@kegel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> 
-> http://www.xmailserver.org/linux-patches/epoll.2
-> http://www.xmailserver.org/linux-patches/epoll_create.2
-> http://www.xmailserver.org/linux-patches/epoll_ctl.2
-> http://www.xmailserver.org/linux-patches/epoll_wait.2
-> 
-> it is going to change though with the latest talks about the interface.
+On Mon, Nov 18, 2002 at 03:52:45PM -0800, Dan Kegel wrote:
+> I'm not so sure.  If the epoll documentation were clear enough
+> (which at the moment, frankly, it isn't), I think
+> there's a good chance users would not be confused
+> by the difference between level-triggered and edge-triggered
+> events.
 
-My 2 cents:
+I would argue that it is a good thing that people that believe poll and
+epoll to be almost exactly the same, find themselves confused.
 
-Remove the waitqueue stuff from epoll.2.  It has meaning only to
-linux kernel developers and noone else.
+I might not succeed, but it is certainly how I feel about the issue.
 
-Please add more semantic details of the new facility.  It is new
-and these man pages are the only (and normative) reference.  I.e.:
+mark
 
-What about adding an fd twice to the epoll-set?  Do you get an
-error, will it override the previous settings for that fd, will
-it be ignored, or is it registered twice and you get two results
-for that fd?  Can two epoll-sets wait for the same fd?  Are events
-reported to both epoll-fds?
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-Is the epoll-fd itself poll/epoll/selectable?  Can I build cluster
-of epoll-sets?  What happens if the epollfd is put into its own
-fd set?  Can I send the epoll-fd over a unix-socket to another
-process?
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-Then, please add more details of how events are generated.  You
-say, that an inactive-to-active transition causes an event.  What
-is the starting point of the collection?  (I guess, all transitions
-between two epoll_wait calls.)  There could be a couple of transi-
-tions on an fd between two epoll_wait calls.  Are these events com-
-bined into a single reported event or is each single edge reported?
-Does an operation on an fd effect the already collected but not yet
-reported events?
+                           http://mark.mielke.cc/
 
-About epoll_wait: it looks like a "read with timeout" call.  Is that
-really necessary or wouldn't a normal read(2) work as well?  Similar
-for epoll_ctl: couldn't a write(2) to the epoll-fd do the same?
-
-That are the things that come into my mind at the moment.  I guess
-there are more details I've missed...
-
-Ciao, ET.

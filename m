@@ -1,86 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVCOWcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVCOWay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbVCOWcy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:32:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVCOWb3
+	id S261925AbVCOWay (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVCOW2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:31:29 -0500
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:43722 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261947AbVCOW3a
+	Tue, 15 Mar 2005 17:28:55 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:63104 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261989AbVCOW1l
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:29:30 -0500
-From: David Brownell <david-b@pacbell.net>
-To: dtor_core@ameritech.net
-Subject: Re: [linux-usb-devel] Re: [RFC] Changes to the driver model class code.
-Date: Tue, 15 Mar 2005 14:29:22 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>
-References: <20050315170834.GA25475@kroah.com> <200503151314.40510.david-b@pacbell.net> <d120d5000503151405381f183a@mail.gmail.com>
-In-Reply-To: <d120d5000503151405381f183a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 15 Mar 2005 17:27:41 -0500
+Subject: Re: [PATCH] Add missing refrigerator calls
+From: Marcel Holtmann <marcel@holtmann.org>
+To: ncunningham@cyclades.com
+Cc: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1110924757.6454.132.camel@desktop.cunningham.myip.net.au>
+References: <1110924757.6454.132.camel@desktop.cunningham.myip.net.au>
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 23:27:19 +0100
+Message-Id: <1110925639.9818.80.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503151429.22863.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 March 2005 2:05 pm, Dmitry Torokhov wrote:
-> I think I was shopping around for the examples of proper driver model
-> integration in 2.6.2 - 2.6.3 timeframe for the serio bus. I was
-> looking at how USB was working around the fact that one can not
-> add/remove children from the probe/remove methods.
+Hi Nigel,
 
-Yes, the constraints on when children can be added/removed aren't
-always useful.  In fact they can seem nastily arbitrary, and some
-of them need careful workarounds elsewhere in USB.  The current
-usbcore code should behave well in all common cases outside of
-suspend/resume.  (Yes, it's routine to unplug USB devices when
-the system is suspended.  That's not wholly worked around yet.
-By the time World Domination is achieved, it'll be fixed!)
-
-
-> I can not tell you 
-> what exactly gave me the impression that conversion is still in
-> progress, probably the comments like this:
+> There are a number of threads that currently have no refrigerator
+> handling in Linus' tree. This patch addresses part of that issue. The
+> remainder will be addressed in other patches, following soon.
 > 
->      /* FIXME should device_bind_driver() */
->          iface->driver = driver;
->          usb_set_intfdata(iface, priv);
->          return 0;
-> 
-> Now I see it was changed shortly after I looked there. And I see that
-> my impression was wrong, it _is_ tightly integrated with the driver
-> model now.
+> Signed-off-by: Nigel Cunningham <ncunningham@cyclades.com>
 
-That was a FIXME that I added, and indeed it's now fixed.  The
-patch had a dry run around 2.6.0 but had some issues, and they
-took time to fix/test properly given more pressing issues.  The
-drivers that used those APIs needed changes/retesting too.  :)
+I am fine with the net/bluetooth/rfcomm/ part, but what about the bnep/
+and cmtp/ and hidp/ part of the Bluetooth subsystem? Do we need this
+there, too?
+
+Regards
+
+Marcel
 
 
-> >  If you think those changes can easily be
-> > reversed, I suggest you think again ... they enabled a LOT of
-> > likewise-overdue cleanups.
-> 
-> Note that I am arguing for keeping existing interface, not removing it.
-
-Those particular interfaces still exist even after Greg's patches
-for the class support... he didn't change the physical device tree.
-
-I tend to think the class support really does need to be treated
-differently from the driver model core.  It's all sort of separate
-anyway, since class devices aren't "real" ones.  They don't show up
-in the physical device tree, and I understand the main reason to use
-them is to mask that physical view behind a more "logical" view of
-the hardware.  Keeping those views separate makes sense to me,
-although I've not paid close attention to class device support.
-
-- Dave
-
-> -- 
-> Dmitry
-> 

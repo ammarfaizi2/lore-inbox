@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265337AbTFFG4i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 02:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265347AbTFFG4i
+	id S265362AbTFFG6t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 02:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265365AbTFFG6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 02:56:38 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:5639 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265337AbTFFG4g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 02:56:36 -0400
-Message-ID: <3EE03F64.70501@aitel.hist.no>
-Date: Fri, 06 Jun 2003 09:14:44 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
-Subject: 2.5.70-bk10 oops when trying to mount root from raid-1 device
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 6 Jun 2003 02:58:49 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:53736 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265362AbTFFG6s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 02:58:48 -0400
+Date: Fri, 06 Jun 2003 00:08:48 -0700 (PDT)
+Message-Id: <20030606.000848.38709837.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: manfred@colorfullife.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: problem with blk_queue_bounce_limit()
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <16096.15034.490916.644970@napali.hpl.hp.com>
+References: <16096.14281.621282.67906@napali.hpl.hp.com>
+	<20030605.234526.23012957.davem@redhat.com>
+	<16096.15034.490916.644970@napali.hpl.hp.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.70-bk10 has some raid fixes, but raid-1 still fails unlike
-2.5.70-mm4.
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Thu, 5 Jun 2003 23:54:50 -0700
 
-bk10 successfully discovers raid-1 and raid-0 arrays,
-but this happens when the kernel tries to mount root:
+   >>>>> On Thu, 05 Jun 2003 23:45:26 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
 
-<lots of ordinary boot messages>
-md ... autorun DONE
-<this is where I normally get VFS: Mounted root (ext2 filesystem) readonly.
-  I got this instead:>
-unable to handle kernel paging request at 5a5a5a86
-EIP at put_all_bios+0x047/0x80
-process swapper
-raid_end_bio_io
-deadline_next_request
-raid1_end_request
-scsi_request_fn
-bio_endio
-__end_that_request_first
-scsi_end_request
-scsi_io_completion
-sd_rw_intr
-scsi_finish_command
-scsi_softirq
-do_softirq
-do_IRQ
-default_idle
-common_interrupt
-default_idle
-default_idle
-cpu_idle
-rest_init
-start_kernel
-unknown_bootoption
-<0> kernel panic, exception in interrupt
+     > David, what is blk_max_low_pfn set to on your ia64 systems?
+   
+   max_low_pfn, which is going to be the pfn of some page > 4GB (for
+   machines with a sufficient amount of memory).
 
-This is a dual celeron with two scsi disks, with
-two raid-1 arrays and one raid-0.  The
-kernel is compiled with preempt and devfs,
-using gcc-3.3
-
-Helge Hafting
-
+Right, but see my other email, you need to see PCI_DMA_BUS_IS_PHYS
+properly.  This tells the block layer if you're IOMMU or not.

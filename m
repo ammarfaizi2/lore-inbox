@@ -1,81 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131090AbRABO3h>; Tue, 2 Jan 2001 09:29:37 -0500
+	id <S131093AbRABObH>; Tue, 2 Jan 2001 09:31:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131093AbRABO31>; Tue, 2 Jan 2001 09:29:27 -0500
-Received: from [203.36.158.121] ([203.36.158.121]:22912 "HELO kabuki.eyep.net")
-	by vger.kernel.org with SMTP id <S131090AbRABO3R>;
-	Tue, 2 Jan 2001 09:29:17 -0500
-To: Elmer Joandi <elmer@ylenurme.ee>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile errors: RCPCI, LANE, and others 
-In-Reply-To: Your message of "Tue, 02 Jan 2001 14:33:29 BST."
-             <Pine.LNX.4.30.0101021427070.4279-100000@yle-server.ylenurme.sise> 
-In-Reply-To: <Pine.LNX.4.30.0101021427070.4279-100000@yle-server.ylenurme.sise> 
-Date: Wed, 03 Jan 2001 01:02:21 +1100
-From: Daniel Stone <daniel@kabuki.eyep.net>
-Message-Id: <20010102142920Z131090-439+7909@vger.kernel.org>
+	id <S130216AbRABOa5>; Tue, 2 Jan 2001 09:30:57 -0500
+Received: from mplspop4.mpls.uswest.net ([204.147.80.14]:1031 "HELO
+	mplspop4.mpls.uswest.net") by vger.kernel.org with SMTP
+	id <S131136AbRABOai>; Tue, 2 Jan 2001 09:30:38 -0500
+Date: Tue, 2 Jan 2001 07:56:26 -0600 (CST)
+Message-ID: <Pine.LNX.4.30.0101020754330.28352-100000@localhost.localdomain>
+From: "Nitebirdz" <nitebirdz@uswest.net>
+To: "jim m." <msg124@hotmail.com>
+Cc: redhat-install-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: system freeze question
+In-Reply-To: <F1218N8yxdZjfNLnlyg0000a3ab@hotmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Did full compile, just for fun:
-> 
-> CONFIG_for Red Creek  whatever RCPCI has a syntax error
-> other warnings and errors, compiled on 2.4.0-prerelease, nonSMP, PIII
-> 
-> md5sum: WARNING: 11 of 12 computed checksums did NOT match
+On Sat, 30 Dec 2000,  jim m. wrote:
 
-This indicates a corrupted download.
-
-> net/network.o: In function `atm_ioctl':
-> net/network.o(.text+0x3c742): undefined reference to `atm_lane_init'
-> net/network.o(.text+0x3c7f2): undefined reference to `atm_mpoa_init'
-> make: *** [vmlinux] Error 1
-
-Known problem, AFAIK.
-
-> objcopy: Warning: Output file cannot represent architecture UNKNOWN!
-
-um. this is completely rooted. what compiler are you using, what
-distribution? (hint: if it's redhat 7, don't bother).
-
-> ip2/i2cmd.c:142: warning: `ct89' defined but not used
-> sx.c:1623: warning: `do_memtest_w' defined but not used
-> i2o_block.c:595: warning: #warning "RACE"
-
-this is most likely a bad thing, yes.
-
-> md5sum: WARNING: 11 of 12 computed checksums did NOT match
-
-see first warning
-
-> bttv-cards.c: In function `bttv_check_chipset':
-> bttv-cards.c:1389: warning: unused variable `i'
-> bttv-cards.c: At top level:
-> bttv-cards.c:1379: warning: `needs_etbf' defined but not used
-> mtdchar.c: In function `init_mtdchar':
-> mtdchar.c:452: warning: unused variable `mtd'
-> mtdchar.c:451: warning: unused variable `name'
-> mtdchar.c:450: warning: unused variable `i'
-> ftl.c:139: warning: `debug' defined but not used
-> nftlmount.c: In function `check_and_mark_free_block':
-> nftlmount.c:363: warning: unused variable `buf'
-> nftlmount.c:362: warning: unused variable `i'
-
-harmless.
-
-> sunhme.c:2791: warning: #warning This needs to be corrected... -DaveM
-> sdla_chdlc.c: In function `if_send':
-> sdla_chdlc.c:936: warning: unsigned int format, long unsigned int arg (arg 3)
-> sdla_chdlc.c: In function `wpc_isr':
-> sdla_chdlc.c:1501: warning: unsigned int format, long unsigned int arg (arg 3)
-> sdla_ppp.c: In function `if_send':
-> sdla_ppp.c:901: warning: unsigned int format, long unsigned int arg (arg 3)
+> hi,
+> there are times when newly installed driver just freezes the
+> RH6.2 and mouse cursor is rock solid frozen. ALT+PRTScreen+...
+> does not work. I now for fact that ALT+PRT... works because
+> i tested it. Anything else can be done to reboot the system
+> graciously than "reset"?.  Any advice..
+> J
 
 
-believe these fall under the set_bit domain.
+Very rarely should tou need to hit the "Reset" button on a Linux/UNIX box.
+You may want to try hitting Ctrl+Alt+F2 to go to an alternate console,
+then logging in as root, and sending the "gpm" process a KILLHUP signal
+for example.
 
-<more shit snipped>
+------------------------------------------------------
+Nitebirdz
+------------------------------------------------------
+"We all know Linux is great... it does infinite
+loops in 5 seconds." (Linus Torvalds)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVCDFuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVCDFwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVCDFuX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 00:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVCDFuX
+	id S261499AbVCDFwh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 00:52:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVCDFwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 00:50:23 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:54299 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S261379AbVCDFuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 00:50:17 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="3.90,134,1107734400"; 
-   d="scan'208"; a="231299439:sNHT91939692"
-Message-Id: <200503040550.AWZ06413@mira-sjc5-e.cisco.com>
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Andrew Morton'" <akpm@osdl.org>,
-       "'Jochen Striepe'" <jochen@tolot.escape.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: RFD: Kernel release numbering
-Date: Thu, 3 Mar 2005 21:50:06 -0800
-Organization: Cisco Systems
+	Fri, 4 Mar 2005 00:52:37 -0500
+Received: from [209.51.143.194] ([209.51.143.194]:24510 "EHLO
+	server14.totalchoicehosting.com") by vger.kernel.org with ESMTP
+	id S261500AbVCDFwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 00:52:33 -0500
+Date: Fri, 04 Mar 2005 00:52:56 -0500
+From: Leonid Petrov <nouser@lpetrov.net>
+Reply-To: Leonid Petrov <nouser@lpetrov.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.11 ps/2 mouse is dead
+Message-ID: <4227F7B8.nail79Z11S4KM@lpetrov.net>
+User-Agent: nail 11.6(mod) 9/7/04
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <20050303213005.59a30ae6.akpm@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
-Thread-Index: AcUgfKENILBaSA7/QaKhETHsmn/KWAAAHXfA
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server14.totalchoicehosting.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - verizon.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I upgraded from 2.6.10 to 2.6.11 using "make oldconfig" and my 
+Logitech ps/2 mouse is dead. cat /dev/input/mice shows 
+nothing. Nothing suspicios in /var/log/messages
+The same mousce works fine with 2.6.10
 
-> You cannot have it both ways.  Either the kernel needs 
-> testers, or it is "stable".  See how these are opposites?
-
-I think one of the fundamental problems is "either the kernel needs more
-features, or it needs stablization". You cannot have it both ways. With the
-current model, the kernel develops at a faster pace than testers can keep up
-with, and that's why you feel there aren't enough testers.
-
-Not everyone downloads a kernel every day or even every week. Just once a
-while. If you roll out a kernel, you need to give some time to people to
-test it out. However, with the current model the kernel keeps adding
-features, non-bug fixes, etc, _and completely abandons the previous one and
-moves on_. So what's the point of testing? When I download 2.6.9, 2.6.11
-might have come out. Even if bug reports do not become obosolete, they are
-outpaced by new bugs.
-
-Agreed we need a balance. The problem is the 2.6 focuses too much on
-development than stablization. The old "stable release maintainer" model was
-completely abandoned. Surely that was not an exciting job, but people need
-it.
-
-Hua
-
+Any clues?

@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275262AbTHSAhv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 20:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275266AbTHSAhu
+	id S275266AbTHSAkF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 20:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275264AbTHSAkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 20:37:50 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:32269 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S275262AbTHSAhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 20:37:47 -0400
-Date: Tue, 19 Aug 2003 10:37:19 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Valdis.Kletnieks@vt.edu
-cc: Phil Oester <kernel@theoesters.com>, <linux-kernel@vger.kernel.org>,
-       <linux-net@vger.kernel.org>
-Subject: Re: [PATCH] Ratelimit SO_BSDCOMPAT warnings 
-In-Reply-To: <200308182215.h7IMFecc013449@turing-police.cc.vt.edu>
-Message-ID: <Mutt.LNX.4.44.0308191036110.8095-100000@excalibur.intercode.com.au>
+	Mon, 18 Aug 2003 20:40:04 -0400
+Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:49650 "EHLO
+	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S275266AbTHSAje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 20:39:34 -0400
+Date: Mon, 18 Aug 2003 20:37:18 -0400 (EDT)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+To: Con Kolivas <kernel@kolivas.org>
+cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Re: Blender profiling-1 O16.2int
+In-Reply-To: <200308191028.11109.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.56.0308182032320.23352@onpx40.onqynaqf.bet>
+References: <20030817003128.04855aed.voluspa@comhem.se>
+ <200308172336.42593.kernel@kolivas.org> <3F416BD4.3040302@sbcglobal.net>
+ <200308191028.11109.kernel@kolivas.org>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003 Valdis.Kletnieks@vt.edu wrote:
+On Tue, 19 Aug 2003, Con Kolivas wrote:
 
-> If so, why are we bothering at all?  Once *per process* I could see, but
-> once per boot?
+> > Is there a way to figure out when a process is spinning on a wait and
+>
+> That's the trick isn't it? No there isn't or else I'd fix it in a jiffy. If
+> someone can think of a way I'd love to know.
 
-Once per process is too complicated, and an aggregate of people reporting 
-the message should lead to all of the major apps being fixed.
+Have you considered instrumenting waits/locks ? I had to do that for a
+schedular/locks/events (not Linux based), by extending the structures
+to include current ownership and waiters...  At a problem point, you'd
+then have to use something like sysreq to trigger a scan of the relevant
+data areas.  I had to cause an error and do a postmortem via paper dump
+:(
 
-
-- James
 -- 
-James Morris
-<jmorris@intercode.com.au>
-
+Rick Nelson
+> : Any porters out there should feel happier knowing that DEC is shipping
+> : me an AlphaPC that I intend to try getting linux running on: this will
+> : definitely help flush out some of the most flagrant unportable stuff.
+> : The Alpha is much more different from the i386 than the 68k stuff is, so
+> : it's likely to get most of the stuff fixed.
+>
+> It's posts like this that almost convince us non-believers that there
+> really is a god.
+	-- Anthony Lovell, to Linus's remarks about porting

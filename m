@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262393AbREUFDo>; Mon, 21 May 2001 01:03:44 -0400
+	id <S262392AbREUFJq>; Mon, 21 May 2001 01:09:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262392AbREUFDe>; Mon, 21 May 2001 01:03:34 -0400
-Received: from www.wen-online.de ([212.223.88.39]:31755 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S262390AbREUFDO>;
-	Mon, 21 May 2001 01:03:14 -0400
-Date: Mon, 21 May 2001 07:01:44 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: =?ISO-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-cc: "Robert M. Love" <rml@tech9.net>, Jes Sorensen <jes@sunsite.dk>,
-        John Cowan <jcowan@reutershealth.com>, <esr@thyrsus.com>,
-        <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-In-Reply-To: <20010521043553.C20911@unthought.net>
-Message-ID: <Pine.LNX.4.33.0105210637310.584-100000@mikeg.weiden.de>
+	id <S262394AbREUFJg>; Mon, 21 May 2001 01:09:36 -0400
+Received: from marilyn.protocoloweb.com.br ([200.185.63.18]:7945 "EHLO
+	smtp.ieg.com.br") by vger.kernel.org with ESMTP id <S262392AbREUFJY>;
+	Mon, 21 May 2001 01:09:24 -0400
+Message-ID: <3B08A339.CF0D86CC@linuxall.org>
+Date: Mon, 21 May 2001 02:10:18 -0300
+From: Slump <slump@linuxall.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.4 bug...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 May 2001, Jakob Østergaard wrote:
+I found a bug in the patches for kernel 2.4.4.
+When i use 2.4.4 clean, with no patches....
 
-> On Sun, May 20, 2001 at 10:10:49PM -0400, Robert M. Love wrote:
-> >
-> > im not installing python2 from source just so i can run some new config
-> > utility.
->
-> python2 will be in rawhide when 2.5 development requires it, if I'm not much
-> mistaken.
+hde: IBM-DTLA-307020, ATA DISK drive
+hde: 40188960 sectors (20577 MB) w/1916KiB Cache, CHS=39870/16/63,
+UDMA(100)
 
-Alan said someone is rewriting in C, so the python2 requirement is
-already becoming a non-problem.
+then, using kernel 2.4.4 with ac11 patch...
 
-	-Mike
+hde: IBM-DTLA-307020, ATA DISK drive
+hde: 40188960 sectors (20577 MB) w/1916KiB Cache, CHS=39870/16/63,
+UDMA(44)
 
-(don't like requirement, but don't think it's a big hairy deal either)
+why the hard-disk is found at udma 3??
+
+----------------------------------------------------------------------
+
+-=[/home/slump]=- hdparm -t /dev/hde
+
+/dev/hde:
+ Timing buffered disk reads:  64 MB in  2.29 seconds = 27.95 MB/sec
+----------------------------------------------------------------------
+
+-=[/home/slump]=- hdparm -X69 /dev/hde
+
+/dev/hde:
+ setting xfermode to 69 (UltraDMA mode5)
+
+
+-=[/home/slump]=- hdparm -t /dev/hde
+
+/dev/hde:
+ Timing buffered disk reads:  64 MB in  1.84 seconds = 34.78 MB/sec
+------------------------------------------------------------------------
+
+My machine is an athlon 950, with abit-kt7raid motherboard. My hard-disk
+is an IBM DTLA 307020 20gb UDMA 5.
+
+thank's to all ;)
+
+Guilherme M. Schroeder
+slump@linuxall.org
 

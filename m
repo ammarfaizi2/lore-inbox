@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129181AbRBUTKk>; Wed, 21 Feb 2001 14:10:40 -0500
+	id <S129213AbRBUTZW>; Wed, 21 Feb 2001 14:25:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129249AbRBUTKb>; Wed, 21 Feb 2001 14:10:31 -0500
-Received: from eschelon.gamesquad.net ([216.115.239.45]:37384 "HELO
+	id <S129232AbRBUTZM>; Wed, 21 Feb 2001 14:25:12 -0500
+Received: from eschelon.gamesquad.net ([216.115.239.45]:48392 "HELO
 	eschelon.gamesquad.net") by vger.kernel.org with SMTP
-	id <S129181AbRBUTKT>; Wed, 21 Feb 2001 14:10:19 -0500
+	id <S129213AbRBUTY6>; Wed, 21 Feb 2001 14:24:58 -0500
 From: "Vibol Hou" <vibol@khmer.cc>
 To: "David S. Miller" <davem@redhat.com>, <ookhoi@dds.nl>
 Cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>, <sim@stormix.com>
 Subject: RE: 2.4 tcp very slow under certain circumstances (Re: netdev issues (3c905B))
-Date: Wed, 21 Feb 2001 11:06:49 -0800
-Message-ID: <HDEBKHLDKIDOBMHPKDDKOEKMEFAA.vibol@khmer.cc>
+Date: Wed, 21 Feb 2001 11:22:42 -0800
+Message-ID: <HDEBKHLDKIDOBMHPKDDKGEKOEFAA.vibol@khmer.cc>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -25,7 +25,8 @@ In-Reply-To: <14995.40701.818777.181432@pizda.ninka.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Win2K here, I'll apply the patch and let you know what happens.
+It looks like the patch fixed the problem.  TCP communications over modem
+seems fine now with the same settings that didnt' work earlier.
 
 -Vibol
 

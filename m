@@ -1,55 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267121AbTAPOuN>; Thu, 16 Jan 2003 09:50:13 -0500
+	id <S267133AbTAPPB4>; Thu, 16 Jan 2003 10:01:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267122AbTAPOuN>; Thu, 16 Jan 2003 09:50:13 -0500
-Received: from unthought.net ([212.97.129.24]:7065 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S267121AbTAPOuM>;
-	Thu, 16 Jan 2003 09:50:12 -0500
-Date: Thu, 16 Jan 2003 15:59:08 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: argv0 revisited...
-Message-ID: <20030116145908.GF8621@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Miquel van Smoorenburg <miquels@cistron.nl>,
-	linux-kernel@vger.kernel.org
-References: <A46BBDB345A7D5118EC90002A5072C7806CACA88@orsmsx116.jf.intel.com> <20030115191942.GD47@DervishD> <b04dqu$4f5$1@ncc1701.cistron.net>
+	id <S267134AbTAPPBz>; Thu, 16 Jan 2003 10:01:55 -0500
+Received: from catv02.rosenet.ne.jp ([210.230.70.3]:64143 "EHLO
+	catv02.rosenet.ne.jp") by vger.kernel.org with ESMTP
+	id <S267133AbTAPPBy>; Thu, 16 Jan 2003 10:01:54 -0500
+Date: Fri, 17 Jan 2003 00:10:48 +0900
+To: linux-kernel@vger.kernel.org, hostap@shmoo.com
+Subject: Prism wireless lan card is causing time-travel
+Message-ID: <20030116151048.GA978@begemot.ajrh.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <b04dqu$4f5$1@ncc1701.cistron.net>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4i
+From: Anthony Heading <anthony@magix.com.sg>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 15, 2003 at 07:46:38PM +0000, Miquel van Smoorenburg wrote:
-> In article <20030115191942.GD47@DervishD>,
-> DervishD  <raul@pleyades.net> wrote:
-> >> > of init. Remember, is not any program, is an init. Should be a more
-> >> > clean way, I suppose :??
-> >> I don't think is that big a deal ... if you startup the system normally,
-> >> sooner or later, /proc is going to be mounted. A [quickie] variation is:
-> >
-> >    Yes, I know, and that's one option, but I would like to avoid the
-> >mounting. Not a big deal, anyway, as you say. The only thing is that
-> >it won't work in kernels without proc enabled (yes, there are people
-> >without 'proc', size issues, I suppose, etc...).
-> 
-> I assume that init is passed on the kernel command line like
-> init=/what/ever, right ?
-> 
-> Why not make that INIT=/what/ever, then make this /sbin/init:
+Hello,
 
-Why not make a kernel patch that sets the INIT environment variable for
-the init process ?
+I have a wireless lan card based on the Prism 2 chipset, branded by Corega,
+who are quite a big brand here in Japan. (details below)
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Whenever I install the hostap driver (http://hostap.epitest.fi/),
+using "modprobe hostap_plx", the module loads fine, but the whole
+machine's sense of time gets very confused.
+
+The problem continues even when I remove the module.
+
+Asking on the hostap list a month or two ago brought no joy,
+and I can't find anyone else reporting a similar problem, so
+I'm wondering if it's just broken hardware.
+
+The effect can be seen with a shell loop to call /bin/date.
+
+Jan-16 23:07:00.947547000
+Jan-16 23:07:00.952915000
+Jan-16 23:07:00.958982000
+Jan-16 23:07:00.964766000
+Jan-16 23:07:00.970666000
+Jan-16 23:07:00.976285000
+Jan-17 00:18:35.949607000
+Jan-17 00:18:35.955582000
+Jan-17 00:18:35.961650000
+Jan-16 23:07:01.000077000
+Jan-16 23:07:01.005745000
+Jan-16 23:07:01.011856000
+Jan-16 23:07:01.017729000
+Jan-16 23:07:01.023490000
+Jan-16 23:07:01.029346000
+Jan-16 23:07:01.035519000
+Jan-16 23:07:01.041152000
+
+For a few milliseconds around each second, the time jumps
+forward more than an hour, and then resets itself.
+
+Updating the firmware on the card doesn't improve things,
+nor does installing the card in a different PC.
+
+Can anyone suggest what the problem might be, or how I
+could debug it further?
+
+Thanks!
+
+Anthony
+
+Linux begemot.ajrh.net 2.4.20 #20 SMP Thu Jan 16 23:04:42 JST 2003 i686 Intel(R) Xeon(TM) CPU 2.66GHz GenuineIntel GNU/Linux
+
+05:0d.0 Network controller: National Datacomm Corp Wireless PCI Card (rev 02)
+	Subsystem: Allied Telesyn International: Unknown device a113
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 21
+	Region 0: Memory at ff2ff400 (32-bit, non-prefetchable) [size=128]
+	Region 2: Memory at ff2ff000 (32-bit, non-prefetchable) [size=1K]
+	Region 3: I/O ports at ccc0 [size=64]
+

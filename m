@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272235AbTHRSpC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 14:45:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272236AbTHRSpC
+	id S272230AbTHRSoG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 14:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272235AbTHRSoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 14:45:02 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:10459 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S272235AbTHRSo7 (ORCPT
+	Mon, 18 Aug 2003 14:44:06 -0400
+Received: from [63.247.75.124] ([63.247.75.124]:55190 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S272230AbTHRSoD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 14:44:59 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] RFC: kills consistent_dma_mask
-References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
-	<20030817233705.0bea9736.davem@redhat.com>
-	<m3r83jyw2k.fsf@defiant.pm.waw.pl>
-	<20030818054341.2ef07799.davem@redhat.com>
-	<m365kvufjx.fsf@defiant.pm.waw.pl>
-	<20030818094955.3aa5c1c2.davem@redhat.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 18 Aug 2003 20:21:48 +0200
-In-Reply-To: <20030818094955.3aa5c1c2.davem@redhat.com>
-Message-ID: <m3d6f2kern.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Mon, 18 Aug 2003 14:44:03 -0400
+Date: Mon, 18 Aug 2003 14:44:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up riscom8 driver to use work queues instead of task queueing.
+Message-ID: <20030818184403.GL24693@gtf.org>
+References: <20030818180941.GJ24693@gtf.org> <Pine.LNX.4.44.0308181117540.5929-100000@home.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308181117540.5929-100000@home.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
-
-> > No. The documentation states that consistent_dma_mask (and not dma_mask)
-> > will be used when doing pci_alloc_consistent().
+On Mon, Aug 18, 2003 at 11:21:07AM -0700, Linus Torvalds wrote:
 > 
-> Then the platforms need to implement the code.
+> On Mon, 18 Aug 2003, Jeff Garzik wrote:
+> > 
+> > Should we just make schedule_delayed_work(foo, 1) the default for a 
+> > schedule_work() call?
+> 
+> Why? There are cases where you may really want to get the work done asap,
+> so the regular "schedule_work()" is the right thing. While the "delayed"  
 
-There is no problem with that, i.e. the changes are trivial (except
-for pci_map_*, but that's another story).
+schedule_work() is _not_ for that.  As currently implemented, you have
+no guarantees that your schedule_work()-initiated work will even
+begin in this century.
 
-I don't know if it wouldn't break something, though. x86-64 and ia64
-are much less tested than i386 and the change would alter i386
-behaviour to that of x86-64/ia64.
+Drivers are using schedule_work() to create process contexts where
+they can sleep, potentially for many seconds.  On a single cpu
+system, or a loaded SMP system, schedule_work() from one of the
+drivers you converted could easily be delayed for 30 seconds or more.
+schedule_work() is not a fast path.
 
-Again: which driver uses the consistent_dma_mask and where I can find it?
--- 
-Krzysztof Halasa
-Network Administrator
+If work needs to happen ASAP, then you really want to replace those
+schedule_work() calls with schedule_tasklet() calls that do the
+"must be done asap" work, and then schedule_work() the stuff that
+requires process context...  So, too, I would have thought that
+bottom-half completion routines mapped more directly to
+schedule_tasklet() anyway.
+
+	Jeff
+
+
+

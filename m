@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263871AbTLARk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 12:40:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263873AbTLARk0
+	id S263806AbTLARvd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 12:51:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTLARvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 12:40:26 -0500
-Received: from imag.imag.fr ([129.88.30.1]:64751 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S263871AbTLARkY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 12:40:24 -0500
-Date: Mon, 1 Dec 2003 18:43:16 +0100
-Mime-Version: 1.0 (Apple Message framework v551)
-Content-Type: text/plain; delsp=yes; charset=ISO-8859-1; format=flowed
-Subject: a few question on threads affinity and CPU shielding.
-From: =?ISO-8859-1?Q?Nicolas_Castagn=E9?= <nicolas.castagne@imag.fr>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-Message-Id: <D7F95611-2425-11D8-9C79-000393C76CA6@imag.fr>
-X-Mailer: Apple Mail (2.551)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Mon, 1 Dec 2003 12:51:33 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54546 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263806AbTLARvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 12:51:32 -0500
+Date: Mon, 1 Dec 2003 17:51:28 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: 2.4.23 *_task_struct() observations ...
+Message-ID: <20031201175128.B13621@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+References: <20031201172620.GA312@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031201172620.GA312@MAIL.13thfloor.at>; from herbert@13thfloor.at on Mon, Dec 01, 2003 at 06:26:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, Dec 01, 2003 at 06:26:20PM +0100, Herbert Poetzl wrote:
+> just wanted to get an opinion on the following ...
+> 
+> include/asm-i386/processor.h  defines ...
+> 
+>   #define alloc_task_struct() ((struct task_struct *) \
+> 				__get_free_pages(GFP_KERNEL,1))
+>   #define free_task_struct(p)  free_pages((unsigned long) (p), 1)
+>   #define get_task_struct(tsk) atomic_inc(&virt_to_page(tsk)->count)
+> 
+> now there seems to be no put_task_struct(), but
+> there are some examples where get/free is used 
+> where I would expect a put_* ...
 
-I  was very pleased that some patches for controlling CPU affinities  
-were merged in the 2.5 (and 2.6) releases of the kernel.
+put_* is free_*.  The reference count for the task struct is the page
+count (virt_to_page(tsk)->count).
 
-Where may I find precisions on the patches that are now included ?
-
-Especially, with the 2.6 release :
-- is it possible to control the cpu affinity of threads (as for  
-processes) ?
-- is there also a patch to shield cpu against the scheduler ?
-- is there also a patch to shield cpu against all interruptions  
-(especially hard clock interrups) ?
-
-We here are (very) used to SGI IRIX real time facilities, but also very  
-new to linux.
-We plan on porting our hard-real-time applications for multisensorial  
-simulation on linux. These questions are very important to us.
-
-Thx a lot in advance,
-and please believe I am VERY sorry if this is not the correct list for  
-my questions, and if I disturbed serious work ;-).
-If so, please let me know !
-
-Nicolas
------------------------------------------------------------------------- 
---------------------------
-Dr Nicolas CASTAGNE
-Researcher, IR de l'ACROE / ICA,
-
-Association pour la Création et la Recherche
-	sur les Outils d'Expression
-Laboratoire Informatique et Création Artistique
-INPG,
-46 av. F. Viallet, 38000 Grenoble, France.
-
-pro : (33) 4 76 57 46 60
-fax : (33) 4 76 57 48 89
------------------------------------------------------------------------- 
---------------------------
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

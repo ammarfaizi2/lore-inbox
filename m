@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130872AbQLGQEM>; Thu, 7 Dec 2000 11:04:12 -0500
+	id <S129267AbQLGQL6>; Thu, 7 Dec 2000 11:11:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130876AbQLGQEC>; Thu, 7 Dec 2000 11:04:02 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:1552 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130872AbQLGQD7>; Thu, 7 Dec 2000 11:03:59 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Microsecond accuracy
-Date: 7 Dec 2000 07:33:23 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <90oak3$326$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0012071233420.970-100000@penguin.homenet> <Pine.LNX.4.21.0012071411170.970-100000@penguin.homenet>
+	id <S129535AbQLGQLt>; Thu, 7 Dec 2000 11:11:49 -0500
+Received: from 212-140-94-250.btopenworld.com ([212.140.94.250]:28166 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129267AbQLGQLf>;
+	Thu, 7 Dec 2000 11:11:35 -0500
+Date: Thu, 7 Dec 2000 15:43:02 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Broken NR_RESERVED_FILES
+In-Reply-To: <Pine.LNX.4.30.0012071642300.5455-100000@fs129-190.f-secure.com>
+Message-ID: <Pine.LNX.4.21.0012071537480.970-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.21.0012071411170.970-100000@penguin.homenet>
-By author:    Tigran Aivazian <tigran@veritas.com>
-In newsgroup: linux.dev.kernel
-> 
-> while we are on this subject, please let me emphasize that you should
-> _not_ be using cpuid instruction to detect the presence of TSC but should
-> parse the /proc/cpuinfo file. There are many valid reasons why Linux's
-> idea of TSC presence may not be the same as hardware's (cpuid
-> instruction) idea.
-> 
+On Thu, 7 Dec 2000, Szabolcs Szakacsits wrote:
+> again. The failed logic is also clear from the kernel code [user
+> happily allocates when freelist < NR_RESERVED_FILES].
 
-Unfortunately the most important instance of the in-kernel flag -- the
-global one in the somewhat misnamed boot_cpu_data.x86_features --
-isn't actually readable in the /proc/cpuinfo file.  It is perfectly
-possible (e.g. the "notsc" option) for ALL the CPUs to report this
-capability, but the global capability to still be off.
+is it clear to you? it is not clear to me, or rather the opposite seems
+clear. This is what the code looks like (in 2.4):
 
-I would like to have exported the global capabilities into
-/proc/cpuinfo, but I'm worried about breaking software (the "flags"
-versus "features" issue was bad enough -- unfortunately, in cases like
-this, there probably is no "good" solution.)
+struct file * get_empty_filp(void)
+{
+        static int old_max = 0;
+        struct file * f;
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+        file_list_lock();
+        if (files_stat.nr_free_files > NR_RESERVED_FILES) {
+        used_one:
+                f = list_entry(free_list.next, struct file, f_list);
+                list_del(&f->f_list);
+                files_stat.nr_free_files--;
+
+so, a normal user is only allowed to allocate from the freelist when the
+number of elements on the freelist is > NR_RESERVED_FILES. I do not see
+how you are able to take elements from the freelist when the number is <
+NR_RESERVED_FILES unless you are a super-user, i.e. current->euid == 0.
+
+Btw, while you are there (in 2.2 kernel) you may want to fix the
+/proc/sys/fs/file-nr -- it is broken because it assumes that nr_files,
+nr_free_files, max_files are allocated by the compiler at consecutive
+addresses. I have fixed this for 2.4 ages ago but couldn't be bothered
+with 2.2.x...
+
+Regards,
+Tigran
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,25 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbULAIyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbULAJD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbULAIyV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 03:54:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbULAIyV
+	id S261336AbULAJD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 04:03:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbULAJD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 03:54:21 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:7641 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261335AbULAIyS (ORCPT
+	Wed, 1 Dec 2004 04:03:27 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:17371 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261336AbULAJDX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 03:54:18 -0500
-Date: Wed, 1 Dec 2004 09:53:37 +0100
+	Wed, 1 Dec 2004 04:03:23 -0500
+Date: Wed, 1 Dec 2004 10:02:20 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Eran Mann <emann@mrv.com>
-Cc: linux-kernel@vger.kernel.org
+To: Mark_H_Johnson@Raytheon.com
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Rui Nuno Capela <rncbc@rncbc.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
+       Esben Nielsen <simlo@phys.au.dk>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
 Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
-Message-ID: <20041201085337.GB15928@elte.hu>
-References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <20041129111634.GB10123@elte.hu> <41ACB846.40400@free.fr> <20041130081548.GA8707@elte.hu> <41AD8122.4070108@mrv.com>
+Message-ID: <20041201090220.GE15928@elte.hu>
+References: <OFF4F89D90.B89E0767-ON86256F5C.004C735C@raytheon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41AD8122.4070108@mrv.com>
+In-Reply-To: <OFF4F89D90.B89E0767-ON86256F5C.004C735C@raytheon.com>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -32,20 +42,15 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Eran Mann <emann@mrv.com> wrote:
+* Mark_H_Johnson@Raytheon.com <Mark_H_Johnson@Raytheon.com> wrote:
 
-> Seems to be fixed by the patch below:
-> 
-> --- kernel/latency.c.orig       2004-12-01 10:21:45.000000000 +0200
-> +++ kernel/latency.c    2004-12-01 10:11:37.000000000 +0200
-> @@ -762,7 +762,9 @@
->         tr->critical_sequence = max_sequence;
->         tr->preempt_timestamp = cycles();
->         tr->early_warning = 0;
-> +#ifdef CONFIG_LATENCY_TRACE
->         __trace(CALLER_ADDR0, parent_eip);
-> +#endif
+> I have results from two builds of -V0.7.31-9. The first build is
+> CONFIG_RT (RT) and the second is CONFIG_DESKTOP (PK or as described in
+> .config help - Preempt Kernel).
 
-thanks, applied it and uploaded -V0.7.31-16.
+interesting numbers. The slowdown in networking could easily be due to
+IRQ and softirq threading, so it would make sense to also add a "PNT"
+test (preempt, non-threaded), just to have something functionally
+comparable to 2.4 lowlat+preempt.
 
 	Ingo

@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135178AbRDZIGU>; Thu, 26 Apr 2001 04:06:20 -0400
+	id <S135181AbRDZIHa>; Thu, 26 Apr 2001 04:07:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135181AbRDZIGK>; Thu, 26 Apr 2001 04:06:10 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:34822 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S135178AbRDZIGD>; Thu, 26 Apr 2001 04:06:03 -0400
-Date: Thu, 26 Apr 2001 10:05:32 +0200
-From: Jens Taprogge <taprogge@idg.rwth-aachen.de>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Recent ACPI patch
-Message-ID: <20010426100531.A2229@maggie.romantica.wg>
-Mail-Followup-To: Jens Taprogge <taprogge@idg.rwth-aachen.de>,
-	"Grover, Andrew" <andrew.grover@intel.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDDCA@orsmsx35.jf.intel.com>
+	id <S135185AbRDZIHM>; Thu, 26 Apr 2001 04:07:12 -0400
+Received: from zmailer.org ([194.252.70.162]:50190 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S135181AbRDZIGu>;
+	Thu, 26 Apr 2001 04:06:50 -0400
+Date: Thu, 26 Apr 2001 11:06:36 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: ADMIN: Reminder to VERIFY your email routing functionality!
+Message-ID: <20010426110636.M805@mea-ext.zmailer.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDDCA@orsmsx35.jf.intel.com>; from andrew.grover@intel.com on Wed, Apr 25, 2001 at 10:27:42AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 25, 2001 at 10:27:42AM -0700, Andrew Grover wrote:
-> > From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
-> > Stephen Torri wrote:
-> > > 
-> > > I noticed that the big update patch for ACPI was a part of 
-> > 2.4.3-ac11 (Can
-> > > remember). Now its not a part of 2.4.3-ac12. Has it been 
-> > removed? I have
-> > > turned on experimental settings when running make xconfig.
-> > 
-> > Alan noted the update did not build, so it was removed.
-> 
-> Doh!
-> 
-> OK, I'm on it. ;-) BTW did ACPI in ac11 build for you?
-I build fine here. IIRC one hunk of the patch was rejected.
+I am getting *somewhat* annoyed with subscribers whose domains
+have backup servers not willing to receive email for them.
 
-It was the first ACPI kernel for my Asus A7V that did power off the
-machine.
+On average each day we get dozens to hundreds of bounces of this
+routing-trouble type pointing to 2-3 domains each time.
 
-Jens
+Do use the MX verifier server at page:
+   http://vger.kernel.org/mxverify.html
+by entering your down address into the entry box (for VGER), and
+then click on associated SUBMIT button.
 
--- 
-Jens Taprogge
+Get into habit of using that tool weekly, things often *do* change
+in cases where you rely on other people giving you some service.
+
+
+That tool does email domain routing by the generic Internet Rules
+(See RFC 2821 for concise presentation), and then tests SMTP level
+protocol transactions for actual delivery.  YOU, the subscriber,
+do not need to understand the algorthms behind it, it does tell if
+all goes ok, or if something fails.  In case of failures, do contact
+your ISP email wranglers; usually  <postmaster@isp-domain>, possibly
+also <helpdesk@isp-domain>.  (And if they reject MAIL FROM:<>, do
+ask them why the violate RFC 821/2821 ?)
+
+
+I am also contemplating a change into policy -- we (me and DaveM)
+have been somewhat lenient if people cause less than whole day of
+bounces by "we do not relay to that domain" (or some other text of
+same meaning) messages.   NEW POLICY  might soon be:  EVEN ONE SUCH
+BOUNCE, AND YOUR SUBSCRIPTION IS HISTORY.  (Until you resubscribe,
+that is.  We don't blacklist, just remove.)
+
+Analyzing reasons and tracking bounces is bloody timeconsuming.
+
+
+Statistics being a continuum of event kinds, during past 7 days there
+has been one day when we got unusually low number of MX bounces, and
+it wasn't any way quiet day at linux-kernel list...
+
+There are presently 3165 subscribers with 2608 different domains, thus
+I can guess that many feel that this does not concern them - especially
+if you subscribe/use some large email service provider to give you
+the service.   Don't consider that to be any sort of safety - we have
+seen people like HOME.COM  to blow it in the past...
+
+If you have your own domain served at some ISP bulk server, they PROBABLY
+have blown it.
+
+/Matti Aarnio -- co-postmaster at vger.kernel.org
+              -- watching the world by received error reports, never seeing
+                 success reports...

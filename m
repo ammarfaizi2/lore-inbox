@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269941AbRHELLy>; Sun, 5 Aug 2001 07:11:54 -0400
+	id <S269944AbRHELSP>; Sun, 5 Aug 2001 07:18:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269943AbRHELLo>; Sun, 5 Aug 2001 07:11:44 -0400
-Received: from pD9504018.dip.t-dialin.net ([217.80.64.24]:52718 "HELO
-	ozean.schottelius.org") by vger.kernel.org with SMTP
-	id <S269941AbRHELLb>; Sun, 5 Aug 2001 07:11:31 -0400
-Message-ID: <3B6D29B4.C40082F2@pcsystems.de>
-Date: Sun, 05 Aug 2001 13:10:45 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S269943AbRHELSF>; Sun, 5 Aug 2001 07:18:05 -0400
+Received: from ns.skjellin.no ([193.69.71.66]:35048 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id <S269944AbRHELR7>;
+	Sun, 5 Aug 2001 07:17:59 -0400
+Message-ID: <001601c11da0$4b2826e0$8405000a@slurv>
+From: "Andre Tomt" <andre@tomt.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Johannes Erdfelt" <johannes@erdfelt.com>
+In-Reply-To: <002b01c11d62$73e65540$8405000a@slurv> <20010805173024.C20716@weta.f00f.org> <20010805013835.T3126@sventech.com>
+Subject: Re: SMP Support for AMD Athlon MP motherboards
+Date: Sun, 5 Aug 2001 13:18:03 +0200
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 3c509: broken(verified)
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2526.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2526.0000
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The driver for the 3c509 of 2.4.7 is broken:
+> To get SMP working you need to apply the patches I created. They just
+> got to Alan and I don't think they're in 2.2.20pre yet, but it sounds
+> like they'll be in there soon.
 
-It is impossible to set the transmitter type.
+I noticed a few patches lying around, after I got home 05:00 AM :-)
 
-Loading
+> Anyway, it sounds like a hardware problem.
 
-modprobe 3c509 xcvr=X, where X is
-0,1,2,3,4 doesn't make a difference.
-
-Donald Becker verified that's a driver problem.
-
-Can someone fix that ? Or is there a fix outthere ?
-
-Sincerly,
-
-Nico
-
-
-
-Donald Becker wrote:
-
-> On Sun, 5 Aug 2001, Nico Schottelius wrote:
->
-> > > > I tried to change the media type of the card,
-> > > > but the card didn't accept/recognized what I told
-> > > > it!
-> > > >
-> > > > modprobe 3c509 xcvr=4
-> > >
-> > > What driver version?  From where?
-> >
-> > was 1.18 from kernel 2.4.7.
-> > ftp.de.kernel.org
->
-> Yes, it's broken.
->
-> Report the problem on the kernel mailing list.
->
-> Donald Becker                           becker@scyld.com
-> Scyld Computing Corporation             http://www.scyld.com
-> 410 Severn Ave. Suite 210               Second Generation Beowulf Clusters
-> Annapolis MD 21403                      410-990-9993
+Mhm, the board behaves beatiful under Windows 2000. Could still be a
+hardware problem, tho.
+I'll hook up a serial console later today and see what I can get out of it.
 

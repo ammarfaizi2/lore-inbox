@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262030AbRETPUm>; Sun, 20 May 2001 11:20:42 -0400
+	id <S262033AbRETPSw>; Sun, 20 May 2001 11:18:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262034AbRETPUc>; Sun, 20 May 2001 11:20:32 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:32782 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S262030AbRETPUS>;
-	Sun, 20 May 2001 11:20:18 -0400
-Date: Sun, 20 May 2001 11:18:56 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: CML2 design philosophy heads-up
-Message-ID: <20010520111856.C3431@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010518114922.C14309@thyrsus.com> <20010518034307.A10784@thyrsus.com> <E150fV9-0006q1-00@the-village.bc.nu> <20010518105353.A13684@thyrsus.com> <3B053B9B.23286E6C@redhat.com> <20010518112625.A14309@thyrsus.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <8485.990357599@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <8485.990357599@redhat.com>; from dwmw2@infradead.org on Sun, May 20, 2001 at 12:19:59PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S262030AbRETPSl>; Sun, 20 May 2001 11:18:41 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:18572 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262033AbRETPSY>;
+	Sun, 20 May 2001 11:18:24 -0400
+Date: Sun, 20 May 2001 11:18:22 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Abramo Bagnara <abramo@alsa-project.org>
+cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending DeviceNum
+In-Reply-To: <3B07DC23.F905DE7B@alsa-project.org>
+Message-ID: <Pine.GSO.4.21.0105201107110.8940-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org>:
->                              The dependencies in CML1 are (supposed to
-> be) absolute - the 'advisory' dependencies you're adding are arguably a
-> useful feature, but please don't make it possible to confuse the two, and
-> please do make sure it's possible to disable the latter form.
 
-I don't understand this request.  I have no concept of `advisory' dependencies.
-What are you talking about?   Is my documentation horribly unclear?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-"Both oligarch and tyrant mistrust the people, 
-and therefore deprive them of arms."
-	--Aristotle
+On Sun, 20 May 2001, Abramo Bagnara wrote:
+
+> > Face it, we _already_ have more than one side band.
+> 
+> This does not imply it's necessarily a good idea.
+> We are comparing
+> 
+> echo "9600" > /proc/self/fd/0/speed (or /dev/ttyS0/speed)
+> echo "8" > /proc/self/fd/0/bits (or /dev/ttyS0/bits)
+> 
+> with 
+> 
+> echo -e "speed 9600\nbits 8" > /proc/self/fd/0/ioctl (or
+> /dev/ttyS0/ioctl).
+
+How about reading from them? You are forcing restriction that may make
+sense in some cases, but doesn't look good for everything.
+
+> > Moreover, we have channels that are not tied to a particular device -
+> > they are for a group of them. Example: setting timings for IDE controller.
+> > Sure, we can just say "open /dev/hda instead of /dev/hda5", but then we
+> > are back to the "find related file" problem you tried to avoid.
+> 
+> It does not seems appropriate to permit to change IDE timings using an
+> handle to a partition... nor it seems very safe under a permissions
+> point of view.
+
+However, we _do_ allow that. Right now. And yes, I agree that we should
+go to separate file for that. And we are right back to finding a related
+file.
+
+It's not a function of descriptor. Sorry. Just as with /dev/tty1 -> /dev/vcs1
+and its ilk.
+

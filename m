@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264368AbTKMQkd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 11:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTKMQkd
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 11:40:33 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:63378
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S264368AbTKMQkb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S264366AbTKMQkb (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 13 Nov 2003 11:40:31 -0500
-Date: Thu, 13 Nov 2003 17:39:59 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Larry McVoy <lm@work.bitmover.com>, Andreas Schwab <schwab@suse.de>,
-       Benoit Poulot-Cazajous <Benoit.Poulot-Cazajous@jaluna.com>,
-       Nick Piggin <piggin@cyberone.com.au>,
-       Davide Libenzi <davidel@xmailserver.org>, walt <wa1ter@myrealbox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel.bkbits.net off the air
-Message-ID: <20031113163958.GM1649@x30.random>
-References: <Pine.LNX.4.44.0311102316330.980-100000@bigblue.dev.mdolabs.com> <3FB091C0.9050009@cyberone.com.au> <20031111150417.GF1649@x30.random> <03Nov13.095622cet.122129@mojo.it.advantest.de> <20031113145301.GJ1649@x30.random> <jen0b047ir.fsf@sykes.suse.de> <20031113162945.GB2462@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031113162945.GB2462@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTKMQkb
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 13 Nov 2003 11:40:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47523 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264366AbTKMQk1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 11:40:27 -0500
+Date: Thu, 13 Nov 2003 08:40:16 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jochen Voss <voss@seehuhn.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: invalid SMP mptable on Toshiba Satellite 2430-301
+In-Reply-To: <20031113112740.GA4719@seehuhn.de>
+Message-ID: <Pine.LNX.4.44.0311130836150.8093-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 13, 2003 at 08:29:45AM -0800, Larry McVoy wrote:
-> If we had this approach we wouldn't have caught the torjan horse in the
-> CVS tree.  We checksum all the data, changed or not.  Your approach
-> pushes that duty onto the end users, and let's have a show of hands,
 
-the suggestion of the md5sum wasn't related to keeping the data
-secure/robust, we don't want to move the "robustness" duty onto the end
-users of course, we only want to know when we can break the rsync loop.
-The fact we'll do a further check possibly with a signature on the
-md5sums, is a bonus, but it's not meant to replace in any way the
-robusteness effort on the server side and we don't do it for robustness,
-we do it only for providing a means of coherency to the changesets in
-the tree.
+On Thu, 13 Nov 2003, Jochen Voss wrote:
+> 
+>     smp_read_mpc(arch/i386/kernel/mpparse.c):
+>       The argument mpc points to a 'struct mp_config_table',
+>         which is filled with zero bytes (compare memory dump
+>         below).
+>       The 'if (memcmp(mpc->mpc_signature,MPC_SIGNATURE,4))' test
+>         fails because of this and calls 'panic'.
+>       The kernel never returns from the call to 'panic'.
+> 
+> Herbert Xu produced a patch, which converts the crash into an error
+> message, so the symptoms are cured for me.
+
+Ok. That panic is obviously crud from a lazy initial developer, and yes, 
+it's always silly (and very very wrong) to crash if you can just continue.
+
+Can you send the (tested) patch over?
+
+> Now for my questions: As far as I can see it, the invalid
+> SMP mptable is a BIOS bug on my machine.  Do you think so,
+> too?  Or are there other possibilities?
+
+I think it's a Linux bug too, although I'll agree that it was triggered by 
+some really bad BIOS behaviour. I bet the laptop vendor doesn't care: they 
+probably depend on ACPI to set the thing up on Windows, and Windows is 
+likely to just ignore the MP table (properly) when it doesn't need it (or 
+when it is corrupt).
+
+> Do you think it would be helpful to contact Toshiba (my
+> laptop's vendor) about this?
+
+I really think that the Linux behaviour i smore of a bug than the BIOS 
+behaviour. There's no excuse for panicing just because some signature 
+for a data block that we don't even strictly need isn't there.
+
+			Linus
+

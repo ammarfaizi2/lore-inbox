@@ -1,177 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264401AbTK0AiV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 19:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264409AbTK0AiV
+	id S261827AbTK0Aut (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 19:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbTK0Aut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 19:38:21 -0500
-Received: from mail19b.dulles19-verio.com ([198.170.241.3]:47890 "HELO
-	mail19b.dulles19-verio.com") by vger.kernel.org with SMTP
-	id S264401AbTK0AiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 19:38:17 -0500
-From: Lothar Werzinger <lothar@xcerla.com>
-Organization: Xcerla Corporation
+	Wed, 26 Nov 2003 19:50:49 -0500
+Received: from main.gmane.org ([80.91.224.249]:16792 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261827AbTK0Aur (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 19:50:47 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: mmap and MAP_FIXED question
-Date: Wed, 26 Nov 2003 16:38:15 -0800
-User-Agent: KMail/1.5.9.1i
-Cc: Krishnakumar B <kitty@dre.vanderbilt.edu>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_3dUx/L8u5WyM+5t"
-Message-Id: <200311261638.15343.lothar@xcerla.com>
-X-Loop-Detect: 1
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: 2.6 not cat proof
+Date: Thu, 27 Nov 2003 01:50:43 +0100
+Message-ID: <yw1x4qwqvdlo.fsf@kth.se>
+References: <20031126201052.GA16106@outpost.ds9a.nl> <Pine.LNX.4.56.0311261533310.489@router.windsormachine.com>
+ <20031126204821.GA3322@softaplic.com.br>
+ <20031126234620.GE1566@mis-mike-wstn.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:Ab6noF15cZu5N55oMmORuJU17Gs=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Fedyk <mfedyk@matchmail.com> writes:
 
---Boundary-00=_3dUx/L8u5WyM+5t
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>> > > This bug has been seen here over eight years ago and it is back.. linux
+>> > > 2.6.0-test4 is still not cat proof :-)
+>> > 
+>> > There has been a fix for this issue in the kernel source for quite awhile.
+>> > 
+>> > >From as far back as the configuration utility in 2.4.22:
+>> > 
+>> > CONFIG_WATCHDOG:
+>> > 
+>> 
+>> So the watchdog scares the cat which leaves the keyboard... :-)
+>
+> Maybe it would be better to set your system to play a sound if the computer
+> gets over a certain temperature.
+>
+> Now just find a nice mean dog to record for the sound... :-D
 
-Hi,
+Just be careful.  I've seen cats that would shred a dog if they got
+the chance.
 
-I currently do not have subscribed to LKML, so please CC to my address when 
-answering. I will browse the archive, but on a not so regular basis.
-
-I came across a strange behavior of mmap using the ACE library. After some 
-discussion on the ace-users mailing list 
-(http://groups.yahoo.com/group/ace-users/message/36897) I'd like to post this 
-question here in the hope that anyone knows more about this.
-
-The problem basically is that a program doing a mmap call with the MAP_FIXED 
-flag set crashes just by unmapping and mapping of an extended (larger) memory 
-area. Note it crashes although it never touches (writes) to the memory it 
-maps.
-
-Attached is a C file that if compiled and run on a 2.4.x Kernel crashes with a 
-segmentation fault.  If called with any argument it uses a (delta) value to 
-increase the map size, so it crashes after 21 iterations on my computer.
-My kernel version is:
-$ cat /proc/version
-Linux version 2.4.20-18.9.acpi.4 (dsanta@ltspc67.epfl.ch) (gcc version 3.2.2 
-20030222 (Red Hat Linux 3.2.2-5)) #1 Wed Jul 2 14:54:57 CEST 2003
-
-If anyone knows why the program crashes instead of just failing with some 
-error code, please let me know.
-
-The attached program is a slightly modified version I got from an ACE 
-developer
-> Here's my test program. It fails under all machines that I have tested.
-> Maybe you can post it to Linux Kernel and ask what is broken and tell me if
-> you get any answer. 
-
-Lothar
 -- 
-Lothar Werzinger Dipl.-Ing. Univ.
-framework & platform architect
-Xcerla Corporation
-275 Tennant Avenue, Suite 202
-Morgan Hill, Ca 95037
-email: lothar@xcerla.com
-phone: +1-408-776-9018
---Boundary-00=_3dUx/L8u5WyM+5t
-Content-Type: text/x-csrc;
-  charset="us-ascii";
-  name="mmaptest.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="mmaptest.c"
-
-#include <sys/mman.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <unistd.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <string.h>
-
-int main(int argc, char ** argv)
-{
-  int fd = 0;
-  int pagesize = 0;
-  unsigned int delta = 0;
-  int retval = 0;
-  size_t count = 0;
-  size_t size = 0;
-  char* addr = 0;
-
-  pagesize = getpagesize();
-
-  srand(time(0));
-  delta = rand() % pagesize;
-  if (argc > 1)
-    delta = 0xf96;
-  
-  fprintf (stderr, "pagesize %d\n", pagesize);
-  fprintf (stderr, "using delta %06d, %06x\n", delta, delta);
-
-
-  fd = open ("/tmp/MemMapTest1.data", O_RDWR|O_CREAT);
-  if (fd == -1)
-    {
-      fprintf (stderr, "Unable to create file: %s\n", strerror (errno));
-      exit (1);
-    }
-  if (unlink ("/tmp/MemMapTest1.data") == -1)
-    {
-      fprintf (stderr, "Unable to unlink file: %s\n", strerror (errno));
-      exit (1);
-    }
-
-  retval = ftruncate (fd, delta);
-  if (retval == -1)
-    {
-      fprintf (stderr, "Unable to resize file: %s\n", strerror (errno));
-      exit (1);
-    }
-
-  size = delta;
-  addr = (char*) mmap (0, size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-  if (addr == MAP_FAILED)
-    {
-      fprintf (stderr, "Unable to map file: %s\n", strerror (errno));
-      exit (1);
-    }
-
-  fprintf (stderr, "%03d address: %p, size: %06d, %06x, new size: %06d, %06x\n",
-           count, addr, size, size, size + delta, size + delta);
-  
-  while (count < 500)
-    {
-      if (munmap(addr, size) == -1)
-        {
-          fprintf (stderr, "Unable to unmap file: %s\n", strerror (errno));
-          exit (1);
-        }
-
-      size += delta;
-      retval = ftruncate (fd, size);
-      if (retval == -1)
-        {
-          fprintf (stderr, "Unable to resize file: %s\n", strerror (errno));
-          exit (1);
-        }
-      addr = (char*) mmap (addr, size, PROT_READ|PROT_WRITE,
-                           MAP_SHARED|MAP_FIXED, fd, 0);
-      if (addr == MAP_FAILED)
-        {
-          fprintf (stderr, "Unable to map file: %s\n", strerror (errno));
-          exit (1);
-        }
-
-      ++count;
-      fprintf (stderr, "%03d address: %p, size: %06d, %06x, new size: %06d, %06x\n",
-               count, addr, size, size, size + delta, size + delta);
-    }
-  fprintf (stderr, "%03d exited loop\n", count);
-  return 0;
-}
-
---Boundary-00=_3dUx/L8u5WyM+5t--
+Måns Rullgård
+mru@kth.se
 

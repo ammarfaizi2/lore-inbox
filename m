@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318428AbSGRWaH>; Thu, 18 Jul 2002 18:30:07 -0400
+	id <S318406AbSGRWY2>; Thu, 18 Jul 2002 18:24:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318427AbSGRWaH>; Thu, 18 Jul 2002 18:30:07 -0400
-Received: from [203.24.179.114] ([203.24.179.114]:59407 "HELO aimedics.com")
-	by vger.kernel.org with SMTP id <S318428AbSGRWaG> convert rfc822-to-8bit;
-	Thu, 18 Jul 2002 18:30:06 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: nejhdeh <nejhdeh@aimedics.com>
-Organization: AiMedics Pty. Ltd.
+	id <S318407AbSGRWYG>; Thu, 18 Jul 2002 18:24:06 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:20136 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S318406AbSGRWXl> convert rfc822-to-8bit;
+	Thu, 18 Jul 2002 18:23:41 -0400
+Message-Id: <200207182226.g6IMQeg05142@zeus.kernel.org>
+From: "LECCORNIA" <CUNILINGUS@LIBERO.IT>
 To: linux-kernel@vger.kernel.org
-Subject: Basic question
-Date: Fri, 19 Jul 2002 08:31:55 +1000
-User-Agent: KMail/1.4.1
+Date: Fri, 19 Jul 2002 00.26.39 +0200
+Subject: CHAT  AND SEXSCHOOL  LIVE
+X-Mailer: MailXSender 1.06
 MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200207190831.55757.nejhdeh@aimedics.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+http://www.ragazze-sexy.tv
 
-Thanks to your reply erlier. I successfult compiled my device driver separatly 
-as module.o and then ran a script to insmod into the kernel.
+nuova chat multitasking con multiriprese
+nuova area interna per lezioni di sesso live 
+nuova sezione per allungamento del pene 
+tutto manuale 100% naturale
+nuove chattiste mai viste in rete
 
-I have another basic question.
+http://www.ragazze-sexy.tv
 
-I have two PC systems. First one acts as my development system which I 
-develope code using KDevelop running Red Hat linux (2.4.18). When I compile 
-my application code (say app.0) and my device driver code (say module.o) then 
-I FTP these files into my target system which is a scalled down single-board 
-computer (with minimal RAM and disk) which runs linux 2.2.20.
+La Tua email è stata rilasciata sui nostri portali
+se non vui più ricevere news scrivi a
+deletemail@libero.it
 
-Most of the time everything is O.K. However, when it comes to the device 
-driver module (module.o), I get some kernel mismatch problems (obvisouly).
-
-E.g. the file_operations struct in 2.2.20 is different to 2.4.18
-
-My question is: How can I tell gcc or even within the module itself (e.g. 
-KERNEL_VERSION) to compile for lower version kernel (i.e tell kernel 2.4.18 
-to compile for 2.2.20)
-
-Regards
-
-Nejhdeh Ghevondian
 

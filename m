@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbUB0JTV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 04:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUB0JTV
+	id S261749AbUB0JYp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 04:24:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbUB0JYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 04:19:21 -0500
-Received: from ztxmail02.ztx.compaq.com ([161.114.1.206]:51204 "EHLO
-	ztxmail02.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S261750AbUB0JTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 04:19:15 -0500
-Message-ID: <403F0C06.2070809@toughguy.net>
-Date: Fri, 27 Feb 2004 14:51:10 +0530
-From: Raj <obelix123@toughguy.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
-X-Accept-Language: en-us, en
+	Fri, 27 Feb 2004 04:24:44 -0500
+Received: from mail-08.iinet.net.au ([203.59.3.40]:16622 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261749AbUB0JYn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 04:24:43 -0500
+Message-ID: <403F0CD7.5080305@cyberone.com.au>
+Date: Fri, 27 Feb 2004 20:24:39 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
 To: Sonika Sachdeva <sonikam@magnum.barc.ernet.in>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: Linux scheduler Implementation details
 References: <403F0B66.A7920233@magnum.barc.ernet.in>
 In-Reply-To: <403F0B66.A7920233@magnum.barc.ernet.in>
@@ -24,6 +24,8 @@ Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+
 
 Sonika Sachdeva wrote:
 
@@ -33,21 +35,13 @@ Sonika Sachdeva wrote:
 >and define to some extent how much time a given process will take to execute on
 >the system. Can anyone suggest some pointers?
 >
->Thank you
->Sonika
 >
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Documentation/sched-design.txt
-Documentation/sched-coding.txt
 
-and oh ofcourse, kernel/sched.c :-)
+It is all in kernel/sched.c, so you can just make a simulator and
+plug that code in.
 
-/Raj
+This will perfectly model the scheduler behaviour given some input
+from your simulator, which is what you asked for. This has nothing
+to do with maximum realtime scheduling latency, of course.
+
 

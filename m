@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbRF0EYk>; Wed, 27 Jun 2001 00:24:40 -0400
+	id <S265247AbRF0Eea>; Wed, 27 Jun 2001 00:34:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265247AbRF0EYT>; Wed, 27 Jun 2001 00:24:19 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:17927 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265244AbRF0EYI>; Wed, 27 Jun 2001 00:24:08 -0400
-Message-ID: <3B395FE5.1070208@zytor.com>
-Date: Tue, 26 Jun 2001 21:24:05 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; rv:0.9.1) Gecko/20010607
-X-Accept-Language: en, sv
+	id <S265248AbRF0EeU>; Wed, 27 Jun 2001 00:34:20 -0400
+Received: from m11.boston.juno.com ([64.136.24.74]:51613 "EHLO
+	m11.boston.juno.com") by vger.kernel.org with ESMTP
+	id <S265247AbRF0EeD>; Wed, 27 Jun 2001 00:34:03 -0400
+To: linux-kernel@vger.kernel.org
+Date: Wed, 27 Jun 2001 00:32:53 -0400
+Subject: driver/sound/soundcard.c lock_kernel()/unlock_kernel()
+Message-ID: <20010627.003255.-205571.0.fdavis112@juno.com>
+X-Mailer: Juno 5.0.15
 MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] User chroot
-In-Reply-To: <200106270332.f5R3WxU277042@saturn.cs.uml.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Juno-Line-Breaks: 0,2,7-10
+From: Frank Davis <fdavis112@juno.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan wrote:
+Hello all,
+      I've been looking through the sound drivers in the 2.4.5-ac series
+.  
+drivers/sound/soundcard.c has a few lock_kernel()/unlock_kernel() calls,
+esp. in the read() and write() functions. Could these calls be easily
+replaced with semaphores or spinlock calls? I vaguely remember emails on
+lkml a while ago regarding the removal of lock_kernel()/unlock_kernel(),
+but I'm don't recall what the replacement was (if any).
+Regards,
+Frank
 
-> 
-> Normal users can use an environment provided for them.
-> 
-> While trying to figure out why the "heyu" program would not
-> work on a Red Hat box, I did just this. As root I set up all
-> the device files needed, along Debian libraries and the heyu
-> executable itself. It was annoying that I couldn't try out
-> my chroot environment as a regular user.
-> 
-> Creating the device files isn't a big deal. It wouldn't be
-> hard to write a setuid app to make the few needed devices.
-> If we had per-user limits, "mount --bind /dev/zero /foo/zero"
-> could be allowed. One way or another, devices can be provided.
-> 
-
-
-Hell no!  This would give the user a way to subvert root or other 
-system-provided things by having device nodes or such appear where they 
-aren't expected.  NOT GOOD.
-
-	-hpa
-
-
+btw, Sorry in advance if the mailer causes probelms.

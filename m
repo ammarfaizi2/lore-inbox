@@ -1,262 +1,405 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264962AbTBKSqM>; Tue, 11 Feb 2003 13:46:12 -0500
+	id <S264939AbTBKSpJ>; Tue, 11 Feb 2003 13:45:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265094AbTBKSqL>; Tue, 11 Feb 2003 13:46:11 -0500
-Received: from h214n1fls32o988.telia.com ([62.20.176.214]:44561 "EHLO
-	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
-	id <S264962AbTBKSp6>; Tue, 11 Feb 2003 13:45:58 -0500
-Message-Id: <200302111855.h1BItiPY068299@sirius.nix.badanka.com>
-Date: Tue, 11 Feb 2003 19:55:07 +0100
-From: Henrik Persson <nix@socialism.nu>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via rhine bug? (timeouts and resets)
-In-Reply-To: <20030211183943.GA2443@k3.hellgate.ch>
-References: <200302111344.h1BDiMPY067070@sirius.nix.badanka.com>
-	<20030211154449.GA2252@k3.hellgate.ch>
-	<200302111652.h1BGq0PY067795@sirius.nix.badanka.com>
-	<20030211171736.GA1359@k3.hellgate.ch>
-	<200302111745.h1BHjdPY067992@sirius.nix.badanka.com>
-	<20030211183943.GA2443@k3.hellgate.ch>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S264962AbTBKSpJ>; Tue, 11 Feb 2003 13:45:09 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:59622 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S264939AbTBKSpB>; Tue, 11 Feb 2003 13:45:01 -0500
+Subject: Re: [PATCH][DRIVER][RFC] CPU5 watchdog driver for 2.5
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: Heiko Ronsdorf <sk048ro@crimson.ihg.uni-duisburg.de>
+Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
+In-Reply-To: <20030211122620.GA10604@mail.ihg.uni-duisburg.de>
+References: <20030210201732.GA25722@mail.ihg.uni-duisburg.de>
+	<1044916408.4724.11.camel@vmhack> 
+	<20030211122620.GA10604@mail.ihg.uni-duisburg.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Feb 2003 20:38:14 -0800
+Message-Id: <1044938295.4726.44.camel@vmhack>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Tue__11_Feb_2003_19:55:07_+0100_08150a30"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Tue, 2003-02-11 at 04:26, Heiko Ronsdorf wrote:
+> Rusty Lynch schrieb am Mon, Feb 10, 2003 at 02:33:27PM -0800:
+<snip>
+> > * I'm pretty sure that in general adding new code to /proc (that has
+> > nothing to do with processes) is frowned on.
+> 
+> I don't know how to track the watchdog. Suggestions are welcome.
+> 
+> Heiko
+> 
 
---Multipart_Tue__11_Feb_2003_19:55:07_+0100_08150a30
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+I CC'ed Patrick Mochel to get his opinion on this, but if I am
+interpreting the new driver model documentation correctly, then it would
+be appropriate to make an IO controlled watchdog timer a
+"platform_device".  That will let user space see your device in sysfs as
+$YOUR_SYSFS_ROOT/devices/legacy/watchdog0/, and then you can use
+device_create_file() to add a new file inside the the watchdog0
+directory.
 
-On Tue, 11 Feb 2003 19:39:43 +0100
-Roger Luethi <rl@hellgate.ch> wrote:
+Here is your cpu5wdt.c file with the procfs stuff replaced with code
+that adds an embedded platform_device to your basic data structure,
+registers the driver as a platform device, and then creates a file
+called $YOUR_SYSFS_ROOT/devices/legacy/watchdog0/statistics that will
+read the same as your original procfs file.  (Or at least I think it
+will.  It at least compiles :->)
 
-RL> No errors at all? No "Transmitter underrun" (at debug>1)? I suspect
-RL> you hit two more bugs: If the driver resets the chip (e.g. watchdog
-RL> timeout), chances are the chip is programmed to go half-duplex ->
-RL> performance breaks down. No problem as long as we deal with errors
-RL> properly, but the Rhine-II can throw an error the mainline driver
-RL> doesn't notice because the interrupt status registers stay clean.
+    --rustyl
 
-Something was strange.. Now I get the errors.. But the funny thing is:
-when downloading the file there's no problem at all. Uploading the same
-file results in the attached dmesg.. So, something is fishy in that code
-;)
+/*
+ * sma cpu5 watchdog driver
+ *
+ * Copyright (C) 2003 Heiko Ronsdorf <hero@ihg.uni-duisburg.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
 
-RL> Can I see a complete log (at debug=3), starting with module insertion?
-RL> There's got to be some underrun and watchdog timeout.
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/types.h>
+#include <linux/errno.h>
+#include <linux/miscdevice.h>
+#include <linux/kernel.h>
+#include <linux/fs.h>
+#include <linux/init.h>
+#include <linux/ioport.h>
+#include <linux/timer.h>
+#include <asm/io.h>
+#include <asm/uaccess.h>
 
-Whops. I included the module in the kernel ;) But the errors ought to be
-the same.. Hm..
+#include <linux/watchdog.h>
+#include <linux/kobject.h>
+#include <linux/device.h>
 
-RL> > But it's not as bad as it got a few minutes ago when I tested the
-RL> > driver from scyld.com.. It totally trashed my NIC.. A shame though,
-RL> > since it ran
-RL> 
-RL> Define "trashed". How exactly did it misbehave, what did you have to
-RL> do to get it back working? Anything interesting in the log before it
-RL> breaks?
+/* adjustable parameters */
 
-Well.. Not much in the logs.. I rebooted with 2.4.20 ;)
+static int verbose = 0;
+static int port = 0x91;
+static volatile int ticks = 10000;
 
-RL> FWIW, it is possible to get a Rhine into a state where physically
-RL> removing the PCI card from the computer and keeping both away from any
-RL> power source for an hour still results in the driver hanging on boot
-RL> (after putting everything back together, of course). I've gone through
-RL> this twice so far. Voodoo magic.
+#define PFX			"cpu5wdt: "
 
-Creepy..
+#define CPU5WDT_EXTENT          0x0A
 
--- 
-Henrik Persson
-e-mail: nix@socialism.nu  WWW: http://nix.badanka.com
-ICQ: 26019058             PGP/GPG: http://nix.badanka.com/pgp
-PGP-Key-ID: 0x43B68116    PGP-Keyserver: pgp.mit.edu
+#define CPU5WDT_STATUS_REG      0x00
+#define CPU5WDT_TIME_A_REG      0x02
+#define CPU5WDT_TIME_B_REG      0x03
+#define CPU5WDT_MODE_REG        0x04
+#define CPU5WDT_TRIGGER_REG     0x07
+#define CPU5WDT_ENABLE_REG      0x08
+#define CPU5WDT_RESET_REG       0x09
 
---Multipart_Tue__11_Feb_2003_19:55:07_+0100_08150a30
-Content-Type: application/octet-stream;
- name="dmesg"
-Content-Disposition: attachment;
- filename="dmesg"
-Content-Transfer-Encoding: base64
+#define CPU5WDT_INTERVAL	(HZ/10+1)
 
-TGludXggdmVyc2lvbiAyLjUuNjAgKHJvb3RAdmVnYSkgKGdjYyB2ZXJzaW9uIDIuOTUuMyAyMDAx
-MDMxNSAocmVsZWFzZSkpICMyIFR1ZSBGZWIgMTEgMTc6NDM6MTAgQ0VUIDIwMDMKVmlkZW8gbW9k
-ZSB0byBiZSB1c2VkIGZvciByZXN0b3JlIGlzIDMwNQpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJB
-TSBtYXA6CiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwMDAwMDAgLSAwMDAwMDAwMDAwMDlmYzAwICh1
-c2FibGUpCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWZjMDAgLSAwMDAwMDAwMDAwMGEwMDAwIChy
-ZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAwMDAwMDBlMDAwMCAtIDAwMDAwMDAwMDAxMDAwMDAg
-KHJlc2VydmVkKQogQklPUy1lODIwOiAwMDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAwMDAwZWZmMDAw
-MCAodXNhYmxlKQogQklPUy1lODIwOiAwMDAwMDAwMDBlZmYwMDAwIC0gMDAwMDAwMDAwZWZmZmZj
-MCAoQUNQSSBkYXRhKQogQklPUy1lODIwOiAwMDAwMDAwMDBlZmZmZmMwIC0gMDAwMDAwMDAwZjAw
-MDAwMCAoQUNQSSBOVlMpCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmZmODAwMDAgLSAwMDAwMDAwMTAw
-MDAwMDAwIChyZXNlcnZlZCkKMjM5TUIgTE9XTUVNIGF2YWlsYWJsZS4KT24gbm9kZSAwIHRvdGFs
-cGFnZXM6IDYxNDI0CiAgRE1BIHpvbmU6IDQwOTYgcGFnZXMsIExJRk8gYmF0Y2g6MQogIE5vcm1h
-bCB6b25lOiA1NzMyOCBwYWdlcywgTElGTyBiYXRjaDoxMwogIEhpZ2hNZW0gem9uZTogMCBwYWdl
-cywgTElGTyBiYXRjaDoxCkFDUEk6IFJTRFAgKHYwMDAgT0lEXzAwICAgICAgICAgICAgICAgICAg
-ICAgKSBAIDB4MDAwZTQwMTAKQUNQSTogUlNEVCAodjAwMSBPSURfMDAgUlNEVF8wMDAgMTIzMzYu
-MTIzMzYpIEAgMHgwZWZmZmJjMApBQ1BJOiBGQURUICh2MDAyIElOU1lERSBGQUNQXzAwMCAwMDAw
-MC4wMDI1NikgQCAweDBlZmZmYWMwCkFDUEk6IEJPT1QgKHYwMDEgSU5TWURFIFNZU19CT09UIDAw
-MDAwLjAwMjU2KSBAIDB4MGVmZmZiNTAKQUNQSTogREJHUCAodjAwMSBJTlNZREUgU1lTX0RCR1Ag
-MDAwMDAuMDAyNTYpIEAgMHgwZWZmZmI4MApBQ1BJOiBEU0RUICh2MDAxIElOU1lERSAgIFZUODM2
-MiAwMDAwMC4wNDA5NikgQCAweDAwMDAwMDAwCkFDUEk6IEJJT1MgcGFzc2VzIGJsYWNrbGlzdApC
-dWlsZGluZyB6b25lbGlzdCBmb3Igbm9kZSA6IDAKS2VybmVsIGNvbW1hbmQgbGluZTogQk9PVF9J
-TUFHRT1MaW51eCBybyByb290PTMwMQpJbml0aWFsaXppbmcgQ1BVIzAKUElEIGhhc2ggdGFibGUg
-ZW50cmllczogMTAyNCAob3JkZXIgMTA6IDgxOTIgYnl0ZXMpCkRldGVjdGVkIDExOTkuNjQxIE1I
-eiBwcm9jZXNzb3IuCkNvbnNvbGU6IGNvbG91ciBkdW1teSBkZXZpY2UgODB4MjUKQ2FsaWJyYXRp
-bmcgZGVsYXkgbG9vcC4uLiAyMzY3LjQ4IEJvZ29NSVBTCk1lbW9yeTogMjM5Mzk2ay8yNDU2OTZr
-IGF2YWlsYWJsZSAoMTg4NGsga2VybmVsIGNvZGUsIDU2MDBrIHJlc2VydmVkLCA3NTdrIGRhdGEs
-IDI5NmsgaW5pdCwgMGsgaGlnaG1lbSkKRGVudHJ5IGNhY2hlIGhhc2ggdGFibGUgZW50cmllczog
-MzI3NjggKG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMpCklub2RlLWNhY2hlIGhhc2ggdGFibGUgZW50
-cmllczogMTYzODQgKG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpCk1vdW50LWNhY2hlIGhhc2ggdGFi
-bGUgZW50cmllczogNTEyIChvcmRlcjogMCwgNDA5NiBieXRlcykKLT4gL2RldgotPiAvZGV2L2Nv
-bnNvbGUKLT4gL3Jvb3QKQ1BVOiBMMSBJIENhY2hlOiA2NEsgKDY0IGJ5dGVzL2xpbmUpLCBEIGNh
-Y2hlIDY0SyAoNjQgYnl0ZXMvbGluZSkKQ1BVOiBMMiBDYWNoZTogMjU2SyAoNjQgYnl0ZXMvbGlu
-ZSkKQ1BVOiAgICAgQWZ0ZXIgZ2VuZXJpYywgY2FwczogMDE4M2Y5ZmYgYzFjYmY5ZmYgMDAwMDAw
-MDAgMDAwMDAwMDAKSW50ZWwgbWFjaGluZSBjaGVjayBhcmNoaXRlY3R1cmUgc3VwcG9ydGVkLgpJ
-bnRlbCBtYWNoaW5lIGNoZWNrIHJlcG9ydGluZyBlbmFibGVkIG9uIENQVSMwLgpDUFU6IEFNRCBt
-b2JpbGUgQU1EIEF0aGxvbih0bSkgWFAgMTQwMCsgIHN0ZXBwaW5nIDAwCkVuYWJsaW5nIGZhc3Qg
-RlBVIHNhdmUgYW5kIHJlc3RvcmUuLi4gZG9uZS4KQ2hlY2tpbmcgJ2hsdCcgaW5zdHJ1Y3Rpb24u
-Li4gT0suClBPU0lYIGNvbmZvcm1hbmNlIHRlc3RpbmcgYnkgVU5JRklYCkxpbnV4IE5FVDQuMCBm
-b3IgTGludXggMi40CkJhc2VkIHVwb24gU3dhbnNlYSBVbml2ZXJzaXR5IENvbXB1dGVyIFNvY2ll
-dHkgTkVUMy4wMzkKSW5pdGlhbGl6aW5nIFJUIG5ldGxpbmsgc29ja2V0Cm10cnI6IHYyLjAgKDIw
-MDIwNTE5KQpQQ0k6IFBDSSBCSU9TIHJldmlzaW9uIDIuMTAgZW50cnkgYXQgMHhlOGE2NCwgbGFz
-dCBidXM9MQpQQ0k6IFVzaW5nIGNvbmZpZ3VyYXRpb24gdHlwZSAxCkJJTzogcG9vbCBvZiAyNTYg
-c2V0dXAsIDE1S2IgKDYwIGJ5dGVzL2JpbykKYmlvdmVjIHBvb2xbMF06ICAgMSBidmVjczogMjU2
-IGVudHJpZXMgKDEyIGJ5dGVzKQpiaW92ZWMgcG9vbFsxXTogICA0IGJ2ZWNzOiAyNTYgZW50cmll
-cyAoNDggYnl0ZXMpCmJpb3ZlYyBwb29sWzJdOiAgMTYgYnZlY3M6IDI1NiBlbnRyaWVzICgxOTIg
-Ynl0ZXMpCmJpb3ZlYyBwb29sWzNdOiAgNjQgYnZlY3M6IDI1NiBlbnRyaWVzICg3NjggYnl0ZXMp
-CmJpb3ZlYyBwb29sWzRdOiAxMjggYnZlY3M6IDI1NiBlbnRyaWVzICgxNTM2IGJ5dGVzKQpiaW92
-ZWMgcG9vbFs1XTogMjU2IGJ2ZWNzOiAyNTYgZW50cmllcyAoMzA3MiBieXRlcykKQUNQSTogU3Vi
-c3lzdGVtIHJldmlzaW9uIDIwMDMwMTIyCiAgICBBQ1BJLTAyNjI6ICoqKiBJbmZvOiBHUEUgQmxv
-Y2swIGRlZmluZWQgYXMgR1BFMCB0byBHUEUxNQogICAgQUNQSS0wMjYyOiAqKiogSW5mbzogR1BF
-IEJsb2NrMSBkZWZpbmVkIGFzIEdQRTE2IHRvIEdQRTMxCkFDUEk6IEludGVycHJldGVyIGVuYWJs
-ZWQKQUNQSTogVXNpbmcgUElDIGZvciBpbnRlcnJ1cHQgcm91dGluZwpBQ1BJOiBQQ0kgUm9vdCBC
-cmlkZ2UgW1BDSTBdICgwMDowMCkKUENJOiBQcm9iaW5nIFBDSSBoYXJkd2FyZSAoYnVzIDAwKQpE
-aXNhYmxpbmcgVklBIG1lbW9yeSB3cml0ZSBxdWV1ZSAoUENJIElEIDAzMDUsIHJldiA4MCk6IFs1
-NV0gM2MgJiAxZiAtPiAxYwpBQ1BJOiBQQ0kgSW50ZXJydXB0IFJvdXRpbmcgVGFibGUgW1xfU0Jf
-LlBDSTAuX1BSVF0KQUNQSTogRW1iZWRkZWQgQ29udHJvbGxlciBbRUMwXSAoZ3BlIDEpCkFDUEk6
-IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LQV0gKElSUXMgMTAgKjExKQpBQ1BJOiBQQ0kgSW50ZXJy
-dXB0IExpbmsgW0xOS0JdIChJUlFzIDEwIDExLCBkaXNhYmxlZCkKQUNQSTogUENJIEludGVycnVw
-dCBMaW5rIFtMTktDXSAoSVJRcyAqMTApCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LRF0g
-KElSUXMgMTAgKjExKQpibG9jayByZXF1ZXN0IHF1ZXVlczoKIDEyOCByZXF1ZXN0cyBwZXIgcmVh
-ZCBxdWV1ZQogMTI4IHJlcXVlc3RzIHBlciB3cml0ZSBxdWV1ZQogOCByZXF1ZXN0cyBwZXIgYmF0
-Y2gKIGVudGVyIGNvbmdlc3Rpb24gYXQgMTUKIGV4aXQgY29uZ2VzdGlvbiBhdCAxNwpkcml2ZXJz
-L3VzYi9jb3JlL3VzYi5jOiByZWdpc3RlcmVkIG5ldyBkcml2ZXIgaHViCkFDUEk6IFBDSSBJbnRl
-cnJ1cHQgTGluayBbTE5LQl0gZW5hYmxlZCBhdCBJUlEgMTAKUENJOiBVc2luZyBBQ1BJIGZvciBJ
-UlEgcm91dGluZwpQQ0k6IGlmIHlvdSBleHBlcmllbmNlIHByb2JsZW1zLCB0cnkgdXNpbmcgb3B0
-aW9uICdwY2k9bm9hY3BpJyBvciBldmVuICdhY3BpPW9mZicKUENJOiBDYW5ub3QgYWxsb2NhdGUg
-cmVzb3VyY2UgcmVnaW9uIDAgb2YgZGV2aWNlIDAwOjBhLjAKU0JGOiBTaW1wbGUgQm9vdCBGbGFn
-IGV4dGVuc2lvbiBmb3VuZCBhbmQgZW5hYmxlZC4KU0JGOiBTZXR0aW5nIGJvb3QgZmxhZ3MgMHgx
-CkVuYWJsaW5nIFNFUCBvbiBDUFUgMAphaW9fc2V0dXA6IHNpemVvZihzdHJ1Y3QgcGFnZSkgPSA0
-MApKb3VybmFsbGVkIEJsb2NrIERldmljZSBkcml2ZXIgbG9hZGVkCkFwcGx5aW5nIFZJQSBzb3V0
-aGJyaWRnZSB3b3JrYXJvdW5kLgpBQ1BJOiBBQyBBZGFwdGVyIFtBRFAwXSAob24tbGluZSkKQUNQ
-STogQmF0dGVyeSBTbG90IFtCQVQwXSAoYmF0dGVyeSBhYnNlbnQpCkFDUEk6IFBvd2VyIEJ1dHRv
-biAoRkYpIFtQV1JGXQpBQ1BJOiBMaWQgU3dpdGNoIFtMSURdCkFDUEk6IFByb2Nlc3NvciBbQ1BV
-MF0gKHN1cHBvcnRzIEMxIEMyKQpBQ1BJOiBUaGVybWFsIFpvbmUgW1RIUk1dICg3OCBDKQpTZXJp
-YWw6IDgyNTAvMTY1NTAgZHJpdmVyICRSZXZpc2lvbjogMS45MCAkIElSUSBzaGFyaW5nIGRpc2Fi
-bGVkCnBhcnBvcnQwOiBQQy1zdHlsZSBhdCAweDM3OCAoMHg3NzgpIFtQQ1NQUCxUUklTVEFURV0K
-cGFycG9ydDA6IGlycSA3IGRldGVjdGVkCnBhcnBvcnQwOiBjcHBfZGFpc3k6IGFhNTUwMGZmKDM4
-KQpwYXJwb3J0MDogYXNzaWduX2FkZHJzOiBhYTU1MDBmZigzOCkKcGFycG9ydDA6IGNwcF9kYWlz
-eTogYWE1NTAwZmYoMzgpCnBhcnBvcnQwOiBhc3NpZ25fYWRkcnM6IGFhNTUwMGZmKDM4KQp2ZXNh
-ZmI6IGZyYW1lYnVmZmVyIGF0IDB4OTAwMDAwMDAsIG1hcHBlZCB0byAweGNmODA3MDAwLCBzaXpl
-IDE1Mjk2awp2ZXNhZmI6IG1vZGUgaXMgMTAyNHg3Njh4OCwgbGluZWxlbmd0aD0xMDI0LCBwYWdl
-cz0xOAp2ZXNhZmI6IHByb3RlY3RlZCBtb2RlIGludGVyZmFjZSBpbmZvIGF0IGMwMDA6NzkyNgp2
-ZXNhZmI6IHNjcm9sbGluZzogcmVkcmF3CmZiMDogVkVTQSBWR0EgZnJhbWUgYnVmZmVyIGRldmlj
-ZQpDb25zb2xlOiBzd2l0Y2hpbmcgdG8gY29sb3VyIGZyYW1lIGJ1ZmZlciBkZXZpY2UgMTI4eDQ4
-CnB0eTogMjU2IFVuaXg5OCBwdHlzIGNvbmZpZ3VyZWQKbHAwOiB1c2luZyBwYXJwb3J0MCAocG9s
-bGluZykuClJlYWwgVGltZSBDbG9jayBEcml2ZXIgdjEuMTEKTGludXggYWdwZ2FydCBpbnRlcmZh
-Y2UgdjAuMTAwIChjKSBEYXZlIEpvbmVzCmFncGdhcnQ6IERldGVjdGVkIFZJQSBBcG9sbG8gUHJv
-IEtUMTMzIGNoaXBzZXQKYWdwZ2FydDogTWF4aW11bSBtYWluIG1lbW9yeSB0byB1c2UgZm9yIGFn
-cCBtZW1vcnk6IDE4OU0KYWdwZ2FydDogQUdQIGFwZXJ0dXJlIGlzIDY0TSBAIDB4YTAwMDAwMDAK
-RmxvcHB5IGRyaXZlKHMpOiBmZDAgaXMgMS40NE0KRkRDIDAgaXMgYSBwb3N0LTE5OTEgODIwNzcK
-bG9vcDogbG9hZGVkIChtYXggOCBkZXZpY2VzKQp2aWEtcmhpbmUuYzp2MS4xMC1MSzEuMS4xNWV4
-cDEgIERlY2VtYmVyLTIxLTIwMDIgIFdyaXR0ZW4gYnkgRG9uYWxkIEJlY2tlcgogIGh0dHA6Ly93
-d3cuc2N5bGQuY29tL25ldHdvcmsvdmlhLXJoaW5lLmh0bWwKUENJOiBFbmFibGluZyBkZXZpY2Ug
-MDA6MTIuMCAoMDAwMSAtPiAwMDAzKQpldGgwOiBWSUEgVlQ2MTAyIFJoaW5lLUlJIGF0IDB4ZTgw
-MCwgMDA6YzA6OWY6MGQ6ZDE6ZGQsIElSUSAxMS4KZXRoMDogTUlJIFBIWSBmb3VuZCBhdCBhZGRy
-ZXNzIDEsIHN0YXR1cyAweDc4MmQgYWR2ZXJ0aXNpbmcgMDFlMSBMaW5rIDQ1ZTEuClVuaWZvcm0g
-TXVsdGktUGxhdGZvcm0gRS1JREUgZHJpdmVyIFJldmlzaW9uOiA3LjAwYWxwaGEyCmlkZTogQXNz
-dW1pbmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVlZCBmb3IgUElPIG1vZGVzOyBvdmVycmlkZSB3aXRo
-IGlkZWJ1cz14eApWUF9JREU6IElERSBjb250cm9sbGVyIGF0IFBDSSBzbG90IDAwOjExLjEKVlBf
-SURFOiBjaGlwc2V0IHJldmlzaW9uIDYKVlBfSURFOiBub3QgMTAwJSBuYXRpdmUgbW9kZTogd2ls
-bCBwcm9iZSBpcnFzIGxhdGVyCmlkZTogQXNzdW1pbmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVlZCBm
-b3IgUElPIG1vZGVzOyBvdmVycmlkZSB3aXRoIGlkZWJ1cz14eApWUF9JREU6IFZJQSB2dDgyMzEg
-KHJldiAxMCkgSURFIFVETUExMDAgY29udHJvbGxlciBvbiBwY2kwMDoxMS4xCiAgICBpZGUwOiBC
-TS1ETUEgYXQgMHgxMTAwLTB4MTEwNywgQklPUyBzZXR0aW5nczogaGRhOkRNQSwgaGRiOnBpbwog
-ICAgaWRlMTogQk0tRE1BIGF0IDB4MTEwOC0weDExMGYsIEJJT1Mgc2V0dGluZ3M6IGhkYzpETUEs
-IGhkZDpwaW8KaGRhOiBUT1NISUJBIE1LMjAxOEdBUCwgQVRBIERJU0sgZHJpdmUKaGRhOiBETUEg
-ZGlzYWJsZWQKaWRlMCBhdCAweDFmMC0weDFmNywweDNmNiBvbiBpcnEgMTQKaGRjOiBRU0kgRFZE
-LVJPTSBTRFItMDgzLCBBVEFQSSBDRC9EVkQtUk9NIGRyaXZlCmhkYzogRE1BIGRpc2FibGVkCmlk
-ZTEgYXQgMHgxNzAtMHgxNzcsMHgzNzYgb24gaXJxIDE1CmhkYTogaG9zdCBwcm90ZWN0ZWQgYXJl
-YSA9PiAxCmhkYTogMzkwNzAwODAgc2VjdG9ycyAoMjAwMDQgTUIpLCBDSFM9Mzg3NjAvMTYvNjMs
-IFVETUEoMTAwKQogaGRhOiBoZGExIGhkYTIgaGRhMwpoZGM6IEFUQVBJIDI0WCBEVkQtUk9NIGRy
-aXZlLCA1MTJrQiBDYWNoZSwgVURNQSgzMykKVW5pZm9ybSBDRC1ST00gZHJpdmVyIFJldmlzaW9u
-OiAzLjEyCmVuZF9yZXF1ZXN0OiBJL08gZXJyb3IsIGRldiBoZGMsIHNlY3RvciAwCkNvbnNvbGU6
-IHN3aXRjaGluZyB0byBjb2xvdXIgZnJhbWUgYnVmZmVyIGRldmljZSAxMjh4NDgKZHJpdmVycy91
-c2IvaG9zdC91aGNpLWhjZC5jOiBVU0IgVW5pdmVyc2FsIEhvc3QgQ29udHJvbGxlciBJbnRlcmZh
-Y2UgZHJpdmVyIHYyLjAKdWhjaS1oY2QgMDA6MTEuMjogVklBIFRlY2hub2xvZ2llcywgSW4gVVNC
-CnVoY2ktaGNkIDAwOjExLjI6IGlycSAxMSwgaW8gYmFzZSAwMDAwMTIwMAp1aGNpLWhjZCAwMDox
-MS4yOiBuZXcgVVNCIGJ1cyByZWdpc3RlcmVkLCBhc3NpZ25lZCBidXMgbnVtYmVyIDEKaHViIDEt
-MDowOiBVU0IgaHViIGZvdW5kCmh1YiAxLTA6MDogMiBwb3J0cyBkZXRlY3RlZApkcml2ZXJzL3Vz
-Yi9jb3JlL3VzYi5jOiByZWdpc3RlcmVkIG5ldyBkcml2ZXIgaGlkCmRyaXZlcnMvdXNiL2lucHV0
-L2hpZC1jb3JlLmM6IHYyLjA6VVNCIEhJRCBjb3JlIGRyaXZlcgptaWNlOiBQUy8yIG1vdXNlIGRl
-dmljZSBjb21tb24gZm9yIGFsbCBtaWNlCmk4MDQyLmM6IERldGVjdGVkIGFjdGl2ZSBtdWx0aXBs
-ZXhpbmcgY29udHJvbGxlciwgcmV2IDEuMS4Kc2VyaW86IGk4MDQyIEFVWDAgcG9ydCBhdCAweDYw
-LDB4NjQgaXJxIDEyCnNlcmlvOiBpODA0MiBBVVgxIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxMgpz
-ZXJpbzogaTgwNDIgQVVYMiBwb3J0IGF0IDB4NjAsMHg2NCBpcnEgMTIKaW5wdXQ6IFBTLzIgR2Vu
-ZXJpYyBNb3VzZSBvbiBpc2EwMDYwL3NlcmlvNApzZXJpbzogaTgwNDIgQVVYMyBwb3J0IGF0IDB4
-NjAsMHg2NCBpcnEgMTIKaW5wdXQ6IEFUIFNldCAyIGtleWJvYXJkIG9uIGlzYTAwNjAvc2VyaW8w
-CnNlcmlvOiBpODA0MiBLQkQgcG9ydCBhdCAweDYwLDB4NjQgaXJxIDEKQWR2YW5jZWQgTGludXgg
-U291bmQgQXJjaGl0ZWN0dXJlIERyaXZlciBWZXJzaW9uIDAuOS4wcmM3IChTdW4gRmViIDA5IDE4
-OjAwOjEyIDIwMDMgVVRDKS4KcmVxdWVzdF9tb2R1bGVbc25kLWNhcmQtMF06IG5vdCByZWFkeQpy
-ZXF1ZXN0X21vZHVsZVtzbmQtY2FyZC0xXTogbm90IHJlYWR5CnJlcXVlc3RfbW9kdWxlW3NuZC1j
-YXJkLTJdOiBub3QgcmVhZHkKcmVxdWVzdF9tb2R1bGVbc25kLWNhcmQtM106IG5vdCByZWFkeQpy
-ZXF1ZXN0X21vZHVsZVtzbmQtY2FyZC00XTogbm90IHJlYWR5CnJlcXVlc3RfbW9kdWxlW3NuZC1j
-YXJkLTVdOiBub3QgcmVhZHkKcmVxdWVzdF9tb2R1bGVbc25kLWNhcmQtNl06IG5vdCByZWFkeQpy
-ZXF1ZXN0X21vZHVsZVtzbmQtY2FyZC03XTogbm90IHJlYWR5ClBDSTogU2V0dGluZyBsYXRlbmN5
-IHRpbWVyIG9mIGRldmljZSAwMDoxMS41IHRvIDY0Cmh1YiAxLTA6MDogZGVib3VuY2U6IHBvcnQg
-MTogZGVsYXkgMTAwbXMgc3RhYmxlIDQgc3RhdHVzIDB4MzAxCmh1YiAxLTA6MDogbmV3IFVTQiBk
-ZXZpY2Ugb24gcG9ydCAxLCBhc3NpZ25lZCBhZGRyZXNzIDIKQUxTQSBkZXZpY2UgbGlzdDoKICAj
-MDogVklBIDgyQzY4NkEvQiByZXY0MCBhdCAweGUwMDAsIGlycSAxMApORVQ0OiBMaW51eCBUQ1Av
-SVAgMS4wIGZvciBORVQ0LjAKSVA6IHJvdXRpbmcgY2FjaGUgaGFzaCB0YWJsZSBvZiAyMDQ4IGJ1
-Y2tldHMsIDE2S2J5dGVzClRDUDogSGFzaCB0YWJsZXMgY29uZmlndXJlZCAoZXN0YWJsaXNoZWQg
-MTYzODQgYmluZCAxNjM4NCkKTkVUNDogVW5peCBkb21haW4gc29ja2V0cyAxLjAvU01QIGZvciBM
-aW51eCBORVQ0LjAuCklQdjYgdjAuOCBmb3IgTkVUNC4wCklQdjYgb3ZlciBJUHY0IHR1bm5lbGlu
-ZyBkcml2ZXIKaW5wdXQ6IFVTQiBISUQgdjEuMDAgTW91c2UgW01pY3Jvc29mdCBNaWNyb3NvZnQg
-SW50ZWxsaU1vdXNlriBFeHBsb3Jlcl0gb24gdXNiLTAwOjExLjItMQpram91cm5hbGQgc3RhcnRp
-bmcuICBDb21taXQgaW50ZXJ2YWwgNSBzZWNvbmRzCkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5c3Rl
-bSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLgpWRlM6IE1vdW50ZWQgcm9vdCAoZXh0MyBmaWxlc3lz
-dGVtKSByZWFkb25seS4KRnJlZWluZyB1bnVzZWQga2VybmVsIG1lbW9yeTogMjk2ayBmcmVlZApB
-ZGRpbmcgNDkxMzkyayBzd2FwIG9uIC9kZXYvaGRhMi4gIFByaW9yaXR5Oi0xIGV4dGVudHM6MQpF
-WFQzIEZTIDIuNC0wLjkuMTYsIDAyIERlYyAyMDAxIG9uIGlkZTAoMywxKSwgaW50ZXJuYWwgam91
-cm5hbApram91cm5hbGQgc3RhcnRpbmcuICBDb21taXQgaW50ZXJ2YWwgNSBzZWNvbmRzCkVYVDMg
-RlMgMi40LTAuOS4xNiwgMDIgRGVjIDIwMDEgb24gaWRlMCgzLDMpLCBpbnRlcm5hbCBqb3VybmFs
-CkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLgpldGgw
-OiBTZXR0aW5nIGZ1bGwtZHVwbGV4IGJhc2VkIG9uIE1JSSAjMSBsaW5rIHBhcnRuZXIgY2FwYWJp
-bGl0eSBvZiA0NWUxLgpldGgwOiBubyBJUHY2IHJvdXRlcnMgcHJlc2VudAp1c2IgMS0xOiBVU0Ig
-ZGlzY29ubmVjdCwgYWRkcmVzcyAyCmh1YiAxLTA6MDogZGVib3VuY2U6IHBvcnQgMTogZGVsYXkg
-MTAwbXMgc3RhYmxlIDQgc3RhdHVzIDB4MzAxCmh1YiAxLTA6MDogbmV3IFVTQiBkZXZpY2Ugb24g
-cG9ydCAxLCBhc3NpZ25lZCBhZGRyZXNzIDMKaW5wdXQ6IFVTQiBISUQgdjEuMDAgTW91c2UgW01p
-Y3Jvc29mdCBNaWNyb3NvZnQgSW50ZWxsaU1vdXNlriBFeHBsb3Jlcl0gb24gdXNiLTAwOjExLjIt
-MQpORVRERVYgV0FUQ0hET0c6IGV0aDA6IHRyYW5zbWl0IHRpbWVkIG91dApldGgwOiBUcmFuc21p
-dCB0aW1lZCBvdXQsIHN0YXR1cyAwMDAwLCBQSFkgc3RhdHVzIDc4MmQsIHJlc2V0dGluZy4uLgpO
-RVRERVYgV0FUQ0hET0c6IGV0aDA6IHRyYW5zbWl0IHRpbWVkIG91dApldGgwOiBUcmFuc21pdCB0
-aW1lZCBvdXQsIHN0YXR1cyAwMDAwLCBQSFkgc3RhdHVzIDc4MmQsIHJlc2V0dGluZy4uLgpORVRE
-RVYgV0FUQ0hET0c6IGV0aDA6IHRyYW5zbWl0IHRpbWVkIG91dApldGgwOiBUcmFuc21pdCB0aW1l
-ZCBvdXQsIHN0YXR1cyAwMDAwLCBQSFkgc3RhdHVzIDc4MmQsIHJlc2V0dGluZy4uLgpORVRERVYg
-V0FUQ0hET0c6IGV0aDA6IHRyYW5zbWl0IHRpbWVkIG91dApldGgwOiBUcmFuc21pdCB0aW1lZCBv
-dXQsIHN0YXR1cyAwMDAwLCBQSFkgc3RhdHVzIDc4MmQsIHJlc2V0dGluZy4uLgpORVRERVYgV0FU
-Q0hET0c6IGV0aDA6IHRyYW5zbWl0IHRpbWVkIG91dApldGgwOiBUcmFuc21pdCB0aW1lZCBvdXQs
-IHN0YXR1cyAwMDAwLCBQSFkgc3RhdHVzIDc4MmQsIHJlc2V0dGluZy4uLgpORVRERVYgV0FUQ0hE
-T0c6IGV0aDA6IHRyYW5zbWl0IHRpbWVkIG91dApldGgwOiBUcmFuc21pdCB0aW1lZCBvdXQsIHN0
-YXR1cyAwMDAwLCBQSFkgc3RhdHVzIDc4MmQsIHJlc2V0dGluZy4uLgpORVRERVYgV0FUQ0hET0c6
-IGV0aDA6IHRyYW5zbWl0IHRpbWVkIG91dApldGgwOiBUcmFuc21pdCB0aW1lZCBvdXQsIHN0YXR1
-cyAwMDAwLCBQSFkgc3RhdHVzIDc4MmQsIHJlc2V0dGluZy4uLgpuZnM6IHNlcnZlciBwcm9jeW9u
-IG5vdCByZXNwb25kaW5nLCBzdGlsbCB0cnlpbmcKbmZzOiBzZXJ2ZXIgcHJvY3lvbiBPSwo=
+#define	to_platform_device(n) container_of(n, struct platform_device, dev)
+#define	to_wdt_device(n) container_of(n, struct wdt_device, dev)
 
---Multipart_Tue__11_Feb_2003_19:55:07_+0100_08150a30--
+/* some device data */
+
+struct wdt_device {
+	struct semaphore stop;
+	volatile int running;
+	struct timer_list timer;
+	volatile int queue;
+	int default_ticks;
+	int min_ticks;
+	unsigned long inuse;
+	struct platform_device dev;
+};
+
+static struct wdt_device cpu5wdt_device = {
+	.dev = {
+		.name = "watchdog",
+		.id		= 0,
+		.dev		= {
+			.name	= "CPU5 Watchdog Device",
+		},
+	},
+};
+
+ssize_t statistics_show(struct device * dev, char * buf)
+{
+	size_t len;
+	struct wdt_device *d = to_wdt_device(to_platform_device(dev));
+	len = sprintf(buf,      "activation:       %i\n", d->queue);
+	len += sprintf(buf+len, "status:           %i\n", d->running);
+	len += sprintf(buf+len, "current ticks: %i\n", ticks);
+	len += sprintf(buf+len, "min ticks:     %i\n", d->min_ticks);
+	return len;
+
+}
+DEVICE_ATTR(statistics,S_IRUGO,statistics_show,NULL);
+
+/* generic helper functions */
+
+static void cpu5wdt_trigger(unsigned long unused)
+{
+	if ( verbose > 2 )
+		printk(KERN_DEBUG PFX "trigger at %i ticks\n", ticks);
+
+	if( cpu5wdt_device.running )
+		ticks--;
+
+	/* keep watchdog alive */
+	outb(1, port + CPU5WDT_TRIGGER_REG);
+
+	/* requeue?? */
+	if( cpu5wdt_device.queue && ticks ) {
+		cpu5wdt_device.timer.expires = jiffies + CPU5WDT_INTERVAL;
+		add_timer(&cpu5wdt_device.timer);
+	}
+	else {
+		/* ticks doesn't matter anyway */
+		up(&cpu5wdt_device.stop);
+	}
+
+}
+
+static void cpu5wdt_reset(void)
+{
+	if ( ticks < cpu5wdt_device.min_ticks )
+		cpu5wdt_device.min_ticks = ticks;
+
+	ticks = cpu5wdt_device.default_ticks;
+
+	if ( verbose )
+		printk(KERN_DEBUG PFX "reset (%i ticks)\n", (int) ticks);
+
+}
+
+static void cpu5wdt_start(void)
+{
+	if ( !cpu5wdt_device.queue ) {
+		cpu5wdt_device.queue = 1;
+		outb(0, port + CPU5WDT_TIME_A_REG);  
+		outb(0, port + CPU5WDT_TIME_B_REG);  
+		outb(1, port + CPU5WDT_MODE_REG);
+		outb(0, port + CPU5WDT_RESET_REG);
+		outb(0, port + CPU5WDT_ENABLE_REG);
+		cpu5wdt_device.timer.expires = jiffies + CPU5WDT_INTERVAL;
+		add_timer(&cpu5wdt_device.timer);
+	}
+	/* if process dies, counter is not decremented */
+	cpu5wdt_device.running++;
+}
+
+static int cpu5wdt_stop(void)
+{
+	if ( cpu5wdt_device.running )
+		cpu5wdt_device.running = 0;
+
+	ticks = cpu5wdt_device.default_ticks;
+
+	if ( verbose )
+		printk(KERN_CRIT PFX "stop not possible\n");
+
+	return -EIO;
+}
+
+/* filesystem operations */
+
+static int cpu5wdt_open(struct inode *inode, struct file *file)
+{
+	switch(minor(inode->i_rdev)) {
+		case WATCHDOG_MINOR:
+			if ( test_and_set_bit(0, &cpu5wdt_device.inuse) )
+				return -EBUSY;
+			break;
+		default:
+			return -ENODEV;
+	}
+	return 0;
+
+}
+
+static int cpu5wdt_release(struct inode *inode, struct file *file)
+{
+	if(minor(inode->i_rdev)==WATCHDOG_MINOR) {
+		clear_bit(0, &cpu5wdt_device.inuse);
+	}
+	return 0;
+}
+
+static int cpu5wdt_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
+{
+	unsigned int value;
+	static struct watchdog_info ident =
+	{
+		.options = WDIOF_CARDRESET,
+		.identity = "CPU5 WDT"
+	};
+  
+	switch(cmd) {
+		case WDIOC_KEEPALIVE:
+			cpu5wdt_reset();
+			break;
+		case WDIOC_GETSTATUS:    
+			value = inb(port + CPU5WDT_STATUS_REG); 
+			value = (value >> 2) & 1;
+			if ( copy_to_user((int *)arg, (int *)&value, sizeof(int)) )
+				return -EFAULT;
+			break;
+		case WDIOC_GETSUPPORT:
+			if ( copy_to_user((struct watchdog_info *)arg, &ident, sizeof(ident)) )
+				return -EFAULT;
+			break;
+		case WDIOC_SETOPTIONS:
+			if ( copy_from_user(&value, (int *)arg, sizeof(int)) )
+				return -EFAULT;
+			switch(value) {
+				case WDIOS_ENABLECARD:
+					cpu5wdt_start();
+					break;
+				case WDIOS_DISABLECARD:
+					return cpu5wdt_stop();
+				default:
+					return -EINVAL;
+			}
+			break;
+		default:
+    			return -EINVAL;
+	}
+	return 0;
+}
+
+static ssize_t cpu5wdt_write(struct file *file, const char *buf, size_t count, loff_t *ppos)
+{
+	if ( !count )
+		return -EIO;
+	
+	cpu5wdt_reset();
+	return count;
+
+}
+
+static struct file_operations cpu5wdt_fops = {
+	.owner		= THIS_MODULE,
+	.ioctl		= cpu5wdt_ioctl,
+	.open		= cpu5wdt_open,
+	.write		= cpu5wdt_write,
+	.release	= cpu5wdt_release,
+};
+
+static struct miscdevice cpu5wdt_misc = {
+	.minor	= WATCHDOG_MINOR,
+	.name	= "watchdog",
+	.fops	= &cpu5wdt_fops
+};
+
+/* init/exit function */
+
+static int __devinit cpu5wdt_init(void)
+{
+	unsigned int val;
+	int err;
+
+	if ( verbose )
+		printk(KERN_DEBUG PFX "port=0x%x, verbose=%i\n", port, verbose);
+
+	if ( (err = misc_register(&cpu5wdt_misc)) < 0 ) {
+		printk(KERN_ERR PFX "misc_register failed\n");
+		goto no_misc;
+	}
+
+	if ( !request_region(port, CPU5WDT_EXTENT, PFX) ) {
+		printk(KERN_ERR PFX "request_region failed\n");
+		err = -EBUSY;
+		goto no_port;
+	}
+
+	/* watchdog reboot? */
+	val = inb(port + CPU5WDT_STATUS_REG); 
+	val = (val >> 2) & 1;
+	if ( !val )
+		printk(KERN_INFO PFX "sorry, was my fault\n");
+
+	init_MUTEX_LOCKED(&cpu5wdt_device.stop);
+	cpu5wdt_device.queue = 0;
+	cpu5wdt_device.min_ticks = ticks;
+
+	clear_bit(0, &cpu5wdt_device.inuse);
+
+	platform_device_register(&cpu5wdt_device.dev);
+	device_create_file(&cpu5wdt_device.dev.dev, &dev_attr_statistics);
+
+	init_timer(&cpu5wdt_device.timer);
+	cpu5wdt_device.timer.function = cpu5wdt_trigger;
+	cpu5wdt_device.timer.data = 0;
+
+	cpu5wdt_device.default_ticks = ticks;
+
+	printk(KERN_INFO PFX "init success\n");
+
+	return 0;
+
+no_port:
+	misc_deregister(&cpu5wdt_misc);
+no_misc:
+	return err;
+}
+
+static int __devinit cpu5wdt_init_module(void)
+{
+	return cpu5wdt_init();
+}
+
+static void __devexit cpu5wdt_exit(void)
+{
+	if ( cpu5wdt_device.queue ) {
+		cpu5wdt_device.queue = 0;
+		down(&cpu5wdt_device.stop);
+	}
+
+	platform_device_unregister(&cpu5wdt_device.dev);
+	device_remove_file(&cpu5wdt_device.dev.dev, &dev_attr_statistics);
+	misc_deregister(&cpu5wdt_misc);
+
+	release_region(port, CPU5WDT_EXTENT);
+
+}
+
+static void __devexit cpu5wdt_exit_module(void)
+{
+	cpu5wdt_exit();
+}
+
+/* module entry points */
+
+module_init(cpu5wdt_init_module);
+module_exit(cpu5wdt_exit_module);
+
+MODULE_AUTHOR("Heiko Ronsdorf <hero@ihg.uni-duisburg.de>");
+MODULE_DESCRIPTION("sma cpu5 watchdog driver");
+MODULE_SUPPORTED_DEVICE("sma cpu5 watchdog");
+MODULE_LICENSE("GPL");
+
+MODULE_PARM(port, "i");
+MODULE_PARM_DESC(port, "base address of watchdog card, default is 0x91");
+
+MODULE_PARM(verbose, "i");
+MODULE_PARM_DESC(verbose, "be verbose, default is 0 (no)");
+
+MODULE_PARM(ticks, "i");
+MODULE_PARM_DESC(ticks, "count down ticks, default is 10000");
+
+EXPORT_NO_SYMBOLS;
+
+

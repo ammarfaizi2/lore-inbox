@@ -1,166 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130524AbQKGDp0>; Mon, 6 Nov 2000 22:45:26 -0500
+	id <S130640AbQKGDsq>; Mon, 6 Nov 2000 22:48:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130640AbQKGDpQ>; Mon, 6 Nov 2000 22:45:16 -0500
-Received: from 64.124.41.10.napster.com ([64.124.41.10]:33032 "EHLO
-	foobar.napster.com") by vger.kernel.org with ESMTP
-	id <S130524AbQKGDpH>; Mon, 6 Nov 2000 22:45:07 -0500
-Message-ID: <3A077AB9.74FE8BF2@napster.com>
-Date: Mon, 06 Nov 2000 19:44:57 -0800
-From: Jordan Mendelson <jordy@napster.com>
-Organization: Napster, Inc.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: davem@redhat.com, kuznet@ms2.inr.ac.ru, ak@muc.de, netdev@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
-In-Reply-To: <3A076701.F437F88B@napster.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130808AbQKGDsg>; Mon, 6 Nov 2000 22:48:36 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:63104 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130640AbQKGDsZ>;
+	Mon, 6 Nov 2000 22:48:25 -0500
+Date: Mon, 6 Nov 2000 19:34:01 -0800
+Message-Id: <200011070334.TAA01403@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: ecki@lina.inka.de
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <E13syeh-00018h-00@calista.inka.de> (message from Bernd Eckenfels
+	on Tue, 07 Nov 2000 03:38:35 +0100)
+Subject: Re: [PATCH] document ECN in 2.4 Configure.help
+In-Reply-To: <E13syeh-00018h-00@calista.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jordan Mendelson wrote:
-> 
-> We are seeing a performance slowdown between Windows PPP users and
-> servers running 2.4.0-test10. Attached is a tcpdump log of the
-> connection. The machines is without TCP ECN support. The Windows machine
-> is running Windows 98 SE 4.10.2222 A dialed up over PPP w/ TCP header
-> compression. The Linux machine is connected directly to the Internet via
-> a 6509. There is a possibility that we are hitting a bandwidth cap on
-> outgoing traffic.
+   From: Bernd Eckenfels <ecki@lina.inka.de>
+   Date: 	Tue, 07 Nov 2000 03:38:35 +0100
 
+   Because this will add a Fallback (non ECN) packet to every denied
+   target. I think this is bad policy at least. It might violate the
+   RFCs, too. Keep in mind, we cannot recognice a rejection due to
+   ECN.
 
-Just some updates. This problem does not appear to happen under 2.2.16.
-The dump for 2.2.16 is almost the same except we send an mss back of 536
-and not 1460 (remote mtu vs local mtu).
+It does in fact violate RFCs because the fallback has to handle the
+case where ECN rejection comes in the form of a (perfectly valid)
+TCP reset.
 
-Here is the head of a tcpdump with the same client, but this time with a
-2.2.16 machine instead of a 2.4.0-test10 machine:
+Any workaround which ignores TCP resets is broken from the start and
+is not to be implemented.
 
-19:26:23.593114 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: S
-5061245:5061245(0) win 8192 <mss 536,nop,nop,sackOK> (DF)
-19:26:23.593237 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: S
-119520695:119520695(0) ack 5061246 win 32696 <mss 536,nop,nop,sackOK>
-(DF)
-19:26:23.824394 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: .
-1:1(0) ack 1 win 65280 (DF)
-19:26:23.824398 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: .
-1:1(0) ack 1 win 8576 (DF)
-19:26:23.825249 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: P
-1:44(43) ack 1 win 65280 (DF)
-19:26:23.825283 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: .
-1:1(0) ack 44 win 32696 (DF)
-19:26:25.245845 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: P
-1:21(20) ack 44 win 32696 (DF)
-19:26:25.245956 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: P
-21:342(321) ack 44 win 32696 (DF)
-19:26:25.466759 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: .
-44:44(0) ack 342 win 64939 (DF)
-19:26:25.466792 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: P
-342:878(536) ack 44 win 32696 (DF)
-19:26:25.466800 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: P
-878:1401(523) ack 44 win 32696 (DF)
-19:26:25.467562 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: P
-44:56(12) ack 342 win 64939 (DF)
-19:26:25.480104 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: .
-1401:1401(0) ack 56 win 32696 (DF)
-19:26:25.763509 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: P
-56:456(400) ack 878 win 65280 (DF)
-19:26:25.766253 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: .
-456:456(0) ack 1401 win 64757 (DF)
-19:26:26.070115 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: .
-1401:1401(0) ack 456 win 32296 (DF)
-19:26:26.431515 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: P
-1401:1413(12) ack 456 win 32696 (DF)
-19:26:26.432141 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: P
-1413:1684(271) ack 456 win 32696 (DF)
-19:26:26.657631 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: .
-456:456(0) ack 1684 win 65280 (DF)
-19:26:26.657663 eth0 > 64.124.41.136.8888 > 209.179.248.69.1260: P
-1684:1817(133) ack 456 win 32696 (DF)
-19:26:26.952825 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: .
-456:456(0) ack 1817 win 65147 (DF)
-19:26:31.086138 eth0 < 209.179.248.69.1260 > 64.124.41.136.8888: P
-456:506(50) ack 1817 win 65147 (DF)
-
-> 18:51:33.282286 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: S
-> 3013389:3013389(0) win 8192 <mss 536,nop,nop,sackOK> (DF)
-> 18:51:33.282395 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: S
-> 2198113890:2198113890(0) ack 3013390 win 5840 <mss 1460,nop,nop,sackOK>
-> (DF)
-> 18:51:33.509532 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: .
-> 1:1(0) ack 1 win 8576 (DF)
-> 18:51:33.510360 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: .
-> 1:1(0) ack 1 win 65280 (DF)
-> 18:51:33.510416 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: P
-> 1:44(43) ack 1 win 65280 (DF)
-> 18:51:33.510457 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: .
-> 1:1(0) ack 44 win 5840 (DF)
-> 18:51:33.988330 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1:21(20) ack 44 win 5840 (DF)
-> 18:51:33.988474 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 21:557(536) ack 44 win 5840 (DF)
-> 18:51:36.987336 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1:21(20) ack 44 win 5840 (DF)
-> 18:51:37.177772 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: P
-> 44:56(12) ack 21 win 65260 (DF)
-> 18:51:37.177794 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 21:557(536) ack 44 win 5840 (DF)
-> 18:51:37.177806 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 557:1093(536) ack 56 win 5840 (DF)
-> 18:51:39.845046 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: P
-> 44:456(412) ack 21 win 65260 (DF)
-> 18:51:39.845071 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: .
-> 1093:1093(0) ack 456 win 6432 <nop,nop, sack 1 {44:56} > (DF)
-> 18:51:43.177329 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 21:557(536) ack 456 win 6432 (DF)
-> 18:51:43.538219 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: .
-> 456:456(0) ack 557 win 65280 (DF)
-> 18:51:43.538275 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 557:1093(536) ack 456 win 6432 (DF)
-> 18:51:43.538292 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1093:1629(536) ack 456 win 6432 (DF)
-> 18:51:55.537346 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 557:1093(536) ack 456 win 6432 (DF)
-> 18:51:55.841360 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: .
-> 456:456(0) ack 1093 win 65280 (DF)
-> 18:51:55.841384 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1093:1629(536) ack 456 win 6432 (DF)
-> 18:51:55.841393 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1629:1849(220) ack 456 win 6432 (DF)
-> 18:52:19.837335 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1093:1629(536) ack 456 win 6432 (DF)
-> 18:52:20.153776 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: .
-> 456:456(0) ack 1629 win 65280 (DF)
-> 18:52:20.153803 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1629:1849(220) ack 456 win 6432 (DF)
-> 18:53:08.147334 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1629:1849(220) ack 456 win 6432 (DF)
-> 18:53:08.475911 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: .
-> 456:456(0) ack 1849 win 65060 (DF)
-> 18:53:08.475947 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1849:1871(22) ack 456 win 6432 (DF)
-> 18:54:44.467332 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1849:1871(22) ack 456 win 6432 (DF)
-> 18:54:44.824187 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: .
-> 456:456(0) ack 1871 win 65038 (DF)
-> 18:54:44.824256 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1871:1893(22) ack 456 win 6432 (DF)
-> 18:54:55.212750 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: P
-> 456:506(50) ack 1871 win 65038 (DF)
-> 18:54:55.212767 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: .
-> 1893:1893(0) ack 506 win 6432 (DF)
-> 18:54:55.571337 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: P
-> 1893:2429(536) ack 506 win 6432 (DF)
-> 18:54:57.394879 eth0 < 209.179.248.69.1238 > 64.124.41.177.8888: P
-> 456:506(50) ack 1871 win 65038 (DF)
-> 18:54:57.394894 eth0 > 64.124.41.177.8888 > 209.179.248.69.1238: .
-> 2429:2429(0) ack 506 win 6432 <nop,nop, sack 1 {456:506} > (DF)
-
-Jordan
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,87 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265504AbUAGLSq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 06:18:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265510AbUAGLSq
+	id S265507AbUAGLQM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 06:16:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265510AbUAGLQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 06:18:46 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:35968 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S265504AbUAGLSk (ORCPT
+	Wed, 7 Jan 2004 06:16:12 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:65452 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265507AbUAGLQH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 06:18:40 -0500
-To: Christoph Hellwig <hch@infradead.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] allow SGI IOC4 chipset support
-References: <20040106010924.GA21747@sgi.com>
-	<20040106102538.A14492@infradead.org>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 07 Jan 2004 06:18:30 -0500
-In-Reply-To: <20040106102538.A14492@infradead.org>
-Message-ID: <yq04qv8ypkp.fsf@wildopensource.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 7 Jan 2004 06:16:07 -0500
+Date: Wed, 7 Jan 2004 12:16:01 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: Olaf Hering <olh@suse.de>, Andries Brouwer <aebr@win.tue.nl>,
+       Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+Message-ID: <20040107111601.GB16750@suse.de>
+References: <200401012333.04930.arvidjaar@mail.ru> <200401071400.46286.arvidjaar@mail.ru> <20040107110516.GC3483@suse.de> <200401071414.44390.arvidjaar@mail.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401071414.44390.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
+On Wed, Jan 07 2004, Andrey Borzenkov wrote:
+> On Wednesday 07 January 2004 14:05, Jens Axboe wrote:
+> > On Wed, Jan 07 2004, Andrey Borzenkov wrote:
+> > > On Wednesday 07 January 2004 12:50, Jens Axboe wrote:
+> > > > > > So yeah, poll...
+> > > > >
+> > > > > Poll how? "kmediachangethread"? Or polling in userland? The latter
+> > > > > would (probably) lead to endless IO errors. Not very good.
+> > > >
+> > > > No need to put it in the kernel, user space fits the bil nicely.
+> > >
+> > > unfortunately opening device in userland effectively locks tray making
+> > > media change impossible. at least given current ->open semantic.
+> > >
+> > > even periodic access is quite annoying for users (tray closing while
+> > > user attempts to insert CD)
+> >
+> > cdrom layer handles this with O_NONBLOCK basically meaning a 'not for
+> > data' open.
+> >
+> > > we may agree that O_NDELAY does not affect locked state; currently
+> > > this is not consistent across drivers (e.g. cdrom does not lock tray
+> > > while sd does)
+> >
+> > cdrom has no special O_NDELAY checks.
+> 
+> ok I meant O_NONBLOCK, sorry. they are synonyms anyway
+> 
+> {pts/0}% grep NONBLO *
+> fcntl.h:#define O_NONBLOCK        04000
+> fcntl.h:#define O_NDELAY        O_NONBLOCK
 
-Christoph> On Mon, Jan 05, 2004 at 05:09:24PM -0800, Jesse Barnes
-Christoph> wrote:
->> The 'depends' directive for SGI IOC4 support is too restrictive.
->> Just kill it altogether.
+Oh right, so same thing :-). cdrom layer has always documented it as
+O_NONBLOCK.
 
-Christoph> Umm, it won't work for anything but a kernel with SN2
-Christoph> support compile in due to the bridge-level dma byteswapping
-Christoph> it needs (through a week symbol, that's why you don't see
-Christoph> compile failures for other architectures, eek!).
+-- 
+Jens Axboe
 
-Christoph> So at least make it depend on CONFIG_IA64
-
-What about adding this?
-
-Though shall not use weak symbols in though kernel ....
-
-Jes
-
---- drivers/ide/pci/sgiioc4.c~	Tue Jan  6 01:43:41 2004
-+++ drivers/ide/pci/sgiioc4.c	Wed Jan  7 03:13:13 2004
-@@ -719,6 +719,7 @@
- 	return 0;
- }
- 
-+#if defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_SGI_SN2)
- /* This ensures that we can build this for generic kernels without
-  * having all the SN2 code sync'd and merged.
-  */
-@@ -726,9 +727,10 @@
- 	PCIDMA_ENDIAN_BIG,
- 	PCIDMA_ENDIAN_LITTLE
- } pciio_endian_t;
--pciio_endian_t __attribute__ ((weak)) snia_pciio_endian_set(struct pci_dev
--					    *pci_dev, pciio_endian_t device_end,
--					    pciio_endian_t desired_end);
-+pciio_endian_t snia_pciio_endian_set(struct pci_dev
-+				     *pci_dev, pciio_endian_t device_end,
-+				     pciio_endian_t desired_end);
-+#endif
- 
- static unsigned int __init
- pci_init_sgiioc4(struct pci_dev *dev, ide_pci_device_t * d)
-@@ -754,6 +756,7 @@
- 		return 1;
- 	}
- 
-+#if defined(CONFIG_IA64_GENERIC) || defined(CONFIG_IA64_SGI_SN2)
- 	/* Enable Byte Swapping in the PIC... */
- 	if (snia_pciio_endian_set) {
- 		snia_pciio_endian_set(dev, PCIDMA_ENDIAN_LITTLE,
-@@ -764,7 +767,7 @@
- 		       d->name, dev->slot_name);
- 		return 1;
- 	}
--
-+#endif
- 	return sgiioc4_ide_setup_pci_device(dev, d);
- }
- 

@@ -1,88 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272280AbRIRPux>; Tue, 18 Sep 2001 11:50:53 -0400
+	id <S272304AbRIRPvx>; Tue, 18 Sep 2001 11:51:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272417AbRIRPue>; Tue, 18 Sep 2001 11:50:34 -0400
-Received: from draal.physics.wisc.edu ([128.104.137.82]:47299 "EHLO
-	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
-	id <S272415AbRIRPu2>; Tue, 18 Sep 2001 11:50:28 -0400
-Date: Tue, 18 Sep 2001 10:50:49 -0500
-From: Bob McElrath <mcelrath@draal.physics.wisc.edu>
-To: Hubert Mantel <mantel@suse.de>
+	id <S272407AbRIRPvo>; Tue, 18 Sep 2001 11:51:44 -0400
+Received: from lilly.ping.de ([62.72.90.2]:53774 "HELO lilly.ping.de")
+	by vger.kernel.org with SMTP id <S272439AbRIRPvb>;
+	Tue, 18 Sep 2001 11:51:31 -0400
+Date: 18 Sep 2001 17:51:04 +0200
+Message-ID: <20010918175104.D6698@planetzork.spacenet>
+From: jogi@planetzork.ping.de
+To: "Andrea Arcangeli" <andrea@suse.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/partitions hosed in 2.4.9-ac10
-Message-ID: <20010918105049.E31361@draal.physics.wisc.edu>
-In-Reply-To: <20010917151957.A26615@codepoet.org> <9o5pfu$f03$1@ns1.clouddancer.com> <20010917223203.DACE3783EE@mail.clouddancer.com> <20010918174312.H6102@suse.de>
+Subject: Re: 2.4.10-pre11: alsaplayer skiping during kernel build (-pre10 did not)
+In-Reply-To: <20010918171416.A6540@planetzork.spacenet> <20010918172500.F19092@athlon.random> <20010918173515.B6698@planetzork.spacenet> <20010918174434.I19092@athlon.random>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gDGSpKKIBgtShtf+"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010918174312.H6102@suse.de>; from mantel@suse.de on Tue, Sep 18, 2001 at 05:43:12PM +0200
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010918174434.I19092@athlon.random>; from andrea@suse.de on Tue, Sep 18, 2001 at 05:44:34PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 18, 2001 at 05:44:34PM +0200, Andrea Arcangeli wrote:
+> On Tue, Sep 18, 2001 at 05:35:15PM +0200, jogi@planetzork.ping.de wrote:
+> > Since I am not using md there are not that much changes left between
+> > -pre10 and -pre11. Or do you think that it is caused by the console
+> > locking changes?
+> 
+> certainly not from the console locking changes. Can you just go back to
+> pre10 and verify you don't get those skips to just to be 100% sure the
+> userspace config is the same?
+> 
+> The only scheduler change in pre11 is this one:
+> 
+> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.10pre10aa1/00_sched-rt-fix-1
+> 
+> which should be infact a bugfix for rt threads, also discussed on l-k
+> recently, so it's not clear how this odd regression happened.
+> 
+> You can try to back it out and see if helps just in case.
 
---gDGSpKKIBgtShtf+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok Andrea,
 
-Hubert Mantel [mantel@suse.de] wrote:
-> Hi,
->=20
-> On Mon, Sep 17, Colonel wrote:
->=20
-> > >$ cat /proc/partitions
->=20
-> [...]
->=20
-> > Works fine here:
->=20
-> [...]
->=20
-> > SCSI subsystem driver Revision: 1.00
-> > sym53c8xx: at PCI bus 0, device 9, function 0
-> > sym53c8xx: setting PCI_COMMAND_PARITY...(fix-up)
-> > sym53c8xx: 53c875 detected with Symbios NVRAM
-> > sym53c8xx: at PCI bus 0, device 9, function 1
-> >=20
-> >=20
-> > Perhaps it is a driver effect?
->=20
-> You only have one single SCSI adapter?
->=20
-> I tried several things so far, and it seems you need the following to=20
-> trigger the problem: You need at least two SCSI adapters that require=20
-> different drivers (so two AHA2940s are not sufficient) and the drivers=20
-> need to be loaded as modules.
+I will test and let you know about the findings but I am afraid I can not
+test this today. But I will let you know. Btw. xmms is skipping like mad
+too.
 
-I have a BusLogic BT-958 (compiled in), pas16 (module), and usb-storage
-(module).
+Regards,
 
-The problem shows up with only the BusLogic scsi device, and the other
-modules not loaded.  (And it also shows up with 2 or more scsi drivers
-loaded)  Note that on this machine the pas16 and usb-storage modules
-*were* installed, I removed them, and /proc/partitions still looped.  (I
-can't readily reboot ATM)
+   Jogi
 
-Hope this helps,
--- Bob
+-- 
 
-Bob McElrath (rsmcelrath@students.wisc.edu)=20
-Univ. of Wisconsin at Madison, Department of Physics
+Well, yeah ... I suppose there's no point in getting greedy, is there?
 
---gDGSpKKIBgtShtf+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjunbVgACgkQjwioWRGe9K1rogCdGDnmCWG4gBABWCKlMU+fgEqG
-iM4AoLGl2o5Wwk9nG2eIbwdXP5SbMju2
-=Bfad
------END PGP SIGNATURE-----
-
---gDGSpKKIBgtShtf+--
+    << Calvin & Hobbes >>

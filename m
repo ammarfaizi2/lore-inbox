@@ -1,31 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267151AbSKMJaG>; Wed, 13 Nov 2002 04:30:06 -0500
+	id <S267155AbSKMJbx>; Wed, 13 Nov 2002 04:31:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267152AbSKMJaG>; Wed, 13 Nov 2002 04:30:06 -0500
-Received: from AGrenoble-101-1-2-172.abo.wanadoo.fr ([193.253.227.172]:50694
-	"EHLO microsoft.com") by vger.kernel.org with ESMTP
-	id <S267151AbSKMJaF>; Wed, 13 Nov 2002 04:30:05 -0500
-Subject: Re: repeatable IDE errors when using SMART
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0211121800320.20949-100000@twinlark.arctic.org>
-References: <Pine.LNX.4.44.0211121800320.20949-100000@twinlark.arctic.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1037180301.8013.5.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1 (Preview Release)
-Date: 13 Nov 2002 10:38:21 +0100
-Content-Transfer-Encoding: 8bit
+	id <S267156AbSKMJbx>; Wed, 13 Nov 2002 04:31:53 -0500
+Received: from dp.samba.org ([66.70.73.150]:44202 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267155AbSKMJbv>;
+	Wed, 13 Nov 2002 04:31:51 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][2.5] smp_init 'CPUS done' looks strange 
+In-reply-to: Your message of "Tue, 12 Nov 2002 22:50:38 CDT."
+             <Pine.LNX.4.44.0211122246540.24523-100000@montezuma.mastecende.com> 
+Date: Wed, 13 Nov 2002 20:34:25 +1100
+Message-Id: <20021113093843.52D432C0B0@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mer 13/11/2002 Ã  03:19, dean gaudet a écrit:
-> i'm 99.99% certain that the use of smartctl and/or hddtemp is causing my
-> system to lose contact with the drives.  there's just been far too many
-> concidental errors of this sort:
+In message <Pine.LNX.4.44.0211122246540.24523-100000@montezuma.mastecende.com> 
+you write:
+> Also, it would make sense in the future if smp_cpus_done actually gets a 
+> value denoting how many cpus are online.
 
-Maybe I've seen something like this too, but I'm not sure.
+No.  Drop the prink by all means, but smp_cpus_done() can call
+num_online_cpus() itself.  It can't know how many cpus the user
+specified, however.
 
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

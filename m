@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266353AbTAFNLU>; Mon, 6 Jan 2003 08:11:20 -0500
+	id <S266609AbTAFNW3>; Mon, 6 Jan 2003 08:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266367AbTAFNLU>; Mon, 6 Jan 2003 08:11:20 -0500
-Received: from pc-62-31-66-84-ed.blueyonder.co.uk ([62.31.66.84]:16769 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S266353AbTAFNLU>; Mon, 6 Jan 2003 08:11:20 -0500
-Subject: Re: 2.4.21-pre2 stalls out when running unixbench
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Joe Korty <joe.korty@ccur.com>, Andreas Dilger <adilger@clusterfs.com>,
-       rusty@rustcorp.com.au, riel@conectiva.com.br,
-       linux-kernel@vger.kernel.org, hch@sgi.com,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <3E19739F.84C57EFC@digeo.com>
-References: <3E16C171.BFEA45AE@digeo.com>
-	<1041855042.2690.2.camel@sisko.scot.redhat.com> 
-	<3E19739F.84C57EFC@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Jan 2003 13:23:55 +0000
-Message-Id: <1041859435.2691.51.camel@sisko.scot.redhat.com>
+	id <S266637AbTAFNW3>; Mon, 6 Jan 2003 08:22:29 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42698 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S266609AbTAFNW1>; Mon, 6 Jan 2003 08:22:27 -0500
+Date: Mon, 6 Jan 2003 14:31:02 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       claus@momo.math.rwth-aachen.de, linux-tape@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [2.5 patch] re-add zft_dirty to zftape-ctl.c
+Message-ID: <20030106133101.GS6114@fs.tum.de>
+References: <20030104151404.GX6114@fs.tum.de> <1041712127.2036.1.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1041712127.2036.1.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Jan 04, 2003 at 08:28:48PM +0000, Alan Cox wrote:
+> On Sat, 2003-01-04 at 15:14, Adrian Bunk wrote:
+> > Hi Alan,
+> > 
+> > your
+> > 
+> >   [PATCH] rescue ftape from the ravages of that Rusty chap
+> > 
+> > removed zft_dirty from zftape-ctl.c in Linus' 2.5 tree. This seems to be
+> > accidentially and wrong, it was the only definition of zft_dirty in the
+> > whole kernel sources and now there's an error at the final linking of
+> > the kernel. The patch below (against 2.5.54) re-adds it.
+> 
+> I disagree entirely. The zft_dirty function is junk. I accidentally missed
+> removing one other reference to it when you compile it in, that is all. For some
+> reason the fix to that never got into Linus tree. Remove the other use of it.
 
-On Mon, 2003-01-06 at 12:16, Andrew Morton wrote:
+Is the patch below correct?
 
-> Well personally I prefer slow-and-safe.  But we could make 2.4
-> do what 2.5 is doing - one pass through the superblocks to start
-> the syncs and a second pass to wait on them all.
+> Alan
 
-The 2.5 approach has the problem that it can start queuing writeback for
-multiple fs'es on the same disk at the same time --- I wouldn't be
-surprised if it increases thrashing in that case.  But I guess I'm not
-too concerned about sync() performance itself, as long as the in-kernel
-background writeback is being done sensibly.
+cu
+Adrian
 
-> This is fragile stuff though....
-
-Yep.
-
---Stephen
-
+--- linux-2.5.54/drivers/char/ftape/zftape/zftape-ctl.h.old	2003-01-06 14:23:51.000000000 +0100
++++ linux-2.5.54/drivers/char/ftape/zftape/zftape-ctl.h	2003-01-06 14:24:02.000000000 +0100
+@@ -47,7 +47,6 @@
+ extern void zft_reset_position(zft_position *pos);
+ extern int  zft_check_write_access(zft_position *pos);
+ extern int  zft_def_idle_state(void);
+-extern int  zft_dirty(void);
+ 
+ /*  hooks for the VFS interface 
+  */
+--- linux-2.5.54/drivers/char/ftape/zftape/zftape-ctl.c.old	2003-01-06 14:22:49.000000000 +0100
++++ linux-2.5.54/drivers/char/ftape/zftape/zftape-ctl.c	2003-01-06 14:23:43.000000000 +0100
+@@ -790,13 +790,6 @@
+ 		zft_uninit_mem();
+ 		going_offline = 0;
+ 		zft_offline   = 1;
+-	} else if (zft_dirty()) {
+-		TRACE(ft_t_noise, "Keeping module locked in memory because:\n"
+-		      KERN_INFO "header segments need updating: %s\n"
+-		      KERN_INFO "tape not at BOT              : %s",
+-		      (zft_volume_table_changed || zft_header_changed) 
+-		      ? "yes" : "no",
+-		      zft_tape_at_lbot(&zft_pos) ? "no" : "yes");
+ 	} else if (zft_cmpr_lock(0 /* don't load */) == 0) {
+ 		(*zft_cmpr_ops->reset)(); /* unlock it again */
+ 	}

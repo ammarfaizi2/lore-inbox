@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbUKCFCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbUKCFKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbUKCFCI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 00:02:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbUKCFCH
+	id S261432AbUKCFKM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 00:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbUKCFKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 00:02:07 -0500
-Received: from cantor.suse.de ([195.135.220.2]:18127 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261431AbUKCFCF (ORCPT
+	Wed, 3 Nov 2004 00:10:12 -0500
+Received: from cantor.suse.de ([195.135.220.2]:28629 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261432AbUKCFKI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 00:02:05 -0500
-Date: Wed, 3 Nov 2004 05:55:47 +0100
+	Wed, 3 Nov 2004 00:10:08 -0500
+To: Daniel Egger <degger@fhm.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8 and 2.6.9 Dual Opteron glitches
+References: <5AC1EEB8-2CD7-11D9-BF00-000A958E35DC@fhm.edu.suse.lists.linux.kernel>
 From: Andi Kleen <ak@suse.de>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.9: Only handle system NMIs on the BSP
-Message-ID: <20041103045547.GA25334@wotan.suse.de>
-References: <Pine.LNX.4.58L.0411030125340.32079@blysk.ds.pg.gda.pl> <20041103024944.GA8907@wotan.suse.de> <Pine.LNX.4.58L.0411030255410.32079@blysk.ds.pg.gda.pl>
-Mime-Version: 1.0
+Date: 03 Nov 2004 06:06:51 +0100
+In-Reply-To: <5AC1EEB8-2CD7-11D9-BF00-000A958E35DC@fhm.edu.suse.lists.linux.kernel>
+Message-ID: <p737jp38qs4.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0411030255410.32079@blysk.ds.pg.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 03:04:06AM +0000, Maciej W. Rozycki wrote:
-> On Wed, 3 Nov 2004, Andi Kleen wrote:
-> 
-> > >  While discussing races in the NMI handler's trailer fiddling with RTC
-> > > registers, I've discovered we incorrectly attempt to handle NMIs coming
-> > > from the system (memory errors, IOCHK# assertions, etc.) with all
-> > > processors even though the interrupts are only routed to the bootstrap
-> > > processor.  If one of these events coincides with a NMI watchdog tick it
-> > 
-> > Where is this documented/guaranteed that only APs get such NMIs? 
-> 
->  Only the BSP gets them (not APs) and it's we who arrange for that. ;-)  
-> We only enable LVT1 on the BSP -- APs have this input masked.  See 
-> setup_local_APIC().
+Daniel Egger <degger@fhm.edu> writes:
 
-Ok, then it's fine for me. Thanks. 
+> 2) 64 bit kernel vgettimeofday panic: The kernel panics in
+>     arch/x64_64/vsyscall.c:169 on boot.
+> 
+>    static int __init vsyscall_init(void)
+>    {
+>            if ((unsigned long) &vgettimeofday !=
+> VSYSCALL_ADDR(__NR_vgettimeofday))
+>                    panic("vgettimeofday link addr broken");
+> 
+>    Replacing those panic(s) by printk make the machine boot just fine
+>    and also work (seemingly) without any problems under load.
+
+Can you print the two values? I've never seen such a problem.
+If it works then they must be identical, otherwise user space would
+break very quickly.
 
 -Andi

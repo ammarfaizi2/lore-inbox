@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292985AbSBVUZe>; Fri, 22 Feb 2002 15:25:34 -0500
+	id <S293024AbSBVWS6>; Fri, 22 Feb 2002 17:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292987AbSBVUZY>; Fri, 22 Feb 2002 15:25:24 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:64295 "EHLO
+	id <S293025AbSBVWSj>; Fri, 22 Feb 2002 17:18:39 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:48935 "EHLO
 	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S292985AbSBVUZN> convert rfc822-to-8bit; Fri, 22 Feb 2002 15:25:13 -0500
-Date: Thu, 21 Feb 2002 22:24:22 +0100 (CET)
+	id <S293024AbSBVWSZ> convert rfc822-to-8bit; Fri, 22 Feb 2002 17:18:25 -0500
+Date: Fri, 22 Feb 2002 00:17:26 +0100 (CET)
 From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
 X-X-Sender: <groudier@gerard>
-To: Greg KH <greg@kroah.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
+To: Erik Andersen <andersen@codepoet.org>
+cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <20020222200750.GE9558@kroah.com>
-Message-ID: <20020221221842.V1779-100000@gerard>
+In-Reply-To: <20020222212252.GA30290@codepoet.org>
+Message-ID: <20020222001333.U2109-100000@gerard>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
@@ -22,36 +23,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 22 Feb 2002, Greg KH wrote:
+On Fri, 22 Feb 2002, Erik Andersen wrote:
 
-> On Thu, Feb 21, 2002 at 10:01:14PM +0100, Gérard Roudier wrote:
+> On Thu Feb 21, 2002 at 10:24:22PM +0100, Gérard Roudier wrote:
 > >
-> > I have investigated it, but it didn't seem to allow the boot order set by
-> > user in sym53c8xx HBA NVRAMs to be applied, breaking as a result all
-> > systems depending on it. Since it is transparently handled by the
-> > sym53c8xx driver and just behaves _as_ user expects, my guess is that
-> > numerous users may just have their system relying on it.
+> > Thanks for the reply. But my concern is user convenience in _average_
+> > here. Basically, I want the 99% of users that cannot afford neither need
+> > nor want PCI hotplug to have their system just dead in order to make happy
+> > the 1%.
 >
-> But as Jeff noted, it is _required_ for PCI hotplug functionality.
-> Because allmost all of the SCSI drivers are not using this over 2 year
-> old interface, they will not work properly on large machines that now
-> support PCI hotplug.  Much to my dismay.
->
-> Init order works off of PCI probing order.  If the network people can
-> handle this, the SCSI people can :)
->
-> > Propose a kernel API that does not break more features that it adds and I
-> > will be glad to use it.
->
-> Huh?  This is not a new API.  What does it break for you?
+> I think _lots_ of people have laptops -- far more than just 1%.
+> Those laptops have cardbus slots, which need PCI hotplug to work
+> properly.  And I _know_ that Linus has a laptop with a cardbus
+> slot...
 
-Thanks for the reply. But my concern is user convenience in _average_
-here. Basically, I want the 99% of users that cannot afford neither need
-nor want PCI hotplug to have their system just dead in order to make happy
-the 1%.
-
-In other word, I donnot care about this 1% if it makes run a tiny risk to
-the 99% to get inconvenience a single second. Btw, I am among the 99%.
+My reply was in the only context of sym53c8xx PCI-SCSI chips.
+Even in the full SCSI context + laptops, the 'lots of people' you are
+talking about should be near absolute zero in my opinion. :)
 
   Gérard.
 

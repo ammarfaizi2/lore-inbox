@@ -1,89 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVADBKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVADBKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVADBKh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 20:10:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVADBCm
+	id S261946AbVADBKg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 20:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVADBDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 20:02:42 -0500
-Received: from dp.samba.org ([66.70.73.150]:28116 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261885AbVADBAf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 20:00:35 -0500
+	Mon, 3 Jan 2005 20:03:06 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:49062 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261471AbVADA6d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 19:58:33 -0500
+Message-ID: <41D9EA09.8010302@zytor.com>
+Date: Mon, 03 Jan 2005 16:57:45 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16857.59946.683684.231658@samba.org>
-Date: Tue, 4 Jan 2005 11:58:18 +1100
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
-       samba-technical@lists.samba.org, aia21@cantab.net,
-       hirofumi@mail.parknet.co.jp,
+To: tridge@samba.org
+CC: Michael B Allen <mba2000@ioplex.com>, sfrench@samba.org,
+       linux-ntfs-dev@lists.sourceforge.net, samba-technical@lists.samba.org,
+       aia21@cantab.net, hirofumi@mail.parknet.co.jp,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: FAT, NTFS, CIFS and DOS attributes
-In-Reply-To: <41D9E3AA.5050903@zytor.com>
-References: <41D9C635.1090703@zytor.com>
-	<16857.56805.501880.446082@samba.org>
-	<41D9E3AA.5050903@zytor.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
+References: <41D9C635.1090703@zytor.com>	<54479.199.43.32.68.1104794772.squirrel@li4-142.members.linode.com>	<41D9D65D.7050001@zytor.com>	<16857.57572.25294.431752@samba.org>	<41D9E23A.4010608@zytor.com> <16857.58819.311223.845400@samba.org>
+In-Reply-To: <16857.58819.311223.845400@samba.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Oh geez.  Couldn't you have split out the various data items into 
- > separate xattrs?
+tridge@samba.org wrote:
+>  > Right, it's the "design is broken so everything ends up in user.*". 
+>  > Now, I clearly dislike the StudlyCaps used here, but if it's already 
+>  > deployed it's probably too late to fix this :(
+> 
+> Samba4 is only deployed by a very few brave sites (such as my wifes
+> server) who all know that things might change in non-compatible
+> ways. Still, I'd want a slightly stronger reason than dislike of
+> studly caps to change it :-)
+> 
 
-fetching and setting this stuff is _really_ common, so I have arranged
-to store them in a way to make it as efficient as possible. For
-example, when a remote client asks for a directory listing we need to
-fetch just one xattr from the kernel per file (directory listings
-in the windows world usually return the equivalent of a full stat
-structure for every name).
+The slightly stronger reason is basically the same reason why we don't 
+stuff a bunch of things into a struct stat and call a single system call 
+to change a bunch of attributes; you don't want to have to change them 
+all every time, and by putting them all in the same structure that's 
+your only option, since setxattr() doesn't allow you to mask and merge.
 
-Similarly, when these are set the client tends to set more than one at
-a time. The most commonly used set call takes this structure:
+Incidentally, the document you pointed me to wasn't clear on the 
+endianness convention.
 
-	/* RAW_SFILEINFO_BASIC_INFO and
-	   RAW_SFILEINFO_BASIC_INFORMATION interfaces */
-	struct {
-		enum smb_setfileinfo_level level;
-		union setfileinfo_file file;
-
-		struct {
-			NTTIME create_time;
-			NTTIME access_time;
-			NTTIME write_time;
-			NTTIME change_time;
-			uint32_t attrib;
-		} in;
-	} basic_info;
-
-Having the items that tend to get read/written together grouped
-together allowed me to make it all quite efficient, while still having
-a reasonable chance of the EAs all fitting in-inode on filesystems
-that support that.
-
-Obviously it is racy when dealt with from user space, but there really
-is no way to avoid all these races without a user space accessible
-"lock the files meta-data" call and that is why I'm looking forward to
-having a Samba LSM module to avoid these races.
-
- > Samba clearly has other needs than other users, although of course
- > it would be unfortunate if Samba then can't export this
- > information.
-
-I think you'll find that all users of dos attributes on Linux will
-have very similar needs to Samba, and will want these things grouped
-together. For example:
-
- - backup/restore apps will want to backup/restore these attributes as
-   lumps
- - wine implements essentially the same APIs as Samba, just in a
-   different form, and so tends to get the same groupings of
-   attributes get/set calls that Samba does (the SMB protocol is to a
-   large degree a on-the-wire version of Win32).
-
-Are there any other significant users of DOS attributes on Linux that
-want something different?
-
-Cheers, Tridge
+	-hpa

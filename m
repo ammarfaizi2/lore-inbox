@@ -1,57 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281776AbRKWOZm>; Fri, 23 Nov 2001 09:25:42 -0500
+	id <S282157AbRKWOhD>; Fri, 23 Nov 2001 09:37:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281560AbRKWOZc>; Fri, 23 Nov 2001 09:25:32 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:37906 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S281776AbRKWOZQ>; Fri, 23 Nov 2001 09:25:16 -0500
-Message-ID: <3BFE5A02.76AE6DF8@evision-ventures.com>
-Date: Fri, 23 Nov 2001 15:15:30 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
+	id <S282156AbRKWOgx>; Fri, 23 Nov 2001 09:36:53 -0500
+Received: from mustard.heime.net ([194.234.65.222]:51425 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S281560AbRKWOgj>; Fri, 23 Nov 2001 09:36:39 -0500
+Date: Fri, 23 Nov 2001 15:36:33 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: gcc vs intel's cc
+Message-ID: <Pine.LNX.4.30.0111231535500.553-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Updated parameter and modules rewrite (2.4.14)
-In-Reply-To: <E166p1R-0004ll-00@wagner>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> 
-> Hi all,
-> 
->    http://ftp.kernel.org/pub/linux/kernel/people/rusty
-> 
->         Unified boot/module parameter and module loader rewrite
-> updated to 2.4.14.  I'm off to Linux Kongress, so I'll be difficult to
-> contact for 10 days or so.
-> 
-> Main TODOS:
->         1) Should the PARAM() macros also declare the variables?
->                 Lots of people seem to like writing INT_MODULE_PARM macros...
-> 
->         2) Need a less-sucky /proc|/proc/sys patch, to add access to
->            parameters through that.
+hi all
 
+have anyone tried Intel's commercial compiler and tried to compare the
+results with gcc?
 
-I did have a look at it and I would like to express my full
-encouragements
-to yours efforts. Finally somebody out there caring about modularization
-of the kernel, who doesn't continuously introduce sick stuff like...
+roy
 
-We remember:
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
 
-1. Highjacking System V IPC for autoloader communication.
+Computers are like air conditioners.
+They stop working when you open Windows.
 
-2. "Persistant module storage" patches, which destabilize the
-   kernel.
-
-3. inter_module* idiocy.
-
-4. Overloaded system calls.

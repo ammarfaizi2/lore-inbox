@@ -1,90 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317694AbSIEP76>; Thu, 5 Sep 2002 11:59:58 -0400
+	id <S317751AbSIEQBL>; Thu, 5 Sep 2002 12:01:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317743AbSIEP76>; Thu, 5 Sep 2002 11:59:58 -0400
-Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:46252 "HELO
-	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
-	id <S317694AbSIEP74>; Thu, 5 Sep 2002 11:59:56 -0400
-Message-ID: <20020905160431.1671.qmail@thales.mathematik.uni-ulm.de>
-From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Date: Thu, 5 Sep 2002 18:04:31 +0200
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org, Christian Ehrhardt <ulcae@in-ulm.de>
-Subject: Re: [RFC] Alternative raceless page free
-References: <3D644C70.6D100EA5@zip.com.au> <E17moT6-00064X-00@starship> <20020905123413.21580.qmail@thales.mathematik.uni-ulm.de> <E17myRo-00068H-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17myRo-00068H-00@starship>
-User-Agent: Mutt/1.3.25i
+	id <S317767AbSIEQBK>; Thu, 5 Sep 2002 12:01:10 -0400
+Received: from mta.sara.nl ([145.100.16.144]:14985 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S317751AbSIEQBI>;
+	Thu, 5 Sep 2002 12:01:08 -0400
+Date: Thu, 5 Sep 2002 18:05:32 +0200
+Subject: Re: ARP and alias IPs
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v482)
+From: Remco Post <r.post@sara.nl>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020905153436.GG16092@riesen-pc.gr05.synopsys.com>
+Message-Id: <4DE63E30-C0E9-11D6-8864-000393911DE2@sara.nl>
+X-Pgp-Agent: GPGMail 0.5.3 (v20)
+X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 05, 2002 at 05:21:31PM +0200, Daniel Phillips wrote:
-> On Thursday 05 September 2002 14:34, Christian Ehrhardt wrote:
-> > @@ -455,7 +458,7 @@
-> >                         } else {
-> >                                 /* failed to drop the buffers so stop here */
-> >                                 UnlockPage(page);
-> > -                               page_cache_release(page);
-> > +                               put_page(page);
-> > 
-> >                                 spin_lock(&pagemap_lru_lock);
-> >                                 continue;
-> > 
-> > looks a bit suspicious. put_page is not allowed if the page is still
-> > on the lru and there is no other reference to it. As we don't hold any
-> > locks between UnlockPage and put_page there is no formal guarantee that
-> > the above condition is met. I don't have another path that could race
-> > with this one though and chances are that there actually is none.
-> 
-> The corresponding get_page is just above, you must have overlooked it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-See it. The scenario im thinking about is:
 
-CPU1                                CPU2
-pick page from lru
-Lock it
-get_page
-try_to_release_buffers fails
-UnlockPage
-/* Window here */
-                                     Pick page form lru
-				     page_cache_get
-				     Lock it 
-				     actually free the buffers
-				     UnlockPage
-				     page_cache_release
-					doesn't remove the page from
-					the lru because CPU 1 holds
-					a reference
-put_page dropps last reference
-but doenn't remove the page from
-the lru because it is put_page
-and not page_cache release.
----> Page gets freed while it is still on the lru. If the lru cache
-     holds a reference that's a non issue.
+On donderdag, september 5, 2002, at 05:34 , Alex Riesen wrote:
 
-CPU1 is the path in shrink_cache.
-I admit that I don't have a real path that does what CPU2 does in
-this scenario but doing what CPU2 does should be perfectly legal.
+> On Thu, Sep 05, 2002 at 10:09:50AM -0500, Andrew Ryan wrote:
+>> The linux implementation of ARP is causing me problems.  Linux sends 
+>> out an
+>> ARP request with the default interface as the sender address, rather 
+>> than then
+>> interface the request came on.
+>
+> http://www.rfc-editor.org/rfc/std/std37.txt
+>
+>> For example
+>>
+>> eth0   10.1.1.100
+>> eth0:1 192.16.1.101
+>
+> Are you really expect an aliased interface to work the way you 
+> described?
 
-> Besides that, we have a promise that the page still has buffers, worth
 
-Not after UnlockPage.
+if I read this version of the internet standard correctly, it should 
+respond with the ip address that was requested:
 
-> another count, and the page will never be freed here.  That's fragile
-> though, and this particular piece of code can no doubt be considerably
-> simplified, while improving robustness and efficiency at the same time.
-> But that goes beyond the scope of this patch.
+"It then notices that it is a request, so it swaps fields, putting
+EA(Y) in the new sender Ethernet address field (ar$sha), sets the
+opcode to reply, and sends the packet directly (not broadcast) to
+EA(X)."
 
-Well yes ;-) There's funny things going on like accessing a page
-after page_cache_release...
+Meaning that the reply must come from the ip-address that was beeing 
+looked for in the first place, not just any address used on that 
+interface. Though at the time of writing this was not something that was 
+in use at all I guess.
 
-    regards   Christian
+So yes, I think it is reasonable to assume that if I do an arp request 
+for one address, I do not get a reply for another address that happens 
+to be on the same interface... There is no way of determining that this 
+is indeed the address I was looking for in the first place. I have not 
+checked to see if Linux does this, but if it does it is plain wrong...
+- ---
+Met vriendelijke groeten,
 
--- 
-THAT'S ALL FOLKS!
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+PGP keys at http://home.sara.nl/~remco/keys.asc
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer 
+industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (Darwin)
+
+iD8DBQE9d4DTBIoCv9yTlOwRAm1zAJ9DyuMA3RlAFYZeJkulWYOFPPrFZwCdGIHx
+pIvaA6utByxRaHKq58JdTso=
+=jsvP
+-----END PGP SIGNATURE-----
+

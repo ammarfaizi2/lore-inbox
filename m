@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131561AbRAUAC5>; Sat, 20 Jan 2001 19:02:57 -0500
+	id <S131784AbRAUADr>; Sat, 20 Jan 2001 19:03:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132063AbRAUACr>; Sat, 20 Jan 2001 19:02:47 -0500
-Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:4100
-	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S131561AbRAUACe>; Sat, 20 Jan 2001 19:02:34 -0500
-Date: Sun, 21 Jan 2001 13:02:26 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: James Sutherland <mandrake@cam.ac.uk>
-Cc: Lincoln Dale <ltd@cisco.com>, Kai Henningsen <kaih@khms.westfalen.de>,
-        linux-kernel@vger.kernel.org,
-        dean gaudet <dean-list-linux-kernel@arctic.org>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-Message-ID: <20010121130225.A1003@metastasis.f00f.org>
-In-Reply-To: <4.3.2.7.2.20010121100103.02820730@171.69.63.141> <Pine.LNX.4.30.0101202325210.8238-100000@dax.joh.cam.ac.uk>
+	id <S131831AbRAUAD2>; Sat, 20 Jan 2001 19:03:28 -0500
+Received: from [203.36.158.121] ([203.36.158.121]:56196 "EHLO kabuki.eyep.net")
+	by vger.kernel.org with ESMTP id <S131784AbRAUADP>;
+	Sat, 20 Jan 2001 19:03:15 -0500
+Subject: Re: 2.4 and ipmasq modules
+From: Daniel Stone <daniel@kabuki.eyep.net>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010120153403.A17269@vitelus.com>
+In-Reply-To: <20010120144616.A16843@vitelus.com>  
+	<E14K7UY-0004hB-00@kabuki.eyep.net>  <20010120153403.A17269@vitelus.com>
+Content-Type: text/plain
+X-Mailer: Evolution (0.8 - Preview Release)
+Date: 21 Jan 2001 11:08:00 +1100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0101202325210.8238-100000@dax.joh.cam.ac.uk>; from mandrake@cam.ac.uk on Sat, Jan 20, 2001 at 11:27:35PM +0000
-X-No-Archive: Yes
+Message-Id: <E14K83B-0004lQ-00@kabuki.eyep.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 20, 2001 at 11:27:35PM +0000, James Sutherland wrote:
+On 20 Jan 2001 15:34:03 -0800, Aaron Lehmann wrote:
+> On Sun, Jan 21, 2001 at 10:32:15AM +1100, Daniel Stone wrote:
+> > FTP is under Connection Tracking support, FTP connection tracking. Does
+> > the same stuff as ip_masq_ftp. IRC is located in patch-o-matic -
+> > download iptables 1.2 and do a make patch-o-matic, there is also RPC and
+> > eggdrop support in there. I'm half in the middle of porting ip_masq_icq,
+> > but it's one hideously ugly kludge after another. Such is life.
+> 
+> That option seems to conflict with "ipfwadm (2.0-style) support".
+> Preferably, I'd like to stay with friendly old ipfwadm rather than
+> switching firewalling tools _again_.
 
-    Also something to do with HTTP 1.1 being much harder to support
-    properly in proxies due to the new cache control features etc.??
 
-M$ proxy didn't do HTTP/1.1 at the time :)
+Your choice, but if you choose not to switch, you lose the power of:
+* stateful inspection
+* modules
+* a sane command line
+* a metric shitload of extensions
+
+"I'd rather stay with my friendly old pushbike than my car!"
+So don't complain when you can't use cruise control.
+
+d
+
+-- 
+Daniel Stone
+Linux Kernel Developer
+daniel@kabuki.eyep.net
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+G!>CS d s++:- a---- C++ ULS++++$>B P---- L+++>++++ E+(joe)>+++ W++ N->++ !o
+K? w++(--) O---- M- V-- PS+++ PE- Y PGP>++ t--- 5-- X- R- tv-(!) b+++ DI+++ 
+D+ G e->++ h!(+) r+(%) y? UF++
+------END GEEK CODE BLOCK------
 
 
 
-  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,137 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbUB1Mkd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 07:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbUB1Mkd
+	id S261839AbUB1Mqt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 07:46:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbUB1Mqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 07:40:33 -0500
-Received: from vhost-13-248.vhosts.internet1.de ([62.146.13.248]:38346 "EHLO
-	spotnic.de") by vger.kernel.org with ESMTP id S261835AbUB1Mk3 (ORCPT
+	Sat, 28 Feb 2004 07:46:49 -0500
+Received: from ns.suse.de ([195.135.220.2]:39126 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261839AbUB1Mqs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 07:40:29 -0500
-Subject: [PATCH] 2.4.25: Get rid of obsolete LMC driver
-From: Daniel Egger <de@axiros.com>
-Reply-To: de@axiros.com
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8sZqHQvQvZqIo8UckE2X"
-Organization: Axiros GmbH
-Message-Id: <1077972033.24149.399.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 28 Feb 2004 13:41:29 +0100
+	Sat, 28 Feb 2004 07:46:48 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
+References: <20040227173250.GC8834@dualathlon.random>
+	<Pine.LNX.4.44.0402271350240.1747-100000@chimarrao.boston.redhat.com>
+	<20040227122936.4c1be1fd.akpm@osdl.org>
+	<20040227211548.GI8834@dualathlon.random>
+	<162060000.1077919387@flay>
+	<20040228023236.GL8834@dualathlon.random>
+	<20040228045713.GA388@ca-server1.us.oracle.com>
+	<20040228061838.GO8834@dualathlon.random>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Feb 2004 13:46:47 +0100
+In-Reply-To: <20040228061838.GO8834@dualathlon.random.suse.lists.linux.kernel>
+Message-ID: <p73eksf4big.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli <andrea@suse.de> writes:
+> 
+> we can add a config option to enable together with 2.5:1.5 to drop the
+> gap page in vmalloc, and to reduce the vmalloc space, so that we can
+> sneak another few "free" dozen megs back for the 64G kernel just to get
+> more margin even if we don't strictly need it. (btw, the vmalloc space
+> is also tunable at boot, so this config option would just change the
+> default value)
 
---=-8sZqHQvQvZqIo8UckE2X
-Content-Type: multipart/mixed; boundary="=-8bTVcRokMnnjVTpJ9OzU"
+Not sure if that would help, but you could relatively easily save
+8 bytes on 32bit for each vma too. Replace vm_next with rb_next()
+and move vm_rb.color into vm_flags. It would be a lot of editing
+work though. NUMA API will add new 4 bytes again. 
 
-
---=-8bTVcRokMnnjVTpJ9OzU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi Marcello,
-
-This patch plus an additional
-rm -r drivers/net/wan/lmc
-gets rid of the obsolete LMC WAN driver and all references to it in the
-Configure.in and Makefiles and MAINTAINERS.
-
-When LMC was taken over by SBE their kernel version of the driver went
-effectively unmaintained after Alan Cox turned down their LMC->SBE
-rename patch. Today SBE recommends their own version of the driver only
-which unfortunately needs different tools and also clashes with the LMC
-driver when not compiled as module. This general recommendation from
-their support effectively makes the in-kernel code obsete.
-
-Their drivers can be retrieved from:
-ftp://ftp.sbei.com/pub/OpenSource/Linux/sbe_driver/sbe_linux-4.0a.tgz
-
---=20
-Servus,
-       Daniel
-
---=-8bTVcRokMnnjVTpJ9OzU
-Content-Disposition: attachment; filename=lmc.diff
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=lmc.diff; charset=ISO-8859-15
-
-LS0tIGxpbnV4LTIuNC4yNS10ZXN0YmVkLm9sZC9Eb2N1bWVudGF0aW9uL0NvbmZpZ3VyZS5oZWxw
-CTIwMDQtMDItMjggMTI6MTc6MDYuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi40LjI1LXRl
-c3RiZWQvRG9jdW1lbnRhdGlvbi9Db25maWd1cmUuaGVscAkyMDA0LTAyLTI4IDEyOjI2OjEyLjAw
-MDAwMDAwMCArMDEwMA0KQEAgLTExMDQzLDMyICsxMTA0Myw2IEBADQogDQogICBTYXkgWSBpZiB5
-b3V0IGNhcmQgc3VwcG9ydHMgdGhpcyBmZWF0dXJlLg0KIA0KLUxhbk1lZGlhIENvcnAuIHNlcmlh
-bCBib2FyZHMgKFNTSS9WLjM1LCBUMS9FMSwgSFNTSSwgVDMpDQotQ09ORklHX0xBTk1FRElBDQot
-ICBUaGlzIGlzIGEgZHJpdmVyIGZvciB0aGUgZm9sbG93aW5nIExhbiBNZWRpYSBmYW1pbHkgb2Yg
-c2VyaWFsDQotICBib2FyZHMuDQotDQotICBMTUMgMTAwMCBib2FyZCBhbGxvd3MgeW91IHRvIGNv
-bm5lY3Qgc3luY2hyb25vdXMgc2VyaWFsIGRldmljZXMgKGZvcg0KLSAgZXhhbXBsZSBiYXNlLWJh
-bmQgbW9kZW1zLCBvciBhbnkgb3RoZXIgZGV2aWNlIHdpdGggdGhlIFguMjEsIFYuMjQsDQotICBW
-LjM1IG9yIFYuMzYgaW50ZXJmYWNlKSB0byB5b3VyIExpbnV4IGJveC4NCi0NCi0gIExNQyAxMjAw
-IHdpdGggb24gYm9hcmQgRFNVIGJvYXJkIGFsbG93cyB5b3UgdG8gY29ubmVjdCB5b3VyIExpbnV4
-DQotICBib3ggZGlyZWN0bHkgdG8gYSBUMSBvciBFMSBjaXJjdWl0Lg0KLQ0KLSAgTE1DIDUyMDAg
-Ym9hcmQgcHJvdmlkZXMgYSBIU1NJIGludGVyZmFjZSBjYXBhYmxlIG9mIHJ1bm5pbmcgdXAgdG8N
-Ci0gIDUyIG1iaXRzIHBlciBzZWNvbmQuDQotDQotICBMTUMgNTI0NSBib2FyZCBjb25uZWN0cyBk
-aXJlY3RseSB0byBhIFQzIGNpcmN1aXQgc2F2aW5nIHRoZQ0KLSAgYWRkaXRpb25hbCBleHRlcm5h
-bCBoYXJkd2FyZS4NCi0NCi0gIFRvIGNoYW5nZSBzZXR0aW5nIHN1Y2ggYXMgc3luY1BQUCB2cyBj
-aXNjbyBIRExDIG9yIGNsb2NrIHNvdXJjZSB5b3UNCi0gIHdpbGwgbmVlZCBsbWNjdGwuICBJdCBp
-cyBhdmFpbGFibGUgYXQgPGZ0cDovL2Z0cC5sYW5tZWRpYS5jb20vPi4NCi0NCi0gIFRoaXMgY29k
-ZSBpcyBhbHNvIGF2YWlsYWJsZSBhcyBhIG1vZHVsZSBjYWxsZWQgbG1jLm8gKCA9IGNvZGUNCi0g
-IHdoaWNoIGNhbiBiZSBpbnNlcnRlZCBpbiBhbmQgcmVtb3ZlZCBmcm9tIHRoZSBydW5uaW5nIGtl
-cm5lbA0KLSAgd2hlbmV2ZXIgeW91IHdhbnQpLiBJZiB5b3Ugd2FudCB0byBjb21waWxlIGl0IGFz
-IGEgbW9kdWxlLCBzYXkgTQ0KLSAgaGVyZSBhbmQgcmVhZCA8ZmlsZTpEb2N1bWVudGF0aW9uL21v
-ZHVsZXMudHh0Pi4NCi0NCiBGaWJyZSBDaGFubmVsIGRyaXZlciBzdXBwb3J0DQogQ09ORklHX05F
-VF9GQw0KICAgRmlicmUgQ2hhbm5lbCBpcyBhIGhpZ2ggc3BlZWQgc2VyaWFsIHByb3RvY29sIG1h
-aW5seSB1c2VkIHRvIGNvbm5lY3QNCi0tLSBsaW51eC0yLjQuMjUtdGVzdGJlZC5vbGQvTUFJTlRB
-SU5FUlMJMjAwNC0wMi0yOCAxMjoyMjoyOC4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51eC0yLjQu
-MjUtdGVzdGJlZC9NQUlOVEFJTkVSUwkyMDA0LTAyLTI4IDEyOjIxOjA4LjAwMDAwMDAwMCArMDEw
-MA0KQEAgLTEwODQsMTIgKzEwODQsNiBAQA0KIFc6CWh0dHA6Ly93d3cuY3NlLnVuc3cuZWR1LmF1
-L35uZWlsYi9vc3Mva25mc2QvDQogUzoJTWFpbnRhaW5lZA0KIA0KLUxBTk1FRElBIFdBTiBDQVJE
-IERSSVZFUg0KLVA6ICAgICAgQW5kcmV3IFN0YW5sZXktSm9uZXMNCi1NOiAgICAgIGFzakBsYW5t
-ZWRpYS5jb20NCi1XOiAgICAgIGh0dHA6Ly93d3cubGFubWVkaWEuY29tLw0KLVM6ICAgICAgU3Vw
-cG9ydGVkDQotIA0KIExBUEIgbW9kdWxlDQogUDoJSGVubmVyIEVpc2VuDQogTToJZWlzQGJhdHku
-aGFuc2UuZGUNCi0tLSBsaW51eC0yLjQuMjUtdGVzdGJlZC5vbGQvZHJpdmVycy9uZXQvc2V0dXAu
-YwkyMDA0LTAxLTE1IDIwOjM0OjE2LjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNC4yNS10
-ZXN0YmVkL2RyaXZlcnMvbmV0L3NldHVwLmMJMjAwNC0wMi0yOCAxMjoyODowNS4wMDAwMDAwMDAg
-KzAxMDANCkBAIC03NiwxMCArNzYsNiBAQA0KIAl7Y29teF9pbml0LCAwfSwNCiAjZW5kaWYNCiAJ
-IA0KLSNpZiBkZWZpbmVkKENPTkZJR19MQU5NRURJQSkNCi0Je2xtY19zZXR1cCwgMH0sDQotI2Vu
-ZGlmDQotCSANCiAvKg0KICoNCiAqCVdpcmVsZXNzIG5vbi1IQU0NCi0tLSBsaW51eC0yLjQuMjUt
-dGVzdGJlZC5vbGQvZHJpdmVycy9uZXQvd2FuL0NvbmZpZy5pbgkyMDA0LTAyLTI4IDEyOjE3OjQw
-LjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNC4yNS10ZXN0YmVkL2RyaXZlcnMvbmV0L3dh
-bi9Db25maWcuaW4JMjAwNC0wMi0yOCAxMjoyODo0Mi4wMDAwMDAwMDAgKzAxMDANCkBAIC00Niwx
-MiArNDYsNiBAQA0KICAgIGZpDQogDQogIw0KLSMgTGFuIE1lZGlhJ3MgYm9hcmQuIEN1cnJlbnRs
-eSAxMDAwLCAxMjAwLCA1MjAwLCA1MjQ1DQotIw0KLQ0KLSAgIHRyaXN0YXRlICcgIExhbk1lZGlh
-IENvcnAuIFNTSS9WLjM1LCBUMS9FMSwgSFNTSSwgVDMgYm9hcmRzJyBDT05GSUdfTEFOTUVESUEN
-Ci0NCi0jDQogIyBBVEkncyBzeW5jL2FzeW5jIGJvYXJkcy4gQ3VycmVudGx5IDI1MjAsIDQwMjAs
-IDQ1MjAsIDg1MjAgLS0gMCBpbiBzZWNvbmQgZGlnaXQgbWVhbnMgYXN5bmMgb25seQ0KICMNCiAN
-Ci0tLSBsaW51eC0yLjQuMjUtdGVzdGJlZC5vbGQvZHJpdmVycy9uZXQvd2FuL01ha2VmaWxlCTIw
-MDQtMDItMjggMTI6MTc6NDAuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi40LjI1LXRlc3Ri
-ZWQvZHJpdmVycy9uZXQvd2FuL01ha2VmaWxlCTIwMDQtMDItMjggMTI6MjU6MjkuMDAwMDAwMDAw
-ICswMTAwDQpAQCAtNTAsMTIgKzUwLDYgQEANCiBvYmotJChDT05GSUdfU1lOQ0xJTktfU1lOQ1BQ
-UCkJKz0JCXN5bmNwcHAubw0KIG9iai0kKENPTkZJR19YMjVfQVNZKQkJKz0geDI1X2FzeS5vDQog
-DQotc3ViZGlyLSQoQ09ORklHX0xBTk1FRElBKSArPSBsbWMNCi0NCi1pZmVxICgkKENPTkZJR19M
-QU5NRURJQSkseSkNCi0gIG9iai15ICs9IGxtYy9sbWMubw0KLWVuZGlmDQotDQogc3ViZGlyLSQo
-Q09ORklHX0FUSV9YWDIwKSArPSA4MjUzeA0KIA0KIGlmZXEgKCQoQ09ORklHX0FUSV9YWDIwKSx5
-KQ0K
-
---=-8bTVcRokMnnjVTpJ9OzU--
-
---=-8sZqHQvQvZqIo8UckE2X
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iQEVAwUAQECMQDBkNMiD99JrAQKdewgAs371Rks64diu1tVCCn76ZFQI9FsLfgUI
-j26FKqr0GZa98BNlsmtqgSPNuv1eW1YJcW8CUCB989oUXLJGmVQfcCNry5Zze/er
-EVPwtabEE6RO+mlPxb4qViVQHtpQYIkvujKx50ojc6JSZu/iAJHpxu/EnM48/0Ig
-/wxHON1rJLSvK18i9ncFr+KDnrAgE9329Ox3q1JSubi/nz4sYusSO5Ibc9gmGEEn
-GBDC9SazJylffflgNV/Vw11+BncnS4Z6VGXVo/kB2CxWPbhhpoNMBWXhhZFLvlx2
-p/4TEadIBv2w9uNWkpF6G13BhcGiKK99E8uTo84HiwVd2aTMCFBmHw==
-=yHhf
------END PGP SIGNATURE-----
-
---=-8sZqHQvQvZqIo8UckE2X--
-
+-Andi

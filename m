@@ -1,84 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbUKEAzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbUKEBdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbUKEAzH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 19:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbUKEAyK
+	id S262540AbUKEBdI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 20:33:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbUKEAwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 19:54:10 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5343 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262531AbUKEAt0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 19:49:26 -0500
-Date: Thu, 4 Nov 2004 16:47:46 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] More Driver Core patches for 2.6.10-rc1
-Message-ID: <20041105004746.GB31842@kroah.com>
+	Thu, 4 Nov 2004 19:52:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:42206 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262514AbUKEAs4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 19:48:56 -0500
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] More Driver Core patches for 2.6.10-rc1
+In-Reply-To: <10996157042090@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Thu, 4 Nov 2004 16:48:24 -0800
+Message-Id: <10996157042662@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.2449.2.2, 2004/11/03 13:50:47-08:00, bunk@stusta.de
 
-Here are some more driver core and sysfs fixes for 2.6.10-rc1.  They fix
-a number of little bugs that people have been reporting over the past
-week with the recent sysfs changes, and also the kevent changes.  The
-kevent stuff also now has a proper MAINTAINERS entry, and we now export
-a few more environment variables through the hotplug interface to make
-userspace programs have an easier time trying to figure out how to deal
-with devices properly.
+[PATCH] small sysfs cleanups
 
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/driver-2.6
+The patch below does the following cleanups for the sysfs code:
+- remove the unused global function sysfs_mknod
+- make some structs and functions static
 
-thanks,
+Please check whether this patch is correct, or whether some of the
+things I made static should be used globally in the forseeable future.
 
-greg k-h
 
-p.s. I'll send these as patches in response to this email to lkml for
-those who want to see them.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
- MAINTAINERS           |    6 ++
- drivers/base/bus.c    |  101 +++++++++++++++++++++++++++++---------------------
- drivers/base/class.c  |   26 ++++++++++++
- drivers/base/core.c   |    6 +-
- drivers/block/genhd.c |   40 +++++++++++++++++++
- fs/sysfs/dir.c        |    6 +-
- fs/sysfs/file.c       |    4 +
- fs/sysfs/inode.c      |    5 --
- fs/sysfs/mount.c      |    2 
- fs/sysfs/symlink.c    |   17 ++++----
- fs/sysfs/sysfs.h      |    2 
- lib/kobject.c         |    1 
- lib/kobject_uevent.c  |    8 +--
- 13 files changed, 154 insertions(+), 70 deletions(-)
------
 
-Adrian Bunk:
-  o small sysfs cleanups
+ fs/sysfs/dir.c     |    2 +-
+ fs/sysfs/inode.c   |    5 -----
+ fs/sysfs/mount.c   |    2 +-
+ fs/sysfs/symlink.c |   17 +++++++++--------
+ fs/sysfs/sysfs.h   |    2 --
+ 5 files changed, 11 insertions(+), 17 deletions(-)
 
-Greg Kroah-Hartman:
-  o kevent: fix build error if CONFIG_KOBJECT_UEVENT is not selected
 
-Kay Sievers:
-  o add the physical device and the bus to the hotplug environment
-
-Maneesh Soni:
-  o fix kernel BUG at fs/sysfs/dir.c:20!
-  o sysfs: fix sysfs backing store error path confusion
-
-Robert Love:
-  o kobject_uevent: add MAINTAINER entry
-  o kobject_uevent: fix init ordering
-
-Tejun Heo:
-  o driver-model: device_add() error path reference counting fix
-  o driver-model: kobject_add() error path reference counting fix
-  o driver-model: sysfs_release() dangling pointer reference fix
-  o driver-model: bus_recan_devices() locking fix
-  o driver-model: comment fix in bus.c
+diff -Nru a/fs/sysfs/dir.c b/fs/sysfs/dir.c
+--- a/fs/sysfs/dir.c	2004-11-04 16:31:09 -08:00
++++ b/fs/sysfs/dir.c	2004-11-04 16:31:09 -08:00
+@@ -201,7 +201,7 @@
+ 	return err;
+ }
+ 
+-struct dentry * sysfs_lookup(struct inode *dir, struct dentry *dentry,
++static struct dentry * sysfs_lookup(struct inode *dir, struct dentry *dentry,
+ 				struct nameidata *nd)
+ {
+ 	struct sysfs_dirent * parent_sd = dentry->d_parent->d_fsdata;
+diff -Nru a/fs/sysfs/inode.c b/fs/sysfs/inode.c
+--- a/fs/sysfs/inode.c	2004-11-04 16:31:09 -08:00
++++ b/fs/sysfs/inode.c	2004-11-04 16:31:09 -08:00
+@@ -76,11 +76,6 @@
+ 	return error;
+ }
+ 
+-int sysfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
+-{
+-	return sysfs_create(dentry, mode, NULL);
+-}
+-
+ struct dentry * sysfs_get_dentry(struct dentry * parent, const char * name)
+ {
+ 	struct qstr qstr;
+diff -Nru a/fs/sysfs/mount.c b/fs/sysfs/mount.c
+--- a/fs/sysfs/mount.c	2004-11-04 16:31:09 -08:00
++++ b/fs/sysfs/mount.c	2004-11-04 16:31:09 -08:00
+@@ -22,7 +22,7 @@
+ 	.drop_inode	= generic_delete_inode,
+ };
+ 
+-struct sysfs_dirent sysfs_root = {
++static struct sysfs_dirent sysfs_root = {
+ 	.s_sibling	= LIST_HEAD_INIT(sysfs_root.s_sibling),
+ 	.s_children	= LIST_HEAD_INIT(sysfs_root.s_children),
+ 	.s_element	= NULL,
+diff -Nru a/fs/sysfs/symlink.c b/fs/sysfs/symlink.c
+--- a/fs/sysfs/symlink.c	2004-11-04 16:31:09 -08:00
++++ b/fs/sysfs/symlink.c	2004-11-04 16:31:09 -08:00
+@@ -9,12 +9,6 @@
+ 
+ #include "sysfs.h"
+ 
+-struct inode_operations sysfs_symlink_inode_operations = {
+-	.readlink = generic_readlink,
+-	.follow_link = sysfs_follow_link,
+-	.put_link = sysfs_put_link,
+-};
+-
+ static int object_depth(struct kobject * kobj)
+ {
+ 	struct kobject * p = kobj;
+@@ -157,7 +151,7 @@
+ 
+ }
+ 
+-int sysfs_follow_link(struct dentry *dentry, struct nameidata *nd)
++static int sysfs_follow_link(struct dentry *dentry, struct nameidata *nd)
+ {
+ 	int error = -ENOMEM;
+ 	unsigned long page = get_zeroed_page(GFP_KERNEL);
+@@ -167,12 +161,19 @@
+ 	return 0;
+ }
+ 
+-void sysfs_put_link(struct dentry *dentry, struct nameidata *nd)
++static void sysfs_put_link(struct dentry *dentry, struct nameidata *nd)
+ {
+ 	char *page = nd_get_link(nd);
+ 	if (!IS_ERR(page))
+ 		free_page((unsigned long)page);
+ }
++
++struct inode_operations sysfs_symlink_inode_operations = {
++	.readlink = generic_readlink,
++	.follow_link = sysfs_follow_link,
++	.put_link = sysfs_put_link,
++};
++
+ 
+ EXPORT_SYMBOL_GPL(sysfs_create_link);
+ EXPORT_SYMBOL_GPL(sysfs_remove_link);
+diff -Nru a/fs/sysfs/sysfs.h b/fs/sysfs/sysfs.h
+--- a/fs/sysfs/sysfs.h	2004-11-04 16:31:09 -08:00
++++ b/fs/sysfs/sysfs.h	2004-11-04 16:31:09 -08:00
+@@ -17,8 +17,6 @@
+ extern const unsigned char * sysfs_get_name(struct sysfs_dirent *sd);
+ extern void sysfs_drop_dentry(struct sysfs_dirent *sd, struct dentry *parent);
+ 
+-extern int sysfs_follow_link(struct dentry *, struct nameidata *);
+-extern void sysfs_put_link(struct dentry *, struct nameidata *);
+ extern struct rw_semaphore sysfs_rename_sem;
+ extern struct super_block * sysfs_sb;
+ extern struct file_operations sysfs_dir_operations;
 

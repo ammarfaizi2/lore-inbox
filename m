@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbTIDCeB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 22:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbTIDCeA
+	id S264530AbTIDCgR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 22:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264525AbTIDCgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 22:34:00 -0400
-Received: from holomorphy.com ([66.224.33.161]:20876 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264479AbTIDCd6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 22:33:58 -0400
-Date: Wed, 3 Sep 2003 19:35:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Daniel Phillips <phillips@arcor.de>, Antonio Vargas <wind@cocodriloo.com>,
-       Larry McVoy <lm@bitmover.com>, CaT <cat@zip.com.au>,
-       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <20030904023501.GE4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Steven Cole <elenstev@mesatop.com>,
-	Daniel Phillips <phillips@arcor.de>,
-	Antonio Vargas <wind@cocodriloo.com>, Larry McVoy <lm@bitmover.com>,
-	CaT <cat@zip.com.au>, Anton Blanchard <anton@samba.org>,
-	linux-kernel@vger.kernel.org
-References: <20030903040327.GA10257@work.bitmover.com> <20030903124716.GE2359@wind.cocodriloo.com> <1062603063.1723.91.camel@spc9.esa.lanl.gov> <200309040350.31949.phillips@arcor.de> <1062641965.3483.78.camel@spc>
-Mime-Version: 1.0
+	Wed, 3 Sep 2003 22:36:07 -0400
+Received: from citrine.spiritone.com ([216.99.193.133]:22964 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S264521AbTIDCfy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 22:35:54 -0400
+Date: Wed, 03 Sep 2003 19:33:50 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: David Lang <david.lang@digitalinsight.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+cc: Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
+       Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: SSI clusters on NUMA (was Re: Scaling noise)
+Message-ID: <7710000.1062642829@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0309031844270.17581-100000@dlang.diginsite.com>
+References: <Pine.LNX.4.44.0309031844270.17581-100000@dlang.diginsite.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1062641965.3483.78.camel@spc>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 08:19:26PM -0600, Steven Cole wrote:
-> I would never call the SMP locking pathetic, but it could be improved.
-> Looking at Figure 6 (Star-CD, 1-64 processors on Altix) and Figure 7
-> (Gaussian 1-32 processors on Altix) on page 13 of "Linux Scalability for
-> Large NUMA Systems", available for download here:
-> http://archive.linuxsymposium.org/ols2003/Proceedings/
-> it appears that for those applications, the curves begin to flatten
-> rather alarmingly.  This may have little to do with locking overhead.
+> how much of this need could be met with a native linux master and kernels
+> running user-mode kernels? (your resource sharing would obviously not be
+> that clean, but you could develop the tools to work across the kernel
+> images this way)
 
-Those numbers are 2.4.x
+I talked to Jeff and Andrea about this at KS & OLS this year ... the feeling
+was that UML was too much overhead, but there were various ways to reduce
+that, especially if the underlying OS had UML support (doesn't require it
+right now).
 
+I'd really like to see the performance proved to be better before basing
+a design on UML, though that was my first instinct of how to do it ...
 
--- wli
+M.
+

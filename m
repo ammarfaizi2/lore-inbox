@@ -1,61 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267245AbTA0R0q>; Mon, 27 Jan 2003 12:26:46 -0500
+	id <S267248AbTA0RiN>; Mon, 27 Jan 2003 12:38:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267247AbTA0R0q>; Mon, 27 Jan 2003 12:26:46 -0500
-Received: from k100-145.bas1.dbn.dublin.eircom.net ([159.134.100.145]:1811
-	"EHLO corvil.com.") by vger.kernel.org with ESMTP
-	id <S267245AbTA0R0p>; Mon, 27 Jan 2003 12:26:45 -0500
-Message-ID: <3E356D37.2000304@Linux.ie>
-Date: Mon, 27 Jan 2003 17:32:39 +0000
-From: Padraig@Linux.ie
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
-X-Accept-Language: en-us, en
+	id <S267253AbTA0RiN>; Mon, 27 Jan 2003 12:38:13 -0500
+Received: from u156n240.eastlink.ca ([24.224.156.240]:56204 "EHLO
+	ns1.danicar.net") by vger.kernel.org with ESMTP id <S267248AbTA0RiL>;
+	Mon, 27 Jan 2003 12:38:11 -0500
+Message-ID: <28774.207.34.24.8.1043689627.squirrel@www.danicar.net>
+Date: Mon, 27 Jan 2003 13:47:07 -0400 (AST)
+Subject: Adaptec scsi issue kernel 2.4.19/20
+From: "Joe Gofton" <jgofton@danicar.net>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+Reply-To: jgofton@danicar.net
+X-Mailer: SquirrelMail (version 1.2.10)
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Steve Kenton <skenton@ou.edu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [FYI} The cygwin tool chain can *almost* build a 2.5.59 kernel
-References: <3E356598.EF799135@ou.edu> <20030127171308.GA24651@work.bitmover.com>
-In-Reply-To: <20030127171308.GA24651@work.bitmover.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> Last I checked the kernel has file name conflicts, i.e., "README" and
-> "Readme" in the same directory in a windoze based file system.  You may
-> not notice it if you get your kernel with tar but if you get it with BK
-> then BK will detect that and tell you about it.   I don't remember which
-> files conflict but I know there are about 12 of them in the 2.5 kernel.
+I am having an issue with my scsi card.  Here is some info.
 
-The findsn component of http://www.pixelbeat.org/fslint/
-shows the following (24 files) for 2.5.59:
+jgofton@ns1:/var/log$ lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo
+PRO133x] (rev c4)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo
+MVP3/Pro133x AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+(rev 40)
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+00:08.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro 215GP
+(rev 5c)
+00:09.0 SCSI storage controller: Adaptec AHA-2940U2/W
+00:0a.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 04)
+00:0a.1 Input device controller: Creative Labs SB Live! (rev 01)
+00:0b.0 Ethernet controller: Digital Equipment Corporation DECchip 21140
+[FasterNet] (rev 20)
+00:0c.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
+(rev 64)
 
-include/linux/netfilter_ipv4/ipt_dscp.h
-include/linux/netfilter_ipv4/ipt_DSCP.h
-include/linux/netfilter_ipv4/ipt_ecn.h
-include/linux/netfilter_ipv4/ipt_ECN.h
-include/linux/netfilter_ipv4/ipt_mark.h
-include/linux/netfilter_ipv4/ipt_MARK.h
-include/linux/netfilter_ipv4/ipt_tcpmss.h
-include/linux/netfilter_ipv4/ipt_TCPMSS.h
-include/linux/netfilter_ipv4/ipt_tos.h
-include/linux/netfilter_ipv4/ipt_TOS.h
-include/linux/netfilter_ipv6/ip6t_mark.h
-include/linux/netfilter_ipv6/ip6t_MARK.h
-net/ipv4/netfilter/ipt_dscp.c
-net/ipv4/netfilter/ipt_DSCP.c
-net/ipv4/netfilter/ipt_ecn.c
-net/ipv4/netfilter/ipt_ECN.c
-net/ipv4/netfilter/ipt_mark.c
-net/ipv4/netfilter/ipt_MARK.c
-net/ipv4/netfilter/ipt_tcpmss.c
-net/ipv4/netfilter/ipt_TCPMSS.c
-net/ipv4/netfilter/ipt_tos.c
-net/ipv4/netfilter/ipt_TOS.c
-net/ipv6/netfilter/ip6t_mark.c
-net/ipv6/netfilter/ip6t_MARK.c
 
-Pádraig.
+This is what shows in the messages.log file: 2.4.20
+
+Dec  1 11:10:32 ns1 kernel: SCSI subsystem driver Revision: 1.00
+Dec  1 11:10:32 ns1 kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA
+DRIVER, Rev 6.2.8
+Dec  1 11:10:32 ns1 kernel:         <Adaptec 2940 Ultra2 SCSI adapter>
+Dec  1 11:10:32 ns1 kernel:         aic7890/91: Ultra2 Wide Channel A,
+SCSI Id=7, 32/253 SCBs
+Dec  1 11:10:32 ns1 kernel:
+Dec  1 11:10:32 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS   
+Rev: 0230
+Dec  1 11:10:32 ns1 kernel:   Type:   Direct-Access                     
+ANSI SCSI revision: 03
+Dec  1 11:10:32 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS   
+Rev: 0230
+Dec  1 11:10:32 ns1 kernel:   Type:   Direct-Access                     
+ANSI SCSI revision: 03
+Dec  1 11:10:32 ns1 kernel: scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
+Dec  1 11:10:32 ns1 kernel: scsi0:A:1:0: Tagged Queuing enabled.  Depth 253
+Dec  1 11:10:32 ns1 kernel: scsi: <fdomain> Detection failed (no card)
+Dec  1 11:10:32 ns1 kernel: PCI: Enabling device 00:09.0 (0006 -> 0007)
+Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x8
+Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
+Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x9
+Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
+Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x9
+Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
+Dec  1 11:10:32 ns1 kernel: scsi0: PCI error Interrupt at seqaddr = 0x9
+Dec  1 11:10:32 ns1 kernel: scsi0: Signaled a Target Abort
+
+and this is one that works. 2.4.18:
+
+
+Dec  1 11:16:16 ns1 kernel: SCSI subsystem driver Revision: 1.00
+Dec  1 11:16:16 ns1 kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA
+DRIVER, Rev 6.2.4
+Dec  1 11:16:16 ns1 kernel:         <Adaptec 2940 Ultra2 SCSI adapter>
+Dec  1 11:16:16 ns1 kernel:         aic7890/91: Ultra2 Wide Channel A,
+SCSI Id=7, 32/253 SCBs
+Dec  1 11:16:16 ns1 kernel:
+Dec  1 11:16:16 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS   
+Rev: 0230
+Dec  1 11:16:16 ns1 kernel:   Type:   Direct-Access                     
+ANSI SCSI revision: 03
+Dec  1 11:16:16 ns1 kernel:   Vendor: QUANTUM   Model: ATLAS_V_18_WLS   
+Rev: 0230
+Dec  1 11:16:16 ns1 kernel:   Type:   Direct-Access                     
+ANSI SCSI revision: 03
+Dec  1 11:16:16 ns1 kernel: scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
+Dec  1 11:16:16 ns1 kernel: scsi0:A:1:0: Tagged Queuing enabled.  Depth 253
+Dec  1 11:16:16 ns1 kernel: scsi: <fdomain> Detection failed (no card)
+Dec  1 11:16:16 ns1 kernel: PCI: Enabling device 00:09.0 (0006 -> 0007)
+Dec  1 11:16:16 ns1 kernel: Attached scsi disk sda at scsi0, channel 0, id
+0, lun 0
+Dec  1 11:16:16 ns1 kernel: Attached scsi disk sdb at scsi0, channel 0, id
+1, lun 0
+Dec  1 11:16:16 ns1 kernel: (scsi0:A:0): 80.000MB/s transfers (40.000MHz,
+offset 63, 16bit)
+Dec  1 11:16:16 ns1 kernel: SCSI device sda: 35861388 512-byte hdwr
+sectors (18361 MB)
+Dec  1 11:16:16 ns1 kernel: Partition check:
+Dec  1 11:16:16 ns1 kernel:  sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 >
+Dec  1 11:16:16 ns1 kernel: (scsi0:A:1): 80.000MB/s transfers (40.000MHz,
+offset 63, 16bit)
+Dec  1 11:16:16 ns1 kernel: SCSI device sdb: 35861388 512-byte hdwr
+sectors (18361 MB)
+Dec  1 11:16:16 ns1 kernel:  sdb: sdb1 sdb2 sdb3 sdb4 < sdb5 sdb6 sdb7 >
+
+Is there a known problem and is there a fix?  I can't seem to upgrade my
+kernel without scsi issues.
+
+
+
+-- 
+Joe
+
+***
+I can only please one person a day.
+Today is not your day and tomorrow doesn't look good either.
+***
+
+
 

@@ -1,86 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130526AbQL2DSA>; Thu, 28 Dec 2000 22:18:00 -0500
+	id <S130493AbQL2D1Z>; Thu, 28 Dec 2000 22:27:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130524AbQL2DRv>; Thu, 28 Dec 2000 22:17:51 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:25962 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129921AbQL2DRh>; Thu, 28 Dec 2000 22:17:37 -0500
-Date: Fri, 29 Dec 2000 03:47:12 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jure Pecar <pegasus@telemach.net>
-Cc: linux-kernel@vger.kernel.org, thttpd@bomb.acme.com
-Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?)
-Message-ID: <20001229034712.B9810@athlon.random>
-In-Reply-To: <3A4BE9B0.5C809AAC@telemach.net> <20001229032953.A9810@athlon.random>
-Mime-Version: 1.0
+	id <S130481AbQL2D1P>; Thu, 28 Dec 2000 22:27:15 -0500
+Received: from m894-mp1-cvx1b.col.ntl.com ([213.104.75.126]:7684 "EHLO
+	[213.104.75.126]") by vger.kernel.org with ESMTP id <S130142AbQL2D07>;
+	Thu, 28 Dec 2000 22:26:59 -0500
+To: <linux-kernel@vger.kernel.org>
+Cc: <sfr@linuxcare.com>
+Subject: Why was this APM patch not fully applied?
+From: "John Fremlin" <vii@penguinpowered.com>
+Date: 29 Dec 2000 02:45:58 +0000
+Message-ID: <m2k88klzbt.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001229032953.A9810@athlon.random>; from andrea@suse.de on Fri, Dec 29, 2000 at 03:29:53AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 29, 2000 at 03:29:53AM +0100, Andrea Arcangeli wrote:
-> On Fri, Dec 29, 2000 at 02:32:32AM +0100, Jure Pecar wrote:
-> > Hi all,
-> > 
-> > I'm expiriencing a problem with thttpd web server
-> > (www.acme.com/software/thttpd) on recent linux 2.2 kernels with Andrea's
+On Tue Apr 04 2000 - 23:19:12 EDT, Stephen Rothwell posted a patch to linux-kernel.
+See http://boudicca.tux.org/hypermail/linux-kernel/2000week15/0481.html
 
-I downloaded the sources right now to see what 'out of memory' means. I assume
-you were using version 2.20b.
+To quote:
 
-> out of memory looks an userspace message, so it looks like malloc request was
+This patch (against 2.3.99pre4-4) does the following: 
 
-My guess was right, it's not possible to know where it came from though:
+        Allow user mode programs to reject standby and suspend operations. 
+        [...]
 
-andrea@athlon:~/devel/thttpd-2.20b > grep 'out of' *.c
-fdwatch.c:** or 0 if the timeout expired, or -1 on errors.  A timeout of INFTIM
-means
-libhttpd.c:     syslog( LOG_CRIT, "out of memory" );
-libhttpd.c:         syslog( LOG_CRIT, "out of memory" );
-libhttpd.c:         syslog( LOG_CRIT, "out of memory" );
-libhttpd.c:     syslog( LOG_CRIT, "out of memory" );
-libhttpd.c:         syslog( LOG_CRIT, "out of memory" );
-libhttpd.c:         syslog( LOG_CRIT, "out of memory" );
-libhttpd.c:     syslog( LOG_ERR, "out of memory" );
-libhttpd.c:     ** since it's impossible to get out of the tree.  However, we still
-libhttpd.c:                     syslog( LOG_ERR, "out of memory" );
-libhttpd.c:     syslog( LOG_ERR, "out of memory" );
-thttpd.c:       syslog( LOG_CRIT, "out of memory" );
-thttpd.c:       syslog( LOG_CRIT, "out of memory" );
-thttpd.c:       (void) fprintf( stderr, "%s: out of memory\n", argv0 );
-thttpd.c:               syslog( LOG_CRIT, "out of memory" );
-thttpd.c:               (void) fprintf( stderr, "out of memory\n" );
-thttpd.c:           syslog( LOG_CRIT, "out of memory" );
-thttpd.c:           (void) fprintf( stderr, "out of memory\n" );
-thttpd.c:               syslog( LOG_CRIT, "out of memory" );
-andrea@athlon:~/devel/thttpd-2.20b >
+This first item is important to me. Unfortunately, the patch no longer
+applies to current kernels (test13-pre4). Was there any reason for it
+not to be included, or was it just ignored accidently?
 
-But luckily it always happens after some kind of memory allocation, so it's
-going to be the overcommit check of mmap that is complaining as I guessed
-(assuming glibc isn't buggy in your system).
+(The patch is still available at http://linuxcare.com.au/apm/ if anyone cares.)
 
-I was thinking I have a minor fix (in aa patchkit) that can help if the problem
-happens while you are quite near to use all the memory (swap included) and you
-have very low level of buffercache and pagecache.  But I don't think you were
-near the out of memory condition, right? (can you monitor via `vmstat 1 >log`
-to be sure?) It addresses more a correctness issue than a real life problem.
-And if it was a real life problem then you can workaround it with `echo 1
->/proc/sys/vm/overcommit_memory' without need to apply the real fix and
-recompile the kernel (but again: I don't think this is the problem, setting
-overcommit_memory to 1 would probably only temporarly hide the problem, you
-would probably get the task killed by the kernel some time later anyways)
+-- 
 
-BTW, after checking the sources we at least know it wasn't due memory
-fragmentation (fork complains with a different message).
-
-Andrea
-
-PS. I'm very suprised thttpd isn't threaded, it should really be threaded at
-    least on the x86 family to run fast.
+	http://www.penguinpowered.com/~vii
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268233AbTB1XCF>; Fri, 28 Feb 2003 18:02:05 -0500
+	id <S268245AbTB1XJc>; Fri, 28 Feb 2003 18:09:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268239AbTB1XCF>; Fri, 28 Feb 2003 18:02:05 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:63463 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S268233AbTB1XCE>; Fri, 28 Feb 2003 18:02:04 -0500
-Message-ID: <20030228231220.19048.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S268246AbTB1XJc>; Fri, 28 Feb 2003 18:09:32 -0500
+Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:64268 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S268245AbTB1XJ3>; Fri, 28 Feb 2003 18:09:29 -0500
+Message-ID: <3E5FEE90.8040404@ds.pg.gda.pl>
+Date: Sat, 01 Mar 2003 00:19:44 +0100
+From: Pawel Golaszewski <blues@ds.pg.gda.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030227
+X-Accept-Language: pl, en, en-us
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: akpm@digeo.com, "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Date: Sat, 01 Mar 2003 00:12:20 +0100
-Subject: Re: anticipatory scheduling questions
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-2.us4.outblaze.com
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [2.5.63 and prior] Voodoo3 framebuffer bug
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: Andrew Morton <akpm@digeo.com> 
-Date: Fri, 28 Feb 2003 11:14:18 -0800 
-To: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org> 
-Subject: Re: anticipatory scheduling questions 
- 
-> "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org> wrote: 
-> > I have done so: Evolution is a complex application with many interdependencies and is  
-> > not very prone to launch diagnostic messages to the console. Anyways, I haven't seen  
-> > any diagnostic message in the console. I still think there is something in the AS I/O scheduler  
-> > that is not working at full read throughput. Of course I'm no expert.  
->  
-> It certainly does appear that way.  But you observed the same runtime 
-> with the deadline scheduler.  Or was that a typo? 
->  
-> > > 2.4.20-2.54 -> 9s   
-> > > 2.5.63-mm1 w/Deadline -> 34s   
-> > > 2.5.63-mm1 w/AS -> 33s  
- 
-It wasn't a typo... In fact, both deadline and AS give roughly the same timings (one second up or down). But I 
-still don't understand why 2.5 is performing so much worse than 2.4. Could a "vmstat" or "iostat" dump be 
-interesting? 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+Kernel is compiled with gcc version 2.95.4 20010319 (prerelease)
+That bug was in previous versions too.
+I've got Voodoo3:
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 
+01) (prog-if 00 [VGA])
+         Subsystem: 3Dfx Interactive, Inc. Voodoo3 AGP
+         Flags: 66Mhz, fast devsel, IRQ 11
+         Memory at e4000000 (32-bit, non-prefetchable) [size=32M]
+         Memory at e8000000 (32-bit, prefetchable) [size=32M]
+         I/O ports at c000 [size=256]
+         Expansion ROM at <unassigned> [disabled] [size=64K]
+         Capabilities: [54] AGP version 1.0
+         Capabilities: [60] Power Management version 1
 
-Powered by Outblaze
+
+Framebuffer works really strange.
+- when I start it in 1024x768-16@75 I have strange colours: background 
+is brown-red, other colors are not good too (techno-like style). See 
+dump from 1024x768 16bit: http://piorun.ds.pg.gda.pl/~blues/dump.bz2
+I don't know how to make screenshot on console better, sorry...
+- I can't set other refresh rates than 60Hz - from lilo I've passed 
+append="video=tdfx:1024x768-16@75", but I've became 60Hz set.
+- when I set resolution with fbset to i.e. 1280x1024 I have resolution 
+changed but avaible area is in old size.
+- when I set resolution to other than passed from lilo: when I switch 
+from X, my screen is completely not usable. Manual setting resolution 
+(without visibility) makes it usable again - until next switch.
+
+P.S.: sorry for my english - I hope you understand what I mean...
+-- 
+pozdr. Pawe³ Go³aszewski
+blues<at>ds.pg.gda.pl
+

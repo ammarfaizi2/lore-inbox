@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288184AbSACEBv>; Wed, 2 Jan 2002 23:01:51 -0500
+	id <S288188AbSACEDV>; Wed, 2 Jan 2002 23:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288186AbSACEBc>; Wed, 2 Jan 2002 23:01:32 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:24837 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S288184AbSACEBU>; Wed, 2 Jan 2002 23:01:20 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: "Art Hays" <art@lsr.nei.nih.gov>, <linux-kernel@vger.kernel.org>
-Subject: RE: kswapd etc hogging machine
-Date: Wed, 2 Jan 2002 20:01:29 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBAECPEFAA.znmeb@aracnet.com>
+	id <S288186AbSACEDL>; Wed, 2 Jan 2002 23:03:11 -0500
+Received: from ns.suse.de ([213.95.15.193]:8452 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288189AbSACEDI>;
+	Wed, 2 Jan 2002 23:03:08 -0500
+Date: Thu, 3 Jan 2002 05:03:07 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Cameron Simpson <cs@zip.com.au>
+Cc: Lionel Bouton <Lionel.Bouton@free.fr>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <20020103144904.A644@zapff.research.canon.com.au>
+Message-ID: <Pine.LNX.4.33.0201030500150.6449-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.33.0201022214230.8413-100000@lsr-linux>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well known, yes -- simple solution, not yet :)). This problem has been
-kicking around in one form or another for *months*, and although partial
-solutions have made their way into more recent kernels, someone reports
-issues of this nature on a more or less daily basis. What is happening is
-that Linux sees nothing better to do with free memory, so it fills it up
-with data from I/O into the page cache. Then when something comes along that
-wants memory, the system goes into conniption fits trying to reclaim the
-memory from the page cache and give it to the process that wants it.
+On Thu, 3 Jan 2002, Cameron Simpson wrote:
 
-There were a whole bunch of tuning parameters in the VM in 2.2 that got
-dropped in 2.4; maybe re-instating some of them and returning them to their
-rightful owner, the system administrator, would solve this problem once and
-for all. But for some reason, those who control Linux have decided that this
-is "a bug in the VM" and pursued fixes in code and the associated logic
-rather than give us sysadmins what I believe is rightfully ours. I request
-such tuning parameters at least once a week here, and get ignored. I'll keep
-asking until I know enough about the code to put them in myself, assuming no
-one has broken down and admitted that someone who's been performance tuning
-operating systems since 1974 just might know what he's talking about :)).
+> Further, binaries which grovel in /dev/kmem tend to have to be kept in sync
+> with the kernel; in-kernel code is fundamentally in sync.
 
-Anyone else want to share my soapbox??? :))
---
-M. Edward Borasky
+dmidecode hasn't been updated since it was written, and still works fine.
+I could also name several other such tools that have never needed a
+change due to kernel upgrade, so this argument is bogus.
 
-znmeb@borasky-research.net
-http://www.borasky-research.net
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,173 +1,297 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266123AbRF2Rbd>; Fri, 29 Jun 2001 13:31:33 -0400
+	id <S266129AbRF2RhD>; Fri, 29 Jun 2001 13:37:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266127AbRF2RbY>; Fri, 29 Jun 2001 13:31:24 -0400
-Received: from zeke.inet.com ([199.171.211.198]:36505 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S266124AbRF2RbO>;
-	Fri, 29 Jun 2001 13:31:14 -0400
-Message-ID: <3B3CBA86.355500A@inet.com>
-Date: Fri, 29 Jun 2001 12:27:34 -0500
-From: "Jordan Breeding" <jordan.breeding@inet.com>
-Reply-To: Jordan <ledzep37@home.com>,
-        Jordan Breeding <jordan.breeding@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+	id <S266131AbRF2Rgy>; Fri, 29 Jun 2001 13:36:54 -0400
+Received: from relay21.smtp.psi.net ([38.8.22.2]:32195 "EHLO
+	relay21.smtp.psi.net") by vger.kernel.org with ESMTP
+	id <S266129AbRF2Rgj>; Fri, 29 Jun 2001 13:36:39 -0400
+Message-ID: <3B3CBAD5.9129B6F3@gambitcomm.com>
+Date: Fri, 29 Jun 2001 13:28:53 -0400
+From: Yahui Lin <yahui@gambitcomm.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: USB Keyboard errors with 2.4.5-ac
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+CC: support@gambitcomm.com, yahui@gambitcomm.com
+Subject: core dump problem with a multi-threaded program
+Content-Type: multipart/mixed;
+ boundary="------------D81794EC692E59BF1457DFBE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I encountered a rather weird problem last night.  I was testing out a
-USB Type 6 Unix layout keyboard from Sun Microsystems and a USB Crossbow
-model mouse from Sun as well.  I like the Sun keyboard and mice and am
-used to the layout from using it so often at work.  I originally thought
-that it would be no big deal since they both work perfectly in Windows
-(tested while at work on my Windows 2000 box).  When I got them home and
-tried them out I noticed one thing immediately that I could easily get
-the mouse to work with GPM and also I could unplug it and plug it back
-in with no problem as all.  The keyboard was a different story, if I
-plug the keyboard in during operation everything freaks out and I have
-to reboot the machine to get it to work properly.  I also noticed that X
-would not work properly if I had either the USB keyboard and a PS/2
-keyboard plugged in or if I had the USB keyboard plugged in alone.  No
-matter what I tried I could not get X to work, but while trying I
-noticed my real problem with the keyboard.  The kernel apparently
-expects a PS/2 (AT) keyboard to be plugged in because if there isn't one
-the kernel reports timeouts and seems slower than when there is a PS/2
-keyboard present, my guess is because it is waiting on all of those
-timeouts.  The next major keyboard thing I noticed is that I can type on
-certain keys but if I do anything like hit the caps lock key or number
-lock a couple of times then the keyboard stops responding completely and
-the kernel tells me that there was an error waiting on a IRQ on CPU #1. 
-So I guess my questions are the following, is it totally hopeless to
-want to try and get a USB keyboard to work as the systems only keyboard
-and have it work under X and also not freeze the whole system when
-hitting certain keys?  Do I just need to give up for now and get one of
-those USB->PS/2 converters and use my normal keyboard port, if so will
-Linux ever be able to not depend on PS/2 hardware for keyboards on
-ix86?  I am not looking for anything fancy here, I mean all the extra
-keys on it like front, stop etc. would be nice to use eventually but if
-they do absolutely nothing that is fine with me, I just want to be able
-to use this keyboard.  Below are the pertinent .config sections, this is
-on a Tyan Tiger 230 which uses a Via chipset.  The mouse is still
-working right now and X works if I have a PS/2 keyboard only plugged in
-and just use the mouse.
+This is a multi-part message in MIME format.
+--------------D81794EC692E59BF1457DFBE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Hi,
+
+We are facing the problem that a post-mortem investigation of a
+multi-threaded program is not possible under RedHat Linux 7.1 (kernel
+version 2.4.2-2), because loading the core into gdb 5.0 does not show
+the correct crash location.
+
+Attached is a test program, linux.c.
+This is a producer-consumer program, with pairs of threads sending each
+other messages. Its structure is described in comments at the very
+beginning of source code. If 0 is typed as stdin, a divide-by-zero
+exception happens.
+
+If you use GDB to look into the core, you'll see it gets some errors
+while loading, and doesn't show the correct line which causes the
+arithmetic exception:
+
+rock[19] gdb yahuitest/p15 core
+GNU gdb 5.0rh-5 Red Hat Linux 7.1
+Copyright 2001 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you
+are
+welcome to change it and/or distribute copies of it under certain
+conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for
+details.
+This GDB was configured as "i386-redhat-linux"...
+Core was generated by `yahuitest/p15 100000'.
+Program terminated with signal 6, Aborted.
+Reading symbols from /lib/i686/libpthread.so.0...done.
+
+warning: Unable to set global thread event mask: generic error
+[New Thread 1024 (LWP 5458)]
+Error while reading shared library symbols:
+Can't attach LWP 5458: No such process
+...
+
+Obviously, if one runs the program in the debugger, it shows the correct
+location.
+
+Another problem is that core is not always dumpable. I repeat running
+this program with 0.csh script as attached. You'll find it stops with no
+core dumped after few iterations.
+
+Does anyone know if this is a problem that we can work-around with the
+current versions of the kernel (eg. setting a signal handler, etc)? Do
+we need a newer version of GDB?
+
+Thanks.
+
+Yahui
+
+--------------D81794EC692E59BF1457DFBE
+Content-Type: application/x-csh;
+ name="0.csh"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="0.csh"
+
+#!/bin/csh -f
+
+set iter=0
+while (1)
+	set iter=`expr $iter + 1`
+	echo "Iteration: $iter"
+
+	./linux 0 << xxherexx
+0
+xxherexx
+        sleep 1 
+	if ( ! -f core ) then
+		ls -l core
+		echo "Missing core after $iter iterations"
+		break
+	endif
+
+        rm -f core
+end
 
 
-Thanks for any help you can give me.
+--------------D81794EC692E59BF1457DFBE
+Content-Type: text/plain; charset=us-ascii;
+ name="linux.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux.c"
 
-Jordan Breeding
+/* linux.c
+ *
+ * This is a N-paired program. Each consumer takes message from the buffer in which
+ * the corresponding producer puts data. Each pair is independent of the others. 
+ * A producer is randomly picked to read from stdin. If 0 is typed as stdin, an
+ * arithmetic exception happens. Core file is expected to dump at this point.
+ * Mutex is used to synchronize the communication between producer and consumer. 
+ * To guarantee each message is consumed before producer puts in new one, condition 
+ * variables are used.
+ *
+ * command line: linux 1000000
+ * The second argument is the time (microseconds) the producer sleeps aftet each
+ * iteration.
+ *
+ * Written by Yahui Lin
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <signal.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
+#define  NUMPAIRS       15
+
+int     buffer[NUMPAIRS];
+int     seg_fault;
+int     p_sleep;
+
+pthread_mutex_t     prod_mutex[NUMPAIRS], cons_mutex[NUMPAIRS];
+pthread_t           prod_id[NUMPAIRS], cons_id[NUMPAIRS];
+pthread_cond_t      prod_cond[NUMPAIRS], cons_cond[NUMPAIRS];
+
+void *producer(void *arg);
+void *consumer(void *arg);
+
+void  sighandler(int sig)
+{
+     if( sig != SIGFPE )
+        fprintf(stderr, "unexpected signal in handler: %d\n", sig);
+     else
+        abort();
+}
+
+
+int main(int argc, char *argv[])
+{
+     int                i;
+     struct sigaction   act;
+     sigset_t		mask_sig;
+     
+
+     if( argc != 2 )
+     {
+        fprintf(stderr, "usage: %s prod_sleep_time\n", argv[0]);
+        exit(1);
+     }
+     if( (p_sleep  = atoi(argv[1])) < 0 )
+        p_sleep = 0;
+
+     sigemptyset(&mask_sig);
+     sigaddset(&mask_sig, SIGFPE);
+
+     act.sa_handler = sighandler;
+     act.sa_mask = mask_sig;
+     act.sa_flags = 0;
+     if(sigaction(SIGFPE, &act, NULL) == -1){
+        perror("sigaction error");
+        exit(1);
+     }
+
+     for(i=0; i<NUMPAIRS; i++){
+         buffer[i] = 999;
+         pthread_mutex_init(&prod_mutex[i], NULL);
+         pthread_mutex_init(&cons_mutex[i], NULL);
+         if(pthread_cond_init(&prod_cond[i], NULL) != 0 )
+         {
+            perror("producer condition init error");
+            exit(1);
+         }
+         if(pthread_cond_init(&cons_cond[i], NULL) != 0 )
+         {
+            perror("consumer condition init error");
+            exit(1);
+         }
+     }
+     srand( (unsigned)time( NULL ) );
+     seg_fault = rand() % NUMPAIRS;
+     fprintf(stderr, "producer %d can signal consumer to generate an exception\n",
+             seg_fault);
+
+     for(i=0; i<NUMPAIRS; i++)
+     {
+         if(pthread_create(&prod_id[i], NULL, producer, (void *)i) != 0)
+         {
+            perror("producer thread create error");
+            exit(2);
+         }
+         if(pthread_create(&cons_id[i], NULL, consumer, (void *)i) != 0)
+         {
+            perror("consumer thread create error");
+            exit(3);
+         }
+     }
+
+     for(i=0; i<NUMPAIRS; i++)
+         if( pthread_join(cons_id[i], NULL) != 0 )
+            perror("pthread join error");
+
+     while(1)
+         sleep(1);
+
+     fprintf(stderr, "unexpected exit\n");  /* we don't want this happened */
+     exit(0);
+}
+
+
+void *producer(void *arg)
+{
+    int    id;
+    char   input[10];
+
+    id = (int)arg;
+    fprintf(stderr, "producer %2d starts\n", id);
+
+    while(1)
+    {
+        pthread_mutex_lock(&prod_mutex[id]);
+        while( buffer[id] != 999 )  /* number isn't consumed yet */
+              pthread_cond_wait(&prod_cond[id], &prod_mutex[id]);
+        pthread_mutex_unlock(&prod_mutex[id]);
+        if( id == seg_fault )
+        {
+           fgets(input, sizeof(input), stdin);
+           buffer[id] = strtol(input, NULL, 10);
+        }
+        else
+           buffer[id] = 100;
+        pthread_mutex_lock(&cons_mutex[id]);
+        pthread_cond_signal(&cons_cond[id]);
+        pthread_mutex_unlock(&cons_mutex[id]);
+
+        if( p_sleep )
+           usleep(p_sleep);
+    }
+}
+
+
+void *consumer (void *arg)
+{
+    int   test, id;
+
+    id = (int)arg;
+
+    fprintf(stderr, "consumer %2d starts\n", id);
+
+    while(1)
+    {
+        pthread_mutex_lock(&cons_mutex[id]);
+        while( buffer[id] == 999 )  /* number isn't put in yet */
+              pthread_cond_wait(&cons_cond[id], &cons_mutex[id]);
+        pthread_mutex_unlock(&cons_mutex[id]);
+
+        /* exception will happen here if buffer[id]=0 */
+        if( buffer[id] == 0 )
+           fprintf(stderr, "consumer %d is going to cause an exception\n", id);
+        test = 10 / buffer[id];
+        buffer[id] = 999;
+        pthread_mutex_lock(&prod_mutex[id]);
+        pthread_cond_signal(&prod_cond[id]);
+        pthread_mutex_unlock(&prod_mutex[id]);
+    }
+}
 
 
 
+--------------D81794EC692E59BF1457DFBE--
 
-
-
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-CONFIG_MPENTIUMIII=y
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-# CONFIG_TOSHIBA is not set
-# CONFIG_MICROCODE is not set
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-CONFIG_SMP=y
-CONFIG_HAVE_DEC_LOCK=y
-
-#
-# Input core support
-#
-CONFIG_INPUT=y
-CONFIG_INPUT_KEYBDEV=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1024
-# CONFIG_INPUT_JOYDEV is not set
-CONFIG_INPUT_EVDEV=y
-
-#
-# USB support
-#
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-CONFIG_USB_LONG_TIMEOUT=y
-CONFIG_USB_LARGE_CONFIG=y
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-CONFIG_USB_UHCI=y
-# CONFIG_USB_UHCI_ALT is not set
-# CONFIG_USB_OHCI is not set
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_BLUETOOTH is not set
-# CONFIG_USB_STORAGE is not set
-# CONFIG_USB_ACM is not set
-# CONFIG_USB_PRINTER is not set
-CONFIG_USB_HID=y
-CONFIG_USB_HIDDEV=y
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_DC2XX is not set
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_SCANNER is not set
-# CONFIG_USB_MICROTEK is not set
-# CONFIG_USB_HP5300 is not set
-# CONFIG_USB_IBMCAM is not set
-# CONFIG_USB_OV511 is not set
-# CONFIG_USB_PWC is not set
-# CONFIG_USB_SE401 is not set
-# CONFIG_USB_DSBR is not set
-# CONFIG_USB_DABUSB is not set
-# CONFIG_USB_PLUSB is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_CDCETHER is not set
-# CONFIG_USB_USBNET is not set
-# CONFIG_USB_USS720 is not set
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-# CONFIG_USB_RIO500 is not set
-
-#
-# Bluetooth support
-#
-# CONFIG_BLUEZ is not set

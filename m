@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261536AbTCOSLw>; Sat, 15 Mar 2003 13:11:52 -0500
+	id <S261482AbTCOSIX>; Sat, 15 Mar 2003 13:08:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261521AbTCOSJy>; Sat, 15 Mar 2003 13:09:54 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:60082 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S261511AbTCOSJK>;
-	Sat, 15 Mar 2003 13:09:10 -0500
-Message-Id: <200303151417.h2FEHNV9002747@eeyore.valparaiso.cl>
-To: David Woodhouse <dwmw2@infradead.org>
+	id <S261492AbTCOSIX>; Sat, 15 Mar 2003 13:08:23 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:7601 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S261482AbTCOSIW>;
+	Sat, 15 Mar 2003 13:08:22 -0500
+Message-Id: <200303151621.h2FGLgaD003246@eeyore.valparaiso.cl>
+To: Daniel Phillips <phillips@arcor.de>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: BitBucket: GPL-ed KitBeeper clone 
-In-Reply-To: Your message of "13 Mar 2003 15:57:10 GMT."
-             <1047571030.5373.161.camel@passion.cambridge.redhat.com> 
-Date: Sat, 15 Mar 2003 10:17:23 -0400
+In-Reply-To: Your message of "Thu, 13 Mar 2003 18:00:48 +0100."
+             <20030313165652.7CF10109CC9@mx12.arcor-online.net> 
+Date: Sat, 15 Mar 2003 12:21:42 -0400
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> said:
-> On Thu, 2003-03-13 at 01:03, Horst von Brand wrote:
+Daniel Phillips <phillips@arcor.de> said:
+> On Thu 13 Mar 03 01:52, Horst von Brand wrote:
 
 [...]
 
-> > Wrong. Edit a header adding a new type T. Later change an existing file
-> > that already includes said header to use T. Change a function, fix most
-> > uses. Find a wrong usage later and fix it separately. Change something, fix
-> > its Documentation/ later. Note how you can come up with dependent changes
-> > that _can't_ be detected automatically.
+> > I don't think so. As the user sees it, a directory is mostly a convenient
+> > labeled container for files. You think in terms of moving files around, not
+> > destroying one and magically creating an exact copy elsewhere (even if
+> > mv(1) does exactly this in some cases). Also, this breaks up the operation
+> > "mv foo bar/baz" into _two_ changes, and this is wrong as the file loses
+> > its revision history.
 
-> True. And this is the main reason I hate BitKeeper. I really don't give
-> a rat's arse about the licence -- but I object strongly to the way it
-> enforces a false ordering of changesets. 
+> No, that's a single change to one directory object.
 
-The dependency among changes is a partial order, the sequence in which they
-were applied is one valid topological sort of that, and the only valid one
-known to the SCM. Asking the user to provide the complete dependencies is
-error prone at very best.
+mv some/where/foo bar/baz
 
-> Assuming no ordering is wrong. But likewise, assuming the order in which
-> changes _happened_ to occur is also wrong,
+How is that _one_ change to _one_ directory object?
 
-But much less so.
+> > > ...then this part gets much easier.
+> >
+> > ... by screwing it up. This is exactly one of the problems noted for CVS.
+> 
+> CVS doesn't have directory objects.
 
->                                            and _enforcing_ that is more
-> wrong. 
+And it doesn't keep history across moves, as the only way it knows to move
+a file is destroying the original and creating a fresh copy.
 
-What else can you do?
+> Does anybody have a convenient mailing list for this design discussion?
+
+Good idea to move this off LKML
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431

@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132756AbQLHVTx>; Fri, 8 Dec 2000 16:19:53 -0500
+	id <S132901AbQLHVUn>; Fri, 8 Dec 2000 16:20:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132758AbQLHVTn>; Fri, 8 Dec 2000 16:19:43 -0500
-Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:57745 "EHLO
-	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S132756AbQLHVTf>; Fri, 8 Dec 2000 16:19:35 -0500
-From: richardj_moore@uk.ibm.com
-X-Lotus-FromDomain: IBMGB
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-cc: root@chaos.analogic.com, Brian Gerst <bgerst@didntduck.org>,
-        Andi Kleen <ak@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        linux-kernel@vger.kernel.org
-Message-ID: <802569AF.007255B4.00@d06mta06.portsmouth.uk.ibm.com>
-Date: Fri, 8 Dec 2000 20:48:03 +0000
-Subject: Re: Why is double_fault serviced by a trap gate?
+	id <S132818AbQLHVUd>; Fri, 8 Dec 2000 16:20:33 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:55917
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S132901AbQLHVUZ>; Fri, 8 Dec 2000 16:20:25 -0500
+Date: Fri, 8 Dec 2000 21:49:52 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove warning from drivers/net/rclanmtl.c
+Message-ID: <20001208214952.I599@jaquet.dk>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
+
+(Does anyone know the maintainer of this code?)
+
+When compiling drivers/net/rclanmtl.c (240t12p3) I get a warning about
+incompatible pointer assignment. As far as I can tell it has appeared
+because PU32 has been changed to __u32* since test9 (where it was an
+unsigned long*). The following patch fixes this by changing the
+offending lvalue to a PU32 instead of an unsigned long*, which is
+my unqualified guess at a fix.
 
 
-Exactly, and you wouldn't set DPL=3 for interrupt 8 since a double-fault
-can only occur from ring 0..
+--- linux-240-t12-pre3-clean/drivers/net/rclanmtl.c	Sat Nov  4 23:27:08 2000
++++ linux/drivers/net/rclanmtl.c	Fri Dec  1 22:36:49 2000
+@@ -1561,7 +1561,7 @@
+ RCResetLANCard(U16 AdapterID, U16 ResourceFlags, PU32 ReturnAddr, PFNCALLBACK CallbackFunction)
+ {
+     unsigned long off;
+-    unsigned long *pMsg;
++    PU32 pMsg;
+     PPAB pPab;
+     int i;
+     long timeout = 0;
 
+-- 
+        Rasmus(rasmus@jaquet.dk)
 
-Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
-
-http://oss.software.ibm.com/developerworks/opensource/linux
-Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
-IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
-
-
-Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz> on 08/12/2000 20:31:59
-
-Please respond to Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-
-To:   Richard J Moore/UK/IBM@IBMGB
-cc:   root@chaos.analogic.com, Brian Gerst <bgerst@didntduck.org>, Andi
-      Kleen <ak@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-      linux-kernel@vger.kernel.org
-Subject:  Re: Why is double_fault serviced by a trap gate?
-
-
-
-
-> No no. That's that the whole point of a gate. You make a controlled
-> transition to ring 0 including stack switching. There are complex
-> protection checking rules, however as long as the DPL of the gate
-> descriptor is 3 then ring 3 is allowed to make the transition to ring 0.
-A
-> stack fault in user mode cannot kill the system. If it ever did it would
-be
-> a blatant bug of the most crass kind.
-
-Setting DPL == 3 of any interrupt/trap/fault gate is bad idea because it
-allows the user to kill the machine with INT 8 or something like that. DPL
-is checked only if interrupt is generated with INT, INT3 or INTO (IA
-manual, vol 3, section 5.10.1.1).
-
-Mikulas
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-
-
-
+"There are also enough rocks on Earth to kill the world's population several
+times over."
+	-- Lt. General Daniel Graham, DIA, explaining why it's necessary to
+	   have more than enough nukes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVA1PYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVA1P2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbVA1PYt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 10:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVA1PYs
+	id S261442AbVA1P2z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 10:28:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVA1P2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 10:24:48 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:50482 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261454AbVA1PWT (ORCPT
+	Fri, 28 Jan 2005 10:28:55 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:50922 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261442AbVA1P2w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 10:22:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=CE64OD7HESjS4OeVOhz/8hwSziDEY3qHKMlxJ3wYhcqdOZu87mobvTccIiRdq9/l5CHXWnCttIEjwefPc5WFJGWCgVdEPmquO7zNTklQ450UiDdJ6jJ6IxG2Ag1y3ZnPhRSnaqRfJukWXhqxaeIMVp3jOZ2hl7AKRUAkNjzFI7k=
-Message-ID: <d120d500050128072268a5c2f0@mail.gmail.com>
-Date: Fri, 28 Jan 2005 10:22:18 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Olaf Hering <olh@suse.de>
-Subject: Re: atkbd_init lockup with 2.6.11-rc1
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-In-Reply-To: <20050128145511.GA29340@suse.de>
+	Fri, 28 Jan 2005 10:28:52 -0500
+Date: Fri, 28 Jan 2005 16:28:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Esben Nielsen <simlo@phys.au.dk>, Rui Nuno Capela <rncbc@rncbc.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       mark_h_johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15)
+Message-ID: <20050128152802.GA15508@elte.hu>
+References: <20041214113519.GA21790@elte.hu> <Pine.OSF.4.05.10412271404440.25730-100000@da410.ifa.au.dk> <20050128073856.GA2186@elte.hu> <20050128115640.GP10843@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050128132202.GA27323@suse.de> <20050128135827.GA28784@suse.de>
-	 <d120d50005012806435a17fe98@mail.gmail.com>
-	 <20050128145511.GA29340@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050128115640.GP10843@holomorphy.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005 15:55:11 +0100, Olaf Hering <olh@suse.de> wrote:
-> On Fri, Jan 28, Dmitry Torokhov wrote:
+
+* William Lee Irwin III <wli@holomorphy.com> wrote:
+
+> On Fri, Jan 28, 2005 at 08:38:56AM +0100, Ingo Molnar wrote:
+> > no, it's not a big scalability problem. rwlocks are really a mistake -
+> > if you want scalability and spinlocks/semaphores are not enough then one
+> > should either use per-CPU locks or lockless structures. rwlocks/rwsems
+> > will very unlikely help much.
 > 
-> > On Fri, 28 Jan 2005 14:58:27 +0100, Olaf Hering <olh@suse.de> wrote:
-> > > On Fri, Jan 28, Olaf Hering wrote:
-> > >
-> > > >
-> > > > My IBM RS/6000 B50 locks up with 2.6.11rc1, it dies in atkbd_init():
-> > >
-> > > It fails also on PReP, not only on CHRP. 2.6.10 looks like this:
-> > >
-> > > Calling initcall 0xc03bc430: atkbd_init+0x0/0x2c()
-> > > atkbd.c: keyboard reset failed on isa0060/serio1
-> > > atkbd.c: keyboard reset failed on isa0060/serio0
-> > >
-> >
-> > So it could not reset it even before, but it was not getting stuch
-> > tough... What about passing atkbd.reset=0?
-> 
-> I will try that.
-> Adding a printk after the outb() fixes it as well.
+> I wouldn't be so sure about that. SGI is already implicitly relying on
+> the parallel holding of rwsems for the lockless pagefaulting, and
+> Oracle has been pushing on mapping->tree_lock becoming an rwlock for a
+> while, both for large performance gains.
 
-Fixes as in "it reports that reset fails" again or it resets the
-keyboard cleanly and works fine?
+i dont really buy it. Any rwlock-type of locking causes global cacheline
+bounces. It can make a positive scalability difference only if the
+read-lock hold time is large, at which point RCU could likely have
+significantly higher performance. There _may_ be an intermediate locking
+pattern that is both long-held but has a higher mix of write-locking
+where rwlocks/rwsems may have a performance advantage over RCU or
+spinlocks.
 
-> Do you have a version of that i8042 delay patch for 2.6.11-rc2-bk6?
-> Maybe it will help.
-> 
+Also this is about PREEMPT_RT, mainly aimed towards embedded systems,
+and at most aimed towards small (dual-CPU) SMP systems, not the really
+big systems.
 
-No I don't, and I don't think you need all of it. What happens if you
-edit drivers/input/serio/i8042.c manually and stick udelay(7); in
-front of calls to i8042_write_data() in i8042_kbd_write() and
-i8042_aux_write()?
+But, the main argument wrt. PREEMPT_RT stands and is independent of any
+scalability properties: rwlocks/rwsems have so bad deterministic
+behavior that they are almost impossible to implement in a sane way.
 
--- 
-Dmitry
+	Ingo

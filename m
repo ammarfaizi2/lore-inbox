@@ -1,81 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269164AbUIRIwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUIRJ2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269164AbUIRIwE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 04:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269166AbUIRIwE
+	id S266477AbUIRJ2T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 05:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267232AbUIRJ2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 04:52:04 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:64136 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S269164AbUIRIv7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 04:51:59 -0400
-Date: Sat, 18 Sep 2004 10:51:53 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Mike Christie <mikenc@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, wa@almesberger.net
-Subject: Re: [PATCH] modular io schedulers with online switching, #2
-Message-ID: <20040918085153.GA1359@suse.de>
-References: <20040917094436.GB2911@suse.de> <414AB8D2.2080905@us.ibm.com> <20040918082944.GA1195@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 18 Sep 2004 05:28:19 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:469 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266477AbUIRJ2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 05:28:17 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.6.9-rc1-mm5: double fault on resume on Athlon64 w/ NForce 3
+Date: Sat, 18 Sep 2004 11:30:08 +0200
+User-Agent: KMail/1.6.2
+Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
+References: <200409132357.13582.rjw@sisk.pl> <20040916204908.GA8772@elf.ucw.cz> <200409180953.20690.rjw@sisk.pl>
+In-Reply-To: <200409180953.20690.rjw@sisk.pl>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040918082944.GA1195@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409181130.08832.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 18 2004, Jens Axboe wrote:
-> On Fri, Sep 17 2004, Mike Christie wrote:
-> > Jens Axboe wrote
-> > >+void blk_wait_queue_drained(request_queue_t *q)
-> > >+{
-> > >+	struct request_list *rl = &q->rq;
-> > >+	DEFINE_WAIT(wait);
-> > >+
-> > >+	set_bit(QUEUE_FLAG_DRAIN, &q->queue_flags);
-> > >+
-> > >+	prepare_to_wait(&rl->drain, &wait, TASK_UNINTERRUPTIBLE);
-> > >+	do {
-> > >+		spin_lock_irq(q->queue_lock);
-> > >+		if (!rl->count[READ] && !rl->count[WRITE]) {
-> > >+			spin_unlock_irq(q->queue_lock);
-> > >+			break;
-> > >+		}
-> > >+
-> > >+		__generic_unplug_device(q);
-> > >+		spin_unlock_irq(q->queue_lock);
-> > >+		io_schedule();
-> > >+	} while (1);
-> > >+	finish_wait(&rl->drain, &wait);
-> > >+}
-> > >+
+On Saturday 18 of September 2004 09:53, Rafael J. Wysocki wrote:
+> On Thursday 16 of September 2004 22:49, Pavel Machek wrote:
+> > Hi!
 > > 
-> > Jens,
+> > > JFYI, I get a double fault on resume on an Athlon64-based box:
 > > 
-> > If a driver does not allocate requests through blk_get_request, will the 
-> > rl->count[] tests need to be changed or do those drivers need to be 
-> > changed? For example, if SCSI insterts a special request into the queue, 
-> > then someone swaps the io scheduler with no outstanding normal requests 
-> > (so the rl->counts will be zero), could the special request still be in 
-> > the queue since it allocated its request using kmalloc (the request is 
-> > allocated as part of the scsi command).
+> > Try the patch I sent to lkml few minutes ago.
 > 
-> Yes, we need to eliminate stack and kmalloc'ed requests for this to be
-> completely solid. This is something we have been doing for some time
-> already, now would be a good time to fully complete it.
-> 
-> There's no way to block incoming request at ->add_request_fn() time, so
-> we have to do it on merge (first path) or request allocation.
+> Unfortunately, on 2.6.9-rc2-mm1 I'm still getting things like this:
+[- snip -]
 
-Actually, I already thought of this the other day and there's no problem
-even currently with stack or privately allocated requests. These don't
-go through blk_alloc_request(), which in turn calls the io scheduler
-private ->elv_set_request() function, so they don't have any io
-scheduler private memory allocated to them. This also means that they
-don't reside inside the io scheduler, but are directly attached to the
-queue head.
+I should have said it's with your patch applied.  Sorry,
 
-So I don't think we have a problem there at all, it should just work.
+RJW
 
 -- 
-Jens Axboe
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

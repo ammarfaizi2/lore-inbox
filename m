@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270349AbRHSLH0>; Sun, 19 Aug 2001 07:07:26 -0400
+	id <S270359AbRHSLkb>; Sun, 19 Aug 2001 07:40:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270347AbRHSLHQ>; Sun, 19 Aug 2001 07:07:16 -0400
-Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:63748 "EHLO
-	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
-	id <S270343AbRHSLHC>; Sun, 19 Aug 2001 07:07:02 -0400
-From: Kernel Mailing List <kernel@wildsau.idv-edu.uni-linz.ac.at>
-Message-Id: <200108191107.f7JB79o09424@wildsau.idv-edu.uni-linz.ac.at>
+	id <S270354AbRHSLkV>; Sun, 19 Aug 2001 07:40:21 -0400
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:19378 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S270366AbRHSLkS>;
+	Sun, 19 Aug 2001 07:40:18 -0400
+Message-Id: <5.1.0.14.2.20010819123911.00add7d0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 19 Aug 2001 12:40:32 +0100
+To: Juergen Rose <rose@rz.uni-potsdam.de>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
 Subject: Re: Can't compile ntfs modules with 2.4.9
-In-Reply-To: <3B7F9D0A.3070805@rz.uni-potsdam.de> from Juergen Rose at "Aug 19, 1 01:03:38 pm"
-To: rose@rz.uni-potsdam.de (Juergen Rose)
-Date: Sun, 19 Aug 2001 13:07:09 +0200 (MET DST)
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3B7F9D0A.3070805@rz.uni-potsdam.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> unistr.c: In function `ntfs_collate_names':
-> unistr.c:99: warning: implicit declaration of function `min'
+The correct solution is to edit fs/ntfs/unistr.c and to add:
 
-edit unistr.c, go to line 98. insert the following lines:
+#include <linux/kernel.h>
 
-#undef min
-#define min(a,b) (a<b?a:b)
+to the other includes at the top of the file.
 
+Anton
+
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

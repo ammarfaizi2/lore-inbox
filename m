@@ -1,82 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270021AbRHGB1X>; Mon, 6 Aug 2001 21:27:23 -0400
+	id <S270024AbRHGBcw>; Mon, 6 Aug 2001 21:32:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270023AbRHGB1N>; Mon, 6 Aug 2001 21:27:13 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:37252 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270021AbRHGB1B>; Mon, 6 Aug 2001 21:27:01 -0400
-Date: Mon, 6 Aug 2001 19:27:23 -0600
-Message-Id: <200108070127.f771RNe27524@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-In-Reply-To: <Pine.GSO.4.21.0108062053220.16817-100000@weyl.math.psu.edu>
-In-Reply-To: <200108070051.f770pji27036@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0108062053220.16817-100000@weyl.math.psu.edu>
+	id <S270023AbRHGBcm>; Mon, 6 Aug 2001 21:32:42 -0400
+Received: from paloma13.e0k.nbg-hannover.de ([62.159.219.13]:19077 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S270022AbRHGBcf>; Mon, 6 Aug 2001 21:32:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Riley Williams <rhw@MemAlpha.CX>
+Subject: Re: 3c509: broken(verified)
+Date: Tue, 7 Aug 2001 03:00:43 +0200
+X-Mailer: KMail [version 1.2.3]
+In-Reply-To: <Pine.LNX.4.33.0108070003540.4091-100000@infradead.org>
+In-Reply-To: <Pine.LNX.4.33.0108070003540.4091-100000@infradead.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010807013236Z270022-28344+2122@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 
-> 
-> On Mon, 6 Aug 2001, Richard Gooch wrote:
-> 
-> > More importantly, the loop you used doesn't protect insertions into
-> > the table. So it's not safe on SMP.
-> 
-> Nope.  Allocation of entry itself is moved ahead of the loop, so
-> we insert immediately after expanding the thing.
+Am Dienstag, 7. August 2001 01:11 schrieben Sie:
+> Hi Dieter.
+>
+>  >> You mention the problem is being unable to change the media, I
+>  >> was unaware this was even possible with the current 3c509
+>  >> driver, and most people do it on 3c509's and other PNP cards of
+>  >> this sort (such as NE2000 clones)  by using a DOS boot diskette
+>  >> and the DOS utilities provided by the manufacturer.
+>  >
+>  > That's what I did. I've set it to "auto mode" and it works with
+>  > RJ45 cable. But I can't verify if "full duplex" worked right.
+>
+> What transfer speed do you get doing an FTP transfer across the link?
 
-I'm referring specifically to this code:
-    new->inode.ino = fs_info.num_inodes + FIRST_INODE;
-    fs_info.table[fs_info.num_inodes++] = new;
+Don't know. I have to plug a laptop or something on it to test. Perhaps Dad's 
+PC (but the later is still connected via switched 100 Mbits ;-)
 
-This is not SMP safe. Besides, even the allocation loop isn't SMP
-safe. If two tasks both allocate a table, they each could end up
-calling:
-	kfree (fs_info.table);
-for the same value. Or for a different one (which is also bad).
+> 10base is theoretically capable of one meg per second,
 
-> > > PS: ObYourPropertyManager: karmic retribution?
-> > 
-> > Um, retribution for putting in an awful lot of time developing devfs
-> > (despite extreme hostility), at considerable personal sacrifice, and
-> > being patient and civilised to those who flamed against it? My, how
-> > I've been such a horrible person.
-> 
-> <tongue-in-cheek>
-> Nah, not that. Not plugging the holes that need to be plugged. Admit
-> it, there is some poetic justice in the situation.
-> </tongue-in-cheek>
+1.25 MByte/sec (max)
 
-Ah. I didn't get that one. OK. I guess seen that way it is funny.
-Unfortunately I've been living with this flooding problem for several
-months, so I'm a bit touchy on the subject. It is incredibly
-disruptive to getting work done.
+> and experience
+> indicates that a 10baseT link normally shows just under 500k per
+> second flat out, presumably due to the half duplex nature of the
+> 10baseT protocol. I'd expect 10base2 half duplex to be similar, and
+> 10base2 full duplex to be somewhat faster.
 
-> As for the repugnant comments - IMO your "On the top of that, I have
-> a life" used in the context it was used in counts pretty high on that
-> scale. You know, you are _not_ unique in that respect.
+I thought it should read 10baseT (with RJ45 cable) can reach 1.25 MByte/sec 
+full duplex (switched)?
 
-Oh, that's not what I meant. I get the impression from some quarters
-that one is expected to always put work ahead of personal
-considerations. That's what I was railing against.
+>
+>  > So I changed it under Win to "10baseT" for which the 3Com
+>  > utilities say "full duplex" enabled.
+>
+> One slight problem - 10baseT uses CoAxial cable, not RJ45 - and, as
+> far as I'm aware, 10baseT is strictly half duplex whereas 10base2
+> (which uses RJ45 twisted pair cable) is capable of either half or full
+> duplex.
 
-I apologise if it came across the other way (i.e. implying that others
-don't have a life: it's obviously incorrect, and besides, I don't make
-those kinds of cheap shots).
+See above.
 
-> Whatever.  I just hope that this time all that mess will be fixed
-> and by now I really don't care who does it and what does it take.
+Thanks,
+	Dieter
 
-Well, I *am* doing it. Like I said, today was due to be the day.
-Really.
+PS Before we go full OT I switch to private mode.
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,118 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317365AbSHVVs5>; Thu, 22 Aug 2002 17:48:57 -0400
+	id <S317385AbSHVWG7>; Thu, 22 Aug 2002 18:06:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317378AbSHVVs5>; Thu, 22 Aug 2002 17:48:57 -0400
-Received: from www.telenet.net ([204.97.152.225]:20747 "EHLO telenet.net")
-	by vger.kernel.org with ESMTP id <S317365AbSHVVsz>;
-	Thu, 22 Aug 2002 17:48:55 -0400
-Date: Thu, 22 Aug 2002 17:24:26 -0400
-From: Rob Speer <rob@twcny.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre2-ac4 IDE is slow
-Message-ID: <20020822212426.GA662@twcny.rr.com>
-Reply-To: rob@twcny.rr.com
-References: <20020822175945.GA743@twcny.rr.com> <1030045828.14545.26.camel@flory.corp.rackablelabs.com>
+	id <S317392AbSHVWG7>; Thu, 22 Aug 2002 18:06:59 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:49429 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S317385AbSHVWG5>;
+	Thu, 22 Aug 2002 18:06:57 -0400
+Date: Fri, 23 Aug 2002 00:11:06 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, Richard Gooch <rgooch@ras.ucalgary.ca>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: MAX_PID changes in 2.5.31
+Message-ID: <20020822221106.GB5471@win.tue.nl>
+References: <Pine.LNX.4.44.0208200033400.5253-100000@localhost.localdomain> <1029799751.21212.0.camel@irongate.swansea.linux.org.uk> <20020820003346.GA4592@win.tue.nl> <1029804092.21242.18.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1030045828.14545.26.camel@flory.corp.rackablelabs.com>
-User-Agent: Mutt/1.4i
-X-Is-It-Not-Nifty: www.sluggy.com
+In-Reply-To: <1029804092.21242.18.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As many people have asked in private e-mail, I'm providing some actual
-numbers to justify that the IDE is slower.
+> > On Tue, Aug 20, 2002 at 12:29:11AM +0100, Alan Cox wrote:
+> > 
+> > > libc5 is very much 16bit pid throughout.
+> > 
+> > Can you clarify?
+> 
+> It uses the 16bit assuming syscall entry points, and has no knowledge of
+> the 32bit pid stuff when its needed
 
-I was also told to set the hdparm options -a 1 -b 1 -c 1 -d 1 -u 1. -d 1
-doesn't work, as DMA doesn't work (perhaps that would solve all of this
-if it did).
+Ha, Alan - I am a bit slow, and you are a bit brief, but let us see.
 
-The results from 'hdparm -t /dev/hda':
+I interpreted your "throughout" as "also outside IPC", and hence asked
+for clarification. For the moment, let me assume that we are just talking
+about SYSV IPC. (You were not thinking about uids instead of pids?)
 
-On 2.4.20-pre1:
-  Without hdparm options: 2.5 MB/sec
-  With hdparm options: 4.17 MB/sec
+The kernel has these days new structs shmid64_ds, msqid64_ds
+and old structs shmid_ds, msqid_ds.
+The system calls sys_shmctl(), sys_msgctl() know what struct to use
+by checking whether the caller has set the IPC_64 bit.
+(No different entry points.) The assignment is done blindly:
+	out.shm_cpid    = in->shm_cpid;
+hence will truncate pids.
 
-On 2.4.20-pre2-ac4 (with a1.patch so it doesn't kernel panic on startup):
-  Without hdparm options: ???
-  With hdparm options: 877.21 kB/sec
+Today glibc has structs shmid_ds and msqid_ds with int ..pid,
+and structs old_shmid_ds and old_msqid_ds with
+__ipc_pid_t msg_lspid, msg_lrpid, shm_cpid, shm_lpid.
+It uses the new structs and sets IPC_64 when that works.
+Otherwise it uses old structs, and warns in case something
+was truncated.
 
-The ??? is there because it actually *lies* in this situation. It says
-it took 10.52 seconds, giving 6.08 MB/sec, but it actually takes as long
-as it does with the hdparm options, if not longer.
+So, with a modern glibc all is fine.
+Here modern includes glibc 2.1.91, but not glibc 2.1.3.
 
-The thing is, on -ac4, the entire system becomes unresponsive while
-hdparm is going on. The clock in the corner of my screen stops counting.
-With hdparm on, the clock jumps forward the appropriate amount at the
-end. Without hdparm, the clock only jumps forward... 10 seconds.
+Earlier glibc, and libc5, don't know about IPC_64 and hence use the
+old structures.
 
-Could the hard disk be preventing even the system clock from working?
+Remains the question whether that is bad.
+With large pid_t, the four variables msg_lspid, msg_lrpid, shm_cpid,
+shm_lpid will be truncated.
 
-As I was saying, I suppose this would all be wonderfully fast if DMA
-worked. It seems that DMA fails for a different reason on each kernel.
-On pre1 the error message is
-  PCI: Device 00:1f.1 not available because of resource collisions
-while on pre2, it's
-  PCI: Unable to reserve I/O region #1:8@0 for device 00:1f.1
+Who uses these? Nobody, as far as I can see from a recent collection
+of RPMs.
 
+So, it would be interesting to see what I overlooked.
+Where are the programs that need these variables?
 
-The complete IDE boot messages:
-On pre1:
-
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-ICH4: IDE controller on PCI bus 00 dev f9
-PCI: Device 00:1f.1 not available because of resource collisions
-ICH4: (ide_setup_pci_device:) Could not enable device.
-hda: C/H/S=19161/16/255 from BIOS ignored
-hda: MAXTOR 6L040J2, ATA DISK drive
-hdb: IC35L060AVVA07-0, ATA DISK drive
-hdc: DVDROM 8X, ATAPI CD/DVD-ROM drive
-hdd: Memorex CDRW-2216, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 78177792 sectors (40027 MB) w/1819KiB Cache, CHS=77557/16/63
-hdb: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=7476/255/63
-hdc: ATAPI DVD-ROM drive, 512kB Cache
-Uniform CD-ROM driver Revision: 3.12
-hdd: ATAPI 16X CD-ROM CD-R/RW drive, 1024kB Cache
-Partition check:
- hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
- hdb: hdb1 hdb2 hdb3 hdb4 
-  
-
-On pre2-ac4:
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PCI: Unable to reserve I/O region #1:8@0 for device 00:1f.1
-Trying to free nonexistent resource <00000000-00000007>
-Trying to free nonexistent resource <00000000-00000003>
-Trying to free nonexistent resource <00000000-00000007>
-Trying to free nonexistent resource <00000000-00000003>
-Trying to free nonexistent resource <0000f000-0000f00f>
-Trying to free nonexistent resource <1f800000-1f8003ff>
-hda: C/H/S=19161/16/255 from BIOS ignored
-hda: MAXTOR 6L040J2, ATA DISK drive
-hdb: IC35L060AVVA07-0, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: DVDROM 8X, ATAPI CD/DVD-ROM drive
-hdd: Memorex CDRW-2216, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 78177792 sectors (40027 MB) w/1819KiB Cache, CHS=77557/16/63
-hdb: host protected area => 1
-hdb: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=7476/255/63
-hdc: ATAPI DVD-ROM drive, 512kB Cache
-Uniform CD-ROM driver Revision: 3.12
-hdd: ATAPI 16X CD-ROM CD-R/RW drive, 1024kB Cache
-Partition check:
- hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
- hdb: hdb1 hdb2 hdb3 hdb4
-
-Is there any other information I should provide?
--- 
-Rob Speer
-
+Andries

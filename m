@@ -1,64 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268359AbUHQTNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266617AbUHQTSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268359AbUHQTNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 15:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUHQTNJ
+	id S266617AbUHQTSu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 15:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266630AbUHQTSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 15:13:09 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:13321 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266610AbUHQTMw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 15:12:52 -0400
-Date: Tue, 17 Aug 2004 23:12:58 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Coywolf Qi Hunt <coywolf@greatcn.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, akpm@osdl.org, kai@tp1.ruhr-uni-bochum.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove obsolete HEAD in kbuild
-Message-ID: <20040817211258.GA20246@mars.ravnborg.org>
-Mail-Followup-To: Coywolf Qi Hunt <coywolf@greatcn.org>,
-	Sam Ravnborg <sam@ravnborg.org>, akpm@osdl.org,
-	kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
-References: <411F3A48.2030201@greatcn.org> <20040815174915.GA7265@mars.ravnborg.org> <412016AA.6030006@greatcn.org> <20040816205230.GA21047@mars.ravnborg.org> <41218562.9040204@greatcn.org>
+	Tue, 17 Aug 2004 15:18:50 -0400
+Received: from thunk.org ([140.239.227.29]:42396 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S266617AbUHQTSp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 15:18:45 -0400
+Date: Tue, 17 Aug 2004 15:18:19 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+Message-ID: <20040817191819.GA19449@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	Florian Schmidt <mista.tapas@gmx.net>
+References: <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu> <1092374851.3450.13.camel@mindpipe> <1092375673.3450.15.camel@mindpipe> <20040813103151.GH8135@elte.hu> <1092699974.13981.95.camel@krustophenia.net> <20040817074826.GA1238@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41218562.9040204@greatcn.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040817074826.GA1238@elte.hu>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 17, 2004 at 12:11:14PM +0800, Coywolf Qi Hunt wrote:
-> Sam Ravnborg wrote:
+On Tue, Aug 17, 2004 at 09:48:26AM +0200, Ingo Molnar wrote:
+> > +	return nbytes;
+> > +    
 > 
-> >On Mon, Aug 16, 2004 at 10:06:34AM +0800, Coywolf Qi Hunt wrote:
-> > 
-> >
-> >>diff -Nrup linux-2.6.8/arch/cris/Makefile 
-> >>linux-2.6.8-cy/arch/cris/Makefile
-> >>--- linux-2.6.8/arch/cris/Makefile	2004-08-15 20:58:18.673278888 -0400
-> >>+++ linux-2.6.8-cy/arch/cris/Makefile	2004-08-15 
-> >>20:59:30.109679014 -0400
-> >>@@ -39,8 +39,6 @@ CFLAGS := $(subst -fomit-frame-pointer,,
-> >>CFLAGS += -fno-omit-frame-pointer
-> >>endif
-> >>
-> >>-HEAD := arch/$(ARCH)/$(SARCH)/kernel/head.o
-> >>-
-> >>LIBGCC = $(shell $(CC) $(CFLAGS) -print-file-name=libgcc.a)
-> >>
-> >>core-y		+= arch/$(ARCH)/kernel/ arch/$(ARCH)/mm/
-> >>   
-> >>
-> >
-> >When you remove assignment to HEAD you need to replace 
-> >it with assignment to head-y.
-> >
-> 
-> No, we needn't. Some archs do not have head-y. They use core-y for head.o .
-Looked and could not find it...
-Adding head.o to extra-y does not get it compiled in.
-To compile it in it needs to be listed in obj-y, and do not
-confuse the three different head.S files.
+> since this effectively disables the random driver i cannot add it to the
+> patch.
 
-	Sam
+The problem isn't extract_entropy(), as much as the fact that we're
+calling it from check_and_rekey(), which in turn is being called by
+the secure TCP sequence number generation code.  If you are looking
+for a more localized way of getting rid of the probably while
+minimizing the amount of code that's being disabled, you can simply do
+this instead:
+
+--- random.c	2004-08-09 02:26:29 -0400
++++ random.c.new	2004-08-17 14:04:56 -0400
+@@ -2207,7 +2207,8 @@
+ #undef K3
+ 
+ /* This should not be decreased so low that ISNs wrap too fast. */
+-#define REKEY_INTERVAL	300
++#define REKEY_INTERVAL	((time_t) -1)
++
+ /*
+  * Bit layout of the tcp sequence numbers (before adding current time):
+  * bit 24-31: increased after every key exchange
+
+WARNING: this will effectively disable the secure TCP sequence
+generation, thus making your system more vulnerable to TCP hijacking
+attacks --- but if you cared about such attacks, you'd be using Real
+Crypto in your application progams anyway...
+
+> there's another thing you could try: various SHA_CODE_SIZE values in
+> drivers/char/random.c. Could you try 1, 2 and 3, does it change the
+> overhead as seen in the trace?
+
+I doubt SHA_CODE_SIZE will make a sufficient difference to avoid the
+latency problems.  What we would need to do is to change the code so
+that the rekey operation in __check_and_rekey takes place in a
+workqueue.  Say, something like this (warning, I haven't tested this
+patch; if it breaks, you get to keep both pieces):
+
+===== drivers/char/random.c 1.45 vs edited =====
+--- 1.45/drivers/char/random.c	2004-08-08 02:43:40 -04:00
++++ edited/drivers/char/random.c	2004-08-17 15:15:57 -04:00
+@@ -2241,30 +2241,35 @@
+ static spinlock_t ip_lock = SPIN_LOCK_UNLOCKED;
+ static unsigned int ip_cnt;
+ 
+-static struct keydata *__check_and_rekey(time_t time)
++static void rekey_seq_generator(void *private_)
+ {
+ 	struct keydata *keyptr;
++	struct timeval 	tv;
++
++	do_gettimeofday(&tv);
++
+ 	spin_lock_bh(&ip_lock);
+ 	keyptr = &ip_keydata[ip_cnt&1];
+-	if (!keyptr->rekey_time || (time - keyptr->rekey_time) > REKEY_INTERVAL) {
+-		keyptr = &ip_keydata[1^(ip_cnt&1)];
+-		keyptr->rekey_time = time;
+-		get_random_bytes(keyptr->secret, sizeof(keyptr->secret));
+-		keyptr->count = (ip_cnt&COUNT_MASK)<<HASH_BITS;
+-		mb();
+-		ip_cnt++;
+-	}
++
++	keyptr = &ip_keydata[1^(ip_cnt&1)];
++	keyptr->rekey_time = tv.tv_sec;
++	get_random_bytes(keyptr->secret, sizeof(keyptr->secret));
++	keyptr->count = (ip_cnt&COUNT_MASK)<<HASH_BITS;
++	mb();
++	ip_cnt++;
++
+ 	spin_unlock_bh(&ip_lock);
+-	return keyptr;
+ }
+ 
++static DECLARE_WORK(rekey_work, rekey_seq_generator, NULL);
++
+ static inline struct keydata *check_and_rekey(time_t time)
+ {
+ 	struct keydata *keyptr = &ip_keydata[ip_cnt&1];
+ 
+ 	rmb();
+ 	if (!keyptr->rekey_time || (time - keyptr->rekey_time) > REKEY_INTERVAL) {
+-		keyptr = __check_and_rekey(time);
++		schedule_work(&rekey_work);
+ 	}
+ 
+ 	return keyptr;
+
+						- Ted

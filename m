@@ -1,33 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVASXFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVASXIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbVASXFl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 18:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVASXFl
+	id S261964AbVASXIz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 18:08:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbVASXIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 18:05:41 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:29123 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261963AbVASXFa
+	Wed, 19 Jan 2005 18:08:55 -0500
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:26832 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261964AbVASXIi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 18:05:30 -0500
-Date: Wed, 19 Jan 2005 14:54:13 -0800
-From: Greg KH <greg@kroah.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Nish Aravamudan <nish.aravamudan@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel conector. Reincarnation #1.
-Message-ID: <20050119225413.GA5468@kroah.com>
-References: <1101287606.18807.75.camel@uganda> <20041124222857.GG3584@kroah.com> <1102504677.3363.55.camel@uganda> <20041221204101.GA9831@kroah.com> <1103707272.3432.6.camel@uganda> <20050112190319.GA10885@kroah.com> <20050112233345.6de409d0@zanzibar.2ka.mipt.ru> <20050113001611.0a5d8bf8@zanzibar.2ka.mipt.ru> <29495f1d050113095856d998ea@mail.gmail.com> <1105677168.3394.32.camel@uganda>
+	Wed, 19 Jan 2005 18:08:38 -0500
+Date: Wed, 19 Jan 2005 15:08:14 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050119230813.GI14545@atomide.com>
+References: <20050119000556.GB14749@atomide.com> <20050119113642.GA1358@elf.ucw.cz> <20050119171106.GA14545@atomide.com> <20050119220637.GA7513@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105677168.3394.32.camel@uganda>
+In-Reply-To: <20050119220637.GA7513@elf.ucw.cz>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 07:32:48AM +0300, Evgeniy Polyakov wrote:
-> Ok, updated patch attached.
-> Thank you.
+* Pavel Machek <pavel@suse.cz> [050119 14:06]:
+> Hi!
+> 
+> > > > As this patch is related to the VST/High-Res timers, there
+> > > > are probably various things that can be merged. I have not
+> > > > yet looked at what all could be merged.
+> > > > 
+> > > > I'd appreciate some comments and testing!
+> > > 
+> > > Good news is that it does seem to reduce number of interrupts. Bad
+> > > news is that time now runs faster (like "sleep 10" finishes in ~5
+> > > seconds) and that I could not measure any difference in power
+> > > consumption.
+> > 
+> > Thanks for trying it out. I have quite accurate time here on my
+> > systems, and sleep works as it should. I wonder what's happening on
+> > your system? If you have a chance, could you please post the results
+> > from following simple tests?
+> 
+> On patched 2.6.11-rc1:
+> 
+> [Heh, clock is two times too fast, perhaps that makes ntpdate fail? -- yes.
+> 
+> root@amd:~# dmesg | grep -i time; for i in 1 2 3 4 5; do ntpdate -b tak.cesnet.cz && sleep 10; done ; date && sleep 10 && date; while [ 1 ]; do date; done | uniq
+> PCI: Setting latency timer of device 0000:00:11.5 to 64
+> dyn-tick: Enabling dynamic tick timer
+> dyn-tick: Timer using dynamic tick
 
-Applied to my trees, thanks.
+Thanks. Looks like you're running on PIT only, I guess my patch
+currently breaks PIT (and possibly HPET) No dmesg message for "
+"Using XXX for high-res timesource".
 
-greg k-h
+Tony

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261625AbSJNOPK>; Mon, 14 Oct 2002 10:15:10 -0400
+	id <S261631AbSJNOP7>; Mon, 14 Oct 2002 10:15:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261629AbSJNOPK>; Mon, 14 Oct 2002 10:15:10 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:4256 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261625AbSJNOPJ>; Mon, 14 Oct 2002 10:15:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Nathan Scott <nathans@sgi.com>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH 2/2][RESEND] POSIX ACL configuration option
-Date: Mon, 14 Oct 2002 09:22:33 -0500
-X-Mailer: KMail [version 1.4]
-Cc: Andreas Gruenbacher <agruen@suse.de>, "Theodore Ts'o" <tytso@mit.edu>,
+	id <S261650AbSJNOP5>; Mon, 14 Oct 2002 10:15:57 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62178 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261631AbSJNOPw>;
+	Mon, 14 Oct 2002 10:15:52 -0400
+Date: Mon, 14 Oct 2002 15:22:36 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Rob Landley <landley@trommello.org>,
+       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
        linux-kernel@vger.kernel.org
-References: <20021013121851.B276740@wobbly.melbourne.sgi.com>
-In-Reply-To: <20021013121851.B276740@wobbly.melbourne.sgi.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210140922.33915.shaggy@austin.ibm.com>
+Subject: Re: Fwd: Re: lk maintainers
+Message-ID: <20021014142236.GA6342@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Eric S. Raymond" <esr@thyrsus.com>,
+	Rob Landley <landley@trommello.org>,
+	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+References: <20021014131201.CFDA4397@merlin.webofficenow.com> <20021014131521.GA17710@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021014131521.GA17710@thyrsus.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
-Inclusion of these patches would enable me to add POSIX ACL support to 
-jfs.  Please consider accpepting them.
+On Mon, Oct 14, 2002 at 09:15:21AM -0400, Eric S. Raymond wrote:
+ > > On Thu, Oct 10, 2002 at 08:07:08AM -0200, Denis Vlasenko wrote:
+ > > > Eric S. Raymond <esr@thyrsus.com> [5 feb 2002]
+ > > > 	Send kernel configuration bug reports and suggestions to me.
+ > > > 	Also I'll be more than happy to accept help enties for kernel config
+ > > > 	options (Configure.help).
+ > > 
+ > > Isn't this Steven P. Cole <elenstev@mesatop.com> now? Or is Eric
+ > > still responsive to patches?
+ > 
+ > Linus stopped taking Configure.help patches.  It therefore doesn't matter
+ > whether I am "responsive" or or not.
 
-On Saturday 12 October 2002 21:18, Nathan Scott wrote:
-> Hi Linus,
->
-> This patch provides the configuration entry, help text and basic
-> header file definitions for filesystems that support POSIX ACLs.
->
-> cheers.
+Likely because it doesn't exist any more. Steven Cole did a pretty good
+job at updating the numerous Config.help's after the two diverged.
+
+		Dave
 
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+| Dave Jones.        http://www.codemonkey.org.uk

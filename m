@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129544AbQKHB3x>; Tue, 7 Nov 2000 20:29:53 -0500
+	id <S129245AbQKHBih>; Tue, 7 Nov 2000 20:38:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129245AbQKHB3o>; Tue, 7 Nov 2000 20:29:44 -0500
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:25411 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130027AbQKHB3d>; Tue, 7 Nov 2000 20:29:33 -0500
-Date: Tue, 7 Nov 2000 23:58:00 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Igmar Palsenberg <maillist@chello.nl>
-Cc: RAJESH BALAN <atmproj@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: malloc(1/0) ??
-Message-ID: <20001107235800.R17245@redhat.com>
-In-Reply-To: <20001107035905.18154.qmail@web3707.mail.yahoo.com> <Pine.LNX.4.21.0011080140300.32613-100000@server.serve.me.nl>
+	id <S129495AbQKHBi0>; Tue, 7 Nov 2000 20:38:26 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:51393 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S129245AbQKHBiU>;
+	Tue, 7 Nov 2000 20:38:20 -0500
+Date: Tue, 7 Nov 2000 17:38:09 -0800
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Dag Brattli <dagb@fast.no>
+Subject: Re: [RANT] Linux-IrDA status
+Message-ID: <20001107173809.A24129@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20001107171401.A24041@bougret.hpl.hp.com> <3A08AB56.10BD5007@mandrakesoft.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="f4HxWLVbzokH9yio"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0011080140300.32613-100000@server.serve.me.nl>; from maillist@chello.nl on Wed, Nov 08, 2000 at 01:41:40AM +0100
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <3A08AB56.10BD5007@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, Nov 07, 2000 at 08:24:38PM -0500
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 07, 2000 at 08:24:38PM -0500, Jeff Garzik wrote:
+> 
+> Take a look at
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/9908.0/0669.html  This
+> happened with ISDN.  Slightly different situation, but similar.
 
---f4HxWLVbzokH9yio
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	I'm familiar with that. The *BIG* difference is that Dag has
+always sent his patch to Linus from the very start, when it was still
+small, whereas ISDN did stay on their patch from a long time.
 
-On Wed, Nov 08, 2000 at 01:41:40AM +0100, Igmar Palsenberg wrote:
+> IMHO Dag should send break up his patches into small chunks, and feed
+> those to Linus, with an explanation of each chunk.  That's what
+> everybody else does... :)
 
-> malloc(0) is bogus in this case. malloc(0) == free();
+	If you can break up stuff that has accumulated over one year,
+please tell me so. Most of the original patches have been lost in the
+mist of time. We could send it file by file, but that would give some
+interesting results ;-)
+	There is also a tradeoff between having the maintainer doing
+the filtering to make sure that what's get checked in is safe and
+getting junk in the kernel. With IrDA, Dag make sure to test and
+integrate each patch before sending it to Linus, which of course make
+bigger chunks. Also, some of the contribution on the IrDA mailing list
+are big chunks of patches by themselves.
+	Anyway, Linus should read the Linux-IrDA mailing list if he
+really want to keep up with the gory details ;-)
 
-No, you're thinking of realloc.
+> 	Jeff
 
-Tim.
-*/
+	Ciao...
 
---f4HxWLVbzokH9yio
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6CJcHONXnILZ4yVIRAvfTAJ9GPpX0RMpOeTUhF3r49or515PC/QCdFg3N
-G5LTt2i5TIcSaRf/RK2rWLs=
-=e2wv
------END PGP SIGNATURE-----
-
---f4HxWLVbzokH9yio--
+	Jean
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

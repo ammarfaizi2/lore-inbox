@@ -1,61 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292000AbSBTQvP>; Wed, 20 Feb 2002 11:51:15 -0500
+	id <S292005AbSBTQyZ>; Wed, 20 Feb 2002 11:54:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292003AbSBTQvH>; Wed, 20 Feb 2002 11:51:07 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25327 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S292000AbSBTQuy>; Wed, 20 Feb 2002 11:50:54 -0500
-Message-ID: <3C73D3D8.513837ED@mvista.com>
-Date: Wed, 20 Feb 2002 08:50:32 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Ben Greear <greearb@candelatech.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: jiffies rollover, uptime etc.
-In-Reply-To: <Pine.LNX.3.96.1020220104257.23280J-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S292015AbSBTQyP>; Wed, 20 Feb 2002 11:54:15 -0500
+Received: from natwar.webmailer.de ([192.67.198.70]:65129 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S292005AbSBTQyE>; Wed, 20 Feb 2002 11:54:04 -0500
+Date: Wed, 20 Feb 2002 17:51:47 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: Kristian <kristian.peters@korseby.net>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: 2.4.18-pre9-ac4 filesystem corruption
+Message-Id: <20020220175147.4064fc6e.kristian.peters@korseby.net>
+In-Reply-To: <20020220110528.4274e61d.kristian.peters@korseby.net>
+In-Reply-To: <20020219153248.39a1b7fc.kristian.peters@korseby.net>
+	<E16dBaR-0000fj-00@the-village.bc.nu>
+	<20020220110528.4274e61d.kristian.peters@korseby.net>
+X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: Debian GNU/Linux 2.4.17
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> 
-> On Tue, 19 Feb 2002, george anzinger wrote:
-> 
-> > Bill Davidsen wrote:
-> > >
-> > > On Mon, 18 Feb 2002, Ben Greear wrote:
-> 
-> > > > Does this problem still exist on 64-bit machines?
-> > >
-> > > Absolutely. But not as often ;-)
-> >
-> > Actually you will have a VERY hard time getting it to roll over.  Issues
-> > of your life time, not to mention the hardware's life time.  64 bits
-> > makes a VERY large number and you are counting in 427 day increments.
-> > Remember we have been counting seconds since 1970 in 32 bits and
-> > rollover is still, most likely, beyond the capability of any machine
-> > running today to get to.  Now consider counting in 427 day increments
-> > instead of seconds.
-> 
-> Um, note the odd characters appended to my sentence ";-)" which means
-> "not serious here, look for joke, sarcasm, over or understatement.
-> 
-Ok, I guess I just got so impressed with the size of a 64-bit value that
-I was overwhelmed.  Consider, for example:
 
-	u64 i;
-	for (i = 1; i != 0; i++);
+Ok. Forgive me my own stupidity. Putting that cable in wrong order is a fault I will not make again. I really must ask myself why I haven't noticed it the last 13 years... ;-)
 
-Now in theory this will count each possible number, but in practice the
-machine will die long before it ever finishes.
-	
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :..........................:

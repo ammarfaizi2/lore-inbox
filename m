@@ -1,213 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288019AbSBMSOy>; Wed, 13 Feb 2002 13:14:54 -0500
+	id <S288051AbSBMSQe>; Wed, 13 Feb 2002 13:16:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288051AbSBMSOp>; Wed, 13 Feb 2002 13:14:45 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:24336 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S288019AbSBMSO2>;
-	Wed, 13 Feb 2002 13:14:28 -0500
-Date: Wed, 13 Feb 2002 10:09:43 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Bill Davidsen <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ? 
-In-Reply-To: <Pine.LNX.3.95.1020213111701.17207A-101000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33L2.0202130857320.1530-200000@dragon.pdx.osdl.net>
+	id <S288116AbSBMSQR>; Wed, 13 Feb 2002 13:16:17 -0500
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:22173 "EHLO
+	ip68-3-107-226.ph.ph.cox.net") by vger.kernel.org with ESMTP
+	id <S288051AbSBMSP6>; Wed, 13 Feb 2002 13:15:58 -0500
+Message-ID: <3C6AAD56.6000701@candelatech.com>
+Date: Wed, 13 Feb 2002 11:15:50 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="346823425-27554337-1013623783=:1530"
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18-pre9 insmod problems.
+In-Reply-To: <3C6741DF.6040100@candelatech.com> <20020211215657.GG12514@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+I think it must have been a compile problem on my
+side.  Sorry for the confusion.
 
---346823425-27554337-1013623783=:1530
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Ben
 
-On Wed, 13 Feb 2002, Richard B. Johnson wrote:
+Greg KH wrote:
 
-| On Wed, 13 Feb 2002, Horst von Brand wrote:
-|
-| > Daniel Phillips <phillips@bonn-fries.net> said:
-| > > On February 12, 2002 05:38 pm, Bill Davidsen wrote:
-| >
-| > [...]
-| [SNIPPED...]
-|
-| My idea is to take the .config file and remove most of its
-| redundancy and unnecessary verbage. Then, the result is
-| compressed and written to a constant global array, linked
-| into the kernel. Both the array and the array length will then
-| be available from /proc/kcore for user-mode tools to recreate the
-| .config file.
+> On Sun, Feb 10, 2002 at 09:00:31PM -0700, Ben Greear wrote:
+> 
+>>The USB stuff didn't load either.
+>>
+> 
+> What errors did you get when trying to load "USB stuff"?
+> 
+> 
+>>Is this a known problem, or do I need to give more details?
+>>
+> 
+> More details please.
+> 
+> thanks,
+> 
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-This is a bit similar to what I did last weekend (and attach
-here).  Mine goes into the kernel boot file, however, so that
-it can be read even when the kernel isn't running.
-
-I'll experiment with ideas from Andreas (thanks) or Ian Soboroff
-to create a userspace get-config tool.
-
-One small nit:  you say "user-mode tools", but /proc/kcore
-is read-only for root only -- right?
-That's not desirable or required IMO.
-
-| Here are tools and a test/documentation script that shows it
-| will work. The .config on my machine generates a 1730 byte
-| array. This is certainly small enough to not be considered
-| bloat.
-
-Not a problem to me, although most people seem to want to see
-it as a config option.
-I plan to add that to what I've done...
-and probably strip the leading "CONFIG_" strings.
-
-| The advantage, of course is that if you are executing the kernel,
-| it can give you all the information necessary to recreate a
-| new one from the sources because its .config is embeded into
-| itself. Once you have the ".config" file, you just do `make oldconfig`
-| and you are home free.
 
 -- 
-~Randy
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
---346823425-27554337-1013623783=:1530
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="config-info.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33L2.0202131009430.1530@dragon.pdx.osdl.net>
-Content-Description: 
-Content-Disposition: attachment; filename="config-info.patch"
 
-LS0tIGxpbnV4LTI0MTYvTWFrZWZpbGUub3JnCU1vbiBOb3YgMjYgMDU6Mjk6
-MTcgMjAwMQ0KKysrIGxpbnV4LTI0MTYvTWFrZWZpbGUJV2VkIEZlYiAxMyAw
-OToxNjozOSAyMDAyDQpAQCAtMjU3LDggKzI1Nyw4IEBADQogYm9vdDogdm1s
-aW51eA0KIAlAJChNQUtFKSBDRkxBR1M9IiQoQ0ZMQUdTKSAkKENGTEFHU19L
-RVJORUwpIiAtQyBhcmNoLyQoQVJDSCkvYm9vdA0KIA0KLXZtbGludXg6IGlu
-Y2x1ZGUvbGludXgvdmVyc2lvbi5oICQoQ09ORklHVVJBVElPTikgaW5pdC9t
-YWluLm8gaW5pdC92ZXJzaW9uLm8gbGludXhzdWJkaXJzDQotCSQoTEQpICQo
-TElOS0ZMQUdTKSAkKEhFQUQpIGluaXQvbWFpbi5vIGluaXQvdmVyc2lvbi5v
-IFwNCit2bWxpbnV4OiBpbmNsdWRlL2xpbnV4L3ZlcnNpb24uaCAkKENPTkZJ
-R1VSQVRJT04pIGluaXQvbWFpbi5vIGluaXQvdmVyc2lvbi5vIGluaXQvY29u
-Zmlncy5vIGxpbnV4c3ViZGlycw0KKwkkKExEKSAkKExJTktGTEFHUykgJChI
-RUFEKSBpbml0L21haW4ubyBpbml0L3ZlcnNpb24ubyBpbml0L2NvbmZpZ3Mu
-byBcDQogCQktLXN0YXJ0LWdyb3VwIFwNCiAJCSQoQ09SRV9GSUxFUykgXA0K
-IAkJJChEUklWRVJTKSBcDQpAQCAtMzM0LDYgKzMzNCwxMyBAQA0KIA0KIGlu
-aXQvbWFpbi5vOiBpbml0L21haW4uYyBpbmNsdWRlL2NvbmZpZy9NQVJLRVIN
-CiAJJChDQykgJChDRkxBR1MpICQoQ0ZMQUdTX0tFUk5FTCkgJChQUk9GSUxJ
-TkcpIC1jIC1vICQqLm8gJDwNCisNCitzY3JpcHRzL21rY29uZmlnczogc2Ny
-aXB0cy9ta2NvbmZpZ3MuYw0KKwkkKEhPU1RDQykgJChIT1NUQ0ZMQUdTKSAt
-byBzY3JpcHRzL21rY29uZmlncyBzY3JpcHRzL21rY29uZmlncy5jDQorDQor
-aW5pdC9jb25maWdzLm86IHNjcmlwdHMvbWtjb25maWdzICQoVE9QRElSKS8u
-Y29uZmlnIGluY2x1ZGUvY29uZmlnL01BUktFUg0KKwlzY3JpcHRzL21rY29u
-ZmlncyAkKFRPUERJUikvLmNvbmZpZyBpbml0L2NvbmZpZ3MuYw0KKwkkKEND
-KSAkKENGTEFHUykgJChDRkxBR1NfS0VSTkVMKSAtREVYUE9SVF9TWU1UQUIg
-LWMgLW8gaW5pdC9jb25maWdzLm8gaW5pdC9jb25maWdzLmMNCiANCiBmcyBs
-aWIgbW0gaXBjIGtlcm5lbCBkcml2ZXJzIG5ldDogZHVtbXkNCiAJJChNQUtF
-KSBDRkxBR1M9IiQoQ0ZMQUdTKSAkKENGTEFHU19LRVJORUwpIiAkKHN1YnN0
-ICRALCBfZGlyXyRALCAkQCkNCi0tLSAvaG9tZS9yZGR1bmxhcC9kb2MvZXBv
-Y2gJV2VkIE1heSAyNCAwOTo1MTowMCAyMDAwDQorKysgbGludXgtMjQxNi9z
-Y3JpcHRzL21rY29uZmlncy5jCVdlZCBGZWIgMTMgMDk6MDc6MjAgMjAwMg0K
-QEAgLTAsMCArMSwxNTUgQEANCisvKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqDQorICogbWtjb25maWdzLmMNCisgKiAoQykgMjAwMiBSYW5keSBE
-dW5sYXAgPHJkZHVubGFwQG9zZGwub3JnPg0KKw0KKyMgICBUaGlzIHByb2dy
-YW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQg
-YW5kL29yIG1vZGlmeQ0KKyMgICBpdCB1bmRlciB0aGUgdGVybXMgb2YgdGhl
-IEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieQ0K
-KyMgICB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVy
-c2lvbiAyIG9mIHRoZSBMaWNlbnNlLCBvcg0KKyMgICAoYXQgeW91ciBvcHRp
-b24pIGFueSBsYXRlciB2ZXJzaW9uLg0KKyMNCisjICAgVGhpcyBwcm9ncmFt
-IGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1
-c2VmdWwsDQorIyAgIGJ1dCBXSVRIT1VUIEFOWSBXQVJSQU5UWTsgd2l0aG91
-dCBldmVuIHRoZSBpbXBsaWVkIHdhcnJhbnR5IG9mDQorIyAgIE1FUkNIQU5U
-QUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4g
-IFNlZSB0aGUNCisjICAgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgZm9y
-IG1vcmUgZGV0YWlscy4NCisjDQorIyAgIFlvdSBzaG91bGQgaGF2ZSByZWNl
-aXZlZCBhIGNvcHkgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNl
-DQorIyAgIGFsb25nIHdpdGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRl
-IHRvIHRoZSBGcmVlIFNvZnR3YXJlDQorIyAgIEZvdW5kYXRpb24sIEluYy4s
-IDY3NSBNYXNzIEF2ZSwgQ2FtYnJpZGdlLCBNQSAwMjEzOSwgVVNBLg0KKw0K
-KyMgUnVsZXMgZm9yIHNjcmlwdHMvbWtjb25maWdzLmMgaW5wdXQuY29uZmln
-IG91dHB1dC5jDQorIyB0byBnZW5lcmF0ZSBjb25maWdzLmMgZnJvbSBsaW51
-eC8uY29uZmlnOg0KKyMgLSBkcm9wIGxpbmVzIHRoYXQgYmVnaW4gd2l0aCAn
-IycNCisjIC0gZHJvcCBibGFuayBsaW5lcw0KKyMgLSBsaW5lcyB0aGF0IHVz
-ZSBkb3VibGUtcXVvdGVzIG11c3QgXFwtZXNjYXBlLXF1b3RlIHRoZW0NCisN
-CisjIyMjIyMjIyMjIyMjIyMjIyMgc2tlbGV0b24gY29uZmlncy5jIGZpbGU6
-ICMjIyMjIyMjIyMjIyMjIyMjIyMjDQorDQorI2luY2x1ZGUgPGxpbnV4L2lu
-aXQuaD4NCisjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+DQorDQorc3RhdGlj
-IGNoYXIgKmNvbmZpZ3NbXSBfX2luaXRkYXRhID0NCisNCisgIDxpbnNlcnQg
-bGluZXMgc2VsZWN0ZWQgbGluZXMgb2YgLmNvbmZpZywgcXVvdGVkLCB3aXRo
-IGFkZGVkICdcbic+LA0KKw0KKzsNCisNCisjIyMjIyMjIyMjIyMjIyMjIyMj
-IGVuZCBjb25maWdzLmMgZmlsZSAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQor
-DQorKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKi8NCisNCisjaW5jbHVkZSA8c3RkaW8u
-aD4NCisjaW5jbHVkZSA8c3RkbGliLmg+DQorI2luY2x1ZGUgPHN0cmluZy5o
-Pg0KKyNpbmNsdWRlIDxlcnJuby5oPg0KKw0KKyNkZWZpbmUgVkVSU0lPTgkJ
-IjAuMSINCisjZGVmaW5lIExJTkVfU0laRQkxMDAwDQorDQordm9pZCB1c2Fn
-ZSAoY29uc3QgY2hhciAqcHJvZ25hbWUpDQorew0KKwlmcHJpbnRmIChzdGRl
-cnIsICIlcyB2ZXIuICVzXG4iLCBwcm9nbmFtZSwgVkVSU0lPTik7DQorCWZw
-cmludGYgKHN0ZGVyciwgInVzYWdlOiAgJXMgaW5wdXQuY29uZmlnLm5hbWUg
-cGF0aC9jb25maWdzLmNcbiIsDQorCQkJcHJvZ25hbWUpOw0KKwlleGl0ICgx
-KTsNCit9DQorDQordm9pZCBtYWtlX2ludHJvIChGSUxFICpzb3VyY2VmaWxl
-KQ0KK3sNCisJZnByaW50ZiAoc291cmNlZmlsZSwgIiNpbmNsdWRlIDxsaW51
-eC9pbml0Lmg+XG4iKTsNCisJZnByaW50ZiAoc291cmNlZmlsZSwgIiNpbmNs
-dWRlIDxsaW51eC9tb2R1bGUuaD5cbiIpOw0KKwlmcHJpbnRmIChzb3VyY2Vm
-aWxlLCAiXG4iKTsNCisJZnByaW50ZiAoc291cmNlZmlsZSwgIi8qc3RhdGlj
-Ki8gY2hhciAvKl9fYXR0cmlidXRlX18gKCh1bnVzZWQpKSovICpjb25maWdz
-W10gX19pbml0ZGF0YSA9IHtcbiIpOw0KKwlmcHJpbnRmIChzb3VyY2VmaWxl
-LCAiICBcIkNPTkZJR19CRUdJTj1uIFwiICxcbiIpOw0KK30NCisNCit2b2lk
-IG1ha2VfZW5kaW5nIChGSUxFICpzb3VyY2VmaWxlKQ0KK3sNCisJZnByaW50
-ZiAoc291cmNlZmlsZSwgIiAgXCJDT05GSUdfRU5EPW4gXCJcbiIpOw0KKwlm
-cHJpbnRmIChzb3VyY2VmaWxlLCAifTtcbiIpOw0KKwlmcHJpbnRmIChzb3Vy
-Y2VmaWxlLCAiRVhQT1JUX1NZTUJPTCAoY29uZmlncyk7XG4iKTsNCit9DQor
-DQordm9pZCBtYWtlX2xpbmVzIChGSUxFICpjb25maWdmaWxlLCBGSUxFICpz
-b3VyY2VmaWxlKQ0KK3sNCisJY2hhciBjZmdsaW5lW0xJTkVfU0laRV07DQor
-CWNoYXIgKmNoOw0KKw0KKwl3aGlsZSAoZmdldHMgKGNmZ2xpbmUsIExJTkVf
-U0laRSwgY29uZmlnZmlsZSkpIHsNCisJCWlmIChjZmdsaW5lWzBdID09ICcj
-JyB8fA0KKwkJICAgIGNmZ2xpbmVbMF0gPT0gJ1xuJykNCisJCQljb250aW51
-ZTsNCisJCS8qIGtpbGwgdGhlIHRyYWlsaW5nIG5ld2xpbmUgaW4gY2ZnbGlu
-ZSAqLw0KKwkJY2ZnbGluZVtzdHJsZW4gKGNmZ2xpbmUpIC0gMV0gPSAnXDAn
-Ow0KKw0KKwkJLyoNCisJCSAqIHVzZSBzdHJjaHIoKSB0byBjaGVjayBmb3Ig
-Ii1xdW90ZSBpbiBjZmdsaW5lOw0KKwkJICogaWYgbm90IGZvdW5kLCBvdXRw
-dXQgdGhlIGxpbmUsIHF1b3RlZDsNCisJCSAqIGlmIGZvdW5kLCBvdXRwdXQg
-YSBjaGFyIGF0IGEgdGltZSwgd2l0aCBcXC1xdW90ZQ0KKwkJICogcHJlY2Vk
-aW5nIGRvdWJsZS1xdW90ZSBjaGFycw0KKwkJICovDQorCQlpZiAoIXN0cmNo
-ciAoY2ZnbGluZSwgJyInKSkgew0KKwkJCWZwcmludGYgKHNvdXJjZWZpbGUs
-ICIgIFwiJXMgXCIgLFxuIiwgY2ZnbGluZSk7DQorCQkJY29udGludWU7DQor
-CQl9DQorDQorCQkvKiBnbyB0byBjaGFyLWF0LWEtdGltZSBtb2RlIGZvciB0
-aGlzIGNmZ2xpbmUgYW5kDQorCQkgKiBwcmVjZWRlIGFueSBkb3VibGUtcXVv
-dGUgd2l0aCBhIGJhY2tzbGFzaCAqLw0KKwkJZnByaW50ZiAoc291cmNlZmls
-ZSwgIiAgXCIiKTsJLyogbGVhZC1pbiAqLw0KKwkJZm9yIChjaCA9IGNmZ2xp
-bmU7ICpjaDsgY2grKykgew0KKwkJCWlmICgqY2ggPT0gJyInKQ0KKwkJCQlm
-cHV0YyAoJ1xcJywgc291cmNlZmlsZSk7DQorCQkJZnB1dGMgKCpjaCwgc291
-cmNlZmlsZSk7DQorCQl9DQorCQlmcHJpbnRmIChzb3VyY2VmaWxlLCAiIFwi
-ICxcbiIpOw0KKwl9DQorfQ0KKw0KK2ludCBtYWtlX2NvbmZpZ3MgKEZJTEUg
-KmNvbmZpZ2ZpbGUsIEZJTEUgKnNvdXJjZWZpbGUpDQorew0KKwltYWtlX2lu
-dHJvIChzb3VyY2VmaWxlKTsNCisJbWFrZV9saW5lcyAoY29uZmlnZmlsZSwg
-c291cmNlZmlsZSk7DQorCW1ha2VfZW5kaW5nIChzb3VyY2VmaWxlKTsNCit9
-DQorDQoraW50IG1haW4gKGludCBhcmdjLCBjaGFyICphcmd2W10pDQorew0K
-KwljaGFyICpwcm9nbmFtZSA9IGFyZ3ZbMF07DQorCWNoYXIgKmNvbmZpZ25h
-bWUsICpzb3VyY2VuYW1lOw0KKwlGSUxFICpjb25maWdmaWxlLCAqc291cmNl
-ZmlsZTsNCisNCisJaWYgKGFyZ2MgIT0gMykNCisJCXVzYWdlIChwcm9nbmFt
-ZSk7DQorDQorCWNvbmZpZ25hbWUgPSBhcmd2WzFdOw0KKwlzb3VyY2VuYW1l
-ID0gYXJndlsyXTsNCisNCisJY29uZmlnZmlsZSA9IGZvcGVuIChjb25maWdu
-YW1lLCAiciIpOw0KKwlpZiAoIWNvbmZpZ2ZpbGUpIHsNCisJCWZwcmludGYg
-KHN0ZGVyciwgIiVzOiBjYW5ub3Qgb3BlbiAnJXMnXG4iLA0KKwkJCQlwcm9n
-bmFtZSwgY29uZmlnbmFtZSk7DQorCQlleGl0ICgyKTsNCisJfQ0KKwlzb3Vy
-Y2VmaWxlID0gZm9wZW4gKHNvdXJjZW5hbWUsICJ3Iik7DQorCWlmICghc291
-cmNlZmlsZSkgew0KKwkJZnByaW50ZiAoc3RkZXJyLCAiJXM6IGNhbm5vdCBv
-cGVuICclcydcbiIsDQorCQkJCXByb2duYW1lLCBzb3VyY2VuYW1lKTsNCisJ
-CWV4aXQgKDIpOw0KKwl9DQorDQorCW1ha2VfY29uZmlncyAoY29uZmlnZmls
-ZSwgc291cmNlZmlsZSk7DQorDQorCWlmIChmY2xvc2UgKHNvdXJjZWZpbGUp
-KSB7DQorCQlmcHJpbnRmIChzdGRlcnIsICIlczogZXJyb3IgJWQgY2xvc2lu
-ZyAnJXMnXG4iLA0KKwkJCQlwcm9nbmFtZSwgZXJybm8sIHNvdXJjZW5hbWUp
-Ow0KKwkJZXhpdCAoMyk7DQorCX0NCisJaWYgKGZjbG9zZSAoY29uZmlnZmls
-ZSkpIHsNCisJCWZwcmludGYgKHN0ZGVyciwgIiVzOiBlcnJvciAlZCBjbG9z
-aW5nICclcydcbiIsDQorCQkJCXByb2duYW1lLCBlcnJubywgY29uZmlnbmFt
-ZSk7DQorCQlleGl0ICgzKTsNCisJfQ0KKw0KKwlleGl0ICgwKTsNCit9DQor
-DQorLyogZW5kIG1rY29uZmlncy5jICovDQo=
---346823425-27554337-1013623783=:1530--

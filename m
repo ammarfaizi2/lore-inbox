@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUHYXiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266287AbUHYXhm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266341AbUHYXiC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 19:38:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHYXiB
+	id S266287AbUHYXhm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 19:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHYXhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 19:38:01 -0400
-Received: from dp.samba.org ([66.70.73.150]:13753 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266281AbUHYXhq (ORCPT
+	Wed, 25 Aug 2004 19:37:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63941 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266281AbUHYXff (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 19:37:46 -0400
-Date: Wed, 25 Aug 2004 16:37:39 -0700
-From: Jeremy Allison <jra@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Spam <spam@tnonline.net>, torvalds@osdl.org, reiser@namesys.com,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040825233739.GP10907@legion.cup.hp.com>
-Reply-To: Jeremy Allison <jra@samba.org>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040825163225.4441cfdd.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 25 Aug 2004 19:35:35 -0400
+Date: Wed, 25 Aug 2004 16:35:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Subject: Re: [RFC&PATCH 1/2] PCI Error Recovery (readX_check)
+In-Reply-To: <1093476204.2170.55.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0408251633580.17766@ppc970.osdl.org>
+References: <412AD123.8050605@jp.fujitsu.com>  <Pine.LNX.4.58.0408232231070.17766@ppc970.osdl.org>
+  <1093417267.2170.47.camel@gaston>  <Pine.LNX.4.58.0408250015420.17766@ppc970.osdl.org>
+ <1093476204.2170.55.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 04:32:25PM -0700, Andrew Morton wrote:
-> 
-> We can add these new features tomorrow, as reiser4-only features, with a
-> plan in hand to generalise them later.
-> 
-> -->>__if__<<-- we think these are features which Linux should offer.
 
-Multiple-data-stream files are something we should offer, definately (IMHO).
-I don't care how we do it, but I know it's something we need as application
-developers.
 
-Jeremy.
+On Thu, 26 Aug 2004, Benjamin Herrenschmidt wrote:
+> 
+> Yup, but then, the user have to take care that behind a single "error
+> checking" entity (a bridge for example), all devices have such drivers
+> that honor the bridge-level locking and not their own.
+
+Yes. I suspect that this all matters in places where you have pretty 
+strict hardware controls anyway, so it's likely not a big deal. 
+
+> On ppc64, I think we always have 1 bridge = 1 slot though, makes things
+> easier (well, provided we don't start to try playing with error coming
+> from slots on the g5).
+
+Yes, I'd assume that most high-end hardware (ie the kind that people have
+who care about these things in the first place) wants to minimize the
+number of shared error reporting bridges anyway.
+
+		Linus

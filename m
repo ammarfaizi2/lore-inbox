@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267171AbUBSKV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 05:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267175AbUBSKV5
+	id S267174AbUBSK1U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 05:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267176AbUBSK1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 05:21:57 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:6303 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267171AbUBSKVy (ORCPT
+	Thu, 19 Feb 2004 05:27:20 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:50360 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S267174AbUBSK1S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 05:21:54 -0500
-Date: Thu, 19 Feb 2004 11:21:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Miquel van Smoorenburg <miquels@cistron.nl>, Andrew Morton <akpm@osdl.org>,
-       linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
-       thornber@redhat.com
-Subject: Re: IO scheduler, queue depth, nr_requests
-Message-ID: <20040219102108.GK27190@suse.de>
-References: <20040216131609.GA21974@cistron.nl> <20040216133047.GA9330@suse.de> <20040217145716.GE30438@traveler.cistron.net> <20040218235243.GA30621@drinkel.cistron.nl> <20040218172622.52914567.akpm@osdl.org> <20040219021159.GE30621@drinkel.cistron.nl> <403424A4.3090007@cyberone.com.au>
+	Thu, 19 Feb 2004 05:27:18 -0500
+Date: Thu, 19 Feb 2004 11:29:00 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
+Cc: paulmck@us.ibm.com, arjanv@redhat.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040219102900.GC14000@marowsky-bree.de>
+References: <20040216190927.GA2969@us.ibm.com> <20040217073522.A25921@infradead.org> <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <403424A4.3090007@cyberone.com.au>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040218145132.460214b5.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19 2004, Nick Piggin wrote:
-> 
-> 
-> Miquel van Smoorenburg wrote:
-> 
-> >
-> >No, I'm actually referring to a struct request. I'm logging this in the
-> >SCSI layer, in scsi_request_fn(), just after elv_next_request(). I have
-> >in fact logged all the bio's submitted to __make_request, and the output
-> >of the elevator from elv_next_request(). The bio's are submitted 
-> >sequentially,
-> >the resulting requests aren't. But this is because nr_requests is 128, 
-> >while
-> >the 3ware device has a queue of 254 entries (no tagging though). Upping
-> >nr_requests to 512 makes this go away ..
-> >
-> >That shouldn't be necessary though. I only see this with LVM over 
-> >3ware-raid5,
-> >not on the 3ware-raid5 array directly (/dev/sda1). And it gets less 
-> >troublesome
-> >with a lot of debugging (unless I set nr_requests lower again), which 
-> >points
-> >to a timing issue.
-> >
-> >
-> 
-> So the problem you are seeing is due to "unlucky" timing between
-> two processes submitting IO. And the very efficient mechanisms
-> (merging, sorting) we have to improve situations exactly like this
-> is effectively disabled. And to make it worse, it appears that your
-> controller shits itself on this trivially simple pattern.
-> 
-> Your hack makes a baby step in the direction of per *process*
-> request limits, which I happen to be an advocate of. As it stands
-> though, I don't like it.
+On 2004-02-18T14:51:32,
+   Andrew Morton <akpm@osdl.org> said:
 
-I'm very much an advocate for per process request limits as well.  Would
-be trivial to add... Miquels patch is horrible, I appreciate it being
-posted as a cry for help.
+> a) Does the export make technical sense?  Do filesystems have
+>    legitimate need for access to this symbol?
+> 
+> (really, a) is sufficient grounds, but for real-world reasons:)
+
+Technically, I assume both OCFS, Lustre, (OpenGFS), PolyServe and
+basically /everyone/ doing a cluster file system, proprietary or not,
+will eventually need this capability. Vendors have included hooks for
+this in 2.4 already anyway.
+
+So on technical grounds, I'm strongly inclined to support it, but I
+would like to suggest that it is ensured that the hook is sufficient for
+all of the named CFS.
+
+Paul, have you spoken with them?
+
+> b) Does the IBM filsystem meet the kernel's licensing requirements?
+
+If you are worried about this one, you can export it GPL-only, which as
+an Open Source developer I'd appreciate, but from a real-world business
+perspective would be unhappy about ;-)
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-Jens Axboe
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
 

@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278688AbRJVToJ>; Mon, 22 Oct 2001 15:44:09 -0400
+	id <S278824AbRJVTpj>; Mon, 22 Oct 2001 15:45:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278844AbRJVToD>; Mon, 22 Oct 2001 15:44:03 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:47622 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S278688AbRJVTne>; Mon, 22 Oct 2001 15:43:34 -0400
-Date: Mon, 22 Oct 2001 15:44:09 -0400
-Message-Id: <200110221944.f9MJi9916137@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] A nicer nice scheduling
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <yam8695.480.153891320@mail.inwind.it>
-Organization: TMR Associates, Schenectady NY
-Cc: robertoragusa@technologist.com
-From: davidsen@tmr.com (bill davidsen)
+	id <S278844AbRJVTp1>; Mon, 22 Oct 2001 15:45:27 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:51868 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S278845AbRJVToc>; Mon, 22 Oct 2001 15:44:32 -0400
+Message-ID: <3BD4776C.DEC87CB5@idcomm.com>
+Date: Mon, 22 Oct 2001 13:45:48 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <86256AED.005FB443.00@smtpnotes.altec.com> <200110221745.f9MHjvF04940@schroeder.cs.wisc.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <yam8695.480.153891320@mail.inwind.it> robertoragusa@technologist.com wrote:
+Nick LeRoy wrote:
+> 
+> Wayne, everybody..
+> 
+> I hate to belabor this point, but I'm in full agreement.  If I really
+> believed that Alan's boycott would have *any* positive affect, I'd fully
+> support it, but the reality of the situation is that Wayne is right -- nobody
+> with any real power will ever know or be able to a difference.  I think that
+> civil disobiediance is the only sensible action.
 
-| So nice=19 vs. nice=0 has a 1:6 CPU ratio ( 14% - 86% ).
-| 
-| As we can't decrease 1 (n=19), we could increase 6 (n=0), with a more
-| aggressive linear dependence. But this way the time-slice would also
-| increase.
-| 
-| To balance this effect, we could also increase HZ (ref. TICK_SCALE).
-| But this way an n=19 process would run frequently and for a very little
-| time (with greater process switching overhead).
-| 
-| The right solution is IMHO to give an n=19 process less time and less
-| often than an n=0 process.
+I wish I had a vote in Senator Hollings jurisdiction, I'd try to have
+him impeached or recalled. It would never work, but it might open some
+eyes.
 
-| And we have a nice=19 vs. nice=0 ratio of 0.05:6 CPU
-| ratio ( 0.8% - 99.2% ).
-| 
-| 
-| So, this patch really solves the problem.
-| And yes, it is a problem: who wants dnetc/setiathome to slow
-| down (by 15%) apps like mozilla or gcc?
-| 
-| We don't want a "don't install dnetc on Linux 2.4.x, because it
-| does not multitask well" rumour around; that is true for MacOS 9
-| but should not for Linux. :-)
-| 
-| So, I think we should consider applying this patch (if noone
-| has some better solution).
-| 
-| Please CC to me any replies.
+D. Stimits, stimits@idcomm.com
 
-  I will probably try this patch, assuming it applies nicely to newer
-kernels. But such an aggressive nice does have a downside as given, it
-can result in a process in memory which doesn't get scheduled. Or one
-which gets run only long enough to get the next page fault, and which
-takes resources while never getting anything done.
-
-  So this is useful, but I hope people won't consider this as a complete
-colution. I still think we need a real idle process to do the low
-priority task feature in the most useful way. I think this would not
-provide good results in a system with significant memory pressure.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+> 
+> -Nick
+> 
+> On Monday 22 October 2001 12:21, Wayne.Brown@altec.com wrote:
+> > It's highly unlikely that Alan withholding information from a handful of US
+> > Linux users and developers will have any effect on US laws.  Plenty of us
+> > have complained already to our elected officials, without results.  The
+> > number of people who would care (or even know) about Alan's security
+> > boycott -- even if it includes the entire US readership of linux-kernel --
+> > is vanishingly small compared to the general population, and no politician
+> > is going to pay attention to such a small and dilute constituency.  All a
+> > policy of secrecy will accomplish is to punish US kernel hackers (who
+> > probably disagree with the DMCA as much as the rest of you) and have no
+> > effect on the average citizen who doesn't have a clue about either the DMCA
+> > or Linux.  I'm seeing a disturbing trend here; with all the talk about this
+> > topic and about EXPORT_SYMBOL_GPL here lately, I'm starting to think
+> > linux-kernel is more about restricting information than disseminating it.
+> >
+> > I believe the DCMA should be treated like firearms laws or any other bad
+> > laws: Fight them where possible, and disobey them where fighting them is
+> > not possible.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

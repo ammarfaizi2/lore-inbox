@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129144AbRBJAC7>; Fri, 9 Feb 2001 19:02:59 -0500
+	id <S129336AbRBJA0E>; Fri, 9 Feb 2001 19:26:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129716AbRBJACt>; Fri, 9 Feb 2001 19:02:49 -0500
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:65531 "EHLO
+	id <S129924AbRBJAZz>; Fri, 9 Feb 2001 19:25:55 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:48381 "EHLO
 	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S129144AbRBJACn>; Fri, 9 Feb 2001 19:02:43 -0500
-Date: Fri, 9 Feb 2001 16:02:34 -0800 (PST)
+	id <S129336AbRBJAZs>; Fri, 9 Feb 2001 19:25:48 -0500
+Date: Fri, 9 Feb 2001 16:25:32 -0800 (PST)
 From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: Matthew Gabeler-Lee <msg2@po.cwru.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bttv problems in 2.4.0/2.4.1
-In-Reply-To: <Pine.LNX.4.32.0101301830330.1138-100000@cheetah.STUDENT.cwru.edu>
-Message-ID: <Pine.LNX.4.21.0102091600320.26669-100000@sol.compendium-tech.com>
+To: Alex Deucher <adeucher@UU.NET>
+cc: rainer@konqui.de, linux-kernel@vger.kernel.org
+Subject: Re: seti@home and es1371
+In-Reply-To: <3A7863E4.C7323E96@uu.net>
+Message-ID: <Pine.LNX.4.21.0102091624110.26669-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you have framebuffer console compiled into your kernel? I noticed
-similar behavior on my system when I had framebuffer console compiled in,
-ACPI or APM (cant remember which, probably ACPI) compiled in, and bttv as
-modules. System would power off when ACPI was loaded. Other times it would
-do other stupid things like hang abruptly for no apparent reason.
+You might also want to run setiathome with the -nice option...for
+instance i *always* run it with -nice 19 so that it lays in the background
+consuming otherwise idle cycles. anything wanting cpu time will then take
+it from seti.
 
-On Tue, 30 Jan 2001, Matthew Gabeler-Lee wrote:
 
-> In 2.4.0 and 2.4.1, when I try to load the bttv driver, one of two
-> things happens: the system hangs (even alt-sysrq doesn't work!), or the
-> system powers off by itself (ATX mobo).  Instant power-off usually
-> happens after a soft reboot (init 6), while it usually hangs up after a
-> hard reboot (power cycling).
+On Wed, 31 Jan 2001, Alex Deucher wrote:
+
+> Rainer,
 > 
-> When it hangs, I noticed a very strange thing.  If I push the power
-> on/off button briefly, it un-hangs and seems to proceed as normal.  The
-> kernel does report an APIC error on each cpu (dual p3 700 system) when
-> this happens.
+> 	I'm not too familiar with the ct5880 sound chip that comes built onto
+> motherboards.  I do know that alot of the AC'97 compliant built in sound
+> chips tend to let the host cpu do most of the processing involved in
+> playing the sound.  That being said, even if you have a dedicated sound
+> processor, mp3 decoding is very processor intensive.  It just so happens
+> that seti is also very processor intensive.  Both of these processes are
+> vying for time on the cpu.  Since both of these processes are so
+> processor intensive and the cpu can only do one thing at a time, the
+> performance of one or the other process will suffer from time to time.
 > 
-> These errors all occur in the same way (as near as I can tell) in
-> kernels 2.4.0 and 2.4.1, using bttv drivers 0.7.50 (incl. w/ kernel),
-> 0.7.53, and 0.7.55.
+> Alex
 > 
-> I am currently using 2.4.0-test10 with bttv 0.7.47, which works fine.
 > 
-> I have sent all this info to Gerd Knorr but, as far as I know, he hasn't
-> been able to track down the bug yet.  I thought that by posting here,
-> more eyes might at least make more reports of similar situations that
-> might help track down the problem.
+> ----------------------------------------
 > 
-> PS: I'm not on the linux-kernel list, so please CC replies to me.
+> Hi, 
 > 
+> I hope you can help me. I have a problem with my on board soundcard and 
+> seti. I have a Gigabyte GA-7ZX Creative 5880 sound chip. I use the
+> kernel 
+> driver es1371 and it works goot. But when I run seti@home I got some
+> noise 
+> in my sound when I play mp3 and other sound. But it is not every time
+> 10s 
+> play good than for 2 s bad and than 10s good 2s bad and so on. When I
+> kill 
+> seti@home every thing is ok. So what can I do? 
+> 
+> I have a Athlon 800 Mhz and 128 MB RAM 
+> 
+> cu 
+> Rainer
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 > 
 
 -- 

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285188AbRLSLdD>; Wed, 19 Dec 2001 06:33:03 -0500
+	id <S284886AbRLSMir>; Wed, 19 Dec 2001 07:38:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285243AbRLSLcx>; Wed, 19 Dec 2001 06:32:53 -0500
-Received: from noc.easyspace.net ([62.254.202.67]:55044 "EHLO
-	noc.easyspace.net") by vger.kernel.org with ESMTP
-	id <S285188AbRLSLcl>; Wed, 19 Dec 2001 06:32:41 -0500
-Date: Wed, 19 Dec 2001 11:32:28 +0000
-From: Sam Vilain <sam@vilain.net>
-To: "Jesse W. Asher" <jasher1@tampabay.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ds: no socket drivers loaded! in 2.4.x
-In-Reply-To: <3C1F7574.795C98A4@tampabay.rr.com>
-In-Reply-To: <3C1F7574.795C98A4@tampabay.rr.com>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Face: NErb*2NY4\th?$s.!!]_9le_WtWE'b4;dk<5ot)OW2hErS|tE6~D3errlO^fVil?{qe4Lp_m\&Ja!;>%JqlMPd27X|;b!GH'O.,NhF*)e\ln4W}kFL5c`5t'9,(~Bm_&on,0Ze"D>rFJ$Y[U""nR<Y2D<b]&|H_C<eGu?ncl.w'<
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S284979AbRLSMi2>; Wed, 19 Dec 2001 07:38:28 -0500
+Received: from mailgate.ics.forth.gr ([139.91.1.2]:28065 "EHLO
+	ext1.ics.forth.gr") by vger.kernel.org with ESMTP
+	id <S284886AbRLSMiQ>; Wed, 19 Dec 2001 07:38:16 -0500
+Message-ID: <3C208B2A.5070803@iesl.forth.gr>
+Date: Wed, 19 Dec 2001 14:42:18 +0200
+From: Thodoris Pitikaris <linux@iesl.forth.gr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: problem with smb
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16GexY-0001zJ-00@hoffman.vilain.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jesse W. Asher" <jasher1@tampabay.rr.com> wrote:
+Hi,
 
-> Sam, did you ever figure out what was causing this?  I'm having the
-> exact same problem and ran across your post from October.  Any
-> information you gathered would be appreciated!!  Thanks!!
+In our institute we have a cluster system with 6 sytems that have the 
+following
+configuration :
 
-Yep.  I said "Y" rather than "M" to the questions under "general
-setup"..."PCMCIA/CardBus support" that applied to me.  The "sockets" it
-refers to would be provided by either the cardbus support, or one of the
-PCMCIA bridges.
+CPU: PIII 1GHZ/133 MHZ (DUAL)
+MOTHER: Intel Server Board STL2 (intergrated Intel pro/100+ & Adaptec 
+Ultra 160 SCSI) Chipset ServerWorks OSB4
+NET CARD: 3COM Broadcom BCM5700 (Gigabit)
+RAID Cont. : AMI MegaRAID (only in PBS server)
+HDD: IBM       Model: DDYS-T18350N
+MEMORY: 512MB/133Mhz
+OS: REDHAT 7.1 with Default Kernel (2.4.7)
 
-I probably could have got away with the appropriate modprobe command, but
-it seems to be out of fashion these days to include the name of the module
-a kernel configuration option compiles to in the help text for that
-option.
+What the problem is : The PBS server after some time freeze, with no 
+error message from kernel Just freeze. We have changed everthing (even 
+the tower)
+but nothing happened !
 
-Sam.
+Is there any sugestions ?
 
-cc:ed to the list for the benefit of people searching the net for this
-problem ;)
+Best Regards
+
+--thodoris
+

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280475AbRJaUKa>; Wed, 31 Oct 2001 15:10:30 -0500
+	id <S280471AbRJaUIk>; Wed, 31 Oct 2001 15:08:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280469AbRJaUIc>; Wed, 31 Oct 2001 15:08:32 -0500
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:60168 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S280471AbRJaUIS>;
-	Wed, 31 Oct 2001 15:08:18 -0500
-Date: Wed, 31 Oct 2001 12:11:18 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Andreas Dilger <adilger@turbolabs.com>,
-        Tim Schmielau <tim@physik3.uni-rostock.de>,
-        vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Re: Nasty suprise with uptime
-In-Reply-To: <Pine.LNX.3.95.1011031141239.20901A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.10.10110311206020.6571-100000@innerfire.net>
+	id <S280470AbRJaUIb>; Wed, 31 Oct 2001 15:08:31 -0500
+Received: from mail.myrio.com ([63.109.146.2]:12026 "HELO smtp1.myrio.com")
+	by vger.kernel.org with SMTP id <S280469AbRJaUIK>;
+	Wed, 31 Oct 2001 15:08:10 -0500
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CAA7@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'Roy Sigurd Karlsbakk'" <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: EM8400/8401 support?
+Date: Wed, 31 Oct 2001 12:08:30 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Oct 2001, Richard B. Johnson wrote:
+Roy Sigurd Karlsbakk wrote:
 
-> On Wed, 31 Oct 2001, Gerhard Mack wrote:
-> 
-> > Why exactly do we use the jiffie count for calculating uptime?  Why not
-> > just record the startup time and compare when needed?
-> > 
-> > 
-> > 	Gerhard
-> > 
-> Because you get it for free. The counter is necessary for time-outs
-> so you need it. If it starts at zero, you get uptime in HZ.
+> strange...
+> I found a package called NetStream2000-0.2.047.1.tar.gz with 
+> these drivers
+> with source on Sigma's site. 
 
-Yes that I understand and it works right up until the jiffie count wraps.
-But now we have people adding cost to everything else just so we can all
-have good uptime values.  Since AFIK the drivers handle the wrap cleanly
-the only thing that it bothers is the uptime stats.
+That GPL'ed source code (from the "kernelmode" directory of the tarball)
+contains only the source for the interface between the driver and the
+kernel.  Compiling that gives you a small module, but AFIK, there is no way
+(well, no documentation) to use that module to actually do anything useful
+or interesting.  
 
-Now we have people making jiffies more expensive just to deal with uptime.
-At least as far as I can see it should just be easier/better to make
-uptime use something else.
+To actually do anything (like decode MPEG-2 video) with the hardware, you
+use the large (400K) closed-source libEM8400.so library.  That library talks
+to the hardware using the module.  I suppose you could try to
+reverse-engineer that by observing all the communication between the lib and
+the driver, but that's probably not allowed.
 
-Or am I completly off base?
+So, in short: The only documentation is on how to use libEM8400, and that's
+closed source.  But hey, it works, so things could be worse.  
 
+(I suppose one could have an discussion on the legality of this GPL'ed
+kernel module / closed driver, but I'm sure most readers of the list are
+sick and tired of amateur legal discussion, I guess Sigma's lawyers decided
+it was legal, and they know better than me.)
 
-	Gerhard
-
-
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+Torrey

@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUJHD71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267662AbUJHECw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267515AbUJHD71 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 23:59:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUJHD7S
+	id S267662AbUJHECw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 00:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbUJHEBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 23:59:18 -0400
-Received: from relay.pair.com ([209.68.1.20]:21522 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S267620AbUJHD5Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 23:57:16 -0400
-X-pair-Authenticated: 66.190.53.4
-Message-ID: <41661013.9090700@cybsft.com>
-Date: Thu, 07 Oct 2004 22:57:07 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc3-mm3 fails to detect aic7xxx
-References: <1097178019.24355.39.camel@localhost> <1097188963l.6408l.2l@werewolf.able.es>
-In-Reply-To: <1097188963l.6408l.2l@werewolf.able.es>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 8 Oct 2004 00:01:44 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:54186
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S267552AbUJHEA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 00:00:28 -0400
+Date: Thu, 7 Oct 2004 20:59:06 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: cfriesen@nortelnetworks.com, martijn@entmoot.nl, hzhong@cisco.com,
+       jst1@email.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       davem@redhat.com
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-Id: <20041007205906.07218567.davem@davemloft.net>
+In-Reply-To: <20041008034848.GA1130@mark.mielke.cc>
+References: <41658C03.6000503@nortelnetworks.com>
+	<015f01c4acbe$cf70dae0$161b14ac@boromir>
+	<4165B9DD.7010603@nortelnetworks.com>
+	<20041007150035.6e9f0e09.davem@davemloft.net>
+	<4165C20D.8020808@nortelnetworks.com>
+	<20041007152634.5374a774.davem@davemloft.net>
+	<4165C58A.9030803@nortelnetworks.com>
+	<20041007154204.44e71da6.davem@davemloft.net>
+	<20041008025148.GA724@mark.mielke.cc>
+	<20041007203943.24560c33.davem@davemloft.net>
+	<20041008034848.GA1130@mark.mielke.cc>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> 
-> On 2004.10.07, Dave Hansen wrote:
-> 
->> I just booted 2.6.9-rc3-mm3 and got the good ol'
->> VFS: Cannot open root device "sda2" or unknown-block(0,0)
->> Please append a correct "root=" boot option
->> Kernel panic - not syncing: VFS: Unable to mount root fs on
->> unknown-block(0,0)
->>
->> backing out bk-scsi.patch seems to fix it.  I believe this worked in
->> 2.6.9-rc3-mm2.
->>
-> 
-> Mine works:
-> 
-> 03:0c.0 SCSI storage controller: Adaptec AIC-7892B U160/m (rev 02)
-> 
-> werewolf:~> uname -a
-> Linux werewolf.able.es 2.6.9-rc3-mm3 #1 SMP...
+On Thu, 7 Oct 2004 23:48:48 -0400
+Mark Mielke <mark@mark.mielke.cc> wrote:
 
-Mine doesn't without backing out those patches :) See my other post 
-about this.
+> Extrapolated, this would be - use of select() on a blocking file descriptor
+> is invalid.
 
-04:05.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
-04:05.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+It's valid, but it's asking for trouble.  It is going to block on
+you under certain circumstances.
 
-kr

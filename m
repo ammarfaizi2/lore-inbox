@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310816AbSCWSlz>; Sat, 23 Mar 2002 13:41:55 -0500
+	id <S310835AbSCWSoz>; Sat, 23 Mar 2002 13:44:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310835AbSCWSlq>; Sat, 23 Mar 2002 13:41:46 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:23568 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S310816AbSCWSl2>; Sat, 23 Mar 2002 13:41:28 -0500
-Message-ID: <3C9CCBEB.D39465A6@zip.com.au>
-Date: Sat, 23 Mar 2002 10:39:39 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S310858AbSCWSog>; Sat, 23 Mar 2002 13:44:36 -0500
+Received: from [24.93.67.53] ([24.93.67.53]:51984 "EHLO Mail6.mgfairfax.rr.com")
+	by vger.kernel.org with ESMTP id <S310835AbSCWSo2>;
+	Sat, 23 Mar 2002 13:44:28 -0500
+Message-ID: <004901c1d29b$1d8cdfe0$6401a8c0@presto>
+From: "Eric Youngdale" <eric@andante.org>
+To: "Douglas Gilbert" <dougg@torque.net>, "Pete Zaitcev" <zaitcev@redhat.com>
+Cc: <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020322215809.A17173@devserv.devel.redhat.com> <3C9CB643.FC33C0AF@torque.net>
+Subject: Re: Patch to split kmalloc in sd.c in 2.4.18+
+Date: Sat, 23 Mar 2002 13:46:59 -0500
 MIME-Version: 1.0
-To: christophe =?iso-8859-1?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 3c59x and resume
-In-Reply-To: <20020323161647.GA11471@ufies.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-christophe barbé wrote:
-> 
-> Here is a small patch tested with 2.4.18 and 2.4.19-pre4.
-> It was proposed by Andrew but not integrated in pre4.
-> 
-> The problem is when using the vortex driver and suspend/resuming the
-> machine.
 
-The patch looks fine to me.
 
-This is a common bug in the Linux ethernet drivers.  Let's
-review it:
+> I believe that it was Eric's intention to implement the
+> same solution in sd. The generic disk stuff and the
+> partitions are a complicating factor.
+> All those parallel arrays set up by sd_init (e.g.
+> rscsi_disks[], sd_sizes[], sd_blocksizes[],
+> sd_hardsizes[], sd_max_sectors[] and sd[] are a mess.
+> It is false economy to do the number of index
+> operations that sd does, my guess is that 90% of them
+> are redundant. Couldn't the sd driver just
+> have a device structure that contains an (16 element)
+> array of pointers to partition structures?
 
-- The module init function keeps a driver-wide `card_idx'
-- Every time a new card is detected, card_idx is incremented
-  and is associated with that card.
-- The card instance's card_idx is used to index module options
-  arrays.
-- The global card_idx counter is never decremented.
+    Correct on all counts.  Part of what was holding things up was all of
+the nonsense related to partition handling.  To a lesser degree the cdrom
+driver is being held up for similar reasons.
 
-So each time you hotplug a card, it gets the next index, and
-eventually the index exceeds the size of the module options array
-and the driver falls into its "oh, I've got more than eight
-cards" mode.
+    The proper cleanup is to eliminate those damned arrays (and make the
+access SMP safe at the same time) that live in ll_rw_blk.c.  There would
+need to be a generic SMP safe way of obtaining the same information (things
+like filesystems need to know this info, for example), and then add SMP safe
+ways for low-level drivers to update the sizes of things as required.
 
-The fix in this patch is to simply decrement card_idx in the
-remove_one function.  Which somewhat assumes that cards are
-removed and inserted in LIFO order, but that's true for
-just one card :)
+    The arrays you mention above are just inserted into the even messier
+arrays that live in ll_rw_blk.c - as things currently stand, it really isn't
+possible to clean up the arrays in sd.c without solving the larger problem
+of the mess of arrays in ll_rw_blk.c.
 
-Same bug appears to be present in about eight divers - just
-grep for card_idx.
+    I believe it was Jens who had been talking about folding some of this
+information into the request_queue_t, and I don't know where this went if
+anywhere.  Maybe there was some problem that couldn't be easily resolved.
 
-I don't immediately see a simple and clean fix for this.
-If we have, say,
+    Another design goal of messing with this would be to do it in such a way
+that support for a larger dev_t is possible.
 
-	options 3c59x enable_wol=1,1,0,1,1,0,0,0
+    Once the basic design is complete, the actual changes shouldn't be too
+hard - just tedious.
 
-in modules.conf, and we really have eight NICS, and they're
-being plugged and unplugged, how can we reliably associate
-that option with the eight cards?  So the right option is
-applied to each card eash time it's inserted?  Should the
-option be associated with a card, or with a bus position?
+-Eric
 
-Fun.
 
-Anyway.  Let's apply the patch.
-
--

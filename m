@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265488AbTIJShg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 14:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbTIJShf
+	id S265454AbTIJScC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 14:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265457AbTIJScB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 14:37:35 -0400
-Received: from vlothuizen.xs4all.nl ([213.84.237.248]:52192 "EHLO
-	zeus.vlothuizen.nl") by vger.kernel.org with ESMTP id S265488AbTIJShe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 14:37:34 -0400
-Message-ID: <3F5F6F69.CD851A2F@vlothuizen.nl>
-Date: Wed, 10 Sep 2003 20:37:29 +0200
-From: Wouter Vlothuizen <maillists@vlothuizen.nl>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
+	Wed, 10 Sep 2003 14:32:01 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:53644 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S265454AbTIJSb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 14:31:57 -0400
+Message-ID: <3F5F6E12.8080802@nortelnetworks.com>
+Date: Wed, 10 Sep 2003 14:31:46 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Joshua Weage <weage98@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NFS client problems in 2.4.18 to 2.4.20
-References: <20030906162949.27200.qmail@web40405.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
+To: Martin Konold <martin.konold@erfrakon.de>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       Luca Veraldi <luca.veraldi@katamail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Efficient IPC mechanism on Linux
+References: <00f201c376f8$231d5e00$beae7450@wssupremo> <200309101939.17967.martin.konold@erfrakon.de> <20030910180128.GP21086@dualathlon.random> <200309102005.36383.martin.konold@erfrakon.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Weage wrote:
-> 
-> has stopped working?  I've looked at nfsstat and the kernel seems to
-> have stopped sending any data to the server, or it may send one packet
-> every couple of seconds.  If I start up another shell and try to do an
-> ls on the problem filesystem, the command locks up and can't be
-> interrupted.  I think I've also mounted the same filesystem in another
-> location, on the same machine, and it works fine.
-> 
+Martin Konold wrote:
+> Am Wednesday 10 September 2003 08:01 pm schrieb Andrea Arcangeli:
 
-I am experiencing similar problems with 2.4.18 as a client (the NFS
-server is on Solaris). When the client freezes I see nfsstat 'client rpc
-retrans' counting fast. I found a quite strange way to unlock the
-machine, by performing a port scan with nmap from elsewhere.
-BTW, which Gigabit ethernet do you use, I use tg3, there could be a
-relation to the network card?
+>>with the shm/futex approch you can also have a ring buffer to handle
+>>parallelism better while it's at the same time zerocopy
+>>
+> 
+> How fast will you get? I think you will get the bandwidth of a memcpy for 
+> large chunks?!
+> 
+> This is imho not really zerocopy. The data has to travel over the memory bus 
+> involving the CPU so I would call this single copy ;-)
 
-Cheers,
-Wouter
+Even with zerocopy, you have to build the message somehow.  If process A 
+builds a message and passes it to process B, then then isn't that as 
+efficient as you can get with message passing?  How does MPI do any better?
+
+However, if both processes directly map the same memory and use it 
+directly (without "messages" as such), then I would see *that* as zerocopy.
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

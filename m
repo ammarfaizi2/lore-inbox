@@ -1,95 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274866AbRJALJL>; Mon, 1 Oct 2001 07:09:11 -0400
+	id <S274875AbRJALOb>; Mon, 1 Oct 2001 07:14:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274868AbRJALJB>; Mon, 1 Oct 2001 07:09:01 -0400
-Received: from c207-202-243-179.sea1.cablespeed.com ([207.202.243.179]:52798
-	"EHLO darklands.localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S274866AbRJALIz>; Mon, 1 Oct 2001 07:08:55 -0400
-Date: Mon, 1 Oct 2001 04:09:14 -0700
-From: Thomas Zimmerman <thomas@zimres.net>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.10-ac1-Preempt-kernel-1
-Message-ID: <20011001040914.A1567@darklands.zimres.net>
-Reply-To: Thomas <thomas@zimres.net>
-Mail-Followup-To: Robert Love <rml@tech9.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
-X-Operating-System: Linux darklands 2.4.10-ac1
-X-Operating-Status: 02:08:51 up 10 min,  1 user,  load average: 12.32, 5.67, 2.15
+	id <S274873AbRJALOV>; Mon, 1 Oct 2001 07:14:21 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:33037 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S274868AbRJALOM>; Mon, 1 Oct 2001 07:14:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>, Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: 2.4.9-ac16 good perfomer?
+Date: Mon, 1 Oct 2001 13:14:28 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0109282217530.19147-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0109282217530.19147-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011001111435Z16281-2757+2605@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On September 29, 2001 03:20 am, Rik van Riel wrote:
+> > Is it normal to have Inact_target 1/4 of main memory (64MB of 256MB RAM)?
+> > In previous versions, this value would fluctuate with the load of the
+> > system.
+> >
+> > Is this expected?
+> 
+> Yes, this is a 'compensation' for the fact that page aging changed
+> from exponential to linear.  The combination of linear page aging
+> with a large inactive_target results in a good combination of
+> frequency- and recency-based page eviction.
+> 
+> Doing just linear page aging with a small inactive target resulted
+> in worse throughput than exponential page aging for some workloads,
+> better for other workloads.  Linear page aging with a large inactive
+> target results in good througput and latency under all workloads I've
+> found up to now.  As usual, thanks go out to Matt Dillon for finding
+> this balancing point.
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Nice.  With this under control, another feature of his memory manager you 
+could look at is the variable deactivation threshold, which makes a whole lot 
+more sense now that the aging is linear.  To implement it efficiently 
+PAGE_AGE_DECL just needs to be a variable, since in effect the deactivation 
+threshold already is exactly PAGE_AGE_DECL.
 
-Just for fun:
-$cd /usr/src/linux [2.4.10-ac1+netrand+preempt+reempt-stats]
-$cat /proc/latencytimes
-[snip empty report]
-$make -j dep
-[snip long make]
-$cat /proc/latencytimes
-Worst 20 latency times of 2604 measured in this period.
-  usec      cause     mask   start line/file      address   end line/fil
-e
- 25673   reacqBKL        1  1374/sched.c         c0113219   696/sched.c
- 22718  spin_lock        1   547/sched.c         c0111644   696/sched.c
- 10238  spin_lock        1   547/sched.c         c0111644   303/namei.c
-  7599      timer        5    76/softirq.c       c011a437   119/softirq.
-c
-  6832  spin_lock        0   547/sched.c         c0111644   280/time.c
-  6731  spin_lock        1   708/open.c          c01370c8   757/open.c
-  6174        BKL        0    59/ioctl.c         c0148204   121/ioctl.c
-  6097       ide0        0   585/irq.c           c01084ef   647/irq.c
-  4753        BKL        1  1462/inode.c         c0178979  1470/inode.c
-  4008        BKL        1  1462/inode.c         c0178979   143/attr.c
-  3961  spin_lock        0   547/sched.c         c0111644   647/irq.c
-  3791   reacqBKL        0  1374/sched.c         c0113219  1378/sched.c
-  3753        BKL        0  2687/buffer.c        c013cbe6   696/sched.c
-  3519  spin_lock        0   547/sched.c         c0111644   133/file_tab
-le.c
-  2925  spin_lock        0  1308/audio.c         c01e5c0b  1319/audio.c
-  1990  spin_lock        0   547/sched.c         c0111644   172/select.c
-  1793  spin_lock        0   547/sched.c         c0111644   700/namei.c
-  1500        BKL        0   301/namei.c         c0143757   133/file_tab
-le.c
-  1387        BKL        0   837/inode.c         c01776d3   647/irq.c
-  1208   reacqBKL        0  1374/sched.c         c0113219  1470/inode.c
-qubes@darklands:/usr/src/linux>
--------------
-For full disclosure: I use the binary only nvidia driver and have vmware2.x
-modules loaded (but unused yet). This is in X with kde loaded, gkrellm
-running (reported ~280 procs at height of make), xmms running. Only one skip
-in play back, and the mouse jumped a bit sometimes. :)
+How to set this variable is a deep and interesting question.  Matt had his 
+ideas on that as you know, and in fact it's a key feature of the BSD 
+mm it, but it's far from clear that the BSD arrangement could be used 
+directly in Linux.  There are a number of obvious difficulties: no reverse 
+map, highmem, more caches to balance, and so on.  However, it's intuitively 
+clear that the mm sweet spot can be made bigger by controlling the DECL 
+variable, i.e., we can push the thrash point further out for a wider variety 
+of loads.
 
-Now, it's off to build a kernel w/o the stats, to see it that changes
-anything....and it does. The sound didn't skip this time, and the proc load
-"only" got upto ~200.=20
+Obligatory disclaimer: there is no burning issue here; this is a 
+*developmental* idea.
 
-This is a AMD Athlon 800 w/512 Meg ram, ext3 root, reiserfs /usr on sw raid=
-0=20
-over two sw raid1s.=20
-
-Thomas
---pWyiEgJYm5f9v55/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE7uE7aUHPW3p9PurIRAqo0AJ9RKZnUKIrpT2uWaxRtJ/ZSUdhxqwCfdY9v
-ZegZ6cJ54r6oPq8UyW/SI00=
-=PBMY
------END PGP SIGNATURE-----
-
---pWyiEgJYm5f9v55/--
+--
+Daniel

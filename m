@@ -1,74 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283340AbRLILgs>; Sun, 9 Dec 2001 06:36:48 -0500
+	id <S283360AbRLIMCq>; Sun, 9 Dec 2001 07:02:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283343AbRLILgj>; Sun, 9 Dec 2001 06:36:39 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:49417 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283340AbRLILg3>;
-	Sun, 9 Dec 2001 06:36:29 -0500
-Date: Sun, 9 Dec 2001 12:36:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: lnz@dandelion.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: Patch(?): linux-2.5.1-pre7/drivers/block/DAC960.c compilation fixes
-Message-ID: <20011209113613.GG20061@suse.de>
-In-Reply-To: <20011208211232.A7241@adam.yggdrasil.com>
-Mime-Version: 1.0
+	id <S283365AbRLIMCf>; Sun, 9 Dec 2001 07:02:35 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:19466 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S283360AbRLIMCO>;
+	Sun, 9 Dec 2001 07:02:14 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200112091201.fB9C1wD158088@saturn.cs.uml.edu>
+Subject: Re: Intel I860
+To: jamagallon@able.es (J.A. Magallon)
+Date: Sun, 9 Dec 2001 07:01:58 -0500 (EST)
+Cc: n0ano@indstorage.com,
+        akruemmel@dohle.com (Achim =?iso-8859-1?Q?Kr=FCmmel?=),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20011127003327.C1546@werewolf.able.es> from "J.A. Magallon" at Nov 27, 2001 12:33:27 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011208211232.A7241@adam.yggdrasil.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 08 2001, Adam J. Richter wrote:
-> 	The following patch makes linux-2.5.1-pre7/drivers/block/DAC960.c
-> compile.  I'm not confident in my understanding of the new "bio" system,
-> so it would be helpful if someone more knowledgeable about bio could
-> check it.  The changes are:
-> 
-> 	1. Delete references the nonexistant MaxSectorsPerRequest field.
-> 	   The code already sets RequestQueue->max_sectors.
-> 
-> 	2. Replace the undefined bio_size(BufferHead) with BufferHead->bi_size
-> 	   (in many places, which is why the diff is big).
-> 
-> 	3. Add a missing parameter in one place, changing
-> 		BufferHeader->bi_end_io(BufferHeader)
-> 	   to
-> 		BufferHeader->bi_end_io(BufferHeader, bio_sectors(BufferHeader))
-> 
-> 
-> 	#3 is the one that I have the most doubts about.
+J.A. Magallon writes:
+> On 20011126 n0ano@indstorage.com wrote:
 
-It's not as easy as this. Note that you can have more than one page
-entry in a bio, so if you simply use bio_data() on each bio and then
-jump to the next through bi_next, then you are discarding every page but
-the first one.
+>> Uh, what exactly do you think you have here?  The I860 was a
+>> completely new architecture that Intel dropped over 5 years
+>> ago.  I've got one running Unix SVR4 in my basement but you
+>> can't buy an I860 motherboard today.
+>>
+>> (For the record the 860 was a great architecture for the time
+>> and I'm still bitter that Intel dropped it but that's a different
+>> story.)
+>
+> You are talking about intel i860 _processor_, and he asks about
+> I860 chipset.
+>
+> BTW, I always desired to put my hands on an i860. It is the only real
+> good chip by Intel (it really looked like a Moto...). The only ones
+> I used were inside an HP Graphics accelerator on a 9000/385.
 
-You want to do something like this:
+You people are insane, but hey, it'd be cool to have i860 Linux.
+Maybe you don't realize just how unfit this chip is for normal
+UNIX-like use.
 
-	rq_for_each_bio(bio, rq)
-		bio_for_each_segment(bio_vec, bio, i)
-			/* handle each bio_vec */
+It's a RISC chip with the Pentium MMU. To get any speed out of it,
+you have to enable some strange features. First of all, you need
+the double-instruction mode. In every 64-bit chunk of memory you
+place 1 floating-point instruction and 1 integer instruction.
+Second of all, you need to enable pipelined FPU operation. This is
+an exposed pipeline, so watch out! Look what happens:
 
-DAC960 needs a huge cleanup to support highmem as well, Virtual_to_Bus32
-and Virtual_to_Bus64, yuck, chest pains.
+a = x + x
+b = a + a     <-- uses old value of "a", not x+x
+nop
+nop
+nop
+c = a + a
 
-As a reference, read drivers/block/cciss.c for example which I've
-converted to use the blk_rq_map_sg interface. Basically you don't have
-to worry about any of this. You can check ide-dma.c too, note how easy
-it is to setup a scatterlist mapping for DMA from a request now:
+Yep, c!=a after this!  Actually, "c" won't be set until a few
+instructions later because it too is still in the pipeline.
+You need a few dummy operations to push it out.
 
-	/*
-	 * map the request into a scatterlist
-	 */
-	nr_sg_entries = blk_rq_map_sg(q, rq, sg_table);
+Now lets have a trap of some sort while that floating-point
+pipeline is full. The chip leaves itself in a horrible messy
+state that may well require thousands of lines of assembly
+code to sort out. I'm not kidding.
 
-	/*
-	 * map the scatterlist pages for streaming dma
-	 */
-	sg_nents = pci_map_sg(dev, sg_table, nr_sg_entries, data_dir);
-
--- 
-Jens Axboe
-
+The chip made a fine DSP. You could put a few dozen together
+for radar.

@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132693AbRC2JLQ>; Thu, 29 Mar 2001 04:11:16 -0500
+	id <S132682AbRC2IET>; Thu, 29 Mar 2001 03:04:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132692AbRC2JLH>; Thu, 29 Mar 2001 04:11:07 -0500
-Received: from hypnos.cps.intel.com ([192.198.165.17]:33229 "EHLO
-	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S132690AbRC2JKz>; Thu, 29 Mar 2001 04:10:55 -0500
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B271A4@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: linux-kernel@vger.kernel.org, "'LNML'" <linux-net@vger.kernel.org>
-Subject: RE: Plans for 2.5
-Date: Thu, 29 Mar 2001 01:10:03 -0800
+	id <S132683AbRC2IEK>; Thu, 29 Mar 2001 03:04:10 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:18437 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S132682AbRC2IEA>; Thu, 29 Mar 2001 03:04:00 -0500
+Message-ID: <3AC2EC2F.BA7B4868@idb.hist.no>
+Date: Thu, 29 Mar 2001 10:02:55 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Ben Ford <ben@kalifornia.com>, linux-kernel@vger.kernel.org
+Subject: Re: Disturbing news..
+In-Reply-To: <01032806093901.11349@tabby> <Pine.GSO.3.96.1010328144551.7198A-100000@laertes> <F6Om1QA+9ew6EwTq@sis-domain.demon.co.uk> <20010328100440.A5941@zalem.puupuu.org> <ZEABaXAGggw6EwTH@sis-domain.demon.co.uk> <3AC1D1B8.9080507@kalifornia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just some general questions:
+Ben Ford wrote:
+> 
 
-1) Is there anywhere a list that describes what is intended to be in 2.5.x ?
-2) Are there any early releases of 2.5.x ?
-3) Are the things for 2.5.x being discussed on another mailing list ?
-4) What is the time frame of releasing 2.5.x-final (or 2.6.x) ?
+> There are two problems I see here.  First, there are several known ways
+> to elevate privileges.  
+Fixable, except from guessing the root password which is hard.
 
-Specifically, I'm more interested in the network driver aspect.
-1) Are there any intended changes to the networking layer ?
-2) I over heard something about making the driver reentrant - any news ?
-3) What about support for IPv6 ? (I noticed it was marked as experimental
-until now)
+> If a virus can elevate privileges, then it owns
+> you.  Second, this is a multi-OS virus.  If you dual-boot into Windows,
+> any ELF files accessible can be infected.  With this one, that isn't a
+> prob, but when somebody codes in an ext2 driver to their virus, then
+> we've got issues.
 
+And the only cure then is not make your linux fs accessible from
+windows.  I.e. not on a disk for which windows have a driver
+installed.  Preferably not the same computer.
 
-	Thanks in advance,
-	Shmulik Hen      
-      Software Engineer
-	Linux Advanced Networking Services
-	Intel Network Communications Group
-	Jerusalem, Israel
+Or simply "don't run untrusted executables under windows".  Do
+so in linux only, where protection applies.  Do anybody ever
+_need_ to run a program they got in the mail?
 
-
------Original Message-----
-From: Bruno Avila [mailto:jisla@elogica.com.br]
-Sent: Thursday, March 29, 2001 12:45 AM
-To: linux-kernel@vger.kernel.org
-Subject: Plans for 2.5
-
-
-Hello people,
-
-	I got some questions. When are we going to develop stuff for 2.5?
-What is
-planed? My opinion for linux 2.5 should be performance. Since linux already
-is stable or well done for nature, we could thing more on performance to be
-a diferencial over others. What do you people thing?
-
-                                              Bruno Avila
-
-PS: Not a good english. I know! :)
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+Helge Hafting

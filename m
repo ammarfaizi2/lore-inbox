@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290215AbSBORZL>; Fri, 15 Feb 2002 12:25:11 -0500
+	id <S290303AbSBOR0b>; Fri, 15 Feb 2002 12:26:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290228AbSBORZB>; Fri, 15 Feb 2002 12:25:01 -0500
-Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:7580 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S290215AbSBORYw>;
-	Fri, 15 Feb 2002 12:24:52 -0500
-Date: Fri, 15 Feb 2002 09:24:36 -0800
-From: Simon Kirby <sim@netnation.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: fsync delays for a long time.
-Message-ID: <20020215172436.GA6842@netnation.com>
-In-Reply-To: <Pine.SGI.4.31.0202140951330.3076325-100000@fsgi03.fnal.gov> <E16bPqi-0000c5-00@the-village.bc.nu> <3C6C2342.5044B738@zip.com.au>
+	id <S290228AbSBOR0V>; Fri, 15 Feb 2002 12:26:21 -0500
+Received: from bitmover.com ([192.132.92.2]:17291 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S290293AbSBORZ5>;
+	Fri, 15 Feb 2002 12:25:57 -0500
+Date: Fri, 15 Feb 2002 09:25:56 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux-Kernel list <linux-kernel@vger.kernel.org>,
+        dirk.hohndel@intel.com
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020215092556.G8353@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Eric S. Raymond" <esr@thyrsus.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Linux-Kernel list <linux-kernel@vger.kernel.org>,
+	dirk.hohndel@intel.com
+In-Reply-To: <3C6D3D9A.565EC59D@mandrakesoft.com> <20020215115147.A7528@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C6C2342.5044B738@zip.com.au>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020215115147.A7528@thyrsus.com>; from esr@thyrsus.com on Fri, Feb 15, 2002 at 11:51:47AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 14, 2002 at 12:51:14PM -0800, Andrew Morton wrote:
-
-> Alan Cox wrote:
-> > 
-> > > run my gdbm application and bonnie test on the same device.
-> > > When gdbm comes to the point when it calls fsync it delays for a long
-> > > time.
-> > 
-> > fsync on a very large file is very slow on the 2.2 kernels
+On Fri, Feb 15, 2002 at 11:51:47AM -0500, Eric S. Raymond wrote:
+> Jeff Garzik <jgarzik@mandrakesoft.com>:
+> > I would find this pathetic, if it didn't make me so mad.
+> > Making an end run around the system, are we, Eric?
 > 
-> This could very well be due to request allocation starvation.
-> fsync is sleeping in __get_request_wait() while bonnie keeps
-> on stealing all the requests.
-> 
-> Recall that patch you dropped on Tuesday? :)
+> What "system" would you be referring to, anyway, Jeff?  Is there some
+> reason a respected open-source developer like Dirk who has concerns
+> should not have a conversation with Linus to address problems he thinks
+> are significant?  Is there some reason I should not have asked the kbuild
+> team members to give him appropriate background?
 
-Not sure if this is related, but I still can't get 2.4 or 2.5 kernels to
-actually read and write at the same time during a large file copy between
-two totally separate devices (eg: from hda1 to hdc1).  "vmstat 1" shows
-reads with no writing for about 6-8 seconds followed by writes with no
-reading for about 5-6 seconds, repeat.
+Yeah, there is.  The point of *open* source is that it is *open*, Eric.
+Jeff, if I understand him correctly, is making the point that if a
+system can't stand up to public scrutiny, trying to get it in by private
+campaigning is lame, not the open source way, and a little bit sleazy.
 
-Is there a patch available that could fix this?
-
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+The open source development model depends on peer review, you might go
+back and read some of your many essays on the topic.  Don't you take
+commercial companies to task for doing exactly what you are doing?
+Your actions are confusing, do your writings apply to other people but
+not to you?  If there is some misunderstanding about your actions,
+please clear it up.  If not, practice what you preach.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

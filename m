@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129618AbRCWSak>; Fri, 23 Mar 2001 13:30:40 -0500
+	id <S131290AbRCWSha>; Fri, 23 Mar 2001 13:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129712AbRCWSab>; Fri, 23 Mar 2001 13:30:31 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:1524 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129618AbRCWSaW>;
-	Fri, 23 Mar 2001 13:30:22 -0500
-Date: Fri, 23 Mar 2001 19:29:39 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200103231829.TAA06442.aeb@vlet.cwi.nl>
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+	id <S131309AbRCWShV>; Fri, 23 Mar 2001 13:37:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38159 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131290AbRCWShJ>; Fri, 23 Mar 2001 13:37:09 -0500
 Subject: Re: [PATCH] Prevent OOM from killing init
+To: Andries.Brouwer@cwi.nl
+Date: Fri, 23 Mar 2001 18:38:37 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200103231829.TAA06442.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at Mar 23, 2001 07:29:39 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14gWSN-0005CQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 23, 2001 at 05:04:07PM +0000, Alan Cox wrote:
-> > This is just an escape route in case everything else has failed.
-> >
-> > Linux is unreliable.
-> > That is bad.
->
-> Since your definition of reliability is a mathematical abstraction requiring
-> infinite storage why don't you start by inventing infinitely large SDRAM
-> chips, then get back to us ?
+> infinite storage. After all, earlier Unix flavours did not need
+> an OOM killer either, and my editor was not killed under Unix V6
+> on 64k when I started some other process.
 
-Ah, Alan,
-I can see that you dislike seeing me say bad things about Linux.
-I dislike having to say them.
+You were lucky. Its quite possible for V6 to kill processes when you run out
+of swap
 
-On the other hand, my definition of reliability does not require
-infinite storage. After all, earlier Unix flavours did not need
-an OOM killer either, and my editor was not killed under Unix V6
-on 64k when I started some other process.
+> The old Unix guarantee that a program only crashes because of
+> its own behaviour is lost. That is very sad.
 
-Linux is unreliable because a program can be killed at random,
-without warning, because of bugs in some other program.
-The old Unix guarantee that a program only crashes because of
-its own behaviour is lost. That is very sad.
+No such guarantee ever existed. There are systems that had stuff like per
+user memory quotas but those were mostly much more mainframe oriented
 
-What can one do? I need not tell you - you know better than I do.
-The main point is letting malloc fail when the memory cannot be
-guaranteed. There are various solutions for stack space, none of
-them very elegant, but all have in common that when we run out of
-stack space the program doing that gets SIGSEGV, and not some
-random other program. (And a well-written program could catch this
-SIGSEGV and do cleanup, preserving the integrity of its data base.
-Clearly one would want to guarantee a certain minimum stack space
-at fork time.)
+> 200 MB then the rest of that memory is not wasted. But it can
+> only be used for things that can be freed when needed, like
+> inode and buffer cache.
 
-Will this setup be very inefficient? I don't know. Perhaps.
-If my programs actually use 10 MB but have a guarantee for
-200 MB then the rest of that memory is not wasted. But it can
-only be used for things that can be freed when needed, like
-inode and buffer cache.
+No. You cannot free the inode and buffer cache arbitarily. You only have a
+probability - that puts you back at square 1.
 
-But inefficient or not, I much prefer a system with guarantees,
-something that is reliable by default, above something that
-works well if you are lucky and fails at unpredictable moments.
+> But inefficient or not, I much prefer a system with guarantees,
+> something that is reliable by default, above something that
+> works well if you are lucky and fails at unpredictable moments.
 
-Andries
+malloc is merely an accounting exercise (actually its mostly mmap 
+accounting). ptrace is the only quirk. Nobody feels its very important because
+nobody has implemented it.
+
+Alan
+

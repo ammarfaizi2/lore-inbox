@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbTDHTxR (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 15:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbTDHTxR (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 15:53:17 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10736 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261692AbTDHTxP (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 15:53:15 -0400
-Date: Tue, 8 Apr 2003 22:04:45 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5.67-ac1: fix compile error in mtdblock.c
-Message-ID: <20030408200445.GM5046@fs.tum.de>
-References: <200304081359.h38DxGi08829@devserv.devel.redhat.com>
+	id S261717AbTDHT74 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 15:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbTDHT7z (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 15:59:55 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:37350 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261717AbTDHT7Z (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 15:59:25 -0400
+Subject: Re: *  2.5.67 sleep function from illegal context
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Balram Adlakha <b_adlakha@softhome.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200304082340.06746.b_adlakha@softhome.net>
+References: <200304082340.06746.b_adlakha@softhome.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049832651.592.3.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304081359.h38DxGi08829@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 08 Apr 2003 22:10:51 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With CONFIG_DEVFS_FS enabled compilation of 2.5.67-ac1 fails as follows:
+On Wed, 2003-04-09 at 01:40, Balram Adlakha wrote:
+> I get this repeatedly each second:
+> 
+> 
+> Debug: sleeping function called from illegal context at mm/slab.c:1658
+> 
+> Call Trace:
+>   [<c0117459>] __might_sleep+0x5f/0x72
+>   [<c0136b93>] kmalloc+0x88/0x8f
+>   [<c02583c7>] accel_cursor+0xd5/0x2f8
+>   [<c02587db>] fb_vbl_handler+0x82/0x9d
+>   [<c0115ecb>] scheduler_tick+0x2d9/0x2de
+>   [<c0120b89>] update_process_times+0x46/0x50
+>   [<c0256edc>] cursor_timer_handler+0x0/0x3d
+>   [<c0256efd>] cursor_timer_handler+0x21/0x3d
+>   [<c0120c3d>] run_timer_softirq+0x90/0x170
+>   [<c010e577>] timer_interrupt+0x56/0x119
+>   [<c011d065>] do_softirq+0xa1/0xa3
+>   [<c010abf6>] do_IRQ+0x10e/0x12b
+>   [<c0109320>] common_interrupt+0x18/0x20
 
-<--  snip  -->
+Does disabling FrameBuffer console support help?
 
-...
-  gcc -Wp,-MD,drivers/mtd/.mtdblock.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=mtdblock -DKBUILD_MODNAME=mtdblock -c -o 
-drivers/mtd/mtdblock.o drivers/mtd/mtdblock.c
-drivers/mtd/mtdblock.c: In function `mtd_notify_add':
-drivers/mtd/mtdblock.c:531: `name' undeclared (first use in this function)
-drivers/mtd/mtdblock.c:531: (Each undeclared identifier is reported only once
-drivers/mtd/mtdblock.c:531: for each function it appears in.)
-make[2]: *** [drivers/mtd/mtdblock.o] Error 1
-
-<--  snip  -->
-
-
-Please _remove_ the following patch from -ac:
-
-
---- linux-2.5.67/drivers/mtd/mtdblock.c	2003-04-08 00:37:36.000000000 +0100
-+++ linux-2.5.67-ac1/drivers/mtd/mtdblock.c	2003-04-08 14:15:14.000000000 +0100
-@@ -523,7 +523,6 @@
- static void mtd_notify_add(struct mtd_info* mtd)
- {
- 	struct gendisk *disk;
--        char name[16];
- 
-         if (!mtd || mtd->type == MTD_ABSENT)
-                 return;
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+________________________________________________________________________
+Linux Registered User #287198
 

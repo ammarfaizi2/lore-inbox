@@ -1,215 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbUKSVCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbUKSVDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbUKSVCg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 16:02:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbUKSVC2
+	id S261561AbUKSVDs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 16:03:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbUKSVCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 16:02:28 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:12593 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261568AbUKSU7u (ORCPT
+	Fri, 19 Nov 2004 16:02:40 -0500
+Received: from motgate8.mot.com ([129.188.136.8]:49398 "EHLO motgate8.mot.com")
+	by vger.kernel.org with ESMTP id S261566AbUKSVBo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 15:59:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:references;
-        b=WOBu/t5bP2SrFQs+QC8eNwoYlTQqArwnF3NnQRyEmn/JGypW5aRiCY4OhcujsrYFo/CkJyo00L9R/Hrrh2weItvpQIn5Osn7WpC+RLkbYMvD4iQkrsU0nBzpF36BxEZnbIxhSIH9KqpwmhP2KG9OBwl3rbSYxrgxWmCqGuENDTg=
-Message-ID: <69304d1104111912591af3fe89@mail.gmail.com>
-Date: Fri, 19 Nov 2004 21:59:49 +0100
-From: Antonio Vargas <windenntw@gmail.com>
-Reply-To: Antonio Vargas <windenntw@gmail.com>
-To: "H. Peter Anvin" <hpa@zytor.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Altivec support for RAID-6
-In-Reply-To: <69304d1104111904046d02b5bd@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_2853_17760180.1100897989712"
-References: <419C46C7.4080206@zytor.com>
-	 <69304d1104111812234656a606@mail.gmail.com>
-	 <cnjuvi$um8$1@terminus.zytor.com>
-	 <69304d1104111904046d02b5bd@mail.gmail.com>
+	Fri, 19 Nov 2004 16:01:44 -0500
+In-Reply-To: <419E550B.7030107@colorfullife.com>
+References: <419E550B.7030107@colorfullife.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <2A6C102E-3A6E-11D9-B023-000393C30512@freescale.com>
+Content-Transfer-Encoding: 7bit
+Cc: Jason McMullan <jason.mcmullan@timesys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+From: Andy Fleming <afleming@freescale.com>
+Subject: Re: [PATCH] MII bus API for PHY devices
+Date: Fri, 19 Nov 2004 15:01:21 -0600
+To: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_2853_17760180.1100897989712
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Fri, 19 Nov 2004 13:04:11 +0100, Antonio Vargas <windenntw@gmail.com> wrote:
-> On Fri, 19 Nov 2004 05:05:54 +0000 (UTC), H. Peter Anvin <hpa@zytor.com> wrote:
-> > Followup to:  <69304d1104111812234656a606@mail.gmail.com>
-> > By author:    Antonio Vargas <windenntw@gmail.com>
-> > In newsgroup: linux.dev.kernel
-> > >
-> > > hpa, are you aware of any other routines which should benefit from altivec?
-> > >
-> >
-> > Presumably the XOR code used by RAID-5, and quite possibly some of the
-> > cryptography stuff.  Unlike most SIMD instruction sets, it should be
-> > possible to write AES using Altivec.
-> 
-> I'll take a crack at the RAID-5 stuff first then.
-> 
+On Nov 19, 2004, at 14:18, Manfred Spraul wrote:
 
-Here we go... this file is compile-tested on gcc 3.3 from userspace,
-it can serve as an starting point for testing.
+> Hi,
+>
+> I don't like the polling/interrupt setup part:
+> - for a nic driver, there is no irq line that could be requested by 
+> mii_phy_irq_enable().
+> - if the mii bus driver uses it's own timers, then locking within the 
+> nics will be more difficult.
 
-Signed-off-by: Antonio Vargas <windenntw@gmail.com>
+I'm not sure I accept the argument that locking will be more difficult. 
+  Jason's patch requires that a callback be registered for the interrupt 
+or the polling (My update has a similar scheme).  The function you 
+register is essentially like an extra interrupt, except it is never 
+invoked at interrupt time.  All the function has to do is react 
+properly to link state.  If, previously, you checked link state in your 
+interrupt handler, you could still do it there, I suspect.
 
--- 
-Greetz, Antonio Vargas aka winden of network
+>
+> Could you make that part optional? For a nic driver, I would prefer if 
+> I could just call the ->startup part without the request_irq. If the 
+> nic irq handler notices that the nic got an event, then it would call 
+> an appropriate mii_bus function.
 
-Las cosas no son lo que parecen, excepto cuando parecen lo que si son.
+I think it would be doable to arrange the interface such that drivers 
+could adopt only the PHY configuration infrastructure, and not any of 
+the polling/interrupt infrastructure.  Of course, as it is, it is at 
+least WHOLLY optional, so no driver has to use it at all.
 
-------=_Part_2853_17760180.1100897989712
-Content-Type: text/plain; name="xor.h"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment; filename="xor.h"
+>
+> This also applies for something like /dev/phy/xy: With natsemi, it 
+> would be very tricky to add proper locking. The nic as an internal phy 
+> and an external mii bus. The internal phy is partially visible on the 
+> external bus and any accesses to the phy id of the internal phy on the 
+> external bus cause lockups. No big deal, I just move the internal phy 
+> around [the phy id doesn't matter], but I would prefer if I have to do 
+> that just for ethtool, not for multiple interfaces.
 
-/*
- * include/asm-ppc/xor.h
- *
- * Altivec optimized RAID-5 checksumming functions.
- * Copyright 2004 Antonio Vargas, windenntw@gmail.com
- *
- * Based on include/asm-generic/xor.h and drivers/md/raid6altivec.uc
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 2.
- *
- * You should have received a copy of the GNU General Public License
- * (for example /usr/src/linux/COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
+I agree with this point -- Accessing the PHY through /dev registers is 
+a recipe for some mess.  Though I could be convinced that it is 
+manageable.  I do think, however, that the ethtool interface is 
+sufficient to the task.
 
-#ifdef KERNEL
-#include <asm-generic/xor.h>
-#endif
-
-#ifdef CONFIG_ALTIVEC
-
-#ifdef KERNEL
-#include <altivec.h>
-#include <asm/cputable.h>
-#include <asm/processor.h>
-#include <asm/system.h>
-#else
-#define prefetch(x)
-#define prefetchw(x)
-void enable_kernel_altivec(){};
-void preempt_enable(){};
-void preempt_disable(){};
-#endif
-
-typedef vector unsigned char unative_t;
-
-#define BODY\
-=09long lines =3D bytes / (4 * sizeof(unative_t)) - 1;\
-=09int i;\
-=09preempt_disable();\
-=09enable_kernel_altivec();\
-=09PREF(0)\
-=09do {\
-=09=09PREF(4);\
-=09=09CALC(0);\
-=09=09CALC(1);\
-=09=09CALC(2);\
-=09=09CALC(3);\
-=09=09INC;\
-=09} while (--lines > 0);\
-=09for(i =3D 0 ; i < 4 ; i++)\
-=09=09CALC(i);\
-=09preempt_enable();
-
-
-#define PREF2(x) prefetchw(p1 + x); prefetch(p2  + x);
-#define PREF3(x) PREF2(x) prefetch(p3  + x);
-#define PREF4(x) PREF3(x) prefetch(p4  + x);
-#define PREF5(x) PREF4(x) prefetch(p5  + x);
-
-#define CALC2(x) p1[x] ^=3D p2[x]
-#define CALC3(x) CALC2(x) ^ p3[x]
-#define CALC4(x) CALC3(x) ^ p4[x]
-#define CALC5(x) CALC4(x) ^ p5[x]
-
-#define INC2 p1 +=3D 4; p2 +=3D 4;
-#define INC3 INC2 p3 +=3D 4;
-#define INC4 INC3 p4 +=3D 4;
-#define INC5 INC4 p5 +=3D 4;
-
-static void
-xor_altivec2(unsigned long bytes, unative_t *p1, unative_t *p2)
-{
-#undef PREF
-#undef CALC
-#undef INC
-#define PREF(x) PREF2(x)
-#define CALC(x) CALC2(x)
-#define INC     INC2
-=09BODY
-}
-
-static void
-xor_altivec3(unsigned long bytes, unative_t *p1, unative_t *p2, unative_t *=
-p3)
-{
-#undef PREF
-#undef CALC
-#undef INC
-#define PREF(x) PREF3(x)
-#define CALC(x) CALC3(x)
-#define INC     INC3
-=09BODY
-}
-
-
-static void
-xor_altivec4(unsigned long bytes, unative_t *p1, unative_t *p2, unative_t *=
-p3, unative_t *p4)
-{
-#undef PREF
-#undef CALC
-#undef INC
-#define PREF(x) PREF4(x)
-#define CALC(x) CALC4(x)
-#define INC     INC4
-=09BODY
-}
-
-static void
-xor_altivec5(unsigned long bytes, unative_t *p1, unative_t *p2, unative_t *=
-p3, unative_t *p4, unative_t *p5)
-{
-#undef PREF
-#undef CALC
-#undef INC
-#define PREF(x) PREF5(x)
-#define CALC(x) CALC5(x)
-#define INC     INC5
-=09BODY
-}
-
-#ifdef KERNEL
-static struct xor_block_template xor_block_altivec =3D {
-=09.name =3D "altivec",
-=09.do_2 =3D xor_altivec2,
-=09.do_3 =3D xor_altivec3,
-=09.do_4 =3D xor_altivec4,
-=09.do_5 =3D xor_altivec5,
-};
-
-#undef  XOR_TRY_TEMPLATES
-#define XOR_TRY_TEMPLATES                       \
-=09do {                                    \
-=09=09xor_speed(&xor_block_8regs);    \
-=09=09xor_speed(&xor_block_8regs_p);  \
-=09=09xor_speed(&xor_block_32regs);   \
-=09=09xor_speed(&xor_block_32regs_p); \
-=09=09xor_speed(&xor_block_altivec);  \
-=09} while (0)
-#endif
-
-#endif
-
-------=_Part_2853_17760180.1100897989712--

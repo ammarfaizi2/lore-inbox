@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263073AbUKTQbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbUKTQck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263073AbUKTQbO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 11:31:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbUKTQbN
+	id S263101AbUKTQck (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 11:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbUKTQbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 11:31:13 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:44453 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S263073AbUKTQbE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 11:31:04 -0500
-Date: Sat, 20 Nov 2004 17:30:54 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is controlling DVD speeds via SET_STREAMING supported?
-In-Reply-To: <20041120161704.GA14743@hardeman.nu>
-Message-ID: <Pine.LNX.4.53.0411201727000.925@yvahk01.tjqt.qr>
-References: <20041120161704.GA14743@hardeman.nu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Sat, 20 Nov 2004 11:31:18 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:49416 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263101AbUKTQbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 11:31:11 -0500
+Date: Sat, 20 Nov 2004 16:31:10 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk
+Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for CONFIG_XEN
+Message-ID: <20041120163110.GB19099@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
+	Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+	Keir.Fraser@cl.cam.ac.uk
+References: <E1CVHzW-0004XC-00@mta1.cl.cam.ac.uk> <E1CVI5c-0004bf-00@mta1.cl.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CVI5c-0004bf-00@mta1.cl.cam.ac.uk>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi,
->
->currently my DVD player sounds like a jet plane when playing ordinary
->audio CD's. I tried the different approaches to lowering playback speed
->that are commonly used (hdparm, setspeed, etc) but none of them worked.
+> @@ -42,7 +42,12 @@ extern void tapechar_init(void);
+>   */
+>  static inline int uncached_access(struct file *file, unsigned long addr)
 
-I doubt hdparm works on CD/DVD drives.
-What is setspeed doing, internally?
+Any chance you could just move uncached_access() to some asm/ header for
+all arches instead of making the ifdef mess even worse?
 
-My CD drives spin at "normal" (no more than speed 8) when playing CD-DA,
-if I am listening to Ogg, I manually spin it down by using "calm-cdrom".
-( http://linux01.org:2222/f/UHXT/sbin/src/calm-cdrom.c )
-
->Then I found this thread:
->http://marc.theaimsgroup.com/?t=99366299900003&r=1&w=2
-
-BTW, I can't spindown CD-DA, because upon opening /dev/hdb for the ioctl, the
-cd player resets :)
-
-
-
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de

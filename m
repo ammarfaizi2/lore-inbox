@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317578AbSGTXpE>; Sat, 20 Jul 2002 19:45:04 -0400
+	id <S317587AbSGTXwY>; Sat, 20 Jul 2002 19:52:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317579AbSGTXpE>; Sat, 20 Jul 2002 19:45:04 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46865 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317578AbSGTXo6>; Sat, 20 Jul 2002 19:44:58 -0400
-Date: Sat, 20 Jul 2002 16:48:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Robert Love <rml@tech9.net>, <akpm@zip.com.au>, <riel@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>
+	id <S317589AbSGTXwY>; Sat, 20 Jul 2002 19:52:24 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:53234 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317587AbSGTXwX>; Sat, 20 Jul 2002 19:52:23 -0400
 Subject: Re: [PATCH] VM strict overcommit
-In-Reply-To: <1027212843.16818.59.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0207201645400.1901-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Robert Love <rml@tech9.net>, akpm@zip.com.au,
+       Linus Torvalds <torvalds@transmeta.com>, riel@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1027213161.16818.65.camel@irongate.swansea.linux.org.uk>
+References: <1027196403.1086.751.camel@sinai> 
+	<1027211556.17234.55.camel@irongate.swansea.linux.org.uk> 
+	<1027207835.1116.861.camel@sinai> 
+	<1027213161.16818.65.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 21 Jul 2002 02:07:06 +0100
+Message-Id: <1027213626.16819.74.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2002-07-21 at 01:59, Alan Cox wrote:
+> > I sent you an email and told you I was doing this and asked your opinion
+> > on a percentage.  Why are you picking on me now?
+> 
+> When did you send me mail - I certainly never saw it. 
 
+Ok I take that back. It merely never got as far into my brain as to stay
+stuck. 
 
-On 21 Jul 2002, Alan Cox wrote:
->
-> The GPL no warranty clauses were added directly to the file because they
-> are suppsed to be there.
-
-That's a load of bull. They are _NOT_ supposed to be there.
-
-If you want legal disclaimers etc, do them in files you created and you
-own 100%, not in places that others started and work on. Or put them to
-the bottom of the file where they aren't in the way.  Or add a "read teh
-GPL in the COPYING file", but don't start adding a ton of crap to core
-kernel files.
-
-There is no "goodness" in being a lawyer in .c files.
-
-		Linus
+Lets go with a sysctl tuned value and see what the 2.5 world finds the
+best numbers to be ?
 

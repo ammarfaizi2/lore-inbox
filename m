@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272053AbTGYNCr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 09:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272054AbTGYNCr
+	id S272054AbTGYNCx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 09:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272055AbTGYNCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 09:02:47 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:2557 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S272053AbTGYNCq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 09:02:46 -0400
+	Fri, 25 Jul 2003 09:02:53 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:27041 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272054AbTGYNCw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 09:02:52 -0400
+Date: Fri, 25 Jul 2003 06:15:16 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: guddadabhoota@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: IGMPv3 & kernel 2.6
+Message-Id: <20030725061516.06d51be0.davem@redhat.com>
+In-Reply-To: <20030725083559.GB6898@mea-ext.zmailer.org>
+References: <20030724082659.26474.qmail@web41906.mail.yahoo.com>
+	<20030725075503.37011.qmail@web41904.mail.yahoo.com>
+	<20030725083559.GB6898@mea-ext.zmailer.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Larry McVoy <lm@bitmover.com>,
-       Leandro Guimar?es Faria Corsetti Dutra 
-	<lgcdutra@terra.com.br>
-Subject: Re: Switching to the OSL License, in a dual way.
-Date: Fri, 25 Jul 2003 08:17:33 -0500
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-References: <pan.2003.07.24.18.06.06.546220@terra.com.br> <pan.2003.07.24.21.05.40.969654@terra.com.br> <20030724215744.GA7777@work.bitmover.com>
-In-Reply-To: <20030724215744.GA7777@work.bitmover.com>
-MIME-Version: 1.0
-Message-Id: <03072508173301.16381@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 July 2003 16:57, Larry McVoy wrote:
-[snip
->
-> In other words, reverse engineering is ok if the product doesn't
-> provide access to your data, we do that already, poof, no reverse
-> engineering allowed.  So it's illegal to reverse engineer BK.
+On Fri, 25 Jul 2003 11:35:59 +0300
+Matti Aarnio <matti.aarnio@zmailer.org> wrote:
 
-Nonesense. If the business no longer has the licence to use BK (for
-whatever reason) then it no longer has access to the data. Now to
-get access to the data you must reverse engineer BK...
+> You are referring to RFC 2236/3376 ?
+> 
+> The 2.6 has it, while 2.4 does not.
+> Back-portting is possible.
 
-Even though the data is still ASCII, the interrelationships between the
-parts of the data is still "data". And extracting/viewing that would
-require the reverse enginnering.
+False, Marcelo's current 2.4.x sources has the
+igmpv3 code in it.

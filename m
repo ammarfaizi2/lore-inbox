@@ -1,60 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbTDXSsg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 14:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbTDXSsg
+	id S263812AbTDXSvO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 14:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbTDXSvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 14:48:36 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:57357 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263429AbTDXSse
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 14:48:34 -0400
-Date: Thu, 24 Apr 2003 21:02:48 +0200
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Strange behavior in out-of-memory situation
-Message-ID: <20030424190248.GA2766@hh.idb.hist.no>
-References: <3EA83396.4040904@techsource.com>
+	Thu, 24 Apr 2003 14:51:13 -0400
+Received: from [144.51.25.10] ([144.51.25.10]:44521 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S263812AbTDXSvM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 14:51:12 -0400
+Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chris Wright <chris@wirex.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
+       Stephen Tweedie <sct@redhat.com>, lsm <linux-security-module@wirex.com>,
+       Andreas Gruenbacher <a.gruenbacher@computer.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030424113615.F15094@figure1.int.wirex.com>
+References: <20030423191749.A4244@infradead.org>
+	 <20030423112548.B15094@figure1.int.wirex.com>
+	 <20030423194501.B5295@infradead.org>
+	 <1051125476.14761.146.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423202614.A5890@infradead.org>
+	 <1051127534.14761.166.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423212004.A7383@infradead.org>
+	 <1051188945.14761.284.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030424140358.A30888@infradead.org>
+	 <1051192166.14761.334.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030424113615.F15094@figure1.int.wirex.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1051210971.20300.89.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA83396.4040904@techsource.com>
-User-Agent: Mutt/1.5.3i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Apr 2003 15:02:51 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 24, 2003 at 02:57:26PM -0400, Timothy Miller wrote:
-> I'm using Red Hat kernel 2.4.18-26.7.x.
-> 
-> I ran a program which is trying to suck up all of memory.  I would like 
-> to kill the process, but "top", "vmstat", and "ps" all hang when I try 
-> to use them.  Also, pressing ctrl-c in the terminal where I can the 
-> program won't kill it.
-> 
-> To an extent, however, the system was still usable, albeit EXTREMELY 
-> unresponsive.  Eventually, the program dumped core, and everything 
-> returned to norma.
-> 
-> Is this a known problem?
+On Thu, 2003-04-24 at 14:36, Chris Wright wrote:
+> Or perhaps introducing some of the CAP_MAC_* bits.
 
-Your system seems to be in normal working order. There is no problem here.
-A program using up all memory _will_ make the machine very unresponsive
-as everything goes into swap (or discards all executable code for
-those who think they can fool the system by not having swap).
+I don't think that would help.  As I mentioned during the earlier
+discussion with Andreas, you want to be able to allow the security
+module to call the inode getxattr and setxattr operations without
+restriction for internal management of the security labels, while
+applying access controls to user processes invoking the [gs]etxattr
+system calls.  Hence, you don't want the permission check implemented in
+the handler; it is better to handle the checking entirely via the LSM
+hooks in the [gs]etxattr calls and allow unrestricted internal use of
+the inode [gs]etxattr operations by the module.  Capability checks are
+also too coarse-grained; you want to be able to perform a permission
+check based on the process and the inode attributes, not just a
+process-based check.
 
-You may indeed be unable to run other programs like top, because
-there aren't enough memory left to run them.  Your program probably
-dumped core when it ran the system completely out of memory and
-trigged the Out-Of-Memory killer.
+If the intent of the trusted namespace is for attributes that can be
+managed by superuser processes (this is my impression), then I think it
+would be better to create a separate namespace and handler for security
+modules for clarity.  Or at least for MAC modules.
 
-The only unusual here is that ctrl+c didn't work, but some
-programs block that signal. Perhaps your program does too.
-
-You can use ulimit if you don't want your machine to become
-sluggish.  The effect is that your memory eater will be killed
-earlier, before it uses up so much memory that nothing else
-will run.
-
-Helge Hafting
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

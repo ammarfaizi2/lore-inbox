@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129408AbQK0WRw>; Mon, 27 Nov 2000 17:17:52 -0500
+        id <S129231AbQK0WTM>; Mon, 27 Nov 2000 17:19:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129514AbQK0WRc>; Mon, 27 Nov 2000 17:17:32 -0500
-Received: from 13dyn33.delft.casema.net ([212.64.76.33]:7952 "EHLO
-        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-        id <S129404AbQK0WRU>; Mon, 27 Nov 2000 17:17:20 -0500
-Message-Id: <200011272147.WAA19696@cave.bitwizard.nl>
-Subject: Re: access() says EROFS even for device files if /dev is mounted RO
-In-Reply-To: <20001127134251.A8164@veritas.com> from Andries Brouwer at "Nov
- 27, 2000 01:42:51 pm"
-To: Andries Brouwer <aeb@veritas.com>
-Date: Mon, 27 Nov 2000 22:47:06 +0100 (MET)
-CC: Peter Cordes <peter@llama.nslug.ns.ca>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id <S129514AbQK0WTC>; Mon, 27 Nov 2000 17:19:02 -0500
+Received: from p3EE1EE54.dip.t-dialin.net ([62.225.238.84]:14600 "EHLO master")
+        by vger.kernel.org with ESMTP id <S129231AbQK0WSu>;
+        Mon, 27 Nov 2000 17:18:50 -0500
+Date: Tue, 28 Nov 2000 00:01:26 +0100
+From: Udo Held <udo@udoheld.de>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        netdev@oss.sgi.com
+Subject: Hardware recognization error on Davicom 9102 with Tulip DS21140 driver
+Message-ID: <20001128000125.A295@udoheld.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
-> > access("/dev/tty2", R_OK|W_OK)          = -1 EROFS (Read-only file system)
+Hi!
 
-> You misunderstand the function of access(). The standard says
-> 
-> [EROFS] write access shall fail if write access is requested
->         for a file on a read-only file system
+I didn't know which driver was the right one for my network card so I
+just compiled all network-card drivers that where listed into my kernel
+I tried it with test9 and test11. The DS21140 Tulip driver found my card
+and crashes the system during boot up. My card is a Davicom 9102(?). It's
+working fine with the right driver.
 
-The intent of the "access" call is to tell you if you will be able to
-open the given pathname for the requested permissions. That this is
-inherently racey is not the fault of the access system call.
+I give you the cutted output of lspci -m and lspci -vvv
 
-The INTENT of this paragraph from the standard is to specify when to
-return the error value EROFS. The "for a -=file=-" part to me
-indicates that a valid interpretation is that this does not apply to
-device nodes.
+lspci -m:
 
-			Roger. 
+Device: 00:09.0
+Class:  Ethernet controller
+Vendor: Davicom Semiconductor, Inc.
+Device: Ethernet 100/10 MBit
+SVendor:        1282
+SDevice:        9102
+Rev:    31
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+lspci -vvv
+
+00:09.0 Ethernet controller: Davicom Semiconductor, Inc. Ethernet 100/10 MBit (rev 31)
+Subsystem: Unknown device 4554:434e
+Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+Latency: 32 (5000ns min, 10000ns max)
+Interrupt: pin A routed to IRQ 10
+Region 0: I/O ports at 6100 [size=256]
+Region 1: Memory at f4000000 (32-bit, non-prefetchable) [size=256]
+Expansion ROM at <unassigned> [disabled] [size=256K]
+Capabilities: [50] Power Management version 1
+Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
+Status: D0 PME-Enable+ DSel=0 DScale=0 PME-
+
+I will send this mail to:
+
+linux@vger.kernel.org
+linux-net@vger.kernel.org
+netdev@oss.sgi.com
+
+I'm not in any of these lists anymore, because the digest service is
+not offered anymore. :-(%
+
+Questions are welcome.
+
+Cheers,
+Udo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

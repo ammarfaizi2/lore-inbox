@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267609AbSLFGM6>; Fri, 6 Dec 2002 01:12:58 -0500
+	id <S267616AbSLFG1e>; Fri, 6 Dec 2002 01:27:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267610AbSLFGM5>; Fri, 6 Dec 2002 01:12:57 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:30916 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S267609AbSLFGM5>; Fri, 6 Dec 2002 01:12:57 -0500
-Date: Thu, 05 Dec 2002 22:15:33 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [RFC] generic device DMA implementation
-To: linux-kernel@vger.kernel.org
-Message-id: <3DF04085.3050909@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+	id <S267617AbSLFG1e>; Fri, 6 Dec 2002 01:27:34 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:24704 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S267616AbSLFG1d> convert rfc822-to-8bit; Fri, 6 Dec 2002 01:27:33 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [BUG]2.4.19-ck7
+Date: Fri, 6 Dec 2002 17:37:32 +1100
+User-Agent: KMail/1.4.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212061737.36906.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm all in favor of making the driver model support dma mapping,
-so usb won't need to try any more.  I'd expect that to make some
-dma model issues for the sa1100 and uml usb ports vanish, and
-ideally to eliminate some code now in usbcore.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
- > empty before adding new requests.  I think that the Linux OHCI
- > controller currently only queues one request per bulk or control
- > endpoint, so I don't think it uses this feature, if it were to, it
+I've gone back and looked at ck7 (was a little while ago). -ck doesnt directly 
+alter skbuff.c but may be responsible for calling it in an interrupt. I'm 
+sorry I can't enlighten you as to why it's happening and offer a fix as I 
+don't really know what the problem is.
 
-In 2.5, all hcds are supposed to queue all kinds of usb requests,
-including ohci.  (The ohci driver has supported that feature as
-long as I recall.)  Storage is using that by default now, which
-lets high speed disks talk using big scatterlist dma requests.
+The fact that it's happening now regularly and not previously is unusual if 
+the kernel itself is responsible unless some pattern in your usage has 
+changed. Perhaps seeing if the problem repeats on a vanilla or alternate 
+kernel may be helpful (-ck is rather different from vanilla).
 
-That's a big change from 2.4, where queueing mostly worked but
-wasn't really used by many drivers.  In particular, storage
-rarely queued more than one page ... now I've seen it queueing
-several dozen pages, so faster devices can reach their peak
-transfer speeds.  (Tens of MByte/sec, sure.)
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-- Dave
-
-
-
-
+iD8DBQE98EWvF6dfvkL3i1gRAnDbAJwN5YR8X1P/YR7XQLKAg+q1orm2SQCcDf+A
+i3iLphPRc5au7WsXBci+npA=
+=JMES
+-----END PGP SIGNATURE-----

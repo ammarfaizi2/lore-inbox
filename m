@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUJRVrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUJRV6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267385AbUJRVrj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 17:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUJRVrj
+	id S267449AbUJRV6T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 17:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267454AbUJRV6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 17:47:39 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:53211 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S267385AbUJRVrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 17:47:37 -0400
+	Mon, 18 Oct 2004 17:58:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38836 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267449AbUJRV6R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 17:58:17 -0400
+Date: Mon, 18 Oct 2004 15:02:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
 Subject: Re: [PATCH] add unschedule_delayed_work to the workqueue API
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
-In-Reply-To: <20041018144354.2118138f.akpm@osdl.org>
+Message-Id: <20041018150217.0fbf714f.akpm@osdl.org>
+In-Reply-To: <1098136049.2792.329.camel@mulgrave>
 References: <1098117067.2011.64.camel@mulgrave>
 	<20041018142524.5b81a09a.akpm@osdl.org>
-	<1098134824.2011.322.camel@mulgrave> <1098134994.2792.325.camel@mulgrave> 
+	<1098134824.2011.322.camel@mulgrave>
+	<1098134994.2792.325.camel@mulgrave>
 	<20041018144354.2118138f.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Oct 2004 16:47:22 -0500
-Message-Id: <1098136049.2792.329.camel@mulgrave>
+	<1098136049.2792.329.camel@mulgrave>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-18 at 16:43, Andrew Morton wrote:
-> James Bottomley <James.Bottomley@SteelEye.com> wrote:
-> >
-> > On Mon, 2004-10-18 at 16:26, James Bottomley wrote:
-> > > On Mon, 2004-10-18 at 16:25, Andrew Morton wrote:
-> > > > The usual way of doing this is:
-> > > > 
-> > > > 	cancel_delayed_work(...);
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
+>
+> > > OK, found it in the headers, sorry .. it's not synchronous, so it can't
+> > > really be used in most of the cases where we use del_timer_sync().
 > > 
-> > OK, found it in the headers, sorry .. it's not synchronous, so it can't
-> > really be used in most of the cases where we use del_timer_sync().
+> > cancel_delayed_work() will tell you whether it successfully cancelled the
+> > timer.  If it didn't, you should run flush_workqueue() to wait on the final
+> > handler.  The combination of the two is synchronous.
 > 
-> cancel_delayed_work() will tell you whether it successfully cancelled the
-> timer.  If it didn't, you should run flush_workqueue() to wait on the final
-> handler.  The combination of the two is synchronous.
+> Right, but it potentially does too much work for my purposes.
 
-Right, but it potentially does too much work for my purposes.  I want to
-cancel the work if it's cancellable or wait for it if it's already
-executing.  I don't want to have to wait for all the work in the queue
-just because the timer fired and it got added to the workqueue schedule.
+Are you sure?
 
-> The missing link is cancellation of a delayed work which re-adds itself and
-> where the calling code has no way of telling the handler to not re-arm
-> itself.  There's a patch in -mm to add that function, but I don't like it.
-> That's cancel_rearming_delayed_work.patch.
+>  I want to
+> cancel the work if it's cancellable or wait for it if it's already
+> executing.  I don't want to have to wait for all the work in the queue
+> just because the timer fired and it got added to the workqueue schedule.
 
-James
-
-
+The probability that the handler is running when you call
+cancel_delayed_work() is surely very low.  And the probability that there
+is more than one thing pending in the queue at that time is also low. 
+Multiplying them both together, then multiplying that by the relative
+expense of the handler makes me say "show me" ;)

@@ -1,222 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262292AbTCPDub>; Sat, 15 Mar 2003 22:50:31 -0500
+	id <S262302AbTCPDzT>; Sat, 15 Mar 2003 22:55:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262296AbTCPDub>; Sat, 15 Mar 2003 22:50:31 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:2223 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262292AbTCPDu2>; Sat, 15 Mar 2003 22:50:28 -0500
-Date: Sat, 15 Mar 2003 20:01:09 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.5.64-mjb4 (scalability / NUMA patchset)
-Message-ID: <10770000.1047787269@[10.10.2.4]>
-In-Reply-To: <85960000.1047532556@[10.10.2.4]>
-References: <169550000.1046895443@[10.10.2.4]> <475260000.1047172886@[10.10.2.4]> <85960000.1047532556@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S262317AbTCPDzT>; Sat, 15 Mar 2003 22:55:19 -0500
+Received: from emf.emf.net ([205.149.0.20]:55813 "EHLO emf.net")
+	by vger.kernel.org with ESMTP id <S262302AbTCPDzR>;
+	Sat, 15 Mar 2003 22:55:17 -0500
+Date: Sat, 15 Mar 2003 20:06:08 -0800 (PST)
+From: Tom Lord <lord@emf.net>
+Message-Id: <200303160406.UAA11523@emf.net>
+To: linux-kernel@vger.kernel.org
+cc: arch-users@lists.fifthvision.net, dev@subversion.tigris.org,
+       opencm-dev@smtp.opencm.org, jmacd@users.sourceforge.net
+Subject: moving the BitBucket GPL discussion to a context with
+   potential for _progress_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The patchset contains mainly scalability and NUMA stuff, and anything 
-else that stops things from irritating me. It's meant to be pretty stable, 
-not so much a testing ground for new stuff.
 
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
+[PLEASE ... DO NOT followup without trimming the addressees.]
 
-NOTE - you will have to apply -bk3 before applying this release.
-ftp://ftp.kernel.org/pub/linux/kernel/v2.5/snapshots/patch-2.5.64-bk3.bz2
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.64/patch-2.5.64-bk3-mjb4.bz2
+	David Lang (on lkml, in the context of a partly interesing
+	revision control system discussion):
 
-additional:
-
-http://www.aracnet.com/~fletch/linux/2.5.59/pidmaps_nodepages
-
-Since 2.5.64-mjb3 (~ = changed, + = added, - = dropped)
-
-Notes:  Shared pagetables is back! Seems to perform better now as
-well ... *please* test.
-
-Merged with Linus:
-
-New:
-+ summit_pcimap					Matt Dobson
-+ shpte						Dave McCracken
-+ reiserfs_dio					Mingming Cao
-+ concurrent_ext2				Alex Tomas
-+ debkl_ext2_readdir				Alex Tomas
+        hey guys, the suggestion to move to another list for this
+        discussion was to reduce traffic on the kernel list, not add a
+        bunch of arch discussions to the bitkeeper discussions.
 
 
-Pending:
-objrmap nonlinear bugfixes (Dave McCracken)
-Hyperthreaded scheduler (Ingo Molnar)
-Seperate kernel PMDs per process (Dave Hansen)
-Non-PAE aligned kernel splits (Dave Hansen)
-scheduler callers profiling (Anton or Bill Hartner)
-PPC64 NUMA patches (Anton)
-Child runs first (akpm)
-Kexec
-e1000 fixes
-Update the lost timer ticks code
+First, please tolerate _some_ (hopefully very _short_ term)
+cross-posting as a tactic to move the discussion to the
+arch-users@lists.fifthvision.net list.  Honestly, I think a few
+redundant declarations on lkml can help with the medium-to-longer-term
+movement of traffic off of lkml.  (Not that your plea is inconsistent
+with that.)
 
-Present in this patch:
+Second, I personally (taking a risk here) think it's reasonable to use
+arch-users for more than just the narrow arch topic -- for the whole
+lkml-vs.-bk issue, for example.  arch-users are already learning from
+these lkml threads.  If you're *really* off-topic on arch-users, but
+have made what you think is an enriching post, just put "OT:" in the
+subject line (but, hey, make it a _high quality_ post, whatever that
+means).
 
-common_physmap					Andy Whitcroft
-	merge physnode_map implementations from numaq and summit
+Third, in the arch world, I think we're really open-minded and
+interested about revision control in general -- we're thinking a lot
+about design issues -- not slavishly devoted to just a narrow
+conception of arch.  Projects that compete with arch -- developers of
+competing systems -- let's (M. Grubb, forgive me for not getting prior
+permission :-), gather on arch-users for rational discourse.
 
-pfn_to_nid_inline				Andy Whitcroft
-	converts the pfn_to_nid macro into an inline
+I'll leave you with the enclosed, from arch-users.  We _are_ conscious
+of de-noisifying lkml (and not needlessly noisifying any other list or
+mbox).
 
-numa_x86_pc					Andy Whitcroft
-	adds basic numa support for flat systems
+-t
 
-physnode_map_u8					Andy Whitcroft
-	converts physnode_map array to u8 (save cache polution)
+Subject: [arch-users] the "zen" of lkml
 
-profiling_docs					Martin J. Bligh
-	Basic profiling docs
+Here, let me try to say nothing at all:
 
-align_files_lock				Martin J. Bligh
-	Cacheline align files_lock
+*) On the one hand, if several of us say essentially the same
+   thing on lkml, but in different terms, that greatly increases
+   the chances of achieving communication.
 
-pfn_valid					Andy Whitcroft
-	fixes up a bug in copy_page_range
 
-doaction					Martin J. Bligh
-	Fix cruel torture of macros and small furry animals in io_apic.c
+*) On the other hand, if several of us say essentially the same
+   thing on lkml, but in different terms, that greatly increases
+   the chances of dragging out an unwelcome thread.
 
-early_printk					Dave Hansen et al.
-	Allow printk before console_init
 
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
+I don't know what that means but it sounds important so keep it in
+mind.
 
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
 
-vmalloc_stats					Dave Hansen
-	Expose useful vmalloc statistics
+-t
 
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
+_______________________________________________
+arch-users mailing list
+arch-users@lists.fifthvision.net
+http://lists.fifthvision.net/mailman/listinfo/arch-users
 
-ingosched					Ingo Molnar
-	Modify NUMA scheduler to have independant tick basis.
 
-schedstat					Rick Lindsley
-	Provide stats about the scheduler under /proc/schedstat
-
-schedstat2					Rick Lindsley
-	Provide more stats about the scheduler under /proc/schedstat
-
-schedstat-scripts				Rick Lindsley
-	Provide some scripts for schedstat analysis under scripts/
-
-sched_tunables					Robert Love
-	Provide tunable parameters for the scheduler (+ NUMA scheduler)
-
-irq_affinity					Martin J. Bligh
-	Workaround for irq_affinity on clustered apic mode systems (eg x440)
-
-cleaner_inodes					Andrew Morton
-	Make noatime filesystems more efficient
-
-partial_objrmap					Dave McCracken
-	Object based rmap for filebacked pages.
-
-objrmap_fix					Dave McCracken
-	Fix detection of anon pages
-
-objrmap_fixes					Dave McCracken / Hugh Dickins
-	Fix up some mapped sizing bugs in objrmap
-
-objrmap_mapcount				Dave McCracken
-	Fix up some mapped sizing bugs in objrmap
-
-kgdb						Andrew Morton / Various People
-	The older version of kgdb, synched with 2.5.54-mm1
-
-noframeptr					Martin Bligh
-	Disable -fomit_frame_pointer
-
-kprobes						Vamsi Krishna S
-	Add kernel probes hooks to the kernel
-
-# dmc_exit					Dave McCracken
-	Speed up the exit path.
-
-# shpte						Dave McCracken
-	Shared pagetables (as a config option)
-
-thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
-	Prep work to reduce kernel stacks to 4K
-	
-interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
-	Create a per-cpu interrupt stack.
-
-stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
-	Check for kernel stack overflows.
-
-4k_stack            (4K stacks pt 4)		Dave Hansen
-	Config option to reduce kernel stacks to 4K
-
-fix_kgdb					Dave Hansen
-	Fix interaction between kgdb and 4K stacks
-
-stacks_from_slab				William Lee Irwin
-	Take kernel stacks from the slab cache, not page allocation.
-
-thread_under_page				William Lee Irwin
-	Fix THREAD_SIZE < PAGE_SIZE case
-
-lkcd						LKCD team
-	Linux kernel crash dump support
-
-percpu_loadavg					Martin J. Bligh
-	Provide per-cpu loadaverages, and real load averages
-
-serial_console_warning				Martin J. Bligh
-	Fix silly compile warning for serial console
-
-get_empty_filp					Manfred Spraul
-	Kill the lock contention on files_lock from get_empty_filp ...
-
-files_lock_goodness				Andrew Morton
-	... and drive a silver stake through it's heart.
-
-spinlock_inlining				Andrew Morton
-	Inline spinlocks for profiling. Made into a ugly config option by me.
-
-sysfs_fix					Pat Mochel
-	Fix some bug or other in sysfs that's been annoying people
-
-kmem_cache_size					Christoph Hellwig
-	The new slab poisoning code broke kmem_cache_size(). Oops.
-
-vm_area_struct					Hugh Dickens
-	Fix vm_area_struct slab corruption due to mremap's move_vma suckage.
-
-summit_pcimap					Matt Dobson
-	Provide pci bus -> node mapping for x440
-
-shpte						Dave McCracken
-	Shared pagetables
-
-reiserfs_dio					Mingming Cao
-	DIO for Reiserfs
-
-concurrent_ext2					Alex Tomas
-	Concurrent ext2 block allocation - makes SDET & dbench go whizzy fast.
-
-debkl_ext2_readdir				Alex Tomas
-	Don't take the BKL in ext2_readdir
-
--mjb						Martin J. Bligh
-	Add a tag to the makefile
 

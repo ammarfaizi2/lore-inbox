@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288597AbSAHX47>; Tue, 8 Jan 2002 18:56:59 -0500
+	id <S288603AbSAHX7j>; Tue, 8 Jan 2002 18:59:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288602AbSAHX4t>; Tue, 8 Jan 2002 18:56:49 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:39182 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288597AbSAHX4e>; Tue, 8 Jan 2002 18:56:34 -0500
-Message-ID: <3C3B85E6.9634B180@zip.com.au>
-Date: Tue, 08 Jan 2002 15:51:02 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
+	id <S288604AbSAHX73>; Tue, 8 Jan 2002 18:59:29 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14089 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288603AbSAHX7S>; Tue, 8 Jan 2002 18:59:18 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+To: brownfld@irridia.com (Ken Brownfield)
+Date: Wed, 9 Jan 2002 00:10:38 +0000 (GMT)
+Cc: kernel@Expansa.sns.it (Luigi Genoni), linux-kernel@vger.kernel.org
+In-Reply-To: <20020108173254.B9318@asooo.flowerfire.com> from "Ken Brownfield" at Jan 08, 2002 05:32:54 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>
-CC: Greg KH <greg@kroah.com>, jtv <jtv@xs4all.nl>,
-        Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: __FUNCTION__
-In-Reply-To: <3C3B664B.3060103@intel.com> <20020108220149.GA15816@kroah.com> <20020108235649.A26154@xs4all.nl> <20020108231147.GA16313@kroah.com>,
-		<20020108231147.GA16313@kroah.com>; from greg@kroah.com on Tue, Jan 08, 2002 at 03:11:47PM -0800 <20020109003901.T5235@khan.acc.umu.se>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16O6KE-00087x-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
-> 
-> ...
-> > Since the C99 spec does not state anything about __FUNCTION__, changing
-> > it from the current behavior does not seem like a wise thing to do.
-> >
-> > Any pointers to someone to complain to, or is there no chance for
-> > reversal?
-> 
-> Because the want people to stop using a gcc-specific way and start
-> using the C99-mandated way instead?! Very sane imho.
-> 
+> Preemptive gives better interactivity under load, which is the whole
+> point of multitasking (think about it).  If you don't want the overhead
+> (which also exists without preemptive) run #processes == #processors.
 
-They shouldn't take a GNU extension which has been offered
-for ten years and suddenly revert it, or unoptionally spit a
-warning.  But they keep on doing this.
+That is generally not true. Pe-emption is used in user space to prevent
+applications doing very stupid things. Pre-emption in a trusted environment
+can often be most efficient if done by the programs themselves.
 
-I've had large codebases which compiled just fine five years ago.
-But with a current compiler, same codebase produces an *enormous*
-number of warnings.  There's no switch to turn them off and going
-in and changing the code is clearly not an option.  The only options
-are to:
+Userspace is not a trusted environment
 
-1: Not use the newer compiler
+> I'm really surprised that people are still actually arguing _against_
+> preemptive multitasking in this day and age.  This is a no-brainer in
+> the long run, where current corner cases aren't holding us back.
 
-2: Grotty sed script to gobble the warnings
+Andrew's patches give you 1mS worst case latency for normal situations, that
+is below human perception, and below scheduling granularity. In other words
+without the efficiency loss and the debugging problems you can place the
+far enough latency below other effects that it isnt worth attacking any more.
 
-3: Fix the compiler.
-
-I've done all three :(
-
--
+Alan

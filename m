@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbUKQUTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbUKQUX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262381AbUKQUTq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 15:19:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUKQURc
+	id S262442AbUKQUX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 15:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbUKQUWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 15:17:32 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:29395 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S262378AbUKQUQO (ORCPT
+	Wed, 17 Nov 2004 15:22:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:1254 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262442AbUKQUVp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 15:16:14 -0500
-Subject: Re: Network slowdown from 2.6.7 to 2.6.9
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Harry Edmon <harry@atmos.washington.edu>
-Cc: Con Kolivas <kernel@kolivas.org>, Stephen Hemminger <shemminger@osdl.org>,
+	Wed, 17 Nov 2004 15:21:45 -0500
+Date: Wed, 17 Nov 2004 12:21:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: ak@suse.de, 76306.1226@compuserve.com, andrea@novell.com,
        linux-kernel@vger.kernel.org
-In-Reply-To: <419BA5C4.4020503@atmos.washington.edu>
-References: <419A9151.2000508@atmos.washington.edu>
-	 <20041116163257.0e63031d@zqx3.pdx.osdl.net>
-	 <cone.1100651833.776334.15267.502@pc.kolivas.org>
-	 <419BA5C4.4020503@atmos.washington.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-pK99aYG2vDrTTe1704Wr"
-Message-Id: <1100722571.20185.9.camel@tux.rsn.bth.se>
+Subject: Re: Dropped patch: mm/mempolicy.c:sp_lookup()
+Message-Id: <20041117122123.6162fa70.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0411171938210.1809-100000@localhost.localdomain>
+References: <20041117111336.608409ef.akpm@osdl.org>
+	<Pine.LNX.4.44.0411171938210.1809-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 17 Nov 2004 21:16:11 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> On Wed, 17 Nov 2004, Andrew Morton wrote:
+> > Andi Kleen <ak@suse.de> wrote:
+> > > On Tue, Nov 16, 2004 at 10:54:09PM -0500, Chuck Ebbert wrote:
+> > > > On Wed, 17 Nov 2004 at 02:00:20 +0100, Andi Kleen wrote:
+> > > > > On Mon, Nov 15, 2004 at 11:15:51PM -0500, Chuck Ebbert wrote:
+> > > > > > Andrea posted this one-liner a while ago as part of a larger patch.  He said
+> > > > > > it fixed return of the wrong policy in some conditions.  Was this a valid fix?
+> > > > >
+> > > > > Yes it was.
+> > > > 
+> > > >   At least it wasn't dropped -- it's in -mm as part of
+> > > > fix-for-mpol-mm-corruption-on-tmpfs, though it's unrelated to tmpfs.
+> > > > (That patch contains three separate changes...)
+> > > > 
+> > > >   Should just this part, which changes '<' to '<=', be pushed upstream?
+> > > 
+> > > Yes. I'm sure Andrea will take care of that himself. 
+> > 
+> > That fix is contained within fix-for-mpol-mm-corruption-on-tmpfs.patch
+> > anyway, isn't it?
+> 
+> Yes; and Chuck is right that it's three patches not one.
 
---=-pK99aYG2vDrTTe1704Wr
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Always a source of hassles, that.
 
-On Wed, 2004-11-17 at 20:25, Harry Edmon wrote:
-> Tried your suggestion - no improvement.
+> I think at the least you should split it by file into mm/shmem.c
+> and mm/mempolicy.c parts, they're entirely independent.
+> 
+> I've seen Andi's ack on the '<=' fix,
+> I've not seen his ack on the mempolicy optimizations.
 
-I saw fron your .config that you have ip_conntrack as module, is it
-loaded? The TCP part of ip_conntrack got a pretty huge makeover in 2.6.9
-which also added more complexity to the code... and now it verifies the
-checksums of all TCP packets.
+Sigh.  OK, I'll split the patch into three and will feed the `<=' fix and
+the symlink fix into 2.6.10.  The mempolicy optimisation can await 2.6.11.
 
---=20
-/Martin
-
---=-pK99aYG2vDrTTe1704Wr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBm7GKWm2vlfa207ERAteqAJ9FWBvjqsWKIezSzvgZSbd4scx8RgCgvAsa
-AIMjNsfevjSgJn7AsZqUorM=
-=cVg9
------END PGP SIGNATURE-----
-
---=-pK99aYG2vDrTTe1704Wr--

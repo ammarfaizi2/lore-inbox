@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265017AbSJPOoP>; Wed, 16 Oct 2002 10:44:15 -0400
+	id <S265022AbSJPOvw>; Wed, 16 Oct 2002 10:51:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265018AbSJPOoP>; Wed, 16 Oct 2002 10:44:15 -0400
-Received: from ihemail2.lucent.com ([192.11.222.163]:24984 "EHLO
-	ihemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id <S265017AbSJPOoN>; Wed, 16 Oct 2002 10:44:13 -0400
-MIME-Version: 1.0
+	id <S265024AbSJPOvw>; Wed, 16 Oct 2002 10:51:52 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:9740 "EHLO probity.mcc.ac.uk")
+	by vger.kernel.org with ESMTP id <S265022AbSJPOvu>;
+	Wed, 16 Oct 2002 10:51:50 -0400
+Date: Wed, 16 Oct 2002 15:57:28 +0100
+From: John Levon <levon@movementarian.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: willy@debian.org, akpm@digeo.com
+Subject: Re: Linux v2.5.43
+Message-ID: <20021016145728.GA78571@compsoc.man.ac.uk>
+References: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15789.31874.550728.696896@gargle.gargle.HOWL>
-Date: Wed, 16 Oct 2002 10:49:38 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Con Kolivas <conman@kolivas.net>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.43 with contest
-In-Reply-To: <1034749489.3dad063203723@kolivas.net>
-References: <1034749489.3dad063203723@kolivas.net>
-X-Mailer: VM 7.07 under Emacs 20.6.1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *181pc0-000Cob-00*4zjUyQmTfMQ* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 15, 2002 at 08:44:10PM -0700, Linus Torvalds wrote:
 
-Con,
+> John Levon <levon@movementarian.org>:
+>   o oprofile - core
 
-Why are you bothering to show the older 2.5.3x series of kernels, but
-dropping the 2.4.18 results?  Wouldn't it make sense to see how the
-latest kernels in each section were doing?
+Note that anybody actually wanting to use the thing needs an additional
+fix like the below, or most of the samples end up being dropped on the
+floor.
 
-Con> Here are the latest contest (http://contest.kolivas.net) benchmarks including 2.5.43
+Matthew, can we submit the proper fix (using cond_resched ?) at some
+point ?
 
-Con> noload:
-Con> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-Con> 2.5.38 [3]              72.0    93      0       0       1.07
-Con> 2.5.39 [2]              72.2    93      0       0       1.07
-Con> 2.5.40 [1]              72.5    93      0       0       1.08
-Con> 2.5.41 [1]              73.8    93      0       0       1.10
-Con> 2.5.42 [2]              72.5    93      0       0       1.08
-Con> 2.5.42-mm3 [2]          78.1    93      0       0       1.16
-Con> 2.5.43 [2]              74.6    92      0       0       1.11
+thanks
+john
 
 
-Thanks,
-John
+--- linux-linus/fs/locks.c	Sat Sep 28 15:56:28 2002
++++ linux/fs/locks.c	Wed Oct  2 04:15:54 2002
+@@ -727,11 +727,11 @@
+ 	}
+ 	unlock_kernel();
+ 
+-	if (found)
+-		yield();
+-
+ 	if (new_fl->fl_type == F_UNLCK)
+ 		return 0;
++
++	if (found)
++		yield();
+ 
+ 	lock_kernel();
+ 	for_each_lock(inode, before) {

@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129262AbQJ0QUI>; Fri, 27 Oct 2000 12:20:08 -0400
+	id <S129674AbQJ0Q3x>; Fri, 27 Oct 2000 12:29:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129681AbQJ0QT6>; Fri, 27 Oct 2000 12:19:58 -0400
-Received: from harrier.prod.itd.earthlink.net ([207.217.121.12]:10178 "EHLO
-	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S129262AbQJ0QTt>; Fri, 27 Oct 2000 12:19:49 -0400
-Message-ID: <044a01c04031$b146db80$0a25a8c0@wizardess.wiz>
-From: "J. Dow" <jdow@earthlink.net>
-To: <dave@kd0yu.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <200010271316.e9RDGSR17634@goliath.kd0yu.com>
-Subject: Re: Off-Topic (or maybe on-topic)
-Date: Fri, 27 Oct 2000 09:19:32 -0700
+	id <S129747AbQJ0Q3n>; Fri, 27 Oct 2000 12:29:43 -0400
+Received: from al-pt12.sonet.pt ([195.8.11.90]:6404 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S129674AbQJ0Q3X>; Fri, 27 Oct 2000 12:29:23 -0400
+Date: Fri, 27 Oct 2000 17:22:01 +0100 (WEST)
+From: Rui Sousa <rsousa@grad.physics.sunysb.edu>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Blocked processes <=> Elevator starvation?
+In-Reply-To: <Pine.LNX.4.21.0010080105520.22898-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0010271658500.1295-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: <dave@kd0yu.com>
+On Sun, 8 Oct 2000, Rik van Riel wrote:
 
-> If Bill said 'screw you' to the blackmailer and made the press release,
-> we should see the source on web sites soon.  Then we can see how bad it
-> really is.  Maybe even fix it.
+> On Sun, 8 Oct 2000, Rui Sousa wrote:
+> 
+> > After starting 2 processes that scan a lot of files (diff, find,
+> > slocate, ...) it's impossible to run any other processes that
+> > touch the disk, they will stall until one of the first two stop.
+> > Could this be a sign of starvation in the elevator code?
+> 
+> It could well be. I've seen this problem too and don't
+> really have another explanation for this phenomenon.
+> 
+> OTOH, maybe there is another reason for it that hasn't
+> been found yet ;)
+> 
 
-Dave, my partner has legal access to the MS source code. In some of my own
-work I discovered an interesting apparent HAL bug related to the ACPI and
-the PerformanceCounter API. A fix for a bad INTEL chip (24 bit counter that
-doesn't always count correctly) was falsed by my K7M motherboard with a
-700MHz Athlon on it. He adapts the HALs for some behemoth machines. So he
-has seen the code involved. It is literally chock full of hacks and patches
-and such - because of chip hardware defects. I'd be VERY careful about
-casually going in and patching or repairing that source code based on such
-dinnertable conversation about the HAL code as we've had. (I know no details.
-I just know he regularly moans about it. - I bet he's having an interesting
-day up there today. He's there for a meeting with the W2K folks. I'll have
-to ask him how the anthill was today when he gets home.)
+I finally had time to give this a better look. It now seems the problem
+is in the VM system.
 
-{^_-}    Joanne Dow, jdow@earthlink.net, jdow@bix.com, sysmgr@bix.com
+I patched a test10-pre4 kernel with kdb, then started two "diff -ur
+linux-2.4.0testX linux-2.4.0testY > log1" and two "find / -true >
+log". After this I tried cat"ing" a small file. The cat never 
+returned. At this point I entered kdb and did a stack trace on the "cat"
+process:
 
+schedule()
+___wait_on_page()
+do_generic_file_read()
+generic_file_read()
+sys_read()
+system_call()
+
+So it seems the process is either in a loop in ___wait_on_page()
+racing for the PageLock or it never wakes-up... (I guess I could add a
+printk to check which)
+Unfortunately I didn't find anything obviously wrong with the code.
+I hope you can do a better job tracking the problem down.
+
+As a reminder:
+i686, UP, 64Mb RAM, IDE disks, ext2.
+
+Rui Sousa
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

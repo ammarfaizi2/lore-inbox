@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130517AbRCISZT>; Fri, 9 Mar 2001 13:25:19 -0500
+	id <S130588AbRCISek>; Fri, 9 Mar 2001 13:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130519AbRCISZJ>; Fri, 9 Mar 2001 13:25:09 -0500
-Received: from waste.org ([209.173.204.2]:14603 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S130517AbRCISYz>;
-	Fri, 9 Mar 2001 13:24:55 -0500
-Date: Fri, 9 Mar 2001 12:23:54 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Helge Hafting <helgehaf@idb.hist.no>
-cc: Manoj Sontakke <manojs@sasken.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: quicksort for linked list
-In-Reply-To: <3AA89624.46DBADD7@idb.hist.no>
-Message-ID: <Pine.LNX.4.30.0103091217000.5548-100000@waste.org>
+	id <S130600AbRCISea>; Fri, 9 Mar 2001 13:34:30 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64004 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130588AbRCISeZ>; Fri, 9 Mar 2001 13:34:25 -0500
+Subject: Re: [linux-usb-devel] Re: SLAB vs. pci_alloc_xxx in usb-uhci patch [RFC: API]
+To: linux-usb-devel@lists.sourceforge.net
+Date: Fri, 9 Mar 2001 18:35:48 +0000 (GMT)
+Cc: manfred@colorfullife.com (Manfred Spraul),
+        david-b@pacbell.net (David Brownell),
+        rmk@arm.linux.org.uk (Russell King), zaitcev@redhat.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <15017.7950.106874.276894@pizda.ninka.net> from "David S. Miller" at Mar 09, 2001 10:21:02 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14bRjy-0005SS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Mar 2001, Helge Hafting wrote:
+> Drivers can keep track of this kind of information themselves,
+> and that is what I tell every driver author to do who complains
+> of a lack of a "bus_to_virt()" type thing, it's just lazy
+> programming.
 
-> Manoj Sontakke wrote:
-> >
-> > 1. Is quicksort on doubly linked list is implemented anywhere? I need it
-> > for sk_buff queues.
->
-> I cannot see how the quicksort algorithm could work on a doubly
-> linked list, as it relies on being able to look
-> up elements directly as in an array.
->
-> You can probably find algorithms for sorting a linked list, but
-> it won't be quicksort.
-
-Here ya go (wrote this a few years ago):
-
-// This function is so cool.
-template<class T>
-void list<T>::qsort(iter l, iter r, cmpfunc *cmp, void *data)
-{
-        if(l==r) return;
-
-        iter i(l), p(l);
-
-        for(i++; i!=r; i++)
-                if(cmp(*i, *l, data)<0)
-                        i.swap(++p);
-
-        l.swap(p);
-        qsort(l, p, cmp, data);
-        qsort(++p, r, cmp, data);
-}
-
-Iters are essentially list pointers with increment operations. This is a
-fairly direct adaptation of the quicksort in K&R, actually.
-
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+I'd agree. There are _good_ reasons for having reverse mappings especially on
+certain architectures, but thats for stuff like cache management. Its stuff
+the drivers have no business poking their noses directly into
 

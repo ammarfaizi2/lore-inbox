@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUJBJ2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267368AbUJBJaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267363AbUJBJ2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 05:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267368AbUJBJ2r
+	id S267368AbUJBJaK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 05:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267374AbUJBJaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 05:28:47 -0400
-Received: from [205.233.218.70] ([205.233.218.70]:13577 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S267363AbUJBJ2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 05:28:45 -0400
-Subject: Re: [patch] inotify: make user visible types portable
-From: David Woodhouse <dwmw2@infradead.org>
-To: Robert Love <rml@novell.com>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <1096583447.4203.88.camel@betsy.boston.ximian.com>
-References: <1096410792.4365.3.camel@vertex>
-	 <1096583108.4203.86.camel@betsy.boston.ximian.com>
-	 <1096583447.4203.88.camel@betsy.boston.ximian.com>
-Content-Type: text/plain
-Date: Sat, 02 Oct 2004 10:21:59 +0100
-Message-Id: <1096708920.5191.14.camel@localhost.localdomain>
+	Sat, 2 Oct 2004 05:30:10 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:42679 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S267368AbUJBJ3u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 05:29:50 -0400
+Date: Sat, 02 Oct 2004 18:30:15 +0900 (JST)
+Message-Id: <20041002.183015.41630389.taka@valinux.co.jp>
+To: marcelo.tosatti@cyclades.com
+Cc: haveblue@us.ibm.com, akpm@osdl.org, linux-mm@kvack.org,
+       piggin@cyberone.com.au, arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] memory defragmentation to satisfy high order allocations
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <20041001234200.GA4635@logos.cnet>
+References: <20041001190430.GA4372@logos.cnet>
+	<1096667823.3684.1299.camel@localhost>
+	<20041001234200.GA4635@logos.cnet>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 (2.0.1-2) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-30 at 18:30 -0400, Robert Love wrote:
-> On Thu, 2004-09-30 at 18:25 -0400, Robert Love wrote:
-> 
-> > (speaking of which, we had 'mask' as an 'unsigned long' inside inotify.c,
-> > so this change was needed anyhow).
-> 
-> Ugh.  We _also_ add mask sprinkled about as an int.
-> 
-> This patch makes those __u32 types, too.
+Hello, Marcelo.
 
-Don't want for the cleanup of kernel headers to be done by someone else.
-Stop polluting them more. Take the user-visible structures and put them
-into a separate header file, possibly in a separate directory. Then
-include that from your kernel header. Then there's _already_ a
-'sanitised' header file for userspace. See the contents of include/mtd/
-for an example, although I think there may be one or two things in there
-I still need to clean up.
+Generic memory defragmentation will be very nice for me to implement
+hugetlbpage migration, as allocating a new hugetlbpage is a hard job.
 
-I probably still need to change some __u32 to uint32_t for portability,
-for example. You should do that too.
+> For the "defragmentation" operation we want to do an "easy" try - ie if we
+> can't remap giveup.
+> 
+> I feel we should try to "untie" the code which checks for remapping availability / 
+> does the remapping from the page migration - so to be able to share the most 
+> code between it and other users of the same functionality. 
 
--- 
-dwmw2
+I think it's possible to introduce non-wait mode to the migration code,
+as you may expect. Shall I implement it?
+
+> Curiosity: How did you guys test the migration operation? Several threads on 
+> several processors operating on the memory, etc? 
+
+I always test it with the zone hotplug emulation patch, which Mr.Iwamoto
+has made. I usually run following jobs concurrently while zones are added
+and removed repeatedly on a SMP machine.
+      - making linux kernel
+      - copying file trees.
+      - overwriting file trees.
+      - removing file trees
+      - some pages are swapped out automatically:)
+
+And Mr.Iwamoto has some small programs to check any kind of page
+can be migrated. The programs repeat one of following actions:
+    - read/write files .
+    - use MAP_SHARED and MAP_PRIVATE mmap()'s and read/write there.
+    - use Direct I/O.
+    - use AIO.
+    - fork to have COW pages.
+    - use shmem.
+    - use sendfile.
+
+> Cool. I'll take a closer look at the relevant parts of memory hotplug patches 
+> this weekend, hopefully. See if I can help with testing of these patches too.
+
+Any comments are very welcome.
+
+Thank you,
+Hirokazu Takahashi.
+
+
+
+
+
 

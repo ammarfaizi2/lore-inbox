@@ -1,88 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289200AbSANLd1>; Mon, 14 Jan 2002 06:33:27 -0500
+	id <S289206AbSANLhT>; Mon, 14 Jan 2002 06:37:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289199AbSANLdU>; Mon, 14 Jan 2002 06:33:20 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:54549 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S289200AbSANLdH>; Mon, 14 Jan 2002 06:33:07 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200201141133.g0EBX7r22754@devserv.devel.redhat.com>
-Subject: Linux 2.4.18pre3-ac2
-To: linux-kernel@vger.kernel.org
-Date: Mon, 14 Jan 2002 06:33:07 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S288696AbSANLhB>; Mon, 14 Jan 2002 06:37:01 -0500
+Received: from mta06ps.bigpond.com ([144.135.25.138]:30172 "EHLO
+	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S288638AbSANLgn>; Mon, 14 Jan 2002 06:36:43 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@transmeta.com, cyeoh@samba.org, linux-kernel@vger.kernel.org,
+        viro@math.psu.edu
+Subject: Re: [PATCH] 2.5: PATH_MAX length fix 
+In-Reply-To: Your message of "Mon, 14 Jan 2002 09:50:54 -0000."
+             <E16Q3lW-0001Cv-00@the-village.bc.nu> 
+Date: Mon, 14 Jan 2002 22:36:48 +1100
+Message-Id: <E16Q5Q0-0002aN-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[+ indicates stuff that went to Marcelo, o stuff that has not]
+In message <E16Q3lW-0001Cv-00@the-village.bc.nu> you write:
+> > +++ working-2.4.14-pathmax/scripts/mkdep.c	Wed Nov 21 12:01:44 2001
+> > @@ -218,7 +218,7 @@
+> >  void add_path(const char * name)
+> >  {
+> >  	struct path_struct *path;
+> > -	char resolved_path[PATH_MAX+1];
+> > +	char resolved_path[PATH_MAX];
+> >  	const char *name2;
+> 
+> This is a user mode application running on an unknown host. Its most 
+> definitely correct and only safe before the change
 
-Linux 2.4.18pre3-ac2
+Ack.  Thanks.  Regretfully, userspace must still be careful while
+current (non-compliant) OSes like Linux still exist.
 
-o	Re-merge the IDE patches			(Andre Hedrick and co)
-o	Fix check/request region in ali_ircc and lowcomx(Steven Walter)
-	com90xx, sealevel, sb1000
-+	Remove unused message from 6pack driver		(Adrian Bunk)
-+	Fix unused variable warning in i60scsi		(Adrian Bunk)
-+	Fix off by one floppy oops			(Keith Owens)
-o	Fix i2o_config use of undefined C		(Andreas Dilger)
-+	Fix fdomain scsi oopses				(Per Larsson)
-+	Fix sf16fmi hang on boot			(me)
-o	Add bridge resources to the resource tree	(Ivan Kokshaysky)
-+	Fix iphase ATM oops on close in on case	   (Till Immanuel Patzschke)
-+	Enable OOSTORE on winchip processors		(Dave Jones, me)
-	| Worth about 10-20% performance 
-+	Code Page 1250 support				(Petr Titera)
-+	Fix sdla and hpfs doc typos			(Sven Vermeulen)
-o	Document /proc/stat				(Sven Heinicke)
-+	Update cs4281 drivers				(Tom Woller)
-	| Fixes xmms stutter, remove wrapper code
-	| handle tosh boxes, allow record device change
-	| trigger wakeups on ioctl triggered changes
-o	Fix locking of file struct stuff found by ibm	(Dipankar Sarma)
-	audit
-o	Use spin_lock_init in serial.c			(Dave Miller)
-o	Fix AF_UNIX shutdown bug			(Dave Miller)
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Linux 2.4.18pre3-ac1
-
-o	32bit uid quota
-o	rmap-11b VM					(Rik van Riel,
-							 William Irwin etc)
-o	Make scsi printer visible			(Stefan Wieseckel)
-+	Report Hercules Fortissimo card			(Minya Sorakinu)
-+	Fix O_NDELAY close mishandling on the following	(me)
-	sound cards: cmpci, cs46xx, es1370, es1371,
-	esssolo1, sonicvibes
-o	tdfx pixclock handling fix			(Jurriaan)
-o	Fix mishandling of file system size limiting	(Andrea Arcangeli)
-o	generic_serial cleanups				(Rasmus Andersen)
-o	serial.c locking fixes for SMP - move from cli	(Kees)
-	too
-o	Truncate fixes from old -ac tree		(Andrew Morton)
-o	Hopefully fix the i2o oops			(me)
-	| Not the right fix but it'll do till I rewrite this
-+	Fix non blocking tty blocking bug		(Peter Benie)
-o	IRQ routing workaround for problem HP laptops	(Cory Bell)
-+	Fix the rcpci driver				(Pete Popov)
-+	Fix documentation of aedsp location		(Adrian Bunk)
-o	Fix the worst of the APM ate my cpu problems	(Andreas Steinmetz)
-o	Correct icmp documentation			(Pierre Lombard)
-+	Multiple mxser crash on boot fix	(Stephan von Krawczynski)
-o	ldm header fix					(Anton Altaparmakov)
-+	Fix unchecked kmalloc in i2c_proc	(Ragnar Hojland Espinosa)
-+	Fix unchecked kmalloc in airo_cs	(Ragnar Hojland Espinosa)
-+	Fix unchecked kmalloc in btaudio	(Ragnar Hojland Espinosa)
-+	Fix unchecked kmalloc in qnx4/inode.c	(Ragnar Hojland Espinosa)
-+	Disable DRM4.1 GMX2000 driver (4.0 required)	(me)
-+	Fix sb16 lower speed limit bug			(Jori Liesenborgs)
-o	Fix compilation of orinoco driver		(Ben Herrenschmidt)
-o	ISAPnP init fix					(Chris Rankin)
-o	Export release_console_sem			(Andrew Morton)
-o	Output nat crash fix				(Rusty Russell)
-o	Fix PLIP					(Niels Jensen)
-o	Natsemi driver hang fix				(Manfred Spraul)
-+	Add mono/stereo reporting to gemtek pci radio	(Jonathan Hudson)
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.14/include/linux/limits.h working-2.4.14-pathmax/include/linux/limits.h
+--- linux-2.4.14/include/linux/limits.h	Thu Jul 29 03:30:10 1999
++++ working-2.4.14-pathmax/include/linux/limits.h	Wed Nov 21 10:59:37 2001
+@@ -11,7 +11,7 @@
+ #define MAX_CANON        255	/* size of the canonical input queue */
+ #define MAX_INPUT        255	/* size of the type-ahead buffer */
+ #define NAME_MAX         255	/* # chars in a file name */
+-#define PATH_MAX        4095	/* # chars in a path name */
++#define PATH_MAX        4096	/* # chars in a path name including nul */
+ #define PIPE_BUF        4096	/* # bytes in atomic write to a pipe */
+ 
+ #define RTSIG_MAX	  32
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.14/fs/dcache.c working-2.4.14-pathmax/fs/dcache.c
+--- linux-2.4.14/fs/dcache.c	Thu Oct  4 15:57:36 2001
++++ working-2.4.14-pathmax/fs/dcache.c	Wed Nov 21 12:04:18 2001
+@@ -1262,7 +1262,7 @@
+ 		panic("Cannot create buffer head SLAB cache");
+ 
+ 	names_cachep = kmem_cache_create("names_cache", 
+-			PATH_MAX + 1, 0, 
++			PATH_MAX, 0, 
+ 			SLAB_HWCACHE_ALIGN, NULL, NULL);
+ 	if (!names_cachep)
+ 		panic("Cannot create names SLAB cache");
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.14/fs/namei.c working-2.4.14-pathmax/fs/namei.c
+--- linux-2.4.14/fs/namei.c	Thu Oct 18 07:46:29 2001
++++ working-2.4.14-pathmax/fs/namei.c	Wed Nov 21 10:57:58 2001
+@@ -99,16 +99,17 @@
+  * kernel data space before using them..
+  *
+  * POSIX.1 2.4: an empty pathname is invalid (ENOENT).
++ * PATH_MAX includes the nul terminator --RR.
+  */
+ static inline int do_getname(const char *filename, char *page)
+ {
+ 	int retval;
+-	unsigned long len = PATH_MAX + 1;
++	unsigned long len = PATH_MAX;
+ 
+ 	if ((unsigned long) filename >= TASK_SIZE) {
+ 		if (!segment_eq(get_fs(), KERNEL_DS))
+ 			return -EFAULT;
+-	} else if (TASK_SIZE - (unsigned long) filename < PATH_MAX + 1)
++	} else if (TASK_SIZE - (unsigned long) filename < PATH_MAX)
+ 		len = TASK_SIZE - (unsigned long) filename;
+ 
+ 	retval = strncpy_from_user((char *)page, filename, len);

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318079AbSIETV5>; Thu, 5 Sep 2002 15:21:57 -0400
+	id <S318184AbSIETml>; Thu, 5 Sep 2002 15:42:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318080AbSIETV4>; Thu, 5 Sep 2002 15:21:56 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:43161 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S318079AbSIETVz>;
-	Thu, 5 Sep 2002 15:21:55 -0400
-Date: Thu, 5 Sep 2002 12:11:35 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Important per-cpu fix.
-Message-ID: <20020905191135.GH888@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org
-References: <20020905144023.A14040@in.ibm.com> <20020905090959.GG888@holomorphy.com> <20020906003853.A16786@in.ibm.com>
-Mime-Version: 1.0
+	id <S318188AbSIETml>; Thu, 5 Sep 2002 15:42:41 -0400
+Received: from maild.telia.com ([194.22.190.101]:25296 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id <S318184AbSIETmk>;
+	Thu, 5 Sep 2002 15:42:40 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Jens Axboe <axboe@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+       Suparna Bhattacharya <suparna@in.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: One more bio for for floppy users in 2.5.33..
+References: <20020905183117.GA22592@suse.de>
+	<Pine.LNX.4.33.0209051136090.1307-100000@penguin.transmeta.com>
+	<20020905183809.GA23195@suse.de>
+From: Peter Osterlund <petero2@telia.com>
+Date: 05 Sep 2002 21:47:08 +0200
+In-Reply-To: <20020905183809.GA23195@suse.de>
+Message-ID: <m2ofbcz0ar.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020906003853.A16786@in.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 05, 2002 at 02:09:59AM -0700, William Lee Irwin III wrote:
->> Are you running on NUMA-Q? Do you also see the tty deadlock?
+Jens Axboe <axboe@suse.de> writes:
 
-On Fri, Sep 06, 2002 at 12:38:53AM +0530, Dipankar Sarma wrote:
-> No, a 4CPU PIII box. What tty deadlock ?
-> Thanks
+> And yes, this is 100% identical to the earlier bio code (I forget what
+> revisions, and that was prior to BK I think).
 
-The one reported in the "mysterious tty deadlock" thread.
-Basically, some kind of badness happens where it has to be sent
-a signal-generating character before generating output a good
-chunk of the time, where extra carriage returns sometimes help.
+It changed in 2.5.5-pre1:
 
+<axboe@burns.home.kernel.dk> (02/02/11 1.262.3.11)
+	Remove nr_sectors from bio_end_io end I/O callback. It was a relic
+	from when completion was potentially called more than once to indicate
+	partial end I/O. These days bio->bi_end_io is _only_ called when I/O
+	has completed on the entire bio.
 
-Cheers,
-Bill
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268164AbRGWJNx>; Mon, 23 Jul 2001 05:13:53 -0400
+	id <S268167AbRGWJZr>; Mon, 23 Jul 2001 05:25:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268163AbRGWJNn>; Mon, 23 Jul 2001 05:13:43 -0400
-Received: from ns.suse.de ([213.95.15.193]:60429 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S268161AbRGWJN2>;
-	Mon, 23 Jul 2001 05:13:28 -0400
-Mail-Copies-To: never
-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Problem: Large file I/O waits (almost) forever
-In-Reply-To: <Pine.LNX.4.30.0107231043520.24403-100000@biker.pdb.fsc.net>
-From: Andreas Jaeger <aj@suse.de>
-Date: Mon, 23 Jul 2001 11:13:33 +0200
-In-Reply-To: <Pine.LNX.4.30.0107231043520.24403-100000@biker.pdb.fsc.net>
- (Martin Wilck's message of "Mon, 23 Jul 2001 11:05:04 +0200 (CEST)")
-Message-ID: <hopuas9feq.fsf@gee.suse.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley)
+	id <S268162AbRGWJZh>; Mon, 23 Jul 2001 05:25:37 -0400
+Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:13062 "EHLO
+	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
+	id <S268166AbRGWJZY>; Mon, 23 Jul 2001 05:25:24 -0400
+Date: Mon, 23 Jul 2001 11:25:23 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.7 softirq incorrectness.
+In-Reply-To: <20010723013416.B23517@athlon.random>
+Message-ID: <Pine.LNX.4.33.0107231113150.27373-100000@chaos.tp1.ruhr-uni-bochum.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Martin Wilck <Martin.Wilck@fujitsu-siemens.com> writes:
+On Mon, 23 Jul 2001, Andrea Arcangeli wrote:
 
-> Hi,
+> here the one in netif_rx:
 > 
-> I just came across the following phenomenon and would like to inquire
-> whether it's a feature or a bug, and what to do about it:
-> 
-> I have run our "copy-compare" test during the weekend to test I/O
-> stability on a IA64 server running 2.4.5. The test works by generating
-> a collection of binary files with specified lengths, copying them between
-> different directories, and checking the result a) by checking the
-> predefined binary patterns and b) by comparing source and destination with cmp.
+> 			__cpu_raise_softirq(this_cpu, NET_RX_SOFTIRQ);
+> 			local_irq_restore(flags);
+> [...] 
 
-Under what filesystem and with what kind of hardware did you run this?
+> The first netif_rx is required to run from interrupt handler (otherwise
+> we should have executed cpu_raise_softirq and not __cpu_raise_softirq)
+> so we cannot miss the do_softirq in the return path from do_IRQ() and so
+> we cannot wait for the next incoming interrupt (if we have a overflow of
+> the do_softirq loop ksoftirqd will take care of it without waiting for
+> the next interrupt as it could instead happen in old 2.4 kernels).
 
-Andreas
--- 
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
+Hmmh, wait a second. I take it that means calling netif_rx not from 
+hard-irq context, but e.g. from bh is a bug? (Even if the only consequence 
+is delaying the processing by up to one timer tick?)
+
+If so, I believe this bug exists in a couple of a places. One example is -
+of course - the ISDN code, where netif_rx() is called from bh context. But
+I would think that e.g. ppp_generic is affected as well.
+
+Could you clarify this? Maybe adding something like the following to 
+netif_rx() is a good idea?
+
+	if (!in_irq)
+		printk(KERN_WARNING "netif_rx called not in_irq() from %p\n",
+		       __builtin_return_address(0));
+
+--Kai
+

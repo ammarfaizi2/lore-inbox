@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274194AbRIXWJi>; Mon, 24 Sep 2001 18:09:38 -0400
+	id <S274200AbRIXWJi>; Mon, 24 Sep 2001 18:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274193AbRIXWJa>; Mon, 24 Sep 2001 18:09:30 -0400
-Received: from [12.32.79.65] ([12.32.79.65]:12292 "HELO
-	localhost.blazeconnect.net") by vger.kernel.org with SMTP
-	id <S274199AbRIXWJR>; Mon, 24 Sep 2001 18:09:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jason Straight <jason@blazeconnect.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.10 power management lockup
-Date: Mon, 24 Sep 2001 18:04:32 -0400
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010924220433.29ED8763@localhost.blazeconnect.net>
+	id <S274199AbRIXWJd>; Mon, 24 Sep 2001 18:09:33 -0400
+Received: from pc-62-30-67-185-az.blueyonder.co.uk ([62.30.67.185]:26862 "EHLO
+	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S274194AbRIXWJV>; Mon, 24 Sep 2001 18:09:21 -0400
+Date: Mon, 24 Sep 2001 23:09:09 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Dan Kegel <dank@kegel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Gordon Oliver <gordo@pincoya.com>
+Subject: Re: [PATCH] /dev/epoll update ...
+Message-ID: <20010924230909.A10253@kushida.jlokier.co.uk>
+In-Reply-To: <20010924225616.D9688@kushida.jlokier.co.uk> <XFMail.20010924150804.davidel@xmailserver.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.20010924150804.davidel@xmailserver.org>; from davidel@xmailserver.org on Mon, Sep 24, 2001 at 03:08:04PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a Dell Inspiron 8000 laptop, I had problems with 2.4.9 and .8 with 
-AC patches where my system would turn itself off at seemingly random 
-intervals, and closing my display would freeze the machine. 
+Davide Libenzi wrote:
+> > Well, memory move consists of 2 words: (a) file descriptor; (b) poll
+> > state/edge flags.
+> 
+> 2-words * number-of-ready-fds == pretty-high-cache-drain
 
-Well, 2.4.9 clean was fine as was 2.4.8, but now 2.4.10 is doing it again, I 
-upgraded my BIOS to the newest avail just in case with no change. 2.4.10 
-doesn't seem to power off, but it will freeze on display close and will power 
-off if the display is left closed for a while. All power management in my 
-BIOS is off as it has been forever.j
+Perhaps there is a cache issue, but note it is the number of _new_ ready
+fds (since the last sample), not the number currently ready.
 
-I mentioned this on the list a while back with 2.4.8-ac-something
+> > That will be completely swamped by the system calls and so on needed to
+> > processes each of the file descriptors.  I.e. no scalability problem here.
+> 
+> The other issue is that by keeping infos in file* you'll have to scan each fd
+> to report the ready ones, that will make the method to fall back in O(n).
 
+No, that would be silly.  You would queue signals exactly as they are
+queued now (but collapsing multiple signals per fd into one).
 
+> Anyway there's a pretty good patch ( http://www.luban.org/GPL/gpl.html ),
+> that has been tested here :
+> 
+> http://www.xmailserver.org/linux-patches/nio-improve.html
+> 
+> that implement the signal-per-fd mechanism and it achieves a very good
+> scalability too.
 
+It has the bonus of requiring no userspace changes too.  Lovely!
 
+-- Jamie
 
--- 
-------------------------------------------
-Jeet Kune Do does not beat around the bush. It does not take winding detours. 
-It follows a straight line to the objective. Simplicity is the shortest 
-distance between two points.
-Bruce Lee - Tao of Jeet Kune Do
-------------------------------------------
-
-Jason Straight -- President
-BlazeConnect -- Cheboygan Michigan
-Phone: 231-597-0376 -- Fax: 231-597-0393

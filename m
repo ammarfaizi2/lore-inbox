@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261337AbTADTpZ>; Sat, 4 Jan 2003 14:45:25 -0500
+	id <S261346AbTADTzm>; Sat, 4 Jan 2003 14:55:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261338AbTADTpZ>; Sat, 4 Jan 2003 14:45:25 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62080
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261337AbTADTpY>; Sat, 4 Jan 2003 14:45:24 -0500
-Subject: Re: Kernel panic in 2.4.20-rc2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Thomas Speck <Thomas.Speck@wanadoo.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0301041544310.1106-100000@ThS-home.dyns.net>
-References: <Pine.LNX.4.21.0301041544310.1106-100000@ThS-home.dyns.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1041712663.2036.4.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 04 Jan 2003 20:37:43 +0000
+	id <S261356AbTADTzm>; Sat, 4 Jan 2003 14:55:42 -0500
+Received: from web13708.mail.yahoo.com ([216.136.175.141]:21397 "HELO
+	web13708.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261346AbTADTzm>; Sat, 4 Jan 2003 14:55:42 -0500
+Message-ID: <20030104200415.7387.qmail@web13708.mail.yahoo.com>
+Date: Sat, 4 Jan 2003 12:04:15 -0800 (PST)
+From: Mad Hatter <slokus@yahoo.com>
+Subject: 2.5.54 Makefile question: set -e
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-04 at 14:56, Thomas Speck wrote:
-> Hi,
-> from time to time (frequency a couple of weeks) I get the following: 
-> 
-> Jan  4 15:32:19 ThS-home kernel: CPU 0: Machine Check 
-> Exception: 0000000000000004
-> Jan  4 15:32:19 ThS-home kernel: Bank 1: f200000000000115
-> Jan  4 15:32:19 ThS-home kernel: Kernel panic: CPU context corrupt
-> 
-> Is that a hardware problem ? 
+Hi,
 
-99 times out of 100 yes. The processor raised an internal hardware trap
-Typically these come from processor or cache error. It can be something
-as mundane as a CPU fan problem.
+The toplevel Makefile in 2.5.54 has near line 313:
 
+----------------------------
+#	set -e makes the rule exit immediately on error
+#...
+attribute if uninitialized.
+
+define rule_vmlinux__
+	set -e
+...
+endef
+-------------------------
+
+However, the "set -e" does nothing since each line is
+processed by a different shell according to the make
+manual.
+
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

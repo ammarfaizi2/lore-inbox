@@ -1,50 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129244AbRBCX3V>; Sat, 3 Feb 2001 18:29:21 -0500
+	id <S129275AbRBCXiF>; Sat, 3 Feb 2001 18:38:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129275AbRBCX3L>; Sat, 3 Feb 2001 18:29:11 -0500
-Received: from idefix.linkvest.com ([194.209.53.99]:45066 "EHLO
-	idefix.linkvest.com") by vger.kernel.org with ESMTP
-	id <S129244AbRBCX3D>; Sat, 3 Feb 2001 18:29:03 -0500
-Message-ID: <B45465FD9C23D21193E90000F8D0F3DF6838FD@mailsrv.linkvest.ch>
-From: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'linux-raid@vger.rutgers.edu'" <linux-raid@vger.rutgers.edu>
-Subject: RAID autodetect and 2.4.1
-Date: Sun, 4 Feb 2001 00:28:30 +0100 
+	id <S130581AbRBCXhz>; Sat, 3 Feb 2001 18:37:55 -0500
+Received: from femail3.rdc1.on.home.com ([24.2.9.90]:37810 "EHLO
+	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S129275AbRBCXhv>; Sat, 3 Feb 2001 18:37:51 -0500
+Message-ID: <3A7C9638.63C513D0@Home.net>
+Date: Sat, 03 Feb 2001 18:37:28 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: PS hanging in 2.4.1 - More interesting things
+In-Reply-To: <3A7C8AC4.D3CAAF57@Home.net>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, I rebooted the system, then syslogd was using 100% cpu?
 
-Hi,
-I have a server with RAID1 partitions with linux 2.4.1 (stock,
-self-compiled) installed.
-It was easy to create the RAID partitions but when booting, no
-auto-detection is successful.
-The kernel says that autodetect is running, then done, but nothing is
-auto-detected.
-My devices are IDE devices (hda + hdc) and all drivers are bult-ins (no
-initrd nor modules).
-After the boot, making a raidstart works like a charm...
-Any advice?
-Help welcomed.
-
-Thanks
--jec
-
-PS: I'm not in the list, so CC me please.
-
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-Jean-Eric Cuendet
-Linkvest SA
-Av des Baumettes 19, 1020 Renens Switzerland
-Tel +41 21 632 9043  Fax +41 21 632 9090
-http://www.linkvest.com  E-mail: jean-eric.cuendet@linkvest.com
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+it seems like perhaps reiserfs is causing this problem??
 
 
 

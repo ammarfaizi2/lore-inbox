@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267541AbTASPQA>; Sun, 19 Jan 2003 10:16:00 -0500
+	id <S267619AbTASPg1>; Sun, 19 Jan 2003 10:36:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267619AbTASPQA>; Sun, 19 Jan 2003 10:16:00 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:17088 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S267541AbTASPP7>;
-	Sun, 19 Jan 2003 10:15:59 -0500
-Date: Sun, 19 Jan 2003 16:24:58 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: "Paul E. Erkkila" <pee@erkkila.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Status of ide-cdrom writing?
-Message-ID: <20030119152458.GA28354@ulima.unil.ch>
-References: <20030119130049.GA15941@ulima.unil.ch> <3E2ABD9C.9040903@erkkila.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3E2ABD9C.9040903@erkkila.org>
-User-Agent: Mutt/1.4i
+	id <S267631AbTASPg1>; Sun, 19 Jan 2003 10:36:27 -0500
+Received: from vador.skynet.be ([195.238.3.236]:4741 "EHLO vador.skynet.be")
+	by vger.kernel.org with ESMTP id <S267619AbTASPg0> convert rfc822-to-8bit;
+	Sun, 19 Jan 2003 10:36:26 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Hans Lambrechts <hans.lambrechts@skynet.be>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21pre3 smp_affinity, very strange
+Date: Sun, 19 Jan 2003 16:45:03 +0100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301191645.03034.hans.lambrechts@skynet.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 19, 2003 at 03:00:44PM +0000, Paul E. Erkkila wrote:
+I noticed this recently:
 
-> I can confirm it worked this morning with 2.5.58.
-> 
-> cdrecord --version
-> Cdrecord 2.0 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
-> 
-> uname -a
-> Linux nipplehead 2.5.58 #77 Thu Jan 16 02:57:13 GMT 2003 i686 AMD 
-> Athlon(TM) XP2000+ AuthenticAMD GNU/Linux
-> 
-> I do know vcdxrip hasn't worked since 2.5.42 or so.
-> 
-> This is a 1/2 gentoo, 1/2 my fault box.
+pc:~ # cat /proc/interrupts
+           CPU0       CPU1
+  0:      39836          0    IO-APIC-edge  timer
+  1:        574          0    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  8:          2          0    IO-APIC-edge  rtc
+  9:          0          0    IO-APIC-edge  acpi
+ 12:      20362          0    IO-APIC-edge  PS/2 Mouse
+ 14:          7          0    IO-APIC-edge  ide0
+ 16:       8906          0   IO-APIC-level  aic7xxx
+ 18:        789          0   IO-APIC-level  eth0
+NMI:          0          0
+LOC:      39741      39740
+ERR:          0
+MIS:          0
 
-Well, lots of people have CD-writer working, as you don't tell which
-unit you have, I don't know wheter it's a CD or a DVD writer one???
+pc:~ # cat /proc/irq/0/smp_affinity
+ffffffff
 
-And are you really not using ide-scsi?
+pc:~ # echo ffffffff > /proc/irq/0/smp_affinity
 
-Is there anybody which has success with DVD-writer under 2.5.59 without
-ide-scsi?
+pc:~ # cat /proc/interrupts
+           CPU0       CPU1
+  0:      50921        947    IO-APIC-edge  timer
+  1:        974          0    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  8:          2          0    IO-APIC-edge  rtc
+  9:          0          0    IO-APIC-edge  acpi
+ 12:      25530          0    IO-APIC-edge  PS/2 Mouse
+ 14:          7          0    IO-APIC-edge  ide0
+ 16:       8935          0   IO-APIC-level  aic7xxx
+ 18:        801          0   IO-APIC-level  eth0
+NMI:          0          0
+LOC:      51773      51772
+ERR:          0
+MIS:          0
 
-Thank you very much,
+Did the APIC or mpparse changes cause this?
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+Please cc me, I'm not on the list.

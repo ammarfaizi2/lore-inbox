@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265270AbUAPFOP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 00:14:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbUAPFOP
+	id S263834AbUAPFQO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 00:16:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUAPFQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 00:14:15 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:33229 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265270AbUAPFON (ORCPT
+	Fri, 16 Jan 2004 00:16:14 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:19599 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S263834AbUAPFQL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 00:14:13 -0500
-Date: Thu, 15 Jan 2004 21:14:02 -0800
-From: Paul Jackson <pj@sgi.com>
-To: joe.korty@ccur.com
-Cc: akpm@osdl.org, paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-Message-Id: <20040115211402.04c5c2c4.pj@sgi.com>
-In-Reply-To: <20040115181525.GA31086@tsunami.ccur.com>
-References: <20040107165607.GA11483@rudolph.ccur.com>
-	<20040107113207.3aab64f5.akpm@osdl.org>
-	<20040108051111.4ae36b58.pj@sgi.com>
-	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
-	<20040108225929.GA24089@tsunami.ccur.com>
-	<16381.61618.275775.487768@cargo.ozlabs.ibm.com>
-	<20040114150331.02220d4d.pj@sgi.com>
-	<20040115002703.GA20971@tsunami.ccur.com>
-	<20040114204009.3dc4c225.pj@sgi.com>
-	<20040115081533.63c61d7f.akpm@osdl.org>
-	<20040115181525.GA31086@tsunami.ccur.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 16 Jan 2004 00:16:11 -0500
+Date: Thu, 15 Jan 2004 21:14:26 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@oss.sgi.com
+Subject: Fwd: Re: [2.6] nfs_rename: target $file busy, d_count=2
+Message-ID: <20040116051426.GG1748@srv-lnx2600.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I give, Joe.  Given the several details that are better with your
-solution, I endorse your solution, with the couple of minor edits you
-have in the pipeline.
+On Thu, Jan 15, 2004 at 04:54:57PM -0800, Mike Fedyk wrote:
+> On Thu, Jan 15, 2004 at 04:03:46PM -0800, Mike Fedyk wrote:
+> > Both client and server are running the same 2.6.1-bk2 kernel with TCP-NFS.
+> > SMP, Highmem, & preempt.
+> 
+> I have four clients that are all having this problem also, three 2.6, and
+> one 2.4 client.
+> 
+> Using TCP-NFS they all have stale nfs handles even after a reboot (only
+> rebooted one to try with 2.4.23), but changed one to UDP-NFS, and it didn't
+> have the stale handles.
+> 
+> Will do more testing with UDP-NFS.
 
-It pains me to see the minor code growth (parsing went from 391 bytes
-of machine code to 625), with non-trivial code duplication of the
-simple_stroull() routine, and admitted increase in code complexity.
+No, TCP and UDP NFS both get stale file handles. :(
 
-But, yes, better bits than bytes, better not to alloca(), and
-better using existing bitops than misplaced arch dependencies.
+Can anyone reproduce?
 
-And better you than me ... tag - you're it <grin>.
 
-Bonus question:
-
-  Should any of the other inline routines in include/bitmap.h
-  be moved to your new file lib/bitmap.c?
-
-  Others have commented that too much stuff is marked inline,
-  and this might be such a case.
-
-  For example, I count about a dozen copies of bitmask_empty(),
-  mostly as cpus_empty(), in various generic and i386 files,
-  each one worth perhaps 80 bytes of kernel text space.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+----- End forwarded message -----

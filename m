@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284882AbRLPWYq>; Sun, 16 Dec 2001 17:24:46 -0500
+	id <S284879AbRLPWcG>; Sun, 16 Dec 2001 17:32:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284886AbRLPWYh>; Sun, 16 Dec 2001 17:24:37 -0500
-Received: from balder.inter.net.il ([192.114.186.15]:32321 "EHLO
-	balder.inter.net.il") by vger.kernel.org with ESMTP
-	id <S284882AbRLPWYc>; Sun, 16 Dec 2001 17:24:32 -0500
-Message-ID: <000201c18680$95368a80$41e008d5@user>
-From: "Amir Noam" <adnoam@zahav.net.il>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Amir Noam" <adnoam@zahav.net.il>
-In-Reply-To: <001301c1866d$97ec7d60$720d4084@user> <002101c1866d$ccbbc6e0$720d4084@user>
-Subject: possible bug in fs/proc/generic.c
-Date: Sun, 16 Dec 2001 22:11:51 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+	id <S284890AbRLPWb4>; Sun, 16 Dec 2001 17:31:56 -0500
+Received: from mail-smtp.uvsc.edu ([161.28.224.157]:34863 "HELO
+	mail-smtp.uvsc.edu") by vger.kernel.org with SMTP
+	id <S284879AbRLPWbo> convert rfc822-to-8bit; Sun, 16 Dec 2001 17:31:44 -0500
+Message-Id: <sc1c97f4.074@mail-smtp.uvsc.edu>
+X-Mailer: Novell GroupWise Internet Agent 5.5.4.1
+Date: Sun, 16 Dec 2001 12:47:37 -0700
+From: "Tyler BIRD" <birdty@uvsc.edu>
+To: <aneesh.kumar@digital.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Alpha  - how to fill the PC
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just noticed how horribly formatted this post came out, so I'm
-sending it again. Hopefully this time it will be readable. Sorry about
-that.
+One thing I thought of is the process on lets say node2 have exactly the same
+address space as on node 1 when it is migrated.  You could be trying to return from a syscall
+to an address space of a process that doesn't exist on the node or hasn't migrated yet.
 
-Please CC me on any reply, since I'm not subscribed to the list.
+Just a thought
 
-I've stumbled upon something that looks like a bug, but since I'm
-fairly new to kernel programming, it can easily be a misunderstanding
-on my part.
+>>> "Aneesh Kumar K.V" <aneesh.kumar@digital.com> 12/16/01 06:19AM >>>
+Hi, 
 
-The problem is that proc_register() (in fs/proc/generic.c) can fail
-(returning -EAGAIN) if there are no more free node numbers in the
-/proc fs. However, no one is actually checking the return value of
-proc_remove(). The result, as I see it, is that when trying to create
-a new /proc entry while the maximal number of entries already exist,
-the new entry is successfully allocated, but cannot be linked to the
-rest of the /proc entries (via the pointers 'parent', 'subdir',
-etc...), and therefore cannot be accessed through the file system.
+ 	I am trying to do  process migration between nodes  using alpha
+architecture. For explaining what is happening I will take the process
+getting migrated from node1 to node2. I am using struct pt_regs  for
+rebuilding the process on  node2.I am getting the same  value of struct
+pt_regs on node1 and on node2 ( I print is using dik_show_regs) Now I
+want to set the value of registers including the program counter with
+the value i got from node1. Right now I am doing
+ret_from_sys_call(&regs). But then i am getting a Oops . The Oops
+message contain all the register values same as that I got from node1
+except pc and ra 
 
-Furthermore, this new entry can never be de-allocated, since there is
-no match for its name in the /proc fs.
+	Any idea where I went wrong ? 
 
-So, is this an actual bug, or am I missing something completely
-obvious here?
-
-Thanks in advance,
-Amir Noam
+ -aneesh 
 
 
 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org 
+More majordomo info at  http://vger.kernel.org/majordomo-info.html 
+Please read the FAQ at  http://www.tux.org/lkml/
 

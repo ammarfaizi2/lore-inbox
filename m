@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQLKJQt>; Mon, 11 Dec 2000 04:16:49 -0500
+	id <S129345AbQLKJWT>; Mon, 11 Dec 2000 04:22:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQLKJQj>; Mon, 11 Dec 2000 04:16:39 -0500
-Received: from maidme.lnk.telstra.net ([139.130.75.195]:58117 "EHLO
-	mail.maidment.com.au") by vger.kernel.org with ESMTP
-	id <S129314AbQLKJQ0>; Mon, 11 Dec 2000 04:16:26 -0500
-Message-ID: <3A349435.7AB9272F@maidment.com.au>
-Date: Mon, 11 Dec 2000 19:45:41 +1100
-From: Bill Maidment <bill@maidment.com.au>
-Organization: Maidment Enterprises
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S129703AbQLKJWK>; Mon, 11 Dec 2000 04:22:10 -0500
+Received: from web1.clubnet.net ([206.126.128.3]:26119 "EHLO web1.clubnet.net")
+	by vger.kernel.org with ESMTP id <S129345AbQLKJVt>;
+	Mon, 11 Dec 2000 04:21:49 -0500
+Message-ID: <000c01c0634f$9d1d8e60$328d7ece@snowline.net>
+From: "Eddy" <edmc@snowline.net>
+To: "David Feuer" <David_Feuer@brown.edu>
+Cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <4.3.2.7.2.20001210235516.00b816f0@postoffice.brown.edu>
+Subject: Re: APM-Bios Hang at Boot-up 2.2.16 2.2.17 2.2.18pre26
+Date: Mon, 11 Dec 2000 00:51:54 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Trouble with 2.4.0-test12-pre8
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Right Thanks. I did not realize I was not in text mode.
 
-I've had some very peculiar problems with 2.4.0-test12-pre8
+I have somehow fixed the problem by doing something to the apm-bios
+settings. I disabled a bunch of stuff in the bios and the thing is working
+apparently ok now. Don't ask me what cause I really don't know. It's just
+working now.
 
-In particular I can't start linux in single user mode, it goes to level
-5 when trying to init 1.
+Thanks, anyway.
 
-There is also a problem building fs/smbfs/inode.c at line 166
+This message should not now be in html format... I hope.
 
-Is there a fix or have I got something really screwed up?
+----- Original Message -----
+From: "David Feuer" <David_Feuer@brown.edu>
+To: "Eddy" <edmc@snowline.net>
+Sent: Sunday, December 10, 2000 8:55 PM
+Subject: Re: APM-Bios Hang at Boot-up 2.2.16 2.2.17 2.2.18pre26
 
--- 
-Regards
 
-Bill Maidment
-Computer Systems Consultant
+> Note for next time: don't post HTML mail messages to linux-kernel.  This
+> annoys many people.
+>
+> --
+> This message has been brought to you by the letter alpha and the number
+pi.
+> Open Source: Think locally; act globally.
+> David Feuer
+> David_Feuer@brown.edu
+>
 
-_________________________________________
-
-      Maidment Enterprises Pty Ltd      
-      42 Woy Woy Bay Road
-      Woy Woy Bay  NSW  2256 
-_________________________________________
-                                         
-  Home Phone 02 4342 6716                
-  Work Phone 02 9927 3234                
-  Mobile     0418 682 993                
-  Home Email bill@maidment.com.au        
-  Work Email bill.maidment@elgas.com.au  
-  Web Page   www.maidment.com.au         
-_________________________________________
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

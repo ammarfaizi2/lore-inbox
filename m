@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130781AbRAOC4i>; Sun, 14 Jan 2001 21:56:38 -0500
+	id <S131341AbRAOC6I>; Sun, 14 Jan 2001 21:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131579AbRAOC42>; Sun, 14 Jan 2001 21:56:28 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:17904 "EHLO
-	lappi.waldorf-gmbh.de") by vger.kernel.org with ESMTP
-	id <S130781AbRAOC4V>; Sun, 14 Jan 2001 21:56:21 -0500
-Date: Mon, 15 Jan 2001 00:56:10 -0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: ebiederm@xmission.com (Eric W. Biederman), riel@nl.linux.org,
-        andrea@suse.de (Andrea Arcangeli), linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-Message-ID: <20010115005610.E1656@bacchus.dhis.org>
-In-Reply-To: <m17l40hhtd.fsf@frodo.biederman.org> <200101122111.f0CLBhL10716@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200101122111.f0CLBhL10716@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Jan 12, 2001 at 09:11:43PM +0000
-X-Accept-Language: de,en,fr
+	id <S131579AbRAOC56>; Sun, 14 Jan 2001 21:57:58 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:40948 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S131341AbRAOC5m>; Sun, 14 Jan 2001 21:57:42 -0500
+Date: Sun, 14 Jan 2001 18:56:30 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+cc: "V.P." <vpedro@individual.EUnet.pt>, linux-kernel@vger.kernel.org
+Subject: Re: APIC ERRor on CPU0: 00(02) ...
+In-Reply-To: <20010113122050.A1300@grobbebol.xs4all.nl>
+Message-ID: <Pine.LNX.4.21.0101141849280.32248-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 09:11:43PM +0000, Russell King wrote:
+On Sat, 13 Jan 2001, Roeland Th. Jansen wrote:
 
-> Eric W. Biederman writes:
-> > Hmm.  I would think that increasing the logical page size in the kernel
-> > would be the trivial way to handle virtual aliases.  (i.e.) with a large
-> > enough page size you can't actually have a virtual alias.
-> 
-> There are types of caches out there that no matter how large the page size,
-> you will always have alias issues.  These are ones where the cache lines
-> are indexed independent of virtual address (and therefore can have funny
-> cache line replacement algorithms).
-> 
-> And yes, you guessed which processor has it. ;)
+> you can say about the BP6 what you want but it appears that there are
+> (if your vision is right) many other low end SMP boards categorized
+> trash. there has been one mistake with it and that's the capacitor
+> behind a regulator that may have been mis-dimentioned due to the
+> partchange of that particular capacitor.
 
-I recently spoke with some CPU architecture researcher at some university
-about cache architectures; I suspect in the near future we'll see more
-funny cache indexing and replacment algorithems ...
+::nods:: Yes, I realize that there are other low-end SMP boards
+categorized trash, but when someone asks me what low-end SMP motherboard
+to get, the first thing I tell them is to /not/ get the BP6.
 
-  Ralf
+> my 2.2 kernel running on the BP6 proves that it may work very well,
+> unless you think that uptimes of > 40 days is bad.
 
---
-"Embrace, Enhance, Eliminate" - it worked for the pope, it'll work for Bill.
+If you think that a stream of APIC retries is 'working very well,' then
+I'm sorry to say, you've got another thing coming. :p Besides, a 40 day
+uptime is *not* all that spectacular; I've had uptimes in excess of 200
+days before, running on garbage hardware (worse than even the BP6).
+
+anyways, the fact remains that it was your motherboard that is causing
+these errors. The retries are still there in 2.2, they just aren't
+reported.
+
+ciau
+-Kelsey
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

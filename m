@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262610AbRFNJ0U>; Thu, 14 Jun 2001 05:26:20 -0400
+	id <S261679AbRFNJ0k>; Thu, 14 Jun 2001 05:26:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262432AbRFNJ0K>; Thu, 14 Jun 2001 05:26:10 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:50444 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S262242AbRFNJZ6>; Thu, 14 Jun 2001 05:25:58 -0400
-Message-ID: <3B2882C0.EDA802E3@idb.hist.no>
-Date: Thu, 14 Jun 2001 11:24:16 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: lar@cs.york.ac.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.6-pre2, pre3 VM Behavior
-In-Reply-To: <JKEGJJAJPOLNIFPAEDHLGEMBDCAA.laramie.leavitt@btinternet.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262027AbRFNJ0a>; Thu, 14 Jun 2001 05:26:30 -0400
+Received: from babel.spoiled.org ([212.84.234.227]:36781 "HELO
+	babel.spoiled.org") by vger.kernel.org with SMTP id <S262242AbRFNJ0T>;
+	Thu, 14 Jun 2001 05:26:19 -0400
+Date: 14 Jun 2001 09:26:17 -0000
+Message-ID: <20010614092617.12555.qmail@babel.spoiled.org>
+From: Juri Haberland <juri@koschikode.com>
+To: mozgy@hinet.hr (Mario Mikocevic)
+Cc: linux-kernel@vger.kernel.org;, haberland@altus.de
+Subject: Re: Need a helping hand (realproducer and radio device)
+X-Newsgroups: spoiled.linux.kernel
+In-Reply-To: <20010614093405.C6467@danielle.hinet.hr>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (OpenBSD/2.9 (i386))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laramie Leavitt wrote:
-
-> Would it be possible to maintain a dirty-rate count
-> for the dirty buffers?
+In article <20010614093405.C6467@danielle.hinet.hr> you wrote:
+> Hi,
 > 
-> For example, we it is possible to figure an approximate
-> disk subsystem speed from most of the given information.
+> I have an Hauppauge WinTV/Radio card and I want to be able to use it's radio
+> device as a source for live broadcast.
+> 
+> It's RH71 distro updated with mainstream 2.4.5 .
+> 
+> Radio device works fine on it's own meaning that I can tune the station and
+> listen to it.
+> 
+> RealProducer (8.5) also works fine meaning that it encodes video inputs and Line-In
+> input into realmedia stream just fine.
+> 
+> 
+> The problem is that in startup realproducer mutes (IMO) or shuts down or something, that radio
+> device on bt8x8 card and therefore no actual audio signal gets to Line-In resulting in no audio
+> in realmedia stream.
 
-Disk speed is difficult.  I may enable and disable swap on any number of
-very different disks and files.  And making it per-device won't help
-that
-much.  The device may have other partitions with varying access
-patterns.
-and sometimes differnet devices interfer with each other, such
-as two IDE drives on the same cable.  Or several scsi drives
-using up scsi (or pci!) bandwith for file access.
+I had a similar problem long time ago. The point is that the realproducer
+mutes the recording source in the mixer. Try to reenable it using aumix or
+a similar application.
 
-You may be able to get some useful approximations, but you
-will probably not be able to get good numbers in all cases.
+Juri
 
-Helge Hafting
+-- 
+Juri Haberland  <juri@koschikode.com> 
+

@@ -1,63 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136747AbREIRLd>; Wed, 9 May 2001 13:11:33 -0400
+	id <S136763AbREIRNX>; Wed, 9 May 2001 13:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136758AbREIRLX>; Wed, 9 May 2001 13:11:23 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:50699 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S136747AbREIRLK>;
-	Wed, 9 May 2001 13:11:10 -0400
-Date: Wed, 9 May 2001 19:09:55 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] __up_read and gcc-3.0
-Message-ID: <20010509190955.A1526@vana.vc.cvut.cz>
-Mime-Version: 1.0
+	id <S136761AbREIRNO>; Wed, 9 May 2001 13:13:14 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21259 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136758AbREIRNC>; Wed, 9 May 2001 13:13:02 -0400
+Subject: Re: 2.4.4-ac5 aic7xxx causes hang on my machine
+To: dledford@redhat.com (Doug Ledford)
+Date: Wed, 9 May 2001 18:16:55 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        bennyb@ntplx.net (Benedict Bridgwater),
+        linux-kernel@vger.kernel.org (Linux-Kernel)
+In-Reply-To: <3AF9799E.FA8C0D61@redhat.com> from "Doug Ledford" at May 09, 2001 01:08:46 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14xXa5-0002om-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
-  can you apply this patch to next 2.4.4-acX ? This fixes problem with
-gcc3.0 (20010426) unable to compile this under some conditions. As
-__up_write() uses same code ("i".... instead of tmp variable), I think
-that you should apply this. It can cause slower code, as gcc cannot
-move "movl -RWSEM_ACTIVE_READ_BIAS,%edx" away from "xadd" anymore,
-but as "lock xadd" is slow anyway, it should not matter.
+> The only way a motherboard BIOS would know if the PCI BIOS used polling
+> methods instead of interrupt methods is if it was a built in device.  For all
 
-  I looked at generated code in cases where it originally failed, and
-generated code looks OK to me.
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+Such as the motherboard IDE ?
 
+> for all bootable devices on the system, regardless of PnPOS settings.  Name
+> one concrete example of a motherboard BIOS that doesn't and I'll recant.
 
-diff -urdN linux/include/asm-i386/rwsem.h linux/include/asm-i386/rwsem.h
---- linux/include/asm-i386/rwsem.h	Fri Apr 27 22:48:24 2001
-+++ linux/include/asm-i386/rwsem.h	Wed May  9 16:31:57 2001
-@@ -148,9 +148,9 @@
-  */
- static inline void __up_read(struct rw_semaphore *sem)
- {
--	__s32 tmp = -RWSEM_ACTIVE_READ_BIAS;
- 	__asm__ __volatile__(
- 		"# beginning __up_read\n\t"
-+		"  movl      %2,%%edx\n\t"
- LOCK_PREFIX	"  xadd      %%edx,(%%eax)\n\t" /* subtracts 1, returns the old value */
- 		"  js        2f\n\t" /* jump if the lock is being waited upon */
- 		"1:\n\t"
-@@ -164,9 +164,9 @@
- 		"  jmp       1b\n"
- 		".previous\n"
- 		"# ending __up_read\n"
--		: "+m"(sem->count), "+d"(tmp)
--		: "a"(sem)
--		: "memory", "cc");
-+		: "+m"(sem->count)
-+		: "a"(sem), "i"(-RWSEM_ACTIVE_READ_BIAS)
-+		: "memory", "cc", "edx");
- }
- 
- /*
+I agree it is unlikely, but then so is a wrong $PIRQ table..

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264363AbTLGJQf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 04:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264378AbTLGJQd
+	id S264385AbTLGJhb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 04:37:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbTLGJhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 04:16:33 -0500
-Received: from mail.kroah.org ([65.200.24.183]:28597 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264363AbTLGJQc (ORCPT
+	Sun, 7 Dec 2003 04:37:31 -0500
+Received: from holomorphy.com ([199.26.172.102]:32984 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264385AbTLGJha (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 04:16:32 -0500
-Date: Sun, 7 Dec 2003 00:06:40 -0800
-From: Greg KH <greg@kroah.com>
-To: Pavel Alexeev <al_pavel@rambler.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: (Bug report) USB Mass Storage in 2.6.0-test11 (cannot mount flash drive)
-Message-ID: <20031207080640.GA29643@kroah.com>
-References: <3FD2694D.5090706@rambler.ru>
+	Sun, 7 Dec 2003 04:37:30 -0500
+Date: Sun, 7 Dec 2003 01:36:22 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Mark Symonds <mark@symonds.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 hard lock, 100% reproducible.
+Message-ID: <20031207093622.GW8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Keith Owens <kaos@ocs.com.au>, Mark Symonds <mark@symonds.net>,
+	linux-kernel@vger.kernel.org
+References: <20031207090723.GV8039@holomorphy.com> <29654.1070788614@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FD2694D.5090706@rambler.ru>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <29654.1070788614@ocs3.intra.ocs.com.au>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 07, 2003 at 12:42:05AM +0100, Pavel Alexeev wrote:
-> Hi!
-> Sorry, i am totally stumped as to whom to send the report :)
+On Sun, Dec 07, 2003 at 01:04:41AM -0800, Mark Symonds wrote:
+>> I'm not a kernel developer, but here goes: 
+>> puggy:/usr/src/linux/2.4.23# addr2line c02363dd -e vmlinux
+>> ??:0
 
-are you sure you don't see the device in /sys/block somewhere?
-And that you've selected scsi disk support?
+On Sun, Dec 07, 2003 at 08:16:54PM +1100, Keith Owens wrote:
+> addr2line requires compiling with -g.  You can also do
+>   ksymoops -m /path/to/your/System.map -A c02363dd
+> which does not require a recompile.
 
-If so, enable CONFIG_USB_STORAGE_DEBUG and send the output of what the
-kernel log says when you plug your device in to the linux-usb-devel
-mailing list.
+That certainly would have been faster; I'll suggest that first next
+time (though addr2line has the small advantage of handing back a line
+number).
 
-Good luck,
 
-greg k-h
+-- wli

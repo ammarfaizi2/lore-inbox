@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130022AbRAQRFU>; Wed, 17 Jan 2001 12:05:20 -0500
+	id <S131552AbRAQRHu>; Wed, 17 Jan 2001 12:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131552AbRAQRFK>; Wed, 17 Jan 2001 12:05:10 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:27665 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S130022AbRAQRFC>;
-	Wed, 17 Jan 2001 12:05:02 -0500
-Date: Wed, 17 Jan 2001 18:04:33 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 + iproute2
-Message-ID: <20010117180433.A4979@almesberger.net>
-In-Reply-To: <14945.26991.35849.95234@pizda.ninka.net> <Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl> <14945.28354.209720.579437@pizda.ninka.net> <20010114115215.A22550@gruyere.muc.suse.de>
+	id <S132129AbRAQRHa>; Wed, 17 Jan 2001 12:07:30 -0500
+Received: from niwot.scd.ucar.edu ([128.117.8.223]:471 "EHLO
+	niwot.scd.ucar.edu") by vger.kernel.org with ESMTP
+	id <S131552AbRAQRHV>; Wed, 17 Jan 2001 12:07:21 -0500
+Date: Wed, 17 Jan 2001 10:07:09 -0700
+From: Craig Ruff <cruff@ucar.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+Message-ID: <20010117100709.A3247@bells.scd.ucar.edu>
+In-Reply-To: <mike@UDel.Edu> <200101171616.LAA01194@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010114115215.A22550@gruyere.muc.suse.de>; from ak@suse.de on Sun, Jan 14, 2001 at 11:52:15AM +0100
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <200101171616.LAA01194@localhost.localdomain>; from J.E.J.Bottomley@HansenPartnership.com on Wed, Jan 17, 2001 at 11:16:58AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Configuring a complex subsystem like CBQ which has dozens of parameters
-> with only a single ed'esque error message (EINVAL) when something goes
-> wrong is just bad.
+On Wed, Jan 17, 2001 at 11:16:58AM -0500, James Bottomley wrote:
+> One of the ways this could be solved would be to impose bus ordering on the 
+> detection sequence.  
+> ...
 
-The underlying problem is of course that all those sanity checks should
-be done in user space, not in the kernel.
+On Solaris and Irix, there is an auxillary file in /etc that maps
+the hardware path to a controller to a controller instance number.
+This lets you name a device based on the controller instance number,
+and to possibly move to a different physical slot it if needed.
 
-(See also ftp://icaftp.epfl.ch/pub/people/almesber/slides/tmp-tc.ps.gz
-The bitching starts on slide 11, some ideas for fixing the problem on
-slide 16, but heed the warning on slide 15.)
+Some examples:
 
-Besides that, I agree that we have far too many EINVALs in the kernel.
-Maybe we should just record file name and line number of the EINVAL
-in *current and add an eh?(2) system call ;-)
+Irix /etc/ioconfig.conf:
 
-- Werner
+2 /hw/module/1/slot/io9/fibre_channel/pci/0/scsi_ctlr/0
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+This says that SCSI controller 2 is really a Fibre Channel controller in
+slot 9 (on an Origin 2000).
+
+Solaris /etc/path_to_inst:
+"/pci@4,4000/scsi@3" 0 "qla2200"
+
+This says that the QLA2200 Fibre Channel controller in slot 3 of PCI bus
+4,4000 is controller 0 (zero) for the qla2200 driver.
+
+"/pci@4,4000/scsi@3/sd@0,3" 737 "sd"
+
+This says that SCSI target 0 will be unit 737 for the sd driver.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbUCLIlj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 03:41:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbUCLIlj
+	id S262043AbUCLItl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 03:49:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbUCLItl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 03:41:39 -0500
-Received: from [193.108.190.253] ([193.108.190.253]:63189 "EHLO
-	pluto.linuxkonsulent.dk") by vger.kernel.org with ESMTP
-	id S262019AbUCLIli convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 03:41:38 -0500
-Subject: Re: UID/GID mapping system
-From: =?ISO-8859-1?Q?S=F8ren?= Hansen <sh@warma.dk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1079034097.5205.37.camel@nidelv.trondhjem.org>
-References: <1078775149.23059.25.camel@luke> <04031009285900.02381@tabby>
-	 <1078941525.1343.19.camel@homer>  <04031015412900.03270@tabby>
-	 <1078958747.1940.80.camel@nidelv.trondhjem.org>
-	 <1078993757.1576.41.camel@quaoar>
-	 <1079034097.5205.37.camel@nidelv.trondhjem.org>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1079080895.1571.11.camel@quaoar>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 12 Mar 2004 09:41:36 +0100
-Content-Transfer-Encoding: 8BIT
+	Fri, 12 Mar 2004 03:49:41 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:31752 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262043AbUCLItj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 03:49:39 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
+Date: Thu, 11 Mar 2004 18:25:22 +0100
+User-Agent: KMail/1.6.1
+Cc: Nick Piggin <piggin@cyberone.com.au>, linux-mm@kvack.org,
+       Mike Fedyk <mfedyk@matchmail.com>, plate@gmx.tm
+References: <404FACF4.3030601@cyberone.com.au>
+In-Reply-To: <404FACF4.3030601@cyberone.com.au>
+X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403111825.22674@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor, 2004-03-11 kl. 20:41 skrev Trond Myklebust:
-> > > If you really need uid/gid mapping for NFSv2/v3 too, why not just build
-> > > on the existing v4 upcall/downcall mechanisms?
-> > Because that would require changes to both ends of the wire. I want this
-> > to:
-> > 1. Work for ALL filesystems (NFS, smbfs, ext2(*) etc.)
-> > 2. Be transparent for the server.
-> No... I said to build on the upcall/downcall mechanism. I said nothing
-> about modifying the on-the-wire protocol.
+On Thursday 11 March 2004 01:04, Nick Piggin wrote:
 
-Oh, ok. I just haven't understood the NFSv4 up/down calls, then. There's
-a userspace daemon listening for requests to map ID's and such? Does it
-map usernames to uid'ss or uid's to uid's? Does it require the usernames
-to be the same on the client and the server?
+Hi Nick,
 
-> The only way in which we fail to meet the above requirements are that
-> the code to do it is in the NFS/RPC layers. Move it out of there, and it
-> could be reused by everybody.
-> No need for a third upcall/downcall mechanism that does the same thing.
+> Here is my updated patches rolled into one.
 
-That makes sense. I'll have to take a look at the nfs code before I do
-anything else, though.
+hmm, using this in 2.6.4-rc2-mm1 my machine starts to swap very very soon. 
+Machine has squid, bind, apache running, X 4.3.0, Windowmaker, so nothing 
+special.
 
--- 
-Salu2, Søren.
+Swap grows very easily starting to untar'gunzip a kernel tree. About + 
+150-200MB goes to swap. Everything is very smooth though, but I just wondered 
+because w/o your patches swap isn't used at all, even after some days of 
+uptime.
+
+ciao, Marc
 

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263556AbTJCARJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 20:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263559AbTJCARJ
+	id S263557AbTJCAZt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 20:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbTJCAZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 20:17:09 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:63688 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263556AbTJCARH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 20:17:07 -0400
-Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
-From: Albert Cahalan <albert@users.sf.net>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       Linus Torvalds <torvalds@osdl.org>, Mikael Pettersson <mikpe@csd.uu.se>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F7C60C9.1090108@redhat.com>
-References: <Pine.LNX.4.44.0310010803530.23860-100000@home.osdl.org>
-	 <3F7B9CF9.4040706@redhat.com> <1065067968.741.75.camel@cube>
-	 <3F7BB073.60509@redhat.com> <1065102539.741.94.camel@cube>
-	 <3F7C60C9.1090108@redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065139380.736.109.camel@cube>
+	Thu, 2 Oct 2003 20:25:49 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:52486
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S263557AbTJCAZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 20:25:47 -0400
+Date: Thu, 2 Oct 2003 17:26:08 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Dave O <cxreg@pobox.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       linux-hfsplus-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] new HFS(+) driver
+Message-ID: <20031003002608.GC13051@matchmail.com>
+Mail-Followup-To: Dave O <cxreg@pobox.com>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	linux-hfsplus-devel@lists.sourceforge.net,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0310021029110.17548-100000@serv> <Pine.LNX.4.58.0310021300220.31213@narbuckle.genericorp.net> <Pine.LNX.4.44.0310022028220.8124-100000@serv> <Pine.LNX.4.58.0310021359140.31213@narbuckle.genericorp.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 02 Oct 2003 20:03:01 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0310021359140.31213@narbuckle.genericorp.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-10-02 at 13:30, Ulrich Drepper wrote:
-> Albert Cahalan wrote:
+On Thu, Oct 02, 2003 at 02:00:25PM -0500, Dave O wrote:
+> This works, however du(1) seems to get the block size wrong:
 > 
-> > To the user, maybe. To the admin, no. The admin uses
-> > fuser and/or lsof to find out why he can't umount.
-> > If those programs were thread-aware (they are not),
-> > then they could take many minutes to run.
-> > 
-> > In other words, stuff runs faster if we can ban this.
-> > If not, please suggest a way to make fuser and lsof fast.
+> meatloop:/cdrom# ls -l
+> total 393244
+> -rwxr-xr-x    1 501      dialout  341952833 Sep 22 17:24 else.zip
+> -rwxr-xr-x    1 501      dialout  450701627 Sep 22 20:07 outlook.zip
+> -rwxr-xr-x    1 501      dialout  607534655 Sep 22 17:26 quick1.zip
+> -rwxr-xr-x    1 501      dialout  431279243 Sep 22 17:26 quick2.zip
+> -rwxr-xr-x    1 501      dialout  605501959 Sep 22 17:27 quick3.zip
+> -rwxr-xr-x    1 501      dialout  403836898 Sep 22 17:28 quick4.zip
+> -rwxr-xr-x    1 501      dialout  380636073 Sep 22 17:28 quick5.zip
 > 
-> Don't you see the flaw in your argumentation?
+> meatloop:/cdrom# du -sh
+> 385M    .
 
-No. I mean "ban" like we ban CLONE_THREAD w/o CLONE_DETACHED.
-Remember, the last stable release of the kernel (2.4.xx)
-didn't have the ability to do CLONE_THREAD at all. So it
-isn't as if real-world apps are depending on the ability
-to do CLONE_THREAD w/o sharing file descriptors.
+Are you sure?  I haven't done the math, but you are comparing base 1000 to
+base 1024 numbers.  Try comparing:
 
-Got a legitimate must-have real-world use for it?
-
-
+du -sh .
+ls -lh

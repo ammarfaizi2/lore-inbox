@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290860AbSBFWvN>; Wed, 6 Feb 2002 17:51:13 -0500
+	id <S290875AbSBFWuY>; Wed, 6 Feb 2002 17:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290853AbSBFWu1>; Wed, 6 Feb 2002 17:50:27 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36109 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290874AbSBFWsl>; Wed, 6 Feb 2002 17:48:41 -0500
-Message-ID: <3C61B2C3.1000005@zytor.com>
-Date: Wed, 06 Feb 2002 14:48:35 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Asynchronous CDROM Events in Userland
-In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu> <a3l4uc@cesium.transmeta.com> <20020206142259.A37@toy.ucw.cz>
+	id <S290878AbSBFWsl>; Wed, 6 Feb 2002 17:48:41 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:10510 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290853AbSBFWqf>;
+	Wed, 6 Feb 2002 17:46:35 -0500
+Date: Wed, 6 Feb 2002 20:38:18 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020206193818.GA158@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.31.0202051928330.2375-100000@cesium.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.31.0202051928330.2375-100000@cesium.transmeta.com>
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Hi!
 
-> 
-> It may not eat CPU but it will definitely eat memory... Because polling
-> means deamon that normally could be swapped out needs to stay in memory.
->
+> However, some of it pays off already. Basically, I'm aiming to be able to
+> accept patches directly from email, with the comments in the email
+> going
 
-
-At least a small part of it, yes.
-
-	-hpa
-
-
-
+Hey, this looks very good! At this level of verbosity, it might be
+nice to also list modified files, but this is really good.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVBQFNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVBQF1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbVBQFNm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 00:13:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVBQFNm
+	id S262217AbVBQF1B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 00:27:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVBQF1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 00:13:42 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:58039 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262215AbVBQFNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 00:13:40 -0500
-Subject: Re: Swsusp, resume and kernel versions
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200502162346.26143.dtor_core@ameritech.net>
-References: <200502162346.26143.dtor_core@ameritech.net>
+	Thu, 17 Feb 2005 00:27:01 -0500
+Received: from mail.tyan.com ([66.122.195.4]:45319 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S262217AbVBQF07 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 00:26:59 -0500
+Message-ID: <3174569B9743D511922F00A0C943142308085987@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: node_to_cpumask  x86_64 broken
+Date: Wed, 16 Feb 2005 21:40:09 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain
-Message-Id: <1108617332.4471.33.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 17 Feb 2005 16:15:32 +1100
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dmitry.
+I add some printk in k8_bus.c
 
-On Thu, 2005-02-17 at 15:46, Dmitry Torokhov wrote:
-> Pavel,
-> 
-> First of all I must say that swsusp has progressed alot and now works
-> very reliably, at least for my configuration, and I use it a lot. Great
-> job!
-> 
-> But I think there is one pretty severe issue present - even if swsusp
-> is not enabled kernel should check if there is an image in swap and
-> erase it. Today I has somewhat unpleasant experience - after suspending
-> I accidentially loaded a vendor kernel. I was in hurry and decided that
-> resume just failed for some reason so I did couple of things and left
-> the box running. In the evening I realized that I am running vendor kernel
-> and decided to reboot into my devel. version. What I did not expect is for
-> the kernel to find a valid suspend image and restore it. As you might
-> imagine messed up my disk somewhat.
-> 
-> Any chance this can be done?
+node id = 0, node_to_cpumask = f
+i= 0 ldtbus = 0
+i= 1 ldtbus = 40100
+i= 2 ldtbus = 0
+node id = 1, node_to_cpumask = 0
+i= 0 ldtbus = 0
+i= 1 ldtbus = 0
+i= 2 ldtbus = 70500
+node id = 2, node_to_cpumask = 0
+i= 0 ldtbus = 0
+i= 1 ldtbus = 0
+i= 2 ldtbus = 0
+node id = 3, node_to_cpumask = 0
+i= 0 ldtbus = 0
+i= 1 ldtbus = 0
+i= 2 ldtbus = 0
+k8-bus.c: bus 5 has empty cpu mask
+k8-bus.c: bus 6 has empty cpu mask
+k8-bus.c: bus 7 has empty cpu mask
 
-One of my suspend2 users had the same thing yesterday. Unfortunately
-there's no easy way for us to detect that another kernel has been
-booted. The simplest solution we've found is to add commands in your
-init scripts to mkswap the place where your image is stored when
-rebooting. This will stop both of the implementations seeing the image
-and resuming at a later time.
+it seems node_to_cpu_mask broken.
 
-Regards,
+I'm using 2.6.11-RC4.
 
-Nigel
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
-
+YH

@@ -1,24 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281448AbRKPP01>; Fri, 16 Nov 2001 10:26:27 -0500
+	id <S281189AbRKPPY5>; Fri, 16 Nov 2001 10:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281449AbRKPP0R>; Fri, 16 Nov 2001 10:26:17 -0500
-Received: from mauve.demon.co.uk ([158.152.209.66]:45450 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S281448AbRKPP0H>; Fri, 16 Nov 2001 10:26:07 -0500
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200111161525.PAA15561@mauve.demon.co.uk>
-Subject: Kmsgdump/...
-To: linux-kernel@vger.kernel.org
-Date: Fri, 16 Nov 2001 15:25:35 +0000 (GMT)
-In-Reply-To: <Pine.LNX.4.33.0111160718370.12990-100000@jbourne2.mtroyal.ab.ca> from "James Bourne" at Nov 16, 2001 07:25:44 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S281448AbRKPPYr>; Fri, 16 Nov 2001 10:24:47 -0500
+Received: from paloma14.e0k.nbg-hannover.de ([62.159.219.14]:61847 "HELO
+	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S281189AbRKPPYj>; Fri, 16 Nov 2001 10:24:39 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Subject: Re: Tuning Linux for high-speed disk subsystems
+Date: Fri, 16 Nov 2001 16:24:24 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0111161249440.17531-100000@mustard.heime.net>
+In-Reply-To: <Pine.LNX.4.30.0111161249440.17531-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011116152444Z281189-17408+15080@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been looking for kmsgdump, or similar for 2.4.xx, but am not 
-finding anything that will patch.
-Can anyone give me some URLs?
+Am Freitag, 16. November 2001 12:51 schrieb Roy Sigurd Karlsbakk:
+> > Our 100 Gig SCSI raid, consisting of 6 15,000 rpm drives on the
+> > motherboard's two SCSI 160 channels gives a full 110MB/sec read and write
+> > with RAID 0. With RAID chunks set to 1MB the write accesses go to
+> > 160MB/sec and read accesses go to 90MB/sec sustained. This system would
+> > make a good motion capture tool. Previous Intel attempts at onboard disk
+> > I/O would give 50MB/sec.
+>
+> How much do you think I can get out of 2x6 15k disks - each 6 disks are on
+> their own SCSI-3/160 bus.
+
+As I count your disks may be the double for the best case. I read here on 
+LKML a post that someone claims that W2k deliever 250 MB/s with such a 
+configuration. Linux 2.4 should do the same. Ask the SCSI gurus.
+
+Regards,
+	Dieter
+
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+@home: Dieter.Nuetzel@hamburg.de

@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262648AbTCIWb1>; Sun, 9 Mar 2003 17:31:27 -0500
+	id <S262651AbTCIWeC>; Sun, 9 Mar 2003 17:34:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262649AbTCIWb1>; Sun, 9 Mar 2003 17:31:27 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:57316 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S262648AbTCIWb0>; Sun, 9 Mar 2003 17:31:26 -0500
-Date: Sun, 9 Mar 2003 23:40:57 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] work around gcc-3.x inlining bugs
-Message-ID: <20030309224057.GC2401@nbkurt>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Andi Kleen <ak@suse.de>, Andrew Morton <akpm@digeo.com>,
-	linux-kernel@vger.kernel.org
-References: <20030306032208.03f1b5e2.akpm@digeo.com.suse.lists.linux.kernel> <p73fzq067an.fsf@amdsimf.suse.de> <20030306212845.GA2292@nbkurt>
+	id <S262653AbTCIWeC>; Sun, 9 Mar 2003 17:34:02 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:65178 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S262651AbTCIWeB>;
+	Sun, 9 Mar 2003 17:34:01 -0500
+Date: Mon, 10 Mar 2003 09:44:18 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: sys32_ioctl -> compat_ioctl -- generic
+Message-Id: <20030310094418.2eb73f8f.sfr@canb.auug.org.au>
+In-Reply-To: <20030306233721.GA8565@elf.ucw.cz>
+References: <20030303232122.GA24018@elf.ucw.cz>
+	<20030305103619.52ccdfe2.sfr@canb.auug.org.au>
+	<20030306233721.GA8565@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Izn7cH1Com+I3R9J"
-Content-Disposition: inline
-In-Reply-To: <20030306212845.GA2292@nbkurt>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.19-UL1 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Pavel,
 
---Izn7cH1Com+I3R9J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sorry I haven't responded earlier.  I am willing to help in
+any way I can, so let me know.
 
-Hi,
+On Fri, 7 Mar 2003 00:37:21 +0100 Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Hi!
+> 
+> > For consistancy, this should be called compat_sys_ioctl.
+> 
+> Done. (And moved whole stuff to fs/compat.c).
 
-On Thu, Mar 06, 2003 at 10:28:45PM +0100, Kurt Garloff wrote:
-> The fact that this parameter does not get initialized by using
-> -finline-limit is a bug. A fix for this has already gone into CVS HEAD
-> (3.4) and is pending for 3.3.
+Great.
 
-Patch has been applied to 3.3 as well now.
-Thanks to Geoff Keating and Dale Johannesen.
+> This is andi's code, but it seems unneeded, fixed.
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers                 SuSE Labs (Head)
-SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+I assume Andi will scream if there is something subtle there :-)
 
---Izn7cH1Com+I3R9J
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> > Also, if you are adding this much code, you should add a copyright notice
+> > to the top of the file ...
+> 
+> I actually need to copy copyrights from ia32_ioctl, where I took
+> this. Done.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+OK, I will have a deeper look soon.
 
-iD8DBQE+a8L4xmLh6hyYd04RArMsAKC2xUG9pbxCvTJDpZgAghiIFjNZNwCfWZBL
-AJd3bPsk+hq0n3Np/ngoFWk=
-=wYS4
------END PGP SIGNATURE-----
-
---Izn7cH1Com+I3R9J--
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbUK3GyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUK3G4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbUK3GyS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 01:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUK3GyS
+	id S261984AbUK3G4B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 01:56:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbUK3G4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 01:54:18 -0500
-Received: from 209-128-68-124.bayarea.net ([209.128.68.124]:32197 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261983AbUK3GyM
+	Tue, 30 Nov 2004 01:56:00 -0500
+Received: from smtp-vbr4.xs4all.nl ([194.109.24.24]:8211 "EHLO
+	smtp-vbr4.xs4all.nl") by vger.kernel.org with ESMTP id S261984AbUK3Gzs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 01:54:12 -0500
-Message-ID: <41AC1885.1040301@zytor.com>
-Date: Tue, 30 Nov 2004 06:51:49 +0000
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: jt@hpl.hp.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       David Howells <dhowells@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Mariusz Mazur <mmazur@kernel.pl>
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-References: <20041130014328.GA14337@bougret.hpl.hp.com> <Pine.LNX.4.58.0411292019500.22796@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411292019500.22796@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Nov 2004 01:55:48 -0500
+Date: Tue, 30 Nov 2004 07:55:55 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: Kronos <kronos@people.it>
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] why does radeonfb work fine in 2.6, but not in 2.4.29-pre1?
+Message-ID: <20041130065555.GA20972@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <20041128184606.GA2537@middle.of.nowhere> <20041129213510.GA9551@dreamland.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041129213510.GA9551@dreamland.darkstar.lan>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+From: Kronos <kronos@people.it>
+Date: Mon, Nov 29, 2004 at 10:35:10PM +0100
+> Il Sun, Nov 28, 2004 at 07:46:06PM +0100, Jurriaan ha scritto: 
+> > The same radeonfb-setup works fine in every 2.6 kernel I can remember
+> > (last tested with 2.6.10-rc2-mm3) but give the dreaded 'cannot map FB'
+> > in 2.4.29-pre1.
+> > 
+> > The card has 128 Mb of ram, and my system has 3 Mb of RAM.
+> > 
+> > Is there any reason the ioremap() call works on 2.6, but doesn't on 2.4?
 > 
-> On Mon, 29 Nov 2004, Jean Tourrilhes wrote:
+> Driver in 2.6 only ioremap()s the memory needed for the framebuffer,
+> while the one in 2.4 ioremap()s all the VRAM (and fails).
 > 
->>	So, which kernel ABI should be present on my system in
->>/usr/include/linux and /usr/include/asm ? Should I use the ABI from
->>2.6.X, 2.4.X or 2.2.X ?
+> > Is there any way to test 2.4 with my radeonfb and all of my memory?
 > 
+> I proposed the following patch some time ago (for 2.4.28-pre2 IIRC) as a
+> quick fix:
 > 
-> I have always felt (pretty strongly) that the /usr/include/xxx contents 
-> should not be kernel-dependent, but be linked to your glibc version. 
-> That's why the symlink from /usr/include/xxx to /usr/src/linux/include/
-> has been deprecated for the last, oh about ten years now..
-> 
-> Yes, there are some _very_ specific things which might care about system 
-> calls or ioctl's that have been added later, but let's face it, we don't 
-> actually do that very often. The kernel may change at a rapid pace, but 
-> user interfaces don't, and user interfaces that would bypass the C library 
-> change even less frequently.
-> 
+Thanks. I found that patch on google. Problem is: when I look through
+the radeonfb in 2.6, I don't see any assignments to rinfo->video_ram
+that indicate it maps less than the full amount.
 
-More to the point, though, is that they should be supersets of each 
-other, which means you should be able to upgrade them to the latest version.
-
-Most of the ABI changes, after all, are new structures needed for 
-various things.
-
-	-hpa
-
+> 
+> Problem is that fix->smem_len is used both by FBIOGET_FSCREENINFO to
+> report the amount of VRAM to userspace and by read/write/mmap on fb
+> for bounds checking. So with my patch FBIOGET_FSCREENINFO reports mapped
+> VRAM instead of physical VRAM.
+> 
+> smem_len should be splitted in (say) smem_mapped (for read/write/mmap)
+> and smem_total_vram (for FBIOGET_FSCREENINFO). I'll code something
+> tomorrow... -ENEEDSLEEP ;)
+> 
+Thanks,
+Jurriaan
+-- 
+All wiyht. Rho sritched mg kegtops awound?
+Debian (Unstable) GNU/Linux 2.6.10-rc2-mm3 2x6078 bogomips load load 0.24

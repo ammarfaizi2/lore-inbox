@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263717AbTIIIsO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 04:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTIIIsO
+	id S263475AbTIIIvI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 04:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTIIIvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 04:48:14 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:8844 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S263717AbTIIIsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 04:48:12 -0400
-X-Sender-Authentication: net64
-Date: Tue, 9 Sep 2003 10:48:10 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
-Message-Id: <20030909104810.31170117.skraw@ithnet.com>
-In-Reply-To: <20030909070506.GL150921@niksula.cs.hut.fi>
-References: <Pine.LNX.4.55L.0308291325480.29088@freak.distro.conectiva>
-	<20030829195737.GI150921@niksula.cs.hut.fi>
-	<20030909070506.GL150921@niksula.cs.hut.fi>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 04:51:08 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:57061 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263475AbTIIIvF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 04:51:05 -0400
+Date: Tue, 9 Sep 2003 10:51:00 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Dennis Freise <Cataclysm@final-frontier.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New ATI FireGL driver supports 2.6 kernel
+In-Reply-To: <20030909012534.GD17441@matchmail.com>
+Message-ID: <Pine.GSO.4.21.0309091050010.1157-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Sep 2003 10:05:07 +0300
-Ville Herva <vherva@niksula.hut.fi> wrote:
-
-> On Fri, Aug 29, 2003 at 10:57:37PM +0300, you [Ville Herva] wrote:
-> > [...]
-> > So I copied the rootfs and everything else from the scsi disk to the ide
-> > disk (just barely had enough space), and took all the scsi disk partitions
-> > away from fstab. After reboot, I have been unable to lock it up with fsx
-> > (scsi disk is not accessed at all), but it will take several weeks before
-> > I'm confident that the lock up is cured.
+On Mon, 8 Sep 2003, Mike Fedyk wrote:
+> On Tue, Sep 09, 2003 at 02:04:47AM +0100, Alan Cox wrote:
+> > On Maw, 2003-09-09 at 00:07, Dennis Freise wrote:
+> > > Since all compoments do work on W*nd*ws, I seriously wonder how much M$ pays
+> > > to ATI to prevent linux-driver development.
+> > 
+> > Official conspiracy theory:
+> > ATI do open source drivers
+> > ATI reported to be winning Xbox next gen contract
+> > ATI do binary drivers
+> > 
+> > although I don't belive it to be the case. NVidia and ATI are locked in
+> > a mad battle to win the video space. Relax buy slower intel stuff and
+> > wait for commoditisation of onboard video to eliminate them both 8)
 > 
-> And indeed it did lock even though the scsi disk is not used at all. It just
-> took weeks. 
-> 
-> At the time no heavy IO was going on afaict (but there might have been some
-> io.)
-> 
-> I'm completely out of ideas here. What the heck is the culprit...? Perhaps a
-> faulty motherboard?
+> So when will AMD get in the game? ;)
 
-Hm, after my experiences I would advise you to save time and headache and try
-to replace everything but the ide disk at once. This is an easy and fast action
-and gives you a chance to tilt any form of hardware error.
+I guess as soon as they can put enough transistors on one die to accomodate
+dual cores, 8 MB L2 cache, and a graphics core...
 
-Regards,
-Stephan
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

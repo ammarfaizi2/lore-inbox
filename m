@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267643AbTALXWw>; Sun, 12 Jan 2003 18:22:52 -0500
+	id <S267616AbTALXNZ>; Sun, 12 Jan 2003 18:13:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267645AbTALXWw>; Sun, 12 Jan 2003 18:22:52 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:60896 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267643AbTALXWv> convert rfc822-to-8bit; Sun, 12 Jan 2003 18:22:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: robw@optonline.net, Aaron Lehmann <aaronl@vitelus.com>
-Subject: Re: any chance of 2.6.0-test*?
-Date: Mon, 13 Jan 2003 00:31:24 +0100
-User-Agent: KMail/1.4.3
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <20030112225228.GP31238@vitelus.com> <1042413101.3162.184.camel@RobsPC.RobertWilkens.com>
-In-Reply-To: <1042413101.3162.184.camel@RobsPC.RobertWilkens.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301130031.24169.oliver@neukum.name>
+	id <S267638AbTALXLT>; Sun, 12 Jan 2003 18:11:19 -0500
+Received: from h80ad2762.async.vt.edu ([128.173.39.98]:13184 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267616AbTALXI4>; Sun, 12 Jan 2003 18:08:56 -0500
+Message-Id: <200301122316.h0CNGmkr003807@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
+Cc: jochen@jochen.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.55, PCI, PCMCIA, XIRCOM] 
+In-Reply-To: Your message of "Sun, 12 Jan 2003 14:58:39 PST."
+             <1755778.1042412319026.JavaMail.nobody@web55.us.oracle.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <1755778.1042412319026.JavaMail.nobody@web55.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1721357872P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Jan 2003 18:16:48 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 13. Januar 2003 00:11 schrieb Rob Wilkens:
-> On Sun, 2003-01-12 at 17:52, Aaron Lehmann wrote:
-> > On Sun, Jan 12, 2003 at 05:34:58PM -0500, Rob Wilkens wrote:
-> > > You're wrong.  You wouldn't have to jump over them any more than you
-> > > have to jump over the "goto" statement.
-> >
-> > The goto is a conditional jump. You propose replacing it with a
-> > conditional jump past the error handling code predicated on the
-> > opposite condition. Where's the improvement?
->
-> The goto is absolutely not a conditional jump.  The if that precedes it
-> is conditional.  The goto is not.  The if is already there.
+--==_Exmh_-1721357872P
+Content-Type: text/plain; charset=us-ascii
 
-Oh, well.
-Apologies first, my assembler is rusty.
+On Sun, 12 Jan 2003 14:58:39 PST, Alessandro Suardi said:
+> > On Fri, 10 Jan 2003 20:00:31 +0100, Jochen Hein said:
+> > > > - and I've seen a report it causes an OOPS
+> > > > on 2.5.53.  I've not tried it on post-52, but I had a -54 kernel OOPS
+> 
+> Guess the report was mine :) note for readers, this is bug 134
+>  in the 2.5 kernel bug database at http://bugme.osdl.org .
+> 
+> > > > right around that point in bootup (right after IDE and somewhere in PCI
+> > > > init).  Haven't chased that one at all...
+> > if it OOPSes without my patch, then it's somebody else's problem.  
+> 
+> No, it did oops only with the patch.
 
-if (a == NULL)
-	goto err_out;
+My *original* patch (the one that just moved 2 lines) plus the 2-liner
+by Zwane Mwaikambo to fix the DMA patch is working for me.  I know Zwane's
+patch is already in Bitkeeper, I don't think we've ever resolved the "right"
+solution for mine....
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
-bad compiler ->
-tst $D0 ; evaluate a == NULL
-bne L1 ; this is the if
-bra err_out ; this is the goto
-L1:
 
-good compiler ->
-tst $D0
-beq err_out ; obvious optimisation
+--==_Exmh_-1721357872P
+Content-Type: application/pgp-signature
 
-	Oliver
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE+IfdgcC3lWbTT17ARAtiwAJ9zr6PJkluFp5+ffEP/PZGqpnX4vwCg6hoW
+O3zhb/Av0h8+3Fm7ReeD82E=
+=MmJS
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1721357872P--

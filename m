@@ -1,106 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbUL3FDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbUL3FFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbUL3FDs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 00:03:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUL3FDs
+	id S261540AbUL3FFs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 00:05:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUL3FFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 00:03:48 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:34906 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261536AbUL3FDo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 00:03:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=bER8Zt65vzOM2NVGl0HgfNbtMJGuElM2XB8TOLRHRNOcr4so4VXJUekin4Yvz6VUIOZa8xYjDiDxvyWTp7fc8O/sTpfM8RqCnaTSgQeFlwLIHIiV80+4oJ5SeIssOCYQ1CEtrEz7UVWVHyrEgrp4kbONOczD19mzM5chFzaB2S8=
-Message-ID: <e7b30b240412292103319e92c0@mail.gmail.com>
-Date: Thu, 30 Dec 2004 13:03:43 +0800
-From: Mildred Frisco <mildred.frisco@gmail.com>
-Reply-To: Mildred Frisco <mildred.frisco@gmail.com>
+	Thu, 30 Dec 2004 00:05:48 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:59360 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S261544AbUL3FFd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 00:05:33 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-Subject: how to initialize resource on linux 2.4
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: Linux 2.6.10-ac1
+Date: Thu, 30 Dec 2004 00:05:31 -0500
+User-Agent: KMail/1.7
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <1104103881.16545.2.camel@localhost.localdomain>
+In-Reply-To: <1104103881.16545.2.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412300005.31211.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.52.185] at Wed, 29 Dec 2004 23:05:31 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sunday 26 December 2004 18:31, Alan Cox wrote:
+>Linux 2.6.10-ac1 is a merge of the stuff that has not yet been
+> accepted upstream along with a couple of small extra changes that
+> are needed because of changes in 2.6.10 base. In addition the
+> generic IRQ work in 2.6.10 means that the forward port of the
+> irqpoll code now covers a lot more platforms.
 
-I am porting for mx1 board and I am wondering how to initialize device
-resources or adding 'struct resource' in linux 2.4.20.  In 2.6 kernel,
-this is done in generic.c by
+Maybe I spoke too soon Alan, my logs are being flooded with 
+some sort of an error message that looks like it may be memory
+related.  There's a pair of half giggers in here, running at 333 fsb,
+but they are supposedly rated for a 400 mhz fsb. Thats presumably
+because I have turned on the MCE stuffs.
 
---------------------------------
-...
-...
-static struct platform_device imx_uart2_device = {
-       .name           = "imx-uart",
-       .id             = 1,
-       .num_resources  = ARRAY_SIZE(imx_uart2_resources),
-       .resource       = imx_uart2_resources,
-};
+Dec 29 23:43:09 coyote kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Dec 29 23:43:09 coyote kernel: Bank 2: d40040000000017a
+Dec 29 23:43:24 coyote kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Dec 29 23:43:24 coyote kernel: Bank 1: d400400000000152
+Dec 29 23:43:24 coyote kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Dec 29 23:43:24 coyote kernel: Bank 2: d40040000000017a
+Dec 29 23:43:39 coyote kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Dec 29 23:43:39 coyote kernel: Bank 1: 9400400000000152
+Dec 29 23:43:39 coyote kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Dec 29 23:43:39 coyote kernel: Bank 2: d40040000000017a
+Dec 29 23:43:54 coyote kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Dec 29 23:43:54 coyote kernel: Bank 1: d400400000000152
+Dec 29 23:43:54 coyote kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Dec 29 23:43:54 coyote kernel: Bank 2: d40040000000017a
+Dec 29 23:44:09 coyote kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Dec 29 23:44:09 coyote kernel: Bank 1: d400400000000152
+Dec 29 23:44:09 coyote kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Dec 29 23:44:09 coyote kernel: Bank 2: d40040000000017a
 
-static struct imxfb_mach_info imx_fb_info;
+And I've not seen that before.  Does it have a simple and correct answer?
 
-void __init set_imx_fb_info(struct imxfb_mach_info *hard_imx_fb_info)
-{
-       memcpy(&imx_fb_info,hard_imx_fb_info,sizeof(struct imxfb_mach_info));
-}
-EXPORT_SYMBOL(set_imx_fb_info);
+This memory was abused by memtest86 for about 18 hours before I rebooted
+and started changing things around because it was a new motherboard
+and video card, back in the spring.  No errors were reported then.
 
-static struct resource imxfb_resources[] = {
-       [0] = {
-               .start  = 0x00205000,
-               .end    = 0x002050FF,
-               .flags  = IORESOURCE_MEM,
-       },
-       [1] = {
-               .start  = LCDC_INT,
-               .end    = LCDC_INT,
-               .flags  = IORESOURCE_IRQ,
-       },
-};
+Should I worry or just shut that stuff back off?
 
-static u64 fb_dma_mask = ~(u64)0;
-
-static struct platform_device imxfb_device = {
-       .name           = "imx-fb",
-       .id             = 0,
-       .dev            = {
-               .platform_data  = &imx_fb_info,
-               .dma_mask       = &fb_dma_mask,
-               .coherent_dma_mask = 0xffffffff,
-       },
-       .num_resources  = ARRAY_SIZE(imxfb_resources),
-       .resource       = imxfb_resources,
-};
-
-static struct platform_device *devices[] __initdata = {
-       &imx_mmc_device,
-       &imxfb_device,
-       &imx_uart1_device,
-       &imx_uart2_device,
-};
-
-void __init
-imx_map_io(void)
-{
-       iotable_init(imx_io_desc, ARRAY_SIZE(imx_io_desc));
-}
-
-static int __init imx_init(void)
-{
-       return platform_add_devices(devices, ARRAY_SIZE(devices));
-}
-
-subsys_initcall(imx_init);
-
--------------------------------------------------
-
-'struct platform_device' doesn't seem to exist in 2.4.  On what part
-of the code should I  create a 'struct resource' for a particular
-device so that the driver can use it?
-
-Thanks,
-Mildred
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.31% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

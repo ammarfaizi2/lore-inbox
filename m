@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288184AbSAQFgM>; Thu, 17 Jan 2002 00:36:12 -0500
+	id <S288185AbSAQFso>; Thu, 17 Jan 2002 00:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288185AbSAQFgB>; Thu, 17 Jan 2002 00:36:01 -0500
-Received: from tomts14.bellnexxia.net ([209.226.175.35]:13470 "EHLO
-	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S288184AbSAQFft>; Thu, 17 Jan 2002 00:35:49 -0500
-Subject: Linux 2.5.3-pre1 compiler warnings
-From: Tim Coleman <tim@epenguin.org>
+	id <S288188AbSAQFsd>; Thu, 17 Jan 2002 00:48:33 -0500
+Received: from ftp.cbu.skyinet.net ([202.78.112.67]:17868 "HELO
+	ftp1.cbu.skyinet.net") by vger.kernel.org with SMTP
+	id <S288185AbSAQFsT>; Thu, 17 Jan 2002 00:48:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vernie@skyinet.net
+Reply-To: vernie@skyinet.net
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 17 Jan 2002 00:35:43 -0500
-Message-Id: <1011245746.3984.0.camel@tux.epenguin.org>
-Mime-Version: 1.0
+Subject: CM8338 hissing sound with linux kernel 2.4.6 to 2.4.17
+Date: Thu, 17 Jan 2002 13:48:14 +0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020116.170852.91311984.davem@redhat.com> <Pine.GSO.4.40.0201161827510.28457-100000@apogee.whack.org> <20020116.211251.35505694.davem@redhat.com>
+In-Reply-To: <20020116.211251.35505694.davem@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020117054825Z288185-13996+7371@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed the following warnings when compiling 2.5.3-pre1 
-this evening:
-
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    
--c -o read_write.o read_write.c
-In file included from read_write.c:13:
-/usr/src/linux/include/linux/dnotify.h:18: warning: `struct inode'
-declared inside parameter list
-/usr/src/linux/include/linux/dnotify.h:18: warning: its scope is only
-this definition or declaration, which is probably not what you want.
-/usr/src/linux/include/linux/dnotify.h:21: warning: `struct inode'
-declared inside parameter list
-/usr/src/linux/include/linux/dnotify.h: In function `inode_dir_notify':
-/usr/src/linux/include/linux/dnotify.h:23: dereferencing pointer to
-incomplete type
-/usr/src/linux/include/linux/dnotify.h:24: warning: passing arg 1 of
-`__inode_dir_notify' from incompatible pointer type
-read_write.c: In function `sys_read':
-read_write.c:167: warning: passing arg 1 of `inode_dir_notify' from
-incompatible pointer type
-read_write.c: In function `sys_write':
-read_write.c:194: warning: passing arg 1 of `inode_dir_notify' from
-incompatible pointer type
-read_write.c: In function `do_readv_writev':
-read_write.c:299: warning: passing arg 1 of `inode_dir_notify' from
-incompatible pointer type
-read_write.c: In function `sys_pread':
-read_write.c:371: warning: passing arg 1 of `inode_dir_notify' from
-incompatible pointer type
-read_write.c: In function `sys_pwrite':
-read_write.c:403: warning: passing arg 1 of `inode_dir_notify' from
-incompatible pointer type
-make[2]: *** [read_write.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/fs'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/fs'
-make: *** [_dir_fs] Error 2
 
 
+Good day!
 
-GCC version 2.95.4
+I have the same problems with C-Media 8338A soundchip and the problem still exists with 
+linux kerner 2.4.17 and even with 2.4.18-pre3.  Only wav files can be played with 
+no noise, mp3 and ogg files produce noisy hissing sound covering a somewhat 
+delayed music. I believe this is a kernel related problem.
+
+Anybody find a solution to the problem? I found out that not only me have the 
+same problem. I have tried testing several releases of the linux kernel hoping someone 
+got it fixed with each release but still have hissing noise.
+
+I've tried the generic 2.4.17 linux kernel, one with rml and another with mjc patches 
+and still have the same hissing noise every time I played mp3, ogg files using mpg123 or 
+xmms.  I can only play .wav files with no noise using xmms or the command line "play" program.
+
+The system is a PII 400MHz 440BX with an Audio Excel PCI soundcard (C-Media 8338A chip, using the 
+cmpci kernel module), with bt848 tv tuner (works fine with it's own audio out), 
+Mandrake 8.1 distribution (all required software by kernel to compile are installed).
+
 -- 
-Tim Coleman <tim@epenguin.org>                         [43.28 N 80.31 W]
-BMath, Honours Combinatorics and Optimization, University of Waterloo
- "They that can give up essential liberty to obtain a little temporary
-  safety deserve neither liberty nor safety." -- Benjamin Franklin
+Vernie
 
+
+> From: CuPoTKa (cupotka@cupotka.dyn.ee)
+>  Subject: Kernel 2.4.6 bug - problems with CM8338A soundchip. 
+>  Newsgroups: mlist.linux.kernel
+>  Date: 2001-07-16 00:40:32 PST 
+> 
+> 
+> Part of kernel.log:
+> kernel: cm: version $Revision: 5.64 $ time 01:44:06 Jul 16 2001
+> kernel: PCI: Found IRQ 10 for device 00:0f.0
+> kernel: cm: found CM8338A adapter at io 0xdc00 irq 10
+
+> Problem: Sound isn't smooth. It makes strange noise instead music.
+
+> I use:
+> Linux version 2.4.6 (gcc version 2.95.4 20010703 (Debian prerelease)).
+> Debian testing/unstable linux.
+> Single PII, 400Mhz CPU.
+> M748MR PCCHIPS motherboard.
+
+> Usefull information: I compiled 2 kernels with CMedia 8338 chip support.
+> One is kernel 2.4.5 and another 2.4.6. It works with 2.4.5 and dosn't with
+> 2.4.6.
+
+> Thanks.

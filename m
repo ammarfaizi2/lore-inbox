@@ -1,332 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263837AbTJ1EOc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 23:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbTJ1EOR
+	id S263852AbTJ1EiV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 23:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263855AbTJ1EiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 23:14:17 -0500
-Received: from auth22.inet.co.th ([203.150.14.104]:52998 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S263837AbTJ1ENz
+	Mon, 27 Oct 2003 23:38:21 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:64913 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263852AbTJ1EiT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 23:13:55 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Nick Piggin <piggin@cyberone.com.au>, cliff white <cliffw@osdl.org>
-Subject: Re: 2.6.0-test8/test9 io scheduler needs tuning?
-Date: Tue, 28 Oct 2003 12:13:31 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <200310261201.14719.mhf@linuxmail.org> <20031027145531.2eb01017.cliffw@osdl.org> <3F9DAF2C.8010308@cyberone.com.au>
-In-Reply-To: <3F9DAF2C.8010308@cyberone.com.au>
-X-OS: KDE 3 on GNU/Linux
+	Mon, 27 Oct 2003 23:38:19 -0500
+Message-ID: <3F9DF0D3.60707@cyberone.com.au>
+Date: Tue, 28 Oct 2003 15:30:11 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Michael Frank <mhf@linuxmail.org>
+CC: cliff white <cliffw@osdl.org>, linux-kernel@vger.kernel.org,
+       Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: 2.6.0-test8/test9 io scheduler needs tuning?
+References: <200310261201.14719.mhf@linuxmail.org> <20031027145531.2eb01017.cliffw@osdl.org> <3F9DAF2C.8010308@cyberone.com.au> <200310281213.31709.mhf@linuxmail.org>
+In-Reply-To: <200310281213.31709.mhf@linuxmail.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310281213.31709.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 October 2003 07:50, Nick Piggin wrote:
-> 
-> cliff white wrote:
-> 
-> >On Tue, 28 Oct 2003 05:52:45 +0800
-> >Michael Frank <mhf@linuxmail.org> wrote:
-> >
-> >
-> >>To my surprise 2.6 - which used to do better then 2.4 - does no longer 
-> >>handle these test that well.
-> >>
-> >>Generally, IDE IO throughput is _very_ uneven and IO _stops_ at times with the
-> >>system cpu load very high (and the disk LED off).
-> >>
-> >>IMHO the CPU scheduling is OK but the IO scheduling acts up here.
-> >>
-> >>The test system is a 2.4GHz P4 with 512M RAM and a 55MB/s udma IDE harddisk.
-> >>
-> >>The tests load the system to loadavg > 30. IO should be about 20MB/s on avg.
-> >>
-> >>Enclosed are vmstat -1 logs for 2.6-test9-Vanilla, followed by 2.6-test8-Vanilla 
-> >>(-mm1 behaves similar), 2.4.22-Vanilla and 2.4.21+swsusp all compiled wo preempt.
-> >>
-> >>IO on 2.6 stops now for seconds at a time. -test8 is worse than -test9
-> >>
-> >
-> >We see the same delta at OSDL. Try repeating your tests with 'elevator=deadline' 
-> >to confirm.
-> >For example, on the 8-cpu platform:
-> >STP id Kernel Name         MaxJPM      Change  Options
-> >281669 linux-2.6.0-test8   7014.42      0.0    
-> >281671 linux-2.6.0-test8   8294.94     +18.26%  elevator=deadline
-> >
-> >The -mm kernels don't show this big delta. We also do not see this delta on
-> >smaller machines
-> >
-> 
-> I'm working with Randy to fix this. Attached is what I have so far. See how
-> you go with it.
-> 
-> 
-
-This has been done without running a kernel compile, by $ ti-tests/ti stat ub17 ddw 4 5000
-
-Seems to be more even on average but still drops IO too low and then gets overloaded. 
-
-By "too low" I mean io bo less than 10000.
-
-By overloaded I mean io bo goes much above 40000. The disk can do maybe 60000. 
-
-When io bo is much above 40000, cpu scheduling is being impaired as indicated
-by vmstat stopping output for a second or so...
-
-Regards
-Michael
 
 
-19  0  2      0  16424  35736  66552    0    0     0 22524 1108  5664 12 88  0
-19  1  3      0  22760  36004  72688    0    0     0 24888 1056   495 10 90  0
-13  6  3      0  30568  36132  65752    0    0     8 37452 1310   957 21 79  0
-17  0  3      0  20904  36432  62392    0    0     0 24260 1120  5254 11 89  0
-18  3  5      0   4536  36040  79948    0    0     0 34364 1125  2832 16 84  0
-24  4  3      0  34296  35552  63120    0    0   128 24848 1183  3312 21 79  0
-15  6  3      0  51704  35580  46760    0    0    12  4176 1159  3910 33 67  0
-17  4  5      0  17724  35340  69152    0    0    36 28940 1287  2030 26 74  0
-21  4  3      0  17020  35404  69628    0    0     0 22952 1214  3587 24 76  0
-11  9  2      0  13756  35528  72976    0    0     8 25028 1163  4727 22 78  0
-19  2  5      0  23996  35260  83608    0    0     0  8016 1348   613 14 86  0
-20  2  3      0  29884  35432  81048    0    0    64 40828 1307   809  9 91  0
-20  5  3      0  31228  35616  72920    0    0   288 12340 1251  1215 29 71  0
-24  2  1      0  12412  35840  91068    0    0   220 34636 1151  2531 28 72  0
-18  8  3      0   5120  35816 112024    0    0   816  4472 1093  1172 24 76  0
-22  4  1      0  26944  36116  86020    0    0   220 13088 1238  4180  9 91  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-25  2  1      0  29376  36376  73588    0    0    48 31044 1193   580  9 91  0
-25  2  1      0  34944  36688  67940    0    0   168     0 1124  3117 10 90  0
-18  6  1      0  22840  36784  70340    0    0   124 13284 1084 72949 31 69  0
-21  3  2      0   4528  36900  77184    0    0   188 24404 1151  7793 24 76  0
-19  2  1      0  30000  36968  54476    0    0   180 21040 1207  1138 25 75  0
-24  1  1      0   9520  37084  70756    0    0   264   300 1070   586 23 77  0
-20  1  1      0  27568  37368  57128    0    0    28     0 1027   438 14 86  0
-21  1  2      0   8176  37392  68784    0    0     0 26764 1124 71428 21 79  0
-22  3  2      0   6192  37524  70680    0    0    40 18932 1094  3965 30 70  0
-18  3  1      0   4656  37588  78172    0    0     0 16160 1089   676 16 84  0
-21  1  0      0  20400  37280  92132    0    0     8  4748 1140   792 11 89  0
-21  2  0      0  11312  37560 107024    0    0     4     0 1020   439  9 91  0
-22  2  0      0  36672  37848  81452    0    0     0     0 1021   457  9 91  0
-21  2  0      0  16064  38156 102892    0    0     0     0 1020   430  9 91  0
-18  4  1      0  39616  38336  81084    0    0    16 31052 1084   463 20 80  0
-16  3  2      0   6528  38520  96212    0    0    12 36000 1100  2175 25 75  0
-20  3  1      0  21200  38616  88876    0    0     4 16384 1110  2012 28 72  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-15  5  2      0  31568  38756  78676    0    0    12 30340 1154  3259 26 74  0
-13  6  1      0   4560  38776  99032    0    0     0  1920 1146 172960 33 67  0
-20  4  3      0  11920  38844  93312    0    0     0 30220 1428 94676 23 77  0
-14  5  1      0  21520  38956  83376    0    0     0  5140 1188 84888 23 77  0
-14  6  3      0  14480  39020  98828    0    0     0 44408 1172 78004 31 69  0
-15  8  2      0  51472  39188  56580    0    0     0  8132 1176  2303 26 74  0
-15  4  3      0  25680  39284  76676    0    0     0 25996 1226 79590 27 73  0
-16  3  2      0  28704  39228  58988    0    0     0 22280 1135  6413 23 77  0
- 9 11  2      0   4768  39068  97644    0    0     0 41280 1141 54086 29 71  0
-21  1  1      0  22112  39028  80196    0    0    20   236 1161 38466 18 82  0
- 9  7  3      0   9888  39080  83768    0    0    12 30784 1178   722 25 75  0
-16  3  1      0  29196  39120  83860    0    0    12 31632 1130  1328 22 78  0
-13  7  2      0  20320  39324  86424    0    0     0 50508 1123  2721 17 83  0
-16  2  2      0  16864  39300  80372    0    0     0   544 1161  1129 24 76  0
-14  2  3      0  15328  39460  92580    0    0     0 39468 1112  1863 25 75  0
-16  2  2      0  29792  39644  84504    0    0     0 24400 1147 14905 19 81  0
-19  1  1      0  23648  39656  73584    0    0    24   248 1099 294663 32 68  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-16  5  1      0  19040  39668  78276    0    0     0  5280 1313 97372 34 66  0
-17  1  3      0   5024  39780  85960    0    0    12 31896 1207 132553 20 80  0
-15  3  3      0  60448  39500  47960    0    0    36  7028 1223 96263 27 73  0
-15  2  2      0  64992  39664  60344    0    0   128 27892 1111   580 13 87  0
-15  3  2      0  32928  39972  92040    0    0    56 12288 1088   421  9 91  0
-16  3  2      0  15520  40240 108900    0    0     0  8192 1037   417  9 91  0
-16  3  2      0  24608  40496  99724    0    0     0 12288 1064   409  8 92  0
-15  4  4      0   8608  40784 114284    0    0     0 63464 1052   462  9 91  0
-15  6  4      0  32800  40816  83792    0    0    12  1984 1089  1810 21 79  0
-15  8  1      0  21280  40904  82156    0    0     4 23720 1211  3472 31 69  0
-24  1  3      0  23648  41028 108648    0    0     4 37940 1102  1696 13 87  0
-19  2  2      0  34080  41028  93700    0    0    12  8508 1167  1878 28 72  0
-14  4  3      0  23200  40916 105792    0    0     0 34040 1207  3732 24 76  0
-17  6  2      0  74952  40932  54212    0    0    40   448 1192  1874 30 70  0
-22  2  3      0  20424  41148 102468    0    0     0 32464 1220  4147 13 87  0
-19  3  3      0  27464  41296  90572    0    0     0 21544 1097   633 16 84  0
-15  6  4      0  19968  41116 107444    0    0    12 25248 1209  3191 26 74  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-21  5  4      0  40768  41152  83128    0    0     0 30176 1109  1661 21 79  0
-15  8  3      0  42048  41292  77732    0    0     0 25916 1224  1490 19 81  0
-24  3  2      0  35712  41380  83744    0    0     0 14996 1187  2938 24 76  0
-29  6  4      0  23440  41472  94456    0    0     0 44032 1130   711 18 82  0
-26  8  2      0  12816  41672  88500    0    0     0 17888 1157  2706 21 79  0
-32  1  2      0  34000  41708  58700    0    0     0  5168 1338 190579 22 78  0
-13  4  6      0  44368  41772  70596    0    0    20 33148 1228 94089 27 73  0
-19  0  6      0  24208  41940  96484    0    0     4 30668 1205 79296 15 85  0
-23  7  3      0  40720  41984  70228    0    0     0 17752 1096 35684 29 71  0
-26  3  3      0   4112  42084 113204    0    0     0 50428 1104 36990 20 80  0
-19  6  2      0   6032  42092 127112    0    0     0  8104 1126 86790 24 76  0
-23  5  1      0  16720  42164 100772    0    0     0 50696 1199  4121 23 77  0
-19  6  4      0  11944  42204 105984    0    0     0 16608 1107 78384 24 76  0
-15  9  2      0  15400  42176  93236    0    0     0  8216 1145  4285 21 79  0
-20  4  2      0  27688  41388  92252    0    0     8 19224 1150  2285 26 74  0
-13 11  2      0  25000  41424  96764    0    0    12 49792 1138  2378 26 74  0
-13  4  3      0  36808  41572  85604    0    0     0  8156 1159  6269 19 81  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-14  4  3      0  46040  41696  71356    0    0     0 29004 1283  1317 16 84  0
-16  4  2      0  29784  41800  81516    0    0     0 20744 1212  4003 20 80  0
-14  7  2      0  16360  41912  94368    0    0    12 27096 1347  1280 20 80  0
-15  5  1      0  20456  41512  86216    0    0     0 19936 1285  2452 34 66  0
-14  6  2      0  22120  41692  92032    0    0     4 33492 1130  2019 28 72  0
-15  3  2      0   7208  41904  90848    0    0     0 27200 1160  3969 19 81  0
-22  4  2      0  15904  42008  75116    0    0     0    16 1167  2638 19 81  0
-16  2  3      0  23064  42080  91744    0    0   164 61468 3191  6787 19 81  0
-17  4  1      0  22360  41824  92348    0    0    16 18512 1121  9184 32 68  0
-21  3  2      0  23192  41804  85752    0    0    16 11908 1401   676 12 88  0
-18  6  2      0  37648  40528  81016    0    0    36 38528 1163 80175 16 84  0
-12  7  4      0  14656  40616  88612    0    0   164 20460 1143 29431 31 69  0
-19  4  2      0  24448  40688  86760    0    0    16 22964 1202 140777 34 66  0
-15  5  2      0  15872  40708 104980    0    0     0 26640 1129  4195 23 77  0
-19  0  1      0  10560  40780 115620    0    0     4  8080 1288 57755 29 71  0
-16  5  4      0  23616  40848  91952    0    0     0 38020 1204 44670 12 88  0
-13  8  1      0  20736  40932  93992    0    0    16 29872 1135 54569 26 74  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-19  5  2      0  35392  40972  83120    0    0     4 11364 1107 172946 24 76  0
-14  8  2      0  14976  41092  89096    0    0     8 45232 1148  1527 21 79  0
-13  7  2      0  31296  41128  64760    0    0     0   224 1099 123517 29 71  0
-18  0  0      0  38144  40176  87580    0    0     0 18512 1184 39251 25 75  0
-15  5  3      0  39872  40300  91356    0    0    12 19932 1252   523 13 87  0
-11  8  3      0  41408  40372  91876    0    0     0 41144 1267   927 25 75  0
-17  7  3      0   8448  40628 108448    0    0    20 58064 2531  4759 27 73  0
-17  4  2      0   6016  40740 116184    0    0     0 37424 1144 10750 28 72  0
-20  5  4      0  24768  39780 116784    0    0     0  9660 1157 111315 11 89  0
-17  4  2      0  48128  39880  91060    0    0     4 13232 1113 137719 19 81  
+Michael Frank wrote:
 
-26  2  0      0  19848  48908  83352    0    0     4   248 1059 72823 17 83  0
-26  2  0      0  20104  49176  82924    0    0     0     0 1008   399  9 91  0
-27  2  1      0  22088  49464  80672    0    0     0     0 1008   429  9 91  0
-28  2  1      0  19016  49776  83472    0    0     0     0 1007   412  9 91  0
-27  4  2      0   4872  50080  98964    0    0     4 25540 1044   735  8 92  0
-20 10  1      0  47088  50116  49712    0    0    20 21360 1141  3492 34 66  0
-17  8  2      0  45104  50220  71860    0    0     4 44284 1211  3694 30 70  0
-19  2  2      0  28232  50260  59928    0    0     0 19624 1135  2130 30 70  0
- 9 11  2      0  33544  50308  54580    0    0     0  8012 1123  4169 34 66  0
-15  7  2      0  23624  50248  94468    0    0    36 30592 1091   974 17 83  0
-18  5  4      0  13192  50388  98268    0    0    12 22600 1259  2185 25 75  0
-24  5  3      0  19192  50548  92424    0    0     0 28660 1276  1870 22 78  0
-20  6  1      0  31032  50688  71356    0    0    44  9340 1204   880 12 88  0
-17  3  3      0  29496  50880  66688    0    0   136 20432 1209   995 18 82  0
-19  3  2      0  12824  51040  91012    0    0     0 28116 1275  3671 22 78  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-13  4  2      0  35992  51156  61128    0    0     0 20900 1156  7625 27 73  0
-15  4  3      0  25856  51264  71368    0    0     0 33208 1173 79498 20 80  0
-21  4  2      0  21888  51308  84324    0    0     0  7412 1113 83040 32 68  0
-20  2  2      0  29688  51428  66888    0    0     0  9384 1439  7754 27 73  0
-18  4  2      0  39992  51640  47992    0    0     4 19496 1129  2264 22 78  0
-19  0  3      0  59448  51732  65064    0    0     0 42396 1262 100721 19 81  0
-16  7  3      0  37592  51780  62768    0    0    28  4300 1131 52379 31 69  0
-22  1  3      0  43080  51972  56672    0    0    24 26444 1124 34785 25 75  0
-20  3  1      0  21616  52160  68732    0    0    12  9448 1104  6441 22 78  0
-20  4  3      0  15728  52292  74672    0    0     0 25112 1123 116217 19 81  0
-18  6  2      0  16048  52292  74672    0    0     0     0 1145 282658 36 64  0
-21  4  1      0  11696  52320  75800    0    0     0 10300 1072 82012 25 75  0
-25  1  1      0   5360  52324  79404    0    0     0 12628 1071   504 15 85  0
-26  1  1      0  15024  52552  70720    0    0     0     0 1008   448 11 89  0
-26  1  1      0  21360  52832  64588    0    0     0     0 1007  8016 10 90  0
-28  1  1      0  20720  52832  64588    0    0     0     0 1012 317182 25 75  0
-25  1  0      0  19368  52992  69852    0    0     8   536 1022 152851 19 81  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-25  1  0      0   9640  53104  71684    0    0     0 21140 1041 70482 15 85  0
-24  1  1      0  12200  53352  68944    0    0     0     0 1008   394 11 89  0
-24  2  1      0  11176  53628  69668    0    0     0     0 1017   408 10 90  0
-24  2  1      0  13480  53932  68156    0    0     0     0 1007   419  9 91  0
-25  2  1      0  14760  54236  66588    0    0     0     0 1008   409  9 91  0
-27  0  1      0  12392  54328  82308    0    0     0 15840 1071 76839 18 82  0
-28  0  1      0   8296  54508  86196    0    0     0     0 1008   386 10 90  0
-31  0  1      0   5480  54752  89492    0    0    12     0 1012   981 20 80  0
-28  1  2      0   5112  55008  85752    0    0     0 18428 1021   442 10 90  0
-16  3  1      0  24544  55140  78332    0    0     0 25680 1081  3376 21 79  0
-17  4  2      0   7264  55220  95080    0    0     0 24552 1317  2637 10 90  0
-17  5  2      0  15680  55328  86304    0    0     0 21676 1085  9903 15 85  0
-19  2  2      0   4304  55416  83680    0    0     0 17856 1183   618 15 85  0
-21  1  2      0  15760  55552  72904    0    0    56 22336 1258 16832  8 92  0
-19  0  0      0  20832  55752  80040    0    0     8  1808 1078  1068 13 87  0
-17  1  2      0  16480  55852  92856    0    0     0 49504 1130  2205 26 74  0
-17  5  2      0  49696  55872  51592    0    0   132  2916 1107  1862 28 72  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-21  2  2      0  22176  56084  78348    0    0    48 13296 1276  3631 19 81  0
-19  3  2      0  25632  56332  78016    0    0     0 25784 1321  1092 13 87  0
-22  7  2      0  10672  56456  96848    0    0   172 31936 1091  2935 24 76  0
-26  2  3      0  19552  56620  84204    0    0     0 38656 1119  1711 15 85  0
-25  3  2      0   5080  56792  91392    0    0     4 19996 1120  1875 23 77  0
-19  7  1      0  52440  56736  70180    0    0    68 24276 1123  3578 27 73  0
-17  7  2      0  42456  56812  80208    0    0     0 21252 1108  4099 32 68  0
-15  5  2      0  30000  56912  91712    0    0     4 62240 1114  2093 28 72  0
-22  6  3      0  10512  56956  91248    0    0     4 10260 1132  7823 35 65  0
-10 12  1      0  40976  57072  63072    0    0     0   880 1072  3468 17 83  0
-13  9  3      0   4560  57192  97196    0    0    28 50812 1152  3494 21 79  0
-18  4  3      0  16336  57108  85944    0    0    16  2292 1064  3716 26 74  0
-14  6  1      0  38864  57232  54536    0    0    28 20964 1203  8334 16 84  0
-14  7  1      0  35280  57232  67020    0    0     0 12284 1177 78927 26 74  0
-20  5  1      0  27976  57304  74740    0    0     0 22540 1197 20679 18 82  0
-18  7  2      0   4200  57344  91024    0    0    12 26268 1134 77804 28 72  0
-15  9  3      0  11304  57472  96116    0    0     8 22124 1203  6235 19 81  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-19  3  4      0  17504  57584  88192    0    0    16 10816 1272  8953 24 76  0
-22  0  2      0  13856  57628  82256    0    0     0 12968 1289 67453 24 76  0
-19  3  3      0  18080  57792  91496    0    0     8 38848 1219  3310 14 86  0
-19  3  3      0  11104  58072  98664    0    0     0     0 1085 27253  9 91  0
-20  3  3      0  21152  58360  88356    0    0    12     0 1008  1499  9 91  0
-22  3  3      0  24800  58668  84536    0    0    12     0 1020  1240  9 91  0
-23  3  3      0  11312  58864  97852    0    0     0     0 1007 40361 15 85  0
-22  3  3      0  16880  59184  92736    0    0     8     0 1045  1320 10 90  0
-21  3  3      0  16432  59484  92652    0    0     8     8 1021  1397 11 89  0
-22  5  3      0  13104  59788  95116    0    0    16    32 1013  1174 12 88  0
-17  2  2      0  30720  59924  77332    0    0     0 27948 1072  5686 35 65  0
-18  7  2      0  23536  60012  72036    0    0     0 13652 1145  2749 38 62  0
-18 10  2      0  24560  59992  68520    0    0    12 15876 1202  3901 27 73  0
-17  8  3      0  12272  60188 101412    0    0    68 36856 1159  5031 30 70  0
-22  4  2      0  21680  60332  90520    0    0   536    60 1141  4503 29 71  0
-21  4  1      0  37296  60616  66560    0    0   540 18392 1129  2009 13 87  0
-19  4  4      0   8560  60832  95192    0    0   544 17040 1109  3007 19 81  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-13  7  2      0  27184  60944  80272    0    0   300 38872 1084  3685 32 68  0
-19  6  2      0   9944  60856 115212    0    0   344     0 1103 55713 37 63  0
-17  2  3      0  42008  60984  69364    0    0   320 13100 1115 26498 38 62  0
-10  6  2      0  29272  61068  87140    0    0     4 39540 1169 58939 34 66  0
-18  3  3      0  36528  61088  73704    0    0   168 71308 4503 534135 26 74  0
-19  2  1      0  19120  61100  95712    0    0     0 26052 1132 94936 35 65  0
-21  0  2      0   8432  61224  81972    0    0     0 19984 1161 80658 16 84  0
-21  2  2      0  22064  61300  88936    0    0     0 39816 1205 27946 29 71  0
-23  2  1      0  19696  61352  92256    0    0     4 26128 1162 104133 21 79  0
-18  7  3      0  42992  61436  68640    0    0    36 17900 1169 16911 20 80  0
-23  3  4      0  19632  61464  91880    0    0     0 19468 1200 78743 28 72  0
-21  5  3      0  38064  61548  73992    0    0     0 21212 1187  2879 26 74  0
-18  7  4      0  20336  61720  94672    0    0     0 31936 1131  2234 21 79  0
-23  1  2      0   5520  61896  95788    0    0     0 22628 1106  6286 24 76  0
-21  2  3      0  10320  61920  95476    0    0     0 13224 1275  2145 24 76  0
-24  3  2      0   5584  61928 112888    0    0     0 40552 1259   960 10 90  0
-26  0  1      0  24272  61972  90292    0    0    12   288 1084  1322 14 86  0
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-22  3  2      0   8400  62012 105412    0    0     8 21640 1217 162006 23 77  0
-25  3  2      0  22224  62020  94496    0    0     4 19092 1179  2317 28 72  0
-25  2  2      0  11920  62176 104368    0    0     0 20232 1371  1748 21 79  0
-27  2  2      0  15632  62288  98600    0    0    12 13976 1083  2869 14 86  0
-26  2  1      0  12624  62460 100176    0    0     0   120 1035  1367 19 81  0
-29  5  2      0  26120  62500  80564    0    0    12 30564 1129 86068 29 71  0
-17  4  2      0  36616  61976  83172    0    0    68 32420 1201 45433 22 78  0
-19  2  2      0  21512  62064  91708    0    0     0 35992 1219 39327 23 77  0
-19  0  1      0  19208  62116  92132    0    0     0  8208 1248 87596 25 75  0
+>On Tuesday 28 October 2003 07:50, Nick Piggin wrote:
+>
+>>cliff white wrote:
+>>
+>>
+>>>On Tue, 28 Oct 2003 05:52:45 +0800
+>>>Michael Frank <mhf@linuxmail.org> wrote:
+>>>
+>>>
+>>>
+>>>>To my surprise 2.6 - which used to do better then 2.4 - does no longer 
+>>>>handle these test that well.
+>>>>
+>>>>Generally, IDE IO throughput is _very_ uneven and IO _stops_ at times with the
+>>>>system cpu load very high (and the disk LED off).
+>>>>
+>>>>IMHO the CPU scheduling is OK but the IO scheduling acts up here.
+>>>>
+>>>>The test system is a 2.4GHz P4 with 512M RAM and a 55MB/s udma IDE harddisk.
+>>>>
+>>>>The tests load the system to loadavg > 30. IO should be about 20MB/s on avg.
+>>>>
+>>>>Enclosed are vmstat -1 logs for 2.6-test9-Vanilla, followed by 2.6-test8-Vanilla 
+>>>>(-mm1 behaves similar), 2.4.22-Vanilla and 2.4.21+swsusp all compiled wo preempt.
+>>>>
+>>>>IO on 2.6 stops now for seconds at a time. -test8 is worse than -test9
+>>>>
+>>>>
+>>>We see the same delta at OSDL. Try repeating your tests with 'elevator=deadline' 
+>>>to confirm.
+>>>For example, on the 8-cpu platform:
+>>>STP id Kernel Name         MaxJPM      Change  Options
+>>>281669 linux-2.6.0-test8   7014.42      0.0    
+>>>281671 linux-2.6.0-test8   8294.94     +18.26%  elevator=deadline
+>>>
+>>>The -mm kernels don't show this big delta. We also do not see this delta on
+>>>smaller machines
+>>>
+>>>
+>>I'm working with Randy to fix this. Attached is what I have so far. See how
+>>you go with it.
+>>
+>>
+>>
+>
+>This has been done without running a kernel compile, by $ ti-tests/ti stat ub17 ddw 4 5000
+>
+>Seems to be more even on average but still drops IO too low and then gets overloaded. 
+>
+>By "too low" I mean io bo less than 10000.
+>
+>By overloaded I mean io bo goes much above 40000. The disk can do maybe 60000. 
+>
+>When io bo is much above 40000, cpu scheduling is being impaired as indicated
+>by vmstat stopping output for a second or so...
+>
+
+The bi / bo fields in vmstat aren't exactly what the disk is doing, rather
+the requests the queue is taking. The interesting thing is how your final
+measurement compares with 2.4.
+
+I think 2.4 has quite a lot more free requests by default (512 vs 128 for
+2.6). This might also be causing Nigel's writeout problems perhaps. Try
+echo 512 > /sys/block/xxx/queue/nr_requests
+
 

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288515AbSADHIx>; Fri, 4 Jan 2002 02:08:53 -0500
+	id <S288518AbSADHJh>; Fri, 4 Jan 2002 02:09:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288518AbSADHIn>; Fri, 4 Jan 2002 02:08:43 -0500
-Received: from lsr-net2.nei.nih.gov ([128.231.132.10]:27809 "HELO
-	lsr.nei.nih.gov") by vger.kernel.org with SMTP id <S288515AbSADHI2>;
-	Fri, 4 Jan 2002 02:08:28 -0500
-Date: Fri, 4 Jan 2002 02:06:57 -0500 (EST)
-From: Art Hays <art@lsr.nei.nih.gov>
-X-X-Sender: <art@lsr-linux>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: kswapd etc hogging machine
-In-Reply-To: <E16M72b-0008B8-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0201040201190.3437-100000@lsr-linux>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288519AbSADHJX>; Fri, 4 Jan 2002 02:09:23 -0500
+Received: from ns.snowman.net ([63.80.4.34]:45577 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S288518AbSADHJO>;
+	Fri, 4 Jan 2002 02:09:14 -0500
+Date: Fri, 4 Jan 2002 02:09:02 -0500
+From: Paul Duncan <pabs@pablotron.org>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [OT] Re: ISA slot detection on PCI systems?
+Message-ID: <20020104020902.C8637@ns>
+In-Reply-To: <20020102211038.C21788@thyrsus.com> <Pine.LNX.4.33.0201030327501.5131-100000@Appserv.suse.de> <20020102220333.A26713@thyrsus.com> <3C33D152.79FC8251@didntduck.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C33D152.79FC8251@didntduck.org>; from bgerst@didntduck.org on Wed, Jan 02, 2002 at 10:34:42PM -0500
+X-Info: http://www.pablotron.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Brian Gerst (bgerst@didntduck.org) wrote:
+> 
+> Then the best thing to do is to put a disclaimer on your
+> autoconfiguration program: "WARNING: autoconfigure may not detect older
+> hardware that was not designed for reliable detection.  If autoconfigure
+> fails to detect all of your hardware, you may need to manually configure
+> your kernel."
 
-An update:  This particular behavior I observed no longer occurs with
-2.4.9-13smp, the latest update supplied by Redhat.  Thanks for all the
-very helpful info I received.
+That bears a striking resemblance to an auto-detection message I saw
+almost 7 years ago. ;)
 
-> Problem:  kswapd, kreclaimd, kupdated push load average high during simple
-> tar.  Response of system drops such that even keystroke echos are
-> noticeably delayed.
-> 
-> Specifics:
-> 
-> Machine- 4 processor 700Mhz Dell with 4G Ram and 6G swap space running
-> stock Redhat 7.2 distribution.  All disks are SCSI using ext2.
-> 
-> Command- from a remote machine this command is executed to the Linux 
-> machine "tar cBf - . | rsh linux "(tar xBpf -)".
-> 
-> Manifestion of problem- As this command continues on a freshly booted 
-> Linux machine the free memory reported by 'top' slowly goes to a low 
-> number.  When it bottoms out, the processes 'kswapd', 'kreclaimd', and 
-> 'kupdated' begin to run pushing the load average above 4 at times.  
-> Responsiveness of machine drops dramatically with even keystroke echos 
-> delayed for seconds.
-
+> 						Brian Gerst
 
 -- 
-Art Hays					avhays@nih.gov or art@lsr.nei.nih.gov
-Bldg 49 Rm 2A50					(301) 496-7143 (voice)
-Nat. Institutes of Health			(301) 402-0511 (fax)
-Bethesda, MD  20892
-
+Paul Duncan <pabs@pablotron.org>        pabs on #e (OPN IRC)
+http://www.pablotron.org/               OpenPGP Key ID: 0x82C29562
 

@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265130AbUD3JcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265126AbUD3JeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265130AbUD3JcM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 05:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265131AbUD3JcM
+	id S265126AbUD3JeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 05:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265131AbUD3JeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 05:32:12 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:45192 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265130AbUD3JcL (ORCPT
+	Fri, 30 Apr 2004 05:34:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60349 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265126AbUD3JeS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 05:32:11 -0400
-Date: Fri, 30 Apr 2004 11:31:49 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marc Boucher <marc@linuxant.com>
-cc: Sean Estabrooks <seanlkml@rogers.com>, koke@sindominio.net,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paul Wagland <paul@wagland.net>, Rusty Russell <rusty@rustcorp.com.au>,
-       Rik van Riel <riel@redhat.com>,
-       David Gibson <david@gibson.dropbear.id.au>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Timothy Miller <miller@techsource.com>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-In-Reply-To: <3A39091E-9A4C-11D8-B83D-000A95BCAC26@linuxant.com>
-Message-ID: <Pine.GSO.4.58.0404301130040.8585@waterleaf.sonytel.be>
-References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com>
- <4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net> <4091757B.3090209@techsource.com>
- <200404292347.17431.koke_lkml@amedias.org> <0CAE0144-9A2C-11D8-B83D-000A95BCAC26@linuxant.com>
- <20040429195553.4fba0da7.seanlkml@rogers.com> <3A39091E-9A4C-11D8-B83D-000A95BCAC26@linuxant.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 30 Apr 2004 05:34:18 -0400
+Subject: Re: Re[2]: ~500 megs cached yet 2.6.5 goes into swap hell
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Tim Connors <tconnors+linuxkernel1083305837@astro.swin.edu.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       brettspamacct@fastclick.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <18781898240.20040430121833@port.imtp.ilyichevsk.odessa.ua>
+References: <40904A84.2030307@yahoo.com.au>
+	 <200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
+	 <slrn-0.9.7.4-14292-10175-200404301617-tc@hexane.ssi.swin.edu.au>
+	 <4091F38C.3010400@yahoo.com.au>
+	 <Pine.LNX.4.53.0404301646510.11320@tellurium.ssi.swin.edu.au>
+	 <18781898240.20040430121833@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OCQz3ztSbzxjMuesy14h"
+Organization: Red Hat UK
+Message-Id: <1083317615.4633.7.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 30 Apr 2004 11:33:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Apr 2004, Marc Boucher wrote:
-> However we also believe that pragmatically bringing in support for key
-                               ^^^^^^^^^^^^^
-> hardware (which currently cannot otherwise be easily handled in the
-> traditional open-source approach) will benefit Linux, help it gain even
-> more usefulness/acceptance, and make larger numbers of exposed people
-> realize the natural advantages of open-source, then become
-> contributors. On the other hand, forcing open-source down throats with
-> impractical "tainting" schemes, scare tactics or other coercive methods
-  ^^^^^^^^^^^
-> may achieve the opposite effect or turn Linux into just an
-> ideological/political movement rather than the ubiquitous operating
-> system it deserves to be.
 
-While tainting is not merely a political scheme, but mainly a _practical_
-one...
+--=-OCQz3ztSbzxjMuesy14h
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Gr{oetje,eeting}s,
 
-						Geert
+> Multimedia content (jpegs etc) is typically cached in
+> filesystem, so Mozilla polluted pagecache with it when
+> it saved JPEGs to the cache *and* then it keeps 'em in RAM
+> too, which doubles RAM usage.=20
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+well if mozilla just mmap's the jpegs there is no double caching .....
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+--=-OCQz3ztSbzxjMuesy14h
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAkh1txULwo51rQBIRAoNbAJ9A13KM0TVigP9zE49v6Zvag9vDTwCdFpBk
+n6iDTLXGiR/8KG1c6wJB85w=
+=FqZ8
+-----END PGP SIGNATURE-----
+
+--=-OCQz3ztSbzxjMuesy14h--
+

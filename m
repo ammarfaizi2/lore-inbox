@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266203AbUBCXVS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 18:21:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUBCXVS
+	id S266186AbUBCXPq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 18:15:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266187AbUBCXPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 18:21:18 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:27829 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266203AbUBCXVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 18:21:14 -0500
-Message-ID: <40202D17.1000904@namesys.com>
-Date: Tue, 03 Feb 2004 15:21:59 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Vladimir Saveliev <vs@namesys.com>, linux-kernel@vger.kernel.org
-Subject: ReiserFS V4 (was Re: 2.6.2-rc3-mm1)
-References: <20040202235817.5c3feaf3.akpm@osdl.org>	<1075798370.1829.80.camel@tribesman.namesys.com> <20040203010456.3f3a2618.akpm@osdl.org>
-In-Reply-To: <20040203010456.3f3a2618.akpm@osdl.org>
-X-Enigmail-Version: 0.82.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Feb 2004 18:15:46 -0500
+Received: from mail.kroah.org ([65.200.24.183]:57528 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266186AbUBCXPn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 18:15:43 -0500
+Date: Tue, 3 Feb 2004 15:13:41 -0800
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] udev 016 release
+Message-ID: <20040203231341.GA22058@kroah.com>
+References: <20040203201359.GB19476@kroah.com> <1075843712.7473.60.camel@nosferatu.lan> <1075849413.11322.6.camel@nosferatu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1075849413.11322.6.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Wed, Feb 04, 2004 at 01:03:33AM +0200, Martin Schlemmer wrote:
+> On Tue, 2004-02-03 at 23:28, Martin Schlemmer wrote:
+> > On Tue, 2004-02-03 at 22:13, Greg KH wrote:
+> > 
+> > Except if I miss something major, udevsend and udevd still do not
+> > work:
+> > 
+> 
+> Skip that, it does work if SEQNUM is set :P
+> 
+> Anyhow, is it _really_ needed for SEQNUM to be set?  What about
+> the attached patch?
 
->
->Be aware that the barriers for a new filesystem are relatively high: each
->one adds a significant maintenance burden to the VFS and MM developers.  It
->will need cautious review.
->  
->
-Andrew, while it is your decision to make, it would be very silly to not 
-let us upgrade ReiserFS.   V4 is 2-5x the speed of V3, has more 
-functionality, better security, is more maintainable, etc.  Once V4 is 
-as stable and tested as V3, no one in their right mind will use V3 on a 
-new install.  While we will be happy to read improvements and critiques 
-of our implementations from a clever coder such as yourself, we aren't 
-exactly new to the Linux Kernel, and we are one of the very few in that 
-community who have a real QA process that we systematically apply.  That 
-is why we did not send it in many months ago: our testing is quite 
-extensive, and we don't think users should find bugs that we can find if 
-we make the effort.  Now we are running out of bugs that we can hit.  
-There are distros that would like to ship using Reiser4 in April.
+Yes it is necessary, as that is what the kernel spits out.  It's also
+the whole reason we need udevd :)
 
+If you don't want to give a SEQNUM, just call udev directly.
 
->But that doesn't mean we cannot get it out there, get you some more testing
->and exposure.  
->-
->
->  
->
-Thanks,
+> Then, order I have not really checked yet, but there are two things
+> that bother me:
+> 
+> 1) latency is even higher than before (btw Greg, is there going to be
+> more sysfs/whatever fixes to get udev even faster, or is this the
+> limit?)
 
-Hans
+Care to measure the latency somehow?  The first event is a bit slow, but
+everything after that is as fast as I ever remember it being.
 
+> 2) events gets missing.  If you for example use udevsend in the
+> initscript that populate /dev (/udev), the amount of nodes/links
+> created is off with about 10-50 (once about 250) entries.
+
+Hm, that's not good.  I'll go test that and see what's happening.
+
+thanks,
+
+greg k-h

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317035AbSHYH6R>; Sun, 25 Aug 2002 03:58:17 -0400
+	id <S317066AbSHYIBQ>; Sun, 25 Aug 2002 04:01:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317054AbSHYH6R>; Sun, 25 Aug 2002 03:58:17 -0400
-Received: from samar.sasken.com ([164.164.56.2]:48051 "EHLO samar.sasken.com")
-	by vger.kernel.org with ESMTP id <S317035AbSHYH6Q>;
-	Sun, 25 Aug 2002 03:58:16 -0400
-Date: Sun, 25 Aug 2002 13:34:33 +0530 (IST)
-From: Madhavi <madhavis@sasken.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: unresolved symbols
-Message-ID: <Pine.LNX.4.33.0208251327260.9582-100000@pcz-madhavis.sasken.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317068AbSHYIBQ>; Sun, 25 Aug 2002 04:01:16 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51467 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317066AbSHYIBP>; Sun, 25 Aug 2002 04:01:15 -0400
+Date: Sun, 25 Aug 2002 09:05:22 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Kernel Janitors ML 
+	<kernel-janitor-discuss@lists.sourceforge.net>
+Subject: Re: Broken inlines all over the source tree
+Message-ID: <20020825090522.A21314@flint.arm.linux.org.uk>
+References: <1030232838.1451.99.camel@ldb>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1030232838.1451.99.camel@ldb>; from ldb@ldb.ods.org on Sun, Aug 25, 2002 at 01:47:18AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 25, 2002 at 01:47:18AM +0200, Luca Barbieri wrote:
+> ./drivers/acorn/block/fd1772.c
 
-Hi
+False positive; set_head_settle_flag is declared with code before use.
+False positive; get_head_settle_flag is declared with code before use.
+Correct positive; copy_buffer needs fixing, thanks for finding that.
 
-I have written a loadable kernel module for linux-2.4.19-pre10 (PPC). When
-I try to do insmod, I am getting the following errors:
+> ./include/asm-arm/thread_info.h
 
-unresolved symbol __save_flags_ptr
-unresolved symbol xmon
-unresolved symbol __restore_flags
-unresolved symbol __cli
+False positive; current_thread_info is declared with code before use.
 
-When I compile the kernel without KMOD and MODEVERSIONS, I am not getting
-these errors. There are some other symbols I am exporting from kernel
-which seem to be getting resolved fine with and without MODVERSIONS and
-KMOD.
+> ./include/asm-arm/current.h
 
-I have included <asm/system.h> and <linux/module.h> in my files and I am
-compiling the module with -D__KERNEL__ flags.
+False positive; get_current is declared with code before use.
 
-Any idea why this is happening?
+> ./include/asm-arm/unistd.h
 
-regards
-Madhavi.
+False positive; _syscall3 is a macro containing code.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135950AbRAMDsg>; Fri, 12 Jan 2001 22:48:36 -0500
+	id <S136491AbRAMDxh>; Fri, 12 Jan 2001 22:53:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135954AbRAMDsQ>; Fri, 12 Jan 2001 22:48:16 -0500
-Received: from web1001.mail.yahoo.com ([128.11.23.91]:33286 "HELO
-	web1001.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S135950AbRAMDsL>; Fri, 12 Jan 2001 22:48:11 -0500
-Message-ID: <20010113034809.28919.qmail@web1001.mail.yahoo.com>
-Date: Fri, 12 Jan 2001 19:48:09 -0800 (PST)
-From: Ron Calderon <ronnnyc@yahoo.com>
-Subject: sparc10 with 512M of RAM hangs on boot
+	id <S136490AbRAMDx0>; Fri, 12 Jan 2001 22:53:26 -0500
+Received: from web5205.mail.yahoo.com ([216.115.106.86]:56072 "HELO
+	web5205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S135954AbRAMDxP>; Fri, 12 Jan 2001 22:53:15 -0500
+Message-ID: <20010113035314.316.qmail@web5205.mail.yahoo.com>
+Date: Fri, 12 Jan 2001 19:53:14 -0800 (PST)
+From: Rob Landley <telomerase@yahoo.com>
+Subject: BUG in 2.4.0: dd if=/dev/random of=out.txt bs=10000 count=100
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-every kernel after 2.4.0-test5 hangs my sparc10
-at the same spot. Has anyone looked into this?
-here is screen output:
+If I do the dd line in the title under 2.4.0 I get an
+out.txt file of 591 bytes.
 
-SPARCstation 10  (1 X 390Z50), No Keyboard
-ROM Rev. 2.12, 512 MB memory installed, Serial
-#6299671.
-Ethernet address 
+If I do the same thing from /dev/zero, I get the
+expected 1,000,000 byte file.
 
-Boot device: /iommu/sbus/espdma/esp/sd@3,0:c   File
-and args:         
-SILO boot: 
-Uncompressing image...
-PROMLIB: obio_ranges 5
-bootmem_init: Scan sp_banks, 
-init_bootmem(spfn[121],bpfn[121],mlpfn[c000])
-free_bootmem: base[0] size[c000000]
-reserve_bootmem: base[0] size[121000]
-reserve_bootmem: base[121000] size[1800]
+I've shoehorned 2.4.0 into a fresh red hat 7.0 install
+which could quite easily be a bad thing, yes ripped
+out their strange gcc and symlinked kgcc->gcc to do
+the compile.  But other than this it seems to be
+working.  (So far...)
 
-the last kernel I tried was cvs'ed from vger last
-night. I beleive it was 2.4.1-pre2.
+dd says it completes happily even when copying from
+random.  0+100 records in, 0+100 records out.  It
+takes about thirty seconds to finish on the dual
+gigahertz processor intel box I'm using to test it,
+which implies it's actually performing the truly
+impressive waste of CPU cycles I'm requesting from it.
+ I'm just not getting the data in my file.
 
-ron
+Am I doing something wrong?
+
+My dd is from fileutils-4.0x-3.  (Straight Red Hat
+7.0, I think...)  Didn't see anything about that in
+Documentation/Changes...
+
+I'll be happy to try one of the prepatches if anybody
+thinks they've addressed this problem already.
+
+Anybody?  Need more debugging info?  Want me to wave a
+dead chicken at something specific?  Stick printk's
+into the kernel?...
+
+Rob
 
 __________________________________________________
 Do You Yahoo!?

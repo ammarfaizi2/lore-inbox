@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264597AbSIQUbi>; Tue, 17 Sep 2002 16:31:38 -0400
+	id <S264602AbSIQUeF>; Tue, 17 Sep 2002 16:34:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264602AbSIQUbi>; Tue, 17 Sep 2002 16:31:38 -0400
-Received: from packet.digeo.com ([12.110.80.53]:25811 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264597AbSIQUbg>;
-	Tue, 17 Sep 2002 16:31:36 -0400
-Message-ID: <3D87924D.364C4884@digeo.com>
-Date: Tue, 17 Sep 2002 13:36:29 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S264603AbSIQUeF>; Tue, 17 Sep 2002 16:34:05 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:4622 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S264602AbSIQUeD>;
+	Tue, 17 Sep 2002 16:34:03 -0400
+Date: Tue, 17 Sep 2002 13:35:53 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Duc Vianney <dvianney@us.ibm.com>
+cc: <linux-kernel@vger.kernel.org>, <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Hyperthreading performance on 2.4.19 and 2.5.32
+In-Reply-To: <3D878A90.F5E4B8B0@us.ibm.com>
+Message-ID: <Pine.LNX.4.33L2.0209171334180.14033-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Anton Altaparmakov <aia21@cantab.net>, ptb@it.uc3m.es,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: route inode->block_device in 2.5?
-References: <5.1.0.14.2.20020917132943.00b239e0@pop.cus.cam.ac.uk> <Pine.GSO.4.21.0209170845020.1645-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Sep 2002 20:36:29.0457 (UTC) FILETIME=[E6BE8010:01C25E89]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> ...
-> There might be such thing as underlying block device of a <foofs> inode.
+On Tue, 17 Sep 2002, Duc Vianney wrote:
 
-What he said.  Generally when the generic layers want to know
-what the backing block_device is they defer this all the way down
-to the point where they have called the filesystem's ->get_block
-callback, and they pluck the block_dev pointer out of bh_result->b_bdev.
+| The following are data comparing the effects of hyperthreading (HT)on
+| stock kernel 2.4.19 and 2.5.32.
+| Hardware under test. The hardware is a Xeon 1-CPU MP, 1.6 gigahertz,
+| and 2.5 GB RAM.
+| Kernel under test. When testing under 2.4.19, the kernel was built
+| as an SMP kernel, and was run on the hardware with HT enabled through
+| the boot option 'noht'.
 
-That's the only point at which it can be sanely resolved.
+HT enabled with 'noht' ??
+'noht' means "no HT", "no hyperthreading", disabled.
 
-It may be different for different blocks of the file (striping;
-swap_get_block() did this for the short period when it nearly
-existed).
+| When testing under 2.5.32, the kernel was
+| built as an SMP kernel, and was run on the hardware with HT enabled
+| through selecting ACPI in configuration.
+
+-- 
+~Randy
+

@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270941AbTGPQtR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 12:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270950AbTGPQtR
+	id S270951AbTGPQwa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 12:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270952AbTGPQwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 12:49:17 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10684 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270941AbTGPQtN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 12:49:13 -0400
-Date: Wed, 16 Jul 2003 19:03:52 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Dave Jones <davej@codemonkey.org.uk>, vojtech@suse.cz,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030716170352.GJ833@suse.de>
-References: <20030716165701.GA21896@suse.de>
+	Wed, 16 Jul 2003 12:52:30 -0400
+Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:54023
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S270951AbTGPQw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 12:52:29 -0400
+Date: Wed, 16 Jul 2003 10:07:20 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Jeff Garzik <jgarzik@pobox.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030716170720.GC2681@matchmail.com>
+Mail-Followup-To: Peter Chubb <peter@chubb.wattle.id.au>,
+	Andries Brouwer <aebr@win.tue.nl>, Jeff Garzik <jgarzik@pobox.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030711155613.GC2210@gtf.org> <20030711203850.GB20970@win.tue.nl> <20030715000331.GB904@matchmail.com> <20030715170804.GA1089@win.tue.nl> <16148.53643.475710.301248@wombat.chubb.wattle.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030716165701.GA21896@suse.de>
+In-Reply-To: <16148.53643.475710.301248@wombat.chubb.wattle.id.au>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16 2003, Dave Jones wrote:
-> I've decided to oggify my CD collection, and every now and
-> again, the mouse pointer goes bezerk is if I had been
-> shaking it around and randomly clicking on things.
-> In the logs are lots of..
+On Wed, Jul 16, 2003 at 02:16:11PM +1000, Peter Chubb wrote:
+> >>>>> "Andries" == Andries Brouwer <aebr@win.tue.nl> writes:
 > 
-> psmouse.c: Lost synchronization, throwing 3 bytes away.
+> Andries> On Mon, Jul 14, 2003 at 05:03:31PM -0700, Mike Fedyk wrote:
+> >> So, will the DOS partition make it up to 2TB?  If so, then we won't
+> >> have a problem until we have larger than 2TB drives
 > 
-> It only happens whilst cdparanoia is reading from the CD.
-> The IDE CD drive is using DMA, and interrupts are unmasked.
-> according to the logs, its happened 32 times since I last
-> booted..  /proc/interrupts shows that the i8042 is using
-> a different interrupt to the IDE devices..
+> Andries> Yes, DOS partition table works up to 2^32 sectors, and with
+> Andries> 2^9-byte sectors that is 2 TiB.
 > 
-> Mouse is a logitech wheely PS/2 mouse, using ImPS/2 protocol
-> in X config reading from /dev/psaux.
+> Andries> People are encountering that limit already. We need something
+> Andries> better, either use some existing scheme, or invent something.
 > 
-> This is using 2.6test1, I'don't recall ever seeing this
-> happen in 2.4, but it did occur for a while earlier in 2.5,
-> and I forgot about it until now.
+> We had this discussion before, back when I first submitted the large
+> block device patches.  The consensus then was to use EFI, or LDM.
 > 
-> Any ideas?
+> Unless the BIOS supports a partitioning scheme, you're not
+> going to be able to boot anyway, or at least not without doing
+> something clever.
 
-Yes. You can try and make the situation a little better by unmasking
-interrupts with -u1. Or you can try and use a ripper that actually uses
-SG_IO, that way you can use dma (and zero copy) for the rips. That will
-be lots more smooth.
+The bios shouldn't even know about partition tables.  It just loads the code
+in the MBR, and the boot loader deals with the rest from there.
 
--- 
-Jens Axboe
-
+How else would BSD be able to work with their non-DOS slices anyway?

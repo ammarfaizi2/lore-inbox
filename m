@@ -1,59 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285073AbSBEBj2>; Mon, 4 Feb 2002 20:39:28 -0500
+	id <S286179AbSBECBq>; Mon, 4 Feb 2002 21:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287111AbSBEBjS>; Mon, 4 Feb 2002 20:39:18 -0500
-Received: from node035.tokaiasia.com.hk ([202.76.99.35]:23057 "HELO
-	hkexma00.tokaiasia.com.hk") by vger.kernel.org with SMTP
-	id <S285417AbSBEBjG>; Mon, 4 Feb 2002 20:39:06 -0500
-Message-ID: <F799E3404E90D411BA5300508BE311CEB586E6@HKEXMA00>
-From: Anthony Kong <anthony.kong@ufjia.com>
-To: "'j y'" <y_jim542000@yahoo.com>, guinness-list@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: kernel compile question
-Date: Tue, 5 Feb 2002 09:38:57 +0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S286895AbSBECBg>; Mon, 4 Feb 2002 21:01:36 -0500
+Received: from 64-30-107-48.ftth.sac.winfirst.net ([64.30.107.48]:14852 "EHLO
+	leng.internal") by vger.kernel.org with ESMTP id <S286179AbSBECBT>;
+	Mon, 4 Feb 2002 21:01:19 -0500
+Date: Mon, 4 Feb 2002 18:01:15 -0800
+From: Manuel McLure <manuel@mclure.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 Oops when trying to mount ATAPI CDROM - Conclusion
+Message-ID: <20020204180115.A29742@ulthar.internal>
+In-Reply-To: <20020202170244.A12338@ulthar.internal> <Pine.LNX.4.10.10202021715180.26613-100000@master.linux-ide.org> <20020203102109.C12338@ulthar.internal> <20020203103216.E12338@ulthar.internal> <0d4d01c1adad$37bf5cc0$7e93a8c0@sac.unify.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <0d4d01c1adad$37bf5cc0$7e93a8c0@sac.unify.com>; from manuel@mclure.org on Mon, Feb 04, 2002 at 10:53:21 -0800
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As a conclusion to this, I followed Jens' advice and bought a new $28 
+CD-ROM drive (talk about your "no-name" drive - this thing doesn't have 
+any information other than "Made in China" - it's detected as a "CD-ROM 
+Drive/G6D") which works just fine and even does DMA. The Pioneer 24X is 
+going in the trash.
 
-
-Jim,
-
-I wonder if it is a basic question about "how to" configure a kernel or
-simply a question about comparion of "make menuconfig" or "make xconfig" or
-etc.
-
-If it is the first case, I urge you to read the README file first.
-In the later case, it depends if you want to run it in X window or not. To
-me, I have used both and found no difference.
-
-
-Anthony
-
------Original Message-----
-From: j y [mailto:y_jim542000@yahoo.com]
-Sent: Tuesday, February 05, 2002 8:33 AM
-To: guinness-list@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: kernel compile question
-
-
-HI,
-
-what is the best command to use for kernel options and
-do i tell it ot use current options?.
-Jim
-
-__________________________________________________
-Do You Yahoo!?
-Great stuff seeking new owners in Yahoo! Auctions! 
-http://auctions.yahoo.com
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
+<manuel@mclure.org>     | and significant law, no man may kill a cat.
+<http://www.mclure.org> |             -- H.P. Lovecraft

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265246AbTAFOXI>; Mon, 6 Jan 2003 09:23:08 -0500
+	id <S265587AbTAFO3B>; Mon, 6 Jan 2003 09:29:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265564AbTAFOXI>; Mon, 6 Jan 2003 09:23:08 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:46062 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S265246AbTAFOXH>; Mon, 6 Jan 2003 09:23:07 -0500
-Subject: Re: Fwd: File system corruption
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: krushka@iprimus.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1041865580.17472.17.camel@irongate.swansea.linux.org.uk>
-References: <0301062138130A.01466@paul.home.com.au>
-	 <1041865580.17472.17.camel@irongate.swansea.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kkOBDP28/uYnIoHJfp1u"
-Organization: Red Hat, Inc.
-Message-Id: <1041863492.3829.2.camel@laptop.fenrus.com>
+	id <S265589AbTAFO3B>; Mon, 6 Jan 2003 09:29:01 -0500
+Received: from nimbus19.internetters.co.uk ([209.61.216.65]:5564 "HELO
+	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
+	id <S265587AbTAFO3A>; Mon, 6 Jan 2003 09:29:00 -0500
+Subject: Why do some net drivers require __OPTIMIZE__?
+From: Alex Bennee <alex@braddahead.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8-3mdk 
+Date: 06 Jan 2003 14:33:29 +0000
+Message-Id: <1041863609.21044.11.camel@cambridge.braddahead>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 06 Jan 2003 15:31:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-kkOBDP28/uYnIoHJfp1u
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I've been doing a bring up on an embedded kernel and to prevent gdb
+making me go google eyed I notched the optimization level down to -O0
+for the time being. This broke the natsemi network driver and I noticed
+this stanza appears in a few places:
 
-On Mon, 2003-01-06 at 16:06, Alan Cox wrote:
-> On Mon, 2003-01-06 at 11:38, Paul wrote:
-> > Hi,
-> >=20
-> > I sent the following email regarding a suspected bug to the IDE maintai=
-ner=20
-> > mentioned in the DOCs but haven't got a response.
-> >=20
-> > Can anyone point me in the right direction here?
->=20
-> Sandisk I think.
+#if !defined(__OPTIMIZE__)
+#warning  You must compile this file with the correct options!
+#warning  See the last lines of the source file.
+#error You must compile this driver with "-O".
+#endif
 
-for sandisk you want dma OFF. hard. always.
+Despite the comments I couldn't see an explanation at the bottom of the
+source file and a quick google showed a few patches where this was
+removed but no explanation.
 
+Does anybody know the history behind those lines? Do they serve any
+purpose now or in the past? Should I be nervous about compiling the
+kernel at a *lower* than normal optimization level? After all
+optimizations are generally processor specific and shouldn't affect the
+meaning of the C.
 
+-- 
+Alex Bennee
+Senior Hacker, Braddahead Ltd
+The above is probably my personal opinion and may not be that of my
+employer
 
---=-kkOBDP28/uYnIoHJfp1u
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+GZNExULwo51rQBIRAlZyAJ9Tvfi3fqEn2M2saqfHM63kX/LQ0ACfeVip
-H30BaMDlFWGlY1QHRhm9/Tg=
-=ZZov
------END PGP SIGNATURE-----
-
---=-kkOBDP28/uYnIoHJfp1u--

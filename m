@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262007AbSI3KbK>; Mon, 30 Sep 2002 06:31:10 -0400
+	id <S262012AbSI3Krf>; Mon, 30 Sep 2002 06:47:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262008AbSI3KbJ>; Mon, 30 Sep 2002 06:31:09 -0400
-Received: from gw.chygwyn.com ([62.172.158.50]:30473 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S262007AbSI3KbJ>;
-	Mon, 30 Sep 2002 06:31:09 -0400
-From: Steven Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200209301039.LAA07026@gw.chygwyn.com>
-Subject: Re: Fw: network block device and iscsi
-To: thvo@ksc.th.com (Theewara Vorakosit)
-Date: Mon, 30 Sep 2002 11:39:54 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <005701c2685e$8b6a28c0$1e226c9e@eternity> from "Theewara Vorakosit" at Sep 30, 2002 03:51:19 PM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
+	id <S262014AbSI3Krf>; Mon, 30 Sep 2002 06:47:35 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23502 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262012AbSI3Kre>; Mon, 30 Sep 2002 06:47:34 -0400
+Date: Mon, 30 Sep 2002 12:52:55 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [-dj patch] fix compilation of eisa.c
+Message-ID: <Pine.NEB.4.44.0209301250130.12605-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Dave,
 
-The network block device userland code is on sourceforge:
+eisa.c doesn't compile in 2.5.39-dj2:
 
-http://sourceforge.net/projects/nbd/
+<--  snip  -->
 
-There isn't much documentation, but feel free to send questions in my
-direction. I don't know the answers to your iscsi query though but I'd
-be interested to know what the current state of development is as well,
+...
+  gcc -Wp,-MD,./.eisa.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.39-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
+-I/home/bunk/linux/kernel-2.5/linux-2.5.39-full/arch/i386/mach-generic -nostdinc -iwithprefix
+include    -DKBUILD_BASENAME=eisa   -c -o eisa.o eisa.c
+eisa.c:14: parse error before `init_eisa'
+...
+make[1]: *** [eisa.o] Error 1
+make[1]: Leaving directory `/home/bunk/linux/kernel-2.5/linux-2.5.39-full/arch/i386/kernel'
 
-Steve.
+<--  snip  -->
 
-> 
-> Dear All,
->     I use Red Hat 7.2. I have unused partition of hard disk in many computer
-> in my network. I want to combine this space into a big one. I plan to use
-> network block device, is there any documentation? Where can I download
-> nbd-server and nbd-client?
->     What's about iscsi? Can linux act as a iscsi server?
-> Thanks,
-> Theewara
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+The fix is simple:
+
+
+--- linux-2.5.39-full/arch/i386/kernel/eisa.c.old	2002-09-30 12:44:55.000000000 +0200
++++ linux-2.5.39-full/arch/i386/kernel/eisa.c	2002-09-30 12:45:48.000000000 +0200
+@@ -6,6 +6,7 @@
+  */
+
+ #include <linux/device.h>
++#include <linux/init.h>
+ #include <linux/slab.h>
+ #include <asm/io.h>
+
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+
+
 

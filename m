@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273360AbRJDKxH>; Thu, 4 Oct 2001 06:53:07 -0400
+	id <S273385AbRJDLBs>; Thu, 4 Oct 2001 07:01:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273385AbRJDKw6>; Thu, 4 Oct 2001 06:52:58 -0400
-Received: from janeway.cistron.net ([195.64.65.23]:24837 "EHLO
-	janeway.cistron.net") by vger.kernel.org with ESMTP
-	id <S273360AbRJDKwj>; Thu, 4 Oct 2001 06:52:39 -0400
-Date: Thu, 4 Oct 2001 12:53:06 +0200
-From: Wichert Akkerman <wichert@cistron.nl>
-To: linux-lvm@sistina.com, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: [linux-lvm] Re: partition table read incorrectly
-Message-ID: <20011004125306.A10138@cistron.nl>
-Mail-Followup-To: linux-lvm@sistina.com, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200110031901.TAA04080@vlet.cwi.nl> <20011004013950.A16757@cistron.nl> <20011003211508.O8954@turbolinux.com>
+	id <S273463AbRJDLBh>; Thu, 4 Oct 2001 07:01:37 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:34299 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S273385AbRJDLBe>; Thu, 4 Oct 2001 07:01:34 -0400
+Date: Thu, 4 Oct 2001 12:02:00 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Pascal Schmidt <pleasure.and.pain@web.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS data corruption in very simple configuration
+Message-ID: <20011004120200.B2226@redhat.com>
+In-Reply-To: <20011003171703.B5209@redhat.com> <Pine.LNX.4.33.0110032202560.26021-100000@neptune.sol.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011003211508.O8954@turbolinux.com>; from adilger@turbolabs.com on Wed, Oct 03, 2001 at 09:15:08PM -0600
+In-Reply-To: <Pine.LNX.4.33.0110032202560.26021-100000@neptune.sol.net>; from pleasure.and.pain@web.de on Wed, Oct 03, 2001 at 10:06:58PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Andreas Dilger wrote:
-> If you already have data on the PV in
-> question, you can "dd if=/dev/zero of=/dev/sdb bs=1 seek=510 count=2"
-> to remove only the partition signature.
+Hi,
 
-That helped and the kernel no longer sees that partition anymore.
-However LVM still doesn't work:
+On Wed, Oct 03, 2001 at 10:06:58PM +0200, Pascal Schmidt wrote:
+> On Wed, 3 Oct 2001, Stephen C. Tweedie wrote:
+> 
+> > ext3 with ordered data writes has performance nearly up to the level
+> > of the fast-and-loose writeback mode for most workloads, and still
+> > avoids ever exposing stale disk blocks after a crash.
+> What if the machine crashes with parts of the data blocks written to
+> disk, before the commit block gets submitted to the drive?
 
-cloud:/dev/discs/disc1# vgscan
-vgscan -- reading all physical volumes (this may take a while...)
-vgscan -- found active volume group "vg_user"
-vgscan -- "/etc/lvmtab" and "/etc/lvmtab.d" successfully created
-vgscan -- WARNING: This program does not do a VGDA backup of your volume group
+In most cases, users write data by extending off the end of a file.
+Only in a few cases (such as databases) do you ever write into the
+middle of an existing file.  Even overwriting an existing file is done
+by first truncating the file and then extending it again.
 
-cloud:/dev/discs/disc1# vgchange -a y
-vgchange -- ERROR: VGDA in kernel and lvmtab are NOT consistent; please run vgscan
+If you crash during such an extend, then the data blocks may have been
+partially written, but the extend will not have been, so the
+incompletely-written data blocks will not be part of any file.
 
-I did a bit of looking around and it seems the confusement is in the
-kernel: when lvm_check_kernel_lvmtab_consistency() compares the kernel
-and the lvmtab entries the list from the kernel mentions the vg_user
-volume group twice, while the lvmtab only mentions it once.
+The *only* way to get mis-ordered data blocks in ordered mode after a
+crash is if you are overwriting in the middle of an existing file.  In
+such a case there is no absolute guarantee about write ordering unless
+you use fsync() or O_SYNC to force writes in a particular order.  
 
-Wichert.
+In journaled data mode, even mid-file overwrites will be strictly
+ordered after a crash.
 
--- 
-  _________________________________________________________________
- /       Nothing is fool-proof to a sufficiently talented fool     \
-| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+Cheers,
+ Stephen

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266798AbUBMOIN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 09:08:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266787AbUBMOIN
+	id S267029AbUBMOOa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 09:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267033AbUBMOOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 09:08:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:23700 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267002AbUBMOIJ (ORCPT
+	Fri, 13 Feb 2004 09:14:30 -0500
+Received: from f22.mail.ru ([194.67.57.55]:54289 "EHLO f22.mail.ru")
+	by vger.kernel.org with ESMTP id S267029AbUBMOO2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 09:08:09 -0500
-Date: Thu, 12 Feb 2004 20:13:40 +0000
-From: Joe Thornber <thornber@redhat.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Joe Thornber <thornber@redhat.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: dm core patches
-Message-ID: <20040212201340.GB1898@reti>
-References: <20040210163548.GC27507@reti> <20040211101659.GF3427@marowsky-bree.de> <20040211103541.GW27507@reti> <20040212185145.GY21298@marowsky-bree.de>
+	Fri, 13 Feb 2004 09:14:28 -0500
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: der.eremit@email.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Initrd Question
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040212185145.GY21298@marowsky-bree.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [212.204.70.139]
+Date: Fri, 13 Feb 2004 17:14:25 +0300
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1Are5J-000KGt-00.arvidjaar-mail-ru@f22.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 12, 2004 at 07:51:45PM +0100, Lars Marowsky-Bree wrote:
-> I checked the archives, but I couldn't find anything really 'in flux'.
-> Your priority based approach seems just fine to me.
-> 
-> What is still missing? This is really a killer feature for 2.6. Any help
-> I can offer?
 
-I think the main concern now is over the testing of paths.  Sending an
-io down an inactive path can be very expensive for some hardware
-configurations.  So I'm considering changing a couple of things:
+>> echo 0x0100 > /proc/sys/kernel/real-root-dev
+>
+> This makes no sense as you're using pivot_root. 
 
-- Only ever send io to 1 priority group at a time (even test ios).
-  To test the lower priority groups we'd have to periodically switch to
-  them and use them for a bit for both test io and proper io.
+this makes all sort of sense. Please check sources. It is required so that kernel will not attempt to mount root passed to it by loader. You are welcome to clean up the code :)
 
-- For some hardware there are better ways of testing the path than
-  sending the test io.  Should the drivers expose a test function ?
-  In the absence of this we'd fallback to the test io method.
+>> mount -n -o ro /dev/sda2 /new_root
+>
+> This doesn't even match with the 0x0100 above, now does it?
 
-The other thing we need is to try and get the drivers to deferentiate
-between a media error and a path error, so that media errors get
-reported up quickly and don't cause false path failures.  This is
-possibly an area that you could help with ?
+so what? kernel happily ignores real-root-dev, it is possible that some user-level tools may be confused but I have not seen any so far.
 
-- Joe
+>> pivot_root /new_root /new_root/initrd
+>
+> You should cd into /new_root before running pivot_root,
+
+Huh? Why?
+
+SYNOPSIS
+       pivot_root new_root put_old
+
+>> if [ -c initrd/dev/.devfsd ]
+>>   then
+>>           echo "Mounting devfs..."
+>>           mount -n -t devfs none dev
+>> fi
+>
+> Should you check for /dev/.devfsd on the real root here? I thought .devfsd
+> is created by the devfsd process, 
+
+you are wrong here, sorry. .devfsd is created by devfs.
+
+-andrey
+
+

@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265989AbTGAFlt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 01:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265979AbTGAFlt
+	id S265995AbTGAFiR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 01:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265975AbTGAFiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 01:41:49 -0400
-Received: from dsl-62-3-122-161.zen.co.uk ([62.3.122.161]:3725 "EHLO
-	lenin.trudheim.org") by vger.kernel.org with ESMTP id S266001AbTGAFjc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 01:39:32 -0400
-Subject: Re: Dell vs. GPL
-From: Anders Karlsson <anders@trudheim.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10306301346540.5840-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10306301346540.5840-100000@master.linux-ide.org>
-Content-Type: text/plain
-Organization: Trudheim Technology Limited
-Message-Id: <1057038825.7180.8.camel@lenin.trudheim.org>
+	Tue, 1 Jul 2003 01:38:17 -0400
+Received: from rj.sgi.com ([192.82.208.96]:51691 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S265995AbTGAFhu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 01:37:50 -0400
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Announce: kdb v4.3 is available for kernels 2.4.20, 2.4.21 
+In-reply-to: Your message of "Fri, 20 Jun 2003 17:07:47 +1000."
+             <29513.1056092867@kao1.melbourne.sgi.com> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 01 Jul 2003 06:53:45 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 01 Jul 2003 15:50:47 +1000
+Message-ID: <6719.1057038647@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-30 at 21:48, Andre Hedrick wrote:
-> The best solution is to forget what you see and know, is how the game is
-> played.  When things are sent to me outside of the scope of NDA's and they
-> effect my contributions is where I can free move.
-> 
-> Anything under NDA stays there regardless.
+ftp://oss.sgi.com/projects/kdb/download/v4.3/
 
-Andre,
+Current versions are kdb-v4.3-2.4.21-common-3.bz2 and
+kdb-v4.3-2.4.21-i386-3.bz2.
 
-I can see where you are coming from on this, but nevertheless, the NDA
-is not enforcable if illegal activities are taking place. Ask your legal
-council and they should be able to confirm this. If what you are fearing
-is economical retaliation from the companies that made you sign an NDA
-to ensure your silence, the legal system of US should protect you from
-that.
+common
 
-All I can say, if US law require you to cover up illegal/criminal
-activity because you signed an NDA, get the f*ck out of US jurisdiction
-as fast as you can.
+2003-06-24 Keith Owens  <kaos@sgi.com>
 
-I am living in the UK at the moment, and I can not thoroughly recommend
-that as an alternative to living in the US. There are countries with
-better legal systems in the EU than what UK has.
+        * Add task and sigset commands.  Mark Goodwin, SGI.
+        * kdb v4.3-2.4.21-common-3.
 
-Just my two pennies worth.
+2003-06-23 Keith Owens  <kaos@sgi.com>
 
-/A
+        * Sync with XFS 2.4.21 tree.
+        * kdb v4.3-2.4.21-common-2.
 
+i386
 
+2003-07-01 Keith Owens  <kaos@sgi.com>
+
+        * Convert kdba_find_return() to two passes to reduce false positives.
+        * Correct jmp disp8 offset calculation for out of line lock code.
+        * Use NMI for kdb IPI in clustered APIC mode.  Sachin Sant, IBM.
+        * kdb v4.3-2.4.21-i386-3.
+
+2003-06-23 Keith Owens  <kaos@sgi.com>
+
+        * Sync with XFS 2.4.21 tree.
+        * kdb v4.3-2.4.21-i386-2.
 

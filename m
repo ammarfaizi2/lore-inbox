@@ -1,61 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBXEsj>; Fri, 23 Feb 2001 23:48:39 -0500
+	id <S129215AbRBXEvs>; Fri, 23 Feb 2001 23:51:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129108AbRBXEs3>; Fri, 23 Feb 2001 23:48:29 -0500
-Received: from p108.usnyc3.stsn.com ([199.106.218.108]:57611 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129051AbRBXEsR>; Fri, 23 Feb 2001 23:48:17 -0500
-Date: Fri, 23 Feb 2001 21:54:50 -0500 (EST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@localhost.localdomain>
-Reply-To: <kernelnewbies@kernelnewbies.org>
-To: "Dwayne C. Litzenberger" <dlitz@dlitz.net>
-cc: Sedat Sengul <sedat.sengul@vestel-usa.com>, Greeen-III <greeen@iii.org.tw>,
-        <linux-mips-request@fnet.fr>,
-        LinuxKernelMailList <linux-kernel@vger.kernel.org>,
-        LinuxEmbeddedMailList <linux-embedded@waste.org>
-Subject: Re: Need help as a Linux newcomer
-In-Reply-To: <20010223175939.A693@zed.dlitz.net>
-Message-ID: <Pine.LNX.4.31.0102232152240.8568-100000@localhost.localdomain>
+	id <S129197AbRBXEvi>; Fri, 23 Feb 2001 23:51:38 -0500
+Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:55549
+	"EHLO champ.drew.net") by vger.kernel.org with ESMTP
+	id <S129108AbRBXEva>; Fri, 23 Feb 2001 23:51:30 -0500
+From: Drew Bertola <drew@drewb.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14999.15825.67045.845336@champ.drew.net>
+Date: Sat, 24 Feb 2001 04:51:29 +0000 ()
+To: linux-kernel@vger.kernel.org
+Subject: binfmt-464c and 2.4.1
+X-Mailer: VM 6.75 under Emacs 19.34.1
+Reply-To: drew@drewb.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Feb 2001, Dwayne C. Litzenberger wrote:
+I've noticed this in my logfile:
 
-> I tried asking this before; never got an answer.
->
-> I suggest you just spend 20 hours or so figuring out the basic structure of
-> the kernel sources.  It's a long run, but you'll be happy once you do.
+Feb 23 20:48:24 babylon modprobe: modprobe: Can't locate module binfmt-464c
 
-OK, I hate to CC all these lists, but I guess it would be best
-to try and end this thread now ;)
+Although I've looked through the documentation, I can't find any
+reference to binfmt-464c.  Can anyone point me in the right direction?
 
-If you want to learn about the structure of the Linux kernel,
-you should probably go to:
 
-	http://kernelnewbies.org/
-and
-	irc.openprojects.net   #kernelnewbies
-
-You can also try the mailing list:
-
-	echo subscribe kernelnewbies | mail  majordomo@kernelnewbies.org
-
-----
-And please ... stop this thread on all the other mailing lists,
-move your discussions to a more suitable forum and limit it to
-that forum.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+-- 
+Drew Bertola  | Send a text message to my pager or cell ... 
+              |   http://jpager.com/Drew
 

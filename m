@@ -1,84 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266196AbSKRX05>; Mon, 18 Nov 2002 18:26:57 -0500
+	id <S267028AbSKRXpU>; Mon, 18 Nov 2002 18:45:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266810AbSKRX05>; Mon, 18 Nov 2002 18:26:57 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:32649 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S266196AbSKRXZz>; Mon, 18 Nov 2002 18:25:55 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 18 Nov 2002 15:33:21 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>,
-       <mingo@elte.hu>, <rml@tech9.net>, <riel@surriel.com>, <akpm@zip.com.au>
-Subject: Re: unusual scheduling performance
-In-Reply-To: <3DD96EE6.1080603@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0211181531500.979-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267032AbSKRXpU>; Mon, 18 Nov 2002 18:45:20 -0500
+Received: from dp.samba.org ([66.70.73.150]:13787 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267028AbSKRXpS>;
+	Mon, 18 Nov 2002 18:45:18 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: mbm@tinc.org.uk
+Cc: linux-kernel@vger.kernel.org, Petr Vandrovec <vandrove@vc.cvut.cz>
+Subject: Re: 2.5.48: BUG() at kernel/module.c:1000 
+In-reply-to: Your message of "Mon, 18 Nov 2002 22:39:11 -0000."
+             <200211182239.gAIMdBL04074@mort.demon.co.uk> 
+Date: Tue, 19 Nov 2002 10:50:42 +1100
+Message-Id: <20021118235221.4B9A92C237@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Nov 2002, Dave Hansen wrote:
+In message <200211182239.gAIMdBL04074@mort.demon.co.uk> you write:
+> The code (get_sizes) that calculates the amount of space required
+> by the sections assumes that the first one is loaded at address
+> zero (or large alignment) when performing subsequent alignments.
 
-> As Andrew suggested, I put a dump_stack() in rwsem_down_write_failed().
->
-> This was actually in a 2.5.47 bk snapshot, so it has eventpoll in it.
-> kksymoops is broken, so:
-> dmesg | tail -20 | sort | uniq | ksymoops -m /boot/System.map
->
-> Trace; c01c5757 <rwsem_down_write_failed+27/170>
-> Trace; c01220c6 <update_wall_time+16/50>
-> Trace; c01223ee <do_timer+2e/c0>
-> Trace; c0166bd3 <.text.lock.eventpoll+6/f3>
-> Trace; c0146568 <__fput+18/c0>
-> Trace; c010ae9a <handle_IRQ_event+2a/60>
-> Trace; c0144a05 <filp_close+85/b0>
-> Trace; c0144a8d <sys_close+5d/70>
-> Trace; c0108fab <syscall_call+7/b>
->
-> Trace; c01c5757 <rwsem_down_write_failed+27/170>
-> Trace; c0166bd3 <.text.lock.eventpoll+6/f3>
-> Trace; c0146568 <__fput+18/c0>
-> Trace; c011e90b <do_softirq+6b/d0>
-> Trace; c0144a05 <filp_close+85/b0>
-> Trace; c0144a8d <sys_close+5d/70>
-> Trace; c0108fab <syscall_call+7/b>
->
-> Trace; c01c5757 <rwsem_down_write_failed+27/170>
-> Trace; c0166bd3 <.text.lock.eventpoll+6/f3>
-> Trace; c0146568 <__fput+18/c0>
-> Trace; c0144c2d <generic_file_llseek+2d/e0>
-> Trace; c0144a05 <filp_close+85/b0>
-> Trace; c0144a8d <sys_close+5d/70>
-> Trace; c0108fab <syscall_call+7/b>
->
-> Trace; c01c5757 <rwsem_down_write_failed+27/170>
-> Trace; c0166bd3 <.text.lock.eventpoll+6/f3>
-> Trace; c0146568 <__fput+18/c0>
-> Trace; c01553fa <sys_getdents64+4a/98>
-> Trace; c0144a05 <filp_close+85/b0>
-> Trace; c0144a8d <sys_close+5d/70>
-> Trace; c0108fab <syscall_call+7/b>
->
-> Mystery solved?
+Please test this patch (Petr, contains fix for you too).
 
-Could you pls put this in eventpoll_release() :
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-
-        if (list_empty(lsthead))
-                return;
-
-	printk("[%p] head=%p prev=%p next=%p\n", current, lsthead,
-		lsthead->prev, lsthead->next);
-
-
-
-
-
-- Davide
-
-
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.48/kernel/module.c working-2.5.48-fixes/kernel/module.c
+--- linux-2.5.48/kernel/module.c	2002-11-19 09:58:52.000000000 +1100
++++ working-2.5.48-fixes/kernel/module.c	2002-11-19 10:33:48.000000000 +1100
+@@ -788,9 +788,10 @@ static void simplify_symbols(Elf_Shdr *s
+ /* Get the total allocation size of the init and non-init sections */
+ static struct sizes get_sizes(const Elf_Ehdr *hdr,
+ 			      const Elf_Shdr *sechdrs,
+-			      const char *secstrings)
++			      const char *secstrings,
++			      unsigned long common_length)
+ {
+-	struct sizes ret = { 0, 0 };
++	struct sizes ret = { 0, common_length };
+ 	unsigned i;
+ 
+ 	/* Everything marked ALLOC (this includes the exported
+@@ -943,10 +944,9 @@ static struct module *load_module(void *
+ 	mod->live = 0;
+ 	module_unload_init(mod);
+ 
+-	/* How much space will we need?  (Common area in core) */
+-	sizes = get_sizes(hdr, sechdrs, secstrings);
+-	common_length = read_commons(hdr, &sechdrs[symindex]);
+-	sizes.core_size += common_length;
++	/* How much space will we need?  (Common area in first) */
++	sizes = get_sizes(hdr, sechdrs, secstrings,
++			  read_commons(hdr, &sechdrs[symindex]));
+ 
+ 	/* Set these up, and allow archs to manipulate them. */
+ 	mod->core_size = sizes.core_size;
+@@ -973,7 +973,7 @@ static struct module *load_module(void *
+ 	mod->module_core = ptr;
+ 
+ 	ptr = module_alloc(mod->init_size);
+-	if (!ptr) {
++	if (!ptr && mod->init_size) {
+ 		err = -ENOMEM;
+ 		goto free_core;
+ 	}

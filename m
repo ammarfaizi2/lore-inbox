@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314079AbSEAWpd>; Wed, 1 May 2002 18:45:33 -0400
+	id <S314080AbSEAWxh>; Wed, 1 May 2002 18:53:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314080AbSEAWpc>; Wed, 1 May 2002 18:45:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46098 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314079AbSEAWpb>;
-	Wed, 1 May 2002 18:45:31 -0400
-Message-ID: <3CD06FD1.2E75F5F2@zip.com.au>
-Date: Wed, 01 May 2002 15:44:33 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S314081AbSEAWxg>; Wed, 1 May 2002 18:53:36 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3091 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314080AbSEAWxg>; Wed, 1 May 2002 18:53:36 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] alternative API for raw devices
+Date: 1 May 2002 15:52:25 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <aaprj9$nqv$1@cesium.transmeta.com>
+In-Reply-To: <Pine.GSO.4.21.0205011555450.12640-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Brian Gerst <bgerst@didntduck.org>
-CC: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] percpu updates
-In-Reply-To: <3CD06ACE.1090402@didntduck.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst wrote:
+Followup to:  <Pine.GSO.4.21.0205011555450.12640-100000@weyl.math.psu.edu>
+By author:    Alexander Viro <viro@math.psu.edu>
+In newsgroup: linux.dev.kernel
 > 
-> These patches convert some of the existing arrays based on NR_CPUS to
-> use the new per cpu code.
+> 	* it's _not_ a character device - stat() will give you S_IFREG.
+> 	  To check that <foo> is a new-style raw device call statfs(2) and
+> 	  compare .f_type with rawfs magic (0x726177).  It doesn't conflict
+> 	  with existing check for raw devices (stat(), check that it's
+> 	  a character device and compare major with RAW_MAJOR), so existing
+> 	  software can be taught to check for raw devices in
+> 	  backwards-compatible way.
 > 
-> ...
-> -extern struct page_state {
-> +struct page_state {
->         unsigned long nr_dirty;
->         unsigned long nr_locked;
->         unsigned long nr_pagecache;
-> -} ____cacheline_aligned_in_smp page_states[NR_CPUS];
-> +};
-> +
-> +extern struct page_state __per_cpu_data page_states;
 
-When I did this a couple of weeks back it failed in
-mysterious ways and I ended up parking it.  Failure
-symptoms included negative numbers being reported in
-/proc/meminfo for "Locked" and "Dirty".
+I really don't know if it's a good idea for this to be S_IFREG, which
+software has a reasonable expecation to behave like a normal file,
+which a raw device *definitely* doesn't.
 
-How well has this been tested?  (If the answer
-is "not very" then please wait until I've tested
-it out...)
+I would really like things like this as well as a lot of the
+zero-length magic files in /proc to be S_ISCHR with i_rdev ==
+MK_DEV(0,0) (the latter to let user space know that this isn't a
+standard device node.)
 
--
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,116 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUC0FVi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 00:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUC0FVi
+	id S261597AbUC0FrR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 00:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbUC0FrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 00:21:38 -0500
-Received: from web12822.mail.yahoo.com ([216.136.174.203]:20662 "HELO
-	web12822.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261619AbUC0FVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 00:21:34 -0500
-Message-ID: <20040327052132.95751.qmail@web12822.mail.yahoo.com>
-Date: Fri, 26 Mar 2004 21:21:32 -0800 (PST)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: Re: [ANNOUNCE] WOLK v2.3 for Kernel v2.6.4
-To: Kernel <linux-kernel@vger.kernel.org>
+	Sat, 27 Mar 2004 00:47:17 -0500
+Received: from opersys.com ([64.40.108.71]:19215 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261602AbUC0FrQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 00:47:16 -0500
+Message-ID: <406516C7.40705@opersys.com>
+Date: Sat, 27 Mar 2004 00:53:11 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-849906064-1080364892=:95067"
+To: khandelw@cs.fsu.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: logging in kernel
+References: <1080339875.8f2cd36818efd@system.cs.fsu.edu>
+In-Reply-To: <1080339875.8f2cd36818efd@system.cs.fsu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-849906064-1080364892=:95067
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
 
-Hi Marc,
+khandelw@cs.fsu.edu wrote:
+> Hello,
+>     I am a graudate student at Florida State University. My friends and my self
+> are planning to implement a kernel logger for linux kernel (real-time systems).
+> We are new to linux kernel programming and we have not done kernel programming.
+>     We believe right now most of the system are using printk. We want to write a
+> tool which can be used for debugging as well as logging of data in the future.
+> Following are the things that we have in mind so far.
+> 
+> 1. Implement the logging daemon or the server as a periodic task in the
+> real-time system.
+> 2. Have an api which looks similar to printk
+> 3. Have an option to specify the write the network card or console or a
+> dedicated device.
+> 4. Use it for checkpointing in distributed system.
 
-I took the patch for a spin and found a few glitches.
-A patch is attached to fix them.
+There have been quite a few things done in this area already. For starters,
+you may want to take a look at the Linux Trace Toolkit and the underlying
+mechanism, relayfs:
+http://www.opersys.com/ltt/index.html
+http://www.opersys.com/relayfs/index.html
 
-1. The kernel oops'ed in vt_ioctl due to driver_data
-being NULL in the tty.  I copied the relevant fix from
-2.6.5-rc2-mm2.
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 
-2. I did not configure the in-kernel statd daemon for
-NFS.  That caused a BUG() in mon.c:nsm_monitor()
-because the handle was never initialized.
-
-3. A typo fix in ipmi/af_ipmi.c.
-
-Thanks,
-Shantanu
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Finance Tax Center - File online. File on time.
-http://taxes.yahoo.com/filing.html
---0-849906064-1080364892=:95067
-Content-Type: application/octet-stream; name="wolk.patch"
-Content-Transfer-Encoding: base64
-Content-Description: wolk.patch
-Content-Disposition: attachment; filename="wolk.patch"
-
-LS0tIC4vZHJpdmVycy9jaGFyL3Z0LmMufjF+CTIwMDQtMDMtMjYgMjE6MzI6
-MDUuMTAyNTEwNDkxIC0wNTAwCisrKyAuL2RyaXZlcnMvY2hhci92dC5jCTIw
-MDQtMDMtMjYgMjM6MDQ6NDEuNDQzOTQzNzc2IC0wNTAwCkBAIC0yNTA5LDEz
-ICsyNTA5LDExIEBACiAJaWYgKHR0eSAmJiB0dHktPmNvdW50ID09IDEpIHsK
-IAkJc3RydWN0IHZ0X3N0cnVjdCAqdnQ7CiAKKwkJdmNzX3JlbW92ZV9kZXZm
-cyh0dHkpOwogCQl2dCA9IHR0eS0+ZHJpdmVyX2RhdGE7CiAJCWlmICh2dCkK
-IAkJCXZjX2NvbnNbdnQtPnZjX251bV0uZC0+dmNfdHR5ID0gTlVMTDsKIAkJ
-dHR5LT5kcml2ZXJfZGF0YSA9IDA7Ci0JCXJlbGVhc2VfY29uc29sZV9zZW0o
-KTsKLQkJdmNzX3JlbW92ZV9kZXZmcyh0dHkpOwotCQlyZXR1cm47CiAJfQog
-CXJlbGVhc2VfY29uc29sZV9zZW0oKTsKIH0KLS0tIC4vZnMvbG9ja2QvaG9z
-dC5jLn4xfgkyMDA0LTAzLTI2IDIxOjMyOjE0LjAwMDAwMDAwMCAtMDUwMAor
-KysgLi9mcy9sb2NrZC9ob3N0LmMJMjAwNC0wMy0yNiAyMzozNzo1MS44NDIw
-MDEzNDMgLTA1MDAKQEAgLTU1LDYgKzU1LDI1IEBACiB9CiAKIC8qCisgKiBB
-bGxvY2F0ZSBhbiBOU00gaGFuZGxlCisgKi8KK3N0cnVjdCBuc21faGFuZGxl
-ICoKK25zbV9hbGxvYyhzdHJ1Y3Qgc29ja2FkZHJfaW4gKnNpbikKK3sKKwlz
-dHJ1Y3QgbnNtX2hhbmRsZSAqbnNtOworCisJbnNtID0gKHN0cnVjdCBuc21f
-aGFuZGxlICopIGttYWxsb2Moc2l6ZW9mKCpuc20pLCBHRlBfS0VSTkVMKTsK
-KwlpZiAobnNtID09IE5VTEwpCisJCXJldHVybiBOVUxMOworCisJbWVtc2V0
-KG5zbSwgMCwgc2l6ZW9mKCpuc20pKTsKKwltZW1jcHkoJm5zbS0+c21fYWRk
-ciwgc2luLCBzaXplb2YobnNtLT5zbV9hZGRyKSk7CisJYXRvbWljX3NldCgm
-bnNtLT5zbV9jb3VudCwgMSk7CisKKwlyZXR1cm4gbnNtOworfQorCisvKgog
-ICogQ29tbW9uIGhvc3QgbG9va3VwIHJvdXRpbmUgZm9yIHNlcnZlciAmIGNs
-aWVudAogICovCiBzdHJ1Y3QgbmxtX2hvc3QgKgpAQCAtMTQzLDEwICsxNjIs
-MTAgQEAKIAkJCX0KIAkJfQogCX0KKyNlbmRpZgogCiAJaWYgKGhvc3QtPmhf
-bnNtaGFuZGxlID09IE5VTEwpCiAJCWhvc3QtPmhfbnNtaGFuZGxlID0gbnNt
-X2FsbG9jKCZob3N0LT5oX2FkZHIpOwotI2VuZGlmCiAKIAlpZiAoKytucmhv
-c3RzID4gTkxNX0hPU1RfTUFYKQogCQluZXh0X2djID0gMDsKLS0tIC4vZnMv
-bG9ja2QvbW9uLmMufjF+CTIwMDQtMDMtMjYgMjE6MzI6MTQuNTk3NTk4Mjcx
-IC0wNTAwCisrKyAuL2ZzL2xvY2tkL21vbi5jCTIwMDQtMDMtMjYgMjM6NDU6
-NTkuOTE1MDU3MDY2IC0wNTAwCkBAIC05OCw3ICs5OCw3IEBACiB7CiAJc3Ry
-dWN0IG5zbV9oYW5kbGUgKm5zbTsKIAlzdHJ1Y3QgbnNtX3JlcwlyZXM7Ci0J
-aW50CQlzdGF0dXM7CisJaW50CQlzdGF0dXMgPSAwOwogCiAJbnNtID0gaG9z
-dC0+aF9uc21oYW5kbGU7CiAJaG9zdC0+aF9uc21oYW5kbGUgPSBOVUxMOwpA
-QCAtMTEyLDkgKzExMiw4IEBACiAJCWlmIChzdGF0dXMgPCAwKQogCQkJcHJp
-bnRrKEtFUk5fTk9USUNFICJsb2NrZDogY2Fubm90IHVubW9uaXRvciAlc1xu
-IiwKIAkJCQkgICAgICAgCWhvc3QtPmhfbmFtZSk7Ci0JCWVsc2UKLQkJCW5z
-bS0+c21fbW9uaXRvcmVkID0gMDsKIAl9CisJa2ZyZWUobnNtKTsKIAlyZXR1
-cm4gc3RhdHVzOwogfQogCi0tLSAuL2ZzL2xvY2tkL3N0YXRkLmMufjF+CTIw
-MDQtMDMtMjYgMjE6MzI6MTQuNTk4NTk4MTc1IC0wNTAwCisrKyAuL2ZzL2xv
-Y2tkL3N0YXRkLmMJMjAwNC0wMy0yNiAyMzozNzoyMC45OTA5NzAxOTIgLTA1
-MDAKQEAgLTE4OSwyNSArMTg5LDYgQEAKIH0KIAogLyoKLSAqIEFsbG9jYXRl
-IGFuIE5TTSBoYW5kbGUKLSAqLwotc3RydWN0IG5zbV9oYW5kbGUgKgotbnNt
-X2FsbG9jKHN0cnVjdCBzb2NrYWRkcl9pbiAqc2luKQotewotCXN0cnVjdCBu
-c21faGFuZGxlICpuc207Ci0KLQluc20gPSAoc3RydWN0IG5zbV9oYW5kbGUg
-Kikga21hbGxvYyhzaXplb2YoKm5zbSksIEdGUF9LRVJORUwpOwotCWlmIChu
-c20gPT0gTlVMTCkKLQkJcmV0dXJuIE5VTEw7Ci0KLQltZW1zZXQobnNtLCAw
-LCBzaXplb2YoKm5zbSkpOwotCW1lbWNweSgmbnNtLT5zbV9hZGRyLCBzaW4s
-IHNpemVvZihuc20tPnNtX2FkZHIpKTsKLQlhdG9taWNfc2V0KCZuc20tPnNt
-X2NvdW50LCAxKTsKLQotCXJldHVybiBuc207Ci19Ci0KLS8qCiAgKiBTZXQg
-dXAgbW9uaXRvcmluZyBvZiBhIHJlbW90ZSBob3N0CiAgKiBOb3RlIHdlIGhv
-bGQgdGhlIHNlbWFwaG9yZSBmb3IgdGhlIGhvc3QgdGFibGUgd2hpbGUKICAq
-IHdlJ3JlIGhlcmUuCi0tLSAuL25ldC9pcG1pL2FmX2lwbWkuYy5+MX4JMjAw
-NC0wMy0yNiAyMTozMjoyNy4xNDgzOTI1MDkgLTA1MDAKKysrIC4vbmV0L2lw
-bWkvYWZfaXBtaS5jCTIwMDQtMDMtMjYgMjI6MDM6MzQuMDc3NzQ1MTEzIC0w
-NTAwCkBAIC01MTUsNyArNTE1LDcgQEAKIHsKIAlzdHJ1Y3QgaXBtaV9zb2Nr
-ICppOwogCi0JaWYgKGF0b21pY19yZWFkKCZpcG1pX25yX3NvY2tzKSA+PSAy
-KmZpbGVzX3N0YXQubWF4X2ZpbGVzKQorCWlmIChhdG9taWNfcmVhZCgmaXBt
-aV9ucl9zb2NrcykgPj0gMipmaWxlc19zdGF0Lm1heF9maWxlc19oYXJkKQog
-CQlyZXR1cm4gTlVMTDsKIAogCWkgPSAoc3RydWN0IGlwbWlfc29jayAqKXNr
-X2FsbG9jKFBGX0lQTUksIEdGUF9LRVJORUwsCg==
-
---0-849906064-1080364892=:95067--

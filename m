@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262471AbUCLSse (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 13:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUCLSse
+	id S262439AbUCLSqx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 13:46:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUCLSqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 13:48:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21898 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262471AbUCLSsc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 13:48:32 -0500
-Date: Fri, 12 Mar 2004 13:48:21 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andrea Arcangeli <andrea@suse.de>, Hugh Dickins <hugh@veritas.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: anon_vma RFC2
-In-Reply-To: <Pine.LNX.4.58.0403120956370.1045@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.44.0403121346580.6494-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 12 Mar 2004 13:46:53 -0500
+Received: from [216.239.30.242] ([216.239.30.242]:31244 "EHLO
+	wind.enjellic.com") by vger.kernel.org with ESMTP id S262439AbUCLSqw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 13:46:52 -0500
+Message-Id: <200403121846.i2CIkofV004241@wind.enjellic.com>
+From: greg@wind.enjellic.com (Dr. Greg Wettstein)
+Date: Fri, 12 Mar 2004 12:46:49 -0600
+In-Reply-To: Muthian Sivathanu <muthian_s@yahoo.com>
+       "target mode fibre channel" (Mar  8, 12:41pm)
+Reply-To: greg@enjellic.com
+X-Mailer: Mail User's Shell (7.2.5 10/14/92)
+To: Muthian Sivathanu <muthian_s@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: target mode fibre channel
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Mar 2004, Linus Torvalds wrote:
+On Mar 8, 12:41pm, Muthian Sivathanu wrote:
+} Subject: target mode fibre channel
 
-> I think your approach could work (reverse map by having separate address
-> spaces for unrelated processes), but I don't see any good "page->index"  
-> allocation scheme that is implementable.
+> Hi,
 
-> Or did I totally mis-understand what you were proposing?
+Good afternoon.
 
-You're absolutely right.  I am still trying to come up with
-a way to do this.
+> Does linux have target mode support for fibre-channel
+> ?  i.e. can I have a linux machine fitted with a
+> fibrechannel card accept and service fibrechannel
+> requests from another host ? 
+> 
+> Basically, I want to construct a "RAID box" out of a
+> linux machine fitted with fibrechannel.   Other
+> machines should be able to talk to this machine and
+> treat this as a large disk volume.
 
-Note that since we count page->index in PAGE_SIZE unit we
-have PAGE_SIZE times as much space as a process can take,
-so we definately have enough address space to come up with
-a creative allocation scheme.
+Check-out:
 
-I just can't think of any now ...
+	http://www.pavitrasoft.com
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+We have been testing it extensively and have been very pleased.
 
+> thanks for any pointers,
+> Muthian
+
+}-- End of excerpt from Muthian Sivathanu
+
+As always,
+Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
+4206 N. 19th Ave.           Specializing in information infra-structure
+Fargo, ND  58102            development.
+PH: 701-281-1686
+FAX: 701-281-3949           EMAIL: greg@enjellic.com
+------------------------------------------------------------------------------
+"A raccoon tangled with a 23,000 volt line today.  The results blacked
+out 1400 homes and, of course, one raccoon."
+                                -- Steel City News

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132557AbRC1VUY>; Wed, 28 Mar 2001 16:20:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132569AbRC1VUP>; Wed, 28 Mar 2001 16:20:15 -0500
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:44297 "HELO innerfire.net") by vger.kernel.org with SMTP id <S132557AbRC1VT7>; Wed, 28 Mar 2001 16:19:59 -0500
-Date: Wed, 28 Mar 2001 13:19:34 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: rmk@arm.linux.org.uk
-cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, nwahofm@mi.uni-erlangen.de, Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
-Subject: Re: Disturbing news..
-In-Reply-To: <200103281554.QAA01342@raistlin.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10103281318550.30574-100000@innerfire.net>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132587AbRC1Vdz>; Wed, 28 Mar 2001 16:33:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132572AbRC1Vbg>; Wed, 28 Mar 2001 16:31:36 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:44299 "EHLO mail.stock-world.de") by vger.kernel.org with ESMTP id <S132582AbRC1VbQ>; Wed, 28 Mar 2001 16:31:16 -0500
+Message-ID: <3AC2550D.1D9F3355@evision-ventures.com>
+Date: Wed, 28 Mar 2001 23:18:05 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>, "H. Peter Anvin" <hpa@transmeta.com>, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+References: <E14i1ln-0004Tn-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Mar 2001 rmk@arm.linux.org.uk wrote:
-
-> Jesse Pollard writes:
-> > Absolutely true. The only help the checksumming etc stuff is good for is
-> > detecting the fact afterward by external comparison.
+Alan Cox wrote:
 > 
-> Don't we already have that to some extent?  rpm -ya or rpm -y <package name>
-> on a RedHat system?  I'm sure that there is a Debian equivalent.
+> > high-end-disks. Rather the reverse. I'm advocating the SCSI layer not
+> > hogging a major number, but letting low-level drivers get at _their_
+> > requests directly.
+> 
+> A major for 'disk' generically makes total sense. Classing raid controllers
+> as 'scsi' isnt neccessarily accurate. A major for 'serial ports' would also
+> solve a lot of misery
 
-http://www.tripwire.com does exactly this afik.	
+And IDE disk ver CD-ROM f and block vers. raw devices
+and so so at perpetuum. Those are the reaons why the
+density of majros ver. minors is exactly
+revers in solaris with respect to the proposal of Linus..
 
-	Gerhard
+And then we have all those VERY SPARSE static arrays of
+major versus minor devices information (if you look at which cells
+from those arrays are used on a running system which maybe about
+6-8 devices actually attached!)
 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+The main  sheer practical problem to changing kdev_t is
+the HUGE number of in fact entierly differnt drivers sharing the same
+major
+and splitting up the minor number space and then hooking
+devices with differnt block sizes and such on the same major.
+Many things in the block device layer handling could
+be simplefied significalty if one could assume for
+example that all the devices on one single major
+have the same block size and so on...

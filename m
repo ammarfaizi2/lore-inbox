@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293683AbSCKLBF>; Mon, 11 Mar 2002 06:01:05 -0500
+	id <S293689AbSCKLFF>; Mon, 11 Mar 2002 06:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293684AbSCKLAp>; Mon, 11 Mar 2002 06:00:45 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:62726 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S293683AbSCKLAc>;
-	Mon, 11 Mar 2002 06:00:32 -0500
-Date: Mon, 11 Mar 2002 12:00:16 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-Id: <20020311120016.475fc854.skraw@ithnet.com>
-In-Reply-To: <20020311135256.A856@namesys.com>
-In-Reply-To: <shswuwkujx5.fsf@charged.uio.no>
-	<200203110018.BAA11921@webserver.ithnet.com>
-	<15499.64058.442959.241470@charged.uio.no>
-	<20020311091458.A24600@namesys.com>
-	<20020311114654.2901890f.skraw@ithnet.com>
-	<20020311135256.A856@namesys.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S293688AbSCKLEz>; Mon, 11 Mar 2002 06:04:55 -0500
+Received: from mhw.ulib.iupui.edu ([134.68.164.123]:59084 "EHLO
+	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
+	id <S293684AbSCKLEp>; Mon, 11 Mar 2002 06:04:45 -0500
+Date: Mon, 11 Mar 2002 06:04:45 -0500 (EST)
+From: "Mark H. Wood" <mwood@IUPUI.Edu>
+X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <Pine.GSO.4.21.0203101623400.7778-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0203110549350.17717-100000@mhw.ULib.IUPUI.Edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002 13:52:56 +0300
-Oleg Drokin <green@namesys.com> wrote:
+On Sun, 10 Mar 2002, Alexander Viro wrote:
+> On Sun, 10 Mar 2002, Alan Cox wrote:
+>
+> > Its trickier than that - because all your other semantics have to align,
+> > its akin to the undelete problem (in fact its identical). Do you version on
+> > a rewrite, on a truncate, only on an O_CREAT ?
+>
+> Even better, what do you do upon link(2)?  Or rename(2) over one of the
+> versions...
 
-> Hello!
-> 
-> On Mon, Mar 11, 2002 at 11:46:54AM +0100, Stephan von Krawczynski wrote:
-> > <4>reiserfs: checking transaction log (device 22:01) ...
-> > <4>Using tea hash to sort names
-> > <4>reiserfs: using 3.5.x disk format
-> 
-> This means you have reiserfs v3.5 format on /dev/hdc1
-> And this one won't behave very good with nfs.
-> Does this one contain your nfs exports?
+TOPS-20 never had the concept of link(2), and VMS has an anemic version
+that nobody ever used so far as I know.  (There are a few VMS programs
+which use the ability to create a file with *no directory links at all*,
+which occasionally leaves some interesting puzzles for the sysadmin after
+a crash.)
 
-There is _no_ /dev/hdc1.
+Renaming would create a new version, I think, so it might push the oldest
+version off the end.  Explicitly renaming as existing version N should
+have no side-effects (other than deletion of the original content of
+version N).
 
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/sda3              6297280   6146232    151048  98% /
-/dev/sda2                31111     24695      4810  84% /boot
-/dev/hde1             60049096  30161576  29887520  51% /p2
-/dev/hdg1             20043416  16419444   3623972  82% /p3
-/dev/sda4             29245432  27525524   1719908  95% /p5
-shmfs                  1035112         0   1035112   0% /dev/shm
+> VMS is not UNIX.  And union of these two will be hell - incompatible models,
+> let alone features.  "Well, I don't use <list of Unix features>" is not an
+> answer - other people have different sets of things they don't use and you
+> can be sure that every thing you don't care about is absolute must-have
+> for somebody else.
 
-Exported fs is on /dev/hde1.
+True.  Studying other OSes for useful ideas is sensible, but swiping those
+ideas wholesale only works if the two are fairly closely aligned in the
+affected area.  Sometimes the idea needs major rework, and sometimes the
+graft produces a monster.
 
-/dev/hdc could only be a cdrom, but is not in use nor mounted, and for sure has
-never been related to reiserfs. 
-
-Regards,
-Stephan
+-- 
+Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
+Our lives are forever changed.  But *that* is exactly as it always was.
 

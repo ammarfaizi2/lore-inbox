@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbUK1OZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbUK1O06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbUK1OZr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 09:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUK1OZr
+	id S261488AbUK1O06 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 09:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUK1O06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 09:25:47 -0500
-Received: from ptb-relay03.plus.net ([212.159.14.214]:39439 "EHLO
-	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
-	id S261481AbUK1OZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 09:25:43 -0500
-Date: Sun, 28 Nov 2004 14:28:41 +0000
-From: Robert Murray <rob@mur.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: raid1 oops in 2.6.9 (debian package 2.6.9-1-686-smp)
-Message-ID: <20041128142840.GA4119@mur.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 28 Nov 2004 09:26:58 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:15248 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261488AbUK1O0x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 09:26:53 -0500
+Date: Sun, 28 Nov 2004 15:26:45 +0100 (MET)
+Message-Id: <200411281426.iASEQjDt001350@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: marcelo.tosatti@cyclades.com
+Subject: [PATCH][2.4.29-pre1] proc_tty.c warning fix
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+The /proc/tty/driver/serial vulnerability fix in 2.4.29-pre1
+calls a function without a prototype in scope, resulting in:
 
-The complete console log can be found at http://haylott.plus.com/~robbie/md-oops.txt
+proc_tty.c: In function `proc_tty_init':
+proc_tty.c:183: warning: implicit declaration of function `proc_mkdir_mode'
+proc_tty.c:183: warning: assignment makes pointer from integer without a cast
 
-hde is a failed drive. In this log, hdg (the other drive in the raid1
-array) is not present. This oops also occurs when hdg is present. I
-don't know why it tries to use hde when it has been failed for some
-time now.  This doesn't occur with 2.6.8 (also a debian kernel). I
-don't have a log of the oops when hdg was present, but I can provide
-one if necessary.
+Fixed by the trivial patch below.
 
-Please let me know if there is any other information I can provide to
-help to debug this.  For now I have removed hde and everything is
-working fine.
+Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
-Best regards
-
-Rob
-
+--- linux-2.4.29-pre1/include/linux/proc_fs.h.~1~	2004-11-28 12:54:26.000000000 +0100
++++ linux-2.4.29-pre1/include/linux/proc_fs.h	2004-11-28 13:44:05.000000000 +0100
+@@ -143,6 +143,7 @@ extern struct proc_dir_entry *proc_symli
+ 		struct proc_dir_entry *, const char *);
+ extern struct proc_dir_entry *proc_mknod(const char *,mode_t,
+ 		struct proc_dir_entry *,kdev_t);
++extern struct proc_dir_entry *proc_mkdir_mode(const char *, mode_t, struct proc_dir_entry *);
+ extern struct proc_dir_entry *proc_mkdir(const char *,struct proc_dir_entry *);
+ 
+ static inline struct proc_dir_entry *create_proc_read_entry(const char *name,

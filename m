@@ -1,55 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265826AbUAEAea (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 19:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUAEAea
+	id S265818AbUAEAkT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 19:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265821AbUAEAkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 19:34:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56205 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265826AbUAEAe2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 19:34:28 -0500
-Date: Mon, 5 Jan 2004 00:34:26 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-rc1-tiny1 tree for small systems
-Message-ID: <20040105003426.GZ4176@parcelfarce.linux.theplanet.co.uk>
-References: <20040103030814.GG18208@waste.org> <m13cawi2h8.fsf@ebiederm.dsl.xmission.com> <20040104084005.GU18208@waste.org> <m1ekufgt72.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1ekufgt72.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 4 Jan 2004 19:40:19 -0500
+Received: from host194.shepconst.com ([65.204.64.194]:27829 "EHLO
+	exc-svr1-shp.Shepconst.com") by vger.kernel.org with ESMTP
+	id S265818AbUAEAkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 19:40:12 -0500
+From: nonprofitorg@uymail.com
+To: links@worldrailfans.org
+Subject: Non Profit Organization Special
+X-Priority: 3
+Message-ID: <EXC-SVR1-SHPO8Be5U200022e27@exc-svr1-shp.Shepconst.com>
+X-OriginalArrivalTime: 05 Jan 2004 00:27:41.0025 (UTC) FILETIME=[BAA54D10:01C3D322]
+Date: 4 Jan 2004 19:27:41 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 05:00:49PM -0700, Eric W. Biederman wrote:
+New Years Special For All Non Profit Organizations:
 
-1) make block-based filesystems dependent on CONFIG_BLOCK
+Builtsmart Technologies, the national laptop manufacturer is offering a limited supply on
+2 of it's top selling laptop computers to all non profit organizations at a highly reduced 
+price. These laptops are being offered for 2 days only and are being offered to those 
+organizations that call: 
 
-> --- linux-2.6.1-rc1-tiny1.eb1/fs/super.c	Wed Dec 17 19:58:48 2003
-> +++ linux-2.6.1-rc1-tiny1.eb2/fs/super.c	Sun Jan  4 15:18:28 2004
-> @@ -473,8 +473,10 @@
->  {
->  	int retval;
->  	
-> +#ifdef CONFIG_BLOCK_DEVICES
->  	if (!(flags & MS_RDONLY) && bdev_read_only(sb->s_bdev))
->  		return -EACCES;
-> +#endif
->  	if (flags & MS_RDONLY)
->  		acct_auto_close(sb);
->  	shrink_dcache_sb(sb);
-> @@ -588,6 +590,7 @@
->  	return (void *)s->s_bdev == data;
->  }
 
-Tons of stuff here make sense only for block-based filesystems (e.g. the
-function immediately above ;-).  Ifdef, or, better yet, move to fs/block_dev.c
+                        1.800.657.4199 by Wednesday January 7th, 2004
 
-> +cond_syscall(sys_fsync)
-> +cond_syscall(sys_fdatasync)
 
-Huh?  They should work for network filesystems.
+All computers are brand new and offered directly from the manufacturer. They all have a full 
+1-year parts and labor warranty.
+
+About the computers:
+
+**The Builtsmart 1100P, Slim and Sleek**
+
+Laptop 1100 P Series-Sleek, slim and wireless ready
+
+*       1 Giga Pro mobile Transmeta Crusoe CPU for incredible power
+*       256 MB RAM
+*       CD-ROM 
+*       Wireless ready 
+*       20 GB Hard Drive 
+*       Sound Card and Video Card
+*       14.1 XGA TFT Liquid Screen
+*       Soft touch keyboard
+*       56.6 V90 Fax Modem
+*       Internet ready
+*       Network Ready
+*       Long Life Battery Pack
+*       1 year parts and labor
+*       Life time tech support and customer service
+
+...................Your Cost is $595.00
+
+Laptop 1300D Series, Wireless Onboard
+
+*       1200+ AMD Processor
+*       256 DDR RAM
+*       CD Rewriteable and DVD Combo
+*       Wireless  
+*       20 GB Hard Drive  
+*       Sound Card and Video Card
+*       14.1 XGA TFT Liquid Screen
+*       Soft touch keyboard
+*       56.6 V90 Fax Modem
+*       Internet ready
+*       Network Ready
+*       Long Life Battery Pack
+*       1 year parts and labor
+*       Life time tech support and customer service
+
+....................Your Cost is $745.00
+
+To order:
+
+1. You must call 1.800.657.4199 by Wednesday January 7th, 2004.
+2. Limited quantity available.
+3. You must be a valid non profit organization.
+
+
+Warranty information can be obtained free upon request by calling the number above.
+
+
+
+
+If you have received this email in error please follow the link for
+immediate removal. http://www.wholesalecomputerz.net/remove.html
+
+
+
+

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262530AbSI0PbV>; Fri, 27 Sep 2002 11:31:21 -0400
+	id <S262535AbSI0Pcq>; Fri, 27 Sep 2002 11:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262531AbSI0PbV>; Fri, 27 Sep 2002 11:31:21 -0400
-Received: from ns.suse.de ([213.95.15.193]:36877 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262530AbSI0PbU>;
-	Fri, 27 Sep 2002 11:31:20 -0400
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Put modules into linear mapping
-References: <20020927140930.GA12610@averell.suse.lists.linux.kernel> <Pine.LNX.4.44.0209271618360.8911-100000@serv.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Sep 2002 17:36:35 +0200
-In-Reply-To: Roman Zippel's message of "27 Sep 2002 16:49:12 +0200"
-Message-ID: <p73d6qzsav0.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S262534AbSI0Pcp>; Fri, 27 Sep 2002 11:32:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:19920 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262531AbSI0Pco>;
+	Fri, 27 Sep 2002 11:32:44 -0400
+Date: Fri, 27 Sep 2002 17:37:51 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Matthew Jacob <mjacob@feral.com>
+Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while doing file transfers
+Message-ID: <20020927153751.GH23468@suse.de>
+References: <389902704.1033133455@aslan.scsiguy.com> <Pine.BSF.4.21.0209270833450.21876-100000@beppo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.BSF.4.21.0209270833450.21876-100000@beppo>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> writes:
-
-> Why is i386 only? This is generic code and other archs will benefit from
-> it as well (or at least it won't hurt).
-
-Because some arcitectures have a different module_map() (e.g. x86-64 or 
-sparc64) and because the VMALLOC_START/END trick doesn't work on all.
-
-> > +
-> > +void *alloc_exact(unsigned int size)
-> > +{
-> > +	struct page *p, *w;
-> > +	int order = get_order(size);
-> > +
-> > +	p = alloc_pages(GFP_KERNEL, order);
+On Fri, Sep 27 2002, Matthew Jacob wrote:
 > 
-> Wouldn't it be better to add a gfp argument?
+> > If you don't like this behavior, which actually maximizes the
+> > throughput of the device, have the I/O scheduler hold back a single
+> > processes from creating such a large backlog.
+> 
+> 
+> Justin and I are (for once) in 100% agreement.
 
-I don't see a need for it. GFP_ATOMIC doesn't make sense for > order 0,
-and > order 0 is the only case that is interesting for alloc_exact. 
-GFP_DMA is not needed here, and GFP_HIGHUSER neither supports > order 0 
-properly (because of kmap) 
+Well Justin and you are both, it seems, missing the point.
 
--Andi
+I'm now saying for the 3rd time, that there's zero problem in having a
+huge dirty cache backlog. This is not the problem, please disregard any
+reference to that. Count only the time spent for servicing a read
+request, _from when it enters the drive_ and until it completes. IO
+scheduler is _not_ involved.
+
+-- 
+Jens Axboe
+

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261349AbSLaNMi>; Tue, 31 Dec 2002 08:12:38 -0500
+	id <S261353AbSLaNU3>; Tue, 31 Dec 2002 08:20:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261371AbSLaNMi>; Tue, 31 Dec 2002 08:12:38 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:27592 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261353AbSLaNMh>;
-	Tue, 31 Dec 2002 08:12:37 -0500
-Date: Tue, 31 Dec 2002 13:19:31 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Nathaniel Russell <reddog83@chartermi.net>, alan@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.4-ac] VT8633 GART Support [RESEND] Corrected
-Message-ID: <20021231131931.GC32207@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	Nathaniel Russell <reddog83@chartermi.net>, alan@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0212311106220.995-200000@reddog.example.net> <200212310523.43390.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212310523.43390.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.4i
+	id <S261371AbSLaNU3>; Tue, 31 Dec 2002 08:20:29 -0500
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:35757 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S261353AbSLaNU2> convert rfc822-to-8bit;
+	Tue, 31 Dec 2002 08:20:28 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [STATUS 2.5]  December 24, 2002
+Date: Tue, 31 Dec 2002 14:28:38 +0100
+User-Agent: KMail/1.4.1
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <63942A45-1722-11D7-8DC6-000393950CC2@karlsbakk.net> <200212302319.54390.roy@karlsbakk.net> <1041289888.13684.178.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1041289888.13684.178.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212311428.38516.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 31, 2002 at 05:23:57AM +0100, Marc-Christian Petersen wrote:
- > > The first patch i sent to the list was wroung becaue i miss typed out the
- > > PCI_DEVICE... it was supposed to be PCI_DEVICE_ID_VIA_8633_0 pci id is
- > > 0x3091
- > > Well here is the complete fixed and correct version of my patch.
- > shouldn't this be exactly 8633_1 ? Assuming this is a AGP patch and: 
- > http://pciids.sourceforge.net/iii/?m=1&i=1106b091
- > tells the same, 8633_1 :)
+> > I've submitted a few bug reports. will they be considered?
+>
+> The bug reports are all there on record and useful. It depends if Jens
+> has time to fix it, or someone else does the job before we begin the
+> final stabilizing freeze
 
-No. We match on host bridge, as thats where the magick bits we
-need to frob live. The bits in the AGP bridge are usually set up
-by the BIOS. When we do need to poke them too, we go looking for
-it in the initialisation routine.
-
-		Dave
+then perhaps it should go into the STATUS 2.5 ?
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

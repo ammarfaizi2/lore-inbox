@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270599AbTGTB4k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 21:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270600AbTGTB4k
+	id S270601AbTGTCMK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 22:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270597AbTGTCMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 21:56:40 -0400
-Received: from web41804.mail.yahoo.com ([66.218.93.138]:19796 "HELO
-	web41804.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270599AbTGTB4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 21:56:35 -0400
-Message-ID: <20030720021133.53368.qmail@web41804.mail.yahoo.com>
-Date: Sun, 20 Jul 2003 04:11:33 +0200 (CEST)
-From: =?iso-8859-1?q?Roberto=20Sanchez?= <rcsanchez97@yahoo.es>
-Subject: [PATCH] drivers/video/vesafb.c, kernel 2.6.0-test1
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: jsimmons@infradead.org, geert@linux-m68k.org, torvalds@osdl.org
+	Sat, 19 Jul 2003 22:12:10 -0400
+Received: from ore.jhcloos.com ([64.240.156.239]:16901 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S270596AbTGTCMH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 22:12:07 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: libata driver update posted
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <3F19A651.2080503@pobox.com>
+Date: 19 Jul 2003 22:27:00 -0400
+Message-ID: <m3ispyx79n.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a trivial patch I made against the 2.6.0-test1 kernel to fix the
-"vesafb: abort, cannot ioremap video memory 0x8000000 @ 0xe8000000" error
-on systems with 1 GB RAM or more trying to use the framebuffer.
+I gave this (pulled into linus' bk current) a try on my laptop.
 
-The trivial fix was mentioned on this list in this message:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0303.3/1236.html
+It has this pata chip:
 
-The thread for the above message started here:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0303.3/1098.html
+00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory Controller Hub (rev 04)
+00:1f.1 IDE interface: Intel Corp. 82801BAM IDE U100 (rev 03)
 
--Roberto Sanchez
+aka
 
-Here is the patch (it is only a change to one line):
+00:00.0 Class 0600: 8086:1130 (rev 04)
+        Flags: bus master, fast devsel, latency 0
+        Memory at e8000000 (32-bit, prefetchable) [size=64M]
+00:1f.1 Class 0101: 8086:244a (rev 03)
+        Subsystem: 8086:4541
+        Flags: bus master, medium devsel, latency 0
+        I/O ports at bfa0 [size=16]
 
---- linux-2.6.0-test1.orig/drivers/video/vesafb.c       2003-07-13
-23:30:36.000000000 -0400
-+++ linux/drivers/video/vesafb.c        2003-07-19 20:30:18.000000000 -0400
-@@ -227,7 +227,7 @@
-        vesafb_defined.xres = screen_info.lfb_width;
-        vesafb_defined.yres = screen_info.lfb_height;
-        vesafb_fix.line_length = screen_info.lfb_linelength;
--       vesafb_fix.smem_len = screen_info.lfb_size * 65536;
-+       vesafb_fix.smem_len = screen_info.lfb_width * screen_info.lfb_height *
-screen_info.lfb_depth;
-        vesafb_fix.visual   = (vesafb_defined.bits_per_pixel == 8) ?
-                FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
-                                                                               
+I left out the regualt ide support and added:
 
+CONFIG_SCSI_ATA=y
+CONFIG_SCSI_ATA_PATA=y
+CONFIG_SCSI_ATA_ATAPI=y
+CONFIG_SCSI_ATA_PIIX=y
 
+The laptop has its fixed drive at hda, its fixed cd/dvd at hdb and
+its media bay drive (whatever may be installed) at hdc.
 
-___________________________________________________
-Yahoo! Messenger - Nueva versión GRATIS
-Super Webcam, voz, caritas animadas, y más...
-http://messenger.yahoo.es
+root=/dev/sda3 failed to find the root fs.
+
+I don't have anything here to plug into the serial port, so I cannot
+record the boot messages.  
+
+Is my controller among the supported PIIX/ICH PATA chipsets?
+
+-JimC
+

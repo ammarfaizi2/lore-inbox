@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129513AbRBFO34>; Tue, 6 Feb 2001 09:29:56 -0500
+	id <S129512AbRBFOfR>; Tue, 6 Feb 2001 09:35:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129512AbRBFO3g>; Tue, 6 Feb 2001 09:29:36 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:47884 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S129517AbRBFO31>; Tue, 6 Feb 2001 09:29:27 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Wed, 7 Feb 2001 01:28:45 +1100
-To: christophe barbe <christophe.barbe@inup.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IRQ and sleep_on
-Message-ID: <20010207012844.C15995@linuxcare.com>
-In-Reply-To: <20010205131154.I31876@pc8.inup.com> <20010205133837.A485@pc8.inup.com> <3A7EA3B0.2D7CFA19@colorfullife.com> <20010205175348.A2372@pc8.inup.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010205175348.A2372@pc8.inup.com>; from christophe.barbe@inup.com on Mon, Feb 05, 2001 at 05:53:48PM +0100
+	id <S129537AbRBFOfJ>; Tue, 6 Feb 2001 09:35:09 -0500
+Received: from winds.org ([207.48.83.9]:51972 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id <S129512AbRBFOe7>;
+	Tue, 6 Feb 2001 09:34:59 -0500
+Date: Tue, 6 Feb 2001 09:33:22 -0500 (EST)
+From: Byron Stanoszek <gandalf@winds.org>
+To: neilb@cse.unsw.edu.au
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS stop/start problems (related to datagram shutdown bug?)
+Message-ID: <Pine.LNX.4.21.0102060925260.1065-100000@winds.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> There does seem to be a possible problem with sk_inuse not being
+> updated atomically, so a race between an increment and a decrement
+> could lose one of them.
+> svc_sock_release seems to often be called with no more protection than
+> the BKL, and it decrements sk_inuse.
+>
+> svc_sock_enqueue, on the other hand increments sk_inuse, and is
+> protected by sv_lock, but not, I think, by the BKL, as it is called by
+> a networking layer callback. So there might be a possibility for a
+> race here.
+>
+> The attached patch might fix it, so if you are having reproducable
+> problems, it might be worth applying this patch.
+>
+> NeilBrown
 
-> I'm very interesting to know why it's bad to restore flags in a sub-function.
-> I imagine it should be due to an optimisation in the restore function.
+I applied the patch and the problem seems to have gone away, where it was
+fairly reproducable beforehand. It waits a little longer (about 4 seconds)
+during the NFS daemon shutdown before [  OK  ] pops up, but it could be my
+imagination because I was doing it on the 166 and I was used to the 866's.
 
-On sparc32 the flags includes the window pointer which tells us where in
-the register windows we are. If you restore flags in a sub function
-the kernel will become very confused :)
+But what matters is that I can stop and restart NFS just fine now whereas
+before I couldn't. Thanks for the patch.
 
-Forcing cli/sti etc to be in the same function also helps readability.
+ -Byron
 
-Anton
+-- 
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

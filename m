@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279949AbRJ3Nh6>; Tue, 30 Oct 2001 08:37:58 -0500
+	id <S278510AbRJ3Nn6>; Tue, 30 Oct 2001 08:43:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279794AbRJ3Nhs>; Tue, 30 Oct 2001 08:37:48 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:35973 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S279949AbRJ3Nh3>; Tue, 30 Oct 2001 08:37:29 -0500
-Message-ID: <00a701c16148$4fb86a30$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Sam Vilain" <sam@vilain.net>, "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <1004179736.1615.19.camel@pelerin.serpentine.com> <E15yYuU-00043h-00@hoffman.vilain.net>
-Subject: Re: VIA KT133 data corruption update
-Date: Tue, 30 Oct 2001 14:39:34 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S279794AbRJ3Nns>; Tue, 30 Oct 2001 08:43:48 -0500
+Received: from dns.irisa.fr ([131.254.254.2]:1965 "HELO dns.irisa.fr")
+	by vger.kernel.org with SMTP id <S278510AbRJ3Nna>;
+	Tue, 30 Oct 2001 08:43:30 -0500
+Date: Tue, 30 Oct 2001 14:44:06 +0100
+From: DINH Viet Hoa <Viet-Hoa.Dinh@irisa.fr>
+To: "Rajat Chadda" <rajat.chadda@wipro.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Re: How to write System calls?
+Message-Id: <20011030144406.18a14fc2.vdinh@irisa.fr>
+In-Reply-To: <a7f8aa4832.a4832a7f8a@wipro.com>
+In-Reply-To: <a7f8aa4832.a4832a7f8a@wipro.com>
+Organization: IRISA
+X-Mailer: Sylpheed version 0.6.4claws12 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Sam Vilain" <sam@vilain.net>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, October 30, 2001 2:26 PM
-Subject: Re: VIA KT133 data corruption update
+"Rajat Chadda" <rajat.chadda@wipro.com> wrote:
 
+> Yes -- system calls can be implemented
+> as modules.
+> prog8.c is a module.
+> prog9.c is a user-space program.
+> 
+> In <asm/unistd.h> -- add
+> #define __NR_my_func            250 
 
-<snip>
->
-> I notice that Dell use FreeDOS on their utility disks that do this sort of
-> thing.  Dell++.  Perhaps you might have more luck using that over
-> WinBlowsME.
->
-> http://www.freedos.org/
->
+thanks but my question was rather:
+"in which case should we implement a new syscalls rather than a device
+and a ioctl ?"
 
-Even better: www.bootdisk.org
+ie : what is better ? a new device and ioctl or new syscalls ?
 
+and in which case, we should use one rather than the other ?
 
+-- 
+DINH Viêt Hoà, ingénieur associé, projet PARIS
+IRISA-INRIA, Campus de Beaulieu, 35042 Rennes cedex, France
+Tél: +33 (0) 2 99 84 75 98, Fax: +33 (0) 2 99 84 25 28

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262721AbTCTXo7>; Thu, 20 Mar 2003 18:44:59 -0500
+	id <S262933AbTCTXv3>; Thu, 20 Mar 2003 18:51:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262663AbTCTXnn>; Thu, 20 Mar 2003 18:43:43 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:8148 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id <S262695AbTCTXn3>;
-	Thu, 20 Mar 2003 18:43:29 -0500
-Date: Thu, 20 Mar 2003 23:54:21 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Poor performance with pcnet32 on SMP
-Message-ID: <Pine.LNX.4.53.0303202346220.3340@skynet>
+	id <S262969AbTCTXv3>; Thu, 20 Mar 2003 18:51:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32785 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262933AbTCTXv2>; Thu, 20 Mar 2003 18:51:28 -0500
+Message-ID: <3E7A567E.3080409@zytor.com>
+Date: Thu, 20 Mar 2003 16:02:06 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Joel Becker <Joel.Becker@oracle.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Larger dev_t and major/minor split
+References: <b5dckh$lv1$1@cesium.transmeta.com> <20030320220901.GR2835@ca-server1.us.oracle.com> <3E7A4977.5090700@zytor.com> <20030320234946.GT2835@ca-server1.us.oracle.com>
+In-Reply-To: <20030320234946.GT2835@ca-server1.us.oracle.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joel Becker wrote:
+> On Thu, Mar 20, 2003 at 03:06:31PM -0800, H. Peter Anvin wrote:
+> 
+>>Last I checked, all traditional (inode-based) Unix filesystems,
+>>including ext2/3 used block pointers for dev_t.  There are plenty of
+>>block pointers; 60 bytes worth.
+> 
+> 	They do indeed.  But ext2/3 touches that block pointer with
+> cpu_to_le32() and friends.  It needs fixing at best, and compatability
+> work for already existing partitions.
+> 
 
-I have being noticing some seriously poor network performance with SMP
-enabled. The machine is a xSeries 350 with quad xeon procesors. Under UP,
-I get decent transfer rates but with SMP enabled, it won't get over 2kB/s.
-I tried binding interrupts to one processor with
+A few options:
 
-echo 1 > /proc/irq/16/smp_affinity
+a) Use an inode flag indicating a large dev_t.  This is probably the
+best option.
 
-which, according to mail archives fixed the problem for other people, but
-the result is the same. A CVS checkout from a server on the local lan of a
-source tree less than 1MB took over an hour to complete but under UP
-completes in about 2 seconds. This occurs with both 2.4.20 and 2.5.64.
+b) Use a sentinel value, e.g. 0xffffffff, to indicate that the major and
+minor are in block pointers 1 and 2.
 
-In case it is relevant, the dmesg output related to the card on 2.5.64 is
+	-hpa
 
-pcnet32.c:v1.27b 01.10.2002 tsbogend@alpha.franken.de
-pcnet32: PCnet/FAST III 79C975 at 0x2200, 00 02 55 fc 6d 21 assigned IRQ 16.
-eth0: registered as PCnet/FAST III 79C975
-pcnet32: 1 cards_found.
-eth0: link up, 10Mbps, half-duplex, lpa 0x0021
-Module pcnet32 cannot be unloaded due to unsafe usage in include/linux/module.h:457
 
-Any suggestions on how to fix this are appreciated
-
--- 
-Mel Gorman

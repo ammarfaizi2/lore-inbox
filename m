@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130017AbQLRSnB>; Mon, 18 Dec 2000 13:43:01 -0500
+	id <S132357AbQLRSpv>; Mon, 18 Dec 2000 13:45:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132357AbQLRSmv>; Mon, 18 Dec 2000 13:42:51 -0500
-Received: from bacchus.veritas.com ([204.177.156.37]:55989 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S130017AbQLRSmj>; Mon, 18 Dec 2000 13:42:39 -0500
-Date: Mon, 18 Dec 2000 18:13:53 +0000 (GMT)
-From: Mark Hemment <markhe@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Linus elevator
-Message-ID: <Pine.LNX.4.21.0012181750350.22851-100000@alloc>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132418AbQLRSpb>; Mon, 18 Dec 2000 13:45:31 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:26612 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S132357AbQLRSp0>; Mon, 18 Dec 2000 13:45:26 -0500
+Date: Mon, 18 Dec 2000 12:15:00 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <14910.10020.692884.302587@wire.cadcamlab.org>
+In-Reply-To: <20001217153444N.dyky@df-usa.com> <20001218033154.F3199@cadcamlab.org> 
+	<20001218154907.A16749@athlon.random>
+Subject: Re: 2.2.18 asm-alpha/system.h has a problem
+X-Mailer: The Polarbar Mailer; version=1.19; build=71
+Message-Id: <20001218184531Z132357-439+4699@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-  Looking at the second loop in elevator_linus_merge(), it is possible for
-requests to have their elevator_sequence go negative.  This can cause a
-v long latency before the request is finally serviced.
-
-  Say, for example, a request (in the queue) is jumped in the first loop
-in elevator_linus_merge() as "cmd != rw", even though its 
-elevator_sequence is zero.  If it is found that the new request will
-merge, the walking back over requests which were jumped makes no test for
-an already zeroed elevator_sequence.  Hence it zero values can occur.
-
-  With high default values for read/wite_latency, this hardly ever occurs.
-
-  A simple fix for this is to test for zero before decrementing (patch
-below) in the second loop.
-  Alternatively, should testing in the first loop be modified?
-
-Mark
+** Reply to message from Peter Samuelson <peter@cadcamlab.org> on Mon, 18 Dec
+2000 09:03:00 -0600 (CST)
 
 
-diff -u --recursive --new-file -X dontdiff linux-2.4.0-test12/drivers/block/elevator.c markhe-2.4.0-test12/drivers/block/elevator.c
---- linux-2.4.0-test12/drivers/block/elevator.c	Tue Dec  5 23:05:26 2000
-+++ markhe-2.4.0-test12/drivers/block/elevator.c	Mon Dec 18 17:50:19 2000
-@@ -90,6 +90,9 @@
- 	if (ret != ELEVATOR_NO_MERGE && *req) {
- 		while ((entry = entry->next) != &q->queue_head) {
- 			struct request *tmp = blkdev_entry_to_request(entry);
-+
-+			if (!tmp->elevator_sequence)
-+				continue;
- 			tmp->elevator_sequence--;
- 		}
- 	}
+> Not a compiler bug, a source bug of assuming a C header file can be
+> included by a C++ program.  The right solution, as always, is to make a
+> copy of the header (assuming you really do need it) and edit the copy
+> as necessary. 
 
+That just creates more maintenance problems.  What if the kernel header file
+changes?  Then he'll have to change his copy as well.  He'll forever need to
+check changes in that kernel header file, or risk having an obscure bug that's
+otherwise hard to track.
+
+
+Yes, it's perfectly valid C, but so what?  That doesn't mean that it's a good
+idea.  It does no harm to make a minor change to the header file to allow a C++
+compiler to digest it.  I consider it to be a "professional courtesy" of a C
+programmer for a C++ programmer.  All the C programmer needs to do is
+acknowledge that someone might want to use a C++ compiler on the code, and just
+make a few minor changes that have no negative affect at all.
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

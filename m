@@ -1,102 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262099AbUCITWI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 14:22:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbUCITR1
+	id S262113AbUCITit (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 14:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbUCITaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:17:27 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:56550 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262129AbUCITPQ (ORCPT
+	Tue, 9 Mar 2004 14:30:01 -0500
+Received: from [193.108.190.253] ([193.108.190.253]:33468 "EHLO
+	pluto.linuxkonsulent.dk") by vger.kernel.org with ESMTP
+	id S262155AbUCIT2t convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:15:16 -0500
-Date: Tue, 9 Mar 2004 11:15:14 -0800
-To: "David S. Miller" <davem@redhat.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] (13/14) irda_param symbol exports
-Message-ID: <20040309191514.GN14543@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	Tue, 9 Mar 2004 14:28:49 -0500
+Subject: Re: UID/GID mapping system
+From: =?ISO-8859-1?Q?S=F8ren?= Hansen <sh@warma.dk>
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <04030910465700.32521@tabby>
+References: <1078775149.23059.25.camel@luke>  <04030910465700.32521@tabby>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1078860500.3156.1.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Mar 2004 20:28:25 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir264_irsyms_13_param.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Stephen Hemminger>
-(13/14) irda_param symbol exports
+tir, 2004-03-09 kl. 17:46 skrev Jesse Pollard:
+> Have you considered the problem of 64 bit uids? and gids?,
 
-Move irda_param related exports out of irsyms
+Er.. no. I just use the uid_t and gid_t. Are they 64bit? Why are they a problem?
 
+> and unlimited number of groups assigned to a single user?
 
+No. That's not my problem, is it? I just provide the mapping system.
 
-diff -u -p -r linux/net/irda.sC/irsyms.c linux/net/irda/irsyms.c
---- linux/net/irda.sC/irsyms.c	Mon Mar  8 19:23:23 2004
-+++ linux/net/irda/irsyms.c	Mon Mar  8 19:24:58 2004
-@@ -73,11 +73,6 @@ extern int  irlap_driver_rcv(struct sk_b
- EXPORT_SYMBOL(irda_debug);
- #endif
- EXPORT_SYMBOL(irda_notify_init);
--EXPORT_SYMBOL(irda_param_insert);
--EXPORT_SYMBOL(irda_param_extract);
--EXPORT_SYMBOL(irda_param_extract_all);
--EXPORT_SYMBOL(irda_param_pack);
--EXPORT_SYMBOL(irda_param_unpack);
- 
- /* IrLAP */
- 
-diff -u -p -r linux/net/irda.sC/parameters.c linux/net/irda/parameters.c
---- linux/net/irda.sC/parameters.c	Wed Dec 17 18:59:05 2003
-+++ linux/net/irda/parameters.c	Mon Mar  8 19:24:58 2004
-@@ -29,6 +29,8 @@
-  ********************************************************************/
- 
- #include <linux/types.h>
-+#include <linux/module.h>
-+
- #include <asm/unaligned.h>
- #include <asm/byteorder.h>
- 
-@@ -393,6 +395,7 @@ int irda_param_pack(__u8 *buf, char *fmt
- 
- 	return 0;
- }
-+EXPORT_SYMBOL(irda_param_pack);
- 
- /*
-  * Function irda_param_unpack (skb, fmt, ...)
-@@ -437,6 +440,7 @@ int irda_param_unpack(__u8 *buf, char *f
- 
- 	return 0;
- }
-+EXPORT_SYMBOL(irda_param_unpack);
- 
- /*
-  * Function irda_param_insert (self, pi, buf, len, info)
-@@ -489,6 +493,7 @@ int irda_param_insert(void *self, __u8 p
- 						 pi_minor_info->func);
- 	return ret;
- }
-+EXPORT_SYMBOL(irda_param_insert);
- 
- /*
-  * Function irda_param_extract_all (self, buf, len, info)
-@@ -544,6 +549,7 @@ int irda_param_extract(void *self, __u8 
- 						  type, pi_minor_info->func);
- 	return ret;
- }
-+EXPORT_SYMBOL(irda_param_extract);
- 
- /*
-  * Function irda_param_extract_all (self, buf, len, info)
-@@ -575,4 +581,4 @@ int irda_param_extract_all(void *self, _
- 	}
- 	return n;
- }
--
-+EXPORT_SYMBOL(irda_param_extract_all);
+> How about having to support multiple maps (one for each remote host
+> that mounts a filesystem)?
+
+The maps are on the client, so that's no issue. The trick is to make it
+totally transparent to the filesystem being mounted, be it networked or
+non-networked.
+
+> These tables are going to have to be external to the kernel, and the kernel
+> only caching those that are known to be active to speed up the search.
+
+I suppose that would be a solution. But now that you know it's on the
+client, is it still as big a problem? I don't think so, but I could be
+wrong.
+
+> I also suggest making it optional - or being able to specify a 1:1 mapping
+> be assumed. And be used with an inverse table: UIDs that are NOT to be mapped
+> (as in, all uids are mapped 1:1 EXCEPT ...)
+
+That's the way it's done now. If there's no map in the file, it's just
+passed through. And of course you don't have to supply any file at all!
+
+> I have worked at centers that had about 1200 users on each of 5 compute 
+> servers. Each compute server mounts the same filesystem from a server. IF
+> and only if all systems are within one security domain (all users are common, 
+> and have the same uid/gid list for all systems - a frequent case), do
+> you not need a map.
+
+Right.
+
+> If each compute server is in a different security domain (unique user list)
+> then you must have 5 maps (10 if you include group maps) for each filesystem.
+> That adds up to 6000 entries in uid maps alone. If 64 bit uids are used (8
+> bytes/uid) that becomes 48K for the example, with only ONE exported
+> filesystem, and only uids. This might seem a lot, but consider exports to
+> workstations - 150 workstations, and likely 2-5 uids each (at least
+> one for admininistration use). That would be 150 maps (just uids), of only 5
+> entries each - 750 entries, 6K (more reasonable).
+
+Still, the server does not know this is going on. It's all on the
+client, so the memory usage is limited.
+
+-- 
+Søren Hansen <sh@warma.dk>
+

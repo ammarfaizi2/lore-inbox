@@ -1,84 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262750AbTKEHKY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 02:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbTKEHKY
+	id S262747AbTKEHOo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 02:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbTKEHOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 02:10:24 -0500
-Received: from f10.mail.ru ([194.67.57.40]:8465 "EHLO f10.mail.ru")
-	by vger.kernel.org with ESMTP id S262750AbTKEHKR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 02:10:17 -0500
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=Alistair J Strachan=?koi8-r?Q?=22=20?= 
-	<alistair@devzero.co.uk>
-Cc: =?koi8-r?Q?=22?=Arjan van de Ven=?koi8-r?Q?=22=20?= 
-	<arjanv@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] KBUILD 2.5 issues/regressions
+	Wed, 5 Nov 2003 02:14:44 -0500
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:3550 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262747AbTKEHOn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 02:14:43 -0500
+Date: Wed, 5 Nov 2003 02:14:35 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Linus Torvalds <torvalds@osdl.org>, Paul Venezia <pvenezia@jpj.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: ext3 performance inconsistencies, 2.4/2.6
+Message-ID: <20031105021435.W2097@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20031104212813.GC30612@ti19.telemetry-investments.com> <Pine.LNX.4.44.0311041335200.20373-100000@home.osdl.org> <20031104221904.GE30612@ti19.telemetry-investments.com>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: unknown via proxy [212.30.182.96]
-Date: Wed, 05 Nov 2003 10:10:14 +0300
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1AHHny-000CwE-00.arvidjaar-mail-ru@f10.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031104221904.GE30612@ti19.telemetry-investments.com>; from brugolsky@telemetry-investments.com on Tue, Nov 04, 2003 at 05:19:04PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 04, 2003 at 05:19:04PM -0500, Bill Rugolsky Jr. wrote:
+> On Fedora 0.95, Pentium M 1.6GHz, 2.4.22-1.2115.nptl, glibc-2.3.2-10, (NPTL 0.60),
+> I get:
+> 
+> Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
+>                     -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+> Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+> NPTL           100M 13070 100 +++++ +++ 14141   4 13099 100 +++++ +++ +++++ +++
+> LinuxThreads   100M 25957 100 +++++ +++ 20037   5 26777  99 +++++ +++ +++++ +++
+> 
+> Ugh, still there.
 
-I am sorry to reopen this thread but as we hit the same issues in Mandrake
-I hope someone can advice.
+BTW, there are 3 different cases where locking might be different in glibc.
+When -lpthread is not linked in, when -lpthread is linked in but
+pthread_create hasn't been compiled yet and when first pthread_create has
+been compiled already.
 
-> On Friday 11 July 2003 19:01, Arjan van de Ven wrote:
-> > On Fri, Jul 11, 2003 at 06:56:53PM +0100, Alistair J Strachan wrote:
-> > > On Friday 11 July 2003 18:47, Arjan van de Ven wrote:
-> > > > On Fri, 2003-07-11 at 19:40, Alistair J Strachan wrote:
-> > > > > o The state of kbuild in shipped (distribution) kernels must be such
-> > > > > that the construction of external modules can be done without having
-> > > > > to modify the shipped kernel-source package.
-> > > >
-> > > > > that is actually not hard; I just did this in a RH rpm like way last
-> > > > week.
-> > >
-> > > I cannot see how you can make modversions modules without first building
-> > > vmlinux. This "RPM" presumably does not ship with vmlinux constructed
-> >
-> > It does actually.
+Could you post numbers for all these cases (ie. run the benchmark, then link
+the benchmark against -lpthread as well and rerun it and last link it
+against -lpthread and add:
+static void * tf (void *a) { return NULL; }
 
-But is it really enough? modpost needs all modules to extract symbol versions
-so it means kernel-source should actually ship all module.o files.
+...
+pthread_t pt;
+pthread_create (&pt, NULL, tf, 0);
+pthread_join (pt, NULL);
+...
+to benchmark's main (in each case NPTL and LinuxThreads)?
 
-> Ah. In that case, I suppose it's all moot and won't end up being an issue. It 
-> just strikes me that vmlinux would not have to be included in a distro 2.4 
-> kernel, because it is not a "dependency" of the build system. If this is how 
-> distros will operate, then just forget about it.
-
-Mandrake and AFAIK RedHat ship single 2.4 kernel source that allos building
-external module for any currently running distribution kernel. While this
-could be tweaked using symlinks it means that kernel-source needs to be
-shipped with copies of vmlinux and *all modules.o for every kernel flavour
-in distribution. As of this writing Mandrake includes 6 or 7 kernel versions.
-It is rather too much :(
-
-So it is still an issue. I am thinking about some way to direct modpost
-to extract versions out of /boot/vmlinuz and /lib/modules if it detects
-pristine distribution sources
-
-To recap - currently under Mandrake and RH it is possible to do
-
-rpm -i kernel-source
-cd /external/module/src
-make
-
-and it will automatically create module for currently running kernel as long
-as kernel is distribution kernel without any extra configuration.
-
-It appears that to support same functionality on 2.6 modversions need to be disabled ...
-
-TIA
-
--andrey
+	Jakub

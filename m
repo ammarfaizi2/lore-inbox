@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbTEIGjW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 02:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTEIGjW
+	id S262306AbTEIGlG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 02:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTEIGlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 02:39:22 -0400
-Received: from are.twiddle.net ([64.81.246.98]:32667 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S262299AbTEIGjU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 02:39:20 -0400
-Date: Thu, 8 May 2003 23:51:38 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       Russell King <rmk@arm.linux.org.uk>, rddunlap@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: The magical mystical changing ethernet interface order
-Message-ID: <20030509065138.GA25054@twiddle.net>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
-	Russell King <rmk@arm.linux.org.uk>, rddunlap@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20030507141458.B30005@flint.arm.linux.org.uk> <20030507082416.0996c3df.rddunlap@osdl.org> <20030507181410.A19615@flint.arm.linux.org.uk> <20030507150414.1eaeae75.akpm@digeo.com> <3EB98878.5060607@us.ibm.com> <1052395526.23259.0.camel@rth.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052395526.23259.0.camel@rth.ninka.net>
-User-Agent: Mutt/1.4i
+	Fri, 9 May 2003 02:41:05 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:57297 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262306AbTEIGlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 02:41:03 -0400
+Message-ID: <3EBB504C.1030001@nortelnetworks.com>
+Date: Fri, 09 May 2003 02:53:00 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: how to measure scheduler latency on powerpc?  realfeel doesn't work due to /dev/rtc issues
+References: <3EBAD63C.4070808@nortelnetworks.com> <20030509001339.GQ8978@holomorphy.com> <Pine.LNX.4.50.0305081735040.2094-100000@blue1.dev.mcafeelabs.com> <20030509003825.GR8978@holomorphy.com> <Pine.LNX.4.53.0305082052160.21290@chaos> <3EBB25FD.7060809@nortelnetworks.com> <20030509042659.GS8978@holomorphy.com> <3EBB4735.30701@nortelnetworks.com> <20030509062008.GT8978@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 05:05:26AM -0700, David S. Miller wrote:
-> This is absolutely not guarenteed.  The linker is at liberty to reorder
-> objects in any order it so desires, for performance reasons etc.
+William Lee Irwin III wrote:
 
-Not without some special flag it isn't.  WAY TOO MUCH
-stuff depends on link order.
+> I don't understand why you're obsessed with interrupts. Just run your
+> load and spray the scheduler latency stats out /proc/
 
-In any case, gnu ld DOES NOT reorder sections away from
-the order the objects were given on the command line.
+I'm obsessed with interrupts because it gives me a higher sampling rate.
+
+I could set up and itimer for a recurring 10ms timeout and see how much extra I 
+waited, but then I can only get 100 samples/sec.
+
+With /dev/rtc (on intel) you can get 20x more samples in the same amount of time.
+
+Chris
 
 
-r~
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317331AbSGOFet>; Mon, 15 Jul 2002 01:34:49 -0400
+	id <S317338AbSGOFjY>; Mon, 15 Jul 2002 01:39:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317334AbSGOFes>; Mon, 15 Jul 2002 01:34:48 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:7107 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317331AbSGOFer>;
-	Mon, 15 Jul 2002 01:34:47 -0400
-Date: Sun, 14 Jul 2002 22:28:20 -0700 (PDT)
-Message-Id: <20020714.222820.132929128.davem@redhat.com>
-To: szepe@pinerecords.com
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [sparc32] reserve nocache based on RAM size
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020714153804.GA8783@louise.pinerecords.com>
-References: <20020714153804.GA8783@louise.pinerecords.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317339AbSGOFjX>; Mon, 15 Jul 2002 01:39:23 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63247 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317338AbSGOFjX>; Mon, 15 Jul 2002 01:39:23 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH] agpgart splitup and cleanup for 2.5.25
+Date: Mon, 15 Jul 2002 05:38:59 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <agtn5j$ij2$1@penguin.transmeta.com>
+References: <20020711230222.GA5143@kroah.com>
+X-Trace: palladium.transmeta.com 1026711735 26626 127.0.0.1 (15 Jul 2002 05:42:15 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 15 Jul 2002 05:42:15 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Tomas Szepe <szepe@pinerecords.com>
-   Date: Sun, 14 Jul 2002 17:38:05 +0200
+In article <20020711230222.GA5143@kroah.com>, Greg KH  <greg@kroah.com> wrote:
+>
+>Here's the diffstat output of it:
+> drivers/char/Config.help             |   87 
+> drivers/char/Config.in               |   15 
+> drivers/char/agp/Config.help         |   88 
+> drivers/char/agp/Config.in           |   14 
+> drivers/char/agp/Makefile            |   13 
+> drivers/char/agp/agp.h               |  348 +-
+> drivers/char/agp/agpgart_be-ali.c    |  265 ++
+> drivers/char/agp/agpgart_be-amd.c    |  408 +++
+> drivers/char/agp/agpgart_be-hp.c     |  394 +++
+> drivers/char/agp/agpgart_be-i460.c   |  595 ++++
+> drivers/char/agp/agpgart_be-i810.c   |  594 ++++
+> drivers/char/agp/agpgart_be-i8x0.c   |  720 +++++
+> drivers/char/agp/agpgart_be-sis.c    |  142 +
+> drivers/char/agp/agpgart_be-sworks.c |  626 +++++
+> drivers/char/agp/agpgart_be-via.c    |  151 +
 
-   Since there's no official sparc32 maintainer, I'm sending this patch
-   directly to you. It has now been tested in various configurations
-   (released in the default Aurora 0.3 kernel) and appears to be causing
-   no undesired side effects.
+Ok, so is there any real _reason_ to have filenames quite this ugly?
 
-I'm still reviewing the patch and it is in my backlog AND I was on a
-12 day vacation.  Be patient and I didn't want this in until 2.4.20
-anyways, thanks.
+I'd love to have agp split up sanely, but "sanely" does imply that a via
+driver is called "via.c", since the "be" part ("backend") is completely
+silly (of _course_ a chipset driver is a "backend" driver, it sure as
+hell aint frontend), and that "agpgart_" prefix is kind of silly, since
+the whole subdirectory is clearly about AGP. 
+
+Having filenames that repeat is redundant, excessive, exorbitant, and
+superfluous. 
+
+If you want the redundancy, duplication and profusion, please keep it
+shorter.  And put it at the end, so that at least filename completion
+works well: "via-agp.c".
+
+Ok?
+
+				Linus

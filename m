@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262260AbTCHWWU>; Sat, 8 Mar 2003 17:22:20 -0500
+	id <S262239AbTCHWUn>; Sat, 8 Mar 2003 17:20:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262272AbTCHWWU>; Sat, 8 Mar 2003 17:22:20 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52230 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262260AbTCHWWT>; Sat, 8 Mar 2003 17:22:19 -0500
-Date: Sat, 8 Mar 2003 17:28:10 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Harald.Schaefer@gls-germany.com
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Thomas.Mieslinger@gls-germany.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ide-problem still with 2.4.21-pre5-ac1
-In-Reply-To: <OFA9D69D12.A2BE6A15-ONC1256CE1.00344A6F-C1256CE1.0039609A@LocalDomain>
-Message-ID: <Pine.LNX.3.96.1030308172559.4525D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262241AbTCHWUn>; Sat, 8 Mar 2003 17:20:43 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:64691
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262239AbTCHWUm>; Sat, 8 Mar 2003 17:20:42 -0500
+Subject: Re: [PATCH] register_blkdev
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Joel Becker <Joel.Becker@oracle.com>, Greg KH <greg@kroah.com>,
+       Andries.Brouwer@cwi.nl, akpm@digeo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20030308215239.A782@infradead.org>
+References: <UTC200303080057.h280v0o28591.aeb@smtp.cwi.nl>
+	 <20030308005333.GF23071@kroah.com> <20030308073407.A24272@infradead.org>
+	 <20030308192908.GB26374@kroah.com> <20030308194331.A31291@infradead.org>
+	 <20030308214130.GK2835@ca-server1.us.oracle.com>
+	 <20030308215239.A782@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047166634.26807.50.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 08 Mar 2003 23:37:14 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Mar 2003 Harald.Schaefer@gls-germany.com wrote:
-
->  *    1. CHS value set by user       (whatever user sets will be trusted)
->  *    2. LBA value from target drive (require new ATA feature)
->  *    3. LBA value from system BIOS  (new one is OK, old one may break)
->  *    4. CHS value from system BIOS  (traditional style)
+On Sat, 2003-03-08 at 21:52, Christoph Hellwig wrote:
+> > 	Wait, so ugly hacks that steal every remaining major
 > 
-> I think that the priority of LBA from BIOS has to be raised to 2 and the
-> priority of LBA from drive should be lowered to 3.
-> The mapping-problem only appreared with very new drives in some
-> brand-computers using a 240-head mapping from the bios.
+> What hack to steal every remaining major?  Remember that Linus already said
+> that there won't be new static majors anyway.
 
-I think the chances of a drive knowing its own correct LBA info is far
-better than the BIOS getting it right. Many BIOS versions don't understand
-large drives.
+No vendor I have spoken too intends to care what Linus thinks about it.
+Linus tried this in 2.4. We all got together to create a numbering
+repository instead of letting Linus do it.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

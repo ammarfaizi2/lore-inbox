@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263714AbUFFPJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263733AbUFFPJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263714AbUFFPJX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 11:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUFFPJX
+	id S263733AbUFFPJb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 11:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbUFFPJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 11:09:23 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:11756 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S263714AbUFFPJU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 11:09:20 -0400
-Date: Sun, 6 Jun 2004 17:07:59 +0200 (MEST)
-Message-Id: <200406061507.i56F7xdS029391@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: pj@sgi.com, wli@holomorphy.com
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
-Cc: Simon.Derr@bull.net, ak@muc.de, akpm@osdl.org, ashok.raj@intel.com,
-       colpatch@us.ibm.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
-       rusty@rustcorp.com.au
+	Sun, 6 Jun 2004 11:09:31 -0400
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:3245 "HELO
+	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263733AbUFFPJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 11:09:27 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: keyboard problem with 2.6.6
+Date: Sun, 6 Jun 2004 10:09:23 -0500
+User-Agent: KMail/1.6.2
+Cc: Sau Dan Lee <danlee@informatik.uni-freiburg.de>, Valdis.Kletnieks@vt.edu
+References: <xb7llj1yql6.fsf@savona.informatik.uni-freiburg.de>
+In-Reply-To: <xb7llj1yql6.fsf@savona.informatik.uni-freiburg.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="big5"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406061009.23831.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jun 2004 12:01:46 -0700, Paul Jackson wrote:
->William Lee Irwin III wrote:
->> +void bitmap_to_u32_array(u32 *dst, unsigned long *src, int nwords)
-...
->Mikael - does William's routine look like the makings of something
->that fits your needs?
+On Sunday 06 June 2004 04:37 am, Sau Dan Lee wrote:
+> >>>>> "Valdis" == Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
+> 
+>     >> You don't tell any kernel about that... it is the bootloader
+>     >> you are talking to. And that one may very well have integrated
+>     >> kbd support.
+> 
+>     Valdis> So GRUB knows about keyboards, lets you type in the
+>     Valdis> "init=/bin/bash", it loads the kernel, the kernel launches
+>     Valdis> init, /bin/bash gets loaded 
+> 
+> If  init can  launch /bin/bash  (actually,  it lauches  getty in  most
+> setups), why can't it start the userland keyboard driver daemon?
+>
 
-It could, except I think it gets the word order wrong:
+Init does not start bash, in the case above bash started by the kernel
+_instead_ of init. The only thing you have is bash. No regular init scripts
+will be executed, nothing.
+ 
+ > Back  in the  old days  before the  introduction of  /etc/rc.d/, every
+> daemon was started from by init.
+> 
+> 
+>     Valdis> - and /bin/bash can't talk to the keyboard because the
+>     Valdis> userspace handler hasn't happened.  
+> 
+> As soon as the daemon is  running, /bin/bash can talk to the keyboard.
 
-+#if defined(__BIG_ENDIAN) && BITS_PER_LONG == 64
-+void bitmap_to_u32_array(u32 *dst, unsigned long *src, int nwords)
-+{
-+	int i;
-+
-+	for (i = 0; i < nwords; ++i) {
-+		u64 word = src[i];
-+		dst[2*i] = word >> 32;
-+		dst[2*i+1] = word;
-+	}
-+}
-+#else
-+void bitmap_to_u32_array(u32 *dst, unsigned long *src, int nwords)
-+{
-+	memcpy(dst, src, nwords*sizeof(unsigned long));
-+}
-+#endif
-
-Notice how it emits the high int before the low int.
-(Which btw also is the native big-endian storage order,
-so the memcpy() would have done the same.)
-
-Now consider the location of bit 0, with mask value 1(*),
-on a 64-bit big-endian machine. The code above puts this
-in the second int, as bit 0 in *((char*)dst + 7).
-But a 32-bit user-space, or a 64-bit user-space that sees
-an array of ints not longs, wants it in the first int,
-as bit 0 in *((char*)dst + 3).
-
-Perfctr's marshalling procedure for cpumask_t values
-(drivers/perfctr/init.c:cpus_copy_to_user() in recent -mm)
-is endian-neutral and converts each long by emitting the
-ints from least significant to most significant.
-
-Considering the API for retrieving an array of unknown size,
-perfctr's marshalling procedure does the following:
-
->	const unsigned int k_nrwords = PERFCTR_CPUMASK_NRLONGS*(sizeof(long)/sizeof(int));
->	unsigned int u_nrwords;
->	if (get_user(u_nrwords, &argp->nrwords))
->		return -EFAULT;
->	if (put_user(k_nrwords, &argp->nrwords))
->		return -EFAULT;
->	if (u_nrwords < k_nrwords)
->		return -EOVERFLOW;
-
-That is, it always tells user-space how much space is needed,
-and if user-space provided too little, it gets EOVERFLOW.
-Knowing the number of words in the encoded cpumask_t also
-avoids having to know the exact value of NR_CPUS in user-space.
-
-/Mikael
-
-(*) Normal bit order, not IBM POWER's reversed bit order.
+But nothing has started driver (no scriprs were run, remember?) so it's not
+running and bash can't get keyboard input.
+ 
+-- 
+Dmitry

@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262963AbTE2WML (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 18:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbTE2WMK
+	id S263077AbTE2WOb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 18:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTE2WOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 18:12:10 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:56289 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262963AbTE2WMJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 18:12:09 -0400
-Message-Id: <200305292225.h4TMPEE10131@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Andi Kleen <ak@suse.de>
-cc: Craig Thomas <craiger@osdl.org>, "David S. Miller" <davem@redhat.com>,
-       rddunlap@osdl.org, peloquin@austin.ibm.com,
-       linux-kernel@vger.kernel.org, cliffw@osdl.org
-Subject: Re: Nightly regression runs against current bk tree 
-In-Reply-To: Message from Andi Kleen <ak@suse.de> 
-   of "Fri, 30 May 2003 00:05:40 +0200." <20030529220540.GE11309@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 29 May 2003 15:25:14 -0700
-From: Cliff White <cliffw@osdl.org>
+	Thu, 29 May 2003 18:14:30 -0400
+Received: from smtp1.poczta.onet.pl ([213.180.130.31]:1451 "EHLO
+	smtp1.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S263077AbTE2WO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 18:14:29 -0400
+Message-ID: <001801c32631$642ba220$41010101@toshiba>
+From: "Gutko" <gutko@poczta.onet.pl>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+References: <Pine.LNX.4.44.0305291025550.11675-100000@bork.hampshire.edu> <1054216464.20725.70.camel@dhcp22.swansea.linux.org.uk>
+Subject: Re: siimage driver status
+Date: Fri, 30 May 2003 00:26:46 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.0
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > OSDL has a mail list that is used to discuss the stability of the linux
-> > kernel.  This would be a perfect list to use for posting test results.
-> > The list name is linstab@osdl.org. It is a public list administered by
-> > OSDL.  To subscribe: http://www.osdl.org/mailman/listinfo/linstab
-> 
-> That's fairly obscure (Nobody knew of it before). Perhaps a well publicized
-> list on vger would be better.
 
-Perhaps - though we can publicize any new list. 
-We're content to leave the decision to DaveM and the list team -  
-if they don't want the extra work, we're always glad to help. 
-cliffw
-OSDL
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
 
-> 
-> -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
+> On Iau, 2003-05-29 at 15:32, Wm. Josiah Erikson wrote:
+> > hard drives that I'm trying to get to work with linux 2.4.21-rc6. The
+> > problem I'm having is that it's REALLY slow and crashy. The kernel
+reports
+> > this on bootup:
+>
+> I'm running the siimage driver fine with several drives. Your setup is
+> intriguing in that the BIOS has chosen to leave the drives in PIO mode
+>
+> > SiI3112 Serial ATA: IDE controller at PCI slot 01:0b.0
+> > SiI3112 Serial ATA: chipset revision 2
+> > SiI3112 Serial ATA: not 100% native mode: will probe irqs later
+> >     ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
+> >     ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
+>
+> Really the SATA drives ought to have come up in UDMA
+
+I have Asus A7N8X deluxe too, and I reported this issue with rc4.
+I'm running one IBM vancouver2 180gxp drive on SIL3112A, and I always have
+PIO on boot.
+I can enable DMA manually and it works good, but I can bet if I connect
+second hdd in RAID
+with this I already have, I'll get all problems described above!!! My friend
+also runs succesfully ONE
+hdd in DMA on the same ASUS on sata, but connecting seconf drive blows
+everything away..
+
+Gutko
 

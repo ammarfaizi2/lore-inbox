@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbTJQR0c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 13:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263562AbTJQR0c
+	id S263571AbTJQRop (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 13:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263572AbTJQRop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 13:26:32 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:31466 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S263561AbTJQR02
+	Fri, 17 Oct 2003 13:44:45 -0400
+Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:34073 "HELO
+	ash.lnxi.com") by vger.kernel.org with SMTP id S263571AbTJQRol
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 13:26:28 -0400
-Message-ID: <02b901c394d3$96c662e0$890010ac@edumazet>
-From: "dada1" <dada1@cosmosbay.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <lm@bitmover.com>, <albert@users.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-References: <1066356438.15931.125.camel@cube><20031017023437.GB28158@work.bitmover.com><01e601c39484$f3fa31c0$890010ac@edumazet> <20031017021040.4964309a.davem@redhat.com>
-Subject: Re: /proc reliability & performance
-Date: Fri, 17 Oct 2003 19:24:56 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 17 Oct 2003 13:44:41 -0400
+Subject: remove unnecessary BIOS reserved resources
+From: Thayne Harbaugh <tharbaugh@lnxi.com>
+Reply-To: tharbaugh@lnxi.com
+To: linux-kernel@vger.kernel.org
+Cc: Eric Biederman <ebiederman@lnxi.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-p9GkyyrpvzN8JvUdKn26"
+Organization: Linux Networx
+Message-Id: <1066412413.6281.12.camel@tubarao>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 17 Oct 2003 11:40:13 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: "David S. Miller" <davem@redhat.com>
-> "dada1" <dada1@cosmosbay.com> wrote:
->
-> > A "cat /proc/net/tcp" takes too much time to even try it. :(
-> >
-> > tools like "netstat" or "lsof", (even with -n flag) are just unusable.
->
-> Because they don't use the netlink TCP socket dumping
-> facility which is made to handle such things much better
-> than procfs ever can.
+--=-p9GkyyrpvzN8JvUdKn26
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thanks David for the hint. :) I buy it.
+e820 BIOS reserved memory ranges can be incorrect.  Even when the ranges
+are correct, once they are entered into iomem_resource with
+request_resorce() the ranges prevent drivers from registering the same
+ranges.
 
-I found that the ss command from iproute2 package does use the 'netlink TCP
-dumping' you mention (how many people on earth heard about that ?)
+Not registering the ranges shouldn't break anything - some BIOSes don't
+even report _any_ reserved ranges and the kernel works just fine.  This
+patch drops registration of e820 BIOS reserved ranges.  The patch should
+apply to 2.4.x and 2.6.
 
-Instead of 15 minutes for a 'netstat -n > FILE', my server takes now 6
-seconds with 'ss -n > FILE', with 200000 sockets opened.
+--- linux-2.4.20/arch/i386/kernel/setup.c	2002-11-28 16:53:09.000000000
+-0700
++++ linux-2.4.20-bs/arch/i386/kernel/setup.c	2003-10-17
+12:01:12.000000000 -0600
+@@ -1047,7 +1047,6 @@
+ 		case E820_RAM:	res->name =3D "System RAM"; break;
+ 		case E820_ACPI:	res->name =3D "ACPI Tables"; break;
+ 		case E820_NVS:	res->name =3D "ACPI Non-volatile Storage"; break;
+-		default:	res->name =3D "reserved";
+ 		}
+ 		res->start =3D e820.map[i].addr;
+ 		res->end =3D res->start + e820.map[i].size - 1;
 
-Eric
+Anyone have reasons why this shouldn't be applied?
+
+--=20
+Thayne Harbaugh
+Linux Networx
+
+--=-p9GkyyrpvzN8JvUdKn26
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/kCl9fsBPTKE6HMkRAsLIAJkBBtRjX0wBWqYbPwnSxJgdJPxcVwCfcZNT
+eygV7cM6F5yINNKK1CesxKs=
+=lyYI
+-----END PGP SIGNATURE-----
+
+--=-p9GkyyrpvzN8JvUdKn26--
 

@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264080AbRFNVrW>; Thu, 14 Jun 2001 17:47:22 -0400
+	id <S264092AbRFNVtC>; Thu, 14 Jun 2001 17:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264092AbRFNVrN>; Thu, 14 Jun 2001 17:47:13 -0400
-Received: from smtp-rt-2.wanadoo.fr ([193.252.19.154]:40404 "EHLO
-	apeiba.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264080AbRFNVrG>; Thu, 14 Jun 2001 17:47:06 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>,
+	id <S264096AbRFNVsr>; Thu, 14 Jun 2001 17:48:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:24756 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264092AbRFNVs3>;
+	Thu, 14 Jun 2001 17:48:29 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15145.12584.339783.786454@pizda.ninka.net>
+Date: Thu, 14 Jun 2001 14:48:24 -0700 (PDT)
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        linux-kernel@vger.kernel.org,
         "Albert D. Cahalan" <acahalan@cs.uml.edu>,
         Tom Gall <tom_gall@vnet.ibm.com>
 Subject: Re: Going beyond 256 PCI buses
-Date: Thu, 14 Jun 2001 23:46:40 +0200
-Message-Id: <20010614214640.22919@smtp.wanadoo.fr>
-In-Reply-To: <15145.11801.823664.36512@pizda.ninka.net>
-In-Reply-To: <15145.11801.823664.36512@pizda.ninka.net>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3B2930B1.3E082883@mandrakesoft.com>
+In-Reply-To: <15145.6960.267459.725096@pizda.ninka.net>
+	<20010614213021.3814@smtp.wanadoo.fr>
+	<3B2930B1.3E082883@mandrakesoft.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I beleive there will always be need for some platform specific
-> > hacking at probe-time to handle those, but we can at least make
-> > the inx/outx functions/macros compatible with such a scheme,
-> > possibly by requesting an ioremap equivalent to be done so that
-> > we stop passing them real PIO addresses, but a cookie obtained
-> > in various platform specific ways.
->
->The cookie can be encoded into the address itself.
->
->This is why readl() etc. take one arg, the address, not a billion
->other arguments like some systems do.
 
-Right, I don't want an additional parameter. Just a clear definition
-that, like read/writex(), the in/outx() functions "address" parameter
-is not a magic IO address, but a cookie obtained from an ioremap-like
-function.
+Jeff Garzik writes:
+ > I think rth requested pci_ioremap also...
 
-Now, the parameter passed to that ioremap-like function are a different
-story. I beleive it could be something like
+It really isn't needed, and I understand why Linus didn't like the
+idea either.  Because you can encode the bus etc. info into the
+resource addresses themselves.
 
-isa_pioremap(domain, address, size)  for ISA-like PIO
-isa_ioremap(domain, address, size)   for ISA-like mem
+On sparc64 we just so happen to stick raw physical addresses into the
+resources, but that is just one way of implementing it.
 
-domain can be 0 for "default" case (or maybe -1 as 0 is a valid
-domain number and we may want the default domain to be another one)
-
-For PCI PIOs, we need a pioremap(pci_dev, address, size) counterpart
-to ioremap, as mapping of IO space is usually different on each domain.
-
-A nice side-effect of enforcing those rules is that we no-longer need
-to have the entire IO space of all domain beeing mapped in kernel virtual
-space all the time as it's the case now (at least on PPC), thus saving
-kernel virtual address space.
-
-Now, we can argue on the "pioremap" name itself ;)
-
-A typical use is a fbdev driver for a VGA-compatible PCI card. Some of
-these still require some "legacy" access before beeing fully useable with
-PCI MMIO only. Such driver can use isa_pioremap & isa_ioremap with the
-domain number extracted from the pci_dev of the card in order to generate
-those necessary cycles.
-
-Ben.
-
-
+Later,
+David S. Miller
+davem@redhat.com

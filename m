@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262012AbSIVJts>; Sun, 22 Sep 2002 05:49:48 -0400
+	id <S261476AbSIVJsc>; Sun, 22 Sep 2002 05:48:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262915AbSIVJts>; Sun, 22 Sep 2002 05:49:48 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:4304 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S262012AbSIVJtr>;
-	Sun, 22 Sep 2002 05:49:47 -0400
-Date: Sun, 22 Sep 2002 12:02:10 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Cort Dougan <cort@fsmlabs.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
- elimination, 2.5.35-BK
-In-Reply-To: <20020922003448.GU1345@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0209221157030.19753-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262012AbSIVJsc>; Sun, 22 Sep 2002 05:48:32 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:19182 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261476AbSIVJsb>; Sun, 22 Sep 2002 05:48:31 -0400
+Subject: Re: make bzImage fails on 2.5.38
+From: Arjan van de Ven <arjanv@fenrus.demon.nl>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Aniruddha Shankar <ashankar@nls.ac.in>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0209220229480.22740-100000@weyl.math.psu.edu>
+References: <Pine.GSO.4.21.0209220229480.22740-100000@weyl.math.psu.edu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-SU7AgSgmX6GKGnsbNZ1L"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Sep 2002 11:54:44 +0200
+Message-Id: <1032688484.2150.2.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 22 Sep 2002, Andrea Arcangeli wrote:
+--=-SU7AgSgmX6GKGnsbNZ1L
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Nevertheless the current get_pid is very bad when the tasklist grows and
-> the pid space is reduced, [...]
+On Sun, 2002-09-22 at 08:31, Alexander Viro wrote:
+>=20
+>=20
+> On Sun, 22 Sep 2002, Aniruddha Shankar wrote:
+>=20
+> > First post to the list, I've followed the format given in REPORTING-BUG=
+S
+> >=20
+> > 1. make bzImage fails on 2.5.38
+>=20
+> Arrgh.
+>=20
+> ed fs/partitions/check.c <<EOF
+> 365s/devfs_handle/cdroms/
+> w
+> q
+> EOF
 
-> It may not be the best for a 1million pid case, but certainly it is a
-> must have for 2.4 and I think it could be ok for 2.5 too. It is been
-> submitted for 2.5 a number of times, I quote below the 2.4 version just
-> so you know what I'm talking about exactly [...]
+using ed now that you can't post vi scripts ?
 
-Andrea, the new PID allocator (and new pidhash) went into 2.5.37, there's
-no get_pid() anymore. Do we agree that the runtime-bitmap hack^H^H^H^patch
-is now moot for 2.5?
+/me runs
 
-	Ingo
+--=-SU7AgSgmX6GKGnsbNZ1L
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9jZNkxULwo51rQBIRAtHOAKCZtcUOa95SkdEXuTdOnwHTjUyQNgCePbok
+32DyuTXyD7Cs5AocJ+o+zrU=
+=gvbi
+-----END PGP SIGNATURE-----
+
+--=-SU7AgSgmX6GKGnsbNZ1L--
 

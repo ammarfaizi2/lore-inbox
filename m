@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbTDVFsT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 01:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbTDVFsT
+	id S262946AbTDVFuv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 01:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbTDVFuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 01:48:19 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:38405 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S262945AbTDVFsS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 01:48:18 -0400
-Date: Tue, 22 Apr 2003 08:00:21 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	Tue, 22 Apr 2003 01:50:51 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:269 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP id S262946AbTDVFus
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 01:50:48 -0400
+Date: Mon, 21 Apr 2003 23:00:13 -0700
+From: jw schultz <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68{,-bk1,-bk2} refuses to boot
-Message-ID: <20030422060021.GA19139@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0304221526400.29695-100000@bad-sports.com>
+Subject: Re: [PATCH] new system call mknod64
+Message-ID: <20030422060013.GO16934@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <UTC200304220102.h3M126n06187.aeb@smtp.cwi.nl> <b8262k$6t8$1@cesium.transmeta.com> <20030422020153.GA18141@mail.jlokier.co.uk> <3EA4AE54.80607@zytor.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VSfbCJd5UFatzzNC"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304221526400.29695-100000@bad-sports.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+In-Reply-To: <3EA4AE54.80607@zytor.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 21, 2003 at 07:52:04PM -0700, H. Peter Anvin wrote:
+> Jamie Lokier wrote:
+> >>
+> >>The main advantage with making it a struct is that it keep people from
+> >>doing stupid stuff like (int)dev where dev is a kdev_t...  There is
+> >>all kinds of shit like that in the kernel...
+> > 
+> > If you want that good quality 64-bit code, try making it a struct
+> > containing just a u64 :)
+> > 
+> 
+> Perhaps:
+> 
+> #if BITS_PER_LONG == 64
+> typedef struct { u64 val; } kdev_t;
+> 
+> /* Macros for major minor mkdev */
+> #else
+> typedef struct { u32 major, minor; } kdev_t;
+> 
+> /* Macros... */
+> #endif
+> 
 
---VSfbCJd5UFatzzNC
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+or a union?
+typedef union { u64 dev; struct { u32 major, minor; } d; } kdev_t;
 
-On Tue, 2003-04-22 15:31:13 +1000, Brett <generica@email.com>
-wrote in message <Pine.LNX.4.44.0304221526400.29695-100000@bad-sports.com>:
->=20
-> Hey,
->=20
-> topic says it all
-> blank screen after grub loads the kernel
+<duck>
 
-You possibly forgot CONFIG_INPUT=3Dy and CONFIG_VT=3Dy or so...
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
-
---VSfbCJd5UFatzzNC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD4DBQE+pNp1Hb1edYOZ4bsRAunGAJinrWDR+HVf8G1PzXvdoiiZfLCBAJ9bzPv2
-kQMA3n09MuIHBUK3Aj9hCw==
-=aR7N
------END PGP SIGNATURE-----
-
---VSfbCJd5UFatzzNC--
+		Remember Cernan and Schmitt

@@ -1,93 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319475AbSIMBUV>; Thu, 12 Sep 2002 21:20:21 -0400
+	id <S319478AbSIMB1I>; Thu, 12 Sep 2002 21:27:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319476AbSIMBUU>; Thu, 12 Sep 2002 21:20:20 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:32274 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S319475AbSIMBUT>; Thu, 12 Sep 2002 21:20:19 -0400
-Message-ID: <3D813EE8.6090700@rackable.com>
-Date: Thu, 12 Sep 2002 18:27:04 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Lord <lord@sgi.com>
-CC: Andrea Arcangeli <andrea@suse.de>, Austin Gonyou <austin@coremetrics.com>,
-       Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: 2.4.20pre5aa2
-References: <20020911201602.A13655@pc9391.uni-regensburg.de>	<1031768655.24629.23.camel@UberGeek.coremetrics.com>	<20020911184111.GY17868@dualathlon.random> <3D81235B.6080809@rackable.com> 	<20020913002316.GG11605@dualathlon.random> <1031878070.1236.29.camel@snafu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319479AbSIMB1H>; Thu, 12 Sep 2002 21:27:07 -0400
+Received: from dp.samba.org ([66.70.73.150]:3023 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319478AbSIMB1H>;
+	Thu, 12 Sep 2002 21:27:07 -0400
+Date: Fri, 13 Sep 2002 11:31:53 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Martin Schwenke <martin@meltin.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Pull NFS server address off root_server_path
+Message-ID: <20020913013153.GP32156@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Martin Schwenke <martin@meltin.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, trond.myklebust@fys.uio.no,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+References: <200209120208.MAA00777@thucydides.inspired.net.au> <1031818177.2994.39.camel@irongate.swansea.linux.org.uk> <200209130032.KAA32528@thucydides.inspired.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209130032.KAA32528@thucydides.inspired.net.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Lord wrote:
+On Fri, Sep 13, 2002 at 10:28:29AM +1000, Martin Schwenke wrote:
+> >>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> 
+>     Alan> You are probably much better using the initrd based dhcp
+>     Alan> client from things like the LTSP project (ltsp.org) than the
+>     Alan> kernel one
+> 
+> That's probably true in the long term.  For the short term, is the
+> initrd-based stuff working right now?  I didn't think it was quite
+> there yet...
 
->On Thu, 2002-09-12 at 19:23, Andrea Arcangeli wrote:
->  
->
->>that seems a bug in xfs, it BUG() if vmap fails, it must not BUG(), it
->>must return -ENOMEM to userspace instead, or it can try to recollect and
->>release some of the other vmalloced entries. Most probably you run into
->>an address space shortage, not a real ram shortage, so to workaround it
->>you can recompile with CONFIG_2G and it'll probably work, also dropping
->>the gap page in vmalloc may help workaround it (there's no config option
->>for it though). It could be also a vmap leak, maybe a missing vfree,
->>just some idea.
->>
->>    
->>
->
->We hold vmalloced space for very short periods of time, in fact
->filesystem recovery and large extended attributes are the only
->cases. In this case we should be attempting to remap 2 pages
->together. The only way out of this would be to fail the whole
->mount at this point. I suspect a leak elsewhere.
->
->Samuel, when you mounted xfs and it oopsed, was it shortly after bootup?
->
+Well, initrd works (as opposed to the still-in-progress initramfs),
+but setting up an image to do the DHCP, NFS mount and pivot_root is a
+pain in the bum.  LTSP is all i386 (afaict), which helps me not at
+all.
 
-  Yes I'd just logged in and manually mounted it.
+> If the patch goes in now, I won't be terribly disappointed if it comes
+> back out, along with (most of) the rest of the ipconfig stuff, if the
+> initrd-based stuff works acceptably before the feature freeze...
+> 
+> I would think that if there's a chance that the ipconfig stuff will
+> stay in for 2.6, and this patch improves it, then it should probably
+> be merged.  The patch has been in use at OzLabs for about 6 months
+> (since I moved the DHCP server off the NFS server :-) to help boot the
+> embedded boxes that David Gibson is doing bring-up work on.
 
->Also, how far did your dbench run get before it hung? I tried the
->kernel, but I paniced during startup - then I realized I did not 
->apply the patch to fix the xfs/scheduler interactions first.
->  
->
-It looked around 1/4 to 1/2 done with dbench 32.  I'm not sure if it was 
-the 1st or second run.  I run dbench from a script:
-sync
-sync
-./dbench 2
-sync
-sync
-./dbench 4
-sync
-sync
-./dbench 8
-sync
-sync
-./dbench 16
-sync
-sync
-./dbench 32
-sync
-sync
-./dbench 64
-sync
-sync
-<repeats >
-
-  I generally use this script narrow down which configurations seem to 
-be most promising.
-
->How much memory is in the machine by the way? 
->
-4G ram, and 4G swap.
-
-
-
-
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

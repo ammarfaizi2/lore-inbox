@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276126AbRJBS1K>; Tue, 2 Oct 2001 14:27:10 -0400
+	id <S276116AbRJBS3a>; Tue, 2 Oct 2001 14:29:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276118AbRJBS1A>; Tue, 2 Oct 2001 14:27:00 -0400
-Received: from web13104.mail.yahoo.com ([216.136.174.149]:43014 "HELO
-	web13104.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S276125AbRJBS0r>; Tue, 2 Oct 2001 14:26:47 -0400
-Message-ID: <20011002182715.25244.qmail@web13104.mail.yahoo.com>
-Date: Tue, 2 Oct 2001 11:27:15 -0700 (PDT)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: Re: Which is currently the most stable 2.4 kernel?
-To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <306940000.1002046587@tiny>
-MIME-Version: 1.0
+	id <S276120AbRJBS3V>; Tue, 2 Oct 2001 14:29:21 -0400
+Received: from cabal.xs4all.nl ([213.84.101.140]:52945 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S276116AbRJBS3H>;
+	Tue, 2 Oct 2001 14:29:07 -0400
+Date: Tue, 2 Oct 2001 20:29:34 +0200
+From: Wichert Akkerman <wichert@cistron.nl>
+To: linux-kernel@vger.kernel.org, linux-lvm@sistina.com
+Subject: partition table read incorrectly
+Message-ID: <20011002202934.G14582@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, linux-lvm@sistina.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The UP server does the PPPoE, so that's OK. Has anyone
-torture-tested any of the recent kernels? For
-instance, I subsequently read a posting from Alan Cox
-saying that 2.4.10 didn't survive overnight for him,
-implying that he occasionally roasts penguins in some
-kind of server-dungeon...
+I seem to run into a weird problem. LVM refused to work properly,
+after a "vgscan" command "vgchange -a y" would still complain
+that things weren't consistent and I got a messages about an
+I/O error on 08:11.
 
-Cheers,
-Chris
+Interestingly my sdb does not have any partitions since it's one
+big PV, and fdisk agrees with me on that. However the kernel
+seems to thing I do have a partition there and as a result LVM
+seems to get somewhat confused.
 
---- Chris Mason <mason@suse.com> wrote:
-> 
-> 
-> On Tuesday, October 02, 2001 11:05:02 AM -0700 Chris
-> Rankin
-> <rankincj@yahoo.com> wrote:
-> 
-> > All that the servers would be doing would be
-> > connecting to the Internet periodically using
-> PPPoE
-> > and DSL (with NAT), forwarding emails and
-> performing
-> > various CPU-bound tasks. They should both have
-> ample
-> > available memory and should not need to swap much,
-> if
-> > at all.
-> > 
-> > Does anyone have any kernel recommendations /
-> > counter-recommendations, please? One server is
-> SMP,
-> > the other is UP, and both are Intel architecture.
-> 
-> PPP is not SMP safe in 2.4.x.  You'll run into
-> problems on any kernel
-> there.  Even on single processor systems, you need
-> the ppp patch in
-> 2.4.9-ac16 or 2.4.11pre1.
-> 
-> Other than that, 2.4.10 + andrea's vmtweaks patch
-> does well.  2.4.9-ac18 is
-> a good alternative.
-> 
-> -chris
-> 
+This happens with both 2.4.9-ac17 and 2.4.10-ac3. If anyone has
+any ideas on how to go about fixing this don't hestitate to ask
+me for more details.
 
+Wichert.
 
-__________________________________________________
-Do You Yahoo!?
-Listen to your Yahoo! Mail messages from any phone.
-http://phone.yahoo.com
+-- 
+  _________________________________________________________________
+ /       Nothing is fool-proof to a sufficiently talented fool     \
+| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266396AbUBLSHC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 13:07:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUBLSHC
+	id S266520AbUBLSRN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 13:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266528AbUBLSRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 13:07:02 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:45316 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S266396AbUBLSG7 convert rfc822-to-8bit
+	Thu, 12 Feb 2004 13:17:13 -0500
+Received: from h24-76-142-122.wp.shawcable.net ([24.76.142.122]:22534 "HELO
+	signalmarketing.com") by vger.kernel.org with SMTP id S266520AbUBLSRM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 13:06:59 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: John Bradford <john@grabjohn.com>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Date: Thu, 12 Feb 2004 19:06:54 +0100
-User-Agent: KMail/1.6.1
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-References: <20040209115852.GB877@schottelius.org> <200402121740.03974.robin.rosenberg.lists@dewire.com> <200402121716.i1CHGXLv000188@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200402121716.i1CHGXLv000188@81-2-122-30.bradfords.org.uk>
+	Thu, 12 Feb 2004 13:17:12 -0500
+Date: Thu, 12 Feb 2004 12:17:12 -0600 (CST)
+From: Derek Foreman <manmower@signalmarketing.com>
+To: Ross Dickson <ross@datscreative.com.au>
+cc: linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       Craig Bradney <cbradney@zip.com.au>
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
+ instead of apic ack delay.
+In-Reply-To: <200402120122.06362.ross@datscreative.com.au>
+Message-ID: <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com>
+References: <200402120122.06362.ross@datscreative.com.au>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200402121906.54699.robin.rosenberg.lists@dewire.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 February 2004 18.16, John Bradford wrote:
-> I'm not sure whether it's valid UTF-8 or not, but it's certainly
-> possible to code, for example, an 'A', (decimal 65), via an escape to
-> a 31-bit character representation.  Presumably the majority of UTF-8
-> parsers would decode the sequence as 65, rather than emit an error.
+On Thu, 12 Feb 2004, Ross Dickson wrote:
 
-There are many ways of getting things wrong. The algorithm for encoding 
-UTF-8 doesn't give you the option of encoding 65 as two bytes; any UCS-4 
-character with code 0-0x7F must result in a onand the same principle goes 
-for every other character and the unicdeo standard forbids the use of anything
-but the shortest possible sequence.
+> Greetings,
+>
+> Approaching from this perspective the following patch implements a new idle
+> thread. One which does not go into C1 disconnect (hlt) if less than 1.6% of the
+> apic timer interval is left to execute. When you think about it, why do we
+> disconnect if we are about to reconnect?  It also has a small timing delay
+> to help with back to back disconnect cycles ( SMI might put us into one? ).
+> The result should be a slightly faster system (then with my apic ack delay
+> patch) when busy but still with disconnect functioning to save power and lower
+> heat with typical loads.
 
-> Also, even ignoring that, how do you handle things like accented
-> characters which can be represented as single characters, or as
-> sequences containing combining characters?  Some applications might
-> convert the sequence containing combining characters in to the single
-> character, and others might not.
+Is there a measurable performance loss over not having the patch at all?
+Some nforce2 systems work just fine.  Is there a way to distinguish
+between systems that need it and those that don't?
 
-In UTF-8 you cannot represent à as `a. I can have both in a file name and they
-are different. An application that assumes `a is the same a à (in UTF-8) is broken
-and should be fixed. 
-
--- robin
+(if anyone's running a betting pool, my money's on nforce2+cpu with half
+frequency multiplier ;)

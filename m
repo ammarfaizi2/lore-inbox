@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265426AbSKSN7E>; Tue, 19 Nov 2002 08:59:04 -0500
+	id <S265457AbSKSOAH>; Tue, 19 Nov 2002 09:00:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265446AbSKSN7E>; Tue, 19 Nov 2002 08:59:04 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:40452 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S265426AbSKSN7D>; Tue, 19 Nov 2002 08:59:03 -0500
-Message-ID: <3DDA4561.52B00494@aitel.hist.no>
-Date: Tue, 19 Nov 2002 15:06:25 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.47 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.48 and ALSA
-References: <20021119133959.GA818@zip.com.au>
+	id <S265469AbSKSOAH>; Tue, 19 Nov 2002 09:00:07 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:30439 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265457AbSKSOAF>;
+	Tue, 19 Nov 2002 09:00:05 -0500
+Date: Tue, 19 Nov 2002 14:02:05 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: jim.houston@attbi.com, lkml <linux-kernel@vger.kernel.org>,
+       high-res-timers-discourse@lists.sourceforge.net,
+       ltp-list@lists.sourceforge.net, jim.houston@ccur.com
+Subject: Re: [LTP] Re: LTP - gettimeofday02 FAIL
+Message-ID: <20021119140205.GA30120@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Paul Larson <plars@linuxtestproject.org>, jim.houston@attbi.com,
+	lkml <linux-kernel@vger.kernel.org>,
+	high-res-timers-discourse@lists.sourceforge.net,
+	ltp-list@lists.sourceforge.net, jim.houston@ccur.com
+References: <200211190127.gAJ1RWg11023@linux.local> <1037713044.24031.15.camel@plars>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1037713044.24031.15.camel@plars>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CaT wrote:
-> 
-> Is it supposed to work when compiled into the kernel? I have it compiled
+On Tue, Nov 19, 2002 at 07:37:23AM -0600, Paul Larson wrote:
+ > > I just tried gettimeofday02 on an old pentium-pro dual processor, and yes
+ > > the time goes backwards with a 2.5.48 kernel.
+ > This has been noticed, I've posted to lkml about it.  The only person
+ > who replied to me seems to be suggesting it is a hardware issue, but I
+ > can't believe it is impossible to work around.
 
-Yes, it used to work.  I have sometimes had to help the boot
-scripts as the "gave up" when modprobe failed.  But
-it always worked after setting up the mixer manually.
+Especially if earlier kernels got it right..
 
-Sometime before 2.5.47 ALSA broke, at least for trident.
-I haven't tested if it works with modules - if it don't
-work compiled-in it don't work for me.  I don't get all the devices
-either.
+		Dave
 
-> with OSS emulation and it worked as modules with 2.5.47 but not compiled
-> in to 2.5.48 (trying to avoid the whole modules changes here :)
-
-Yes, and also avoiding the maintenance of modules.conf, extra
-devfs issues, and so on for only a little extra memory.
-
-Helge Hafting
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

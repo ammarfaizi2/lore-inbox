@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264092AbUDBQDz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 11:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264094AbUDBQDz
+	id S263168AbUDBQOd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 11:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbUDBQOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 11:03:55 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:29634 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264092AbUDBQDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 11:03:53 -0500
-Message-ID: <1080922213.406d9065d9667@webmail.rongage.org>
-Date: Fri,  2 Apr 2004 11:10:13 -0500
-From: Ron Gage <ron@rongage.org>
+	Fri, 2 Apr 2004 11:14:33 -0500
+Received: from smtp4.wanadoo.fr ([193.252.22.27]:6761 "EHLO
+	mwinf0402.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263168AbUDBQOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 11:14:32 -0500
+Date: Fri, 2 Apr 2004 18:16:20 +0200
 To: linux-kernel@vger.kernel.org
-Subject: 2.4 - can't open a custom char device file
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 216.234.103.146
+Subject: Re: Hot kernel change
+Message-ID: <20040402161620.GH22205@bylbo.nowhere.earth>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Yann Dirson <ydirson@altern.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks.
+Jim Richardson wrote:
+>MkLinux was available for x86, but I have no idea if it is still in
+>development. To be clear, it doesn't allow you to simply replace a
+>kernel, but to add a second one, and possibly, to start transferring
+>over tasks to it. 
 
-I am working on a PCMCIA module for an industrial communications interface under
-Linux (Specifically, the Allen Bradley PCMK).  Let's just say that the driver I
-wrote is having issues, what I believe to be kernel related issues.
+Aside from mklinux, there is the L4Linux option, based on a more modern
+microkernel than Mach, and supporting x86.
 
-As near as I can tell, the card is being initialized correctly with the PCMCIA
-layer without incident.  My driver is registering the device as major 240, and
-according to /proc/devices, the device is showing up as major 240.
-
-My device file is created as a char device at major 240, minor 0.  As near as I
-can tell, I do have a file-operations struct filled in and have no indications
-that this struct is incorrect.  I do have a defined open routine that
-essentially increments the module use count and exits.
-
-Problem is that any attempt to open the device file causes the kernel to return
-error #6 - Device or Address not found - when the device is showing up in
-/proc/devices and according to kernel messages I have in the driver, is
-installed and initialized.
-
-Anyone have any ideas on what I could be doing wrong here?
-
-Driver source is available from
-ftp://ftp.rongage.org/pub/pcmk/pcmk_v0.0.0.tar.gz
-
-I have already consulted with David Hinds (PCMCIA leader) and he is stumped.
-
+See http://www.l4ka.org/projects/l4linux/
 
 -- 
-Ronald R. Gage
-MCP, LPIC1, A+, Net+
-Pontiac, Michigan
-
-
-
-
-
-----------------------------------------------------------------
-This message was sent using webmail provided by www.rongage.org
+Yann Dirson    <ydirson@altern.org> |    Why make M$-Bill richer & richer ?
+Debian-related: <dirson@debian.org> |   Support Debian GNU/Linux:
+Pro:    <yann.dirson@fr.alcove.com> |  Freedom, Power, Stability, Gratuity
+     http://ydirson.free.fr/        | Check <http://www.debian.org/>

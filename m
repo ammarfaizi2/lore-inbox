@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263199AbUCYPTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 10:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbUCYPTw
+	id S263205AbUCYPVS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 10:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbUCYPVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 10:19:52 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:38060 "EHLO
-	mailout.schmorp.de") by vger.kernel.org with ESMTP id S263199AbUCYPSP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 10:18:15 -0500
-Date: Thu, 25 Mar 2004 16:18:02 +0100
-From: Marc Lehmann <pcg@schmorp.de>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Software Suspend - Mailing Lists 
-	<swsusp-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Swsusp-devel] (no subject)
-Message-ID: <20040325151802.GD11633@schmorp.de>
-Mail-Followup-To: Michael Frank <mhf@linuxmail.org>,
-	Pavel Machek <pavel@suse.cz>,
-	Software Suspend - Mailing Lists <swsusp-devel@lists.sourceforge.net>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <opr49atvpk4evsfm@smtp.pacific.net.th>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <opr49atvpk4evsfm@smtp.pacific.net.th>
-X-Operating-System: Linux version 2.6.4 (root@cerebro) (gcc version 3.3.3 20040125 (prerelease) (Debian)) 
+	Thu, 25 Mar 2004 10:21:18 -0500
+Received: from smtp-out.girce.epro.fr ([195.6.195.146]:19799 "EHLO
+	srvsec3.girce.epro.fr") by vger.kernel.org with ESMTP
+	id S263205AbUCYPU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 10:20:59 -0500
+Message-ID: <138101c4127c$ba50f910$3cc8a8c0@epro.dom>
+From: "Colin Leroy" <colin@colino.net>
+To: "Alan Stern" <stern@rowland.harvard.edu>
+Cc: <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sf.net>
+References: <Pine.LNX.4.44L0.0403250936480.1023-100000@ida.rowland.org>
+Subject: Re: [linux-usb-devel] Re: [OOPS] reproducible oops with 2.6.5-rc2-bk3
+Date: Thu, 25 Mar 2004 16:20:38 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 05:18:57PM +0800, Michael Frank <mhf@linuxmail.org> wrote:
-> Also, as Pavel mentioned, LZF code should be put in /lib and cleaned up. 
+Hi,
 
-I fully agree. Unfortunately, I have about zero time for any such project
-in the foreseeable future (It'd need more time since my knowledge about
-integration issues is extremely scarce, and I am swamped with other work).
+> That's right.  However, the oops you saw shouldn't happen so long as
+> intf->cur_altsetting points to something valid.  I got the impression
+that
+> in the cdc-acm probe routine maybe it was a null pointer.
 
-The code in the kernel required a few features not available with earlier
-lzf releases (e.g. passing the the hash table via args instead of
-allocating it on the stack).
+Yes, i think so too.
 
-The standard 1.3 release is configurable via defines in this respect
-(-DAVOID_ERRNO -DLZF_STATE_ARG), and would be better suited for inclusion
-in the kernel (the code would be byte-identical in the userspace and
-kernel version), but making a patch would require some testing, to make
-sure the new code compiles etc.
+> Can you insert
+> a statement in the cdc-acm probe function to print out the values of
+ifcom
+> and ifdata, to check that they aren't NULL?
 
-Also, as used in software-suspend2, the user must #define symbols (see
-the beginning of kernel/power/lzfcompress.c) and include the c files
-directly. When making them library functions one would need to choose
-a reasonable default. Copying lzfP.h into include/linux and editing it
-should be enough, though.
+Already done, that's what helped me find this was related to altsettings
+stuff. I didn't check to see if cur_altsetting was null, but a dev_dbg()
+at the beginnning of the function was appearing, and not the dev_dbg() I
+had put after this block.
 
+> > I'm not sure the change in cdc-acm (which no longer uses index 0
+> > altsetting) is correct. Or is this another bug in my phone (motorola
+C350)
+> > which should be handled differently than other cdc-acm devices ?
+>
+> It's hard to say without more information.  The contents of
+> /proc/bus/usb/devices or the output of lsusb with the phone plugged in
+> would help.
+
+Ok, I'll try to do that tonight.
 -- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+Colin
+

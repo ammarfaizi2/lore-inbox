@@ -1,90 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273830AbRIREjQ>; Tue, 18 Sep 2001 00:39:16 -0400
+	id <S273834AbRIREzr>; Tue, 18 Sep 2001 00:55:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273831AbRIREjH>; Tue, 18 Sep 2001 00:39:07 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:17192 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S273830AbRIREi4>; Tue, 18 Sep 2001 00:38:56 -0400
-Date: Tue, 18 Sep 2001 06:39:10 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010918063910.U698@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0109171608310.1108-100000@penguin.transmeta.com> <20010917211834.A31693@redhat.com> <20010918035055.J698@athlon.random> <20010917221653.B31693@redhat.com> <20010918052201.N698@athlon.random> <20010918000132.C885@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010918000132.C885@redhat.com>; from bcrl@redhat.com on Tue, Sep 18, 2001 at 12:01:32AM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S273835AbRIREzi>; Tue, 18 Sep 2001 00:55:38 -0400
+Received: from mail.direcpc.com ([198.77.116.30]:46497 "EHLO
+	postoffice2.direcpc.com") by vger.kernel.org with ESMTP
+	id <S273834AbRIREz1>; Tue, 18 Sep 2001 00:55:27 -0400
+Message-ID: <3BA6D4C0.1010309@ix.netcom.com>
+Date: Tue, 18 Sep 2001 00:59:44 -0400
+From: Jeffrey Ingber <jhingber@ix.netcom.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010816
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, xpert@XFree86.org, alan@lxorguk.ukuu.org.uk
+Subject: [FIXED] Random Sig'11 in XF864 with kernel > 2.2.x
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 12:01:32AM -0400, Benjamin LaHaise wrote:
-> Every single kernel since the dawn of 1.0 has died under OOM.  Optimizing for 
+The problem mentioned in the following threads:
 
-try 2.2 once.
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0109.1/0932.html
+http://www.xfree86.org/pipermail/xpert/2001-September/011055.html
+http://www.xfree86.org/pipermail/xpert/2001-September/011230.html
 
-> 2.2 doesn't matter any more.  Any work I'm doing now is 2.4 based.
+Is fixed in at least 2.4.9-ac10.  I haven't been a regular user of the 
+-ac series so I can't say when exactly this was fixed.  However, this 
+problem still persists in Linus 2.4.10-pre10.  Can anyone who chimed in 
+with similar problems to mine try said kernel (2.4.9-ac10) and provide 
+any feedback?  It would excellent if the exact fix could be identified.
 
-It still matters for me. Critical servers with very high vm loads still
-have to run 2.2 to be stable and fast unfortunately.
+Thanks,
+Jeffrey H. Ingber (jhingber _at_ ix.netcom.com)
 
-> I am being real.  I don't expect single massive patches to ever be applied, 
-> and am shocked I've even had to comment on this.
 
-Your aio patch is massive too.
 
-andrea@athlon:~ > wc -l aio-v2.4.0-20010123.diff 
-   2951 aio-v2.4.0-20010123.diff
+ > The random Sig 11's are observed in the stock XFree86 4.x drivers with
+ > none of the 'extras' enabled, such as DRI on several sets of video cards
+ > (Matrox and ATI). I can run both UP and SMP kernels in the 2.2 series
+ > and 2.4 UP kernels with unlimited uptimes. However, switching to a 2.4
+ > SMP kernel will cause random Sig 11's in X, seemingly irregardless of
+ > video card/vendor.=20
 
-Now if you think I'm unreal and you are real, feed me the aio patch in
-self contained pieces of 10 lines each as you expect from me. And note
-that if they're not self contained they will just make my life harder.
+I'm aware of the reports. Its very hard to figure out what might be
+involved. Later 2.4 kernels we have fixed the odd possible candidate where
+segment registers or LDT propogation on SMP might go awry but nothing that
+really explains the X11 ones and whether they are PCI/AGP setup , power
+management or kernel bug triggered
 
-I'd be glad to be proved wrong and to get aio from you in small self
-contained pieces really, I planned to look into aio as one of the next
-things to merge in -aa but as usual the size of the patch makes things
-harder to merge due the larger implications. feel free to cc l-k, I'm
-sure other people is interested in aio too.
+Alan
 
-> I want robust and not likely to corrupt my data randomly.  The latter is more 
 
-Forget the corruption. So far the only scary report I had is from
-Marcelo's 2G machine which is nothin compared to corruption, I don't
-have x86 machines with more than 1G, I tested alpha with 3G (but it has
-only 1 zone). I think Marcelo identified the problematic part before
-even testing it, so the fix should be fairly immediate, I'll address it
-ASAP unless he beats me on it (at the moment I'm still resynching).
-
-> That isn't the one I'm talking about.  You changed the swapcache code.  That 
-> code is fragile.  These changes aren't documented.
-
-I didn't changed the swapcache locking rules. I only fixed the VM to
-properly clear the dirty bit before freeing a page. Anybody freeing a
-page that is dirty was a plain vm bug. That was quite strightforward and
-correct change. Infact I was horrified by seeing __free_pages_ok
-clearing the dirty bit (not to talk about the referenced bit which was
-useless to change).
-
-> The vm rewrite was not posted in public, nor described in public.  It just 
-
-It obviously was. How do you think Linus got it? I said I didn't sent it
-to Linus privately.
-
-> appeared and got merged.  Could you at least describe *ALL* of the changes?
-
-I'll be glad to do that over the time, right now I'm strict in time and
-I also needed to go to sleep a few hours ago so I won't inline the reply
-to this email right now, sorry.
-
-> And we agreed that this is 2.5 material.
-
-the O_DIRECT and blkdev in pagecache yes but definitely not the VM one
-but people needed those features in production anyways so that was good
-and they were well tested.
-
-Andrea

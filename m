@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129393AbRCAMW3>; Thu, 1 Mar 2001 07:22:29 -0500
+	id <S129155AbRCAMST>; Thu, 1 Mar 2001 07:18:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129440AbRCAMWT>; Thu, 1 Mar 2001 07:22:19 -0500
-Received: from cx425802-a.blvue1.ne.home.com ([24.0.54.216]:772 "EHLO
-	wr5z.localdomain") by vger.kernel.org with ESMTP id <S129393AbRCAMWF>;
-	Thu, 1 Mar 2001 07:22:05 -0500
-Date: Thu, 1 Mar 2001 06:22:01 -0600 (CST)
-From: Thomas Molina <tmolina@home.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 kernels - "attempt to access beyond end of device"
-In-Reply-To: <C291BF3C67@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.30.0103010616050.599-100000@wr5z.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129393AbRCAMR7>; Thu, 1 Mar 2001 07:17:59 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:60377 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129155AbRCAMRx>;
+	Thu, 1 Mar 2001 07:17:53 -0500
+Date: Thu, 1 Mar 2001 12:14:18 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Martin Rauh <martin.rauh@gmx.de>
+Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: Writing on raw device with software RAID 0 is slow
+Message-ID: <20010301121418.A7647@redhat.com>
+In-Reply-To: <3A9D1202.9A1C403E@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A9D1202.9A1C403E@gmx.de>; from martin.rauh@gmx.de on Wed, Feb 28, 2001 at 03:58:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Mar 2001, Petr Vandrovec wrote:
+Hi,
 
-> On 28 Feb 01 at 15:47, Michal Jaegermann wrote:
-> > > > I have more checks to make before I will be fully satisfied but
-> > > > this looks like it.
-> > > ...
-> > > > System Performance Setting [Optimal, Normal]
-> > > ...
-> > >
-> > > Try BIOS 1006. AFAIK 1005D changed some VIA values for 'optimal'.
-> >
-> > Is that important here?  IDE drives in question were not connected to
-> > on-board controller but the Promise one.  Results seem to indicate
-> > that this 'optimal' was important here anyway.
->
-> VIA host-bridge, not VIA-IDE... It is important even if you use Promise
-> only - look back through archives, there must be something really wrong
-> with this motherboard.
+On Wed, Feb 28, 2001 at 03:58:11PM +0100, Martin Rauh wrote:
+> 
+> Writing to an software RAID 0 containing 4 SCSI discs is very fast.
+> I get transfer rates of about 100 MBytes/s. The filesystem on the RAID
+> is ext2.
+> 
+> Writing to the same RAID directly (that means on the raw device without
+> a filesystem) works
+> but gives low transfer rates of about 31 MBytes/s.
+> 
+> Any explanation for that?
 
-I'm beginning to believe it may be BIOS revision related.  I haven't
-tried the Promise controller since I don't have an ATA-100 drive, but I
-don't seem to have any of the data corruption or other problems that
-people have mentioned.  I guess I'll hold off updating the BIOS for now
-though.  I bought the motherboard not two weeks ago, together with a
-Athlon 900MHz processor and it has BIOS version 1004D.  I have seen
-problems even with Windows using the 1005D version though.  My shop has
-been selling a LOT of this board; the problems we've seen come back seem
-to be specifically related to 1005D.  Reflashing to 1004D has cured any
-problems I've seen.  I've not seen any new hardware come through from
-the factory with 1006 though.
+Raw IO is always synchronous: it gets flushed to disk before the write
+returns.  You don't get any write-behind with raw IO, so the smaller
+the blocksize you write in, the slower things get.
 
+--Stephen

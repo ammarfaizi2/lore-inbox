@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263055AbTJPSav (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 14:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTJPSav
+	id S263064AbTJPSbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 14:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTJPSbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 14:30:51 -0400
-Received: from [193.138.115.2] ([193.138.115.2]:50958 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S263055AbTJPSat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 14:30:49 -0400
-Date: Thu, 16 Oct 2003 20:29:35 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Minor fix for wrong format in drivers/mtd/inftlcore.c
- (2.6.0-test7)
-Message-ID: <Pine.LNX.4.56.0310162023001.3021@jju_lnx.backbone.dif.dk>
+	Thu, 16 Oct 2003 14:31:09 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:52619 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S263064AbTJPSbF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 14:31:05 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH] early_serial_setup array bounds check (2.6)
+Date: Thu, 16 Oct 2003 12:29:24 -0600
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, David Mosberger <davidm@hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310161229.24566.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+early_serial_setup() doesn't validate the array index,
+so a caller could corrupt memory after serial8250_ports[]
+by supplying a value of port->line that's too large.
 
-Hi,
+I haven't seen a failure related to this, but it seems fragile
+to rely on callers to know how many ports the driver
+supports.
 
-Here's a small patch for a very minor issue :
+Bjorn
 
-drivers/mtd/inftlcore.c: In function `inftl_writeblock':
-drivers/mtd/inftlcore.c:761: warning: int format, long unsigned int arg (arg 3)
-drivers/mtd/inftlcore.c:761: warning: int format, long unsigned int arg (arg 3)
-drivers/mtd/inftlcore.c: In function `inftl_readblock':
-drivers/mtd/inftlcore.c:807: warning: int format, long unsigned int arg (arg 3)
-drivers/mtd/inftlcore.c:807: warning: int format, long unsigned int arg (arg 3)
+===== drivers/serial/8250.c 1.40 vs edited =====
+--- 1.40/drivers/serial/8250.c	Sun Oct  5 15:07:20 2003
++++ edited/drivers/serial/8250.c	Thu Oct 16 10:01:07 2003
+@@ -2086,6 +2086,9 @@
+ 
+ int __init early_serial_setup(struct uart_port *port)
+ {
++	if (port->line >= ARRAY_SIZE(serial8250_ports))
++		return -ENODEV;
++
+ 	serial8250_isa_init_ports();
+ 	serial8250_ports[port->line].port	= *port;
+ 	serial8250_ports[port->line].port.ops	= &serial8250_pops;
 
-This patch should fix that (against 2.6.0-test7):
-
---- linux-2.6.0-test7-orig/drivers/mtd/inftlcore.c	2003-10-08 21:24:01.000000000 +0200
-+++ linux-2.6.0-test7/drivers/mtd/inftlcore.c	2003-10-16 20:15:29.000000000 +0200
-@@ -757,7 +757,7 @@ static int inftl_writeblock(struct mtd_b
- 	u8 eccbuf[6];
- 	char *p, *pend;
-
--	DEBUG(MTD_DEBUG_LEVEL3, "INFTL: inftl_writeblock(inftl=0x%x,block=%d,"
-+	DEBUG(MTD_DEBUG_LEVEL3, "INFTL: inftl_writeblock(inftl=0x%x,block=%ld,"
- 		"buffer=0x%x)\n", (int)inftl, block, (int)buffer);
-
- 	/* Is block all zero? */
-@@ -803,7 +803,7 @@ static int inftl_readblock(struct mtd_bl
-         struct inftl_bci bci;
- 	size_t retlen;
-
--	DEBUG(MTD_DEBUG_LEVEL3, "INFTL: inftl_readblock(inftl=0x%x,block=%d,"
-+	DEBUG(MTD_DEBUG_LEVEL3, "INFTL: inftl_readblock(inftl=0x%x,block=%ld,"
- 		"buffer=0x%x)\n", (int)inftl, block, (int)buffer);
-
- 	while (thisEUN < inftl->nb_blocks) {
-
-
-
-Hopefully this is useful.
-
-
-Kind regards,
-
-Jesper Juhl <juhl-lkml@dif.dk>

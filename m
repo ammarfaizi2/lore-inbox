@@ -1,85 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263334AbRGIRHh>; Mon, 9 Jul 2001 13:07:37 -0400
+	id <S263918AbRGIR3S>; Mon, 9 Jul 2001 13:29:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263748AbRGIRH0>; Mon, 9 Jul 2001 13:07:26 -0400
-Received: from [199.26.153.10] ([199.26.153.10]:46598 "HELO fourelle.com")
-	by vger.kernel.org with SMTP id <S263334AbRGIRHO>;
-	Mon, 9 Jul 2001 13:07:14 -0400
-Message-ID: <3B49E443.8C89C954@fourelle.com>
-Date: Mon, 09 Jul 2001 10:05:07 -0700
-From: "Adam D. Scislowicz" <adams@fourelle.com>
-Organization: Fourelle Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac17 i686)
-X-Accept-Language: en
+	id <S263927AbRGIR3I>; Mon, 9 Jul 2001 13:29:08 -0400
+Received: from ECE.CMU.EDU ([128.2.236.200]:10420 "EHLO ece.cmu.edu")
+	by vger.kernel.org with ESMTP id <S263918AbRGIR2z>;
+	Mon, 9 Jul 2001 13:28:55 -0400
+Date: Mon, 9 Jul 2001 13:28:41 -0400 (EDT)
+From: Craig Soules <soules@happyplace.pdl.cmu.edu>
+To: trond.myklebust@fys.uio.no, jrs@world.std.com
+cc: linux-kernel@vger.kernel.org
+Subject: NFS Client patch
+Message-ID: <Pine.LNX.3.96L.1010709131315.16113O-200000@happyplace.pdl.cmu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: adams@fourelle.com
-Subject: IDE0/Slave Detection Fails 2.4.x(2.4.4, 2.4.5, 2.4.5-ac18, and 2.4.6 
- tested) ** still unresolved
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="41973382-1272356615-994699721=:16113"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having a problem where the 2.4.x(2.4.4, and 2.4.5, 2.4.5-ac18, and
-2.4.6)
-kernel does not detect the IDE0/primary slave device. If I put a third
-drive in the system as IDE1/secondary master then that is detected.
-However
-the IDE0/primary slave is never detected.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Using the 2.2.19 kernel the IDE0/primary slave device IS detected
-properly.
-The 2.2.19 and 2.4.x kernels used were compiled with support for SMP. I
-experimented with several different compile-time and run-time options
-with no luck.
+--41973382-1272356615-994699721=:16113
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Below is some more detailed info.
+Hello,
 
- -Adam Scislowicz <adams@fourelle.com>
-* note: Please CC me in your response as I do not subscribe to this
-mailing list.
-* note: I have tested this on several different machines(all SMP Intel
-BX or GX
-   chipset boards)
+I hope that I am sending this to the appropriate people.  I have been
+working on a project known as Self-Securing Storage here at Carnegie
+Mellon University.  We have developed our storage server to act as an
+NFSv2 server, and have been using the Linux NFSv2 client to do our
+benchmarking. I have run across a small problem with the 2.4
+implementation of the Linux NFSv2 client.
 
-[ My IDE Controller Info (2.2.19:/proc/pci) ]
-  Bus  0, device   7, function  1:
-    IDE interface: Intel 82371AB PIIX4 IDE (rev 1).
-      Medium devsel.  Fast back-to-back capable.  Master Capable.
-Latency=64.
-      I/O at 0xffa0 [0xffa1].
+The problem is in the readdir() operation.  The current cookie for a given
+readdir operation is being stored in the file descriptor.  The problem is
+that it is not being reset to 0 if a change has been made to the
+directory as is indicated in the NFSv2 spec.  This problem is often
+seen when doing an operation such as rm -rf to a large directory tree due
+to the asynchronous remove operation that has been implemented.
 
+This has not traditionally been a problem for Linux because in ext2 the
+cookie is the offset into the directory of the next entry.  If a file
+is deleted in that directory during the readdir() operation, it has no
+effect since ext2 does lazy directory compaction.
 
-[ The 2.2.19 Kernel Init Messages ]
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: TOSHIBA THNCF032MAA, ATA DISK drive
-hdb: IBM-DARA-206000, ATA DISK drive
-hdc: ST320420A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: TOSHIBA THNCF032MAA, 31MB w/2kB Cache, CHS=496/4/32
-hdb: IBM-DARA-206000, 5729MB w/418kB Cache, CHS=730/255/63, UDMA
-hdc: ST320420A, 19458MB w/2048kB Cache, CHS=39535/16/63, UDMA
+Our system does automatic directory compaction through the use of a tree
+structure, and so the cookie needs to be invalidated.  Also, any other
+file system whicih does immediate directory compaction would require this.
 
-[ The 2.4.5-ac18 Kernel Init Messages ]
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: TOSHIBA THNCF032MAA, ATA DISK drive
-hdc: ST320420A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 63488 sectors (33 MB) w/2KiB Cache, CHS=496/4/32, DMA
-hdc: 39851760 sectors (20404 MB) w/2048KiB Cache, CHS=39535/16/63,
-UDMA(33)
+I have attached my proposed modifications to the end of this file.  They
+have been tested under 2.4.5.
 
+Please let me know if there is anything more I need to do, or if you have
+any questions.  I would really like to get this proper behavior into the
+kernel.
+
+Thanks,
+Craig Soules
+
+--41973382-1272356615-994699721=:16113
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="patch.2.4.5"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.3.96L.1010709132841.16113P@happyplace.pdl.cmu.edu>
+Content-Description: 
+
+LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvbmZzX2ZzLmgJRnJpIE1heSAyNSAy
+MTowMjoxMSAyMDAxDQorKysgL3Vzci9zcmMvbGludXgvaW5jbHVkZS9saW51
+eC9uZnNfZnMuaAlTdW4gSnVsICA4IDE0OjQwOjU3IDIwMDENCkBAIC0xNjAs
+MTMgKzE2MCwxOCBAQA0KIHN0YXRpYyBfX2lubGluZV9fIHN0cnVjdCBycGNf
+Y3JlZCAqDQogbmZzX2ZpbGVfY3JlZChzdHJ1Y3QgZmlsZSAqZmlsZSkNCiB7
+DQotCXN0cnVjdCBycGNfY3JlZCAqY3JlZCA9IChzdHJ1Y3QgcnBjX2NyZWQg
+KikoZmlsZS0+cHJpdmF0ZV9kYXRhKTsNCisJc3RydWN0IG5mc19maWxlX3By
+aXZhdGUgKnByaXYgPQ0KKwkJKHN0cnVjdCBuZnNfZmlsZV9wcml2YXRlICop
+KGZpbGUtPnByaXZhdGVfZGF0YSk7DQorCXN0cnVjdCBycGNfY3JlZCAqY3Jl
+ZCA9IHByaXYtPmNyZWQ7DQogI2lmZGVmIFJQQ19ERUJVRw0KIAlpZiAoY3Jl
+ZCAmJiBjcmVkLT5jcl9tYWdpYyAhPSBSUENBVVRIX0NSRURfTUFHSUMpDQog
+CQlCVUcoKTsNCiAjZW5kaWYNCiAJcmV0dXJuIGNyZWQ7DQogfQ0KKw0KKyNk
+ZWZpbmUgTkZTX0ZJTEVfTEFTVE1PRChmaWxlcCkgXA0KKwkoKHN0cnVjdCBu
+ZnNfZmlsZV9wcml2YXRlICopKChmaWxlcCktPnByaXZhdGVfZGF0YSkpLT5s
+YXN0bW9kDQogDQogLyoNCiAgKiBsaW51eC9mcy9uZnMvZGlyLmMNCi0tLSBs
+aW51eC9pbmNsdWRlL2xpbnV4L25mc19mc19pLmgJTW9uIEZlYiAxOSAyMDox
+MzowMCAyMDAxDQorKysgL3Vzci9zcmMvbGludXgvaW5jbHVkZS9saW51eC9u
+ZnNfZnNfaS5oCVN1biBKdWwgIDggMTQ6MTg6MTYgMjAwMQ0KQEAgLTk4LDQg
+Kzk4LDEyIEBADQogICovDQogI2RlZmluZSBORlNfTENLX0dSQU5URUQJCTB4
+MDAwMQkJLyogbG9jayBoYXMgYmVlbiBncmFudGVkICovDQogDQorLyoNCisg
+KiBORlMgcHJpdmF0ZSBkYXRhIGluIHRoZSBmaWxlIGRlc2NyaXB0b3INCisg
+Ki8NCitzdHJ1Y3QgbmZzX2ZpbGVfcHJpdmF0ZSB7DQorCXN0cnVjdCBycGNf
+Y3JlZCAqY3JlZDsNCisJdW5zaWduZWQgbG9uZyBsYXN0bW9kOw0KK307DQor
+DQogI2VuZGlmDQotLS0gbGludXgvZnMvbmZzL2Rpci5jCVNhdCBNYXkgMTkg
+MjE6MDI6NDUgMjAwMQ0KKysrIC91c3Ivc3JjL2xpbnV4L2ZzL25mcy9kaXIu
+YwlTdW4gSnVsICA4IDE0OjM1OjU1IDIwMDENCkBAIC0zODQsNiArMzg0LDEx
+IEBADQogCW1lbXNldCgmbXlfZW50cnksIDAsIHNpemVvZihteV9lbnRyeSkp
+Ow0KIA0KIAlkZXNjLT5maWxlID0gZmlscDsNCisNCisJaWYoTkZTX0ZJTEVf
+TEFTVE1PRChmaWxwKSA8IE5GU19BVFRSVElNRU9fVVBEQVRFKGlub2RlKSkg
+ew0KKwkJZmlscC0+Zl9wb3MgPSAwOw0KKwkJTkZTX0ZJTEVfTEFTVE1PRChm
+aWxwKSA9IE5GU19BVFRSVElNRU9fVVBEQVRFKGlub2RlKTsNCisJfQ0KIAlk
+ZXNjLT50YXJnZXQgPSBmaWxwLT5mX3BvczsNCiAJZGVzYy0+ZW50cnkgPSAm
+bXlfZW50cnk7DQogCWRlc2MtPmRlY29kZSA9IE5GU19QUk9UTyhpbm9kZSkt
+PmRlY29kZV9kaXJlbnQ7DQotLS0gbGludXgvZnMvbmZzL2lub2RlLmMJU2F0
+IE1heSAxOSAyMToxNDozOCAyMDAxDQorKysgL3Vzci9zcmMvbGludXgvZnMv
+bmZzL2lub2RlLmMJU3VuIEp1bCAgOCAxNDozNjozMCAyMDAxDQpAQCAtNzk5
+LDEzICs3OTksMTQgQEANCiAgKi8NCiBpbnQgbmZzX29wZW4oc3RydWN0IGlu
+b2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmZpbHApDQogew0KKwlzdHJ1Y3Qg
+bmZzX2ZpbGVfcHJpdmF0ZSAqcHJpdjsNCiAJc3RydWN0IHJwY19hdXRoICph
+dXRoOw0KLQlzdHJ1Y3QgcnBjX2NyZWQgKmNyZWQ7DQogDQogCWxvY2tfa2Vy
+bmVsKCk7DQorCXByaXYgPSBrbWFsbG9jKHNpemVvZihzdHJ1Y3QgbmZzX2Zp
+bGVfcHJpdmF0ZSksIEdGUF9LRVJORUwpOw0KIAlhdXRoID0gTkZTX0NMSUVO
+VChpbm9kZSktPmNsX2F1dGg7DQotCWNyZWQgPSBycGNhdXRoX2xvb2t1cGNy
+ZWQoYXV0aCwgMCk7DQotCWZpbHAtPnByaXZhdGVfZGF0YSA9IGNyZWQ7DQor
+CXByaXYtPmNyZWQgPSBycGNhdXRoX2xvb2t1cGNyZWQoYXV0aCwgMCk7DQor
+CWZpbHAtPnByaXZhdGVfZGF0YSA9IHByaXY7DQogCXVubG9ja19rZXJuZWwo
+KTsNCiAJcmV0dXJuIDA7DQogfQ0KQEAgLTgxNCwxMiArODE1LDE3IEBADQog
+ew0KIAlzdHJ1Y3QgcnBjX2F1dGggKmF1dGg7DQogCXN0cnVjdCBycGNfY3Jl
+ZCAqY3JlZDsNCisJc3RydWN0IG5mc19maWxlX3ByaXZhdGUgKnByaXY7DQog
+DQogCWxvY2tfa2VybmVsKCk7DQotCWF1dGggPSBORlNfQ0xJRU5UKGlub2Rl
+KS0+Y2xfYXV0aDsNCi0JY3JlZCA9IG5mc19maWxlX2NyZWQoZmlscCk7DQot
+CWlmIChjcmVkKQ0KLQkJcnBjYXV0aF9yZWxlYXNlY3JlZChhdXRoLCBjcmVk
+KTsNCisJcHJpdiA9IGZpbHAtPnByaXZhdGVfZGF0YTsNCisJaWYocHJpdikg
+ew0KKwkJYXV0aCA9IE5GU19DTElFTlQoaW5vZGUpLT5jbF9hdXRoOw0KKwkJ
+Y3JlZCA9IG5mc19maWxlX2NyZWQoZmlscCk7DQorCQlpZiAoY3JlZCkNCisJ
+CQlycGNhdXRoX3JlbGVhc2VjcmVkKGF1dGgsIGNyZWQpOw0KKwkJa2ZyZWUo
+cHJpdik7DQorCX0NCiAJdW5sb2NrX2tlcm5lbCgpOw0KIAlyZXR1cm4gMDsN
+CiB9DQo=
+--41973382-1272356615-994699721=:16113--

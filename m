@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbTIEIKh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 04:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbTIEIKg
+	id S262342AbTIEION (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 04:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTIEION
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 04:10:36 -0400
-Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:56843 "EHLO gw.enyo.de")
-	by vger.kernel.org with ESMTP id S262357AbTIEIKf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 04:10:35 -0400
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bandwidth for bkbits.net (good news)
-References: <20030830230701.GA25845@work.bitmover.com>
-	<87llt9bvtc.fsf@deneb.enyo.de> <bj1fhj$its$4@tangens.hometree.net>
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: hps@intermeta.de, linux-kernel@vger.kernel.org
-Date: Fri, 05 Sep 2003 10:10:31 +0200
-In-Reply-To: <bj1fhj$its$4@tangens.hometree.net> (Henning P.
- Schmiedehausen's message of "Tue, 2 Sep 2003 07:06:27 +0000 (UTC)")
-Message-ID: <874qzrsljc.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+	Fri, 5 Sep 2003 04:14:13 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:30212 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262342AbTIEIOJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 04:14:09 -0400
+Message-ID: <3F5847B7.9070308@aitel.hist.no>
+Date: Fri, 05 Sep 2003 10:22:15 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test4-mm5 SMP got stuck when configuring the NIC
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Henning P. Schmiedehausen" <hps@intermeta.de> writes:
+test4-mm5 seems to work on UP, but got stuck on SMP when the
+initscripts ran pump.
 
-> Florian Weimer <fw@deneb.enyo.de> writes:
->
->>do this for a T1 customer (typically, it requires "unusual"
->>configuration of vital production routers with the fat pipes).
->
-> You need a shaper connected to the ISP backbone which shapes the
-> outgoing traffic for you and a border router which talks to the T1
-> (C17xx or C26xx). Normally, if your ISP has some sort of clue, you
-> will also need a bastion router which can handle backbone <-> 100 MBit
-> traffic and does dynamic routing updates (EGP or OSPF) to the ISP
-> backbone (A C26xx or C37xx).
+It responded to sysrq+S, & sysrq+U,
+so it seems block io was still working.
+There was no fsck on the next boot into plain 2.6.0-test4.
 
-C37xx can handle a maximum load of 225 kpps (data sheet number,
-i.e. this value cannot be exceeded even under most favorable
-conditions), the others handle even less.  Such routers are of no help
-during a DoS attack.
+sysrq+P showed:
+Pid 38, comm: pump
+EIP at __mod_timer+0x34/0x270
+do_IRQ
+common_interrupt
+del_timer
+del_timer_sync
+schedule_timeout
+process_timeout
+dev_close
+dev_change_flags
+devinet_ioctl
+inet_ioctl
+sock_ioctl
+syscall_call
+auth_domain_drop
 
-Yes, I snipped the DoS context, and your approach would work in a
-benign environment. 8-)
+sysrq+T
+showed pump as the R process, syslogd Z, and others S.
+
+I'll try without the elv-insertion-fix thing later today.
+
+Helge Hafting
+

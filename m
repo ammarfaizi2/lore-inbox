@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316766AbSFUTKP>; Fri, 21 Jun 2002 15:10:15 -0400
+	id <S316775AbSFUTNI>; Fri, 21 Jun 2002 15:13:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316768AbSFUTKO>; Fri, 21 Jun 2002 15:10:14 -0400
-Received: from iere.net.avaya.com ([198.152.12.101]:40882 "EHLO
-	iere.net.avaya.com") by vger.kernel.org with ESMTP
-	id <S316766AbSFUTKO>; Fri, 21 Jun 2002 15:10:14 -0400
-Message-ID: <3D137A16.2080303@avaya.com>
-Date: Fri, 21 Jun 2002 13:10:14 -0600
-From: "Bhavesh P. Davda" <bhavesh@avaya.com>
-Organization: Avaya, Inc.
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.0rc2) Gecko/20020512 Netscape/7.0b1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] SCHED_FIFO and SCHED_RR scheduler fix, kernel 2.2.21
-References: <E17LSDo-0001KB-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Jun 2002 19:10:15.0675 (UTC) FILETIME=[469404B0:01C21957]
+	id <S316776AbSFUTNH>; Fri, 21 Jun 2002 15:13:07 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:26509 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S316775AbSFUTNG>; Fri, 21 Jun 2002 15:13:06 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: Optimisation for smp_num_cpus loop in hotplug 
+In-reply-to: Your message of "Fri, 21 Jun 2002 11:31:44 -0400."
+             <200206211531.g5LFViZ07396@localhost.localdomain> 
+Date: Sat, 22 Jun 2002 05:17:19 +1000
+Message-Id: <E17LTuK-0003HM-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>The 2.2.21 kernel was behaving incorrectly for SCHED_FIFO and SCHED_RR 
->>scheduling.
+In message <200206211531.g5LFViZ07396@localhost.localdomain> you write:
+> rusty@rustcorp.com.au said:
+> > Yeah, it's simple, and none of the current ones are really critical.
+> > But I think we're better off with:
+> > 	for (i = first_cpu(); i < NR_CPUS; i = next_cpu(i)) {
 > 
+> > Which is simple enough not to need an iterator macro, and also has the
+> > bonus of giving irq-balancing et al. an efficient, portable way of
+> > looking for the "next" cpu. 
 > 
-> Looks fine but I dont want to apply behaviour changing non critical stuff
-> to 2.2
+> So you're thinking that next_cpu(i) is something like
+> 
+> __ffs((~(unsigned)((1<<i)-1) & cpu_online_map)
+> 
+> plus an extra exception piece to take next_cpu(i) above NR_CPUS if we have no
+ 
+> remaining CPUs (because __ffs would be undefined)?  It's the exception piece 
+> that I don't see how to do really efficiently.
 
-Oh, no!
+find_next_bit already does this, but the generic one would look
+something like:
 
-What's going on with the kernel community? I posted a similar fix for 
-the 2.4.18 kernel, and it hasn't been picked up there either.
+	unsigned long mask = ~(unsigned long)((1<<(cpu+1))-1);
+	if (mask & cpu_online_map)
+		return _ffs(mask & cpu_online_map);
+	return NR_CPUS;
 
-For the 2.4.18 kernel scheduler, our 86 process application (SCHED_FIFO, 
-priorities 7-23, System V semaphores for priority preemption) won't even 
-stay up without my patch.
-
-The 2.2.21 SCHED_FIFO behaviour is correct but slightly inefficient, 
-while the SCHED_RR behaviour is plain broken. What is an application 
-that depends on correct SCHED_RR behaviour to do in that case? There are 
-applications where increased latencies as a result of SCHED_RR being 
-broken are unacceptable.
-
--- 
-Bhavesh P. Davda
-Avaya Inc
-Room B3-B03                     E-mail : bhavesh@avaya.com
-1300 West 120th Avenue          Phone  : (303) 538-4438
-Westminster, CO 80234           Fax    : (303) 538-3155
-
+Cheers!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

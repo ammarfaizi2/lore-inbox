@@ -1,122 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261593AbSJJROF>; Thu, 10 Oct 2002 13:14:05 -0400
+	id <S261701AbSJJRS6>; Thu, 10 Oct 2002 13:18:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261701AbSJJROF>; Thu, 10 Oct 2002 13:14:05 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:2483 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S261593AbSJJROD>;
-	Thu, 10 Oct 2002 13:14:03 -0400
-Date: Thu, 10 Oct 2002 10:21:56 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Alexander Viro <viro@math.psu.edu>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] gendisk refcounting
-In-Reply-To: <Pine.GSO.4.21.0210092136040.10320-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.44.0210100925060.16276-100000@cherise.pdx.osdl.net>
+	id <S261702AbSJJRS6>; Thu, 10 Oct 2002 13:18:58 -0400
+Received: from smtp.urbanet.ch ([195.202.193.135]:34469 "HELO smtp.urbanet.ch")
+	by vger.kernel.org with SMTP id <S261701AbSJJRS5>;
+	Thu, 10 Oct 2002 13:18:57 -0400
+From: Sylvain Pasche <sylvain_pasche@yahoo.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15781.47072.335973.295982@yahoo.fr>
+Date: Thu, 10 Oct 2002 19:24:48 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.41 isofs patch to avoid "bad: scheduling while atomic!"
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Without the patch:
+bad: scheduling while atomic!
+Call Trace:
+ [<c01161b1>] schedule+0x3d/0x4d4
+ [<c01123fd>] smp_apic_timer_interrupt+0x111/0x124
+ [<c0107595>] need_resched+0x1f/0x2a
+ [<c01a0068>] sysvipc_sem_read_proc+0x1b0/0x227
+ [<c01acba5>] serial_in+0x45/0x4c
+ [<c01aeadd>] serial8250_console_write+0x5d/0x1cc
+ [<c011ba26>] __call_console_drivers+0x3e/0x50
+ [<c011ba8b>] _call_console_drivers+0x53/0x58
+ [<c011bb45>] call_console_drivers+0xb5/0xe0
+ [<c011bed7>] release_console_sem+0xc3/0x164
+ [<c011bd7f>] printk+0x1a7/0x1f4
+ [<c011890f>] __might_sleep+0x4f/0x58
+ [<c013f2f4>] __alloc_pages+0x24/0x24c
+ [<c013f544>] __get_free_pages+0x28/0x60
+ [<f8998797>] isofs_readdir+0x6f/0xf7 [isofs]
+ [<c015dfd5>] vfs_readdir+0x75/0x88
+ [<c015e260>] filldir64+0x0/0x114
+ [<c015e3c3>] sys_getdents64+0x4f/0xb3
+ [<c015e260>] filldir64+0x0/0x114
+ [<c015d52d>] sys_fcntl64+0x85/0x98
+ [<c015d539>] sys_fcntl64+0x91/0x98
+ [<c01075d3>] syscall_call+0x7/0xb
 
-On Wed, 9 Oct 2002, Alexander Viro wrote:
+the simple fix:
 
-> 	OK, I think I've figured it out.  Presuming that we are going to have
-> at least one struct device in struct gendisk, we need the following:
-> 
-> 	* destruction of struct gendisk is triggered by ->release()
-> 
-> Agreed?
-> 
-> 	Now, we also need references that didn't come from driverfs.
-> E.g. opened struct block_device will need to hold a pointer to gendisk.
-> 
-> 	I can live with ->refcount for one of struct device acting as
-> global refcount.  Then put_disk(disk) turns into put_device(&disk->dev)
-> and get_disk(disk) - into atomic_inc() on disk->dev.refcount (we
-> do that only when we hold a reference to disk).
-> 
-> 	->release() for disk->dev would act as destructor for gendisk.
-> 
-> 	There is only one problem.  Namely, we might never call
-> device_register() at all or call it some time after the thing had
-> been allocated.  Notice that we have separate moments when device
-> is unregistered and freed.  And that's fine.  What we don't have is
-> similar splitup on the creation end of things.
-> 
-> 	I.e. it would be really nice if we had device_initialize(dev)
-> and device_add(dev); the former setting refcount/initializing lists/etc.
-> and the latter doing the rest of device_register().  Then we have a nice
-> symmetric picture - and a nice way to piggyback on struct device refcounting.
-> 
-> 	alloc_disk() would do device_initialize(&disk->dev).
-> 	get_disk() would be atomic_inc(&disk->dev.refcount).
-> 	add_disk() would do device_add(&disk->dev) letting the world see it.
-> 	del_gendisk() would do device_unregister(&disk->dev).
-> 	put_disk() would be device_put(&disk->dev).
-> 	and release_disk() would be ->release() of disk->dev, triggered when
-> (shared) refcount hits zero and actually freeing stuff.
-> 
-> That's it - now refcount for struct gendisk is guaranteed to be consistent
-> with struct device, simply because it _is_ refcount of struct device.
-
-This definitely sounds sane, but...
-
-Do you need a full struct device in struct gendisk? The device 
-information, like the driver, power state, etc are redundant with the 
-struct device in the (IDE, SCSI) drive structure. The generic disk 
-structure doesn't follow the same semantics as a device structure. 
-
-But, there are common fields and interfaces that struct gendisk (and 
-several other objects) can benefit from. This is what I was getting at 
-yesterday with replacing the struct device in hd_struct with just a struct 
-driver_dir_entry. That's of course not enough, but something like: 
-
-struct sys_object {
-	struct list_head entry;	/* entry in global list of this type */
-	atomic_t refcount;
-	u32 present;
-	struct driver_dir_entry dir;
-	void (*release) (struct sys_object *);
-};
-
-We'd wind up with something similar to what you described before, though a 
-little more generic:
-
-alloc_disk() - initialize object. 
-release_disk() - free object via ->release()
-get_disk()/put_disk() - get()/put() on generic object. 
-
-Then, the one thing that really integrates into the driver model: Wrap
-add_disk() and del_gendisk() into ->add_device() and ->remove_device()  
-of disk_devclass.
-
-disk_devclass is initialized and added to the tree in 
-drivers/block/genhd.c::device_init(). Once a driver is bound a device, it 
-is added to the class the driver belongs to, which calls struct 
-device_class::add_device(), with a pointer to the struct device of the 
-drive. 
-
-The other huge benefits of having a generic object like this are:
-
-- all the current driver model objects can share them, along with the code 
-  to operate on them. 
-- driverfs can easily be taught about them, making reference counting 
-  easier.
-- The glue layers for adding driverfs support for different object types 
-  becomes quite a bit less. 
-
-
-	-pat
+--- linux-2.5.41/fs/isofs/dir.c_old     2002-10-10 19:12:19.000000000 +0200
++++ linux-2.5.41/fs/isofs/dir.c 2002-10-10 19:13:26.000000000 +0200
+@@ -256,7 +256,7 @@
+ 
+        lock_kernel();
+ 
+-       tmpname = (char *) __get_free_page(GFP_KERNEL);
++       tmpname = (char *) __get_free_page(GFP_KERNEL | GFP_ATOMIC);
+        if (!tmpname)
+                return -ENOMEM;
+        tmpde = (struct iso_directory_record *) (tmpname+1024);
 
 
 
-
-
-
-
-
-
-
-
+Sylvain Pasche

@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbUKEUZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbUKEU2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbUKEUZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 15:25:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUKEUZ7
+	id S261208AbUKEU2e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 15:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbUKEU2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 15:25:59 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:26118 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261204AbUKEUZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 15:25:51 -0500
-Date: Fri, 5 Nov 2004 21:20:38 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Adam Heath <doogie@debian.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Chris Wedgwood <cw@f00f.org>,
+	Fri, 5 Nov 2004 15:28:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30093 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261208AbUKEU22 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 15:28:28 -0500
+Date: Fri, 5 Nov 2004 12:28:14 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Andries Brouwer <aebr@win.tue.nl>, Adam Heath <doogie@debian.org>,
        Christoph Hellwig <hch@infradead.org>,
        Timothy Miller <miller@techsource.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: support of older compilers
-Message-ID: <20041105202038.GC30993@alpha.home.local>
-References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org> <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com> <20041103233029.GA16982@taniwha.stupidest.org> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20041105195045.GA16766@taniwha.stupidest.org>
+Message-ID: <Pine.LNX.4.58.0411051203470.2223@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
+ <20041103233029.GA16982@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org> <20041105195045.GA16766@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 05:39:08PM -0600, Adam Heath wrote:
- 
-> Using an old version of gcc because it is faster at compiling is a
-> non-argument.
 
-If you can send to all of us for free some hardware which is twice as fast
-as what we have, which does not generate more heat and noise, then perhaps
-most of us will accept to use a twice as slow compiler. But not for long,
-since some may realize that they can produce quality code twice as fast on
-their new system ;-)
 
-At least, with fast machines and fast compilers, people have no excuse not
-testing the patches they send. A few years ago, broken & non-tested patches
-were very common. This could become standard again if everyone jumped into
-gcc 3.4 unconditionnaly.
+On Fri, 5 Nov 2004, Chris Wedgwood wrote:
 
-> If they produce bad code, then that's a valid reason.
-> If they produce larger code, that is a valid reason.
+> On Fri, Nov 05, 2004 at 07:41:03AM -0800, Linus Torvalds wrote:
+> 
+> > > -rw-r--r--   1 root     root       281572 Jul 30  1995 zImage-1.2.11
+> > > -rw-r--r--   1 root     root       277476 Apr  1  1995 zImage-1.2.2
+> 
+> > Ok, you da man. What do you use it for? Or is it just lying around
+> > for nostalgic reasons?
+> 
+> to remind us how large the kernel is getting? :)
 
-You can also ask the gcc people when they will decide to write a new version
-which is able to compile some code which compiles with the previous release.
-I have some tools which don't compile anymore with gcc 3 and error messages
-look more like insults than information, and I don't even know how to "fix"
-(adapt ?) them. This too is a valid reason to stick to older compilers.
+Yeah, I know. Damn, it's scary. We should probably have some
+per-object-file statistics, and try to make people more aware of big bad
+things.
 
-Willy
+The kernel does do more these days than it did in '95. But 6 times more? I 
+dunno..
 
+		Linus

@@ -1,77 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265132AbSLBXXV>; Mon, 2 Dec 2002 18:23:21 -0500
+	id <S265135AbSLBXan>; Mon, 2 Dec 2002 18:30:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265134AbSLBXXV>; Mon, 2 Dec 2002 18:23:21 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:26898 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S265132AbSLBXXU>; Mon, 2 Dec 2002 18:23:20 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB1A67@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: "'John Bradford'" <john@grabjohn.com>, linux-kernel@vger.kernel.org
-Subject: RE: More intellegent bad block reallocation in software?
-Date: Mon, 2 Dec 2002 15:30:14 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S265140AbSLBXan>; Mon, 2 Dec 2002 18:30:43 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:5375 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S265135AbSLBXal>;
+	Mon, 2 Dec 2002 18:30:41 -0500
+Date: Mon, 2 Dec 2002 15:36:29 -0800
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       irda-users@lists.sourceforge.net
+Subject: IrDA patches on the way...
+Message-ID: <20021202233629.GA16284@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The remapping of bad sectors is a house-keeping function of the drive. By
-default, every drive supports this. If a drive is unable to remap a sector
-(due to physical defect/lack of spares/schedule later), it becomes a pending
-sector. This can be taken care of in the software by writing to that sector
-and leaving it upto the drive to remap this sector. 
+	Hi Marcelo,
 
-Different drives have different remapping strategy. Some drives allocate
-zone based spares in which case the latency involved in fetching the spare
-sector is anyway lesser. 
+	The next batch of IrDA patches for 2.4.X. Most of those
+patches were integrated in kernel 2.5.09 (6 months ago) and available
+for 2.4.X on my web page since, so consider them "tested". I rediffed
+and tested the patches on 2.4.20-final.
+	Apart from the small important fixes, the new IrTTP
+implementation (safer) and the new Donauboe driver that replaces the
+obsolete Toshoboe and support more hardware.
 
-By removing this check of a bad sector from the drive, you will need to
-implement a similar algorithm in the software. IMHO, this itself might
-introduce latencies. You can write a disk scrubber sort of application which
-reads every sector and then checks some stats (like READ times) and decides
-whether that needs to be remapped or not. In any case, this would certainly
-require a custom firmware to turn off this check. 
+	Have fun...
 
+	Jean
 
+-----------------------------------------------------------
 
------Original Message-----
-From: John Bradford [mailto:john@grabjohn.com]
-Sent: Monday, December 02, 2002 3:20 PM
-To: linux-kernel@vger.kernel.org
-Subject: More intellegent bad block reallocation in software?
+[FEATURE] : Add a new feature to the IrDA stack
+[CORRECT] : Fix to have the correct/expected behaviour
+[CRITICA] : Fix potential kernel crash
 
+ir241_flow_sched_lap_lmp-6.diff :
+-------------------------------
+		<Won't compile without ir241_flow_sched_ttp-6.diff>
+	o [FEATURE] Reduce LAP Tx queue to 2 packets (from 10)
+		Improve latency, reduce buffer usage
+	o [FEATURE] LAP Tx queue not full notification (flow start)
+		Poll higher layer to fill synchronously LAP window (7 packets)
+	o [FEATURE] LMP LSAP scheduler
+		Ensure Tx fairness between LSAPs (sockets, IrCOMM, IrNET...)
 
-Is it possible, or at least feasible for certain disk devices, to
-disable the firmware-level re-allocation of bad blocks, (note: I am
-aware that disks typically have many bad blocks that are reliant on
-ECC to function - I am refering to completely bad blocks, that are
-replaced with a 'spare' block), and do this in software?
+ir241_flow_sched_ttp-6.diff :
+---------------------------
+		<Won't compile without ir241_flow_sched_lap_lmp-6.diff>
+	o [CORRECT] Fix race condition when starting todo timer
+	o [CORRECT] Fix race condition when stopping higher layer
+		Higher layer would think it is stopped and us it is started
+	o [CORRECT] Give credit even if packets in Tx queue
+		If Tx queue was stopped, could starve peer and deadlock
+	o [CORRECT] Protect Rx credit update with spinlock
+	o [CORRECT] Calculate properly self->avail_credit
+		Didn't take into account queued Rx fragments
+		Incremented even if Rx frame not delivered to higher layer
+		-> would never stop the peer (i.e. not flow control)
+		-> could become infinite
+	o [CORRECT] Send credit when higher layer reenable receive
+		Peer wouldn't restart Tx to us if flow stopped
+	o [FEATURE] Implement LAP queue not full notification
+		Lower latency, ...
+	o [FEATURE] Reduce Tx queue to 8 packets (from 10)
+		But make sure we can always send a full LAP window (7)
+	o [FEATURE] Fix and optimise TTP flow control
+		Make sure peer can always send a full LAP window (7)
+		Minimise explicit credit updates (give_credit)
+	o [FEATURE] Remove need for todo timer in Tx/Rx paths
+		Less potential races, lower latency, lower context switches
+		Could not use tasklet because broken API, better anyway ;-)
 
-The reason I'm asking, is because presumably the 'spare' blocks are
-kept at the end or the disk, or at least all in one place, (or
-possibly throughout the disk in each ZBR zone).  If this is the case,
-then reading a single large file which is, according to the
-filesystem, all in consecutive blocks, could involve several seeks to
-the area where the spare blocks are.
+ir241_dongle_locking.diff :
+-------------------------
+	o [CORRECT] Load dongle module with irq disabled in irtty
+	<Same fix need to go in irport, but irport doesn't work for me>
 
-My idea is that we could allocate one block out of every ten to be a
-spare block, (which would reduce disk capacity by 10%), and then if a
-block needed to be re-allocated, we could allocate one from the same
-cylinder, therefore removing the need for the heads to seek across the
-disk.
+ir241_lsap_lap_close-2.diff :
+---------------------------
+		<apply after ir241_flow_sched_lap_lmp-6.diff to avoid fuzz>
+	o [CORRECT] Cancel LSAP watchdog when putting socket back to listen
+	o [CORRECT] Try to close LAP when closing LSAP still active
+	        <Following patch from Felix Tang>
+	o [CORRECT] Header fix for compile on Alpha architecture
 
-How easily could this be added to existing filesystems?  Presumably
-we'd need extra functionality in both filesystem code and the IDE and
-SCSI code, and I realise that it might be completely impossible,
-without custom firmware on the disk.  It's an interesting idea
-though.
+ir241_irnet_simult_race-2.diff :
+------------------------------
+	o [CORRECT] Prevent dealock on simultaneous peer IrNET connections
+		Only the primary peer will accept the IrNET connection
 
-John.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+ir241_smc_msg.diff :
+------------------
+	        <Following patch from Jeff Snyder>
+	o [CRITICA] Release the proper region and not NULL pointer
+	o [FEATURE] Fix messages
+
+ir241_donauboe.diff :
+-------------------
+	        <Following patch from Martin Lucina & Christian Gennerat>
+	o [FEATURE] Rewrite of the toshoboe driver using documentation
+	o [FEATURE] Support Donau oboe chipsets.
+	o [FEATURE] FIR support
+	o [CORRECT] Probe chip before opening
+	o [FEATURE] suspend/resume support
+	o [FEATURE] Numerous other improvements/cleanups
+		<Currently, we keep the old toshoboe driver around>
+
+ir241_checker.diff :
+------------------
+	<Need to apply after ir241_flow_sched_XXX.diff to avoid "offset">
+	o [CORRECT] Fix two bugs found by the Stanford checker in IrDA
+	o [CORRECT] Fix two bugs found by the Stanford checker in IrCOMM
+	o [CORRECT] Fix one bug found by the Stanford checker in ali driver

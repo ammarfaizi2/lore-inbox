@@ -1,72 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUH0QZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266479AbUH0Q2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbUH0QZp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 12:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266479AbUH0QYC
+	id S266479AbUH0Q2i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 12:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbUH0Q2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 12:24:02 -0400
-Received: from holomorphy.com ([207.189.100.168]:39839 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266519AbUH0QXX (ORCPT
+	Fri, 27 Aug 2004 12:28:38 -0400
+Received: from mail.kroah.org ([69.55.234.183]:51905 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266523AbUH0Q0u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 12:23:23 -0400
-Date: Fri, 27 Aug 2004 09:23:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [0/2][ANNOUNCE] nproc: netlink access to /proc information
-Message-ID: <20040827162308.GP2793@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Roger Luethi <rl@hellgate.ch>, linux-kernel@vger.kernel.org,
-	Albert Cahalan <albert@users.sf.net>, Paul Jackson <pj@sgi.com>
-References: <20040827122412.GA20052@k3.hellgate.ch>
+	Fri, 27 Aug 2004 12:26:50 -0400
+Date: Fri, 27 Aug 2004 09:26:13 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Summarizing the PWC driver questions/answers
+Message-ID: <20040827162613.GB32244@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040827122412.GA20052@k3.hellgate.ch>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 02:24:12PM +0200, Roger Luethi wrote:
-> Problems with /proc
-> ===================
-> The information in /proc comes in a number of different formats, for
-> example:
-> - /proc/PID/stat works for parsers. However, because it is not
->   self-documenting, it can never shrink, It contains a growing number
->   of dead fields -- legacy tools expect them to be there. To make things
->   worse, there is no N/A value, which makes a field value 0 ambiguous.
-> - /proc/pid/status is self-documenting. No N/A value is necessary --
->   fields can easily be added, removed, and reordered. Too easily, maybe.
->   Tool maintainers complain about parsing overhead and unstable file
->   formats.
-> - /proc/slabinfo is something of a hybrid and tries to avoid the
->   weaknesses of other formats.
-> So a key problem is that it's hard to make an interface that is both
-> easy for humans and parsers to read. The amount of human-readable
-> information in /proc has been growing and there's no way all these
-> files will be rewritten again to favor parsers.
+So, I've gotten a lot of emails about this topic, so I'll just answer
+them all here in public, and point people at them when they ask them
+again:
 
-These are many of the same issues raised in rusty's "current /proc/ of
-shit" thread from a while back.
+First off, here's Nemosoft's big post about the driver, please read that
+first, and the responses to that thread:
+http://thread.gmane.org/gmane.linux.usb.devel/26310
 
+And here's Linus's response after I removed the driver, when Nemosoft
+asked me to:
+http://thread.gmane.org/gmane.linux.kernel/229968
 
-On Fri, Aug 27, 2004 at 02:24:12PM +0200, Roger Luethi wrote:
-> Another problem with /proc is speed. If we put all information in a few
-> large files, the kernel needs to calculate many fields even if a tool
-> is only interested in one of them. OTOH, if the informations is split
-> into many small files, VFS and related overhead increases if a tool
-> needs to read many files just for the information on one single process.
-> In summary, /proc suffers from diverging goals of its two groups of
-> users (human readers and parsers), and it doesn't scale well for tools
-> monitoring many fields or many processes.
+Oh, and there's now a lwn.net thread too:
+http://lwn.net/Articles/99615/
 
-There are more maintainability benefits from the interface improvement
-than speed benefits. How many processes did you microbenchmark with?
-I see no evidence that this will be a speedup with large numbers of
-processes, as the problematic algorithms are preserved wholesale.
+Ok, on to the questions:
 
+Q: Why did you remove the hook from the pwc driver?
+A: It was there for the explicit purpose to support a binary only
+   module.  That goes against the kernel's documented procedures, so I
+   had to take it out.
 
--- wli
+Q: That hook had been in there for years!  Why did you suddenly decide
+   to remove it now?
+A: I was really not aware of the hook, and the fact that it was only
+   good for a binary module to use.  I'm sorry, I should have realized
+   this years ago, but I didn't.  Recently someone pointed this hook out
+   to me, and the fact that it really didn't belong in there due to the
+   kernel's policy of such hooks.  So, once I became aware of it, I had
+   no choice but to remove it.
+
+Q: Why did you delete the whole pwc driver from the tree?
+A: That is what the original author (Nemosoft) wanted to happen.  It was
+   his request, and I honored it.  Go ask him why he wanted it out if
+   you are upset about this, I merely accepted his decision as he was
+   the current maintainer and author of the code.
+
+Q: But you took away my freedom!  Isn't Linux about freedom?
+A: Again, it was Nemosoft's decision.  The kernel also has to abide by
+   it's documented procedures, so that is why the hook had to go.
+   Remember, the original driver was released under the GPL, so you are
+   free to take that code and maintain it if you so desire.  I'd gladly
+   support someone taking the GPL code and agreeing to maintain it, and
+   resubmitting it for inclusion in the main kernel tree.  That's the
+   freedom that Linux provides, no closed source OS would allow you to
+   do that, if a company pulled support for a product (which happens all
+   the time.)
+
+Q: You jerk, I had invested lots of money in this camera, you are
+   costing me money by ripping it out.  You should be ashamed of
+   yourself!
+A: See the above question about freedom.  If it means that much to you,
+   then offer to maintain the code, it's that simple.
+
+Q: You are keeping companies from wanting to write binary drivers for
+   Linux.
+A: Duh!  What do you think all of the kernel developers have been
+   stating for years, in public.  Binary drivers only take from Linux,
+   they do not give back anything.  See Andrew Morton's OLS 2004 keynote
+   address for more information and background on this topic.
+
+Q: You are a fundamentalist turd / jerk / pompous ass /
+   GNU-freebeer-biased-idiot-fundamentalist fucktard / ignorant slut!
+A: I've been called worse by better people, get over yourself.
+

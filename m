@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272953AbTHEWvo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 18:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272956AbTHEWvo
+	id S272950AbTHEXPY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 19:15:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272974AbTHEXPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 18:51:44 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:54171 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S272953AbTHEWvk (ORCPT
+	Tue, 5 Aug 2003 19:15:24 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:18194 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S272950AbTHEXPU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 18:51:40 -0400
-Date: Wed, 6 Aug 2003 00:51:49 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: RO --bind mount implementation ...
-Message-ID: <20030805225149.GC2594@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <20030804221615.GA18521@www.13thfloor.at> <20030805165924.GF12757@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030805165924.GF12757@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
+	Tue, 5 Aug 2003 19:15:20 -0400
+Date: Wed, 6 Aug 2003 01:15:00 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andries.Brouwer@cwi.nl
+cc: B.Zolnierkiewicz@elka.pw.edu.pl, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix error return get/set_native_max functions
+In-Reply-To: <UTC200308052008.h75K8aD22137.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0308060058120.717-100000@serv>
+References: <UTC200308052008.h75K8aD22137.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 05:59:24PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Tue, Aug 05, 2003 at 12:16:15AM +0200, Herbert Pötzl wrote:
->  
-> > anyway, I discussed this with some friends, and
-> > they pointed out that this would be useful ...
-> > so here is the first try ...
+Hi,
+
+On Tue, 5 Aug 2003 Andries.Brouwer@cwi.nl wrote:
+
+> > This change is okay, thanks.
+> > However changing coding style is not...
 > 
-> Umm...  You know, the most obvious system call that should care about
-> read-only is open(pathname, O_RDWR) ;-)  IOW, taking care of directory
-> modifications is not enough - you need to deal with
-> 	* opening file for write
-> 	* truncation (both from *truncate() and from open() with O_TRUNC)
-> 	* metadata changes (timestamps, ownership, permissions)
+> An interesting remark.
+> 
+> I belong to the people who look at kernel source on a screen
+> with 80 columns. Code that is wider and wraps is unreadable.
 
-well, the open case, IMHO is handled by the
-lookup_create() modifications, truncate is something
-I obviously missed (I missed the intermezzo copies 
-too ;) and metadata changes were intentionally ignored
-(it's the first try, and I'm glad that you see it as 
-a step in the right direction?)
+Get a better editor?
+While I think 80 columns is a worthwhile goal, I don't see a good reason 
+to wrap a random line only because it exceeds the limit by a few 
+characters. What is especially annoying are patches with a one line fix
+hidden within 10 other formatting changes (I've seen this already from 
+you). Please respect others people code and try to avoid randoming 
+formatting changes or at least keep them separate.
 
-> But yes, it's not that far from where we should eventualy get.
+bye, Roman
 
-will add the truncate() case soon, maybe it is also
-possible to move some parts of the may_create
-function to the mnt_may_create (any suggestions for
-a better name?), to avoid doing some checks twice ...
-
-any further suggestions?
-
-best,
-Herbert
- 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

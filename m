@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135395AbRDMEFG>; Fri, 13 Apr 2001 00:05:06 -0400
+	id <S135396AbRDMEnD>; Fri, 13 Apr 2001 00:43:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135396AbRDMEE4>; Fri, 13 Apr 2001 00:04:56 -0400
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:19718
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S135395AbRDMEEw>; Fri, 13 Apr 2001 00:04:52 -0400
-Date: Thu, 12 Apr 2001 21:04:28 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: george anzinger <george@mvista.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, schwidefsky@de.ibm.com,
-        linux-kernel@vger.kernel.org,
-        high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
-In-Reply-To: <3AD66B62.23620639@mvista.com>
-Message-ID: <Pine.LNX.4.10.10104122102170.4564-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S135397AbRDMEmx>; Fri, 13 Apr 2001 00:42:53 -0400
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:54448 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id <S135396AbRDMEmm>; Fri, 13 Apr 2001 00:42:42 -0400
+Date: Thu, 12 Apr 2001 23:52:03 -0500
+From: Erik DeBill <edebill@swbell.net>
+Subject: Re: k 2.4.2; usb; handspring-visor
+In-Reply-To: <0104110852300F.25330@weez>; from weez@freelists.org on Wed,
+ Apr 11, 2001 at 08:52:30AM -0500
+To: John Madden <weez@freelists.org>, linux-kernel@vger.kernel.org
+Message-id: <20010412235203.A30278@austin.rr.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01041109595000.00940@horus.arge> <0104110852300F.25330@weez>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Apr 2001, george anzinger wrote:
-
-> Actually we could do the same thing they did for errno, i.e.
+On Wed, Apr 11, 2001 at 08:52:30AM -0500, John Madden wrote:
+> > Apr  8 23:33:09 horus kernel: hub.c: USB new device connect on bus1/1,
+> > assigned device number 5
+> > Apr  8 23:33:12 horus kernel: usb_control/bulk_msg: timeout
+> > Apr  8 23:33:12 horus kernel: usb.c: USB device not accepting new
+> > address=5 (error=-110)
 > 
-> #define jiffies get_jiffies()
-> extern unsigned get_jiffies(void);
+> Funny, I've been getting the same messages (on 2.4.0 and now 2.4.3) for a 
+> while now, and I thought the problem was with my Visor.  (...I haven't 
+> been able to sync for months...)
 
-> No, not really.  HZ still defines the units of jiffies and most all the
-> timing is still related to it.  Its just that interrupts are only "set
-> up" when a "real" time event is due.
+Have you tried using the normal UHCI driver, instead of the UHCI
+Alternate Driver (JE)?  I know the "alternate" one is default from
+Linus, but it's incompatible with the usb-visor driver.  The
+maintainer said he'd patch the docs to clear up the confusion, but it
+hasn't shown up in the mainstream kernels yet.
 
-Great HZ always defines units of jiffies, but that is worthless if there
-is not a ruleset that tells me a value to divide by to return it to a
-specific quantity of time.
+In my case, trying to use the visor would actually lock up the
+machine, requiring a cold boot.  Switched to the other UHCI driver
+and it works fine.
 
-Cheers,
-
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
-
+Erik

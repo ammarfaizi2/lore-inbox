@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130722AbRCEWZI>; Mon, 5 Mar 2001 17:25:08 -0500
+	id <S130738AbRCEWf3>; Mon, 5 Mar 2001 17:35:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130724AbRCEWY6>; Mon, 5 Mar 2001 17:24:58 -0500
-Received: from [213.97.199.90] ([213.97.199.90]:19972 "HELO roku.redroom.com")
-	by vger.kernel.org with SMTP id <S130722AbRCEWYw> convert rfc822-to-8bit;
-	Mon, 5 Mar 2001 17:24:52 -0500
-From: davidge@jazzfree.com
-Date: Tue, 6 Mar 2001 00:21:50 +0100 (CET)
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Loop stuck in -D state
-In-Reply-To: <3AA3ECAA.68BA316D@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0103060020040.2181-100000@roku.redroom.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S130739AbRCEWfT>; Mon, 5 Mar 2001 17:35:19 -0500
+Received: from [199.239.160.155] ([199.239.160.155]:33921 "EHLO
+	tenchi.datarithm.net") by vger.kernel.org with ESMTP
+	id <S130738AbRCEWfH>; Mon, 5 Mar 2001 17:35:07 -0500
+Date: Mon, 5 Mar 2001 14:34:45 -0800
+From: Robert Read <rread@datarithm.net>
+To: Pozsar Balazs <pozsy@sch.bme.hu>
+Cc: Paul Flinders <P.Flinders@ftel.co.uk>, Jeff Mcadams <jeffm@iglou.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        John Kodis <kodis@mail630.gsfc.nasa.gov>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: binfmt_script and ^M
+Message-ID: <20010305143445.D6400@tenchi.datarithm.net>
+Mail-Followup-To: Pozsar Balazs <pozsy@sch.bme.hu>,
+	Paul Flinders <P.Flinders@ftel.co.uk>,
+	Jeff Mcadams <jeffm@iglou.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	John Kodis <kodis@mail630.gsfc.nasa.gov>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010305123907.C6400@tenchi.datarithm.net> <Pine.GSO.4.30.0103052154360.28239-100000@balu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.30.0103052154360.28239-100000@balu>; from pozsy@sch.bme.hu on Mon, Mar 05, 2001 at 10:05:36PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Mar 2001, Jeff Garzik wrote:
-
->...
+On Mon, Mar 05, 2001 at 10:05:36PM +0100, Pozsar Balazs wrote:
+> On Mon, 5 Mar 2001, Robert Read wrote:
+> > On Mon, Mar 05, 2001 at 07:58:52PM +0100, Pozsar Balazs wrote:
+> > >
+> > > And what does POSIX say about "#!/bin/sh\r" ?
+> > > In other words: should the kernel look for the interpreter between the !
+> > > and the newline, or [the first space or newline] or the first whitespace?
+> > >
+> > > IMHO, the first whitespace. Which means that "#!/bin/sh\r" should invoke
+> > > /bin/sh. (though it is junk).
+> >
+> > The line terminator, '\n', is what terminates the interpreter.  White
+> > space (in this case, only ' ' and '\t') is used to seperate the
+>         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > arguments to the interpreter.
 > 
-> 2.4.3-pre2 should be the one to test... it should include the latest
-> loop fixes..
 > 
+> The last little tiny thing that bothers me: why? Why only ' ' and '\t' _in
+> this case_? As someone mentioned, even isspace() returns whitespace.
+> 
+> A possible answer (that i can think of), is that those ar the whitespaces,
+> which are in IFS (as said previously), taking out us from kernel-space
+> into userspace. But imho we shouldn't define another set whitespace for
+> this case, can't we just use what isspace() says?
 
-For what I've tested, 2.4.3-pre2 works fine with the loop device.
+And isspace('\n') is also true.  At question here is not the
+definition of whitespace.  The question is, what is the definition of
+a command line?  What characters are valid command line seperators?
 
-
-
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
-
-
+robert

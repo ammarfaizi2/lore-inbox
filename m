@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279570AbRKMWBG>; Tue, 13 Nov 2001 17:01:06 -0500
+	id <S279505AbRKMWD0>; Tue, 13 Nov 2001 17:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279462AbRKMWA5>; Tue, 13 Nov 2001 17:00:57 -0500
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:43268 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S279570AbRKMWAn>;
-	Tue, 13 Nov 2001 17:00:43 -0500
-Date: Tue, 13 Nov 2001 14:03:30 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: fdutils.
-In-Reply-To: <Pine.GSO.3.96.1011113214448.11222E-100000@delta.ds2.pg.gda.pl>
-Message-ID: <Pine.LNX.4.10.10111131400220.9397-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279509AbRKMWDS>; Tue, 13 Nov 2001 17:03:18 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:54739
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S279505AbRKMWDL>; Tue, 13 Nov 2001 17:03:11 -0500
+Date: Tue, 13 Nov 2001 17:50:10 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: CML 1.8.4 is available
+Message-ID: <20011113175010.A15716@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Nov 2001, Maciej W. Rozycki wrote:
->  You only confirm what I wrote -- hardly anyone uses floppies, so there is
-> no need to keep mechanical compatibility in devices -- a complete dump of
-> 1.44" FD support would be almost harmless.  Hence whether a Zip or a
-> LS-120 -- it doesn't really matter.  You need new media anyway. 
-> 
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-What an interesting thing to be reading as I'm reinstalling linux on a
-server using a combination of boot/root floppies and a network install.
+Release 1.8.4: Tue Nov 13 17:31:15 EST 2001
+	* Resync with 2.4.15-pre4 (except for SH port).
+	* Rulebase corrections from Keith Owens and Colin Slater.
+	* DANGEROUS is now a warndepend condition; this means there is a policy
+	  symbol DANGEROUS, and any symbol dependent on it will show DANGROUS
+	  in its legend.
+	* Visibility improvement from Romain BEAUGRAND.
+	* Complete coverage check -- CML1 fossil symbols eliminated.
+	* Matthieu Verbert's configtrans.py fix.
 
-Are you that clueless on purpose? 
+CML2 is now fully caught up with the CML1 rulebase in the most current
+kernel version, with symbol coverage mechanically checked in both directions.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-	Gerhard
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+"Those who make peaceful revolution impossible 
+will make violent revolution inevitable."
+	-- John F. Kennedy

@@ -1,106 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261975AbSIYNU2>; Wed, 25 Sep 2002 09:20:28 -0400
+	id <S261969AbSIYNRw>; Wed, 25 Sep 2002 09:17:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261976AbSIYNU1>; Wed, 25 Sep 2002 09:20:27 -0400
-Received: from relay.muni.cz ([147.251.4.35]:32211 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S261975AbSIYNU0>;
-	Wed, 25 Sep 2002 09:20:26 -0400
-Date: Wed, 25 Sep 2002 15:24:22 +0200
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: linux-kernel@vger.kernel.org
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, kernel@street-vision.com,
-       Petr Konecny <pekon@informatics.muni.cz>,
-       "Bruno A. Crespo" <bruno@conectatv.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: AMD 768 erratum 10 (solved: AMD 760MPX DMA lockup)
-Message-ID: <20020925132422.GC14381@fi.muni.cz>
-Reply-To: 20020912161258.A9056@informatics.muni.cz
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Muni-Virus-Test: Clean
+	id <S261973AbSIYNRw>; Wed, 25 Sep 2002 09:17:52 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:10505 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261969AbSIYNRv>; Wed, 25 Sep 2002 09:17:51 -0400
+Date: Wed, 25 Sep 2002 09:15:43 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.5.38-mm2 aha152x module fails (fwd)
+Message-ID: <Pine.LNX.3.96.1020925091353.23244K-300000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-24538023-1032905525=:1233"
+Content-ID: <Pine.LNX.3.96.1020925091353.23244L@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello, all!
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-two weeks ago I've posted to the LKML the following message:
+--8323328-24538023-1032905525=:1233
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.3.96.1020925091353.23244M@gatekeeper.tmr.com>
 
-[...]
-: my dual athlon box is unstable in some situations. I can consistently
-: lock it up by running the following code:
-: 
-: fd = open("/dev/hda3", O_RDWR);
-: for (i=0; i<1024*1024; i++) {
-:         read(fd, buffer, 8192);
-:         lseek(fd, -8192, SEEK_CUR);
-:         write(fd, buffer, 8192);
-: }
-[...]
+Subject: [BUG] 2.5.38-mm2 aha152x module fails
+From: root <root@oddball-en.prodigy.com>
+Date: Tue, 24 Sep 2002 18:12:05 -0400 (EDT)
+To: davidsen@tmr-02.dsl.thebiz.net
 
-	I think I have been hit by AMD 768 southbridge erratum number 10.
-After plugging in the PS/2 mouse, the server is able to run 10 iterations
-of bonnie++ without any problem (w/o PS/2 mouse it locks up in first
-or second iterations).
+I attempted to start my SCSI controller, and got a failure (attach 1), 
+followed by an oops retrying (att 2).
 
-	I want to ask everyone who replied to me that the above code
-works for him on the 760MPX-based system to re-run the above code
-(or run bonnie++ benchmark several times in a loop), but _without_
-the PS/2 mouse connected?
-
-	Since this is an official AMD errata, we should have a work-around
-for this, or at least the big fat warning during boot, when the 768
-southbridge is detected - something like the following:
-
-WARNING: Using the system with AMD 768 southbridge without the PS/2
-WARNING: mouse plugged in can cause instabilities. See the AMD 768 erratum #10
-
-	The AMD 768 Revision Guide is at the following URL:
-
-http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/24472.pdf
-
-the erratum #10 is described on page 7 (pstotext output, manually edited):
-
-: 10	Multiprocessor System May Hang While in FULL APIC Mode
-: 	and IOAPIC Interrupt is Masked
-: 
-: Products Affected. B1, B2
-: 
-: Normal Specified Operation. The AMD-768 peripheral bus controller is
-: designed to support FULL APIC mode in multiprocessor systems for system
-: management events. If an interrupt is masked in the APIC controller of
-: the AMD-768, then the corresponding interrupt message should not be
-: sent to the processor via the 3-wire APIC bus.
-: 
-: Non-conformance. The AMD-768 peripheral bus controller will send an
-: interrupt message via the 3-wire APIC bus regardless if the interrupt
-: is masked or not.
-: 
-: Potential Effect on System. Since the processor had previously masked
-: the APIC interrupt, it is not expecting to receive future APIC messages
-: for the masked interrupt. The APIC controller will continuously send
-: the interrupt message via the 3-wire bus until a processor accepts the
-: message, causing the system to hang.
-: 
-: A system hang has been observed when executing a server shutdown
-: command in Novell Netware versions 5.0 or 5.1 while using a serial
-: mouse. During the server shutdown sequence, software writes an invalid
-: CPU ID to the IOAPIC redirection table, and the system does not
-: complete the shutdown.
-: 
-: Note: No failure has been observed when using a PS/2 mouse.
-: 
-: Suggested Workaround. None.
-: 
-: Resolution Status: No fix planned.
-
+The comment on addressing is bogus, addresses are set by jumper and are 
+correct, and work on 2.4.19-ck7.
 
 -- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-|----------- If you want the holes in your knowledge showing up -----------|
-|----------- try teaching someone.                  -- Alan Cox -----------|
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+
+--8323328-24538023-1032905525=:1233
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="mp.tmp"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0209241812050.1233@oddball.prodigy.com>
+Content-Description: module probe
+
+U2NyaXB0IHN0YXJ0ZWQgb24gVHVlIFNlcCAyNCAxODowNjoyMSAyMDAyDQpw
+cm9maWxlIDEuMTkgMTk5OC0wNy0wMyAxNzo0Mjo1MC0wNCBtb2Qvbm9SQ1MN
+DQpObyBjb21tb24gZGlyZWN0b3J5IGF2YWlsYWJsZQ0NClNlc3Npb24gdGlt
+ZSAxODowNjoyMSBvbiAwOS8yNC8wMg0NCm9kZGJhbGw6cm9vdD4gbW9kcHJv
+YmUgYWhhMTUyeCBhaGExNTJ4PTB4MzQwLDExLDcsMSwxLDENDQovbGliL21v
+ZHVsZXMvMi41LjM4LW1tMi0xL2tlcm5lbC9kcml2ZXJzL3Njc2kvYWhhMTUy
+eC5vOiBpbml0X21vZHVsZTogTm8gc3VjaCBkZXZpY2UNDQpIaW50OiBpbnNt
+b2QgZXJyb3JzIGNhbiBiZSBjYXVzZWQgYnkgaW5jb3JyZWN0IG1vZHVsZSBw
+YXJhbWV0ZXJzLCBpbmNsdWRpbmcgaW52YWxpZCBJTyBvciBJUlEgcGFyYW1l
+dGVycw0NCi9saWIvbW9kdWxlcy8yLjUuMzgtbW0yLTEva2VybmVsL2RyaXZl
+cnMvc2NzaS9haGExNTJ4Lm86IGluc21vZCAvbGliL21vZHVsZXMvMi41LjM4
+LW1tMi0xL2tlcm5lbC9kcml2ZXJzL3Njc2kvYWhhMTUyeC5vIGZhaWxlZA0N
+Ci9saWIvbW9kdWxlcy8yLjUuMzgtbW0yLTEva2VybmVsL2RyaXZlcnMvc2Nz
+aS9haGExNTJ4Lm86IGluc21vZCBhaGExNTJ4IGZhaWxlZA0NCm9kZGJhbGw6
+cm9vdD4gZXhpdA0NCg0KU2NyaXB0IGRvbmUgb24gVHVlIFNlcCAyNCAxODow
+NzoxNSAyMDAyDQo=
+--8323328-24538023-1032905525=:1233
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="z.tmp"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0209241812051.1233@oddball.prodigy.com>
+Content-Description: ksymoops output
+
+a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjUuMzgtbW0yLTEuICBPcHRpb25z
+IHVzZWQNCiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1rIC9wcm9jL2tzeW1z
+IChkZWZhdWx0KQ0KICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQ0K
+ICAgICAtbyAvbGliL21vZHVsZXMvMi41LjM4LW1tMi0xLyAoZGVmYXVsdCkN
+CiAgICAgLW0gL2Jvb3QvU3lzdGVtLm1hcC0yLjUuMzgtbW0yLTEgKGRlZmF1
+bHQpDQoNClNlcCAyNCAxNzo1Nzo1NyBvZGRiYWxsIGtlcm5lbDoga2VybmVs
+IEJVRyBhdCBzbGFiLmM6ODYxIQ0KU2VwIDI0IDE3OjU3OjU3IG9kZGJhbGwg
+a2VybmVsOiBpbnZhbGlkIG9wZXJhbmQ6IDAwMDANClNlcCAyNCAxNzo1Nzo1
+NyBvZGRiYWxsIGtlcm5lbDogQ1BVOiAgICAwDQpTZXAgMjQgMTc6NTc6NTcg
+b2RkYmFsbCBrZXJuZWw6IEVJUDogICAgMDA2MDpbPGMwMTJjMzRhPl0gICAg
+Tm90IHRhaW50ZWQNClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5bW9vcHMgLXQg
+ZWxmMzItaTM4NiAtYSBpMzg2DQpTZXAgMjQgMTc6NTc6NTcgb2RkYmFsbCBr
+ZXJuZWw6IEVGTEFHUzogMDAwMTAyMDINClNlcCAyNCAxNzo1Nzo1NyBvZGRi
+YWxsIGtlcm5lbDogZWF4OiBjMDJhM2ZhMCAgIGVieDogYzQxYTA1NDAgICBl
+Y3g6IGMwMzZjMjNjICAgZWR4OiBjNjg0N2JiNw0KU2VwIDI0IDE3OjU3OjU3
+IG9kZGJhbGwga2VybmVsOiBlc2k6IGM2ODQ3YmMwICAgZWRpOiBjNjg0N2Jj
+MCAgIGVicDogYzQxYTAzYjggICBlc3A6IGMyOGIzZWRjDQpTZXAgMjQgMTc6
+NTc6NTcgb2RkYmFsbCBrZXJuZWw6IGRzOiAwMDY4ICAgZXM6IDAwNjggICBz
+czogMDA2OA0KU2VwIDI0IDE3OjU3OjU3IG9kZGJhbGwga2VybmVsOiBTdGFj
+azogYzI4YjNlZTQgYzAwMDAwMDAgMDAwMDAwNjAgMDAwMDAwMDAgMDAwMDAw
+MDQgMDAwMDAwMDAgMDgwYjk5MzAgYzY4M2E0YTEgDQpTZXAgMjQgMTc6NTc6
+NTcgb2RkYmFsbCBrZXJuZWw6ICAgICAgICBjNjg0N2JiNyAwMDAwMDA4MCAw
+MDAwMDAyMCAwMDAwMjAwMCAwMDAwMDAwMCAwMDAwMDAwMCBmZmZmZmZmZiAw
+MDAwMGM2OCANClNlcCAyNCAxNzo1Nzo1NyBvZGRiYWxsIGtlcm5lbDogICAg
+ICAgIGM2ODM4MDAwIDAwMDAwMDAwIGM2ODM4MDAwIDAwMDAwMDAwIGMwMTE1
+ZDE1IDAwMDAwMDAwIGMyOGNmMDAwIDAwMDEyOWUwIA0KU2VwIDI0IDE3OjU3
+OjU3IG9kZGJhbGwga2VybmVsOiBDYWxsIFRyYWNlOiBbPGM2ODNhNGExPl0g
+WzxjNjg0N2JiNz5dIFs8YzAxMTVkMTU+XSBbPGM2ODM4MDYwPl0gWzxjMDEw
+OGQyZj5dIA0KU2VwIDI0IDE3OjU3OjU3IG9kZGJhbGwga2VybmVsOiBDb2Rl
+OiAwZiAwYiA1ZCAwMyA0MiA0OCAyYSBjMCA4YiA2ZCAwMCA4MSBmZCA1OCBh
+ZCAyZSBjMCA3NSA5MyA4YiANCg0KPj5FSVA7IGMwMTJjMzRhIDxrbWVtX2Nh
+Y2hlX2NyZWF0ZSszMWEvMzgwPiAgIDw9PT09PQ0KVHJhY2U7IGM2ODNhNGEx
+IDxbc2NzaV9tb2RdaW5pdF9zY3NpKzQxLzE1MD4NClRyYWNlOyBjNjg0N2Ji
+NyA8W3Njc2lfbW9kXS5yb2RhdGEuZW5kKzZjYzgvYzliMT4NClRyYWNlOyBj
+MDExNWQxNSA8c3lzX2luaXRfbW9kdWxlKzUzNS82MjA+DQpUcmFjZTsgYzY4
+MzgwNjAgPFtzY3NpX21vZF1fX2tzdHJ0YWJfc2NzaV91bnJlZ2lzdGVyX2hv
+c3QrMC8wPg0KVHJhY2U7IGMwMTA4ZDJmIDxzeXNjYWxsX2NhbGwrNy9iPg0K
+Q29kZTsgIGMwMTJjMzRhIDxrbWVtX2NhY2hlX2NyZWF0ZSszMWEvMzgwPg0K
+MDAwMDAwMDAgPF9FSVA+Og0KQ29kZTsgIGMwMTJjMzRhIDxrbWVtX2NhY2hl
+X2NyZWF0ZSszMWEvMzgwPiAgIDw9PT09PQ0KICAgMDogICAwZiAwYiAgICAg
+ICAgICAgICAgICAgICAgIHVkMmEgICAgICA8PT09PT0NCkNvZGU7ICBjMDEy
+YzM0YyA8a21lbV9jYWNoZV9jcmVhdGUrMzFjLzM4MD4NCiAgIDI6ICAgNWQg
+ICAgICAgICAgICAgICAgICAgICAgICBwb3AgICAgJWVicA0KQ29kZTsgIGMw
+MTJjMzRkIDxrbWVtX2NhY2hlX2NyZWF0ZSszMWQvMzgwPg0KICAgMzogICAw
+MyA0MiA0OCAgICAgICAgICAgICAgICAgIGFkZCAgICAweDQ4KCVlZHgpLCVl
+YXgNCkNvZGU7ICBjMDEyYzM1MCA8a21lbV9jYWNoZV9jcmVhdGUrMzIwLzM4
+MD4NCiAgIDY6ICAgMmEgYzAgICAgICAgICAgICAgICAgICAgICBzdWIgICAg
+JWFsLCVhbA0KQ29kZTsgIGMwMTJjMzUyIDxrbWVtX2NhY2hlX2NyZWF0ZSsz
+MjIvMzgwPg0KICAgODogICA4YiA2ZCAwMCAgICAgICAgICAgICAgICAgIG1v
+diAgICAweDAoJWVicCksJWVicA0KQ29kZTsgIGMwMTJjMzU1IDxrbWVtX2Nh
+Y2hlX2NyZWF0ZSszMjUvMzgwPg0KICAgYjogICA4MSBmZCA1OCBhZCAyZSBj
+MCAgICAgICAgIGNtcCAgICAkMHhjMDJlYWQ1OCwlZWJwDQpDb2RlOyAgYzAx
+MmMzNWIgPGttZW1fY2FjaGVfY3JlYXRlKzMyYi8zODA+DQogIDExOiAgIDc1
+IDkzICAgICAgICAgICAgICAgICAgICAgam5lICAgIGZmZmZmZmE2IDxfRUlQ
+KzB4ZmZmZmZmYTY+IGMwMTJjMmYwIDxrbWVtX2NhY2hlX2NyZWF0ZSsyYzAv
+MzgwPg0KQ29kZTsgIGMwMTJjMzVkIDxrbWVtX2NhY2hlX2NyZWF0ZSszMmQv
+MzgwPg0KICAxMzogICA4YiAwMCAgICAgICAgICAgICAgICAgICAgIG1vdiAg
+ICAoJWVheCksJWVheA0KDQoNCg==
+--8323328-24538023-1032905525=:1233--

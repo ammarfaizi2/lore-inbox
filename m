@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284143AbRLPAOY>; Sat, 15 Dec 2001 19:14:24 -0500
+	id <S284153AbRLPA1E>; Sat, 15 Dec 2001 19:27:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284140AbRLPAOP>; Sat, 15 Dec 2001 19:14:15 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284143AbRLPAN5>; Sat, 15 Dec 2001 19:13:57 -0500
-Date: Sat, 15 Dec 2001 16:13:12 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Just a second ...
-In-Reply-To: <Pine.LNX.4.40.0112151552070.1560-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.33.0112151603180.4493-100000@penguin.transmeta.com>
+	id <S284160AbRLPA0z>; Sat, 15 Dec 2001 19:26:55 -0500
+Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:43254 "EHLO
+	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S284156AbRLPA0j>; Sat, 15 Dec 2001 19:26:39 -0500
+Message-ID: <00c801c185c8$466ebb60$5900a8c0@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: use shmfs
+Date: Sat, 15 Dec 2001 16:26:15 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi:
 
-On Sat, 15 Dec 2001, Davide Libenzi wrote:
->
-> when you find 10 secs free in your spare time i really would like to know
-> the reason ( if any ) of your abstention from any schdeuler discussion.
-> No hurry, just a few lines out of lkml.
+Currently I'm using shmfs as a volatile storage. I am using Monta Vista's
+kernel (2.4.2). I added the following line in /etc/fstab:
 
-I just don't find it very interesting. The scheduler is about 100 lines
-out of however-many-million (3.8 at least count), and doesn't even impact
-most normal performace very much.
+tmpfs                   /dev/shm                shm     defaults        0 0
 
-We'll clearly do per-CPU runqueues or something some day. And that worries
-me not one whit, compared to thigns like VM and block device layer ;)
+# df /dev/shm
+Filesystem           1k-blocks      Used Available Use% Mounted on
+tmpfs                        0         0         0   -  /dev/shm
 
-I know a lot of people think schedulers are important, and the operating
-system theory about them is overflowing - it's one of those things that
-people can argue about forever, yet is conceptually simple enough that
-people aren't afraid of it. I just personally never found it to be a major
-issue.
+the "0" number of blocks seems fishy.
 
-Let's face it - the current scheduler has the same old basic structure
-that it did almost 10 years ago, and yes, it's not optimal, but there
-really aren't that many real-world loads where people really care. I'm
-sorry, but it's true.
+I cannot write to the filesystem. write returns EINVAL. I can create an
+empty file, however.
 
-And you have to realize that there are not very many things that have
-aged as well as the scheduler. Which is just another proof that scheduling
-is easy.
+What should I do to make it work? Thanks.
 
-We've rewritten the VM several times in the last ten years, and I expect
-it will be changed several more times in the next few years. Withing five
-years we'll almost certainly have to make the current three-level page
-tables be four levels etc.
+By the way, I know tmpfs is a replacement of shmfs, but it's not in the
+2.4.2 kernel I am using (can't find in config). Is it in any newer kernels
+(especially 2.4.9)? Is it stable enough?
 
-In comparison to those kinds of issues, I suspect that making the
-scheduler use per-CPU queues together with some inter-CPU load balancing
-logic is probably _trivial_. Patches already exist, and I don't feel that
-people can screw up the few hundred lines too badly.
-
-		Linus
+Thanks
 

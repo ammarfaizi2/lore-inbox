@@ -1,64 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285940AbSADXvJ>; Fri, 4 Jan 2002 18:51:09 -0500
+	id <S285965AbSAEADk>; Fri, 4 Jan 2002 19:03:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285937AbSADXu7>; Fri, 4 Jan 2002 18:50:59 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:15628 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S285935AbSADXuy>; Fri, 4 Jan 2002 18:50:54 -0500
-Date: Fri, 4 Jan 2002 17:50:50 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
+	id <S285972AbSAEAD3>; Fri, 4 Jan 2002 19:03:29 -0500
+Received: from basket.ball.reliam.net ([213.91.6.7]:62738 "HELO
+	basket.ball.reliam.net") by vger.kernel.org with SMTP
+	id <S285965AbSAEADX>; Fri, 4 Jan 2002 19:03:23 -0500
+Message-ID: <3C3642DB.5020005@gmx.net>
+Date: Sat, 05 Jan 2002 01:03:39 +0100
+From: Michael Klose <mkmail@gmx.net>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.7+) Gecko/20020103
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Ben Greear <greearb@candelatech.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020104175050.A3623@asooo.flowerfire.com>
-In-Reply-To: <20020103142301.C4759@asooo.flowerfire.com> <200201040019.BAA30736@webserver.ithnet.com> <20020103232601.B12884@asooo.flowerfire.com> <20020104140321.51cb8bf0.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020104140321.51cb8bf0.skraw@ithnet.com>; from skraw@ithnet.com on Fri, Jan 04, 2002 at 02:03:21PM +0100
+Subject: Re: eepro100 kernel freeze / ISDN
+In-Reply-To: <3C35DDFC.50700@gmx.net> <3C35E359.4000004@candelatech.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04, 2002 at 02:03:21PM +0100, Stephan von Krawczynski wrote:
-[...]
-| Ok. It would be really nice to know if the -aa patches do any good at your
+Ben Greear wrote:
 
-I'd love to, but unfortunately my problems reproduce only in production,
-and -- nothing against Andrea -- I'm hesitant to deploy -aa live, since
-it hasn't received the widespread use that mainline has.  I may be
-forced to soon if the VM fixes don't get merged.
+> The problem is probably the eepro connected to the 10bt device.  10bt
+> seems to lock things up much more often than a 100bt network connection.
 
-[...]
-| > Do they have *sustained* heavy hit/IRQ/IO load?  For example, sending
-| > 25Mbit and >1,000 connections/s of sustained small images traffic
-| > through khttpd will kill 2.4 (slow loss of timer and eventual total
-| > freeze) in a couple of hours.  Trivially reproducable for me on SMP with
-| > any amount of memory.  On HP, Tyan, Intel, Asus... etc.
-| 
-| Hm, I have about 24GB of NFS traffic every day, which may be too less. What
-| exactly are you seeing in this case (logfiles etc.)?
 
-Well, the nature of the problem is that the timer "slows" and stops,
-causing the machine to get more and more sluggish until it falls of the
-net and stops dead.
+What I think is happenening is when data is being generated and sent to 
+the NIC faster than the NIC can handle. Since this is the case much 
+easier with 10 MBit than 100MBit it locks up much more.
 
-I suspect that high IRQ rates cause the issue -- large sequential
-transfers are not necessarily culprits due the lowish overhead.
+But not in my case.
 
-[...]
-| > It's not that the kernel is bad, it's that there are specific things
-| > that shouldn't be forgotten because of a "the kernel is good"
-| > evaluation.
-| 
-| Hopefully nobody does this here, I don't.
+The eepro100 which is directly connected to the DSL modem (10 MBut link) 
+is running a maximum speed of 768kbit inwards (from Modem to Kernel) and 
+128kbut outwards, which even for 10MBit is absolutely nothing. There is 
+no other traffic on that link.
 
-I don't think it's intentional, and I realize that VM changes are hard
-to swallow in a stable kernel release.  I just hope that the severity
-and fairly wide negative effect is enough to make people more
-comfortable with accepting VM fixes that may be somewhat invasive.
+But the LAN side, connected to the switch (100 MBit) runs fine as long 
+as the server is serving Mp3s or something or is just using the internet 
+(low traffic). But as soon as you copy a few hundred megabytes in one go 
+from another 100 MBit machine in the network to the linux server in one 
+go  and which would normally only take a few seconds (mainly from my 
+laptop via SMB as I am trying to free up the disk) the kernel goes 
+Kaboom at once. Big kababoom, borrowing the expression from the 5th Element.
+If I wanted the kernel to crash now, all I would have to do is copy for 
+example a CD Image to the SMB share on the linux server. It happens 
+every time.
+Like I said, 2.4.15pre5 requires half a handful of gigabytes at once to 
+make this happen. 2.4.17 looks up after half a handful of 100 megabytes 
+(say half way through a cd image).
 
-Thanks,
--- 
-Ken.
-brownfld@irridia.com
+
+> Unfortunately, the only work-around I found for this problem so far
+> is to change the hardware to a non intel NIC, or to use the e100 module
+> 
+>> from Intel...
+
+
+I found tht out last night. Thanks. I hven't tried it yet, but I will 
+tomorrow. I have just downloaded the source from intel. The source I 
+downloaded from intel says it may work with "older" eepro100 models 
+(which I have) but they don't guarantee it.
+
+If I don't get it to work by monday, I have arranged a swap against some 
+3Com cards.
+
+I hope you don't mind me ccing this back to the lkml as that is where 
+you picked up my mail to reply in the first place. By the way, I am not 
+subscribed, but do read it regularly via nntp or via the archives for 
+the week, so I can be reached over the list.
+
+
+
+
+

@@ -1,29 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbTDVOD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 10:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbTDVOD7
+	id S263139AbTDVOPe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 10:15:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbTDVOPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 10:03:59 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:39440 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S262972AbTDVODe (ORCPT
+	Tue, 22 Apr 2003 10:15:34 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:49168 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S263139AbTDVOPH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 10:03:34 -0400
+	Tue, 22 Apr 2003 10:15:07 -0400
 Subject: emu10k1 hang with dlink-520+ or acx100 network card
 From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
 To: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
        linux_sblive@euronet.nl
-Content-Type: multipart/mixed; boundary="=-lrRkLlJCtYDsa0+CQc8E"
+In-Reply-To: <1051020930.566.2.camel@flat41>
+References: <1051020930.566.2.camel@flat41>
+Content-Type: multipart/mixed; boundary="=-2FnRIBinkA3E1zRzpd29"
 Organization: K4 labs
-Message-Id: <1051020930.566.2.camel@flat41>
+Message-Id: <1051021625.858.1.camel@flat41>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.4 
-Date: 22 Apr 2003 15:15:30 +0100
+Date: 22 Apr 2003 15:27:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-lrRkLlJCtYDsa0+CQc8E
+--=-2FnRIBinkA3E1zRzpd29
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
@@ -35,14 +37,14 @@ both on 2.5.68 and 2.4.21-rc1.
 
 lspci -vvv and .config included.
 
-
 -- 
 Grzegorz Jaskiewicz <gj@pointblue.com.pl>
 K4 labs
 
---=-lrRkLlJCtYDsa0+CQc8E
-Content-Disposition: attachment; filename=lspci
-Content-Type: text/plain; name=lspci; charset=ANSI_X3.4-1968
+--=-2FnRIBinkA3E1zRzpd29
+Content-Description: 
+Content-Disposition: inline; filename=lspci
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 7bit
 
 00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge (rev 11)
@@ -51,7 +53,10 @@ Content-Transfer-Encoding: 7bit
 	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
 	Latency: 0
 	Region 0: Memory at d8000000 (32-bit, prefetchable) [size=64M]
-	Capabilities: <available only to root>
+	Capabilities: [e4] #09 [a104]
+	Capabilities: [a0] AGP version 2.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
+		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP+ GART64- 64bit- FW- Rate=x4
 
 00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge (rev 11) (prog-if 00 [Normal decode])
 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
@@ -94,7 +99,9 @@ Content-Transfer-Encoding: 7bit
 	Latency: 0
 	Interrupt: pin D routed to IRQ 9
 	Region 0: Memory at e0000000 (32-bit, non-prefetchable) [size=1K]
-	Capabilities: <available only to root>
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
 00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 81) (prog-if 00 [Normal decode])
 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
@@ -141,7 +148,9 @@ Content-Transfer-Encoding: 7bit
 	Region 1: I/O ports at e400 [size=64]
 	Region 2: Memory at e0001000 (32-bit, non-prefetchable) [size=512]
 	Region 3: Memory at e0002000 (32-bit, non-prefetchable) [size=256]
-	Capabilities: <available only to root>
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
 01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev a1) (prog-if 00 [VGA])
 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
@@ -151,7 +160,12 @@ Content-Transfer-Encoding: 7bit
 	Region 0: Memory at dc000000 (32-bit, non-prefetchable) [size=16M]
 	Region 1: Memory at d0000000 (32-bit, prefetchable) [size=128M]
 	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: <available only to root>
+	Capabilities: [60] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [44] AGP version 2.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA- ITACoh- GART64- HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
+		Command: RQ=32 ArqSz=0 Cal=0 SBA- AGP+ GART64- 64bit- FW- Rate=x4
 
 02:01.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 08)
 	Subsystem: Creative Labs CT4832 SBLive! Value
@@ -160,7 +174,9 @@ Content-Transfer-Encoding: 7bit
 	Latency: 32 (500ns min, 5000ns max)
 	Interrupt: pin A routed to IRQ 11
 	Region 0: I/O ports at c000 [size=32]
-	Capabilities: <available only to root>
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
 02:01.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 08)
 	Subsystem: Creative Labs Gameport Joystick
@@ -168,7 +184,9 @@ Content-Transfer-Encoding: 7bit
 	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
 	Latency: 32
 	Region 0: I/O ports at c400 [size=8]
-	Capabilities: <available only to root>
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
 02:03.0 Network controller: Texas Instruments ACX 100 22Mbps Wireless Interface
 	Subsystem: D-Link System Inc: Unknown device 3b01
@@ -179,7 +197,9 @@ Content-Transfer-Encoding: 7bit
 	Region 0: I/O ports at c800 [size=32]
 	Region 1: Memory at df011000 (32-bit, non-prefetchable) [size=4K]
 	Region 2: Memory at df000000 (32-bit, non-prefetchable) [size=64K]
-	Capabilities: <available only to root>
+	Capabilities: [40] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
 02:05.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
 	Subsystem: ABIT Computer Corp.: Unknown device 8139
@@ -190,10 +210,12 @@ Content-Transfer-Encoding: 7bit
 	Region 0: I/O ports at cc00 [size=256]
 	Region 1: Memory at df010000 (32-bit, non-prefetchable) [size=256]
 	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: <available only to root>
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
 
---=-lrRkLlJCtYDsa0+CQc8E
+--=-2FnRIBinkA3E1zRzpd29
 Content-Disposition: attachment; filename=.config
 Content-Type: text/plain; name=.config; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 7bit
@@ -1444,5 +1466,5 @@ CONFIG_DEBUG_IOVIRT=y
 CONFIG_ZLIB_INFLATE=y
 CONFIG_ZLIB_DEFLATE=y
 
---=-lrRkLlJCtYDsa0+CQc8E--
+--=-2FnRIBinkA3E1zRzpd29--
 

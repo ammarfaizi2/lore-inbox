@@ -1,96 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131009AbQJ1QGn>; Sat, 28 Oct 2000 12:06:43 -0400
+	id <S130770AbQJ1QHY>; Sat, 28 Oct 2000 12:07:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130985AbQJ1QGY>; Sat, 28 Oct 2000 12:06:24 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:49422 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S130770AbQJ1QGG>; Sat, 28 Oct 2000 12:06:06 -0400
-Date: Sat, 28 Oct 2000 18:04:11 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Benson Chow <blc@q.dyndns.org>
-Cc: linux-kernel@vger.kernel.org, Linux SCSI list <linux-scsi@vger.kernel.org>
-Subject: Re: Tekram's TRM-1040S USCSI proc driver?
-Message-ID: <20001028180411.A19832@garloff.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Benson Chow <blc@q.dyndns.org>, linux-kernel@vger.kernel.org,
-	Linux SCSI list <linux-scsi@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0010271822330.31743-100000@q.dyndns.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0010271822330.31743-100000@q.dyndns.org>; from blc@q.dyndns.org on Fri, Oct 27, 2000 at 06:25:45PM -0600
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+	id <S130985AbQJ1QHP>; Sat, 28 Oct 2000 12:07:15 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:64272 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130770AbQJ1QGh>;
+	Sat, 28 Oct 2000 12:06:37 -0400
+Message-ID: <39FAF93B.83420C30@mandrakesoft.com>
+Date: Sat, 28 Oct 2000 12:05:15 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: kumon@flab.fujitsu.co.jp, Andi Kleen <ak@suse.de>,
+        Alexander Viro <viro@math.psu.edu>,
+        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        Olaf Kirch <okir@monad.swb.de>
+Subject: Re: [PATCH] Re: Negative scalability by removal of lock_kernel()?(Was: 
+ Strange performance behavior of 2.4.0-test9)
+In-Reply-To: <39F957BC.4289FF10@uow.edu.au>,
+			<39F92187.A7621A09@timpanogas.org>
+			<Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>
+			<20001027094613.A18382@gruyere.muc.suse.de>
+			<39F957BC.4289FF10@uow.edu.au> <200010271257.VAA24374@asami.proc.flab.fujitsu.co.jp> <39FAF4C6.3BB04774@uow.edu.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> --- linux-2.4.0-test10-pre5/fs/locks.c  Tue Oct 24 21:34:13 2000
+> +++ linux-akpm/fs/locks.c       Sun Oct 29 02:31:10 2000
+> @@ -125,10 +125,9 @@
+>  #include <asm/semaphore.h>
+>  #include <asm/uaccess.h>
+> 
+> -DECLARE_MUTEX(file_lock_sem);
+> -
+> -#define acquire_fl_sem()       down(&file_lock_sem)
+> -#define release_fl_sem()       up(&file_lock_sem)
+> +spinlock_t file_lock_lock = SPIN_LOCK_UNLOCKED;
+> +#define acquire_fl_lock()      spin_lock(&file_lock_lock);
+> +#define release_fl_lock()      spin_unlock(&file_lock_lock);
 
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It seems like better concurrency could be achieved with reader-writer
+locks.  Some of the lock test routines simply scan the list, without
+modifying it.
 
-Hi Benson,
-
-On Fri, Oct 27, 2000 at 06:25:45PM -0600, Benson Chow wrote:
-> Anyone know if Tekram's DC315/DC395 SCSI driver will be incorporated
-> into the kernel distribution?  I think their driver is GPL, or was there
-> some other reason it wasn't incorporated?
->=20
-> Their source code is on their website...
-
-and newer sources can be found on my website as I am the maintainer of this
-driver:
-http://www.garloff.de/kurt/linux/dc395/
-You find everyhting you need to compile a driver module (or to incorporate
-it into the kernel) for 2.2 and 2.4 kernels.
-
-> Just wonderring... (unfortunately I had a DC315 for a day but had to give
-> it up... it was the worst of the AHA2940A and DC390F that I already
-> had...)
-
-As Matthias pointed out correctly: I did not ask for inclusion into the
-mainstream kernel yet.
-
-There's a reason for this:
-The driver works only for 98% of the people.
-Then there is one percent with weird problems that I can't understand at all
-(PCI DMA errors or spontaneous reboots ...)
-And one percent, where the driver ends up aborting commands, not recovering
-and finally sometimes corrupting data.
-
-It's the latter that worries me and I do not want to push the driver into
-the kernel, as long as I do not understand and solved these issues.
-After all, it's not a sound driver that just fails to operate, but a SCSI
-driver which you entrust your data to.
-
-Sorry!
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, FRG                               SCSI, Security
-
---LQksG6bCIzRHxTLp
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE5+vj7xmLh6hyYd04RAuOEAKC3TSyR+AIcKtMqIiYN96bMPdtejgCbB+io
-eJGKsy18EaO1jDuUPJavf2k=
-=rc5p
------END PGP SIGNATURE-----
-
---LQksG6bCIzRHxTLp--
+-- 
+Jeff Garzik             | "Mind if I drive?"  -Sam
+Building 1024           | "Not if you don't mind me clawing at the
+MandrakeSoft            |  dash and screaming like a cheerleader."
+                        |      -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263661AbTJ0VNl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 16:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTJ0VNl
+	id S263573AbTJ0V3I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 16:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263575AbTJ0V3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 16:13:41 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:32731 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S263661AbTJ0VNi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 16:13:38 -0500
-Message-ID: <3F9D8BDE.70406@pacbell.net>
-Date: Mon, 27 Oct 2003 13:19:26 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Mon, 27 Oct 2003 16:29:08 -0500
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:52655 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263573AbTJ0V3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 16:29:06 -0500
+From: Daniel Phillips <phillips@arcor.de>
+To: Lars Marowsky-Bree <lmb@suse.de>, Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [PATCH] ide write barrier support
+Date: Mon, 27 Oct 2003 23:35:17 +0200
+User-Agent: KMail/1.5.3
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20031013140858.GU1107@suse.de> <200310262206.53904.phillips@arcor.de> <20031027102919.GC13640@marowsky-bree.de>
+In-Reply-To: <20031027102919.GC13640@marowsky-bree.de>
 MIME-Version: 1.0
-To: Johannes Erdfelt <johannes@erdfelt.com>
-CC: Patrick Mochel <mochel@osdl.org>, ian.soboroff@nist.gov,
-       linux-kernel@vger.kernel.org
-Subject: Re: APM suspend still broken in -test9
-References: <Pine.LNX.4.44.0310271219040.13116-100000@cherise> <3F9D84BA.7070904@pacbell.net> <20031027155334.B21342@sventech.com>
-In-Reply-To: <20031027155334.B21342@sventech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310272235.17845.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 27 October 2003 11:29, Lars Marowsky-Bree wrote:
+> On 2003-10-26T23:06:53,
+>
+>    Daniel Phillips <phillips@arcor.de> said:
+> > Not entirely within the multipath virtual device, that's the problem.
+> > If it could stay somehow all within one device driver then ok, but
+> > since we want to build this modularly, as a device mapper target,
+> > there are API issues.
+>
+> Are you seeing problems with the write-ordering properties of
+> multipathing? If so, what is the issue with handling them in the DM
+> target once?
 
->>>BTW, can you help with any of the uhci-hcd suspend/resume issues? I do not 
->>>know the code well enough to track it down.. 
->>
->>I'm trying to avoid that; sorry!  Some of them could be related to UHCI
->>patches that are waiting for feedback/approval from Johannes.
-> 
-> 
-> Which patches do you suspect are related? It's hard for me to test
-> anything suspend/resume related with UHCI since I don't have any systems
-> with a UHCI controller that would be affected.
+No, no problem.  A multipath write barrier can be handled by blocking incoming 
+writes in the target and waiting for all outstanding writes to complete.  I'd 
+prefer to let the write barrier flow down the pipe to the SCSI disk if I 
+could, but there are technical challenges.  Mainly I need to know if an 
+ordered write is able to read its buffer into the drive's cache while it is 
+waiting for preceding commands to complete; if so it would be worth putting 
+the effort into developing the flow-through scheme.
 
-Clearly not the "don't modify toggles in control queues" patch!
+Regards,
 
-But I remember some patches related to quiescing endpoints,
-unlinking, shutdown, and so on.
-
-- Dave
-
-
-> However, I can (well, I should have already...) eyeball the patches
-> atleast.
-> 
-> JE
-> 
+Daneil
 

@@ -1,135 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVAXXsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVAXXXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbVAXXsi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 18:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVAXXqk
+	id S261728AbVAXXXz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 18:23:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVAXXXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 18:46:40 -0500
-Received: from rproxy.gmail.com ([64.233.170.198]:26823 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261748AbVAXXo6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 18:44:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Ee6M8hFoYJRVjl0IqJjG9hNw+g978EdDg/cT2Wc8d5jmMlf0df4ahD1fQW/WtFpVFxmuuCZb6nsh8OF6GERgTkpG7h+zVk7KNNrIysgJrwRuQK3h5oJ6SUCQ/1wAn+gepGKWYej78N1/XffLFQCd8UqlYUudwPtc724wG6vrzCc=
-Message-ID: <5a4c581d0501241544224405b2@mail.gmail.com>
-Date: Tue, 25 Jan 2005 00:44:56 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: DVD burning still have problems
-Cc: Jens Axboe <axboe@suse.de>,
-       Volker Armin Hemmann <volker.armin.hemmann@tu-clausthal.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <5a4c581d0501241502750214ff@mail.gmail.com>
+	Mon, 24 Jan 2005 18:23:10 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:39948 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S261728AbVAXXMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 18:12:44 -0500
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to
+	crypto_tfm
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org,
+       Michal Ludvig <michal@logix.cz>
+In-Reply-To: <20050124143109.75ff1ab8.akpm@osdl.org>
+References: <20050124115624.GA21457@ghanima.endorphin.org>
+	 <20050124143109.75ff1ab8.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-j1I6oZ05PBNzQXbg4XoA"
+Date: Tue, 25 Jan 2005 00:12:41 +0100
+Message-Id: <1106608362.14058.58.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200501232126.55191.volker.armin.hemmann@tu-clausthal.de>
-	 <5a4c581d050123125967a65cd7@mail.gmail.com>
-	 <20050124150755.GH2707@suse.de>
-	 <1106594023.6154.89.camel@localhost.localdomain>
-	 <20050124204529.GA19242@suse.de>
-	 <1106598811.6154.93.camel@localhost.localdomain>
-	 <5a4c581d0501241502750214ff@mail.gmail.com>
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005 00:02:54 +0100, Alessandro Suardi
-<alessandro.suardi@gmail.com> wrote:
-> On Mon, 24 Jan 2005 21:44:06 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > On Llu, 2005-01-24 at 20:45, Jens Axboe wrote:
-> > > > I've got several reports like this that only happen with ACPI, and one
-> > > > user whose burns report fine but are corrupted if ACPI is allowed to do
-> > > > power manglement.
-> > >
-> > > Really weird, I cannot begin to explain that. Perhaps the two reporters
-> > > in this thread can try it as well?
+
+--=-j1I6oZ05PBNzQXbg4XoA
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, 2005-01-24 at 14:31 -0800, Andrew Morton wrote:
+> Fruhwirth Clemens <clemens@endorphin.org> wrote:
 > >
-> > I can sort of guess - the CPU frequency changes (either from ACPI or
-> > perhaps also from cpuspeed if in use ?) involve the CPU disconnecting
-> > from the bus and reconnecting. There is much magic involved in this and
-> > there are certainly chipset and CPU errata in this area.
-> 
-> Well, booted into 2.6.11-rc2-bk2 (ACPI config'd out) and my
->  first growisofs session decided to die at 60% with the usual EIO :/
-> 
-> The fun thing is that retrying now shows growisofs calling a
->  HUGE amount of these babies...
-> 
-> [root@donkey tmpburn]# strace -p 2337
-> ...
-> ioctl(5, SG_IO, 0xbffff7d8)             = 0
-> ioctl(5, SG_IO, 0xbffff7d8)             = 0
-> ioctl(5, SG_IO <unfinished ...>
-> Process 2337 detached
-> [root@donkey tmpburn]# strace -c -p 2337
-> Process 2337 attached - interrupt to quit
-> Process 2337 detached
-> % time     seconds  usecs/call     calls    errors syscall
-> ------ ----------- ----------- --------- --------- ----------------
-> 100.00    7.762805         239     32445           ioctl
-> ------ ----------- ----------- --------- --------- ----------------
-> 100.00    7.762805                 32445           total
-> 
->  while sitting in its initial prompt:
-> 
-> [root@donkey tmpburn]# growisofs -Z /dev/hdc=myfile.iso
-> WARNING: /dev/hdc already carries isofs!
-> About to execute 'builtin_dd if=myfile.iso of=/dev/hdc obs=32k seek=0'
-> Sleeping for 0 sec...
-> 
-> It looks like every kernel has its own :(
+> > This patch adds the ability for a cipher mode to store cipher mode spec=
+ific
+> > information in crypto_tfm. This is necessary for LRW's precomputed
+> > GF-multiplication tables.
+>=20
+> These patches clash badly with Michael Ludvig's work:
+>=20
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/=
+2.6.11-rc2-mm1/broken-out/cryptoapi-prepare-for-processing-multiple-buffers=
+-at.patch
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/=
+2.6.11-rc2-mm1/broken-out/cryptoapi-update-padlock-to-process-multiple-bloc=
+ks-at.patch
+>=20
+> so someone's going to have to rework things.  Ordinarily Michael would go
+> first due to test coverage.
 
-Now of course, after Ctrl-C'ing the growisofs session, a new
- attempt yielded this
+I already pointed that out to Michael. His reply was that he will look
+at my tweakable extensions.
 
-[root@donkey tmpburn]# growisofs -Z /dev/hdc=myfile.iso
-WARNING: /dev/hdc already carries isofs!
-About to execute 'builtin_dd if=myfile.iso of=/dev/hdc obs=32k seek=0'
-/dev/hdc: "Current Write Speed" is 2.0x1385KBps.
-   1409024/4608387072 ( 0.0%) @0.0x, remaining 326:57
-   1409024/4608387072 ( 0.0%) @0.0x, remaining 544:56
-   1409024/4608387072 ( 0.0%) @0.0x, remaining 708:25
-   1409024/4608387072 ( 0.0%) @0.0x, remaining 871:53
-   1409024/4608387072 ( 0.0%) @0.0x, remaining 1089:52
-:-[ WRITE@LBA=2b0h failed with SK=3h/ASC=0Ch/ACQ=00h]: Input/output error
-builtin_dd: 688*2KB out @ average 0.0x1385KBps
-:-( write failed: Input/output error
-/dev/hdc: flushing cache
-/dev/hdc: stopping de-icing
-/dev/hdc: writing lead-out
-[root@donkey tmpburn]# 
+Let me bring forward a proposal to the multiblock function lookup of
+Michael's patch in crypt(..)
 
-Then, ejecting the disc and trying again, it went through.
+I think this selection should be done much earlier, in
+crypto_init_cipher_flags. The tfm's encrypt/decrypt interfaces (there
+are three ATM, ECB, IV-based, tweak-based) should be initialized with an
+appropriate pointer to a stub multiblock function, if there is one for
+the given cipher mode and the given interface type.=20
 
-[root@donkey tmpburn]# growisofs -Z /dev/hdc=myfile.iso
-Executing 'builtin_dd if=myfile.iso of=/dev/hdc obs=32k seek=0'
-/dev/hdc: "Current Write Speed" is 2.0x1385KBps.
-  13107200/4608387072 ( 0.3%) @2.4x, remaining 40:54
-  24412160/4608387072 ( 0.5%) @2.4x, remaining 31:17
-  35717120/4608387072 ( 0.8%) @2.4x, remaining 29:52
-  47022080/4608387072 ( 1.0%) @2.4x, remaining 27:29
-...
-4592205824/4608387072 (99.6%) @2.4x, remaining 0:04
-4603510784/4608387072 (99.9%) @2.4x, remaining 0:01
-builtin_dd: 2250192*2KB out @ average 2.4x1385KBps
-/dev/hdc: flushing cache
-/dev/hdc: stopping de-icing
-/dev/hdc: writing lead-out
+Either this function is a stub like for instance my cbc_process_gw or
+it's a stub for a multiblock function, that do the necessary
+preprocessing (kmalloc). Both can then call the generic scatterwalker
+after that. The different number of arguments are _no_ problem for the
+generic scatterwalker, that's what it was designed for.
 
+If the stub is for a software call, then we won't have to do the
+somewhat expensive aligned kmalloc call, as this isn't needed for
+software anyway. In the software implementation, one can set the .buf
+field of the scatterwalker's walk_info to a stack based buffer, and in
+the multiblock version, just do the kmalloc. My design allows any
+variation.=20
 
-Only thing I note is that after reloading, the WARNING about
- disc already carrying isofs disappeared.
+That would be a way to deconcentrate the two code paths in crypt(..).
 
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
 
-I guess my next move will be borrowing a Windows CD and
- installing it on my former RedHat 9 partition, then trying
- to burn DVDs from there...
+--=-j1I6oZ05PBNzQXbg4XoA
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
---alessandro
- 
- "And every dream, every, is just a dream after all"
-  
-    (Heather Nova, "Paper Cup")
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBB9YDoW7sr9DEJLk4RAqLvAJwKHmT1NRXjO4ymlj6b0fItxCJ8CACfVLQt
++Nx2edQPqxKAHWhjyQFfiZc=
+=oRy6
+-----END PGP SIGNATURE-----
+
+--=-j1I6oZ05PBNzQXbg4XoA--

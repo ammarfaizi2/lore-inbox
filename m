@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267860AbRHAXzf>; Wed, 1 Aug 2001 19:55:35 -0400
+	id <S267911AbRHBAE4>; Wed, 1 Aug 2001 20:04:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267875AbRHAXzZ>; Wed, 1 Aug 2001 19:55:25 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:30224 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S267860AbRHAXzQ>;
-	Wed, 1 Aug 2001 19:55:16 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: Re: RFC: moving ACPI includes under include/ 
-In-Reply-To: Your message of "Wed, 01 Aug 2001 15:40:48 MST."
-             <4148FEAAD879D311AC5700A0C969E89006CDE006@orsmsx35.jf.intel.com> 
-Mime-Version: 1.0
+	id <S267912AbRHBAEq>; Wed, 1 Aug 2001 20:04:46 -0400
+Received: from web14408.mail.yahoo.com ([216.136.174.78]:22024 "HELO
+	web14408.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267911AbRHBAEd>; Wed, 1 Aug 2001 20:04:33 -0400
+Message-ID: <20010802000441.95526.qmail@web14408.mail.yahoo.com>
+Date: Wed, 1 Aug 2001 17:04:40 -0700 (PDT)
+From: Rajeev Bector <rajeev_bector@yahoo.com>
+Subject: debugging memory leaks in drivers/module
+To: linux kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 02 Aug 2001 09:55:03 +1000
-Message-ID: <19806.996710103@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001 15:40:48 -0700 , 
-"Grover, Andrew" <andrew.grover@intel.com> wrote:
->The ACPI driver currently has its own little include directory under
->drivers/acpi.
->
->...thinking about moving these to include/acpi -- that seems to be the
->dominant Linux paradigm. Sound reasonable?
+Hi,
+  I am thinking of creating a small patch
+to track heap memory allocations and
+deallocations from drivers and modules.
+This could be really useful in a system
+where you are testing lots of drivers 
+and modules in your test environment and
+want to keep track of how much kmalloc()ed
+memory the module has allocated.
 
-Good idea.  SCSI used to have include/scsi but moved the include files
-to drivers/scsi and it is obvious that the move was a mistake.  Far too
-much code has abominations like #include "../../scsi/hosts.h".  large
-enough sub systems should have their own directory under include.
+Has anyone written such a thing and it
+is available for use somewhere ?
 
+(Basically how it would work is I would
+intercept the kmalloc() call in my routine
+and then look at the __builtin_return_address
+to find which module has requested the allocation)
+Same with kfree() although I will have to dig
+into the slab cache to figure out the original
+request size. We can then record this info in 
+a table of some sort and export it via /proc
+or an ioctl()).. Is there a better way of
+doing this ?
+
+Thanks in advance !
+Rajeev
+
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

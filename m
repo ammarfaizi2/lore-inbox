@@ -1,33 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312563AbSDBNXT>; Tue, 2 Apr 2002 08:23:19 -0500
+	id <S312573AbSDBN23>; Tue, 2 Apr 2002 08:28:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312534AbSDBNW7>; Tue, 2 Apr 2002 08:22:59 -0500
-Received: from venus.ci.uw.edu.pl ([193.0.74.207]:16646 "EHLO
-	venus.ci.uw.edu.pl") by vger.kernel.org with ESMTP
-	id <S312415AbSDBNWz>; Tue, 2 Apr 2002 08:22:55 -0500
-Date: Tue, 2 Apr 2002 15:17:57 +0200
-From: Michal Dorocinski <zwierzak@venus.ci.uw.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sis 5591 ide in 2.4.19-pre3 consumes souls
-Message-ID: <20020402151757.B1182@venus.ci.uw.edu.pl>
-In-Reply-To: <3C9A0C22.3090702@inet6.fr> <20020321171851.A0D29A3C21@fancypants.trellisinc.com> <20020321182717.K806@venus.ci.uw.edu.pl>
-Mime-Version: 1.0
+	id <S312577AbSDBN2T>; Tue, 2 Apr 2002 08:28:19 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:55304 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S312573AbSDBN2O>; Tue, 2 Apr 2002 08:28:14 -0500
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Q] FAT driver enhancement
+In-Reply-To: <20020328135555.U6796-100000@snail.stack.nl>
+	<871ye479sz.fsf@devron.myhome.or.jp> <3CA97B1A.13E6765D@aitel.hist.no>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 02 Apr 2002 22:27:52 +0900
+Message-ID: <87663acjs7.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Helge Hafting <helgehaf@aitel.hist.no> writes:
 
-As I wrote I tryed 2.4.19-pre5 on my SIS motherboard nad 5513 IDE chipset and
-again I got the same problems. The -ac series of 2.4.19-pre4 is good and works
-fine.
+> OGAWA Hirofumi wrote:
+> > 
+> > Jos Hulzink <josh@stack.nl> writes:
+> > 
+> > > Hi,
+> > >
+> > > A while ago I initiated a thread about mounting a NTFS partition as FAT
+> > > partition. The problem is that FAT partitions do not have a real
+> > > fingerprint, so the FAT driver mounts almost anything.
+> > >
+> > > The current 2.5 driver only tests if some values in the bootsector are
+> > > non-zero. IMHO, this is not strict enough. For example, the number of FATs
+> > > is always 1 or 2 (anyone ever seen more ?). Besides, when there are two
+> > > FATs, all entries in those FATs should be equal. If they are not, we deal
+> > > with a non-FAT or broken FAT partition, and we should not mount.
+> > >
+> > > It's not a real fingerprint, but what are the chances all sectors of what
+> > > we think is the FAT are equal on non-FAT filesystems ? Yes, when you just
+> > > did a
+> > >
+> > > dd if=/dev/zero of=/dev/partition; mkfs.somefs /dev/partition
+> > >
+> > > there is a chance, but that's an empty filesystem. Data corruption isn't
+> > > that bad on an empty disk. We know that a FAT is at the beginning of a
+> > > partition and I assume that any other filesystem will fill up those first
+> > > sectors very soon.
+> > >
+> > > Questions:
+> > >
+> > > 1) How do you think about the checking of the FAT tables ? It definitely
+> > >    will slow down the mount.
+> > 
+> > Unfortunately if FAT table has bad sector, FAT tables may not be the
+> > same.
+> 
+> And then you don't want to mount unless you know what you
+> are doing.  And those knowing what they are doing can be bothered
+> to use some kind of "force" option in this case.  Or perhaps an
+> option that selects which FAT to trust.
 
-Greetings
-	Michal 'Zwerz' Dorocinski
-
+I mean I/O error, not data damage.
 -- 
-The Shadow, The Darkness, The Fear...
-	Forever Alone Immortal...
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbTESRIl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 13:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTESRIk
+	id S261960AbTESROy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 13:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbTESROy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 13:08:40 -0400
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:33511 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S262499AbTESRIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 13:08:39 -0400
-Date: Mon, 19 May 2003 11:08:32 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: try_then_request_module
-Message-ID: <20030519110832.G626@nightmaster.csn.tu-chemnitz.de>
-References: <20030519014233.5BF032C08C@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20030519014233.5BF032C08C@lists.samba.org>; from rusty@rustcorp.com.au on Mon, May 19, 2003 at 11:41:20AM +1000
-X-Spam-Score: -3.7 (---)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19HoKO-0000BD-00*TjJY0J2qyCI*
+	Mon, 19 May 2003 13:14:54 -0400
+Received: from smtp03.uc3m.es ([163.117.136.123]:42253 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id S261960AbTESROx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 13:14:53 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200305191727.h4JHRih00517@oboe.it.uc3m.es>
+Subject: Re: recursive spinlocks. Shoot.
+In-Reply-To: <Pine.LNX.4.55.0305190957520.4379@bigblue.dev.mcafeelabs.com> from
+ Davide Libenzi at "May 19, 2003 10:15:54 am"
+To: Davide Libenzi <davidel@xmailserver.org>
+Date: Mon, 19 May 2003 19:27:44 +0200 (MET DST)
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
-hi LKML,
+> > (1) while, with some luck, writing may be atomic on ia32 (and I'm not
+> > sure it is, I'm only prepared to guarantee it for the lower bits, and I
+> > really don't know about zeroing the carry and so on), I actually doubt
+> > that reading is atomic, or we wouldn't need the atomic_read
+> > construction!
+> 
+> Look at atomic read :
+> 
+> $ emacs `find /usr/src/linux/include -name atomic.h | xargs`
 
-On Mon, May 19, 2003 at 11:41:20AM +1000, Rusty Russell wrote:
-> If someone is feeling eager, many callers could change to
-> try_then_request_module(), eg:
+:-). Well, whaddya know. Both read and write of a int (declared
+volatile) are atomic on ia32. 
 
-[search || request_module]
+> > (3) even if one gets either one or the other answer, one of them would
+> > be the wrong answer, and you clearly intend the atomic_inc of the
+> > counter to be done in the same atomic region as the setting to current,
+> > which would be a programming hypothesis that is broken when the wrong
+> > answer comes up.
 
-Many implementation do this with a search and retry the search 
-(if clever with a goto and a flag variable to save kernel size)
-after module loading.
+[snip atomicity of read/write]
 
-All that implemented in the search routine, which you have to
-supply anyway.
+> being "a" an aligned memory location, a third thread reading "a" reads
+> either 1 or -1. Going back to the (doubtfully useful) code, you still have
+> to point out were it does bang ...
 
-So try_then_request_module() will consolidate the the
-branch or in the worst case just duplicating that code
-everywhere (depends on wether you implement it as a non-inline
-function or define).
+OK. I'll have a look later.
 
-Usally this is all as simple as:
-
-   int module_loaded_flag=0;
-retry_with_module_loaded:
-   
-   /* search code */
-   
-   if (!module_loaded_flag && !found) {
-      module_loaded_flag=1;
-      if (!request_module(bla))
-         goto retry_with_module_loaded;
-   }
-   return found;
-
-
-which is very space effecient and also still readable.
-
-Regards
-
-Ingo Oeser
+Peter

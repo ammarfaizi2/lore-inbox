@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291484AbSBZRLv>; Tue, 26 Feb 2002 12:11:51 -0500
+	id <S291767AbSBZRQV>; Tue, 26 Feb 2002 12:16:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291624AbSBZRLl>; Tue, 26 Feb 2002 12:11:41 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:64505
+	id <S292249AbSBZRQL>; Tue, 26 Feb 2002 12:16:11 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:27898
 	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S291484AbSBZRL1>; Tue, 26 Feb 2002 12:11:27 -0500
-Date: Tue, 26 Feb 2002 09:12:09 -0800
+	id <S291767AbSBZRPv>; Tue, 26 Feb 2002 12:15:51 -0500
+Date: Tue, 26 Feb 2002 09:16:34 -0800
 From: Mike Fedyk <mfedyk@matchmail.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
 Subject: Re: ext3 and undeletion
-Message-ID: <20020226171209.GK4393@matchmail.com>
-Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <fa.n4lfl6v.h4chor@ifi.uio.no> <20020226160544.GD4393@matchmail.com> <3C7BB86A.7090305@zytor.com> <20020226164036.GG4393@matchmail.com> <a5gell$432$1@cesium.transmeta.com>
+Message-ID: <20020226171634.GL4393@matchmail.com>
+Mail-Followup-To: Martin Dalecki <dalecki@evision-ventures.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <05cb01c1be1e$c490ba00$1a01a8c0@allyourbase> <20020225172048.GV20060@matchmail.com> <02022518330103.01161@grumpersII> <a5f7s4$2o1$1@cesium.transmeta.com> <20020226160544.GD4393@matchmail.com> <3C7BB9A3.30408@evision-ventures.com> <20020226164316.GH4393@matchmail.com> <3C7BBDE2.8050207@evision-ventures.com> <20020226170520.GJ4393@matchmail.com> <3C7BC0E5.3060300@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a5gell$432$1@cesium.transmeta.com>
+In-Reply-To: <3C7BC0E5.3060300@evision-ventures.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 08:55:17AM -0800, H. Peter Anvin wrote:
-> Followup to:  <20020226164036.GG4393@matchmail.com>
-> By author:    Mike Fedyk <mfedyk@matchmail.com>
-> In newsgroup: linux.dev.kernel
-> > 
-> > Uhh, no.
-> > 
-> > You have a configurable size for the undelete dirs and you delete a file.
-> > Now, that file gets moved to $mountpoint/.undelete.  The daemon gets
-> > notified through a socket, and it can check to see if it needs to delete any
-> > older deleted files to make sure .undelete doesn't get bigger than
-> > configured.  
-> > 
-> > We're only scanning the dirs upon daemon startup (reminds me of
-> > quota... ;), and all other daemon actions are triggered by unlink() writing
-> > to a socket.  The worst thing that can happen is not seeing your free space
-> > immediately, but a few seconds later.
-> > 
+On Tue, Feb 26, 2002 at 06:07:49PM +0100, Martin Dalecki wrote:
+> >>For the educated user it was always a pain
+> >>in the you know where, to constantly run out of quota space due to
+> >>file versioning.
+> >>
+> >
+> >Ahh, so we'd need to chown the files to root (or a configurable user and
+> >group) to get around the quota issue.
 > 
-> Hence race condition.  
+> Welcome to my kill-file. This just shows that you don't even have basic
+> background.
 
-But an acceptable one (it's a small delay), unless the daemon dies. :(
+Thank you.
 
->Also, the solution to hard-reserve space seems
-> to fundamentally defeat the purpose (IMO).
->
+Now, if I'm talking out of my ass, can someone sane say so?
 
-Do you really thing we should be moving files from kernel space?  Ok, glibc
-could move the files, that'd be ok.
-
-So, (I don't know) how is the kernel going to support undeletion on all
-filesystems (ext2/3, reiserfs, vfat, jfs, xfs, and any other writable fs...)
-in the exact same way (as seen from userspace...)? 
+It would only call chown/chgrp on the files *inside* the undelete dir, and
+user,group,etc would have to be accounted for in another way.  Am I going in
+the wrong direction?
 
 Mike

@@ -1,94 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265649AbUGGWyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265654AbUGGW4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265649AbUGGWyN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 18:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbUGGWyN
+	id S265654AbUGGW4K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 18:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbUGGW4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 18:54:13 -0400
-Received: from mail012.syd.optusnet.com.au ([211.29.132.66]:37028 "EHLO
-	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265649AbUGGWyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 18:54:07 -0400
-References: <40EC13C5.2000101@kolivas.org> <40EC78A4.60304@sbcglobal.net>
-Message-ID: <cone.1089240831.933520.4554.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Wes Janzen <superchkn@sbcglobal.net>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck kernel mailing list <ck@vds.kolivas.org>
-Subject: Re: 2.6.7-ck5
-Date: Thu, 08 Jul 2004 08:53:51 +1000
+	Wed, 7 Jul 2004 18:56:10 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:35786 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S265654AbUGGW4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 18:56:03 -0400
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+From: Steven Dake <sdake@mvista.com>
+Reply-To: sdake@mvista.com
+To: Daniel Phillips <phillips@redhat.com>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200407051629.54737.phillips@redhat.com>
+References: <200407051442.27397.phillips@redhat.com>
+	 <40E9A722.8020402@nortelnetworks.com>
+	 <200407051629.54737.phillips@redhat.com>
+Content-Type: text/plain
+Organization: MontaVista Software, Inc.
+Message-Id: <1089240951.822.144.camel@persist.az.mvista.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-pc.kolivas.org-4554-1089240831-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 07 Jul 2004 15:55:51 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-
---=_mimegpg-pc.kolivas.org-4554-1089240831-0001
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-Wes Janzen writes:
-
-> Hi Con,
+On Mon, 2004-07-05 at 13:29, Daniel Phillips wrote:
+> On Monday 05 July 2004 15:08, Chris Friesen wrote:
+> > Daniel Phillips wrote:
+> > > Don't you think we ought to take a look at how OCFS and GFS might
+> > > share some of the same infrastructure, for example, the DLM and
+> > > cluster membership services?
+> >
+> > For cluster membership, you might consider looking at the OpenAIS CLM
+> > portion.  It would be nice if this type of thing was unified across 
+> > more than just filesystems.
 > 
-> I'm running ck4 and I'm getting pauses during init (alsa, hdparm, 
-> hotplug).  By repeatedly pressing Alt-SysRq-p, I can get things going 
-> again within 15 seconds, otherwise I suspect it would take that 3 1/2 
-> hours to finish init like it did with ck3.  I think I had the same thing 
-> just happen in X.  The mouse got jerky and then stopped responding, even 
-> numlock wouldn't respond for about 15-30 seconds.  I'm logging a vmstat 
-> now to see if I can reproduce it.
-
-The suspect patch would be bootsplash.
-
-> It seems that disabling kernel preemption solved the problem during 
-> init, but the system feels slower (jerky mouse under X during compile).
-
-It's extremely unlikely that the system would actually feel faster with 
-preemption on in -ck so I suspect a touch of placebo effect.
-
-> Would anything that you've updated since ck4 take care of this?  If not, 
-> is there anything you can suggest I do to troubleshoot this issue?
-
-Possibly the updated bootsplash patch might help. Another user had 
-instability which was tracked down to bootsplash. The staircase scheduler is 
-virtually unchanged so if it is responsible (which I'd like to think isn't 
-the case) then the problem will not go away.
-
-Suggestions (in order of likelihood):
--Update to -ck5
--Disable bootsplash
--Reverse patch bootsplash
--Don't enable any funky config options like regparm, 4k stacks or different 
-Hz
--Start backing out patches one by one from the last to the first till it 
-goes away.
-
-Keep us informed if you find the culprit please.
-
-> Thanks,
+> My own project is a block driver, that's not a filesystem, right?  
+> Cluster membership services as implemented by Sistina are generic, 
+> symmetric and (hopefully) raceless.  See:
 > 
-> Wes
+>   http://www.usenix.org/publications/library/proceedings/als00/2000papers/papers/full_papers/preslan/preslan.pdf
+> 
+> There is much overlap between the OpenAIS and Sistina's Symmetric 
+> Cluster Architecture.  You are right, we do need to get together.
+> 
+> By the way, how do I get your source code if I don't agree with the 
+> BitKeeper license?
+> 
 
-Cheers,
-Con
+Daniel
 
---=_mimegpg-pc.kolivas.org-4554-1089240831-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
+If you mean how do you get source code to the openais project without
+bk, it is available as a nightly tarball download from
+developer.osdl.org:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+http://developer.osdl.org/cherry/openais
 
-iD8DBQBA7H7/ZUg7+tp6mRURApAfAKCDwM2i4wIyTvpYbjcoxQE63WAyhgCeIPnQ
-00h8QEqKzUhqvkOL2TD9o6Y=
-=EAbN
------END PGP SIGNATURE-----
+If you want to contribute to openais, you can still contribute by using
+diff by sending patches to:
 
---=_mimegpg-pc.kolivas.org-4554-1089240831-0001--
+openais@lists.osdl.org
+
+Regards
+-steve
+
+> Regards,
+> 
+> Daniel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

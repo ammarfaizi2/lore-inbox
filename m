@@ -1,114 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVCWAwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262680AbVCWAyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbVCWAwK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 19:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbVCWAwJ
+	id S262680AbVCWAyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 19:54:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbVCWAyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 19:52:09 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:17249 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262670AbVCWAwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 19:52:00 -0500
-Date: Wed, 23 Mar 2005 00:51:02 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: akpm@osdl.org, nickpiggin@yahoo.com.au, tony.luck@intel.com,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-In-Reply-To: <20050322144151.5b08b047.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0503230040210.10858@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com> 
-    <20050322034053.311b10e6.akpm@osdl.org> 
-    <Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com> 
-    <20050322110144.3a3002d9.davem@davemloft.net> 
-    <20050322112125.0330c4ee.davem@davemloft.net> 
-    <20050322112329.70bde057.davem@davemloft.net> 
-    <Pine.LNX.4.61.0503221931150.9348@goblin.wat.veritas.com> 
-    <20050322123301.090cbfa6.davem@davemloft.net> 
-    <Pine.LNX.4.61.0503222142280.9761@goblin.wat.veritas.com> 
-    <20050322144151.5b08b047.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 22 Mar 2005 19:54:15 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:18322 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262674AbVCWAxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 19:53:45 -0500
+Subject: Re: dmesg verbosity [was Re: AGP bogosities]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050323013729.0f5cd319.diegocg@gmail.com>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz>
+	 <20050314083717.GA19337@elf.ucw.cz>
+	 <200503140855.18446.jbarnes@engr.sgi.com>
+	 <20050314191230.3eb09c37.diegocg@gmail.com>
+	 <1110827273.14842.3.camel@mindpipe>
+	 <20050323013729.0f5cd319.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 22 Mar 2005 19:53:37 -0500
+Message-Id: <1111539217.4691.57.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005, David S. Miller wrote:
-> On Tue, 22 Mar 2005 21:51:39 +0000 (GMT)
-> Hugh Dickins <hugh@veritas.com> wrote:
+On Wed, 2005-03-23 at 01:37 +0100, Diego Calleja wrote:
+> El Mon, 14 Mar 2005 14:07:53 -0500,
+> Lee Revell <rlrevell@joe-job.com> escribió:
 > 
-> > I still can't see what's wrong with the code that's already
-> > there.  My brain is seizing up, I'm taking a break.
+> > I'm really not trolling, but I suspect if we made the boot process less
+> > verbose, people would start to wonder more about why Linux takes so much
+> > longer than XP to boot.
 > 
-> Ok, meanwhile I'll do a brain dump of what I think this
-> code should be doing.
+> By the way, Microsoft seems to be claiming that boot time will be reduced to the half
+> with Longhorn. While we already know how ms marketing team works, 50% looks
+> like a lot. Is there a good place to discuss what could be done in the linuxland to
+> improve things? It doesn't looks like a couple of optimizations will be enought...
 > 
-> Let's take an example free_pgd_range() call.  Say the
-> address parameters are:
-> 
-> addr	0x10000
-> end	0xa4000
-> floor	0x00000
-> ceiling	0xb2000
 
-This actual example helped to focus my mind a lot, thank you.
+Yup, many people on this list seem unaware but read the XP white papers,
+then try booting it side by side with Linux.  They put some serious,
+serious engineering into that problem and came out with a big win.
+Screw Longhorn, we need improve by 50% to catch up to what they can do
+NOW.
 
-> (This example comes from my exit_mmap() VMA dump earlier
->  in this thread.  If you disable the VMA skipping optimization
->  the first call to free_pgd_range() has these parameters.)
-> 
-> What ought this free_pgd_range() call do?  This range of
-> addresses, from floor to ceiling, is smaller than a PMD_SIZE
-> (which on sparc64 is 1 << 23).  Therefore it should clear
-> no PGD or PUD entries.
+The solution is fairly well known.  Rather than treating the zillions of
+disk seeks during the boot process as random unconnected events, you
+analyze the I/O done during the boot process, then lay out those disk
+blocks optimally based on this information so on the next boot you just
+do one big streaming read.  The patent side has been discussed and there
+seems to be plenty of prior art.
 
-Yup, it ought to decide at the beginning of free_pgd_range
-that it simply has no work to do.
+Someone needs to just do it.  All the required information is right
+there.
 
-> Yet, it does clear them, specifically:
-> 
-> free_pgd_range():
-> 	1) mask addr (0x10000) to PMD_MASK, addr is now 0
-> 	2) addr < floor (0x00000) test does not pass
-> 	3) mask ceiling (0xb2000) to PMD_MASK, ceiling is now 0 too
-> 	4) end - 1 > ceiling - 1 test does not pass
-> 	5) addr > end - 1 test does not pass either
+Lee
 
-And now we've gone wrong, yes.
-
-> The source of the problems seems to be how ceiling began
-> at the top of the call chain as 0xb2000, but when we
-> masked it with PMD_MASK that set it to zero, which means
-> "top of address space" in these functions.  That's not
-> what we want.
-> 
-> I added a quick hack to the simulator I posted, where
-> we mask ceiling in free_pgd_range(), I do it like this:
-> 
-> 	if (ceiling) {
-> 		ceiling &= PMD_MASK;
-> 		if (!ceiling)
-> 			return;
-> 	}
-
-At first that just looked like a hack to me.  But on reflection,
-no, you're doing exactly what I had to do with addr above: in the
-case where we arrive at 0 from non-0 value, have to get out quick
-to avoid confusion with the "other" 0.  These wrap issues are hard.
-
-And in other mail I see you found more such checks were needed.
-I believe you've got it, thank you so much!
-
-Though frankly, by now, I'm sure of nothing:
-will review in the morning.
-
-> and things seem to behave.  I'll try to analyze things
-> further and test this out on a real kernel, but all of
-> these adjustments at the top of free_pgd_range() really
-> start to look like pure spaghetti. :-)
-
-Well, it's trying to decide in reasonably few steps that it's not
-worth wasting time going down to the deeper levels.  Lots of
-"return"s as it eliminates cases, yes.
-
-Hugh

@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264783AbTE1P6D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 11:58:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264791AbTE1P6D
+	id S263652AbTE1QJI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 12:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264784AbTE1QJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 11:58:03 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28688 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264783AbTE1P6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 11:58:01 -0400
-Date: Mon, 26 May 2003 11:37:17 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: must-fix list, v5
-Message-ID: <20030526093717.GC642@zaurus.ucw.cz>
-References: <20030521152255.4aa32fba.akpm@digeo.com> <20030521152334.4b04c5c9.akpm@digeo.com>
-Mime-Version: 1.0
+	Wed, 28 May 2003 12:09:08 -0400
+Received: from va-leesburg1b-227.stngva.adelphia.net ([68.64.41.227]:9092 "EHLO
+	ccs.covici.com") by vger.kernel.org with ESMTP id S263652AbTE1QJH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 12:09:07 -0400
+To: linux-kernel@vger.kernel.org
+Subject: what happened to i2c-proc
+From: John Covici <covici@ccs.covici.com>
+Date: Wed, 28 May 2003 12:22:23 -0400
+Message-ID: <m3d6i3avnk.fsf@ccs.covici.com>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030521152334.4b04c5c9.akpm@digeo.com>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I am trying to compile appropriate modules for lm sensors in 2.5.70,
+but there seems to be no way to configure i2c-proc -- it seems to be
+there for other architectures, but not for i386.
 
-I guess "ioctl32 emulation should be shared
-accross architectures" should go on the
-list...
+Any assistance would be appreciated.
 
-(and I have patches but Linus ignores
-them... would it be okay to merge them
-through you?)
-				Pavel
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
-
+         John Covici
+         covici@ccs.covici.com

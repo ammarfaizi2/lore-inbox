@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261609AbSKCEgZ>; Sat, 2 Nov 2002 23:36:25 -0500
+	id <S261615AbSKCEk0>; Sat, 2 Nov 2002 23:40:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261615AbSKCEgZ>; Sat, 2 Nov 2002 23:36:25 -0500
-Received: from [216.38.156.94] ([216.38.156.94]:26892 "EHLO
-	mail.networkfab.com") by vger.kernel.org with ESMTP
-	id <S261609AbSKCEgY>; Sat, 2 Nov 2002 23:36:24 -0500
-Subject: Re: ultracam distorted image
-From: Dmitri <dmitri@users.sourceforge.net>
-To: ierC Sanjayan Rosenmund <gnuman@attbi.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3DC4A479.A0D90C21@attbi.com>
-References: <3DC4A479.A0D90C21@attbi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 02 Nov 2002 20:42:46 -0800
-Message-Id: <1036298566.14085.9.camel@usb.networkfab.com>
-Mime-Version: 1.0
+	id <S261627AbSKCEk0>; Sat, 2 Nov 2002 23:40:26 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:26337 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261615AbSKCEkZ> convert rfc822-to-8bit;
+	Sat, 2 Nov 2002 23:40:25 -0500
+Date: Sat, 2 Nov 2002 20:42:46 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "J.A. =?ISO-8859-1?Q?Magall=F3n?=" <jamagallon@able.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kconfig (qt) -> Gconfig (gtk)
+In-Reply-To: <1036287009.18289.5.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33L2.0211022041080.32677-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-11-02 at 20:22, C Sanjayan Rosenmund wrote:
+On 3 Nov 2002, Alan Cox wrote:
 
-> I looked at the MAINTAINERS file, and this device is not even listed so
+| On Sun, 2002-11-03 at 00:06, J.A. Magallón wrote:
+| > As I see it, the onle thing that should be included in a standard kernel
+| > would be something like a kconfig-xaw, that is sure to be on every box that
+| > has X, and could be a reference implementation.
+|
+| Lots of people no longer include Xaw either nowdays 8)
+|
+| Probably the easiest way to do this would be to move the GUI tools out
+| of the kernel (or maybe leave the common useful ones) and have make
+| guiconfig do
+|
+| 	if [ -f /usr/sbin/kernel-gui-config ] ; then
+| 		/usr/sbin/kernel-gui-config
+| 	elif got_qt() ; then
+| 		qt config
+| 	elif got_gtk() ; then
+| 		gtk_config
+| 	else
+| 		warnign message
+| 		make config
+		make menuconfig || make oldconfig || make config
+| 	fi
+| -
 
-It always was experimental, as I recall. Karl Gutwin is the author.
-See http://www.linux-usb.org/
+Please don't stick us with 'make config'.  :)
 
-> I have no options left but to bug you (sorry).
-
-linux-usb-users@lists.sourceforge.net is a more appropriate forum.
-
-> when using the gqcam app, I get a distorted image (a sample can be found
-> on http://home.attbi.com/~gnuman/webcam.html ) and the error
-
-It's better than most :-) You probably have a different version of the
-camera, with a different firmware, hardware or sensor.
-
-> the image looks like it is not synching properly and the brightness does
-> not matter that much to me.
-
-Indeed, the decoder of the camera datastream is not working. Everything
-else, past the decoder, seems to work.
-
-> When I use the CVS usbvideo package (the module is named ultradrv
-> instead of ultracam), I get a smaller black screen and "error reading
-> image. . ."
-
-Check the dates, maybe in-kernel driver is more recent. Contact Karl.
-
-> about things not working. I found no one that could give me any more
-> advice on how to get this working for me. I get the same results when
-> I'm using the camera from the ultraport or USB.
-
-This is a rare camera, as I understand. Nobody else has it.
-
-> hasciicam works, but that is useless to me as I need to use this with a
-> webcam and several other v4l applications.  I have run out of places to
-> look for information and clues, and I cannot find the author for the
-> kernel driver (not listed in the code, or the maintainers file).
-
-Karl Gutwin. His email is at the URL that I gave above.
-
-> seems to me that *someone* must have gotten this running, but they seem
-> to want to keep that info to themselves?
-
-If there is that mysterious "someone", it is not anyone I know. As I
-said, virtually nobody has the device. I don't even know how the driver
-was developed in first place, using specs, reverse engineering or just
-black magic...
-
-Dmitri
-
+-- 
+~Randy
 

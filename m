@@ -1,79 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137132AbREKNPu>; Fri, 11 May 2001 09:15:50 -0400
+	id <S137135AbREKNeT>; Fri, 11 May 2001 09:34:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137133AbREKNPi>; Fri, 11 May 2001 09:15:38 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:39175 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S137132AbREKNP2>;
-	Fri, 11 May 2001 09:15:28 -0400
-Message-ID: <3AFBE57F.611A6051@mountain.net>
-Date: Fri, 11 May 2001 09:13:35 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
-MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __up_read and gcc-3.0
-In-Reply-To: <20010509190955.A1526@vana.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S137136AbREKNeK>; Fri, 11 May 2001 09:34:10 -0400
+Received: from zmailer.org ([194.252.70.162]:41478 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S137135AbREKNeE>;
+	Fri, 11 May 2001 09:34:04 -0400
+Date: Fri, 11 May 2001 16:33:45 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: ADMIN: Email client feed and care ...
+Message-ID: <20010511163345.H5947@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: attachment
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> 
-> Hi Alan,
->   can you apply this patch to next 2.4.4-acX ? This fixes problem with
-> gcc3.0 (20010426) unable to compile this under some conditions. As
-> __up_write() uses same code ("i".... instead of tmp variable), I think
-> that you should apply this. It can cause slower code, as gcc cannot
-> move "movl -RWSEM_ACTIVE_READ_BIAS,%edx" away from "xadd" anymore,
-> but as "lock xadd" is slow anyway, it should not matter.
-> 
->   I looked at generated code in cases where it originally failed, and
-> generated code looks OK to me.
->                                         Thanks,
->                                                 Petr Vandrovec
->                                                 vandrove@vc.cvut.cz
-> 
-> diff -urdN linux/include/asm-i386/rwsem.h linux/include/asm-i386/rwsem.h
-> --- linux/include/asm-i386/rwsem.h      Fri Apr 27 22:48:24 2001
-> +++ linux/include/asm-i386/rwsem.h      Wed May  9 16:31:57 2001
-> @@ -148,9 +148,9 @@
->   */
->  static inline void __up_read(struct rw_semaphore *sem)
->  {
-> -       __s32 tmp = -RWSEM_ACTIVE_READ_BIAS;
->         __asm__ __volatile__(
->                 "# beginning __up_read\n\t"
-> +               "  movl      %2,%%edx\n\t"
->  LOCK_PREFIX    "  xadd      %%edx,(%%eax)\n\t" /* subtracts 1, returns the old value */
->                 "  js        2f\n\t" /* jump if the lock is being waited upon */
->                 "1:\n\t"
-> @@ -164,9 +164,9 @@
->                 "  jmp       1b\n"
->                 ".previous\n"
->                 "# ending __up_read\n"
-> -               : "+m"(sem->count), "+d"(tmp)
-> -               : "a"(sem)
-> -               : "memory", "cc");
-> +               : "+m"(sem->count)
-> +               : "a"(sem), "i"(-RWSEM_ACTIVE_READ_BIAS)
-> +               : "memory", "cc", "edx");
->  }
-> 
->  /*
+Folks,
 
-Hi Petr,
+  I really don't know what I should do when legitimate (but malformed)
+email gets bounced by some systems because their writers consider that
+malformed email is a bad thing, and must not be accepted.
 
-My solution to this was to relax +d(tmp) to +m(tmp). Posted a few days ago.
-I have larger problems with 2.4.5-pre1 and have not gone back to check what
-comes out. Being a product of pure reason (and not much of that), mine
-deserves suspicion.
+  We see also increasing amount of bounces by systems who think that
+some 10 line linux-kernel text message is spam...
 
-Cheers,
-Tom
+  There are two things:
+      - Senders must REALLY send valid messages
+      - Recipients SHOULD be more lenient on what they accept
+        (And spam-detectors be smarter.  Having URLs mentioned
+         in message text - maybe that was the reason - should
+         not mean it is spam...)
 
--- 
-The Daemons lurk and are dumb. -- Emerson
+If we ever automate recipient removal (we have means for it, more or
+less), there would be no warning whatsoever when a subscriber gets
+kicked out.
+
+          /Matti Aarnio
+
+FAILED:
+  Original Recipient:
+    rfc822;ml-linux_kernel@ignus.com
+  Control data:
+    smtp ignus.com ml-linux_kernel@ignus.com 99
+  Diagnostic texts:
+...\
+    <<- MAIL From:<linux-kernel-owner@vger.kernel.org> BODY=8BITMIME SIZE=1718
+    ->> 250 Ok.
+    <<- RCPT To:<ml-linux_kernel@ignus.com> NOTIFY=FAILURE ORCPT=rfc822;ml-linux_kernel@ignus.com
+    ->> 250 Ok.
+    <<- DATA
+    ->> 354 Ok.
+    <<- .
+    ->> 550-This message has 8-bit content, but does not have the required MIME
+    ->> 550-headers.  Sorry, this mail server does not accept mail without the
+    ->> 550-required MIME headers.  See <URL:ftp://ftp.isi.edu/in-notes/rfc2045.txt>
+    ->> 550 for more information.
+FAILED:
+  Original Recipient:
+    rfc822;user5@test.wirex.com
+  Control data:
+    smtp test.wirex.com user5@test.wirex.com 99
+  Diagnostic texts:
+...\
+    <<- MAIL From:<linux-kernel-owner@vger.kernel.org> BODY=8BITMIME SIZE=1718
+    ->> 250 Ok.
+    <<- RCPT To:<user5@test.wirex.com> NOTIFY=FAILURE ORCPT=rfc822;user5@test.wirex.com
+    ->> 250 Ok.
+    <<- DATA
+    ->> 354 Ok.
+    <<- .
+    ->> 550-This message has 8-bit contents, but does not have the necessary MIME
+    ->> 550-headers.  Sorry, this mail server does not accept mail without the
+    ->> 550-required MIME headers.  See <URL:ftp://ftp.isi.edu/in-notes/rfc2045.txt>
+    ->> 550 for more information.
+
+
+Content-Type: message/rfc822
+
+Subject: Re: monitor file writes
+From:	Xavier Bestel <xavier.bestel@free.fr>
+To:	Dennis Bjorklund <db@zigo.dhs.org>
+Cc:	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0105080624120.14983-100000@merlin.zigo.dhs.org>
+In-Reply-To: <Pine.LNX.4.30.0105080624120.14983-100000@merlin.zigo.dhs.org>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution/0.10 (Preview Release)
+Date:	11 May 2001 13:51:26 +0200
+Message-Id: <989581889.19092.1.camel@nomade>
+Mime-Version: 1.0
+Sender:	linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List:	linux-kernel@vger.kernel.org
+
+Le 08 May 2001 06:27:52 +0200, Dennis Bjorklund a écrit :
+> Is there a way in linux to montior file writes?
+> 
+> I have something that is writing to the disk every 5:th second (approx.)
+
+probably kupdate ... look for noflushd on freshmeat.net and read the
+docs.
+
+Xav
+

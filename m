@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272899AbRIPWqu>; Sun, 16 Sep 2001 18:46:50 -0400
+	id <S272980AbRIPWzw>; Sun, 16 Sep 2001 18:55:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272898AbRIPWqj>; Sun, 16 Sep 2001 18:46:39 -0400
-Received: from alb-66-24-179-104.nycap.rr.com ([66.24.179.104]:12036 "EHLO
-	incandescent") by vger.kernel.org with ESMTP id <S272899AbRIPWqb>;
-	Sun, 16 Sep 2001 18:46:31 -0400
-Date: Sun, 16 Sep 2001 18:46:51 -0400
-From: Andres Salomon <saloma@rpi.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] 3c515 warnings
-Message-ID: <20010916184651.A703@mp3revolution.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="C7zPtVaVf+AK4Oqc"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux incandescent 2.4.10-pre9 
+	id <S272966AbRIPWzm>; Sun, 16 Sep 2001 18:55:42 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55048 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272980AbRIPWze>; Sun, 16 Sep 2001 18:55:34 -0400
+Date: Sun, 16 Sep 2001 15:55:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+cc: Andreas Steinmetz <ast@domdv.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <180945403.1000684019@[169.254.62.211]>
+Message-ID: <Pine.LNX.4.33.0109161548290.982-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Sun, 16 Sep 2001, Alex Bligh - linux-kernel wrote:
+>
+> >  - age a non-referenced page on a list: move to "next" list downwards (ie
+> >    free if already inactive, move to inactive if currently active)
+>
+> Do you still make the distinction between Inactive Clean
+> and Inactive Dirty (& just move to appropriate list)?
 
-I'm not sure what happened to the full_duplex variable in 3c515.c, but
-it was ignored by the driver anyways.  The attached patch removes the
-MODULE_PARM references to the variable (which would cause a warning
-to be spewed when you tried to modprobe the driver).  Diff'd against
-2.4.10-pre9, please apply.
+That part of the code doesn't.
 
-BTW, does anyone actually use this driver?  I'm cleaning it up a bit,
-and possibly (if I have the time) syncing w/ becker's latest; 
-if anyone's interested in testing it out, let me know.
+> Effectively this is just a 'binary' aging function (OK position
+> on the list matters too). Others on the list have observed
+> page->age performs in a binary manner anyhow with exponential
+> aging.
 
--- 
-"Any OS is only as good as its admin, and you obviously suck."
-	-- Ian Gulliver, http://orbz.org/mail/mansunix.txt
+Right. I'm not saying that this is anything _exiting_ - I'm just saying
+that the old code did not have any clear behaviour at all. It would
+inappropriately raise a page from the inactive lists to the active list
+even if the code that actually _touched_ the page had decided that the
+page was not active.
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="duplex_arg.diff"
+And the behaviour of the referenced bit once on the active list was
+unclear. I personally think that clearing the reference bit when moving to
+the active list is the right thing to do (so that it is marked
+"unimportant" on the active list and needs a _third_ access to be marked
+important), but this is an example of one of the tweaks/decisions we
+should clearly make instead of leaving the behaviour undefined (which it
+was before).
 
---- linux/drivers/net/3c515.c	Sun Sep 16 00:11:42 2001
-+++ linux.dilinger/drivers/net/3c515.c	Sun Sep 16 12:49:56 2001
-@@ -84,12 +84,10 @@
- MODULE_DESCRIPTION("3Com 3c515 Corkscrew driver");
- MODULE_PARM(debug, "i");
- MODULE_PARM(options, "1-" __MODULE_STRING(8) "i");
--MODULE_PARM(full_duplex, "1-" __MODULE_STRING(8) "i");
- MODULE_PARM(rx_copybreak, "i");
- MODULE_PARM(max_interrupt_work, "i");
- MODULE_PARM_DESC(debug, "3c515 debug level (0-6)");
- MODULE_PARM_DESC(options, "3c515: Bits 0-2: media type, bit 3: full duplex, bit 4: bus mastering");
--MODULE_PARM_DESC(full_duplex, "(ignored)");
- MODULE_PARM_DESC(rx_copybreak, "3c515 copy breakpoint for copy-only-tiny-frames");
- MODULE_PARM_DESC(max_interrupt_work, "3c515 maximum events handled per interrupt");
- 
+> How do you balance between Inactive Clean before Inactive Dirty
+> and avoid evicting many (infrequently used) code pages at
+> the expense of many (historic, even less frequently used) dirty
+> data pages? Or don't we care?
 
---C7zPtVaVf+AK4Oqc--
+We probably _do_ care. I suspect that if there are balancing problems,
+they could easily be in the reclaim_page() vs page_launder() balance (ie
+aging of inactive_clean vs inactive_dirty).
+
+		Linus
+

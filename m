@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270079AbUJVIQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269753AbUJVIQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270079AbUJVIQk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 04:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269600AbUJVINv
+	id S269753AbUJVIQj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 04:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270079AbUJVIMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 04:13:51 -0400
-Received: from mail.dif.dk ([193.138.115.101]:20916 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S269749AbUJSQfS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 12:35:18 -0400
-Date: Tue, 19 Oct 2004 18:43:18 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "T. Weyergraf" <kirk@colinet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patch-2.6.9 against 2.6.8.1
-In-Reply-To: <200410190723.i9J7NNuv027374@hydra.colinet.de>
-Message-ID: <Pine.LNX.4.61.0410191840310.2932@dragon.hygekrogen.localhost>
-References: <200410190723.i9J7NNuv027374@hydra.colinet.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Oct 2004 04:12:21 -0400
+Received: from mailgate1.uni-kl.de ([131.246.120.5]:30666 "EHLO
+	mailgate1.uni-kl.de") by vger.kernel.org with ESMTP id S269837AbUJVIKe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 04:10:34 -0400
+Date: Fri, 22 Oct 2004 10:10:31 +0200
+From: Eduard Bloch <edi@gmx.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.9-rc?] long pause after IDE detection
+Message-ID: <20041022081031.GA4073@zombie.inka.de>
+References: <20041021220438.GA13864@zombie.inka.de> <58cb370e0410211523416be4a8@mail.gmail.com> <20041022002237.GA1948@kurtwerks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041022002237.GA1948@kurtwerks.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Oct 2004, T. Weyergraf wrote:
-
-> Hi all,
+#include <hallo.h>
+* Kurt Wall [Thu, Oct 21 2004, 08:22:37PM]:
+> On Fri, Oct 22, 2004 at 12:23:34AM +0200, Bartlomiej Zolnierkiewicz took 8 lines to write:
+> > > CONFIG_IDE_GENERIC=y
+> > 
+> > Does disabling this option help?
 > 
-> I just build 2.6.9 using the patch-2.6.9, as always. Previously,
-> I was using 2.6.8.1 and i expected patch-2.6.9 to work on the
-> 2.6.8.1 tree.
+> Yes.
 
-No, it applies to 2.6.8. The situation could arise that a 2.6.8.2 is 
-released _after_ 2.6.9 and then having the 2.6.9 patch based on 2.6.8.1 
-would be quite confusing.
-Read all of this thread for the full story: 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0408.3/0293.html
+Yes, both methods did work, thank you. And I prefer disabling the
+generic driver. However, something still goes wrong in the driver.
 
-
---
-Jesper Juhl
-
+Regards,
+Eduard.
+-- 
+<kw> No Jolt and no Musik makes Alfie go crazy ...

@@ -1,100 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265032AbUF3JEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266601AbUF3JQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265032AbUF3JEv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 05:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266593AbUF3JEv
+	id S266601AbUF3JQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 05:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266602AbUF3JQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 05:04:51 -0400
-Received: from cantor.suse.de ([195.135.220.2]:41653 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265032AbUF3JEs (ORCPT
+	Wed, 30 Jun 2004 05:16:28 -0400
+Received: from www.kisikew.org ([66.11.160.83]:58522 "EHLO smtp.nuit.ca")
+	by vger.kernel.org with ESMTP id S266601AbUF3JQW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 05:04:48 -0400
-To: Roland McGrath <roland@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: zombie with CLONE_THREAD
-References: <200406300714.i5U7E48O027579@magilla.sf.frob.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I hope the ``Eurythmics'' practice birth control...
-Date: Wed, 30 Jun 2004 11:04:46 +0200
-In-Reply-To: <200406300714.i5U7E48O027579@magilla.sf.frob.com> (Roland
- McGrath's message of "Wed, 30 Jun 2004 00:14:04 -0700")
-Message-ID: <je8ye5ct75.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Wed, 30 Jun 2004 05:16:22 -0400
+Date: Wed, 30 Jun 2004 09:16:16 +0000
+From: simon@nuit.ca
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cannot access '/dev/pts/292': Value too large for defined data type
+Message-ID: <20040630091616.GA3103@nuit.ca>
+References: <20040626151108.GA8778@nuit.ca> <20040626135948.7b4396e9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+Content-Disposition: inline
+In-Reply-To: <20040626135948.7b4396e9.akpm@osdl.org>
+X-Operating-System: Debian GNU/Linux
+X-GPG-Key-Server: x-hkp://subkeys.pgp.net
+User-Agent: Mutt/1.5.6+20040523i
+X-Scan-Signature: smtp.nuit.ca 1BfbCT-0008SM-6i 2b486641b560c8c41c4d45d832e50bf1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
 
-Roland McGrath <roland@redhat.com> writes:
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Are you saying that if the ptracer dies, it can leave some threads in limbo?
-> I think that case is supposed to work because forget_original_parent will
-> move all the threads ptrace'd by the dying tracer process to be ptrace'd by
-> init, which will then clean up their zombies as previously described.
+Ce jour Sat, 26 Jun 2004, Andrew Morton a dit:
 
-Here is the test case, run it with "strace -f ./clone".  When the bug
-happens then strace is stuck waiting for it's traced child that just died,
-but you may have to try a few times before it happens.
+> simon@nuit.ca wrote:
+> >
+> > whenever i try open a new pseudo-pty, i get a similar message to=20
+> >  the one in the subject, and one like "fstat: Value too large for defin=
+ed data
+> >  type" if i open an xterm.
+>=20
+> It appears that you're using some variant of the 2.6.7 kernel, yes?
+>=20
+> That kernel (and many preceding ones) will create large pty indexes and o=
+ld
+> (and/or buggy) userspace fails to handle it correctly.
+>=20
+> Post-2.6.7, the allocation of pty indexes was switched to first-fit and
+> things should now work OK.
+>=20
+> Please test a current kernel and send a report.
 
+ok. well, i'm currently running the 2.6.7-bk10, and it runs really
+nicely for one thing, and the other is that the pty behaviour is exactly
+like the old one (which i've just been told 'first fit' *is* the old
+behaviour).=20
 
---=-=-=
-Content-Disposition: inline; filename=clone.c
+in a way i like the newer behaviour, but hmm, maybe have both
+behaviours? first fit for some old/buggy apps, and the new one for ones
+that correctly detect the new capabilities. though IME most of the
+applications i've used don't recognise the new one, and having varying
+levels of freakiness - from a warning to outright not working as
+expected (e.g., my problem with screen, the "Value too large" message).
 
-#include <stdio.h>
-#include <signal.h>
-#include <sched.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-
-extern int __clone (int (*__fn) (void *__arg), void *__child_stack,
-		    int __flags, void *__arg, ...);
-extern int __clone2 (int (*__fn) (void *__arg), void *__child_stack_base,
-		     size_t __child_stack_size, int __flags, void *__arg, ...);
-
-static int thread (void *arg)
-{
-  write (2, "thread\n", sizeof ("thread\n"));
-  *(volatile int *) 0;
-  return 0;
-}
-
-#define STACK_SIZE 1024 * 1024
-#define CLONE_FLAGS CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM
-
-int
-main (void)
-{
-  void *stack = mmap (0, STACK_SIZE, PROT_READ|PROT_WRITE,
-		      MAP_ANON|MAP_PRIVATE, -1, 0);
-  pid_t pid;
-
-#ifdef __ia64__
-  pid = __clone2 (thread, stack, STACK_SIZE - 64, CLONE_FLAGS, 0);
-#else
-  pid = __clone (thread, stack + STACK_SIZE - 64, CLONE_FLAGS, 0);
-#endif
-  printf ("pid = %d\n", pid);
-  sleep (1);
-  return 0;
-}
-
-	    
-
---=-=-=
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+thanks :)
 
 
-Andreas.
+--=20
+Software Patents are patently wrong:
+http://swpat.ffii.org/papiere/eubsa-swpat0202/ustr0309/index.en.html
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
---=-=-=--
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iQGVAwUBQOKE32qIeuJxHfCXAQJh3wv+Me+qNdAYSfoj2WEkjQFUMMahwcykF7+0
+zNVx2uy3fgEPvaUF6RideNcivtOUUuZWIA0ZCHw/zGrFUCXAqCUyY1myt66knuFA
+uPjMTdWSVQW3tuDhN+SNTBTG4Oi0K1ddZc83Y8NpRQDiW8SVaIn2rrWHIHHKcuBi
+Aqg3qXB6BBVlODRKVCnCUyOaIVmdrN3xWYjhTf8aJBGhODQS64GNfNuQ9lyGSjLa
+ZZPZHiUdsZH7abR4wF4peBXy85Z0TNZb8eZDBRJIGX5cW+6/PpXcpjb8mBIpyFGP
+s++hYdnrA7B7q1MqTBy2F+X+EmSWz9iZqlPJO3utbVSSfH+eqpMXe/yoURw66MyL
+V7SI17l1QskbDrpUDkVRSNMatY3Ae9x90ZVp8Mtoc2scmWrkyWgOUdpjIgeB/8PX
+blrFGJm5u0BeB2gAwoTI3imrI47TzJ+nRZZZZ4L7WhRdmvQi6PF66UcJHaRkf3RD
+r9KmxMEkchX0nZUJgDjSLpHtZ2utJ8ZF
+=qqWI
+-----END PGP SIGNATURE-----
+
+--qMm9M+Fa2AknHoGS--

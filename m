@@ -1,108 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263932AbUFPORX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263937AbUFPOTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263932AbUFPORX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 10:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbUFPORX
+	id S263937AbUFPOTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 10:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbUFPOTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 10:17:23 -0400
-Received: from barclay.balt.net ([195.14.162.78]:18675 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id S263932AbUFPORU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 10:17:20 -0400
-Subject: Re: Linux 2.6.7 (stty rows 50 columns 140 reports : No such device
-	or address)
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-Reply-To: zilvinas@gemtek.lt
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <40D0432A.1080006@pobox.com>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-	 <20040616095805.GC14936@gemtek.lt>  <40D0432A.1080006@pobox.com>
-Content-Type: text/plain
-Organization: Gemtek Baltic
-Message-Id: <1087395424.5314.2.camel@swoop.gemtek.lt>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 16 Jun 2004 17:17:04 +0300
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jun 2004 10:19:25 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:17293 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263937AbUFPOTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 10:19:17 -0400
+Message-ID: <40D056E2.4010605@acm.org>
+Date: Wed, 16 Jun 2004 09:19:14 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Holger Kiehl <Holger.Kiehl@dwd.de>
+Cc: Alex Williamson <alex.williamson@hp.com>,
+       Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: IPMI hangup in 2.6.6-rc3
+References: <Pine.LNX.4.58.R0405040649310.15047@praktifix.dwd.de>  <20040525165335.GA28905@titan.lahn.de>  <40C0E2BF.3040705@acm.org> <1086887543.4182.46.camel@tdi> <Pine.LNX.4.58.0406161225210.17908@praktifix.dwd.de>
+In-Reply-To: <Pine.LNX.4.58.0406161225210.17908@praktifix.dwd.de>
+Content-Type: multipart/mixed;
+ boundary="------------080804070503090006000204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've checked drivers/char/tty_io.c :
+This is a multi-part message in MIME format.
+--------------080804070503090006000204
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-/*
- * Change # of rows and columns (0 means unchanged/the size of
-fg_console)
- * [this is to be used together with some user program
- * like resize that changes the hardware videomode]
- */
-int vc_resize(int currcons, unsigned int cols, unsigned int lines)
-{
-	unsigned long old_origin, new_origin, new_scr_end, rlth, rrem, err = 0;
-	unsigned int old_cols, old_rows, old_row_size, old_screen_size;
-	unsigned int new_cols, new_rows, new_row_size, new_screen_size;
-	unsigned short *newscreen;
+Unfortuantely, that fix has some problems, but it was on the right 
+track.  I have a new patch attached; can you try it out?  Also, the 
+kernel interface has not changed.  It should be exactly the same as before.
 
-	WARN_CONSOLE_UNLOCKED();
+-Corey
 
-	if (!vc_cons_allocated(currcons))
-		return -ENXIO;
+Holger Kiehl wrote:
 
+>Hello
+>
+>This patch fixes the hangup for me too using 2.6.7. However I cannot verify
+>if it runs properly since ipmitool crashes, I think that is because the
+>kernel interface has changed. Using the ipmi driver from 2.6.5 ipmitool
+>works fine.
+>
+>Holger
+>  
+>
 
+--------------080804070503090006000204
+Content-Type: text/plain;
+ name="ipmi-fixhang.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipmi-fixhang.diff"
 
+diff -ur linux.orig/drivers/char/ipmi/ipmi_msghandler.c linux/drivers/char/ipmi/ipmi_msghandler.c
+--- linux.orig/drivers/char/ipmi/ipmi_msghandler.c	2004-06-14 22:32:03.000000000 -0500
++++ linux/drivers/char/ipmi/ipmi_msghandler.c	2004-06-16 09:13:07.000000000 -0500
+@@ -1648,6 +1648,22 @@
+ 		/* It's the one we want */
+ 		if (msg->rsp[2] != 0) {
+ 			/* Got an error from the channel, just go on. */
++
++			if (msg->rsp[2] == IPMI_INVALID_COMMAND_ERR) {
++				/* If the MC does not support this
++				   command, that is legal.  We just
++				   assume it has one IPMB at channel
++				   zero. */
++				intf->channels[0].medium
++					= IPMI_CHANNEL_MEDIUM_IPMB;
++				intf->channels[0].protocol
++					= IPMI_CHANNEL_PROTOCOL_IPMB;
++				rv = -ENOSYS;
++
++				intf->curr_channel = IPMI_MAX_CHANNELS;
++				wake_up(&intf->waitq);
++				goto out;
++			}
+ 			goto next_channel;
+ 		}
+ 		if (msg->rsp_size < 6) {
+@@ -1671,10 +1687,12 @@
+ 			wake_up(&intf->waitq);
+ 
+ 			printk(KERN_WARNING "ipmi_msghandler: Error sending"
+-			       "channel information: 0x%x\n",
++			       "channel information: %d\n",
+ 			       rv);
+ 		}
+ 	}
++ out:
++	return;
+ }
+ 
+ int ipmi_register_smi(struct ipmi_smi_handlers *handlers,
+diff -ur linux.orig/drivers/char/ipmi/ipmi_si_intf.c linux/drivers/char/ipmi/ipmi_si_intf.c
+--- linux.orig/drivers/char/ipmi/ipmi_si_intf.c	2004-06-14 22:32:03.000000000 -0500
++++ linux/drivers/char/ipmi/ipmi_si_intf.c	2004-06-16 08:51:29.000000000 -0500
+@@ -1848,6 +1848,21 @@
+ 	atomic_set(&new_smi->req_events, 0);
+ 	new_smi->run_to_completion = 0;
+ 
++	new_smi->interrupt_disabled = 0;
++	new_smi->timer_stopped = 0;
++	new_smi->stop_operation = 0;
++
++	/* The ipmi_register_smi() code does some operations to
++	   determine the channel information, so we must be ready to
++	   handle operations before it is called.  This means we have
++	   to stop the timer if we get an error after this point. */
++	init_timer(&(new_smi->si_timer));
++	new_smi->si_timer.data = (long) new_smi;
++	new_smi->si_timer.function = smi_timeout;
++	new_smi->last_timeout_jiffies = jiffies;
++	new_smi->si_timer.expires = jiffies + SI_TIMEOUT_JIFFIES;
++	add_timer(&(new_smi->si_timer));
++
+ 	rv = ipmi_register_smi(&handlers,
+ 			       new_smi,
+ 			       new_smi->ipmi_version_major,
+@@ -1857,7 +1872,7 @@
+ 		printk(KERN_ERR
+ 		       "ipmi_si: Unable to register device: error %d\n",
+ 		       rv);
+-		goto out_err;
++		goto out_err_stop_timer;
+ 	}
+ 
+ 	rv = ipmi_smi_add_proc_entry(new_smi->intf, "type",
+@@ -1867,7 +1882,7 @@
+ 		printk(KERN_ERR
+ 		       "ipmi_si: Unable to create proc entry: %d\n",
+ 		       rv);
+-		goto out_err;
++		goto out_err_stop_timer;
+ 	}
+ 
+ 	rv = ipmi_smi_add_proc_entry(new_smi->intf, "si_stats",
+@@ -1877,7 +1892,7 @@
+ 		printk(KERN_ERR
+ 		       "ipmi_si: Unable to create proc entry: %d\n",
+ 		       rv);
+-		goto out_err;
++		goto out_err_stop_timer;
+ 	}
+ 
+ 	start_clear_flags(new_smi);
+@@ -1886,34 +1901,40 @@
+ 	if (new_smi->irq)
+ 		new_smi->si_state = SI_CLEARING_FLAGS_THEN_SET_IRQ;
+ 
+-	new_smi->interrupt_disabled = 0;
+-	new_smi->timer_stopped = 0;
+-	new_smi->stop_operation = 0;
+-
+-	init_timer(&(new_smi->si_timer));
+-	new_smi->si_timer.data = (long) new_smi;
+-	new_smi->si_timer.function = smi_timeout;
+-	new_smi->last_timeout_jiffies = jiffies;
+-	new_smi->si_timer.expires = jiffies + SI_TIMEOUT_JIFFIES;
+-	add_timer(&(new_smi->si_timer));
+-
+ 	*smi = new_smi;
+ 
+ 	printk(" IPMI %s interface initialized\n", si_type[intf_num]);
+ 
+ 	return 0;
+ 
++ out_err_stop_timer:
++	new_smi->stop_operation = 1;
++
++	/* Wait for the timer to stop.  This avoids problems with race
++	   conditions removing the timer here. */
++	while (!new_smi->timer_stopped) {
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(1);
++	}
++
+  out_err:
+ 	if (new_smi->intf)
+ 		ipmi_unregister_smi(new_smi->intf);
+ 
+ 	new_smi->irq_cleanup(new_smi);
++
++	/* Wait until we know that we are out of any interrupt
++	   handlers might have been running before we freed the
++	   interrupt. */
++	synchronize_kernel();
++
+ 	if (new_smi->si_sm) {
+ 		if (new_smi->handlers)
+ 			new_smi->handlers->cleanup(new_smi->si_sm);
+ 		kfree(new_smi->si_sm);
+ 	}
+ 	new_smi->io_cleanup(new_smi);
++
+ 	return rv;
+ }
+ 
 
-there is only place that returns ENXIO ... and if you take a look into 
-vc_cons_allocated() :
-
-int vc_cons_allocated(unsigned int i)
-{
-	return (i < MAX_NR_CONSOLES && vc_cons[i].d);
-}
-
-it might be either i exceeds MAX_NR_CONSOLES or vc_cons[i].d is 0.
-
-btw, get TIOCGWINSZ, works fine and returns correct values as shown in
-strace. it is only SET part is failing ...
-
-br 
-
-On Wed, 2004-06-16 at 15:55, Jeff Garzik wrote:
-> Zilvinas Valinskas wrote:
-> > On Compaq N800 EVO notebook with a radeonfb enabled - stty failes to
-> > adjust terminal size. strace log attached. Under 2.6.5/2.6.6 it used to
-> > work. 
-> > 
-> > relevant part:
-> > 
-> > open("/dev/vc/1", O_RDONLY|O_NONBLOCK|O_LARGEFILE) = 3
-> > fcntl64(3, F_GETFL)                     = 0x8800 (flags
-> > O_RDONLY|O_NONBLOCK|O_LARGEFILE)
-> > fcntl64(3, F_SETFL, O_RDONLY|O_LARGEFILE) = 0
-> > ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, {B38400 opost isig icanon echo
-> > ...}) = 0
-> > ioctl(3, TIOCGWINSZ, {ws_row=65, ws_col=175, ws_xpixel=0, ws_ypixel=0})
-> > = 0
-> > ioctl(3, TIOCSWINSZ, {ws_row=50, ws_col=175, ws_xpixel=0, ws_ypixel=0})
-> > = -1 ENXIO (No such device or address)
-> > write(2, "/bin/stty: ", 11)             = 11
-> > write(2, "/dev/vc/1", 9)                = 9
-> > open("/usr/share/locale/locale.alias", O_RDONLY) = 4
-> > 
-> > 
-> > it makes no difference when doing :
-> > 
-> > stty rows 50 columns 140 
-> > or
-> > stty rows 50 columns 140 -F /dev/vc/1 ... 
-> > 
-> > Exactly same error.
-> 
-> 
-> huh, I wonder if this is why reset(1) doesn't fully reset the terminal, 
-> like it used to ...
-> 
-> 	Jeff
-> 
-> 
+--------------080804070503090006000204--
 

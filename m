@@ -1,40 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131386AbRCSIHQ>; Mon, 19 Mar 2001 03:07:16 -0500
+	id <S131202AbRCSJZK>; Mon, 19 Mar 2001 04:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131387AbRCSIHG>; Mon, 19 Mar 2001 03:07:06 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20748 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131386AbRCSIGw>;
-	Mon, 19 Mar 2001 03:06:52 -0500
-Date: Mon, 19 Mar 2001 07:37:03 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: kuznet@ms2.inr.ac.ru
-Cc: Eugene Crosser <crosser@average.ORG>, linux-kernel@vger.kernel.org
-Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
-Message-ID: <20010319073703.B16622@flint.arm.linux.org.uk>
-In-Reply-To: <97hbjr$mbp$1@pccross.average.org> <200102282020.XAA05430@ms2.inr.ac.ru>
-Mime-Version: 1.0
+	id <S131376AbRCSJYu>; Mon, 19 Mar 2001 04:24:50 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:57102 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S131202AbRCSJYl>; Mon, 19 Mar 2001 04:24:41 -0500
+Message-ID: <3AB5D023.258B5DE5@idb.hist.no>
+Date: Mon, 19 Mar 2001 10:23:47 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: no, da, en
+MIME-Version: 1.0
+To: Leandro Bernsmuller <leberns@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: floppy programming
+In-Reply-To: <20010318160105.11345.qmail@web1302.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200102282020.XAA05430@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Wed, Feb 28, 2001 at 11:20:22PM +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 28, 2001 at 11:20:22PM +0300, kuznet@ms2.inr.ac.ru wrote:
-> I remember this your report. However, recent news force to suspect
-> that the reason was in Solaris yet. Actually, if you send tcpdump of
-> failed session, this question can be answered.
+Leandro Bernsmuller wrote:
+> 
+> Hi,
+> 
+> some body know if exist or is possible to do one
+> driver
+> to makes floppy drive use some type of "balanced" bits
+> distribution?
+> The idea is simple: format a disk doing inner tracks
+> with less bits than
+> in external tracks.
+> Maybe is better think in sectors and not bits
+> banlancing?
+> 
+> I want opinions about the idea, pleace.
 
-Well, since I moved the rsync to 5pm, and then back to 9pm, I haven't
-seen this problem - everything is again working as expected (touch wood)
-with 2.2.15pre13 and 2.4.0.
+Go ahead.  Note that ordinary floppies store
+the number of sectors per cylinder in the boot sector,
+and this is used for easy conversion from
+block number (from the fs) to head, cylinder
+& sector (for the hardware driver)
 
-This is odd, since it wasn't a one-off problem, but something that happened
-each and every day of a particular week.  Anyway, if it starts happening
-again, I'll get a tcpdump of the session.
+You'll break this simple scheme, as you'll need
+a table in the driver for how many sectors in track 0,
+how many sectors in track 1, and so on up to
+the maximum track which usually is 80 although
+some floppy drives goes out to 83 or 89 or something.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+>I want opinions about the idea, pleace.
+>
+>Where can I find information about floppy drivers
+>programming, DMA setup,...?
 
+Look at the existing floppy driver.  Note that
+you don't need info on DMA etc., as the driver
+already will do all sorts of weird sector layouts.
+(look at the manpages for superformat)
+The only limitation is that the current driver
+likes to use the same number of sectors per track
+for all cylinders, but you can change that
+using a lookup table.
+
+I am not sure this will help you though, as
+pc floppies have constant rotational speed
+and I bleieve a constant write rate too.
+So you cannot really squeeze more onto the
+outer tracks without some kind of hardware
+modification.  
+
+Well, maybe your drive
+can gain a little extra on some cylinders if you
+take variable head drag into consideration,
+but you'll surely end up with a floppy that
+fits one drive only if you go too close
+to the rotational tolerances.
+
+
+Helge Hafting

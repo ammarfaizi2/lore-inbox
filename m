@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264373AbUGAJ1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUGAJnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264373AbUGAJ1D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 05:27:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUGAJ1D
+	id S264386AbUGAJnU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 05:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbUGAJnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 05:27:03 -0400
-Received: from herkules.viasys.com ([194.100.28.129]:63115 "HELO
-	mail.viasys.com") by vger.kernel.org with SMTP id S264373AbUGAJ1A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 05:27:00 -0400
-Date: Thu, 1 Jul 2004 12:26:57 +0300
-From: Ville Herva <vherva@viasys.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.6-mm4 IDE] HPT370A/i815 ATAPI problems
-Message-ID: <20040701092657.GD16073@viasys.com>
-Reply-To: vherva@viasys.com
-References: <20040522185604.GA11309613@niksula.cs.hut.fi> <20040523200716.GZ23361@viasys.com>
+	Thu, 1 Jul 2004 05:43:20 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:16031 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S264386AbUGAJnR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 05:43:17 -0400
+Date: Thu, 1 Jul 2004 13:43:12 +0400
+From: Andrey Panin <pazke@donpac.ru>
+To: "Leonardo G. Di Lella" <leonardo@dilella.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sony Vaio dmi_scan.c patch!
+Message-ID: <20040701094312.GA8118@pazke>
+Mail-Followup-To: "Leonardo G. Di Lella" <leonardo@dilella.org>,
+	linux-kernel@vger.kernel.org
+References: <40E3F014.1090601@dilella.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
 Content-Disposition: inline
-In-Reply-To: <20040523200716.GZ23361@viasys.com>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux herkules.viasys.com 2.4.25-rc2+mremap-unmap
+In-Reply-To: <40E3F014.1090601@dilella.org>
+User-Agent: Mutt/1.5.6+20040523i
+X-SMTP-Authenticated: pazke@donpac.ru (cram)
+X-SMTP-TLS: TLSv1:AES256-SHA:256
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 23, 2004 at 11:07:16PM +0300, you [Ville Herva] wrote:
-> On Sat, May 22, 2004 at 09:56:06PM +0300, you [Ville Herva] wrote:
-> >
-> > And I just noticed DMA is not enabled for DW-7802TE when attached to HPT.
-> 
-> So my original question stays: is there any change a firmware upgrade could
-> help? (I'm kind of wary of trying random firmwares, since Mitsumi doesn't
-> seem to provide one, and the most linked firmware site
-> (http://www.herrie.org/) says it was just defaced in the front page...
-> Besides all those firmwares are either "hacked" or "modified".)
-> 
-> What else might be the problem?
 
-It seems the unit was faulty. I got a warranty replacement (different
-brand/model, though), and it doesn't seem to cause lockups on i815. I
-haven't tried it on HTP370, though.
+--G4iJoqBmSsgzjUCe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On 183, 07 01, 2004 at 11:05:56AM +0000, Leonardo G. Di Lella wrote:
+> Hello,
+>=20
+> there is a false entry in the dmi_scan.c while identifing the Sony Vaio.
+>=20
+>    { sony_vaio_laptop, "Sony Vaio", { /* This is a Sony Vaio laptop */
+>            MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
+>            MATCH(DMI_PRODUCT_NAME, "PCG-"),
+>            NO_MATCH, NO_MATCH,
+>            } },
+>=20
+> This is the origin part of the kernel (2.6.7). The main problem is that
+> this works only with older Vaio (PCG-) models. So the best solution is
+> to replace the MATCH(DMI_PRODUCT_NAME, "PCG-") with NO_MATCH,
+> because PCG- is referring to a special model and not to all sony vaios.
 
--- v -- 
+With this change, it will match all computers made by Sony. Are you=20
+really sure that they all have Vaio compatible hardware ?
 
-v@iki.fi
+> I have the VGN- model, so the kernel doesnt recognize it as a sony vaio.
+> I have replaced the line and now it works. Better change this, for other=
+=20
+> sony vaio users.
+=20
+New DMI entry will do the same, without risk of false positives.
 
+Best regards.
+
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--G4iJoqBmSsgzjUCe
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA49yvby9O0+A2ZecRAiMGAJwJR3j0xmB3ZRx7i8zgPZnpufoUhgCg1J+9
+MdYiBpN9ZesZZza+2Zfu6Sg=
+=CPzd
+-----END PGP SIGNATURE-----
+
+--G4iJoqBmSsgzjUCe--

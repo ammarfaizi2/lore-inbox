@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313713AbSDHRiI>; Mon, 8 Apr 2002 13:38:08 -0400
+	id <S313712AbSDHRgF>; Mon, 8 Apr 2002 13:36:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313714AbSDHRiH>; Mon, 8 Apr 2002 13:38:07 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46853 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313713AbSDHRiG>; Mon, 8 Apr 2002 13:38:06 -0400
-Date: Mon, 8 Apr 2002 13:35:35 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Anssi Saari <as@sci.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is enabled
-In-Reply-To: <20020408154732.GA10271@sci.fi>
-Message-ID: <Pine.LNX.3.96.1020408133036.22155A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313713AbSDHRgE>; Mon, 8 Apr 2002 13:36:04 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:28834 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S313712AbSDHRgD>; Mon, 8 Apr 2002 13:36:03 -0400
+Date: Mon, 8 Apr 2002 11:32:30 -0600
+Message-Id: <200204081732.g38HWUU15453@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: faster boots?
+In-Reply-To: <Pine.LNX.3.96.1020408110054.21476E-100000@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Apr 2002, Anssi Saari wrote:
-
-> On Mon, Apr 08, 2002 at 10:54:29AM -0400, Bill Davidsen wrote:
-> > On Mon, 8 Apr 2002, Anssi Saari wrote:
-> > 
-> > > [1.] One line summary of the problem:    
-> > > CD burning at 16x uses excessive CPU, although DMA is enabled
-> > 
-> >   That's a hint things are not working as you expect...
-> >  
-> > > [2.] Full description of the problem/report:
-> > > My system seems to use a lot of CPU time when writing CDs at 16x. The
-> > > system is unable to feed the burning software's buffer fast enough when
-> > > burning software (cdrecord 1.11a20, cdrdao 1.1.5) is run as normal user.
-> > > If run as root, system is almost unresponsive during the burn.
-> > 
-> >   With all the information you provided, you have totally not quatified
-> > how much CPU you find "excessive."
+Bill Davidsen writes:
+> On Sun, 7 Apr 2002, Richard Gooch wrote:
 > 
-> I didn't really know how to put it. Maybe system load would be better. But
-> the actual problem is, I effectively can't burn audio and other types
-> at 16x in Linux, while there is no problem in some other operating systems
-> with the same hardware and applications.
 > 
-> Here're some time figures from cdrdao:
+> > But I *want* to write while the drive is spun down. And leave it spun
+> > down until the system is RAM starved (or some threshold is reached).
 > 
-> cdrdao simulate -n --speed 8 foo.cue  2.62s user 3.37s system 1% cpu 6:41.86 total
-> cdrdao simulate -n --speed 12 foo.cue  2.78s user 29.91s system 12% cpu 4:31.71 total
-> cdrdao simulate -n --speed 16 foo.cue  2.67s user 128.77s system 52% cpu 4:10.68 total
-> 
-> So yes, system time goes up quite steeply.
+>   The threshold I hit is how much think time I want to risk. I have
+> no problem spinning down the drive after inactivity, but the idea of
+> investing several hours making little changes in a program or
+> proposal document and then maybe losing them... batteries are just
+> not that expensive.
 
+It's not $$$ I'm concerned about. It's mass. I don't want to carry
+around a pile of batteries. I like to travel light, whether when
+flying or spending a day at a conference. Being able to walk around
+all day with your laptop on your shoulder, but not getting sore, is
+*really* nice. It gives you more flexibility. No need to run back to
+the hotel after the last session to drop of the ball-and-chain and
+then run to the restaurant where people are meeting up.
 
-  Okay, this is good information. At the risk of asking a dumb question,
-are you sure that both the burner and the source drive ar using DMA? And
-that they are on separate cables (controllers)? Usually the high system
-time indicated either PIO in use or some path looping in the kernel.
- 
-> cdrdao simulate -n --speed 16 foo.cue  2.75s user 75.18s system 58% cpu
-> 2:13.22 total
+And when flying, I just travel with my super lightweight laptop bag
+and a backpack. I can stuff a week's worth of clothes in there, and
+it's still not that heavy. But I don't have room for a pile of extra
+batteries, nor do I want to add to the burden on my shoulders. I don't
+want to carry an extra bag, because I'd have to check in it, which
+would mean:
+- I have to wait to pick up my luggage (*if* it arrives at all),
+  rather than walking out and feeling smug as I pass all the lusers
+  waiting for their luggage
+- I have to deal with the creative ways in which animals^Wluggage
+  handlers can damage or destroy anything
+- I have to find a trolley to help carry all the crap I'm carrying
+- I have to obtain coins to pay for the trolley, if I'm unlucky enough
+  to be stuck at an airport where the bastards are so cheap as to
+  charge you money for the damn trolley. I'm sure they've already
+  gotten their pound of my flesh via the airport tax/surcharge/
+  improvement fee/mandatory gouge/handrail polishing donation/
+  or whatever.
 
-  That's still high. My only fast burners are in the office, if I get back
-during the week I'll run a test at 16 and 24x and see what I find.
+				Regards,
 
-  This would be a good question for the CD writing list,
-cdwrite@other.debian.org.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

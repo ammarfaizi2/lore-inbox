@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131535AbRCSSjk>; Mon, 19 Mar 2001 13:39:40 -0500
+	id <S131562AbRCSSmU>; Mon, 19 Mar 2001 13:42:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131542AbRCSSja>; Mon, 19 Mar 2001 13:39:30 -0500
-Received: from ns.palaver.net ([208.15.176.1]:40719 "EHLO farout.palaver.net")
-	by vger.kernel.org with ESMTP id <S131535AbRCSSjY>;
-	Mon, 19 Mar 2001 13:39:24 -0500
-Message-ID: <3AB6522C.D7E66E73@palaver.net>
-Date: Mon, 19 Mar 2001 13:38:36 -0500
-From: Brian Capouch <brianc@palaver.net>
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.3-pre4 i586)
-X-Accept-Language: en
+	id <S131561AbRCSSmK>; Mon, 19 Mar 2001 13:42:10 -0500
+Received: from ns.snowman.net ([63.80.4.34]:5131 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S131542AbRCSSly>;
+	Mon, 19 Mar 2001 13:41:54 -0500
+Date: Mon, 19 Mar 2001 13:38:57 -0500 (EST)
+From: <nick@snowman.net>
+To: guru <guru@efftinc.com>
+cc: Greeen-III <greeen@iii.org.tw>,
+        LinuxEmbeddedMailList <linux-embedded@waste.org>,
+        LinuxKernelMailList <linux-kernel@vger.kernel.org>,
+        MipsMailList <linux-mips@fnet.fr>
+Subject: Re: Please help
+In-Reply-To: <3AB64E33.A062439B@efftinc.com>
+Message-ID: <Pine.LNX.4.21.0103191338060.704-100000@ns>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Cisco 342 Driver
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an "information pointer" request.  I see there has been patching
-activity fairly recently for the aironet4800 drivers, but have been
-unable to successfully contact the maintainer listed in the sources.
+I would recommend looking at the list at linux-mips@oss.sgi.com.  I am
+fairly sure there is an R3k port already being worked on.  I assume the
+mips3k processor you refer to is the R3k (which is very similar to the
+R2k)?
+	Nick
 
-Is there anyone out in kernel-list land with this thing running on a
-PCI-based 340 series card, as opposed to PCMCIA?
+On Mon, 19 Mar 2001, guru wrote:
 
-When I configure my kernel to include the various pieces of the driver
-inside the kernel (as opposed to as modules) the configure script will
-NOT let me configure the /proc interface inside the kernel too,
-complaining that it must be a module "to be consistent with the other
-configuration choices" I have made.  That doesn't make sense.  If I
-override that in .config, I get an OOPS when I boot up and first execute
-ifconfig on *any* network device.
+> I have a fundamental question:
+> 
+> If I have to port LINUX on to new processor. How will I get address
+> mapping of different devices. Some of them are available in the manual.
+> Ex: NVram starting address is not available.
+> Iam porting on mips3k.
+> 
+> It may sound very dumb, but Iam stuck there.
+> 
+> Thanks
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-If I build the set as modules I get errors at module load time.
-
-Etc.  I need either configuration information or a pointer to someone to
-talk to about this.
-
-Thanks.
-
-B.

@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbUJWWW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbUJWUdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbUJWWW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 18:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbUJWWW2
+	id S261306AbUJWUdS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 16:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbUJWUdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 18:22:28 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:7810 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261322AbUJWWWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 18:22:18 -0400
-Subject: Re: How is user space notified of CPU speed changes?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>
-In-Reply-To: <1098508238.13176.17.camel@krustophenia.net>
-References: <1098399709.4131.23.camel@krustophenia.net>
-	 <1098444170.19459.7.camel@localhost.localdomain>
-	 <1098508238.13176.17.camel@krustophenia.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098566366.24804.8.camel@localhost.localdomain>
+	Sat, 23 Oct 2004 16:33:18 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:63332 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S261306AbUJWUc2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 16:32:28 -0400
+Date: Sat, 23 Oct 2004 13:27:23 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] RCU: rcu_assign_pointer() removal of memory barriers
+Message-ID: <20041023202723.GA1930@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 23 Oct 2004 22:19:28 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-10-23 at 06:10, Lee Revell wrote:
-> JACK makes extensive use of microsecond-level timers.  These must be
-> calibrated at startup, and recalibrated when the CPU speed changes.  How
-> does JACK register with the kernel to be notified when the CPU speed
-> changes?
+This patch adds the rcu_assign_pointer() API that helps reduce the
+need for explicit memory barriers in code that uses RCU.  This API
+buries the required memory barriers in a macro that also does the
+assignment.  This has been tested successfully on i386 and ppc64.
 
-It did
+Signed-off-by: <paulmck@us.ibm.com>
 
-- The kernel doesn't always know
-- CPU speed is meaningless in hyper-threading since performance is not
-x2 for two cores but instead varies
-- It doesn't handle split CPU speed SMP - where CPU speeds vary
-- God help you if virtualised
+---
 
+ rcupdate.h |   18 ++++++++++++++++++
+ 1 files changed, 18 insertions(+)
+
+diff -urpN -X ../dontdiff linux-2.5/include/linux/rcupdate.h linux-2.5-rap/include/linux/rcupdate.h
+--- linux-2.5/include/linux/rcupdate.h	Tue Sep  7 10:04:29 2004
++++ linux-2.5-rap/include/linux/rcupdate.h	Tue Sep  7 12:12:09 2004
+@@ -238,6 +238,24 @@ static inline int rcu_pending(int cpu)
+ 				(_________p1); \
+ 				})
+ 
++/**
++ * rcu_assign_pointer - assign (publicize) a pointer to a newly
++ * initialized structure that will be dereferenced by RCU read-side
++ * critical sections.  Returns the value assigned.
++ *
++ * Inserts memory barriers on architectures that require them
++ * (pretty much all of them other than x86), and also prevents
++ * the compiler from reordering the code that initializes the
++ * structure after the pointer assignment.  More importantly, this
++ * call documents which pointers will be dereferenced by RCU read-side
++ * code.
++ */
++
++#define rcu_assign_pointer(p, v)	({ \
++						smp_wmb(); \
++						(p) = (v); \
++					})
++
+ extern void rcu_init(void);
+ extern void rcu_check_callbacks(int cpu, int user);
+ extern void rcu_restart_cpu(int cpu);

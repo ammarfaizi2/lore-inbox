@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267584AbUIIXgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUIIXhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267584AbUIIXgv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 19:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUIIXds
+	id S265800AbUIIXhH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 19:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUIIXhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 19:33:48 -0400
-Received: from ozlabs.org ([203.10.76.45]:53193 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S266867AbUIIXdE (ORCPT
+	Thu, 9 Sep 2004 19:37:06 -0400
+Received: from ozlabs.org ([203.10.76.45]:56777 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266880AbUIIXgl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 19:33:04 -0400
+	Thu, 9 Sep 2004 19:36:41 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16704.59444.785268.367031@cargo.ozlabs.ibm.com>
-Date: Fri, 10 Sep 2004 09:33:08 +1000
+Message-ID: <16704.59668.899674.868174@cargo.ozlabs.ibm.com>
+Date: Fri, 10 Sep 2004 09:36:52 +1000
 From: Paul Mackerras <paulus@samba.org>
-To: Josh Boyer <jwboyer@jdub.homelinux.org>
-Cc: anton@au.bim.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH Trivial] ppc64:  Use STACK_FRAME_OVERHEAD macro in misc.S
-In-Reply-To: <1094772116.16444.81.camel@67-41-71-119.roch.qwest.net>
-References: <1094772116.16444.81.camel@67-41-71-119.roch.qwest.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Anton Blanchard <anton@samba.org>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Matt Mackall <mpm@selenic.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
+In-Reply-To: <20040909220040.GM3106@holomorphy.com>
+References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com>
+	<16703.60725.153052.169532@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com>
+	<20040909154259.GE11358@krispykreme>
+	<20040909171954.GW3106@holomorphy.com>
+	<16704.52551.846184.630652@cargo.ozlabs.ibm.com>
+	<20040909220040.GM3106@holomorphy.com>
 X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh Boyer writes:
+William Lee Irwin III writes:
 
-> I found a couple places where a hardcoded value for the stack frame was
-> used instead of the STACK_FRAME_OVERHEAD macro.  The following patch
-> fixes that.
+> The semantics of profile_pc() have never included backtracing through
+> scheduling primitives, so I'd say just report __preempt_spin_lock().
 
-Using STACK_FRAME_OVERHEAD here would be purely arbitrary (i.e. the
-112 here has no connection with the stack frames established in head.S
-and entry.S).  This function needs a stack frame and 112 bytes is the
-minimum size specified by the ABI.  I think it's quite clear as it is.
+I disagree that __preempt_spin_lock is a scheduling primitive, or at
+least I disagree that it is primarily a scheduling primitive.  We
+don't spend vast amounts of time spinning in any of the other
+scheduling primitives; if we have to wait we call schedule().
 
 Paul.

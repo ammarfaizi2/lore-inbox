@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbULBUbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbULBUdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbULBUbY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 15:31:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbULBUbY
+	id S261757AbULBUdi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 15:33:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbULBUdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 15:31:24 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:9025 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261753AbULBUaO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 15:30:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:return-path:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=UNrK6/ccPvHaUyl+sDdMiFGukFW/rxSLYlupepcwXhqFKowupgPUNOG0q51tm5UzCaT+EaKx+khpVNdNH9xjfDHV0elRSbkQ7JBb5hAcFGPtXZNRzk0FxMfwbJbyRqyvMxAfJxmExtcBGNxSGit+7JYiuaeIrYTnIFm88Efv7Q4=
-Date: Thu, 2 Dec 2004 21:30:08 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and
- performance tests
-Message-Id: <20041202213008.2f2c3fea.diegocg@gmail.com>
-In-Reply-To: <41AF7726.4000509@pobox.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
-	<Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
-	<Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
-	<Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org>
-	<41AEB44D.2040805@pobox.com>
-	<20041201223441.3820fbc0.akpm@osdl.org>
-	<41AEBAB9.3050705@pobox.com>
-	<20041202204838.04f33a8c.diegocg@gmail.com>
-	<41AF7726.4000509@pobox.com>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 2 Dec 2004 15:33:37 -0500
+Received: from ozlabs.org ([203.10.76.45]:13023 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261757AbULBUb0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 15:31:26 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16815.31634.698591.747661@cargo.ozlabs.ibm.com>
+Date: Fri, 3 Dec 2004 07:31:14 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Linh Dang <dang.linh@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][PPC32[NEWBIE] enhancement to virt_to_bus/bus_to_virt (try 2)
+In-Reply-To: <3b2b320041202082812ee4709@mail.gmail.com>
+References: <3b2b32004120206497a471367@mail.gmail.com>
+	<3b2b320041202082812ee4709@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 02 Dec 2004 15:12:22 -0500 Jeff Garzik <jgarzik@pobox.com>
-escribió:
+Linh Dang writes:
 
-> > Automated .deb's and .rpm's for the -bk snapshots (and yum/apt
-> > repositories) would be nice for all those people who run unsupported
-> > distros.
+> In 2.6.9 on non-APUS ppc32 platforms, virt_to_bus() will just subtract
+> KERNELBASE  from the the virtual address. bus_to_virt() will perform
+> the reverse operation.
 > 
-> Now, that's a darned good idea...
+> This patch will make virt_to_bus():
 > 
-> Should be simple for rpm at least, given the "make rpm" target.  I 
-> wonder if we have, or could add, a 'make deb' target.
+>      - perform the current operation if the virtual address is between
+>        KERNELBASE and ioremap_bot.
 
+Why do you want to do this?  The only code that should be using
+virt_to_bus or bus_to_virt is the DMA API code, and it's happy with
+them the way they are.
 
-There was a patch for that long time ago before 2.6 was out IIRC? I don't
-know where it went (CC'ing Sam who should know ;)
+> The patch also changes virt_to_phys()/phys_to_virt() in a similar way.
+
+What do you want to use them for?  They are only for use in low-level
+memory management code.
+
+Paul.

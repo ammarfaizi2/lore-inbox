@@ -1,95 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261921AbRE3T1r>; Wed, 30 May 2001 15:27:47 -0400
+	id <S261898AbRE3Tfj>; Wed, 30 May 2001 15:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261898AbRE3T1h>; Wed, 30 May 2001 15:27:37 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:28175 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S261921AbRE3T10>; Wed, 30 May 2001 15:27:26 -0400
-Date: Wed, 30 May 2001 14:51:08 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] reclaim dirty dead swapcache pages 
-Message-ID: <Pine.LNX.4.21.0105301420000.5231-100000@freak.distro.conectiva>
+	id <S261902AbRE3Tf3>; Wed, 30 May 2001 15:35:29 -0400
+Received: from comverse-in.com ([38.150.222.2]:61105 "EHLO
+	eagle.comverse-in.com") by vger.kernel.org with ESMTP
+	id <S261898AbRE3Tf0>; Wed, 30 May 2001 15:35:26 -0400
+Message-ID: <6B1DF6EEBA51D31182F200902740436802678F04@mail-in.comverse-in.com>
+From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+To: "'Mark Hahn'" <hahn@coffee.psychology.mcmaster.ca>,
+        "'Martin Mares'" <pci-ids@ucw.cz>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+        "'Linus Torvalds'" <torvalds@transmeta.com>,
+        "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] 2.4.x: update for PCI vendor id 0x12d4
+Date: Wed, 30 May 2001 15:34:17 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="koi8-r"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Updated patch is in the end of this mail]
+Thanks, Mark!
 
-Hi, 
+> submit patches as text in your message, since people want 
+> to read them, and not waste time saving to a file, etc.
+> also, explain patches: who is vid 0x12d4, how did you get 
+> the information, what does it effect, etc.
 
-The following untested patch against 2.4.5-ac2 makes page_launder() free
-dead swap cache pages by ignoring their age and/or referenced bits.
+BTW I noticed a funny thing: the file devlist.h I tried to 
+patch doesn't always exist - as it gets built from the file 
+pci.ids in the same directory. Noone complained on that :)
+What I don't understand is why pci_ids.h doesn't get
+generated from pci.ids as well.
 
-refill_inactive_scan() will move those pages to the inactive dirty list
-whatever their age/referenced bit.
+So, here's the new patch, sent along also to the pci.ids 
+maintainer, along with the required info.
 
-Testers are welcome (hum, needed). 
+12d4 was DGM&S. Then DGM&S was aquired by Comverse, and 
+later the corresponding activities (and the same PCI boards 
+manufacturing) went to Comverse spinoff Ulticom. So, in fact,
+Ulticom is just DGM&S under a different name and controlled
+by Comverse. I guess the PCI vendor registry should get 
+updated at some point, but I thought it could be a great 
+thing if Linux knew it ahead. (Currently reported by the 
+PCI driver "DGM&S" is obsolete - such entity doesn't exist 
+any more). Naturally, I have got this info being a 
+Comverse employee.
 
-Linus,
+This patch only has effect on kernel PCI driver reporting 
+on the 12d4 vendor ID. There is no Linux kernel code which
+supports the corresponding SS7 signalling boards.
 
-I gaveup on the writepage() changes because 
+Kind regards,
+	Vassilii
 
-1) it would (and it could not) ignore the page age. 
-2) changing the API for such a reason on 2.4 is not reasonable, I think. 
-
-I definately want writepage() changed to include the 'priority' argument,
-in 2.5. 
-
---- linux.orig/mm/vmscan.c	Wed May 30 14:51:21 2001
-+++ linux/mm/vmscan.c	Wed May 30 16:18:41 2001
-@@ -461,6 +461,28 @@
- 			continue;
- 		}
+--- /usr/src/linux-2.4.5/include/linux/pci_ids.h	Wed May 16 13:25:39
+2001
++++ pci_ids.h	Wed May 30 14:55:01 2001
+@@ -1199,6 +1199,8 @@
+ #define PCI_VENDOR_ID_NVIDIA_SGS	0x12d2
+ #define PCI_DEVICE_ID_NVIDIA_SGS_RIVA128 0x0018
  
-+		/*
-+		 * FIXME: this is a hack.
-+		 *
-+		 * Check for dead swap cache pages and clean
-+		 * them as fast as possible, before doing any other checks.
-+		 *
-+		 * Note: We are guaranteeing that this page will never 
-+		 * be touched in the future because a dirty page with no
-+		 * other users than the swapcache will never be referenced
-+		 * again.
-+		 * 
-+		 */
++#define PCI_VENDOR_ID_ULTICOM	0x12d4 /* Formerly DGM&S */
 +
-+		if (PageSwapCache(page) && PageDirty(page) &&
-+				(page_count(page) - !!page->buffers) == 1 &&
-+				swap_count(page) == 1) { 
-+			ClearPageDirty(page);
-+			ClearPageReferenced(page);
-+			page->age = 0;
-+		}
-+
-+			
- 		/* Page is or was in use?  Move it to the active list. */
- 		if (PageReferenced(page) || page->age > 0 ||
- 				(!page->buffers && page_count(page) > 1) ||
-@@ -686,6 +708,21 @@
- 			nr_active_pages--;
- 			continue;
- 		}
-+		
-+		/*
-+		 * FIXME: hack
-+		 *
-+		 * Special case for dead swap cache pages.
-+		 * See comment on page_launder() for more info.
-+		 */
-+		if (PageSwapCache(page) && PageDirty(page) &&
-+				(page_count(page) - !!page->buffers) == 1 &&
-+				swap_count(page) == 1) {
-+			deactivate_page_nolock(page);
-+			nr_deactivated++;
-+			continue;
-+		}
-+
- 
- 		/* Do aging on the pages. */
- 		if (PageTestandClearReferenced(page)) {
-
+ #define PCI_SUBVENDOR_ID_CHASE_PCIFAST		0x12E0
+ #define PCI_SUBDEVICE_ID_CHASE_PCIFAST4		0x0031
+ #define PCI_SUBDEVICE_ID_CHASE_PCIFAST8		0x0021
+--- /usr/src/linux-2.4.5/drivers/pci/pci.ids	Sat May 19 20:49:14 2001
++++ pci.ids	Wed May 30 14:54:50 2001
+@@ -3204,7 +3204,7 @@
+ 	002c  VTNT2
+ 	00a0  ITNT2
+ 12d3  Vingmed Sound A/S
+-12d4  DGM&S
++12d4  Ulticom (Formerly DGM&S)
+ 12d5  Equator Technologies
+ 12d6  Analogic Corp
+ 12d7  Biotronic SRL

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUHIPj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUHIPqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266163AbUHIPj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 11:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266622AbUHIPg1
+	id S266663AbUHIPqX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 11:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUHIPqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 11:36:27 -0400
-Received: from pcp701187pcs.bowie01.md.comcast.net ([68.50.80.175]:58756 "EHLO
-	floyd.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S266303AbUHIPfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 11:35:42 -0400
-Subject: Re: Status with pmdisk/swsusp merge ?
-From: Disconnect <swsusp@gotontheinter.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040808182234.GA620@elf.ucw.cz>
-References: <1091679494.5225.186.camel@gaston>
-	 <Pine.LNX.4.50.0408051517141.6736-100000@monsoon.he.net>
-	 <20040808182234.GA620@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1092065741.4088.3.camel@localhost.localdomain>
+	Mon, 9 Aug 2004 11:46:23 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37876 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266663AbUHIPnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 11:43:22 -0400
+Date: Mon, 9 Aug 2004 17:43:09 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: James.Bottomley@SteelEye.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [2.6 patch] fix megaraid.c with PROC_FS=n
+Message-ID: <20040809154308.GT26174@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 09 Aug 2004 11:35:41 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-08 at 14:22, Pavel Machek wrote:
-> > I intend to try and merge my tree with Linus once he releases 2.6.8,
-> > modulo any bugs that crop up between now and then. Feel free to send me
-> > the patches to fix up ppc before then, and I will merge them as well.
-> 
-> Sounds good.
-> 
-> > As far as the device power management stuff goes, I'm wading through the
-> > discussion right now..
-> 
-> Hopefully we can at least switch to enums so that we clear any
-> confusion....
-> 								Pavel
+I got the following compile error with CONFIG_PROC_FS=n:
 
-..And once thats done and the tree settles a bit I'll start working on
-the swsusp2 x86_64 port again. (Unless someone who understands that
-whole thing better wants to jump forward.)
+<--  snip  -->
 
-FWIW I ported the 'old' pmdisk suspend code into swsusp2 and I can
-suspend, but I can't resume. I haven't got a serial port (its a "modern"
-laptop.. with parallel, etc but no serial..) so I'm also looking at
-netconsole, digging around for a line printer, etc..
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0x524563): In function `megaraid_probe_one':
+: undefined reference to `mega_create_proc_entry'
+make: *** [.tmp_vmlinux1] Error 1
 
--- 
-Disconnect <swsusp@gotontheinter.net>
+<--  snip  -->
+
+
+The following patch fixes this issue:
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.8-rc3-mm2-full/drivers/scsi/megaraid.c.old	2004-08-09 17:35:54.000000000 +0200
++++ linux-2.6.8-rc3-mm2-full/drivers/scsi/megaraid.c	2004-08-09 17:39:58.000000000 +0200
+@@ -4905,7 +4905,9 @@
+ 
+ 	pci_set_drvdata(pdev, host);
+ 
++#ifdef CONFIG_PROC_FS
+ 	mega_create_proc_entry(hba_count, mega_proc_dir_entry);
++#endif
+ 
+ 	error = scsi_add_host(host, &pdev->dev);
+ 	if (error)
+
 

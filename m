@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264485AbTIDBLF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 21:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTIDBLF
+	id S264451AbTIDBbH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 21:31:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264462AbTIDBbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 21:11:05 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:60544 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264485AbTIDBLD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 21:11:03 -0400
-Date: Wed, 3 Sep 2003 18:10:45 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Brown, Len" <len.brown@intel.com>,
-       Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scaling noise
-Message-ID: <20030904011045.GE5227@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Brown, Len" <len.brown@intel.com>,
-	Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030903180547.GD5769@work.bitmover.com> <20030903181550.GR4306@holomorphy.com> <1062613931.19982.26.camel@dhcp23.swansea.linux.org.uk> <20030903194658.GC1715@holomorphy.com> <105370000.1062622139@flay> <20030903212119.GX4306@holomorphy.com> <115070000.1062624541@flay> <20030903215135.GY4306@holomorphy.com> <116940000.1062625566@flay> <20030904010653.GD5227@work.bitmover.com>
+	Wed, 3 Sep 2003 21:31:07 -0400
+Received: from wsip-68-15-8-100.sd.sd.cox.net ([68.15.8.100]:23175 "EHLO
+	gnuppy") by vger.kernel.org with ESMTP id S264451AbTIDBbF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 21:31:05 -0400
+Date: Wed, 3 Sep 2003 18:30:59 -0700
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: 2.6.0-test4-mm5
+Message-ID: <20030904013059.GA11791@gnuppy.monkey.org>
+References: <20030902231812.03fae13f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030904010653.GD5227@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+In-Reply-To: <20030902231812.03fae13f.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 06:06:53PM -0700, Larry McVoy wrote:
-> Here's a thought.  Maybe the next kernel summit needs to have a CC cluster
-> BOF or whatever.  I'd be happy to show up, describe what it is that I see
-> and have you all try and poke holes in it.  If the net result was that you
-> walked away with the same picture in your head that I have that would be
-> cool.  Heck, I'll sponser it and buy beer and food if you like.
+On Tue, Sep 02, 2003 at 11:18:12PM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm5/
 
-Oops.  s/sponser/sponsor/.  Long day, sorry.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CHK     include/linux/compile.h
+  CC      drivers/acpi/pci_link.o
+drivers/acpi/pci_link.c: In function `acpi_pci_link_try_get_current':
+drivers/acpi/pci_link.c:290: error: `_dbg' undeclared (first use in this function)
+drivers/acpi/pci_link.c:290: error: (Each undeclared identifier is reported only once
+drivers/acpi/pci_link.c:290: error: for each function it appears in.)
+make[2]: *** [drivers/acpi/pci_link.o] Error 1
+make[1]: *** [drivers/acpi] Error 2
+make: *** [drivers] Error 2
+
+------------------------------------------------------------------------------------------
+
+bill
+

@@ -1,68 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263390AbUJ2O5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263362AbUJ2Orl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263390AbUJ2O5i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 10:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263373AbUJ2OxQ
+	id S263362AbUJ2Orl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 10:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbUJ2Okq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 10:53:16 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:27667 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263386AbUJ2Ovr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 10:51:47 -0400
-Date: Fri, 29 Oct 2004 16:51:11 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       "H. Peter Anvin" <hpa@zytor.com>, Tonnerre <tonnerre@thundrix.ch>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
-Subject: Re: The naming wars continue...
-Message-ID: <20041029145111.GO6677@stusta.de>
-References: <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua> <417FF43C.5050208@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <417FF43C.5050208@tmr.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 29 Oct 2004 10:40:46 -0400
+Received: from lrsehosting.com ([69.55.238.31]:15113 "EHLO
+	scoop.lrsehosting.com") by vger.kernel.org with ESMTP
+	id S263362AbUJ2ObE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:31:04 -0400
+Message-ID: <32210.65.208.227.246.1099060269.squirrel@www.lrsehosting.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEBFPGAA.davids@webmaster.com>
+References: <20041028165919.71e18f89.davem@davemloft.net>
+    <MDEHLPKNGKAHNMBLJOLKEEBFPGAA.davids@webmaster.com>
+Date: Fri, 29 Oct 2004 07:31:09 -0700 (PDT)
+Subject: RE: BK kernel workflow
+From: "Scott Lockwood" <lkml@www.lrsehosting.com>
+To: davids@webmaster.com
+Cc: davem@davemloft.net, kpfleming@backtobasicsmgmt.com, xavier.bestel@free.fr,
+       linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 03:17:16PM -0400, Bill Davidsen wrote:
-> Denis Vlasenko wrote:
-> >
-> >Why there is any distinction between, say, gcc and X?
-> >KDE and Midnight Commander? etc... Why some of them go
-> >to /opt while others are spread across dozen of dirs?
-> >This seems to be inconsistent to me.
-> 
-> At one time Sun had the convention that things in /usr could be mounted 
-> ro on multiple machines. That worked, it predates Linux so Linux was the 
-> o/s which chose to go another way, and it covered the base things in a 
-> system.
-> 
-> That actually seems like a good way to split a networked environment, 
-> with /bin and /sbin having just enough to get the system up and mount 
-> /usr. I can't speak to why that is being done differently now.
-> 
-> I guess someone was nervous about mounting a local /usr/local on a 
-> (possibly) network mounted /usr and theu /opt, but that's a guess on my 
-> part as well.
+US Courts have recently ruled that EULA's are legal. So when you buy a
+copy of MS Office at the store, the EULA it contains is still binding. I
+work at the law firm that represents the MPAA and the RIAA - I can find
+out the exact ruling if you wish.
 
-Read-only /usr is required according to the FHS, and at least on Debian 
-a read-only /usr works without problems.
+BK's EULA is similarly enforceable.
 
-A bigger problem might be to properly support it in the package manager.
+The horse is dead - you can stop beating it now.
 
-cu
-Adrian
-
-[1] 
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+>
+>> On Thu, 28 Oct 2004 16:22:25 -0700
+>> "David Schwartz" <davids@webmaster.com> wrote:
+>
+>> > 	I just downloaded bitkeeper, and I didn't have to consent
+>> > to any license.
+>> > So you can legally acquire BitKeeper without accepting the
+>> > license terms. So
+>> > this whole argument is irrelevent
+>
+>> You can acquire it, but the first time you ever try to use
+>> it you will be asked to page through the text of the license
+>> and agree to it.
+>
+> 	That does not matter. Once you lawfully acquire it, you automatically
+> have
+> the (transferrable!) right to use it. Really. Otherwise, as I said, I
+> could
+> put my copyrighted poem up on billboards (along with a license if you
+> want)
+> and then sue everyone who read it.
+>
+> 	In the United States, the license, to be valid, must be a condition of
+> obtaining lawful possession of the copyrighted work. If you disagree,
+> please
+> feel free to cite cases where this argument was raised and rejected.
+>
+> 	DS
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

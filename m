@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315264AbSEYTbe>; Sat, 25 May 2002 15:31:34 -0400
+	id <S315265AbSEYTel>; Sat, 25 May 2002 15:34:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSEYTbd>; Sat, 25 May 2002 15:31:33 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:529 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315264AbSEYTbd>; Sat, 25 May 2002 15:31:33 -0400
+	id <S315266AbSEYTek>; Sat, 25 May 2002 15:34:40 -0400
+Received: from mailhost2.teleline.es ([195.235.113.141]:62037 "EHLO
+	tsmtp9.mail.isp") by vger.kernel.org with ESMTP id <S315265AbSEYTek>;
+	Sat, 25 May 2002 15:34:40 -0400
+Date: Sat, 25 May 2002 21:34:40 +0200
+From: Diego Calleja <DiegoCG@teleline.es>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: isofs unhide option:  troubles with Wine
-Date: 25 May 2002 12:31:31 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <acooqj$2h2$1@cesium.transmeta.com>
-In-Reply-To: <1022301029.2443.28.camel@jwhiteh> <Pine.LNX.4.44.0205251513280.10327-100000@sharra.ivimey.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Cc: akpm@zip.com.au, pavel@ucw.cz
+Subject: Re: 2.5.18, pdflush 100% cpu utilization
+Message-Id: <20020525213440.32860d08.DiegoCG@teleline.es>
+In-Reply-To: <20020525212512.7a14d1d9.DiegoCG@teleline.es>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0205251513280.10327-100000@sharra.ivimey.org>
-By author:    Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-In newsgroup: linux.dev.kernel
-> 
-> AFAIK, Windows "hidden" files are supposed to behave much like Unix 'dot' 
-> files (.login, etc), so IMO the kernel should not use the hidden bit at all. 
-> Instead, it should be 'ls' et al that do this. Now, I guess this isn't 
-> particularly practical without changing fileutils and many other things, so I 
-> would suggest that the kernel is changed to pass on, if possible, but 
-> basically ignore the 'hidden' bit.
-> 
+On Sat, 25 May 2002 21:25:11 +0200
+Diego Calleja <DiegoCG@teleline.es> escribió:
 
-There really should be some kind of ioctl() or other syscall to
-get/set the filesystem-specific attributes in cases like FAT (hidden,
-system, archive) and ISO9660.  Trying to graft their meaning onto the
-Unix system just doesn't make sense.
+I've forgiven to say that I added 
+#include <linux/buffer_head.h>
+(as posted in lkml)
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+to get Software suspend to compile ;)
+
+
+Diego Calleja

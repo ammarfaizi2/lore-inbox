@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131224AbQK2NKi>; Wed, 29 Nov 2000 08:10:38 -0500
+        id <S131414AbQK2NLI>; Wed, 29 Nov 2000 08:11:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131397AbQK2NK3>; Wed, 29 Nov 2000 08:10:29 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62688 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S131224AbQK2NKS>;
-        Wed, 29 Nov 2000 08:10:18 -0500
-Date: Wed, 29 Nov 2000 07:39:51 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andries Brouwer <aeb@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: access() says EROFS even for device files if /dev is mounted RO
-In-Reply-To: <Pine.LNX.4.21.0011291147170.4021-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.21.0011290711430.14112-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S131415AbQK2NLB>; Wed, 29 Nov 2000 08:11:01 -0500
+Received: from meefw01.mee.com ([194.130.244.66]:39917 "HELO meefw01.mee.com")
+        by vger.kernel.org with SMTP id <S131397AbQK2NKr>;
+        Wed, 29 Nov 2000 08:10:47 -0500
+Message-Id: <3A24F9C7.11F5D80D@vil.ite.mee.com>
+Date: Wed, 29 Nov 2000 12:42:47 +0000
+From: Wayne Price <Wayne.Price@vil.ite.mee.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-3smp i686)
+X-Accept-Language: en
+Mime-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: W.Price@acropolis-solutions.co.uk
+Subject: Question: Serial port device drivers...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am trying to develop a device-driver to sit above the standard serial port -
+in other
+words, multiple processes can communicate with the driver which will translate
+the
+information into the required serial datastream for the device. (This could be
+written
+as a separate daemon-type process, I know, but as a kernel driver it will fit
+into the
+scheme of our system in a much neater way).
 
+I haven't found any other drivers in the kernel which quite do what I want, and
+I don't
+particularly want to make a copy of the entire serial driver code and put the
+mods into
+that (seems like a waste of space). Essentially, what I need is to have a
+relatively
+simple driver which just calls the standard serial port routines to send/receive
+data.
 
-On Wed, 29 Nov 2000, Hugh Dickins wrote:
+Has this been done before, and does anyone have any sample code or hints as to
+what I
+need to do? We are using kernel 2.2.16 (from RedHat-7.0).
 
-> On Tue, 28 Nov 2000, Andries Brouwer wrote:
-> > On Tue, Nov 28, 2000 at 03:04:31PM +0100, Rogier Wolff wrote:
-> > 
-> > > Ok, so if you read the standard carefully you get a bogus result. 
-> > 
-> > Why bogus? Things could have been otherwise, but the important
-> > part is that all Unices do things the same way.
-> 
-> Yes, and I think you'll have difficulty, Andries, finding
-> any other Unices which interpret the standard as you and
-> Linux do: Solaris, HP-UX, UnixWare and OpenServer all allow
-> writing to a device node (or FIFO) on read-only filesystem.
+Regards,
 
-Hold on. What do they return upon access()? I've looked through the
-available kernel sources and results are:
-	has r/o filesystems	access()	open()
-v3:		no
-v5, v6:		yes		N/A		EROFS
-v7:		yes		EROFS		EROFS
-PDP versions of BSD prior to 2.10, Ultrix 3.1, SysIII, PWB: same as v7
-4.4BSD:		yes		ok		ok
-{Free,Net,Open}BSD, Linux prior to 2.2.6 and post 2.4.0-test9-pre7: ditto
-2.10BSD, 2.10.1BSD, 2.11BSD: ditto
-4.3-Tahoe and later: ditto, judging by date of 2.10 release.
-
-What you are saying is that recent SysV variants have
-		yes		?		ok
-Nice, but what do they do on access()? If they do not return EROFS for
-devices - that's it, standard needs to be fixed and 2.2 should drop the
-special-casing in sys_access().
-
+Wayne
+________________________________________________________________________
+Wayne Price   W.Price@acropolis-solutions.co.uk  Acropolis Solutions Ltd
+Mobile: +44 (0) 7770 376383                    Home: +44 (0) 1483 531235
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

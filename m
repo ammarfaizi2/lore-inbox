@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312817AbSDSOsv>; Fri, 19 Apr 2002 10:48:51 -0400
+	id <S312687AbSDSOvb>; Fri, 19 Apr 2002 10:51:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312826AbSDSOsu>; Fri, 19 Apr 2002 10:48:50 -0400
-Received: from venus.ci.uw.edu.pl ([193.0.74.207]:49938 "EHLO
-	venus.ci.uw.edu.pl") by vger.kernel.org with ESMTP
-	id <S312817AbSDSOsu>; Fri, 19 Apr 2002 10:48:50 -0400
-Date: Fri, 19 Apr 2002 16:43:15 +0200 (CEST)
-From: Jan Slupski <jslupski@email.com>
-To: Dave Jones <davej@suse.de>
-cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: [PATCH] Wrong IRQ for USB on Sony Vaio (dmi_scan.c, pci-irq.c)
-In-Reply-To: <20020419164048.H15517@suse.de>
-Message-ID: <Pine.LNX.4.21.0204191636290.8479-100000@venus.ci.uw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312690AbSDSOva>; Fri, 19 Apr 2002 10:51:30 -0400
+Received: from fluent1.pyramid.net ([206.100.220.212]:60979 "EHLO
+	fluent1.pyramid.net") by vger.kernel.org with ESMTP
+	id <S312687AbSDSOva>; Fri, 19 Apr 2002 10:51:30 -0400
+Message-Id: <5.1.0.14.0.20020419074625.00a7a900@10.1.1.42>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 19 Apr 2002 07:50:57 -0700
+To: Kent Borg <kentborg@borg.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>
+From: Stephen Satchell <list@fluent2.pyramid.net>
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system
+  while reading damaged files
+Cc: "Dr. Death" <drd@homeworld.ath.cx>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020419102219.E21727@borg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Apr 2002, Dave Jones wrote:
+At 10:22 AM 4/19/02 -0400, Kent Borg wrote:
+> > > Problem:
+> > >
+> > > I use SuSE Linux 7.2 and when I create md5sums from damaged files on a
+> > > CD, the WHOLE system  freezes or is ugly slow untill md5 has passed the
+> > > damaged part of the file !
+> > >
+> >
+> > So what do you suggest? You can see from the logs that the device
+> > is having difficulty  reading your damaged CD. You can do what
+> > Windows-95 does (ignore the errors and pretend everything is fine),
+> > or what Windows-98 and Windows-2000/Prof does (blue-screen, and re-boot),
+> > or you can try like hell to read the files like Linux does. What do you
+> > suggest?
+>
+>You didn't ask me, but I would still suggest that it would be nice if
+>the whole system didn't come to a near halt.
 
-> On Fri, Apr 19, 2002 at 04:02:18PM +0200, Jan Slupski wrote:
-> 
->  > Only problem is I don't have DMI Product names for all involved models.
->  > That's why I left pretty general:
->  >   MATCH(DMI_PRODUCT_NAME, "PCG-")
-> 
-> Too generic. This matches my Z600 for example, which does not have this bug.
+If that is a real concern, then consider moving from a 56x CD-ROM reader to 
+something considerably slower, like a 4x or 8x.  (Or try modifying the 
+driver to request a slower speed.)  That will reduce the flood of I/O 
+messages and actions performed by the driver to recover from 
+badly-scratched media.
 
-I know.
-But it PCI id/vendor probably will not match.
+Another option is to invest in a good scratch-repair kit -- many scratches 
+can be filled with appropriate material that reduces the optical distortion 
+that causes the flood of activity in the first place.
 
-But if you think, it's better to add all 12-15 models separately,
-why not?
-I can start asking for this information...
+Do you have a CD burner?  Then extract the data and burn a new CD.
 
-FX240 will have:
-MATCH(DMI_PRODUCT_NAME, "PCG-FX240(UC)")
-probably 
-MATCH(DMI_PRODUCT_NAME, "PCG-FX240")
-is enough.
+Finally, try investing in a CD-ROM player that has in-drive smarts to 
+recover from scratched media.
 
-Do you know any simple tool to retrieve DMI information?
-I did it by enabling debug output in kernel, but it would be easier
-if I haven't to ask everybody to do thi...
-
-Jan
-
-   _  _  _  _  _____________________________________________
-   | |_| |\ |  S L U P S K I              jslupski@email.com
- |_| | | | \|                 http://www.pm.waw.pl/~jslupski  
+The choice is your.
 
 

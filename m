@@ -1,71 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261515AbRE0TKg>; Sun, 27 May 2001 15:10:36 -0400
+	id <S261535AbRE0TK4>; Sun, 27 May 2001 15:10:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261535AbRE0TK0>; Sun, 27 May 2001 15:10:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:40074 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261515AbRE0TKP>;
-	Sun, 27 May 2001 15:10:15 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15121.20713.676075.980272@pizda.ninka.net>
-Date: Sun, 27 May 2001 12:09:29 -0700 (PDT)
+	id <S261558AbRE0TKq>; Sun, 27 May 2001 15:10:46 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:47368 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S261535AbRE0TKh>;
+	Sun, 27 May 2001 15:10:37 -0400
+Date: Sun, 27 May 2001 21:08:51 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
 To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: [patch] severe softirq handling performance bug, fix, 2.4.5
-In-Reply-To: <20010527195619.K676@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0105261920030.3336-200000@localhost.localdomain>
-	<20010527190700.H676@athlon.random>
-	<15121.13986.987230.445825@pizda.ninka.net>
-	<20010527195619.K676@athlon.random>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+        "David S. Miller" <davem@redhat.com>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, <arjanv@redhat.com>
+Subject: Re: [patch] softirq-2.4.5-A1
+In-Reply-To: <20010527191249.I676@athlon.random>
+Message-ID: <Pine.LNX.4.33.0105272106340.5852-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andrea Arcangeli writes:
- > 	if (softirq_active(cpu) & softirq_mask(cpu)) {
- > 	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- > 
- > I mean everything is fine until the same softirq is marked active again
- > under do_softirq, in such case neither the do_softirq in do_IRQ will
- > run it (because we are in the critical section and we hold the per-cpu
- > locks), nor we will run it again ourself from the underlying do_softirq
- > to avoid live locking into do_softirq.
+On Sun, 27 May 2001, Andrea Arcangeli wrote:
 
-"live lock".  What do you hope to avoid by pushing softirq processing
-into a scheduled task?  I think doing that is a stupid idea.
+> an irq that could mark the softirq active under entry.S will also run
+> do_softirq itself before iret to entry.S. [...]
 
-You are saying that if we are getting a lot of soft irqs we should
-defer it so that we can leave the trap handler, to avoid "live lock".
+yep.
 
-I think this is a bogus scheme for several reasons.  First of all,
-deferring the processing will only increase the likelyhood that the
-locality of the data will be lost, making the system work harder.
+> [...] If the softirq remains active after an irq it it because it was
+> marked active again under do_softirq and ksoftirq is the way to go for
+> fixing that case I think.
 
-Secondly, if we are getting softirqs at such a rate, we have other
-problems.  We are likely getting surged with hardware interrupts, and
-until we have Jamals stuff in to move ethernet hardware interrupt
-handling into softirqs your deferrals will be fruitless when they do
-actually trigger.  We will be livelocked in hardware interrupt
-processing instead of being livelocked in softirq processing, what an
-incredible improvement. :-)
+i took at look at your ksoftirq stuff yesterday, and i think it's
+completely unnecessery and adds serious overhead to softirq handling. The
+whole point of softirqs is to have maximum scalability and no
+serialization. Why did you add ksoftirqd, would you mind explaining it?
 
-Therefore I recommend that the softirqs are implemented on x86 how at
-least I intended the damn things to be implemented, on every return
-from trap, no matter what kind, call do_softirq if softirqs are
-pending.
+	Ingo
 
-Again, I am totally against ksoftirqd, I think it's a completely dumb
-idea.  Softirqs were meant to be as light weight as possible, don't
-crap on them like this with this heavyweight live lock "solution".
-It isn't even solving live locks, it's rather trading one kind for
-another with zero improvement.
-
-Later,
-David S. Miller
-davem@redhat.com

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270064AbUJTIDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269963AbUJSXBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270064AbUJTIDE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 04:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270196AbUJTH7K
+	id S269963AbUJSXBn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 19:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270042AbUJSWms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 03:59:10 -0400
-Received: from fmr10.intel.com ([192.55.52.30]:5026 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S270121AbUJTHsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 03:48:04 -0400
-Subject: Re: gradual timeofday overhaul
-From: Len Brown <len.brown@intel.com>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       george anzinger <george@mvista.com>
-In-Reply-To: <Pine.LNX.4.53.0410200441210.11067@gockel.physik3.uni-rostock.de>
-References: <Pine.LNX.4.53.0410200441210.11067@gockel.physik3.uni-rostock.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1098258460.26595.4320.camel@d845pe>
+	Tue, 19 Oct 2004 18:42:48 -0400
+Received: from cantor.suse.de ([195.135.220.2]:55701 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S270044AbUJSWkB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 18:40:01 -0400
+Date: Wed, 20 Oct 2004 00:39:57 +0200
+From: Andi Kleen <ak@suse.de>
+To: Werner Almesberger <werner@almesberger.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       ak@suse.de, Jaakko Hyv?tti <jaakko.hyvatti@iki.fi>
+Subject: Re: [PATCH] no TIOCSBRK/TIOCCBRK in ia32 emulation on amd64
+Message-ID: <20041019223957.GA22343@wotan.suse.de>
+References: <20041019190705.J18873@almesberger.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 20 Oct 2004 03:47:40 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041019190705.J18873@almesberger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-19 at 23:05, Tim Schmielau wrote:
-> I think we could do it in the following steps:
+On Tue, Oct 19, 2004 at 07:07:05PM -0300, Werner Almesberger wrote:
+> In ia32 emulation, the amd64 kernel refuses the ioctls TIOCSBRK
+> and TIOCCBRK with EINVAL. I've attached a patch that adds them to
+> the compatibility list.
 > 
->   1. Sync up jiffies with the monotonic clock,...
->   2. Decouple jiffies from the actual interrupt counter...
->   3. Increase HZ all the way up to 1e9....
+> Since all architectures have these ioctls ("m68knommu" inherits
+> them from "m68k", "um" from its host) and use the same code, I
+> think adding them to compat_ioctl.h is the correct choice (as
+> opposed to adding them to arch/x86_64/ia32/ia32_ioctl.c).
+> 
+> The patch is for 2.6.9. I've observed the problem the first time
+> in 2.6.7.
 
-> Thoughts?
+Thanks, looks good.
 
-Yes, for long periods of idle, I'd like to see the periodic clock tick
-disabled entirely.  Clock ticks causes the hardware to exit power-saving
-idle states.
-
-The current design with HZ=1000 gives us 1ms = 1000usec between clock
-ticks.  But some platforms take nearly that long just to enter/exit low
-power states; which means that on Linux the hardware pays a long idle
-state exit latency (performance hit) but gets little or no power savings
-from the time it resides in that idle state.
-
-thanks,
--Len
-
-
+-Andi

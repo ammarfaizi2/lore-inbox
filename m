@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287947AbSABUWE>; Wed, 2 Jan 2002 15:22:04 -0500
+	id <S287950AbSABUWe>; Wed, 2 Jan 2002 15:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287945AbSABUVp>; Wed, 2 Jan 2002 15:21:45 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:2944 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S287944AbSABUVm>; Wed, 2 Jan 2002 15:21:42 -0500
-Date: Wed, 2 Jan 2002 15:21:46 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-cc: Michal Moskal <malekith@pld.org.pl>, linux-kernel@vger.kernel.org
-Subject: Re: strange TCP stack behiviour with write()es in pieces
-In-Reply-To: <Pine.LNX.4.33.0201021140130.22556-100000@twinlark.arctic.org>
-Message-ID: <Pine.LNX.3.95.1020102150256.498A-100000@chaos.analogic.com>
+	id <S287949AbSABUWZ>; Wed, 2 Jan 2002 15:22:25 -0500
+Received: from svr3.applink.net ([206.50.88.3]:7687 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S287944AbSABUWL>;
+	Wed, 2 Jan 2002 15:22:11 -0500
+Message-Id: <200201022021.g02KL8Sr021924@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Jonathan Amery <jdamery@chiark.greenend.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+Date: Wed, 2 Jan 2002 14:17:25 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011220203223.GO7414@vega.digitel2002.hu> <20011220164948.M23621@mail.cafes.net> <E16Lp0s-0003aS-00@chiark.greenend.org.uk>
+In-Reply-To: <E16Lp0s-0003aS-00@chiark.greenend.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, dean gaudet wrote:
+On Wednesday 02 January 2002 11:17, Jonathan Amery wrote:
+> In article <3C2315D6.40105@purplet.demon.co.uk> you write:
+> >Engineers not (yet) being familiar with the relatively new SI (and IEEE)
+> >binary prefixes is just about acceptable. "Engineers" that misuse k/K
+> >and (worse!) m/M should be in a different field entirely. The SI system
+> >is generally taught as basic science to pre-teenagers. There is no
+> >excuse!
+>
+>  How many of them learn it though?
+>
+>  Jonathan (occasionally guilty of s/kB/KB/ himself).
+>
 
-> On Wed, 2 Jan 2002, Michal Moskal wrote:
-> 
-> > 	void send_packet(int cmd, void *data, int len)
-> > 	{
-> > 		struct header h = { cmd, len };
-> >
-> > 		write(fd, &h, sizeof(h));
-> > 		write(fd, data, len);
-> > 	}
-> 
-> you should look into writev(2).
-[SNIPPED...]
+For the 10th time, the K v. k issue is due to the standards
+body ignoring common sense and following tradition instead.
+All positive powers of ten should have upper-case letters
+	(D,H,K,M,T,P)
+and negative powers of ten should use lower-case letters.
+	(d,c,m,n,p)
 
-First, this isn't "TCP stack behavior...". It's an apparent attempt
-to write raw (network?) packets using some kernel primitives. I presume
-that you have obtained the fd from either socket() or by opening some
-device. Whatever. If you are generating a "packet", you need to
-make the packet in a buffer and send the packet. You can't presume
-that something will concatenate to separate writes into some
-kind of "packet". If the hardware is Ethernet, even the hardware
-will fight you because it puts a destination-hardware-address, 
-source-hardware-address, packet-length, data (your packet), then
-32-bit CRC into the outgoing packet. FYI, that 'data' is where
-the TCP/IP data-gram exists.
-
-That said, if you are trying to make some kind of "zero-copy" thing,
-you need to leave space in the initial allocation for the header and
-other overhead. That way, you do one write to the device.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+The KB meaning 2^10 B instead of 10^3 B is just plain dumb,
+and that's why the standards body tried to fix it with KiB.
+But again, this solution was considered to look and sound
+goofy and to be based on stupid mathematical games;
+hence this whole long thread.   <rant>A thread which has shown
+to me that most comp. sci. folks lack common sense and
+are pendantic to the max.</rant>
 
 
+-- 
+timothy.covell@ashavan.org.

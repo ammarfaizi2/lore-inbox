@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270847AbTHLRmm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 13:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271051AbTHLRmm
+	id S270816AbTHLRcn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 13:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270818AbTHLRcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 13:42:42 -0400
-Received: from odpn1.odpn.net ([212.40.96.53]:15072 "EHLO odpn1.odpn.net")
-	by vger.kernel.org with ESMTP id S270847AbTHLRml (ORCPT
+	Tue, 12 Aug 2003 13:32:43 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:58581 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S270816AbTHLRcm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 13:42:41 -0400
-To: linux-kernel@vger.kernel.org
-From: "Gabor Z. Papp" <gzp@papp.hu>
-Subject: Re: PPPoE Oops with 2.4.22-rc
-References: <5ff3.3f388c4b.4453f@gzp1.gzp.hu> <Pine.LNX.4.44.0308121415540.10199-100000@logos.cnet>
-Organization: Who, me?
-User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.22-rc2-gzp1 (i686))
-Message-ID: <1278.3f39270f.39670@gzp1.gzp.hu>
-Date: Tue, 12 Aug 2003 17:42:39 -0000
+	Tue, 12 Aug 2003 13:32:42 -0400
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: Updated MSI Patches
+Date: Tue, 12 Aug 2003 10:32:39 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024015416F6@orsmsx404.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Updated MSI Patches
+Thread-Index: AcNgdINGIzr3UbJrQb6ybAY+0LD/YwAgq6Tw
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Zwane Mwaikambo" <zwane@linuxpower.ca>, "Greg KH" <greg@kroah.com>
+Cc: "long" <tlnguyen@snoqualmie.dp.intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Aug 2003 17:32:40.0087 (UTC) FILETIME=[BAA1F270:01C360F7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Marcelo Tosatti <marcelo@conectiva.com.br>:
+> > There are two types of MSI capable devices: one supports the MSI 
+> > capability structure and other supports the MSI-X capability structure.
+> > The patches provide two APIs msix_alloc_vectors/msix_free_vectors for 
+> > only devices, which support the MSI-X capability structure, to request
+> > for additional messages. By default, each MSI/MSI-X capable device 
+> > function is allocated with one vector for below reasons:
+> > - To achieve a backward compatibility with existing drivers if possible.
+> > - Due to the current implementation of vector assignment, all devices 
+> >   that support the MSI-capability structure work with no more than one 
+> >   allocated vector.
+> > - The hardware devices, which support the MSI-X capability structure, 
+> >   may indicate the maximum capable number of vectors supported (32 
+> >   vectors as example). However, the device drivers may require only 
+> >   four. With provided APIs, the optimization of MSI vector allocation 
+> >   is achievable.
 
-|> The ksymoops output attached, more details at
-|> http://gzp.odpn.net/tmp/linux-pppoe-oops/
+> IMO Multiplexing would be preferred, we can't be allocating that many 
+> vectors for one device/device driver
+All pre-assigned vectors to all enabled IOxAPIC(s) are reserved.
+Allocating additional vectors to MSI-X driver is determined based on the
+available vectors, which must be greater than the number of vectors requested
+by MSI-X driver.
 
-[...]
-
-|> EIP:    0010:[<e0ed9bce>]    Tainted: PF
-| 
-| Why is your kernel tainted?
-| 
-| Are you using stock 2.4.22-rc2 or do you have any additional 
-| patches/modules running? 
-
-Stock 2.4.22-rc2 with alsa, and I'm using a binary only
-module for my webcam from http://www.smcc.demon.nl/webcam/
-
-BUT, I'm getting the oopses *without* the module loaded in.
-Its loaded at startup, thats why tainted later.
-
-I can reproduce the oops all the time, with or without the module.
-
+Thanks,
+Long

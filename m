@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287862AbSANSYC>; Mon, 14 Jan 2002 13:24:02 -0500
+	id <S288649AbSANS0w>; Mon, 14 Jan 2002 13:26:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288645AbSANSXw>; Mon, 14 Jan 2002 13:23:52 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65029 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287862AbSANSXm>; Mon, 14 Jan 2002 13:23:42 -0500
-Subject: Re: ISA hardware discovery -- the elegant solution
-To: esr@thyrsus.com
-Date: Mon, 14 Jan 2002 18:35:28 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), cate@debian.org (Giacomo Catenazzi),
-        linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <20020114125932.D14747@thyrsus.com> from "Eric S. Raymond" at Jan 14, 2002 12:59:32 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288658AbSANS0m>; Mon, 14 Jan 2002 13:26:42 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:31758 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S288649AbSANS0d>; Mon, 14 Jan 2002 13:26:33 -0500
+Date: Mon, 14 Jan 2002 10:26:19 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: igafb
+In-Reply-To: <20020113142756.A14469@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10201141025100.1714-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16QBxA-0002T2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I couldn't make any sense at all out of this until your later posting
-> saying that compiled-in drivers are going away when initramfs comes in.
-> You might try being a *little* less terse...
 
-why ? 8)
+> If anyone is planning work on/uses igafb.c, could they please drop me a
+> mail.  I'm looking at the possibility of sucking the support igafb.c
+> provides into cyber2000fb.c, and will need testers (esp. Sparc please)
+> 
+> I believe most of this was done a while ago by various other people
+> (Pete Zaitcev?)
 
-(and yes that was meant to be a joke)
+Isn't this a S3 chipset. I laos have a few drivers for a bunchof S3 cards.
+It would be nice if we could have a more generic S3 framebuffer.
 
-Alan

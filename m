@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273242AbRINAu7>; Thu, 13 Sep 2001 20:50:59 -0400
+	id <S273253AbRINBvb>; Thu, 13 Sep 2001 21:51:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273241AbRINAuu>; Thu, 13 Sep 2001 20:50:50 -0400
-Received: from [211.100.87.230] ([211.100.87.230]:11943 "HELO linux.tcpip.cxm")
-	by vger.kernel.org with SMTP id <S273239AbRINAuc>;
-	Thu, 13 Sep 2001 20:50:32 -0400
-Date: Fri, 14 Sep 2001 08:51:03 +0800
-From: hugang <linuxbest@soul.com.cn>
-To: "John D. Kim" <johnkim@aslab.com>
-Cc: <alan@lxorguk.ukuu.org.uk>, <gero@gkminix.han.de>,
-        <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: Re: A patch for dhcp and nfsroot.
-Message-Id: <20010914085103.493e30b1.linuxbest@soul.com.cn>
-In-Reply-To: <Pine.LNX.4.31.0109131044220.18725-100000@postbox.aslab.com>
-In-Reply-To: <20010829081411.753c1d1b.linuxbest@soul.com.cn>
-	<Pine.LNX.4.31.0109131044220.18725-100000@postbox.aslab.com>
-Organization: soul
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S273254AbRINBvV>; Thu, 13 Sep 2001 21:51:21 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:15378 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S273253AbRINBvM>; Thu, 13 Sep 2001 21:51:12 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: alan@redhat.com, Jan Kara <jack@suse.cz>
+cc: pmenage@ensim.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.2.20: Avoid buffer overrun in quota warning
 Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 13 Sep 2001 18:50:01 -0700
+Message-Id: <E15hi7F-0004jm-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Sep 2001 10:47:18 -0700 (PDT)
-"John D. Kim" <johnkim@aslab.com> wrote:
->Hi hugang.  This came just in time to fix a problem I'm having.  But when
->I try to load it using insmod, it complains that it cannot find the kernel
->it was built for.  Have you got this working successfully?  Which kernel
->are you running?  I'm running 2.4.9-ac8.
->
->I'm also using this in an initrd setting.  I'm trying to load the kernel
->and the initrd image, have the ipconfig modules get stuff through dhcp and
->then nfsroot.  Can you think of what might be causing this problem?  I'm
->no kernel hacker, but I'll do what I can.
->
->
->
-Thanks for test it.
 
-Yes,it work in my labs with kernel 2.4.8 (not ac)! I use it for an linux disaster recovery solution.
+The quota code in several places does an sprintf() to a fixed (75 char) 
+buffer, where one of the format arguments is a directory name. If your 
+mountpoints have long enough names, this can easily overflow and 
+corrupt data following the buffer.
 
-It your still can use it , I put my use kernel in http://www.soul.com.cn/2.4.9/2.4.9-disaster.tar.bz2
+This has been fixed in 2.4, but not in 2.2.20pre. There are three ways 
+to fix it:
 
-/boot/vmlinu.gz  	kernel
-/boot/initrd.img.gz	initrd.img
-/lib/module		kernel modules.
+a) backport the delayed warning code from 2.4, which doesn't use sprintf
 
-Beacuse my netcard can not remote boot, I use grub .
-In grub command:
+b) increase the buffer size
 
-bootp
-root (nd)
-kernel vmlinuz.gz root=/dev/nfs
-initrd initrd.img.gz
+c) limit the %s directives in the sprintf() format string.
 
-I test it with eepro100 netcard.I thinks it can work with another net card.
+Given that 2.2.20 is about to be frozen, this patch takes option b, 
+increasing the buffer size to be equal to the maximum directory name 
+length passed to mount() (PAGE_SIZE) plus some slop for the rest of the 
+string to be printed. Maybe for 2.2.21 it might be worth backporting 
+the delayed warning code.
+
+Paul
+
+--- linux.orig/include/linux/quota.h    Tue Jun 12 00:56:52 2001
++++ linux/include/linux/quota.h Thu Sep 13 18:21:23 2001
+@@ -155,7 +155,7 @@
+  * Maximum length of a message generated in the quota system,
+  * that needs to be kicked onto the tty.
+  */
+-#define MAX_QUOTA_MESSAGE 75
++#define MAX_QUOTA_MESSAGE (PAGE_SIZE + 256)
+ 
+ #define DQ_LOCKED     0x01     /* locked for update */
+ #define DQ_WANT       0x02     /* wanted for update */
 
 
--- 
-Best Regard!
-礼！
-----------------------------------------------------
-hugang : 胡刚 	GNU/Linux User
-email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
-Tel    : +861068425741/2/3/4
-Web    : http://www.soul.com.cn
-
-	Beijing Soul technology Co.Ltd.
-	   北京众志和达科技有限公司
-----------------------------------------------------

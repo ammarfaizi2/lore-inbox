@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276978AbRJVQUQ>; Mon, 22 Oct 2001 12:20:16 -0400
+	id <S277000AbRJVQ34>; Mon, 22 Oct 2001 12:29:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276984AbRJVQUG>; Mon, 22 Oct 2001 12:20:06 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:31753 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S276978AbRJVQTr>; Mon, 22 Oct 2001 12:19:47 -0400
-Date: Mon, 22 Oct 2001 12:20:17 -0400
-Message-Id: <200110221620.f9MGKHD15890@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <E15veDQ-0001nl-00@the-village.bc.nu>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
+	id <S277022AbRJVQ3q>; Mon, 22 Oct 2001 12:29:46 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:14609 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S277000AbRJVQ3k>; Mon, 22 Oct 2001 12:29:40 -0400
+Date: Mon, 22 Oct 2001 09:30:14 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: bert hubert <ahu@ds9a.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: Linux 2.2.20pre10
+In-Reply-To: <20011022142505.B15501@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.33.0110220928150.28217-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E15veDQ-0001nl-00@the-village.bc.nu>
-alan@lxorguk.ukuu.org.uk wrote:
-| > This would then presumably lead to password protected access for US kernel
-| > developers that need to know? And some kind of NDA?
-| 
-| US kernel developers cannot be told. Period.
-| 
-| > 'IANAL', and neither are you, are you sure this sillyness is necessary?
-| 
-| Its based directly on legal opinion.
+On Mon, 22 Oct 2001, bert hubert wrote:
 
-  And who will be maintaining the world and us-castrated kernel source?
-I can't imagine anything worse for the security of this country than not
-allow computer users access to security issues.
+> Then I suggest we leave this planet.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+it's unfortunate that the brain drain still brings brains to the US
+instead of the other way around.  (i'm guilty.  i'm a canadian working for
+a US company.)
+
+-dean
+

@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263595AbTJQTwF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 15:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263599AbTJQTwF
+	id S263517AbTJQTx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 15:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbTJQTx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 15:52:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17924 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263595AbTJQTwB (ORCPT
+	Fri, 17 Oct 2003 15:53:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33462 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263517AbTJQTxS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 15:52:01 -0400
-Date: Fri, 17 Oct 2003 20:50:09 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: James Simmons <jsimmons@infradead.org>, Otto Solares <solca@guug.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Carlo E. Prelz" <fluido@fluido.as>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: FBDEV 2.6.0-test7 updates.
-Message-ID: <20031017195008.GA11186@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jon Smirl <jonsmirl@yahoo.com>,
-	James Simmons <jsimmons@infradead.org>,
-	Otto Solares <solca@guug.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	"Carlo E. Prelz" <fluido@fluido.as>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0310171751200.966-100000@phoenix.infradead.org> <20031017193447.41865.qmail@web14911.mail.yahoo.com>
+	Fri, 17 Oct 2003 15:53:18 -0400
+Date: Fri, 17 Oct 2003 12:53:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: cieciwa@alpha.zarz.agh.edu.pl, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test7 broken
+Message-Id: <20031017125328.5348594d.akpm@osdl.org>
+In-Reply-To: <20031017083641.19d27a20.rddunlap@osdl.org>
+References: <Pine.LNX.4.58L.0310171508480.20432@alpha.zarz.agh.edu.pl>
+	<20031017083641.19d27a20.rddunlap@osdl.org>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031017193447.41865.qmail@web14911.mail.yahoo.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 17, 2003 at 12:34:47PM -0700, Jon Smirl wrote:
- > The people writing the AGP driver have added their ID's in the wrong format.
- > ATI wants the IDs in the two letter form, not family/chip.  The fbdev patch has
- > the ID's in correct form. The AGP driver should be the one that gets changed.
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>
+> | *** Warning: "set_special_pids" [fs/jffs/jffs.ko] undefined!
+> 
+> Andrew has a patch for this one in the -mm patchset.
 
-The ATI AGPGART driver _always_ used the format it currently does.
-Since day 1, when it was written _by ATI engineers_
-Your "ATI wants the IDs in two letter form" differs depending on which
-ATI engineer you talk to it seems.
+It needs testing though.  Does anyone actually use jffs?
 
-Personally, as agpgart maintainer, I couldn't care less what the defines
-end up being, as long as it still compiles afterwards.
-
-		Dave
-
--- 
- Dave Jones     http://www.codemonkey.org.uk

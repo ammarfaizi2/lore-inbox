@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292632AbSCDRtw>; Mon, 4 Mar 2002 12:49:52 -0500
+	id <S292629AbSCDRvJ>; Mon, 4 Mar 2002 12:51:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292609AbSCDRsT>; Mon, 4 Mar 2002 12:48:19 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1806 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292594AbSCDRrM>; Mon, 4 Mar 2002 12:47:12 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-Date: 4 Mar 2002 09:46:55 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a60buf$lfi$1@cesium.transmeta.com>
-In-Reply-To: <E16hjFq-0006OQ-00@the-village.bc.nu> <200203040504.AAA05343@ccure.karaya.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S292594AbSCDRuB>; Mon, 4 Mar 2002 12:50:01 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:30626 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S292631AbSCDRta>; Mon, 4 Mar 2002 12:49:30 -0500
+Date: Mon, 4 Mar 2002 11:04:12 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Gigabit Performance 2.4.19-preX - Excessive locks, calls, waits
+Message-ID: <20020304110412.A31724@vger.timpanogas.org>
+In-Reply-To: <20020304001223.A29448@vger.timpanogas.org> <Pine.LNX.4.21.0203041830020.12740-100000@tux.rsn.bth.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0203041830020.12740-100000@tux.rsn.bth.se>; from gandalf@wlug.westbo.se on Mon, Mar 04, 2002 at 06:39:31PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200203040504.AAA05343@ccure.karaya.com>
-By author:    Jeff Dike <jdike@karaya.com>
-In newsgroup: linux.dev.kernel
-> 
-> Even with address overcommit management, I can fault if I touch pages when
-> tmpfs is full but the system is not near overcommit.
-> 
-> > Furthermore unless you are very careful you may
-> > fault again on the stack push for the SIGBUS and if that faults -
-> > SIGKILL->OOM time
-> 
-> We are talking about UML kernel stacks.  If they have been allocated the way
-> I'm proposing with the UML __alloc_pages touching each page on the way out,
-> they are allocated on the host, and therefore can't fault.
-> 
-> This seems to me to be sufficiently careful.
-> 
-> One of us is missing something, who is it?
-> 
 
-I think it's you -- you seem to suffer from the "my application is the
-only one that counts" syndrome.  If you want to pages dirtied, then
-dirty them using memset() or similar.
+Thanks!  I'll check it out.  I;ve already done very heavy modifications
+to the e1000 for my testing.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Jeff
+
+On Mon, Mar 04, 2002 at 06:39:31PM +0100, Martin Josefsson wrote:
+> Hi Jeff,
+> 
+> Have you tried the NAPI patch and the NAPI'fied e1000 driver?
+> I'm not sure how far the development has come but I know it improves
+> performance quite a bit versus the regular e1000 driver.
+> 
+> You'll find it here:
+> ftp://robur.slu.se/pub/Linux/net-development/NAPI/
+> 
+> kernel/napi-patch-ank is the NAPI patch, you need to change
+> the get_fast_time() call to do_gettimeofday() for it to compile.
+> 
+> e1000/ is the NAPI'fied e1000 driver, the latest release is from Jan 29
+> but there is a document that describes how you checkout the latest version
+> via cvs.
+> 
+> I've never tried the e1000 NAPI driver since I don't have one of these
+> boards but I use the tulip NAPI driver a lot here and it works great,
+> impressive performance.
+> 
+> I hope you get better performance.
+> 
+> /Martin
+> 
+> Never argue with an idiot. They drag you down to their level, then beat you with experience.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

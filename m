@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265045AbTLCPwI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 10:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265046AbTLCPwI
+	id S264605AbTLCPrA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 10:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbTLCPrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 10:52:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:5030 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265045AbTLCPwF (ORCPT
+	Wed, 3 Dec 2003 10:47:00 -0500
+Received: from holomorphy.com ([199.26.172.102]:11726 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264605AbTLCPq7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 10:52:05 -0500
-Date: Wed, 3 Dec 2003 07:51:57 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhcs-devel@lists.sourceforge.net, Ingo Molnar <mingo@elte.hu>
-Subject: Re: kernel BUG at kernel/exit.c:792!
-In-Reply-To: <20031203153858.C14999@in.ibm.com>
-Message-ID: <Pine.LNX.4.58.0312030748240.5258@home.osdl.org>
-References: <20031203153858.C14999@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Dec 2003 10:46:59 -0500
+Date: Wed, 3 Dec 2003 07:46:53 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Martin Zwickel <martin.zwickel@technotrend.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-t11 /proc/<xserver pid>/status question (VmLck > 4TB)
+Message-ID: <20031203154653.GU8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Martin Zwickel <martin.zwickel@technotrend.de>,
+	linux-kernel@vger.kernel.org
+References: <20031203161505.475f1bad.martin.zwickel@technotrend.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031203161505.475f1bad.martin.zwickel@technotrend.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 03, 2003 at 04:15:05PM +0100, Martin Zwickel wrote:
+> Hi there,
+> I have a small question:
+> If I look into the "/proc/<xserver pid>/status" file, there is a VmLck with a
+> 4TeraByte number.
+> Is that normal?
+
+Nope, it's a bug.
 
 
-On Wed, 3 Dec 2003, Srivatsa Vaddagiri wrote:
->
-> 	I hit a kernel BUG while running some stress tests
-> on a SMP machine. Details are below:
->
-> Kernel	:  2.6.0-test9-bk23  + CPU Hotplug Patch
-> Machine	:  Intel 4-Way SMP box
->
-> kernel BUG at kernel/exit.c:792!
-> EIP is at next_thread+0x16/0x50
-> Call Trace:
->  [<c0180328>] get_tid_list+0x58/0x70
->  [<c0180524>] proc_task_readdir+0xc4/0x17c
->  [<c01658dc>] vfs_readdir+0x5c/0x70
->  [<c0165be0>] filldir64+0x0/0x120
->  [<c0165d64>] sys_getdents64+0x64/0xa3
->  [<c0165be0>] filldir64+0x0/0x120
->  [<c0109291>] sysenter_past_esp+0x52/0x71
->
-> I suspect this is because when read_lock call in 'get_tid_list'
-> returns, the leader_task had exited already. This
-> causes the NULL sighand check to fail in the subsequent call
-> to 'next_thread' ?
-
-Yup, looks right.
-
-I think the problem is the BUG() itself, not really the caller. So I'd
-prefer the fix for this to be to just entirely remove the debug tests
-withing that "#ifdef CONFIG_SMP", rather than hide the threads from /proc
-when this happens.
-
-Ingo, comments?
-
-			Linus
+-- wli

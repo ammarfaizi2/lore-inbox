@@ -1,479 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbTELTU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 15:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbTELTU7
+	id S262577AbTELTVy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 15:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbTELTVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 15:20:59 -0400
-Received: from relax.cmf.nrl.navy.mil ([134.207.10.227]:1920 "EHLO
-	relax.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S262569AbTELTUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 15:20:44 -0400
-Date: Mon, 12 May 2003 15:33:22 -0400
-From: chas williams <chas@cmf.nrl.navy.mil>
-Message-Id: <200305121933.h4CJXM511323@relax.cmf.nrl.navy.mil>
-To: davem@redhat.com
-Subject: [PATCH][ATM] make clip modular
-Cc: linux-kernel@vger.kernel.org
+	Mon, 12 May 2003 15:21:54 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:16583 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262577AbTELTVq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 15:21:46 -0400
+Message-ID: <3EBFF741.3070505@namesys.com>
+Date: Mon, 12 May 2003 23:34:25 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BK][2.4] reiserfs: Enable tail packing, resend
+Content-Type: multipart/mixed;
+ boundary="------------050704030705000207010400"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this patch lets one build clip as a module.
+This is a multi-part message in MIME format.
+--------------050704030705000207010400
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---- linux-2.5.68/net/Kconfig.001	Thu May  8 10:56:23 2003
-+++ linux-2.5.68/net/Kconfig	Thu May  8 10:56:36 2003
-@@ -230,7 +230,7 @@
- 	  further details.
+
+-- 
+Hans
+
+
+--------------050704030705000207010400
+Content-Type: message/rfc822;
+ name="[2.4] reiserfs: Enable tail packing, resend"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="[2.4] reiserfs: Enable tail packing, resend"
+
+Return-Path: <green@angband.namesys.com>
+Delivered-To: reiser@namesys.com
+Received: (qmail 926 invoked from network); 12 May 2003 14:02:32 -0000
+Received: from angband.namesys.com (postfix@212.16.7.85)
+  by thebsh.namesys.com with SMTP; 12 May 2003 14:02:32 -0000
+Received: by angband.namesys.com (Postfix, from userid 521)
+	id 0AABD571F9C; Mon, 12 May 2003 18:02:32 +0400 (MSD)
+Date: Mon, 12 May 2003 18:02:32 +0400
+From: Oleg Drokin <green@namesys.com>
+To: reiser@namesys.com
+Subject: [2.4] reiserfs: Enable tail packing, resend
+Message-ID: <20030512140232.GD4165@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+
+Hello!
+
+    This patch restores the tail packing fucntionality that was
+    mistakenly disabled by previously accepted directio fix patch.
+
+    Please pull from bk://namesys.com/bk/reiser3-linux-2.4-tailfix
+
+Diffstat:
+ inode.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+Plain text patch:
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1158  -> 1.1159 
+#	 fs/reiserfs/inode.c	1.42    -> 1.43   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/05/03	green@angband.namesys.com	1.1159
+# reiserfs: One of the O_DIRECT fixes disabled tail packing by mistake. Enable it again.
+# --------------------------------------------
+#
+diff -Nru a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
+--- a/fs/reiserfs/inode.c	Mon May 12 17:47:44 2003
++++ b/fs/reiserfs/inode.c	Mon May 12 17:47:44 2003
+@@ -2085,8 +2085,8 @@
+ 	/* If the file have grown beyond the border where it
+ 	   can have a tail, unmark it as needing a tail
+ 	   packing */
+-	if ( (have_large_tails (inode->i_sb) && inode->i_size < block_size (inode)*4) ||
+-	     (have_small_tails (inode->i_sb) && inode->i_size < block_size(inode)) )
++	if ( (have_large_tails (inode->i_sb) && inode->i_size > block_size (inode)*4) ||
++	     (have_small_tails (inode->i_sb) && inode->i_size > block_size(inode)) )
+ 	    inode->u.reiserfs_i.i_flags &= ~i_pack_on_close_mask;
  
- config ATM_CLIP
--	bool "Classical IP over ATM (EXPERIMENTAL)"
-+	tristate "Classical IP over ATM (EXPERIMENTAL)"
- 	depends on ATM && INET
- 	help
- 	  Classical IP over ATM for PVCs and SVCs, supporting InARP and
---- linux-2.5.68/net/atm/common.c.004	Thu May  8 18:52:14 2003
-+++ linux-2.5.68/net/atm/common.c	Fri May  9 08:28:41 2003
-@@ -57,6 +57,14 @@
- #endif
- #endif
- 
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
-+#include <net/atmclip.h>
-+struct atm_clip_ops *atm_clip_ops;
-+#ifdef CONFIG_ATM_CLIP_MODULE
-+EXPORT_SYMBOL(atm_clip_ops);
-+#endif
-+#endif
-+
- #if defined(CONFIG_PPPOATM) || defined(CONFIG_PPPOATM_MODULE)
- int (*pppoatm_ioctl_hook)(struct atm_vcc *, unsigned int, unsigned long);
- EXPORT_SYMBOL(pppoatm_ioctl_hook);
-@@ -623,19 +631,27 @@
- 			if (!error) sock->state = SS_CONNECTED;
- 			ret_val = error;
- 			goto done;
--#ifdef CONFIG_ATM_CLIP
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
- 		case SIOCMKCLIP:
- 			if (!capable(CAP_NET_ADMIN))
- 				ret_val = -EPERM;
- 			else 
--				ret_val = clip_create(arg);
-+				ret_val = atm_clip_ops->clip_create(arg);
- 			goto done;
- 		case ATMARPD_CTRL:
- 			if (!capable(CAP_NET_ADMIN)) {
- 				ret_val = -EPERM;
- 				goto done;
- 			}
--			error = atm_init_atmarp(vcc);
-+#if defined(CONFIG_ATM_CLIP_MODULE)
-+			if (!atm_clip_ops)
-+				request_module("clip");
-+#endif
-+			if (!atm_clip_ops || !try_module_get(atm_clip_ops->owner)) {
-+				ret_val = -ENOSYS;
-+				goto done;
-+			}
-+			error = atm_clip_ops->atm_init_atmarp(vcc);
- 			if (!error) sock->state = SS_CONNECTED;
- 			ret_val = error;
- 			goto done;
-@@ -643,19 +659,19 @@
- 			if (!capable(CAP_NET_ADMIN)) 
- 				ret_val = -EPERM;
- 			else 
--				ret_val = clip_mkip(vcc,arg);
-+				ret_val = atm_clip_ops->clip_mkip(vcc, arg);
- 			goto done;
- 		case ATMARP_SETENTRY:
- 			if (!capable(CAP_NET_ADMIN)) 
- 				ret_val = -EPERM;
- 			else
--				ret_val = clip_setentry(vcc,arg);
-+				ret_val = atm_clip_ops->clip_setentry(vcc, arg);
- 			goto done;
- 		case ATMARP_ENCAP:
- 			if (!capable(CAP_NET_ADMIN)) 
- 				ret_val = -EPERM;
- 			else
--				ret_val = clip_encap(vcc,arg);
-+				ret_val = atm_clip_ops->clip_encap(vcc, arg);
- 			goto done;
- #endif
- #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
---- linux-2.5.68/net/atm/proc.c.000	Thu May  8 11:10:14 2003
-+++ linux-2.5.68/net/atm/proc.c	Mon May 12 12:11:29 2003
-@@ -39,7 +39,7 @@
- #include "common.h" /* atm_proc_init prototype */
- #include "signaling.h" /* to get sigd - ugly too */
- 
--#ifdef CONFIG_ATM_CLIP
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
- #include <net/atmclip.h>
- #include "ipcommon.h"
- extern void clip_push(struct atm_vcc *vcc,struct sk_buff *skb);
-@@ -89,7 +89,7 @@
- }
- 
- 
--#ifdef CONFIG_ATM_CLIP
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
- 
- 
- static int svc_addr(char *buf,struct sockaddr_atmsvc *addr)
-@@ -178,16 +178,21 @@
- 	    aal_name[vcc->qos.aal],vcc->qos.rxtp.min_pcr,
- 	    class_name[vcc->qos.rxtp.traffic_class],vcc->qos.txtp.min_pcr,
- 	    class_name[vcc->qos.txtp.traffic_class]);
--#ifdef CONFIG_ATM_CLIP
--	if (vcc->push == clip_push) {
--		struct clip_vcc *clip_vcc = CLIP_VCC(vcc);
--		struct net_device *dev;
--
--		dev = clip_vcc->entry ? clip_vcc->entry->neigh->dev : NULL;
--		off += sprintf(buf+off,"CLIP, Itf:%s, Encap:",
--		    dev ? dev->name : "none?");
--		if (clip_vcc->encap) off += sprintf(buf+off,"LLC/SNAP");
--		else off += sprintf(buf+off,"None");
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
-+	if (atm_clip_ops && try_module_get(atm_clip_ops->owner)) {
-+		if (vcc->push == atm_clip_ops->clip_push) {
-+			struct clip_vcc *clip_vcc = CLIP_VCC(vcc);
-+			struct net_device *dev;
-+
-+			dev = clip_vcc->entry ? clip_vcc->entry->neigh->dev : NULL;
-+			off += sprintf(buf+off,"CLIP, Itf:%s, Encap:",
-+			    dev ? dev->name : "none?");
-+			if (clip_vcc->encap)
-+				off += sprintf(buf+off,"LLC/SNAP");
-+			else
-+				off += sprintf(buf+off,"None");
-+		}
-+		module_put(atm_clip_ops->owner);
- 	}
- #endif
- 	strcpy(buf+off,"\n");
-@@ -407,7 +412,7 @@
- 	return 0;
- }
- 
--#ifdef CONFIG_ATM_CLIP
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
- static int atm_arp_info(loff_t pos,char *buf)
- {
- 	struct neighbour *n;
-@@ -417,28 +422,33 @@
- 		return sprintf(buf,"IPitf TypeEncp Idle IP address      "
- 		    "ATM address\n");
- 	}
-+	if (!atm_clip_ops || !try_module_get(atm_clip_ops->owner))
-+		return 0;
- 	count = pos;
--	read_lock_bh(&clip_tbl.lock);
-+	read_lock_bh(&clip_tbl_hook->lock);
- 	for (i = 0; i <= NEIGH_HASHMASK; i++)
--		for (n = clip_tbl.hash_buckets[i]; n; n = n->next) {
-+		for (n = clip_tbl_hook->hash_buckets[i]; n; n = n->next) {
- 			struct atmarp_entry *entry = NEIGH2ENTRY(n);
- 			struct clip_vcc *vcc;
- 
- 			if (!entry->vccs) {
- 				if (--count) continue;
- 				atmarp_info(n->dev,entry,NULL,buf);
--				read_unlock_bh(&clip_tbl.lock);
-+				read_unlock_bh(&clip_tbl_hook->lock);
-+				module_put(atm_clip_ops->owner);
- 				return strlen(buf);
- 			}
- 			for (vcc = entry->vccs; vcc;
- 			    vcc = vcc->next) {
- 				if (--count) continue;
- 				atmarp_info(n->dev,entry,vcc,buf);
--				read_unlock_bh(&clip_tbl.lock);
-+				read_unlock_bh(&clip_tbl_hook->lock);
-+				module_put(atm_clip_ops->owner);
- 				return strlen(buf);
- 			}
- 		}
--	read_unlock_bh(&clip_tbl.lock);
-+	read_unlock_bh(&clip_tbl_hook->lock);
-+	module_put(atm_clip_ops->owner);
- 	return 0;
- }
- #endif
-@@ -610,7 +620,7 @@
- 	CREATE_ENTRY(pvc);
- 	CREATE_ENTRY(svc);
- 	CREATE_ENTRY(vc);
--#ifdef CONFIG_ATM_CLIP
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
- 	CREATE_ENTRY(arp);
- #endif
- #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
---- linux-2.5.68/net/atm/pvc.c.000	Thu May  8 19:49:23 2003
-+++ linux-2.5.68/net/atm/pvc.c	Thu May  8 19:49:26 2003
-@@ -129,9 +129,6 @@
- 		printk(KERN_ERR "ATMPVC: can't register (%d)",error);
- 		return error;
- 	}
--#ifdef CONFIG_ATM_CLIP
--	atm_clip_init();
--#endif
- #ifdef CONFIG_PROC_FS
- 	error = atm_proc_init();
- 	if (error) printk("atm_proc_init fails with %d\n",error);
---- linux-2.5.68/net/atm/clip.c.004	Thu May  8 10:53:44 2003
-+++ linux-2.5.68/net/atm/clip.c	Fri May  9 16:03:45 2003
-@@ -7,6 +7,8 @@
- #include <linux/string.h>
- #include <linux/errno.h>
- #include <linux/kernel.h> /* for UINT_MAX */
-+#include <linux/module.h>
-+#include <linux/init.h>
- #include <linux/netdevice.h>
- #include <linux/skbuff.h>
- #include <linux/wait.h>
-@@ -187,7 +189,7 @@
- }
- 
- 
--void clip_push(struct atm_vcc *vcc,struct sk_buff *skb)
-+static void clip_push(struct atm_vcc *vcc,struct sk_buff *skb)
- {
- 	struct clip_vcc *clip_vcc = CLIP_VCC(vcc);
- 
-@@ -371,7 +373,7 @@
-  */
- 
- 
--int clip_encap(struct atm_vcc *vcc,int mode)
-+static int clip_encap(struct atm_vcc *vcc,int mode)
- {
- 	CLIP_VCC(vcc)->encap = mode;
- 	return 0;
-@@ -468,7 +470,7 @@
- }
- 
- 
--int clip_mkip(struct atm_vcc *vcc,int timeout)
-+static int clip_mkip(struct atm_vcc *vcc,int timeout)
- {
- 	struct clip_vcc *clip_vcc;
- 	struct sk_buff_head copy;
-@@ -508,7 +510,7 @@
- }
- 
- 
--int clip_setentry(struct atm_vcc *vcc,u32 ip)
-+static int clip_setentry(struct atm_vcc *vcc,u32 ip)
- {
- 	struct neighbour *neigh;
- 	struct atmarp_entry *entry;
-@@ -581,7 +583,7 @@
- }
- 
- 
--int clip_create(int number)
-+static int clip_create(int number)
- {
- 	struct net_device *dev;
- 	struct clip_priv *clip_priv;
-@@ -701,28 +703,23 @@
- 		    "pending\n");
- 	skb_queue_purge(&vcc->sk->receive_queue);
- 	DPRINTK("(done)\n");
-+	module_put(THIS_MODULE);
- }
- 
- 
- static struct atmdev_ops atmarpd_dev_ops = {
--	.close =atmarpd_close,
-+	.close = atmarpd_close
- };
- 
- 
- static struct atm_dev atmarpd_dev = {
--	&atmarpd_dev_ops,
--	NULL,		/* no PHY */
--	"arpd",		/* type */
--	999,		/* dummy device number */
--	NULL,NULL,	/* pretend not to have any VCCs */
--	NULL,NULL,	/* no data */
--	0,		/* no flags */
--	NULL,		/* no local address */
--	{ 0 }		/* no ESI, no statistics */
-+	.ops =			&atmarpd_dev_ops,
-+	.type =			"arpd",
-+	.number = 		999,
- };
- 
- 
--int atm_init_atmarp(struct atm_vcc *vcc)
-+static int atm_init_atmarp(struct atm_vcc *vcc)
- {
- 	struct net_device *dev;
- 
-@@ -752,10 +749,56 @@
- 	return 0;
- }
- 
-+static struct atm_clip_ops __atm_clip_ops = {
-+	.clip_create =		clip_create,
-+	.clip_mkip =		clip_mkip,
-+	.clip_setentry =	clip_setentry,
-+	.clip_encap =		clip_encap,
-+	.clip_push =		clip_push,
-+	.atm_init_atmarp =	atm_init_atmarp,
-+	.owner =		THIS_MODULE
-+};
- 
--void atm_clip_init(void)
-+static int __init atm_clip_init(void)
- {
-+	/* we should use neigh_table_init() */
- 	clip_tbl.lock = RW_LOCK_UNLOCKED;
- 	clip_tbl.kmem_cachep = kmem_cache_create(clip_tbl.id,
- 	    clip_tbl.entry_size, 0, SLAB_HWCACHE_ALIGN, NULL, NULL);
-+
-+	/* so neigh_ifdown() doesn't complain */
-+	clip_tbl.proxy_timer.data = 0;
-+	clip_tbl.proxy_timer.function = 0;
-+	init_timer(&clip_tbl.proxy_timer);
-+	skb_queue_head_init(&clip_tbl.proxy_queue);
-+
-+	clip_tbl_hook = &clip_tbl;
-+	atm_clip_ops = &__atm_clip_ops;
-+
-+	return 0;
- }
-+
-+static void __exit atm_clip_exit(void)
-+{
-+	struct net_device *dev, *next;
-+
-+	atm_clip_ops = NULL;
-+	clip_tbl_hook = NULL;
-+
-+	neigh_ifdown(&clip_tbl, NULL);
-+	dev = clip_devs;
-+	while (dev) {
-+		next = PRIV(dev)->next;
-+		unregister_netdev(dev);
-+		kfree(dev);
-+		dev = next;
-+	}
-+	if (start_timer == 0) del_timer(&idle_timer);
-+
-+	kmem_cache_destroy(clip_tbl.kmem_cachep);
-+}
-+
-+module_init(atm_clip_init);
-+module_exit(atm_clip_exit);
-+
-+MODULE_LICENSE("GPL");
---- linux-2.5.68/net/atm/ipcommon.c.000	Thu May  8 19:58:15 2003
-+++ linux-2.5.68/net/atm/ipcommon.c	Thu May  8 19:58:23 2003
-@@ -67,4 +67,5 @@
- }
- 
- 
-+EXPORT_SYMBOL(llc_oui);
- EXPORT_SYMBOL(skb_migrate);
---- linux-2.5.68/net/atm/Makefile.001	Thu May  8 19:53:44 2003
-+++ linux-2.5.68/net/atm/Makefile	Thu May  8 20:20:26 2003
-@@ -2,13 +2,15 @@
- # Makefile for the ATM Protocol Families.
- #
- 
-+atm-y		:= addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o
- mpoa-objs	:= mpc.o mpoa_caches.o mpoa_proc.o
- 
--obj-$(CONFIG_ATM) := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o
--
--obj-$(CONFIG_ATM_CLIP) += clip.o ipcommon.o
--obj-$(CONFIG_ATM_BR2684) += br2684.o ipcommon.o
--obj-$(CONFIG_NET_SCH_ATM) += ipcommon.o
-+obj-$(CONFIG_ATM) += atm.o
-+obj-$(CONFIG_ATM_CLIP) += clip.o
-+atm-$(subst m,y,$(CONFIG_ATM_CLIP)) += ipcommon.o
-+obj-$(CONFIG_ATM_BR2684) += br2684.o
-+atm-$(subst m,y,$(CONFIG_ATM_BR2684)) += ipcommon.o
-+atm-$(subst m,y,$CONFIG_NET_SCH_ATM)) += ipcommon.o
- obj-$(CONFIG_PROC_FS) += proc.o
- 
- obj-$(CONFIG_ATM_LANE) += lec.o
---- linux-2.5.68/net/netsyms.c.000	Thu May  8 18:41:07 2003
-+++ linux-2.5.68/net/netsyms.c	Thu May  8 18:48:39 2003
-@@ -45,6 +45,9 @@
- #include <linux/ip.h>
- #include <net/protocol.h>
- #include <net/arp.h>
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
-+#include <net/atmclip.h>
-+#endif
- #include <net/ip.h>
- #include <net/udp.h>
- #include <net/tcp.h>
-@@ -528,6 +531,9 @@
- EXPORT_SYMBOL(ip_rcv);
- EXPORT_SYMBOL(arp_rcv);
- EXPORT_SYMBOL(arp_tbl);
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
-+EXPORT_SYMBOL(clip_tbl_hook);
-+#endif
- EXPORT_SYMBOL(arp_find);
- 
- #endif  /* CONFIG_INET */
---- linux-2.5.68/net/ipv4/arp.c.000	Thu May  8 18:42:10 2003
-+++ linux-2.5.68/net/ipv4/arp.c	Thu May  8 20:01:59 2003
-@@ -108,8 +108,9 @@
- #include <net/netrom.h>
- #endif
- #endif
--#ifdef CONFIG_ATM_CLIP
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
- #include <net/atmclip.h>
-+struct neigh_table *clip_tbl_hook;
- #endif
- 
- #include <asm/system.h>
-@@ -443,8 +444,8 @@
- 		if (dev->flags&(IFF_LOOPBACK|IFF_POINTOPOINT))
- 			nexthop = 0;
- 		n = __neigh_lookup_errno(
--#ifdef CONFIG_ATM_CLIP
--		    dev->type == ARPHRD_ATM ? &clip_tbl :
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
-+		    dev->type == ARPHRD_ATM ? clip_tbl_hook :
- #endif
- 		    &arp_tbl, &nexthop, dev);
- 		if (IS_ERR(n))
---- linux-2.5.68/include/net/atmclip.h.000	Thu May  8 18:02:19 2003
-+++ linux-2.5.68/include/net/atmclip.h	Thu May  8 20:52:13 2003
-@@ -58,10 +58,20 @@
- extern struct atm_vcc *atmarpd; /* ugly */
- extern struct neigh_table clip_tbl;
- 
--int clip_create(int number);
--int clip_mkip(struct atm_vcc *vcc,int timeout);
--int clip_setentry(struct atm_vcc *vcc,u32 ip);
--int clip_encap(struct atm_vcc *vcc,int mode);
--void atm_clip_init(void);
-+
-+struct atm_clip_ops {
-+	int (*clip_create)(int number);
-+	int (*clip_mkip)(struct atm_vcc *vcc,int timeout);
-+	int (*clip_setentry)(struct atm_vcc *vcc,u32 ip);
-+	int (*clip_encap)(struct atm_vcc *vcc,int mode);
-+	void (*clip_push)(struct atm_vcc *vcc,struct sk_buff *skb);
-+	int (*atm_init_atmarp)(struct atm_vcc *vcc);
-+	struct module *owner;
-+};
-+
-+#ifdef __KERNEL__
-+extern struct neigh_table *clip_tbl_hook;
-+extern struct atm_clip_ops *atm_clip_ops;
-+#endif
- 
- #endif
+ 	journal_begin(&th, inode->i_sb, 1) ;
+
+
+
+--------------050704030705000207010400--
+

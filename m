@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278922AbRJ2Ttt>; Mon, 29 Oct 2001 14:49:49 -0500
+	id <S279420AbRJ2T7j>; Mon, 29 Oct 2001 14:59:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279408AbRJ2Ttj>; Mon, 29 Oct 2001 14:49:39 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26377 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278922AbRJ2Ttb>; Mon, 29 Oct 2001 14:49:31 -0500
-Subject: Re: opl3sa2 sound driver and mixers
-To: agd5f@yahoo.com (Alex Deucher)
-Date: Mon, 29 Oct 2001 19:56:43 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011029193932.64498.qmail@web11301.mail.yahoo.com> from "Alex Deucher" at Oct 29, 2001 11:39:32 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S279421AbRJ2T7a>; Mon, 29 Oct 2001 14:59:30 -0500
+Received: from ibis.worldnet.net ([195.3.3.14]:43275 "EHLO ibis.worldnet.net")
+	by vger.kernel.org with ESMTP id <S279420AbRJ2T7R>;
+	Mon, 29 Oct 2001 14:59:17 -0500
+Message-ID: <3BDDB51C.4095AF84@worldnet.fr>
+Date: Mon, 29 Oct 2001 20:59:24 +0100
+From: Laurent Deniel <deniel@worldnet.fr>
+Organization: Home
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en, fr
 MIME-Version: 1.0
+To: willy tarreau <wtarreau@yahoo.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Ethernet NIC dual homing
+In-Reply-To: <20011029133921.74466.qmail@web20508.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15yIWa-0003lV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> sound works, but an extra mixer seems to always load. 
-> I always suspected t was because of code sharing or
-> somthing, but I thought I'd ask here to see if it was
-> a bug or just a quirk of the driver.  I don't have the
-> notebook on hand right, now do these are from memory. 
-> When I load sound, several modules get loaded, opl3sa2
-> and AD18?? (can't remember the number off hand). 
+willy tarreau wrote:
+> 
+> Hi Laurent,
+> 
+> > Does someone know if there is some work in the area of NIC
+> > dual homing ?
+> 
+> I have implemented this for 2.2 kernel a while ago,
+> and Chad Tindel has completed the port to 2.4. Some other
+> contributors have added features such as XOR distribution. You can
+> take a look at it, kernel 2.4 patches are on :
+> 
+>    http://sf.net/projects/bonding/
+> 
+> and 2.2 patches are on :
+>
+> http://www-miaif.lip6.fr/willy/linux-patches/bonding/
+>
 
-AD1848 - this is correct. The opl3sa2 is an AD1848 compatible device
-and an MPU401 compatible device (and some other oddments). 
+Thanks for the pointers.
 
-> What's strange is that 2 mixers seem to get loaded. 
-> The first is for a CS4??? (can't recall the exact
+Currently only the link status is used to monitor a NIC.
+So it would be nice if an ioctl was available to force a NIC switch-over
+(especially in active-backup policy). This could be used by a user-space
+daemon in case for instance no traffic is detected.
 
-CS4232 - that mixer shouldnt be getting created. That is a bug. I'll take
-a look at it
+I see that the bonding driver is included in 2.2.18, what is its status
+in 2.4.x ?
+
+Regards,
+
+Laurent

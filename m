@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263129AbTFKTk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 15:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTFKTk7
+	id S263705AbTFKTpP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 15:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTFKTpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 15:40:59 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:722 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S263129AbTFKTk7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 15:40:59 -0400
-Date: Wed, 11 Jun 2003 21:54:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nicolas <linux@1g6.biz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 536EP linux winmodem
-Message-ID: <20030611195403.GB477@elf.ucw.cz>
-References: <Sea2-F56iZAtGYkNUTv0001fda1@hotmail.com> <200306101642.05357.linux@1g6.biz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Jun 2003 15:45:15 -0400
+Received: from h2.prohosting.com.ua ([217.106.231.81]:42417 "EHLO
+	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
+	id S263705AbTFKTpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 15:45:11 -0400
+From: Artemio <artemio@artemio.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SMP question
+Date: Wed, 11 Jun 2003 22:52:40 +0300
+User-Agent: KMail/1.5
+References: <200306112043.11923.artemio@artemio.net> <3EE7852C.2050605@rackable.com>
+In-Reply-To: <3EE7852C.2050605@rackable.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200306101642.05357.linux@1g6.biz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Message-Id: <200306112252.40979.artemio@artemio.net>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - artemio.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+OK guys, thanks for all your replies.
 
-> Sorry to disturb with a winmodem ...
-> don't flame me please !
-> 
-> Is there somebody having a working 536EP linux modem driver
-> on 2.5.xx series ?, I began to port the old
-> driver but with many irq problems related stuff, just
-> compilation stage at this time ... :(
+What I have is the following.
 
-Do you have driver sources?
-								Pavel
+I'm building a hard real-time Linux (RTLinux) system on a 2x Xeon machine. If 
+I compile and run a 2.4.18 kernel with SMP support, rtlinux hangs the 
+machine. However, with SMP disabled, rtlinux and all it's hard-realtime 
+applications runs okay.
 
-> 00:0a.0 Communication controller: Intel Corp. 536EP Data Fax Modem
->         Subsystem: Creatix Polymedia GmbH V.9X DSP Data Fax Modem
->         Flags: bus master, medium devsel, latency 32, IRQ 17
->         Memory at e8000000 (32-bit, non-prefetchable) [size=4M]
->         Capabilities: <available only to root>
+So, I have to deside between these two:
+
+ - Run rtlinux and hard-realtime applications on a kernel without SMP support. 
+How much performance will I loose this way? Is SMP *THAT* critical? 
+
+ - Run all tasks in a usual way, no hard realtime, but with SMP support.
 
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+What would you suggest?
+
+
+Also, if I turn hyperthreading off, how will it influence the system with SMP 
+support? Without SMP support?
+
+
+
+Thanks!
+
+
+Artemio.

@@ -1,59 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310435AbSDIRGi>; Tue, 9 Apr 2002 13:06:38 -0400
+	id <S310468AbSDIRSy>; Tue, 9 Apr 2002 13:18:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310441AbSDIRGh>; Tue, 9 Apr 2002 13:06:37 -0400
-Received: from borg.kabelfoon.nl ([62.45.45.66]:17682 "HELO borg.kabelfoon.nl")
-	by vger.kernel.org with SMTP id <S310435AbSDIRGg>;
-	Tue, 9 Apr 2002 13:06:36 -0400
-Message-ID: <3CB31069.5010108@kabelfoon.nl>
-Date: Tue, 09 Apr 2002 18:01:45 +0200
-From: Nick Martens <nickm@kabelfoon.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020404
-X-Accept-Language: en-us, en
+	id <S310470AbSDIRSx>; Tue, 9 Apr 2002 13:18:53 -0400
+Received: from oe76.law9.hotmail.com ([64.4.8.211]:15887 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S310468AbSDIRSw>;
+	Tue, 9 Apr 2002 13:18:52 -0400
+X-Originating-IP: [66.108.18.44]
+From: "T. A." <tkhoadfdsaf@hotmail.com>
+To: <root@chaos.analogic.com>, "Martin Dalecki" <dalecki@evision-ventures.com>,
+        "Kurt Wall" <kwall@kurtwerks.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1020409075919.4157A-100000@chaos.analogic.com>
+Subject: Re: C++ and the kernel
+Date: Tue, 9 Apr 2002 13:17:30 -0400
 MIME-Version: 1.0
-To: Guillaume Gimenez <ggimenez@prologue-software.fr>
-Cc: linux-kernel@vger.kernel.org,
-        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: 2.4.18 Boot problem
-In-Reply-To: <3CB1B505.2010505@kabelfoon.nl>	<3CB1FE78.6050606@kabelfoon.nl>	<200204090939.g399dlX02029@Port.imtp.ilyichevsk.odessa.ua> <20020409121821.18817b76.ggimenez@prologue-software.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <OE76STdsxAedIkuHZNp0000992f@hotmail.com>
+X-OriginalArrivalTime: 09 Apr 2002 17:18:43.0129 (UTC) FILETIME=[995ACA90:01C1DFEA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No it just an average board with an i815 chipset
+    Who the heck said anything about rewriting the kernel?  I'm just looking
+into coding a C++ framework for those whom may like to use it in modules,
+mostly for hack value.
 
-Guillaume Gimenez wrote:
-> Denis Vlasenko a écrit:
->     Denis> On 8 April 2002 18:32, Nick Martens wrote:
->     Denis> > I don't expect it to be a memory problem my system is really stable and
->     Denis> > the weirdest about the problem is that it only happens the first time I
->     Denis> > boot up after my pc has been turned off for a while and there are no
->     Denis> > problems when i boot 2.5.1 it only crashes on shutdowns on that kernel.
->     Denis> > I have tried updating all kind of things, but noting seems to work
->     Denis> 
->     Denis> Is your "for a while" >= ten seconds? Nothing in CPU/RAM can survive
->     Denis> that long.
->     Denis> 
->     Denis> I'd say this is a hardware problem then. Something in your box does not like 
->     Denis> to be cold.
->     Denis> --
->     Denis> vda
-> 
-> Is Nick's system based on a Tyan TigerMP mobo with 2 cpu ?
-> I have the same kind of problem.
-> 
-> My TigerMP based system is very unstable the first 5 minutes
-> I use it, and then become as stable as I can expect.
-> 
-> I suspect my power suply to be picky about temperature and cannot
-> deliver the needed power when it is cold. It is an enermax 350W
-> 
-> 
-> Regards, 
-> 
-> Guillaume Gimenez
+    And yes I do know C++ and it can very well be used for low level stuff
+such as the kernel.  Now that doesn't mean I'm going to go wild and start
+writing extensive templates, exceptions, standard template libraries, or any
+of the other unneeded crap (mostly from the last C++ revision) either.
+
+    And as far as the comment of being a troll goes I could definitely find
+better uses of my time.  Only reason for a post here is because I'm looking
+for some guidance on a couple of minor issues I've encountered.  The C
+brigades can go back and rest in the barracks now.
+
+----- Original Message -----
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+To: "Martin Dalecki" <dalecki@evision-ventures.com>
+Cc: "T. A." <tkhoadfdsaf@hotmail.com>; "Linux Kernel Mailing List"
+<linux-kernel@vger.kernel.org>
+Sent: Tuesday, April 09, 2002 8:10 AM
+Subject: Re: C++ and the kernel
 
 
+>
+> I would like to rewrite the kernel in FORTRAN because this was
+> one of the first languages I learned.
+>> snip <<
+> If you really knew C++, you wouldn't even joke about putting it
+> in the kernel.
+>
+> Cheers,
+> Dick Johnson
+>
+> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+>
+>                  Windows-2000/Professional isn't.
+>
+>
 
+
+----- Original Message -----
+From: "Kurt Wall" <kwall@kurtwerks.com>
+To: "T. A." <tkhoadfdsaf@hotmail.com>
+Sent: Tuesday, April 09, 2002 12:16 PM
+Subject: Re: C++ and the kernel
+
+
+> Scribbling feverishly on April 09, T. A. managed to emit:
+> > Hi all,
+> >
+> >     I am in the initial stages of writing some C++ wrapper classes for
+the
+> > kernel.  So far its been an interesting process, mainly due to the use
+of
+>
+> Stop right here, read http://www.tux.org/lkml/#s15-3, and figure out
+> what you've done wrong. ;-)
+>
+> >     Would patches be welcomed for one or more of these issues?
+>
+> I dare say not. One wonders if this message was a carefully crafted
+> troll.
+>
+> Kurt
+> --
+> You will reach the highest possible point in your business or profession.
+>

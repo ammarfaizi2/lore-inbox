@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284902AbSACFUI>; Thu, 3 Jan 2002 00:20:08 -0500
+	id <S286841AbSACFfI>; Thu, 3 Jan 2002 00:35:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285584AbSACFT7>; Thu, 3 Jan 2002 00:19:59 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:41997 "EHLO
+	id <S286916AbSACFe6>; Thu, 3 Jan 2002 00:34:58 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:51216 "EHLO
 	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S284902AbSACFTp>; Thu, 3 Jan 2002 00:19:45 -0500
-Message-ID: <3C33E8EA.FAF8E337@zip.com.au>
-Date: Wed, 02 Jan 2002 21:15:22 -0800
+	id <S286841AbSACFex>; Thu, 3 Jan 2002 00:34:53 -0500
+Message-ID: <3C33EC64.8E505D54@zip.com.au>
+Date: Wed, 02 Jan 2002 21:30:12 -0800
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-CC: Art Hays <art@lsr.nei.nih.gov>, linux-kernel@vger.kernel.org
-Subject: Re: kswapd etc hogging machine
-In-Reply-To: <Pine.LNX.4.33.0201022214230.8413-100000@lsr-linux> <HBEHIIBBKKNOBLMPKCBBAECPEFAA.znmeb@aracnet.com>
+To: Dave Jones <davej@suse.de>
+CC: "Eric S. Raymond" <esr@thyrsus.com>, Lionel Bouton <Lionel.Bouton@free.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <20020102211038.C21788@thyrsus.com> <Pine.LNX.4.33.0201030327501.5131-100000@Appserv.suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"M. Edward Borasky" wrote:
+Dave Jones wrote:
 > 
-> ...
-> There were a whole bunch of tuning parameters in the VM in 2.2 that got
-> dropped in 2.4; maybe re-instating some of them and returning them to their
-> rightful owner, the system administrator, would solve this problem once and
-> for all.
-> ...
+> o  Aunt Tilley.
+>    Vendors already ship an array of kernels which should make it
+>    unnecessary for her to have to build a kernel.
 > 
-> Anyone else want to share my soapbox??? :))
 
-Nope.  Not yet.
+There is a clear advantage to kernel developers in making things as
+easy as possible for Aunt Tilley to use our latest output.
 
-The VM system in Art's machine is not working correctly.  It is swapping
-and evicting useful data when it should be dropping written-back write()
-pages.  That's a bug, and there's no point in adding knobs to twiddle
-the behaviour when the system clearly isn't working *as designed* yet.
+If the difficulty of installing the latest kernel prevents her from
+doing that, she loses.  And so do we, because we don't get to know
+if we've fixed her problem.
 
-If we reach the stage where everything is exactly operating as we designed
-it to, and it _still_ fails under some usage patterns then yes, that's the
-time to throw up our hands and add knobs.
-
-But Art's kernel (what kernel is in RH7.2 anyway?  2.4.9 with vendor
-hacks^Wfixes, I think) is nowhere near that stage.
-
-And we, the kernel developers, should hang our heads over this.  A
-vendor-released, stable kernel is performing terribly with such a
-simple workload.  One year after the release of 2.4.0!
-
-The good news is that 2.4.17 has pretty much slain this dragon.  The
--aa patches are better still, and 2.4.18 will be even better than
-that.
-
-So where does this leave Art Hays?  Yup, he's going to have to apply
-the latest Service Pack.  The rawhide kernel appears to be at 2.4.16,
-which isn't recent enough.  He'll need to build his own.  I'd recommend
-2.4.17-rc2 with http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc2aa2.bz2
-applied on top.
+If Eric can get the entire download-config-build-install process
+down to a single mouse click, he'll have done us all a great service.
 
 -

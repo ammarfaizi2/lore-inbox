@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264365AbTLYU7l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 15:59:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbTLYU7l
+	id S264364AbTLYU6H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 15:58:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbTLYU6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 15:59:41 -0500
-Received: from [213.94.3.94] ([213.94.3.94]:1409 "EHLO sacarino.pirispons.net")
-	by vger.kernel.org with ESMTP id S264365AbTLYU7X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 15:59:23 -0500
-Date: Thu, 25 Dec 2003 21:59:17 +0100
-From: Kiko Piris <kernel@pirispons.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Make ppp_async callable from hard interrupt
-Message-ID: <20031225205917.GA7238@sacarino.pirispons.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <16356.60597.133074.809551@cargo.ozlabs.ibm.com> <20031225100850.GA6629@penguin.localdomain> <20031225022228.69f78d18.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 25 Dec 2003 15:58:06 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:22424 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S264364AbTLYU5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 15:57:53 -0500
+Date: Thu, 25 Dec 2003 12:57:21 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: azarah@nosferatu.za.org, Christoph Hellwig <hch@infradead.org>
+cc: Andreas Jellinghaus <aj@dungeon.inka.de>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] add sysfs mem device support  [2/4]
+Message-ID: <176520000.1072385840@[10.10.2.4]>
+In-Reply-To: <1072381287.7638.52.camel@nosferatu.lan>
+References: <20031223002126.GA4805@kroah.com> <20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com> <20031223131523.B6864@infradead.org> <1072193516.3472.3.camel@fur> <20031223163904.A8589@infradead.org> <pan.2003.12.25.17.47.43.603779@dungeon.inka.de> <20031225184553.A25397@infradead.org> <1072381287.7638.52.camel@nosferatu.lan>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031225022228.69f78d18.akpm@osdl.org>
-User-Agent: Mutt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25/12/2003 at 02:22, Andrew Morton wrote:
-
-> (Marcel Sebek) wrote:
-
-> >  If this is true, skb will be used uninitialized.
+>> > On Tue, 23 Dec 2003 16:47:44 +0000, Christoph Hellwig wrote:
+>> > > I disagree. For fully static devices like the mem devices the udev
+>> > > indirection is completely superflous.
+>> > 
+>> > If sysfs does not contain data on mem devices, we will need makedev.
+>> > 
+>> > devfs did replace makedev. until udev can create all devices,
+>> > it would need to re-introduce makedev.
+>> 
+>> So what?
+>> 
 > 
-> True.    Here's an updated patch.
+> So maybe suggest an solution rather than shooting one down all the
+> time (which do seem logical, and is only apposed by one person currently
+> - namely you =).
 
-I applied the first patch to 2.6.0-ben1 (benH's tree) and had a couple
-of hard freezes on my iBook. Not on the first ppp connection since boot,
-but around 4th or 5th).
+Nah, most of us just trust Christoph to fight the good fight for us ;-)
 
-I _suspect_ (with absolutely no evidence) this was the same problem as
-the ppp oopses pointed by other people with 2.6.0-mm1.
+I for one certainly agree with him that for static stuff, we don't need 
+(or want) udev. For inherently hotplug stuff like USB cameras, or large 
+SCSI raid arrays, it's nice, but not for basic things like mem devices 
+and the disk devices I'm booting from - it's just added complexity.
 
-But I was under X and nothing was written to the logs (ie. no info at
-all about the error), so I couldn't tell if the culprit was ppp_async.
+If it works as is, don't screw with it.
 
-And this was the very first time I used my modem (rs-232 with usb-serial
-/ ftdi_sio) with 2.6, so I had too little info to post anything here.
+M.
 
-
-But the fact is that with this lastest patch (w/ the correction pointed
-by Marcel Sebek, everything seems to work ok here (about half a dozen
-connections w/o problems).
-
-Just wanted to add some info in case it could be useful to track this
-issue.
-
-Feel free to ask any additional info, I'll be glad if I can help in any
-way.
-
-A big thank you to everyone and season's greetings
-
--- 
-Kiko

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130356AbRATFfL>; Sat, 20 Jan 2001 00:35:11 -0500
+	id <S137019AbRATFib>; Sat, 20 Jan 2001 00:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136653AbRATFfB>; Sat, 20 Jan 2001 00:35:01 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:60170 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130356AbRATFe4>; Sat, 20 Jan 2001 00:34:56 -0500
+	id <S136908AbRATFiV>; Sat, 20 Jan 2001 00:38:21 -0500
+Received: from quattro.sventech.com ([205.252.248.110]:9736 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S136653AbRATFiM>; Sat, 20 Jan 2001 00:38:12 -0500
+Date: Sat, 20 Jan 2001 00:38:12 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Coding Style
-Date: 19 Jan 2001 21:34:42 -0800
-Organization: Transmeta Corporation
-Message-ID: <94b81i$2qi$1@penguin.transmeta.com>
-In-Reply-To: <3A68809B.E12EF3D9@purplecoder.com> <200101200046.f0K0kgj201065@saturn.cs.uml.edu>
+Subject: Inefficient PCI DMA usage (was: [experimental patch] UHCI updates)
+Message-ID: <20010120003812.G9156@sventech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <3A691043.F18CA6CA@megapathdsl.net>; from Miles Lane on Fri, Jan 19, 2001 at 08:12:51PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200101200046.f0K0kgj201065@saturn.cs.uml.edu>,
-Albert D. Cahalan <acahalan@cs.uml.edu> wrote:
->> Tabs are 8 characters so NO tabs should be used in ANY source file what 
->...
->> Rationale:  Tabs force your code out to the right edge of the display
->> leaving no room for comments.  You don't need great big gaping spaces to
->> delineate the start and end of a block, TWO spaces do this just fine.
->
->Correct, because adjustable tab width is a myth. The comments don't
->line up when you muck with tab width.
+On Fri, Jan 19, 2001, Miles Lane <miles@megapathdsl.net> wrote:
+> Johannes Erdfelt wrote:
+> 
+> > TODO
+> > ----
+> > - The PCI DMA architecture is horribly inefficient on x86 and ia64. The
+> >   result is a page is allocated for each TD. This is evil. Perhaps a slab
+> >   cache internally? Or modify the generic slab cache to handle PCI DMA
+> >   pages instead?
+> 
+> This might be the kind of thing to run past Linus when the 2.5 tree 
+> opens up.  Are these inefficiencies necessary evils due to workarounds 
+> for whacky bugs in BIOSen or PCI chipsets or are they due to poor 
+> design/implementation?
 
-Read the Linux CodingStyle.
+Looks like poor design/implementation. Or perhaps it was designed for
+another reason than I want to use it for.
 
-Tabs are 8 characters. They are NOT adjustable. Never have been, never
-will be. Anybody who thinks tabs are anything but 8 chars apart is just
-wrong. It's that simple.
+2.5 is probably where any core changes will happen, if any. But for now
+I suspect I'll need to workaround it in my driver.
 
-And two spaces is not enough. If you write code that needs comments at
-the end of a line, your code is crap. It's that easy. There is _never_ a
-reason to comment a single line, and multi-line comments the the right
-of multi-line code to the left is a recipe for disaster. In short, you
-don't do comments to the right of code - you do them _before_ code.
+I should also check architectures other than x86 and ia64.
 
-			Linus
+JE
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

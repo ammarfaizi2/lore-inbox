@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262542AbTCIQ55>; Sun, 9 Mar 2003 11:57:57 -0500
+	id <S262544AbTCIREg>; Sun, 9 Mar 2003 12:04:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262543AbTCIQ55>; Sun, 9 Mar 2003 11:57:57 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:16649 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S262542AbTCIQ54>; Sun, 9 Mar 2003 11:57:56 -0500
-Date: Sun, 09 Mar 2003 10:08:30 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: mzyngier@freesurf.fr
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] EISA aic7770 broken
-Message-ID: <229560000.1047229710@aslan.scsiguy.com>
-In-Reply-To: <wrp65qscwxx.fsf@hina.wild-wind.fr.eu.org>
-References: <wrp65qscwxx.fsf@hina.wild-wind.fr.eu.org>
-X-Mailer: Mulberry/3.0.2 (Linux/x86)
+	id <S262545AbTCIREg>; Sun, 9 Mar 2003 12:04:36 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:12254 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S262544AbTCIREf>;
+	Sun, 9 Mar 2003 12:04:35 -0500
+Message-ID: <3E6B769D.2040602@colorfullife.com>
+Date: Sun, 09 Mar 2003 18:15:09 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fast path context switch - microoptimize FPU reload
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Justin,
-> 
-> I'm having troubles getting an Adaptec AHA-2740 (EISA) running on
-> 2.5.64.
-> 
-> First thing is the initial request_region succeeds, but the driver
-> thinks it failed... The enclosed patch fixes it.
+Andi wrote:
 
-Take a look in kernel/resource.c.  request_region returns *non-zero*
-if the region is already in use.  The driver doesn't want to try and
-probe a region that is in use by another device. Your patch is incorrect.
+>We don't need the lock prefix to test our local thread flags state.
+>Unfortunately test_thread_flag currently always uses test_bit which
+>has a LOCK on SMP, but that's unnecessary. LOCK is costly on P4,
+>so it's a good idea to avoid it.
+>  
+>
 
-> But the driver crashes badly while probing the card, somewhere in
-> ahc_runq_tasklet.
-> 
-> Any idea ?
+No, LOCK is required: the TIF_ flags word is also used for signal 
+delivery - writing without lock could corrupt state.
 
-Not without more information.
+What about moving TIF_USEDFPU from the thread_info into 
+task_struct->flags? This flag word is only accessed by "current", no 
+special atomicity requirements.
 
 --
-Justin
+    Manfred
 

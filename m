@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265032AbSJWOvM>; Wed, 23 Oct 2002 10:51:12 -0400
+	id <S265033AbSJWO6W>; Wed, 23 Oct 2002 10:58:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265033AbSJWOvM>; Wed, 23 Oct 2002 10:51:12 -0400
-Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:45006 "EHLO
-	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S265032AbSJWOvL>; Wed, 23 Oct 2002 10:51:11 -0400
-Date: Wed, 23 Oct 2002 12:56:49 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: bert hubert <ahu@ds9a.nl>
-cc: akpm@digeo.com, <linux-kernel@vger.kernel.org>, <albert@users.sf.net>
-Subject: Re: 2.5.44 io accounting weirdness, bi & bo swapped?
-In-Reply-To: <20021023124819.GA32421@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.44L.0210231256090.28073-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S265034AbSJWO6V>; Wed, 23 Oct 2002 10:58:21 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:42744 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265033AbSJWO6V>; Wed, 23 Oct 2002 10:58:21 -0400
+Message-ID: <3DB6B96F.A0DE47BF@us.ibm.com>
+Date: Wed, 23 Oct 2002 07:59:59 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: bert hubert <ahu@ds9a.nl>
+CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, netdev@oss.sgi.com,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RESEND] tuning linux for high network performance?
+References: <200210231218.18733.roy@karlsbakk.net> <200210231306.18422.roy@karlsbakk.net> <20021023130101.GA646@outpost.ds9a.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002, bert hubert wrote:
+bert hubert wrote:
 
-> Is not. Touching a page entails reading it. In Albert's procps with 2.5.44,
-> bi and bo are reversed. Rik's vmstat does report things correctly.
+> > ...adding the whole profile output - sorted by the first column this time...
+> >
+> > 905182 total                                      0.4741
+> > 121426 csum_partial_copy_generic                474.3203
+> >  93633 default_idle                             1800.6346
+> >  74665 do_wp_page                               111.1086
+> 
+> Perhaps the 'copy' also entails grabbing the page from disk, leading to
+> inflated csum_partial_copy_generic stats?
 
-> Perhaps Albert's procps isn't ready for 2.5.44?
+I think this is strictly a copy from user space->kernel and vice versa.
+This shouldnt include the disk access etc. 
 
-I suspect it's just a simple typo somewhere. Maybe Albert can't
-run 2.5 on his computer so he didn't get around to testing ?
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
-
+thanks,
+Nivedita

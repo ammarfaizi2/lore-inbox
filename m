@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267194AbTAFWwu>; Mon, 6 Jan 2003 17:52:50 -0500
+	id <S267173AbTAFWs3>; Mon, 6 Jan 2003 17:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267197AbTAFWwu>; Mon, 6 Jan 2003 17:52:50 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:7684 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267194AbTAFWwu>;
-	Mon, 6 Jan 2003 17:52:50 -0500
-Date: Tue, 7 Jan 2003 00:00:58 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Marc Giger <gigerstyle@gmx.ch>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
-Subject: Re: Power off a SMP Box
-Message-ID: <20030106230058.GA372@elf.ucw.cz>
-References: <20030102135350.24315441.gigerstyle@gmx.ch> <20030103020358.2c0e6714.sfr@canb.auug.org.au> <20030102164010.5114287b.gigerstyle@gmx.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030102164010.5114287b.gigerstyle@gmx.ch>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S267178AbTAFWs3>; Mon, 6 Jan 2003 17:48:29 -0500
+Received: from mail.icehouse.net ([204.203.53.2]:38148 "HELO mail.icehouse.net")
+	by vger.kernel.org with SMTP id <S267173AbTAFWs1>;
+	Mon, 6 Jan 2003 17:48:27 -0500
+From: "Kaleb Pederson" <kibab@icehouse.net>
+To: "Lkml" <linux-kernel@vger.kernel.org>
+Subject: windows=stable, linux=5 reboots/50 min
+Date: Mon, 6 Jan 2003 22:57:03 -0800
+Message-ID: <LDEEIFJOHNKAPECELHOAKEJFCCAA.kibab@icehouse.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+After a recent hard drive crash, I re-installed Linux to a new hard drive.
+After about 2 weeks, my system now spontaneously reboots about once per 10
+minutes (on avg.).  I'm assuming I messed up something in my kernel
+configuration as Windows is still stable. To verify that it wasn't the new
+hard drive (or use of different controller) I formatted a segment of it
+under Windows and copied 7+ gb of data onto it while doing other things
+without problem.
 
-> > > Has someone a hint for me?
-> > 
-> > You could try ACPI in (very) recent kernels.
-> 
-> You mean a 2.5.x kernel? Any Kernel with the newest ACPI patches has never powered off any of my machines:-(
-> Perhaps I don't know something...
-> I will try it now again...
+The system will reboot as early as after detecting the hard drives and
+before loading the root filesystem or anytime thereafter - sometimes in
+logging into the console, sometimes in X.
 
-You can also get new ACPI for 2.4.X (at acpi.sf.net) and even ACPI in
-marcelo's kernel should be good enough for poweroff.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+My system configuration is as follows:
+
+Microstar 694D-Pro-AR
+Dual PIII - 800's - not overclocked
+Nice 450 Watt PS
+Onboard Promise PDC20265
+Onboard AC97Audio - Disabled
+Soundblaster Live
+2 Hard drives
+ - 1=IBM-40gb on Promise Controller
+ - 1=WD-80gb on onboard UDMA/66 controller (previous configuration was also
+on promise)
+USB Keyboard/Mouse/Scanner
+Intel EEPro100
+NVidia TNT2 Utlra (considering the system sometimes crashes before I enter X
+and before the NVidia driver is loaded, my kernel has not been tainted at
+this point).
+
+I don't get any messages is /var/log/... nor do I get an oops.  I have tried
+this under 2.4.19, 2.4.20, and 2.4.21-pre2 (all compiled with gcc-2.95.3)
+and I get the same behavior.  I have noticed no similarities between the
+crashes.  At this point, I have no idea how to isolate it other than to
+start removing every single unnecessary kernel module/option from my .config
+and recompiling.  Any suggestions?  Want to see a grep of my .config?
+
+TIA,
+
+--Kaleb
+PS: Although I'm going to try to monitor the list for the next few days,
+please CC me in case I miss it.
+

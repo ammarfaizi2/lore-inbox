@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132826AbRAKTEN>; Thu, 11 Jan 2001 14:04:13 -0500
+	id <S130151AbRAKTQh>; Thu, 11 Jan 2001 14:16:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132916AbRAKTED>; Thu, 11 Jan 2001 14:04:03 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:17141 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132826AbRAKTDu>;
-	Thu, 11 Jan 2001 14:03:50 -0500
-Date: Thu, 11 Jan 2001 14:03:48 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-In-Reply-To: <20010111141330.H25375@redhat.com>
-Message-ID: <Pine.GSO.4.21.0101111401430.17363-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130232AbRAKTQ0>; Thu, 11 Jan 2001 14:16:26 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:35875 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130151AbRAKTQI>; Thu, 11 Jan 2001 14:16:08 -0500
+Date: Thu, 11 Jan 2001 20:16:27 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: technews@egsx.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: inode leak 2.2.12+ why??
+Message-ID: <20010111201627.E892@athlon.random>
+In-Reply-To: <Pine.LNX.4.10.10101111349240.2361-100000@egsx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10101111349240.2361-100000@egsx.com>; from technews@egsx.com on Thu, Jan 11, 2001 at 02:01:58PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 11 Jan 2001, Stephen C. Tweedie wrote:
-
+On Thu, Jan 11, 2001 at 02:01:58PM -0500, technews@egsx.com wrote:
 > Hi,
 > 
-> On Thu, Jan 11, 2001 at 02:12:05PM +0100, Trond Myklebust wrote:
-> > 
-> >  What's wrong with copy-on-write style semantics? IOW, anyone who
-> > wants to change the credentials needs to make a private copy of the
-> > existing structure first.
+> The most puzzling thing is happeneing.  I have compiled a vanillat 2.2.18
+> kernel with scsi aic7xxx compiled in, 3com network support. (nothing fancy
+> no sound, no isdn, video, etc...)
 > 
-> Because COW only solves the problem if each task is only changing its
-> own, local, private copy of the credentials.  Posix threads demand
-> that one thread changing credentials also affects all the other
-> threads immediately, and making your own local private copy won't help
-> you to change the other tasks' credentials safely.
+> I installed this kernel on a redhat 5.2 system, it boots in fine, but then
+> after some time I get messages saying fork: resource unavailable.  I
+> checked the inodes and I was chocked to see the number goingg up and up
+> without stopping.  I changed the value of inode-max to a high number, and
+> at the same time file-max, but to no avail.  Once it hits that max, it
+> will not allow me to do anything but shutdown the power to restart.
 
-And how is that different from the current situation?
+Yes, this is a known limitation of the icache (and 2.4.x still can't shrink the
+filp pool, infact I'm surprised such pool is still there, I'd kill the filp
+poll enterely and I'd use the slab cache for that that should be more efficient
+in SMP and it's dynamic, should be just a few liner plus some code removal).
 
+Your mistake is been to enlarge the inode-max, you shouldn't do that.
+2.2.19pre7aa1 uses smarter calculations to setup the inode-max and icache hash
+size (so you're more likely to get sane values for servers), I suggest to try
+it without touching inode-max from its default value and see what happens.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

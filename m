@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268497AbUJTPxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268474AbUJTQVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268497AbUJTPxN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 11:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUJTPf3
+	id S268474AbUJTQVF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 12:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267866AbUJTQPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 11:35:29 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:27919 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S266663AbUJTPca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 11:32:30 -0400
-Message-ID: <417687BE.5020900@techsource.com>
-Date: Wed, 20 Oct 2004 11:43:58 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, Andrea Arcangeli <andrea@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, arjanv@redhat.com,
-       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-References: <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 20 Oct 2004 12:15:46 -0400
+Received: from [144.51.25.10] ([144.51.25.10]:31228 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S268048AbUJTQOG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 12:14:06 -0400
+Subject: [PATCH][SELINUX] Add DAC check for setxattr(security.selinux)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1098288630.672.181.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 20 Oct 2004 12:10:31 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch against 2.6.9 adds a DAC ownership check to the existing MAC
+permission checks when setting the security.selinux attribute via
+setxattr.  In the past, the MAC permission checks were viewed as
+sufficient for controlling relabeling operations, but experience in the
+Fedora SELinux integration has shown that a DAC check is also
+appropriate here, particularly under targeted policy.  Please apply.
 
+Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
 
-Hugh Dickins wrote:
+ security/selinux/hooks.c |    3 +++
+ 1 files changed, 3 insertions(+)
 
-> 
-> Wasn't Andrea worried, a couple of months back, about nested interrupts
-> overflowing the 4K interrupt stack?  He was trying to work out how to
-> have an 8K interrupt stack even with the 4K task stack, proposed thread
-> info at both top and bottom of stack; but his "current" still looked to
-> me like it'd be significantly more costly than the present one.
+--- linux-2.6.9/security/selinux/hooks.c.orig	2004-10-20 10:32:18.653598056 -0400
++++ linux-2.6.9/security/selinux/hooks.c	2004-10-20 10:32:39.712396632 -0400
+@@ -2243,6 +2243,9 @@ static int selinux_inode_setxattr(struct
+ 	if (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)
+ 		return -EOPNOTSUPP;
+ 
++	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
++		return -EPERM;
++
+ 	AVC_AUDIT_DATA_INIT(&ad,FS);
+ 	ad.u.fs.dentry = dentry;
+ 
 
-Yeah, one of the driving forces behind going to 4K task stacks is that 
-you significantly reduce the amount of kernel memory reserved for user 
-processes.  But then, there came the requirement to keep around a 
-handful of irq stacks which doesn't hurt.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Given the finite and small number of IRQ stacks required, I see no 
-reason not to make them 8K, other than for elegance sake.  You're not 
-really wasting much memory by giving IRQ's 8k stacks.
-
-Yes, I know, it does feel icky, though.  :)
 

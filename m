@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268102AbUHKRBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268108AbUHKRCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268102AbUHKRBG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 13:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268108AbUHKRBG
+	id S268108AbUHKRCw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 13:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268112AbUHKRCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:01:06 -0400
-Received: from [66.45.74.15] ([66.45.74.15]:56497 "EHLO sluggardy.net")
-	by vger.kernel.org with ESMTP id S268102AbUHKRBA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:01:00 -0400
-Message-ID: <37062.66.93.180.209.1092243659.squirrel@66.93.180.209>
-Date: Wed, 11 Aug 2004 10:00:59 -0700 (PDT)
-Subject: select implementation not POSIX compliant?
-From: "Nick Palmer" <nick@sluggardy.net>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Wed, 11 Aug 2004 13:02:52 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:31718 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S268108AbUHKRCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:02:50 -0400
+Date: Wed, 11 Aug 2004 19:02:08 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       James Ketrenos <jketreno@linux.intel.com>, Pavel Machek <pavel@suse.cz>,
+       Jeff Chua <jeffchua@silk.corp.fedex.com>, netdev@oss.sgi.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+Message-ID: <20040811170208.GG10100@louise.pinerecords.com>
+References: <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <4119F203.1070009@linux.intel.com> <20040811114437.A27439@infradead.org> <411A478E.1080101@linux.intel.com> <20040811093043.522cc5a0@dell_ss3.pdx.osdl.net> <20040811163333.GE10100@louise.pinerecords.com> <20040811175105.A30188@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040811175105.A30188@infradead.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all,
+On Aug-11 2004, Wed, 17:51 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
 
-I am working on porting some software from Solaris to Linux 2.6.7. I have
-run into a problem with the interaction of select and/or recvmsg and close
-in our multi-threaded application. The application expects that a close
-call on a socket that another thread is blocking in select and/or recvmsg
-on will cause select and/or recvmsg to return with an error. Linux does
-not seem to do this. (I also verified that the same issue exists in Linux
-2.4.25, just to be sure it wasn't introduced in 2.6 in case you were
-wondering.)
+> On Wed, Aug 11, 2004 at 06:33:33PM +0200, Tomas Szepe wrote:
+> > There are many people who don't want to mess around with hotplug just
+> > to get a single driver to load.
+> 
+> Then use a distribution that gets it right for you.  Having gazillions
+> of diffferent firmware loaders just because people are too lazy to set
+> up the canonical one isn't where we want to go.
 
-I found this thread:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0006.3/0414.html
-which indicates that we must call shutdown first in order to get the
-desired behavior, which works as described. However this doesn't seem to
-be a POSIX compliant implementation by my read of the POSIX specification
-for select. (The specification for recvmsg doesn't specifically talk about
-this condition, so I can accept that the implementation on Linux is
-compliant for recvmsg, even if the behavior is a bit surprising to me, but
-not for select.)
+Agreed.  But the point is, in the actual case of ipw2100, will the removal
+of 40 or so lines of code justify killing the functionality for those (lots)
+that use it?  I don't think so.  A nice /* duplicate this in another driver
+and die */ comment in the right place will do the job just fine IMHO.
 
->From the POSIX specification for select from
-http://www.unix.org/single_unix_specification/:
-
-A descriptor shall be considered ready for reading when a call to an input
-function with O_NONBLOCK clear would not block, whether or not the
-function would transfer data successfully.
-<snip>
-If a descriptor refers to a socket, the implied input function is the
-recvmsg() function with parameters requesting normal and ancillary data,
-such that the presence of either type shall cause the socket to be marked
-as readable.
-
-I have a test case (email me off list if you want a copy) that shows that
-a call to the input function does not block, but instead returns an error
-after a close call, yet the select called before the close continues to
-block. Furthermore, a call to close and then select in the same thread
-blocks while the other thread is still in select, which has a very large
-surprise factor, since the code would work were it not for the other
-select.
-
-This is certainly a large enough difference from Solaris to cause our
-POSIX application not to work on Linux, and I imagine I'm not the only one
-that has experienced problems with this implementation. Is there a good
-argument for why it has been implemented this way? It is certainly less
-than intuitive.
-
-Thanks for addressing this issue,
--Nick
+-- 
+Tomas Szepe <szepe@pinerecords.com>

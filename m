@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUFJWHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbUFJWS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUFJWHK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 18:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbUFJWHK
+	id S263126AbUFJWS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 18:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUFJWS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 18:07:10 -0400
-Received: from mailadmin.WKU.EDU ([161.6.18.52]:25293 "EHLO mailadmin.wku.edu")
-	by vger.kernel.org with ESMTP id S263117AbUFJWHE (ORCPT
+	Thu, 10 Jun 2004 18:18:56 -0400
+Received: from main.gmane.org ([80.91.224.249]:3993 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263126AbUFJWSz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 18:07:04 -0400
-From: "Bikram Assal" <bikram.assal@wku.edu>
-Subject: ENOMEM in do_get_write_access, retrying
-To: Burton Windle <bwindle@fint.org>, linux-kernel@vger.kernel.org
-X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
-Date: Thu, 10 Jun 2004 17:07:04 -0500
-Message-ID: <web-68590618@mailadmin.wku.edu>
-In-Reply-To: <Pine.LNX.4.58.0406101737090.959@morpheus>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 10 Jun 2004 18:18:55 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Lars <terraformers@gmx.net>
+Subject: Re: 2.6.7-rc3: nforce2, no C1 disconnect fixup applied
+Date: Fri, 11 Jun 2004 00:19:04 +0200
+Message-ID: <caamob$gb0$1@sea.gmane.org>
+References: <ca9jj9$dr$1@sea.gmane.org> <200406101558.54240.bzolnier@elka.pw.edu.pl> <caak85$9vg$1@sea.gmane.org> <200406102356.07920.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9e7e173.dip.t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+just learned that
+setpci -H1 -s 0:0.0 6C.L=0x9F01FF01
+enables C1 *and* the 80ns stability fix.
 
-The kernel version installed on the server is 2.4.18-5
-
-Would that be a problem ? Do I need to upgrade my kernel ?
-
-Since the memory doesn't seem to be a problem apparently, what should be my next step to check the flaw.
-
-Although this happened only once, this could lead to a possible problem.
-
-Thanks a lot for your help.
-
-- Bikram.
+looks like i have to stick with my ugly little workaround for a while
 
 
-On Thu, 10 Jun 2004 17:39:33 -0400 (EDT)
- Burton Windle <bwindle@fint.org> wrote:
-> On Thu, 10 Jun 2004, Bikram Assal wrote:
+best,
+lars
+
+
+> Order should be reversed.
 > 
-> > Hi,
-> >
-> > I got this error in /var/log/messages only one time.
-> > the error is : ENOMEM in do_get_write_access, retrying.
-> >
-> > Please help me find out the cause of it.
-> >
-> >
-> > - Bikram
-> > OCA ( Oracle Certified Associate )
-> > Database Specialist, WKU
-> > http://www.wku.edu/~bikram.assal/
-> > -
-> 
-> That message comes from line 1598 in linux/fs/jbd/journal.c
-> 
-> It happens if the kernel tries to allocate memory for a journal (ext3)
-> operation, but fails because there isn't any memory free currently.
-> 
-> With as much memory cached as you reported, this shouldn't happen.
-> 
-> --
-> Burton Windle                           bwindle@fint.org
-> 
+> It can be perfectly handled in user-space as you've just showed. :-)
+> There is no need to add complexity to the kernel.
 
-- Bikram 
-OCA ( Oracle Certified Associate )
-Database Specialist, WKU
-http://www.wku.edu/~bikram.assal/
+

@@ -1,56 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270646AbTGNRPl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 13:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270706AbTGNRPl
+	id S270698AbTGNRJH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 13:09:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270731AbTGNRIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 13:15:41 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:48104 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S270646AbTGNRLi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 13:11:38 -0400
-Date: Mon, 14 Jul 2003 18:26:18 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Hassard, Stephen" <SHassard@angio.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Enabling CPU freq scaling on VIA Cyrix 3 causes kernel l ockup / divide error
-Message-ID: <20030714172618.GA7117@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Hassard, Stephen" <SHassard@angio.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <E2B3FD6B3FF2804CB276D9ED037268354FF620@mail4.angio.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E2B3FD6B3FF2804CB276D9ED037268354FF620@mail4.angio.com>
-User-Agent: Mutt/1.5.4i
+	Mon, 14 Jul 2003 13:08:19 -0400
+Received: from mail.eris.qinetiq.com ([128.98.1.1]:9618 "HELO
+	ns0.eris.dera.gov.uk") by vger.kernel.org with SMTP id S270698AbTGNRDK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 13:03:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: Antonio Vargas <wind@cocodriloo.com>
+Subject: Re: requirements for installing a 2.6.0-test kernel....
+Date: Mon, 14 Jul 2003 18:17:07 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200307141659.05451.m.watts@eris.qinetiq.com> <20030714163749.GC2684@wind.cocodriloo.com>
+In-Reply-To: <20030714163749.GC2684@wind.cocodriloo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200307141817.07524.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 08:46:19AM -0700, Hassard, Stephen wrote:
- > longhaul: VIA CPU detected. Longhaul version 2 supportred
- > longhaul: VRM 8.5 : Min VID=1.250 Max VID=1.250, 0 possible voltage scales
-                           ^^^^^^^^^^^^^^^^^^^^^^^
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Erk, it should default into the 'voltage scaling unavailable' mode when
-this happens, but the code is missing. I'll push that out to Linus
-along with a large bunch of other cpufreq changes tonight/tomorrow.
 
-Strange how your CPU seems to claim to support voltage scaling, but
-erm.. doesn't. Can you also mail me the output of x86info -a -v
-(Get the snapshot from http://www.codemonkey.org.uk/cvs/ )
+Sure - I'm trying it on Mandrake 9.1
 
- > longhaul: MinMult(x10)=30 MaxMult(x10)=60
- > longhaul: Lowestspeed=0 Highestspeed=0
- > longhaul: FSB:0 Mult(x10):100
+I've already had fun with the module_init_tools from 
+http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
 
-Something also went horribly wrong when trying to determine your FSB.
+Basically after doing the ./configure --prefix=/ && make moveold, I was left 
+with a bunch of dangling symlinks in /sbin
 
- > divide error: 0000 [#1]
+I've since grabed the src.rpm from here: 
+http://people.redhat.com/arjanv/2.5/SRPMS/
+and that seems to be behaving a bit more (although I haven't rebooted yet :)
 
-Leading to this tradegy. I'll take a look over the longhaul code later
-too, as it could use some cleanups in more than a few areas.
-I've also fallen behind in adding support for the newer C3s to it.
+Everything else is from a standard Mandrake 9.1 install, so I'm using gcc 
+3.2.2 and associated gubbins.
 
-		Dave
+Mark
+
+> On Mon, Jul 14, 2003 at 04:59:05PM +0100, Mark Watts wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> >
+> > Now that 2.6.0-test is out, can someone point me at the definative
+> > instrictions for compiling and booting a 2.6.x kernel?
+> >
+> > I understand that the compile process has changed since 2.4.x, and I may
+> > also need some updated module related things.
+> >
+> > This doesnt have to be a handholding guide, just a quick
+> > rundown/qhecklist will do.
+>
+> Mark, I'm also interested on this, and also willing to install
+> a recent distro on purpose. Would you mind if we shared install
+> experiences?
+>
+> Planning to download suse from ftp to do a network install at the moment.
+> Will probably compile 2.6.0-test1 meanwhile :)
+>
+> Greets, Antonio.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/EuWTBn4EFUVUIO0RAscbAKDJsPogTT2PhQS89xeyJbEQxxz2UwCeKtkE
+t8xmlw6J4uJb+nINOcGOnGE=
+=Jv+e
+-----END PGP SIGNATURE-----
 

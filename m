@@ -1,48 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135323AbRDZQu0>; Thu, 26 Apr 2001 12:50:26 -0400
+	id <S135328AbRDZQv0>; Thu, 26 Apr 2001 12:51:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135341AbRDZQuQ>; Thu, 26 Apr 2001 12:50:16 -0400
-Received: from dfmail.f-secure.com ([194.252.6.39]:20243 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S135323AbRDZQuA>; Thu, 26 Apr 2001 12:50:00 -0400
-Date: Thu, 26 Apr 2001 20:00:12 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: Feng Xian <fxian@fxian.jukie.net>, <linux-kernel@vger.kernel.org>,
-        Feng Xian <fxian@chrysalis-its.com>
-Subject: Re: __alloc_pages: 4-order allocation failed
-In-Reply-To: <20010426001539.A14115@vger.timpanogas.org>
-Message-ID: <Pine.LNX.4.30.0104261942160.16238-100000@fs131-224.f-secure.com>
+	id <S135484AbRDZQvR>; Thu, 26 Apr 2001 12:51:17 -0400
+Received: from [63.109.196.26] ([63.109.196.26]:15624 "EHLO
+	uscamexcp004.allaire.com") by vger.kernel.org with ESMTP
+	id <S135328AbRDZQvI>; Thu, 26 Apr 2001 12:51:08 -0400
+Message-ID: <3312CFEA8474D411BAB600508B9587B2586389@S0001EXC0007>
+From: Jesse Noller <jnoller@macromedia.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Inquiry: RE: [BUG] threaded processes get stuck in  rt_sigsuspend
+	/fillonedir/exit_notify thread.
+Date: Thu, 26 Apr 2001 12:47:25 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 26 Apr 2001, Jeff V. Merkey wrote:
 
-> I am seeing this as well on 2.4.3 with both _get_free_pages() and
-> kmalloc().  In the kmalloc case, the modules hang waiting
-> for memory.
+Afternoon All-
 
-One possible source of this hang is due to the change below in
-2.4.3, non GPF_ATOMIC and non-recursive allocations (PF_MEMALLOC is set)
-will loop until the requested continuous memory is available.
+	Basically, I am sending out a pseudo 'help' and bug check. I found
+this thread ([BUG] threaded processes get stuck in
+rt_sigsuspend/fillonedir/exit_notify) from 9/11/2000. I helping write some
+software, and I think I have ran into a bug similiar to this, first, a quick
+description of what the program does:
 
-	Szaka
+the program runs, creates a pipe and then forks.
 
-diff -u --recursive --new-file v2.4.2/linux/mm/page_alloc.c
-linux/mm/page_alloc.c--- v2.4.2/linux/mm/page_alloc.c        Sat Feb  3
-19:51:32 2001
-+++ linux/mm/page_alloc.c       Tue Mar 20 15:05:46 2001
-@@ -455,8 +455,7 @@
-                        memory_pressure++;
-                        try_to_free_pages(gfp_mask);
-                        wakeup_bdflush(0);
--                       if (!order)
--                               goto try_again;
-+                       goto try_again;
-                }
-        }
+The parent
+ - immediately starts reading on the pipe, waiting for the child to say "OK"
+ - When it gets the OK, the parent exits cleanly.
+
+The child
+ - calls setsid() to become a process group leader
+ - loads a shared library (ascf.so)
+ - calls pthread_sigmask(SIG_BLOCK, ...) for SIGINT, SIGTERM, SIGHUP
+ - starts a monitor thread which
+   * Proceeds to fork and exec the other server processes
+   * After it does this successfully, it writes "OK" to the pipe
+   * Proceeds to call wait() waiting to any of its children to die
+
+The main thread continues on to:
+ - Starts up two more worker threads  
+ - calls sigaction(..) to establish a signal handler function for SIGINT,
+SIGTERM & SIGHUP
+ - calls pthread_sigmask(SIG_UNBLOCK, ...) for SIGINT, SIGTERM, SIGHUP
+ - calls pause() to wait for any incoming signals
+
+
+Now, the problem is that the child threads/processes do not seem to be
+returning the OK, instead, they seem to simply hang, here is some sample
+strace output [snipped for brevity]:
+
+main process:
+
+read(4, "1860", 4096)                   = 4
+read(4, "", 4096)                       = 0
+close(4)                                = 0
+munmap(0x4012e000, 4096)                = 0
+kill(1860, SIG_0)                       = -1 ESRCH (No such process)
+pipe([4, 6])                            = 0
+fork()                                  = 2048
+close(6) = 0
+read(4, 
+
+[it seems to be waiting for the response]
+
+then:
+
+first process:
+
+old_mmap(NULL, 89056, PROT_READ|PROT_EXEC, MAP_PRIVATE, 4, 0) = 0x40314000
+mprotect(0x40326000, 15328, PROT_NONE)  = 0
+old_mmap(0x40326000, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 4,
+0x11000) = 0x40326000
+close(4)                                = 0
+mprotect(0x40314000, 73728, PROT_READ|PROT_WRITE) = 0
+mprotect(0x40314000, 73728, PROT_READ|PROT_EXEC) = 0
+rt_sigprocmask(SIG_BLOCK, [HUP INT TERM], NULL, 8) = 0
+getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=2147483647}) = 0
+setrlimit(RLIMIT_STACK, {rlim_cur=2044*1024, rlim_max=2147483647}) = 0
+pipe([4, 7])                            = 0
+clone(child_stack=0x81a9234,
+flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_PTRACE) = 2049
+write(7, "\364\336\0@\5\0\0\0\0\0\0\0\0\0\0\0\0\336\0@\0\0\0\0\220"..., 148)
+= 148
+rt_sigprocmask(SIG_SETMASK, NULL, [HUP INT TERM CHLD RT_0 RT_5], 8) = 0
+write(7, "`\177\24@\0\0\0\0\0\0\0\0\330&\6\10\0\0\0\0\3@\1\200\20"..., 148)
+= 148
+rt_sigprocmask(SIG_SETMASK, NULL, [HUP INT TERM CHLD RT_0 RT_5], 8) = 0
+rt_sigsuspend([HUP INT TERM CHLD RT_5]
+
+
+	So I guess my question is twofold, Has anyone else seen this on the
+most recent kernels (specifically, 2.4.2, and 2.2.18). The 2 kernels are the
+only place I see this. Even more specifically, I see it with the compiled
+kernel versions shipped with Red Hat 7.1 and SuSE 7.1.
+
+	The second half of the question, am I completely bonkers? If so,
+just tell me.
+
+Jesse Noller
+Linux Systems Lead / Caffeine Distiller
+Department of Shiny Happy People
+Macromedia, Inc.
+jnoller@macromedia.com
+
+"This place is giving me the Fear. "
+-Hunter S. Thompson
+       Fear and Loathing in Las Vegas
 

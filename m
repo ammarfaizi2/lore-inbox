@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287918AbSAPVfD>; Wed, 16 Jan 2002 16:35:03 -0500
+	id <S289493AbSAPVsJ>; Wed, 16 Jan 2002 16:48:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287932AbSAPVet>; Wed, 16 Jan 2002 16:34:49 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:43974 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S287939AbSAPVeg>;
-	Wed, 16 Jan 2002 16:34:36 -0500
-Date: Thu, 17 Jan 2002 00:31:56 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Robert Love <rml@tech9.net>
-Cc: Justin Carlson <justincarlson@cmu.edu>,
-        Rusty Russell <rusty@rustcorp.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] I3 sched tweaks...
-In-Reply-To: <1011216429.1083.95.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0201170021550.21473-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289038AbSAPVsA>; Wed, 16 Jan 2002 16:48:00 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:37505
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S287940AbSAPVro>; Wed, 16 Jan 2002 16:47:44 -0500
+Date: Wed, 16 Jan 2002 16:31:44 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available
+Message-ID: <20020116163144.D12306@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <esr@thyrsus.com> <200201161506.g0GF6Xjs001294@tigger.cs.uni-dortmund.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200201161506.g0GF6Xjs001294@tigger.cs.uni-dortmund.de>; from brand@jupiter.cs.uni-dortmund.de on Wed, Jan 16, 2002 at 04:06:33PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Horst von Brand <brand@jupiter.cs.uni-dortmund.de>:
+> > Release 2.1.3: Tue Jan 15 14:41:45 EST 2002
+> > 	* Resync with 2.4.18-pre3 and 2.5.2.
+> > 	* It is now possible to declare explicit saveability predicates.
+> > 	* The `vitality' flag is gone from the language.  Instead, the 
+> > 	  autoprober detects the type of your root filesystem and forces
+> > 	  its symbol to Y.
+> 
+> Great! Now I can't configure a kernel for ext3 only on an ext2 box. Keep it
+> up! As it goes, we can safely forget about CML2...
 
-On 16 Jan 2002, Robert Love wrote:
+Oh, nonsense.  You can do this just fine with any of the manual configurators.
+Now repeat after me, Horst:
 
-> current is stored in a register (esp) in x86, too. [...]
+	The autoconfigurator is *optional*, not required.
 
-it's stored in a register, but then it also needs to do some more work to
-get at the true pointer. The typical way to load 'current' on x86 into
-%eax:
+	The autoconfigurator is *optional*, not required.
 
-        b8 00 e0 ff ff          mov    $0xffffe000,%eax
-        21 e0                   and    %esp,%eax
+	The autoconfigurator is *optional*, not required.
 
-7 bytes icache footprint.
+	The autoconfigurator is *optional*, not required.
 
-while the cost of moving an already calculated 'current' pointer to the
-stack is:
+	The autoconfigurator is *optional*, not required.
 
-        50                      push   %eax
+		:	:	:	:	:
 
-1 byte instruction.
+Please continue until insight penetrates your skull.  Thank you.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-and in addition, consider that for larger functions, the 'current' value
-will be moved to a gcc spill register anyway, it will end up looking like
-this:
-
-        b8 00 e0 ff ff          mov    $0xffffe000,%edi
-        21 e0                   and    %esp,%edi
-        89 7c 24 14             mov    %edi,0x14(%esp,1)
-
-while in the function-call variant the pointer is on the stack already, so
-accessing it is easy:
-
-        89 7c 24 14             mov    0x10(%esp,1), %eax
-
-so on x86, considering the sched_tick() case, it's slightly faster to pass
-the argument. But there isnt any big difference.
-
-but add an instruction or two to the 'current' calculation method, and the
-icache footprint and actual overhead will be more clearly in favor of
-function calls.
-
-i agree that on architectures where 'current' is stored in a register it's
-better to use 'current' explicitly.
-
-	Ingo
-
+A human being should be able to change a diaper, plan an invasion,
+butcher a hog, conn a ship, design a building, write a sonnet, balance
+accounts, build a wall, set a bone, comfort the dying, take orders, give
+orders, cooperate, act alone, solve equations, analyze a new problem,
+pitch manure, program a computer, cook a tasty meal, fight efficiently,
+die gallantly. Specialization is for insects.
+	-- Robert A. Heinlein, "Time Enough for Love"

@@ -1,82 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268216AbUH2RWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268223AbUH2RXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268216AbUH2RWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 13:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268223AbUH2RWU
+	id S268223AbUH2RXa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 13:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268225AbUH2RX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 13:22:20 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:35811 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S268216AbUH2RWJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 13:22:09 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
+	Sun, 29 Aug 2004 13:23:29 -0400
+Received: from holomorphy.com ([207.189.100.168]:49582 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268223AbUH2RXI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 13:23:08 -0400
+Date: Sun, 29 Aug 2004 10:22:50 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SMP Panic caused by [PATCH] sched: consolidate sched domains
+Message-ID: <20040829172250.GM5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Matthew Dobson <colpatch@us.ibm.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1093786747.1708.8.camel@mulgrave> <200408290948.06473.jbarnes@engr.sgi.com> <20040829170328.GK5492@holomorphy.com> <1093799390.10990.19.camel@mulgrave>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16690.4288.260815.847844@thebsh.namesys.com>
-Date: Sun, 29 Aug 2004 21:22:08 +0400
-To: Spam <spam@tnonline.net>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Hans Reiser <reiser@namesys.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, Rik van Riel <riel@redhat.com>,
-       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
-       Diego Calleja <diegocg@teleline.es>, <christophe@saout.de>,
-       <vda@port.imtp.ilyichevsk.odessa.ua>, <christer@weinigel.se>,
-       Andrew Morton <akpm@osdl.org>, <wichert@wiggy.net>, <jra@samba.org>,
-       <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, <flx@namesys.com>,
-       <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <10558145.20040829185217@tnonline.net>
-References: <1732169380.20040827224404@tnonline.net>
-	<200408291521.i7TFLsQk028363@localhost.localdomain>
-	<10558145.20040829185217@tnonline.net>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <1093799390.10990.19.camel@mulgrave>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spam writes:
- > 
- > > Spam <spam@tnonline.net> said:
- > >> Horst von Brand <vonbrand@inf.utfsm.cl> said:
+On Sun, 2004-08-29 at 13:03, William Lee Irwin III wrote:
+>> -#define node_to_cpumask(node)	(cpu_online_map)
+>> +#define node_to_cpumask(node)	(cpu_possible_map)
 
-[...]
+On Sun, Aug 29, 2004 at 01:09:49PM -0400, James Bottomley wrote:
+> I really don't think so.  This macro is also used at runtime, so there
+> it would return CPUs that aren't online.
+> It does look like all runtime uses in sched.c pass node_to_cpumask
+> through any_online_cpu(), so at least for the scheduler, the change may
+> be safe, but you'd have to audit all other runtime uses.
 
- > 
- > > Show benefits, show there are no downsides. Show that the same can't
- > > possibly be done in userland. Then I'll consider buying it.
- > 
- >   I am not saying it couldn't be done in userland. Most things can.
- > 
- >   The  problem with userland is that it doesn't provide generic access
- >   across  most  applications. For example GnomeVFS is limited to Gnome
- >   applications  only.  The  same  for  KDE.  to  be able to coordinate
- >   application developer on anything is just almost impossible.
-
-Hmm... drag-and-drop also doesn't work constently over all
-applications. Let's put it into kernel.
-
-Seriously, kernel prformance is critical to the system, and to achieve
-high performance all kernel code runs in single address space (actually,
-in portion of address spaces of user processes shared by all
-processes). All shared system state is located there. This means that
-bug in a kernel affects whole system. This means that kernel should be
-kept as simple as possible (and a bit more simple).
-
-This is why only things that cannot be done efficiently in the user
-level are put into kernel. And political agendas of various camps of
-user-level developers change nothing here.
-
- > 
- >   Still.  Why do you oppose plugins, streams and meta files? The could
- >   be   valuable   and  easy  to use tools for many purposes. One could
- >   be  would be advanced ACLs defined as a meta-file using XML format.
-
-POSIX has standard ACL API in C (well, "eternal draft" only), one can
-use it to extract ACLs from kernel and convert it to any format to one's
-heart content. Advantage of this is that when XML goes out of fashion (I
-hope this wouldn't yet happen when you will read this message), kernel
-API will remain intact.
-
- >   
-
-Nikita.
+./drivers/base/node.c:22:	cpumask_t mask = node_to_cpumask(node_dev->sysdev.id);
+./arch/ia64/sn/io/sn2/ml_SN_intr.c:63:		cpu = first_cpu(node_to_cpumask(cnode));
+./arch/ia64/sn/io/sn2/ml_SN_intr.c:69:		cpu = first_cpu(node_to_cpumask(node));
+./arch/x86_64/mm/numa.c:30:cpumask_t     node_to_cpumask[MAXNODE]; 
+./arch/x86_64/mm/numa.c:163:	set_bit(0, &node_to_cpumask[cpu_to_node(0)]);
+./arch/x86_64/mm/numa.c:234:	node_to_cpumask[0] = cpumask_of_cpu(0);
+./arch/x86_64/mm/numa.c:242:		set_bit(cpu, &node_to_cpumask[cpu_to_node(cpu)]);
+./arch/x86_64/mm/numa.c:277:EXPORT_SYMBOL(node_to_cpumask);
+./arch/x86_64/pci/k8-bus.c:57:						node_to_cpumask(NODE_ID(nid));
+./include/asm-ppc64/topology.h:24:static inline cpumask_t node_to_cpumask(int node)
+./include/asm-ppc64/topology.h:32:	tmp = node_to_cpumask(node);
+./include/asm-x86_64/topology.h:16:extern cpumask_t     node_to_cpumask[];
+./include/asm-x86_64/topology.h:21:#define node_to_first_cpu(node) 	(__ffs(node_to_cpumask[node]))
+./include/asm-x86_64/topology.h:22:#define node_to_cpumask(node)		(node_to_cpumask[node])
+./include/asm-generic/topology.h:38:#ifndef node_to_cpumask
+./include/asm-generic/topology.h:39:#define node_to_cpumask(node)	(cpu_possible_map)
+./include/asm-mips/mach-ip27/topology.h:8:#define node_to_cpumask(node)	(HUB_DATA(node)->h_cpus)
+./include/asm-mips/mach-ip27/topology.h:9:#define node_to_first_cpu(node)	(first_cpu(node_to_cpumask(node)))
+./include/asm-ia64/topology.h:29:#define node_to_cpumask(node) (node_to_cpu_mask[node])
+./include/asm-ia64/topology.h:41:#define node_to_first_cpu(node) (__ffs(node_to_cpumask(node)))
+./include/linux/topology.h:41:		__tmp__ = node_to_cpumask(node);				\
+./include/asm-alpha/topology.h:25:static inline cpumask_t node_to_cpumask(int node)
+./include/asm-i386/topology.h:51:static inline cpumask_t node_to_cpumask(int node)
+./include/asm-i386/topology.h:59:	cpumask_t mask = node_to_cpumask(node);
+./include/asm-i386/topology.h:66:	return node_to_cpumask(mp_bus_id_to_node[bus]);
+./kernel/sched.c:3810:		mask = node_to_cpumask(node);
+./kernel/sched.c:4059:		nodemask = node_to_cpumask(next_node);
+./kernel/sched.c:4187:		cpumask_t nodemask = node_to_cpumask(cpu_to_node(i));
+./kernel/sched.c:4267:		cpumask_t nodemask = node_to_cpumask(i);
+./mm/page_alloc.c:1324:		tmp = node_to_cpumask(n);
+./mm/vmscan.c:1127:	cpumask = node_to_cpumask(pgdat->node_id);
+./mm/vmscan.c:1214:			mask = node_to_cpumask(pgdat->node_id);

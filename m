@@ -1,76 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277397AbRJJULz>; Wed, 10 Oct 2001 16:11:55 -0400
+	id <S277400AbRJJUL4>; Wed, 10 Oct 2001 16:11:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277404AbRJJULs>; Wed, 10 Oct 2001 16:11:48 -0400
-Received: from mpdr0.cleveland.oh.ameritech.net ([206.141.223.14]:21695 "EHLO
-	mailhost.cle.ameritech.net") by vger.kernel.org with ESMTP
-	id <S277394AbRJJUKd>; Wed, 10 Oct 2001 16:10:33 -0400
-Date: Wed, 10 Oct 2001 16:10:58 -0400 (EDT)
-From: Stephen Torri <storri@ameritech.net>
-X-X-Sender: <torri@base.torri.linux>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Memory free report error (kernel-2.4.10-ac10)
-Message-ID: <Pine.LNX.4.33.0110101605120.733-100000@base.torri.linux>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277394AbRJJULv>; Wed, 10 Oct 2001 16:11:51 -0400
+Received: from h181s242a129n47.user.nortelnetworks.com ([47.129.242.181]:61830
+	"HELO zcars0mt.") by vger.kernel.org with SMTP id <S277403AbRJJULE>;
+	Wed, 10 Oct 2001 16:11:04 -0400
+Date: Wed, 10 Oct 2001 16:07:02 -0400
+Message-Id: <200110102007.QAA26329@zcars0mt.>
+To: linux-kernel@vger.kernel.org
+From: war <war@starband.net>
+Subject: Re: Question concering SBLIVE! driver.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have tried that, and yet it still has static and crackles.
 
-I have installed and used kernel-2.4.10-ac10 on a SMP system (Dual P3)
-using 768 MB Ram. Yet on startup of the system (RedHat 7.0), the system
-resources are almost all used. Here are the files started:
+Here is a picture of my aumix:
+http://war.htmlplanet.com/linux/aumix.jpg
 
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-root         1  1.1  0.0  1304  528 ?        S    15:56   0:06 init [3]
-root         2  0.0  0.0     0    0 ?        SW   15:56   0:00 [keventd]
-root         3  0.0  0.0     0    0 ?        SWN  15:56   0:00 [ksoftirqd_CPU0]
-root         4  0.0  0.0     0    0 ?        SWN  15:56   0:00 [ksoftirqd_CPU1]
-root         5  0.0  0.0     0    0 ?        SW   15:56   0:00 [kswapd]
-root         6  0.0  0.0     0    0 ?        SW   15:56   0:00 [kreclaimd]
-root         7  0.0  0.0     0    0 ?        SW   15:56   0:00 [bdflush]
-root         8  0.2  0.0     0    0 ?        SW   15:56   0:01 [kupdated]
-root         9  0.0  0.0     0    0 ?        SW   15:56   0:00 [khubd]
-root       341  0.0  0.0  1364  596 ?        S    16:03   0:00 syslogd -m 0
-root       351  0.1  0.1  2004 1176 ?        S    16:03   0:00 klogd
-nobody     405  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
-nobody     407  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
-nobody     408  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
-nobody     409  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
-nobody     410  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
-daemon     424  0.0  0.0  1336  576 ?        S    16:03   0:00 /usr/sbin/atd
-root       455  0.0  0.1  2192  992 ?        S    16:03   0:00 xinetd -stayalive
-root       473  0.0  0.2  1904 1896 ?        SL   16:03   0:00 ntpd
-root       524  0.0  0.2  3224 1552 ?        S    16:03   0:00 sendmail: accepti
-root       540  0.0  0.0  1328  492 ?        S    16:03   0:00 gpm -t ps/2
-root       555  0.0  0.0  1532  708 ?        S    16:03   0:00 crond
-xfs        594  0.1  0.4  4404 3176 ?        S    16:03   0:00 xfs -droppriv -da
-root       630  0.0  0.0  1276  432 tty2     S    16:04   0:00 /sbin/mingetty tt
-root       631  0.0  0.0  1276  432 tty3     S    16:04   0:00 /sbin/mingetty tt
-root       632  0.0  0.0  1276  432 tty4     S    16:04   0:00 /sbin/mingetty tt
-root       633  0.0  0.0  1276  432 tty5     S    16:04   0:00 /sbin/mingetty tt
-root       634  0.0  0.0  1276  432 tty6     S    16:04   0:00 /sbin/mingetty tt
-root       677  0.1  0.1  2264 1204 tty1     S    16:04   0:00 login -- torri
-torri      678  0.0  0.1  2436 1416 tty1     S    16:04   0:00 -bash
-torri      700  0.0  0.1  2048 1080 ?        S    16:04   0:00 /usr/bin/fetchmai
-torri      733  0.1  0.3  6588 2640 tty1     T    16:05   0:00 pine
-torri      734  0.0  0.0  2528  732 tty1     R    16:06   0:00 ps aux
+Also, secondary speakers did not work, however I've read that you need a
 
-Here is the report of the memory (free -m):
-             total       used       free     shared    buffers     cached
-Mem:           751        662         89          0        564         18
--/+ buffers/cache:         78        672
-Swap:          133          0        133
+utility to set this up with the new driver.
 
-Here is the version I am using (/proc/version):
+The sound is OK except for the crackles, is there anyway to take the
+driver
+from 2.4.7 use it with 2.4.10?
 
-Linux version 2.4.10-ac10 (root@base.torri.linux) (gcc version 3.0.2
-20010908 (prerelease)) #2 SMP Wed Oct 10 14:16:51 EDT 2001
+On a side note, the usb-uhci-2.4.10.patch worked great with my usb
+webcam, without the patch it
+would freeze the machine.
 
-I have never run across this problem. I don't know where to begin or what
-information is required to help debug this. Advise would be helpful.
 
-Stephen Torri
-storri@ameritech.net
+Rui Sousa wrote:
+
+> On Sun, 7 Oct 2001, war wrote:
+>
+> Try to mute all analog sound sources (that you are not using) and
+reduce
+> IGAIN mixer settings.
+>
+> Rui Sousa
+>
+> > I've noticed in Kernel 2.4.10 that the emu10k1 driver produces
+cracks in
+> > the sound output.
+> >
+> > Is there a stable emu10k1?
+> >
+> > The emu10k1 driver in all kernels < 2.4.7 is from 04-12-2000, which
+> > produce excellent sound.
+> >
+> > I've spoken with a few other guys on IRC, and they also have this
+> > problem [of crackling, etc].
+> >
+> > What would be the best course of action if one wants good sound in
+> > kernels > 2.4.7?
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264701AbUHGXLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUHGXPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264701AbUHGXLY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 19:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbUHGXLY
+	id S264585AbUHGXPd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 19:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUHGXPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 19:11:24 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:36292 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S264701AbUHGXLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 19:11:19 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: mj@ucw.cz, James Bottomley <James.Bottomley@SteelEye.com>, axboe@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408070001.i7701PSa006663@burner.fokus.fraunhofer.de>
-References: <200408070001.i7701PSa006663@burner.fokus.fraunhofer.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1091916508.19077.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 07 Aug 2004 23:08:29 +0100
+	Sat, 7 Aug 2004 19:15:33 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:41184 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S264585AbUHGXPX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 19:15:23 -0400
+Message-ID: <411562FD.5040500@blue-labs.org>
+Date: Sat, 07 Aug 2004 19:17:17 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: warning: comparison is always false due to limited range of data
+ type
+Content-Type: multipart/mixed;
+ boundary="------------010203020804090401060907"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-08-07 at 01:01, Joerg Schilling wrote:
-> >There is one: hotplug. The physical topology of buses where all the SCSI-like
-> >devices (being it ATAPI devices, iSCSI, USB disks or other such beasts)
-> >are connected is too complex, so every attempt to map them to the
-> >(bus, target, lun) triplets in any sane way is destined to fail.
-> 
-> I see always the same answers from Linux people who don't know anyrthing than
-> their belly button :-(
-> 
-> Chek Solaris to see that your statements are wrong.
+This is a multi-part message in MIME format.
+--------------010203020804090401060907
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Solaris also can't handle the problematic cases. One of the big problems
-being that bus, target, lun (or controller, bus, target, lun) are not
-actually constants in all cases.
+2.6.8-rc3
 
-On some Dell storage arrays for example the disks are
-bus 0, target 0..4  bus 1, target 0..4 - until that is the cleaner
-trips over one of the SCSI cables at which point it becomes bus 0, 
-lun 0...9, live, while running.
+  CC      fs/smbfs/inode.o
+fs/smbfs/inode.c: In function `smb_fill_super':
+fs/smbfs/inode.c:563: warning: comparison is always false due to limited 
+range of data type
+fs/smbfs/inode.c:564: warning: comparison is always false due to limited 
+range of data type
 
-An even more fun one is SCAM, although its a mostly dead nonstandard
-thankfully. With SCAM you can get your devices changing target across
-a suspend/resume.
+    559         mnt->ttl = SMB_TTL_DEFAULT;
+    560         if (ver == SMB_MOUNT_OLDVERSION) {
+    561                 mnt->version = oldmnt->version;
+    562
+    563                 SET_UID(mnt->uid, oldmnt->uid);
+    564                 SET_GID(mnt->gid, oldmnt->gid);
+    565
+    566                 mnt->file_mode = (oldmnt->file_mode & S_IRWXUGO) 
+| S_IFREG;
+    567                 mnt->dir_mode = (oldmnt->dir_mode & S_IRWXUGO) | 
+S_IFDIR;
+    568
+    569                 mnt->flags = (oldmnt->file_mode >> 9);
+    570         } else {
+    571                 if (parse_options(mnt, raw_data))
+    572                         goto out_bad_option;
+    573         }
 
-BTW while I remember cdrecord has a bug with hardcoded iso8859-1
-copyright symbols in it which mean your copyright banner is invalid
-unicode on a UTF-8 locale.
+
+--------------010203020804090401060907
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
+
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
 
 
+--------------010203020804090401060907--

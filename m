@@ -1,41 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263108AbTDFVfZ (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263111AbTDFVfZ (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:35:25 -0400
-Received: from holomorphy.com ([66.224.33.161]:14492 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263108AbTDFVfY (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 17:35:24 -0400
-Date: Sun, 6 Apr 2003 14:46:31 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Love <rml@tech9.net>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Martin Bligh <mbligh@aracnet.com>
-Subject: Re: 2.5.65-preempt booting on 32way NUMAQ
-Message-ID: <20030406214631.GP993@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Love <rml@tech9.net>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Martin Bligh <mbligh@aracnet.com>
-References: <Pine.LNX.4.50.0304060625130.2268-100000@montezuma.mastecende.com> <20030406112340.GM993@holomorphy.com> <1049653846.753.156.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1049653846.753.156.camel@localhost>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+	id S263113AbTDFVm5 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbTDFVm5 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:42:57 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:45188 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263113AbTDFVm4 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 17:42:56 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 6 Apr 2003 14:52:24 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Rik van Riel <riel@surriel.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: subobj-rmap
+In-Reply-To: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.50.0304061447560.7645-100000@blue1.dev.mcafeelabs.com>
+References: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-04-06 at 07:23, William Lee Irwin III wrote:
->> All that's really left is driver and non-i386 arch coverage if I'm right.
+On Sun, 6 Apr 2003, Rik van Riel wrote:
 
-On Sun, Apr 06, 2003 at 02:30:46PM -0400, Robert Love wrote:
-> If you know of something specific, please share.  I know the tty layer
-> needs work, but as far as I can tell, it is SMP issues that preemption
-> exposes... if any drivers in specific need work, let me know.
+> On Sun, 6 Apr 2003, Martin J. Bligh wrote:
+>
+> > Supposing we keep a list of areas (hung from the address_space) that
+> > describes independant linear ranges of memory that have the same set
+> > of vma's mapping them (call those subobjects). Each subobject has a
+> > chain of vma's from it that are mapping that subobject.
+> >
+> > address_space ---> subobject ---> subobject ---> subobject ---> subobject
+> >                        |              |              |              |
+> >                        v              v              v              v
+> >                       vma            vma            vma            vma
+> >                        |                             |              |
+> >                        v                             v              v
+> >                       vma                           vma            vma
+> >                        |                             |
+> >                        v                             v
+> >                       vma                           vma
+>
+> OK, lets say we have a file of 1000 pages, or
+> offsets 0 to 999, with the following mappings:
+>
+> VMA A:   0-999
+> VMA B:   0-200
+> VMA C: 150-400
+> VMA D: 300-500
+> VMA E: 300-500
+> VMA F:   0-999
+>
+> How would you describe these with independant
+> regions ?
 
-I presumed the audit was perpetual and/or ongoing.
+You should decompose each VMA in a set on independent regions. Immagine to
+pile up each VMA with boundaries that cuts each other VMA address space :
+
+1) |----------------------|
+2)     |-----------|
+3) |--------------------------|
+4)         |-----------|
+
+R) |---|---|-------|---|--|---|
+
+    1   1   1       1   1  3
+    3   2   2       3   3
+        3   3       4
+            4
 
 
--- wli
+
+- Davide
+

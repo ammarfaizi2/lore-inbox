@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313084AbSDGKwX>; Sun, 7 Apr 2002 06:52:23 -0400
+	id <S313087AbSDGK4k>; Sun, 7 Apr 2002 06:56:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313087AbSDGKwW>; Sun, 7 Apr 2002 06:52:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27143 "EHLO
+	id <S313089AbSDGK4j>; Sun, 7 Apr 2002 06:56:39 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:29959 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S313084AbSDGKwV>; Sun, 7 Apr 2002 06:52:21 -0400
-Date: Sun, 7 Apr 2002 11:52:13 +0100
+	id <S313087AbSDGK4j>; Sun, 7 Apr 2002 06:56:39 -0400
+Date: Sun, 7 Apr 2002 11:56:32 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: Rob Radez <rob@osinvestor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: WatchDog Driver Updates
-Message-ID: <20020407115212.B30048@flint.arm.linux.org.uk>
-In-Reply-To: <20020407083207.A28922@flint.arm.linux.org.uk> <Pine.LNX.4.33.0204070624470.3791-100000@pita.lan>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.8-pre2
+Message-ID: <20020407115632.C30048@flint.arm.linux.org.uk>
+In-Reply-To: <20020407112716.A30048@flint.arm.linux.org.uk> <Pine.GSO.4.21.0204071239310.2567-100000@lisianthus.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,18 +21,13 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 07, 2002 at 06:35:55AM -0400, Rob Radez wrote:
-> Hmm...I'm not seeing any standards here.  Some drivers would just send
-> whether the watchdog device was open, some would only send 0, sc1200
-> would send whether the device was enabled or disabled, one did 'int one=1'
-> and then a few lines later copy_to_user'd 'one', and it looks like all of
-> three of twenty would actually return proper WDIOF flags.
+On Sun, Apr 07, 2002 at 12:42:45PM +0200, Geert Uytterhoeven wrote:
+> Perhaps you want to modularize the driver later? Resource management also
+> prevents you from insmoding two drivers for the same hardware.
 
-Maybe Alan would like to comment and clear up this issue - I believe the
-interface was Alan's design.  Certainly Alan wrote most of the early
-watchdog drivers.
-
-Thanks.
+I doubt I'll be doing anything with those two drivers - up to other
+people.  I'm prodding them now, but not expecting any immediate
+reaction.
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289855AbSAPEcq>; Tue, 15 Jan 2002 23:32:46 -0500
+	id <S290355AbSAPEsK>; Tue, 15 Jan 2002 23:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290352AbSAPEch>; Tue, 15 Jan 2002 23:32:37 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:54281 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289855AbSAPEc1>;
-	Tue, 15 Jan 2002 23:32:27 -0500
-Date: Wed, 16 Jan 2002 02:32:04 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: OOM kill in 2.4.18-pre4
-In-Reply-To: <200201160125.CAA06756@webserver.ithnet.com>
-Message-ID: <Pine.LNX.4.33L.0201160231430.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S290359AbSAPEsA>; Tue, 15 Jan 2002 23:48:00 -0500
+Received: from gear.torque.net ([204.138.244.1]:27410 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S290358AbSAPEr4>;
+	Tue, 15 Jan 2002 23:47:56 -0500
+Message-ID: <3C4505C4.37EBD193@torque.net>
+Date: Tue, 15 Jan 2002 23:47:00 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.3-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.5 and ppa.c
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Stephan von Krawczynski wrote:
+John Weber <weber@nyc.rr.com> wrote:
 
-> Is anybody against making it a bit less intelligent, and more real
-> live adequate?
+> This is one of those drivers still broken due to 
+> the BIO changes (it still calls io_request_lock()).
+>
+> Unfortunately, I only know enough to
+> s/io_request_lock/host->host_lock/g.
+> 
+> I am afraid this requires a little more than this.
 
-I wish you lots of success ;)
+John,
+The ppa_detect() must _not_ take the host_lock semaphore
+as it is already taken by the mid level before it calls
+ppa_detect(). [This will cause a lock up on an SMP
+machine.]
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+The ppa_interrupt() should take the host_lock semaphore
+before it calls scsi_done() (which calls up the scsi
+driver stack).
 
-http://www.surriel.com/		http://distro.conectiva.com/
+The imm driver has been built by the same firm (Tim Waugh?)
+and it looks correctly patched.
 
+Doug Gilbert
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

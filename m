@@ -1,37 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbUK2VZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbUK2VdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbUK2VZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 16:25:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbUK2VZ2
+	id S261808AbUK2VdV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 16:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbUK2VdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 16:25:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:56704 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261807AbUK2VZU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 16:25:20 -0500
-Date: Mon, 29 Nov 2004 13:29:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Darren Hart <dvhltc@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, piggin@cyberone.com.au, mingo@elte.hu
-Subject: Re: scheduler BUGON lifespan
-Message-Id: <20041129132931.7f87742b.akpm@osdl.org>
-In-Reply-To: <1101762694.29380.23.camel@farah.beaverton.ibm.com>
-References: <1101762694.29380.23.camel@farah.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Nov 2004 16:33:21 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:37258 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S261808AbUK2VdS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 16:33:18 -0500
+Date: Mon, 29 Nov 2004 21:33:16 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: cdrecord dev=ATA cannont scanbus as non-root
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: Balsa 2.2.6
+Message-Id: <1101763996l.13519l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Darren Hart <dvhltc@us.ibm.com> wrote:
->
-> How long should this BUGON remain in the kernel?
+Hi all...
 
-Until someone thinks to remove it, it seems.  There is no established
-protocol or period.  Often someone will say "hey, this is silly" and will
-remove it - usually as part of some wider work.
+I'm trying to get out of the mess that cd burning looks like nowadays in
+linux...
 
-If you think a BUG or BUG_ON doesn't need to be there any more, feel free
-to send a patch..
+As I use a 2.6.x kernel, I folowed this hints:
+- no suid cdrecord, it uses capabilities
+- make the burner owned by console user (pam)
+
+cdrecord burns ok using dev=/dev/burner, but I can't get GUI tools to
+burn using the /dev interface. All of them try to load ide-scsi, and
+do a scan based on ATAPI:.
+Some tools try to scan with dev=ATA:x:y:z, but that does not work as
+normal user.
+
+How can I make 'cdrecord dev=ATA -scanbus' work as non-root ?
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-rc2-jam3 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
+
 

@@ -1,98 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVCUOBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVCUODi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVCUOBI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 09:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVCUOBI
+	id S261935AbVCUODi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 09:03:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVCUODh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 09:01:08 -0500
-Received: from ozlabs.org ([203.10.76.45]:16003 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261795AbVCUN7S (ORCPT
+	Mon, 21 Mar 2005 09:03:37 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:28347 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261854AbVCUOCZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 08:59:18 -0500
-Subject: Re: Problem: ip_nat_irc.c in kernel 2.6.11.5
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andy K <crap.goes.here@gmail.com>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Netfilter development mailing list 
-	<netfilter-devel@lists.netfilter.org>
-In-Reply-To: <a17b2e290503200056455a42d6@mail.gmail.com>
-References: <a17b2e290503200056455a42d6@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 22 Mar 2005 01:00:01 +1100
-Message-Id: <1111413602.27471.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Mon, 21 Mar 2005 09:02:25 -0500
+Message-ID: <423EE354.ACFF446A@tv-sign.ru>
+Date: Mon, 21 Mar 2005 18:08:04 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc1-mm1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-03-20 at 00:56 -0800, Andy K wrote:
-> Hello,
-> 
-> I recently upgraded my system from kernel 2.6.7 to 2.6.11.5 and have
-> found that my DCC transfers no longer work inside my NAT'd network. It
-> appears that the ip_nat_irc.c code no longer takes a 'ports'
-> parameter, although it did in 2.6.7.
+Not related to this mm release directly, but
 
-Yes.  (CC'd lkml so google gets a sniff of this in future).
+> All 609 patches:
+> ...
+> x86-fix-esp-corruption-cpu-bug-take-2.patch
+>   x86: fix ESP corruption CPU bug (take 2)
 
-Linus, please apply.
-Rusty.
+I think that Stas tries to steal 1024 bytes from kernel's memory ...
+On top of his patch.
 
-Name: Restore ports module parameter for ip_nat_ftp and ip_nat_irc
-Status: Tested on 2.6.12-rc1-bk1
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-There is no "ports" parameter for the ip_nat_ftp and ip_nat_irc
-modules in 2.6.11: the ports parameter supplied to the
-ip_conntrack_ftp/ip_conntrack_irc module defines the ports.  It was
-unfortunate that we were lazy in the original implementation, and
-forced the user to duplicate the arguments.
-
-Even more unfortunate, the removal of the parameter caused autoloading
-to break for various setups, with an "Unknown parameter" message.  The
-solution is to restore the parameter as a dummy, with a polite warning
-message that it is no longer neccessary.
-
-Index: linux-2.6.12-rc1-bk1-Netfilter/net/ipv4/netfilter/ip_nat_ftp.c
-===================================================================
---- linux-2.6.12-rc1-bk1-Netfilter.orig/net/ipv4/netfilter/ip_nat_ftp.c	2005-03-02 23:28:18.000000000 +1100
-+++ linux-2.6.12-rc1-bk1-Netfilter/net/ipv4/netfilter/ip_nat_ftp.c	2005-03-22 00:40:40.000000000 +1100
-@@ -170,5 +170,14 @@
- 	return 0;
- }
+--- 2.6.12/arch/i386/kernel/cpu/common.c~stas	2005-03-21 19:43:11.000000000 +0300
++++ 2.6.12/arch/i386/kernel/cpu/common.c	2005-03-21 19:48:30.000000000 +0300
+@@ -21,7 +21,6 @@
+ DEFINE_PER_CPU(struct desc_struct, cpu_gdt_table[GDT_ENTRIES]);
+ EXPORT_PER_CPU_SYMBOL(cpu_gdt_table);
  
-+/* Prior to 2.6.11, we had a ports param.  No longer, but don't break users. */
-+static int warn_set(const char *val, struct kernel_param *kp)
-+{
-+	printk(KERN_INFO __stringify(KBUILD_MODNAME)
-+	       ": kernel >= 2.6.10 only uses 'ports' for conntrack modules\n");
-+	return 0;
-+}
-+module_param_call(ports, warn_set, NULL, NULL, 0);
-+
- module_init(init);
- module_exit(fini);
-Index: linux-2.6.12-rc1-bk1-Netfilter/net/ipv4/netfilter/ip_nat_irc.c
-===================================================================
---- linux-2.6.12-rc1-bk1-Netfilter.orig/net/ipv4/netfilter/ip_nat_irc.c	2005-03-02 23:28:18.000000000 +1100
-+++ linux-2.6.12-rc1-bk1-Netfilter/net/ipv4/netfilter/ip_nat_irc.c	2005-03-22 00:40:33.000000000 +1100
-@@ -112,5 +112,14 @@
- 	return 0;
- }
+-unsigned char cpu_16bit_stack[CPU_16BIT_STACK_SIZE];
+ DEFINE_PER_CPU(unsigned char, cpu_16bit_stack[CPU_16BIT_STACK_SIZE]);
+ EXPORT_PER_CPU_SYMBOL(cpu_16bit_stack);
  
-+/* Prior to 2.6.11, we had a ports param.  No longer, but don't break users. */
-+static int warn_set(const char *val, struct kernel_param *kp)
-+{
-+	printk(KERN_INFO __stringify(KBUILD_MODNAME)
-+	       ": kernel >= 2.6.10 only uses 'ports' for conntrack modules\n");
-+	return 0;
-+}
-+module_param_call(ports, warn_set, NULL, NULL, 0);
-+
- module_init(init);
- module_exit(fini);
-
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+--- 2.6.12-rc1/include/asm-i386/desc.h~stas	2005-03-21 19:43:11.000000000 +0300
++++ 2.6.12-rc1/include/asm-i386/desc.h	2005-03-21 19:49:16.000000000 +0300
+@@ -17,7 +17,6 @@
+ extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
+ DECLARE_PER_CPU(struct desc_struct, cpu_gdt_table[GDT_ENTRIES]);
+ 
+-extern unsigned char cpu_16bit_stack[CPU_16BIT_STACK_SIZE];
+ DECLARE_PER_CPU(unsigned char, cpu_16bit_stack[CPU_16BIT_STACK_SIZE]);
+ 
+ struct Xgt_desc_struct {

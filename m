@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284711AbSAGSM2>; Mon, 7 Jan 2002 13:12:28 -0500
+	id <S284728AbSAGSPS>; Mon, 7 Jan 2002 13:15:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284761AbSAGSMV>; Mon, 7 Jan 2002 13:12:21 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:528 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S284728AbSAGSMK>; Mon, 7 Jan 2002 13:12:10 -0500
-Date: Mon, 7 Jan 2002 16:10:38 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@ns.caldera.de>,
-        Jaroslav Kysela <perex@suse.cz>, <sound-hackers@zabbo.net>,
-        <linux-sound@vger.rutgers.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA patch for 2.5.2pre9 kernel
-Message-ID: <20020107181038.GB1026@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Christoph Hellwig <hch@ns.caldera.de>,
-	Jaroslav Kysela <perex@suse.cz>, <sound-hackers@zabbo.net>,
-	<linux-sound@vger.rutgers.edu>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16Ndc4-0001sW-00@the-village.bc.nu> <Pine.LNX.4.33.0201070959430.6559-100000@penguin.transmeta.com>
+	id <S284755AbSAGSPJ>; Mon, 7 Jan 2002 13:15:09 -0500
+Received: from zero.tech9.net ([209.61.188.187]:33541 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S284728AbSAGSO7>;
+	Mon, 7 Jan 2002 13:14:59 -0500
+Subject: [PATCH] preemptible kernel patch for 2.4 and 2.5
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: kpreempt-tech@lists.sourceforge.net
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 07 Jan 2002 13:16:58 -0500
+Message-Id: <1010427419.1519.24.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0201070959430.6559-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Jan 07, 2002 at 10:00:57AM -0800, Linus Torvalds escreveu:
-> 
-> On Mon, 7 Jan 2002, Alan Cox wrote:
-> > > Or we could just have a really _deep_ hierarchy, and put everything under
-> > > "linux/drivers/sound/..", but I'd rather break cleanly with the old.
-> >
-> > Christoph has an interesting point. Networking is
-> >
-> > 	net/[protocol]/
-> > 	drivers/net/[driver]
-> >
-> > so by that logic we'd have
-> >
-> > 	sound/soundcore.c
-> > 	sound/alsa/alsalibcode
-> > 	sound/oss/osscore
-> >
-> > 	sound/drivers/cardfoo.c
-> >
-> > which would also be much cleaner since the supporting crap would be seperate
-> > from the card drivers
-> 
-> I would certainly not oppose that. Look sane to me, although the question
-> then ends up being about "drivers/sound" or "sound/drivers" (the latter
-> has the advantage that it keeps sound together, the former is more
-> analogous to the "net" situation).
+Announcing the next revision of the fully preemptible linux kernel
+patch, available for 2.4 and 2.5 trees now at:
 
-One ring^Wlayout to rule them all <stops here ;)> I would not be unhappy if
-drivers/net became net/drivers, etc 8)
+ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel
 
-- Arnaldo
+and your favorite mirrors.  Diffs for 2.4.18-pre1 and 2.5.2-pre9 are
+available along with previous patches.
+
+This patch, which we are all familiar with by now, makes the kernel
+preemptible.  This means that a higher priority process can preempt a
+lower priority process, even if it is running inside the kernel. 
+Reentrancy is protected by SMP lock points.  Despite the warnings to the
+contrary about throughput, benchmarking actually shows a marked
+increase, probably due to faster scheduling of woken I/O tasks. 
+Complexity added is minimal.
+
+ARM, i386, and SH are supported.  UP and SMP is supported.  There are no
+outstanding bugs.
+
+Perhaps a feature that is often overlooked is the growth for performance
+gains in the future.  As we continue to make locks finer grained (and,
+especially, remove the BKL) performance will increase.  Thus we now have
+an architecture where by we can continue to improve performance.
+
+Changes:
+
+- (2.5 only) include linux/sched.h in fs/char_dev.c
+
+- SH arch: fix certain code path not hitting preempt_enable (Jeremy
+Siegel)
+
+- stop locking task to CPU across preemptions.
+ 
+- back out console race fix as it was merged with mainline
+
+Todo:
+
+- Port the scheduling details to Ingo's O(1) scheduler
+
+Enjoy,
+
+	Robert Love
+

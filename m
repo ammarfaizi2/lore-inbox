@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273829AbRIREXy>; Tue, 18 Sep 2001 00:23:54 -0400
+	id <S273831AbRIREl0>; Tue, 18 Sep 2001 00:41:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273830AbRIREXo>; Tue, 18 Sep 2001 00:23:44 -0400
-Received: from sgi.SGI.COM ([192.48.153.1]:28990 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S273829AbRIREXh>;
-	Tue, 18 Sep 2001 00:23:37 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Mark Atwood <mra@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to get version string and other metadata out of a not-loaded kernel module file? 
-In-Reply-To: Your message of "17 Sep 2001 13:02:36 MST."
-             <m3ofo9k2lf.fsf_-_@flash.localdomain> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 18 Sep 2001 14:22:27 +1000
-Message-ID: <8813.1000786947@kao2.melbourne.sgi.com>
+	id <S273832AbRIRElQ>; Tue, 18 Sep 2001 00:41:16 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60427 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S273831AbRIRElI>; Tue, 18 Sep 2001 00:41:08 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux 2.4.10-pre11
+Date: 17 Sep 2001 21:41:25 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9o6j9l$461$1@cesium.transmeta.com>
+In-Reply-To: <20010918031813.57E1062ABC@oscar.casa.dyndns.org> <E15jBLy-0008UF-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Sep 2001 13:02:36 -0700, 
-Mark Atwood <mra@pobox.com> wrote:
->Is there an (easy) way to query the "metadata", such as the version
->strings and such, of a kernel module file, without loading it first?
+Followup to:  <E15jBLy-0008UF-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
+> 
+> You need gcc 2.96 or higher to build the pre11 tree. I doubt that was
+> intentional. Basically rip out all use of __builtin_expect
+> 
 
-With modutils >= 2.4.5.
+Perhaps we should have a header which does #define __builtin_expect(X)
+if your gcc version is 2.91-95?
 
-# modinfo loop
-filename:    /lib/modules/2.4.10-pre8-xfs/kernel/drivers/block/loop.o
-description: <none>
-author:      <none>
-parm:        max_loop int, description "Maximum number of loop devices (1-255)"
-
-# strings -a /lib/modules/2.4.10-pre8-xfs/kernel/drivers/block/loop.o | grep kernel_version=
-kernel_version=2.4.10-pre8-xfs
-
+   -hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,75 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUJNOAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUJNOLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUJNOAk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 10:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264726AbUJNOAk
+	id S264726AbUJNOLx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 10:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbUJNOLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 10:00:40 -0400
-Received: from s0003.shadowconnect.net ([213.239.201.226]:36802 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S264246AbUJNOAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 10:00:37 -0400
-Message-ID: <416E8779.3020303@shadowconnect.com>
-Date: Thu, 14 Oct 2004 16:04:41 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
+	Thu, 14 Oct 2004 10:11:53 -0400
+Received: from elektron.ikp.physik.tu-darmstadt.de ([130.83.24.72]:42513 "EHLO
+	elektron.ikp.physik.tu-darmstadt.de") by vger.kernel.org with ESMTP
+	id S264726AbUJNOLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 10:11:48 -0400
+From: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: question about MTRR areas on x86_64
-References: <2M5w2-y8-3@gated-at.bofh.it>	<m3vfdox14o.fsf@averell.firstfloor.org> <m1acupefrn.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1acupefrn.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16750.35107.162305.289840@hertz.ikp.physik.tu-darmstadt.de>
+Date: Thu, 14 Oct 2004 16:11:47 +0200
+To: linux-kernel@vger.kernel.org
+Subject: [RESENT] FIONREAD on  SOCK_STREAM socketpairs 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-Eric W. Biederman wrote:
-> Andi Kleen <ak@muc.de> writes:
->>Markus Lidel <Markus.Lidel@shadowconnect.com> writes:
->>>Could it be because the machine has too much memory, or is there a bug in the
->>I2O driver?
->>
->>The problem comes from the BIOS who set up reg00 to be overlapping
->>over other areas. The Linux MTRR driver cannot deal with overlapping
->>MTRRs, in fact it is sometimes impossible because it could run
->>out of registers or violate some of the MTRR restrictions.
+a small test program (appended) shows that Linux returns only the number of
+Bytes written with the first write call (here 11 bytes ) to the queue of a
+socketpair, opened with SOCK_STREAM.  Other systems (tested on AIX, FreeBSD,
+HPUX, Solaris) return the number of all byte (here 32) written by the repeated
+calls to write().
 
-Sorry, for not answering, but somehow i never received your e-mail. :-(
+The latter result is also consistant with the explanation for FIONREAD,
+e.g. given on
+http://docsun.cites.uiuc.edu/sun_docs/C/solaris_9/SUNWdev/STREAMS/p39.html:
 
-> And the BIOS is using overlapping MTRRs because otherwise it would run
-> out.
-
-Okay...
-
->>It's a long standing problem, eventual fix will be to get rid
->>of MTRRs completely and only use PAT. But it needs a bit more work.
-
-I've seen there is already a patch around to add initial PAT support. So 
-i think it's only a question of time until it is included :-D If there is 
-something i could help with please let me know.
-
-Thanks to both of you for helping.
+> FIONREAD
+>
+> The FIONREAD ioctl returns the number of data bytes (in all data messages
+> queued) in the location pointed to by the arg parameter.
 
 
+For 2.4, I applied following patch:
+====
+--- linux/net/unix/af_unix.c.org	2004-08-12 16:47:00.000000000 +0200
++++ linux/net/unix/af_unix.c	2004-10-12 12:19:44.000000000 +0200
+@@ -1692,8 +1692,12 @@
+ 				err = -EINVAL;
+ 				break;
+ 			}
+-
+ 			spin_lock(&sk->receive_queue.lock);
++			if (sk->type == SOCK_STREAM)
++			  skb_queue_walk(&sk->receive_queue, skb) {
++			  amount+=skb->len;
++			}
++			else
+ 			if((skb=skb_peek(&sk->receive_queue))!=NULL)
+ 				amount=skb->len;
+ 			spin_unlock(&sk->receive_queue.lock);
+========
+and for 2.6:
+========
+--- linux-2.6.9-rc4/net/unix/af_unix.c.org	2004-10-11 04:58:07.000000000 +0200
++++ linux-2.6.9-rc4/net/unix/af_unix.c	2004-10-12 19:33:38.000000000 +0200
+@@ -1840,9 +1840,16 @@
+ 			}
+ 
+ 			spin_lock(&sk->sk_receive_queue.lock);
++			if (sk->sk_type == SOCK_STREAM)
++			  skb_queue_walk(&sk->sk_receive_queue, skb) {
++			  amount+=skb->len;
++			}
++			else
++			  {
+ 			skb = skb_peek(&sk->sk_receive_queue);
+ 			if (skb)
+ 				amount=skb->len;
++			  }
+ 			spin_unlock(&sk->sk_receive_queue.lock);
+ 			err = put_user(amount, (int __user *)arg);
+ 			break;
+=====
 
-Best regards,
+Any comments on this behaviour and patch?
 
+Thanks
 
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
+-- 
+Uwe Bonnes                bon@elektron.ikp.physik.tu-darmstadt.de
 
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
+Institut fuer Kernphysik  Schlossgartenstrasse 9  64289 Darmstadt
+--------- Tel. 06151 162516 -------- Fax. 06151 164321 ----------
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
+int main()
+{
+    int fds[2];
+    const char obuf[] =  "Bit Bucket";
+    const char obuf2[] = "More bits";
+    char ibuf[34];
+    int i, avail;
 
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+    if( !socketpair( PF_UNIX, SOCK_STREAM, 0, fds ) ) {
+        printf("Success\n");
+        
+        write(fds[0], obuf, sizeof(obuf));
+        write(fds[0], obuf2, sizeof(obuf2));
+        write(fds[0], obuf, sizeof(obuf));
+        i = ioctl(fds[1], FIONREAD, &avail);
+        printf("FIONREAD: %d bytes avail\n", avail);
+        i = read(fds[1], ibuf, sizeof(ibuf));
+        printf("Read: %d bytes - %s\n", i, ibuf);
+        
+        close(fds[0]);
+        close(fds[1]);
+    }
+    else
+        printf("Fail\n");
+    return 0;
+}

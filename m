@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264899AbTF2Uy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 16:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbTF2UyB
+	id S263600AbTF2Uxx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264908AbTF2Uxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 16:54:01 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:52890 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S265022AbTF2Uvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 16:51:41 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Mel Gorman <mel@csn.ul.ie>
-Subject: Re: [RFC] My research agenda for 2.7
-Date: Sat, 28 Jun 2003 23:06:59 +0200
-User-Agent: KMail/1.5.2
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-References: <200306250111.01498.phillips@arcor.de> <200306271800.53487.phillips@arcor.de> <Pine.LNX.4.53.0306291953490.20655@skynet>
-In-Reply-To: <Pine.LNX.4.53.0306291953490.20655@skynet>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Jun 2003 16:53:53 -0400
+Received: from p508B5A53.dip.t-dialin.net ([80.139.90.83]:58771 "EHLO
+	dea.linux-mips.net") by vger.kernel.org with ESMTP id S263600AbTF2UwF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:52:05 -0400
+Date: Sun, 29 Jun 2003 23:04:12 +0200
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: [patch] 2.5.73-mm2: let CONFIG_TC35815 depend on CONFIG_TOSHIBA_JMR3927
+Message-ID: <20030629210412.GC12516@linux-mips.org>
+References: <20030627202130.066c183b.akpm@digeo.com> <20030629190431.GB282@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306282306.59502.phillips@arcor.de>
+In-Reply-To: <20030629190431.GB282@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 29 June 2003 21:25, Mel Gorman wrote:
-> As you can see, order0 allocations were a *lot* more common, at least in
-> my system.
+On Sun, Jun 29, 2003 at 09:04:32PM +0200, Adrian Bunk wrote:
 
-Mel,
+> The following problem seems to come from Linus' tree:
+> 
+> I got an error at the final linking with CONFIG_TC35815 enabled since
+> the variables tc_readl and tc_writel are not available.
+> 
+> The only place where they are defined is arch/mips/pci/ops-jmr3927.c, so 
+> I assume the following was intended:
 
-There's no question that that's the case today.  However, there are good 
-reasons for using a largish filesystem blocksize, 16K for example, once it 
-becomes possible to do so.  With an active volume mounted using 16K blocks, 
-you'd see that the balance of allocations shifts towards order 2.  The size 
-of the shift will be workload-dependent, ranging from almost no order 2 
-allocations, to almost all.  To keep things interesting, it's quite possible 
-for the balance to change suddenly and/or strongly.
+Not really intended but it makes sense as this particular boards seems
+to be the only user of that chip - which already has vanished from
+Toshiba's pages anyway ...
 
-> Because they are so common in comparison to other orders, I
-> think that putting order0 in slabs of size 2^MAX_ORDER will make
-> defragmentation *so* much easier, if not plain simple, because you can
-> shuffle around order0 pages in the slabs to free up one slab which frees
-> up one large 2^MAX_ORDER adjacent block of pages.
-
-But how will you shuffle those pages around?
-
-Regards,
-
-Daniel
-
+  Ralf

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274966AbRIXUk7>; Mon, 24 Sep 2001 16:40:59 -0400
+	id <S274971AbRIXUr3>; Mon, 24 Sep 2001 16:47:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274952AbRIXUkl>; Mon, 24 Sep 2001 16:40:41 -0400
-Received: from rj.sgi.com ([204.94.215.100]:43139 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S274962AbRIXUkc>;
-	Mon, 24 Sep 2001 16:40:32 -0400
-Message-ID: <3BAF9A38.46AA9E6@sgi.com>
-Date: Mon, 24 Sep 2001 13:40:24 -0700
-From: Casey Schaufler <casey@sgi.com>
-Organization: Silicon Graphics
-X-Mailer: Mozilla 4.78C-SGI [en] (X11; U; IRIX 6.5-ALPHA-1277639620 IP32)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <20010924101710.C7311@kroah.com>
+	id <S274967AbRIXUrU>; Mon, 24 Sep 2001 16:47:20 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:55561 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S274962AbRIXUrF>;
+	Mon, 24 Sep 2001 16:47:05 -0400
+Date: Mon, 24 Sep 2001 23:47:17 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Simon Kirby <sim@netnation.com>, linux-kernel@vger.kernel.org
+Subject: Re: O_NONBLOCK on files
+Message-ID: <20010924234717.V11046@mea-ext.zmailer.org>
+In-Reply-To: <20010918234648.A21010@netnation.com> <m1r8t3fyot.fsf@frodo.biederman.org> <20010919002439.A21138@netnation.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010919002439.A21138@netnation.com>; from sim@netnation.com on Wed, Sep 19, 2001 at 12:24:39AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Wed, Sep 19, 2001 at 12:24:39AM -0700, Simon Kirby wrote:
+> On Wed, Sep 19, 2001 at 01:05:06AM -0600, Eric W. Biederman wrote:
+> > What would cause the data to be read in if read just checks the caches?
+> > With sockets the other side is clearing pushing or pulling the data.  With
+> > files there is no other side...
 > 
-> On Mon, Sep 24, 2001 at 12:40:44PM -0400, Arjan van de Ven wrote:
-> > Highlevel drivers
-> ...
-> > SGI           - High level security modules (LSM)
+> Hmm...Without even thinking about it, I assumed it would start a read and
+> select() or poll() or some later call would return readable when my
+> outstanding request was fulfilled.  But yes, I guess you're right, this is
+> different behavior because there is no other side.
 
-License terms and release scheme for this work
-have not been finalized. 
+   To push the idea into ultimate:  AIO
 
--- 
+   You open file, start IO, and do other things while the machine
+   is doing IO.    Doing open() asynchronously would be ultimate,
+   but alas, not particularly trivial.
 
-Casey Schaufler				Manager, Trust Technology, SGI
-casey@sgi.com				voice: 650.933.1634
-casey_p@pager.sgi.com			Pager: 888.220.0607
+   There are problems also in the AIO status rendezvous mechanisms.
+
+   Your best choice could be (with moderation) to do synchronous
+   operations at separate threads.
+
+> Reading a file would need a receive queue to make this work, I guess. :)
+> Simon-
+> [       sim@stormix.com       ][       sim@netnation.com        ]
+
+/Matti Aarnio

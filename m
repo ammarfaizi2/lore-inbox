@@ -1,84 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279505AbRKRN0w>; Sun, 18 Nov 2001 08:26:52 -0500
+	id <S279499AbRKRNXV>; Sun, 18 Nov 2001 08:23:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279509AbRKRN0l>; Sun, 18 Nov 2001 08:26:41 -0500
-Received: from 59dyn119.com21.casema.net ([213.17.63.119]:36235 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S279505AbRKRN0a>; Sun, 18 Nov 2001 08:26:30 -0500
-Message-Id: <200111181326.OAA28770@cave.bitwizard.nl>
-Subject: DD-ing from device to device. 
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Date: Sun, 18 Nov 2001 14:26:19 +0100 (MET)
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S279502AbRKRNXM>; Sun, 18 Nov 2001 08:23:12 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:3088 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S279499AbRKRNWy>; Sun, 18 Nov 2001 08:22:54 -0500
+Date: Sun, 18 Nov 2001 14:17:44 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Sven Vermeulen <sven.vermeulen@rug.ac.be>
+cc: Linux-Kernel Development Mailinglist 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: /sbin/mount and /proc/mounts difference
+In-Reply-To: <20011118135007.A787@Zenith.starcenter>
+Message-ID: <Pine.LNX.4.30.0111181401140.13487-100000@cola.teststation.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 18 Nov 2001, Sven Vermeulen wrote:
 
-Hi,
+> As you can see the notail-option of reiserfs isn't listed on /proc/mounts,
+> but it is on "mount".
+> 
+> Does this have any particular reason?
 
-I should NOT get a "file too large" error when copying from a device
-to a device, right?
+mount writes everything to /etc/mtab and displays that when asked.
 
-I should NOT get a "file too large" if the files are openeed using
-the "O_LARGEFILE" option, right?
+The kernel doesn't ask the individual filesystem "drivers" if they have
+some options they would like to list there. So for /proc it simply lists
+the options the VFS knows about. Except for NFS that for some reson has
+code there.
 
-Well: 
+I don't know if there are any plans to change that. Wouldn't be difficult
+to add something to super_operations.
 
-execve("/bin/dd", ["dd", "if=/dev/hda", "of=/dev/hdc", "bs=1024k", "count=10"], [/* 46 vars */]) = 0
-[... libs and stuff ... ]
-open("/dev/hda", O_RDONLY|O_LARGEFILE)  = 4
-open("/dev/hdc", O_RDWR|O_CREAT|O_TRUNC|O_LARGEFILE, 0666) = 5
-[....signals and stuff. ]
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-munmap(0x400fb000, 1052672)             = 0
-write(2, "10+0 records in\n", 16)       = 16
-write(2, "10+0 records out\n", 17)      = 17
-close(4)                                = 0
-close(5)                                = 0
-_exit(0)                                = ?
+fs/namespace.c:
+	show_vfsmnt
+	show_nfs_mount
 
+If it is important to you, you could add a "show_reiserfs_mount" by
+copying how things are done for nfs.
 
-But without the "count=10" I get: 
+/Urban
 
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048576
-read(4, ""..., 1048576) = 1048576
-write(5, ""..., 1048576) = 1048575
-write(5, ".", 1)                     = -1 EFBIG (File too large)
-
-
-
-This is on 2.2.14. I Could swear we made a working copy of a disk 30
-minutes earlier....
-
-	Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263161AbUDZRyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbUDZRz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263161AbUDZRyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 13:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbUDZRyI
+	id S263163AbUDZRz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 13:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUDZRz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 13:54:08 -0400
-Received: from dsl081-101-153.den1.dsl.speakeasy.net ([64.81.101.153]:57520
-	"EHLO mail.chen-becker.org") by vger.kernel.org with ESMTP
-	id S263161AbUDZRyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 13:54:06 -0400
-Message-ID: <408D4CB4.4070901@chen-becker.org>
-Date: Mon, 26 Apr 2004 11:53:56 -0600
-From: Derek Chen-Becker <derek@chen-becker.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040119
-X-Accept-Language: en-us, en
+	Mon, 26 Apr 2004 13:55:56 -0400
+Received: from mail1.webmessenger.it ([193.70.193.50]:4259 "EHLO
+	mail1c.webmessenger.it") by vger.kernel.org with ESMTP
+	id S263163AbUDZRz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 13:55:29 -0400
+From: "Martin Angler" <martin.angler@email.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: Driver in user space/RS485
+Date: Mon, 26 Apr 2004 19:55:26 +0200
 MIME-Version: 1.0
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Troubleshooting PS/2 mouse in 2.6.5
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQrt6dGINBI/XQmQkWZSAZFCHNPkA==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-Id: <S263163AbUDZRz3/20040426175529Z+110@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-     I'm upgrading my workstation from 2.4.22 to 2.6.5 and everything is 
-working great except for /dev/input/mice: it doesn't appear to be 
-producing anything, even if I cat it. I've checked and both dmesg and 
-/proc/bus/input/devices show the mouse handler loaded and show the mouse 
-as recognized. I've tried disabling ACPI because I saw it mentioned when 
-I googled, but that didn't help. I've also tried loading the event 
-handler module and I get nothing there either. I have another PC with 
-2.6.5 working fine with the same mouse. Both are hooked up to the same 
-KVM, would that have anything to do with it? Does anyone know where I 
-could look to get more detail on what's happening?
+Hello,
 
-Thanks,
+I have to develop a pseudo-device driver that gets data from a RS485
+interface, frames it and gives the framed data to libpcap. This whole thing
+is a university project. Now I know, that writing a kernel module I can't be
+using the standard C library for invocations of read() or ioctl() methods in
+order to get the data from the RS485 interface. 
 
-Derek
+So my plan would be writing a driver xxx which has its file operations
+xxx_read, xxx_open and xxx_release. xxx_read should call then some kind of
+read method in order to get the data from the RS485. Are there any exported
+symbols from the RS485 driver? Or do I have to write the whole driver in
+user space in order to access the RS485 interface?
 
--- 
-+---------------------------------------------------------------+
-| Derek Chen-Becker                                             |
-| derek@chen-becker.org                                         |
-| http://chen-becker.org                                        |
-|                                                               |
-| PGP key available on request or from public key servers       |
-| ID: 21A7FB53                                                  |
-| Fngrprnt: 209A 77CA A4F9 E716 E20C  6348 B657 77EC 21A7 FB53  |
-+---------------------------------------------------------------+
+Thanks in advance,
+Martin Angler
+

@@ -1,859 +1,698 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261820AbSJDX6Q>; Fri, 4 Oct 2002 19:58:16 -0400
+	id <S262120AbSJDXrT>; Fri, 4 Oct 2002 19:47:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261815AbSJDX6Q>; Fri, 4 Oct 2002 19:58:16 -0400
-Received: from services.erkkila.org ([24.97.94.217]:47823 "EHLO erkkila.org")
-	by vger.kernel.org with ESMTP id <S261820AbSJDX6F>;
-	Fri, 4 Oct 2002 19:58:05 -0400
-Message-ID: <3D9E2C54.90200@erkkila.org>
-Date: Sat, 05 Oct 2002 00:03:32 +0000
-From: "Paul E. Erkkila" <pee@erkkila.org>
-Reply-To: pee@erkkila.org
-Organization: ErkkilaDotOrg
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021002
+	id <S262121AbSJDXrT>; Fri, 4 Oct 2002 19:47:19 -0400
+Received: from patan.Sun.COM ([192.18.98.43]:42892 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S262120AbSJDXrJ>;
+	Fri, 4 Oct 2002 19:47:09 -0400
+Message-ID: <3D9E29BD.1040902@sun.com>
+Date: Fri, 04 Oct 2002 16:52:29 -0700
+From: Tim Hockin <thockin@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
 X-Accept-Language: en-us, en
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_services-14633-1033776214-0001-2"
-To: linux-kernel@vger.kernel.org
-Subject: Re: oops in bk pull (oct 03)
-References: <3D9DF6A2.9030101@erkkila.org> <anl2ti$9lc$1@penguin.transmeta.com>
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: austin@digitalroadkill.net, hahn@physics.mcmaster.ca, jackie.m@vt.edu,
+       rread@clusterfs.com
+Subject: RFC: Patch for >32 groups
+Content-Type: multipart/mixed;
+ boundary="------------070800050108070509000001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
-
---=_services-14633-1033776214-0001-2
+This is a multi-part message in MIME format.
+--------------070800050108070509000001
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
+All,
 
-err.. replying to right place this time o.0
+Here is a set of patches (against a recent-ish 2.5 BK) that removes the 
+arbitrary limit of 32 groups.
 
-I booted the machine 6 times or so and it died in the same
-place each time. I also did make mrproper, and reconfigured.
-(which is the kernel below).
+The first patch creates generic qsort() and bsearch() routines (I have 
+another patch to conver XFS to use it, as discussed with Christoph a 
+while back).
 
-The bk tree was current when i built it, and current as of
-about an hour ago.
+The second patch converts task->groups[] into a dynamic, refcounted, CoW 
+array.  It does the needed bits for i386 (minor) but not the other 
+architectures.  I have (not included here for brevity) patches that 
+convert other arch trees to do the right thing (I think) and convert 
+other usages of NGROUPS and task->groups and task->ngroups.  There are 
+still a few issues I am working out with those.
 
-Stripping stuff out (sound, etc) didn't make any difference I
-could tell, however booting maxcpus=0 , freezes after the
-PCI: Probing PCI Hardware (bus 00) with no oops. The machine
-just hangs. SysRQ keys do nadda =).
+I wanted to post this (and CC: people who have mailed me about it) and 
+see if there are any complaints about the approach.  The patches are 
+simple, and have been in use in our own 2.4.x systems or some time.  I 
+did make some changes in forward porting, but they are tested on at 
+least one 2.5.x box here :)
 
-.config attached
+This has the side effect of reducing the size of struct task_struct by a 
+bit, too. :)
 
--pee
+This should run on any glibc, without mods.  Glibc will need to return a 
+different value instead of NGROUPS (32), to be fully correct, though.  I 
+suggest INT_MAX :)
 
+We've found a couple apps that needed to be fixed up in the event of >32 
+groups being used, and when this goes mainline, we'll pop out those 
+patches, too.  Another issue:  this changes /proc/pid/status to only 
+show 32 groups - not sure what better solution is preferred.
 
-Linus Torvalds wrote:
+Comments, read-overs, and flames requested.  Ideally I'd like to see 
+this go into 2.5.x real soon now. :)
 
->In article <3D9DF6A2.9030101@erkkila.org>,
->Paul E. Erkkila <pee@erkkila.org> wrote:
->  
->
->>Oops in drivers/pci/probe.c
->>
->>Oops (copied), ksymoops, and lspci -vv attached
->>
->>No modules in ksyms, skipping objects
->>Unable to handle kernel paging request at virtual address f8000008
->>c01c9d10
->>*pde = 00000000
->>Oops: 0002
->>CPU:    0
->>EIP:    0060:[<c01c9d10>]    Not tainted
->>Using defaults from ksymoops -t elf32-i386 -a i386
->>EFLAGS: 00010202
->>eax: f8000008   ebx: 00000010     ecx: 00000000       edx: f8000008
->>esi: c1523c00   edi: c1523d38     ebp: 00000001       esp: dffcdb60
->>ds: 0068    es: 0068    ss: 0068
->>Stack:  c01c9e91 f8000008 fffffff0 00000010 dffcdb78 c1523ef8 f8000008 00000008
->>       d0000008 c1523c00 c1523f48 00000000 00000000 c01ca2a6 c1523c00 00000006
->>       00000030 dffcdbac 00000000 00000600 c1523c00 dffcdc20 c03a1351 c1523c00
->>[<c01c9e91>] pci_read_bases+0x161/0x340
->>[<c01ca2a6>] pci_setup_device+0x1b6/0x3d0
->>[<c0105109>] init+0x79/0x200
->>[<c0105090>] init+0x0/0x200
->>[<c01073e5>] kernel_thread_helper+0x5/0x10
->>Code: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 48 c3 8d b4
->>    
->>
->
->Something has corrupted your kernel image. Those 16 0x00 bytes are
->definitely not the right code, looks like an errant memset() through a
->wild pointer cleared it or something.
->
->Is this repeatable? Does it happen with current BK?
->
->		Linus
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+Tim
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Linux Kernel Engineering
+thockin@sun.com
 
---=_services-14633-1033776214-0001-2
-Content-Type: text/plain; name=".config"; charset=iso-8859-1
+--------------070800050108070509000001
+Content-Type: text/plain;
+ name="sort_search.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename=".config"
+ filename="sort_search.patch"
 
-#
-# Automatically generated by make menuconfig: don't edit
-#
-CONFIG_X86=y
-CONFIG_ISA=y
-# CONFIG_SBUS is not set
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
+diff -ruN virgin-2.5/include/linux/kernel.h linux-2.5/include/linux/kernel.h
+--- virgin-2.5/include/linux/kernel.h	Tue Oct  1 16:42:45 2002
++++ linux-2.5/include/linux/kernel.h	Fri Oct  4 13:44:09 2002
+@@ -206,4 +206,9 @@
+ #define __FUNCTION__ (__func__)
+ #endif
+ 
++void qsort(void *base, size_t nmemb, size_t size,
++	int (*compar)(const void *, const void *));
++void *bsearch(const void *key, const void *base, size_t nmemb, size_t size,
++	int (*compar)(const void *, const void *));
++
+ #endif
+diff -ruN virgin-2.5/lib/Makefile linux-2.5/lib/Makefile
+--- virgin-2.5/lib/Makefile	Tue Oct  1 16:46:37 2002
++++ linux-2.5/lib/Makefile	Fri Oct  4 13:44:09 2002
+@@ -9,10 +9,11 @@
+ L_TARGET := lib.a
+ 
+ export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o \
+-	       crc32.o rbtree.o radix-tree.o
++	       crc32.o rbtree.o radix-tree.o qsort.o bsearch.o
+ 
+ obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o \
+-	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o
++	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
++	 qsort.o bsearch.o
+ 
+ obj-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
+ obj-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
+diff -ruN virgin-2.5/lib/bsearch.c linux-2.5/lib/bsearch.c
+--- virgin-2.5/lib/bsearch.c	Wed Dec 31 16:00:00 1969
++++ linux-2.5/lib/bsearch.c	Fri Oct  4 13:44:09 2002
+@@ -0,0 +1,49 @@
++/* Copyright (C) 1991, 1992, 1997, 2000 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Library General Public License as
++   published by the Free Software Foundation; either version 2 of the
++   License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Library General Public License for more details.
++
++   You should have received a copy of the GNU Library General Public
++   License along with the GNU C Library; see the file COPYING.LIB.  If not,
++   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
++   Boston, MA 02111-1307, USA.  */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++
++/* Perform a binary search for KEY in BASE which has NMEMB elements
++   of SIZE bytes each.  The comparisons are done by (*COMPAR)().  */
++void *
++bsearch(const void *key, const void *base, size_t nmemb, size_t size,
++    int (*compar)(const void *, const void *))
++{
++	size_t l, u, idx;
++	const void *p;
++	int comparison;
++
++	l = 0;
++	u = nmemb;
++	while (l < u) {
++		idx = (l + u) / 2;
++		p = (void *)(((const char *)base) + (idx * size));
++		comparison = (*compar)(key, p);
++		if (comparison < 0)
++			u = idx;
++		else if (comparison > 0)
++			l = idx + 1;
++		else
++			return (void *)p;
++	}
++
++	return NULL;
++}
++
++EXPORT_SYMBOL(bsearch);
+diff -ruN virgin-2.5/lib/qsort.c linux-2.5/lib/qsort.c
+--- virgin-2.5/lib/qsort.c	Wed Dec 31 16:00:00 1969
++++ linux-2.5/lib/qsort.c	Fri Oct  4 13:44:09 2002
+@@ -0,0 +1,180 @@
++/*
++ * Update: The Berkeley copyright was changed, and the change
++ * is retroactive to all "true" BSD software (ie everything
++ * from UCB as opposed to other peoples code that just carried
++ * the same license). The new copyright doesn't clash with the
++ * GPL, so the module-only restriction has been removed..
++ */
++
++/*-
++ * Copyright (c) 1992, 1993
++ *	The Regents of the University of California.  All rights reserved.
++ * Copyright (c) 2002 SGI
++ * Copyright (c) 2002 Sun Microsystems, Inc.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ * 3. All advertising materials mentioning features or use of this software
++ *    must display the following acknowledgement:
++ *	This product includes software developed by the University of
++ *	California, Berkeley and its contributors.
++ * 4. Neither the name of the University nor the names of its contributors
++ *    may be used to endorse or promote products derived from this software
++ *    without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
++ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
++ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ * 
++ * From:
++ *	@(#)qsort.c	8.1 (Berkeley) 6/4/93
++ *	FreeBSD: src/lib/libc/stdlib/qsort.c,v 1.11 2002/03/22 21:53:10
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++
++typedef int		 cmp_t(const void *, const void *);
++static inline char	*med3(char *, char *, char *, cmp_t *);
++static inline void	 swapfunc(char *, char *, int, int);
++
++/*
++ * Qsort routine from Bentley & McIlroy's "Engineering a Sort Function".
++ */
++#define swapcode(TYPE, parmi, parmj, n) do { 		\
++	long i = (n) / sizeof (TYPE); 			\
++	TYPE *pi = (TYPE *) (parmi); 			\
++	TYPE *pj = (TYPE *) (parmj); 			\
++	do { 						\
++		TYPE	t = *pi;			\
++		*pi++ = *pj;				\
++		*pj++ = t;				\
++        } while (--i > 0);				\
++} while (0)
++
++#define SWAPINIT(a, es) swaptype = ((char *)a - (char *)0) % sizeof(long) || \
++	es % sizeof(long) ? 2 : es == sizeof(long)? 0 : 1;
++
++static inline void
++swapfunc(char *a, char *b, int n, int swaptype)
++{
++	if(swaptype <= 1)
++		swapcode(long, a, b, n);
++	else
++		swapcode(char, a, b, n);
++}
++
++#define swap(a, b) do {					\
++	if (swaptype == 0) {				\
++		long t = *(long *)(a);			\
++		*(long *)(a) = *(long *)(b);		\
++		*(long *)(b) = t;			\
++	} else						\
++		swapfunc(a, b, es, swaptype);		\
++} while (0)
++
++#define vecswap(a, b, n) 	do { 			\
++	if ((n) > 0) swapfunc(a, b, n, swaptype);	\
++} while (0)
++
++static inline char *
++med3(char *a, char *b, char *c, cmp_t *cmp)
++{
++	return cmp(a, b) < 0 ?
++	       (cmp(b, c) < 0 ? b : (cmp(a, c) < 0 ? c : a ))
++              :(cmp(b, c) > 0 ? b : (cmp(a, c) < 0 ? a : c ));
++}
++
++void
++qsort(void *a, size_t n, size_t es, cmp_t *cmp)
++{
++	char *pa, *pb, *pc, *pd, *pl, *pm, *pn;
++	int d, r, swaptype, swap_cnt;
++
++loop:	SWAPINIT(a, es);
++	swap_cnt = 0;
++	if (n < 7) {
++		for (pm = (char *)a + es; pm < (char *)a + n * es; pm += es)
++			for (pl = pm; pl > (char *)a && cmp(pl - es, pl) > 0;
++			     pl -= es)
++				swap(pl, pl - es);
++		return;
++	}
++	pm = (char *)a + (n / 2) * es;
++	if (n > 7) {
++		pl = a;
++		pn = (char *)a + (n - 1) * es;
++		if (n > 40) {
++			d = (n / 8) * es;
++			pl = med3(pl, pl + d, pl + 2 * d, cmp);
++			pm = med3(pm - d, pm, pm + d, cmp);
++			pn = med3(pn - 2 * d, pn - d, pn, cmp);
++		}
++		pm = med3(pl, pm, pn, cmp);
++	}
++	swap(a, pm);
++	pa = pb = (char *)a + es;
++
++	pc = pd = (char *)a + (n - 1) * es;
++	for (;;) {
++		while (pb <= pc && (r = cmp(pb, a)) <= 0) {
++			if (r == 0) {
++				swap_cnt = 1;
++				swap(pa, pb);
++				pa += es;
++			}
++			pb += es;
++		}
++		while (pb <= pc && (r = cmp(pc, a)) >= 0) {
++			if (r == 0) {
++				swap_cnt = 1;
++				swap(pc, pd);
++				pd -= es;
++			}
++			pc -= es;
++		}
++		if (pb > pc)
++			break;
++		swap(pb, pc);
++		swap_cnt = 1;
++		pb += es;
++		pc -= es;
++	}
++	if (swap_cnt == 0) {  /* Switch to insertion sort */
++		for (pm = (char *)a + es; pm < (char *)a + n * es; pm += es)
++			for (pl = pm; pl > (char *)a && cmp(pl - es, pl) > 0;
++			     pl -= es)
++				swap(pl, pl - es);
++		return;
++	}
++
++	pn = (char *)a + n * es;
++	r = min_t(long, pa - (char *)a, pb - pa);
++	vecswap(a, pb - r, r);
++	r = min_t(long, pd - pc, pn - pd - es);
++	vecswap(pb, pn - r, r);
++	if ((r = pb - pa) > es)
++		qsort(a, r / es, es, cmp);
++	if ((r = pd - pc) > es) {
++		/* Iterate rather than recurse to save stack space */
++		a = pn - r;
++		n = r / es;
++		goto loop;
++	}
++}
++
++EXPORT_SYMBOL(qsort);
 
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
+--------------070800050108070509000001
+Content-Type: text/plain;
+ name="ngroups.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ngroups.patch"
 
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
+diff -ruN virgin-2.5/fs/proc/array.c linux-2.5/fs/proc/array.c
+--- virgin-2.5/fs/proc/array.c	Tue Oct  1 16:35:03 2002
++++ linux-2.5/fs/proc/array.c	Fri Oct  4 13:44:38 2002
+@@ -171,7 +171,7 @@
+ 		p->files ? p->files->max_fds : 0);
+ 	task_unlock(p);
+ 
+-	for (g = 0; g < p->ngroups; g++)
++	for (g = 0; g < min(p->ngroups, OLD_NGROUPS); g++)
+ 		buffer += sprintf(buffer, "%d ", p->groups[g]);
+ 
+ 	buffer += sprintf(buffer, "\n");
+diff -ruN virgin-2.5/include/asm-i386/param.h linux-2.5/include/asm-i386/param.h
+--- virgin-2.5/include/asm-i386/param.h	Tue Oct  1 16:44:14 2002
++++ linux-2.5/include/asm-i386/param.h	Fri Oct  4 13:44:38 2002
+@@ -13,10 +13,6 @@
+ 
+ #define EXEC_PAGESIZE	4096
+ 
+-#ifndef NGROUPS
+-#define NGROUPS		32
+-#endif
+-
+ #ifndef NOGROUP
+ #define NOGROUP		(-1)
+ #endif
+diff -ruN virgin-2.5/include/linux/init_task.h linux-2.5/include/linux/init_task.h
+--- virgin-2.5/include/linux/init_task.h	Tue Oct  1 16:42:52 2002
++++ linux-2.5/include/linux/init_task.h	Fri Oct  4 13:44:17 2002
+@@ -80,6 +80,7 @@
+ 	.real_timer	= {						\
+ 		.function	= it_real_fn				\
+ 	},								\
++	.ngroups	= 0,						\
+ 	.cap_effective	= CAP_INIT_EFF_SET,				\
+ 	.cap_inheritable = CAP_INIT_INH_SET,				\
+ 	.cap_permitted	= CAP_FULL_SET,					\
+diff -ruN virgin-2.5/include/linux/limits.h linux-2.5/include/linux/limits.h
+--- virgin-2.5/include/linux/limits.h	Tue Oct  1 16:43:11 2002
++++ linux-2.5/include/linux/limits.h	Fri Oct  4 13:44:38 2002
+@@ -3,7 +3,6 @@
+ 
+ #define NR_OPEN	        1024
+ 
+-#define NGROUPS_MAX       32	/* supplemental group IDs are available */
+ #define ARG_MAX       131072	/* # bytes of args + environ for exec() */
+ #define CHILD_MAX        999    /* no limit :-) */
+ #define OPEN_MAX         256	/* # open files a process may have */
+@@ -19,4 +18,6 @@
+ 
+ #define RTSIG_MAX	  32
+ 
++#define OLD_NGROUPS       32	/* old limit of supplemental group IDs */
++
+ #endif
+diff -ruN virgin-2.5/include/linux/sched.h linux-2.5/include/linux/sched.h
+--- virgin-2.5/include/linux/sched.h	Tue Oct  1 16:42:52 2002
++++ linux-2.5/include/linux/sched.h	Fri Oct  4 13:44:17 2002
+@@ -351,7 +351,8 @@
+ 	uid_t uid,euid,suid,fsuid;
+ 	gid_t gid,egid,sgid,fsgid;
+ 	int ngroups;
+-	gid_t	groups[NGROUPS];
++	gid_t *groups;
++	atomic_t *groups_refcount;
+ 	kernel_cap_t   cap_effective, cap_inheritable, cap_permitted;
+ 	int keep_capabilities:1;
+ 	struct user_struct *user;
+diff -ruN virgin-2.5/kernel/exit.c linux-2.5/kernel/exit.c
+--- virgin-2.5/kernel/exit.c	Tue Oct  1 16:46:42 2002
++++ linux-2.5/kernel/exit.c	Fri Oct  4 13:44:17 2002
+@@ -7,6 +7,7 @@
+ #include <linux/config.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
++#include <linux/vmalloc.h>
+ #include <linux/interrupt.h>
+ #include <linux/smp_lock.h>
+ #include <linux/module.h>
+@@ -64,6 +65,12 @@
+ 		BUG();
+ 	if (p != current)
+ 		wait_task_inactive(p);
++
++	if (p->ngroups && atomic_dec_and_test(p->groups_refcount)) {
++		vfree(p->groups_refcount);
++		vfree(p->groups);
++	}
++
+ 	atomic_dec(&p->user->processes);
+ 	security_ops->task_free_security(p);
+ 	free_uid(p->user);
+diff -ruN virgin-2.5/kernel/fork.c linux-2.5/kernel/fork.c
+--- virgin-2.5/kernel/fork.c	Tue Oct  1 16:46:41 2002
++++ linux-2.5/kernel/fork.c	Fri Oct  4 13:44:17 2002
+@@ -805,6 +805,10 @@
+ 	 */
+ 	clear_tsk_thread_flag(p, TIF_SYSCALL_TRACE);
+ 
++	/* increment the groups ref count */
++	if (p->ngroups)
++		atomic_inc(p->groups_refcount);
++
+ 	/* Our parent execution domain becomes current domain
+ 	   These must match for thread signalling to apply */
+ 	   
+diff -ruN virgin-2.5/kernel/sys.c linux-2.5/kernel/sys.c
+--- virgin-2.5/kernel/sys.c	Tue Oct  1 16:46:41 2002
++++ linux-2.5/kernel/sys.c	Fri Oct  4 13:44:46 2002
+@@ -20,6 +20,9 @@
+ #include <linux/device.h>
+ #include <linux/times.h>
+ #include <linux/security.h>
++#include <linux/vmalloc.h>
++#include <linux/slab.h>
++
+ 
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+@@ -1056,42 +1059,87 @@
+ 	return i;
+ }
+ 
++static int gid_t_cmp(const void *a, const void *b)
++{
++	return *((gid_t *)a) - *((gid_t *)b);
++}
++
+ /*
+- *	SMP: Our groups are not shared. We can copy to/from them safely
++ *	SMP: Our groups are copy-on-write. We can set them safely
+  *	without another task interfering.
+  */
++int do_setgroups(int gidsetsize, gid_t *grouplist)
++{
++	atomic_t *newrefcnt = NULL;
++
++	BUG_ON(gidsetsize && !grouplist);
++	if (gidsetsize) {
++		newrefcnt = vmalloc(sizeof(*newrefcnt));
++		if (!newrefcnt) {
++			vfree(grouplist);
++			return -ENOMEM;
++		}
++
++		atomic_set(newrefcnt, 1);
++
++		/* sort the groupslist for faster searches */
++		qsort(grouplist, gidsetsize, sizeof(gid_t), gid_t_cmp);
++	}
++
++	/* disassociate ourselves from any shared group list */
++	if (current->ngroups
++	    && atomic_dec_and_test(current->groups_refcount)) {
++		vfree(current->groups_refcount);
++		vfree(current->groups);
++	}
++
++	current->groups = grouplist;
++	current->groups_refcount = newrefcnt;
++	current->ngroups = gidsetsize;
++
++	return 0;
++}
+  
+ asmlinkage long sys_setgroups(int gidsetsize, gid_t *grouplist)
+ {
+-	gid_t groups[NGROUPS];
++	gid_t *groups = NULL;
+ 	int retval;
+ 
+ 	if (!capable(CAP_SETGID))
+ 		return -EPERM;
+-	if ((unsigned) gidsetsize > NGROUPS)
+-		return -EINVAL;
+-	if(copy_from_user(groups, grouplist, gidsetsize * sizeof(gid_t)))
+-		return -EFAULT;
++	if (gidsetsize) {
++		/*
++		 * make sure there is at least OLD_NGROUPS amount of space in
++		 * the group list for backwards compatiblity sake.
++		 */
++		int alloc_size = (gidsetsize > OLD_NGROUPS) ? 
++		    gidsetsize : OLD_NGROUPS;
++		groups = vmalloc(alloc_size * sizeof(gid_t));
++		if (!groups)
++			return -ENOMEM;
++
++		if (copy_from_user(groups, grouplist,
++		    gidsetsize * sizeof(gid_t))) {
++			vfree(groups);
++			return -EFAULT;
++		}
++	}
++
+ 	retval = security_ops->task_setgroups(gidsetsize, groups);
+-	if (retval)
++	if (retval) {
++		if (groups)
++			vfree(groups);
+ 		return retval;
+-	memcpy(current->groups, groups, gidsetsize * sizeof(gid_t));
+-	current->ngroups = gidsetsize;
+-	return 0;
++	}
++	return do_setgroups(gidsetsize, groups);
+ }
+ 
+ static int supplemental_group_member(gid_t grp)
+ {
+-	int i = current->ngroups;
+-
+-	if (i) {
+-		gid_t *groups = current->groups;
+-		do {
+-			if (*groups == grp)
+-				return 1;
+-			groups++;
+-			i--;
+-		} while (i);
++	if (current->ngroups) {
++		if (bsearch(&grp, current->groups, current->ngroups,
++		    sizeof(gid_t), gid_t_cmp))
++			return 1;
+ 	}
+ 	return 0;
+ }
+@@ -1384,3 +1432,4 @@
+ EXPORT_SYMBOL(unregister_reboot_notifier);
+ EXPORT_SYMBOL(in_group_p);
+ EXPORT_SYMBOL(in_egroup_p);
++EXPORT_SYMBOL(sys_setgroups);
+diff -ruN virgin-2.5/kernel/uid16.c linux-2.5/kernel/uid16.c
+--- virgin-2.5/kernel/uid16.c	Tue Oct  1 16:46:42 2002
++++ linux-2.5/kernel/uid16.c	Fri Oct  4 13:48:39 2002
+@@ -13,6 +13,7 @@
+ #include <linux/init.h>
+ #include <linux/highuid.h>
+ #include <linux/security.h>
++#include <linux/vmalloc.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -27,6 +28,7 @@
+ extern asmlinkage long sys_setresgid(gid_t, gid_t, gid_t);
+ extern asmlinkage long sys_setfsuid(uid_t);
+ extern asmlinkage long sys_setfsgid(gid_t);
++extern int do_setgroups(int gidsetsize, gid_t *grouplist);
+  
+ asmlinkage long sys_chown16(const char * filename, old_uid_t user, old_gid_t group)
+ {
+@@ -109,43 +111,74 @@
+ 
+ asmlinkage long sys_getgroups16(int gidsetsize, old_gid_t *grouplist)
+ {
+-	old_gid_t groups[NGROUPS];
++	old_gid_t *groups;
+ 	int i,j;
+ 
+ 	if (gidsetsize < 0)
+ 		return -EINVAL;
+ 	i = current->ngroups;
+-	if (gidsetsize) {
++	if (i && gidsetsize) {
+ 		if (i > gidsetsize)
+ 			return -EINVAL;
++		groups = vmalloc(sizeof(old_gid_t) * i);
++		if (!groups)
++			return -ENOMEM;
+ 		for(j=0;j<i;j++)
+ 			groups[j] = current->groups[j];
+-		if (copy_to_user(grouplist, groups, sizeof(old_gid_t)*i))
++		if (copy_to_user(grouplist, groups, sizeof(old_gid_t)*i)) {
++			vfree(groups);
+ 			return -EFAULT;
++		}
++		vfree(groups);
+ 	}
+ 	return i;
+ }
+ 
+ asmlinkage long sys_setgroups16(int gidsetsize, old_gid_t *grouplist)
+ {
+-	old_gid_t groups[NGROUPS];
+-	gid_t new_groups[NGROUPS];
++	old_gid_t *groups;
++	gid_t *new_groups = NULL;
+ 	int i;
+ 
+ 	if (!capable(CAP_SETGID))
+ 		return -EPERM;
+-	if ((unsigned) gidsetsize > NGROUPS)
+-		return -EINVAL;
+-	if (copy_from_user(groups, grouplist, gidsetsize * sizeof(old_gid_t)))
+-		return -EFAULT;
+-	for (i = 0 ; i < gidsetsize ; i++)
+-		new_groups[i] = (gid_t)groups[i];
++	if (gidsetsize) {
++		/*
++		 * make sure there is at least OLD_NGROUPS amount of space in
++		 * the group list for backwards compatiblity sake.
++		 */
++		int alloc_size = (gidsetsize > OLD_NGROUPS) ? 
++		    gidsetsize : OLD_NGROUPS;
++
++		groups = vmalloc(sizeof(old_gid_t) * gidsetsize);
++		if (!groups)
++			return -ENOMEM;
++
++		if (copy_from_user(groups, grouplist,
++		    gidsetsize * sizeof(old_gid_t))) {
++			vfree(groups);
++			return -EFAULT;
++		}
++
++		if (!(new_groups = vmalloc(sizeof(gid_t) * alloc_size))) {
++			vfree(groups);
++			return -ENOMEM;
++		}
++
++		for (i = 0; i < gidsetsize; i++)
++			new_groups[i] = (gid_t)groups[i];
++
++		vfree(groups);
++	}
++
+ 	i = security_ops->task_setgroups(gidsetsize, new_groups);
+-	if (i)
++	if (i) {
++		if (new_groups)
++			vfree(new_groups);
+ 		return i;
+-	memcpy(current->groups, new_groups, gidsetsize * sizeof(gid_t));
+-	current->ngroups = gidsetsize;
+-	return 0;
++	}
++	/* handles the vmalloc()ed new_groups */
++	return do_setgroups(gidsetsize, new_groups);
+ }
+ 
+ asmlinkage long sys_getuid16(void)
 
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
+--------------070800050108070509000001--
 
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-CONFIG_MPENTIUMIII=y
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MELAN is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-# CONFIG_HUGETLB_PAGE is not set
-CONFIG_SMP=y
-CONFIG_PREEMPT=y
-# CONFIG_X86_NUMA is not set
-CONFIG_X86_MCE=y
-# CONFIG_X86_MCE_NONFATAL is not set
-# CONFIG_X86_MCE_P4THERMAL is not set
-# CONFIG_CPU_FREQ is not set
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-# CONFIG_MICROCODE is not set
-# CONFIG_X86_MSR is not set
-# CONFIG_X86_CPUID is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-
-#
-# Power management options (ACPI, APM)
-#
-
-#
-# ACPI Support
-#
-# CONFIG_ACPI is not set
-# CONFIG_PM is not set
-# CONFIG_APM is not set
-
-#
-# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-#
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-# CONFIG_EISA is not set
-# CONFIG_MCA is not set
-# CONFIG_HOTPLUG is not set
-# CONFIG_PCMCIA is not set
-# CONFIG_HOTPLUG_PCI is not set
-
-#
-# Executable file formats
-#
-CONFIG_KCORE_ELF=y
-# CONFIG_KCORE_AOUT is not set
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-# CONFIG_PARPORT is not set
-
-#
-# Plug and Play configuration
-#
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-# CONFIG_PNPBIOS is not set
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_CISS_SCSI_TAPE is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-# CONFIG_BLK_DEV_LOOP is not set
-# CONFIG_BLK_DEV_NBD is not set
-# CONFIG_BLK_DEV_RAM is not set
-# CONFIG_BLK_DEV_INITRD is not set
-
-#
-# ATA/ATAPI/MFM/RLL device support
-#
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-# CONFIG_IDE_TASK_IOCTL is not set
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-CONFIG_BLK_DEV_ADMA=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_WDC_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_AMD74XX_OVERRIDE is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_HPT34X_AUTODMA is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NFORCE is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-CONFIG_BLK_DEV_PDC202XX_OLD=y
-CONFIG_PDC202XX_BURST=y
-CONFIG_BLK_DEV_PDC202XX_NEW=y
-CONFIG_PDC202XX_FORCE=y
-# CONFIG_BLK_DEV_RZ1000 is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_PDC202XX=y
-CONFIG_BLK_DEV_IDE_MODES=y
-
-#
-# SCSI device support
-#
-# CONFIG_SCSI is not set
-
-#
-# Old non-SCSI/ATAPI CD-ROM drives
-#
-# CONFIG_CD_NO_IDESCSI is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-# CONFIG_BLK_DEV_MD is not set
-# CONFIG_MD_LINEAR is not set
-# CONFIG_MD_RAID0 is not set
-# CONFIG_MD_RAID1 is not set
-# CONFIG_MD_RAID5 is not set
-# CONFIG_MD_MULTIPATH is not set
-# CONFIG_BLK_DEV_LVM is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-# CONFIG_FUSION_BOOT is not set
-# CONFIG_FUSION_ISENSE is not set
-# CONFIG_FUSION_CTL is not set
-# CONFIG_FUSION_LAN is not set
-
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-# CONFIG_I2O_PCI is not set
-# CONFIG_I2O_BLOCK is not set
-# CONFIG_I2O_LAN is not set
-# CONFIG_I2O_SCSI is not set
-# CONFIG_I2O_PROC is not set
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-# CONFIG_PACKET_MMAP is not set
-# CONFIG_NETLINK_DEV is not set
-# CONFIG_NETFILTER is not set
-# CONFIG_FILTER is not set
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-# CONFIG_INET_ECN is not set
-# CONFIG_SYN_COOKIES is not set
-# CONFIG_IPV6 is not set
-
-#
-#    SCTP Configuration (EXPERIMENTAL)
-#
-CONFIG_IPV6_SCTP__=y
-# CONFIG_IP_SCTP is not set
-# CONFIG_ATM is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_LLC is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_DEV_APPLETALK is not set
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-CONFIG_DUMMY=y
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_ETHERTAP is not set
-# CONFIG_NET_SB1000 is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-# CONFIG_SUNLANCE is not set
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNBMAC is not set
-# CONFIG_SUNQE is not set
-# CONFIG_SUNGEM is not set
-CONFIG_NET_VENDOR_3COM=y
-# CONFIG_EL1 is not set
-# CONFIG_EL2 is not set
-# CONFIG_ELPLUS is not set
-# CONFIG_EL16 is not set
-# CONFIG_EL3 is not set
-# CONFIG_3C515 is not set
-# CONFIG_ELMC is not set
-# CONFIG_ELMC_II is not set
-CONFIG_VORTEX=y
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
-
-#
-# Tulip family network device support
-#
-# CONFIG_NET_TULIP is not set
-# CONFIG_AT1700 is not set
-# CONFIG_DEPCA is not set
-# CONFIG_HP100 is not set
-# CONFIG_NET_ISA is not set
-# CONFIG_NET_PCI is not set
-# CONFIG_NET_POCKET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_E1000_NAPI is not set
-# CONFIG_MYRI_SBUS is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_TIGON3 is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-# CONFIG_SHAPER is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-# CONFIG_IRDA is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN_BOOL is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-# CONFIG_PHONE_IXJ is not set
-# CONFIG_PHONE_IXJ_PCMCIA is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-# CONFIG_INPUT_EVDEV is not set
-# CONFIG_INPUT_EVBUG is not set
-# CONFIG_GAMEPORT is not set
-CONFIG_SOUND_GAMEPORT=y
-# CONFIG_GAMEPORT_NS558 is not set
-# CONFIG_GAMEPORT_L4 is not set
-# CONFIG_GAMEPORT_EMU10K1 is not set
-# CONFIG_GAMEPORT_VORTEX is not set
-# CONFIG_GAMEPORT_FM801 is not set
-# CONFIG_GAMEPORT_CS461x is not set
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-# CONFIG_SERIO_SERPORT is not set
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PARKBD is not set
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_INPORT is not set
-# CONFIG_MOUSE_LOGIBM is not set
-# CONFIG_MOUSE_PC110PAD is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_JOYSTICK_ANALOG is not set
-# CONFIG_JOYSTICK_A3D is not set
-# CONFIG_JOYSTICK_ADI is not set
-# CONFIG_JOYSTICK_COBRA is not set
-# CONFIG_JOYSTICK_GF2K is not set
-# CONFIG_JOYSTICK_GRIP is not set
-# CONFIG_JOYSTICK_GRIP_MP is not set
-# CONFIG_JOYSTICK_GUILLEMOT is not set
-# CONFIG_JOYSTICK_INTERACT is not set
-# CONFIG_JOYSTICK_SIDEWINDER is not set
-# CONFIG_JOYSTICK_TMDC is not set
-# CONFIG_JOYSTICK_IFORCE is not set
-# CONFIG_JOYSTICK_WARRIOR is not set
-# CONFIG_JOYSTICK_MAGELLAN is not set
-# CONFIG_JOYSTICK_SPACEORB is not set
-# CONFIG_JOYSTICK_SPACEBALL is not set
-# CONFIG_JOYSTICK_STINGER is not set
-# CONFIG_JOYSTICK_TWIDDLER is not set
-# CONFIG_JOYSTICK_DB9 is not set
-# CONFIG_JOYSTICK_GAMECON is not set
-# CONFIG_JOYSTICK_TURBOGRAFX is not set
-# CONFIG_INPUT_JOYDUMP is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-# CONFIG_TOUCHSCREEN_GUNZE is not set
-# CONFIG_INPUT_MISC is not set
-# CONFIG_INPUT_PCSPKR is not set
-# CONFIG_INPUT_UINPUT is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-CONFIG_SERIAL_8250=y
-# CONFIG_SERIAL_8250_CONSOLE is not set
-# CONFIG_SERIAL_8250_CS is not set
-# CONFIG_SERIAL_8250_EXTENDED is not set
-# CONFIG_SERIAL_8250_MANY_PORTS is not set
-# CONFIG_SERIAL_8250_SHARE_IRQ is not set
-# CONFIG_SERIAL_8250_DETECT_IRQ is not set
-# CONFIG_SERIAL_8250_MULTIPORT is not set
-# CONFIG_SERIAL_8250_RSA is not set
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-
-#
-# I2C support
-#
-# CONFIG_I2C is not set
-
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-# CONFIG_QIC02_TAPE is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-CONFIG_INTEL_RNG=y
-# CONFIG_AMD_RNG is not set
-# CONFIG_NVRAM is not set
-# CONFIG_RTC is not set
-# CONFIG_GEN_RTC is not set
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_I810=y
-CONFIG_AGP_VIA=y
-CONFIG_AGP_AMD=y
-CONFIG_AGP_SIS=y
-CONFIG_AGP_ALI=y
-CONFIG_AGP_SWORKS=y
-# CONFIG_AGP_AMD_8151 is not set
-CONFIG_DRM=y
-# CONFIG_DRM_TDFX is not set
-# CONFIG_DRM_R128 is not set
-CONFIG_DRM_RADEON=y
-# CONFIG_DRM_I810 is not set
-# CONFIG_DRM_I830 is not set
-# CONFIG_DRM_MGA is not set
-# CONFIG_MWAVE is not set
-# CONFIG_RAW_DRIVER is not set
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# File systems
-#
-# CONFIG_QUOTA is not set
-# CONFIG_QFMT_V1 is not set
-# CONFIG_QFMT_V2 is not set
-# CONFIG_AUTOFS_FS is not set
-# CONFIG_AUTOFS4_FS is not set
-# CONFIG_REISERFS_FS is not set
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_ADFS_FS is not set
-# CONFIG_ADFS_FS_RW is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BFS_FS is not set
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-# CONFIG_UMSDOS_FS is not set
-CONFIG_VFAT_FS=y
-# CONFIG_EFS_FS is not set
-# CONFIG_JFFS_FS is not set
-# CONFIG_JFFS2_FS is not set
-# CONFIG_CRAMFS is not set
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-# CONFIG_ZISOFS is not set
-# CONFIG_JFS_FS is not set
-# CONFIG_JFS_DEBUG is not set
-# CONFIG_JFS_STATISTICS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_NTFS_FS is not set
-# CONFIG_NTFS_DEBUG is not set
-# CONFIG_NTFS_RW is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-# CONFIG_DEVFS_MOUNT is not set
-# CONFIG_DEVFS_DEBUG is not set
-CONFIG_DEVPTS_FS=y
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_QNX4FS_RW is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_EXT2_FS=y
-# CONFIG_SYSV_FS is not set
-# CONFIG_UDF_FS is not set
-# CONFIG_UDF_RW is not set
-# CONFIG_UFS_FS is not set
-# CONFIG_UFS_FS_WRITE is not set
-# CONFIG_XFS_FS is not set
-# CONFIG_XFS_RT is not set
-# CONFIG_XFS_QUOTA is not set
-
-#
-# Network File Systems
-#
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-# CONFIG_NFS_FS is not set
-# CONFIG_NFS_V3 is not set
-# CONFIG_ROOT_NFS is not set
-# CONFIG_NFSD is not set
-# CONFIG_NFSD_V3 is not set
-# CONFIG_NFSD_TCP is not set
-# CONFIG_SUNRPC is not set
-# CONFIG_LOCKD is not set
-# CONFIG_EXPORTFS is not set
-# CONFIG_SMB_FS is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_NCPFS_PACKET_SIGNING is not set
-# CONFIG_NCPFS_IOCTL_LOCKING is not set
-# CONFIG_NCPFS_STRONG is not set
-# CONFIG_NCPFS_NFS_NS is not set
-# CONFIG_NCPFS_OS2_NS is not set
-# CONFIG_NCPFS_SMALLDOS is not set
-# CONFIG_NCPFS_NLS is not set
-# CONFIG_NCPFS_EXTRAS is not set
-# CONFIG_ZISOFS_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-# CONFIG_SMB_NLS is not set
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-CONFIG_NLS_ISO8859_1=y
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-# CONFIG_NLS_UTF8 is not set
-
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-# CONFIG_VIDEO_SELECT is not set
-# CONFIG_MDA_CONSOLE is not set
-
-#
-# Frame-buffer support
-#
-# CONFIG_FB is not set
-
-#
-# Sound
-#
-# CONFIG_SOUND is not set
-
-#
-# USB support
-#
-# CONFIG_USB is not set
-
-#
-# Bluetooth support
-#
-# CONFIG_BLUEZ is not set
-
-#
-# Kernel hacking
-#
-# CONFIG_SOFTWARE_SUSPEND is not set
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_IOVIRT=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_SPINLOCK=y
-CONFIG_KALLSYMS=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-
-#
-# Security options
-#
-CONFIG_SECURITY_CAPABILITIES=y
-
-#
-# Library routines
-#
-CONFIG_CRC32=y
-# CONFIG_ZLIB_INFLATE is not set
-# CONFIG_ZLIB_DEFLATE is not set
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
-
---=_services-14633-1033776214-0001-2--

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVCHXhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVCHXhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262223AbVCHXhV (ORCPT <rfc822;willy@w.ods.org>);
+	id S262236AbVCHXhV (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 8 Mar 2005 18:37:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVCHXcd
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbVCHXe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 18:32:33 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:2828 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262206AbVCHXa2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 18:30:28 -0500
-From: Kristian =?iso-8859-1?q?S=F8rensen?= <ks@cs.aau.dk>
-Organization: Aalborg University
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Subject: Re: Reading large /proc entry from kernel module
-User-Agent: KMail/1.7.2
-References: <200503081445.56237.ks@cs.aau.dk> <16942.12134.913207.508414@wombat.chubb.wattle.id.au>
-In-Reply-To: <16942.12134.913207.508414@wombat.chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Disposition: inline
-Date: Wed, 9 Mar 2005 00:31:17 +0100
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200503090031.17502.ks@cs.aau.dk>
+	Tue, 8 Mar 2005 18:34:29 -0500
+Received: from fire.osdl.org ([65.172.181.4]:17367 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262166AbVCHX3r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 18:29:47 -0500
+Date: Tue, 8 Mar 2005 15:29:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm2
+Message-Id: <20050308152943.2f19e97f.akpm@osdl.org>
+In-Reply-To: <20050308232019.GA20520@infradead.org>
+References: <20050308033846.0c4f8245.akpm@osdl.org>
+	<20050308232019.GA20520@infradead.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 March 2005 00:04, Peter Chubb wrote:
-> >>>>> "Kristian" == Kristian Sørensen <ks@cs.aau.dk> writes:
+Christoph Hellwig <hch@infradead.org> wrote:
 >
-> Kristian> Hi all!  I have some trouble reading a 2346 byte /proc entry
-> Kristian> from our Umbrella kernel module.
->
->
-> Kristian> static int umb_proc_write(struct file *file, const char *buffer,
-> Kristian>                          unsigned long count, void *data) {
-> Kristian>	char *policy;
-> Kristian>	int *lbuf;
-> Kristian>	int i;
->
-> Here's your problem:  lbuf should be a char * not an int *.
-> When you look lbuf[0] you'll get the first four characters packed
-> into the int.
-Okay, thanks! :-D That solves the first error :)
+> > +sh-merge-updates.patch
+> > 
+> >  sh/sh64 updates
+> 
+> btw, it would be nice if you'd give a period of say 48 hours for
+> people to review non-critical patches before sending them off to
+> Linus.  The sh update was pretty nice, so no coplaints about this
+> one, but we had worse things passed on in the past.
 
-However, I still only get the the first 1003 characters, when I traverse the 
-buffer :-/
+Yup, I've asked Paul to cc lkml in the future.
 
--- 
-Kristian Sørensen
-E-mail: ipqw@users.sf.net, Phone: +45 29723816
+> > +open-iscsi-scsi.patch
+> > +open-iscsi-headers.patch
+> > +open-iscsi-kconfig.patch
+> > +open-iscsi-makefile.patch
+> > +open-iscsi-netlink.patch
+> > +open-iscsi-doc.patch
+> > 
+> >  iSCSI driver
+> 
+> Please don't put this in.  It's fairly experimental and just one
+> of three iscsi initiators we're (scsi folks) currently evaluating
+> for inclusion.
+
+I'll frequently add things like this just so they get additional
+compile-coverage testing and to get wider reviewing.  And someone might run
+sparse, checkstack, reference_discarded or reference_init on it.

@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264562AbUEJJQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUEJJVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264562AbUEJJQr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 05:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUEJJQr
+	id S264585AbUEJJVo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 05:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264584AbUEJJVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 05:16:47 -0400
-Received: from se1.ruf.uni-freiburg.de ([132.230.2.221]:64921 "EHLO
-	se1.ruf.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S264562AbUEJJQn convert rfc822-to-8bit (ORCPT
+	Mon, 10 May 2004 05:21:44 -0400
+Received: from smtpq2.home.nl ([213.51.128.197]:48619 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S264585AbUEJJVl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 05:16:43 -0400
-X-Scanned: Mon, 10 May 2004 11:16:08 +0200 Nokia Message Protector V1.3.30 2004040916 - RELEASE
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] SERIO_USERDEV: direct userspace access to mouse/keyboa=
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-Date: 10 May 2004 11:16:06 +0200
-Message-ID: <xb7d65cskvd.fsf@savona.informatik.uni-freiburg.de>
+	Mon, 10 May 2004 05:21:41 -0400
+Message-ID: <409F4944.4090501@keyaccess.nl>
+Date: Mon, 10 May 2004 11:20:04 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
+Good day.
 
-    Andrew> Tuukka Toivonen <tuukkat@ee.oulu.fi> wrote:
-    >>  SERIO_USERDEV - Direct serial input device access for
-    >> userspace =20 This driver provides direct access from usespace
-    >> into PS/2 (or psaux) serial ports used usually for input
-    >> devices such as mouses and keyboards=
+The 2.6.6-rc3 -> 2.6.6-final changes to ide-disk.c unfortunately make my 
+machine complain loudly both at boot and reboot:
 
-    Andrew> And given that the external device generates a stream of
-    Andrew> bits, the kernel should provide some way for applications
-    Andrew> to directly access that stream without the intervening
-    Andrew> interpretation.
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+AMD7409: IDE controller at PCI slot 0000:00:07.1
+AMD7409: chipset revision 7
+AMD7409: not 100% native mode: will probe irqs later
+AMD7409: 0000:00:07.1 (rev 07) UDMA66 controller
+     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
+     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
+hda: Maxtor 6Y120P0, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: PLEXTOR DVD-ROM PX-116A, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: max request size: 128KiB
+hda: 240121728 sectors (122942 MB) w/7936KiB Cache, CHS=65535/16/63, 
+UDMA(66)
+  hda: hda1 < hda5 hda6 hda7 hda8 hda9 hda10 hda11 hda12 hda13 > hda2 
+hda3 hda4
+  hda2: <bsd: hda14 hda15 hda16 hda17 hda18 >
+  hda4: <minix: hda19 hda20 >
+hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: task_no_data_intr: error=0x04 { DriveStatusError }
+hda: Write Cache FAILED Flushing!
 
-    Andrew> Is that a decent summary of the situation?
+The disk, 6Y120P0, is a new-ish Maxtor "DiamondMax Plus 9", 120G, 8M 
+cache. Controller is an AMD756. Same complaints on reboot. Reverting the 
+rc3->final changes to ide-disk.c fixes/supresses them again.
 
-Yeah.  Actually, the external device  generates a stream of BYTES, not
-bits.  Byte is  the basic unit.  This makes the PS  AUX port look like
-an RS/232 port from the OS's perspective.
-
-
-    Andrew> If so then yeah, I think the kernel should have a driver
-    Andrew> which does all of this.
-
-And   people   can  start   writing   better   (more  features,   with
-config. files) userland drivers  for their mouse or non-mouse pointing
-devices.    The   drivers  only   need   to   take   the  bytes   from
-/dev/misc/isa0060/serio* and/or  /dev/ttyS1, interpret them,  and then
-refeed the interpreted  events back to the input  system via 'uinput'.
-Maybe, 'gpm' can  be modified to do it.  I can't  see any more reasons
-for  writing  those  drivers   in  kernel  (non-swappable,  no  memory
-protection, etc.)  space.
-
-BTW, how about USB mice?  Do they export a byte-stream interface?
-
-
-
--- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
+Rene.
 

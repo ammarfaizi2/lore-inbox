@@ -1,64 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266687AbUITP0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266721AbUITPjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266687AbUITP0n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 11:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266689AbUITP0n
+	id S266721AbUITPjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 11:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266725AbUITPjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 11:26:43 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:16348 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266687AbUITP0k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 11:26:40 -0400
-Date: Mon, 20 Sep 2004 17:24:58 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Olaf Hering <olh@suse.de>, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-Message-ID: <20040920152458.GB2791@thundrix.ch>
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920094602.GA24466@suse.de> <20040920105950.GI5482@DervishD>
+	Mon, 20 Sep 2004 11:39:25 -0400
+Received: from ts.berklee.edu ([64.119.138.3]:60883 "EHLO snitch.dyndns.org")
+	by vger.kernel.org with ESMTP id S266721AbUITPjW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 11:39:22 -0400
+Date: Mon, 20 Sep 2004 11:39:19 -0400
+From: ckottk01@tufts.edu
+To: linux-kernel@vger.kernel.org
+Cc: ckottk01@tufts.edu
+Subject: Sharp MM20 buggy ACPI BIOS
+Message-ID: <20040920153919.GA8195@snitch.berklee.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040920105950.GI5482@DervishD>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there,
 
---61jdw2sOBCFtR2d/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I belive the Sharp Actius MM20 has a buggy BIOS, as the kernel can't seem
+to get an irq for the ehci device.  ohci works fine.  I am currently using
+kernel 2.6.8.1.
 
-Salut,
+lspci gives:
+0000:00:00.0 Host bridge: Transmeta Corporation: Unknown device 0060
+0000:00:01.0 PCI bridge: Transmeta Corporation: Unknown device 0061
+0000:00:02.0 PCI bridge: ALi Corporation M5249 HTT to PCI Bridge
+0000:00:03.0 ISA bridge: ALi Corporation M1563 HyperTransport South Bridge (rev 20)
+0000:00:03.1 Bridge: ALi Corporation M7101 PMU
+0000:00:04.0 Multimedia audio controller: ALi Corporation M5455 PCI AC-Link Controller Audio Device (rev 03)
+0000:00:06.0 Network controller: Harris Semiconductor: Unknown device 3890 (rev 01)
+0000:00:09.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 81)
+0000:00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+0000:00:0e.0 IDE interface: ALi Corporation M5229 IDE (rev c5)
+0000:00:0f.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+0000:00:0f.1 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+0000:00:0f.3 USB Controller: ALi Corporation USB 2.0 Controller (rev 01)
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY
 
-On Mon, Sep 20, 2004 at 12:59:50PM +0200, DervishD wrote:
->     Bad idea... ;))) I upgraded my 'mount' yesterday. I was using a
-> mount from Debian, from 1998 more or less, that worked flawlessly
-> except for the '--bind' feature and things like those. I used
-> /etc/mtab as a symlink to /proc/mounts, and all worked OK except for
-> the double root entry and the need to manually call losetup to delete
-> unused /dev/loop entries.
+And here is the relevant portion of my dmesg:
+...
+ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ohci_hcd: block sizes: ed 64 td 64
+ACPI: PCI interrupt 0000:00:0f.0[A] -> GSI 5 (level, low) -> IRQ 5
+ohci_hcd 0000:00:0f.0: ALi Corporation USB 1.1 Controller
+ohci_hcd 0000:00:0f.0: irq 5, pci mem e001d000
+ohci_hcd 0000:00:0f.0: new USB bus registered, assigned bus number 1
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 2 ports detected
+ACPI: PCI interrupt 0000:00:0f.1[B] -> GSI 5 (level, low) -> IRQ 5
+ohci_hcd 0000:00:0f.1: ALi Corporation USB 1.1 Controller (#2)
+ohci_hcd 0000:00:0f.1: irq 5, pci mem e001f000
+ohci_hcd 0000:00:0f.1: new USB bus registered, assigned bus number 2
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+...
+ACPI: PCI interrupt 0000:00:06.0[A] -> GSI 4 (level, low) -> IRQ 4
+    ACPI-1133: *** Error: Method execution failed [\_SB_.PCI0.LPC_.LNKU._CRS] (Node de6141e0), AE_AML_UNINITIALIZED_LOCAL
+    ACPI-0154: *** Error: Method execution failed [\_SB_.PCI0.LPC_.LNKU._CRS] (Node de6141e0), AE_AML_UNINITIALIZED_LOCAL
+ACPI: Unable to set IRQ for PCI Interrupt Link [LNKU] (likely buggy ACPI BIOS).
+Try pci=noacpi or acpi=off
+ACPI: PCI interrupt 0000:00:0f.3[D]: no GSI
+ehci_hcd 0000:00:0f.3: ALi Corporation USB 2.0 Controller
+ehci_hcd 0000:00:0f.3: request interrupt 255 failed
+ehci_hcd 0000:00:0f.3: init 0000:00:0f.3 fail, -22
+ehci_hcd: probe of 0000:00:0f.3 failed with error -22
+...
 
-I  keep a  mvmount and  bindmount program  on my  farm for  that exact
-purpose. :)
+With pci=noacpi set, dmesg gives:
+...
+ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ohci_hcd: block sizes: ed 64 td 64
+PCI: Found IRQ 5 for device 0000:00:0f.0
+ohci_hcd 0000:00:0f.0: ALi Corporation USB 1.1 Controller
+ohci_hcd 0000:00:0f.0: irq 5, pci mem e001d000
+ohci_hcd 0000:00:0f.0: new USB bus registered, assigned bus number 1
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 2 ports detected
+PCI: Found IRQ 5 for device 0000:00:0f.1
+ohci_hcd 0000:00:0f.1: ALi Corporation USB 1.1 Controller (#2)
+ohci_hcd 0000:00:0f.1: irq 5, pci mem e001f000
+ohci_hcd 0000:00:0f.1: new USB bus registered, assigned bus number 2
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+...
+PCI: No IRQ known for interrupt pin D of device 0000:00:0f.3. Please try using pci=biosirq.
+ehci_hcd 0000:00:0f.3: Found HC with no IRQ.  Check BIOS/PCI 0000:00:0f.3 setup!...
 
-			   Tonnerre
+Is there anything I can do to work around or fix this?
 
---61jdw2sOBCFtR2d/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBTvZJ/4bL7ovhw40RAvlCAJ4vQiIr8eKJ+zKX34fwsRvt/FRAFwCgoFPB
-+QJGtnO08fQC5OC4vX7tQBI=
-=LRvf
------END PGP SIGNATURE-----
-
---61jdw2sOBCFtR2d/--
+Thanks,
+Chris Kottke

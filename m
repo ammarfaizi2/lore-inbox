@@ -1,51 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266037AbUAFACn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266036AbUAFABS
+	id S266045AbUAFAGu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 19:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266036AbUAFAGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 19:01:18 -0500
-Received: from mail.kroah.org ([65.200.24.183]:60584 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266037AbUAFAAd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 19:00:33 -0500
-Date: Mon, 5 Jan 2004 16:00:15 -0800
-From: Greg KH <greg@kroah.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>, Daniel Jacobowitz <dan@debian.org>,
-       Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040106000014.GL30464@kroah.com>
-References: <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <20040106001326.A1128@pclin040.win.tue.nl>
+	Mon, 5 Jan 2004 19:06:46 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:51942 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S266015AbUAFAF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 19:05:58 -0500
+Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple 
+	map/unmaps
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, gibbs@scsiguy.com
+In-Reply-To: <20040105223158.3364a676.ak@suse.de>
+References: <200401051929.i05JTsM0000014248@mudpuddle.cs.wustl.edu.suse.lists.linux.kern
+	el> <20040105112800.7a9f240b.davem@redhat.com.suse.lists.linux.kernel>
+	<p73brpi1544.fsf@verdi.suse.de> <20040105130118.0cb404b8.davem@redhat.com> 
+	<20040105223158.3364a676.ak@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 05 Jan 2004 18:05:47 -0600
+Message-Id: <1073347548.2439.33.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040106001326.A1128@pclin040.win.tue.nl>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 06, 2004 at 12:13:26AM +0100, Andries Brouwer wrote:
-> On Mon, Jan 05, 2004 at 12:38:54PM -0800, Linus Torvalds wrote:
-> 
-> > Have you even _tried_ udev?
-> 
-> Yes, and it works reasonably well. I have version 012 here.
-> Some flaws will be fixed in 013 or so.
+On Mon, 2004-01-05 at 15:31, Andi Kleen wrote:
+> For the sake of bug-to-bug compatibility to the SCSI layer this patch may
+> work. I haven't tested it so no guarantees if it won't eat your file systems.
+> Feedback welcome anyways.
 
-What flaws would that be?  The short time delay for partitions?  Or
-something else?
+This isn't a bug in SCSI, it's a deliberate design feature.  SCSI has
+certain events, like QUEUE full that cause us to re-queue the pending
+I/O.  Other block layer drivers that can get these EAGAIN type queueing
+problems from the device also follow this model.
 
-> Some difficulties are of a more fundamental type, not so easy to fix.
+The reason for doing this is the prep/request model for block drivers
+(although the behaviour pre-dates the bio model).  As part of the prep
+function, we prepare the mapping list that is later passed to
+dma_map_sg().  Requeueing is done from the request function; by design,
+we don't re-prepare the requests (and hence don't free and rebuild the
+sg list).
 
-Such as?
+Like Dave says, we rely on the sequence map/unmap/map to produce a
+correct SG list.  This does give you slightly more leeway, since we
+never look at the sg list after the unmap, for SCSI it doesn't have to
+be returned to the pre-map state as long as re-mapping it is correct.
 
-> But udev is an entirely different discussion. Some other time.
+As to the idempotence of map/unmap: I'm ambivalent.  If it's going to be
+a performance hit to return the sg list to its prior state in unmap,
+then it does seem a waste given that for most of our I/O transactions we
+simply free the sg list after the unmap.
 
-Feel free to bring it up on the linux-hotplug-devel list whenever you
-wish.
+It looks like we're down to a choice of three
 
-thanks,
+1. Fix the x86_64 mapping layer as your patch proposes (how much of a
+performance hit on every transaction will this be)?
+2. Change SCSI (and every other block driver) to re-prepare requeued
+I/O.  This will incur a free/setup overhead penalty, but only in the
+requeue path.
+3. Don't unmap the I/O in the requeue case.  I like this least because
+the LLD is responsible for map/unmap and the mid-layer is responsible
+for requeueing, so it's a layering violation (as well as a waste of
+potentially valuable mapping resources).
 
-greg k-h
+On the whole, I prefer 1. Partly because it doesn't involve extra work
+for me ;-) but also because idempotence is an appealing property from a
+layering point of view.
+
+If we're agreed on this, I can add it to the DMA docs.
+
+James
+
+

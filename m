@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUF1QYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265058AbUF1Q0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264954AbUF1QYI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 12:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUF1QYI
+	id S265058AbUF1Q0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 12:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUF1Q0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 12:24:08 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:9425 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S265058AbUF1QX5
+	Mon, 28 Jun 2004 12:26:16 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:49294 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S265058AbUF1QYh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 12:23:57 -0400
-Message-ID: <40E045FE.1070104@pacbell.net>
-Date: Mon, 28 Jun 2004 09:23:26 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Mon, 28 Jun 2004 12:24:37 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Subject: Re: Nice 19 process still gets some CPU
+Date: Mon, 28 Jun 2004 18:23:59 +0200
+User-Agent: KMail/1.6.2
+References: <40E03C2D.5000809@techsource.com> <40E0449F.5050104@nortelnetworks.com>
+In-Reply-To: <40E0449F.5050104@nortelnetworks.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>, Pete Zaitcev <zaitcev@redhat.com>
-CC: greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
-       linux-kernel@vger.kernel.org, mdharm-usb@one-eyed-alien.net,
-       oliver@neukum.org
-Subject: Re: drivers/block/ub.c
-References: <Pine.LNX.4.44L0.0406281155140.1598-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0406281155140.1598-100000@ida.rowland.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406281824.01836.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-> On Sun, 27 Jun 2004, Pete Zaitcev wrote:
-> 
-> 
->>Regardin #2 you say that ``that code isn't "very fresh and buggy", having
->>been in use with all USB-Storage devices for over a year and a half'' and
->>yet I observe that fairly serious fixes were applied just this week.
-> 
-> 
-> I have to object to the reasoning here.  That same sort of argument could 
-> be applied to almost any part of the Linux kernel.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I was also tempted to point out that the tone was objectionable.
-The implication that only Pete and Havoc have useful standards
-when it comes to code quality was ... offensive.  Looks like I
-just gave into that temptation, eh?  :)
+Quoting Chris Friesen <cfriesen@nortelnetworks.com>:
+> Timothy Miller wrote:
+> > 
+> > 
+> > Con Kolivas wrote:
+> > 
+> >  >
+> >  > It definitely should _not_ starve. That is the unixy way of doing
+> >  > things. Everything must go forward. Around 5% cpu for nice 19 sounds
+> >  > just right. If you want scheduling only when there's spare cpu cycles
+> >  > you need a sched batch(idle) implementation.
+> >  >
+> >  >
+> > 
+> > Well, since I can't rewrite the app, I can't make it sched batch.  Nice
+> > values are an easy thing to get at for anything that's running.
+> 
+> Sure you can.  You can set the scheduler policy on any process in the system, 
+> while its running.
+> 
+> int sched_setscheduler(pid_t pid, int policy, const struct sched_param *p);
+> 
+> Takes about two minutes to write an equivalent to "nice" to set scheduler 
+> policies and priorities.
+
+Sounds cool. I was searching this syscall for a long time, now. :)
+But batch scheduling is available in -ck only, so this works only
+with -ck kernels. Correct?
+
+> Chris
+
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFA4EYfFGK1OIvVOP4RAogAAKCQ8oYHshIKPXYNAVptHh1QJRRfywCfX8Cg
+GxzK64XtYdtnJLReOMrzR3o=
+=ithN
+-----END PGP SIGNATURE-----

@@ -1,126 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314551AbSHBOUI>; Fri, 2 Aug 2002 10:20:08 -0400
+	id <S313867AbSHBORW>; Fri, 2 Aug 2002 10:17:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314553AbSHBOUI>; Fri, 2 Aug 2002 10:20:08 -0400
-Received: from webmail10.rediffmail.com ([202.54.124.179]:22218 "HELO
-	webmail10.rediffmail.com") by vger.kernel.org with SMTP
-	id <S314551AbSHBOUG>; Fri, 2 Aug 2002 10:20:06 -0400
-Date: 2 Aug 2002 14:23:03 -0000
-Message-ID: <20020802142303.24944.qmail@webmail10.rediffmail.com>
-MIME-Version: 1.0
-From: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
-Reply-To: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: installation of latest kernel on compaq notebook
-Content-type: multipart/mixed;
-	boundary="Next_1028298183---0-202.54.124.179-24942"
+	id <S314077AbSHBORW>; Fri, 2 Aug 2002 10:17:22 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:28841 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S313867AbSHBORV>;
+	Fri, 2 Aug 2002 10:17:21 -0400
+Date: Fri, 2 Aug 2002 16:20:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: martin@dalecki.de, Stephen Lord <lord@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A new ide warning message
+Message-ID: <20020802142037.GT3010@suse.de>
+References: <20020802115940.GF1055@suse.de> <Pine.SOL.4.30.0208021513490.3612-100000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.30.0208021513490.3612-100000@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- This is a multipart mime message
+On Fri, Aug 02 2002, Bartlomiej Zolnierkiewicz wrote:
+> 
+> On Fri, 2 Aug 2002, Jens Axboe wrote:
+> 
+> > On Fri, Aug 02 2002, Jens Axboe wrote:
+> > > On Fri, Aug 02 2002, Marcin Dalecki wrote:
+> > > > U?ytkownik Stephen Lord napisa?:
+> > > > >In 2.5.30 I started getting these warning messages out ide during
+> > > > >the mount of an XFS filesystem:
+> > > > >
+> > > > >ide-dma: received 1 phys segments, build 2
+> > > > >
+> > > > >Can anyone translate that into English please.
+> > > >
+> > > > It can be found in pcidma.c.
+> > > > It is repoting that we have one physical segment needed by
+> > > > the request in question but the sctter gather list allocation
+> > > > needed to break it up for mapping in two.
+> > >
+> > > You don't seem to realise that this is a BUG (somewhere, could even be
+> > > in the generic mapping functions)! blk_rq_map_sg() must never map a
+> > > request to more entries that rq->nr_segments, that's just very wrong.
+> > >
+> > > That's why I'm suspecting the recent pcidma changes. Just a feeling, I
+> > > have not looked at them.
+> >
+> > I'll take that back. Having looked at Adam's changes there are perfectly
+> > fine. I'm now putting my money on IDE breakage somewhere instead. It
+> 
+> Look again Jens. Adam's changes made IDE queue handling inconsistent.
+> hint: 2 * 127 != 255
+> 
+> But noticed warning deals with design of ll_rw_blk.c. ;-)
+> (right now max_segment_size have to be max bv->bv_len aligned)
 
+Yeah that's true, actually was just saying that on linux-scsi
+yesterday/today. 
 
---Next_1028298183---0-202.54.124.179-24942
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+> Jens, please look at segment checking/counting code, it does it on
+> bv->bv_len (4kb most likely) not sector granuality...
+> 
+> So for not 4kb aligned max_segment_size we will get new segment...
+> 
+> Best fix will be to make block layer count sectors not bv->bv_len...
 
-Hi Greg,
-  Please also find the lspci -v output as well.
-Regards
-Venku.
+Well I'm inclined to just make that page size granularity. It's like
+that in 2.4 as well (no guarentees that we will honor anything less than
+that granularity).
 
+> btw. I like Adam's patch but it was draft not to include in mainline (?).
 
-On Thu, 01 Aug 2002 Greg KH wrote :
->On Thu, Aug 01, 2002 at 04:40:26AM -0000, Enugala Venkata Ramana 
->wrote:
-> > Hi ,
-> >  This is what is existing configuration
-> >    have compaq presario 1200 12XL506 model notebook
-> >    installed Redhat Linux 7.1
-> >    Everything is fine except the usb to ethernet (SmartNic2
-> > 1500
-> > ) does not work although it is shown in the 
->/proc/usb/devices
->
->Please provide the USB specific information that is asked for in 
->the
->Linux USB FAQ at http://www.linux-usb.org/  That would help us 
->out a lot
->:)
->
->thanks,
->
->greg k-h
-Give your Company an email address like
-ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
-Know more. http://www.rediffmailpro.com/signup/
+The concept is sound, so it has a bug... I can say the same for other
+stuff in the kernel as well :-)
 
---Next_1028298183---0-202.54.124.179-24942
-Content-type: text/plain;
-	charset=iso-8859-1
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="lspci_out.txt"
+I probably just wanted more review (my 1 minute review surely wasn't
+enough).
 
-MDA6MDAuMCBIb3N0IGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBWVDg2MDEgW0Fw
-b2xsbyBQcm9NZWRpYV0gKHJldiAwNSkKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2
-c2VsLCBsYXRlbmN5IDAKCU1lbW9yeSBhdCBmODAwMDAwMCAoMzItYml0LCBwcmVmZXRjaGFi
-bGUpIFtzaXplPTY0TV0KCUNhcGFiaWxpdGllczogW2EwXSBBR1AgdmVyc2lvbiAyLjAKCjAw
-OjAxLjAgUENJIGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBWVDg2MDEgW0Fwb2xs
-byBQcm9NZWRpYSBBR1BdIChwcm9nLWlmIDAwIFtOb3JtYWwgZGVjb2RlXSkKCUZsYWdzOiBi
-dXMgbWFzdGVyLCA2Nk1oeiwgbWVkaXVtIGRldnNlbCwgbGF0ZW5jeSAwCglCdXM6IHByaW1h
-cnk9MDAsIHNlY29uZGFyeT0wMSwgc3Vib3JkaW5hdGU9MDEsIHNlYy1sYXRlbmN5PTAKCU1l
-bW9yeSBiZWhpbmQgYnJpZGdlOiBmNDEwMDAwMC1mNTdmZmZmZgoKMDA6MDcuMCBJU0EgYnJp
-ZGdlOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIFZUODJDNjg2IFtBcG9sbG8gU3VwZXIgU291
-dGhdIChyZXYgMjIpCglTdWJzeXN0ZW06IFZJQSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4MkM2
-ODYvQSBQQ0kgdG8gSVNBIEJyaWRnZQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIHN0ZXBwaW5nLCBt
-ZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDAKCjAwOjA3LjEgSURFIGludGVyZmFjZTogVklBIFRl
-Y2hub2xvZ2llcywgSW5jLiBCdXMgTWFzdGVyIElERSAocmV2IDEwKSAocHJvZy1pZiA4YSBb
-TWFzdGVyIFNlY1AgUHJpUF0pCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwg
-bGF0ZW5jeSA2NAoJSS9PIHBvcnRzIGF0IDE0MjAgW3NpemU9MTZdCglDYXBhYmlsaXRpZXM6
-IFtjMF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDIKCjAwOjA3LjIgVVNCIENvbnRyb2xs
-ZXI6IFZJQSBUZWNobm9sb2dpZXMsIEluYy4gVUhDSSBVU0IgKHJldiAxMCkgKHByb2ctaWYg
-MDAgW1VIQ0ldKQoJU3Vic3lzdGVtOiBVbmtub3duIGRldmljZSAwOTI1OjEyMzQKCUZsYWdz
-OiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDY0LCBJUlEgMTEKCUkvTyBw
-b3J0cyBhdCAxNDAwIFtzaXplPTMyXQoJQ2FwYWJpbGl0aWVzOiBbODBdIFBvd2VyIE1hbmFn
-ZW1lbnQgdmVyc2lvbiAyCgowMDowNy40IElTQSBicmlkZ2U6IFZJQSBUZWNobm9sb2dpZXMs
-IEluYy4gVlQ4MkM2ODYgW0Fwb2xsbyBTdXBlciBBQ1BJXSAocmV2IDMwKQoJRmxhZ3M6IG1l
-ZGl1bSBkZXZzZWwsIElSUSAxMAoJQ2FwYWJpbGl0aWVzOiBbNjhdIFBvd2VyIE1hbmFnZW1l
-bnQgdmVyc2lvbiAyCgowMDowNy41IE11bHRpbWVkaWEgYXVkaW8gY29udHJvbGxlcjogVklB
-IFRlY2hub2xvZ2llcywgSW5jLiBBQzk3IEF1ZGlvIENvbnRyb2xsZXIgKHJldiAyMCkKCVN1
-YnN5c3RlbTogQ29tcGFxIENvbXB1dGVyIENvcnBvcmF0aW9uOiBVbmtub3duIGRldmljZSBi
-MTk0CglGbGFnczogbWVkaXVtIGRldnNlbCwgSVJRIDkKCUkvTyBwb3J0cyBhdCAxMDAwIFtz
-aXplPTI1Nl0KCUkvTyBwb3J0cyBhdCAxNDM0IFtzaXplPTRdCglJL08gcG9ydHMgYXQgMTQz
-MCBbc2l6ZT00XQoJQ2FwYWJpbGl0aWVzOiBbYzBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lv
-biAyCgowMDowOS4wIENvbW11bmljYXRpb24gY29udHJvbGxlcjogQ09ORVhBTlQgSFNQIE1p
-Y3JvTW9kZW0gNTZLIChyZXYgMDEpCglTdWJzeXN0ZW06IENvbXBhcSBDb21wdXRlciBDb3Jw
-b3JhdGlvbjogVW5rbm93biBkZXZpY2UgYjE5NQoJRmxhZ3M6IG1lZGl1bSBkZXZzZWwsIElS
-USAxMQoJTWVtb3J5IGF0IGY0MDAwMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtz
-aXplPTY0S10KCUkvTyBwb3J0cyBhdCAxNDM4IFtzaXplPThdCglDYXBhYmlsaXRpZXM6IFs0
-MF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDIKCjAwOjBhLjAgQ2FyZEJ1cyBicmlkZ2U6
-IFRleGFzIEluc3RydW1lbnRzIFBDSTE0MTAgUEMgY2FyZCBDYXJkYnVzIENvbnRyb2xsZXIg
-KHJldiAwMSkKCVN1YnN5c3RlbTogQ29tcGFxIENvbXB1dGVyIENvcnBvcmF0aW9uOiBVbmtu
-b3duIGRldmljZSBiMTAzCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0
-ZW5jeSAxNjgsIElSUSA5CglNZW1vcnkgYXQgMTAwMDAwMDAgKDMyLWJpdCwgbm9uLXByZWZl
-dGNoYWJsZSkgW3NpemU9NEtdCglCdXM6IHByaW1hcnk9MDAsIHNlY29uZGFyeT0wMiwgc3Vi
-b3JkaW5hdGU9MDIsIHNlYy1sYXRlbmN5PTE3NgoJTWVtb3J5IHdpbmRvdyAwOiAxMDQwMDAw
-MC0xMDdmZjAwMCAocHJlZmV0Y2hhYmxlKQoJTWVtb3J5IHdpbmRvdyAxOiAxMDgwMDAwMC0x
-MGJmZjAwMAoJSS9PIHdpbmRvdyAwOiAwMDAwMTgwMC0wMDAwMThmZgoJSS9PIHdpbmRvdyAx
-OiAwMDAwMWMwMC0wMDAwMWNmZgoJMTYtYml0IGxlZ2FjeSBpbnRlcmZhY2UgcG9ydHMgYXQg
-MDAwMQoKMDE6MDAuMCBWR0EgY29tcGF0aWJsZSBjb250cm9sbGVyOiBUcmlkZW50IE1pY3Jv
-c3lzdGVtcyBDeWJlckJsYWRlIGkxIChyZXYgNmEpIChwcm9nLWlmIDAwIFtWR0FdKQoJU3Vi
-c3lzdGVtOiBDb21wYXEgQ29tcHV0ZXIgQ29ycG9yYXRpb24gQ3liZXJCbGFkZSBpMSBBR1AK
-CUZsYWdzOiBidXMgbWFzdGVyLCBmYXN0IEJhY2syQmFjaywgNjZNaHosIG1lZGl1bSBkZXZz
-ZWwsIGxhdGVuY3kgNjQsIElSUSA5CglNZW1vcnkgYXQgZjUwMDAwMDAgKDMyLWJpdCwgbm9u
-LXByZWZldGNoYWJsZSkgW3NpemU9OE1dCglNZW1vcnkgYXQgZjQxMDAwMDAgKDMyLWJpdCwg
-bm9uLXByZWZldGNoYWJsZSkgW3NpemU9MTI4S10KCU1lbW9yeSBhdCBmNDgwMDAwMCAoMzIt
-Yml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT04TV0KCUV4cGFuc2lvbiBST00gYXQgPHVu
-YXNzaWduZWQ+IFtkaXNhYmxlZF0gW3NpemU9NjRLXQoJQ2FwYWJpbGl0aWVzOiBbODBdIEFH
-UCB2ZXJzaW9uIDEuMAoJQ2FwYWJpbGl0aWVzOiBbOTBdIFBvd2VyIE1hbmFnZW1lbnQgdmVy
-c2lvbiAxCgo=
-
---Next_1028298183---0-202.54.124.179-24942--
+-- 
+Jens Axboe
 

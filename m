@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268121AbUIWAB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268122AbUIWAHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268121AbUIWAB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 20:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268120AbUIWAB4
+	id S268122AbUIWAHv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 20:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268126AbUIWAHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 20:01:56 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:64880 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268121AbUIWABe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 20:01:34 -0400
-Message-ID: <41521258.8000702@yahoo.com.au>
-Date: Thu, 23 Sep 2004 10:01:28 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
+	Wed, 22 Sep 2004 20:07:51 -0400
+Received: from holomorphy.com ([207.189.100.168]:33490 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268122AbUIWAHt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 20:07:49 -0400
+Date: Wed, 22 Sep 2004 17:07:33 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Thomas Habets <thomas@habets.pp.se>
-CC: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
+Message-ID: <20040923000733.GT9106@holomorphy.com>
 References: <200409230123.30858.thomas@habets.pp.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <200409230123.30858.thomas@habets.pp.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Habets wrote:
-> Hello.
-> 
+On Thu, Sep 23, 2004 at 01:23:08AM +0200, Thomas Habets wrote:
 > How about a sysctl that does "for the love of kbaek, don't ever kill these 
 > processes when OOM. If nothing else can be killed, I'd rather you panic"?
-> 
 > Examples for this list would be /usr/bin/vlock and /usr/X11R6/bin/xlock. 
 > I just got a very uncomfortable surprise when found my box unlocked thanks to 
 > this.
-> 
-> After playing around a bit, I made the patch below, but it's almost completely 
-> untested. I'm not even sure I take the binaries name from the right place. 
-> And I don't know if the locking can race. If it's too ugly then it'd be great 
-> if someone implemented it the right way. (iow: huge fucking disclaimer)
-> 
+> After playing around a bit, I made the patch below, but it's almost
+> completely untested. I'm not even sure I take the binaries name from
+> the right place. And I don't know if the locking can race. If it's
+> too ugly then it'd be great if someone implemented it the right way.
+> (iow: huge fucking disclaimer)
 > echo "/usr/bin/vlock /usr/X11R6/bin/xlock" > /proc/sys/vm/oom_pardon
-> 
 
-Hi,
-Nice idea. It could probably made include-worthy if you just set a flag in the
-task struct in question.
+Assuming this is desirable (otherwise, why would you have written it?)
 
-Also, use pid numbers instead of names, I think. (Or prctl? What is the
-'preferred' way of setting random per-process flags?)
+(1) uts_sem isn't the right lock.
+(2) You acquire uts_sem under tasklist_lock, a deadlock.
+(3) It would probably make more sense to dynamically register and
+	unregister the various criteria for exempt processes than mess
+	with space-separated fields of a single string.
 
-Nick
+
+-- wli

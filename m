@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285191AbRLRVRx>; Tue, 18 Dec 2001 16:17:53 -0500
+	id <S285161AbRLRVUp>; Tue, 18 Dec 2001 16:20:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285178AbRLRVQT>; Tue, 18 Dec 2001 16:16:19 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:52626 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285161AbRLRVPI>;
-	Tue, 18 Dec 2001 16:15:08 -0500
-Date: Tue, 18 Dec 2001 13:14:20 -0800 (PST)
-Message-Id: <20011218.131420.67881975.davem@redhat.com>
-To: lm@bitmover.com
-Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com, riel@conectiva.com.br,
-        bcrl@redhat.com, davidel@xmailserver.org, linux-kernel@vger.kernel.org
+	id <S285183AbRLRVT3>; Tue, 18 Dec 2001 16:19:29 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:49681 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S285180AbRLRVSm>; Tue, 18 Dec 2001 16:18:42 -0500
+Date: Tue, 18 Dec 2001 19:18:24 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Benjamin LaHaise <bcrl@redhat.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Scheduler ( was: Just a second ) ...
-From: "David S. Miller" <davem@redhat.com>
 In-Reply-To: <20011218130228.N26374@work.bitmover.com>
-In-Reply-To: <Pine.LNX.4.33.0112180917050.2867-100000@penguin.transmeta.com>
-	<E16GPXv-0008LJ-00@the-village.bc.nu>
-	<20011218130228.N26374@work.bitmover.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.33L.0112181916290.28489-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Larry McVoy <lm@bitmover.com>
-   Date: Tue, 18 Dec 2001 13:02:28 -0800
+On Tue, 18 Dec 2001, Larry McVoy wrote:
 
-   Maybe I'm an old stick in the mud, but IRC seems like a big waste of
-   time to me.
+> Maybe I'm an old stick in the mud, but IRC seems like a big waste of
+> time to me.  It's perfect for off the cuff answers and fairly useless
+> for thoughtful answers.  We used to write well thought out papers and
+> specifications for OS work.  These days if you can't do it in a
+> paragraph on IRC it must not be worth doing, eh?
 
-It's like being at a Linux conference all the time. :-)
+Actually, we tend to use multiple media at the same time.
 
-It does kind of make sense given that people are so scattered across
-the planet.  Sometimes I want to just grill someone on something, and
-email would be too much back and forth, IRC is one way to accomplish
-that.
+It happens very often that because of some discussion on
+IRC we end up writing up a few paragraphs and sending it
+to people by email.
+
+For other things, email is clearly too slow, so stuff is
+done on IRC (eg. walking somebody through a piece of code
+to identify and agree on a bug).
+
+cheers,
+
+Rik
+--
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

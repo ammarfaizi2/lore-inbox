@@ -1,120 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbUKQNFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbUKQNHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262302AbUKQNFa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 08:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUKQNF3
+	id S262305AbUKQNHK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 08:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbUKQNHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 08:05:29 -0500
-Received: from pop.gmx.de ([213.165.64.20]:8085 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262302AbUKQNFR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 08:05:17 -0500
-X-Authenticated: #4399952
-Date: Wed, 17 Nov 2004 14:00:36 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: john cooper <john.cooper@timesys.com>, "K.R. Foley" <kr@cybsft.com>,
-       Mark_H_Johnson@raytheon.com, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Stefan Schweizer <sschweizer@gmail.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
-Message-ID: <20041117140036.7c59a47e@mango.fruits.de>
-In-Reply-To: <20041117134509.GA29845@elte.hu>
-References: <20041116223243.43feddf4@mango.fruits.de>
-	<20041116224257.GB27550@elte.hu>
-	<20041116230443.452497b9@mango.fruits.de>
-	<20041116231145.GC31529@elte.hu>
-	<20041116235535.6867290d@mango.fruits.de>
-	<20041117002926.32a4b26f@mango.fruits.de>
-	<419A961A.2070005@timesys.com>
-	<20041117122318.479805fa@mango.fruits.de>
-	<20041117130236.GA28240@elte.hu>
-	<20041117131400.0c1dbe95@mango.fruits.de>
-	<20041117134509.GA29845@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Nov 2004 08:07:10 -0500
+Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:58344 "EHLO
+	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262305AbUKQNGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 08:06:03 -0500
+Message-ID: <419B4CAF.4090302@kolivas.org>
+Date: Thu, 18 Nov 2004 00:05:51 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux <linux-kernel@vger.kernel.org>
+Cc: CK Kernel <ck@vds.kolivas.org>, Peter Williams <pwil3058@bigpond.net.au>,
+       Chris Han <xiphux@gmail.com>
+Subject: Plugsched 041117
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig56D6C42215F630142E0311FF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Nov 2004 14:45:09 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig56D6C42215F630142E0311FF
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> 
-> * Florian Schmidt <mista.tapas@gmx.net> wrote:
-> 
-> > > > I had rtc_wakeup running with a rtc frequency of 8192 hz at the time
-> > > > plus some general usage (reading mails, etc..) In earlier kernels it
-> > > > seemed that the lock fell together with the rtc IRQ being piggy. will
-> > > > try to reproduce now with the freshest RP kernel.
-> > 
-> > I am not all certain that there really is a correlation like this. It
-> > might have been coincidence. This boot locked again when i was in X
-> > for 1 minute for checking mails. So again no console output.
-> 
-> managed to reproduce the lockup on my testbox, using your .config,
-> running rtc_wakeup -f 8192 and starting X. Hard hang and i had IRQ1 at
-> prio 99. Will turn on the NMI watchdog now, hopefully this lockup will
-> stay easy to reproduce.
+An updated version of the pluggable cpu scheduler framework is available 
+for 2.6.10-rc2-mm1
+http://ck.kolivas.org/patches/plugsched/2.6.10-rc2-mm1/
 
-Hi,
+The main changes in this version are a more robust version of minisched 
+and the addition of "nanosched".
 
-i experienced another one. But as i stayed on the console sysrq was
-available, so i can send you the last locks listed by sysrq-t.
+Nanosched is a minimal uniprocessor non preemptive scheduler with no 
+priority support at all for the smallest environments.
 
-The scenario was this:
+Peter Williams is working on sharing more code between schedulers and 
+Chris Han has a working sysfs interface to the scheduler tunables that I 
+will be looking at merging in some form in the near future (thanks).
 
-rtc_wakeup -f 8192 in one console
-some find /'s in another
+Cheers,
+Con
 
-Now i changed to a third console and put some load on the system my doing
-make clean bzImage in some kernel source dir.
+--------------enig56D6C42215F630142E0311FF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-right after hitting enter after typing "make clean bziage" i got another
-piggy message and the machine locked. It seems (to my uneducated mind) cc1
-and rtc_wakeup both are involved with this as the list of held locks (or the
-part of the list which i can see) shows them.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-there were 5 locks of the following form
+iD8DBQFBm0yvZUg7+tp6mRURAo2UAJ92w8gu9VwB59H+F8Fv0kKLQ6WoGACfe+1h
+eCRftH70GgDRQ2JhJ351zWg=
+=Nu4B
+-----END PGP SIGNATURE-----
 
-&drive-gendev_rel_sem
-init
-init_hwif_data
-
-2 locks of this form:
-
-&tty->atomic_read
-getty
-reasd_char
-
-and these:
-
-&mm->page_table_lock
-cc1
-exit_mmap
-
-&mm->mmap_sem
-rtc_wakeup
-do_page_fault
-
-&mm->page_table_lock
-rtc_wakeup
-handle_mm_fault
-
-&serio_lock
-IRQ 1
-serio_interrupt
-
-sysrq_table_lock
-IRQ 1
-__handle_sysrq
-
-flo
+--------------enig56D6C42215F630142E0311FF--

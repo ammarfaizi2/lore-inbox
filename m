@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVCRTal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVCRTfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbVCRTal (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 14:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVCRTak
+	id S262013AbVCRTfB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 14:35:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVCRTfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 14:30:40 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:37866 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262009AbVCRTa2 convert rfc822-to-8bit (ORCPT
+	Fri, 18 Mar 2005 14:35:00 -0500
+Received: from mail.tnnet.fi ([217.112.240.26]:55939 "EHLO mail.tnnet.fi")
+	by vger.kernel.org with ESMTP id S262011AbVCRTez (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 14:30:28 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 18 Mar 2005 14:34:55 -0500
+Message-ID: <423B2D54.5E4B9F6C@users.sourceforge.net>
+Date: Fri, 18 Mar 2005 21:34:44 +0200
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PCI Error Recovery API Proposal. (WAS:: [PATCH/RFC]PCIErrorRecovery)
-Date: Fri, 18 Mar 2005 11:29:43 -0800
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408132A53@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PCI Error Recovery API Proposal. (WAS:: [PATCH/RFC]PCIErrorRecovery)
-Thread-Index: AcUrRNpiYyerkShDQ2q0r5aeKrJxEgAq4naA
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-Cc: "Paul Mackerras" <paulus@samba.org>,
-       "Hidetoshi Seto" <seto.hidetoshi@jp.fujitsu.com>,
-       "Greg KH" <greg@kroah.com>, <ak@muc.de>,
-       "linuxppc64-dev" <linuxppc64-dev@ozlabs.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 18 Mar 2005 19:29:44.0610 (UTC) FILETIME=[D6D11820:01C52BF0]
+To: linux-crypto@nl.linux.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Announce loop-AES-v3.0c file/swap crypto package
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, March 17, 2005 2:58 PM Benjamin Herrenschmidt wrote:
-> Does the link side of PCIE provides a way to trigger a hard reset of
-the
-> rest of the card ? If not, then it's dodgy as there may be no way to
-> consistently "reset" the card if it's in a bad state. 
+loop-AES changes since previous release:
+- Changed gpg pipe code in losetup/mount to use '--no-options' instead of
+  '--options /dev/null'. Fix from Lars Packschies.
+- Changed losetup/mount programs to warn about unknown key data format.
+- Added workaround for vanished QUEUE_FLAG_ORDERED define in 2.6.11-rc3-mm1
+  kernel.
+- Changed gcc command line parameter order to be same as in kernel Makefile.
+  Wrong parameter order caused miscompilation with Xen architecture (2.6
+  kernels).
 
-The PCI Express spec does not make it clear of whether an in-band
-mechanism, called a hot-reset, triggers a hard reset of the rest of the
-card. I agree that if not, then it's dodgy.
+bzip2 compressed tarball is here:
 
-Thanks,
-Long
+    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.0c.tar.bz2
+    md5sum 3ba40e971da6a18df3e82fbbd3795ac8
+
+    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.0c.tar.bz2.sign
+
+
+Additional ciphers package changes since previous release:
+- Changed gcc command line parameter order to be same as in kernel Makefile.
+  Wrong parameter order caused miscompilation with Xen architecture (2.6
+  kernels).
+
+bzip2 compressed tarball is here:
+
+    http://loop-aes.sourceforge.net/ciphers/ciphers-v3.0b.tar.bz2
+    md5sum 603b188299dfbe1d05e3bca7d281a9a2
+
+    http://loop-aes.sourceforge.net/ciphers/ciphers-v3.0b.tar.bz2.sign
+
+-- 
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

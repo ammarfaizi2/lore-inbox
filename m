@@ -1,91 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVDANrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVDAOAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbVDANrk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 08:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbVDANrk
+	id S262746AbVDAOAs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 09:00:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVDAOAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 08:47:40 -0500
-Received: from smtpout19.mailhost.ntl.com ([212.250.162.19]:32615 "EHLO
-	mta13-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
-	id S262742AbVDANrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 08:47:11 -0500
-Message-ID: <424D50D7.1000503@gentoo.org>
-Date: Fri, 01 Apr 2005 14:47:03 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+	Fri, 1 Apr 2005 09:00:48 -0500
+Received: from indonesia.procaptura.com ([193.214.130.21]:22681 "EHLO
+	indonesia.procaptura.com") by vger.kernel.org with ESMTP
+	id S262746AbVDAOAk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 09:00:40 -0500
+Message-ID: <424D5407.6070003@procaptura.com>
+Date: Fri, 01 Apr 2005 16:00:39 +0200
+From: Toralf Lund <toralf@procaptura.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] procfs: Fix hardlink counts
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------000205070100040703070006"
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel load issues (insmod segfault)
+References: <424D467F.3090700@procaptura.com>
+In-Reply-To: <424D467F.3090700@procaptura.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000205070100040703070006
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Toralf Lund wrote:
 
-The pid directories in /proc/ currently return the wrong hardlink count - 3, 
-when there are actually 4 : ".", "..", "fd", and "task".
+> Hi.
+>
+> I thought I might try this one again (with updated code and more 
+> compete info):
 
-This is easy to notice using find(1):
-	cd /proc/<pid>
-	find
+Right. I think maybe I've made some kind of stupid mistake. Sorry.
 
-In the output, you'll see a message similar to:
-find: WARNING: Hard link count is wrong for .: this may be a bug in your 
-filesystem driver.  Automatically turning on find's -noleaf option.  Earlier 
-results may have failed to include directories that should have been searched.
+I looked, and looked again, and just couldn't find anything wrong with 
+the module (so it must be the kernel, right?), but I looked the wrong 
+place, of course. It was the build flags, not the source code...
 
-http://bugs.gentoo.org/show_bug.cgi?id=86031
+[ ... ]
 
-I also noticed that CONFIG_SECURITY can add a 5th: attr, and performed a 
-similar fix on the task directories too.
+>
+>
+> # make itifg8tst.o
+> gcc -pipe -Wall -O2  -DLinux -mcpu=i686 -I../../include -fno-common 
+> -fno-strict-aliasing -fomit-frame-pointer -nostdinc -I. 
+> -I/lib/modules/2.6.11.4-0.EL.toralf/build/include 
+> -I/usr/lib/gcc/i386-redhat-linux/3.4.3/include -D__KERNEL__ -DMODULE 
+> -I/lib/modules/2.6.11.4-0.EL.toralf/build/include/asm-i386/mach-default 
+> -o itifg8tst.o -c itifg8tst.c
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+It seems like this is not quite right. I've now changed this build flags 
+based on the module build setup of the kernel sources, so that I have
 
+gcc    -DLinux -mpreferred-stack-boundary=2 -fno-unit-at-a-time 
+-march=i686 -mregparm=3  -I../../include -fno-strict-aliasing 
+-fno-common -ffreestanding -fomit-frame-pointer -nostdinc -I. 
+-I/lib/modules/2.6.11.4-0.EL.toralf/build/include -isystem 
+/usr/lib/gcc/i386-redhat-linux/3.4.3/include -D__KERNEL__ -DMODULE 
+-I/lib/modules/2.6.11.4-0.EL.toralf/build/include/asm-i386/mach-default 
+-o itifg8.mod.o -c itifg8.mod.c
 
---------------000205070100040703070006
-Content-Type: text/x-patch;
- name="procfs-hardlinks.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="procfs-hardlinks.patch"
+and the module works!
 
---- linux-2.6.11-gentoo-r5/fs/proc/base.c.orig	2005-04-01 14:06:43.000000000 +0100
-+++ linux-2.6.11-gentoo-r5/fs/proc/base.c	2005-04-01 14:35:39.000000000 +0100
-@@ -1702,8 +1702,12 @@ struct dentry *proc_pid_lookup(struct in
- 	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
- 	inode->i_op = &proc_tgid_base_inode_operations;
- 	inode->i_fop = &proc_tgid_base_operations;
--	inode->i_nlink = 3;
- 	inode->i_flags|=S_IMMUTABLE;
-+#ifdef CONFIG_SECURITY
-+	inode->i_nlink = 5;
-+#else
-+	inode->i_nlink = 4;
-+#endif
- 
- 	dentry->d_op = &pid_base_dentry_operations;
- 
-@@ -1757,8 +1761,12 @@ static struct dentry *proc_task_lookup(s
- 	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
- 	inode->i_op = &proc_tid_base_inode_operations;
- 	inode->i_fop = &proc_tid_base_operations;
--	inode->i_nlink = 3;
- 	inode->i_flags|=S_IMMUTABLE;
-+#ifdef CONFIG_SECURITY
-+	inode->i_nlink = 4;
-+#else
-+	inode->i_nlink = 3;
-+#endif
- 
- 	dentry->d_op = &pid_base_dentry_operations;
- 
+I'm not sure what exactly did the trick, though. (Although I guess the 
+distinction between -march and just -mcpu might be significant.). If 
+someone would like to explain more about the different flags, just go 
+ahead....
 
---------------000205070100040703070006--
+- Toralf
+

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267388AbTACFEX>; Fri, 3 Jan 2003 00:04:23 -0500
+	id <S267392AbTACFGl>; Fri, 3 Jan 2003 00:06:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267389AbTACFEX>; Fri, 3 Jan 2003 00:04:23 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:40454
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267388AbTACFEW>; Fri, 3 Jan 2003 00:04:22 -0500
-Date: Thu, 2 Jan 2003 21:12:18 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Marco Monteiro <masm@acm.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <1041570282.2311.47.camel@fly>
-Message-ID: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S267394AbTACFGl>; Fri, 3 Jan 2003 00:06:41 -0500
+Received: from holomorphy.com ([66.224.33.161]:63943 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267392AbTACFGj>;
+	Fri, 3 Jan 2003 00:06:39 -0500
+Date: Thu, 2 Jan 2003 21:14:50 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL and Nvidia
+Message-ID: <20030103051450.GY9704@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andre Hedrick <andre@linux-ide.org>,
+	David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10301021315170.421-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10301021315170.421-100000@master.linux-ide.org>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Jan 2003, Marco Monteiro wrote:
+On Thu, Jan 02, 2003 at 01:26:24PM -0800, Andre Hedrick wrote:
+> AH!  A man of reason here!
+> It would be nice if "LI" got in the business of issuing license
+> subscriptions for binary only modules.  Where the binary vendor must
+> register and pay a royality fee.  This fee would be used to support "LI"
+> and defend Linux in a court case if needed.
+> I personally would gladly pay a reasonable (usual and customary) fee for
+> the service and right to sell binary models with out having to pay a
+> lawyer to write a "position" and be prepared to sue every snot nose brat
+> in the world.
+> Otherwise, one has to deal with unreasonable people.
+> There are people who do not work for distros or have found that other
+> companies want to control their contributions to GPL, but need a means to
+> support themselves with there other works related to emerging
+> technologies.
+> Obviously I am being way to sensible about the issue, and should go use
+> NetBSD instead and give them the license money.
 
-> On Fri, 2003-01-03 at 04:06, Larry McVoy wrote:
-> > On Thu, Jan 02, 2003 at 10:32:30PM -0500, Richard Stallman wrote:
-> > > But we could make do with even less cooperation than that.  If they
-> > > just provide the necessary specs to a person who wants to extend the
-> > > free drivers that exist, that would be sufficient.
-> > 
-> > Give it up, Stallman, we live in a capitalistic world.  The Russians
-> > tried communism and it didn't work.  It won't work here either, the
-> > kernel folks aren't that stupid.  Some people actually do learn from
-> > history.
-> 
-> It won't work? Most of the software you use is Free Software. I don't
-> see anyone using Linux and not using Free software. I use only software
-> that is Free, and I'm not limited by doing it, in any sense. And it
-> won't work? It IS working.
-> 
-> And I don't buy NVIDIA hardware.
+I don't give two hoots about the money or the open/closed stuff in the
+context of "Is it the right thing to do?" or "What should nvidia do?"
+nvidia's drivers have developed a bad reputation, at least in my mind,
+and I don't want their bugreports (even though RH was hurt worst here),
+and I don't want my betatesters adding that unknown into the equation.
 
-Excellent you exercise your freedom of choice.
-Now do not take away anyone elses and all is cool.
-What is so hard about that?
+Supposedly they've improved lately, not that I care. One only need be
+bitten once.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Maybe having no way to prove a bug's fixed is a downside of binary modules.
 
+
+Bill

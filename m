@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275594AbRJAVuE>; Mon, 1 Oct 2001 17:50:04 -0400
+	id <S275610AbRJAVzO>; Mon, 1 Oct 2001 17:55:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275598AbRJAVto>; Mon, 1 Oct 2001 17:49:44 -0400
-Received: from mailrelay1.inwind.it ([212.141.54.101]:61165 "EHLO
-	mailrelay1.inwind.it") by vger.kernel.org with ESMTP
-	id <S275594AbRJAVtf>; Mon, 1 Oct 2001 17:49:35 -0400
-Message-Id: <3.0.6.32.20011001235032.02571860@pop.tiscalinet.it>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Mon, 01 Oct 2001 23:50:32 +0200
-To: Rik van Riel <riel@conectiva.com.br>
-From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
-Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.33L.0110011604310.4835-100000@imladris.rielhome
- .conectiva>
-In-Reply-To: <3.0.6.32.20011001203320.02381600@pop.tiscalinet.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S275611AbRJAVzE>; Mon, 1 Oct 2001 17:55:04 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:21924 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S275610AbRJAVzB>;
+	Mon, 1 Oct 2001 17:55:01 -0400
+Date: Mon, 01 Oct 2001 22:55:26 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Andreas Dilger <adilger@turbolabs.com>,
+        Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Cc: linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: /dev/random entropy calculations broken?
+Message-ID: <45266246.1001976925@[195.224.237.69]>
+In-Reply-To: <20011001105927.A22795@turbolinux.com>
+In-Reply-To: <20011001105927.A22795@turbolinux.com>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 16.23 01/10/01 -0300, you wrote:
->On Mon, 1 Oct 2001, Lorenzo Allegrucci wrote:
->
->> Disclaimer:
->> I don't know if this "benchmark" is meaningful or not, but anyhow..
->
->I'm not sure either, since qsort doesn't really have much
->locality of reference but just walks all over the place.
-
-Yes, it was exactly my goal :)
-
->This is direct contrast with the basic assumption on which
->VM and CPU caches are built ;)
-
-Indeed, it put strain the VM by a pseudo random-sequential access pattern.
-
->I wonder how eg. merge sort would perform ...
-
-It would perform better, but merge sort doesn't trash the system :)
-I wanted to test the system in trashing conditions.
-Just curious.
 
 
--- 
-Lorenzo
+--On Monday, 01 October, 2001 10:59 AM -0600 Andreas Dilger 
+<adilger@turbolabs.com> wrote:
+
+> Has anyone even checked whether the current entropy estimates even work
+> properly?
+
+And while we're at it, many things which add to entropy are
+observable by non-root users (interupt timings always, mouse
+movements, keypresses if a non-root user is logged in at
+the console). And entropy is overestimate on some non-x86
+platforms due to lack of fine-grained timer implementations.
+And without Robert Love's patch the choice of whether to source
+it from network events is completely arbitrary (NIC dependent)
+
+However, unless one is worried about someone having broken
+SHA-1 OR one is worried about annoying blocking behavour
+on read(), I'm not convinced the entropy calculation is
+doing anything useful anyway.
+
+People do, however, seem particularly reluctant to accept
+any change in this area.
+
+--
+Alex Bligh

@@ -1,87 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261652AbSIXMK6>; Tue, 24 Sep 2002 08:10:58 -0400
+	id <S261657AbSIXMQf>; Tue, 24 Sep 2002 08:16:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261656AbSIXMK6>; Tue, 24 Sep 2002 08:10:58 -0400
-Received: from angband.namesys.com ([212.16.7.85]:9357 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S261652AbSIXMK5>; Tue, 24 Sep 2002 08:10:57 -0400
-Date: Tue, 24 Sep 2002 16:16:10 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Jeff Dike <jdike@karaya.com>, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: UML kbuild patch
-Message-ID: <20020924161610.A31093@namesys.com>
-References: <200209240109.UAA05448@ccure.karaya.com> <Pine.LNX.4.44.0209231913060.13892-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209231913060.13892-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.3.22.1i
+	id <S261658AbSIXMQf>; Tue, 24 Sep 2002 08:16:35 -0400
+Received: from ns.suse.de ([213.95.15.193]:54287 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261657AbSIXMQe>;
+	Tue, 24 Sep 2002 08:16:34 -0400
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Nanosecond resolution for stat(2)
+References: <20020923214836.GA8449@averell.suse.lists.linux.kernel> <15759.62593.58936.153791@notabene.cse.unsw.edu.au.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 24 Sep 2002 14:21:47 +0200
+In-Reply-To: Neil Brown's message of "24 Sep 2002 07:16:10 +0200"
+Message-ID: <p73y99rshlw.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Neil Brown <neilb@cse.unsw.edu.au> writes:
 
-On Mon, Sep 23, 2002 at 07:24:01PM -0500, Kai Germaschewski wrote:
- 
-> I just thought of another solution, which actually seems cleaner and has 
-> less impact on the top-level (generic) Makefile.
+> Would it make sense, when loading a time from disk, for the low order,
+> non-stored bits of the time to be initialised high rather than low.
+> i.e. to 999,999,999 rather than 0.
+> This way time stamps would never seem to jump backwards, only
+> forwards, which seems less likely to cause confusion and will mean that a
+> change is not missed (I'm thinking NFS here where cache correctness
+> depends heavily on mtime).
 
-On a little bit unrelated note, I found that your changes accepted by Linus
-broke UML (the ones entitled as 'kbuild: arch/um cleanup / O_TARGET removal')
-build for 2.5.38, so that's what I was forced to do to make it to compile:
+It would be possible, but I would only add it when there are actual
+problems with the current solution.
+It looks like a bit of a hack.
 
-===== arch/um/Makefile 1.3 vs edited =====
---- 1.3/arch/um/Makefile	Tue Sep 24 15:37:03 2002
-+++ edited/arch/um/Makefile	Tue Sep 24 16:12:46 2002
-@@ -30,15 +30,10 @@
- LINK_PROFILE = $(PROFILE) -Wl,--wrap,__monstartup
- endif
- 
--ARCH_SUBDIRS = $(ARCH_DIR)/drivers $(ARCH_DIR)/kernel \
--	$(ARCH_DIR)/sys-$(SUBARCH) $(ARCH_DIR)/os-$(OS)
--
--SUBDIRS += $(ARCH_SUBDIRS)
--
- core-y			+= $(ARCH_DIR)/kernel/		 \
--			+= $(ARCH_DIR)/drivers/          \
--			+= $(ARCH_DIR)/sys-$(SUBARCH)/	 \
--			+= $(ARCH_DIR)/os-$(OS)/
-+			   $(ARCH_DIR)/drivers/          \
-+			   $(ARCH_DIR)/sys-$(SUBARCH)/	 \
-+			   $(ARCH_DIR)/os-$(OS)/
- 
- libs-$(CONFIG_PT_PROXY)	+= $(ARCH_DIR)/ptproxy/
- 
-@@ -63,7 +58,9 @@
- 	-DELF_ARCH=$(ELF_ARCH) -DELF_FORMAT=\"$(ELF_FORMAT)\"
- 
- LD_vmlinux = $(CC) 
--LDFLAGS_vmlinux = $(LINK_PROFILE) $(LINK_WRAPS) -static $(ARCH_DIR)/main.o 
-+LDFLAGS_vmlinux = $(LINK_PROFILE) $(LINK_WRAPS) -static $(ARCH_DIR)/main.o -L/usr/lib
-+
-+LIBS += -lutil
- 
- SYMLINK_HEADERS = include/asm-um/archparam.h include/asm-um/system.h \
- 	include/asm-um/sigcontext.h include/asm-um/processor.h \
-===== arch/um/Makefile-os-Linux 1.1 vs edited =====
---- 1.1/arch/um/Makefile-os-Linux	Fri Sep  6 21:29:28 2002
-+++ edited/arch/um/Makefile-os-Linux	Tue Sep 24 15:56:31 2002
-@@ -4,4 +4,3 @@
- #
- 
- SUBDIRS += $(ARCH_DIR)/os-$(OS)/drivers
--LIBS += $(ARCH_DIR)/os-$(OS)/drivers/drivers.o
-===== arch/um/kernel/Makefile 1.2 vs edited =====
---- 1.2/arch/um/kernel/Makefile	Mon Sep 23 03:40:07 2002
-+++ edited/arch/um/kernel/Makefile	Tue Sep 24 15:49:48 2002
-@@ -10,7 +10,6 @@
- 	umid.o user_util.o
- 
- obj-$(CONFIG_BLK_DEV_INITRD) += initrd_kern.o initrd_user.o
--endif
- 
- # user_syms.o not included here because Rules.make has its own ideas about
- # building anything in export-objs
+> 
+> Also, would it make sense, for filesystems that don't store the full
+> resolution, to make that forward jump appear as early as
+> possible. i.e. if the mtime (ctime/atime) is earlier than the current
+> time at the resoltion of the filesystem, then make the mtime appear to
+> be what it would be if reloaded from storage...  Maybe an example
+> would help.
+
+That would require much more callbacks into the filesystem. The VFS changes
+the times, but it doesn't know what the resolution of the file system is.
+
+In theory it could help a bit when the rounding is needed, but again
+to avoid overengineering early I would like to first see if the current
+KISS way works out well enough.
+
+[note that when you want the "only flush once a second" optimization back
+you would need some of these callbacks anyways, so when doing it it may
+be a good idea to merge it with early increase]
+
+> Thus the only incorrect observation that an application can make is
+> that there is an extra change at the end of a second when other
+> changes were made.  I think this is better than an apparent change
+> suddenly becoming visible many minutes after the time of that apparent
+> change, and definately better than a timestamp moving backwards.
+
+Probably yes. But it's also much more intrusive for the kernel code.
+
+It also has the drawback that the application can see times in the future
+in stat.
+e.g. when someone does
+
+	touch file
+	stat(file, &st)
+	gettimeofday(&now) 
+	tvsub(&diff, &now, &st.st_mtime_ts)
+
+Then diff may actually be negative.  Which could also in theory break stuff.
+So you would trade one breakage for another. Let's see if KISS works out
+first :-)
+
+
+-And

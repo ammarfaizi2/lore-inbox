@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265417AbSJSATn>; Fri, 18 Oct 2002 20:19:43 -0400
+	id <S265419AbSJSA0P>; Fri, 18 Oct 2002 20:26:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265418AbSJSATn>; Fri, 18 Oct 2002 20:19:43 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:24791 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265417AbSJSATO>;
-	Fri, 18 Oct 2002 20:19:14 -0400
-Date: Fri, 18 Oct 2002 20:25:14 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH][RFC] 2.5.42 (1/2): Filesystem capabilities kernel patch
-In-Reply-To: <87d6q7mgtf.fsf@goat.bogus.local>
-Message-ID: <Pine.GSO.4.21.0210182018010.21677-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265422AbSJSA0P>; Fri, 18 Oct 2002 20:26:15 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:5580 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265419AbSJSA0O>;
+	Fri, 18 Oct 2002 20:26:14 -0400
+Date: Fri, 18 Oct 2002 17:23:27 -0700 (PDT)
+Message-Id: <20021018.172327.11877875.davem@redhat.com>
+To: levon@movementarian.org
+Cc: weigand@immd1.informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021019002645.GA16882@compsoc.man.ac.uk>
+References: <20021017011623.GA9096@compsoc.man.ac.uk>
+	<20021016.181213.35446337.davem@redhat.com>
+	<20021019002645.GA16882@compsoc.man.ac.uk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: John Levon <levon@movementarian.org>
+   Date: Sat, 19 Oct 2002 01:26:45 +0100
+   
+   Now all we need is for whoever ports oprofiled to a 32-bit on 64-bit
+   platform to add some check for finding out the kernel's idea of what
+   sizeof(unsigned long) is, and using that to read /dev/oprofile/buffer.
+   
+   Yeah ?
 
+Wouldn't that someone be you?  It's not that hard to code, and if
+it's in there from the start it would really save all of us a lot
+of time.
 
-On Sat, 19 Oct 2002, Olaf Dietsche wrote:
-
-> > To start
-> > with, on a bunch of filesystems inode numbers are unstable.
-> 
-> Not really a problem, so restrict it to stable inode systems only.
-
-So exec.c code should go looking for fs type and try and match it
-against some table?  OK...
- 
-> > Moreover,
-> > owner of that file suddenly gets _all_ capabilities that exist in the
-> > system,
-> 
-> Yup, like root for example.
-> 
-> > ditto for any task capable of mount(2),
-> 
-> How's that? I think this task must own the filesystem and root
-> directory too.
-
-mount --bind my_file /usr/.capabilities
-
-> > ditto for owner of
-> > root directory on some filesystem.
-> 
-> Which is a problem for foreign (network) filesystems only. Should be
-> solvable with a mount option (i.e. mount -o nocaps ...).
-> 
-> > And there is no way to recognize
-> > that file as such, so additional checks on write(), mount(), unlink().
-> > etc. are not possible.
-> 
-> Depends on, wether I want to recognize it and do these checks. Anyway,
-> could be solved with a mount option too or something like quotactl(2)
-> maybe.
-
-Ahem.  You had made several capabilities equivalent to "everything".
-E.g. "anyone who can override checks in chown() can set arbitrary
-capabilities", etc.  Which changes model big way and makes the affected
-capabilities pretty much useless - they can be elevated to any other
-capability.
- 
-> > And that is not to mention that binding of
-> > non-root will play silly buggers with the entire scheme.
-> 
-> I don't understand this sentence. What do you mean with "binding of
-> non-root"?
-
-mount --bind /usr/bin /mnt
-Suddenly /mnt/foo and /usr/bin/foo (same file) have different capabilities.
-
+Really, the oprofiled work to do this is going to be generic, what
+isn't the generic is the "determine kernel pointer size" check.
+But you can make x86 return '4' from the get-go and then people like
+me will have a simple place to add the proper test for our platform.

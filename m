@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293060AbSCSWKi>; Tue, 19 Mar 2002 17:10:38 -0500
+	id <S293076AbSCSWOi>; Tue, 19 Mar 2002 17:14:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293075AbSCSWK2>; Tue, 19 Mar 2002 17:10:28 -0500
-Received: from pat.uio.no ([129.240.130.16]:39849 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S293060AbSCSWKM>;
-	Tue, 19 Mar 2002 17:10:12 -0500
-To: linux-kernel@ton.iguana.be (Ton Hospel)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-In-Reply-To: <shswuwkujx5.fsf@charged.uio.no>
-	<200203110018.BAA11921@webserver.ithnet.com>
-	<15499.64058.442959.241470@charged.uio.no>
-	<200203180707.g2I771Z00657@mule.m17n.org>
-	<shs8z8qb8c5.fsf@charged.uio.no>
-	<200203180933.g2I9XTg07727@mule.m17n.org>
-	<15509.47571.248407.537415@charged.uio.no>
-	<a77m99$kjj$1@post.home.lunix>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 19 Mar 2002 23:10:00 +0100
-Message-ID: <shsu1rci4zr.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S293075AbSCSWO3>; Tue, 19 Mar 2002 17:14:29 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:14088 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S293076AbSCSWOS>;
+	Tue, 19 Mar 2002 17:14:18 -0500
+Date: Tue, 19 Mar 2002 15:15:00 -0700
+From: yodaiken@fsmlabs.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: yodaiken@fsmlabs.com, Pavel Machek <pavel@suse.cz>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+Message-ID: <20020319151500.A23930@hq.fsmlabs.com>
+In-Reply-To: <20020316131219.C20436@hq.fsmlabs.com> <Pine.LNX.4.33.0203161223290.31971-100000@penguin.transmeta.com> <20020316143916.A23204@hq.fsmlabs.com> <20020319120618.GA470@elf.ucw.cz> <20020319141231.A22305@hq.fsmlabs.com> <3C97B721.7A79C4F9@nortelnetworks.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Ton Hospel <linux-kernel@ton.iguana.be> writes:
+On Tue, Mar 19, 2002 at 05:09:37PM -0500, Chris Friesen wrote:
+> yodaiken@fsmlabs.com wrote:
+> > 
+> > On Tue, Mar 19, 2002 at 01:06:19PM +0100, Pavel Machek wrote:
+> > > Hammer is designed for desktop, AFAICT. [Its slightly modified athlon,
+> > > you see?]
+> > 
+> > Thanks for the insight. Only by reading LKM could
+> > I have found out that AMD doesn't care about server space.
+> 
+> The sledgehammer is a bit more than a slightly modified athlon...
+> 
+> up to 8 way multiprocessing
+> 64-bit addressing
+> hypertransport
+> integrated DDR memory controller
+
+Look at www.amd.com front page  for some subtle hints on where
+the margin is.
 
 
-     > <HINT_HINT> well, the only reasons I still use unfsd is
-     > link_relative and re-export </HINT_HINT>
+> 
+> 
+> -- 
+> Chris Friesen                    | MailStop: 043/33/F10  
+> Nortel Networks                  | work: (613) 765-0557
+> 3500 Carling Avenue              | fax:  (613) 765-2986
+> Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Link_relative should be very easy to implement: the only reason I can
-think why it hasn't been done yet is that it is so rarely useful that
-nobody has bothered.
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 
-As for re-exporting: that can be done pretty easily too unless of
-course you actually expect it to be reliable. The tough cookie is to
-get it to survive server reboots.
-Then again, I'm not sure unfsd was too good at handling that sort of
-thing either...
-
-Cheers,
-  Trond

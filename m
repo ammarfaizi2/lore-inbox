@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280129AbRJaKLX>; Wed, 31 Oct 2001 05:11:23 -0500
+	id <S280128AbRJaKHD>; Wed, 31 Oct 2001 05:07:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280130AbRJaKLN>; Wed, 31 Oct 2001 05:11:13 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:21120 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S280129AbRJaKK6>;
-	Wed, 31 Oct 2001 05:10:58 -0500
-Date: Wed, 31 Oct 2001 02:11:31 -0800 (PST)
-Message-Id: <20011031.021131.74751566.davem@redhat.com>
-To: csr21@cam.ac.uk
+	id <S280129AbRJaKGw>; Wed, 31 Oct 2001 05:06:52 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:37388 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S280128AbRJaKGm>; Wed, 31 Oct 2001 05:06:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: [BUG] Smbfs + preempt on 2.4.10
+Date: Wed, 31 Oct 2001 12:05:07 +0000
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.10.10110291339010.27909-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.10.10110291339010.27909-100000@coffee.psychology.mcmaster.ca>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: SPARC and SA_SIGINFO signal handling
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011031094342.A27520@cam.ac.uk>
-In-Reply-To: <20011029190027.A21372@cam.ac.uk>
-	<20011030.125134.93645850.davem@redhat.com>
-	<20011031094342.A27520@cam.ac.uk>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Message-Id: <01103112050700.00794@nemo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Christophe Rhodes <csr21@cam.ac.uk>
-   Date: Wed, 31 Oct 2001 09:43:43 +0000
+On Monday 29 October 2001 18:39, you wrote:
+> > I am very willing to help in curing this coz low latency is great.
+>
+> out of curiosity, why do you care?  do you have a relatively
+> old/low-powered machine?  or are you doing RT audio effects?
 
-   However, what I don't see to get at is the usercontext/ucontext
-   structure containing register contents and so on, which as far as I am
-   aware should be in the third (data) argument to the sa_sigaction-type
-   sighandler; that's where I'm getting my problems.
+I'd like Linux kernel to improve.
 
-The "register contents and so on" are in the sigcontext.
-We don't use ucontext on sparc32.
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
+I do have tons of old stuff (even 386s with pitiful 16mb RAM!!!)
+at my present job. Right now it seems impossible to run Linux on them
+(you can't run any office suite in linux on such weak box,
+however, win95 can (painfully slow but...))
+and buying more RAM for them is problematic
+(hard to find + how to convince my boss??)
+--
+vda

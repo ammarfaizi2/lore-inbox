@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270759AbTHJXOS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 19:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270760AbTHJXOR
+	id S270763AbTHJXYD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 19:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270765AbTHJXYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 19:14:17 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:28589 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S270759AbTHJXOQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 19:14:16 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3 vs acpi
-Date: Sun, 10 Aug 2003 19:14:15 -0400
-User-Agent: KMail/1.5.1
+	Sun, 10 Aug 2003 19:24:03 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:31634 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S270763AbTHJXYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 19:24:02 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Date: Mon, 11 Aug 2003 09:23:20 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308101914.15673.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.63.55] at Sun, 10 Aug 2003 18:14:15 -0500
+Message-ID: <16182.54248.868067.968522@gargle.gargle.HOWL>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, akpm@osdl.org, andrea@suse.de,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+In-Reply-To: message from Stephan von Krawczynski on Sunday August 10
+References: <20030808170536.23118033.skraw@ithnet.com>
+	<Pine.LNX.4.44.0308081232430.8384-100000@logos.cnet>
+	<20030810233526.0f7bf65b.skraw@ithnet.com>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On Sunday August 10, skraw@ithnet.com wrote:
+> 
+> From looking at the tests so far I would say the setup is remarkably slower in
+> terms of writing to ext3 via nfs and sync option set. I think especially the
+> "sync" is very visible - unlike reiserfs.
 
-I turned off the acpi stuffs now and it boots, including with the 
-advansys driver built in.  Someone asked me to check 
-/proc/interrupts, which gave me a clue that I should enable an ESCD 
-update in the bios.  This moved some interrupts around and it seems 
-all is well, I'm running it, with X, on my gforce2 card right now.
+  data=journal
+makes nfsd go noticable faster over ext3.  Having an external journal
+is even better.
 
-However, this has the side effect of disabling a 'shutdown -h now' 
-which only reboots the machine instead of doing the shutdown.
-
-Also, my oss-install for 3.9.7k fails so I have no sound, not even a 
-console beep.  On going to www.opensound.com, I do not find a 2.6.x 
-compatible version.
-
-Where is the info to make alsa work (it didn't work with this chipset 
-a year ago) now?
-
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-
+NeilBrown

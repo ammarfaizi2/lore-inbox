@@ -1,26 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278658AbRJSU5s>; Fri, 19 Oct 2001 16:57:48 -0400
+	id <S278661AbRJSVYB>; Fri, 19 Oct 2001 17:24:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278660AbRJSU5i>; Fri, 19 Oct 2001 16:57:38 -0400
-Received: from a1as17-p73.stg.tli.de ([195.252.193.73]:49638 "EHLO
-	dea.linux-mips.net") by vger.kernel.org with ESMTP
-	id <S278658AbRJSU5a>; Fri, 19 Oct 2001 16:57:30 -0400
-Date: Fri, 19 Oct 2001 22:57:45 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+	id <S278662AbRJSVXv>; Fri, 19 Oct 2001 17:23:51 -0400
+Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:56564 "HELO
+	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S278661AbRJSVXn>; Fri, 19 Oct 2001 17:23:43 -0400
+Message-ID: <01A7DAF31F93D511AEE300D0B706ED9208E4A5@axcs13.cos.agilent.com>
+From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+To: "'Ralf Baechle'" <ralf@uni-koblenz.de>,
+        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
 Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: pci_alloc_consistent question
-Message-ID: <20011019225745.B28818@dea.linux-mips.net>
-In-Reply-To: <01A7DAF31F93D511AEE300D0B706ED9208E4A1@axcs13.cos.agilent.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01A7DAF31F93D511AEE300D0B706ED9208E4A1@axcs13.cos.agilent.com>; from hiren_mehta@agilent.com on Fri, Oct 19, 2001 at 12:32:19PM -0600
-X-Accept-Language: de,en,fr
+Subject: RE: pci_alloc_consistent question
+Date: Fri, 19 Oct 2001 15:24:14 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+so, what is the conservative number ? 1MB ?
+
+-hiren
+
+-----Original Message-----
+From: Ralf Baechle [mailto:ralf@uni-koblenz.de]
+Sent: Friday, October 19, 2001 1:58 PM
+To: MEHTA,HIREN (A-SanJose,ex1)
+Cc: 'linux-kernel@vger.kernel.org'
+Subject: Re: pci_alloc_consistent question
+
 
 On Fri, Oct 19, 2001 at 12:32:19PM -0600, MEHTA,HIREN (A-SanJose,ex1) wrote:
 

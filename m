@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267890AbUIUS2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267734AbUIUScz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267890AbUIUS2N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 14:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUIUS2N
+	id S267734AbUIUScz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 14:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUIUScz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 14:28:13 -0400
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:34058 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S267890AbUIUS2I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 14:28:08 -0400
-Date: Tue, 21 Sep 2004 20:28:13 +0200 (CEST)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RARP support disapeard in kernel 2.6.x ?
-In-Reply-To: <cipqh4$g9d$1@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.60L.0409212019090.15099@rudy.mif.pg.gda.pl>
-References: <Pine.LNX.4.44.0409211359270.5322-100000@localhost.localdomain><Pine.LNX.4.44.0409211359270.5322-100000@localhost.localdomain>
- <Pine.LNX.4.60L.0409211511290.15099@rudy.mif.pg.gda.pl> <cipqh4$g9d$1@gatekeeper.tmr.com>
+	Tue, 21 Sep 2004 14:32:55 -0400
+Received: from mail.enyo.de ([212.9.189.167]:19470 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S267734AbUIUScy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 14:32:54 -0400
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: paul@clubi.ie, alan@lxorguk.ukuu.org.uk, vph@iki.fi,
+       toon@hout.vanvergehaald.nl, admin@wolfpaw.net,
+       kaukasoi@elektroni.ee.tut.fi, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial of Service Attack
+References: <E1C9aB6-0007Gk-00@gondolin.me.apana.org.au>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Tue, 21 Sep 2004 20:32:12 +0200
+In-Reply-To: <E1C9aB6-0007Gk-00@gondolin.me.apana.org.au> (Herbert Xu's
+	message of "Tue, 21 Sep 2004 12:14:48 +1000")
+Message-ID: <873c1bjwwj.fsf@deneb.enyo.de>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-2020929991-1095791293=:15099"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+* Herbert Xu:
 
---8323328-2020929991-1095791293=:15099
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
-
-On Tue, 21 Sep 2004, Bill Davidsen wrote:
-[..]
->> # rarp -a
->> This kernel does not support RARP.
+> Florian Weimer <fw@deneb.enyo.de> wrote:
 >> 
->> Maybe I'm wrong but IIRC rarpd as same as arpd was only neccessary for 
->> large RARP table.
+>>>> TCP-MD5 has no effect on ICMP based attacks.,
+>>>
+>>> Hmm, good point. Which attacks, and what could be done about them? 
+>>> (other than IPsec protect all traffic between peers).
+>> 
+>> You just filter ICMP packets, in the way RST packets are already
+>> filtered (i.e. rate limit).
 >
-> Is it possible that you are using an old version of the rarp command which is 
-> trying to use the kernel RARP rather than using the rarpd?
+> Rate-limiting has no effect on ICMP attacks unless your limit is such
+> that you're effectively dropping them all.
 
-Yes.
-rarp from old net-tools still try to open /proc/net/rarp and depending on
-not avalaibability this file prints above message.
+Yes, that's the idea.  Keep in mind that all this is about traffic
+destined to a router interface address, not about forwarded traffic.
 
-Seem it is undocumented in kernel documentation from where can be 
-downloaded new rarp tool. Anyone know from where it can be downloaded ?
+> But then you get PMTU problems...
 
-Previously pointed rarpd also cant be compiled without few changes (last 
-release this package was in 1999).
-
-kloczek
--- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---8323328-2020929991-1095791293=:15099--
+PMTU discovery is not an issue because it's turned off anyway, at
+least by default.

@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268580AbUIQIrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268576AbUIQItz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268580AbUIQIrR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 04:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268576AbUIQIrR
+	id S268576AbUIQItz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 04:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268581AbUIQIty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 04:47:17 -0400
-Received: from srv1.dnstoip.com ([66.220.30.245]:39900 "EHLO srv1.dnstoip.com")
-	by vger.kernel.org with ESMTP id S268580AbUIQIrP (ORCPT
+	Fri, 17 Sep 2004 04:49:54 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:39108 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S268576AbUIQIts (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 04:47:15 -0400
-Subject: [patch] xpad driver - incorrect axis settings
-From: William Pettersson <enigma@strudel-hound.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KjFWa9oRI1maQO+vZYJb"
-Message-Id: <1095410828.2097.11.camel@enigmas>
+	Fri, 17 Sep 2004 04:49:48 -0400
+Date: Fri, 17 Sep 2004 10:43:06 +0200
+From: Jens Axboe <axboe@suse.de>
+To: James Cloos <cloos@jhcloos.com>
+Cc: "Bc. Michal Semler" <cijoml@volny.cz>, linux-kernel@vger.kernel.org
+Subject: Re: CD-ROM can't be ejected
+Message-ID: <20040917084302.GA2911@suse.de>
+References: <200409160025.35961.cijoml@volny.cz> <20040916070906.GK2300@suse.de> <200409160918.40767.cijoml@volny.cz> <20040916073616.GO2300@suse.de> <m3hdpx2t4d.fsf@lugabout.cloos.reno.nv.us>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 17 Sep 2004 18:47:08 +1000
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - srv1.dnstoip.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - strudel-hound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3hdpx2t4d.fsf@lugabout.cloos.reno.nv.us>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 17 2004, James Cloos wrote:
+> I gave this program a try as well.
+> 
+> Eject has been failing on my laptop for quite a few kernel
+> revisions.  Even using the keyboard's Fn+F10 fails.
+> 
+> Failures come with an extended beep -- 2 seconds or so --
+> and a system pause (smbios I presume).
+> 
+> Your eject (edited only to use /dev/hdb) reports:
+> 
+> :; ~/src/jens-eject 
+> command failed - sense 2/53/0
 
---=-KjFWa9oRI1maQO+vZYJb
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Exactly the same issue, read the thread - your tray is locked, because
+someone else has the drive open.
 
-Hi,
-Seems the xpad (xbox controller) driver, whilst functioning, reported
-down as up, and up as down, on the analogue joysticks for the xpad.=20
-Also the L and R triggers were implemented as axis, rather than buttons.
-This patch fixes up both of those issues.  I'm yet to have any people
-have any errors with it, although not many people have tested it.  Also
-it seems weird that the driver would be reported functioning if the axis
-were inverted, so it might be just an issue with the S controllers from
-Microsoft.  I tried contacting the maintainer, but got no response from
-his email account.
-Here's a patch, which patches against most 2.6 kernels, including
-2.6.8.1 and 2.6.9, and inverts the axis and fixes the buttons
-http://www.strudel-hound.com/xpad-0.6.patch
-
-As soon as I can find an original xbox controller, I'll test it out with
-my driver to see what it does.  Until then, are there any changes anyone
-could suggest?  Or if anyone could test it out with an actual original
-xbox controller, or any xbox controller for that matter, it would be
-great.  I'm willing to listen to any advice or demands or insults, I am
-not an experience programmer and will make mistakes
-
-William
-
---=-KjFWa9oRI1maQO+vZYJb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBSqSMNSpXjKoV00kRAmvVAJ9irhP+k7irkwqP8/TXB6+2pcoaSgCeKqPN
-tcztV6S5hZHOM284Hrl7KKg=
-=+jib
------END PGP SIGNATURE-----
-
---=-KjFWa9oRI1maQO+vZYJb--
+-- 
+Jens Axboe
 

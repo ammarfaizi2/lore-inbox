@@ -1,88 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbVCHNqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVCHNt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262054AbVCHNqO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 08:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbVCHNqN
+	id S262057AbVCHNt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 08:49:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVCHNt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 08:46:13 -0500
-Received: from smtp.cs.aau.dk ([130.225.194.6]:60908 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S262054AbVCHNqE convert rfc822-to-8bit
+	Tue, 8 Mar 2005 08:49:59 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:8714 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262057AbVCHNt4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 08:46:04 -0500
-From: Kristian =?iso-8859-1?q?S=F8rensen?= <ks@cs.aau.dk>
-Organization: Aalborg University
-To: linux-kernel@vger.kernel.org
-Subject: Reading large /proc entry from kernel module
-Date: Tue, 8 Mar 2005 14:45:56 +0100
-User-Agent: KMail/1.7.1
+	Tue, 8 Mar 2005 08:49:56 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 23/29] FAT: Remove the multiple MSDOS_SB() call
+References: <87wtsmorii.fsf_-_@devron.myhome.or.jp>
+	<87sm3aorho.fsf_-_@devron.myhome.or.jp>
+	<87oedyorgu.fsf_-_@devron.myhome.or.jp>
+	<87k6olq60a.fsf_-_@devron.myhome.or.jp>
+	<87fyz9q5z7.fsf_-_@devron.myhome.or.jp>
+	<87br9xq5y8.fsf_-_@devron.myhome.or.jp>
+	<877jklq5x7.fsf_-_@devron.myhome.or.jp>
+	<873bv9q5vx.fsf_-_@devron.myhome.or.jp>
+	<87y8d1orah.fsf_-_@devron.myhome.or.jp>
+	<87u0npor9o.fsf_-_@devron.myhome.or.jp>
+	<20050307220123.GI3170@stusta.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 08 Mar 2005 22:48:35 +0900
+In-Reply-To: <20050307220123.GI3170@stusta.de> (Adrian Bunk's message of
+ "Mon, 7 Mar 2005 23:01:23 +0100")
+Message-ID: <874qfmdz9o.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200503081445.56237.ks@cs.aau.dk>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+Adrian Bunk <bunk@stusta.de> writes:
 
-I have some trouble reading a 2346 byte /proc entry from our Umbrella kernel 
-module.
+> On Sun, Mar 06, 2005 at 03:56:51AM +0900, OGAWA Hirofumi wrote:
+>> 
+>> Since MSDOS_SB() is inline function, it increases text size at each calls.
+>> I don't know whether there is __attribute__ for avoiding this.
+>> 
+>> This removes the multiple call.
+>>...
 
-Proc file is created write-only and I am able to write text to the file, and 
-read it from kernel space. The function reading the entry is in short this:
+[...]
 
-static int umb_proc_write(struct file *file, const char *buffer,
-                          unsigned long count, void *data) {
-	char *policy;
-	int *lbuf;
-	int i;
-	
-	if (count != UMB_POLICY_SIZE) {
-		printk("Umbrella: Error - /proc/umbrella is of invalid size\n");
-		return -EFAULT;
-	}
+> static inline struct msdos_sb_info *MSDOS_SB(struct super_block *sb)
+> {
+>         return sb->s_fs_info;
+> }
+>
+> I'm quite surprised that there's any problem with it.
 
-	/* Initialization of lbuf */
-	policy = kmalloc(sizeof(char)*UMB_POLICY_SIZE, GFP_ATOMIC);
-	lbuf = kmalloc(count, GFP_KERNEL);
-	if (!lbuf || !policy) {
-		kfree(lbuf);
-		kfree(policy);
-		return -EFAULT;
-	}
-	if (copy_from_user(lbuf, buffer, count)) {
-		kfree(lbuf);
-		kfree(policy);
-		return -EFAULT;
-	}
+Whoops, actually the cause was not inline. Sorry.
 
-	strcpy(policy, lbuf);
-	umb_parse_proc(policy);
+    #define MSDOS_SB(x)	((struct msdos_sb_info *)(x)->s_fs_info)
 
-}
-
-
-If I read byte by byte will only give the characters on every fourth index. 
-E.g. reading lbuf with the string "abcd", then lbuf[0]==a and lbuf[1]==d ...
-- Do anyone have an explanation for this behaviour? Making the strcpy does fix  
-the problem - and the complete string is available! :-/ ...
-
-Now that everything works, I want to write a string of excactly 2346 
-characters to the /proc/umbrella file. However when I make the 
-copy_from_user, I only get the first 1003 characters :-((
-- Do you have a pointer to where I do this thing wrong?
-
-What is the limit regarding the size of writing a /proc entry? (we consider 
-importing binary public keys to the kernel this way in the future).
-
-
-Best regards,
-Kristian.
-
+was same result. This just needed my patch.
 -- 
-Kristian Sørensen
-- The Umbrella Project  --  Security for Consumer Electronics
-  http://umbrella.sourceforge.net
-
-E-mail: ipqw@users.sf.net, Phone: +45 29723816
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

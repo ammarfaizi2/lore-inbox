@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316548AbSGLOjf>; Fri, 12 Jul 2002 10:39:35 -0400
+	id <S316545AbSGLOjC>; Fri, 12 Jul 2002 10:39:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316569AbSGLOje>; Fri, 12 Jul 2002 10:39:34 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:47524 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S316548AbSGLOjd>;
-	Fri, 12 Jul 2002 10:39:33 -0400
-Date: Fri, 12 Jul 2002 16:41:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Thunder from the hill <thunder@ngforever.de>,
-       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: IDE/ATAPI in 2.5
-Message-ID: <20020712144145.GH22858@suse.de>
-References: <Pine.SOL.4.30.0207121611170.14389-100000@mion.elka.pw.edu.pl> <3D2EE7BA.8080805@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D2EE7BA.8080805@evision-ventures.com>
+	id <S316548AbSGLOjB>; Fri, 12 Jul 2002 10:39:01 -0400
+Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:11259 "EHLO
+	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
+	id <S316545AbSGLOjA>; Fri, 12 Jul 2002 10:39:00 -0400
+Message-ID: <180577A42806D61189D30008C7E632E879398E@boca213a.boca.ssc.siemens.com>
+From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+To: linux-kernel@vger.kernel.org
+Subject: strange IP stack behavior
+Date: Fri, 12 Jul 2002 10:41:43 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 12 2002, Martin Dalecki wrote:
-> Workarounds in ide-cd - none.
+I am running Red Hat 7.2 (Kernel Version 2.4.7-10) and have the following
+situation. I am connecting via a LAN switch to approximately 30-40 other
+devices. This is an internal network with no external connections. I know
+the MAC address of each device that I am communicating with. The
+communication is accomplished via UDP/IP. During my application
+initialization, I use the SIOCSARP IOCTL to force permanent cache entries
+for the devices that I communicate with. The problem that I see is that
+sporadically, when I want to transmit the first message to a device, the
+destination MAC address is 0. All subsequent messages contain the correct
+MAC address. 
 
-you must be kidding?
+Prior to sending any messages, I display the ARP cache and all entries are
+there. Does anybody have any idea why this happens? Please CC me directly on
+any responses.
 
--- 
-Jens Axboe
+Jack Bloch
+Siemens Carrier Networks
+e-mail    : jack.bloch@icn.siemens.com
+phone     : (561) 923-6550
 

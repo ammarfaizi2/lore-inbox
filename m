@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbSLQI5V>; Tue, 17 Dec 2002 03:57:21 -0500
+	id <S261364AbSLQJDb>; Tue, 17 Dec 2002 04:03:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSLQI5V>; Tue, 17 Dec 2002 03:57:21 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:41208 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S261353AbSLQI5U>; Tue, 17 Dec 2002 03:57:20 -0500
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20021216174426.GB504@hopper.phunnypharm.org> 
-References: <20021216174426.GB504@hopper.phunnypharm.org>  <20021216171218.GV504@hopper.phunnypharm.org> <1040059138.1438.1.camel@laptop.fenrus.com> <20021216092129.D432@work.bitmover.com> <20021216172722.GX504@hopper.phunnypharm.org> <20021216172838.B976@devserv.devel.redhat.com> 
-To: Ben Collins <bcollins@debian.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Larry McVoy <lm@work.bitmover.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: Notification hooks 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 17 Dec 2002 09:05:07 +0000
-Message-ID: <14583.1040115907@passion.cambridge.redhat.com>
+	id <S261451AbSLQJDb>; Tue, 17 Dec 2002 04:03:31 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:47883 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S261364AbSLQJDa>; Tue, 17 Dec 2002 04:03:30 -0500
+Message-Id: <200212170905.gBH95Ns16805@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Xavier LaRue <paxl@videotron.ca>, linux-kernel@vger.kernel.org
+Subject: Re: My cpu fuzzy problem was due to XMMS
+Date: Tue, 17 Dec 2002 11:54:39 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <20021217011600.08f8cd81.paxl@videotron.ca>
+In-Reply-To: <20021217011600.08f8cd81.paxl@videotron.ca>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 17 December 2002 04:16, Xavier LaRue wrote:
+> :).. I just found it out :)
+>
+> But now my real problem.. That probably slow down considerably my
+> box, How to make my L2 cache reconized
+> my dmesg is hosted here http://paxl.no-ip.org/~paxl/dmesg.txt
 
-bcollins@debian.org said:
->  Problem is that my changeset isn't even listed there. Not a very
-> dependable way to get that info. 
+It does *NOT* slow down your box if kernel cannot parse
+CPIUD cache size info. Cache does not need any help from kernel to function.
+It is typically enabled by BIOS at boot, that's all.
 
-Isn't it? Why not? What changeset was it?
+If you can prove otherwise (that is, your cache is disabled),
+that is a problem. Problem in BIOS.
 
+Cache size *reporting* is a minor issue. You can track it yourself.
+You have the code, right?
 --
-dwmw2
-
-
+vda

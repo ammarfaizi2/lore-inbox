@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286322AbRLJRQR>; Mon, 10 Dec 2001 12:16:17 -0500
+	id <S286317AbRLJRR5>; Mon, 10 Dec 2001 12:17:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286324AbRLJRP5>; Mon, 10 Dec 2001 12:15:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64265 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286323AbRLJRPu>; Mon, 10 Dec 2001 12:15:50 -0500
-Subject: Re: mm question
-To: volodya@mindspring.com
-Date: Mon, 10 Dec 2001 17:25:09 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.20.0112101041020.17406-100000@node2.localnet.net> from "volodya@mindspring.com" at Dec 10, 2001 11:05:22 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286316AbRLJRRo>; Mon, 10 Dec 2001 12:17:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45321 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286325AbRLJRQz>; Mon, 10 Dec 2001 12:16:55 -0500
+Date: Mon, 10 Dec 2001 09:10:24 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: GOTO Masanori <gotom@debian.org>
+cc: <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <andrea@suse.de>
+Subject: Re: [PATCH] direct IO breaks root filesystem
+In-Reply-To: <w53d71n1c6g.wl@megaela.fe.dis.titech.ac.jp>
+Message-ID: <Pine.LNX.4.33.0112100908440.14166-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DUAv-0002hY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "AGP addressable" memory which is ~64meg less than the total amount on my
-> machine. However, looking around in AGP driver or AGP specs does not seem
-> to indicate any restriction of the sort and, moreover, I do not need AGP
-> for this DMA transfer (it is PCI only).
 
-Can the transfer go to pages mapped into the AGP gart, using their gart
-side mapping ?
+On Mon, 10 Dec 2001, GOTO Masanori wrote:
+> >
+> > "generic_direct_IO()" should just get the device from "bh->b_dev (which is
+> > filled in correctly by "get_block()".
+>
+> Oh, that's right, the patch becomes more simple (and works well).
+> Is this patch OK?
 
-> Better than giving up.. Unfortunately looking around in
-> linux/Documentation and drivers did not yield much in terms of
-> explanation. I know I can use mem_map_reserve to reserve a page but I
-> don't know how to get page struct from a physical address nor which lock
-> to use when messing with this.
+This looks fine to me. At some point we _may_ end up with filesystems that
+understand about multiple devices, so it's possible in theory that
+"get_block()" might return different devices for different blocks, but
+that does not happen currently, and I'm not really sure it ever will.
 
-You have to grab them at boot time via bootmem to get them in a range of
-your choice. Otherwise you can use
+Marcelo, I do believe this should go into 2.4.x too..
 
-	get_free_page		-	grab a page
-	virt_to_page		-	page struct of page
-	virt_to_bus		-	bus addr of page
+		Linus
 
-virt_to_bus isnt portable because real world pci bus mapping on non x86 is
-deeply murky and mysterious. But you probably want to worry about that
-after it works.
-
-Alan

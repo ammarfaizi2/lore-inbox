@@ -1,74 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131716AbQKSH2W>; Sun, 19 Nov 2000 02:28:22 -0500
+	id <S129136AbQKSIMF>; Sun, 19 Nov 2000 03:12:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131912AbQKSH2M>; Sun, 19 Nov 2000 02:28:12 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:22311 "EHLO
-	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S131716AbQKSH2G>; Sun, 19 Nov 2000 02:28:06 -0500
-Message-ID: <3A1779D9.409FB87B@linux.com>
-Date: Sat, 18 Nov 2000 22:57:29 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+	id <S129152AbQKSILy>; Sun, 19 Nov 2000 03:11:54 -0500
+Received: from new-smtp1.ihug.com.au ([203.109.250.27]:39947 "EHLO
+	new-smtp1.ihug.com.au") by vger.kernel.org with ESMTP
+	id <S129136AbQKSILk>; Sun, 19 Nov 2000 03:11:40 -0500
+Message-ID: <3A178406.1B0A1C8D@ihug.com.au>
+Date: Sun, 19 Nov 2000 18:40:54 +1100
+From: Vincent <dtig@ihug.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Park <apark@cdf.toronto.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: neighbour table?
-In-Reply-To: <Pine.LNX.4.21.0011190158480.3036-100000@blue.cdf.utoronto.ca>
-Content-Type: multipart/mixed;
- boundary="------------09D0636F29856D42487CB66B"
+To: linux-kernel@vger.kernel.org
+Subject: mount /mnt/cdrom ok!but ls segmentation fault...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------09D0636F29856D42487CB66B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi all,
+Using linux-2.4.0-test11-pre7 right now..., here's what i did,
+mount /mnt/cdrom
+cd /mnt/cdrom
+ls
+Segmentation fault
+ls
+*NOT Responding....*
+can't kill /sbin/ls
+can't umount /mnt/cdrom
+ps , shows ;
 
-Andrew Park wrote:
+613 ?        D      0:00 /bin/ls --color=auto -F -b -T 0
+           ^^^^^
 
-> I get a message
->
->         neighbour table overflow
->
-> What does that mean?  It seems that
->
->         net/ipv4/route.c
->
-> is the place where it prints this.  But under what circumstances
-> does this happen?
-> Thanks
+i didn't want to reboot...
+CDRom door is locked..
 
-It means you set the link state of eth0 up before lo.
+BTW, what does D mean in ps?
 
-Be sure lo is established before eth0 and you won't see this message.
+thanks in advance,
 
--d
-
-
---------------09D0636F29856D42487CB66B
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
-
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-adr:;;;;;;
-version:2.1
-email;internet:david@kalifornia.com
-title:Blue Labs Developer
-x-mozilla-cpt:;14688
-fn:David Ford
-end:vcard
-
---------------09D0636F29856D42487CB66B--
-
+-
+Regards, Vincent <dtig@ihug.com.au>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

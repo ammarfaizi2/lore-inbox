@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268722AbUJUMrC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268781AbUJUM4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268722AbUJUMrC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 08:47:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268966AbUJUMpR
+	id S268781AbUJUM4b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 08:56:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUJUM4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 08:45:17 -0400
-Received: from run.smurf.noris.de ([192.109.102.41]:28396 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S268722AbUJUMkJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 08:40:09 -0400
-From: "Matthias Urlichs" <smurf@smurf.noris.de>
-Date: Thu, 21 Oct 2004 14:38:55 +0200
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] [2.6 current] Fix building with separate object directories
-Message-ID: <20041021123855.GA11161@kiste>
+	Thu, 21 Oct 2004 08:56:24 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:54693 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S267362AbUJUMxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 08:53:12 -0400
+Date: Thu, 21 Oct 2004 14:53:55 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: mingo@elte.hu, johansen@immunix.com, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] delay rq_lock acquisition in setscheduler
+Message-ID: <20041021125355.GF8756@dualathlon.random>
+References: <20041020183238.U2357@build.pdx.osdl.net> <20041021020022.GB8756@dualathlon.random> <20041020221632.V2357@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.5.6+20040722i
-X-Smurf-Spam-Score: -2.8 (--)
-X-Smurf-Whitelist: +relay_from_hosts
+In-Reply-To: <20041020221632.V2357@build.pdx.osdl.net>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel-supplied initramfs list needs to be copied to the
-build directory. Otherwise the generator won't find it.
+On Wed, Oct 20, 2004 at 10:16:32PM -0700, Chris Wright wrote:
+> true.  another alternative is to drop rq_lock and do the checks over.
+> i didn't convince myself yet that there's no chance for livelock,
+> although it seems unlikely.
 
-Signed-off-by: Matthias Urlichs <smurf@smurf.noris.de>
-
-===== usr/Makefile 1.12 vs edited =====
---- 1.12/usr/Makefile	2004-10-20 10:37:03 +02:00
-+++ edited/usr/Makefile	2004-10-21 14:33:20 +02:00
-@@ -29,12 +29,14 @@
- 	  if [ $(CONFIG_INITRAMFS_SOURCE) != $@ ]; then \
- 	    echo 'cp -f $(CONFIG_INITRAMFS_SOURCE) $@'; \
- 	  else \
--	    echo 'echo Using shipped $@'; \
-+	    echo 'echo Using shipped $@; \
-+	    cp -f $(srctree)/$@ $@'; \
- 	  fi; \
- 	elif test -d $(CONFIG_INITRAMFS_SOURCE); then \
- 	  echo 'scripts/gen_initramfs_list.sh $(CONFIG_INITRAMFS_SOURCE) > $@'; \
- 	else \
--	  echo 'echo Using shipped $@'; \
-+	  echo 'echo Using shipped $@; \
-+	  cp -f $(srctree)/$@ $@'; \
- 	fi)
- 
- 
+yep, since the workload isn't deterministic if the race triggers I got
+convinced the retry loop wasn't strictly needed. There should be no
+livelock, however with the loop just like with the spinlocks there's no
+fariness guarantee on the numa (especially old numa). (and fixing the
+spinlocks is easier for the architecture by implementing a fair version
+transparently). That's probably the only issue with the loops.

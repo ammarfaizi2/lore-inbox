@@ -1,51 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264583AbUBEJze (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 04:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264586AbUBEJze
+	id S263325AbUBEKJb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 05:09:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUBEKJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 04:55:34 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:28909 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S264583AbUBEJzd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 04:55:33 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Thu, 5 Feb 2004 05:09:31 -0500
+Received: from mail008.syd.optusnet.com.au ([211.29.132.212]:65169 "EHLO
+	mail008.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263325AbUBEKJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 05:09:29 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.2-ck1
+Date: Thu, 5 Feb 2004 21:09:07 +1100
+User-Agent: KMail/1.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16418.4883.428169.211475@laputa.namesys.com>
-Date: Thu, 5 Feb 2004 12:55:31 +0300
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
-In-Reply-To: <20040205014405.5a2cf529.akpm@osdl.org>
-References: <20040205014405.5a2cf529.akpm@osdl.org>
-X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
+Message-Id: <200402052109.24122.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > 
- > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/
- > 
- > 
- > - Merged some page reclaim fixes from Nick and Nikita.  These yield some
- >   performance improvements in low memory and heavy paging situations.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-----------------------------------------------------------------------
+Updated patchset:
 
->From Jargon File (4.3.0, 30 APR 2001) [jargon]:
+Full description, downloads and split patches:
+http://kernel.kolivas.org
 
-  WOMBAT /wom'bat/ adj. [acronym: Waste Of Money, Brains, And Time]
-     Applied to problems which are both profoundly {uninteresting} in
-     themselves and unlikely to benefit anyone interesting even if solved.
 
-----------------------------------------------------------------------
+Changes:
+O21int is in mainline now
 
-A reference to the "VM replacement research was finished in 60s", I
-presume.
+Added supermount-ng v 2.0.4
 
- > 
- > - Various random fixes.
+Tiny update to htbatch code
 
-Nikita.
+Cleanup patches to separate easier again.
+
+
+Summary:
+am6
+Autoregulates the virtual memory swappiness.
+
+batch7
+Batch scheduling.
+
+iso1
+Isochronous scheduling.
+
+htbase1
+Base patch for hyperthread modifications
+
+httweak1
+Tiny performance enhancements for hyperthreading
+
+htnice2
+Make "nice" hyperthread smart
+
+htbatch2
+Make batch scheduling hyperthread smart
+
+cfqioprio
+Complete Fair Queueing disk scheduler and I/O priorities
+
+schedioprio
+Set initial I/O priorities according to cpu scheduling policy and nice
+
+sng204
+Supermount-NG v2.0.4
+
+
+Planned:
+Nick's memory pressure VM tweaks
+Updated CFQ and I/O prio patches from Jens (when available).
+
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAIhZFZUg7+tp6mRURAjNRAJ4iqzmxteyE/jVZGkDvFiPuJNtUtwCeMnV4
+eBGsxcPqFRkITSreUZDrP7M=
+=OoLO
+-----END PGP SIGNATURE-----

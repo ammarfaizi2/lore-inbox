@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317373AbSHHIR2>; Thu, 8 Aug 2002 04:17:28 -0400
+	id <S317387AbSHHIeD>; Thu, 8 Aug 2002 04:34:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317386AbSHHIR2>; Thu, 8 Aug 2002 04:17:28 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:7430 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id <S317373AbSHHIR1>;
-	Thu, 8 Aug 2002 04:17:27 -0400
-Date: Thu, 8 Aug 2002 10:20:59 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Bruce M Beach <brucemartinbeach@21cn.com>
+	id <S317393AbSHHIeD>; Thu, 8 Aug 2002 04:34:03 -0400
+Received: from mail-fe71.tele2.ee ([212.107.32.235]:15517 "HELO everyday.com")
+	by vger.kernel.org with SMTP id <S317387AbSHHIeB> convert rfc822-to-8bit;
+	Thu, 8 Aug 2002 04:34:01 -0400
+Date: Thu, 8 Aug 2002 10:37:38 +0200
+Message-Id: <200208080837.g788bcM01508@eday-fe6.tele2.ee>
+From: "Thomas Munck Steenholdt" <tmus@get2net.dk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE numbers
-Message-ID: <20020808082059.GD943@alpha.home.local>
-References: <Pine.LNX.4.43.0208081211180.224-100000@systemx.zsu.edu.cn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: dledford@redhat.com
+Subject: Re: i810 sound broken...
+MIME-Version: 1.0
+X-EdMessageId: 27081b071b5340154b445440575658571d57545f10551f5d5959541d104a52525071
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.43.0208081211180.224-100000@systemx.zsu.edu.cn>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 08, 2002 at 12:19:22PM +0000, Bruce M Beach wrote:
- 
->   time cp TEMP.tar ... hda3->hda1   49m18.320s ~  3,339,200.9 bytes/s
+> On Mon, Aug 05, 2002 at 08:38:52PM +0200, Thomas Munck Steenholdt wrote:
+> > On Mon, 2002-08-05 at 17:28, Alan Cox wrote:
+> > > On Mon, 2002-08-05 at 14:47, venom@sns.it wrote:
+> > > > Still OSS modules for i810 does not work with 2.5 kernels, actually 2.4
+> > > > is fine. No time to switch to alsa (and not interested for now too). 
+> > > 
+> > > OSS for 2.5 is someone elses problem. I have no plan to do any work on
+> > > the old OSS drivers for the 2.5 tree or even to submit 2.4 updates into
+> > > 2.5 for it. 
+> > > 
+> > 
+> > So anyway - How should I go about determining the exact problem on my
+> > box... I've had it all along, and I know for a fact that the hardware is
+> > OK... Modules are loaded correctly, but it just does not work!
+> 
+> I'll tell you what you can do.  Grab some ICH docs so you have a list of 
+> the valid regs on the i810 sound chip.  Then, go into i810_audio.c and 
+> write me up a little hack that, at the end of the chip init sequence, 
+> whill dump the state of all the regs on the chip.  Make it smart enough to 
+> know about different regs on different chips (aka, Intel ICH0 and ICH1 
+> will probably have a slightly different reg setup than the ICH2 and 
+> later).  Then, load that driver on your machine and get me that register 
+> dump.  Then, I'll take the patch and apply it here on the i810 machines I 
+> have that do work and get their register dump.  We'll see then where the 
+> differences are.  On the i845 based machine I have at work, where the 
+> sound doesn't work just like you describe, I've isolated the problem down 
+> to the fact that when we start the DMA engine it *immediately* signals 
+> that it has already finished the DMA process and has already stopped again 
+> but it never actually does the DMA.  So, I suspect there is some config 
+> bit somewhere set wrong and the DMA is not taking place as a result (hell, 
+> for all I know, the AC97 link for sound output may be off or something 
+> like that).  Getting a register dump from several busted machines as well 
+> as from some working machines should enable me to solve the problem 
+> relatively easily.  I just haven't had the time to write the patch myself 
+> and do any more work on the thing :-(
 
-slow because it's the same disk, so the head constantly move back and forth
-between hda1 and hda3. You are limited by seek time.
+Please excuse me for not immediately responding with a working hack for this.
+I'm sorry to say that I have not yet had any experience in kernel programming
+and even though I jumped on the "job" as soon as I saw you mail, I quickly
+realized that I probably need some time of practicing, figuring out how stuff
+is done, and get into the actual close-to-hardware programming that is
+required for stuff like this... 
 
->   time cp TEMP.tar ... hdc1->sda1   51m16.493s
+Instead of promising to have a hack ready at any time... I'll follow this
+case closely and see what I can learn from it. I need to get
+into how stuff is done in this kind of area.
+Hopefully some day you'll see meactually post a patch of some
+kind... ;-)
 
-are you sure it was "hdc1" ? I can't see it in your dmesg below.
+Back to the case... I realized that I might not have explained myself
+correctly regarding my hardware...
+My machine is i845 based, using the i810 driver for audio...
+it is not i810 based!
 
->   time cp TEMP.tar ... sda1->scb1    5m41.388s ~ 28,936,063   bytes/s
+Thomas
 
-seems correct to me, I had the same numbers with 7200 RPM seagate drives too.
 
-Regards,
-Willy
+-- Send gratis SMS og brug gratis e-mail på Everyday.com -- 
 
->   PCI_IDE: not 100% native mode: will probe irqs later
->       ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
->       ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
->   hda: ST360021A, ATA DISK drive
->   hdb: 16X10, ATAPI CD/DVD-ROM drive
->   ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
->   hda: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=7297/255/63
->   Partition check:
->    /dev/ide/host0/bus0/target0/lun0: p1 p2 p3

@@ -1,102 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbUA0JF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 04:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbUA0JF4
+	id S262687AbUA0JOd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 04:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbUA0JOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 04:05:56 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:32647 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S263015AbUA0JFo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 04:05:44 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>, George Anzinger <george@mvista.com>
-Subject: Re: PPC KGDB changes and some help?
-Date: Tue, 27 Jan 2004 14:35:19 +0530
-User-Agent: KMail/1.5
-Cc: Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-References: <200401212223.13347.amitkale@emsyssoft.com> <40158A88.7070007@mvista.com> <20040126220651.GE32525@stop.crashing.org>
-In-Reply-To: <20040126220651.GE32525@stop.crashing.org>
+	Tue, 27 Jan 2004 04:14:33 -0500
+Received: from ozlabs.org ([203.10.76.45]:38784 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262569AbUA0JOa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 04:14:30 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401271435.19773.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Message-ID: <16406.10170.911012.262682@cargo.ozlabs.ibm.com>
+Date: Tue, 27 Jan 2004 19:56:26 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: davidm@hpl.hp.com
+Cc: Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@trained-monkey.org>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for
+ ia64
+In-Reply-To: <16405.41953.344071.456754@napali.hpl.hp.com>
+References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
+	<20040120090004.48995f2a.akpm@osdl.org>
+	<16401.57298.175645.749468@napali.hpl.hp.com>
+	<16402.19894.686335.695215@cargo.ozlabs.ibm.com>
+	<16405.41953.344071.456754@napali.hpl.hp.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 Jan 2004 3:36 am, Tom Rini wrote:
-> On Mon, Jan 26, 2004 at 01:45:44PM -0800, George Anzinger wrote:
-> > Tom Rini wrote:
-> > >>There is a real danger of passing signal info back to gdb as it will
-> > >> want to try to deliver the signal which is a non-compute in most kgdbs
-> > >> in the field.  I did put code in the mm-kgdb to do just this, but
-> > >> usually the arrival of such a signal (other than SIGTRAP) is the end
-> > >> of the kernel. All that is left is to read the tea leaves.
-> > >
-> > >The gdb I've been testing this with knows better than to try and send a
-> > >singal back, so that's not a worry.  The motivation behind doing this
-> > >however is along the lines of "if it ain't broke, don't remove it".  The
-> > >original stub was getting all of this information correctly, so why stop
-> > >doing it?
-> >
-> > You sure.  If so what gdb?  And how does it know?  I suppose you could
-> > tell it with a script, but then what if one forgets?
->
-> GNU gdb 6.0 (MontaVista 6.0-8.0.4.0300532 2003-12-24)
-> Copyright 2003 Free Software Foundation, Inc.
-> [snip]
->
-> [New Thread 289]
->
-> Program received signal SIGSEGV, Segmentation fault.
-> [Switching to Thread 289]
-> 0x00000000 in ?? ()
-> (gdb) c
-> Continuing.
-> Can't send signals to this remote system.  SIGSEGV not sent.
+David Mosberger writes:
 
-This is because gdb tries packet "C" first. If that fails, which is the case 
-with kgdb, it falls back to packet "c". It doesn't need packet "C" for 
-SIGTRAP as it's used for breakpoints and single stepping and shouldn't be 
-delivered to a debuggee.
+> How about the attached one?  It will touch memory more when moving an
+> element down, but we're talking about exception tables here, and I
+> don't think module loading time would be affected in any noticable
+> fashion.
 
-SIGSEGV has to be actually delivered to an application for it to die. A user 
-has a choice of correcting a bug on the fly and let the application continue 
-without segfaulting. It can tell gdb to continue the debugee without a 
-signal. It doesn't apply in case of kernel, so it's not a bug. Kernel anyway 
-"delivers" the signal, that is, continues with a panic once kgdb returns. We 
-don't offer a user the choice of correcting a segfault on the fly.
+Hmmm...  Stylistically I much prefer to pick up the new element,
+move the others up and just drop the new element in where it should
+go, rather than doing swap, swap, swap down the list.
 
->
-> Noting that 0x0 is correct as the code that triggered this was:
-> static void (*dummy)(struct pt_regs *regs);
-> int drop_kgdb(void) {
->         struct pt_regs regs;
->         memset(&regs, 0, sizeof(regs));
->         dummy(&regs);
->
->         return 0;
-> }
-> module_init(drop_kgdb);
->
-> --
-> Tom Rini
-> http://gate.crashing.org/~trini/
->
-> ** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
+Also, I don't think there is enough code there to be worth the bother
+of trying to abstract the generic routine so you can plug in different
+compare and move-element routines.  The whole sort routine is only 16
+lines of code, after all.  Why not just have an ia64-specific version
+of sort_extable?  That's what I thought you would do.
 
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
-
+Regards,
+Paul.

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264898AbTK3NGi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 08:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264901AbTK3NGi
+	id S264906AbTK3NL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 08:11:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264907AbTK3NL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 08:06:38 -0500
-Received: from tristate.vision.ee ([194.204.30.144]:11169 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S264898AbTK3NGh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 08:06:37 -0500
-From: Lenar =?ISO-8859-1?Q?L=F5hmus?= <lenar@city.ee>
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
-To: linux-kernel@vger.kernel.org
-Date: Sun, 30 Nov 2003 15:06:31 +0200
-References: <WSA7.6D.39@gated-at.bofh.it> <WTYM.3ua.7@gated-at.bofh.it> <WVoa.73O.17@gated-at.bofh.it>
-User-Agent: KNode/0.7.6
+	Sun, 30 Nov 2003 08:11:29 -0500
+Received: from fep02-0.kolumbus.fi ([193.229.0.44]:60828 "EHLO
+	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S264906AbTK3NL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 08:11:28 -0500
+Date: Sun, 30 Nov 2003 13:10:36 +0200 (MET DST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+X-X-Sender: szaka@ua178d119.elisa.omakaista.fi
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Andrew Clausen <clausen@gnu.org>, Apurva Mehta <apurva@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bug-parted@gnu.org
+Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
+In-Reply-To: <20031130003428.GA5465@win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0311301210540.2329@ua178d119.elisa.omakaista.fi>
+References: <20031128045854.GA1353@home.woodlands> <20031128142452.GA4737@win.tue.nl>
+ <20031129022221.GA516@gnu.org> <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi>
+ <20031129123451.GA5372@win.tue.nl> <20031129222722.GA505@gnu.org>
+ <20031130003428.GA5465@win.tue.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20031130130631.DF0EE9F60@xs.dev>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Julien Oster wrote:
+On Sun, 30 Nov 2003, Andries Brouwer wrote:
 
-> No, it's most evidently a mainboard problem, as everybody using an
-> ASUS A7N8X (Deluxe) reported so far that the mainboard will lock up
-> completely unless you turn of ACPI, APIC and local APIC. There is no
-> other possibility to work this lockup madness around, as many users of
-> that mainboard including me really tried *everything*.
-> 
-> We know that other NForce2 Mainboards don't have this kind of problem,
-> but sadly that isn't of any help whatsoever for us A7N8X users.
+> Just ask yourself this question: does Windows XP require a bootable
+> partition to start below the 1024 cylinder mark?
+> Windows NT4 has such a restriction. Not Windows 2000 or XP.
 
-I can't agree. I've had experiences with two Epox mobos - 8RDA+ running
-2.6-test kernels and 8RDA3+ running 2.4.22 kernel.
+Wrong:
+	http://support.microsoft.com/default.aspx?scid=kb;en-us;282191
 
-Both of them locked completely up sometimes (that was after week or so
-without reboot). It seems that compiling Local-APIC out of kernel has
-stopped this behaviour. It's been about a month without lockups for 2.4
-machine. 2.6 hasn't locked up either but it gets a new kernel and a reboot
-every week anyway.
+> > > Usually booting goes like this: the BIOS reads sector 0 (the MBR)
+> > > from the first disk, and starts the code found there. What happens
+> > > afterwards is up to that code. If that code uses CHS units to find
+> > > a partition, and if the program that wrote the table has different
+> > > ideas about those units than the BIOS, booting may fail.
+> > Exactly.
+> Good. We agree.
 
-Actually the machine with 2.4 kernel run initially 1.5 months without a
-glitch (and Local-APIC compiled in) before it started to lock up weekly. I
-don't know why. Anyway as I said disabling Local-APIC has stopped all those
-lockups.
+I'm glad also. So what actually [cs]fdisk do with the CHS entries in the
+partition table? Ignore them? Might they convert a given partition start to
+different CHS units if the partition entry was deleted then recreated at
+the same cylinder? 
 
-Lenar
+AFAIS, parted tries hard not to break these [IMHO correctly], right Andrew?
+
+	Szaka

@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRCID3r>; Thu, 8 Mar 2001 22:29:47 -0500
+	id <S129583AbRCIDgs>; Thu, 8 Mar 2001 22:36:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129567AbRCID3h>; Thu, 8 Mar 2001 22:29:37 -0500
-Received: from enhanced.ppp.eticomm.net ([206.228.183.5]:31470 "EHLO
-	intech19.enhanced.com") by vger.kernel.org with ESMTP
-	id <S129115AbRCID31>; Thu, 8 Mar 2001 22:29:27 -0500
-To: David Watson <dwatson@cs.ucr.edu>
-Cc: <linux-kernel@vger.kernel.org>, <brett@cs.ucr.edu>
-Subject: Re: 2.2.x kernels not filling in siginfo_t.si_addr on SEGV?
-In-Reply-To: <Pine.LNX.4.30.0103081610400.31071-100000@hill.cs.ucr.edu>
-From: Camm Maguire <camm@enhanced.com>
-Date: 08 Mar 2001 22:28:39 -0500
-In-Reply-To: David Watson's message of "Thu, 8 Mar 2001 16:26:11 -0800 (PST)"
-Message-ID: <54itljvcwo.fsf@intech19.enhanced.com>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S129624AbRCIDgi>; Thu, 8 Mar 2001 22:36:38 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:40458 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129583AbRCIDga>;
+	Thu, 8 Mar 2001 22:36:30 -0500
+Date: Fri, 9 Mar 2001 04:35:58 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Microsoft begining to open source Windows 2000?
+Message-ID: <20010309043558.D19635@almesberger.net>
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E952C5@ATL_MS1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E952C5@ATL_MS1>; from Venkateshr@ami.com on Thu, Mar 08, 2001 at 11:04:25AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings, and thank you so much for your helpful reply!  Was this on
-an i386?  I'm specifically looking for a way to do his on arm, alpha,
-and sparc, and I don't believe they have the cr2 member of struct
-sigcontext.  Any info you might have, including where you found this
-solution, would be appreciated!
+Venkatesh Ramamurthy wrote:
+> send a patch and they would put it in thier next version. Is this not the
+> same way Linux Kernel is developed?. Only thing microsoft does not want to
+> immediately go full open sourcing and get embarrased at the hands of linux
+> people.
 
-Take care,
+Is this linux-kernel or "The Onion" ? I can already see it:
 
-David Watson <dwatson@cs.ucr.edu> writes:
+  "<Insert_Rogue_Nation_of_Your_Choice> suspends execution of dissidents
+   for one week.
+  Amnesty International hails this as a significant move, showing their
+  determination to move swiftly to full compliance with human rights."
 
-> > Greetings!  Shouldn't a SIGSEGV fill in th si_addr member of the
-> > siginfo_t structure passed to a signal handler?  Here is what I see
-> 
-> Our group ran into this problem last summer while we were developing the
-> Oasis+ DSM system.  We worked around it by utilizing the following code
-> fragment:
-> 
-> void fault_handler(int sig, siginfo_t *sip, ucontext_t *ucp)
-> {
-> 	void *addr;
-> 
-> 	addr = (void *) ucp->uc_mcontext.cr2;
-> 
-> 	...
-> }
-> 
-> Hope that helps.
-> 
-> Regards,
-> David
-> 
-> -- 
-> The theory of groups is a branch of Mathematics in which one does
-> something to something and then compares the result with the result
-> obtained from doing the same thing to something else, or something else to
-> the same thing.
-> J. R. Newman
-> 
-> 
-> 
+- Werner (couldn't resist ;-)
 
 -- 
-Camm Maguire			     			camm@enhanced.com
-==========================================================================
-"The earth is but one country, and mankind its citizens."  --  Baha'u'llah
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129932AbQK1Sij>; Tue, 28 Nov 2000 13:38:39 -0500
+        id <S129572AbQK1Som>; Tue, 28 Nov 2000 13:44:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130514AbQK1Sia>; Tue, 28 Nov 2000 13:38:30 -0500
-Received: from ns-inetext.inet.com ([199.171.211.140]:13263 "EHLO
-        ns-inetext.inet.com") by vger.kernel.org with ESMTP
-        id <S129932AbQK1SiT>; Tue, 28 Nov 2000 13:38:19 -0500
-Message-ID: <3A23F490.69688B84@inet.com>
-Date: Tue, 28 Nov 2000 12:08:16 -0600
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
-X-Accept-Language: en
+        id <S129625AbQK1Soc>; Tue, 28 Nov 2000 13:44:32 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38157 "EHLO
+        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+        id <S129572AbQK1So2>; Tue, 28 Nov 2000 13:44:28 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: KERNEL BUG: console not working in linux
+Date: 28 Nov 2000 10:14:11 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <900slj$9td$1@cesium.transmeta.com>
+In-Reply-To: <E140Pc3-0003AI-00@the-village.bc.nu> <20001128011613.A317@fourier.home.intranet> <3A22EF3D.B97A0965@transmeta.com> <20001128103352.A377@fourier.home.intranet>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        becker@webserv.gsfc.nasa.gov
-Subject: [PATCH] lance.c - dev_kfree_skb() then reference skb->len
-Content-Type: multipart/mixed;
- boundary="------------85C02D6AE9D44FB9D4937197"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------85C02D6AE9D44FB9D4937197
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Followup to:  <20001128103352.A377@fourier.home.intranet>
+By author:    Gianluca Anzolin <g.anzolin@inwind.it>
+In newsgroup: linux.dev.kernel
+>
+> |No, the problem is the utterly braindamaged way the motherboard chose to
+> |enable/disable it (*especially* if it's PCI... sheech, port 92h isn't
+> |exactly something new in that timeframe.)
+> |
+> |What PC/motherboard is this, anyway?
+> 
+> It's an olivetti, but maybe they bought the mainboard elsewhere I don't
+> know. Anyway you can find the lspci -xvv in
+> http://www.gest.unipd.it/~iig0573/lspci.txt
+> 
 
-Greetings all,
+It's not "an Olivetti", it has a model number and God Knows What.
+>From the looks of it they are using a 440FX chipset, which definitely
+does not have this problem inherently (and almost certainly handles
+port 92h correctly), so whomever wired up this motherboard was even
+more of an idiot that I first thought.
 
-Patch is against 2.2.17, drivers/net/lance.c.
-I believe this to be "obviously correct," but please correct me if I'm
-wrong.
-This moves a reference to skb->len to before the possible
-dev_kfree_skb(skb) call.  Though it appears to work as is, I suspect it
-is incorrect.
+If I were you I would take it back and demand a refund.  It isn't a PC
+you have there.
 
-Please apply or let me know why.
+	-hpa
 
-Eli
-
-ps.  It's an attachment rather than inline because I can't seem to get
-Netscape (4.71) to do that without replacing tabs with spaces.  Grr.
-
---------------------. "To the systems programmer, users and applications
-Eli Carter          | serve only to provide a test load."
-eli.carter@inet.com `---------------------------------- (random fortune)
---------------85C02D6AE9D44FB9D4937197
-Content-Type: text/plain; charset=us-ascii;
- name="lance.c.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lance.c.diff"
-
---- lance.c.2.2.17	Mon Nov 13 12:13:11 2000
-+++ lance.c	Tue Nov 28 11:46:16 2000
-@@ -926,6 +926,8 @@
- 
- 	lp->tx_ring[entry].misc = 0x0000;
- 
-+	lp->stats.tx_bytes += skb->len;
-+
- 	/* If any part of this buffer is >16M we must copy it to a low-memory
- 	   buffer. */
- 	if ((u32)virt_to_bus(skb->data) + skb->len > 0x01000000) {
-@@ -941,7 +943,6 @@
- 		lp->tx_ring[entry].base = ((u32)virt_to_bus(skb->data) & 0xffffff) | 0x83000000;
- 	}
- 	lp->cur_tx++;
--	lp->stats.tx_bytes += skb->len;
- 
- 	/* Trigger an immediate send poll. */
- 	outw(0x0000, ioaddr+LANCE_ADDR);
-
---------------85C02D6AE9D44FB9D4937197--
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

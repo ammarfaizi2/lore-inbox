@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263196AbTJPQOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 12:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbTJPQOR
+	id S263005AbTJPQEE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 12:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTJPQEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 12:14:17 -0400
-Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:44299 "EHLO
-	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
-	id S263196AbTJPQON convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 12:14:13 -0400
-Subject: Re: 2.6.0-test7-mm1
-From: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <20031015214004.GC723@holomorphy.com>
-References: <20031015013649.4aebc910.akpm@osdl.org>
-	 <1066232576.25102.1.camel@telecentrolivre>
-	 <20031015165508.GA723@holomorphy.com> <20031015214004.GC723@holomorphy.com>
-Content-Type: text/plain; charset=iso-8859-1
-Organization: Governo Eletronico - SP
-Message-Id: <1066317063.2601.3.camel@telecentrolivre>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 16 Oct 2003 13:11:03 -0200
-Content-Transfer-Encoding: 8BIT
+	Thu, 16 Oct 2003 12:04:04 -0400
+Received: from [203.199.54.175] ([203.199.54.175]:32268 "EHLO
+	MailRelay.lntinfotech.com") by vger.kernel.org with ESMTP
+	id S263005AbTJPQEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 12:04:02 -0400
+From: "Suresh Subramanian" <Suresh.Subramanian@lntinfotech.com>
+Subject: asynchronous notification
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.9  November 16, 2001
+Message-ID: <OF9B35F107.723858B5-ON65256DC1.0056E5A9@lntinfotech.com>
+Date: Thu, 16 Oct 2003 21:32:45 +0530
+MIME-Version: 1.0
+X-MIMETrack: Serialize by Router on BANGALORE/LNTINFOTECH(Release 5.0.9 |November 16, 2001) at
+ 10/16/2003 09:32:45 PM,
+	Itemize by SMTP Server on MailRelay/LNTINFOTECH(Release 5.0.12  |February
+ 13, 2003) at 10/16/2003 09:47:37 PM,
+	Serialize by Router on MailRelay/LNTINFOTECH(Release 5.0.12  |February 13, 2003) at
+ 10/16/2003 09:47:48 PM,
+	Serialize complete at 10/16/2003 09:47:48 PM
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi William,
+Hello
 
-Em Qua, 2003-10-15 às 19:40, William Lee Irwin III escreveu:
-> On Wed, Oct 15, 2003 at 09:55:08AM -0700, William Lee Irwin III wrote:
-> > Okay, this one's me. I should have tried DEBUG_PAGEALLOC when testing.
-> 
-> I can't reproduce it here, can you retry with the invalidate_inodes-speedup
-> patch backed out?
+i have a problem sending signals from kernel thread using kill_fasync( ) to
+an user space process which has registered to the device driver through
+fcntl( ) for asynchronous notification. I assume this is due to the
+difference in the context from kernel process (to which the user process
+has registered) to the kernel thread .
 
-yes, it works without invalidate_inodes-speedup.
+So i decided to use kill_proc( ) to send a signal from the kernel thread.
+Since i m using kill_proc( ) i m not registering any process for
+asynchronous notification and i m doing this registration manually  by
+geting the necessary information like 'pid', 'fd' etc...and maintaining
+this info.This method works perfectly fine.
 
-(sorry for the delay).
+Please let me know if there is any drawback in this non-conventional
+method.
+Please give me details in either case.
 
--- 
-Luiz Fernando N. Capitulino
-<lcapitulino@prefeitura.sp.gov.br>
-<http://www.telecentros.sp.gov.br>
+Thank you.
+
+Suresh S
 

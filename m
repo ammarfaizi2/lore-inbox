@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287203AbRL2WZO>; Sat, 29 Dec 2001 17:25:14 -0500
+	id <S287213AbRL2W0o>; Sat, 29 Dec 2001 17:26:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286794AbRL2WZF>; Sat, 29 Dec 2001 17:25:05 -0500
-Received: from waste.org ([209.173.204.2]:33237 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S287202AbRL2WZA>;
-	Sat, 29 Dec 2001 17:25:00 -0500
-Date: Sat, 29 Dec 2001 16:24:56 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <20011229140914.B13883@work.bitmover.com>
-Message-ID: <Pine.LNX.4.43.0112291611040.18183-100000@waste.org>
+	id <S286794AbRL2W0e>; Sat, 29 Dec 2001 17:26:34 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:49677 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S287207AbRL2W0W> convert rfc822-to-8bit; Sat, 29 Dec 2001 17:26:22 -0500
+Date: Sat, 29 Dec 2001 14:29:58 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+cc: Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Balanced Multi Queue Scheduler ...
+In-Reply-To: <20011229051712Z287139-18284+8656@vger.kernel.org>
+Message-ID: <Pine.LNX.4.40.0112291424560.1580-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Larry McVoy wrote:
+On Sat, 29 Dec 2001, Dieter [iso-8859-15] Nützel wrote:
 
-> On Sat, Dec 29, 2001 at 02:30:36PM -0600, Oliver Xymoron wrote:
-> > Nonsense. X is a release. At a minimum, a submitted patch should apply to
-> > the current globally visible kernel release. If you want your patch to
-> > go in, it has to be current, otherwise no use bothering the
-> > maintainer. And it ought to compile.
+> Davide worte:
+> > There's a bug fix and the use of the Time Slice Split Scheduler inside the
+> > local CPUs schedulers. Versions from 0.46 to 0.52 are broken by the fixed
+> > bug so testers should use this version :
+> >
+> > http://www.xmailserver.org/linux-patches/mss-2.html#patches
 >
-> OK, so this glorious patchbot is going to make sure that a patch patches
-> cleanly against a known version and compiles.  And that buys me exactly
-> what?  Not a heck of a lot.  Especially since, as is obvious, if you send
-> in stuff that doesn't compile consistently, your patches are likely to go
-> to the back of the line or just get dropped.
-
-It never shows up in the maintainer's inbox, leaving them more time to
-address the remainder. And fewer of the increasingly bitter complaints of
-dropped patches.
-
-> > The purpose of the patchbot is to bounce patches that don't
-> > apply/compile/meet whatever baseline before Maintainer ever has to look at
-> > them, thus reducing the 'black hole effect' of the overloaded maintainer.
+> Sorry, if someone asks this before but do you think that you get some stuff
+> out of it for 2.4.xx?
 >
-> I'd suggest you go try this idea out.  It's funny how often people suggest
-> that they are going to make the problems go away, it's always this same
-> proposal, typically nobody does any work, when they do it doesn't get used,
-> could it be there is a reason for that?
+> Your numbers for the 8 SMP system are great.
+> Can't wait to do some tests on my poor single 1 GHz Athlon II and soon dual
+> Athlon MP/XP 1600+ on an MS 6501 (AMD 760MPX).
 >
-> I'm prepared to be wrong, but I don't hear the maintainers asking for this
-> patchbot.  Why not?
+> Maybe my MP3/Ogg-Vorbis hiccup during dbench 32+ are solved?
+> Currently running latest 2.4.17+preempt (do think that can be mixed with your
+> new scheduler?).
 
-I don't hear them asking for SCM either.
+The new patch need ver >= 2.5.2-pre3 because Linus merged the Time Slice
+Split Scheduler and making it to apply to 2.4.x could be a pain in the b*tt.
+Yes, as i expected numbers on big SMP are very good but still i don't
+think that this can help you with your problem.
+It'd be nice to have inside local_irq_disable()/enable() a cycle counter
+sampler to see what is the worst case path with disabled irqs.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+
+
+
+- Davide
+
 

@@ -1,151 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263910AbSIQIiL>; Tue, 17 Sep 2002 04:38:11 -0400
+	id <S263917AbSIQIqZ>; Tue, 17 Sep 2002 04:46:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263917AbSIQIiK>; Tue, 17 Sep 2002 04:38:10 -0400
-Received: from fusion.wineasy.se ([195.42.198.105]:24335 "HELO
-	fusion.wineasy.se") by vger.kernel.org with SMTP id <S263910AbSIQIiI>;
-	Tue, 17 Sep 2002 04:38:08 -0400
-Date: Tue, 17 Sep 2002 10:43:03 +0200
-From: Andreas Schuldei <andreas@schuldei.org>
-To: greg@kroah.com
+	id <S263924AbSIQIqZ>; Tue, 17 Sep 2002 04:46:25 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:52234
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263917AbSIQIqY>; Tue, 17 Sep 2002 04:46:24 -0400
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+From: Robert Love <rml@tech9.net>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: usb keyboard registering twice
-Message-ID: <20020917084303.GC2277@lukas>
+In-Reply-To: <1032250378.969.112.camel@phantasy>
+References: <Pine.LNX.4.44.0209162250170.3443-100000@home.transmeta.com> 
+	<1032250378.969.112.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 17 Sep 2002 04:51:12 -0400
+Message-Id: <1032252673.4593.9.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have here a usb keyboard which is registering once with the
-usb layer and twice with the input layer. Here is /proc/bus/usb/devices
+On Tue, 2002-09-17 at 04:12, Robert Love wrote:
 
-dev:~# cat /proc/bus/usb/devices
-T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
-B:  Alloc=466/900 us (52%), #Int=  8, #Iso=  0
-D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0000 ProdID=0000 Rev= 0.00
-S:  Product=USB UHCI Root Hub
-S:  SerialNumber=b400
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12  MxCh= 4
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0451 ProdID=1446 Rev= 1.10
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=255ms
-T:  Bus=01 Lev=02 Prnt=02 Port=00 Cnt=01 Dev#=  4 Spd=1.5 MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=045e ProdID=002b Rev= 1.11
-S:  Product=Microsoft Internet Keyboard Pro
-C:* #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=hid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
-I:  If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=hid
-E:  Ad=82(I) Atr=03(Int.) MxPS=   3 Ivl=10ms
-T:  Bus=01 Lev=02 Prnt=02 Port=02 Cnt=02 Dev#=  5 Spd=1.5 MxCh= 0
-D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=046d ProdID=c001 Rev= 4.01
-S:  Manufacturer=Logitech
-S:  Product=N48
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 26mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=hid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
-T:  Bus=01 Lev=01 Prnt=01 Port=01 Cnt=02 Dev#=  3 Spd=12  MxCh= 4
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=03eb ProdID=3301 Rev= 3.00
-S:  Product=Standard USB Hub
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr= 64mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=255ms
-T:  Bus=01 Lev=02 Prnt=03 Port=00 Cnt=01 Dev#=  6 Spd=1.5 MxCh= 0
-D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=056e ProdID=0009 Rev= 0.01
-S:  Manufacturer=ELECOM
-S:  Product=ELECOM image sensor mouse with wheel
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=hid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=10ms
-T:  Bus=01 Lev=02 Prnt=03 Port=01 Cnt=02 Dev#=  7 Spd=12  MxCh= 3
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0472 ProdID=0065 Rev= 1.00
-S:  Manufacturer=Chicony
-S:  Product=Generic USB Hub
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 90mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=255ms
-T:  Bus=01 Lev=03 Prnt=07 Port=00 Cnt=01 Dev#=  8 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0472 ProdID=0065 Rev= 1.00
-S:  Manufacturer=Chicony
-S:  Product=PFU-65 USB Keyboard
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=hid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=24ms
+> +	if (unlikely(!kernel_locked()))
+> +		tsk->lock_depth = -2;
 
-and here is /proc/bus/input/devices
-dev:~# cat /proc/bus/input/devices
-I: Bus=0000 Vendor=0000 Product=0000 Version=0000
-N: Name="Chicony  PFU-65 USB Keyboard"
-P: Phys=usb1:2.2.1/input0
-D: Drivers=kbd event4
-B: EV=120002
-B: KEY=10000 7f ffe7207a c14057ff ffbeffdf ffffffff ffffffff
-fffffffe
-B: LED=1f
+Eh, this should be likely()...
 
-I: Bus=0000 Vendor=0000 Product=0000 Version=0000
-N: Name="ELECOM ELECOM image sensor mouse with wheel"
-P: Phys=usb1:2.1/input0
-D: Drivers=event3 mouse1
-B: EV=6
-B: KEY=70000 0 0 0 0 0 0 0 0
-B: REL=103
+	Robert Love
 
-I: Bus=0000 Vendor=0000 Product=0000 Version=0000
-N: Name="Logitech N48"
-P: Phys=usb1:1.3/input0
-D: Drivers=event2 mouse0
-B: EV=6
-B: KEY=70000 0 0 0 0 0 0 0 0
-B: REL=103
+diff -urN linux-2.5.35/include/asm-i386/hardirq.h linux/include/asm-i386/hardirq.h
+--- linux-2.5.35/include/asm-i386/hardirq.h	Sun Sep 15 22:18:46 2002
++++ linux/include/asm-i386/hardirq.h	Tue Sep 17 03:20:00 2002
+@@ -77,7 +77,8 @@
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+ 
+ #if CONFIG_PREEMPT
+-# define in_atomic()	(preempt_count() != kernel_locked())
++# define in_atomic() \
++	((preempt_count() & ~PREEMPT_ACTIVE) != (current->lock_depth != -1))
+ # define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+ #else
+ # define in_atomic()	(preempt_count() != 0)
+diff -urN linux-2.5.35/kernel/exit.c linux/kernel/exit.c
+--- linux-2.5.35/kernel/exit.c	Tue Sep 17 03:18:53 2002
++++ linux/kernel/exit.c	Tue Sep 17 03:55:12 2002
+@@ -637,6 +637,21 @@
+ 	preempt_disable();
+ 	if (current->exit_signal == -1)
+ 		release_task(current);
++
++	/*
++	 * This little bit of genius comes from the twisted mind of Linus.
++	 * We need exit() to be atomic but we also want a debugging check
++	 * in schedule() to whine if we are atomic.  The wickedness is in
++	 * these rules:
++	 *	- task->lock_depth = -2 means "validly nonpreemptable"
++	 * 	- task->lock_depth = -1 means "BKL not held"
++         * 	- task->lock_depth >= 0 means "BKL held"
++	 * release_kernel_lock and kernel_locked() check >=0, and
++	 * in_atomic() checks != -1... the "fake BKL" will "cancel out"
++	 * the preempt_disable() above and the world is happy.
++	 */
++	if (likely(!kernel_locked()))
++		tsk->lock_depth = -2;
+ 	schedule();
+ 	BUG();
+ /*
+diff -urN linux-2.5.35/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.35/kernel/sched.c	Sun Sep 15 22:18:24 2002
++++ linux/kernel/sched.c	Tue Sep 17 03:50:04 2002
+@@ -940,8 +940,10 @@
+ 	struct list_head *queue;
+ 	int idx;
+ 
+-	if (unlikely(in_atomic()))
+-		BUG();
++	if (unlikely(in_atomic())) {
++		printk(KERN_ERR "error: scheduling while non-atomic!\n");
++		dump_stack();
++	}
+ 
+ #if CONFIG_DEBUG_HIGHMEM
+ 	check_highmem_ptes();
+@@ -959,7 +961,7 @@
+ 	 * if entering off of a kernel preemption go straight
+ 	 * to picking the next task.
+ 	 */
+-	if (unlikely(preempt_count() & PREEMPT_ACTIVE))
++	if (unlikely(preempt_count() == PREEMPT_ACTIVE))
+ 		goto pick_next_task;
+ 
+ 	switch (prev->state) {
 
-I: Bus=0000 Vendor=0000 Product=0000 Version=0000
-N: Name="045e:002b"
-P: Phys=usb1:1.1/input1
-D: Drivers=kbd event1
-B: EV=10000a
-B: KEY=ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff
-ffffffff ffffffff ffff0000 38000 39fa d843d7a9 9e0000 0 0 1
-B: ABS=1 0
-
-I: Bus=0000 Vendor=0000 Product=0000 Version=0000
-N: Name="045e:002b"
-P: Phys=usb1:1.1/input0
-D: Drivers=kbd event0
-B: EV=120002
-B: KEY=10000 0 ffe00000 7ff ffbeffdf ffffffff ffffffff fffffffe
-B: LED=7
-
-
-Here you see that the last two entries describe the same device. 
-
-Is this a bogus keyboard (As you can see it is a Microsoft
-product!), or is it the kernels responsibility to catch that?
-Would it be the usb layer or the input layer which is responsible
-to varify that the devices are unique?
-
-In this case the USB layer cold have caught it, since the it is
-both at usb1:1.1. But why do they have different keys? is that a
-hardware feature like the mac-address in ethernet cards?
-
-I am working with 2.4.19-backstreet-ruby, which is a backport of
-greater parts of the usb, input and console work from 2.5 to
-2.4.19. And i do not expect anyone but me to fix this. I would be
-thankfull for any help regarding HOW it would be fixed, though.
-
-I am not on lkml, so cc me, please.

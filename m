@@ -1,36 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbUKMU36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbUKMUel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbUKMU36 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 15:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbUKMU36
+	id S261165AbUKMUel (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 15:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbUKMUej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 15:29:58 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:10514 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261188AbUKMU3z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 15:29:55 -0500
-Date: Sat, 13 Nov 2004 21:29:31 +0100
-From: Jedi/Sector One <lkml@pureftpd.org>
+	Sat, 13 Nov 2004 15:34:39 -0500
+Received: from poros.telenet-ops.be ([195.130.132.44]:58001 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261165AbUKMUeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 15:34:31 -0500
+From: Jan De Luyck <lkml@kcore.org>
 To: linux-kernel@vger.kernel.org
-Subject: Issues with threads since 2.6.10-rc1-mm4 (was 2.6.10-rc1-mm5 [u])
-Message-ID: <20041113202953.GA15117@c9x.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: OpenBSD - http://www.openbsd.org/
-User-Agent: Mutt/1.5.6i
+Subject: pwc driver status?
+Date: Sat, 13 Nov 2004 21:34:46 +0100
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3011462.SVB1MiI9qp";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411132134.52872.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  To second Martin Schemmer, it looks like there is indeed something wrong
-with threads, probably since 2.6.10-rc1-mm4.
+--nextPart3011462.SVB1MiI9qp
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-  Apache 2 with the worker (threaded) MPM and NPTL is freezing after some
-time with 2.6.10-rc1-mm5 and -mm4. This didn't happen with previous kernels.
+Hello list,
 
-  I'm currently trying to revert various patches to find the culprit.
+I'm currently contemplating getting an USB webcam. As a requirement, it has=
+ to=20
+be linux-usable (duh). Now, the Philips webcams look pretty good, but I'm=20
+getting mightily confused by the current status of the pwc / pwcx driver.
 
-  Best regards,
-  
-    -Frank.
-    
+There seems to be an 'official' driver, but that has been discontinued, and=
+=20
+now there seems to be an 'unofficial' one.
+
+Is there still a working driver for 2.4/2.6? What does it support?=20
+
+Thanks.
+
+Jan
+=2D-=20
+Your motives for doing whatever good deed you may have in mind will be
+misinterpreted by somebody.
+
+--nextPart3011462.SVB1MiI9qp
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBlm/sUQQOfidJUwQRAj0rAJ9RSggQFBLBuhLmXL3LeYwI6w1fbQCeLgl/
+FedROsd+HPYPegSBMh1itjM=
+=IbZe
+-----END PGP SIGNATURE-----
+
+--nextPart3011462.SVB1MiI9qp--

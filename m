@@ -1,89 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266249AbUGJN6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266253AbUGJOJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266249AbUGJN6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 09:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUGJN6Q
+	id S266253AbUGJOJP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 10:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUGJOJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 09:58:16 -0400
-Received: from [213.188.213.77] ([213.188.213.77]:54933 "EHLO
-	server1.navynet.it") by vger.kernel.org with ESMTP id S266249AbUGJN6N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 09:58:13 -0400
-From: "Massimo Cetra" <mcetra@navynet.it>
-To: <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: FW: Mount -o bind strange behaviour
-Date: Sat, 10 Jul 2004 16:00:10 +0200
-Message-ID: <006801c46686$375f74b0$e60a0a0a@guendalin>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Importance: Normal
+	Sat, 10 Jul 2004 10:09:15 -0400
+Received: from ktown.kde.org ([131.246.103.200]:954 "HELO ktown.kde.org")
+	by vger.kernel.org with SMTP id S266253AbUGJOJO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 10:09:14 -0400
+Date: Sat, 10 Jul 2004 16:09:12 +0200
+From: Oswald Buddenhagen <ossi@kde.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: (att. ismail) [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040710140912.GB13925@ugly.local>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200407101503.58124.roger.larsson@norran.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407101503.58124.roger.larsson@norran.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> -----Original Message-----
-> From: viro@www.linux.org.uk [mailto:viro@www.linux.org.uk] On
-> Behalf Of viro@parcelfarce.linux.theplanet.co.uk
-> Sent: Saturday, July 10, 2004 3:50 PM
-> To: Massimo Cetra
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Mount -o bind strange behaviour
+On Sat, Jul 10, 2004 at 03:03:58PM +0200, Roger Larsson wrote:
+> But it does sound as a io scheduler problem - but 2-3 seconds!?
 > 
-> No way to tell without at least the contents of your
-> /proc/mounts before and after...
+nothing particularly unusual on my system ... when an updatedb or a 'cvs
+up' or 'make install' of kde are running i often get hangs of up to 10
+seconds (not the sound, though, as xmms with oss output seems less
+susceptible to this, but "random" other processes freeze hard for that
+time). and with 2.4 ... errm ... 30 seconds are usual, and 60 seconds
+are still not exceptional.
+for the record: i have 1GB of ram, no swap, and reasonably fast disks
+(and yes, udma is enabled ;).
 
-This is the output at the moment.
+greetings
 
-gremo1:~# mount
-/dev/md3 on / type ext3 (rw,errors=remount-ro)
-proc on /proc type proc (rw)
-devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-/dev/md1 on /boot type ext3 (rw)
-/dev/md5 on /usr/local type ext3 (rw)
-/dev/md6 on /home type ext3 (rw)
-/dev/md7 on /var type ext3 (rw)
-proc on /var/chroot/apache/proc type proc (rw)
-/home/www on /var/chroot/apache/home/www type none (rw,bind)
-/var/log/www on /var/chroot/apache/var/log/www type none (rw,bind)
-/usr/local/lib/php on /var/chroot/apache/usr/local/lib/php type none
-(rw,bind) /var/www on /var/chroot/apache/var/www type none (rw,bind)
-/usr/lib/locale on /var/chroot/apache/usr/lib/locale type none (rw,bind)
-/usr/local/apache/conf on /var/chroot/apache/usr/local/apache/conf type
-none (ro,bind) gremo1:~#
-
-
-gremo1:~# cat /proc/mounts
-rootfs / rootfs rw 0 0
-/dev/root / ext3 rw 0 0
-proc /proc proc rw 0 0
-devpts /dev/pts devpts rw 0 0
-/dev/md1 /boot ext3 rw 0 0
-/dev/md5 /usr/local ext3 rw 0 0
-/dev/md6 /home ext3 rw 0 0
-/dev/md7 /var ext3 rw 0 0
-proc /var/chroot/apache/proc proc rw 0 0
-/dev/md6 /var/chroot/apache/home/www ext3 rw 0 0
-/dev/md7 /var/chroot/apache/var/log/www ext3 rw 0 0
-/dev/md5 /var/chroot/apache/usr/local/lib/php ext3 rw 0 0 /dev/md7
-/var/chroot/apache/var/www ext3 rw 0 0 /dev/root
-/var/chroot/apache/usr/lib/locale ext3 rw 0 0 /dev/md5
-/var/chroot/apache/usr/local/apache/conf ext3 rw 0 0 gremo1:~#
-
-
-No way to provide cat /proc/mount content of /proc/mount before. Mount
-had the same output and everything seemed to be normal.
-
-This was the mountpoint with the problem. /usr/local/apache/conf on
-/var/chroot/apache/usr/local/apache/conf type none (ro,bind)
-
-
-Regards, 
- Max
-
+-- 
+Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
+--
+Chaos, panic, and disorder - my work here is done.

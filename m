@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316253AbSEQOjs>; Fri, 17 May 2002 10:39:48 -0400
+	id <S316231AbSEQPNo>; Fri, 17 May 2002 11:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316250AbSEQOiB>; Fri, 17 May 2002 10:38:01 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15884 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316247AbSEQOh4>; Fri, 17 May 2002 10:37:56 -0400
-Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Fri, 17 May 2002 15:57:15 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), akpm@zip.com.au (Andrew Morton),
-        paul@engsoc.org (Paul Faure), linux-kernel@vger.kernel.org
-In-Reply-To: <20020517143537.GG11512@dualathlon.random> from "Andrea Arcangeli" at May 17, 2002 04:35:38 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S316257AbSEQPNn>; Fri, 17 May 2002 11:13:43 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:38825
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S316231AbSEQPNn>; Fri, 17 May 2002 11:13:43 -0400
+Date: Fri, 17 May 2002 11:13:27 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Kenneth Johansson <ken@canit.se>
+cc: Keith Owens <kaos@ocs.com.au>, lkml <linux-kernel@vger.kernel.org>,
+        <torvalds@transmeta.com>
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+In-Reply-To: <1021619519.5859.7.camel@tiger>
+Message-ID: <Pine.LNX.4.44.0205171110400.4117-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E178jAR-0006gD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I didnt mention a flood of irqs. If stuff falls back to softirqd it 
-> > materially harms throughput
-> 
-> You did implicitly becuse if there's not a flood of irq or recursive
-> softirqs it cannot fall to sofitrqd.
+On 17 May 2002, Kenneth Johansson wrote:
 
-Hardly takes a flood of IRQ's. A tiny burst of interrupts will happily
-trigger it 
+> On Fri, 2002-05-17 at 00:42, Keith Owens wrote:
+> 
+> > Before I send you the kbuild 2.5 patch, how do you want to handle it?
+> 
+> Why do you not just make a patch the way that makes most sens to you and
+> sent it to him. 
+
+I suggested exactly that to Keith.  but he, too, apparently decided to
+exercise his freedom to ignore me.
+
+
+Nicolas
+

@@ -1,104 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129338AbQJ3S4v>; Mon, 30 Oct 2000 13:56:51 -0500
+	id <S129632AbQJ3S5V>; Mon, 30 Oct 2000 13:57:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129631AbQJ3S4b>; Mon, 30 Oct 2000 13:56:31 -0500
-Received: from h-205-217-237-46.netscape.com ([205.217.237.46]:63425 "EHLO
-	netscape.com") by vger.kernel.org with ESMTP id <S129628AbQJ3S4W>;
-	Mon, 30 Oct 2000 13:56:22 -0500
-Date: Mon, 30 Oct 2000 10:55:38 -0800
-From: John Gardiner Myers <jgmyers@netscape.com>
-Subject: Re: Readiness vs. completion (was: Re: Linux's implementation of
- poll()not scalable?)
-To: dank@alumni.caltech.edu
-Cc: linux-kernel@vger.kernel.org
-Message-id: <39FDC42A.CD9C3D12@netscape.com>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.74 [en] (WinNT; U)
-Content-type: multipart/signed; protocol="application/x-pkcs7-signature";
- micalg=sha1; boundary=------------ms79E15C2DB0A6E0AFB635B732
+	id <S129631AbQJ3S5M>; Mon, 30 Oct 2000 13:57:12 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:47878 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129632AbQJ3S4p>;
+	Mon, 30 Oct 2000 13:56:45 -0500
+Message-ID: <39FDC447.C5DD7864@mandrakesoft.com>
+Date: Mon, 30 Oct 2000 13:56:07 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
 X-Accept-Language: en
-In-Reply-To: <39FCC2B8.DA281B4C@alumni.caltech.edu>
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@caldera.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        sct@redhat.com
+Subject: Re: [PATCH] kiobuf/rawio fixes for 2.4.0-test10-pre6
+In-Reply-To: <20001027222143.A8059@caldera.de> <200010272123.OAA21478@penguin.transmeta.com> <20001030124513.A28667@caldera.de> <39FDAD99.47FA6A54@mandrakesoft.com> <20001030191712.B27664@caldera.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+Christoph Hellwig wrote:
+> On Mon, Oct 30, 2000 at 12:19:21PM -0500, Jeff Garzik wrote:
+> > Take a look at drivers/sound/via82cxxx_audio.c.  How can that mmap be
+> > improved by using kiobufs?
+> 
+> I think so - but you need Stephen's kvmap patch, that is in the same
+> patchset the forward-ported fixes are
+> (at ftp://ftp.linux.org.uk/pub/linux/sct/fs/raw-io/)
+> 
+> An very nice example is included.
 
---------------ms79E15C2DB0A6E0AFB635B732
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Seen it, re-read my question...
+
+I keep seeing "audio drivers' mmap" used a specific example of a place
+that would benefit from kiobufs.  The current via audio mmap looks quite
+a bit like mmap_kiobuf and its support code... except without all the
+kiobuf overhead.
+
+My question from above is:  how can the via audio mmap in test10-preXX
+be improved by using kiobufs?  I am not a kiobuf expert, but AFAICS a
+non-kiobuf implementation is better for audio drivers.  (and the via
+audio mmap implementation is what some other audio drivers are about to
+start using...)
+
+I can clearly see that many applications will find kiobufs quite useful
+(learned another from alan just now...), but I do not see that audio
+drivers can benefit from kiobufs at all.  Corrections on this fact are
+requested, as I am hacking audio drivers right now and want to make sure
+I pick the best course of action for the long term.
+
+Regards,
+
+	Jeff
 
 
-
-Dan Kegel wrote:
-> IMHO you're describing a situation where a 'completion notification event'
-> (as with aio) would be more appropriate than a 'readiness notification event'
-> (as with poll).
-
-I've found that I want both types of events, preferably through the same
-interface.  To provide a "completion notification event" interface on
-top of an existing nonblocking interface, one needs an "async poll"
-mechanism with edge-triggered events with no event coalescing.
-
-You are correct in recognizing NT completion ports from my description. 
-While the NT completion port interface is ugly as sin, it gets a number
-of performance issues right.
-
-> And, come to think of it, network programmers usually can be categorized
-> into the same two groups :-)  Each style of programming is an acquired taste.
-
-I would say that the "completion notification" style is a paradigm
-beyond the "readiness notification" style.  I started with the select()
-model of network programming and have since learned the clear
-superiority of the "completion notificatin" style.
---------------ms79E15C2DB0A6E0AFB635B732
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIIIXwYJKoZIhvcNAQcCoIIIUDCCCEwCAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3DQEHAaCC
-BlkwggMMMIICdaADAgECAgIeFDANBgkqhkiG9w0BAQQFADCBkzELMAkGA1UEBhMCVVMxCzAJ
-BgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRswGQYDVQQKExJBbWVyaWNhIE9u
-bGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dpZXMxJzAlBgNVBAMTHkludHJhbmV0
-IENlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0wMDA2MDIxNzE1MjlaFw0wMDExMjkxNzE1Mjla
-MIGCMRMwEQYKCZImiZPyLGQBGRYDY29tMRgwFgYKCZImiZPyLGQBGRYIbmV0c2NhcGUxIzAh
-BgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYDVQQDEwpKb2huIE15ZXJz
-MRcwFQYKCZImiZPyLGQBARMHamdteWVyczCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA
-0+WYWlf3g+u6vFEBJwo+4Cxz0PM5GUuqOHGVkjPFTeGjR05BUJADWm8mZDoAhUuIVuTvixCx
-AB0f5JzDWmIIWbB0ea92RwOHdibSS3bT0BTwKNTgt+PQAH3ZdH+IjmGAZI6/J+5Ob3m43ZZl
-o/3lfGEd4O7gAJY62Sy76MgO1O0CAwEAAaN+MHwwEQYJYIZIAYb4QgEBBAQDAgWgMA4GA1Ud
-DwEB/wQEAwIEsDAfBgNVHSMEGDAWgBSiO2Uy9/cbifxVDQcBvIdIWv2QPTA2BggrBgEFBQcB
-AQQqMCgwJgYIKwYBBQUHMAGGGmh0dHA6Ly9uc29jc3AubmV0c2NhcGUuY29tMA0GCSqGSIb3
-DQEBBAUAA4GBAGPAOC3FZineuE0PLv+pKc52i5uz+lpHzvssmUrr5FNSSD3M+DBow7Sd3YW+
-vyPVAxH+MZ5RtE+If/aDDYQhgpCtbujQb5wPVRS5ZCmKpAC0eOnP12jcUDLr1tfhyBIlIvJQ
-6xGKj7ckSK6G7lNxuQ8a12v/v2yEEk2uADg51oY7MIIDRTCCAq6gAwIBAgIBJzANBgkqhkiG
-9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UE
-BxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2Vy
-dGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFs
-IEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUu
-Y29tMB4XDTk5MDYwMzIyMDAzNFoXDTAxMDYwMjIyMDAzNFowgZMxCzAJBgNVBAYTAlVTMQsw
-CQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBP
-bmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5l
-dCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAOLv
-Xyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg/wAX5IiIad79g1fgoxEZEarW3Lzv
-s9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCzeauaEKW8waTReEwG5WRB/AUlYybr
-7wzHblShjM5UV7YfktqyEkuNAgMBAAGjaTBnMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0l
-BBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMCMBEGCWCGSAGG+EIBAQQEAwIBAjAfBgNVHSMEGDAW
-gBRyScJzNMZV9At2coF+d/SH58ayDjANBgkqhkiG9w0BAQQFAAOBgQC6UH38ALL/QbQHCDkM
-IfRZSRcIzI7TzwxW8W/oCxppYusGgltprB2EJwY5yQ5+NRPQfsCPnFh8AzEshxDVYjtw1Q6x
-ZIA0Tln6xlnmRt5OaAh1QPUdjCnWrnetyT1p5ECNRJdGb756wFiksR9qpw8pUYqBDSmOneQP
-MwuPjSQ97DGCAc4wggHKAgEBMIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAU
-BgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcG
-A1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUg
-QXV0aG9yaXR5AgIeFDAJBgUrDgMCGgUAoIGKMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-HAYJKoZIhvcNAQkFMQ8XDTAwMTAzMDE4NTUzOFowIwYJKoZIhvcNAQkEMRYEFOdosWP99uRF
-oWD+wzA7GSGI1Zn0MCsGCSqGSIb3DQEJDzEeMBwwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwIC
-AgCAMA0GCSqGSIb3DQEBAQUABIGARxp6Omjdl+sSFlK5FHOZr8qo+P99WqpKdMkm8YGwIPnf
-eNmrl7YZuYR/UpH28ETovb6VlLNzbS4wws4PzDFYpqcPE+8YqYY5C8V7IVId/EPZdU8424cM
-P4CHu6HZYSpx88dW1Fo4oUvEnRwAO7852jj/V9D+hu7wlXH6NoPUDqw=
---------------ms79E15C2DB0A6E0AFB635B732--
-
+-- 
+Jeff Garzik             | "Mind if I drive?"  -Sam
+Building 1024           | "Not if you don't mind me clawing at the
+MandrakeSoft            |  dash and shrieking like a cheerleader."
+                        |                     -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

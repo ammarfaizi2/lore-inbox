@@ -1,146 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269796AbRHMFDK>; Mon, 13 Aug 2001 01:03:10 -0400
+	id <S269807AbRHMFNT>; Mon, 13 Aug 2001 01:13:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269801AbRHMFCu>; Mon, 13 Aug 2001 01:02:50 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:44306 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S269796AbRHMFCa>;
-	Mon, 13 Aug 2001 01:02:30 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200108130502.f7D52eI16075@saturn.cs.uml.edu>
-Subject: Re: __asm__ usage ????
-To: vraghava_raju@yahoo.com (Raghava Raju)
-Date: Mon, 13 Aug 2001 01:02:40 -0400 (EDT)
-Cc: egger@suse.de (Daniel Egger), linux-kernel@vger.kernel.org
-In-Reply-To: <20010811210336.39004.qmail@web20001.mail.yahoo.com> from "Raghava Raju" at Aug 11, 2001 02:03:36 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S269810AbRHMFNJ>; Mon, 13 Aug 2001 01:13:09 -0400
+Received: from [24.159.204.122] ([24.159.204.122]:54030 "EHLO
+	tweedle.cabbey.net") by vger.kernel.org with ESMTP
+	id <S269807AbRHMFM5>; Mon, 13 Aug 2001 01:12:57 -0400
+Date: Mon, 13 Aug 2001 00:12:43 -0500 (CDT)
+From: Christopher Abbey <cabbey@cabbey.net>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
+In-Reply-To: <3B77302C.96C79272@randomlogic.com>
+Message-ID: <Pine.LNX.4.33.0108130003050.17112-100000@tweedle.cabbey.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Raghava Raju writes:
+Yesterday, Paul G. Allen wrote:
+> > 2. When you see a box hang that's clearly related to a daughtercard, *run*
+> >    (do not walk) to your local /proc directory, cat /proc/pci and check out
+> >    the IRQ assignments.
 
->>> 	__asm__ __volatile__(SMP_WMB "\
->>> 1:	lwarx 	%0,0,%3
->>> 	andc  	%0,%0,%2
->>> 	stwcx 	%0,0,%3
->>> 	bne 	1b"
->>> 	SMP_MB
->>> 	: "=&r" (old), "=m" (*p)
->>> 	: "r" (mask), "r" (p), "m" (*p)
->>> 	: "cc")"
->>>         4) I think in power PC we can't access
->>> directly the contents of memory, but we should
->>> give addresses of memory in registers then use
->>> registers in instructions to access memory. But in
->>> above example he is using %3 in lwarx command
->>> accessing that memory directly. Is my
->> interpretation
->>> of above instructions wrong.
->>
->> Yes, you're wrong. By issuing an "r" (p) the p
->> (which is a pointer in this case) is assigned
->> to a register which is then used in the load
->> command as the absolute address.
->
->    What I meant is that say in command
->     "andc  	%0,%0,%2" he is directly accessing the
->     contents of memory and using them in "andc". But
+lspci -vvv is also usefull.
 
-NO! He is not doing that. The compiler changes the
-above into this:
+> Problem is, when it does hang, I can't get there as the system is
+> completely locked, including ssh and telnet.
 
-1. address generation for the variable "p"
-2. whatever SMP_WMB is
-3. something like "lwarx r5,0,r8" (gcc picks the registers)
-4. something like "andc  r5,r5,r7"
-5. something like "stwcx r5,0,r8"
-6. a branch back to the lwarx
-7. whatever SMP_MB is
+But the point is to go look at the pci interrupt assignments *before*
+the hang occurs. I've seen the same situation, where two devices are
+sharing an interupt, one on the mobo, the other in a PCI slot... it's
+never been a good thing in my experience. As Eric pointed out if they're
+both on the mobo you have to hope the designers built the hardware to
+handle that, or if they're both in pci slots you can usually expect
+the cards will play well with others. It's the third case that's
+trouble, and then it's time to do as Eric did - get into the bios and
+change the assignements (or in this case something that would cuase a
+change to happen).
 
-Note: the lwarx is a special type of load instruction.
-
->     it seems to be that he should use indirectly, like
->    storing the address of variable in register. Then
->    use register in "andc" instead of directly using
->    %0(i.e accessing memory directly). Correct me if
-
-The funny notation at the end instructs gcc to load the
-variable into a register and save it back as needed.
-
->    I am wrong since powerPC mannual described that
->    we should not use memory directly in instructions.
-
-You may not use memory directly in the andc instruction.
-
->>> 6) Finally I want to write a simple programme
->>> to write the contents of a local variable "xyz"
->>> into register r33, then store the contents of
->>> r33 into local variable "abc". Kindly would u
->>> give me a sample code of doing it.
->>
->> Negative for two reasons: There is no register 33
->> (at least) on 32bit PPC CPUs, and second, you
->> normally don't want to hardcode registers in
->> inline assembly. If you really want to then use
->> normal assembly.
->>
->> But for your example:
->> long xyz, abc;
->>
->> __asm__ __volatile__ ("mr %0,%1\n\t": "r" (abc) :
->> "r" (xyz));
->>
->> However this is a really dumb example.
->
-> Here I dont bother about logic of the example, but
-> I want know how to load the value of some (valid
-> register, if not r33 something else in powerPC)
-> register into a local variable xyz and vice versa.
-
-Stop thinking like this. You can not write good code if you
-insist on choosing registers. The strange gcc assembly notation
-is designed to let you cooperate with the compiler. Rather than
-saying you want "r33" you say you want "any normal integer
-register containing the content of variable xyz". Then gcc will
-pick a free register, call it %0 or %1 or whatever, and load it
-with variable "xyz".
-
-If variable "xyz" is already in register r6, then why wouldn't
-you want to use r6 for your assembly? If you pick a specific
-register, then the compiler might have to copy from r6 into the
-one you specified. That would be bad. When you let gcc choose,
-it picks a register that is good to use.
-
-Looking at this again:
-
-__asm__ __volatile__ (
-"mr %0,%1"               /* %0 and %1 may represent r6 */
-: "=r" (abc)             /* the output (can have many!) */
-: "r" (xyz)              /* the input (can have many!) */
-:                        /* no special registers will be modified */
-);
-
-You could even code this as a NOP, using the funny constraint notation
-to make gcc do the copy for you. Simply specify that the input is to
-be the exact same register as the input. I think it is something
-like this:
-
-__asm__ __volatile__ (
-""                       /* just empty -- don't even need a NOP */
-: "=r" (abc)             /* let gcc select an output register */
-: "0" (xyz)              /* ask gcc to use the same register for input */
-:                        /* no special registers will be modified */
-);
-
-Well there you go. This makes gcc load xyz into a register if it isn't
-already in one, then makes gcc assume that the register contains the
-new value for abc.
-
-Be careful about the constraint letters you choose. For most PowerPC
-instructions, any integer register will do. For load/store instructions,
-the CPU treats r0 as a special case. You might need to change the "r"
-to something else, like "b" or "a" maybe. Look it up in the gcc manual.
+-- 
+now the forces of openness have a powerful and
+  unexpected new ally - http://ibm.com/linux
 

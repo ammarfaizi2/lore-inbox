@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbTBOSij>; Sat, 15 Feb 2003 13:38:39 -0500
+	id <S264907AbTBOSj6>; Sat, 15 Feb 2003 13:39:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264885AbTBOSij>; Sat, 15 Feb 2003 13:38:39 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:43700 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264883AbTBOSii>;
-	Sat, 15 Feb 2003 13:38:38 -0500
-Message-ID: <3E4E8B41.6080609@us.ibm.com>
-Date: Sat, 15 Feb 2003 10:47:29 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: problems with 2.5.61-mm1
-References: <3E4E0153.3000008@us.ibm.com> <92090000.1045333203@[10.10.2.4]>
+	id <S264908AbTBOSj6>; Sat, 15 Feb 2003 13:39:58 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:267 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S264907AbTBOSj5>; Sat, 15 Feb 2003 13:39:57 -0500
+Date: Sat, 15 Feb 2003 18:49:50 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.61
+Message-ID: <20030215184950.B22734@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0302141709410.1376-100000@penguin.transmeta.com> <20030215183555.A22045@infradead.org> <3E4E8AB0.4040600@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E4E8AB0.4040600@pobox.com>; from jgarzik@pobox.com on Sat, Feb 15, 2003 at 01:45:04PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> No, that's a kirq broke no_irq_balance thing (I presume this is NUMA-Q?).
+On Sat, Feb 15, 2003 at 01:45:04PM -0500, Jeff Garzik wrote:
+> Christoph Hellwig wrote:
+> 
+> Is Linus really the right person to direct these to?
 
-Nope, it's an 8-way Summit box.
-
-I just booted 2.5.61, and the problem still happens there, so it not
-surprisingly isn't just -mm.
-
-> There's a bootflag option to disable it as well, but that's broken too. I
-> can't fix do it right now, but someone needs to go through and fix all the
-> disable bits so they work.
-
-Disabling it is easy.  Any idea what might be wrong.
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
+For the second thing maybe, for the first I'm sure akpm reads lkml.
 

@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265262AbSLMS4v>; Fri, 13 Dec 2002 13:56:51 -0500
+	id <S265275AbSLMTHW>; Fri, 13 Dec 2002 14:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265266AbSLMS4v>; Fri, 13 Dec 2002 13:56:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7180 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265262AbSLMS4v>;
-	Fri, 13 Dec 2002 13:56:51 -0500
-Message-ID: <3DFA2F19.3000004@pobox.com>
-Date: Fri, 13 Dec 2002 14:03:53 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: Valdis.Kletnieks@vt.edu, Petr Konecny <pekon@informatics.muni.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions)
-References: <200212131345.gBDDjw27002677@turing-police.cc.vt.edu> <200212131633.gBDGX0617899@anxur.fi.muni.cz> <200212131718.gBDHIw27008173@turing-police.cc.vt.edu> <20021213173656.GC1633@suse.de>
-In-Reply-To: <20021213173656.GC1633@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S265276AbSLMTHW>; Fri, 13 Dec 2002 14:07:22 -0500
+Received: from spiderman.spectsoft.com ([216.126.222.67]:45316 "EHLO
+	trashbin1.spectsoft.com") by vger.kernel.org with ESMTP
+	id <S265275AbSLMTHV>; Fri, 13 Dec 2002 14:07:21 -0500
+Subject: DMA from SCSI controller to PCI frame buffer memory.
+From: Jason Howard <lists@spectsoft.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: SpectSoft, LLC
+Message-Id: <1039806910.21196.29.camel@bmagic.spectsoft.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 13 Dec 2002 11:15:11 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> It's my understanding that pci_enable_device() *must* be called
-> before we fiddle with dev->resource, dev->irq and the like.
+Hello All,
 
+I am wondering if the functionality exists in the Linux kernel to DMA 
+from a SCSI controller directly into frame buffer memory of a PCI video
+card?  Is there a standard method for this (similar to sendfile) or will
+it require some hacking?
 
-True and correct, but -- this particular case is inside the cardbus 
-core, where it presumeably might have a better idea of when it is best 
-to call pci_enable_device (or perhaps even not at all, and twiddle the 
-bits itself).
+Jason
+
+-- 
+ Jason Howard
+
+Professional:
+  SpectSoft, LLC
+  http://www.spectsoft.com  jason@spectsoft.com      
+  Phone: +1.209.847.7812    Fax: +1.209.847.7859
+Personal:
+  http://www.psinux.org     jason@psinux.org
+  Cell: +1.209.968.1289
+  Text Message: jasonsphone@psinux.org
+
 

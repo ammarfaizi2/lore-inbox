@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265565AbTFMWST (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 18:18:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265566AbTFMWST
+	id S265570AbTFMWUf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 18:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265571AbTFMWUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 18:18:19 -0400
-Received: from ns.suse.de ([213.95.15.193]:11782 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265565AbTFMWSS (ORCPT
+	Fri, 13 Jun 2003 18:20:34 -0400
+Received: from dat.etsit.upm.es ([138.100.17.73]:30680 "HELO dat.etsit.upm.es")
+	by vger.kernel.org with SMTP id S265570AbTFMWU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 18:18:18 -0400
-Date: Sat, 14 Jun 2003 00:32:04 +0200 (CEST)
-From: Bernhard Kaindl <bk@suse.de>
-To: bojan@gajba.net
-Cc: linux-kernel@vger.kernel.org, Bernhard Kaindl <bernhard.kaindl@gmx.de>
-Subject: Re: ptrace/kmod local root exploit STILL unresolved in 2.4.21! - MY
- MISTAKE
-In-Reply-To: <001701c331f9$d5f92ac0$024ba8c0@athlon>
-Message-ID: <Pine.LNX.4.56.0306140027190.20048@wotan.suse.de>
-References: <001701c331f9$d5f92ac0$024ba8c0@athlon>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+	Fri, 13 Jun 2003 18:20:28 -0400
+Date: Sat, 14 Jun 2003 00:34:09 +0200
+From: Carlos Valdivia =?iso-8859-15?Q?Yag=FCe?= 
+	<valyag@dat.etsit.upm.es>
+To: linux-kernel@vger.kernel.org
+Subject: cs46xx compile failure in 2.4.21
+Message-ID: <20030613223409.GA10618@dat.etsit.upm.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Jun 2003, Bojan PogaÃ¨ar wrote:
+Hi,
 
-> I've tested this exploit in wrong way. I've first logged in as root, then I
-> made "su nobody" and then exploit worked.
+cs46xx.c doesn't compile in 2.4.21 with gcc 3.3:
 
-Maybe "nobody" isn't a "real" user in your case. If there is some problem
-with it, you may end up with uid 0 after "su nobody".
+cs46xx.c:950: error: long, short, signed or unsigned used invalidly for `off'
+cs46xx.c:951: error: long, short, signed or unsigned used invalidly for `val'
+cs46xx.c: In function `cs_ac97_init':
 
-check the output of the command "id" after the executiong the su command,
-just to be safe in any case!
+This patch fixes compilation issue and works fine for my soundcard:
 
-If su really worked correctly, the exploit may not even work if you
-su (successfully) su'ed from root.
+--- linux-2.4.21/drivers/sound/cs46xx.c.orig	2003-06-13 23:29:53.000000000 +0200
++++ linux-2.4.21/drivers/sound/cs46xx.c	2003-06-13 23:37:49.000000000 +0200
+@@ -947,8 +947,8 @@
+ 
+ struct InitStruct
+ {
+-    u32 long off;
+-    u32 long val;
++    u32 off;
++    u32 val;
+ } InitArray[] = { {0x00000040, 0x3fc0000f},
+                   {0x0000004c, 0x04800000},
 
-Bernd
+Best regards.
 
-> If I don't login as root at the beginning, I get operation not permited.. so
-> kernel is safe after all :)
->
-> Thanks 4 your time
->
->
-> Best regards,
->
-> Bojan Pogacar
->
->
-> > Hello,
-> >
-> > I've upgraded my linux box to 2.4.21 because of the securety reasons. Now
-> I
-> > found out that old local expoloit for ptrace is stil working under 2.4.21.
-> > Wasn't it fixed in RC1?
-> >
-> > In attachment I send you exploit, which is still working!
-> >
-> >
-> > Best regards,
-> >
-> > Bojan Pogacar
-> >
->
+-- 
+Carlos Valdivia Yagüe <valyag@dat.etsit.upm.es>

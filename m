@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVBGVsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVBGV7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVBGVsY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 16:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVBGVsY
+	id S261339AbVBGV7z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 16:59:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVBGV7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 16:48:24 -0500
-Received: from tzec.mtu.ru ([195.34.34.228]:529 "EHLO tzec.mtu.ru")
-	by vger.kernel.org with ESMTP id S261341AbVBGVsW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 16:48:22 -0500
-Reply-To: <zapravka_@umail.ru>
-Illegal-Object: Syntax error in From: address found on vger.kernel.org:
-	From:	=?ISO-8859-1?Q?=20=22CEPB.=E3EHTP?= (MOCKBA)1O9-787O" <zapravka_@umail.ru>"
-								    ^	    ^-missing closing '"' in token
-							     \-missing end of mailbox
-Subject: =?ISO-8859-1?Q?=20Pacxo=C4=CE=C9=CB=C9,?=  =?ISO-8859-1?Q?=20=DAa=D0pa=D7=CBa?=  =?ISO-8859-1?Q?=20=CB?=
-	=?ISO-8859-1?Q?ap=D4p=C9=C4=D6e=CA,?=  =?ISO-8859-1?Q?=20=C4oc=D4a=D7=CBa?=  =?ISO-8859-1?Q?=20=D0?=
-	=?ISO-8859-1?Q?o?= MOCKBE.
-Date: Tue, 8 Feb 2005 00:48:19 +0300
+	Mon, 7 Feb 2005 16:59:55 -0500
+Received: from relay.axxeo.de ([213.239.199.237]:62933 "EHLO relay.axxeo.de")
+	by vger.kernel.org with ESMTP id S261339AbVBGV7y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 16:59:54 -0500
+From: Ingo Oeser <ioe-lkml@axxeo.de>
+To: Michelle Konzack <linux4michelle@freenet.de>
+Subject: Re: [PATCH] Re: msdos/vfat defaults are annoying
+Date: Mon, 7 Feb 2005 22:59:46 +0100
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <4205AC37.3030301@comcast.net> <20050207084709.GA30680@ojjektum.uhulinux.hu> <20050207125353.GK12705@freenet.de>
+In-Reply-To: <20050207125353.GK12705@freenet.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1081
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1081
-Message-Id: <20050207214710.4142B11C81E@tzec.mtu.ru>
-From: linux-kernel-owner@vger.kernel.org
-To: undisclosed-recipients:;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200502072259.46602.ioe-lkml@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KAPTPéäöé, TOHEPù, úAðPABKA, äOCTABKA ðO MOCKBE.
-Í. TAçAHCKAñ:                     (O95) 74O~7552
-Í. ûOCCE üHTõúéACTOB:    (O95) 74O~755I
-çOPñþAñ ìéHéñ :               (O95) IO9~787O
-PEMOîô úAXBATA ðO îECKOìøKõ ìéCTOB - 5OO pÕÂ.
+Michelle Konzack schrieb:
+> Am 2005-02-07 09:47:09, schrieb Pozsár Balázs:
+> > See? I _have_ that patch applied, that's why it tried vfat and not msdos
+> > first.
+>
+> With this, you will nerver mount a Filesystem "msdos".
+>
+> Because "vfat" IS "msdos" + "lfn".
+>
+> You can attach to ALL "msdos" media "lfn" and you will have "vfat".
 
-HOBAñ õCìõçA : úAðPABìñEM KYïSåRA FS-1000/1000+/1010/1020D/1050 (N)
+So msdos is vfat WITHOUT lfn, which is a a restriction like noatime
+or mounting ext3 as ext2.
+
+That's why the default should be vfat indeed and the restriction should be
+"nolfn", which will not allow lfns to be created and is what you actually 
+intend, right?
+
+But this will break API today, so it should be added to list of
+features that will change.
+
+Regards
+
+Ingo Oeser
+

@@ -1,102 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265902AbRF1N4f>; Thu, 28 Jun 2001 09:56:35 -0400
+	id <S265929AbRF1OFF>; Thu, 28 Jun 2001 10:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265921AbRF1N4Y>; Thu, 28 Jun 2001 09:56:24 -0400
-Received: from t2.redhat.com ([199.183.24.243]:63728 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S265902AbRF1N4K>; Thu, 28 Jun 2001 09:56:10 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E15FbuU-0006wH-00@the-village.bc.nu> 
-In-Reply-To: <E15FbuU-0006wH-00@the-village.bc.nu> 
+	id <S265930AbRF1OEz>; Thu, 28 Jun 2001 10:04:55 -0400
+Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:5380 "EHLO
+	boris.prodako.se") by vger.kernel.org with ESMTP id <S265929AbRF1OEq>;
+	Thu, 28 Jun 2001 10:04:46 -0400
+Date: Thu, 28 Jun 2001 16:04:34 +0200 (CEST)
+From: Tobias Ringstrom <tori@unhappy.mine.nu>
+X-X-Sender: <tori@boris.prodako.se>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dhowells@redhat.com (David Howells), linux-kernel@vger.kernel.org,
-        arjanv@redhat.com
-Subject: Re: [RFC] I/O Access Abstractions 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 28 Jun 2001 14:55:38 +0100
-Message-ID: <7040.993736538@redhat.com>
+cc: <mike_phillips@urscorp.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM Requirement Document - v0.0
+In-Reply-To: <E15Fbyy-0006xF-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106281558250.1258-100000@boris.prodako.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 28 Jun 2001, Alan Cox wrote:
 
-alan@lxorguk.ukuu.org.uk said:
->  PCI memory (and sometimes I/O) writes are posted, Since x86 memory
-> writes are also parallelisable instructions and since the CPU merely
-> has to retire the writes in order your stall basically doesnt exist.
+> > > That isnt really down to labelling pages, what you are talking qbout is what
+> > > you get for free when page aging works right (eg 2.0.39) but don't get in
+> > > 2.2 - and don't yet (although its coming) quite get right in 2.4.6pre.
+> >
+> > Correct, but all pages are not equal.
+>
+> That is the whole point of page aging done right. The use of a page dictates
+> how it is aged before being discarded. So pages referenced once are aged
+> rapidly, but once they get touched a couple of times then you know they arent
+> streaming I/O. There are other related techniques like punishing pages that
+> are touched when streaming I/O is done to pages further down the same file -
+> FreeBSD does this one for example
 
-True. I can envisage a situation where the overhead of the function call is
-noticeable. It would be interesting to see if it actually happens in real
-life. If so, and if we set up the abstraction properly, we can keep
-the accesses inline for those architectures where it's a win.
+Are you saying that classification of pages will not be useful?
 
-	#ifdef CONFIG_VIRTUAL_BUS
-	#define resource_readb(res, x) res->readb(res, x)
-	#else
-	#define resource_readb(res, x) readb(x)
-	#endif
+Only looking at the page access patterns can certainly reveal a lot, but
+tuning how to punish different pages is useful.
 
-Having per-resource I/O methods would help us to remove some of the
-cruft which is accumulating in various non-x86 code. Note that the below is
-the _core_ routines for _one_ board - I'm not even including the extra
-indirection through the machine vector here....
+> > The problem with updatedb is that it pushes all applications to the swap,
+> > and when you get back in the morning, everything has to be paged back from
+> > swap just because the (stupid) OS is prepared for yet another updatedb
+> > run.
+>
+> Updatedb is a bit odd in that it mostly sucks in metadata and the buffer to
+> page cache balancing is a bit suspect IMHO.
 
-static inline volatile __u16 *
-port2adr(unsigned int port)
-{
-        if (port > 0x2000)
-                return (volatile __u16 *) (PA_MRSHPC + (port - 0x2000));
-        else if (port >= 0x1000)
-                return (volatile __u16 *) (PA_83902 + (port << 1));
-        else if (sh_pcic_io_start <= port && port <= sh_pcic_io_stop)
-                return (volatile __u16 *) (sh_pcic_io_wbase + (port &~ 1));
-        else
-                return (volatile __u16 *) (PA_SUPERIO + (port << 1));
-}
+In 2.4.6-pre, the buffer cache is no longer used for metata, right?
 
-static inline int
-shifted_port(unsigned long port)
-{
-        /* For IDE registers, value is not shifted */
-        if ((0x1f0 <= port && port < 0x1f8) || port == 0x3f6)
-                return 0;
-        else
-                return 1;
-}
-
-unsigned char se_inb(unsigned long port)
-{
-        unsigned long pciiobrSet;
-        volatile unsigned long pciIoArea;
-        unsigned char pciIoData;
-
-        if (PXSEG(port))
-                return *(volatile unsigned char *)port;
-#if defined(CONFIG_CPU_SUBTYPE_SH7751) && defined(CONFIG_PCI)
-        else if((port >= PCIBIOS_MIN_IO) && (port <= PCIBIOS_MIN_IO + SH7751_PCI_IO_SIZE)) {
-                pciiobrSet  = (port & 0xFFFC0000);
-                *PCIIOBR    = pciiobrSet;
-                pciIoArea   = port & 0x0003FFFF;
-                pciIoArea  += PCI_IO_AREA;
-                pciIoData   = *((unsigned char*)pciIoArea);   
-                return (unsigned char)pciIoData;
-        }
-#endif /* defined(CONFIG_CPU_SUBTYPE_SH7751) && defined(CONFIG_PCI) */
-        else if (sh_pcic_io_start <= port && port <= sh_pcic_io_stop)
-                return *(__u8 *) (sh_pcic_io_wbase + 0x40000 + port); 
-        else if (shifted_port(port))
-                return (*port2adr(port) >> 8); 
-        else
-                return (*port2adr(port))&0xff; 
-}
-
-
-
-
---
-dwmw2
-
+/Tobias
 

@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266338AbUGOW3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUGOWff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266338AbUGOW3c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 18:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266435AbUGOW3c
+	id S266427AbUGOWff (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 18:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266434AbUGOWfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 18:29:32 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:5960 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266338AbUGOW3a (ORCPT
+	Thu, 15 Jul 2004 18:35:34 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:29402 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S266427AbUGOWfd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 18:29:30 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, John Hawkes <hawkes@sgi.com>
-Subject: [PATCH] reduce inter-node balancing frequency
-Date: Thu, 15 Jul 2004 18:29:20 -0400
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Thu, 15 Jul 2004 18:35:33 -0400
+Date: Thu, 15 Jul 2004 15:35:28 -0700
+To: Andi Kleen <ak@muc.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+       irda-users@lists.sourceforge.net, jt@hpl.hp.com,
+       the_nihilant@autistici.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Drop ISA dependencies from IRDA drivers
+Message-ID: <20040715223528.GA4645@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <m34qo96x8m.fsf@averell.firstfloor.org> <40F6B547.7050800@pobox.com> <20040715205001.GA2527@muc.de> <40F6F076.2080001@pobox.com> <20040715215552.GA46635@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_AVw9AQcMmsuzIHm"
-Message-Id: <200407151829.20069.jbarnes@engr.sgi.com>
+In-Reply-To: <20040715215552.GA46635@muc.de>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 15, 2004 at 11:55:52PM +0200, Andi Kleen wrote:
+> 
+> Anyways, this is only tangential to the original reason for the patch.
+> Can you please drop the bogus ISA dependencies. Jean has clearly stated
+> that the drivers have nothing to do with ISA itself.
 
---Boundary-00=_AVw9AQcMmsuzIHm
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Andy, I never said that, please quote me accurately. I
+personally don't have strong opinions on whether those drivers should
+be tagged with CONFIG_ISA or not, but those hardware are definitely
+mapped on the ISA bus.
 
-Nick, we've had this patch floating around for awhile now and I'm wondering 
-what you think.  It's needed to boot systems with lots (e.g. 256) nodes, but 
-could probably be done another way.  Do you think we should create a 
-scheduler domain for every 64 nodes or something?  Any other NUMA folks have 
-thoughts about these values?
+	Also, I just had a report of an user having a problem with the
+removal of isa_virt_to_bus on x86-64 :
+		http://bugme.osdl.org/show_bug.cgi?id=3073
+	Depending on how this bug pans out, we *may* have to revert
+the patch and brings back isa_virt_to_bus.
 
-Thanks,
-Jesse
+	Regards,
 
---Boundary-00=_AVw9AQcMmsuzIHm
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="scheduler-numa-tweak.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="scheduler-numa-tweak.patch"
-
-===== include/linux/sched.h 1.227 vs edited =====
---- 1.227/include/linux/sched.h	2004-07-01 22:23:48 -07:00
-+++ edited/include/linux/sched.h	2004-07-15 14:53:50 -07:00
-@@ -651,9 +651,9 @@
- 	.span			= CPU_MASK_NONE,	\
- 	.parent			= NULL,			\
- 	.groups			= NULL,			\
--	.min_interval		= 8,			\
--	.max_interval		= 32,			\
--	.busy_factor		= 32,			\
-+	.min_interval		= 80,			\
-+	.max_interval		= 320,			\
-+	.busy_factor		= 320,			\
- 	.imbalance_pct		= 125,			\
- 	.cache_hot_time		= (10*1000000),		\
- 	.cache_nice_tries	= 1,			\
-@@ -662,7 +662,7 @@
- 				| SD_BALANCE_CLONE	\
- 				| SD_WAKE_BALANCE,	\
- 	.last_balance		= jiffies,		\
--	.balance_interval	= 1,			\
-+	.balance_interval	= 10,			\
- 	.nr_balance_failed	= 0,			\
- }
- #endif
-
---Boundary-00=_AVw9AQcMmsuzIHm--
+	Jean

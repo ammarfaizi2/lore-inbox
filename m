@@ -1,48 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289148AbSAQPSt>; Thu, 17 Jan 2002 10:18:49 -0500
+	id <S289146AbSAQPS2>; Thu, 17 Jan 2002 10:18:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289136AbSAQPS3>; Thu, 17 Jan 2002 10:18:29 -0500
-Received: from trained-monkey.org ([209.217.122.11]:28173 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S289139AbSAQPS0>; Thu, 17 Jan 2002 10:18:26 -0500
-From: Jes Sorensen <jes@wildopensource.com>
+	id <S289136AbSAQPSS>; Thu, 17 Jan 2002 10:18:18 -0500
+Received: from windsormachine.com ([206.48.122.28]:266 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S289139AbSAQPSK>; Thu, 17 Jan 2002 10:18:10 -0500
+Date: Thu, 17 Jan 2002 10:17:17 -0500 (EST)
+From: Mike Dresser <mdresser@windsormachine.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: CML2 <linux-kernel@vger.kernel.org>
+Subject: Re: CML2-2.1.6
+In-Reply-To: <20020117094920.A9419@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0201171016180.21768-100000@router.windsormachine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15430.60214.968250.153045@trained-monkey.org>
-Date: Thu, 17 Jan 2002 10:18:14 -0500
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-        <torvalds@transmeta.com>, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [patch] VAIO irq assignment fix
-In-Reply-To: <Pine.LNX.4.33.0201171556060.19753-100000@chaos.tp1.ruhr-uni-bochum.de>
-In-Reply-To: <15430.55835.417188.484427@trained-monkey.org>
-	<Pine.LNX.4.33.0201171556060.19753-100000@chaos.tp1.ruhr-uni-bochum.de>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Kai" == Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> writes:
+On Thu, 17 Jan 2002, Eric S. Raymond wrote:
 
-Kai> On Thu, 17 Jan 2002, Jes Sorensen wrote:
->>  The problem is that the interrupt is not set in the PIRQ table so if
->> we don't shoehorn it in, the interrupt source wont be found.
+> Checkpoint release before I go to an SF convention for four days, without
+> net access grrrr....ConFusion here I come!
+> --
+Bring yourself a copy of netstumbler, and a laptop!
 
-Kai> Is the interrupt in the ACPI PCI IRQ routing table? Basic support
-Kai> for that is in the latest ACPI patch, 20011218
-Kai> (www.sf.net/projects/acpi), it'll print the _PRT entries during
-Kai> boot. However, the info isn't used to actually setup the routing,
-Kai> so it won't help your problem. I have a patch which uses the ACPI
-Kai> table for setting up IRQ routing, that should make sure system work
-Kai> properly.
+mike
 
-I think it's in the ACPI table since a certain M$ OS finds the interrupt
-source. As I mentioned to Alan, I tried the latest ACPI patch but as you
-say, nothing is done with the information. I haven't tried enabling
-ACPI_DEBUG but that sounds to be a next step.
-
-I'd be interested in trying out your patch as well.
-
-Cheers,
-Jes

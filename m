@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbUJ0P5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbUJ0QCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262496AbUJ0P5X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 11:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbUJ0P5W
+	id S262489AbUJ0QCo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbUJ0QCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 11:57:22 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:32661 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262468AbUJ0P42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 11:56:28 -0400
-Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
-From: Lee Revell <rlrevell@joe-job.com>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <417FB7BA.9050005@grupopie.com>
-References: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com>
-	 <417FB7BA.9050005@grupopie.com>
-Content-Type: text/plain
-Date: Wed, 27 Oct 2004 11:56:27 -0400
-Message-Id: <1098892587.8313.5.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Wed, 27 Oct 2004 12:02:44 -0400
+Received: from jade.aracnet.com ([216.99.193.136]:49589 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S262489AbUJ0QCL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:02:11 -0400
+Date: Wed, 27 Oct 2004 09:01:24 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: news about IDE PIO HIGHMEM bug (was: Re: 2.6.9-mm1)
+Message-ID: <1246750000.1098892883@[10.10.2.4]>
+In-Reply-To: <1246230000.1098892359@[10.10.2.4]>
+References: <58cb370e041027074676750027@mail.gmail.com> <417FBB6D.90401@pobox.com> <1246230000.1098892359@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-27 at 15:59 +0100, Paulo Marques wrote:
-> I am one of the members of the robotic soccer team from the University 
-> of Oporto, and a couple of months ago we were looking for new 
-> motherboards for our robots, because we are starting to need new 
-> hardware (on-board lan, usb2.0, etc.).
-> 
-> We really don't need excepcional performance, but we really, really need 
-> low power consumption, so lowering the clock on a standard mainboard 
-> seemed to be the best cost/performance scenario.
-> 
-> Could this driver be used to keep a standard p4 processor at say 25% 
-> clock speed at all times?
-> 
+--"Martin J. Bligh" <mbligh@aracnet.com> wrote (on Wednesday, October 27, 2004 08:52:39 -0700):
 
-Why don't you try the VIA EPIA mini-ITX boards?  These are designed for
-low power applications like yours.  I am running the M-6000 which has a
-fanless 600Mhz C3 processor, the newer fanless models run at 1Ghz.  And,
-on top of that they support speed scaling so you can slow it down even
-more.
+>> Bartlomiej Zolnierkiewicz wrote:
+>>> We have stuct page of the first page and a offset.
+>>> We need to obtain struct page of the current page and map it.
+>> 
+>> 
+>> Opening this question to a wider audience.
+>> 
+>> struct scatterlist gives us struct page*, and an offset+length pair. The struct page* is the _starting_ page of a potentially multi-page run of data.
+>> 
+>> The question:  how does one get struct page* for the second, and successive pages in a known-contiguous multi-page run, if one only knows the first page?
+> 
+> If it's a higher order allocation, just page+1 should be safe. If it just
+> happens to be contig, it might cross a discontig boundary, and not obey
+> that rule. Very unlikely, but possible.
 
-Lee 
+To repeat what I said in IRC ... ;-)
+
+Actually, you could check this with the pfns being the same when >> MAX_ORDER-1.
+We should be aligned on a MAX_ORDER boundary, I think.
+
+However, pfn_to_page(page_to_pfn(page) + 1) might be safer. If rather slower.
+
+M.
 

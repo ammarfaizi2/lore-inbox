@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262606AbUEFPZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbUEFPZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262606AbUEFPZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 11:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUEFPZ5
+	id S262580AbUEFPZt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 11:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUEFPZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 11:25:57 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:42888
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262606AbUEFPZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 11:25:50 -0400
-From: Rob Landley <rob@landley.net>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: uspend to Disk - Kernel 2.6.4 vs. r50p
-Date: Tue, 4 May 2004 20:18:23 -0500
-User-Agent: KMail/1.5.4
-References: <20040429064115.9A8E814D@damned.travellingkiwi.com> <20040503123150.GA1188@openzaurus.ucw.cz>
-In-Reply-To: <20040503123150.GA1188@openzaurus.ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 6 May 2004 11:25:48 -0400
+Received: from blacksun.leftmind.net ([204.225.93.62]:47378 "HELO
+	blacksun.leftmind.net") by vger.kernel.org with SMTP
+	id S262580AbUEFPZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 11:25:43 -0400
+Date: Thu, 6 May 2004 11:25:42 -0400
+From: Anthony de Boer <linux-kernel@lists.leftmind.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: What does tainting actually mean?
+Message-ID: <20040506112542.S15845@leftmind.net>
+References: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405042018.23043.rob@landley.net>
+In-Reply-To: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au>; from ncunningham@linuxmail.org on Wed, Apr 28, 2004 at 02:00:35PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 May 2004 07:31, Pavel Machek wrote:
-> Hi!
->
-> > echo -n disk > /proc/power/state
->
-> Use echo 4 > /proc/acpi/sleep, and vanilla kernels.
->
-> 				Pavel
+Nigel Cunningham wrote:
+> What does tainting actually mean?
 
-I'm one of the people for whom Patrick's suspend worked and yours didn't.  Now 
-I've been busy with other things for a couple months (Penguicon 2.0 went 
-quite well, by the way), and there's talk of yanking Patrick's suspend code 
-from the kernel.  Right, so I've got to deal with this.  I can't say I'm 
-thrilled, but I DO want to continue to be able to suspend my laptop.
+It seems to schitzophrenically try to mean two things: on the one hand,
+it tries to flag GPL purity, and on the other hand it tries to indicate
+whether or not the module's source code is readily available to someone
+wanting to debug that kernel.
 
-What kind of debug info do I need to report to get your suspend code fixed, 
-and who do I need to report it to?
+This was brought home to me awhile ago; up through at least 2.4.18,
+net/ipv4/netfilter/ipchains_core.c said MODULE_LICENSE("BSD without
+advertisement clause"); and tainted the kernel with code in its own
+tarball.
 
-I just tested 2.6.5, which went "boing" trying to suspend with some kind of 
-debug message that gave me a hex number (not a panic, but I didn't have a pen 
-handy, I can try again and write it down if you like.  Anything else I should 
-do?)
+One must ask if BSD code for which you have the source in hand is an evil
+thing or not.  Or how about something that's GPL but for which you can't
+readily lay hands on the source?  The GPL predates the Web, and doesn't
+say you have to be able to Google for source; you might still have to pay
+the author the cost of shipping you a 9-track tape.
 
-I asked Nigel a few months ago, and he pointed me to an enormous flag day 
-patch that will probably be integrated into the kernel when hell freezes 
-over.  (I have no idea why it's so intrusive, by the way.  Isn't half the 
-point of sysfs and the new 2.6 device infrastructure that finding all the 
-devices that need to be shut up doesn't require the kind of insanity doing it 
-under 2.4 did?
+Proposed: a MODULE_SOURCE string, containing either the path relative to
+the kernel directory, or a URL at which source can be found, and you can
+decline to debug a kernel if it has modules for which MODULE_SOURCE isn't
+given or doesn't lead you to the code.
 
-I read the docs and read through your code a bit, and every screenful or so it 
-says "this code is guaranteed to eat your data if you look at it funny".  
-I've been using Patrick's suspend code for something like eight months now, 
-and it never ate any of my data.  Failed to resume a few times, but no worse 
-than sync followed by yanking the power cord, fsck did its thing and life 
-went on.  (Yes, I back up regularly.  But I've gotten the distinct impression 
-that you have no faith whatsoever in your own work, and reinstalling and 
-restoring from backups is a real pain, especially when you're on the road.)
-
-Sigh.  I _really_ don't have time for this right now.  I wonder if it would be 
-possible to just send Patrick some money?
-
-Rob
-
-
+-- 
+Anthony de Boer

@@ -1,50 +1,138 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317333AbSFCJiH>; Mon, 3 Jun 2002 05:38:07 -0400
+	id <S317340AbSFCJll>; Mon, 3 Jun 2002 05:41:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317339AbSFCJiG>; Mon, 3 Jun 2002 05:38:06 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:62851 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317333AbSFCJiF>;
-	Mon, 3 Jun 2002 05:38:05 -0400
-Date: Mon, 3 Jun 2002 11:37:53 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-        Anthony Spinillo <tspinillo@linuxmail.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: INTEL 845G Chipset IDE Quandry
-Message-ID: <20020603113753.B13637@ucw.cz>
-In-Reply-To: <20020602101628.4230.qmail@linuxmail.org> <3CFA73C3.9010902@evision-ventures.com> <20020602233043.A11698@ucw.cz> <3CFAF4A0.5010702@evision-ventures.com> <20020603104747.C13158@ucw.cz> <3CFB231E.7010806@evision-ventures.com>
+	id <S317341AbSFCJlk>; Mon, 3 Jun 2002 05:41:40 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:30892 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S317340AbSFCJli>;
+	Mon, 3 Jun 2002 05:41:38 -0400
+Date: Mon, 3 Jun 2002 11:41:21 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/16] unplugging fix
+Message-ID: <20020603094121.GB23527@suse.de>
+In-Reply-To: <3CF88852.BCFBF774@zip.com.au> <3CF9CB92.A6BF921B@zip.com.au> <20020602081204.GD820@suse.de> <20020603083937.GA23527@suse.de> <3CFB3383.44A6CC96@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 03, 2002 at 10:04:46AM +0200, Martin Dalecki wrote:
+On Mon, Jun 03 2002, Andrew Morton wrote:
+> Jens Axboe wrote:
+> > 
+> > ...
+> > Does this work? I can't poke holes in it, but then again...
+> 
+> It survives a 30-minute test.  It would not have done that
+> before...
 
-> Well I don't know that much about the ever changing PCI/ACPI support
-> in kernel - the only thing I could imagine
-> would be that we sanitize the handling of it at the generic
-> "chipset quirk handling" there. Right during the "bios table
-> scan" time... (I mean drivers/pci/quirks.c)
-> 
-> The following function there looks like the right tool for this
-> purpose:
-> 
-> static void __init quirk_io_region(struct pci_dev *dev, unsigned region, 
-> unsigned size, int nr)
-> 
-> Well after looking closer I'm convinced that this is
-> the right place... will you have a look at this plase...
-> I'm more then busy enbough with other things right now.
+Excellent.
 
-The PCI code under normal circumstances can fix the allocation problems
-by itself (without any special quirks code), but in this case it simply
-fails. Do you still have the original e-mail with the dmesg? I'd like to
-look at that again ...
+> Are you sure blk_stop_queue() and blk_run_queues() can't
+> race against each other?  Seems there's a window where
+> they could both do a list_del().
+
+Hmm I'd prefer to just use the safe variant and not rely on the plugged
+flag when the lock isn't held, so here's my final version with just that
+change. Agree?
+
+--- /opt/kernel/linux-2.5.20/drivers/block/ll_rw_blk.c	2002-06-03 10:35:35.000000000 +0200
++++ linux/drivers/block/ll_rw_blk.c	2002-06-03 11:40:35.000000000 +0200
+@@ -821,7 +821,7 @@
+ 	/*
+ 	 * not plugged
+ 	 */
+-	if (!__test_and_clear_bit(QUEUE_FLAG_PLUGGED, &q->queue_flags))
++	if (!test_and_clear_bit(QUEUE_FLAG_PLUGGED, &q->queue_flags))
+ 		return;
+ 
+ 	if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags))
+@@ -893,6 +893,20 @@
+  **/
+ void blk_stop_queue(request_queue_t *q)
+ {
++	unsigned long flags;
++
++	spin_lock_irqsave(q->queue_lock, flags);
++
++	/*
++	 * remove from the plugged list, queue must not be called.
++	 */
++	if (test_and_clear_bit(QUEUE_FLAG_PLUGGED, &q->queue_flags)) {
++		spin_lock(&blk_plug_lock);
++		list_del(&q->plug_list);
++		spin_unlock(&blk_plug_lock);
++	}
++
++	spin_unlock_irqrestore(q->queue_lock, flags);
+ 	set_bit(QUEUE_FLAG_STOPPED, &q->queue_flags);
+ }
+ 
+@@ -904,45 +918,36 @@
+  *   are currently stopped are ignored. This is equivalent to the older
+  *   tq_disk task queue run.
+  **/
++#define blk_plug_entry(entry) list_entry((entry), request_queue_t, plug_list)
+ void blk_run_queues(void)
+ {
+-	struct list_head *n, *tmp, local_plug_list;
+-	unsigned long flags;
++	struct list_head local_plug_list;
+ 
+ 	INIT_LIST_HEAD(&local_plug_list);
+ 
++	spin_lock_irq(&blk_plug_lock);
++
+ 	/*
+ 	 * this will happen fairly often
+ 	 */
+-	spin_lock_irqsave(&blk_plug_lock, flags);
+ 	if (list_empty(&blk_plug_list)) {
+-		spin_unlock_irqrestore(&blk_plug_lock, flags);
++		spin_unlock_irq(&blk_plug_lock);
+ 		return;
+ 	}
+ 
+ 	list_splice(&blk_plug_list, &local_plug_list);
+ 	INIT_LIST_HEAD(&blk_plug_list);
+-	spin_unlock_irqrestore(&blk_plug_lock, flags);
++	spin_unlock_irq(&blk_plug_lock);
++	
++	while (!list_empty(&local_plug_list)) {
++		request_queue_t *q = blk_plug_entry(local_plug_list.next);
+ 
+-	/*
+-	 * local_plug_list is now a private copy we can traverse lockless
+-	 */
+-	list_for_each_safe(n, tmp, &local_plug_list) {
+-		request_queue_t *q = list_entry(n, request_queue_t, plug_list);
+-
+-		if (!test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
+-			list_del(&q->plug_list);
+-			generic_unplug_device(q);
+-		}
+-	}
++		BUG_ON(test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags));
+ 
+-	/*
+-	 * add any remaining queue back to plug list
+-	 */
+-	if (!list_empty(&local_plug_list)) {
+-		spin_lock_irqsave(&blk_plug_lock, flags);
+-		list_splice(&local_plug_list, &blk_plug_list);
+-		spin_unlock_irqrestore(&blk_plug_lock, flags);
++		spin_lock_irq(q->queue_lock);
++		list_del(&q->plug_list);
++		__generic_unplug_device(q);
++		spin_unlock_irq(q->queue_lock);
+ 	}
+ }
+ 
+
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Jens Axboe
+

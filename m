@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314598AbSEFRS7>; Mon, 6 May 2002 13:18:59 -0400
+	id <S314600AbSEFRVD>; Mon, 6 May 2002 13:21:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314600AbSEFRS6>; Mon, 6 May 2002 13:18:58 -0400
-Received: from relay1.pair.com ([209.68.1.20]:11782 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S314598AbSEFRS6>;
-	Mon, 6 May 2002 13:18:58 -0400
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3CD6BBB3.CEB0BC8@kegel.com>
-Date: Mon, 06 May 2002 10:21:55 -0700
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: "David S. Miller" <davem@redhat.com>, khttpd-users@alt.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Tux in main kernel tree? (was khttpd rotten?)
-In-Reply-To: <Pine.LNX.4.44.0205061608300.26867-100000@mustard.heime.net>
+	id <S314601AbSEFRVC>; Mon, 6 May 2002 13:21:02 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:20728
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S314600AbSEFRVB>; Mon, 6 May 2002 13:21:01 -0400
+Date: Mon, 6 May 2002 10:20:47 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ext3 errors with 2.4.18
+Message-ID: <20020506172047.GL2392@matchmail.com>
+Mail-Followup-To: "Udo A. Steinberg" <reality@delusion.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CD6AE7A.FBEB5726@delusion.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
-> Perhaps it's about time to talk about pulling Tux into the main kernel
-> tree, as khttpd once again has proved ususable.
+On Mon, May 06, 2002 at 06:25:30PM +0200, Udo A. Steinberg wrote:
+> 
+> Hi,
+> 
+> With Linux 2.4.18, I'm getting multiple of the following error:
+> 
+> EXT3-fs error (device ide0(3,2)): ext3_readdir: bad entry in directory #1966094:
+> rec_len % 4 != 0 - offset=0, inode=3180611420, rec_len=53134, name_len=138
+> 
+> Can someone decipher this?
 
-Hang on a minute -- I posted a patch that makes khttpd usable
-again, I think...
-- Dan
+Can you post the surrounding lines from dmesg?  Many times there is another
+error that tells much more than the one you just posted...

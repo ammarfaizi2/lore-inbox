@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274252AbRISXD3>; Wed, 19 Sep 2001 19:03:29 -0400
+	id <S274251AbRISXE3>; Wed, 19 Sep 2001 19:04:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274251AbRISXDV>; Wed, 19 Sep 2001 19:03:21 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:14832 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274252AbRISXDL>;
-	Wed, 19 Sep 2001 19:03:11 -0400
-Date: Thu, 20 Sep 2001 01:03:38 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010920010338.B720@athlon.random>
-In-Reply-To: <20010919225505.P720@athlon.random> <Pine.GSO.4.21.0109191655560.901-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0109191655560.901-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Sep 19, 2001 at 05:17:23PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274253AbRISXEN>; Wed, 19 Sep 2001 19:04:13 -0400
+Received: from puma.inf.ufrgs.br ([143.54.11.5]:23559 "EHLO inf.ufrgs.br")
+	by vger.kernel.org with ESMTP id <S274251AbRISXDu>;
+	Wed, 19 Sep 2001 19:03:50 -0400
+Date: Wed, 19 Sep 2001 20:04:56 -0300 (EST)
+From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re[2]: [PATCH] VIA bug stomper. Pls apply.
+In-Reply-To: <007001c14150$adcd0c10$0300a8c0@methusela>
+Message-ID: <Pine.GSO.4.21.0109192003270.1374-100000@jacui>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 05:17:23PM -0400, Alexander Viro wrote:
-> fsync_dev() is not needed for raw devices or swap.  It _is_ needed for
-> file access.
+On Wed, 19 Sep 2001, Aaron Tiensivu wrote:
 
-then what's the difference between raw devices and swap.
+> > I've been busy working on other things, and being ill. I've not yet
+> pursued
+> > it with them
+> 
+> A minor nit I have with the patch is that it printk's out "Stomping the
+> Athlon bug", which in actuality is more likely a VIA bug because the
+> symptoms don't show up in other Althon based chipsets..
 
-And there's reason we should we avoid the fsync_dev with the raw devices
-and swap.
+Anyone tried changing the CPU of a oopsing system to check if it's the CPU
+or the mobo? I have no other athlon/duron or motherboard to try here.
 
-I just found it an useless complication.
+--
+Roberto Jung Drebes <drebes@inf.ufrgs.br>
+Porto Alegre, RS - Brasil
+http://www.inf.ufrgs.br/~drebes/
 
-Andrea

@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265215AbUGVRJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266803AbUGVRYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265215AbUGVRJB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 13:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266182AbUGVRJB
+	id S266803AbUGVRYc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 13:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266831AbUGVRYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 13:09:01 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:19960 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S265215AbUGVRI7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 13:08:59 -0400
-From: Bernd Schubert <bernd-schubert@web.de>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: 2.6.7 oops, sk98lin related?
-Date: Thu, 22 Jul 2004 19:08:38 +0200
-User-Agent: KMail/1.6.2
-References: <200407221101.16388.bernd-schubert@web.de> <20040722150314.GB13195@infradead.org>
-In-Reply-To: <20040722150314.GB13195@infradead.org>
-MIME-Version: 1.0
+	Thu, 22 Jul 2004 13:24:32 -0400
+Received: from ss1000.ms.mff.cuni.cz ([195.113.20.8]:4490 "EHLO
+	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266803AbUGVRYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 13:24:31 -0400
+Date: Thu, 22 Jul 2004 19:24:28 +0200
+From: Rudo Thomas <rudo@matfyz.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: voluntary-preempt I0: sluggish feel
+Message-ID: <20040722172428.GA5632@ss1000.ms.mff.cuni.cz>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+References: <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721183010.GA2206@yoda.timesys> <20040721210051.GA2744@yoda.timesys> <20040721211826.GB30871@elte.hu> <20040721223749.GA2863@yoda.timesys> <20040722100657.GA14909@elte.hu> <20040722160055.GA4837@ss1000.ms.mff.cuni.cz> <20040722161941.GA23972@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200407221908.41468.bernd-schubert@web.de>
+In-Reply-To: <20040722161941.GA23972@elte.hu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > is this an sk98lin oops, maybe related to your patches or is it a
-> > completely different problem?
->
-> I don't think there's skge patches from me in 2.6.7 yet, but certainly not
-> in that area ;-)
+> thx for the report - i fixed this in the -I0 patch:
+> 
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-I0
+> 
+> (the problem only occured when CONFIG_PREEMPT was enabled.)
 
-Well just remember, on 20040704 you send me a 'huge patch' which should also 
-fix our module unload problems.
+Hello again.
 
->
-> This is just a big memory allocation failing, not an oops anyway.
+Indeed, no more `scheduling while atomic'.
 
-Unfortunality I began to capture via serial console only a few hour after the 
-server crashed. As there is also nothing in the logs, I don't have the 
-beginning trace of the problems.
+OTOH, now the system feels terribly slow when voluntary_preemption is set to 2.
+Setting it to 0 or 1 makes the sluggish feel go away.
 
-Since there is something about sk98 in almost all traces, I thought it might 
-be a sk98lin problem.
-
-Anyway, do you have an idea what might have cause this memory allocation 
-problem?
-
-
-Thanks,
-	Bernd
-
-
--- 
-Bernd Schubert
-Physikalisch Chemisches Institut / Theoretische Chemie
-Universität Heidelberg
-INF 229
-69120 Heidelberg
-e-mail: bernd.schubert@pci.uni-heidelberg.de
+Rudo.

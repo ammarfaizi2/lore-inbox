@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267200AbSKPB5g>; Fri, 15 Nov 2002 20:57:36 -0500
+	id <S267203AbSKPCK3>; Fri, 15 Nov 2002 21:10:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267202AbSKPB5g>; Fri, 15 Nov 2002 20:57:36 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:11914 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267200AbSKPB5f>;
-	Fri, 15 Nov 2002 20:57:35 -0500
-Date: Fri, 15 Nov 2002 18:03:46 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Arun Sharma <arun.sharma@intel.com>
-cc: <linux-kernel@vger.kernel.org>
+	id <S267204AbSKPCK3>; Fri, 15 Nov 2002 21:10:29 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:47536 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267203AbSKPCK2>; Fri, 15 Nov 2002 21:10:28 -0500
 Subject: Re: Reserving "special" port numbers in the kernel ?
-In-Reply-To: <u65uyb82a.fsf@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.33L2.0211151802520.6746-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arun Sharma <arun.sharma@intel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <uel9mbcyi.fsf@unix-os.sc.intel.com>
+References: <uel9mbcyi.fsf@unix-os.sc.intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 16 Nov 2002 02:43:58 +0000
+Message-Id: <1037414638.21937.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Nov 2002, Arun Sharma wrote:
+On Sat, 2002-11-16 at 00:00, Arun Sharma wrote:
+> One of the Intel server platforms has a magic port number (623) that
+> it uses for remote server management. However, neither the kernel nor
+> glibc are aware of this special port.
 
-| rddunlap@osdl.org ("Randy.Dunlap") writes:
-|
-| > Look in arch/i386/kernel/setup.c (in 2.4.19):
-| >
-| > There is this array:
-| >   struct resource standard_io_resources[] = ...
-| > that you could add to; you could even make the addition a CONFIG_ option.
-|
-| That's reserving I/O ports. Are you suggesting that we create an
-| analogous array for IP ports ?
+I can't find it in the IETF standards documents either.
 
-Nope.  Sorry, I read too much into "port".  :(
-or maybe too much port.
+> As a result, when someone requests a privileged port using
+> bindresvport(3), they may get this port back and bad things happen.
 
--- 
-~Randy
-  "I read part of it all the way through." -- Samuel Goldwyn
+They have at least as much right to it as you do
+
+> Has anyone run into this or similar problems before ? Thoughts on
+> what's the right place to handle this issue ?
+
+Run your remote management daemon from xinetd, it'll then get the port
+nice and early in the system runtime.
 

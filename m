@@ -1,300 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVARE3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVAREay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVARE3y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 23:29:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVARE3y
+	id S261228AbVAREay (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 23:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVAREay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 23:29:54 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:6802 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261226AbVARE3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 23:29:15 -0500
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Chris Wedgwood <cw@f00f.org>, torvalds@osdl.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       Ia64 Linux <linux-ia64@vger.kernel.org>
-Date: Tue, 18 Jan 2005 15:28:58 +1100
-Subject: Re: Horrible regression with -CURRENT from "Don't busy-lock-loop in preemptable spinlocks" patch
-Message-ID: <20050118042858.GD14709@cse.unsw.EDU.AU>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Andrew Morton <akpm@osdl.org>, Chris Wedgwood <cw@f00f.org>,
-	torvalds@osdl.org, benh@kernel.crashing.org,
-	linux-kernel@vger.kernel.org,
-	Ia64 Linux <linux-ia64@vger.kernel.org>
-References: <20050117055044.GA3514@taniwha.stupidest.org> <20050116230922.7274f9a2.akpm@osdl.org> <20050117143301.GA10341@elte.hu> <20050118014752.GA14709@cse.unsw.EDU.AU>
+	Mon, 17 Jan 2005 23:30:54 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:12641 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261228AbVAREab (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 23:30:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=mBb/R6dLGipDfr8wxi2QAgQjxYhZarWoQ+TUdqFDYzxXvfvz77lQrQFNHsOeZcMi+l9NVfMfj9PWxa+TAX88u1AwyZRD2pI65cgT7+mE79248tjsG5gVLSIyl1kioYtyXxFrW/dci3MT9FlJU+g9pylwv+xStGPPKIG/w95knUA=
+Message-ID: <727e501505011720303ba4f2cd@mail.gmail.com>
+Date: Mon, 17 Jan 2005 22:30:30 -0600
+From: Aaron Cohen <remleduff@gmail.com>
+Reply-To: Aaron Cohen <remleduff@gmail.com>
+To: karim@opersys.com
+Subject: Re: 2.6.11-rc1-mm1
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>
+In-Reply-To: <41EC8AA2.1030000@opersys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050118014752.GA14709@cse.unsw.EDU.AU>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050114002352.5a038710.akpm@osdl.org>
+	 <41E899AC.3070705@opersys.com>
+	 <Pine.LNX.4.61.0501160245180.30794@scrub.home>
+	 <41EA0307.6020807@opersys.com>
+	 <Pine.LNX.4.61.0501161648310.30794@scrub.home>
+	 <41EADA11.70403@opersys.com>
+	 <Pine.LNX.4.61.0501171403490.30794@scrub.home>
+	 <41EC2DCA.50904@opersys.com>
+	 <Pine.LNX.4.61.0501172323310.30794@scrub.home>
+	 <41EC8AA2.1030000@opersys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+   I'm very much a newbie to all of this, but I'm finding this
+discussion fairly interesting.
 
-On Tue, 18 Jan 2005, Darren Williams wrote:
+  I've got a quick question and I just want to be clear that it
+doesn't have a political agenda behind it.
+  
+Here goes, why can't LTT and/or relayfs, work similar to the way
+syslog does and just fill a buffer (aka ring-buffer or whatever is
+appropriate), while a userspace daemon of some kind periodically reads
+that buffer and massages it.  I'm probably being naive but if the
+difficulty is with huge several hundred-gig files, the daemon if it
+monitors the buffer often enough could stuff it into a database or
+whatever high-performance format you need.
 
-> Hi Ingo
+ It also seems to me that Linus' nascent "splice and tee" work would
+be really useful for something like this to avoid a lot of unnecessary
+copying by the userspace daemon.
+
+
+On Mon, 17 Jan 2005 23:03:46 -0500, Karim Yaghmour <karim@opersys.com> wrote:
 > 
-> On Mon, 17 Jan 2005, Ingo Molnar wrote:
+> Hello Roman,
 > 
-> > 
-> > * Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> > > > +BUILD_LOCK_OPS(spin, spinlock_t, spin_is_locked);
-> > > > +BUILD_LOCK_OPS(read, rwlock_t, rwlock_is_locked);
-> > > > +BUILD_LOCK_OPS(write, rwlock_t, spin_is_locked);
-> > > 
-> > > If you replace the last line with
-> > > 
-> > > 	BUILD_LOCK_OPS(write, rwlock_t, rwlock_is_locked);
-> > > 
-> > > does it help?
-> > 
-> > this is not enough - the proper solution should be the patch below,
-> > which i sent earlier today as a reply to Paul Mackerras' comments.
-> > 
-> > 	Ingo
-> > 
-> > --
-> > the first fix is that there was no compiler warning on x86 because it
-> > uses macros - i fixed this by changing the spinlock field to be
-> > '->slock'. (we could also use inline functions to get type protection, i
-> > chose this solution because it was the easiest to do.)
-> > 
-> > the second fix is to split rwlock_is_locked() into two functions:
-> > 
-> >  +/**
-> >  + * read_is_locked - would read_trylock() fail?
-> >  + * @lock: the rwlock in question.
-> >  + */
-> >  +#define read_is_locked(x) (atomic_read((atomic_t *)&(x)->lock) <= 0)
-> >  +
-> >  +/**
-> >  + * write_is_locked - would write_trylock() fail?
-> >  + * @lock: the rwlock in question.
-> >  + */
-> >  +#define write_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
-> > 
-> > this canonical naming of them also enabled the elimination of the newly
-> > added 'is_locked_fn' argument to the BUILD_LOCK_OPS macro.
-> > 
-> > the third change was to change the other user of rwlock_is_locked(), and
-> > to put a migration helper there: architectures that dont have
-> > read/write_is_locked defined yet will get a #warning message but the
-> > build will succeed. (except if PREEMPT is enabled - there we really
-> > need.)
-> > 
-> > compile and boot-tested on x86, on SMP and UP, PREEMPT and !PREEMPT. 
-> > Non-x86 architectures should work fine, except PREEMPT+SMP builds which
-> > will need the read_is_locked()/write_is_locked() definitions.
-> > !PREEMPT+SMP builds will work fine and will produce a #warning.
-> > 
-> > 	Ingo
-> This may fix some archs however ia64 is still broken, with:
+> Roman Zippel wrote:
+> > Why is so important that it's at the start of the buffer? What's wrong
+> > with a special event _near_ the start of a buffer?
+> [snip]
+> > What gives you the idea, that you can't do this with what I proposed?
+> > You can still seek freely within the data at buffer boundaries and you
+> > only have to search a little into the buffer to find the delimiter. Events
+> > are not completely at random, so that the little reordering can be done at
+> > runtime. Sorry, but I don't get what kind of unsolvable problems you see
+> > here.
 > 
-> kernel/built-in.o(.spinlock.text+0x8b2): In function `sched_init_smp':
-> kernel/sched.c:650: undefined reference to `read_is_locked'
-> kernel/built-in.o(.spinlock.text+0xa52): In function `sched_init':
-> kernel/sched.c:687: undefined reference to `read_is_locked'
-> kernel/built-in.o(.spinlock.text+0xcb2): In function `schedule':
-> include/asm/bitops.h:279: undefined reference to `write_is_locked'
-> kernel/built-in.o(.spinlock.text+0xe72): In function `schedule':
-> include/linux/sched.h:1122: undefined reference to `write_is_locked'
-> make: *** [.tmp_vmlinux1] Error 1
+> Actually I just checked the code and this is a non-issue. The callback
+> can only be called when the condition is met, which itself happens only
+> on buffer switch, which itself only happens when we try to reserve
+> something bigger than what is left in the buffer. IOW, there is no need
+> for reserving anything. Here's what the code does:
+>         if (!finalizing) {
+>                 bytes_written = rchan->callbacks->buffer_start ...
+>                 cur_write_pos(rchan) += bytes_written;
+>         }
 > 
-> include/asm-ia64/spinflock.h needs to define:
->  read_is_locked(x)
->  write_is_locked(x)
+> With that said, I hope we've agreed that we'll have a callback for
+> letting relayfs clients know that they need to write the begining of
+> the buffer event. There won't be any associated reserve. Conversly,
+> I hope it is not too much to ask to have an end-of-buffer callback.
 > 
-> someone who knows the locking code will need to fill in
-> the blanks.
+> > Wrong question. What compromises can be made on both sides to create a
+> > common simple framework? Your unwillingness to compromise a little on the
+> > ltt requirements really amazes me.
 > 
-
-On top of Ingo's patch I attempt a solution that failed:
-include/asm-ia64/spinlock.h: 1.23 1.24 dsw 05/01/18 10:22:35 (modified, needs delta)
-
-@@ -126,7 +126,8 @@
- #define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0 }
- 
- #define rwlock_init(x)		do { *(x) = RW_LOCK_UNLOCKED; } while(0)
--#define rwlock_is_locked(x)	(*(volatile int *) (x) != 0)
-+#define read_is_locked(x)	(*(volatile int *) (x) > 0)
-+#define write_is_locked(x)	(*(volatile int *) (x) < 0)
- 
- #define _raw_read_lock(rw)								\
- do {											
-
-However this breaks on the simulator with:
-
-Freeing unused kernel memory: 192kB freed
-INIT: version 2.78 booting
-kernel BUG at kernel/exit.c:870
-
-
-> Darren
+> Roman, of all people I've been more than happy to change my stuff following
+> your recommendations. Do I have to list how far down relayfs has been
+> stripped down? I mean, we got rid of the lockless scheme (which was
+> one of ltt's explicit requirements), we got rid of the read/write capabilities
+> for user-space, etc. And we are now only left with the bare-bones API:
+> rchan* relay_open(channel_path, bufsize, nbufs, flags, *callbacks);
+> int    relay_close(*rchan);
+> int    relay_reset(*rchan);
+> int    relay_write(*rchan, *data_ptr, count, **wrote-pos);
 > 
-> > 
-> > Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> > 
-> > --- linux/kernel/spinlock.c.orig
-> > +++ linux/kernel/spinlock.c
-> > @@ -173,7 +173,7 @@ EXPORT_SYMBOL(_write_lock);
-> >   * (We do this in a function because inlining it would be excessive.)
-> >   */
-> >  
-> > -#define BUILD_LOCK_OPS(op, locktype, is_locked_fn)			\
-> > +#define BUILD_LOCK_OPS(op, locktype)					\
-> >  void __lockfunc _##op##_lock(locktype *lock)				\
-> >  {									\
-> >  	preempt_disable();						\
-> > @@ -183,7 +183,7 @@ void __lockfunc _##op##_lock(locktype *l
-> >  		preempt_enable();					\
-> >  		if (!(lock)->break_lock)				\
-> >  			(lock)->break_lock = 1;				\
-> > -		while (is_locked_fn(lock) && (lock)->break_lock)	\
-> > +		while (op##_is_locked(lock) && (lock)->break_lock)	\
-> >  			cpu_relax();					\
-> >  		preempt_disable();					\
-> >  	}								\
-> > @@ -205,7 +205,7 @@ unsigned long __lockfunc _##op##_lock_ir
-> >  		preempt_enable();					\
-> >  		if (!(lock)->break_lock)				\
-> >  			(lock)->break_lock = 1;				\
-> > -		while (is_locked_fn(lock) && (lock)->break_lock)	\
-> > +		while (op##_is_locked(lock) && (lock)->break_lock)	\
-> >  			cpu_relax();					\
-> >  		preempt_disable();					\
-> >  	}								\
-> > @@ -246,9 +246,9 @@ EXPORT_SYMBOL(_##op##_lock_bh)
-> >   *         _[spin|read|write]_lock_irqsave()
-> >   *         _[spin|read|write]_lock_bh()
-> >   */
-> > -BUILD_LOCK_OPS(spin, spinlock_t, spin_is_locked);
-> > -BUILD_LOCK_OPS(read, rwlock_t, rwlock_is_locked);
-> > -BUILD_LOCK_OPS(write, rwlock_t, spin_is_locked);
-> > +BUILD_LOCK_OPS(spin, spinlock_t);
-> > +BUILD_LOCK_OPS(read, rwlock_t);
-> > +BUILD_LOCK_OPS(write, rwlock_t);
-> >  
-> >  #endif /* CONFIG_PREEMPT */
-> >  
-> > --- linux/include/asm-i386/spinlock.h.orig
-> > +++ linux/include/asm-i386/spinlock.h
-> > @@ -15,7 +15,7 @@ asmlinkage int printk(const char * fmt, 
-> >   */
-> >  
-> >  typedef struct {
-> > -	volatile unsigned int lock;
-> > +	volatile unsigned int slock;
-> >  #ifdef CONFIG_DEBUG_SPINLOCK
-> >  	unsigned magic;
-> >  #endif
-> > @@ -43,7 +43,7 @@ typedef struct {
-> >   * We make no fairness assumptions. They have a cost.
-> >   */
-> >  
-> > -#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
-> > +#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->slock) <= 0)
-> >  #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
-> >  
-> >  #define spin_lock_string \
-> > @@ -83,7 +83,7 @@ typedef struct {
-> >  
-> >  #define spin_unlock_string \
-> >  	"movb $1,%0" \
-> > -		:"=m" (lock->lock) : : "memory"
-> > +		:"=m" (lock->slock) : : "memory"
-> >  
-> >  
-> >  static inline void _raw_spin_unlock(spinlock_t *lock)
-> > @@ -101,7 +101,7 @@ static inline void _raw_spin_unlock(spin
-> >  
-> >  #define spin_unlock_string \
-> >  	"xchgb %b0, %1" \
-> > -		:"=q" (oldval), "=m" (lock->lock) \
-> > +		:"=q" (oldval), "=m" (lock->slock) \
-> >  		:"0" (oldval) : "memory"
-> >  
-> >  static inline void _raw_spin_unlock(spinlock_t *lock)
-> > @@ -123,7 +123,7 @@ static inline int _raw_spin_trylock(spin
-> >  	char oldval;
-> >  	__asm__ __volatile__(
-> >  		"xchgb %b0,%1"
-> > -		:"=q" (oldval), "=m" (lock->lock)
-> > +		:"=q" (oldval), "=m" (lock->slock)
-> >  		:"0" (0) : "memory");
-> >  	return oldval > 0;
-> >  }
-> > @@ -138,7 +138,7 @@ static inline void _raw_spin_lock(spinlo
-> >  #endif
-> >  	__asm__ __volatile__(
-> >  	
-> 	spin_lock_string
-> > -		:"=m" (lock->lock) : : "memory");
-> > +		:"=m" (lock->slock) : : "memory");
-> >  }
-> >  
-> >  static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
-> > @@ -151,7 +151,7 @@ static inline void _raw_spin_lock_flags 
-> >  #endif
-> >  	__asm__ __volatile__(
-> >  		spin_lock_string_flags
-> > -		:"=m" (lock->lock) : "r" (flags) : "memory");
-> > +		:"=m" (lock->slock) : "r" (flags) : "memory");
-> >  }
-> >  
-> >  /*
-> > @@ -186,7 +186,17 @@ typedef struct {
-> >  
-> >  #define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
-> >  
-> > -#define rwlock_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
-> > +/**
-> > + * read_is_locked - would read_trylock() fail?
-> > + * @lock: the rwlock in question.
-> > + */
-> > +#define read_is_locked(x) (atomic_read((atomic_t *)&(x)->lock) <= 0)
-> > +
-> > +/**
-> > + * write_is_locked - would write_trylock() fail?
-> > + * @lock: the rwlock in question.
-> > + */
-> > +#define write_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
-> >  
-> >  /*
-> >   * On x86, we implement read-write locks as a 32-bit counter
-> > --- linux/kernel/exit.c.orig
-> > +++ linux/kernel/exit.c
-> > @@ -861,8 +861,12 @@ task_t fastcall *next_thread(const task_
-> >  #ifdef CONFIG_SMP
-> >  	if (!p->sighand)
-> >  		BUG();
-> > +#ifndef write_is_locked
-> > +# warning please implement read_is_locked()/write_is_locked()!
-> > +# define write_is_locked rwlock_is_locked
-> > +#endif
-> >  	if (!spin_is_locked(&p->sighand->siglock) &&
-> > -				!rwlock_is_locked(&tasklist_lock))
-> > +				!write_is_locked(&tasklist_lock))
-> >  		BUG();
-> >  #endif
-> >  	return pid_task(p->pids[PIDTYPE_TGID].pid_list.next, PIDTYPE_TGID);
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> --------------------------------------------------
-> Darren Williams <dsw AT gelato.unsw.edu.au>
-> Gelato@UNSW <www.gelato.unsw.edu.au>
-> --------------------------------------------------
+> char*  relay_reserve(*rchan, len, *ts, *td, *err, *interrupting);
+> void   relay_commit(*rchan, *from, len, reserve_code, interrupting);
+> void   relay_buffers_consumed(*rchan, u32);
+> 
+> #define relay_write_direct(DEST, SRC, SIZE) \
+> #define relay_lock_channel(RCHAN, FLAGS) \
+> #define relay_unlock_channel(RCHAN, FLAGS) \
+> 
+> This is a far-cry from what we had before, have a look at the
+> relayfs.txt file in 2.6.11-rc1-mm1's Documentation/filesystems if
+> you want to compare. Please at least acknowledge as much.
+> 
+> I'm more than willing to compromise, but at least give me something
+> substantive to feed on. I've explained why I believe there needs to be
+> two modes for relayfs. If you don't think they are appropriate, then
+> please explain why. Either my experience blinds me or it rightly
+> compels me to continue defending it.
+> 
+> You ask what compromises can be found from both sides to obtain a
+> single implementation. I have looked at this, and given how
+> stripped down it has become, anything less from relayfs will make
+> it useless for LTT. IOW, I would have to reimplement a buffering
+> scheme within LTT outside of relayfs.
+> 
+> Can't you see that not all buffering schemes are adapted to all
+> applications and that it's preferable to have a single API
+> transparently providing separate mechanisms instead of a single
+> mechanism that doesn't satisfy any of its users?
+> 
+> If I can't convince you of the concept, can I at least convince
+> you to withhold your final judgement until you actually see the
+> code for the managed vs. ad-hoc schemes?
+> 
+> Karim
+> --
+> Author, Speaker, Developer, Consultant
+> Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+> http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

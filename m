@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVAIB7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVAICGL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbVAIB7M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 20:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVAIB7M
+	id S262200AbVAICGL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 21:06:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVAICGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 20:59:12 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:13510 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262187AbVAIB7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 20:59:09 -0500
-Subject: ERROR: [PATCH] moxa: Update status of Moxa Smartio driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: torvalds@osdl.org, james4765@gmail.com
-In-Reply-To: <200501082329.j08NT873032639@hera.kernel.org>
-References: <200501082329.j08NT873032639@hera.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105232081.12028.23.camel@localhost.localdomain>
+	Sat, 8 Jan 2005 21:06:11 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26128 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262200AbVAICGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 21:06:02 -0500
+Date: Sun, 9 Jan 2005 03:05:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: [PATCH] small ftape cleanups
+Message-ID: <20050109020556.GM14108@stusta.de>
+References: <200501082336.j08Na0ha003117@hera.kernel.org> <1105231821.12004.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 09 Jan 2005 00:54:50 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105231821.12004.19.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This changeset is incorrect. The "1.8" version is for the Moxa mxser
-driver. Moxa haven't released any 2.6 driver for the ancient "smartio"
-hardware. (Checked this while fixing mxser).
+On Sun, Jan 09, 2005 at 12:50:22AM +0000, Alan Cox wrote:
 
-In the mxser case that change and update has now been done.
+> The changeset below was submitted with the wrong documentation. Any
+> chance of someone providing the right documentation to the actual large
+> change to ftape below (which does look sane but nothign to do with rio)
 
-Please revert this changeset.
+s/rio/ftape/ and the description is correct.
 
-Alan (with tty layer hat on)
+> > ChangeSet 1.2406, 2005/01/08 14:19:45-08:00, bunk@stusta.de
+> > 
+> > 	[PATCH] small ftape cleanups
+> > 	
+> > 	The patch below does cleanups under drivers/char/rio/ including the
+> > 	following:
+> > 	
+> > 	- remove some completely unused code
+> > 	- make some needlessly global code static
+> > 	
+> > 	Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 	Signed-off-by: Andrew Morton <akpm@osdl.org>
+> > 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> > 
+> > 
+> > 
+> >  compressor/zftape-compress.c |    4 --
+> >  lowlevel/fc-10.c             |    4 +-
+> >  lowlevel/fdc-io.c            |   67 ++++++-------------------------------------
+> >  lowlevel/fdc-io.h            |    5 ---
+> >  lowlevel/ftape-bsm.c         |    8 ++++-
 
+cu
+Adrian
 
-> ChangeSet 1.2371, 2005/01/08 14:09:24-08:00, james4765@gmail.com
+-- 
 
-> +***NOTE*** - The driver included in the kernel is not maintained by Moxa.  They
-> +have a version 1.8 driver available from:
-> +
-> +http://www.moxa.com
-> +
-> +that works with 2.6 kernels.  Currently, Moxa has no plans to have their updated
-> +driver merged into the kernel.
-> +
-> +James Nelson <james4765@gmail.com> - 12-12-2004
-> +
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

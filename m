@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267799AbTAHV46>; Wed, 8 Jan 2003 16:56:58 -0500
+	id <S267896AbTAHV6W>; Wed, 8 Jan 2003 16:58:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267878AbTAHV46>; Wed, 8 Jan 2003 16:56:58 -0500
-Received: from holomorphy.com ([66.224.33.161]:7565 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267799AbTAHV46>;
-	Wed, 8 Jan 2003 16:56:58 -0500
-Date: Wed, 8 Jan 2003 14:05:33 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH] allow bigger PAGE_OFFSET with PAE
-Message-ID: <20030108220533.GD23814@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Hansen <haveblue@us.ibm.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-mm@kvack.org
-References: <3E1B334E.8030807@us.ibm.com> <20030107233713.GB23814@holomorphy.com> <3E1C9257.2040907@us.ibm.com>
+	id <S267925AbTAHV6T>; Wed, 8 Jan 2003 16:58:19 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:54146 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267896AbTAHV6S>; Wed, 8 Jan 2003 16:58:18 -0500
+Message-Id: <200301082206.h08M6pRA014912@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
+Subject: Re: Undelete files on ext3 ?? 
+In-Reply-To: Your message of "Wed, 08 Jan 2003 13:51:18 PST."
+             <Pine.LNX.4.33L2.0301081351010.6873-100000@dragon.pdx.osdl.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.33L2.0301081351010.6873-100000@dragon.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E1C9257.2040907@us.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Type: multipart/signed; boundary="==_Exmh_1411371710P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 08 Jan 2003 17:06:51 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 12:06:38PM -0800, Dave Hansen wrote:
->>> Also, this gets the kernel's pagetables right, but neglects 
->>> userspace's for now.  pgd_alloc() needs to be fixed to allocate 
->>> another PMD, if the split isn't PMD-alighed.
+--==_Exmh_1411371710P
+Content-Type: text/plain; charset=us-ascii
 
-William Lee Irwin III wrote:
->> Um, that should be automatic when USER_PTRS_PER_PGD is increased.
+On Wed, 08 Jan 2003 13:51:18 PST, "Randy.Dunlap" said:
+> On Wed, 8 Jan 2003, John Bradford wrote:
+> 
+> | > > What I was thinking of was a virtual device that allocated a new
+> | > > sector whenever an old one was overwritten - kind of like a journaled
+> | > > filesystem, but without the filesystem, (I.E. just the journal) :-).
+> | >
+> | > $ DIR FOO.TXT;*
+> | > FOO.TXT;1   FOO.TXT;2   FOO.TXT;2
+> | >
+> | > VMS-style file versioning, anybody? ;)
+> |
+> | Brilliant!
+> 
+> re-read the archives from 6-8 months ago.
 
-On Wed, Jan 08, 2003 at 01:04:23PM -0800, Dave Hansen wrote:
-> Nope, you need a little bit more.  pgd_alloc() relies on its memcpy() 
-> to provide the kernel mappings.  After the last user PMD is allocated, 
-> you still need to copy the kernel-shared part of it in.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101914252421742&w=2
 
-See the bit about rounding up. Then again, the pmd entries don't get
-filled in by any of that...
+--==_Exmh_1411371710P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Bill
+iD8DBQE+HKD7cC3lWbTT17ARAmeTAJ97c+fI5osixaGYlHX4BytA5WdZ0wCg85E/
+EmzqPO8qTMZO1h17vZPULlQ=
+=Dnxx
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1411371710P--

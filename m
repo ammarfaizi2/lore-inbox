@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVCCBP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVCCBTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbVCCBP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 20:15:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVCCBP1
+	id S261360AbVCCBTG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 20:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVCCBQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 20:15:27 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:9418 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261368AbVCCBON (ORCPT
+	Wed, 2 Mar 2005 20:16:30 -0500
+Received: from fire.osdl.org ([65.172.181.4]:23947 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261372AbVCCBOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 20:14:13 -0500
-Date: Thu, 3 Mar 2005 02:14:13 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: eis@baty.hanse.de, linux-x25@vger.kernel.org
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: x25_create initializing socket data twice ...
-Message-ID: <20050303011413.GB11516@mail.13thfloor.at>
-Mail-Followup-To: eis@baty.hanse.de, linux-x25@vger.kernel.org,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 2 Mar 2005 20:14:41 -0500
+Date: Wed, 2 Mar 2005 17:15:36 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <greg@kroah.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+In-Reply-To: <20050303002047.GA10434@kroah.com>
+Message-ID: <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+ <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com>
+ <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Folks!
 
-x25_create() [net/x25/af_x25.c] is calling sock_init_data()
-twice ... once indirectly via x25_alloc_socket() and a
-second time directly via sock_init_data(sock, sk);
+On Wed, 2 Mar 2005, Greg KH wrote:
+> 
+> I think this statement proves that the current development situation is
+> working quite well.  The nasty breakage and details got worked out in
+> the -mm tree, and then flowed into your tree when they seemed sane.
 
-while this might not look as critical as it seems, it can
-easily break stuff which assumes that sock_init_data()
-isn't called twice on the same socket ...
+Actually, the breakage I was talking about got fixed in _my_ tree.
 
-maybe something like this might be appropriate?
+I'd love for the -mm tree to get more testing, but it doesn't. 
 
---- ./net/x25/af_x25.c.orig	2005-03-02 12:39:11 +0100
-+++ ./net/x25/af_x25.c	2005-03-03 02:12:11 +0100
-@@ -490,7 +490,6 @@ static int x25_create(struct socket *soc
- 
- 	x25 = x25_sk(sk);
- 
--	sock_init_data(sock, sk);
- 	sk_set_owner(sk, THIS_MODULE);
- 
- 	x25_init_timers(sk);
+> So, any driver stuff is just fine?  Great, I don't have an issue with
+> your proposal then, as it wouldn't affect me that much :)
 
+I don't know about "any", but yeah.
 
-best,
-Herbert
+> I do understand what you are trying to achieve here, people don't really
+> test the -rc releases as much as a "real" 2.6.11 release.  Getting a
+> week of testing and bugfix only type patches to then release a 2.6.12
+> makes a lot of sense.  For example, see all of the bug reports that came
+> out of the woodwork today on lkml from the 2.6.11 release...
 
+A large part of it is psychological. On the other hand, it may be that
+Neil is right and it would just mean that people wouldn't even test the
+odd releases (..because they want to wait a couple of weeks for the even
+one), so it may not actually end up helping much.
+
+The thing is, I _do_ believe the current setup is working reasonably well.  
+But I also do know that some people (a fairly small group, but anyway)  
+seem to want an extra level of stability - although those people seem to
+not talk so much about "it works" kind of stability, but literally a "we
+can't keep up" kind of stability (ie at least a noticeable percentage of
+that group is not complaining about crashes, they are complaining about
+speed of development).
+
+And I suspect that _anything_ I do won't make those people happy.
+
+		Linus

@@ -1,30 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130383AbRCPIXR>; Fri, 16 Mar 2001 03:23:17 -0500
+	id <S129443AbRCPIzb>; Fri, 16 Mar 2001 03:55:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130432AbRCPIW5>; Fri, 16 Mar 2001 03:22:57 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:47040 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130383AbRCPIWp>; Fri, 16 Mar 2001 03:22:45 -0500
-Message-ID: <3AB1CD91.7C70CD49@uow.edu.au>
-Date: Fri, 16 Mar 2001 19:23:45 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3-pre3 i586)
-X-Accept-Language: en
+	id <S129446AbRCPIzW>; Fri, 16 Mar 2001 03:55:22 -0500
+Received: from www.wen-online.de ([212.223.88.39]:24845 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129346AbRCPIzC>;
+	Fri, 16 Mar 2001 03:55:02 -0500
+Date: Fri, 16 Mar 2001 09:54:09 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Art Boulatov <art@ksu.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: pivot_root & linuxrc problem
+In-Reply-To: <20010315224125.C7500@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0103160822350.1057-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: Dawson Engler <engler@csl.Stanford.EDU>
-CC: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] big stack variables
-In-Reply-To: <200103160256.VAA02335@karaya.com> from "Jeff Dike" at Mar 15, 2001 09:56:10 PM <200103160719.XAA04602@csl.Stanford.EDU>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dawson Engler wrote:
-> 
-> Turns out we didn't have CONFIG_DEVFS_FS defined.  Big time fun when it is:
-> 
-> /u2/engler/mc/2.4.1/drivers/char/tty_io.c:1996:tty_register_devfs: ERROR:VAR:1996:1996: suspicious var 'tty' = 3112 bytes
+On Thu, 15 Mar 2001, Russell King wrote:
 
-I've got my nose stuck in tty_io.c at present - I'll fix this this one.
+> On Thu, Mar 15, 2001 at 10:11:55PM +0100, Mike Galbraith wrote:
+> > On Thu, 15 Mar 2001, Art Boulatov wrote:
+> >
+> > > How can I "exec /sbin/init" from "/linuxrc", whatever it is,
+> > > if "linuxrc" does not get PID=1?
+> > >
+> > > Actually, why does NOT "linuxrc" get PID=1?
+> >
+> > That's the question.. the first task started gets pid=1, and when
+> > that is true, exec /sbin/init has no problem.  What else is your
+> > system starting?.. it must be starting something.
+>
+> Linux always forks from PID1 before executing /linuxrc automagically.
+> Check init/main.c.
+
+Aha.. so that's it.  I've never been able to get /linuxrc to execute
+automagically.  I wonder why /linuxrc executes on Art's system, but
+not on mine.  I can call it whatever I want and it doesn't run unless
+I explicitly start it with init=whatever.
+
+If it does execute though, that explains init complaining.. pid is
+going to be whatever comes after the last thread started (would be
+8 here).  It looks like you're only supposed to do setup things in
+magic filename /linuxrc and not exec /sbin/init from there.
+
+In any case, it looks like renaming linuxrc to whatever.sh and booting
+with init=/whatever.sh instead will likely make init happy.
+
+	-Mike
+

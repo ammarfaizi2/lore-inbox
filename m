@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261412AbTCYDvz>; Mon, 24 Mar 2003 22:51:55 -0500
+	id <S261432AbTCYD6p>; Mon, 24 Mar 2003 22:58:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261432AbTCYDvz>; Mon, 24 Mar 2003 22:51:55 -0500
-Received: from mail140.mail.bellsouth.net ([205.152.58.100]:20748 "EHLO
-	imf52bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S261412AbTCYDvy>; Mon, 24 Mar 2003 22:51:54 -0500
-Subject: 2.5 and modules ?
-From: Louis Garcia <louisg00@bellsouth.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048564993.2994.13.camel@tiger>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 24 Mar 2003 23:03:13 -0500
-Content-Transfer-Encoding: 7bit
+	id <S261436AbTCYD6p>; Mon, 24 Mar 2003 22:58:45 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:7698 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S261432AbTCYD6o>; Mon, 24 Mar 2003 22:58:44 -0500
+Date: Mon, 24 Mar 2003 20:07:08 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@redhat.com>
+cc: Vitezslav Samel <samel@mail.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [IDE SiI680] throughput drop to 1/4
+In-Reply-To: <200303241754.h2OHsii27044@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.10.10303242003150.8000-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just installed 2.5.6x on my RH phoebe box and everything is working
-except modules. I recompiled the modutils package with module-init-tools
-according to rusty's old modutils package spec. I am able to compile 2.5
-as modules without any depmod errors but when I boot 2.5 I can't load
-any.
+On Mon, 24 Mar 2003, Alan Cox wrote:
 
---Lou
+> > There should be a mode or a flag option in the siimage.h to disable MMIO
+> > by default.  I am courious if this is a BARRIER on the read/write screwing
+> > the pooch!
+> 
+> It cannot be involved. If you read the code you'll see the SII driver doesnt
+> yet override outbsync so it can't be involved. We aren't doing any posting
+> prevention yet
+> 
+
+Alan,
+
+Humor me and isolate my silly concerns okay.
+Prove me wrong and I will be happy.
+
+It should be a single #undef in siimage.h
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
 

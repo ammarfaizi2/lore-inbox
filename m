@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312106AbSCQUTY>; Sun, 17 Mar 2002 15:19:24 -0500
+	id <S312113AbSCQUUy>; Sun, 17 Mar 2002 15:20:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312109AbSCQUTQ>; Sun, 17 Mar 2002 15:19:16 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:46545 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S312108AbSCQUTC>; Sun, 17 Mar 2002 15:19:02 -0500
-Date: Sun, 17 Mar 2002 13:18:50 -0700
-Message-Id: <200203172018.g2HKIoB12081@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
+	id <S312112AbSCQUUp>; Sun, 17 Mar 2002 15:20:45 -0500
+Received: from mail020.mail.bellsouth.net ([205.152.58.60]:13212 "EHLO
+	imf20bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S312110AbSCQUUZ>; Sun, 17 Mar 2002 15:20:25 -0500
+Message-ID: <00c101c1cdf1$1c031120$0100a8c0@DELLXP1>
+From: "Ken Hirsch" <kenhirsch@myself.com>
+To: "Anton Altaparmakov" <aia21@cam.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <3C945635.4050101@mandrakesoft.com> <5.1.0.14.2.20020317170621.00abd980@pop.cus.cam.ac.uk> <5.1.0.14.2.20020317190303.03289ec0@pop.cus.cam.ac.uk>
 Subject: Re: fadvise syscall?
-In-Reply-To: <3C945D7D.8040703@mandrakesoft.com>
-In-Reply-To: <3C945635.4050101@mandrakesoft.com>
-	<3C945A5A.9673053F@zip.com.au>
-	<3C945D7D.8040703@mandrakesoft.com>
+Date: Sun, 17 Mar 2002 15:19:36 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-> Andrew Morton wrote:
-> 
-> >Jeff Garzik wrote:
-> >>So... we have madvise, why not fadvise?  I would love the capability for
-> >>applications to provide hints to the OS like madvise, but for file
-> >>descriptors...
-> >>
-> >
-> >The one hint which I can think of which would be beneficial would
-> >be an equivalent to MADV_SEQUENTIAL.  Something which says "this
-> >is a big streaming read/write - don't go and evict other stuff because
-> >of it".  O_STREAMING perhaps.  Or working dropbehind heuristics,
-> >although I suspect that explicit controls will always do better.
-> >
-> >For MADV_RANDOM, readahead window scaling should get that right.
-> >
-> >What else were you thinking of?
-> >
-> 
-> Hints for,
-> * sequential read
-> * sequential write
-> * sequential write, where the application considers the data it's 
-> writing to be unlikely to be read again any time soon (hopefully 
-> implying to the page cache that these pages have low value as cacheable 
-> objects)
-> * some sort of streaming hints, implying that the application cares a 
-> lot about maintaining some minimum i/o rate.  note I said hint, not 
-> requirement.  -not- guaranteed-rate-IO.
-> 
-> I might even go so far as to advocate identifying common usage
-> patterns, and creating hint constants for them, even if we don't
-> support them in the kernel immediately (if ever).  Makes the
-> interface much more future-proof, at the expense of a few integers
-> in a 32-bit numberspace, and a few more bytes in the C compiler's
-> symbol table.
+Anton Altaparmakov writes:
+> Last time I heard serious databases use their own memmory
+> management/caching in combination with O_DIRECT, i.e. they bypass the
+> kernel's buffering system completely. Hence I would deem them irrelevant
+to
+> the problem at hand...
+>
+> If a database were not to use O_DIRECT I would think it would be using
+mmap
+> so it would have madvise already... but I am not a database expert so take
+> this with a pinch of salt...
+>
 
-Here's one that I'd like (came up recently with these 21600x21600x3
-images from NASA:-): MADV_REVERSE_SEQUENTIAL. When converting images
-from stupid formats which have the origin in the top-left, to formats
-which have the origin in the bottom-left (the way god intended), you
-can avoid a massive malloc(3) if you read the input file backwards
-(basically through llseek(2) steps).
+I don't think that either MySQL or PostgreSQL use O_DIRECT; I just grepped
+the source and didn't find it.  They can't use mmap() because it uses up too
+much process address space.
 
-				Regards,
+It's true that commercial databases mostly do their own scheduling and
+caching, and if they are the only thing running on your system and you tune
+them right, that works.  But it's not necessarily a good thing.  If there
+are other processes on your system, there would be a benefit if the DBMS
+could inform the operating system of its intentions.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+A posix_fadvise() call would be a start, but you could potentially go beyond
+that.   For some interesting ideas, see
+Seltzer, M., Small, C., Smith, K., "The Case for Extensible Operating
+Systems",
+Harvard University Center for Research in Computing Technology TR16 -95
+(July 1995).
+http://citeseer.nj.nec.com/article/seltzer95case.html
+
+Ken Hirsch
+
+

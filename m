@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVCJCUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVCJC1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbVCJCUz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 21:20:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVCJCUu
+	id S261715AbVCJC1H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 21:27:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVCJC0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 21:20:50 -0500
-Received: from gate.crashing.org ([63.228.1.57]:27846 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261525AbVCJCPa (ORCPT
+	Wed, 9 Mar 2005 21:26:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50054 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261158AbVCJCXS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 21:15:30 -0500
-Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Omkhar Arasaratnam <iamroot@ca.ibm.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
-       antonb@au1.ibm.com, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <422FA817.4060400@ca.ibm.com>
-References: <422FA817.4060400@ca.ibm.com>
-Content-Type: text/plain
-Date: Thu, 10 Mar 2005 13:10:20 +1100
-Message-Id: <1110420620.32525.145.camel@gaston>
+	Wed, 9 Mar 2005 21:23:18 -0500
+Date: Wed, 9 Mar 2005 21:23:05 -0500
+From: Dave Jones <davej@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, rddunlap@osdl.org
+Subject: Re: [PATCH] Add 2.4.x cpufreq /proc and sysctl interface removal feature-removal-schedule
+Message-ID: <20050310022304.GE8128@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org, rddunlap@osdl.org
+References: <11104148771738@kroah.com> <1110414878721@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110414878721@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-09 at 19:51 -0600, Omkhar Arasaratnam wrote:
-> Seems with 2.6.11 the sym53c8xx kernel module incorrectly identifies the
-> cache being misconfigured on a p630 (ppc64, POWER4+). 2.6.9 correctly
-> brings up this adaptor as does AIX with absolutely no indication of a
-> misconfigured cache.
-> 
-> Doing a simple diff I see ALOT of changes between 2.6.9 and 2.6.11
-> pertaining to this module. Any ideas?
+On Wed, Mar 09, 2005 at 04:34:38PM -0800, Greg KH wrote:
+ > ChangeSet 1.2036, 2005/03/09 09:31:40-08:00, rddunlap@osdl.org
+ > 
+ > [PATCH] Add 2.4.x cpufreq /proc and sysctl interface removal feature-removal-schedule
+ > 
+ > Add 2.4.x cpufreq /proc and sysctl interface removal
+ > to the feature-removal-schedule.
+ > 
+ > Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+ > Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+ > 
+ > 
+ >  Documentation/feature-removal-schedule.txt |    9 +++++++++
+ >  1 files changed, 9 insertions(+)
+ > 
+ > 
+ > diff -Nru a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+ > --- a/Documentation/feature-removal-schedule.txt	2005-03-09 16:30:16 -08:00
+ > +++ b/Documentation/feature-removal-schedule.txt	2005-03-09 16:30:16 -08:00
+ > @@ -15,3 +15,12 @@
+ >  	against the LSB, and can be replaced by using udev.
+ >  Who:	Greg Kroah-Hartman <greg@kroah.com>
+ >  
+ > +---------------------------
+ > +
+ > +What:	/proc/sys/cpu and the sysctl interface to cpufreq (2.4.x interfaces)
+ > +When:	January 2005
 
-Are you sure it's plain 2.6.11 and not some bk clone of after 2.6.11 was
-released ?
+You're about 2 months too late 8-)
 
-I just found a bug in the ppc64 ioremap code that got triggered by
-the set_pte_at() patch that went into bk after 2.6.11 and that triggers
-exactly that error, but I couldn't see anything wrong in 2.6.11 proper.
-
-BTW, Linus: Any chance you ever change something to version or
-extraversion in bk just after a release ? I know I already ask and it
-degenerated into a flamefest, and I don't know if that is specifically
-the case now, but I keep getting report of people saying "I have a bug
-in 2.6.xx" while in fact, they have some kind of bk clone of sometime
-after 2.6.xx...
-
-Ben.
-
+		Dave
 

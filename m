@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317175AbSFBMvo>; Sun, 2 Jun 2002 08:51:44 -0400
+	id <S317176AbSFBNZa>; Sun, 2 Jun 2002 09:25:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317176AbSFBMvn>; Sun, 2 Jun 2002 08:51:43 -0400
-Received: from maila.telia.com ([194.22.194.231]:1218 "EHLO maila.telia.com")
-	by vger.kernel.org with ESMTP id <S317175AbSFBMvn>;
-	Sun, 2 Jun 2002 08:51:43 -0400
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Peter Osterlund <petero2@telia.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: KBuild 2.5 Impressions
-In-Reply-To: <Pine.LNX.4.44.0206020601320.29405-100000@hawkeye.luckynet.adm>
-From: Peter Osterlund <petero2@telia.com>
-Date: 02 Jun 2002 14:51:41 +0200
-Message-ID: <m24rglhmhu.fsf@ppro.localdomain>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317177AbSFBNZ3>; Sun, 2 Jun 2002 09:25:29 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:24569 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317176AbSFBNZ3>; Sun, 2 Jun 2002 09:25:29 -0400
+Subject: Re: FUD or FACTS ?? but a new FLAME!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.4.30.0206021405070.1886-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 02 Jun 2002 15:29:44 +0100
+Message-Id: <1023028184.23878.12.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thunder from the hill <thunder@ngforever.de> writes:
+On Sun, 2002-06-02 at 13:11, Bartlomiej Zolnierkiewicz wrote:
+> So what should we do in case of overclocked PCI bus?
+> Get overclocked ATA or try to mess with timings?
 
-> Hi,
-> 
-> On 2 Jun 2002, Peter Osterlund wrote:
-> > Yes, I realize this problem will go away automatically when support
-> > for the old makefile system is removed. I just wanted to present my
-> > complete list of problems with kbuild 2.5. Except for those three
-> > issues, I don't see any advantages with the old makefile system.
-> 
-> Well, problem #1 (make TAGS) - what did you use it for?
+You cannot overclock the AMD on chipset IDE or the intel on chipset IDE.
+It doesn't actually matter what you do the system is going to be way out
+of wack. These are chipset bridges rather than card people ram into
+weird bits of hardware.
 
-To create a TAGS file for emacs, which makes navigating the source
-tree a lot easier.
+The VIA stuff and the Promise it makes some sense to try because they
+may be shoved in boxes with a 25MHz PCI clock, or in a few cases a
+horribly broke 37.5/41Mhz bus from the early chipsets that had 'idiot
+only' 75/83Mhz FSB options
 
-> Problem #2 (make NO_MAKEFILE_GEN) is a bit tricky with the new concept. 
-> You may try to maintain it, but I wonder where you'll end up.
-
-On my system I get 0.40s with NO_MAKEFILE_GEN compared to 3.41s
-without, so my system is fast enough even without NO_MAKEFILE_GEN. I
-just find it strange that the documentation says bug reports will be
-ignored. If it breaks unintentionally in future kernels, fixing it
-would probably not be too hard. Or are you planning to remove this
-feature altogether?
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340

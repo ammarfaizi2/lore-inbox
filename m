@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318269AbSIOVtZ>; Sun, 15 Sep 2002 17:49:25 -0400
+	id <S318270AbSIOWWM>; Sun, 15 Sep 2002 18:22:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318270AbSIOVtZ>; Sun, 15 Sep 2002 17:49:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14344 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318269AbSIOVtX>;
-	Sun, 15 Sep 2002 17:49:23 -0400
-Date: Sun, 15 Sep 2002 22:54:19 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: problem with "Use CLONE_KERNEL for the common kernel thread flags"?
-Message-ID: <20020915225419.F10583@parcelfarce.linux.theplanet.co.uk>
+	id <S318274AbSIOWWM>; Sun, 15 Sep 2002 18:22:12 -0400
+Received: from ns.suse.de ([213.95.15.193]:20749 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318270AbSIOWWL>;
+	Sun, 15 Sep 2002 18:22:11 -0400
+Date: Mon, 16 Sep 2002 00:27:07 +0200
+From: Dave Jones <davej@suse.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: James Blackwell <jblack@linuxguru.net>, linux-kernel@vger.kernel.org,
+       hch@infradead.org, jonathan@buzzard.org.uk
+Subject: Re: [PATCH] IRQ patch for Toshiba Char Driver in 2.5.34
+Message-ID: <20020916002707.D6528@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Pavel Machek <pavel@ucw.cz>, James Blackwell <jblack@linuxguru.net>,
+	linux-kernel@vger.kernel.org, hch@infradead.org,
+	jonathan@buzzard.org.uk
+References: <20020909115956.GA23290@comet> <20020911112938.A25726@infradead.org> <20020915154248.GA3647@elf.ucw.cz> <20020915213009.A53847@ucw.cz> <20020915195328.GA60517@comet> <20020915200202.GA15744@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020915200202.GA15744@atrey.karlin.mff.cuni.cz>; from pavel@ucw.cz on Sun, Sep 15, 2002 at 10:02:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 15, 2002 at 10:02:02PM +0200, Pavel Machek wrote:
 
-Seems to me like you missed something in your latest changeset:
+ > It would be nice to make it preempt/smp safe, through. [SMP notebooks
+ > are not so unreasonable; think p4 hyperthreading].
 
--#define CLONE_SIGNAL   (CLONE_SIGHAND | CLONE_THREAD)
-+#define CLONE_KERNEL   (CLONE_FS | CLONE_FILES | CLONE_SIGHAND)
--       kernel_thread(init, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);
-+       kernel_thread(init, NULL, CLONE_KERNEL);
+Current P4 notebooks aren't using xeon's to the best
+of my knowledge, though as such technology becomes more
+commonplace, it's not unviable for the future maybe.
 
-init used to be spawned with CLONE_THREAD and no longer is.  Was this
-intentional?  The changelog entry didn't indicate it, and I haven't
-been keeping track of what all the CLONE flags mean these days so I'm
-not sure if this is safe.
+        Dave
 
 -- 
-Revolutions do not require corporate support.
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

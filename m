@@ -1,42 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311401AbSCMWTG>; Wed, 13 Mar 2002 17:19:06 -0500
+	id <S311403AbSCMWTu>; Wed, 13 Mar 2002 17:19:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311403AbSCMWS4>; Wed, 13 Mar 2002 17:18:56 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61961 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S311401AbSCMWSp>; Wed, 13 Mar 2002 17:18:45 -0500
-Date: Wed, 13 Mar 2002 17:17:01 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <72300000.1016049163@baldur.austin.ibm.com>
-Message-ID: <Pine.LNX.3.96.1020313171524.5467B-100000@gatekeeper.tmr.com>
+	id <S311404AbSCMWTh>; Wed, 13 Mar 2002 17:19:37 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5384 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311403AbSCMWTX>; Wed, 13 Mar 2002 17:19:23 -0500
+Subject: Re: your mail
+To: rlievin@free.fr (=?ISO-8859-1?Q?Romain_Li=E9vin?=)
+Date: Wed, 13 Mar 2002 22:35:07 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Kernel List)
+In-Reply-To: <1016051318.3c8fb67699ae8@imp.free.fr> from "=?ISO-8859-1?Q?Romain_Li=E9vin?=" at Mar 13, 2002 09:28:38 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16lHKt-0007dn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Mar 2002, Dave McCracken wrote:
+> +/*
+> + * Deal with CONFIG_MODVERSIONS
+> + */
+> +#if 0 /* Pb with MODVERSIONS */
+> +#if CONFIG_MODVERSIONS==1
+> +#define MODVERSIONS
+> +#include <linux/modversions.h>
+> +#endif
+> +#endif
 
-> 
-> --On Wednesday, March 13, 2002 02:41:52 PM -0500 Bill Davidsen
-> <davidsen@tmr.com> wrote:
-> 
-> > Let me mention this again... The IBM release of NGPT states that Linus has
-> > approved the inclusion of the NGPT patches in the mainline kernel. Will
-> > this be in 2.4.19 release? I've been running 2.4.17 for NGPT, haven't
-> > tried 2.4.19 other than to see the patch didn't apply).
-> 
-> The 2.4 patch needed for NGPT was accepted by Marcelo and is in 2.4.19-pre3.
+[modversions.h is magically included by the kernel for you when its in 
+ kernel if you haven't worked that one out yet]
 
-Good info, thanks! I hand edited the 2.4.17 patch to 2.4.18, but 19-pre2
-didn't apply and I ran out of time about 1am this morning;-) When pre3
-settles down a bit I'll use that as a base.
+> +#define PP_NO 3
+> +struct tipar_struct  table[PP_NO];
+static ?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+> +               for(i=0; i < delay; i++) {
+> +                       inbyte(minor);
+> +               }
+> +               schedule();
+
+Oh random tip
+
+		  if(current->need_resched)
+			schedule();
+
+will just give up the CPU when you are out of time
+
+> +       if(table[minor].opened)
+> +               return -EBUSY;
+> +       table[minor].opened++;
+
+Think about open/close at the same moment or SMP - the watchdog drivers all
+had this problem and now do
+
+	unsigned long opened = 0;
+
+	if(test_and_set_bit(0, &opened))
+		return -EBUSY;
+
+	clear_bit(0, &opened)
+
+[this generates atomic operations so is always safe]
+
+> +       if(!table[minor].opened)
+> +               return -EFAULT;
+
+	BUG() may be better - it can't happen so BUG() will get a backtrace
+and actually get it reported 8)
+
+> +static long long tipar_lseek(struct file * file, long long offset, int origin)
+> +{
+> +       return -ESPIPE;
+> +}
+
+Can go (you now use no_llseek)
+
+
+Basically except for the open/close one I'm now just picking holes. 
+For the device major/minors see http://www.lanana.org.
+
+
 

@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129121AbQKERqJ>; Sun, 5 Nov 2000 12:46:09 -0500
+	id <S129708AbQKERsv>; Sun, 5 Nov 2000 12:48:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129708AbQKERpt>; Sun, 5 Nov 2000 12:45:49 -0500
-Received: from pC19F3373.dip.t-dialin.net ([193.159.51.115]:26885 "EHLO
-	fmpserver.fmpserver.fmp") by vger.kernel.org with ESMTP
-	id <S129121AbQKERps>; Sun, 5 Nov 2000 12:45:48 -0500
-Message-ID: <3A059BF6.8E99F434@profmakx.de>
-Date: Sun, 05 Nov 2000 18:42:14 +0100
-From: Markus <profmakx@profmakx.de>
-Reply-To: profmakx@web.de
-X-Mailer: Mozilla 4.72 [en]C-CCK-MCD QXW0323l  (Win98; U)
-X-Accept-Language: de,en
+	id <S129742AbQKERsl>; Sun, 5 Nov 2000 12:48:41 -0500
+Received: from zero.tech9.net ([209.61.188.187]:29700 "EHLO tech9.net")
+	by vger.kernel.org with ESMTP id <S129708AbQKERs1>;
+	Sun, 5 Nov 2000 12:48:27 -0500
+Date: Sun, 5 Nov 2000 12:48:24 -0500 (EST)
+From: "Robert M. Love" <rml@tech9.net>
+To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+cc: "'Linux Kernel Development'" <linux-kernel@vger.kernel.org>
+Subject: Re: i82808 hardware hub RNG
+In-Reply-To: <27525795B28BD311B28D00500481B7601623D5@ftrs1.intranet.FTR.NL>
+Message-ID: <Pine.LNX.4.21.0011051246470.11627-100000@phantasy.awol.org>
 MIME-Version: 1.0
-To: Dennis <dennis@etinc.com>
-CC: umbertogs@uol.com.br, linux-kernel@vger.kernel.org
-Subject: Re: trouble with eepro100+catalyst
-In-Reply-To: <5.0.0.25.0.20001021123524.02372be0@mail.etinc.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dennis, Your comment isn´t that productive
-What about ECN? Have acitivated it (proc/sys/net/ipv4/tcp_ecn, if I remember
-correctly)
+On Sun, 5 Nov 2000, Heusden, Folkert van hissed:
+> I wrote a daemon that fetches (as root-user) random numbers from the RNG in
+> the i82808 (found on 815-chipsets).
+> You can download it from http://www.vanheusden.com/Linux/random.php3 .
+> Currently, I'm trying to rewrite things into a kernel-module so that one has
+> a standard character device which can deliver random values then.
+> Please give it a try as I do not own a PC with such a motherboard ;-/
 
-Markus
+a driver for this already exists in 2.4 and was recently back-ported to
+2.2. it works on i810, i815, and i820. it features a char device for
+grabbing entropy and a timer device to inject the entropy directly into
+/dev/random.
 
-Dennis wrote:
+Jeff Garzik wrote it.
 
-> At 11:06 PM 10/20/2000, umbertogs@uol.com.br wrote:
-> >We're having lots of trouble with eepro100 and Cisco Catalyst switch,
-> >and my net are a vlan. I am using RedHat 6.2/7.0 and not ping to gateway,
-> >but with o Slackware 7.0 ok. What's the magic?
-> >
-> >Regards,
-> >
-> >Umberto
-> >Systems Analyst
-> >.comDominio
-> >Brazil
->
-> Ciscos and catalysts have all kinds of problems connecting to PCs. They
-> like to talk to each other mostly. Unfortunately, the widespread propaganda
-> that cisco is flawless hinders the true diagnosis in many cases.
->
-> get yourself a cheap 10/100 hub or switch and wire it between the units and
-> then go watch some sports instead of banging your head for nothing
->
-> Sometimes its better to sacrifice performance (ie catalysts) for  something
-> that works.
->
-> Dennis
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+i am using it in 2.4 on my i815.
+
+-- 
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

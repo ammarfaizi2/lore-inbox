@@ -1,76 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbUCKVLO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 16:11:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUCKVLO
+	id S261719AbUCKVZX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 16:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbUCKVZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 16:11:14 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:9577 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261716AbUCKVLL
+	Thu, 11 Mar 2004 16:25:23 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:2546 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261719AbUCKVZO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 16:11:11 -0500
-Subject: Re: 2.6.4-mm1
-From: Redeeman <lkml@metanurb.dk>
-To: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <1079038721.5333.8.camel@redeeman.linux.dk>
-References: <20040310233140.3ce99610.akpm@osdl.org>
-	 <1079024816.5325.2.camel@redeeman.linux.dk>
-	 <200403111453.20866.norberto+linux-kernel@bensa.ath.cx>
-	 <20040311100957.00dd6e7f.akpm@osdl.org>
-	 <1079028899.5327.4.camel@redeeman.linux.dk>
-	 <20040311104650.009a8d3e.akpm@osdl.org>
-	 <1079038721.5333.8.camel@redeeman.linux.dk>
-Content-Type: text/plain
-Message-Id: <1079039457.5248.2.camel@redeeman.linux.dk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Mar 2004 22:10:58 +0100
+	Thu, 11 Mar 2004 16:25:14 -0500
+Message-ID: <4050D92B.7000802@mvista.com>
+Date: Thu, 11 Mar 2004 13:24:59 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+CC: Tom Rini <trini@kernel.crashing.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [KGDB PATCH][7/7] Move debugger_entry()
+References: <20040227212301.GC1052@smtp.west.cox.net> <200403011538.44953.amitkale@emsyssoft.com> <40453023.6000004@mvista.com> <200403031115.44125.amitkale@emsyssoft.com>
+In-Reply-To: <200403031115.44125.amitkale@emsyssoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yeah andrew it works! you are god!!
-while i got you here, i have got a pray more for you.
-
-its about amd64-agp. i never had it working (from 2.6.1 mm and vanilla)
-but in 2.6.4-rc1-mm2 it worked! but sadly abit unstable :(
-
-my big problem is that when using X, and having some windows opens, it
-consumes ALL cpu if amd64-agp isnt in kernel, so i would REALLY
-apreciate if you could look at it (sorry my bad english)
-
-thanks!
-
-
-On Thu, 2004-03-11 at 21:58, Redeeman wrote:
-> gonna try now, already compiling... i will come back with details in a
-> few minutes..
+Amit S. Kale wrote:
+> On Wednesday 03 Mar 2004 6:38 am, George Anzinger wrote:
 > 
-> On Thu, 2004-03-11 at 19:46, Andrew Morton wrote:
-> > Redeeman <lkml@metanurb.dk> wrote:
-> > >
-> > >  i didnt do anything more than patch with mm1, is there a patch for doing
-> > >  that spin_unlock_irq()? :)
-> > 
-> > --- 25/fs/mpage.c~a	2004-03-11 10:46:29.000000000 -0800
-> > +++ 25-akpm/fs/mpage.c	2004-03-11 10:46:31.000000000 -0800
-> > @@ -672,7 +672,6 @@ mpage_writepages(struct address_space *m
-> >  		}
-> >  		pagevec_release(&pvec);
-> >  	}
-> > -	spin_unlock_irq(&mapping->tree_lock);
-> >  	if (bio)
-> >  		mpage_bio_submit(WRITE, bio);
-> >  	return ret;
-> > 
-> > _
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+>>Amit S. Kale wrote:
+>>
+>>>OK to checkin.
+>>>
+>>>-Amit
+>>>
+>>>On Saturday 28 Feb 2004 3:24 am, Tom Rini wrote:
+>>>
+>>>>Hello.  When we use kgdboe, we can't use it until do_basic_setup() is
+>>>>done. So we have two options, not allow kgdboe to use the initial
+>>>>breakpoint or move debugger_entry() to be past the point where kgdboe
+>>>>will be usable. I've opted for the latter, as if an earlier breakpoint
+>>>>is needed you can still use serial and throw
+>>>>kgdb_schedule_breakpoint/breakpoint where desired.
+>>>>
+>>>>--- linux-2.6.3-rc4/init/main.c	2004-02-17 09:51:19.000000000 -0700
+>>>>+++ linux-2.6.3-rc4-kgdb/init/main.c	2004-02-17 11:33:51.854388988 -0700
+>>>>@@ -581,6 +582,7 @@ static int init(void * unused)
+>>>>
+>>>>	smp_init();
+>>>>	do_basic_setup();
+>>>>+	debugger_entry();
+>>
+>>It would be nice to not need this.  Could it be a side effect of
+>>configuring the interface or some such so we don't have to patch
+>>init/main.c
+> 
+> 
+> I attempted doing this when I was trying to code a netpoll independent 
+> ethernet interface. I couldn't do without it. I needed one hook to kgdb in 
+> init to mark completion of smp_init. If an interface was ready, that hook 
+> called breakpoint. A similar hook was placed in interface initialization 
+> code, it called breakpoint, if kgdb core was ready on account of smp_init 
+> completion.
+> 
+I guess the real question is why do you need to wait so long?  What is it that 
+needs to be done prior to this call?
+
+On the other hand, I have a late call (I use module init) to set up the 
+interrupt handler for the UART, which needs to happen after malloc is working. 
+This, however, does not cause, of it self, a break.
+
+> -Amit
+> 
+> 
+> 
+> 
+>>-g
+>>
+>>
+>>>>	prepare_namespace();
+>>>
+>>>-
+>>>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+>>>in the body of a message to majordomo@vger.kernel.org
+>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
 -- 
-Regards, Redeeman
-redeeman@metanurb.dk
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

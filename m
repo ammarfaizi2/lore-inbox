@@ -1,87 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261411AbSLFCwl>; Thu, 5 Dec 2002 21:52:41 -0500
+	id <S267516AbSLFDCm>; Thu, 5 Dec 2002 22:02:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267514AbSLFCwl>; Thu, 5 Dec 2002 21:52:41 -0500
-Received: from smtprelay6.dc2.adelphia.net ([64.8.50.38]:13961 "EHLO
-	smtprelay6.dc2.adelphia.net") by vger.kernel.org with ESMTP
-	id <S261411AbSLFCwk>; Thu, 5 Dec 2002 21:52:40 -0500
-Message-ID: <007301c29cd3$95ad99d0$6a01a8c0@wa1hco>
-From: "jeff millar" <wa1hco@adelphia.net>
-To: "Frank van Maarseveen" <F.vanMaarseveen@inter.nl.net>,
-       <linux-kernel@vger.kernel.org>
-References: <F6E1228667B6D411BAAA00306E00F2A51539BA@pdc2.nestec.net> <200212041526.57501.shanehelms@eircom.net> <01c301c29bf5$201a9120$6a01a8c0@wa1hco> <20021206005510.A7411@iapetus.localdomain>
-Subject: Re: is KERNEL developement finished, yet ???
-Date: Thu, 5 Dec 2002 22:00:06 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S267517AbSLFDCm>; Thu, 5 Dec 2002 22:02:42 -0500
+Received: from holomorphy.com ([66.224.33.161]:38285 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267516AbSLFDCk>;
+	Thu, 5 Dec 2002 22:02:40 -0500
+Date: Thu, 5 Dec 2002 19:10:06 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, Martin.Bligh@us.ibm.com
+Subject: [numaq] highpage init speedup
+Message-ID: <20021206031006.GM18600@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	Martin.Bligh@us.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harnessing energy (rockets, nukes, etc) is fundamentally an unlimited
-engineering opportunity.  But kernel development is mostly an attempt to
-reduce overhead to zero. If a kernel runs 90% efficient now, then there's
-only 10% additional improvement possible.
+Speed up highpage init by manual unrolling and large page freeing.
+Boots & runs, and gets a small speedup of the boot process (which
+is frequently exercised).
 
-On the other hand application software is fundamentally unlimited.
+Martin, please apply.
 
-So if you want to work on reliability, portability, maintainability, and
-adaptation to new hardware then kernels make a good career.  But if you want
-to break new ground, then it's either application space or hardware.
-
-jeff
+ discontig.c |   48 ++++++++++++++++++++++++++++++++++++++++--------
+ init.c      |    4 ++--
+ 2 files changed, 42 insertions(+), 10 deletions(-)
 
 
------ Original Message -----
-From: "Frank van Maarseveen" <F.vanMaarseveen@inter.nl.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, December 05, 2002 6:55 PM
-Subject: Re: is KERNEL developement finished, yet ???
-
-
-> On Wed, Dec 04, 2002 at 07:27:40PM -0500, jeff millar wrote:
-> > My opinion...
-> >
-> > Kernels are getting mature in the sense the there's not that many ways
-to do
-> > tasking and hardware interface.  It no longer a game of invention but a
-game
-> > of polishing.
->
-> no
->
-> Everytime once in a while someone thinks that everything which can
-> be invented has been invented. Books like "The end of science". It's
-> pure hubris.
->
-> Around 1930 it was proven that is was impossible to travel to the
-> moon. Then mankind discovered multi stage rockets and nuclear energy
-> (not even needed for that).
->
-> It's incredible how narrow-minded established science sometimes is today
-> (and often has been past centuries). There is too much conservatism and
-> a general lack of imagination (though I must admit that no SF writer
-> could come up with something as bizarre as quantum mechanics, QED,
-> string theory and a few other things).
->
-> Software and more specific kernel development has quite a short history
-> compared to all of that. So, let's be humble and accept that what we
-> do today will most likely be considered a trivial joke when the next
-> century arrives.
->
-> You don't know what you do now know today.
->
-> --
-> Frank
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+diff -urpN wli-2.5.50-10/arch/i386/mm/discontig.c wli-2.5.50-11/arch/i386/mm/discontig.c
+--- wli-2.5.50-10/arch/i386/mm/discontig.c	2002-11-27 14:36:02.000000000 -0800
++++ wli-2.5.50-11/arch/i386/mm/discontig.c	2002-12-05 17:23:23.000000000 -0800
+@@ -323,28 +323,60 @@ void __init zone_sizes_init(void)
+ 	return;
+ }
+ 
++#ifndef CONFIG_HIGHMEM
++void __init set_highmem_pages_init(int bad_ppro) { }
++#else
++int page_kills_ppro(unsigned long);
++int page_is_ram(unsigned long);
+ void __init set_highmem_pages_init(int bad_ppro) 
+ {
+-#ifdef CONFIG_HIGHMEM
+ 	int nid;
+ 
+ 	for (nid = 0; nid < numnodes; nid++) {
+-		unsigned long node_pfn, node_high_size, zone_start_pfn;
+-		struct page * zone_mem_map;
++		unsigned long start_pfn, end_pfn, zone_max_pfn, zone_start_pfn;
++		struct page *page, *zone_mem_map;
+ 		
+-		node_high_size = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].spanned_pages;
+ 		zone_mem_map = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_mem_map;
+ 		zone_start_pfn = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_start_pfn;
++		zone_max_pfn = zone_start_pfn + NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].spanned_pages;
+ 
+ 		printk("Initializing highpages for node %d\n", nid);
+-		for (node_pfn = 0; node_pfn < node_high_size; node_pfn++) {
+-			one_highpage_init((struct page *)(zone_mem_map + node_pfn),
+-					  zone_start_pfn + node_pfn, bad_ppro);
++		start_pfn = end_pfn = zone_start_pfn;
++		while (start_pfn < zone_max_pfn && end_pfn < zone_max_pfn) {
++			page = &zone_mem_map[end_pfn - zone_start_pfn];
++			while (end_pfn < zone_max_pfn
++					&& page_is_ram(end_pfn)
++					&& !(bad_ppro && page_kills_ppro(end_pfn))) {
++				ClearPageReserved(page);
++				set_bit(PG_highmem, &page->flags);
++				set_page_count(page, 1);
++				++page;
++				++end_pfn;
++			}
++			totalhigh_pages += end_pfn - start_pfn;
++			while (start_pfn < end_pfn) {
++				/* for we dare not enter when fls(n) == 0 */
++				int order = min(MAX_ORDER, fls(end_pfn - start_pfn)) - 1;
++				__free_pages(&zone_mem_map[start_pfn - zone_start_pfn], order);
++				start_pfn += 1 << order;
++			}
++			if (start_pfn != end_pfn)
++				printk("wli screwed up, it will crash!\n");
++
++			if (end_pfn < zone_max_pfn)
++				SetPageReserved(&zone_mem_map[end_pfn - zone_start_pfn]);
++
++			/*
++			 * end_pfn stopped at a reserved page; now they both
++			 * refer to a reserved page. Slide them forward.
++			 */
++			++start_pfn;
++			++end_pfn;
+ 		}
+ 	}
+ 	totalram_pages += totalhigh_pages;
+-#endif
+ }
++#endif
+ 
+ void __init set_max_mapnr_init(void)
+ {
+diff -urpN wli-2.5.50-10/arch/i386/mm/init.c wli-2.5.50-11/arch/i386/mm/init.c
+--- wli-2.5.50-10/arch/i386/mm/init.c	2002-11-27 14:36:16.000000000 -0800
++++ wli-2.5.50-11/arch/i386/mm/init.c	2002-12-05 16:14:09.000000000 -0800
+@@ -151,14 +151,14 @@ static void __init kernel_physical_mappi
+ 	}	
+ }
+ 
+-static inline int page_kills_ppro(unsigned long pagenr)
++int __init page_kills_ppro(unsigned long pagenr)
+ {
+ 	if (pagenr >= 0x70000 && pagenr <= 0x7003F)
+ 		return 1;
+ 	return 0;
+ }
+ 
+-static inline int page_is_ram(unsigned long pagenr)
++int __init page_is_ram(unsigned long pagenr)
+ {
+ 	int i;
+ 

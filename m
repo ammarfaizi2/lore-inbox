@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129742AbRAaDet>; Tue, 30 Jan 2001 22:34:49 -0500
+	id <S129397AbRAaDtB>; Tue, 30 Jan 2001 22:49:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130107AbRAaDek>; Tue, 30 Jan 2001 22:34:40 -0500
-Received: from mnh-1-13.mv.com ([207.22.10.45]:60430 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S129742AbRAaDe1>;
-	Tue, 30 Jan 2001 22:34:27 -0500
-Message-Id: <200101310444.XAA04925@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: user-mode port 0.38-2.4.1
+	id <S129604AbRAaDsu>; Tue, 30 Jan 2001 22:48:50 -0500
+Received: from [200.216.82.35] ([200.216.82.35]:24960 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S129397AbRAaDsg>; Tue, 30 Jan 2001 22:48:36 -0500
+Date: Wed, 31 Jan 2001 01:48:24 -0200
+From: Frédéric L. W. Meunier <0@pervalidus.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.1 with pppd 2.4.0: log problem
+Message-ID: <20010131014824.E160@pervalidus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 30 Jan 2001 23:44:37 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.14i
+X-Mailer: Mutt/1.3.14i - Linux 2.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user-mode port of 2.4.1 is available.
+Hi. It worked without any problems with 2.4.0. Now with 2.4.1 I
+don't get anymore the usual messages in /var/log/messages (like
+pppd start and local and remote IP). The only change was the
+addition of devfs, but I don't think it's causing this problem.
+Any hints? I didn't change anything on my machine.
 
-I added support for attaching file descriptors and pts devices to UML serial 
-lines and consoles, plus specifying input and output channels separately.  
-'no-xterm' can now be duplicated with 'con0=fd:0,fd:1 con=pty'.
-
-There is now page dirty and access bit support.
-
-Fixed various bugs - gdb is now told where the binary really is, rather than 
-assuming that it is ./linux, kreiserfsd now exits correctly, rather than 
-hanging the system when it returns, and a recursively segfaulting process no 
-longer crashes the system.
-
-Several more symbols were exported.
-
-The project's home page is http://user-mode-linux.sourceforge.net
-
-Downloads are available at http://sourceforge.net/project/filelist.php?group_id
-=429 and ftp://ftp.nl.linux.org/pub/uml/
-
-				Jeff
-
-
+-- 
+0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314211AbSDRBhk>; Wed, 17 Apr 2002 21:37:40 -0400
+	id <S314212AbSDRBuq>; Wed, 17 Apr 2002 21:50:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314212AbSDRBhj>; Wed, 17 Apr 2002 21:37:39 -0400
-Received: from mail.mtroyal.ab.ca ([142.109.10.24]:36878 "EHLO
-	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S314211AbSDRBhi>; Wed, 17 Apr 2002 21:37:38 -0400
-Date: Wed, 17 Apr 2002 19:37:33 -0600 (MDT)
-From: James Bourne <jbourne@MtRoyal.AB.CA>
-Subject: [PATCH] 2.4.18 model 0x02 CPU for family 0x0F
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.44.0204171934500.28706-200000@skuld.mtroyal.ab.ca>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_rLO3d3onuT0mzpGAOEZfag)"
+	id <S314215AbSDRBup>; Wed, 17 Apr 2002 21:50:45 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:50347 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S314212AbSDRBup>; Wed, 17 Apr 2002 21:50:45 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Date: Thu, 18 Apr 2002 11:54:13 +1000 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15550.10053.834276.18723@notabene.cse.unsw.edu.au>
+Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: RAID superblock confusion
+In-Reply-To: message from Richard Gooch on Saturday April 13
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Saturday April 13, rgooch@ras.ucalgary.ca wrote:
+> Neil Brown writes:
+> > On Wednesday April 10, rgooch@ras.ucalgary.ca wrote:
+> > > 
+> > > The device is set up (i.e. SCSI host driver is loaded) long before I
+> > > do raidstart /dev/md/0
+> > 
+> > raidstart simply does not and cannot work reliably when your device
+> > numbers change around.  It takes the first device listed in
+> > /etc/raidtab and gives it to the kernel.
+> > The kernel reads the superblock, finds some device numbers and tries
+> > to attach those devices.  If device number have changed, you loose.
+> 
+> Sounds to me like the flaw is in the ioctl(2) interface, in that it
+> doesn't allow passing all the block devices in the RAID set. If it
+> allowed you to pass all the block devices, then it could check if all
+> the signatures on each block device match.
 
---Boundary_(ID_rLO3d3onuT0mzpGAOEZfag)
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+Exactly.  The flaw is in the ioctl interface.  2.4 comes with an
+improved ioctl interface which allows you to tell the kernel exactly
+what you want it to do.  mdadm used this interface.
 
-Hi
-This is a simple patch to mpparse.c which will identify the P4-X CPU on
-boot (instead of coming up with Unknown CPU [15/2]).
+> 
+> I tried the alternative of setting persistent-superblock=0 in
+> /etc/raidtab, but the stupid thing complained because it found a
+> superblock. Sigh.
+> 
+> If there was only a "do as I say, regardless" mode, I would be happy.
+> This programmer-knows-best attitude smacks of M$.
 
-It is against 2.4.18, but should apply to the 2.4.19-pre kernels.
+mdadm will do as you say, reguardless - if you ask it to.  Have you
+tried mdadm?
+   http://www.cse.unsw.edu.au/~neilb/source/mdadm/
 
-Regards
-James Bourne
-
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
-
---Boundary_(ID_rLO3d3onuT0mzpGAOEZfag)
-Content-id: <Pine.LNX.4.44.0204171937330.28706@skuld.mtroyal.ab.ca>
-Content-type: TEXT/PLAIN; name=2.4.18-p4-xeon-ident.patch; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=2.4.18-p4-xeon-ident.patch
-Content-description: patch
-
---- linux-2.4.18/arch/i386/kernel/mpparse.c~	Fri Nov  9 15:58:18 2001
-+++ linux-2.4.18/arch/i386/kernel/mpparse.c	Wed Apr 17 12:57:08 2002
-@@ -113,6 +113,8 @@
- 		case 0x0F:
- 			if (model == 0x00)
- 				return("Pentium 4(tm)");
-+			if (model == 0x02)
-+				return("Pentium 4(tm) XEON(tm)");
- 			if (model == 0x0F)
- 				return("Special controller");
- 	}
-
---Boundary_(ID_rLO3d3onuT0mzpGAOEZfag)--
+NeilBrown

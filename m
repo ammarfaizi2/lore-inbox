@@ -1,42 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275825AbRJFXgM>; Sat, 6 Oct 2001 19:36:12 -0400
+	id <S275832AbRJFXgX>; Sat, 6 Oct 2001 19:36:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275827AbRJFXfw>; Sat, 6 Oct 2001 19:35:52 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:49333 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S275825AbRJFXfm>;
-	Sat, 6 Oct 2001 19:35:42 -0400
-Date: Sun, 07 Oct 2001 00:36:09 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Anton Blanchard <anton@samba.org>, Rik van Riel <riel@conectiva.com.br>,
-        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: %u-order allocation failed
-Message-ID: <483005851.1002414968@[195.224.237.69]>
-In-Reply-To: <Pine.LNX.3.96.1011007003803.18004D-100000@artax.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.3.96.1011007003803.18004D-100000@artax.karlin.mff.cuni
- .cz>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S275827AbRJFXgM>; Sat, 6 Oct 2001 19:36:12 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:34548 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S275826AbRJFXfy>;
+	Sat, 6 Oct 2001 19:35:54 -0400
+Date: Sun, 7 Oct 2001 01:35:58 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11pre3aa1
+Message-ID: <20011007013558.M724@athlon.random>
+In-Reply-To: <20011004225708.A724@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20011004225708.A724@athlon.random>; from andrea@suse.de on Thu, Oct 04, 2001 at 10:57:09PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 04, 2001 at 10:57:09PM +0200, Andrea Arcangeli wrote:
+> 2) Hugh's locking cleanups
 
+checked now (of course it's just in pre4), very nice.
 
---On Sunday, 07 October, 2001 12:58 AM +0200 Mikulas Patocka 
-<mikulas@artax.karlin.mff.cuni.cz> wrote:
-
-> How do you know it? I showed a simple case where it may happen.
-
-Do you know two order=0 allocations with the same GFP_ value
-would not have also failed?
-
---
-Alex Bligh
+Andrea

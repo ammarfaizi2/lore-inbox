@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289314AbSBNA62>; Wed, 13 Feb 2002 19:58:28 -0500
+	id <S289291AbSBNA7M>; Wed, 13 Feb 2002 19:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289288AbSBNA6S>; Wed, 13 Feb 2002 19:58:18 -0500
-Received: from dsl-213-023-039-092.arcor-ip.net ([213.23.39.92]:20110 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289282AbSBNA6F>;
-	Wed, 13 Feb 2002 19:58:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Bill Davidsen <davidsen@tmr.com>,
-        "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: How to check the kernel compile options ?
-Date: Thu, 14 Feb 2002 02:02:48 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020213163646.12448B-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1020213163646.12448B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16bAIS-0002Qs-00@starship.berlin>
+	id <S289282AbSBNA6t>; Wed, 13 Feb 2002 19:58:49 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:55777 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S289291AbSBNA6i>;
+	Wed, 13 Feb 2002 19:58:38 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 14 Feb 2002 01:57:48 +0100 (MET)
+Message-Id: <UTC200202140057.g1E0vmj24668.aeb@apps.cwi.nl>
+To: davidsen@tmr.com, phillips@bonn-fries.net
+Subject: Re: [patch] sys_sync livelock fix
+Cc: akpm@zip.com.au, alan@lxorguk.ukuu.org.uk, jgarzik@mandrakesoft.com,
+        linux-kernel@vger.kernel.org, viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 13, 2002 10:51 pm, Bill Davidsen wrote:
-> On Wed, 13 Feb 2002, Richard B. Johnson wrote:
-> 
-> > The advantage, of course is that if you are executing the kernel,
-> > it can give you all the information necessary to recreate a
-> > new one from the sources because its .config is embeded into
-> > itself. Once you have the ".config" file, you just do `make oldconfig`
-> > and you are home free.
-> 
-> But it does no such thing! You not only need the config file, you need the
-> source.
+> it should work in the _best_ way, and if the standard got it wrong
+> then the standard has to change.
 
-The source is readily available, the specific config used for your kernel may
-not be.
+: BTW: I think users would expect the system call to work as the standard
+: specifies, not some better way which would break on non-Linux systems. Of
+: course now working programs which conform to the standard DO break on
+: Linux.
 
-> This feature just isn't all that useful,
+Let me repeat:
+The standard describes a *minimum*.
+A system that does not give more than this minimum would be
+a very poor system indeed.
 
-Given your little logic slip above I'm not sure I should trust your conclusion.
-OK, I'm out of here, I'm not interested in discussing why any more, only how.
+That POSIX does not require more than 14 bytes in a filename
+and does not promise me more than 6 simultaneous processes
+does not prevent us from having something better.
 
--- 
-Daniel
+In this particular case (sync) the minimum required is
+essentially empty. The proposed semantics: make sure that
+before return all writes that were scheduled at the time
+of the call seems entirely satisfactory.
+
+Andries
+
+
+(BTW Is your df broken? It is very long ago that my df did
+a sync.)

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276110AbRJBSXV>; Tue, 2 Oct 2001 14:23:21 -0400
+	id <S276109AbRJBSXV>; Tue, 2 Oct 2001 14:23:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276109AbRJBSXE>; Tue, 2 Oct 2001 14:23:04 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:37382 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S276108AbRJBSWM>; Tue, 2 Oct 2001 14:22:12 -0400
-Message-ID: <3BBA05E9.63162EB4@zip.com.au>
-Date: Tue, 02 Oct 2001 11:22:33 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ricky Beam <jfbeam@bluetopia.net>
-CC: Lorenzo Allegrucci <lenstra@tiscalinet.it>, linux-kernel@vger.kernel.org
-Subject: Re: Huge console switching lags
-In-Reply-To: <3BB9F1F2.B6873DFD@zip.com.au> <Pine.GSO.4.33.0110021408310.22872-100000@sweetums.bluetronic.net>
+	id <S276108AbRJBSXI>; Tue, 2 Oct 2001 14:23:08 -0400
+Received: from femail4.sdc1.sfba.home.com ([24.0.95.84]:63705 "EHLO
+	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S276113AbRJBSW3>; Tue, 2 Oct 2001 14:22:29 -0400
+Date: Tue, 2 Oct 2001 13:22:46 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Which is currently the most stable 2.4 kernel?
+Message-ID: <20011002132246.A32669@cy599856-a.home.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011002180502.25799.qmail@web13102.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011002180502.25799.qmail@web13102.mail.yahoo.com>
+User-Agent: Mutt/1.3.22i
+X-Editor: GNU Emacs 20.7.2
+X-Operating-System: Debian GNU/Linux 2.4.10-ac3 i586 K6-3+
+X-Uptime: 13:18:08 up 11:38,  2 users,  load average: 0.42, 0.40, 0.43
+From: Josh McKinney <forming@home.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricky Beam wrote:
+On approximately Tue, Oct 02, 2001 at 11:05:02AM -0700, Chris Rankin wrote:
+> Hi,
 > 
-> On Tue, 2 Oct 2001, Andrew Morton wrote:
-> >In 2.4.10, the console switching code moved from interrupt context
-> >into process context.  So if your system is taking a long time to
-> >schedule processes (in this case, keventd) then yes, console
-> >switching will take a long time.
+> Does anyone have any kernel recommendations /
+> counter-recommendations, please? One server is SMP,
+> the other is UP, and both are Intel architecture.
 > 
-> And what's the brilliant reason for this?  And don't give any BS about it
-> taking too long inside an interrupt context -- we're switching consoles not
-> start netscrape.
+> Cheers,
+> Chris
 > 
 
-It takes too long in interrupt context :)  Tens of milliseconds
-or more.  More importantly, it sorts the locking out - you can't
-acquire a semaphore in interrupt context.
+The latest ac kernels are stable as hell for me.  I would run them on any
+production machine.
+
+-- 
+Linux, the choice                | What makes you think graduate school is
+of a GNU generation       -o)    | supposed to be satisfying?   -- Erica Jong,
+Kernel 2.4.10-ac3          /\    | "Fear of Flying" 
+on a i586                 _\_v   | 
+                                 | 

@@ -1,95 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316887AbSGNPLO>; Sun, 14 Jul 2002 11:11:14 -0400
+	id <S316884AbSGNPJX>; Sun, 14 Jul 2002 11:09:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316886AbSGNPLN>; Sun, 14 Jul 2002 11:11:13 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:37798 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S316887AbSGNPLL>; Sun, 14 Jul 2002 11:11:11 -0400
-Date: Sun, 14 Jul 2002 17:12:28 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207141512.g6EFCSIZ019177@burner.fokus.gmd.de>
-To: alan@lxorguk.ukuu.org.uk, schilling@fokus.gmd.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
+	id <S316886AbSGNPJW>; Sun, 14 Jul 2002 11:09:22 -0400
+Received: from mail.storm.ca ([209.87.239.66]:62598 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id <S316884AbSGNPJV>;
+	Sun, 14 Jul 2002 11:09:21 -0400
+Message-ID: <3D3187E6.426BB595@storm.ca>
+Date: Sun, 14 Jul 2002 10:17:10 -0400
+From: Sandy Harris <pashley@storm.ca>
+Organization: Flashman's Dragoons
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Advice saught on math functions
+References: <E17T15g-0007mP-00@speech.braille.uwo.ca> <3D2EF8DB.4DB091FF@storm.ca> <20020714002054.GB29007@codepoet.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From alan@lxorguk.ukuu.org.uk Sun Jul 14 16:18:38 2002
+Erik Andersen wrote:
+> 
+> On Fri Jul 12, 2002 at 11:42:19AM -0400, Sandy Harris wrote:
+> > Does dietlibc help?
+> >
+> 
+> This is kernel space.  Using any math functions is forbidden
+> in kernel space,
 
->On Sun, 2002-07-14 at 15:07, Joerg Schilling wrote:
->> >From alan@lxorguk.ukuu.org.uk Fri Jul 12 22:22:45 2002
+Exactly what do you mean by "forbidden"?
 
->> >There are lots that fudge around and pretend scsi is the block layer
->> >when it is not. That sort of misses the point and slows down high end
->> >raid cards.
->> 
->> It seems that you miss to understand the needed underlying driver structures.
->> SCSI is not a block layer, it is a generic transport.
+Granted the kernel does not normally contain math libraries,
+and that linking in a 500 meg library would be spectacularly
+silly, what's wrong with using a few carefully chosen math
+functions in a driver?
 
->It is not generic - its handling of sophisticated I/O stuff is non
+The kernel does not, I think, normally use floating point.
+Would things break if a library that does was linked in?
+Is that what you mean?
 
-The fact that you don't know st does not make this statement true.
+> so using dietlibc, uClibc, or anything else
+> is not going to work.
 
->existant. SCSI gave rise to a convenient command set for low end devices
->thats since been applied (with endless problems due to its use) to
->things like fibrechannel.
+Just linking in a whole library won't work, but stealing code
+from a size-optimized library might. 
 
-The endless problems are problems caused by e.g. a bad transport implementation
-in Linux. Your "fibrechannel" words leads to another problem in Linux.
-usb_storage is a module that seems to suffer from a correct implementation
-if concurrent driver tasks. If usb_storage steps over the 'memory stick'
-interface on a Sony VAIO, it hangs itself for 10 minutes and is unable
-to recognise any other drive during this time period. If you like to use
-a USB CD writer on a VAIO, you need to unplug it and let the OS settle
-down after the boot until you are able to reconnect the writer. If you like
-to use the USB floppy the same problems ossur. This leads to the fact 
-that you cannot boot from a USB floppy: once the kernel is up, it cannot
-mount the root disk because the driver is hung from the memory stick adaptor.
+> Moving the math stuff to userspace will
+> help, at which point he can use any C library that suits him,
 
->Of course if you'd actually bothered to read the code (as I told you to
->go do a while back) you might understand the 2.5 direction with the
->block I/O layers. Using scsi command sets as a driver abstraction is a
->nonsense, its incomplete, inefficient and too full of messy rules that
->its not reasonable to inflict on hardware that doesn't care (eg recovery
->from tagged command sequences on an error from the drive). 2.5 has a
->much much saner abstraction thank you.
+The guy asking the question thinks he needs math in his driver
+because he needs a system that talks to blind users during the
+boot process, before any userspace programs can run.
 
-Well, I _did_ read the code a while ago and I did even write a patch for
-the sg.c driver that helped to fix a lot of problems. But instead of using
-this driver in the official kernel, _you_ preferred a sg.c hack made by a 
-OS novice that mainly did address some DMA specifics that should not occur
-at all in sg.c in a cleanly layered kernel.
+I've already suggested writing a scaled integer math library.
+This should be faster than float, accurate enough for speech.
+If what Erik is objecting to is floating point in the kernel,
+not just any sort of math, then it avoids his objection.
 
-I had a concept on how to go to a more usable interface in the future.
+Another possible solution:
 
-Do you really believe that I will ever start again to put effort in a
-Linux kernel module unless you did previously proove that you are willing
-and able to run a tecnically based discusion? 
-
-
-Look at this discussion: you sit on a high horse and behave as if you had 
-serious kernel experiences and do not even need to react on my statements
-in a senseful way. From looking at your statements it rather looks as if
-you are missing the needed experience. You do not really believe that this
-is the right way to treat someone with 20 year of kernel experience
-on different places of the kernel and on different OS implementations, do you?
-
-If you don't like to look like a 'I know everything but I don't have to proove'
-troll, it would help a lot to have a serious discussion where you would start
-to use arguments instead of just telling people no more than 'I know better'.
-
-Give yourself a hitch and admit that you are the person who is responsible
-that I believe that it is useless to try to help in Linux kernel development.
-
-If this discussion stays as it currently looks like, it does not make sense
-for me to try to find a better solution. Let me call it this way: this thread
-was just another proof that it is not possible to have a technical based 
-solution with the Linux folks. It seems t be just a waste of time :-(
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+Use two machines, both set to put boot messages on a serial
+console and connected so that when either reboots, the other
+is used as console. Do your sound in userspace (which I agree
+is where it belongs). Now as long as you don't reboot both
+at once (use a UPS!), you have sound for boot messages.

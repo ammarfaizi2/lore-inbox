@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292918AbSB0WlY>; Wed, 27 Feb 2002 17:41:24 -0500
+	id <S292848AbSB0Wq1>; Wed, 27 Feb 2002 17:46:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292958AbSB0Wkn>; Wed, 27 Feb 2002 17:40:43 -0500
-Received: from smtp10.atl.mindspring.net ([207.69.200.246]:27162 "EHLO
-	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
-	id <S293022AbSB0WkS>; Wed, 27 Feb 2002 17:40:18 -0500
-Message-ID: <3C7D6266.CFFDC7A3@mindspring.com>
-Date: Wed, 27 Feb 2002 14:49:10 -0800
-From: Joe <joeja@mindspring.com>
-Reply-To: joeja@mindspring.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S293029AbSB0Wp7>; Wed, 27 Feb 2002 17:45:59 -0500
+Received: from mail.shorewall.net ([206.124.146.177]:38150 "EHLO
+	mail.shorewall.net") by vger.kernel.org with ESMTP
+	id <S293028AbSB0Wpa>; Wed, 27 Feb 2002 17:45:30 -0500
+From: "Tom Eastep" <teastep@shorewall.net>
+To: "'James Cassidy'" <jcassidy@cs.kent.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: VIA Northbridge Workaround in 2.4.18 Causing Video Problems
+Date: Wed, 27 Feb 2002 14:45:31 -0800
+Organization: Shoreline Firewall
+Message-ID: <000e01c1bfe0$76103e00$0501a8c0@ursa>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.18 and RH 7.2
-In-Reply-To: <E16gBMx-0005rt-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
+In-Reply-To: <20020227223301.GA632@qfire.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unfortunately it is not just warnings.  It does not allow the firewall /
-packet filter to start and iptables -L shows an open system as the rules were
-never applied.  Needless to say I'm back on 2.4.17.
 
-Maybe I should file this as a bug with RH 7.2 then......
 
-> > iptables 1.2.4 was rebuild for the 2.4.17 because it stopped working at
-> > that point.  I hope it isn't requirement to rebuild iptables against each
-> > stable kernel release.
->
-> Its not a requirement for 1.2.4 and 2.4.18 either - what happened was that
-> some people (Red Hat notably) turned all the paranoid debugging stuff on
-> and that is what spews the warnings.
+> -----Original Message-----
+> From: James Cassidy [mailto:jcassidy@qfire.net] On Behalf Of 
+> James Cassidy
+> Sent: Wednesday, February 27, 2002 2:33 PM
+> To: Tom Eastep
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: VIA Northbridge Workaround in 2.4.18 Causing 
+> Video Problems
+> 
+> 
+> 	Odd, I have had constant problems with crashes when 
+> ever I stressed
+> my memory system with Athlon kernel selected in the kernel 
+> config. Same
+> machine,  Compaq Presario 700 series.
+
+Mine is not a 700 -- it is Presario 5108US Desktop.
+
+> Usually a kernel 
+> compile was enough
+> to cause an opps on one of these kernels. 
+> 	When the path in 2.4.18 in pre1 or pre2 don't remember, 
+> it fixed the
+> problem on my Compaq Presario 700. I've been running the 2.4.18 series
+> since the patch was added and as of today I have not 
+> experienced another
+> opps of this kind with the Athlon option enabled in the kernel.
+> 
+
+Your system appears to be one of the ones for which the workaround is
+effective. Mine on the other hand works fine without the workaround and
+has problems when the workaround is activated.
+
+-Tom
+--
+Tom Eastep   \ Shorewall -- iptables made easy
+AIM: tmeastep \ http://www.shorewall.net
+ICQ: #60745924 \ teastep@shorewall.net 
 

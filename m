@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269636AbUJFXcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269635AbUJFXb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269636AbUJFXcA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 19:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269617AbUJFXZk
+	id S269635AbUJFXb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 19:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269649AbUJFX2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 19:25:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63431 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269610AbUJFXWf (ORCPT
+	Wed, 6 Oct 2004 19:28:15 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:64965 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269610AbUJFXZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 19:22:35 -0400
-Date: Wed, 6 Oct 2004 16:26:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Serge Hallyn <serue@us.ibm.com>
-Cc: chrisw@osdl.org, linux-kernel@vger.kernel.org, serue@us.ibm.com
-Subject: Re: [patch 1/3] lsm: add bsdjail module
-Message-Id: <20041006162620.4c378320.akpm@osdl.org>
-In-Reply-To: <1097094270.6939.9.camel@serge.austin.ibm.com>
-References: <1097094103.6939.5.camel@serge.austin.ibm.com>
-	<1097094270.6939.9.camel@serge.austin.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 6 Oct 2004 19:25:44 -0400
+Date: Wed, 06 Oct 2004 16:26:05 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+cc: Hanna Linder <hannal@us.ibm.com>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com,
+       paulus@samba.org, benh@kernel.crashing.org
+Subject: Re: [PATCH 2.6] [2/12] chrp_pci.c replace pci_find_device with pci_get_device
+Message-ID: <55400000.1097105165@w-hlinder.beaverton.ibm.com>
+In-Reply-To: <303220000.1096932072@w-hlinder.beaverton.ibm.com>
+References: <303220000.1096932072@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge Hallyn <serue@us.ibm.com> wrote:
->
+--On Monday, October 04, 2004 04:21:12 PM -0700 Hanna Linder <hannal@us.ibm.com> wrote:
+
 > 
-> Attached is a patch against the security Kconfig and Makefile to support
-> bsdjail, as well as the bsdjail.c file itself. bsdjail offers
-> functionality similar to (but more limited than) the vserver patch.
+> As pci_find_device is going away I have replaced this call with pci_get_device.
+> If someone with a PPC system could verify it I would appreciate it.
+> 
+> Hanna Linder
+> IBM Linux Technology Center
+> 
+> Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 
-I don't recall anyone requesting this feature.  Tell me why we should add
-it to Linux?
+Reroll this patch with new macro
 
-> +
-> +#define in_use(x) (x->jail_flags & IN_USE)
-> +#define set_in_use(x) (x->jail_flags |= IN_USE)
-> +
-> +#define got_network(x) (x->jail_flags & (GOT_IPV4 | GOT_IPV6))
-> +#define got_ipv4(x) (x->jail_flags & (GOT_IPV4))
-> +#define got_ipv6(x) (x->jail_flags & (GOT_IPV6))
-> +#define set_ipv4(x) (x->jail_flags |= GOT_IPV4)
-> +#define set_ipv6(x) (x->jail_flags |= GOT_IPV6)
-> +#define unset_got_ipv4(x) (x->jail_flags &= ~GOT_IPV4)
-> +#define unset_got_ipv6(x) (x->jail_flags &= ~GOT_IPV6)
-> +#define get_task_security(task) (task->security)
-> +#define get_inode_security(inode) (inode->i_security)
-> +#define get_sock_security(sock) (sock->sk_security)
-> +#define get_file_security(file) (file->f_security)
-> +#define get_ipc_security(ipc)	(ipc->security)
-> +#define jail_of(proc) (get_task_security(proc))
-> +
-
-The above tricks may make the code easier to type, but I find they make the
-code harder for others to read, and that's more important.  We prefer to
-open-code such things.
-
-> +	if (tsec->root_pathname)
-> +		kfree(tsec->root_pathname);
-> +	if (tsec->ip4_addr_name)
-> +		kfree(tsec->ip4_addr_name);
-> +	if (tsec->ip6_addr_name)
-> +		kfree(tsec->ip6_addr_name);
-
-kfree(0) is permitted.  Some people like to do the double test anyway but I
-don't think it adds much here.
-
-> +		set_task_security(task,NULL);
-
-whitespace nit: In some places you have spaces after the commas and in
-others you do not.
-
-> +	kref_put(&tsec->kref, release_jail);
-
-This is the preferred style.
+diff -Nrup linux-2.6.9-rc3-mm2cln/arch/ppc/platforms/chrp_pci.c linux-2.6.9-rc3-mm2patch/arch/ppc/platforms/chrp_pci.c
+--- linux-2.6.9-rc3-mm2cln/arch/ppc/platforms/chrp_pci.c	2004-09-29 20:06:04.000000000 -0700
++++ linux-2.6.9-rc3-mm2patch/arch/ppc/platforms/chrp_pci.c	2004-10-06 16:15:44.000000000 -0700
+@@ -158,7 +158,7 @@ chrp_pcibios_fixup(void)
+ 	struct device_node *np;
+ 
+ 	/* PCI interrupts are controlled by the OpenPIC */
+-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++	for_each_pci_dev(dev) {
+ 		np = pci_device_to_OF_node(dev);
+ 		if ((np != 0) && (np->n_intrs > 0) && (np->intrs[0].line != 0))
+ 			dev->irq = np->intrs[0].line;
 

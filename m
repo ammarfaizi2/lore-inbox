@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135629AbRDSLkw>; Thu, 19 Apr 2001 07:40:52 -0400
+	id <S135630AbRDSLkW>; Thu, 19 Apr 2001 07:40:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135628AbRDSLkm>; Thu, 19 Apr 2001 07:40:42 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26124 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135629AbRDSLka>; Thu, 19 Apr 2001 07:40:30 -0400
-Subject: Re: Cross-referencing frenzy
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Thu, 19 Apr 2001 12:41:13 +0100 (BST)
-Cc: rgooch@atnf.csiro.au (Richard Gooch), esr@thyrsus.com,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.21.0104190109480.1685-100000@imladris.rielhome.conectiva> from "Rik van Riel" at Apr 19, 2001 01:11:07 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135629AbRDSLkM>; Thu, 19 Apr 2001 07:40:12 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:60687 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135628AbRDSLjz> convert rfc822-to-8bit; Thu, 19 Apr 2001 07:39:55 -0400
+From: s-jaschke@t-online.de (Stefan Jaschke)
+Reply-To: stefan@jaschke-net.de
+Organization: jaschke-net.de
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: Problems with Toshiba SD-W2002 DVD-RAM drive (IDE)
+Date: Thu, 19 Apr 2001 13:39:38 +0200
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01041714250400.01376@antares> <20010418123941.H492@suse.de> <20010418143953.D490@suse.de>
+In-Reply-To: <20010418143953.D490@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14qCoE-000701-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01041913393800.01240@antares>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > CONFIG_DEVFS: Documentation/filesystems/devfs/ChangeLog
-> > 
-> > These are options that used to be used,
->     ....
-> > These should not be removed
-> 
-> This makes no sense at all.  Do you have any particular
-> reason for keeping this deadwood around ?
+Hi Jens,
 
-Because its a changelog ?
+I applied your patch to 2.4.4-pre4. It compiled fine, but crashed during
+boot (just right after the IDE init) with
+-------------------
+Uniform CD-ROM driver Revision: 3.12
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+printing eip: ...
+Oops: 0000
+...
+-------------------
+
+I looked up the eip. It's in 
+c01a5490 t cdrom_get_entry
+c01a5490 t gcc2_compiled.
+(Although I don't know what the second line on the same address means.) 
+
+Please let me know, if you need more info or I can help in any other way.
+
+Thanks,
+Stefan

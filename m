@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267804AbTBRM44>; Tue, 18 Feb 2003 07:56:56 -0500
+	id <S267787AbTBRMzX>; Tue, 18 Feb 2003 07:55:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267805AbTBRM44>; Tue, 18 Feb 2003 07:56:56 -0500
-Received: from tomts12.bellnexxia.net ([209.226.175.56]:14838 "EHLO
-	tomts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267804AbTBRM4y>; Tue, 18 Feb 2003 07:56:54 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: Linux v2.5.62 --- spontaneous reboots
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Reply-To: tomlins@cam.org
-Date: Tue, 18 Feb 2003 08:07:03 -0500
-References: <fa.du861p4.qi0a2o@ifi.uio.no> <fa.m7uie32.15048ou@ifi.uio.no>
-Organization: me
-User-Agent: KNode/0.7.5
+	id <S267792AbTBRMzX>; Tue, 18 Feb 2003 07:55:23 -0500
+Received: from gherkin.frus.com ([192.158.254.49]:57729 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id <S267787AbTBRMyb>;
+	Tue, 18 Feb 2003 07:54:31 -0500
+Subject: [PATCH] aicasm Makefile
+To: gibbs@scsiguy.com
+Date: Tue, 18 Feb 2003 07:04:31 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20030218130704.169941BEA@oscar.casa.dyndns.org>
+Content-Type: multipart/mixed; boundary=ELM741507071-19856-0_
+Content-Transfer-Encoding: 7bit
+Message-Id: <20030218130431.EC8594EEF@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy(0000))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
 
-> A lot of people seem to be using gcc-3.2 these days, since it's what RH-8
-> comes with as standard. I don't think there are any known problems with
-> that compiler, at least on x86.
+--ELM741507071-19856-0_
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 
-No so,
+The Makefile for aicasm has been broken since 2.5.48.  The order in
+which objects are specified on the linker command line *is* significant,
+and if "-ldb" is made part of AICASM_CFLAGS rather than appearing after
+the "-o $(PROG)", I get an undefined symbol error (__db185_open).
 
-See the lkml thread
+The attached patch is against 2.5.54-2.5.62 inclusive.  If anyone is
+wondering, yes, this is a repeat posting on this subject (original was
+1 December 2002).
 
-Re: [BUG] link error in usbserial with gcc3.2
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------
 
-Ed Tomlinson
+--ELM741507071-19856-0_
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: attachment; filename=patch62_aicasm
 
+--- linux/drivers/scsi/aic7xxx/aicasm/Makefile~	2002-12-24 07:09:29.000000000 -0600
++++ linux/drivers/scsi/aic7xxx/aicasm/Makefile	2003-01-07 16:47:01.000000000 -0600
+@@ -10,9 +10,10 @@
+ GENSRCS=	$(YSRCS:.y=.c) $(LSRCS:.l=.c)
+ 
+ SRCS=	${CSRCS} ${GENSRCS}
++LIBS=	-ldb
+ CLEANFILES= ${GENSRCS} ${GENHDRS} $(YSRCS:.y=.output)
+ # Override default kernel CFLAGS.  This is a userland app.
+-AICASM_CFLAGS:= -I/usr/include -I. -ldb
++AICASM_CFLAGS:= -I/usr/include -I.
+ YFLAGS= -d
+ 
+ NOMAN=	noman
+@@ -30,7 +31,7 @@
+ endif
+ 
+ $(PROG):  ${GENHDRS} $(SRCS)
+-	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG)
++	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG) $(LIBS)
+ 
+ aicdb.h:
+ 	@if [ -e "/usr/include/db3/db_185.h" ]; then		\
 
-
-
+--ELM741507071-19856-0_--

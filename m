@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270811AbTGVMk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 08:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270813AbTGVMk2
+	id S270817AbTGVMpa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 08:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270819AbTGVMpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 08:40:28 -0400
-Received: from dhcp169.linuxsymposium.org ([209.151.19.169]:16000 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S270811AbTGVMkY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 08:40:24 -0400
-Subject: Re: Radeon in LK 2.4.21pre7
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-Cc: ajoshi@kernel.crashing.org, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1058679793.10948.47.camel@ktkhome>
-References: <1058679793.10948.47.camel@ktkhome>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1058878512.532.10.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 22 Jul 2003 14:55:14 +0200
+	Tue, 22 Jul 2003 08:45:30 -0400
+Received: from h-64-236-243-31.twi.com ([64.236.243.31]:51335 "EHLO
+	atwburmw02.twi.com") by vger.kernel.org with ESMTP id S270817AbTGVMp3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 08:45:29 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: vmalloc - kmalloc and page locks
+Date: Tue, 22 Jul 2003 06:00:14 -0700
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: vmalloc - kmalloc and page locks
+Thread-Index: AcNQUTNczGXwmb+PT46a3OT+oV2kHA==
+From: "Deas, Jim" <James.Deas@warnerbros.com>
+To: linux-kernel@vger.kernel.org
+X-OriginalArrivalTime: 22 Jul 2003 13:00:14.0620 (UTC)
+ FILETIME=[314CDDC0:01C35051]
+X-WSS-ID: 1303EAD4207562-01-02
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <S270817AbTGVMp3/20030722124529Z+5562@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-07-20 at 07:43, Kristofer T. Karas wrote:
-> Ben, Ani, et al,
-> 
-> Just tried Linux kernels 2.4.21pre6 and pre7 with my Radeon 8500LEE and
-> have had some dreadful corruption problems related to pixel clearing
-> during scroll and ypan.  This is probably old news to you; so <aol>me
-> too</aol>.  I first noticed this in the -ac kernels, but a variant is
-> now in mainline -pre.
-> 
-> Problem #1:  When scrolling, radeonfb fails to erase the portion of the
-> screen at the bottom, leaving all sorts of random pixels in the bottom
-> line.  Further scrolling propagates these pixels upwards.
-> See http://enterprise.bidmc.harvard.edu/~ktk/temp/radeonfb/screen-1.jpg
-> (Sorry for camera-shake; hand-held in dim room...)
+How can I look at what memory are being paged out of memory in the kernel
+or how to lock kmalloc and vmalloc pages so they do not get put to swap?
+ I have a program that runs great 90% of the time but the other 10%
+of the time the system usage (using 'top')goes from 3% to 50% and latency goes out
+the window!  I am assuming this is due to some of my buffers getting swaped 
+out as it often corrects itself and runs well the majority of time.
+Doubling the base memory from 256M to 512M did nothing to fix this.
+I need some way to find out who is holding up the process.
+Any suggestions? linux-newbe did not give me any replys, if
+this is the wrong groups can someone redirect me?
 
-This looks like erase not working properly... This usually happens
-after switching back from X as X tends to leave some garbage in some
-engine registers, and is usually cured by switching to another console
-(this is why I tend to force-reinit the accel engine on console switch).
-
-Since your problem seem to not depend on XFree, I suspect something
-else hairy is going on with the engine, I don't know what yet though,
-I'll try to find some clue.
-
-In the meantime, can you send me a dmesg output ?
-
-Thanks,
-Ben.
+Best Regards,
+J. Deas
 

@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265696AbSKATRe>; Fri, 1 Nov 2002 14:17:34 -0500
+	id <S265697AbSKATYq>; Fri, 1 Nov 2002 14:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265697AbSKATRd>; Fri, 1 Nov 2002 14:17:33 -0500
-Received: from B5292.pppool.de ([213.7.82.146]:40586 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S265696AbSKATRc>; Fri, 1 Nov 2002 14:17:32 -0500
-Subject: ARP cache parameters?
-From: Daniel Egger <degger@fhm.edu>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-/eOLqg+2//36EkAc+oG4"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Nov 2002 20:16:30 +0100
-Message-Id: <1036178190.13261.7.camel@sonja.de.interearth.com>
+	id <S265717AbSKATYq>; Fri, 1 Nov 2002 14:24:46 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7944 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265697AbSKATYp>; Fri, 1 Nov 2002 14:24:45 -0500
+Date: Fri, 1 Nov 2002 19:31:12 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where's the documentation for Kconfig?
+Message-ID: <20021101193112.B26989@flint.arm.linux.org.uk>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	linux-kernel@vger.kernel.org
+References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0210311452531.13258-100000@serv> <20021101125226.B16919@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211011439420.6949-100000@serv>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0211011439420.6949-100000@serv>; from zippel@linux-m68k.org on Fri, Nov 01, 2002 at 02:50:38PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, next problem.
 
---=-/eOLqg+2//36EkAc+oG4
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+A "hex" config entry under the old config language used to omit the "0x"
+prefix, requiring it to be added by whatever used it.  Kconfig adds the
+"0x" prefix, thereby causing errors.
 
-Hija,
+Is this difference intentional?
 
-is there any good documentation around how to tweak Linux' arp caching
-behaviour? I've been fooling around with parameters in=20
-/proc/sys/net/ipv4/neigh/default but couldn't get it to keep hardware
-addresses valid for a longer period of time than a few seconds.
-
-I'd like to avoid caching hardware addresses in userspace and I need
-my entries to be far longer reachable without making them permanent.
-
-Any pointers would be greatly appreactiated.
-
---=20
-Servus,
-       Daniel
-
---=-/eOLqg+2//36EkAc+oG4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA9wtMOchlzsq9KoIYRAr+hAKCWgbvpK03GCrwQO/Zm0n9sP/pXOACgvMfm
-iVbx00LGGi67XRWWCslMQbI=
-=yQtz
------END PGP SIGNATURE-----
-
---=-/eOLqg+2//36EkAc+oG4--
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271883AbRHUWuA>; Tue, 21 Aug 2001 18:50:00 -0400
+	id <S271884AbRHUWta>; Tue, 21 Aug 2001 18:49:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271885AbRHUWtw>; Tue, 21 Aug 2001 18:49:52 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43784 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271883AbRHUWtf>; Tue, 21 Aug 2001 18:49:35 -0400
-Subject: Re: Qlogic/FC firmware
-To: jfbeam@bluetopia.net (Ricky Beam)
-Date: Tue, 21 Aug 2001 23:52:14 +0100 (BST)
-Cc: riel@conectiva.com.br (Rik van Riel), davem@redhat.com (David S. Miller),
-        alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.33.0108211828150.6389-100000@sweetums.bluetronic.net> from "Ricky Beam" at Aug 21, 2001 06:45:02 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S271883AbRHUWtU>; Tue, 21 Aug 2001 18:49:20 -0400
+Received: from abasin.nj.nec.com ([138.15.150.16]:49418 "HELO
+	abasin.nj.nec.com") by vger.kernel.org with SMTP id <S271885AbRHUWtJ>;
+	Tue, 21 Aug 2001 18:49:09 -0400
+From: Sven Heinicke <sven@research.nj.nec.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZKNa-0000UE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <15234.58734.200740.952923@abasin.nj.nec.com>
+Date: Tue, 21 Aug 2001 18:49:18 -0400 (EDT)
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P) 
+In-Reply-To: <200108211719.f7LHIvY95432@aslan.scsiguy.com>
+In-Reply-To: <15234.37073.974320.621770@abasin.nj.nec.com>
+	<200108211719.f7LHIvY95432@aslan.scsiguy.com>
+X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Were's the initrd going to get the firmware?  It's not in the freakin' tree
-> anymore.  If I have to go download a firmware image and stick it in an
-> initrd, why the hell wouldn't I just plug it directly into the kernel?
-> It's *my* kernel.
 
-Well initrd is _user_ space so it probably gets them from user space tools.
+Justin,
 
-> Oh for the love of God, will you people stop drooling over the fucking GPL?
-> It's *firmware*... it's just a bunch of bits.  It's *not* a program the
-> kernel executes.  It's just data. (__init_data to be exact.)
+I've tried removing your check, for writing bonnie++ still reports
+slower write times then IDE drive on the other system.  Daniel Phillips
+was great at helping me notice a problem that was causing slow down
+but not related to the aic7xxx driver, thus I am now trying the
+7.4.8-ac8 kernel.
 
-Look, if its not distributable then its no good to anyone.
+I made your change whe will get try to get my user to test the system
+with and without your change.
 
-> a lot of company.  Ask yourself, will you miss 128_K_ in a machine with a
-> fiber channel card in it?  It "bloats" the kernel for people using that
-> hardware -- machines that don't need it can release it.
+     Sven
 
-Well maybe, and whats the right way to do that, oh my god I do believe its
-an initrd.
-
-Well well well
-
-Alan
+Justin T. Gibbs writes:
+ > >Disk access is faster then before but still slower then the IDE
+ > >drive.  Any ideas?
+ > 
+ > It could be the occasionall ordered tag that is sent to the drive to
+ > prevent tag starvation.  If you search in drivers/scsi/aic7xxx/aic7xxx_linux.c
+ > for "OTAG_THRESH" and make that if test always fail (add an "&& 0") you will
+ > have effectively disabled this feature.  I should probably make it an option
+ > that defaults to off.
+ > 
+ > --
+ > Justin

@@ -1,49 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbUAEQH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 11:07:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbUAEQH2
+	id S264830AbUAEQJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 11:09:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbUAEQJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 11:07:28 -0500
-Received: from ns.suse.de ([195.135.220.2]:6117 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261731AbUAEQH1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 11:07:27 -0500
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: David Mueller <d.mueller@elsoft.ch>, Tom Rini <trini@kernel.crashing.org>,
-       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: PPC32: Fix the floppy driver, on CONFIG_NOT_COHERENT_CACHE.
-References: <200401032002.i03K25Y9024335@hera.kernel.org>
-	<Pine.GSO.4.58.0401051504050.3740@waterleaf.sonytel.be>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I'm young..  I'm HEALTHY..  I can HIKE THRU CAPT GROGAN'S LUMBAR
- REGIONS!
-Date: Mon, 05 Jan 2004 17:07:23 +0100
-In-Reply-To: <Pine.GSO.4.58.0401051504050.3740@waterleaf.sonytel.be> (Geert
- Uytterhoeven's message of "Mon, 5 Jan 2004 15:04:47 +0100 (MET)")
-Message-ID: <jeisjqnzus.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+	Mon, 5 Jan 2004 11:09:56 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:40616 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264415AbUAEQJv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 11:09:51 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Christophe Saout <christophe@saout.de>
+Subject: Re: Possibly wrong BIO usage in ide_multwrite
+Date: Mon, 5 Jan 2004 17:12:41 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1072977507.4170.14.camel@leto.cs.pocnet.net> <200401032302.32914.bzolnier@elka.pw.edu.pl> <1073237458.6069.31.camel@leto.cs.pocnet.net>
+In-Reply-To: <1073237458.6069.31.camel@leto.cs.pocnet.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401051712.41695.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven <geert@linux-m68k.org> writes:
+On Sunday 04 of January 2004 18:30, Christophe Saout wrote:
+> Am Sa, den 03.01.2004 schrieb Bartlomiej Zolnierkiewicz um 23:02:
+> > > The way I would prefer is that when someone calls bio_endio the bi_idx
+> > > and bv_offset just point where the processed data begins.
+> >
+> > Are you aware that this will make partial completions illegal?
+> > [ No problem for me. ]
+>
+> Why that? __end_that_request_first already does this (when moving thw
+> two lines updating bv_offset/bv_len after the call of the bi_end_io
+> function).
 
-> On Fri, 2 Jan 2004, Linux Kernel Mailing List wrote:
->> +#if CONFIG_NOT_COHERENT_CACHE
->    ^^^
-> Shouldn't this be #ifdef?
+Looking once again, I see it is OK.
 
-Doesn't matter. Config variables are always either defined to 1 or not
-defined at all (which is equivalent to 0 in #if).
+> > > Can't another (some local) variable be used as bvec index instead of
+> > > bi_idx in the original bio? (except from ide_map_buffer using exactly
+> > > this index...)
+> >
+> > see rq_map_buffer() in include/linux/blkdev.h
+>
+> Right. I've been going through ide-taskfile.c for the last hours.
+>
+> The IDE_TASKFILE_IO gets things right (from my point of view) and is
+> also much cleaner. (I would personally vote for dropping the non
+> TASKFILE_IO code, it would make my problem go away :D - why is it still
+> marked as experimental BTW? I've been using it since it was introduced,
+> without any problems)
 
-Andreas.
+There are still some issues to be resolved:
+- hangs during reading /proc/ide/<cdrom>/identify on some drives
+  (workaround is now known thanks to debugging done by Andi+BenH+Andre)
+- unexplained fs corruption on x86-64 with AMD IDE chipsets
+  (the real showstopper)
+- somebody needs to test taskfile code on old Promise PDC4030 controller
+  (low priority)
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+> BTW: The taskfile code that is used when IDE_TASKFILE_IO is disabled
+> might partially end requests without knowing the actual status, right?
+
+Right.
+
+> So non TASKFILE_IO code has two multout codepaths (taskfile and not)
+> that are both "awkward" while TASKFILE_IO merges both into a single and
+> clean version.
+
+Yes.
+
+> > > Would you be interested in a small patch (well, if I can come up with
+> > > one)?
+> >
+> > Sure, but I don't know what you want to change... :-)
+>
+> I'm not yet sure, either. I don't think that a too invasive version
+> would be adequate though converting this mess to the cbio method would
+> be nice. Or would you prefer to see that? I don't think it's worth
+> starting on that since you said you'de like to see this part of the IDE
+> layer die in 2.7 anyway. I would really like to see ide_map_buffer die
+> in favor of rq_map_buffer though. Hmm.
+> Perhaps I can think of something else. It's really tricky...
+
+I would like to remove non CONFIG_IDE_TASKFILE_IO paths in 2.6.x
+(after issues are resolved) instead of trying to fix them.
+
+--bart
+

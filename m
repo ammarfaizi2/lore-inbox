@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264577AbUDVROd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264584AbUDVRSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264577AbUDVROd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 13:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUDVROd
+	id S264584AbUDVRSS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 13:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264590AbUDVRSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 13:14:33 -0400
-Received: from fmr11.intel.com ([192.55.52.31]:32683 "EHLO
-	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
-	id S264577AbUDVRO0 convert rfc822-to-8bit (ORCPT
+	Thu, 22 Apr 2004 13:18:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49536 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264584AbUDVRSH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 13:14:26 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 1/3] efivars driver update and move
-Date: Thu, 22 Apr 2004 10:14:05 -0700
-Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFEAB3@fmsmsx406.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 1/3] efivars driver update and move
-Thread-Index: AcQoiXClS/Fo3Q3fRqmFKH7vAFFu9QAAY/cA
-From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>,
-       "Matt Tolentino" <metolent@snoqualmie.dp.intel.com>
-Cc: <akpm@osdl.org>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <Matt_Domsch@dell.com>
-X-OriginalArrivalTime: 22 Apr 2004 17:14:06.0495 (UTC) FILETIME=[37CDCAF0:01C4288D]
+	Thu, 22 Apr 2004 13:18:07 -0400
+Date: Thu, 22 Apr 2004 10:12:06 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: kieran@ihateaol.co.uk, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Why is CONFIG_SCSI_QLA2X_X always enabled?
+Message-Id: <20040422101206.70133b42.rddunlap@osdl.org>
+In-Reply-To: <1082651974.1778.52.camel@mulgrave>
+References: <4087E95F.5050409@ihateaol.co.uk>
+	<20040422092853.55d0b011.rddunlap@osdl.org>
+	<1082651974.1778.52.camel@mulgrave>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I like these changes.
+On 22 Apr 2004 12:39:34 -0400 James Bottomley wrote:
 
-Thanks!  
+| On Thu, 2004-04-22 at 12:28, Randy.Dunlap wrote:
+| > A nuisance or annoyance perhaps.  Here's a patch for it.
+| 
+| No, it's a variable used to determine whether the user should be asked
+| about qla2xxx or not.
 
-> I did notice that the new drivers/.../efivars.c is not identical to
-> the old arch/ia64/kernel/efivars.c (the hints to emacs were removed).
-> I like the emacs hint removal, but didn't review patch for any other
-> differences.
+As it is, for some large %age of users (say 99% ?), those 6 qla drivers
+show up in the config menu when they aren't needed or wanted.
+They get in the way.
 
-Right, it's been fully converted to sysfs.  Just for reference, the 
-resultant sysfs tree looks something like:
+| The proposed patch is obviously not correct, because we don't want the
+| user to be asked about it.
 
-/sys |
-     ...
-     |-firmware 
-	       |-efi
-		   |-systab
-		   |-vars 
-			 |- BootNext-xxxx-xxx-x-x-x-x *
-				|-attributes
-				|-data
-				|-guid
-				|-raw_var
-				|-size
-			 |- BootCurrent-xxxxxx-x-x-x-x *
-			 |- ConOut-xxxx-x-x-x-x-x-x-*
-			 ...
-			 |- del_var
-			 |- new_var 
+You want it to always be presented (if PCI && SCSI) ?
+No, it should be a selectable option iff PCI && SCSI.
 
-where xxxx-x-x-x-x-x is the GUID.  
+| A better fix might be to make the qla2xxx a menu dependent on SCSI &&
+| PCI
 
-> Any plans to consolidate other bits from efi.c?  There are a number
-> of things there that look like they could be shared:
+It already does.  The problem is that is defaults to the value of
+(SCSI && PCI) when a large number of people don't need that
+default value.  IOW, it's a bad choice for a default value.
 
-Yes, I plan to consolidate as much of the common code as possible soon.
-
-
-matt
-
+--
+~Randy
+"We have met the enemy and he is us."  -- Pogo (by Walt Kelly)

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbTDOPp6 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 11:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbTDOPp6 
+	id S261707AbTDOPyK (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 11:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbTDOPyK 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 11:45:58 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:17304 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S261705AbTDOPp5 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 11:45:57 -0400
-Date: Tue, 15 Apr 2003 16:57:08 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: BUGed to death
-Message-ID: <20030415155708.GB17152@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	rwhron@earthlink.net, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <20030415143024.GA10117@rushmore>
-Mime-Version: 1.0
+	Tue, 15 Apr 2003 11:54:10 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:45761 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261707AbTDOPyI 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 11:54:08 -0400
+Date: Tue, 15 Apr 2003 09:05:57 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 589] New: rtc won't compile because expect return from void
+ function
+Message-ID: <75850000.1050422757@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030415143024.GA10117@rushmore>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15, 2003 at 10:30:24AM -0400, rwhron@earthlink.net wrote:
- > The patch below eliminates 4 BUG() calls that clearly 
- > cannot happen based on the context.
 
-This looks bogus.
+http://bugme.osdl.org/show_bug.cgi?id=589
 
- > --- linux-2.5.67-mm2/fs/reiserfs/hashes.c.orig	2003-04-15 10:11:44.000000000 -0400
- > +++ linux-2.5.67-mm2/fs/reiserfs/hashes.c	2003-04-15 10:13:43.000000000 -0400
- > @@ -90,10 +90,6 @@
- >  
- >  	if (len >= 12)
- >  	{
- > -	    	//assert(len < 16);
- > -		if (len >= 16)
- > -		    BUG();
- > -
+           Summary: rtc won't compile because expect return from void
+                    function
+    Kernel Version: 2.5.67
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: jstrand1@rochester.rr.com
 
-Imagine I pass in 20. Previously, the BUG triggers. Not any more.
-Ditto the other changes.  Or am _I_ missing something ?
 
-		Dave
+Distribution:  Debian
+Hardware Environment:  P4
+Software Environment:  gcc 2.95.3
+Problem Description:  
+
+rtc fails to compile because of this line in drivers/char/genrtc.c (in
+gen_rtc_proc_output, ca line 453):
+
+flags = get_rtc_time(&tm);
+
+get_rtc_time is a void function.  Also, though it will compile, just setting
+flags to '0' would result in proc output not being accurate, since flags is
+ANDed to various items.
+
 

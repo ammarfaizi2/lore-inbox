@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263837AbTAUGG4>; Tue, 21 Jan 2003 01:06:56 -0500
+	id <S265108AbTAUGI2>; Tue, 21 Jan 2003 01:08:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265051AbTAUGG4>; Tue, 21 Jan 2003 01:06:56 -0500
-Received: from dhcp34.trinity.linux.conf.au ([130.95.169.34]:11648 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id <S263837AbTAUGGz>; Tue, 21 Jan 2003 01:06:55 -0500
-Subject: Re: [PATCH][2.5] smp_call_function_mask
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0301170014230.24250-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0301170014230.24250-100000@montezuma.mastecende.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043104744.12609.2.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 20 Jan 2003 23:19:05 +0000
+	id <S265187AbTAUGI2>; Tue, 21 Jan 2003 01:08:28 -0500
+Received: from samar.sasken.com ([164.164.56.2]:14826 "EHLO samar.sasken.com")
+	by vger.kernel.org with ESMTP id <S265108AbTAUGI0>;
+	Tue, 21 Jan 2003 01:08:26 -0500
+Date: Tue, 21 Jan 2003 11:47:23 +0530 (IST)
+From: Madhavi <madhavis@sasken.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel debugger
+Message-ID: <Pine.LNX.4.33.0301211141580.8730-100000@pcz-madhavis.sasken.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-17 at 05:18, Zwane Mwaikambo wrote:
-> +	/* Wait for response */
-> +	while (atomic_read(&data.started) != num_cpus)
-> +		barrier();
 
-Only old old intel x86 that does -bad- things as it
-generates a lot of bus locked cycles. Better to do
+Hi
 
-	while(atomic_read(&data.started) != num_cpus)
-		while(data.started.value != num_cpus)
-		{
-			barrier();
-			cpu_relax();
-		}
+I am currently testing a device driver on linux-2.4.19. This is
+implemented as a loadable kernel module.
 
-I would think ?
+# Could anyone suggest a good debugger that can be used to debug kernel
+  modules?
+
+# When I tried using gdb with vmlinux and /proc/kcore, I am getting a
+  message saying that no debug symbols are found. How do I enable debug
+  symbols for linux kernel image? Kernel Debug is already enabled. Is
+  there some other configuration that needs to be there?
+
+Thanks in advance.
+
+regards
+Madhavi.
 

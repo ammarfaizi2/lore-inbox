@@ -1,42 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318040AbSFSWjU>; Wed, 19 Jun 2002 18:39:20 -0400
+	id <S318039AbSFSWjH>; Wed, 19 Jun 2002 18:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318041AbSFSWjS>; Wed, 19 Jun 2002 18:39:18 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:28800 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318040AbSFSWjR>;
-	Wed, 19 Jun 2002 18:39:17 -0400
-Date: Thu, 20 Jun 2002 00:37:17 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Question about sched_yield() 
-In-Reply-To: <Pine.LNX.3.96.1020619181429.3743B-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0206200032000.21435-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318040AbSFSWjG>; Wed, 19 Jun 2002 18:39:06 -0400
+Received: from p3E9EA9B4.dip.t-dialin.net ([62.158.169.180]:16264 "EHLO
+	santana.vm.dabrunz.de") by vger.kernel.org with ESMTP
+	id <S318039AbSFSWjF>; Wed, 19 Jun 2002 18:39:05 -0400
+Date: Thu, 20 Jun 2002 00:39:05 +0200
+From: Olaf Dabrunz <Olaf.Dabrunz@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: big drive (ATA-4) support in stable kernel?
+Message-ID: <20020620003905.A15097@santana.vm.dabrunz.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello everyone,
 
-On Wed, 19 Jun 2002, Bill Davidsen wrote:
+what is the status of the big drive (>138GB) support in 2.5.x? Is someone
+porting it back to 2.4?
 
-> [...] I'd like to see threads of a single process be able to get, use,
-> and share a timeslice before some cpu hog comes in and get his
-> timeslice.
+Tnx,
 
-there is no such concept as 'threads of a single process' in Linux, and
-this is not just a naming difference. In Linux threads are threads, and
-whether they share the same set of pagetables or not is secondary to the
-kernel. (there are lots of other resources they might or might not share
-between each other.)
-
-the OS where processes 'own' threads, where the process is a container,
-where this concept is pretty much the only meaningful multiprogramming
-concept, and where the kernel API is separated into per-thread and
-per-process parts is not called Linux.
-
-	Ingo
-
+Olaf.

@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131362AbRCWX55>; Fri, 23 Mar 2001 18:57:57 -0500
+	id <S131392AbRCWX7h>; Fri, 23 Mar 2001 18:59:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131392AbRCWX5t>; Fri, 23 Mar 2001 18:57:49 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:54726 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S131362AbRCWX5h>; Fri, 23 Mar 2001 18:57:37 -0500
-Date: Sat, 24 Mar 2001 00:56:12 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] gcc-3.0 warnings
-Message-ID: <20010324005612.V11126@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <20010323011140.A1176@werewolf.able.es> <E14gFRT-0003f4-00@the-village.bc.nu> <20010323013800.A1918@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010323013800.A1918@werewolf.able.es>; from jamagallon@able.es on Fri, Mar 23, 2001 at 01:38:00AM +0100
+	id <S131393AbRCWX7a>; Fri, 23 Mar 2001 18:59:30 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:44806 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131392AbRCWX6m>; Fri, 23 Mar 2001 18:58:42 -0500
+Date: Fri, 23 Mar 2001 08:21:35 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Richard Jerrell <jerrell@missioncriticallinux.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm/memory.c, 2.4.1 : memory leak with swap cache (updated)
+In-Reply-To: <Pine.LNX.4.21.0103231042380.20061-200000@jerrell.lowell.mclinux.com>
+Message-ID: <Pine.LNX.4.21.0103230820430.1863-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 23, 2001 at 01:38:00AM +0100, J . A . Magallon wrote:
-> Is there a non-written standard for coding that asm's ?
-> For example:
-> "      adcl 12(%1), %0\n"
-> "1:    adcl 16(%1), %0\n"
-> "      lea 4(%1), %1\n"
+On Fri, 23 Mar 2001, Richard Jerrell wrote:
+> > Your idea is nice, but the patch lacks a few things:
+> > 
+> > - SMP locking, what if some other process faults in this page
+> >   between the atomic_read of the page count and the test later?
 > 
-> or
+> It can't happen.  free_pte is called with the page_table_lock held in 
+> addition to having the mmap_sem downed.
+
+The page_table_lock and the mmap_sem only protect the *current*
+task. Think about something like an apache with 500 children who
+COW share the same page...
+
+> > - testing if our process is the _only_ user of this swap page,
+> >   for eg. apache you'll have lots of COW-shared pages .. it would
+> >   be good to keep the page in memory for our siblings
 > 
-> "adcl 12(%1), %0\n\t"
-                     ^[1]
-> "1:  adcl 16(%1), %0\n\t"
-> "lea 4(%1), %1\n\t"
+> This is already done in free_page_and_swap_cache.
 
-The first one is better readable and the latter one is more
-portable (since the first may contain tabs in the string, instead
-of spaces and no one sees this).
+Ok ...
 
-You'll see, what I mean with readable, if you omit the tab in [1].
+regards,
 
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-Regards
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

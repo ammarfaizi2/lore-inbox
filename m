@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261528AbTCGLRf>; Fri, 7 Mar 2003 06:17:35 -0500
+	id <S261513AbTCGLPA>; Fri, 7 Mar 2003 06:15:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261529AbTCGLRf>; Fri, 7 Mar 2003 06:17:35 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14761
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261528AbTCGLRe>; Fri, 7 Mar 2003 06:17:34 -0500
-Subject: Re: [PATCH] remove spare cast
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0303071201510.13981-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0303071201510.13981-100000@vervain.sonytel.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047040421.20794.1.camel@irongate.swansea.linux.org.uk>
+	id <S261517AbTCGLPA>; Fri, 7 Mar 2003 06:15:00 -0500
+Received: from packet.digeo.com ([12.110.80.53]:59272 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261513AbTCGLO6>;
+	Fri, 7 Mar 2003 06:14:58 -0500
+Date: Fri, 7 Mar 2003 03:25:32 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5] memleak in load_elf_binary?
+Message-Id: <20030307032532.17d37207.akpm@digeo.com>
+In-Reply-To: <20030307141247.D7347@namesys.com>
+References: <20030307141247.D7347@namesys.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 07 Mar 2003 12:33:42 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Mar 2003 11:25:26.0576 (UTC) FILETIME=[405E7B00:01C2E49C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-07 at 11:03, Geert Uytterhoeven wrote:
+Oleg Drokin <green@namesys.com> wrote:
+>
+> Hello!
 > 
-> This reintroduces the following warning (with gcc-2.95.2 and gcc-3.2)
+>    I am still playing with improving memleak detector thing from smatch project.
 > 
-> | drivers/ide/ide-lib.c:174: warning: comparison of distinct pointer types
-> | lacks a cast
+>    Seems there is a memleak in fs/binfmt_elf.c::load_elf_binary() in current 2.5
+>    If setup_arg_pages() fails (line 638 in my sources) we do return but 
+>    not freeing possibly allocated elf_interpreter (line 520) and 
+>    allocated elf_phdata (line 500) areas.
 > 
-> which the cast was supposed to kill.
+>    Is this looking real? At least it looks real for me (I am trying to get
+>    number of false positives way down).
+> 
 
-I know. Right now I don't care because I'm slowly turning all the u8 stuff
-back into ints which is actually less code and faster on most processors.
+Yes, you're right.  And there's a second one further down.
 
+Whoever thought of permitting more than one `return' statement in a C
+function should be shot.
+
+This needs a little thought, as we've already set the new personality and the
+old executable has been rubbed out.

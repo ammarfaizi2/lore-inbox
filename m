@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261421AbSIWTwY>; Mon, 23 Sep 2002 15:52:24 -0400
+	id <S261341AbSIWTNQ>; Mon, 23 Sep 2002 15:13:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261423AbSIWTwY>; Mon, 23 Sep 2002 15:52:24 -0400
-Received: from h106-129-61.datawire.net ([207.61.129.106]:8940 "EHLO
-	newmail.datawire.net") by vger.kernel.org with ESMTP
-	id <S261421AbSIWTwX> convert rfc822-to-8bit; Mon, 23 Sep 2002 15:52:23 -0400
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [BENCHMARK] EXT3 vs EXT2 results with rmap14a and testing with contest 0.34
-Date: Mon, 23 Sep 2002 16:00:03 -0400
-User-Agent: KMail/1.4.6
-Cc: Andreas Dilger <adilger@clusterfs.com>, sct@redhat.com,
-       Con Kolivas <conman@kolivas.net>, linux-kernel@vger.kernel.org
-References: <200209182118.12701.spstarr@sh0n.net> <3D896F73.5D1265B5@digeo.com> <20020923200337.L11682@redhat.com>
-In-Reply-To: <20020923200337.L11682@redhat.com>
+	id <S261356AbSIWTL6>; Mon, 23 Sep 2002 15:11:58 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:39319 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S261343AbSIWTLT>; Mon, 23 Sep 2002 15:11:19 -0400
+Date: Mon, 23 Sep 2002 13:15:44 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Konstantin Kletschke <konsti@ludenkalle.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre7-ac3 aic7xxx broken?
+Message-ID: <2539730816.1032808544@aslan.btc.adaptec.com>
+In-Reply-To: <20020923180017.GA16270@sexmachine.doom>
+References: <20020923180017.GA16270@sexmachine.doom>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200209231600.03978.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hi!
+> 
+> I wonder if my 
+> 
+> Bus  0, device   9, function  0:
+>       SCSI storage controller: Adaptec AHA-7850 (rev 3).
 
-Which branch of the kernel is this going into? an -ac branch or 2.5 bk?
+...
 
-On September 23, 2002 03:03 pm, Stephen C. Tweedie wrote:
-> Hi,
->
-> On Wed, Sep 18, 2002 at 11:32:19PM -0700, Andrew Morton wrote:
-> > I had a little patch.  Stephen is working on the big fix.
->
-> It passed an overnight Cerberus at the end of last week.  :-)
-> Checking into CVS shortly, then I need to set up a pile of recovery
-> tests to make sure it's still writing everything it needs to in time.
->
-> --Stephen
+> is broken or the aic7xxx driver in linux-2.4.20-pre7-ac3?
+> 
+> The modul loads fine, the cdrom seems to work properly, though,
+> but this messages appears in my
+> message.log:
+> 
+> ==> /var/log/syslog <==
+> Sep 23 19:32:23 sexmachine kernel: scsi1: PCI error Interrupt at seqaddr
+> = 0x9
+> Sep 23 19:32:23 sexmachine kernel: scsi1: Data Parity Error Detected
+> during address or write data phase
+> 
+> several times a minute. The aic7xxx_old produces no errorr messages...
 
+On some motherboards with some chipsets, you can get these messages if
+another busmaster (say an IDE drive or a sound card) is hogging the bus.
+Usually this is with a VIA chipset.  Its not clear why the aic7xxx_old
+driver would behave differently other than it disables memory write
+and invalidate PCI transactions on this chip.  The new driver doesn't
+need that work around.
+
+As to wether it is safe or not, well our investigation into these issues
+has shown that the parity errors are real, but it is the parity that
+is at fault.  It is hard to say if that is the case for your MB or not.
+Can you provide, in private email, a full lspci dump?
+
+Thanks,
+Justin

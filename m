@@ -1,113 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVCLCBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVCLC4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbVCLCBL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 21:01:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVCLCBL
+	id S261547AbVCLC4M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 21:56:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVCLC4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 21:01:11 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:8176 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261796AbVCLCBG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 21:01:06 -0500
-Message-ID: <42324D5D.5030808@mvista.com>
-Date: Fri, 11 Mar 2005 18:01:01 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Lee Revell <rlrevell@joe-job.com>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] clean up FIXME in do_timer_interrupt
-References: <1109869828.2908.18.camel@mindpipe>	<20050303164520.0c0900df.akpm@osdl.org>	<1109899148.3630.5.camel@mindpipe>	<42283857.9050007@mvista.com>	<1109968985.6710.16.camel@mindpipe>	<4228CBFB.3000602@mvista.com>	<1110313644.4600.13.camel@mindpipe>	<422E33F0.6020403@mvista.com>	<4230087E.3080307@mvista.com>	<1110579830.19661.10.camel@mindpipe> <20050311143459.54c74dd0.akpm@osdl.org>
-In-Reply-To: <20050311143459.54c74dd0.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------020909010807020503000007"
+	Fri, 11 Mar 2005 21:56:11 -0500
+Received: from mail.redlinenetworks.com ([216.136.145.172]:7366 "EHLO
+	Shayne-Stubbss-Computer.local") by vger.kernel.org with ESMTP
+	id S261700AbVCLC4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 21:56:10 -0500
+User-Agent: Microsoft-Entourage/11.1.0.040913
+Date: Fri, 11 Mar 2005 18:56:08 -0800
+Subject: Re: [load balancing] F5 kernel source mods released
+From: Shayne Stubbs <ss968@mac.com>
+To: <lb-l@vegan.net>, <linux-kernel@vger.kernel.org>
+Message-ID: <BE579A48.41CA%ss968@mac.com>
+In-Reply-To: <BE57706A.ABBA%b.whitson@f5.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
---------------020909010807020503000007
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Can you still post it?
 
-Andrew Morton wrote:
-> Lee Revell <rlrevell@joe-job.com> wrote:
+- shayne
+
+On 3/11/05 3:57 PM, "Bill Whitson" <b.whitson@f5.com> wrote:
+
+> Before anyone gets too excited, the modifications to the GPL licensed code
+> will not provide you with a working load-balancer, or anything remotely
+> close.  The majority of the traffic processing in BIG-IP version 9.x is
+> handled by the traffic management microkernel, which is unique code.
 > 
->>On Thu, 2005-03-10 at 00:42 -0800, George Anzinger wrote:
->>
->>>This patch changes the update of the cmos clock to be timer driven
->>>rather than poll driven by the timer interrupt function.  If the clock
->>>is not being synced to an outside source the timer is removed and thus
->>>system overhead is nill in that case.  The update frequency is still ~11
->>>minutes and missing the update window still causes a retry in 60
->>>seconds.
->>
->>No replies yet.  Are there any objections to this patch?
-> 
-> 
-> Nope.  I think it's neat.  I queued it up.
+> Sorry, you can't hack together your own version of BIG-IP ;).
 
-I had a nightmare about ntp coming in at the "wrong" time resulting in a 
-deadlock.  Attached locking changes will make me sleep better :)
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 
---------------020909010807020503000007
-Content-Type: text/plain;
- name="cmos_time_lock.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cmos_time_lock.patch"
 
-Source: MontaVista Software, Inc.
-Type: Defect Fix 
-Disposition: Pending
-Description:
-
-I was not happy with the locking on this.  Two changes:
-1) Turn off irq while setting the clock.
-2) Call the timer code only through the timer interface 
-   (set a short timer to do it from the ntp call).
-
-Signed-off-by: George Anzinger <george@mvista.com>
-
- time.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-Index: linux-2.6.12-rc/arch/i386/kernel/time.c
-===================================================================
---- linux-2.6.12-rc.orig/arch/i386/kernel/time.c
-+++ linux-2.6.12-rc/arch/i386/kernel/time.c
-@@ -176,12 +176,12 @@ static int set_rtc_mmss(unsigned long no
- 	int retval;
- 
- 	/* gets recalled with irq locally disabled */
--	spin_lock(&rtc_lock);
-+	spin_lock_irq(&rtc_lock);
- 	if (efi_enabled)
- 		retval = efi_set_rtc_mmss(nowtime);
- 	else
- 		retval = mach_set_rtc_mmss(nowtime);
--	spin_unlock(&rtc_lock);
-+	spin_unlock_irq(&rtc_lock);
- 
- 	return retval;
- }
-@@ -338,7 +338,7 @@ static void sync_cmos_clock(unsigned lon
- }
- void notify_arch_cmos_timer(void)
- {
--	sync_cmos_clock(0);
-+	mod_timer(&sync_cmos_timer, jiffies + 1);
- }
- static long clock_cmos_diff, sleep_start;
- 
-
---------------020909010807020503000007--
 

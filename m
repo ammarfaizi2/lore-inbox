@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265446AbTBFEHN>; Wed, 5 Feb 2003 23:07:13 -0500
+	id <S265373AbTBFEJw>; Wed, 5 Feb 2003 23:09:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265469AbTBFEGk>; Wed, 5 Feb 2003 23:06:40 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:60944 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265470AbTBFEDA>;
-	Wed, 5 Feb 2003 23:03:00 -0500
-Subject: Re: [PATCH] PCI Hotplug changes for 2.5.59
-In-reply-to: <10445044932196@kroah.com>
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+	id <S265369AbTBFEJc>; Wed, 5 Feb 2003 23:09:32 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:62992 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265373AbTBFEHd>;
+	Wed, 5 Feb 2003 23:07:33 -0500
+Date: Wed, 5 Feb 2003 20:12:43 -0800
 From: Greg KH <greg@kroah.com>
-Content-Type: text/plain; charset=US-ASCII
-Mime-version: 1.0
-Date: Wed, 5 Feb 2003 20:08 -0800
-Message-id: <10445044942883@kroah.com>
-X-mailer: gregkh_patchbomb
+To: Rusty Lynch <rusty@linux.co.intel.com>
+Cc: Scott Murray <scottm@somanetworks.com>, Patrick Mochel <mochel@osdl.org>,
+       Stanley Wang <stanley.wang@linux.co.intel.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5.59-bk]Sysfs interface for ZT5550 Redundant Host Controller
+Message-ID: <20030206041243.GB23837@kroah.com>
+References: <Pine.LNX.4.44.0302051341490.29820-100000@rancor.yyz.somanetworks.com> <1044478128.2270.17.camel@vmhack>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1044478128.2270.17.camel@vmhack>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.970, 2003/02/06 14:49:36+11:00, greg@kroah.com
+On Wed, Feb 05, 2003 at 12:48:48PM -0800, Rusty Lynch wrote:
+> Here is a second version of the zt5550 reduncant host controller sysfs
+> interface patch.
 
-sysfs: remember to add EXPORT_SYMBOL() for sysfs_update_file.
+I couldnt get this to apply, sorry.  Can you rediff it against the
+patches I just sent to Linus?
 
+thanks,
 
-diff -Nru a/fs/sysfs/inode.c b/fs/sysfs/inode.c
---- a/fs/sysfs/inode.c	Thu Feb  6 14:51:01 2003
-+++ b/fs/sysfs/inode.c	Thu Feb  6 14:51:01 2003
-@@ -855,6 +855,7 @@
- }
- 
- EXPORT_SYMBOL(sysfs_create_file);
-+EXPORT_SYMBOL(sysfs_update_file);
- EXPORT_SYMBOL(sysfs_remove_file);
- EXPORT_SYMBOL(sysfs_create_link);
- EXPORT_SYMBOL(sysfs_remove_link);
-
+greg k-h

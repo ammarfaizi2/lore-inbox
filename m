@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266708AbSKZUK2>; Tue, 26 Nov 2002 15:10:28 -0500
+	id <S266837AbSKZUS3>; Tue, 26 Nov 2002 15:18:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266754AbSKZUK1>; Tue, 26 Nov 2002 15:10:27 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:38534 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266708AbSKZUK0>;
-	Tue, 26 Nov 2002 15:10:26 -0500
-Subject: Re: [RFC] [PATCH] linux-2.5.49_subarch-cleanup_A2
-From: john stultz <johnstul@us.ibm.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: James.Bottomley@HansenPartnership.com,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20021126195427.GB1525@mars.ravnborg.org>
-References: <1038274857.959.10.camel@w-jstultz2.beaverton.ibm.com>
-	 <20021126195427.GB1525@mars.ravnborg.org>
+	id <S266839AbSKZUS3>; Tue, 26 Nov 2002 15:18:29 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:27118 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266837AbSKZUS2>; Tue, 26 Nov 2002 15:18:28 -0500
+Subject: Re: 2.5.49: kernel BUG at drivers/block/ll_rw_blk.c:1950!
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Srihari Vijayaraghavan <harisri@bigpond.com>, Jens Axboe <axboe@suse.de>,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <3DE3D1D1.BE5B30ED@digeo.com>
+References: <200211262203.20088.harisri@bigpond.com> 
+	<3DE3D1D1.BE5B30ED@digeo.com>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1038341769.956.49.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 26 Nov 2002 12:16:09 -0800
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Nov 2002 21:22:10 +0100
+Message-Id: <1038342130.19337.0.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-26 at 11:54, Sam Ravnborg wrote:
-> One detail..
-> Move the "mcore-y := mach-default" assignment above the
-> block that deal with subarch. Then you do not need the "ifndef ..."
 
-Ah, good suggestion! Thanks! I'll apply and resubmit later today.
-
-> I recall that Linus previously have asked for shell commands
-> when moving files - so consider including only the patch below and
-> then a number of "mv arch/i386/X include/....".
-> This makes it much more visible what you actually change.
+> Jens, what is the policy here?  Should bio_add_page() for an
+> empty bio "always succeed"?  (Bearing in mind that pages can
+> be 64k...).    I guess -EIO would be better than a BUG.
 > 
-> Another alternative it to do it in bitkeeper, then it is visible
-> from the cset that you move files (use bk mv).
+> Are there more RAID fixes pending?
 
-Hmm. I was under the impression that shell command and sed script
-patches were only for those w/ enough kernel penguin points to blow.
-Although, please someone correct me if I'm wrong.  Regardless BK should
-notice the renames in the diff and import them as such, so it shouldn't
-make much difference to Linus. 
-
-Thanks again for the feedback!
-
--john
-
+the 64 kb pagesize 32kb chunk size case still needs fixing somehow; once
+it is ataraid can start using devicemapper ;)

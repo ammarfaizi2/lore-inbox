@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263539AbTDTHUR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 03:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbTDTHUR
+	id S263540AbTDTIAG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 04:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTDTIAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 03:20:17 -0400
-Received: from smtp.actcom.co.il ([192.114.47.13]:33714 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263539AbTDTHUQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 03:20:16 -0400
-Message-ID: <3EA24CF8.5080609@shemesh.biz>
-Date: Sun, 20 Apr 2003 10:32:08 +0300
-From: Shachar Shemesh <lkml@shemesh.biz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ben Collins <bcollins@debian.org>
-CC: Larry McVoy <lm@work.bitmover.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK->CVS, kernel.bkbits.net
-References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org>
-In-Reply-To: <20030420013440.GG2528@phunnypharm.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Apr 2003 04:00:06 -0400
+Received: from dp.samba.org ([66.70.73.150]:30885 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263540AbTDTIAF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 04:00:05 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [TRIVIAL] kstrdup 
+In-reply-to: Your message of "19 Apr 2003 13:27:21 +0100."
+             <1050755240.3277.3.camel@dhcp22.swansea.linux.org.uk> 
+Date: Sun, 20 Apr 2003 18:05:40 +1000
+Message-Id: <20030420081206.C68A62C01A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
+In message <1050755240.3277.3.camel@dhcp22.swansea.linux.org.uk> you write:
+> On Sad, 2003-04-19 at 05:48, Jeff Garzik wrote:
+> > And?  It's still slower.
+> 
+> You are arguing over a 1 instruction, probably sub 1 clock scheduling
+> matter on a call which is not used on any fast or common path. If you
+> shaved 1 clock off the timer handling instead you'd make a lot more
+> difference..
 
->I hate asking this on top of the work you already provide, but would it
->be possible to allow rsync access to the repo itself? I have atleast 6
->computers on my LAN where I keep source trees (2.4 and 2.5), and it
->would be much less b/w on my metered T1 and on your link aswell if I
->could rsync one main "mirror" of the cvs repo and then point all my
->machines at it.
->
-There is a better tool (for this particular task), called "cvsup". It 
-does a wonderful job of keeping cvs repositories in synch. I realize I 
-just asked for a THIRD tool, so it should only go in if the admins are 
-willing to take care of it.
+Hey, if we have 50 million machines running 2.6 for three years, this
+optimization saves 100 clock cycles per boot (most kstrdups are device
+init), and machines boot once a month, and average 1GHz, that's three
+minutes of saved time.
 
-The idea is that it uses the full duplexity of the channel to get client 
-side information about the repository on that end while downloading 
-changes, thus increasing the effective bandwidth. It only falls back to 
-rsynch if CVS repository specific updates are not possible. I use it on 
-the Wine repository, and it does, indeed, work very efficiently.
+I think Jeff and I should start the kstrdup sourceforge project
+immediately...
 
-On the negative side - as far as I could tell, neither RedHat nor 
-Mandrake carry it as a standard package (Debian does, at least in unstable).
-
-             Shachar
-
--- 
-Shachar Shemesh
-Open Source integration consultant
-Home page & resume - http://www.shemesh.biz/
-
-
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268301AbUJMD4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268326AbUJMEKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268301AbUJMD4R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 23:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268327AbUJMD4R
+	id S268326AbUJMEKY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 00:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268333AbUJMEKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 23:56:17 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:11021 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S268301AbUJMD4Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 23:56:16 -0400
-Date: Tue, 12 Oct 2004 20:55:47 -0700
-To: Sven Dietrich <sdietrich@mvista.com>
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Thomas Gleixner <tglx@linutronix.de>,
-       dwalker@mvista.com, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, amakarov@ru.mvista.com,
-       ext-rt-dev@mvista.com, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-Message-ID: <20041013035547.GA7517@nietzsche.lynx.com>
-References: <20041012211201.GA28590@nietzsche.lynx.com> <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Wed, 13 Oct 2004 00:10:24 -0400
+Received: from petasus.ch.intel.com ([143.182.124.5]:17611 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id S268326AbUJMEKQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 00:10:16 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Getting a process' EIP address (and other registers)
+Date: Tue, 12 Oct 2004 21:10:13 -0700
+Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C204FB456A@azsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Getting a process' EIP address (and other registers)
+Thread-Index: AcSw2onYQ+ojQX3hRg6cgMaHFZrqfg==
+From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 13 Oct 2004 04:10:14.0808 (UTC) FILETIME=[8A9C6180:01C4B0DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12, 2004 at 02:41:02PM -0700, Sven Dietrich wrote:
-> I emailed the mmlinux project about 2 months ago, 
-> telling you that we were doing this.
+	I have written a 2.4 kernel module that is triggered upon an
+IOCTL from a user application. Once triggered the kernel module dumps
+out the contents of the system memory and the x86 CPU architecture state
+to separate files.
+	I'm writing to the list because my method for getting registers
+from the user process before it entered the kernel is producing
+incorrect results. I've looked all through the kernel code and searched
+all over the web for an answer to this specific question and found
+nothing relevant.
+	In my research how to do this I've found that the stack pointer
+for the user process before it entered the kernel is stored in
+current->thread.esp0. From there the registers for the user process are
+stored at offsets from that location (for example, EIP is supposed to be
+0x28 unsigned char bytes from esp0). I have code to get the EIP as
+follows:
 
-http://mmlinux.sourceforge.net/temp/
+unsigned char *stack_address, *eip;
 
-I'll do an official announcement tomorrow. It's party time for me. :)
+stack_address = (unsigned char *)(current->thread.esp0);
+eip = stack_address + 0x28;
+printk("eip = %08lx\n", *(unsigned long *)eip);
 
-bill
-
+Like I mentioned this is producing incorrect results. How do I access
+the user process' general purpose registers contents as they were before
+the kernel was entered (or correct my code above if I'm accessing
+something wrong)?
+	Thanks in advance for any help offered.

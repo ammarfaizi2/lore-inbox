@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbUCQWZg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 17:25:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbUCQWZg
+	id S262119AbUCQW1T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 17:27:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbUCQW1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 17:25:36 -0500
-Received: from p68.rivermarket.wintek.com ([208.13.56.68]:1490 "EHLO
-	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
-	id S262110AbUCQWZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 17:25:21 -0500
-Date: Wed, 17 Mar 2004 17:27:50 -0500 (EST)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Marek Szuba <scriptkiddie@wp.pl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4, or what I still don't quite like about the new stable
- branch
-In-Reply-To: <4058097F.4070606@aitel.hist.no>
-Message-ID: <Pine.LNX.4.58.0403171709000.4288@dust.p68.rivermarket.wintek.com>
-References: <S263158AbUCMS0h/20040313182637Z+893@vger.kernel.org>
- <Pine.LNX.4.58.0403131642270.4325@dust.p68.rivermarket.wintek.com>
- <4058097F.4070606@aitel.hist.no>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+	Wed, 17 Mar 2004 17:27:18 -0500
+Received: from wacom-nt2.wacom.com ([204.119.25.126]:16398 "EHLO
+	wacom_nt2.WACOM.COM") by vger.kernel.org with ESMTP id S262119AbUCQW0F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 17:26:05 -0500
+Message-ID: <28E6D16EC4CCD71196610060CF213AEB065C23@wacom-nt2.wacom.com>
+From: Ping Cheng <pingc@wacom.com>
+To: "'Vojtech Pavlik'" <vojtech@suse.cz>, Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Wacom USB driver patch
+Date: Wed, 17 Mar 2004 14:24:20 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Mar 2004, Helge Hafting wrote:
+Here is the history. Patches for wacom.c in 2.4 was majorly modified by John
+Joganic. Specially, the reset thread was added by John to deal with the case
+when the tablet is set/reset to HID mode. Otherwise the driver will have to
+be reloaded. The code was tested by users. Patches for wacom.c in 2.6 was
+made by myself.
 
-> Alex Goddard wrote:
-> [...]
-> > 
-> > Safe module unloading is a very difficult problem.  So much so that
-> > disallowing unloading modules completely has been discussed in the past.  
-> > Digging around an lkml archive for more info on why module unloading is
-> > inherently problematic, and not at all easy to do (well, not at all easy
-> > to do well) is recommended.
+The reason I didn't add the reset thread to 2.6 patch was because I don't
+know exactly how to do it in 2.6 and I didn't find proper examples from
+other device drivers in 2.6. Basically, I don't want to introduce any new
+"feature" before I can convince myself.
+
+The reason I didn't remove the reset thread code in 2.4 was because it was
+tested by many users and there are no negative feedbacks. 
+
+So, we need the reset thread. Please let me know the proper approach to
+implement this feature in 2.4 and 2.6. I'll update the patches accordingly.
+
+Ping
+
+-----Original Message-----
+From: Vojtech Pavlik [mailto:vojtech@suse.cz] 
+Sent: Wednesday, March 17, 2004 12:37 PM
+To: Pete Zaitcev
+Cc: Ping Cheng; linux-kernel@vger.kernel.org
+Subject: Re: Wacom USB driver patch
+
+
+On Wed, Mar 17, 2004 at 09:29:59AM -0800, Pete Zaitcev wrote:
+
+> Dear Ping,
 > 
-> Safe unloading is hard for a few oddball modules that probably shouldn't
-> be modules at all but rather be part of some larger module.  Is it necessary
-> to have modules for various parts of iptables, instead of stuffing 
-> everything in a big "ipv4" module?
+> Vojtech posted your 2.6 patch to linux-kernel yesterday, so I examined 
+> it
+> (Subject: [PATCH 32/44] Update of Wacom driver from Ping Cheng (from
+Wacom)).
+> Unlike the 2.4 version, it does not feature a reset thread. Please tell
+> me why that thread was required in 2.4.
+> 
+> Or perhaps it was present in your original submission which I lost and 
+> Vojtech removed that element of the patch?
 
-That is not the impression I got from this post:  
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104554480315013&w=2
-
-This thread is the other one that came to mind:  
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105915495603446&w=2
-
-In one post in the thread spawned by the second URL's post, Alan Cox
-suggests a plan vaguely similar to what you outlined below what I've
-quoted (ie: a MODULE_UNLOADABLE flag or something for those modules that
-_can_ be easily unloaded).
-
-However, the general impression I get from that thread on removing module
-refcounting is that in general unloading modules is tricky.  Not
-unsolvable.  Just tricky.
+I didn't remove it - it was not present in the 2.6 patch.
 
 -- 
-Alex Goddard
-agoddard at purdue dot edu
+Vojtech Pavlik
+SuSE Labs, SuSE CR

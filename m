@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbQLBSfT>; Sat, 2 Dec 2000 13:35:19 -0500
+	id <S129426AbQLBTaz>; Sat, 2 Dec 2000 14:30:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129700AbQLBSfJ>; Sat, 2 Dec 2000 13:35:09 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:29469 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129631AbQLBSe4>; Sat, 2 Dec 2000 13:34:56 -0500
-Date: Sat, 2 Dec 2000 12:03:56 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Igmar Palsenberg <maillist@chello.nl>
-cc: Matthew Kirkwood <matthew@hairy.beasts.org>, folkert@vanheusden.com,
-        "Theodore Y Ts'o" <tytso@mit.edu>,
-        Kernel devel list <linux-kernel@vger.kernel.org>, vpnd@sunsite.auc.dk
-Subject: Re: /dev/random probs in 2.4test(12-pre3)
-In-Reply-To: <Pine.LNX.4.21.0012021955570.11787-100000@server.serve.me.nl>
-Message-ID: <Pine.LNX.3.96.1001202115753.27887T-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129700AbQLBTaq>; Sat, 2 Dec 2000 14:30:46 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:11780
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129426AbQLBTa3>; Sat, 2 Dec 2000 14:30:29 -0500
+Date: Sun, 3 Dec 2000 07:59:58 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Donald Becker <becker@scyld.com>
+Cc: Francois Romieu <romieu@cogenit.fr>, Russell King <rmk@arm.linux.org.uk>,
+        Ivan Passos <lists@cyclades.com>, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+Subject: Re: [RFC] Configuring synchronous interfaces in Linux
+Message-ID: <20001203075958.A1121@metastasis.f00f.org>
+In-Reply-To: <20001201140042.A8572@se1.cogenit.fr> <Pine.LNX.4.10.10012021041460.16980-100000@vaio.greennet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10012021041460.16980-100000@vaio.greennet>; from becker@scyld.com on Sat, Dec 02, 2000 at 11:09:35AM -0500
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Dec 2000, Igmar Palsenberg wrote:
-> > Indeed, you are correct.  Is vpnd broken then, for assuming
-> > that it can gather the required randomness in one read?
-> 
-> Yep. It assumes that if the required randommness numbers aren't met a read
-> to /dev/random will block.
-> 
-> And it's not the only program that assumes this : I also did. 
-> 
-> /dev/random is called a blocking random device, which more or less implies
-> that it will totally block. I suggest we put this somewhere in the kernel
-> docs, since lots of people out there assume that it totally blocks.
+On Sat, Dec 02, 2000 at 11:09:35AM -0500, Donald Becker wrote:
 
-"totally block"?
+    On Fri, 1 Dec 2000, Francois Romieu wrote:
+    
+    > Russell King <rmk@arm.linux.org.uk> écrit :
+    > [...]
+    > > We already have a standard interface for this, but many drivers do not
+    > > support it.  Its called "ifconfig eth0 media xxx":
+    
+    Uhmmm, it's not a standard if "many drivers do not support it".
+    
+    It is very easy to hack up code to handle one or two drivers.
+    But you shouldn't claim the problem is fixed until the approach is tested
+    with all of the driver.
+    
+    Hey, I'll make it easy.  Find an approach that fully handles only the Tulip
+    and 3c59x drivers, and that is consistent.
 
-For a blocking fd, read(2) has always blocked until some data is
-available.  There has never been a guarantee, for any driver, that
-a read(2) will return the full amount of bytes requested.
+Actually, I starteed work on adding this to the 3c59x code last
+night; I am now a little dispondent though as it wasn't as simple as
+I first thought it might be.
 
-There is no need to document this...  man read(2)  ;-)
+I am now wondering whether it make sense to break 3c59x into smaller
+peices which hander fewer cards each; there soom to be many things
+the driver knows about which probably don't relate to my needs.
 
-	Jeff
 
 
-
+ --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

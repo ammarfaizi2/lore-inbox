@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267353AbUG1XIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267164AbUG1XIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267353AbUG1XIi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 19:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266397AbUG1WwQ
+	id S267164AbUG1XIh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 19:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267353AbUG1XIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:52:16 -0400
-Received: from faui10.informatik.uni-erlangen.de ([131.188.31.10]:45457 "EHLO
-	faui10.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S267168AbUG1Wg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:36:57 -0400
-From: Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>
-Message-Id: <200407282236.AAA00859@faui1m.informatik.uni-erlangen.de>
-Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS
-To: nickpiggin@yahoo.com.au (Nick Piggin)
-Date: Thu, 29 Jul 2004 00:36:56 +0200 (CEST)
-Cc: avi@exanet.com (Avi Kivity),
-       weigand@i1.informatik.uni-erlangen.de (Ulrich Weigand),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <41073A6C.1050606@yahoo.com.au> from "Nick Piggin" at Jul 28, 2004 03:32:28 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	Wed, 28 Jul 2004 19:08:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:11665 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267322AbUG1XHB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 19:07:01 -0400
+Date: Wed, 28 Jul 2004 15:59:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Doug Maxey <dwm@austin.ibm.com>
+Cc: Linux IDE Mailing List <linux-ide@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] IDE/ATA/SATA controller hotplug
+Message-ID: <20040728225931.GC20509@kroah.com>
+References: <20040725190026.GA30535@kroah.com> <200407261942.i6QJgXN1022468@falcon10.austin.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200407261942.i6QJgXN1022468@falcon10.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-
-> Avi Kivity wrote:
-> > The kernel NFS client (which kswapd depends on) has the same issue. Has 
-> > anyone ever observed kswapd deadlock due to imcoming or outgoing NFS 
-> > packets being discarded due to oom?
-> > 
+On Mon, Jul 26, 2004 at 02:42:33PM -0500, Doug Maxey wrote:
 > 
-> Yes this has been observed.
+> On Sun, 25 Jul 2004 15:00:26 EDT, Greg KH wrote:
+> >Unfortunatly, it seems you didn't listen to those comments :( 
 > 
-> alloc_skb on the client needs to somehow know that traffic coming
-> from the server is "MEMALLOC" and allowed to use memory reserves.
+>   Hm.  Which part did I not "listen" to?
 
-What would be an appropriate way to solve this problem? A special
-socket option?
+The fact that I recommend that you do this for all arches.
 
-Bye,
-Ulrich
-
--- 
-  Dr. Ulrich Weigand
-  weigand@informatik.uni-erlangen.de
+greg k-h

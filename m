@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbUKTFvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbUKTGAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbUKTFvS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 00:51:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbUKTFvH
+	id S261432AbUKTGAN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 01:00:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbUKTGAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 00:51:07 -0500
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:36506 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262838AbUKTFuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 00:50:35 -0500
-Message-ID: <419EDB21.3070707@yahoo.com.au>
-Date: Sat, 20 Nov 2004 16:50:25 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Sat, 20 Nov 2004 01:00:13 -0500
+Received: from siaag2ab.compuserve.com ([149.174.40.132]:49295 "EHLO
+	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S261432AbUKTGAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 01:00:06 -0500
+Date: Sat, 20 Nov 2004 00:56:53 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Linux 2.6.9-ac11
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200411200059_MC3-1-8F14-D1B2@compuserve.com>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       akpm@osdl.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V11 [0/7]: overview
-References: <Pine.LNX.4.58.0411181921001.1674@schroedinger.engr.sgi.com> <1100848068.25520.49.camel@gaston> <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411191155180.2222@ppc970.osdl.org> <20041120020306.GA2714@holomorphy.com> <419EBBE0.4010303@yahoo.com.au> <20041120035510.GH2714@holomorphy.com> <419EC205.5030604@yahoo.com.au> <20041120042340.GJ2714@holomorphy.com> <419EC829.4040704@yahoo.com.au> <20041120053802.GL2714@holomorphy.com>
-In-Reply-To: <20041120053802.GL2714@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> William Lee Irwin III wrote:
-> 
->>>Very, very wrong. The tasklist scans hold the read side of the lock
->>>and aren't even what's running with interrupts off. The contenders
->>>on the write side are what the NMI oopser oopses.
-> 
-> 
-> On Sat, Nov 20, 2004 at 03:29:29PM +1100, Nick Piggin wrote:
-> 
->>*blinks*
->>So explain how this is "very very wrong", then?
-> 
-> 
-> There isn't anything left to explain. So if there's a question, be
-> specific about it.
-> 
+Alan Cox wrote:
 
-Why am I very very wrong? Why won't touch_nmi_watchdog work from
-the read loop?
+> 2.6.9-ac10
+> o     Error path locking fix for appletalk            (Andries Brouwer)
+> o     Further binfmt_elf work                         (Jakub Jelinek)
+> o     Fix oops in visor driver caused by DoS fixes    (Roger Luethi)
+> 
+> 2.6.9-ac9
+> o     Error out on early exec before rootfs           (Chris Wright)
+> 
+> 2.6.9-ac7
+> o     Apple Ipod-mini size reporting fix              (Avi Kivity)
 
-And let's just be nice and try not to jump at the chance to point
-out when people are very very wrong, and keep count of the times
-they have been very very wrong. I'm trying to be constructive.
+  These are all merged in 2.6.10-rc now.
 
-> 
-> William Lee Irwin III wrote:
-> 
->>>And supposing the arch reenables interrupts in the write side's
->>>spinloop, you just get a box that silently goes out of service for
->>>extended periods of time, breaking cluster membership and more. The
->>>NMI oopser is just the report of the problem, not the problem itself.
->>>It's not a false report. The box is dead for > 5s at a time.
-> 
-> 
-> On Sat, Nov 20, 2004 at 03:29:29PM +1100, Nick Piggin wrote:
-> 
->>The point is, adding a for-each-thread loop or two in /proc isn't
->>going to cause a problem that isn't already there.
->>If you had zero for-each-thread loops then you might have a valid
->>complaint. Seeing as you have more than zero, with slim chances of
->>reducing that number, then there is no valid complaint.
-> 
-> 
-> This entire line of argument is bogus. A preexisting bug of a similar
-> nature is not grounds for deliberately introducing any bug.
-> 
 
-Sure, if that is a bug and someone is just about to fix it then
-yes you're right, we shouldn't introduce this. I didn't realise
-it was a bug. Sounds like it would be causing you lots of problems
-though - have you looked at how to fix it?
+> *     Disable PnP BIOS when using ACPI                (Adam Belay)
+
+  This one causes a compile error in -ac only:
+
+drivers/pnp/pnpbios/core.c:541: error: `acpi_disabled
+undeclared (first use in this function)
+
+
+> *     Backport netlink updates/fixes from 10rc2       (Herbert Xu,
+>                                                        Dave Miller)
+
+  Ouch.  Is all that really necessary?
+
+ 
+> o     On some platforms the flashing keylights        (Alan Cox)
+>       riggers bogus keyboard warnings. The error
+>       appears from other stuff too like keyboard
+>       switches so kill it
+
+  Now I'm glad I removed it long ago. :)
+
+
+  The md linear fix by Neil Brown I sent you a day or so ago is
+now merged in 2.6.10.
+
+
+--Chuck Ebbert  20-Nov-04  00:55:27

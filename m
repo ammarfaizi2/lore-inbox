@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292983AbSBVUPO>; Fri, 22 Feb 2002 15:15:14 -0500
+	id <S292976AbSBVUWY>; Fri, 22 Feb 2002 15:22:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292976AbSBVUPG>; Fri, 22 Feb 2002 15:15:06 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:44795 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S292983AbSBVUOx>; Fri, 22 Feb 2002 15:14:53 -0500
-X-Info: This message was accepted for relay by
-	smtp03.mrf.mail.rcn.net as the sender used SMTP authentication
-X-Trace: UmFuZG9tSVbisiotZrOl/Yuzn3YbvTGJ2qhO+H3rPFNVFYhS6APNiQXSqOPjEift9O84iRVyT8U=
-Date: Fri, 22 Feb 2002 15:21:51 -0500
-From: Michael B Allen <mballen@erols.com>
-To: linux-kernel@vger.kernel.org, cwilkins@boinklabs.com
-Subject: Re: Hard lock-ups on RH7.2 install - Via Chipset?
-Message-Id: <20020222152151.0ace582f.mballen@erols.com>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S292985AbSBVUWO>; Fri, 22 Feb 2002 15:22:14 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:2564 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S292976AbSBVUWG> convert rfc822-to-8bit; Fri, 22 Feb 2002 15:22:06 -0500
+Date: Fri, 22 Feb 2002 12:09:47 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Greg KH <greg@kroah.com>
+cc: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+In-Reply-To: <20020222200750.GE9558@kroah.com>
+Message-ID: <Pine.LNX.4.10.10202221204400.2519-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Feb 21, 2002 at 11:07:11AM -0500, Mark Hahn waxed eloquent:
-> [...]
-> > > Hi Mark,
-> > > Yeah, Alan suggested his latest pre 2.4.18 kernel *might* work. Tried it,
-> > > still no joy. :/
-> >
-> > but HOW?
+On Fri, 22 Feb 2002, Greg KH wrote:
+
+> On Thu, Feb 21, 2002 at 10:01:14PM +0100, Gérard Roudier wrote:
+> > 
+> > I have investigated it, but it didn't seem to allow the boot order set by
+> > user in sym53c8xx HBA NVRAMs to be applied, breaking as a result all
+> > systems depending on it. Since it is transparently handled by the
+> > sym53c8xx driver and just behaves _as_ user expects, my guess is that
+> > numerous users may just have their system relying on it.
 > 
-> How did I try it, or how no joy? ;)
+> But as Jeff noted, it is _required_ for PCI hotplug functionality.
+> Because allmost all of the SCSI drivers are not using this over 2 year
+> old interface, they will not work properly on large machines that now
+> support PCI hotplug.  Much to my dismay.
 > 
-> On the former, I didn't run any really exhaustive tests, and Alan
-> didn't suggest using or avoiding certain options. I built a relatively
-> conservative kernel and then beat on all four drives with concurrent dd's.
-> I also did an hdparm -tT. hdparm killed the box in a matter of a second
-> or two. dd took about 30 seconds. It seems safe to assume that hdparm
-> is able to create a higher load.
+> Init order works off of PCI probing order.  If the network people can
+> handle this, the SCSI people can :)
 
-I have VIA KT133 no raid and I'm happily running RH 7.2 with their
-stock kernel. I previously had issues that turned out to be a bad 30G
-IBM DeathStar but upgraded the BIOS and did a little torture testing
-out of paranoia (tried copying ~150MB files across two drives (not the
-bad IBM one, they replaced it)) and I never had a problem since.
+Does INT13/INT19 Bios call mean anything?
 
-[root@nano root]# hdparm -tT /dev/sda
- Timing buffer-cache reads:   128 MB in  1.12 seconds =114.29 MB/sec
- Timing buffered disk reads:  64 MB in  5.11 seconds = 12.52 MB/sec
+Last time I checked, ethernet devices are not invoked here but I could be
+wrong given PXE.
 
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) processor
-stepping        : 2
-cpu MHz         : 900.051
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 1795.68
 
--- 
-May The Source be with you.
+> > Propose a kernel API that does not break more features that it adds and I
+> > will be glad to use it.
+> 
+> Huh?  This is not a new API.  What does it break for you?
+
+The problem is how do you deal with multiple HOSTs given there drivers are
+not (have not checked lately) capable of discrete HOST addition and
+removal.
+
+SCSI/ATA share the same problem IIRC, the host/chipset drivers load all
+the device hosts who match that driver code.
+
+What am I missing?
+
+Cheers,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+

@@ -1,109 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266224AbTBGRzN>; Fri, 7 Feb 2003 12:55:13 -0500
+	id <S266257AbTBGRwr>; Fri, 7 Feb 2003 12:52:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266250AbTBGRzM>; Fri, 7 Feb 2003 12:55:12 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:42219 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S266224AbTBGRzK> convert rfc822-to-8bit; Fri, 7 Feb 2003 12:55:10 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A847138036@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: Jochen Hein <jochen@jochen.org>, Linus Torvalds <torvalds@transmeta.com>
-Cc: trivial@rustcorp.com.au, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [TRIVIAL, RESEND][ACPI, PCI] boot messages need line feeds
-Date: Fri, 7 Feb 2003 10:04:34 -0800 
+	id <S266274AbTBGRwq>; Fri, 7 Feb 2003 12:52:46 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:38407 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S266257AbTBGRwp>; Fri, 7 Feb 2003 12:52:45 -0500
+Date: Fri, 7 Feb 2003 19:01:28 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Greg KH <greg@kroah.com>
+cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       <linux-kernel@vger.kernel.org>, <jgarzik@pobox.com>
+Subject: Re: [PATCH] Restore module support.
+In-Reply-To: <20030207040606.GA30337@kroah.com>
+Message-ID: <Pine.LNX.4.44.0302071551420.1336-100000@serv>
+References: <20030204233310.AD6AF2C04E@lists.samba.org>
+ <Pine.LNX.4.44.0302062358140.32518-100000@serv> <20030206232515.GA29093@kroah.com>
+ <Pine.LNX.4.44.0302070037230.32518-100000@serv> <20030207040606.GA30337@kroah.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, should have acked this patch, but yes I saw it and will be including
-it in the next ACPI update, unless an upstream maintainer applies it first.
+Hi,
 
-Thanks -- Regards -- Andy
+On Thu, 6 Feb 2003, Greg KH wrote:
 
-> -----Original Message-----
-> From: Jochen Hein [mailto:jochen@jochen.org] 
-> Sent: Friday, February 07, 2003 8:45 AM
-> To: Linus Torvalds
-> Cc: Grover, Andrew; trivial@rustcorp.com.au; linux-kernel
-> Subject: [TRIVIAL, RESEND][ACPI, PCI] boot messages need line feeds
-> Importance: High
-> 
-> 
-> 
-> [This time sent to Linus, CC to Andrew Grover and the Trivial Patch
-> Monkey]
-> 
-> 
-> The messages are:
-> 
-> pci_link-0331 [15] acpi_pci_link_set     : Link disabled
-> ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 0
-> pci_link-0331 [15] acpi_pci_link_set     : Link disabled
-> ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 0
-> pci_link-0331 [15] acpi_pci_link_set     : Link disabled
-> ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 0
-> pci_link-0331 [15] acpi_pci_link_set     : Link disabled
-> ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 0
-> pci_link-0484 [16] acpi_pci_link_get_irq : Link disabled
->  pci_irq-0256 [15] acpi_pci_irq_lookup   : Invalid IRQ link 
-> routing entry
->  pci_irq-0295 [15] acpi_pci_irq_derive   : Unable to derive 
-> IRQ for device 00:02.0
-> ACPI: No IRQ known for interrupt pin A of device 00:02.0 - 
-> using IRQ 255
-> pci_link-0484 [16] acpi_pci_link_get_irq : Link disabled
->  pci_irq-0256 [15] acpi_pci_irq_lookup   : Invalid IRQ link 
-> routing entry
->  pci_irq-0295 [15] acpi_pci_irq_derive   : Unable to derive 
-> IRQ for device 00:02.1
-> ACPI: No IRQ known for interrupt pin B of device 00:02.1 - 
-> using IRQ 255
-> pci_link-0484 [16] acpi_pci_link_get_irq : Link disabled
->  pci_irq-0256 [15] acpi_pci_irq_lookup   : Invalid IRQ link 
-> routing entry
->  pci_irq-0295 [15] acpi_pci_irq_derive   : Unable to derive 
-> IRQ for device 00:03.0
-> ACPI: No IRQ known for interrupt pin A of device 
-> 00:03.0pci_link-0484 [16] acpi_pci_link_get_irq : Link disabled
-> 
->                                                         ^I think, here
-> should be a line feed.  Next messages:
-> 
->  pci_irq-0256 [15] acpi_pci_irq_lookup   : Invalid IRQ link 
-> routing entry
->  pci_irq-0295 [15] acpi_pci_irq_derive   : Unable to derive 
-> IRQ for device 00:07.2
-> ACPI: No IRQ known for interrupt pin D of device 
-> 00:07.2<6>PCI: Using ACPI for IRQ routing
->                                                         ^and again.
-> 
-> The following patch fixes it.
-> 
-> --- linux-2.5.59/drivers/acpi/pci_irq.c.jh	2003-01-25 
-> 10:09:10.000000000 +0100
-> +++ linux-2.5.59/drivers/acpi/pci_irq.c	2003-01-25 
-> 10:10:54.000000000 +0100
-> @@ -351,8 +351,10 @@
->  			printk(" - using IRQ %d\n", dev->irq);
->  			return_VALUE(dev->irq);
->  		}
-> -		else
-> +		else {
-> +			printk("\n");
->  			return_VALUE(0);
-> +		}
->   	}
->  
->  	dev->irq = irq;
-> 
-> Jochen
-> 
-> -- 
-> Wenn Du nicht weißt was Du tust, tu's mit Eleganz.
-> 
+> Neither one of those proposals, no any others, were backed with working
+> examples.  Rusty had the only working example of getting rid of the
+> userspace knowledge of the kernel data structures that I know of so far.
+
+3. Somehow I hoped we could discuss this on a technical base, I didn't 
+know we've reached already the "first post" level.
+SCNR :)
+
+bye, Roman
+

@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264953AbTK3ROC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 12:14:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbTK3ROC
+	id S264956AbTK3RTs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 12:19:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbTK3RTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 12:14:02 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:1695 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S264953AbTK3RN5 (ORCPT
+	Sun, 30 Nov 2003 12:19:48 -0500
+Received: from mail.gmx.net ([213.165.64.20]:46569 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264956AbTK3RTm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 12:13:57 -0500
+	Sun, 30 Nov 2003 12:19:42 -0500
+X-Authenticated: #4512188
+Message-ID: <3FCA26AA.90302@gmx.de>
+Date: Sun, 30 Nov 2003 18:19:38 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
+X-Accept-Language: de-de, de, en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Jeff Garzik <jgarzik@pobox.com>, marcush@onlinehome.de, axboe@suse.de,
+       linux-kernel@vger.kernel.org
 Subject: Re: Silicon Image 3112A SATA trouble
-From: Craig Bradney <cbradney@zip.com.au>
-To: Luis Miguel =?ISO-8859-1?Q?Garc=EDa?= <ktech@wanadoo.es>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3FCA2E49.9040707@wanadoo.es>
-References: <3FCA2E49.9040707@wanadoo.es>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1070212432.28187.25.camel@athlonxp.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 30 Nov 2003 18:13:52 +0100
-Content-Transfer-Encoding: 8bit
+References: <3FC36057.40108@gmx.de> <200311301547.32347.bzolnier@elka.pw.edu.pl> <3FCA1220.2040508@gmx.de> <200311301721.41812.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200311301721.41812.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On the topic of speeds.. hdparm -t gives me 56Mb/s on my Maxtor 80Mb 8mb
-cache PATA drive. I got that with 2.4.23 pre 8 which was ATA100 and get
-just a little more on ATA133 with 2.6. Not sure what people are
-expecting on SATA.
+Bartlomiej Zolnierkiewicz wrote:
 
-Craig
+> In 2.6.x there is no max_kb_per_request setting in /proc/ide/hdx/settings.
+> Therefore
+> 	echo "max_kb_per_request:128" > /proc/ide/hde/settings
+> does not work.
+> 
+> Hmm. actually I was under influence that we have generic ioctls in 2.6.x,
+> but I can find only BLKSECTGET, BLKSECTSET was somehow lost.  Jens?
+> 
+> Prakash, please try patch and maybe you will have 2 working drivers now :-).
 
-On Sun, 2003-11-30 at 18:52, Luis Miguel García wrote:
-> hello:
-> 
-> I have a Seagate Barracuda IV (80 Gb) connected to parallel ata on a 
-> nforce-2 motherboard.
-> 
-> If any of you want for me to test any patch to fix the "seagate issue", 
-> please, count on me. I have a SATA sis3112 and a parallel-to-serial 
-> converter. If I'm of any help to you, drop me an email.
-> 
-> By the way, I'm only getting 32 MB/s   (hdparm -tT /dev/hda) on my 
-> actual parallel ata. Is this enough for an ATA-100 device?
-> 
-> Thanks a lot.
-> 
-> LuisMi García
-> Spain
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+OK, this driver fixes the transfer rate problem. Nice, so I wanted to do 
+the right thing, but it didn't work, as you explained... Thanks.
+
+Nevertheless there is still the issue left:
+
+hdparm -d1 /dev/hde makes the drive get major havoc (something like: 
+ide: dma_intr: status=0x58 { DriveReady, SeekCOmplete, DataRequest}
+
+ide status timeout=0xd8{Busy}; messages taken from swsups kernal panic
+). Have to do a hard reset. I guess it is the same reason why swsusp 
+gets a kernel panic when it sends PM commands to siimage.c. (Mybe the 
+same error is in libata causing the same kernel panic on swsusp.)
+
+Any clues?
+
+Nice that at least the siimage driver has got some improvement after me 
+getting on your nerves. ;-)
+
+Prakash
 

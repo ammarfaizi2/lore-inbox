@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271033AbTHCGwy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 02:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271034AbTHCGwy
+	id S271034AbTHCHCU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 03:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271036AbTHCHCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 02:52:54 -0400
-Received: from home.linuxhacker.ru ([194.67.236.68]:17793 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S271033AbTHCGwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 02:52:53 -0400
-Date: Sun, 3 Aug 2003 10:49:37 +0400
-Message-Id: <200308030649.h736nbcj013727@car.linuxhacker.ru>
-From: Oleg Drokin <green@linuxhacker.ru>
-Subject: Re: 2.6.0-test2: crash in reiserfs at shutdown
-To: harri@synopsys.com, linux-kernel@vger.kernel.org
-References: <3F2B9823.7010503@Synopsys.COM>
+	Sun, 3 Aug 2003 03:02:20 -0400
+Received: from lorien.emufarm.org ([66.93.131.57]:38610 "EHLO
+	lorien.emufarm.org") by vger.kernel.org with ESMTP id S271034AbTHCHCT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 03:02:19 -0400
+Date: Sun, 3 Aug 2003 00:01:56 -0700
+From: Danek Duvall <duvall@emufarm.org>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: KML <linux-kernel@vger.kernel.org>, akpm@digeo.com, adilger@clusterfs.com,
+       ext3-users@redhat.com, x86-kernel@gentoo.org
+Subject: Re: [2.6] Perl weirdness with ext3 and HTREE
+Message-ID: <20030803070156.GE10284@lorien.emufarm.org>
+Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
+	Martin Schlemmer <azarah@gentoo.org>,
+	KML <linux-kernel@vger.kernel.org>, akpm@digeo.com,
+	adilger@clusterfs.com, ext3-users@redhat.com, x86-kernel@gentoo.org
+References: <1059856625.14962.19.camel@nosferatu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1059856625.14962.19.camel@nosferatu.lan>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+I'm seeing this as well, and will be quite happy to try any patches that
+might come out for the problem.
 
-Harald Dunkel <harri@synopsys.com> wrote:
-
-HD> Final words are
-HD>         kernel BUG at fs/reiserfs/prints.c: 339
-
-There should be one line prior to that.
-This line explains what went wrong in reiserfs opinion.
-Can you please say us what was the line?
-
-Bye,
-    Oleg
+Danek

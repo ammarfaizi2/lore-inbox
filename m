@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUHGQRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUHGQRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbUHGQRX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 12:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUHGQRX
+	id S263429AbUHGQRI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 12:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUHGQRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 12:17:23 -0400
-Received: from vivaldi.madbase.net ([81.173.6.10]:1255 "HELO
-	vivaldi.madbase.net") by vger.kernel.org with SMTP id S263448AbUHGQRV
+	Sat, 7 Aug 2004 12:17:08 -0400
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:23747 "EHLO
+	certainkey.com") by vger.kernel.org with ESMTP id S263429AbUHGQRF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 12:17:21 -0400
-Date: Sat, 7 Aug 2004 12:17:17 -0400 (EDT)
-From: Eric Lammerts <eric@lammerts.org>
-X-X-Sender: eric@vivaldi.madbase.net
-To: John M Collins <jmc@xisl.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Program-invoking Symbolic Links?
-In-Reply-To: <200408051504.26203.jmc@xisl.com>
-Message-ID: <Pine.LNX.4.58.0408071208420.10018@vivaldi.madbase.net>
-References: <200408051504.26203.jmc@xisl.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Aug 2004 12:17:05 -0400
+Date: Sat, 7 Aug 2004 12:12:27 -0400
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: Mitchel Sahertian <mitchel@sahertian.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aes512 cryptoloop support -> gone?
+Message-ID: <20040807161227.GO23994@certainkey.com>
+References: <1088165608.6399.20.camel@xinu.sahe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1088165608.6399.20.camel@xinu.sahe.net>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Correct,
 
-On Thu, 5 Aug 2004, John M Collins wrote:
-> latest_version.tar => "tar cf - /latest/and/greatest"
-> latest_version.tgz => "gzip -c latest_version"
+Because AES512 is a fictitious cipher.  There is only "aes128" "aes192" and
+"aes256"
 
-> Such a scheme would let you implement things like hit counts on web
-> sites "for free" without you having to rush out and run a CGI
-> program as at present.
+Cheers,
 
-So you think this is too much work:
+JLC
 
-#!/bin/sh
-echo Content-Type: application/x-tar
-echo
-tar cf - /latest/and/greatest
-
-Seems to me you found a solution in search of a problem.
-
-Eric
+On Fri, Jun 25, 2004 at 02:13:29PM +0200, Mitchel Sahertian wrote:
+> With some 2.4.x kernel i created a crypto loopback with an aes512
+> cipher. Afair i was able to use it with 2.5.x too. But at some moment
+> 512bit support was removed and as of now, 256 is the max. I guess
+> support was removed for legal reasons or so..
+> 
+> Are there any patches for 2.6/aesloop/cryptoloop or "tools" to read or
+> convert my loopback device?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

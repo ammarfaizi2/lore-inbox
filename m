@@ -1,42 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131695AbRAWWew>; Tue, 23 Jan 2001 17:34:52 -0500
+	id <S131066AbRAWWnE>; Tue, 23 Jan 2001 17:43:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131103AbRAWWem>; Tue, 23 Jan 2001 17:34:42 -0500
-Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:27087 "HELO
-	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S131695AbRAWWef>; Tue, 23 Jan 2001 17:34:35 -0500
-Message-ID: <FEEBE78C8360D411ACFD00D0B747797188095C@xsj02.sjs.agilent.com>
-From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: stripping symbols from modules
-Date: Tue, 23 Jan 2001 17:34:15 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S130387AbRAWWmo>; Tue, 23 Jan 2001 17:42:44 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:58453
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S130098AbRAWWmh>; Tue, 23 Jan 2001 17:42:37 -0500
+Date: Tue, 23 Jan 2001 23:42:30 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] drives/scsi/tmscsim.c: check_region -> request_region (241p9)
+Message-ID: <20010123234230.A9514@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+(Forgot to cc lk. If anyone have comments please cc garloff@suse.de.
+Thanks.)
 
-Is there any way to strip symbols from modules .o files ?
-for example, fat.o has many symbols and when you run `file' command
-on fat.o - it says that is is not a stripped file. 
-I tried running `strip' command on fat.o and then tried to 
-run insmod on the stripped fat.o and then tried to run
-insmod on vfat.o. But the insmod on vfat.o generated the
-"Unable to handle kernel NULL pointer dereference at virtual address
-00000000" message. If there any way to remove symbols and still
-load the module successfully and make it work ? Or the
-problem is with the strip command ? Should I be using
-something else instead of strip to remove symbols from
-the module .o ?
+----- Forwarded message from Rasmus Andersen <rasmus@jaquet.dk> -----
 
-I think, I am missing something. But I am not sure.
+Hi.
 
-Thanks and regards,
--hiren
+The following patch makes drives/scsi/tmscsim.c use request_region
+instead of check_region+request_region. It applies cleanly against
+ac10 and with a little fuzz against 241p9.
+
+Please comment.
+
+
+
+--- linux-ac10-clean/drivers/scsi/tmscsim.c	Sat Jan 20 15:17:13 2001
++++ linux-ac10/drivers/scsi/tmscsim.c	Sat Jan 20 23:17:29 2001
+@@ -2088,13 +2088,11 @@
+     
+     pACB = (PACB) psh->hostdata;
+     
+-    if (check_region (io_port, psh->n_io_port))
++    if (!request_region (io_port, psh->n_io_port, "tmscsim"))
+ 	{
+ 	    printk(KERN_ERR "DC390: register IO ports error!\n");
+ 	    return( -1 );
+ 	}
+-    else
+-	request_region (io_port, psh->n_io_port, "tmscsim");
+ 
+     DC390_read8_ (INT_Status, io_port);		/* Reset Pending INT */
+ 
+
+----- End forwarded message -----
+
+-- 
+        Rasmus(rasmus@jaquet.dk)
+
+"The obvious mathematical breakthrough would be development of an easy way
+to factor large prime numbers." 
+  -- Bill Gates, The Road Ahead, Viking Penguin (1995)
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,194 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261726AbTIYS1U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 14:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTIYSZQ
+	id S261718AbTIYSZI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbTIYSYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 14:25:16 -0400
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:2439 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261304AbTIYRT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:19:58 -0400
-Date: Thu, 25 Sep 2003 19:19:17 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (9/19): xpram driver.
-Message-ID: <20030925171917.GJ2951@mschwid3.boeblingen.de.ibm.com>
+	Thu, 25 Sep 2003 14:24:07 -0400
+Received: from mail.kroah.org ([65.200.24.183]:12489 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261722AbTIYSA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 14:00:28 -0400
+Date: Thu, 25 Sep 2003 11:00:20 -0700
+From: Greg KH <greg@kroah.com>
+To: Milton Miller <miltonm@bga.com>, linux-kernel@vger.kernel.org,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: USB problem. 'irq 9: nobody cared!'
+Message-ID: <20030925180020.GB28876@kroah.com>
+References: <200309242257.h8OMvR5d090443@sullivan.realtime.net> <20030925042326.GA6751@washoe.rutgers.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030925042326.GA6751@washoe.rutgers.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- - Make xpram work on 64 bit machines.
- - Use new-style module_param.
+On Thu, Sep 25, 2003 at 12:23:26AM -0400, Yaroslav Halchenko wrote:
+> Nop - it didn't help  :-(
+> 
+> http://onerussian.com/Linux/bug.USB2/dmesg
+> 
+> which else usefull information I can provide?
 
-diffstat:
- drivers/s390/block/xpram.c |   45 ++++++++++++++++++++++++++-------------------
- 1 files changed, 26 insertions(+), 19 deletions(-)
+David, can you try to fix this up.  It all started with your uhci
+patch...
 
-diff -urN linux-2.6/drivers/s390/block/xpram.c linux-2.6-s390/drivers/s390/block/xpram.c
---- linux-2.6/drivers/s390/block/xpram.c	Mon Sep  8 21:50:18 2003
-+++ linux-2.6-s390/drivers/s390/block/xpram.c	Thu Sep 25 18:33:28 2003
-@@ -26,11 +26,12 @@
-  */
- 
- #include <linux/module.h>
--#include <linux/version.h>
-+#include <linux/moduleparam.h>
- #include <linux/ctype.h>  /* isdigit, isxdigit */
- #include <linux/errno.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-+#include <linux/blkdev.h>
- #include <linux/blkpg.h>
- #include <linux/hdreg.h>  /* HDIO_GETGEO */
- #include <linux/sysdev.h>
-@@ -58,23 +59,23 @@
- }; 
- 
- typedef struct {
--	unsigned long	size;		/* size of xpram segment in pages */
--	unsigned long	offset;		/* start page of xpram segment */
-+	unsigned int	size;		/* size of xpram segment in pages */
-+	unsigned int	offset;		/* start page of xpram segment */
- } xpram_device_t;
- 
- static xpram_device_t xpram_devices[XPRAM_MAX_DEVS];
--static int xpram_sizes[XPRAM_MAX_DEVS];
-+static unsigned int xpram_sizes[XPRAM_MAX_DEVS];
- static struct gendisk *xpram_disks[XPRAM_MAX_DEVS];
--static unsigned long xpram_pages;
-+static unsigned int xpram_pages;
- static int xpram_devs;
- 
- /*
-  * Parameter parsing functions.
-  */
- static int devs = XPRAM_DEVS;
--static unsigned long sizes[XPRAM_MAX_DEVS];
-+static unsigned int sizes[XPRAM_MAX_DEVS];
- 
--MODULE_PARM(devs,"i");
-+module_param(devs, int, 0);
- MODULE_PARM(sizes,"1-" __MODULE_STRING(XPRAM_MAX_DEVS) "i"); 
- 
- MODULE_PARM_DESC(devs, "number of devices (\"partitions\"), " \
-@@ -149,7 +150,7 @@
-  *           -EIO:         if pgin failed
-  *           -ENXIO:       if xpram has vanished
-  */
--static int xpram_page_in (unsigned long page_addr, unsigned long xpage_index)
-+static int xpram_page_in (unsigned long page_addr, unsigned int xpage_index)
- {
- 	int cc;
- 
-@@ -180,7 +181,7 @@
- 		return -ENXIO;
- 	}
- 	if (cc == 1) {
--		PRINT_ERR("page in failed for page index %ld.\n",
-+		PRINT_ERR("page in failed for page index %u.\n",
- 			  xpage_index);
- 		return -EIO;
- 	}
-@@ -197,7 +198,7 @@
-  *           -EIO:         if pgout failed
-  *           -ENXIO:       if xpram has vanished
-  */
--static long xpram_page_out (unsigned long page_addr, unsigned long xpage_index)
-+static long xpram_page_out (unsigned long page_addr, unsigned int xpage_index)
- {
- 	int cc;
- 
-@@ -228,7 +229,7 @@
- 		return -ENXIO;
- 	}
- 	if (cc == 1) {
--		PRINT_ERR("page out failed for page index %ld.\n",
-+		PRINT_ERR("page out failed for page index %u.\n",
- 			  xpage_index);
- 		return -EIO;
- 	}
-@@ -244,6 +245,8 @@
- 	int rc;
- 
- 	mem_page = (unsigned long) __get_free_page(GFP_KERNEL);
-+	if (!mem_page)
-+		return -ENOMEM;
- 	rc = xpram_page_in(mem_page, 0);
- 	free_page(mem_page);
- 	return rc ? -ENXIO : 0;
-@@ -254,13 +257,15 @@
-  */
- static unsigned long __init xpram_highest_page_index(void)
- {
--	unsigned long page_index, add_bit;
-+	unsigned int page_index, add_bit;
- 	unsigned long mem_page;
- 
- 	mem_page = (unsigned long) __get_free_page(GFP_KERNEL);
-+	if (!mem_page)
-+		return 0;
- 
- 	page_index = 0;
--	add_bit = 1ULL << (sizeof(unsigned long)*8 - 1);
-+	add_bit = 1ULL << (sizeof(unsigned int)*8 - 1);
- 	while (add_bit > 0) {
- 		if (xpram_page_in(mem_page, page_index | add_bit) == 0)
- 			page_index |= add_bit;
-@@ -279,7 +284,7 @@
- {
- 	xpram_device_t *xdev = bio->bi_bdev->bd_disk->private_data;
- 	struct bio_vec *bvec;
--	unsigned long index;
-+	unsigned int index;
- 	unsigned long page_addr;
- 	unsigned long bytes;
- 	int i;
-@@ -290,6 +295,8 @@
- 	if ((bio->bi_size >> 12) > xdev->size)
- 		/* Request size is no page-aligned. */
- 		goto fail;
-+	if ((bio->bi_sector >> 3) > 0xffffffffU - xdev->offset)
-+		goto fail;
- 	index = (bio->bi_sector >> 3) + xdev->offset;
- 	bio_for_each_segment(bvec, bio, i) {
- 		page_addr = (unsigned long)
-@@ -382,13 +389,13 @@
- 	PRINT_INFO("  number of devices (partitions): %d \n", xpram_devs);
- 	for (i = 0; i < xpram_devs; i++) {
- 		if (xpram_sizes[i])
--			PRINT_INFO("  size of partition %d: %d kB\n",
-+			PRINT_INFO("  size of partition %d: %u kB\n",
- 				   i, xpram_sizes[i]);
- 		else
- 			PRINT_INFO("  size of partition %d to be set "
- 				   "automatically\n",i);
- 	}
--	PRINT_DEBUG("  memory needed (for sized partitions): %ld kB\n",
-+	PRINT_DEBUG("  memory needed (for sized partitions): %lu kB\n",
- 		    mem_needed);
- 	PRINT_DEBUG("  partitions to be sized automatically: %d\n",
- 		    mem_auto_no);
-@@ -407,7 +414,7 @@
- 	if (mem_auto_no) {
- 		mem_auto = ((pages - mem_needed / 4) / mem_auto_no) * 4;
- 		PRINT_INFO("  automatically determined "
--			   "partition size: %ld kB\n", mem_auto);
-+			   "partition size: %lu kB\n", mem_auto);
- 		for (i = 0; i < xpram_devs; i++)
- 			if (xpram_sizes[i] == 0)
- 				xpram_sizes[i] = mem_auto;
-@@ -499,8 +506,8 @@
- 		return -ENODEV;
- 	}
- 	xpram_pages = xpram_highest_page_index();
--	PRINT_INFO("  %li pages expanded memory found (%li KB).\n",
--		   xpram_pages, xpram_pages*4);
-+	PRINT_INFO("  %u pages expanded memory found (%lu KB).\n",
-+		   xpram_pages, (unsigned long) xpram_pages*4);
- 	rc = xpram_setup_sizes(xpram_pages);
- 	if (rc)
- 		return rc;
+thanks,
+
+greg k-h

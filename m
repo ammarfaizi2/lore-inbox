@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276749AbRJCIHS>; Wed, 3 Oct 2001 04:07:18 -0400
+	id <S276912AbRJCIRA>; Wed, 3 Oct 2001 04:17:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276794AbRJCIG7>; Wed, 3 Oct 2001 04:06:59 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:56454 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S276749AbRJCIGs>;
-	Wed, 3 Oct 2001 04:06:48 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: Alex Larsson <alexl@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Finegrained a/c/mtime was Re: Directory notification problem
-In-Reply-To: <Pine.LNX.4.33.0110022206100.29931-100000@devserv.devel.redhat.com.suse.lists.linux.kernel>
-	<oupitdx9n2m.fsf@pigdrop.muc.suse.de>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 03 Oct 2001 01:06:19 -0700
-In-Reply-To: Andi Kleen's message of "03 Oct 2001 09:53:21 +0200"
-Message-ID: <m3r8slywp0.fsf@myware.mynet>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
-MIME-Version: 1.0
+	id <S276911AbRJCIQt>; Wed, 3 Oct 2001 04:16:49 -0400
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:25223 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S276910AbRJCIQi>; Wed, 3 Oct 2001 04:16:38 -0400
+Date: Wed, 3 Oct 2001 09:17:02 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Modutils 2.5 change, start running this command now
+Message-ID: <20011003091702.B1175@flint.arm.linux.org.uk>
+In-Reply-To: <31135.1002083784@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <31135.1002083784@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Wed, Oct 03, 2001 at 02:36:24PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Wed, Oct 03, 2001 at 02:36:24PM +1000, Keith Owens wrote:
+> Either export the required symbols
+> (remember to add the .o file to export-objs in the Makefile) or add
+> EXPORT_NO_SYMBOLS; somewhere in the module (no change to Makefile).
+> 
+>  objdump -h `modprobe -l` | \
+>  awk '/file format/{file = $1}/__ksymtab/{file = ""}/\.comment/ && file != "" {print file}'
 
-> For stat is also requires a changed glibc ABI -- the glibc/2.4 stat64
+Sorry, your awk script is buggy - it doesn't take note of __ksymtab
+after .comment:
 
-Not only stat64, also plain stat.
+# objdump -h /lib/modules/2.4.9-ac17/kernel/drivers/acorn/scsi/acornscsi_mod.o
 
-> structure reserved an additional 4 bytes for every timestamp, but these
-> either need to be used to give more seconds for the year 2038 problem
-> or be used for the ms fractions. y2038 is somewhat important too.
+/lib/modules/2.4.9-ac17/kernel/drivers/acorn/scsi/acornscsi_mod.o:     file format elf32-littlearm
 
-The fields are meant for nanoseconds.  The y2038 will definitely be
-solved by time-shifting or making time_t unsigned.  In any way nothing
-of importance here and now.  Especially since there won't be many
-systems which are running today and which have a 32-bit time_t be used
-then.  For the rest I'm sure that in 37 years there will be the one or
-the other ABI change.
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0000466c  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .rodata       00000de6  00000000  00000000  000046a0  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  2 .modinfo      00000028  00000000  00000000  00005488  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  3 .data         000000bc  00000000  00000000  000054b0  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, DATA
+  4 .bss          0000008c  00000000  00000000  0000556c  2**2
+                  ALLOC
+  5 .comment      00000026  00000000  00000000  0000556c  2**0
+                  CONTENTS, READONLY
+  6 __ksymtab     00000000  00000000  00000000  00005592  2**0
+                  CONTENTS, READONLY
 
--- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313202AbSEMMxA>; Mon, 13 May 2002 08:53:00 -0400
+	id <S313206AbSEMM6S>; Mon, 13 May 2002 08:58:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313206AbSEMMw7>; Mon, 13 May 2002 08:52:59 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:50230 "EHLO
-	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S313202AbSEMMw6>; Mon, 13 May 2002 08:52:58 -0400
-Date: Mon, 13 May 2002 14:00:16 +0100
-From: Ian Molton <spyro@armlinux.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: torvalds@transmeta.com, gilbertd@treblig.org, linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-Message-Id: <20020513140016.66a84fef.spyro@armlinux.org>
-In-Reply-To: <20020513101228.GA4071@louise.pinerecords.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; )
+	id <S313238AbSEMM6R>; Mon, 13 May 2002 08:58:17 -0400
+Received: from linuxpc1.lauterbach.com ([213.70.137.66]:665 "HELO
+	linuxpc1.lauterbach.com") by vger.kernel.org with SMTP
+	id <S313206AbSEMM6Q>; Mon, 13 May 2002 08:58:16 -0400
+Message-Id: <5.1.1.2.2.20020513144903.02885310@mail.lauterbach.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1.3 (Beta)
+Date: Mon, 13 May 2002 14:58:10 +0200
+To: linux-kernel@vger.kernel.org
+From: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
+Subject: Re: pdc202xx.c fails to compile in 2.5.15
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 May 2002 12:12:28 +0200
-Tomas Szepe <szepe@pinerecords.com> wrote:
+Alan Cox wrote:
+> > Because of there are apparently devices on which you must check device 
+> class
+> > (2.5.14 talks about CY82C693 and IT8172G), I'll leave proper fix on Martin,
+> > but simple fix below work fine on my Asus A7V.
+>
+>You need to do specific checks for the device in question. Removing the
+>class check btw is something anyone reading this message should not do
+>even in the same situation unless they know precisely what other
+>mass storage class devices they have present. You can easily trash a
+>raid array otherwise
 
-> > [Linus Torvalds <torvalds@transmeta.com>, May-12 2002, Sun, 18:56
-> > -0700]
-> >
-> > As an example, if the long version looks like this:
-> > ...
-> > The short version could look like
-> > ...
-> 
-> How's this? (script attached)
+I think you are probably talking about the class check for unknown devices 
+a few lines above in 2.5.15. Removing the class check when a driver already 
+claimed responsibility just reinstates what we had in 2.4. The removal is 
+in IDE 61.
 
-very nice :)
+Franz.
+

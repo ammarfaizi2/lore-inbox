@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbUCPUgU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 15:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbUCPUgU
+	id S261637AbUCPUol (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 15:44:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbUCPUol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 15:36:20 -0500
-Received: from mail.gmx.de ([213.165.64.20]:59340 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261648AbUCPUgR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 15:36:17 -0500
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Steve Youngs <sryoungs@bigpond.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: NVIDIA and 2.6.4?
-Date: Tue, 16 Mar 2004 21:49:40 +0100
-User-Agent: KMail/1.6.1
-References: <405082A2.5040304@blueyonder.co.uk> <200403130515.i2D5F7DG009253@turing-police.cc.vt.edu> <microsoft-free.87ad2ipyr2.fsf@eicq.dnsalias.org>
-In-Reply-To: <microsoft-free.87ad2ipyr2.fsf@eicq.dnsalias.org>
-MIME-Version: 1.0
+	Tue, 16 Mar 2004 15:44:41 -0500
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:9668 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261637AbUCPUoj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 15:44:39 -0500
+Date: Tue, 16 Mar 2004 21:44:30 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: TLD.rmk.(none) junk in BitKeeper logs where BK_HOST belongs?
+Message-ID: <20040316204430.GB9345@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20040316184455.GA31710@merlin.emma.line.org> <20040316191454.GK17813@bitmover.com> <Pine.LNX.4.58.0403161132000.17272@ppc970.osdl.org> <20040316194153.GA15282@merlin.emma.line.org> <20040316194559.D7886@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403162149.41018.dominik.karall@gmx.net>
+In-Reply-To: <20040316194559.D7886@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 March 2004 04:36, Steve Youngs wrote:
-> * Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
->   > On Fri, 12 Mar 2004 18:24:01 GMT, Adam Jones <adam@yggdrasl.demon.co.uk>  
-said:
->   >> A quick thought - have you got CONFIG_REGPARM enabled in the kernel
->   >> config?  If so, disable it and try again.  (It's almost certain to
->   >> cause crashes with binary modules.)
->
->   $ zgrep REGPARM /proc/config.gz
-> CONFIG_REGPARM=y
->
->   $ grep nvidia /proc/modules
-> nvidia 2066568 22 - Live 0xe0b2d000
->
->   $ uname -r
-> 2.6.4-sy1
->
-> No problems here. :-)
->
->   > Also, the NVidia driver uses a bit of kernel stack, so it's
->   > incompatible with the CONFIG_4KSTACKS option in recent -mm
->   > kernels...
->
-> Will have to remember that for 2.6.5, I'll let you know how it goes.
-> Thanks, Valdis.
+On Tue, 16 Mar 2004, Russell King wrote:
 
-can you let me know how to compile the nvidia drivers for 4KSTACK? cause in 
-the 2.6.5-rc1-mm1 is no more option to deactivate 4KSTACK.
-thx!
+> > Two notes:
+> > 1.
+> > This could be handled by only including patches of those people who
+> > consent to their address being published,
+> 
+> This requires me to keep a database of peoples addresses who have
+> consented.  No thanks, that's a huge overhead and waste of time.
 
-greets
+"vacation" style recipes for maildrop or procmail do most of the parts
+you'd need - sort people's mail into one folder "no-consent", if they
+send a patch, ask them for permission, if they consent, drop their mail
+address into the DB so their mail is sorted into
+"address-export-allowed". Change names as you will.
+
+Just a suggestion to counted the "huge" overhead. It is overhead and
+costs time without doubt.
+
+> Have a look in the changesets themselves - you'll find the line "Patch
+> from" in them, so you can pick out the real persons name from that -
+> even automatically via a suitable regexp.
+
+I'll try.
+
+-- 
+Matthias Andree
+
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

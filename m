@@ -1,63 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316750AbSHBTCq>; Fri, 2 Aug 2002 15:02:46 -0400
+	id <S316715AbSHBTBd>; Fri, 2 Aug 2002 15:01:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316788AbSHBTCp>; Fri, 2 Aug 2002 15:02:45 -0400
-Received: from ns.escriba.com.br ([200.250.187.130]:5884 "EHLO
-	alexnunes.lab.escriba.com.br") by vger.kernel.org with ESMTP
-	id <S316750AbSHBTCn>; Fri, 2 Aug 2002 15:02:43 -0400
-Message-ID: <3D4AD817.3080200@PolesApart.wox.org>
-Date: Fri, 02 Aug 2002 16:05:59 -0300
-From: "Alexandre P. Nunes" <alex@PolesApart.wox.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
+	id <S316750AbSHBTBd>; Fri, 2 Aug 2002 15:01:33 -0400
+Received: from ns.suse.de ([213.95.15.193]:11788 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316715AbSHBTBb>;
+	Fri, 2 Aug 2002 15:01:31 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Apply the umask in VFS optionally
+Date: Fri, 2 Aug 2002 21:05:00 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: some questions using rdtsc in user space
-References: <3D4ABCA3.3020402@PolesApart.wox.org> <3D4ACF11.FD7BB5B5@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_C0D8V2ZS89J5SZP6WFWO"
+Message-Id: <200208022105.00362.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
 
->[snip]
->
->>If using rdtsc is a good way, someone knows how do I do some sort of
->>loop, converting the rdtsc difference (is it in cpu clocks, right?) to
->>nano/microseconds, and if there could be bad behaviour from this (I
->>believe there could be some SMP issues, but for now this is irrelavant
->>for us).
->>    
->>
->
->You'd be more portable looping on gettimeofday(), which returns back seconds and
->microseconds.  The disadvantage is that if you change the system time while your
->program is running you can get screwed.
->
+--------------Boundary-00=_C0D8V2ZS89J5SZP6WFWO
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-I guess ntpd would be the evil on this issue, because at least in some 
-machines I have here, it makes minor (sometimes not "that" minor) 
-corrections every half hour or so...
+Hi all,
 
->
->If you want to loop on rdtsc (which as you say is often clockspeed, but that is
->not necessarily exactly what is advertised), then the first thing you need to do
->is to figure out how fast you're going.  What I usually do is grab a timestamp,
->sleep for 10 seconds using select(), and grab another timestamp.  Figure out the
->difference in timestamps, divide by 10, and you get ticks/sec.  If it's close to
->your advertised clock rate, then round it up to the clock rate for ease of
->calculation.  As an example, my 550MHz P3 gives 548629000 ticks/sec using this
->method, so for your purposes I'd round it up to 550000000.
->
->Once you have this information, just divide by 5 million to get the number of
->ticks in 200ns.
->
->  
->
-Ok, that's exactly where I was trying to get to, I'll do some 
-experiments, thank you!
+The umask(2) is usually applied to the mode parameters to open(2), mkdir(=
+2),=20
+creat(2) and mknod(2) in the VFS. With POSIX Access Control Lists the uma=
+sk=20
+must only be applied in some situations, and must have no effect in other=
+s.=20
+Currently there is no way for a file system to find out the original mode=
+=20
+parameter passed to the system calls.
 
-Alexandre
+There are two ways to solve this problem, namely, to (1) move the code th=
+at=20
+applies the umask into the file systems, or to (2) apply the umask in the=
+ VFS=20
+optionally only. Option (1) is intrusive on existing file systems, and mi=
+ght=20
+introduce bugs, while (2) slightly complicates the VFS, but leaves file=20
+systems unaffected.
+
+I believe that (2) is the more reasonable choice in this case, so I propo=
+se=20
+this patch, which adds the MS_NOUMASK mount option. The flag is set by th=
+e=20
+file system, if the file system does not want the VFS to apply the umask,=
+=20
+after which the file system itself is responsible for applying the umask=20
+where appropriate.
+
+Finally, I have a question related to this. We had a bug with kernel task=
+s,=20
+which don't have a umask associated with them (nfsd in particular). Shoul=
+d=20
+kernel tasks that create files be required to have a valid fs_struct (whi=
+ch=20
+includes the umask), or should this be special cased in file systems?
+
+Regards,
+Andreas.
+
+------------------------------------------------------------------
+ Andreas Gruenbacher                                SuSE Linux AG
+ mailto:agruen@suse.de                     Deutschherrnstr. 15-19
+ http://www.suse.de/                   D-90429 Nuernberg, Germany
+
+--------------Boundary-00=_C0D8V2ZS89J5SZP6WFWO
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="linux-2.5.30-ms_noumask.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="linux-2.5.30-ms_noumask.diff"
+
+Apply the umask in VFS optionally
+
+This patch adds the MS_NOUMASK mount option. This mount option is set by the file system, if the file system does not want the VFS to apply the umask.
+
+diff -Nur linux-2.5.30/include/linux/fs.h linux-2.5.30.patch/include/linux/fs.h
+--- linux-2.5.30/include/linux/fs.h	Thu Aug  1 23:16:15 2002
++++ linux-2.5.30.patch/include/linux/fs.h	Fri Aug  2 15:21:29 2002
+@@ -110,6 +110,7 @@
+ #define MS_MOVE		8192
+ #define MS_REC		16384
+ #define MS_VERBOSE	32768
++#define MS_NOUMASK	(1<<16) /* VFS does not apply the umask */
+ #define MS_ACTIVE	(1<<30)
+ #define MS_NOUSER	(1<<31)
+ 
+@@ -164,6 +165,7 @@
+ #define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE)
+ #define IS_NOATIME(inode)	(__IS_FLG(inode, MS_NOATIME) || ((inode)->i_flags & S_NOATIME))
+ #define IS_NODIRATIME(inode)	__IS_FLG(inode, MS_NODIRATIME)
++#define IS_NOUMASK(inode)	__IS_FLG(inode, MS_NOUMASK)
+ 
+ #define IS_DEADDIR(inode)	((inode)->i_flags & S_DEAD)
+ 
+diff -Nur linux-2.5.30/fs/namei.c linux-2.5.30.patch/fs/namei.c
+--- linux-2.5.30/fs/namei.c	Thu Aug  1 23:16:18 2002
++++ linux-2.5.30.patch/fs/namei.c	Fri Aug  2 15:35:10 2002
+@@ -1279,8 +1279,9 @@
+ 
+ 	/* Negative dentry, just create the file */
+ 	if (!dentry->d_inode) {
+-		error = vfs_create(dir->d_inode, dentry,
+-				   mode & ~current->fs->umask);
++		if (!IS_NOUMASK(dir->d_inode))
++			mode &= ~current->fs->umask;
++		error = vfs_create(dir->d_inode, dentry, mode);
+ 		up(&dir->d_inode->i_sem);
+ 		dput(nd->dentry);
+ 		nd->dentry = dentry;
+@@ -1442,7 +1443,8 @@
+ 	dentry = lookup_create(&nd, 0);
+ 	error = PTR_ERR(dentry);
+ 
+-	mode &= ~current->fs->umask;
++	if (!IS_NOUMASK(nd.dentry->d_inode))
++		mode &= ~current->fs->umask;
+ 	if (!IS_ERR(dentry)) {
+ 		switch (mode & S_IFMT) {
+ 		case 0: case S_IFREG:
+@@ -1508,8 +1510,9 @@
+ 		dentry = lookup_create(&nd, 1);
+ 		error = PTR_ERR(dentry);
+ 		if (!IS_ERR(dentry)) {
+-			error = vfs_mkdir(nd.dentry->d_inode, dentry,
+-					  mode & ~current->fs->umask);
++			if (!IS_NOUMASK(nd.dentry->d_inode))
++				mode &= ~current->fs->umask;
++			error = vfs_mkdir(nd.dentry->d_inode, dentry, mode);
+ 			dput(dentry);
+ 		}
+ 		up(&nd.dentry->d_inode->i_sem);
+
+--------------Boundary-00=_C0D8V2ZS89J5SZP6WFWO--
 

@@ -1,67 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274983AbTHLBxi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 21:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274990AbTHLBxi
+	id S274986AbTHLBxt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 21:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274990AbTHLBxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 21:53:38 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:1540 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S274983AbTHLBxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 21:53:21 -0400
-Date: Mon, 11 Aug 2003 21:41:30 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Greg KH <greg@kroah.com>
-Cc: long <tlnguyen@snoqualmie.dp.intel.com>, jun.nakajima@intel.com,
-       linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
-       tom.l.nguyen@intel.com
-Subject: Re: Updated MSI Patches
-In-Reply-To: <20030811211654.GA18578@kroah.com>
-Message-ID: <Pine.LNX.4.53.0308112134400.26153@montezuma.mastecende.com>
-References: <200308112051.h7BKp9ZU003007@snoqualmie.dp.intel.com>
- <20030811211654.GA18578@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Aug 2003 21:53:48 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:40879 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S274986AbTHLBxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 21:53:30 -0400
+Date: Mon, 11 Aug 2003 21:53:26 -0400
+To: Kernel List <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test3-bk1 pppd oops
+Message-ID: <20030812015326.GA25408@bittwiddlers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
+X-Delivery-Agent: TMDA/0.81 (Swaps)
+X-Primary-Address: mharrell@bittwiddlers.com
+Reply-To: Matthew Harrell 
+	  <mharrell-dated-1061085207.0773e9@bittwiddlers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Aug 2003, Greg KH wrote:
 
-> > There are two types of MSI capable devices: one supports the MSI 
-> > capability structure and other supports the MSI-X capability structure.
-> > The patches provide two APIs msix_alloc_vectors/msix_free_vectors for 
-> > only devices, which support the MSI-X capability structure, to request
-> > for additional messages. By default, each MSI/MSI-X capable device 
-> > function is allocated with one vector for below reasons:
-> > - To achieve a backward compatibility with existing drivers if possible.
-> > - Due to the current implementation of vector assignment, all devices 
-> >   that support the MSI-capability structure work with no more than one 
-> >   allocated vector.
-> > - The hardware devices, which support the MSI-X capability structure, 
-> >   may indicate the maximum capable number of vectors supported (32 
-> >   vectors as example). However, the device drivers may require only 
-> >   four. With provided APIs, the optimization of MSI vector allocation 
-> >   is achievable.
+Got this oops trying to run pppd with ppp compile as modules and using devfs
 
-IMO Multiplexing would be preferred, we can't be allocating that many 
-vectors for one device/device driver
+Unable to handle kernel paging request at virtual address e0972f00
+c015be76
+*pde = 1e62f067
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c015be76>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: de858cc0   ebx: e0972f00   ecx: 0000006c   edx: c6819f14
+esi: 00000000   edi: 00006c00   ebp: de858cc0   esp: c6819ec8
+ds: 007b   es: 007b   ss: 0068
+Stack: c015fd60 dc680cc0 00000000 c015bd6f de858cc0 c023bac0 00006c00 de858cc0 
+       00000000 c015bd50 000000ff 00000000 00000000 00000000 defdf380 c015bbf2 
+       defe1c00 00006c00 c6819f14 00000000 defdf380 ffffffed d48ee180 defe4f00 
+Call Trace:
+ [<c015fd60>] do_lookup+0x30/0xb0
+ [<c015bd6f>] exact_lock+0xf/0x20
+ [<c023bac0>] kobj_lookup+0xe0/0x170
+ [<c015bd50>] exact_match+0x0/0x10
+ [<c015bbf2>] chrdev_open+0xe2/0x150
+ [<c01a08b0>] devfs_open+0xb0/0xd0
+ [<c01527a0>] dentry_open+0x110/0x1a0
+ [<c0152688>] filp_open+0x68/0x70
+ [<c0152a5b>] sys_open+0x5b/0x90
+ [<c010b1bf>] syscall_call+0x7/0xb
+Code: 83 3b 02 74 41 ff 83 00 01 00 00 89 04 24 e8 97 f4 06 00 85 
 
-> > I hope there may be a way to determine the number of vectors supported 
-> > by CPU during the run-time. I look at the file ../include/asm-i386/mach-
-> > default/irq_vectors.h, the maximum of vectors (256) is already well 
-> > commented.
-> 
-> Yeah, but that's in reference to APIC interrupt sources, right?  Does
-> that correspond to these "vectors" too?  If so, why not just use the
-> existing NR_IRQS value instead of creating your own?
 
-There isn't a 1:1 relationship between NR_IRQS and NR_VECTORS we really 
-shouldn't mix them together. NR_IRQS can be much higher than 256 whilst 
-on i386 we're fixed to 256 vectors due to that being the Interrupt 
-Descriptor Table capacity. It is still possible to service more interrupt 
-lines than 256 on SMP however by making IDTs per 'interrupt servicing 
-node'
+>>EIP; c015be76 <cdev_get+16/60>   <=====
 
-	Zwane
+>>eax; de858cc0 <__crc_blk_queue_free_tags+24d866/32ac60>
+>>ebx; e0972f00 <__crc_xfrm_policy_list+1bf0c/57a7b>
+>>edx; c6819f14 <__crc_class_unregister+3bc3a/8ae451>
+>>ebp; de858cc0 <__crc_blk_queue_free_tags+24d866/32ac60>
+>>esp; c6819ec8 <__crc_class_unregister+3bbee/8ae451>
 
+Trace; c015fd60 <do_lookup+30/b0>
+Trace; c015bd6f <exact_lock+f/20>
+Trace; c023bac0 <kobj_lookup+e0/170>
+Trace; c015bd50 <exact_match+0/10>
+Trace; c015bbf2 <chrdev_open+e2/150>
+Trace; c01a08b0 <devfs_open+b0/d0>
+Trace; c01527a0 <dentry_open+110/1a0>
+Trace; c0152688 <filp_open+68/70>
+Trace; c0152a5b <sys_open+5b/90>
+Trace; c010b1bf <syscall_call+7/b>
+
+Code;  c015be76 <cdev_get+16/60>
+00000000 <_EIP>:
+Code;  c015be76 <cdev_get+16/60>   <=====
+   0:   83 3b 02                  cmpl   $0x2,(%ebx)   <=====
+Code;  c015be79 <cdev_get+19/60>
+   3:   74 41                     je     46 <_EIP+0x46>
+Code;  c015be7b <cdev_get+1b/60>
+   5:   ff 83 00 01 00 00         incl   0x100(%ebx)
+Code;  c015be81 <cdev_get+21/60>
+   b:   89 04 24                  mov    %eax,(%esp,1)
+Code;  c015be84 <cdev_get+24/60>
+   e:   e8 97 f4 06 00            call   6f4aa <_EIP+0x6f4aa>
+Code;  c015be89 <cdev_get+29/60>
+  13:   85 00                     test   %eax,(%eax)
+
+-- 
+  Matthew Harrell                          If at first you don't succeed,
+  Bit Twiddlers, Inc.                       try management.
+  mharrell@bittwiddlers.com     

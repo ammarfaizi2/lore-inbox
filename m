@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbUA3Rrg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 12:47:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbUA3Rrg
+	id S261974AbUA3Row (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 12:44:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbUA3Row
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 12:47:36 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:58666 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261931AbUA3Rre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 12:47:34 -0500
-Date: Fri, 30 Jan 2004 17:47:38 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: tmpfs sparse file failure in glibc "make check"
-In-Reply-To: <401A8F68.60904@backtobasicsmgmt.com>
-Message-ID: <Pine.LNX.4.44.0401301724030.1542-100000@localhost.localdomain>
+	Fri, 30 Jan 2004 12:44:52 -0500
+Received: from mail.gmx.de ([213.165.64.20]:51150 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261974AbUA3RoH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 12:44:07 -0500
+X-Authenticated: #4512188
+Message-ID: <401A97E0.4010704@gmx.de>
+Date: Fri, 30 Jan 2004 18:44:00 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Greg KH <greg@kroah.com>
+CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 015 release
+References: <20040126215036.GA6906@kroah.com> <401A8A35.1020105@gmx.de> <20040130172310.GB5265@kroah.com>
+In-Reply-To: <20040130172310.GB5265@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jan 2004, Kevin P. Fleming wrote:
+>>1.) Minor one: Nodes for Nvidia (I am using binary display modules 
+>>1.0.5328) ar not created. I have to do it by hand each start-up (written 
 > 
-> No problem, as I said I have a workaround that causes me no pain. It 
-> seems that the use of tmpfs for both a traditional filesystem _and_ 
-> shmem is what's the root of this problem, what is the real advantage of 
-> both functions being performed by the same code?
+> Heh, and you expect me to be able to modify a binary driver to work with
+> udev how?  :)
 
-Fair suggestion, but I don't actually agree that is the root of it.
+Oh OK, then I'll shut up. :-)
 
-The (peculiar but predating Linux) semantics of mmap shared writable
-on /dev/zero demands that we have something very like a filesystem
-handling something very like shared memory: from there on it makes
-a lot of sense to have the same code supporting all this.
+> What does:
+> 	usbinfo -a -p /sys/class/usb/scanner0
+> say?
 
-My accusing finger points in different directions at different moments,
-one reason I want to mull it over.  I might say the problem is that
-tmpfs struggles to save memory by combining two otherwise distinct
-layers (mapping pages and backingstore pages), and many difficulties
-spring from that (all the swap/file swizzling).  I might say the
-problem is that the non-overcommit memory stuff is just too simplistic.
-I might say the problem is that mmap of a sparse file is ill-defined
-when the backingstore fills up.
+Uhm, where to get this? I don't have it and I dunno which gentoo ebuild 
+installs it. But I found a graphic app called "usbview". It basically 
+gives the same infos as lsusb. Well, nevermind, I'l try what you said 
+down. I'll try to get xsane goind with libusb.
 
-Hugh
+Thanx,
 
+Prakash

@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129040AbQJ3NxD>; Mon, 30 Oct 2000 08:53:03 -0500
+	id <S129077AbQJ3N5e>; Mon, 30 Oct 2000 08:57:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129077AbQJ3Nwo>; Mon, 30 Oct 2000 08:52:44 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:55772 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129040AbQJ3Nwk>; Mon, 30 Oct 2000 08:52:40 -0500
-Message-ID: <39FD7D0B.E957CA7D@uow.edu.au>
-Date: Tue, 31 Oct 2000 00:52:11 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pierre Etchemaite <petchema@concept-micro.com>
-CC: "Mohammad A. Haque" <mhaque@haque.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ide/disk perf?
-In-Reply-To: <39FCB13E.6267C38D@haque.net> <XFMail.20001030130943.petchema@concept-micro.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S129120AbQJ3N5Y>; Mon, 30 Oct 2000 08:57:24 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:61964 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129077AbQJ3N5J>;
+	Mon, 30 Oct 2000 08:57:09 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux_developer@hotmail.com (Linux Kernel Developer),
+        linux-kernel@vger.kernel.org
+Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17 
+In-Reply-To: Your message of "Mon, 30 Oct 2000 13:41:40 -0000."
+             <E13qFC1-0006t5-00@the-village.bc.nu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 31 Oct 2000 00:56:58 +1100
+Message-ID: <4572.972914218@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Etchemaite wrote:
-> 
-> Le 30-Oct-2000, Mohammad A. Haque écrivait :
-> > Could someone who knows ide and drive inside and out (Andre?) please
-> > take a look at these figures? Am I forgetting to do something (or doing
-> > something I'm not suposed to) to get the best numbers? I thought I'd be
-> > able to get more than ~4MB/sec off the HPT366 and a UDMA66 drive.
-> 
-> It could be unrelated, but I had problems several times with Maxtor drives
-> recently; Their performances are usually high (some models give >20 Mb/s
-> both reads and writes), but under some conditions that I couldn't narrow down
-> yet, the read throughput is stuck to the floor (a few megabytes/sec) until
-> next reboot. The write performance is always ok.
+On Mon, 30 Oct 2000 13:41:40 +0000 (GMT), 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>Keith Owens wrote
+>> >You may find that creating your own wrappers for these files that do
+>> >
+>> >extern "C" {
+>> >#define new new_
+>> >#define private private_
+>> >#include <linux/foo.h>
+>> >#undef new
+>> >#undef private
+>> >}
+>> >
+>> >safer, since you won't break anything
+>> 
+>> It breaks module symbol versions, see earlier mail to l-k.
+>
+>I don't believe that is the case.
+>
+>You compute the modversions against the C header files. You include the C++
+>header files in a C++ module and you include the module version file directly.
+>Your symbols match providing you don't have an object called private or new
+>that is globally exported. We don't seem to have any of those
 
-I had the same problem with Seagate ST313021A (13 gig) drives on
-BP6/HPT366/UDMA66.  Initial throughput reported by `hdparm -t' was 22
-megs/sec which would slowly wilt to 5 megs/sec.
+There is a deficiency in modversions which has been there since the
+start.  Symbol versions assume that the kernel header files and the
+module version file are in sync but this has never been guaranteed.  I
+have seen people compile (outside the kernel) with headers from kernel
+2.2.x and modversions from kernel 2.3.x, the checksums "match" the 2.3
+kernel so the module loaded but they used the wrong headers, splat!
 
-I discovered that sending _any_ reconfiguration command to the drive -
-even one which was not supported by that particular drive - would bring
-the performance back.
+As part of the 2.5 kbuild redesign, symbol versions will be completely
+redone.  One of the things on my todo list is to detect this mismatch.
+There are some problems in doing that which I may or may not be able to
+overcome, but if the field names are different between C and C++ then I
+can never detect this mismatch correctly.
 
-So when it goes slow, try running, say, `hdparm -A1' and see what
-happens.
+Please do not use different structure field names in kernel and modules.
 
-Andre and I scratched each others heads for a while, suspected a
-firmware bug.  He sent an email to a contact at Seagate.  This was in
-April, so I guess that person is a very slow typist.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

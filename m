@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262880AbVBCQB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbVBCQD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262880AbVBCQB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 11:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263390AbVBCQB5
+	id S262549AbVBCQD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 11:03:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVBCQD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 11:01:57 -0500
-Received: from mail.suse.de ([195.135.220.2]:31390 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262880AbVBCQBo (ORCPT
+	Thu, 3 Feb 2005 11:03:57 -0500
+Received: from ida.rowland.org ([192.131.102.52]:6660 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S263720AbVBCQDb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 11:01:44 -0500
-Date: Thu, 3 Feb 2005 16:37:47 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Oskar Senft <oskar.senft@gmx.de>
-Subject: ISDN4Linux Bug in isdnhdlc.c
-Message-ID: <20050203153747.GB6990@pingi3.kke.suse.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-	Oskar Senft <oskar.senft@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.8-24.10-default i686
-User-Agent: Mutt/1.5.6i
+	Thu, 3 Feb 2005 11:03:31 -0500
+Date: Thu, 3 Feb 2005 11:03:29 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
+cc: mdharm-usb@one-eyed-alien.net, <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B301B3CD73@scl-exch2k.phoenix.com>
+Message-ID: <Pine.LNX.4.44L0.0502031056560.1125-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2 Feb 2005, Aleksey Gorelov wrote:
 
-Oskar found a critical bug in isdnhdlc.c, please
-apply this simple fix to next versions.
+> Hi Matt, Alan, 
+> 
+>   Could you please tell me (link would do) why it makes default
+> delay_use=5 
+> really necessary (from the patch below)?
+> https://lists.one-eyed-alien.net/pipermail/usb-storage/2004-August/00074
+> 7.html
+> 
+> It makes USB boot really painfull and slow :(
+> 
+>   I understand there should be a good reason for it. I've tried to find
+> an answer in 
+> archives, without much success though.
 
+Lots of devices don't need that delay, but enough of them do that we 
+decided to add it.  The value of 5 seconds was more or less arbitrary; it 
+was long enough for every device we could test and it didn't seem _too_ 
+long.  Maybe 1 second would be long enough -- we just didn't know so we 
+were conservative.
 
+Alan Stern
 
-From: Oskar Senft <oskar.senft@gmx.de>
-
-isdnhdlc_decode is called multiple times for bigger frames, so
-decrementing dsize is a bad idea and can cause a overflow of
-the dst buffer.
-
-
-Signed-off-by: Karsten Keil <kkeil@suse.de>
-
-diff -ur linux-2.6.11-rc2.org/drivers/isdn/hisax/isdnhdlc.c linux-2.6.11-rc2/drivers/isdn/hisax/isdnhdlc.c
---- linux-2.6.11-rc2.org/drivers/isdn/hisax/isdnhdlc.c	2004-11-23 15:53:25.000000000 +0100
-+++ linux-2.6.11-rc2/drivers/isdn/hisax/isdnhdlc.c	2005-02-03 15:50:06.352137856 +0100
-@@ -308,7 +308,7 @@
- 				hdlc->crc = crc_ccitt_byte(hdlc->crc, hdlc->shift_reg);
- 
- 				// good byte received
--				if (dsize--) {
-+				if (hdlc->dstpos < dsize) {
- 					dst[hdlc->dstpos++] = hdlc->shift_reg;
- 				} else {
- 					// frame too long
-
--- 
-Karsten Keil
-SuSE Labs
-ISDN development

@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143909AbRA1TcG>; Sun, 28 Jan 2001 14:32:06 -0500
+	id <S143938AbRA1Tkh>; Sun, 28 Jan 2001 14:40:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143940AbRA1Tb4>; Sun, 28 Jan 2001 14:31:56 -0500
-Received: from kashiwa8-84.ppp-1.dion.ne.jp ([210.157.148.84]:5650 "EHLO
-	ask.ne.jp") by vger.kernel.org with ESMTP id <S143909AbRA1Tbk>;
-	Sun, 28 Jan 2001 14:31:40 -0500
-Date: Mon, 29 Jan 2001 04:31:43 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: "paradox3" <paradox3@maine.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
-Message-Id: <20010129043143.3ac5fd99.bruce@ask.ne.jp>
-In-Reply-To: <002901c08951$f751bfa0$b001a8c0@caesar>
-In-Reply-To: <003f01c088fb$a35c06e0$b001a8c0@caesar> <20010128174016.3fba71ad.bruce@ask.ne.jp>
-	<002901c08951$f751bfa0$b001a8c0@caesar>
-X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.6; Linux 2.2.17; i686)
+	id <S143939AbRA1Tk2>; Sun, 28 Jan 2001 14:40:28 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37131 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S143938AbRA1TkZ>;
+	Sun, 28 Jan 2001 14:40:25 -0500
+Date: Sun, 28 Jan 2001 20:40:02 +0100
+From: Jens Axboe <axboe@suse.de>
+To: mirabilos <eccesys@topmail.de>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: Q: Release of 2.4.1
+Message-ID: <20010128204002.E5522@suse.de>
+In-Reply-To: <01a301c0895e$b142cc90$0100a8c0@homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01a301c0895e$b142cc90$0100a8c0@homeip.net>; from eccesys@topmail.de on Sun, Jan 28, 2001 at 07:15:13PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 28 2001, mirabilos wrote:
+> Does 2.4.1 when released, include e.g. Jens' loop patch?
 
-Hm. As a point of comparison, I use a similar system to yours (full SCSI,
-though, no IDE) and I can copy a 100MB file from disk-to-disk, or on the
-same disk, in around 13 seconds. Where are you copying to the SCSI drive
-from - the same drive, an IDE disk, CDROM? If IDE, what are its
-particulars? (Check with hdparm -iI /dev/hd?)
+No, I haven't submitted it yet due to the massive restructering. Plus,
+it also touches other parts than loop itself.
 
---
-Bruce Harada
-bruce@ask.ne.jp
+> Because it seems stable and loop else were buggy.
+> So for others if there are.
 
+It needs a bit more testing, and crypto hasn't been verified either.
 
-
-On Sun, 28 Jan 2001 12:44:29 -0500
-"paradox3" <paradox3@maine.rr.com> wrote:
->
-> I don't get any messages relating to the drives in any syslog output.
-> 
-> >
-> > Do you get messages like the ones below in /var/log/messages?
-> >
-> >   sym53c875-0-<0,0>: QUEUE FULL! 8 busy, 7 disconnected CCBs
-> >   sym53c875-0-<0,0>: tagged command queue depth set to 7
-> >
-> > In fact, do you get any messages in your log files that look like they
-> > might be related?
-> >
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

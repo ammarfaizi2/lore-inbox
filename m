@@ -1,39 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269244AbTCBRGs>; Sun, 2 Mar 2003 12:06:48 -0500
+	id <S269242AbTCBRCs>; Sun, 2 Mar 2003 12:02:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269246AbTCBRGs>; Sun, 2 Mar 2003 12:06:48 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:1533 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S269244AbTCBRGr>; Sun, 2 Mar 2003 12:06:47 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Anders Gustafsson <andersg@0x63.nu>
-Subject: Re: [PATCH] reduce large stack usage
-Date: Sun, 2 Mar 2003 18:14:48 +0100
-User-Agent: KMail/1.5
-Cc: "Randy.Dunlap" <randy.dunlap@verizon.net>, linux-kernel@vger.kernel.org
-References: <20030301071007$18ea@gated-at.bofh.it> <200303021413.PAA12289@post.webmailer.de> <20030302153805.GD27892@h55p111.delphi.afb.lu.se>
-In-Reply-To: <20030302153805.GD27892@h55p111.delphi.afb.lu.se>
+	id <S269243AbTCBRCs>; Sun, 2 Mar 2003 12:02:48 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9227 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269242AbTCBRCr>;
+	Sun, 2 Mar 2003 12:02:47 -0500
+Message-ID: <3E623B9A.8050405@pobox.com>
+Date: Sun, 02 Mar 2003 12:12:58 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
+References: <200303020011.QAA13450@adam.yggdrasil.com> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <b3rtr2$rmg$1@cesium.transmeta.com>
+In-Reply-To: <b3rtr2$rmg$1@cesium.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303021814.48582.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 March 2003 16:38, Anders Gustafsson wrote:
+H. Peter Anvin wrote:
+> Followup to:  <3E616224.6040003@pobox.com>
+> By author:    Jeff Garzik <jgarzik@pobox.com>
+> In newsgroup: linux.dev.kernel
+> 
+>>You're missing the point:
+>>
+>>A BK exporter is useful.  A BK clone is not.
+>>
+> 
+> 
+> I disagree.  A BK clone would almost certainly be highly useful.  The
+> fact that it would happen to be compatible with one particular
+> proprietary tool released by one particular company doesn't change
+> that fact one iota; in fact, some people might find value in using the
+> proprietary tool for whatever reason (snazzy GUI, keeping the suits
+> happy, who knows...)
 
-> I'm also seeing crashes when unpacking the initramfs if I enlarge it so it
-> takes more than a few (32kb) windows. I get crashes in a copy_from_user
-> deep down the callchain when it is doing the sys_write to a file in ramfs.
 
-That's slightly different from what I am experiencing on s390x. Here,
-I get a panic 'length error' after initramfs is unzipped. It always
-seems like one byte less is counted than actually is inside the
-archive.
-OTOH, the result of a stack overflow is usually undefined, so it might
-also be this problem.
+While people would certainly use it, I can't help but think that a BK 
+clone would damage other open source SCM efforts.  I call this the 
+"SourceForge Syndrome":
 
-	Arnd <><
+	Q. I found a problem/bug/annoyance, how do I solve it?
+	A. Clearly, a brand new sourceforge project is called for.
+
+My counter-question is, why not improve an _existing_ open source SCM to 
+read and write BitKeeper files?  Why do we need yet another brand new 
+project?
+
+AFAICS, a BK clone would just further divide resources and mindshare.  I 
+personally _want_ an open source SCM that is as good as, or better, than 
+BitKeeper.  The open source world needs that, and BitKeeper needs the 
+competition.  A BK clone may work with BitKeeper files, but I don't see 
+it ever being as good as BK, because it will always be playing catch-up.
+
+	Jeff
+
+
+

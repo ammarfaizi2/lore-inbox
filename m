@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129446AbRCTKna>; Tue, 20 Mar 2001 05:43:30 -0500
+	id <S129443AbRCTKh3>; Tue, 20 Mar 2001 05:37:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129466AbRCTKnU>; Tue, 20 Mar 2001 05:43:20 -0500
-Received: from inet-smtp4.oracle.com ([209.246.15.58]:20915 "EHLO
-	inet-smtp4.oracle.com") by vger.kernel.org with ESMTP
-	id <S129446AbRCTKnK>; Tue, 20 Mar 2001 05:43:10 -0500
-Message-ID: <3AB732F0.CE13E52F@oracle.com>
-Date: Tue, 20 Mar 2001 11:37:36 +0100
+	id <S129446AbRCTKhS>; Tue, 20 Mar 2001 05:37:18 -0500
+Received: from inet-smtp3.oracle.com ([205.227.43.23]:44942 "EHLO
+	inet-smtp3.oracle.com") by vger.kernel.org with ESMTP
+	id <S129443AbRCTKhB>; Tue, 20 Mar 2001 05:37:01 -0500
+Message-ID: <3AB73199.A2D5208@oracle.com>
+Date: Tue, 20 Mar 2001 11:31:53 +0100
 From: Alessandro Suardi <alessandro.suardi@oracle.com>
 Organization: Oracle Support Services
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
-Subject: PCMCIA serial CardBus support vanished in 2.4.3-pre3 and later
+To: alan@lxorguk.ukuu.org.uk
+CC: linux-kernel@vger.kernel.org
+Subject: 2.4.2-acXX hangs on boot if IrDA is in kernel
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry to repost the issue but I got no reply...
+Hi Alan,
 
- 2.4.3-pre3 and synced-up versions of the -ac series remove support for
- PCMCIA serial CardBus. In drivers/char/pcmcia the Makefile and Config.in
- files are modified to exclude serial_cb and the serial_cb.c file itself
- is removed by the patch. As a net result, my Xircom modem port becomes
- invisible to the kernel and I can't dial out through it.
+  tried as you suggested to config out IrDA and indeed the kernel boots.
 
-As a temporary measure I backed out the changes in drivers/char/pcmcia
- and my 2.4.3-pre4 kernel seems happy (in fact I am dialing out through
- said Xircom modem).
+ Even in -ac20 my Dell Latitude laptop hangs in the RH7.0 init sequence
+  after printing the IRCOMM line. C-A-D doesn't do anything but I can use
+  Magic Sysrq to reboot.
 
-Did I miss some announcement for replacement features for serial_cb or
- did a bad patch slip in ?
+ I am available for further diagnostic investigation. Just in case, this
+  is my IrDA h/w (booted into 2.4.3-pre4).
+
+[root@princess /root]# findchip -v
+Found SMC FDC37N958FR Controller at 0x3f0, DevID=0x01, Rev. 1
+    SIR Base 0x3e8, FIR Base 0x290
+    IRQ = 4, DMA = 3
+    Enabled: yes, Suspended: no
+    UART compatible: yes
+    Half duplex delay = 3 us
 
 
-Thanks & ciao,
+ Thanks & ciao,
 
 --alessandro      <alessandro.suardi@oracle.com> <asuardi@uninetcom.it>
 

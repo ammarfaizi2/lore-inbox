@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVCGUwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVCGUww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVCGUwy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 15:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVCGUvC
+	id S261308AbVCGUww (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 15:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVCGUwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 15:51:02 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:23224 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261799AbVCGUN1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 15:13:27 -0500
-Message-ID: <422CB5E3.3070208@drzeus.cx>
-Date: Mon, 07 Mar 2005 21:13:23 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Andrew Morton <akpm@osdl.org>, Mark Canter <marcus@vfxcomputing.com>,
-       nish.aravamudan@gmail.com, linux-kernel@vger.kernel.org,
-       alsa-devel@lists.sourceforge.net
-Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
-References: <4227085C.7060104@drzeus.cx>	 <29495f1d05030309455a990c5b@mail.gmail.com>	 <Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>	 <1109875926.2908.26.camel@mindpipe>	 <Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>	 <1109876978.2908.31.camel@mindpipe>	 <Pine.LNX.4.62.0503031527550.30702@krusty.vfxcomputing.com>	 <20050303154929.1abd0a62.akpm@osdl.org> <4227ADE7.3080100@drzeus.cx>	 <4228D013.8010307@drzeus.cx> <1110049247.12201.11.camel@mindpipe>
-In-Reply-To: <1110049247.12201.11.camel@mindpipe>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Mar 2005 15:52:33 -0500
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:7602 "EHLO
+	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
+	id S261807AbVCGUNd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 15:13:33 -0500
+Cc: Fruhwirth Clemens <clemens@endorphin.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
+       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: [7/many] acrypto: crypto_def.h
+In-Reply-To: <11102278544080@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 7 Mar 2005 23:37:34 +0300
+Message-Id: <11102278542733@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.campus.mipt.ru [194.85.82.4]); Mon, 07 Mar 2005 23:11:24 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-
->So is there a bug or not?  Mark seems to be the only one affected.
->
->It's important to follow up, because these so-called "ALSA regressions"
->are generating bad press.
->
->Lee
->
->  
->
-I can generate the error using the following procedure:
-
-1. Boot in 2.6.10. Remove /etc/asound.conf and store the current mixer
-settings.
-2. Boot in 2.6.11 and let alsactl restore the mixer.
-
-Provided the machine is powered down between each attempt this gives the
-same result. 'Headphone Jack Sense' ends up not muted (which means that
-the built-in speakers are dead).
-
-I fail to find where FC saves/restores the mixer settings so I can't
-test without it. There are commands in modprobe.conf but asound.conf
-still gets updated when I remove these lines. So there must be some more
-place[s] where alsactl gets called.
-
-Rgds
-Pierre
+--- /tmp/empty/crypto_def.h	1970-01-01 03:00:00.000000000 +0300
++++ ./acrypto/crypto_def.h	2005-03-07 20:35:36.000000000 +0300
+@@ -0,0 +1,39 @@
++/*
++ * 	crypto_def.h
++ *
++ * Copyright (c) 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
++ * 
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ */
++
++#ifndef __CRYPTO_DEF_H
++#define __CRYPTO_DEF_H
++
++#define CRYPTO_OP_DECRYPT	0
++#define CRYPTO_OP_ENCRYPT	1
++#define CRYPTO_OP_HMAC		2
++
++#define CRYPTO_MODE_ECB		0
++#define CRYPTO_MODE_CBC		1
++#define CRYPTO_MODE_CFB		2
++#define CRYPTO_MODE_OFB		3
++
++#define CRYPTO_TYPE_AES_128	0
++#define CRYPTO_TYPE_AES_192	1
++#define CRYPTO_TYPE_AES_256	2
++#define CRYPTO_TYPE_3DES	3
++
++#endif				/* __CRYPTO_DEF_H */
 

@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270138AbRIECeV>; Tue, 4 Sep 2001 22:34:21 -0400
+	id <S270155AbRIEDap>; Tue, 4 Sep 2001 23:30:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269804AbRIECeM>; Tue, 4 Sep 2001 22:34:12 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:49397 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S269404AbRIECeE>; Tue, 4 Sep 2001 22:34:04 -0400
-Subject: Re: [RFD] readonly/read-write semantics
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jean-Marc Saffroy <saffroy@ri.silicomp.fr>,
-        Linus Torvalds <torvalds@transmeta.com>
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF89E1F633.FD6C3C44-ON87256ABE.000D60C3@boulder.ibm.com>
-From: "Bryan Henderson" <hbryan@us.ibm.com>
-Date: Tue, 4 Sep 2001 19:34:17 -0700
-X-MIMETrack: Serialize by Router on D03NM088/03/M/IBM(Release 5.0.8 |June 18, 2001) at
- 09/04/2001 08:34:19 PM
+	id <S270168AbRIEDaf>; Tue, 4 Sep 2001 23:30:35 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:39316 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S270155AbRIEDaX>; Tue, 4 Sep 2001 23:30:23 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Keith Owens" <kaos@ocs.com.au>, "Andrea Arcangeli" <andrea@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.9-ac6 
+Date: Tue, 4 Sep 2001 20:30:42 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMAEAPDLAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <16601.999654671@kao2.melbourne.sgi.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->So the most you would need
->> to wait for in going into the hard "read only" state I defined is for
-any
->> page I/O to complete.  And for the "no new writes" state, you just write
->> protect all the pages (and any new ones that fault in too).
->
->It's not that simple.  At the very least you need an equivalent of msync()
->on each of these mappings before you can do anything of that kind.
+> On Mon, 3 Sep 2001 15:05:29 +0200,
+> Andrea Arcangeli <andrea@suse.de> wrote:
 
-I agree.  An ordinary remount shouldn't immediately go into hard readonly
-state.  It should spend some time in no-new-writes state, during which it
-flushes buffered writes, and I include in that dirty VM mapped pages, and
-closes the filesystem.
+> The next version of insmod will warn about modules with no
+> MODULE_LICENSE at all and inform about modules with proprietary
+> licences.  Both cases will mark the kenrel as tainted which will show
+> up on bug reports.
 
-My most basic point underlying all this, though, is that it should _not_
-wait for all the files open for write to close (or fail because because
-they haven't).
+	That really doesn't make sense. Nothing changes in the kernel or the module
+based upon whether you have the source or not. What should logically taint
+the kernel are modules that weren't compiled for that exact kernel version
+or are otherwise mismatched.
 
-I thought there were also emergency cases where the filesystem driver
-didn't want any more writing going on for fear of causing more damage.
-That's why I mentioned the case where you might want to go straight to hard
-readonly state.
+	One can make the argument that the kernel is tainted if a module wasn't
+compiled on that machine with that kernel version. One can make the argument
+that the kernel is tainted if the module was compiled against different
+configuration or header files. Once can make the argument that the kernel is
+tainted if a module is loaded whose source isn't part of the general Linux
+distribution. One can make all sorts of logical arguments about what taints
+the kernel, but how can the license of a module taint the kernel?
 
->BTW, for real fun think of the situation when you have one of the swap
->components in a regular file on your filesystem.  Do you seriously want
->do_remount() to do automagical swapoff(2) on relevant swap components?
+	You can't even argue that if it's GPL, anyone can get the source to debug
+it. The GPL does not require that the source code be made available to the
+general public. Perhaps the kernel is tainted if that module wasn't built
+from source on that machine?
 
-There are all kinds of ways I can shoot myself in the foot by making a
-mount readonly that I really want to be writing through.  Is this one
-special?
+	What's the logic here?!
 
->IMO it's a userland job.
-
-Sounds right to me.  We weren't going to talk about implementation yet,
-though.  For starters, it would just be nice to agree what MS_RDONLY means
-(and perhaps a few other similar flags).
-
+	DS
 

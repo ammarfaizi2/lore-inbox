@@ -1,145 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263415AbUEGInS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263467AbUEGIxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbUEGInS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 04:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbUEGIm2
+	id S263467AbUEGIxV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 04:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbUEGIlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 04:42:28 -0400
-Received: from mail.donpac.ru ([80.254.111.2]:50331 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S263375AbUEGIdm convert rfc822-to-8bit
+	Fri, 7 May 2004 04:41:39 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:47259 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S263365AbUEGIdh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 04:33:42 -0400
-Subject: [PATCH 8/8] 2.6.3-rc3-mm1, Port powernow-k7 driver to new DMI probing
-In-Reply-To: <10839188302729@donpac.ru>
+	Fri, 7 May 2004 04:33:37 -0400
+Subject: [PATCH 6/8] 2.6.3-rc3-mm1, Port PIIX4 I2C driver to new DMI probing
+In-Reply-To: <10839188241411@donpac.ru>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Fri, 7 May 2004 12:33:53 +0400
-Message-Id: <10839188332786@donpac.ru>
+Date: Fri, 7 May 2004 12:33:47 +0400
+Message-Id: <10839188271223@donpac.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
 From: Andrey Panin <pazke@donpac.ru>
-X-Spam-Score: -27
+X-Spam-Score: -32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN -X /usr/share/dontdiff linux-2.6.6-rc3-mm1.vanulla/arch/i386/kernel/cpu/cpufreq/powernow-k7.c linux-2.6.6-rc3-mm1/arch/i386/kernel/cpu/cpufreq/powernow-k7.c
---- linux-2.6.6-rc3-mm1.vanulla/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2004-05-07 09:44:11.000000000 +0400
-+++ linux-2.6.6-rc3-mm1/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2004-05-07 12:16:06.000000000 +0400
-@@ -22,6 +22,7 @@
- #include <linux/cpufreq.h>
- #include <linux/slab.h>
- #include <linux/string.h>
-+#include <linux/dmi.h>
- 
- #include <asm/msr.h>
- #include <asm/timex.h>
-@@ -540,6 +541,31 @@ static int __init fixup_sgtc(void)
- 	return sgtc;
- }
- 
-+static int __init acer_cpufreq_pst(struct dmi_system_id *d)
-+{
-+	printk(KERN_WARNING "%s laptop with broken PST tables in BIOS detected.\n", d->ident);
-+	printk(KERN_WARNING "You need to downgrade to 3A21 (09/09/2002), or try a newer BIOS than 3A71 (01/20/2003)\n");
-+	printk(KERN_WARNING "cpufreq scaling has been disabled as a result of this.\n");
-+	return 0;
-+}
-+
-+/*
-+ * Some Athlon laptops have really fucked PST tables.
-+ * A BIOS update is all that can save them.
-+ * Mention this, and disable cpufreq.
-+ */
-+static struct dmi_system_id __initdata powernow_dmi_table[] = {
-+	{
-+		.callback = acer_cpufreq_pst,
-+		.ident = "Acer Aspire",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Insyde Software"),
-+			DMI_MATCH(DMI_BIOS_VERSION, "3A71"),
-+		},
-+	},
-+	{ }
-+};
-+
- static int __init powernow_cpu_init (struct cpufreq_policy *policy)
- {
- 	union msr_fidvidstatus fidvidstatus;
-@@ -558,7 +584,7 @@ static int __init powernow_cpu_init (str
- 	}
- 	dprintk(KERN_INFO PFX "FSB: %3d.%03d MHz\n", fsb/1000, fsb%1000);
- 
--	if ((dmi_broken & BROKEN_CPUFREQ) || powernow_acpi_force) {
-+	if (dmi_check_system(powernow_dmi_table) || powernow_acpi_force) {
- 		printk (KERN_INFO PFX "PSB/PST known to be broken.  Trying ACPI instead\n");
- 		result = powernow_acpi_init();
- 	} else {
 diff -urpN -X /usr/share/dontdiff linux-2.6.6-rc3-mm1.vanulla/arch/i386/kernel/dmi_scan.c linux-2.6.6-rc3-mm1/arch/i386/kernel/dmi_scan.c
---- linux-2.6.6-rc3-mm1.vanulla/arch/i386/kernel/dmi_scan.c	2004-05-07 12:00:29.000000000 +0400
-+++ linux-2.6.6-rc3-mm1/arch/i386/kernel/dmi_scan.c	2004-05-07 12:16:39.000000000 +0400
-@@ -262,27 +262,6 @@ static __init int reset_videomode_after_
- }
- #endif
+--- linux-2.6.6-rc3-mm1.vanulla/arch/i386/kernel/dmi_scan.c	2004-05-07 11:23:42.000000000 +0400
++++ linux-2.6.6-rc3-mm1/arch/i386/kernel/dmi_scan.c	2004-05-07 11:24:19.000000000 +0400
+@@ -15,7 +15,6 @@
+ unsigned long dmi_broken;
+ EXPORT_SYMBOL(dmi_broken);
  
--/*
-- *	Exploding PnPBIOS. Don't yet know if its the BIOS or us for
-- *	some entries
+-int is_unsafe_smbus;
+ int es7000_plat = 0;
+ 
+ struct dmi_header
+@@ -221,19 +220,6 @@ static int __init local_apic_kills_bios(
+ 	return 0;
+ }
+ 
+-/* 
+- * Don't access SMBus on IBM systems which get corrupted eeproms 
 - */
 -
--static __init int exploding_pnp_bios(struct dmi_system_id *d)
--{
--	printk(KERN_WARNING "%s detected. Disabling PnPBIOS\n", d->ident);
--	dmi_broken |= BROKEN_PNP_BIOS;
+-static __init int disable_smbus(struct dmi_system_id *d)
+-{   
+-	if (is_unsafe_smbus == 0) {
+-		is_unsafe_smbus = 1;
+-		printk(KERN_INFO "%s machine detected. Disabling SMBus accesses.\n", d->ident);
+-	}
 -	return 0;
 -}
 -
--static __init int acer_cpufreq_pst(struct dmi_system_id *d)
--{
--	printk(KERN_WARNING "%s laptop with broken PST tables in BIOS detected.\n", d->ident);
--	printk(KERN_WARNING "You need to downgrade to 3A21 (09/09/2002), or try a newer BIOS than 3A71 (01/20/2003)\n");
--	printk(KERN_WARNING "cpufreq scaling has been disabled as a result of this.\n");
--	dmi_broken |= BROKEN_CPUFREQ;
--	return 0;
--}
--
+ /*
+  * ASUS K7V-RM has broken ACPI table defining sleep modes
+  */
+@@ -435,14 +421,6 @@ static __initdata struct dmi_system_id d
  
- #ifdef	CONFIG_ACPI_BOOT
- extern int acpi_force;
-@@ -369,17 +348,6 @@ static __initdata struct dmi_system_id d
- 			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 2400"),
- 			} },
- 			
--	{ exploding_pnp_bios, "Higraded P14H", {	/* PnPBIOS GPF on boot */
--			DMI_MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
--			DMI_MATCH(DMI_BIOS_VERSION, "07.00T"),
--			DMI_MATCH(DMI_SYS_VENDOR, "Higraded"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "P14H")
+ 
+ 	/*
+-	 *	SMBus / sensors settings
+-	 */
+-	 
+-	{ disable_smbus, "IBM", {
+-			DMI_MATCH(DMI_SYS_VENDOR, "IBM"),
 -			} },
--	{ exploding_pnp_bios, "ASUS P4P800", {	/* PnPBIOS GPF on boot */
--			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer Inc."),
--			DMI_MATCH(DMI_BOARD_NAME, "P4P800"),
--			} },
--
- 	/* Machines which have problems handling enabled local APICs */
- 
- 	{ local_apic_kills_bios, "Dell Inspiron", {
-@@ -419,17 +387,6 @@ static __initdata struct dmi_system_id d
- 			} },
- #endif
- 
 -
 -	/*
--	 * Some Athlon laptops have really fucked PST tables.
--	 * A BIOS update is all that can save them.
--	 * Mention this, and disable cpufreq.
--	 */
--	{ acer_cpufreq_pst, "Acer Aspire", {
--			DMI_MATCH(DMI_SYS_VENDOR, "Insyde Software"),
--			DMI_MATCH(DMI_BIOS_VERSION, "3A71"),
--			} },
+ 	 * Some Athlon laptops have really fucked PST tables.
+ 	 * A BIOS update is all that can save them.
+ 	 * Mention this, and disable cpufreq.
+@@ -740,5 +718,3 @@ void __init dmi_scan_machine(void)
+ 	else
+ 		printk(KERN_INFO "DMI not present.\n");
+ }
 -
- #ifdef	CONFIG_ACPI_BOOT
- 	/*
- 	 * If your system is blacklisted here, but you find that acpi=force
+-EXPORT_SYMBOL(is_unsafe_smbus);
+diff -urpN -X /usr/share/dontdiff linux-2.6.6-rc3-mm1.vanulla/drivers/i2c/busses/i2c-piix4.c linux-2.6.6-rc3-mm1/drivers/i2c/busses/i2c-piix4.c
+--- linux-2.6.6-rc3-mm1.vanulla/drivers/i2c/busses/i2c-piix4.c	2004-04-04 07:36:54.000000000 +0400
++++ linux-2.6.6-rc3-mm1/drivers/i2c/busses/i2c-piix4.c	2004-05-07 11:24:19.000000000 +0400
+@@ -40,6 +40,7 @@
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+ #include <linux/apm_bios.h>
++#include <linux/dmi.h>
+ #include <asm/io.h>
+ 
+ 
+@@ -114,18 +115,13 @@ static int piix4_transaction(void);
+ static unsigned short piix4_smba = 0;
+ static struct i2c_adapter piix4_adapter;
+ 
+-/*
+- * Get DMI information.
+- */
+-static int __devinit ibm_dmi_probe(void)
+-{
+-#ifdef CONFIG_X86
+-	extern int is_unsafe_smbus;
+-	return is_unsafe_smbus;
+-#else
+-	return 0;
+-#endif
+-}
++static struct dmi_system_id __devinitdata piix4_dmi_table[] = {
++	{
++		.ident		= "IBM",
++		.matches	= { DMI_MATCH(DMI_SYS_VENDOR, "IBM"), },
++	},
++	{ },
++};
+ 
+ static int __devinit piix4_setup(struct pci_dev *PIIX4_dev,
+ 				const struct pci_device_id *id)
+@@ -138,7 +134,8 @@ static int __devinit piix4_setup(struct 
+ 
+ 	dev_info(&PIIX4_dev->dev, "Found %s device\n", pci_name(PIIX4_dev));
+ 
+-	if(ibm_dmi_probe()) {
++	/* Don't access SMBus on IBM systems which get corrupted eeproms */
++	if (dmi_check_system(piix4_dmi_table)) {
+ 		dev_err(&PIIX4_dev->dev, "IBM Laptop detected; this module "
+ 			"may corrupt your serial eeprom! Refusing to load "
+ 			"module!\n");
 

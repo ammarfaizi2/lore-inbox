@@ -1,39 +1,38 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <157037-25208>; Fri, 5 Mar 1999 01:51:25 -0500
-Received: by vger.rutgers.edu id <156510-25208>; Fri, 5 Mar 1999 01:51:06 -0500
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:59448 "EHLO rrzs2.rz.uni-regensburg.de" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <156814-25206>; Fri, 5 Mar 1999 01:50:11 -0500
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.rutgers.edu
-Date: Fri, 5 Mar 1999 09:06:02 +0100
+Received: by vger.rutgers.edu via listexpand id <157241-25208>; Mon, 8 Mar 1999 11:55:28 -0500
+Received: by vger.rutgers.edu id <157187-25206>; Mon, 8 Mar 1999 11:54:22 -0500
+Received: from MERCURY.CS.UREGINA.CA ([142.3.200.53]:13201 "EHLO MERCURY.CS.UREGINA.CA" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <157350-25208>; Mon, 8 Mar 1999 11:53:24 -0500
+Date: Mon, 8 Mar 1999 12:12:08 -0600 (CST)
+From: Kamran Karimi <karimi@cs.uregina.ca>
+To: Linux-kernel@vger.rutgers.edu
+Subject: DIPC development invitation
+Message-ID: <Pine.SGI.3.91.990308115349.28440A-100000@MERCURY.CS.UREGINA.CA>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.2.1 (possibly others as well): loosing 2 ticks even under light load
-X-mailer: Pegasus Mail for Windows (v3.01b)
-Message-ID: <CAA9E4E3E90@rkdvmks1.ngate.uni-regensburg.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hello, a notifier:
+Hi Everybody,
 
-For debugging purposes I added a print statement to show lost ticks 
-in the i386 kernel. On my Pentium 100 even for very light load the 
-kernel declares having lost 2 ticks.
+ I publicly invite all the people interested in distributed systems 
+development to start working on DIPC (Distributed Inter-Process 
+Communication) in any way they see fit. This could be porting DIPC to 
+as-yet unsupported processors, adding features to increase its 
+performance/security/availability/etc. or even using the code (or ideas) in 
+other related projects.
 
-I don't know why this happend, but I see a problem: If the kernel 
-looses 2 ticks on a light load, it might loose more ticks on heavy 
-load. Unfortunately the non-TSC version of the timeoffset routine 
-(using the timer chip's register) can only span one tick, possibly 
-guessing that there's more than one, but not more.
+ There can be different "flavours" of DIPC, with different trade-offs 
+like using link libraries for DIPC's messages and semaphores. In this 
+example, we are asking the programmer to use a link library but at the 
+same time avoiding a (costly) round-trip in and out of the kernel.
 
-Therefore losing over 1 tick might cause a bad time.
+ Consider it a test bed for further experiments (academical or commercial), 
+and don't worry about my copyright notices in the code (but do acknowledge 
+the roots! :-)
 
-I have no idea how to find the parts that disable interrupts for that 
-long...
+ Maybe there will be a DIPC II with much more goodies (and different 
+trade-offs)
 
-Regards,
-Ulrich
-
+-Kamran Karimi
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,77 +1,387 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266136AbUFIOVy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266140AbUFIOVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266136AbUFIOVy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 10:21:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266092AbUFIOVy
+	id S266140AbUFIOVs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 10:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266092AbUFIOVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 10:21:54 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:41125 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S266139AbUFIOVm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 10:21:42 -0400
-Date: Wed, 9 Jun 2004 16:21:41 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	Wed, 9 Jun 2004 10:21:38 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:63497 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S266136AbUFIOVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 10:21:19 -0400
+Date: Wed, 9 Jun 2004 16:23:52 +0200
+From: Nico Schottelius <nico-linux-kernel@schottelius.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: kbuild make deb patch
-Message-ID: <20040609142141.GT20632@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040607141353.GK21794@wiggy.net> <20040608210846.GA5216@mars.ravnborg.org>
+Subject: [Problem] usb-storage, transfering much data
+Message-ID: <20040609142352.GF1390@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-linux-kernel@schottelius.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RxBYAwKLDxPbmc5c"
+	protocol="application/pgp-signature"; boundary="0hHDr/TIsw4o3iPK"
 Content-Disposition: inline
-In-Reply-To: <20040608210846.GA5216@mars.ravnborg.org>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+X-MSMail-Priority: (u_int) -1
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+Organization: http://nerd-hosting.net/
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---RxBYAwKLDxPbmc5c
-Content-Type: text/plain; charset=iso-8859-1
+--0hHDr/TIsw4o3iPK
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2004-06-08 23:08:46 +0200, Sam Ravnborg <sam@ravnborg.org>
-wrote in message <20040608210846.GA5216@mars.ravnborg.org>:
-> On Mon, Jun 07, 2004 at 04:13:53PM +0200, Wichert Akkerman wrote:
-> I'm in progress of doing some infrastructure work to better support build=
-ing
-> different packages. I have requests for .tar.gz, tar.gz2 as well
-> as deb.
+Hello!
 
-(Being a Debian user...) I really *love* to see a .tar.{gz,bz2} target.
-For my in-house use (as well in in the company I work for) we do have a
-script to basically install modules (+ vmlinuz + vmlinux + .config +
-System.map), adding some identifier to the filenames (of the last four
-files mentioned) and preparing a .tar.gz from that.
+I am trying to copy my old harddisk with dd to an usb disk.
+On no Linux system does that work. I looks like transfering
+much data from/to the usb disks stops it from using. When reconnecting
+it works again.
 
-For my private use, my version of the script also handles some non-ia32
-archs :)
+I see this error with any usb hard disks with different cases.
 
-MfG, JBG
+Is this know to you? Can I help to debug it?
+
+The error is attached from dmesg.=20
+
+
+Nico
+
+ps: please cc
+
+
+ailure occurred trying to find stat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find s=
+tat data of [4669 4670 0x0 SD]
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
+scsi0 (0:0): rejecting I/O to device being removed
 
 --=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+Keep it simple & stupid, use what's available.
+Please use pgp encryption: 8D0E 27A4 is my id.
+http://nerd-hosting.net | http://nico.schotteli.us
 
---RxBYAwKLDxPbmc5c
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+--0hHDr/TIsw4o3iPK
+Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAxxz1Hb1edYOZ4bsRAj9KAJ9BNOKhtFVjSbeTmEfuiEl0Dt6oLACfT0Mh
-DnC/ds+zbV7FrqA0rGzbBJg=
-=laO7
+iQIVAwUBQMcddrOTBMvCUbrlAQIuAg/+MdQlf9N25h1YFKax5xnvN0f8lg3yHCws
+Zsm75scWGCtkkm0pOfBI+EoR7ui/2TPG/bmQlbZVNw3HFtZTViWzb4GWl1PxxQXV
+S2iACcWgPS6UDtBmNcT6WO6ojycpyPupmc0FBoGzhi6mi37LuD0I9OczwgBLYj9Q
+o5dddVDR/smiIAOAjZrDbmwOc0gfuUfovFQPS4j+/JTqHdXr74L4dhLDXNcMrOJB
+QJ+JkbG8XYsMN81LbdaBc4IUEhQWiCitE9rCjFF9lbn2iQWILs8FtMwfyeGnKEHk
+F8q+DKcK26PGmckdQs8g9fYPrk1QXuVhbNYJiYZ9kinw14l+03f+Kj4zr0HBzNaE
+sJtls5lnAedTsd3drgNaEruUrh7bNeVR68RC+EegVJuXJ+uTdKmah8973mB+v8oC
+O5HcgODHl8zNQb1ZyHvnfQiOjESmVHUiSVP1uxrdSqeXTKFl6Oj6uMkA56hwio0K
+Bg1l/WJiuJnDthQcI0YLNl/I/HtSRSYRCfpflHWMhgGIiSPcEh9fD2/kuPaHTiLc
+LFS8OATCc1ebQOOITX4Oi0O3tUUdxC062zOW1Y7+nJxC2qmTkS1yL6WBGmgwY6hJ
+qCpbsB/LXilcjnotNkAMEFttRkp81Zp1Z8/qhWBO2F03hKa/3oC5FGqnsH63Dgux
++5rkyuUy7Dc=
+=OeBP
 -----END PGP SIGNATURE-----
 
---RxBYAwKLDxPbmc5c--
+--0hHDr/TIsw4o3iPK--

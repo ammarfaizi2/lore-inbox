@@ -1,91 +1,160 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265362AbRFVHol>; Fri, 22 Jun 2001 03:44:41 -0400
+	id <S265318AbRFVHwl>; Fri, 22 Jun 2001 03:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265363AbRFVHoc>; Fri, 22 Jun 2001 03:44:32 -0400
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:18064 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S265362AbRFVHoZ>; Fri, 22 Jun 2001 03:44:25 -0400
-From: Stefan.Bader@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>,
-        Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Message-ID: <C1256A73.002A798E.00@d12mta05.de.ibm.com>
-Date: Fri, 22 Jun 2001 09:43:54 +0200
-Subject: Re: correction: fs/buffer.c underlocking async pages
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S265363AbRFVHwc>; Fri, 22 Jun 2001 03:52:32 -0400
+Received: from ns.suse.de ([213.95.15.193]:30734 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S265318AbRFVHwN>;
+	Fri, 22 Jun 2001 03:52:13 -0400
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: About I/O callbacks ...
+In-Reply-To: <XFMail.20010621184645.davidel@xmailserver.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 22 Jun 2001 09:49:40 +0200
+In-Reply-To: Davide Libenzi's message of "22 Jun 2001 03:46:44 +0200"
+Message-ID: <ouplmml6jjf.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Davide Libenzi <davidel@xmailserver.org> writes:
+
+> I was just thinking to implement I/O callbacks inside the kernel and test which
+> kind of performance could result compared to a select()/poll() implementation.
+> I prefer IO callbacks against async-io coz in this way is more direct to
+> implement an I/O driven state machine + coroutines.
+> This is a first draft :
+
+They already exist since several years in Linux. 
+
+It is called queued SIGIO; when you set a realtime signal
+using F_SETSIG for a fd and enable async IO. The callback is a signal
+handler or alternatively an event processing loop using sigwaitinfo*(). 
+The necessary information like which fd got an event is passed in the 
+siginfo_t. 
+
+With that mechanism you could easily implement your API in user space.
+
+Currently it doesn't work for block devices of course; there is no real
+kernel async block IO in linux kernel; but fine for networking and some
+other devices.
+
+It works fine in most cases. Most annoying design bug is that it can be
+only sent to the current thread for non root processes (that is caused
+by an older overzealous security fix); unfortunately fixing it is 2.5
+material because it requires storing the sender credentials in the socket
+for this case. Also some people don't like the behaviour on signal queue 
+overflow. Signal delivery is currently not the most optimized path in 
+Linux, but I doubt that you could get it much faster because essentially your 
+callbacks have to do the same work as signals. Also you would need to solve
+the exact same problems, as efficient overload handling.
+
+The SSE2 changes in 2.4 hurt somewhat because it now saves a big SSE
+context.  For one application I implemented a SA_NOFP flag which brings
+the signal deliver to near 2.2 speed again if you don't need FP in the signal 
+handler.
+
+--- arch/i386/kernel/i387.c-NOFP	Sat Mar 10 01:24:00 2001
++++ arch/i386/kernel/i387.c	Mon May  7 14:59:18 2001
+@@ -323,11 +323,6 @@
+ 	if ( !current->used_math )
+ 		return 0;
+ 
+-	/* This will cause a "finit" to be triggered by the next
+-	 * attempted FPU operation by the 'current' process.
+-	 */
+-	current->used_math = 0;
+-
+ 	if ( HAVE_HWFP ) {
+ 		if ( cpu_has_fxsr ) {
+ 			return save_i387_fxsave( buf );
+@@ -335,6 +330,11 @@
+ 			return save_i387_fsave( buf );
+ 		}
+ 	} else {
++		/* This will cause a "finit" to be triggered by the next
++		 * attempted FPU operation by the 'current' process.
++		 */
++		current->used_math = 0;
++       
+ 		return save_i387_soft( &current->thread.i387.soft, buf );
+ 	}
+ }
+--- arch/i386/kernel/signal.c-NOFP	Sun Feb 18 15:00:22 2001
++++ arch/i386/kernel/signal.c	Mon May  7 14:55:42 2001
+@@ -316,11 +316,11 @@
+ 
+ static int
+ setup_sigcontext(struct sigcontext *sc, struct _fpstate *fpstate,
+-		 struct pt_regs *regs, unsigned long mask)
++		 struct pt_regs *regs, unsigned long mask, int fp)
+ {
+-	int tmp, err = 0;
++	int err = 0;
++	int tmp;
+ 
+-	tmp = 0;
+ 	__asm__("movl %%gs,%0" : "=r"(tmp): "0"(tmp));
+ 	err |= __put_user(tmp, (unsigned int *)&sc->gs);
+ 	__asm__("movl %%fs,%0" : "=r"(tmp): "0"(tmp));
+@@ -344,11 +344,12 @@
+ 	err |= __put_user(regs->esp, &sc->esp_at_signal);
+ 	err |= __put_user(regs->xss, (unsigned int *)&sc->ss);
+ 
+-	tmp = save_i387(fpstate);
+-	if (tmp < 0)
++	if (fp)
++	  fp = save_i387(fpstate);
++	if (fp < 0)
+ 	  err = 1;
+ 	else
+-	  err |= __put_user(tmp ? fpstate : NULL, &sc->fpstate);
++	  err |= __put_user(fp ? fpstate : NULL, &sc->fpstate);
+ 
+ 	/* non-iBCS2 extensions.. */
+ 	err |= __put_user(mask, &sc->oldmask);
+@@ -404,7 +405,8 @@
+ 	if (err)
+ 		goto give_sigsegv;
+ 
+-	err |= setup_sigcontext(&frame->sc, &frame->fpstate, regs, set->sig[0]);
++	err |= setup_sigcontext(&frame->sc, &frame->fpstate, regs, set->sig[0], 
++				!!(ka->sa.sa_flags&SA_NOFP));
+ 	if (err)
+ 		goto give_sigsegv;
+ 
+@@ -485,7 +487,7 @@
+ 			  &frame->uc.uc_stack.ss_flags);
+ 	err |= __put_user(current->sas_ss_size, &frame->uc.uc_stack.ss_size);
+ 	err |= setup_sigcontext(&frame->uc.uc_mcontext, &frame->fpstate,
+-			        regs, set->sig[0]);
++			        regs, set->sig[0], !!(ka->sa.sa_flags&SA_NOFP));
+ 	err |= __copy_to_user(&frame->uc.uc_sigmask, set, sizeof(*set));
+ 	if (err)
+ 		goto give_sigsegv;
+--- include/asm-i386/signal.h-NOFP	Wed Sep 13 23:29:16 2000
++++ include/asm-i386/signal.h	Mon May  7 14:41:37 2001
+@@ -80,6 +80,7 @@
+  * SA_RESETHAND clears the handler when the signal is delivered.
+  * SA_NOCLDWAIT flag on SIGCHLD to inhibit zombies.
+  * SA_NODEFER prevents the current signal from being masked in the handler.
++ * SA_NOFP    Don't save FP state.	
+  *
+  * SA_ONESHOT and SA_NOMASK are the historical Linux names for the Single
+  * Unix names RESETHAND and NODEFER respectively.
+@@ -97,6 +98,7 @@
+ #define SA_INTERRUPT	0x20000000 /* dummy -- ignored */
+ 
+ #define SA_RESTORER	0x04000000
++#define SA_NOFP		0x02000000
+ 
+ /* 
+  * sigaltstack controls
 
 
 
-Chris Mason <mason@suse.com>
-06/21/01 08:20 PM
-Please respond to Chris Mason
 
-
-        To:     Andrea Arcangeli <andrea@suse.de>, Linus Torvalds
-<torvalds@transmeta.com>
-        cc:     Stefan Bader/Germany/IBM@IBMDE,
-linux-kernel@vger.kernel.org
-        Subject:        Re: correction: fs/buffer.c underlocking async
-pages
-
-
-
-
-
-
-
-On Thursday, June 21, 2001 07:15:22 PM +0200 Andrea Arcangeli
-<andrea@suse.de> wrote:
-
->> On Thu, Jun 21, 2001 at 09:56:04AM -0700, Linus Torvalds wrote:
->>  What's the problem with the existing code, and why do people want to
-add
->> a
->>> (unnecessary) new bit?
->>
->> there's no problem with the existing code, what I understood is that
->> they cannot overwrite the ->b_end_io callback in the lowlevel blkdev
->> layer or the page will be unlocked too early.
-
->Just to be more explicit, the big problem is mixing different async
->callbacks on the same page.  The patch would also allow things like this:
->
->fs_specific_end_io() {
->    do something special
->    end_buffer_io_async()
->}
->
->-chris
-
-Yes, that was exactly the thing I tried to do. In my case some sort of
-bookkeeping
-how many IO's where mapped (to a certain path) and how many came back.
-My assumption first was, if I am restoring the old pointers before I call
-the original
-function it should work.
-After running into problems this patch was just my quick hack to try out
-whether this
-was the only place that I did not think of. I wouldn't insist on the exact
-way to do it,
-but since it worked for me, I thought it might be worth to discuss (or
-even be useful
-for other people... ;-)).
-
-- Stefan
-
-Linux for eServer development
-Stefan.Bader@de.ibm.com
-Phone: +49 (7031) 16-2472
-----------------------------------------------------------------------------------
-
-  When all other means of communication fail, try words.
-
-
-
+-Andi

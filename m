@@ -1,34 +1,55 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155902AbPGBDAI>; Thu, 1 Jul 1999 23:00:08 -0400
-Received: by vger.rutgers.edu id <S155455AbPGBC7r>; Thu, 1 Jul 1999 22:59:47 -0400
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:34955 "HELO tsx-prime.MIT.EDU") by vger.rutgers.edu with SMTP id <S155470AbPGBC7d>; Thu, 1 Jul 1999 22:59:33 -0400
-Date: Thu, 1 Jul 1999 22:59:22 -0400
-Message-Id: <199907020259.WAA28584@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@mit.edu>
-To: Matthew Wilcox <Matthew.Wilcox@genedata.com>
-CC: Stephen Williams <steve@icarus.com>, linux-kernel@vger.rutgers.edu
-In-reply-to: Matthew Wilcox's message of Fri, 2 Jul 1999 00:14:18 +0200, <19990702001418.B30370@mencheca.ch.genedata.com>
-Subject: Re: Standard for module delivery
-Address: 1 Amherst St., Cambridge, MA 02139
-Phone: (617) 253-8091
+Received: by vger.rutgers.edu via listexpand id <S155492AbPGCCLD>; Fri, 2 Jul 1999 22:11:03 -0400
+Received: by vger.rutgers.edu id <S155431AbPGCCKw>; Fri, 2 Jul 1999 22:10:52 -0400
+Received: from jupiter.cs.uml.edu ([129.63.1.6]:3395 "EHLO jupiter.cs.uml.edu") by vger.rutgers.edu with ESMTP id <S155455AbPGCCKm>; Fri, 2 Jul 1999 22:10:42 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <199907030210.WAA26696@jupiter.cs.uml.edu>
+Subject: Re: Mailbox
+To: linux-kernel@vger.rutgers.edu
+Date: Fri, 2 Jul 1999 22:10:41 -0400 (EDT)
+X-Mailer: ELM [version 2.4 PL25]
+Content-Type: text
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-   Date: 	Fri, 2 Jul 1999 00:14:18 +0200
-   From: Matthew Wilcox <Matthew.Wilcox@genedata.com>
+Keith Owens writes:
+                                      
+> Does any implementation exist for VMS mailbox ?
 
-   Ted Ts'o did a paper on this for Linux Expo 99; if you have the
-   Proceedings it's pages 241 to 252.  Unfortunately I don't see a URL on
-   there for an online version of the paper.
+Nope.
 
-You can get the paper at:
+> If not, wouldn't it be a good thing to patch kernel with such IPC ?
 
-http://web.mit.edu/tytso/www/linux/stand-device.PS
-http://web.mit.edu/tytso/www/linux/stand-device.pdf
+Maybe. It ought to be fun at least. It might help with NT compatibility.
+If you need a file type, I've been collecting a list:
 
-Unfortnately the pdf file didn't come out all that profesionally, so
-I've included the postscript file as well.
+hex  name     ls octal  description
+0000             000000 BSD unknown type (not used for inode)
+1000 S_IFIFO  p| 010000 fifo (named pipe)
+2000 S_IFCHR  c  020000 character special
+3000 S_IFMPC     030000 multiplexed character device (Coherent)
+4000 S_IFDIR  d/ 040000 directory
+5000 S_IFNAM     050000 XENIX special named file
+6000 S_IFBLK  b  060000 block special
+7000 S_IFMPB     070000 multiplexed block device (Coherent)
+8000 S_IFREG  -  110000 regular
+9000 S_IFCMP     110000 VxFS compressed (file?)
+a000 S_IFLNK  l@ 120000 symbolic link
+b000 S_IFSHAD    130000 Solaris shadow inode for ACL
+c000 S_IFSOCK s= 140000 socket (also "S_IFSOC" on VxFS)
+d000 S_IFDOOR D  150000 Solaris door
+e000 S_IFWHT   % 160000 BSD whiteout (not used for inode)
+f000 S_IFMT      170000 mask (not used for inode)
 
-						- Ted
+I think you can steal S_IFMPC and S_IFMPB, along with either S_IFCMP
+or S_IFSHAD. (since S_IFCMP and S_IFSHAD seem to be internal and do
+not exist on the same filesystem, one can be mapped to the other)
+
+I'd be interested in knowing more about S_IFNAM, the "available"
+type codes, and anything missing from the table above. People with
+S/390 Open Edition, NT, and OpenVMS might have interesting files.
+
+Perhaps these values ought to go into kernel developer documentation.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

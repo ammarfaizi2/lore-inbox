@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265793AbSKAWD5>; Fri, 1 Nov 2002 17:03:57 -0500
+	id <S265790AbSKAWCa>; Fri, 1 Nov 2002 17:02:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265794AbSKAWD5>; Fri, 1 Nov 2002 17:03:57 -0500
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:33322 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S265793AbSKAWDz>;
-	Fri, 1 Nov 2002 17:03:55 -0500
-Date: Fri, 1 Nov 2002 23:10:18 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Bernd Petrovitsch <bernd@gams.at>
+	id <S265791AbSKAWCa>; Fri, 1 Nov 2002 17:02:30 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:18642 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265790AbSKAWBs>; Fri, 1 Nov 2002 17:01:48 -0500
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_TINY
-Message-ID: <20021101231017.A30367@jaquet.dk>
-References: <20021101071700.A19847@jaquet.dk> <27827.1036188313@frodo.gams.co.at>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <27827.1036188313@frodo.gams.co.at>; from bernd@gams.at on Fri, Nov 01, 2002 at 11:05:13PM +0100
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
+References: <20021101085148.E105A2C06A@lists.samba.org>
+	<1036175565.2260.20.camel@mentor> <apuj4s$e33$1@main.gmane.org>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: Filesystem Capabilities in 2.6?
+Date: Fri, 01 Nov 2002 23:07:59 +0100
+Message-ID: <871y6554g0.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nicholas Wourms <nwourms@netscape.net> writes:
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Unfortunately Alexander has spoken again:
+>
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=103498212701476&w=4
 
-(Trimmed CC down, this is getting specific).
+Well, this was his first histerical response. In the meantime, all his
+points have been addressed. I haven't heard of new objections, did you?
 
-On Fri, Nov 01, 2002 at 11:05:13PM +0100, Bernd Petrovitsch wrote:
-> Just looking at the patch sizes, I thought all are independent=20
-> (though "allinone" indicates something different). So I applied all=20
-> to one tree (which gave the above mentioned result).
-> Now playing around with the patches shows that 2.5.44-allinone
-> apparently contains all others _except_ 2.5.44-initstr which is=20
-> completely independent.
+> You might want to check out some of the other reviews, I don't think people 
+> gave it very high marks.
 
-Yes. Sorry for not stating that more explicitly in my original
-mail.=20
+I must have missed these. Unless you call promoting extended
+attributes a review, of course.
 
-> Sorry for the confusion.
-
-On the contrary: I am sorry.
-
-Regards,
-  Rasmus
-
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9wvvJlZJASZ6eJs4RAh1XAJ9OhI7RrjXH6na3GeitQFXQSP3jJgCfUW13
-G/0M37yoUlPDn6uJZK7oTu0=
-=bkKf
------END PGP SIGNATURE-----
-
---lrZ03NoBR/3+SXJZ--
+Regards, Olaf.

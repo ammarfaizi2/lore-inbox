@@ -1,51 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269905AbUJMXHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269907AbUJMXKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269905AbUJMXHG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 19:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269906AbUJMXHG
+	id S269907AbUJMXKm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 19:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269906AbUJMXKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 19:07:06 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:2266 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269905AbUJMXHD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 19:07:03 -0400
-Message-ID: <35fb2e59041013160766469b06@mail.gmail.com>
-Date: Thu, 14 Oct 2004 00:07:03 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Buddy Lucas <buddy.lucas@gmail.com>
-Subject: Re: Gnome-2.8 stoped working on kernel-2.6.9-rc4-mm1
-Cc: Stef van der Made <svdmade@planet.nl>,
-       Radoslaw Szkodzinski <astralstorm@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <5d6b657504101315086d6ef159@mail.gmail.com>
+	Wed, 13 Oct 2004 19:10:42 -0400
+Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:28371 "EHLO
+	safari.iki.fi") by vger.kernel.org with ESMTP id S269907AbUJMXKJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 19:10:09 -0400
+Date: Thu, 14 Oct 2004 02:10:07 +0300
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Networking Mailing List <netdev@oss.sgi.com>
+Subject: 2.6.9-rc4 tcp_transmit_skb: BUG_ON(!tcp_skb_pcount(skb))
+Message-ID: <20041013231006.GA14742@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Networking Mailing List <netdev@oss.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0410131204580.31327@danga.com>
-	 <416D8999.7080102@pobox.com>
-	 <Pine.LNX.4.58.0410131302190.31327@danga.com>
-	 <416D8C33.9080401@osdl.org> <416D923B.3030404@planet.nl>
-	 <f44c5fdf041013134726043453@mail.gmail.com>
-	 <416D9B32.5030408@planet.nl>
-	 <5d6b657504101315086d6ef159@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Oct 2004 00:08:24 +0200, Buddy Lucas <buddy.lucas@gmail.com> wrote:
+First I'd like to know is it safe to call get_random_bytes
+from net/ipv4/tcp_ipv4.c:tcp_v4_get_port() when I am using
+that fortuna [1] patch, which uses CryptoAPI...
+fortuna is calling the crypto funcs from softirq AFAICS.
+I tried 2.6.9-rc2-bk7 without fortuna and it did not seem
+to crash but there has also been some changes into network code...
 
-> Compiling with -fomit-frame-pointer removes information from the
-> binary that could be used for debugging. So the bugbuddy information
-> you provided was not optimal, because it lacked the crucial stuff. ;-)
-> The flag does not cause any problems, it is routinely used for
-> compiling stuff  that doesn't need debugging.
+I ran command
+nmap -vvv -O -p1-65535 -T Insane -sT 127.0.0.1
+and there are four services listening on that port range.
+nmap -sS does not seem to cause BUG.
 
-It's worth adding that the reason why programs are often built with
--fomit-frame-pointer is for overhead reduction on stack frames, to
-make the binary slightly smaller and run maybe a bit faster so it's
-become quite popular. This discussion is beyond the scope of the
-original mail, but worthy of noting - and it ends up going down the
-path of differences between architectures, so let's just leave it at
-this clarification.
+pencil-and-paper-in-180-seconds follows
 
-Jon.
+tcp_output.c:277
+Invalid operand 0
+tcp_transmit_skb
+tcp_send_synack
+tcp_rcv_synsent_state_process
+tcp_rcv_state_process
+tcp_v4_do_rcv
+__release_sock
+inet_stream_connect
+sys_connect
+
+ohh, and I also have linux-2.6.7-voluntary-preemption.patch
+from Redhat Fedora's kernel-2.6.8-1.603.
+writing to disk causes max 25ms latency, however 8-|
+
+[1] http://jlcooke.ca/random/
+[2] http://safari.iki.fi/config-2.6.9-rc4-20041014-1.txt
+
+NOTE: scripts/ver_linux is buggy, it uses gcc found on PATH instead of
+CC from Makefile.  I used gcc-2.95.3 to compile the kernel.
+
+Linux safari.finland.fbi 2.6.9-rc4 #13 Wed Oct 13 23:27:26 EEST 2004 i686 i686 i386 GNU/Linux
+ 
+Gnu C                  3.4.2
+Gnu make               3.80
+binutils               2.15.92.0.2
+util-linux             2.12
+mount                  2.12
+module-init-tools      3.1-pre5
+e2fsprogs              1.35
+jfsutils               1.0.24
+reiserfsprogs          3.6.18
+reiser4progs           line
+xfsprogs               2.3.9
+pcmcia-cs              3.2.7
+quota-tools            3.12.
+PPP                    2.4.2
+nfs-utils              1.0.6
+Linux C Library        2.3.3
+Dynamic linker (ldd)   2.3.3
+Procps                 3.2.3
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.2.1
+Modules Loaded         ip6t_LOG ip6table_filter sch_hfsc cls_fw cls_route
+	sch_ingress sch_red sch_tbf sch_teql sch_prio sch_gred cls_rsvp cls_rsvp6
+	cls_tcindex sch_cbq sch_dsmark ipt_ttl ipt_tos ipt_tcpmss ipt_sctp ipt_recent
+	ipt_pkttype ipt_physdev ipt_nth ipt_mark ipt_mac ipt_iprange ipt_helper ipt_esp
+	ipt_ecn ipt_dscp ipt_conntrack ipt_ah ipt_addrtype ipt_ULOG ipt_TTL ipt_TOS
+	ipt_TCPMSS ipt_SAME ipt_REDIRECT ipt_NOTRACK ipt_NETMAP ipt_MASQUERADE ipt_MARK
+	ipt_IPMARK ipt_DSCP ipt_CLASSIFY ip_queue ip_nat_tftp ip_nat_snmp_basic
+	ip_nat_irc ip_nat_ftp ip_nat_amanda ip_conntrack_tftp ip_conntrack_proto_sctp
+	ip_conntrack_irc ip_conntrack_ftp ip_conntrack_amanda arptable_filter
+	arpt_mangle arp_tables xfs ipv6 snd_seq_midi snd_seq_oss snd_seq_midi_event
+	snd_seq lp parport_pc parport w83781d i2c_sensor i2c_piix4 tuner tvaudio
+	msp3400 bttv video_buf i2c_algo_bit v4l2_common btcx_risc i2c_core videodev
+	ohci_hcd loop ipt_length ipt_connlimit dm_mod ipt_TARPIT ipt_ECN ipt_state
+	ipt_multiport ipt_owner cls_u32 sch_sfq sch_htb uhci_hcd ipt_REJECT ipt_LOG
+	ipt_limit iptable_raw iptable_mangle iptable_nat snd_ens1371 snd_rawmidi
+	ip_conntrack ip6_tables snd_seq_device snd_pcm_oss iptable_filter ip_tables
+	snd_mixer_oss snd_pcm snd_timer snd_page_alloc snd_ac97_codec snd soundcore
+	gameport irlan irda crc_ccitt 8139too mii floppy
+
+-- 
+

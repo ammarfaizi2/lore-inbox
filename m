@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbTIGMoY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 08:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTIGMoY
+	id S261596AbTIGMmq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 08:42:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTIGMmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 08:44:24 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:16913 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id S261698AbTIGMoU (ORCPT
+	Sun, 7 Sep 2003 08:42:46 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:51973 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S261596AbTIGMmp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 08:44:20 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Jerome de Vivie <jerome.devivie@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: segfault in ksymoops 
-In-reply-to: Your message of "Thu, 04 Sep 2003 23:24:24 +0200."
-             <3F57AD88.CC54D482@free.fr> 
+	Sun, 7 Sep 2003 08:42:45 -0400
+Date: Sun, 7 Sep 2003 14:42:37 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+       robert@schwebel.de
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Message-ID: <20030907124237.GA922@mars.ravnborg.org>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+	robert@schwebel.de
+References: <20030907112813.GQ14436@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 07 Sep 2003 22:44:10 +1000
-Message-ID: <32694.1062938650@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <20030907112813.GQ14436@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 04 Sep 2003 23:24:24 +0200, 
-Jerome de Vivie <jerome.devivie@free.fr> wrote:
->> I have try ksymoops v2.4.9, v2.4.8 & v2.4.7 and each time i get a
->> segmentation fault. Here's the output: (the oops file is attached).
->#5  0x0804e3d1 in Oops_set_default_ta (me=0x82fd5c8 "./ksymoops",
->ibfd=0x83157f8, options=0xbffff8c0) at oops.c:89
->        procname = "Oops_set_default_ta"
->        bt = 0x736b2f2e <Address 0x736b2f2e out of bounds>
->        bai = (const struct bfd_arch_info *) 0x4008c9a0
->        t = 1
->        a = 1
+On Sun, Sep 07, 2003 at 01:28:13PM +0200, Adrian Bunk wrote:
+Could you change this:
+> +ifdef CONFIG_CPU_386
+> +  CFLAGS_CPU	:= -march=i386
+> +endif
+> +
+>  
+> -CFLAGS += $(cflags-y)
+> +CFLAGS += $(CFLAGS_CPU)
 
-oops.c::67, the call to bfd_get_target()
-        bt = bfd_get_target(ibfd);      /* Bah, undocumented bfd function */
-is returning garbage.  Ask the binutils people why this is so.
+to:
+cpuflags-$(CONFIG_CPU_386) := -march=i386
+CFLAGS += $(cflags-y) $(cpuflags-y)
 
+I kept cflags-y, but you may have totally eliminated that?
+
+	Sam

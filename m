@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbTJXWVK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 18:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTJXWVK
+	id S262687AbTJXWSe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 18:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTJXWRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 18:21:10 -0400
-Received: from fed1mtao01.cox.net ([68.6.19.244]:61436 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S262679AbTJXWVF
+	Fri, 24 Oct 2003 18:17:31 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:19662 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262707AbTJXWRE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 18:21:05 -0400
-Date: Fri, 24 Oct 2003 15:20:54 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Frank Cusack <fcusack@fcusack.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cset #'s stable?
-Message-ID: <20031024222054.GB972@ip68-0-152-218.tc.ph.cox.net>
-References: <20031021091347.A7526@google.com> <20031021095209.A32703@osdlab.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031021095209.A32703@osdlab.pdx.osdl.net>
-User-Agent: Mutt/1.5.4i
+	Fri, 24 Oct 2003 18:17:04 -0400
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [PATCH 2.4.23-pre8]  Remove broken prefetching in free_one_pgd()
+Date: Fri, 24 Oct 2003 15:16:59 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0F36EB@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.4.23-pre8]  Remove broken prefetching in free_one_pgd()
+Thread-Index: AcOaelSj4zW77pNrSfqx6OyOYFRcVQAAWzJA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: <davidm@hpl.hp.com>
+Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <marcelo@conectiva.com.br>
+X-OriginalArrivalTime: 24 Oct 2003 22:16:59.0965 (UTC) FILETIME=[8B447ED0:01C39A7C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 09:52:09AM -0700, Chris Wright wrote:
-> * Frank Cusack (fcusack@fcusack.com) wrote:
-> > Are changeset #'s stable?
-> > 
-> > I'm specifically looking at linux-2.5/net/sunrpc/clnt.c,
-> > "rev 1.1153.63.[123]" which I recorded earlier as 1.1153.48.[123].
+>   Tony> This patch was accepted into 2.5.55, attributed to "davej@uk".
+>   Tony> This code will prefetch from beyond the end of the page table
+>   Tony> being cleared ... which is clearly a bad thing if the page
+>   Tony> table in question is allocated from the last page of memory
+>   Tony> (or precedes a hole on a discontig mem system).
 > 
-> No, they are not.  The key, however, is stable (bk changes -k -r<rev>,
-> for example).
+> Different arches behave differently, though.  In the case of ia64,
+> it'a always safe to prefetch (even with lfetch.fault).
 
-FWIW, it's easy to go back and forth as well, bash (pure sh?) functions
-to do it:
-REVTOKEY() {
-	if [ -z "$1" ]; then
-		echo "Usage: REVTOKEY revision-number"
-	else
-		if [ ! -f ChangeSet -a ! -f SCCS/s.ChangeSet ]; then
-			echo "Must be run from the base of a BitKeeper repositor
-y"
-		else
-			echo -n "The key is: "
-			bk prs -r$1 -hnd:KEY: ChangeSet
-		fi
-	fi
-}
+Not quite always ... this was how I found the efi trim.bottom bug, since
+Linux had allocated a pgd at 0xa00000-16k, and the lfetch that reached
+out beyond the end of the page to the uncacheable address 0xa00000 took
+an MCA.
 
-KEYTOREV() {
-	if [ -z "$1" ]; then
-		echo "Usage: KEYTOREV key"
-	else
-		if [ ! -f ChangeSet -a ! -f SCCS/s.ChangeSet ]; then
-			echo "Must be run from the base of a BitKeeper repositor
-y"
-		else
-			echo -n "The key is: "
-			bk prs -r$1 -hnd:REV: ChangeSet
-		fi
-	fi
-}
+A pgd in the last page of a granule that is followed by an uncacheable
+address would do the same with lfetch.fault, wouldn't it?
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+-Tony

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbTIBXbS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 19:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbTIBXbS
+	id S261304AbTIBXcl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 19:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbTIBXcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 19:31:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61842 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261278AbTIBXbR (ORCPT
+	Tue, 2 Sep 2003 19:32:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5779 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261304AbTIBXck (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 19:31:17 -0400
-Date: Tue, 2 Sep 2003 16:28:32 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Michael Frank <mhf@linuxmail.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test4: Tested the Power Management Update
-In-Reply-To: <200308311027.08779.mhf@linuxmail.org>
-Message-ID: <Pine.LNX.4.33.0309021625310.9537-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Sep 2003 19:32:40 -0400
+Date: Tue, 2 Sep 2003 16:27:26 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: kj <kernel-janitors@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [announce] 2.6.0-test4-bk4-kj1
+Message-Id: <20030902162726.4a740fa8.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> 3) NEW: ACPI alarm function has new problem:
-> 
-> echo > /proc/acpi/alarm often (not always) causes:
+patchset description is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.0-test4-bk4/desc.txt
 
-Heh. You can see my first attempts at kernel code there. I haven't tested
-it in ages, and could probably use a cleaning up. I'll look into this.
-
-> 4) UNCHANGED: Alarm wakeup from S3 powers up and hangs.
-
-Noted. Will try it also. 
-
-> 5) MAJOR UNCHANGED: (ACPI routed) PCI interrupt links still stay dead 
-> on S3 resume as their state was lost upon powerdown of the router and 
-> on resume USB, Network and PCMCIA/Yenta are dead.
-> 
-> I had posted a patch earlier to set all links again in ACPI prior to 
-> resuming devices, Russell said it was discussed at OLS, what will be 
-> done about it?
-
-Sorry, I completely forgot about this. Would you please send me the patch 
-again? It's ok if it's old and doesn't apply. We'll get it worked out and 
-fixed. 
-
-> 6) MINOR UNCHANGED: As to the mouse, i8042 does not resume, so I 
-> config i8042 as a module and reload it on resume. However, current 
-> drivers/input/serio/Kconfig makes this impossible, which I whined 
-> about a few times already ;)
-
-I presume by your later message you got this worked out ok? 
-
-Thanks for testing,
+patchset .bz2 file is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.0-test4-bk4/patch-2.6.0-test4-bk4-kj1.bz2
 
 
-	Pat
+--
+~Randy
 
+PS:  Note new kernel-janitors mailing list address.

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287862AbSAFNG1>; Sun, 6 Jan 2002 08:06:27 -0500
+	id <S288851AbSAFNH1>; Sun, 6 Jan 2002 08:07:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287865AbSAFNGH>; Sun, 6 Jan 2002 08:06:07 -0500
-Received: from NILE.GNAT.COM ([205.232.38.5]:50093 "HELO nile.gnat.com")
-	by vger.kernel.org with SMTP id <S287862AbSAFNF5>;
-	Sun, 6 Jan 2002 08:05:57 -0500
-From: dewar@gnat.com
-To: dewar@gnat.com, paulus@samba.org
-Subject: Re: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
-        velco@fadata.bg
-Message-Id: <20020106130556.99E79F2FF5@nile.gnat.com>
-Date: Sun,  6 Jan 2002 08:05:56 -0500 (EST)
+	id <S288830AbSAFNHV>; Sun, 6 Jan 2002 08:07:21 -0500
+Received: from ns.suse.de ([213.95.15.193]:11539 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287866AbSAFNHG>;
+	Sun, 6 Jan 2002 08:07:06 -0500
+Date: Sun, 6 Jan 2002 14:07:05 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Anton Blanchard <anton@samba.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove 8 bytes from struct page on 64bit archs
+In-Reply-To: <20020106123913.GA5407@krispykreme>
+Message-ID: <Pine.LNX.4.33.0201061403120.3859-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<<* Given a pointer, I need a way to determine the address (as an int of
-  the appropriate size) that the CPU will present to the MMU when I
-  dereference that pointer.
->>
+On Sun, 6 Jan 2002, Anton Blanchard wrote:
 
-This is in general ill-defined, a compiler might generate code that sometimes
-does byte access to a particular byte, anmd sometimes gets the entire word
-in which the byte resides.
+> Therefore there is no reason to waste 8 bytes per page when every page
+> points to the same zone!
 
-This is often a nasty issue, and is one of the few things in this area that
-Ada does not properly address.
+Some of the low end single zone machines (m68k, sparc32, arm etc)
+could benefit from losing ->virtual too. wli has patches in
+his dir on kernel.org that do this (and other struct page reductions)
+The newer ones are against Rik's rmap vm though iirc, so you may have to
+frob a bit to get them to play with the stock vm.
 
-If you have a memory mapped byte, you really want a way of saying
+It'd be nice to see all these patches reducing this struct consolidated,
+right now they're all ifdefing different bits with different names..
 
-"when I read this byte, do a byte read, it will not work to do a word read"
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 
-pragma Atomic in Ada (volatile gets close in C, but is not close enough) will
-ensure a byte store in practice, but may not ensure byte reads.

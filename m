@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289198AbSA1O4g>; Mon, 28 Jan 2002 09:56:36 -0500
+	id <S289209AbSA1OzG>; Mon, 28 Jan 2002 09:55:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289211AbSA1O43>; Mon, 28 Jan 2002 09:56:29 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:42945 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289198AbSA1O4P>;
-	Mon, 28 Jan 2002 09:56:15 -0500
-Date: Mon, 28 Jan 2002 17:53:48 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] [sched] yield speedup, 2.5.3-pre5
-Message-ID: <Pine.LNX.4.33.0201281751130.9992-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289198AbSA1Oyh>; Mon, 28 Jan 2002 09:54:37 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:59914 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S289193AbSA1Oy1>;
+	Mon, 28 Jan 2002 09:54:27 -0500
+Date: Mon, 28 Jan 2002 15:54:04 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        John Levon <movement@marcelothewonderpenguin.com>,
+        linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
+Message-ID: <20020128155404.B3711@suse.de>
+In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com> <20020125204911.A17190@wotan.suse.de> <20020125133814.U763@lynx.adilger.int> <20020125231555.A22583@wotan.suse.de> <3C54871E.80621B4E@oracle.com> <20020128010142.A23952@wotan.suse.de> <20020128120747.A837@suse.de> <20020128155337.A11950@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020128155337.A11950@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 28 2002, Andi Kleen wrote:
+> On Mon, Jan 28, 2002 at 12:07:47PM +0100, Jens Axboe wrote:
+> > On Mon, Jan 28 2002, Andi Kleen wrote:
+> > > On Mon, Jan 28, 2002 at 12:02:54AM +0100, Alessandro Suardi wrote:
+> > > > 
+> > > > 2.5.3-pre5 + this patch still can't boot my system. I haven't had
+> > > >  time to copy down oops at boot, will do if needed.
+> > > 
+> > > Please do. I cannot see anything in the patch that should prevent bootup
+> > > though, so I would also recommend a make clean and recompile first just
+> > > to make sure it isn't a broken build. 
+> > 
+> > Probably the kmem_cache_create 'name too long' bug that Viro pointed out
+> > to me. fs/reiserfs/super.c:init_inodecache(). Change the name passed to
+> > kmem_cache_create to something shorter.
+> 
+> The patch he tried removed the check of the name length ;) 
 
-the attached patch speeds up sched_yield() context switch performance by
-about 5%. (This patch depends on the previous bitmap-cleanup patch,
-functionality-wise.)
+Heh, my cover is blown -- I didn't read it :-)
 
-instead of dequeueing/enqueue the task from the same array we can skip a
-number of steps even in the generic case. If a yielded task has reached
-maximum priority (as they do if they yield a number of times) then we can
-skip even more steps - the task only has to be queued to the end of the
-runqueue.
-
-	Ingo
-
-diff -rNu linux/kernel/sched.c linux/kernel/sched.c
---- linux/kernel/sched.c	Mon Jan 28 15:23:50 2002
-+++ linux/kernel/sched.c	Mon Jan 28 15:24:44 2002
-@@ -1084,12 +1112,22 @@
- 	 */
- 	spin_lock_irq(&rq->lock);
- 	array = current->array;
--	dequeue_task(current, array);
--	if (likely(!rt_task(current)))
--		if (current->prio < MAX_PRIO-1)
--			current->prio++;
--	enqueue_task(current, array);
--	spin_unlock_irq(&rq->lock);
-+	/*
-+	 * If the task has reached maximum priority (or is a RT task)
-+	 * then just requeue the task to the end of the runqueue:
-+	 */
-+	if (likely(current->prio == MAX_PRIO-1 || rt_task(current))) {
-+		list_del(&current->run_list);
-+		list_add_tail(&current->run_list, array->queue + current->prio);
-+	} else {
-+		list_del(&current->run_list);
-+		if (list_empty(array->queue + current->prio))
-+			__clear_bit(current->prio, array->bitmap);
-+		current->prio++;
-+		list_add_tail(&current->run_list, array->queue + current->prio);
-+		__set_bit(current->prio, array->bitmap);
-+	}
-+	spin_unlock(&rq->lock);
-
- 	schedule();
-
+-- 
+Jens Axboe
 

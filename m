@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264919AbTLRDWR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 22:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264920AbTLRDWR
+	id S264922AbTLRDYq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 22:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbTLRDYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 22:22:17 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:23772 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264919AbTLRDWQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 22:22:16 -0500
-Subject: Re: Double Interrupt with HT
-From: john stultz <johnstul@us.ibm.com>
-To: Miroslaw KLABA <totoro@totoro.be>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1071630228.3fdfc794eb353@ssl0.ovh.net>
-References: <20031215155843.210107b6.totoro@totoro.be>
-	 <1071603069.991.194.camel@cog.beaverton.ibm.com>
-	 <1071615336.3fdf8d6840208@ssl0.ovh.net>
-	 <1071618630.1013.11.camel@cog.beaverton.ibm.com>
-	 <1071630228.3fdfc794eb353@ssl0.ovh.net>
-Content-Type: text/plain
-Message-Id: <1071717730.1117.26.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 17 Dec 2003 19:22:10 -0800
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Dec 2003 22:24:46 -0500
+Received: from [24.35.117.106] ([24.35.117.106]:1920 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264922AbTLRDYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 22:24:43 -0500
+Date: Wed, 17 Dec 2003 22:24:17 -0500 (EST)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Christian Axelsson <smiler@lanil.mine.nu>, andrew@walrond.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11-mm1
+In-Reply-To: <20031217035105.3c0bd533.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0312172220060.2348@localhost.localdomain>
+References: <20031217014350.028460b2.akpm@osdl.org> <200312171037.16969.andrew@walrond.org>
+ <3FE039F5.5030703@lanil.mine.nu> <20031217035105.3c0bd533.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-16 at 19:03, Miroslaw KLABA wrote:
+On Wed, 17 Dec 2003, Andrew Morton wrote:
 
-> > Further I can't see how it fixes the problem, but it may just be working
-> > around the issue. I'd be interested in what the patch author thinks. 
+> Christian Axelsson <smiler@lanil.mine.nu> wrote:
+> >
+> > Andrew Walrond wrote:
+> > > On Wednesday 17 Dec 2003 9:43 am, Andrew Morton wrote:
 > > 
-> > > I think it is a bug with the via chipset, but I'm not able to get deeper in
-> > the
-> > > kernel code.
-> > 
-> > Could be, but I suspect interrupt routing isn't happening properly at
-> > boot time. The irqbalance code just forces it to be readjusted correctly
-> > once your up and running. 
-> > 
+> > > What are your intentions with -mm when you take over 2.6? Is any of -mm 
+> > > getting into 2.6 before 2.6.0 release? Is it mainly queued for 2.6.1?
 > 
-> With SMP disabled, I have no problem with any kernel. So it must be in the APIC
-> init, I think.
+> We'll start merging it up after 2.6.0.  It'll be quite a lot of work,
+> actually - a lot of things have been parked in -mm for some time and may
+> not have had sufficiently wide testing, especially on non-i386.  I need to
+> ask the originators and others to re-review and retest some things.
+> 
+> > I would like to know aswell :)
+> > Will you be "bleeding edge" maintainer aswell or will that be handed 
+> > over to someone else?
+> 
+> I guess I'll keep -mm going until there's a reason not to.
 
-Does booting w/ "noapic" help?
+Quite frankly I am becoming concerned about the number of patches that are 
+queued for post 2.6.0.  It is beginning to look like 2.6.0 might be nice 
+and quiet while 2.6.1+ are going to be quite messy as all the things "on 
+hold" get put in.
 
-thanks
--john
-
-
+I'm going to do my part by pounding heavily on -mm kernels since that 
+appears where all this is ending up.  

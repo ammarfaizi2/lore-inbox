@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136072AbRDVMbX>; Sun, 22 Apr 2001 08:31:23 -0400
+	id <S136074AbRDVMdD>; Sun, 22 Apr 2001 08:33:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136071AbRDVMbO>; Sun, 22 Apr 2001 08:31:14 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37391 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136072AbRDVMbE>; Sun, 22 Apr 2001 08:31:04 -0400
-Subject: Re: [kbuild-devel] Re: Request for comment -- a better attribution
-To: cate@dplanet.ch (Giacomo A. Catenazzi)
-Date: Sun, 22 Apr 2001 13:32:42 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), esr@thyrsus.com,
-        linux-kernel@vger.kernel.org (CML2),
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <3AE2B847.C4EE45E9@dplanet.ch> from "Giacomo A. Catenazzi" at Apr 22, 2001 12:53:59 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136073AbRDVMct>; Sun, 22 Apr 2001 08:32:49 -0400
+Received: from www.topmail.de ([212.255.16.226]:28133 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S136071AbRDVMcV>;
+	Sun, 22 Apr 2001 08:32:21 -0400
+Message-ID: <01c901c0cb28$45b67650$de00a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: <esr@thyrsus.com>, "Giacomo A. Catenazzi" <cate@dplanet.ch>
+Cc: "CML2" <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+In-Reply-To: <20010421114942.A26415@thyrsus.com> <3AE1E77C.AF1402F4@dplanet.ch> <20010421155509.B4185@thyrsus.com>
+Subject: Re: [kbuild-devel] Request for comment -- a better attribution system
+Date: Sun, 22 Apr 2001 12:30:15 -0000
+Organization: eccesys.net Linux development
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14rJ2j-0005jf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Where developers should send patches? To Linus/AC or to driver
-> maintainer?
+> > It whould nice also if we include the type of the license (GPL,...).
+> > This for a fast parsing (and maybe also to replace the few lines
+> > of license)
+> 
+> Is there any kernel code that isn't GPLed?
 
-All of the above at random. Sometimes with a cc. Often to me/Linus if the
-maintainer isnt responding.
+It must not, due to the GPL viral effect.
 
-> ESR proposal enforces this last, but do all mainainers have always time
-> for linux
-> developement? Should the maintainers be professional? Should Linus/AC
-> reject
-> clean patches from non-maintainers? Do all maintainers read lkml?
+But I know of atleast the BSD compress module.
+Because of the licensing it only can be compiled
+as a module, so it's not part of the kernel which
+if GPL'ed.
 
-The scheme I work tends to be something like
+-mirabilos
 
-
-If the patch is small and obviously correct and its not to Jes Sorensen's driver
-	Apply it to -ac
-
-If the patch is more complex or changes design considerations
-	if it seems reasonably sane to apply
-		Apply to -ac
-		Cc change to maintainer
-		Mark not to go to Linus without maintainer approval
-	Bounce to maintainer if active
-	Apply if not active or not replying
-
-If the patch changes fundamental things - eg syscall numbers, policy in kernel
-	Tell them to talk to Linus
-
-And then there are a thousand specific other things like config.h include fixing
-typo fixes and such which don't quite follow the rule.
 

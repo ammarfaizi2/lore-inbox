@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317669AbSGJXNM>; Wed, 10 Jul 2002 19:13:12 -0400
+	id <S317664AbSGJXLS>; Wed, 10 Jul 2002 19:11:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317668AbSGJXNK>; Wed, 10 Jul 2002 19:13:10 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:39440 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317669AbSGJXNH>; Wed, 10 Jul 2002 19:13:07 -0400
-Date: Thu, 11 Jul 2002 00:15:49 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Pavel Machek <pavel@ucw.cz>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] /proc/cpuinfo output from some arch
-Message-ID: <20020711001549.D17806@flint.arm.linux.org.uk>
-References: <20020707002006.B5242@flint.arm.linux.org.uk> <200207070030.g670UbT166497@saturn.cs.uml.edu> <20020710002017.GA540@elf.ucw.cz> <3D2CB1D9.20807@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D2CB1D9.20807@zytor.com>; from hpa@zytor.com on Wed, Jul 10, 2002 at 03:14:49PM -0700
+	id <S317668AbSGJXLR>; Wed, 10 Jul 2002 19:11:17 -0400
+Received: from pD952AE71.dip.t-dialin.net ([217.82.174.113]:47747 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317664AbSGJXLQ>; Wed, 10 Jul 2002 19:11:16 -0400
+Date: Wed, 10 Jul 2002 17:13:38 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Dave Mielke <dave@mielke.cc>
+cc: Thunder from the hill <thunder@ngforever.de>,
+       Andrew Morton <akpm@zip.com.au>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Linux <linux-kernel@vger.kernel.org>
+Subject: Re: HZ, preferably as small as possible
+In-Reply-To: <Pine.LNX.4.30.0207101906160.1071-100000@dave.private.mielke.cc>
+Message-ID: <Pine.LNX.4.44.0207101713130.5067-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 10, 2002 at 03:14:49PM -0700, H. Peter Anvin wrote:
-> Pavel Machek wrote:
-> > 
-> > I thought that cpuinfo was ment to be non-chaning after boot? 
-> > 
-> > Perhaps we want /proc/cpu/0/temperature containing single int?
-> > 
+Hi,
+
+On Wed, 10 Jul 2002, Dave Mielke wrote:
+> [quoted lines by Thunder from the hill on July 10, 2002, at 16:41]
 > 
-> /proc/cpu/<number>/<datapoint> would be a lot better for a whole bunch
-> of things.
+> >+  Enable this  if you care about  your CPU sleeping  time. The current
+> >+  interval for  scheduling processes in  the kernel has  recently been
+> >+  increased.
+> 
+> The word "recently" will very quickly become out-of-date. Why not just state
+> the way it is and why one might want to select the option?
 
-What about /proc/sys/cpu/<number>/<datapoint> ?
+I don't think this is a patch for long.
 
-We decided on the above path for cpufreq after mulling it over for several
-weeks...  it might be a good idea if we can all agree to put stuff in one
-place, rather than spreading it out across /crap^w/proc
-
+							Regards,
+							Thunder
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

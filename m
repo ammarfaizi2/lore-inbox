@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265439AbTIDSTs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 14:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265436AbTIDSTs
+	id S265465AbTIDS0S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 14:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbTIDS0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 14:19:48 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:60932
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S265471AbTIDSPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 14:15:40 -0400
-Date: Thu, 4 Sep 2003 11:15:40 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrew Morton <akpm@osdl.org>, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: precise characterization of ext3 atomicity
-Message-ID: <20030904181540.GC13676@matchmail.com>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
-	Andrew Morton <akpm@osdl.org>, reiserfs-list@namesys.com,
-	linux-kernel@vger.kernel.org
-References: <3F574A49.7040900@namesys.com> <20030904085537.78c251b3.akpm@osdl.org> <3F576176.3010202@namesys.com> <20030904091256.1dca14a5.akpm@osdl.org> <3F57676E.7010804@namesys.com>
+	Thu, 4 Sep 2003 14:26:17 -0400
+Received: from smtp.terra.es ([213.4.129.129]:31471 "EHLO tsmtp2.mail.isp")
+	by vger.kernel.org with ESMTP id S265465AbTIDSZi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 14:25:38 -0400
+Date: Thu, 4 Sep 2003 20:23:19 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4-mm5
+Message-Id: <20030904202319.7f9947c9.diegocg@teleline.es>
+In-Reply-To: <3F569641.9090905@cyberone.com.au>
+References: <20030902231812.03fae13f.akpm@osdl.org>
+	<20030904010852.095e7545.diegocg@teleline.es>
+	<3F569641.9090905@cyberone.com.au>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F57676E.7010804@namesys.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 08:25:18PM +0400, Hans Reiser wrote:
-> In data=journal and data=ordered modes ext3 also guarantees that the 
-> metadata will be committed atomically with the data they point to.  However 
-> ext3 does not provide user data atomicity guarantees beyond the scope of a 
-> single filesystem disk block (usually 4 kilobytes).  If a single write() 
-> spans two disk blocks it is possible that a crash partway through the write 
-> will result in only one of those blocks appearing in the file after 
-> recovery.
+El Thu, 04 Sep 2003 11:32:49 +1000 Nick Piggin <piggin@cyberone.com.au> escribió:
 
-And how does reiser4 do this without changing the userspace apps?
+> Hmm... what's heavy gcc load?
 
-Most files are written with several write() calls, so even if each call is
-atomic, your entire file will not be there.
+make -j25 with 256 MB RAM.
 
-Also, ext3 could claim the same atomicity if it only updated meta-data on
-write() call boundaries, instead of block boundaries.
+My X server is reniced at -1; but reniced X to -10 and it didn't helped;
+-j15 was better (less swapping) but still I saw various mp3 & mouse skips.

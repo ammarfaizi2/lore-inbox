@@ -1,69 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261397AbSIWN3v>; Mon, 23 Sep 2002 09:29:51 -0400
+	id <S261464AbSIWNyT>; Mon, 23 Sep 2002 09:54:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261399AbSIWN3v>; Mon, 23 Sep 2002 09:29:51 -0400
-Received: from isis.telemach.net ([213.143.65.10]:3080 "HELO isis.telemach.net")
-	by vger.kernel.org with SMTP id <S261397AbSIWN3s>;
-	Mon, 23 Sep 2002 09:29:48 -0400
-Date: Mon, 23 Sep 2002 15:33:01 +0200
-From: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
-To: linux-kernel@vger.kernel.org
-Subject: Oops in 2.5.38-mm2
-Message-Id: <20020923153301.2c87768d.Gregor.Fajdiga@telemach.net>
-X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261487AbSIWNyT>; Mon, 23 Sep 2002 09:54:19 -0400
+Received: from igw3.watson.ibm.com ([198.81.209.18]:50662 "EHLO
+	igw3.watson.ibm.com") by vger.kernel.org with ESMTP
+	id <S261464AbSIWNyR>; Mon, 23 Sep 2002 09:54:17 -0400
+From: bob <bob@watson.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Date: Mon, 23 Sep 2002 09:59:05 -0400 (EDT)
+To: Ingo Molnar <mingo@elte.hu>
+Cc: bob <bob@watson.ibm.com>, Karim Yaghmour <karim@opersys.com>,
+       <okrieg@us.ibm.com>, <trz@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [ltt-dev] Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
+In-Reply-To: <Pine.LNX.4.44.0209230920160.2518-100000@localhost.localdomain>
+References: <15758.22318.507460.859271@k42.watson.ibm.com>
+	<Pine.LNX.4.44.0209230920160.2518-100000@localhost.localdomain>
+X-Mailer: VM 6.43 under 20.4 "Emerald" XEmacs  Lucid
+Message-ID: <15759.7290.223110.768962@k42.watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day,
+Ingo Molnar writes:
+ > 
+ > On Sun, 22 Sep 2002, bob wrote:
+ > 
+ > > Yes this is simple code - similar to the model we use in K42.  Still,
+ > > couple of things about the below.
+ > > 
+ > > 1) the !event_wanted can be done outside the function, in a macro so
+ > > that the only cost if tracing is disabled is a hot cache hit on a mask
+ > > (not function call) - that helps with your comment:
+ > > > The event_wanted() filter function should be made as fast as possible.
+ > 
+ > yes. It's a cost to be considered, but the main issue these days is the
+ > icache cost of inlining. So generally we are leaning towards the
+ > least-impact inlining cost.
 
-I get this oops at startup in 2.5.38-mm2. The oops
-might be in vanilla too, but didn't check.
+mmm - that seems a reasonable trade-off.
 
-ksymoops 2.4.4 on i686 2.5.38.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.38/ (default)
-     -m /boot/System.map-2.5.38 (default)
+ > > 2) If you use the lockless scheme you do not need to disable interrupts.
+ > > In K42 we manage to do the entire log operation in 21 instructions and
+ > > about as many cycles (couple more for getting time).  We do this from
+ > > user space as well, disabling interrupts precludes this model (may of
+ > > may not be a problem).  I was really leaning hard away from even the
+ > > cost of making a system call and disabling interrupts.  Do people on the
+ > > kernel dev team feel this is an acceptable cost?  Is migration prevented
+ > > when interrupts are disabled?  This is something for us to consider.
+ > 
+ > the trace() functions runs purely in kernel-space, so doing a cli/sti is
+ > not a performance problem - if it can be avoided it saves a few cycles,
+ > but it does not have any global costs. But i dont think reliable tracing
+ > can be done without disabling interrupts - how do you guarantee that there
+ > will be no trace 'holes' due to interruption at the wrong instruction?
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+We do have a way of guaranteeing no 'holes' get created unless the process
+is interrupted for a *very* long time or killed (which could happen) during
+the logging of an event.  The code is a little more complicated and does
+require an atomic operation that may be more or less equivalent to the cli
+cost.  In K42, and other OSes I worked on, we wanted very efficient logging
+from user space as well.  I think there might be a place for understanding
+libc, database, jvm, performance, for examples, but if we really only do
+log events in kernel space then the cli/sti approach is simpler and roughly 
+equivalent performance.
 
-c0117826 c02433c0 c02452c2 00000562 c0362c70 c0134386 c02452c2
-       00000562 c150b080 ffffffff 00000000 00000fff c0362e94 dfdf9c80 c01d2e60
-       04000000 c0362c70 c0109562 00000018 000001d0 dfdf9c80 c0362c60 0000000e
-Call Trace: [<c0117826>] [<c0134386>] [<c01d2e60>] [<c0109562>] [<c01cc496>]
-   [<c01d2e60>] [<c01cc8fc>] [<c01cc16d>] [<c01dcf6b>] [<c01050b1>] [<c0105060>]
-   [<c0105539>]
-Warning (Oops_read): Code line not seen, dumping what data is available
+ > 
+ > > 3) All trace events should not have to have the same number of data
+ > > words logged - though I think that's just a packaging/interface issue
+ > > the code below would just be placed behind macros which correctly
+ > > package up the right number of arguments.
+ > 
+ > yes, agreed, this can be solved by having some sort of RLA, tightly packed
+ > trace buffer. Trace buffer usage is definitely one of the more important
+ > points.
 
-Trace; c0117826 <__might_sleep+56/5d>
-Trace; c0134386 <kmalloc+66/1f0>
-Trace; c01d2e60 <ide_intr+0/1d0>
-Trace; c0109562 <request_irq+52/a0>
-Trace; c01cc496 <init_irq+206/350>
-Trace; c01d2e60 <ide_intr+0/1d0>
-Trace; c01cc8fc <hwif_init+10c/250>
-Trace; c01cc16d <probe_hwif_init+1d/70>
-Trace; c01dcf6b <ide_setup_pci_device+3b/60>
-Trace; c01050b1 <init+51/1d0>
-Trace; c0105060 <init+0/1d0>
-Trace; c0105539 <kernel_thread_helper+5/c>
+Yes! and we also have a scheme to allowed such a packed buffer stream to be
+randomaly accessed on disk (useful if you have 100Ms or Gs of data).
 
+-bob
 
-2 warnings issued.  Results may not be reliable.
-
-If you need anymore info, please ask.
-
-Also, please CC me, since I'm not on the list.
-
-Best Regards,
-Grega Fajdiga
+Robert Wisniewski
+The K42 MP OS Project
+Advanced Operating Systems
+Scalable Parallel Systems
+IBM T.J. Watson Research Center
+914-945-3181
+http://www.research.ibm.com/K42/
+bob@watson.ibm.com

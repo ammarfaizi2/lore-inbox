@@ -1,94 +1,171 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318721AbSHAMGP>; Thu, 1 Aug 2002 08:06:15 -0400
+	id <S318740AbSHAMRD>; Thu, 1 Aug 2002 08:17:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318725AbSHAMFj>; Thu, 1 Aug 2002 08:05:39 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:11392 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318721AbSHAMEh>;
-	Thu, 1 Aug 2002 08:04:37 -0400
-Date: Thu, 1 Aug 2002 12:38:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: comment updates and warning fixes
-Message-ID: <20020801103838.GA115@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S318737AbSHAMQE>; Thu, 1 Aug 2002 08:16:04 -0400
+Received: from daimi.au.dk ([130.225.16.1]:27008 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S318740AbSHAMPq>;
+	Thu, 1 Aug 2002 08:15:46 -0400
+Message-ID: <3D49273C.B11C237D@daimi.au.dk>
+Date: Thu, 01 Aug 2002 14:19:08 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: stas.orel@mailcity.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] vm86: Clear AC on INT
+References: <3D4419F5.3000104@yahoo.com>
+Content-Type: multipart/mixed;
+ boundary="------------47C52F29D5223C2431DC8063"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------47C52F29D5223C2431DC8063
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-Better comments and less warnings, please apply
-								Pavel
+Stas Sergeev wrote:
+> 
+> Hello.
+> 
+> According to this:
+> http://support.intel.com/design/intarch/techinfo/Pentium/instrefi.htm#89126
+> AC flag is cleared by an INT
+> instruction executed in real mode.
+> The attached patch implements that
+> functionality and solves some
+> problems recently discussed in
+> dosemu mailing list.
 
---- clean/kernel/suspend.c	Tue Jul 23 10:40:06 2002
-+++ linux-swsusp/kernel/suspend.c	Mon Jul 29 20:30:53 2002
-@@ -66,6 +66,7 @@
- #include <linux/swapops.h>
- 
- extern void signal_wake_up(struct task_struct *t);
-+extern int sys_sync(void);
- 
- unsigned char software_suspend_enabled = 0;
- 
-@@ -815,17 +816,17 @@
- 	PRINTK(KERN_WARNING "%sLeaving do_magic_suspend_2...\n", name_suspend);	
- }
- 
--/*
-- * We try to swap out as much as we can then make a copy of the
-- * occupied pages in memory so we can make a copy of kernel state
-- * atomically, the I/O needed by saving won't bother us anymore. 
-- */
- void do_software_suspend(void)
- {
- 	arch_prepare_suspend();
- 	if (prepare_suspend_console())
- 		printk( "%sCan't allocate a console... proceeding\n", name_suspend);
- 	if (!prepare_suspend_processes()) {
-+
-+		/* At this point, all user processes and "dangerous"
-+                   kernel threads are stopped. Free some memory, as we
-+                   need half of memory free. */
-+
- 		free_some_memory();
- 		
- 		/* No need to invalidate any vfsmnt list -- they will be valid after resume, anyway.
-@@ -835,8 +836,19 @@
- 		 */
- 		PRINTK("Syncing disks before copy\n");
- 		do_suspend_sync();
-+
-+		/* Save state of all device drivers, and stop them. */		   
- 		if(drivers_suspend()==0)
--			do_magic(0);			/* This function returns after machine woken up from resume */
-+			/* If stopping device drivers worked, we proceed basically into
-+			 * suspend_save_image.
-+			 *
-+			 * do_magic(0) returns after system is resumed.
-+			 *
-+			 * do_magic() copies all "used" memory to "free" memory, then
-+			 * unsuspends all device drivers, and writes memory to disk
-+			 * using normal kernel mechanism.
-+			 */
-+			do_magic(0);
- 		PRINTK("Restarting processes...\n");
- 		thaw_processes();
- 	}
-@@ -1004,8 +1016,8 @@
- 
- static int bdev_write_page(struct block_device *bdev, long pos, void *buf)
- {
--	struct buffer_head *bh;
- #if 0
-+	struct buffer_head *bh;
- 	BUG_ON (pos%PAGE_SIZE);
- 	bh = __bread(bdev, pos/PAGE_SIZE, PAGE_SIZE);
- 	if (!bh || (!bh->b_data)) {
+Finally I found the old test program I originally used to discover
+the missing clear_IF bug. With small modifications it should be
+able to verify the existence of this AC bug and that it has been
+corrected. I'm going to try this asap.
 
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razrep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+--------------47C52F29D5223C2431DC8063
+Content-Type: text/plain; charset=us-ascii;
+ name="traptest.pas"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="traptest.pas"
+
+
+Uses Dos;
+
+Const Code: Array[0..79] Of Byte = (
+$89,$e5,$50,$53,$06,$51,$fb,$f4,$cf,$90,$90,$90,$90,$90,$90,$90,
+$fb,$f4,$89,$ec,$cf,$90,$90,$90,$90,$90,$90,$90,$90,$90,$90,$90,
+$0e,$e8,$02,$00,$89,$ec,$cf,$90,$90,$90,$90,$90,$90,$90,$90,$90,
+$cd,$01,$cd,$03,$cd,$08,$cc,$9d,$89,$ec,$cf,$90,$90,$90,$90,$90,
+$9c,$fa,$89,$ec,$cf,$90,$90,$90,$90,$90,$90,$90,$90,$90,$90,$90
+);
+
+Const FV: Array[0..3] Of Word = ($7002,$7102,$7202,$7302);
+
+Var Buffer: Array[0..40000] Of Char;
+Var Index: Word;
+Var I: Word;
+
+Procedure BufWrite(S: String);
+Var I: Byte;
+Begin
+     For I:=1 To Length(S) Do Begin
+         Buffer[Index]:=S[I];
+         Inc(Index);
+     End;
+End;
+
+Procedure Hex(w : Word);
+Const
+  HexKarakterer : Array [0..$F] Of Char =
+    '0123456789ABCDEF';
+Begin
+  BufWrite(HexKarakterer[Hi(w) Shr 4]+
+           HexKarakterer[Hi(w) And $F]+
+           HexKarakterer[Lo(w) Shr 4]+
+           HexKarakterer[Lo(w) And $F]+
+           ' ');
+End;
+
+Procedure MyInt1(Flags, CS, IP, AX, BX, CX, DX, SI, DI, DS, ES, BP: word);
+Interrupt;
+Begin
+     Hex(IP);
+     Hex(MemW[CS:IP]);
+     Hex(SPtr);
+     Hex(Flags);
+     BufWrite('Trace'#13#10);
+End;
+
+Procedure MyInt3(Flags, CS, IP, AX, BX, CX, DX, SI, DI, DS, ES, BP: word);
+Interrupt;
+Begin
+     Hex(IP);
+     Hex(MemW[CS:IP]);
+     Hex(SPtr);
+     Hex(Flags);
+     BufWrite('Break'#13#10);
+End;
+
+Procedure MyInt8(Flags, CS, IP, AX, BX, CX, DX, SI, DI, DS, ES, BP: word);
+Interrupt;
+Begin
+     Port[$20]:=$20;
+     Hex(IP);
+     Hex(MemW[CS:IP]);
+     Hex(SPtr);
+     Hex(Flags);
+     BufWrite('Timer'#13#10);
+End;
+
+Var S01,S03,S08,S18: Pointer;
+Var X,Y,Z: Byte;
+Var Regs: Registers;
+Var T: Byte;
+Begin
+     WriteLn('Waiting');
+     Index := 0;
+     T:=Mem[$40:$6C];
+     Repeat
+           InLine($F4);
+     Until Byte(Mem[$40:$6C]-T) > 42;
+     WriteLn('Runing tests');
+     GetIntVec($01,S01);
+     GetIntVec($03,S03);
+     GetIntVec($08,S08);
+     GetIntVec($18,S18);
+     SetIntVec($01,@MyInt1);
+     SetIntVec($03,@MyInt3);
+     SetIntVec($08,@MyInt8);
+     SetIntVec($18,@Code);
+     For X:=0 To 3 Do
+         For Y := 0 To 3 Do
+             For Z := 1 To 4 Do
+     Begin
+          BufWrite('Test'#13#10);
+          Regs.AX:=FV[X];
+          Regs.BX:=FV[Y];
+          Regs.CX:=Ofs(Code[Z*16]);
+          Regs.ES:=Seg(Code);
+          Regs.Flags:=$7202;
+          Intr($18,Regs);
+     End;
+     SetIntVec($01,S01);
+     SetIntVec($03,S03);
+     SetIntVec($08,S08);
+     SetIntVec($18,S18);
+     WriteLn('Printing results');
+     For I:=0 To Index-1 Do
+         Write(Buffer[I]);
+     WriteLn('All done.');
+End.
+
+--------------47C52F29D5223C2431DC8063--
+

@@ -1,53 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263808AbTJ1BjY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 20:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263809AbTJ1BjX
+	id S263809AbTJ1BmP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 20:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbTJ1BmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 20:39:23 -0500
-Received: from mail.kroah.org ([65.200.24.183]:741 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263808AbTJ1BjF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 20:39:05 -0500
-Date: Mon, 27 Oct 2003 17:30:13 -0800
-From: Greg KH <greg@kroah.com>
-To: davidm@hpl.hp.com
-Cc: vojtech@suse.cz, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: serious 2.6 bug in USB subsystem?
-Message-ID: <20031028013013.GA3991@kroah.com>
-References: <200310272235.h9RMZ9x1000602@napali.hpl.hp.com>
+	Mon, 27 Oct 2003 20:42:15 -0500
+Received: from viriato2.servicios.retecal.es ([212.89.0.45]:1269 "EHLO
+	viriato2.servicios.retecal.es") by vger.kernel.org with ESMTP
+	id S263809AbTJ1BmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 20:42:07 -0500
+Subject: [2.6.0-test9-bk] [OOPS] Unable to handle kernel paging request at
+	virtual address f9a7e857
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Z6IcWByiW+chhBSi8Ctb"
+Organization: Hispalinux - http://www.hispalinux.es
+Message-Id: <1067304918.2132.1.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310272235.h9RMZ9x1000602@napali.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 28 Oct 2003 02:35:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 27, 2003 at 02:35:09PM -0800, David Mosberger wrote:
-> One-line summary: plug-in your USB keyboard, see your machine die.
 
-Any chance to know where the machine dies?  Any oops you can help us out
-with?
+--=-Z6IcWByiW+chhBSi8Ctb
+Content-Type: multipart/mixed; boundary="=-q8ACbkM2B6lq1ogCPepB"
 
-> So, I have this non-name USB keyboard (with built-in 2-port USB hub)
-> which reliably crashes 2.6.0-test{8,9} on both x86 and ia64.  In
-> retrospect, it's clear to me that the same keyboard also occasionally
-> crashes 2.4 kernels, but there the problem appears more seldom.
-> Perhaps once in 10 reboots and once the machine is booted and the
-> keyboard is running, it keeps on working.  The keyboard in question is
-> a BTC 5141H.
 
-If you do not load the HID driver, and disable automatic loading of the
-hid driver (echo '/sbin/true' > /proc/sys/kernel/hotplug) and plug in
-the device, does it still crash?
+--=-q8ACbkM2B6lq1ogCPepB
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-If not, can you get us the output of /proc/bus/usb/devices and lsusb
-with the device plugged in?
+I obtain this with the latest 2.6.0-test9 kernel=20
+--=20
+Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
 
-If not, does then loading the hid driver cause the problem?
+--=-q8ACbkM2B6lq1ogCPepB
+Content-Disposition: inline; filename=log
+Content-Type: text/plain; name=log; charset=ISO-8859-15
+Content-Transfer-Encoding: base64
 
-thanks,
+T2N0IDI4IDAyOjAyOjA2IGRlYmlhbiBrZXJuZWw6IFVuYWJsZSB0byBoYW5kbGUga2VybmVsIHBh
+Z2luZyByZXF1ZXN0IGF0IHZpcnR1YWwgYWRkcmVzcyBmOWE3ZTg1Nw0KT2N0IDI4IDAyOjAyOjA2
+IGRlYmlhbiBrZXJuZWw6ICBwcmludGluZyBlaXA6DQpPY3QgMjggMDI6MDI6MDYgZGViaWFuIGtl
+cm5lbDogYzAxNjk1ZTENCk9jdCAyOCAwMjowMjowNiBkZWJpYW4ga2VybmVsOiAqcGRlID0gMDAw
+MDAwMDANCk9jdCAyOCAwMjowMjowNiBkZWJpYW4ga2VybmVsOiBPb3BzOiAwMDAwIFsjMV0NCk9j
+dCAyOCAwMjowMjowNiBkZWJpYW4ga2VybmVsOiBDUFU6ICAgIDANCk9jdCAyOCAwMjowMjowNiBk
+ZWJpYW4ga2VybmVsOiBFSVA6ICAgIDAwNjA6W21wYWdlX3JlYWRwYWdlcys2NS8zMjBdICAgIE5v
+dCB0YWludGVkDQpPY3QgMjggMDI6MDI6MDYgZGViaWFuIGtlcm5lbDogRUZMQUdTOiAwMDAxMDIx
+Nw0KT2N0IDI4IDAyOjAyOjA2IGRlYmlhbiBrZXJuZWw6IEVJUCBpcyBhdCBtcGFnZV9yZWFkcGFn
+ZXMrMHg0MS8weDE0MA0KT2N0IDI4IDAyOjAyOjA2IGRlYmlhbiBrZXJuZWw6IGVheDogYzAxNjA1
+MmYgICBlYng6IGY5YTdlODUzICAgZWN4OiBjYWFiMTBmYyAgIGVkeDogY2FhYjEwZmMNCk9jdCAy
+OCAwMjowMjowNiBkZWJpYW4ga2VybmVsOiBlc2k6IGY5YTdlODRiICAgZWRpOiAwMDAwMDAwMCAg
+IGVicDogY2FhYjEyZWMgICBlc3A6IGNmZTAzZTA0DQpPY3QgMjggMDI6MDI6MDYgZGViaWFuIGtl
+cm5lbDogZHM6IDAwN2IgICBlczogMDA3YiAgIHNzOiAwMDY4DQpPY3QgMjggMDI6MDI6MDYgZGVi
+aWFuIGtlcm5lbDogUHJvY2VzcyBrc3dhcGQwIChwaWQ6IDgsIHRocmVhZGluZm89Y2ZlMDIwMDAg
+dGFzaz1jZmUwOGNhMCkNCk9jdCAyOCAwMjowMjowNiBkZWJpYW4ga2VybmVsOiBTdGFjazogMDAw
+MDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgY2ZlMDNlMTAgMDAwMDAwMDAgYzAyZWYz
+MjggYzAxMWU2MWEgDQpPY3QgMjggMDI6MDI6MDYgZGViaWFuIGtlcm5lbDogICAgICAgIDAwMDAw
+MDAwIDAwMDAwMDAxIGMwMTFlNDJjIDAwMDAwMDQ2IGNmZTAyMDAwIDAwMDAwMDAwIDAwMDAwMDAw
+IGMwMmNjYTAwIA0KT2N0IDI4IDAyOjAyOjA2IGRlYmlhbiBrZXJuZWw6ICAgICAgICBjMDEwYWIy
+ZiBjMDI3NDA0MCBjMjFjOTBhMCBjMjUxMWU0YyBjZmUwMjAwMCAwMDAwMDAzMiBjYWFiMTJlYyBj
+YWFiMTJlYyANCk9jdCAyOCAwMjowMjowNiBkZWJpYW4ga2VybmVsOiBDYWxsIFRyYWNlOg0KT2N0
+IDI4IDAyOjAyOjA2IGRlYmlhbiBrZXJuZWw6ICBbdGFza2xldF9hY3Rpb24rNTgvOTZdIHRhc2ts
+ZXRfYWN0aW9uKzB4M2EvMHg2MA0KT2N0IDI4IDAyOjAyOjA2IGRlYmlhbiBrZXJuZWw6ICBbZG9f
+c29mdGlycSsxNDAvMTYwXSBkb19zb2Z0aXJxKzB4OGMvMHhhMA0KT2N0IDI4IDAyOjAyOjA2IGRl
+YmlhbiBrZXJuZWw6ICBbZG9fSVJRKzIzOS8yODhdIGRvX0lSUSsweGVmLzB4MTIwDQpPY3QgMjgg
+MDI6MDI6MDYgZGViaWFuIGtlcm5lbDogIFtleHQzX3JlYWRwYWdlcysyMi8zMl0gZXh0M19yZWFk
+cGFnZXMrMHgxNi8weDIwDQpPY3QgMjggMDI6MDI6MDYgZGViaWFuIGtlcm5lbDogIFtwcnVuZV9k
+Y2FjaGUrMzM1LzQ0OF0gcHJ1bmVfZGNhY2hlKzB4MTRmLzB4MWMwDQpPY3QgMjggMDI6MDI6MDYg
+ZGViaWFuIGtlcm5lbDogIFtleHQzX2dldF9ibG9jayswLzEyOF0gZXh0M19nZXRfYmxvY2srMHgw
+LzB4ODANCk9jdCAyOCAwMjowMjowNiBkZWJpYW4ga2VybmVsOiAgW2lwdXQrOTkvMTI4XSBpcHV0
+KzB4NjMvMHg4MA0KT2N0IDI4IDAyOjAyOjA2IGRlYmlhbiBrZXJuZWw6ICBbcHJ1bmVfZGNhY2hl
+KzMzNS80NDhdIHBydW5lX2RjYWNoZSsweDE0Zi8weDFjMA0KT2N0IDI4IDAyOjAyOjA2IGRlYmlh
+biBrZXJuZWw6ICBbc2hyaW5rX2RjYWNoZV9tZW1vcnkrNTEvNjRdIHNocmlua19kY2FjaGVfbWVt
+b3J5KzB4MzMvMHg0MA0KT2N0IDI4IDAyOjAyOjA2IGRlYmlhbiBrZXJuZWw6ICBbc2hyaW5rX3Ns
+YWIrMjY0LzM1Ml0gc2hyaW5rX3NsYWIrMHgxMDgvMHgxNjANCk9jdCAyOCAwMjowMjowNiBkZWJp
+YW4ga2VybmVsOiAgW2JhbGFuY2VfcGdkYXQrNDUxLzQ4MF0gYmFsYW5jZV9wZ2RhdCsweDFjMy8w
+eDFlMA0KT2N0IDI4IDAyOjAyOjA2IGRlYmlhbiBrZXJuZWw6ICBba3N3YXBkKzI1NC8yODhdIGtz
+d2FwZCsweGZlLzB4MTIwDQpPY3QgMjggMDI6MDI6MDYgZGViaWFuIGtlcm5lbDogIFthdXRvcmVt
+b3ZlX3dha2VfZnVuY3Rpb24rMC82NF0gYXV0b3JlbW92ZV93YWtlX2Z1bmN0aW9uKzB4MC8weDQw
+DQpPY3QgMjggMDI6MDI6MDYgZGViaWFuIGtlcm5lbDogIFtyZXRfZnJvbV9mb3JrKzYvMzJdIHJl
+dF9mcm9tX2ZvcmsrMHg2LzB4MjANCk9jdCAyOCAwMjowMjowNiBkZWJpYW4ga2VybmVsOiAgW2F1
+dG9yZW1vdmVfd2FrZV9mdW5jdGlvbiswLzY0XSBhdXRvcmVtb3ZlX3dha2VfZnVuY3Rpb24rMHgw
+LzB4NDANCk9jdCAyOCAwMjowMjowNiBkZWJpYW4ga2VybmVsOiAgW2tzd2FwZCswLzI4OF0ga3N3
+YXBkKzB4MC8weDEyMA0KT2N0IDI4IDAyOjAyOjA2IGRlYmlhbiBrZXJuZWw6ICBba2VybmVsX3Ro
+cmVhZF9oZWxwZXIrNS8zNl0ga2VybmVsX3RocmVhZF9oZWxwZXIrMHg1LzB4MjQNCk9jdCAyOCAw
+MjowMjowNiBkZWJpYW4ga2VybmVsOiANCk9jdCAyOCAwMjowMjowNiBkZWJpYW4ga2VybmVsOiBD
+b2RlOiA4YiA0MyAwNCA4YiAxMyA4OSA0MiAwNCA4OSAxMCBjNyA0MyAwNCAwMCAwMiAyMCAwMCBj
+NyAwMyAwMCANCk9jdCAyOCAwMjowMzo1NyBkZWJpYW4gZGhpZDogWzIwMTM5XSAtPiBPZmZsaW5l
+ICh0aW1lb3V0KQ0KT2N0IDI4IDAyOjA0OjAyIGRlYmlhbiBkaGlkOiBbMjAxMzldIC0+IE9ubGlu
+ZQ0KT2N0IDI4IDAyOjA0OjA0IGRlYmlhbiBjcmFja2xpYjogdXBkYXRlZCBkaWN0aW9uYXJ5IChy
+ZWFkL3dyaXR0ZW4gd29yZHM6IDE2ODY4OCAxNjg2ODgpLg0KT2N0IDI4IDAyOjA3OjAyIGRlYmlh
+biBkaGlkOiBbMjAxMzldIC0+IE9mZmxpbmUgKHRpbWVvdXQpDQpPY3QgMjggMDI6MDc6MDUgZGVi
+aWFuIGRoaWQ6IFsyMDEzOV0gLT4gT25saW5lDQpPY3QgMjggMDI6MDc6MjQgZGViaWFuIHNxdWlk
+WzgzMF06IHN0b3JlRGlyV3JpdGVDbGVhbkxvZ3M6IFN0YXJ0aW5nLi4uIA0KT2N0IDI4IDAyOjA3
+OjI0IGRlYmlhbiBzcXVpZFs4MzBdOiAgIEZpbmlzaGVkLiAgV3JvdGUgNzQzMiBlbnRyaWVzLiAN
+Ck9jdCAyOCAwMjowNzoyNCBkZWJpYW4gc3F1aWRbODMwXTogICBUb29rIDAuMSBzZWNvbmRzICg2
+Mzg0Mi44IGVudHJpZXMvc2VjKS4gDQpPY3QgMjggMDI6MDc6MjQgZGViaWFuIHNxdWlkWzgzMF06
+IGxvZ2ZpbGVSb3RhdGU6IC92YXIvbG9nL3NxdWlkL3N0b3JlLmxvZyANCk9jdCAyOCAwMjowNzoy
+NCBkZWJpYW4gc3F1aWRbODMwXTogbG9nZmlsZVJvdGF0ZTogL3Zhci9sb2cvc3F1aWQvYWNjZXNz
+LmxvZyANCg==
 
-greg k-h
+--=-q8ACbkM2B6lq1ogCPepB--
+
+--=-Z6IcWByiW+chhBSi8Ctb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/ncfVRGk68b69cdURAm1oAJ9oBl59YIOoIA6teU96Gm8YvwDH8QCfStiV
+Zq6Xj7/tjoFgLV95p5ECELc=
+=J2AP
+-----END PGP SIGNATURE-----
+
+--=-Z6IcWByiW+chhBSi8Ctb--
+

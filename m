@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262326AbTABPxV>; Thu, 2 Jan 2003 10:53:21 -0500
+	id <S262360AbTABP4G>; Thu, 2 Jan 2003 10:56:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262360AbTABPxV>; Thu, 2 Jan 2003 10:53:21 -0500
-Received: from dp.samba.org ([66.70.73.150]:19078 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262326AbTABPxU>;
-	Thu, 2 Jan 2003 10:53:20 -0500
-Date: Fri, 3 Jan 2003 02:58:08 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][COMPAT] Eliminate the rest of the __kernel_..._t32 typedefs 1/7 PPC64
-Message-ID: <20030102155808.GF12395@krispykreme>
-References: <20021230171959.63ea2d5d.sfr@canb.auug.org.au> <20021230172529.3acc863f.sfr@canb.auug.org.au>
+	id <S262373AbTABP4G>; Thu, 2 Jan 2003 10:56:06 -0500
+Received: from main.gmane.org ([80.91.224.249]:28395 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S262360AbTABP4F>;
+	Thu, 2 Jan 2003 10:56:05 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Steven Barnhart" <sbarn03@softhome.net>
+Subject: Re: [2.5.54, PNP, SOUND] compile error
+Date: Thu, 02 Jan 2003 11:04:17 -0500
+Message-ID: <pan.2003.01.02.16.04.00.473440@softhome.net>
+References: <87hecr4w6x.fsf@jupiter.jochen.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021230172529.3acc863f.sfr@canb.auug.org.au>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=ISO-8859-1
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.13.0 (The whole remains beautiful)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 02 Jan 2003 12:39:50 +0100, Jochen Hein wrote:
 
-> This includes that compat_..stat and compat_times calls and fixes a
-> (pseudo) bug where the compatibility loff_t was defined as int (instead
-> of signed 64 bit).
+> 
+> It compiled well without PNP, now with the following PNP in .config:
+> 
+> #
+> # Plug and Play support
+> #
+> CONFIG_PNP=y
+> CONFIG_PNP_NAMES=y
+> CONFIG_PNP_CARD=y
+> CONFIG_PNP_DEBUG=y
+> 
+> #
+> # Protocols
+> #
+> CONFIG_ISAPNP=y
+> CONFIG_PNPBIOS=y
 
-Thanks Stephen, Ive applied the ppc64 bits.
+I got the same problem. I am guessing maybe a missing include file?
 
-Anton
+Steven
+
+
+

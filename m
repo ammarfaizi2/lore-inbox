@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130645AbRAEAq2>; Thu, 4 Jan 2001 19:46:28 -0500
+	id <S129183AbRAEAsV>; Thu, 4 Jan 2001 19:48:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130664AbRAEAqN>; Thu, 4 Jan 2001 19:46:13 -0500
-Received: from falcon.prod.itd.earthlink.net ([207.217.120.74]:33275 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S129183AbRAEAqF>; Thu, 4 Jan 2001 19:46:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: dep <dennispowell@earthlink.net>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: And oh, btw..
-Date: Thu, 4 Jan 2001 19:48:56 -0500
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.10.10101041546120.1153-100000@penguin.transmeta.com> <3A551717.6C6A7807@napster.com>
-In-Reply-To: <3A551717.6C6A7807@napster.com>
+	id <S130195AbRAEAsL>; Thu, 4 Jan 2001 19:48:11 -0500
+Received: from ns1.megapath.net ([216.200.176.4]:27146 "EHLO megapathdsl.net")
+	by vger.kernel.org with ESMTP id <S129387AbRAEAsF>;
+	Thu, 4 Jan 2001 19:48:05 -0500
+Message-ID: <3A551986.3090601@megapathdsl.net>
+Date: Thu, 04 Jan 2001 16:47:02 -0800
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12-pre8 i686; en-US; m18) Gecko/20001231
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01010419485604.05089@depoffice.localdomain>
-Content-Transfer-Encoding: 7BIT
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: And oh, btw..
+In-Reply-To: <Pine.LNX.4.10.10101041546120.1153-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 January 2001 07:36 pm, Jordan Mendelson wrote:
+Is there a patch against test12 somewhere?  I don't see it.
 
-| Go home, get out the epson salts, fill up the tub with hot water
-| and just relax.
+Have some happy downtime,
 
-right after getting the source posted on kernel.org!<g>
--- 
-dep
---
-bipartisanship: an illogical construct not unlike the idea that
-if half the people like red and half the people like blue, the 
-country's favorite color is purple.
+	Miles
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

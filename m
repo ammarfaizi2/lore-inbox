@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262980AbTJFICt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 04:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTJFICs
+	id S262805AbTJFIaH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 04:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbTJFIaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 04:02:48 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41746
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262980AbTJFICo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 04:02:44 -0400
-Date: Mon, 6 Oct 2003 01:00:26 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Hugo Mills <hugo-lkml@carfax.org.uk>
-cc: Devin Henderson <linux@devhen.com>, Pauli Borodulin <boro@fixel.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: SiI3112 DMA? (2.6.0-test6)
-In-Reply-To: <20031006075359.GQ9052@carfax.org.uk>
-Message-ID: <Pine.LNX.4.10.10310060057290.21746-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Oct 2003 04:30:07 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:14063 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262805AbTJFIaB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 04:30:01 -0400
+Subject: Re: 71MB compressed for COMPILED(!!!) 2.6.0-test6
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031006082340.GA1135@matchmail.com>
+References: <20031006082340.GA1135@matchmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RlJFXyarok+oPKtvYyuq"
+Organization: Red Hat, Inc.
+Message-Id: <1065428996.5033.5.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
+Date: Mon, 06 Oct 2003 10:29:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-It is an issue with first generation FIS transfer on the wire.
+--=-RlJFXyarok+oPKtvYyuq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Take the size of the request in sectors and divide by 15 or 7.5K.
-Standard FIS packet size is 8K.
+On Mon, 2003-10-06 at 10:23, Mike Fedyk wrote:
+> Hi LK,
+>=20
+> A while back (after 2.6.0-test2-mm1 which came to 6.4MB compressed, and
+> 2.6.0-test3-mm2 which came out to 34MB compressed), I noticed that the fi=
+le
+> sizes for compiled object code got a lot bigger.  I reported it at the ti=
+me,
+> but nobody was interested.
+>=20
+> Today after using 2.6.0-test4-mm3 for a few weeks, I decided to upgrade t=
+o
+> test6 and it's up to 71MB compressed!
 
-Without going into much detail because of NDA's, there needs to be a
-special DMA engine build table.
 
-I did it once then lost the code because of lack of sleep.
+CONFIG_DEBUG_INFO=3Dy
 
-Cheers,
+makes the kernel be compiled with -g which gives it debuginfo, which
+basically ends up being the entire sourcecode included in the
+modules/kernel
 
-Andre Hedrick
-LAD Storage Consulting Group
 
-On Mon, 6 Oct 2003, Hugo Mills wrote:
+--=-RlJFXyarok+oPKtvYyuq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> On Sun, Oct 05, 2003 at 10:29:40PM -0700, Andre Hedrick wrote:
-> > 
-> > I have a scheduled fix prepared for release and review by SiI monday
-> > morning 9AM Pacific time.  Once it is cleared by SiI, it will be released
-> > out to the masses.
-> 
->    That's good news. Thank you.
-> 
-> > Will attempt to address the mod15b phy issues
-> 
->    mod15b phy? Me simple idiot. Me no understand. :)
-> 
->    Is that the PATA/SATA converter that the last poster mentioned? Or
-> something else?
-> 
->    Hugo.
-> 
-> -- 
-> === Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
->   PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
->        --- The early bird gets the worm,  but the second mouse ---       
->                             gets the cheese.                             
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
+iD8DBQA/gSgDxULwo51rQBIRAkyBAJ42s5+yJTxXtTzi1an+jJunMWCBQQCfTUBy
+qQvexyjC7xu4jquMfKidSMg=
+=KsxL
+-----END PGP SIGNATURE-----
+
+--=-RlJFXyarok+oPKtvYyuq--

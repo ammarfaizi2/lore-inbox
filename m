@@ -1,93 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263526AbUDEXuC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 19:50:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbUDEXuC
+	id S263519AbUDEXxA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 19:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbUDEXxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 19:50:02 -0400
-Received: from web40509.mail.yahoo.com ([66.218.78.126]:40602 "HELO
-	web40509.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263526AbUDEXt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 19:49:58 -0400
-Message-ID: <20040405234957.69998.qmail@web40509.mail.yahoo.com>
-Date: Mon, 5 Apr 2004 16:49:57 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge
-To: Timothy Miller <miller@techsource.com>
-Cc: Chris Wright <chrisw@osdl.org>, John Stoffel <stoffel@lucent.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <4071DC20.6040005@techsource.com>
+	Mon, 5 Apr 2004 19:53:00 -0400
+Received: from pxy5allmi.all.mi.charter.com ([24.247.15.44]:30353 "EHLO
+	proxy5-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
+	id S263519AbUDEXw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 19:52:58 -0400
+Message-ID: <4071F07E.2040307@quark.didntduck.org>
+Date: Mon, 05 Apr 2004 19:49:18 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Matt Mackall <mpm@selenic.com>
+CC: Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH] Drop exported symbols list if !modules
+References: <20040405205539.GG6248@waste.org> <1081205099.15272.7.camel@bach> <20040405230723.GK6248@waste.org>
+In-Reply-To: <20040405230723.GK6248@waste.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Charter-MailScanner-Information: 
+X-Charter-MailScanner: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Timothy Miller <miller@techsource.com> wrote:
+Matt Mackall wrote:
+> On Tue, Apr 06, 2004 at 08:45:01AM +1000, Rusty Russell wrote:
+> 
+>>On Tue, 2004-04-06 at 06:55, Matt Mackall wrote:
+>>
+>>>Drop ksyms if we've built without module support
+>>>
+>>>From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+>>>Subject: Re: 2.6.1-rc1-tiny2
+>>
+>>Other than saving a little compile time, does this actually do anything?
+>>
+>>I'm not against it, I just don't think I see the point.
 > 
 > 
-> Sergiy Lozovsky wrote:
+> Well it obviously saves memory and image size too; I'm in the process
+> of merging bits from my -tiny tree. As bloat has a way of being
+> well-distributed across the code base, it's going to take many small
+> trimmings to cut it back. Most of the 150 or so patches I've got now
+> save between 1 and 8k. Doesn't sound like much, but it adds up.
 > 
-> > 
-> > 
-> > LSM use another way of doing similar things :-)
-> I'm
-> > not sure that it is nice to forward system calls
-> back
-> > to userspace where they came from in the first
-> place
-> > :-) VXE use high level language to create security
-> > models.
-> > 
-> 
-> "Kernel space -> user space -> kernel space" is
 
-To be more precise "user space -> kernel space -> user
-space -> kernel space -> user space" 
+EXPORT_SYMBOL() is a no-op when modules are disabled:
+$ size arch/i386/kernel/i386_ksyms.o
+    text    data     bss     dec     hex filename
+       0       0       0       0       0 arch/i386/kernel/i386_ksyms.o
 
-against ordinary "user space -> kernel space -> user
-space"
+Although, what really should be done is to move the exports to the 
+appropriate files instead of keeping them lumped together.
 
-So, what happens - task makes system calls and blocks;
-request goes to a user space security server. Will it
-process request right away? No, it will wait for
-scheduler to chose it for execution. Ok server got CPU
-and returns results to the kernel. Will initial task
-continue? No, it will wait for be chosen by scheduler.
-This is what I call overhead (though i understand,
-that can be wrong). My system (VXE) doesn't involve
-scheduler at all.
-
-So we should not just look into length of this chain
-at the picture. - "user space -> kernel space -> user
-space -> kernel space -> user space" - we should
-remember that it involves to mandatory task switches
-to accomplish jus one system call.
-
-> nothing compared to the 
-> overhead of a LISP interpreter.
-
-LISP code, is very small actually. And nobody can just
-kill it. I know it's not a real protection, but intent
-was to place a security system in such place where it
-will be more protected by itself. I placed additional
-security mechanisms in the place where designers of
-UNIX placed theirs (file permissions an so on) - in
-the kernel.
- 
-> Doing interpretation of LISP is a monster compared
-> to some piddly 
-> context switches.
-
-When people say LISP they mean Common LISP, which is a
-monster and I agree with you. VXE uses stripped down
-version of LISP and syntax of LISP is far simpler than
-C for example.
-
-Serge.
-
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+--
+				Brian Gerst

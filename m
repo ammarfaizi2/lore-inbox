@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263196AbTDCAu1>; Wed, 2 Apr 2003 19:50:27 -0500
+	id <S263197AbTDCAvC>; Wed, 2 Apr 2003 19:51:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263197AbTDCAu1>; Wed, 2 Apr 2003 19:50:27 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:62130 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263196AbTDCAu0>; Wed, 2 Apr 2003 19:50:26 -0500
-Date: Wed, 2 Apr 2003 17:01:13 -0800
-From: Greg KH <greg@kroah.com>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Kernel List <linux-kernel@vger.kernel.org>, Frank Davis <fdavis@si.rr.com>
-Subject: Re: [patch] add i2c_clientname()
-Message-ID: <20030403010112.GA5407@kroah.com>
-References: <20030402165116.GA24766@bytesex.org>
+	id <S263198AbTDCAvC>; Wed, 2 Apr 2003 19:51:02 -0500
+Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:14048
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id <S263197AbTDCAu6>; Wed, 2 Apr 2003 19:50:58 -0500
+Date: Wed, 2 Apr 2003 17:02:17 -0800
+To: James Simmons <jsimmons@infradead.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [REPRODUCABLE BUGS] Linux 2.5.66
+Message-ID: <20030403010217.GA23813@triplehelix.org>
+References: <20030327022732.GA2867@triplehelix.org> <Pine.LNX.4.44.0304022315150.3919-100000@phoenix.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
 Content-Disposition: inline
-In-Reply-To: <20030402165116.GA24766@bytesex.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0304022315150.3919-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 02, 2003 at 06:51:16PM +0200, Gerd Knorr wrote:
-> 
-> This patch just adds a #define and a inline function to hide the
-> "i2c_client->name" => "i2c_client->dev.name" move introduced by
-> the recent i2c updates.  That makes it easier to build i2c drivers
-> on both 2.4 and 2.5 kernels.
 
-This is going to be a harder and harder problem as time goes on, and as
-the i2c core changes over time.  I would just give up now :)
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +#define I2C_DEVNAME(str)   .dev = { .name = str }
+On Wed, Apr 02, 2003 at 11:16:12PM +0100, James Simmons wrote:
+> > The junk quickly scrolls off into the sunset and has no adverse
+> > effects on the following boot messages.
+>=20
+> I have a feeling take_over_console needs to run a vc_resize_console.
 
-Why this macro?  You don't use it in your driver, right?
+Actually, whatever was in the latest fbdev.diff.gz fixed it.
+To be more precise, whichever fbdev.diff was in 2.5.65-mm1 and onwards.
 
-thanks,
+The logo is still missing in action, I'm trying to debug this. Is anyone=20
+noticing the same thing?
 
-greg k-h
+Regards
+Josh
+
+--=20
+New PGP public key: 0x27AFC3EE
+
+--ikeVEW9yuYc//A+q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+i4gZT2bz5yevw+4RAkyNAJ9e6UaF92beokn38+eVIf6MtJTo5QCfRz1S
+uNwOVbWoRkOuxHjYxRLeSi0=
+=VNsn
+-----END PGP SIGNATURE-----
+
+--ikeVEW9yuYc//A+q--

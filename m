@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313687AbSDJT4i>; Wed, 10 Apr 2002 15:56:38 -0400
+	id <S313690AbSDJT7T>; Wed, 10 Apr 2002 15:59:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313694AbSDJT4h>; Wed, 10 Apr 2002 15:56:37 -0400
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:15589 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S313687AbSDJT4g>; Wed, 10 Apr 2002 15:56:36 -0400
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS Bug Fixes 3 of 6 (Please apply all 6)
-In-Reply-To: <Pine.LNX.4.10.10204101232200.30667-100000@www.transvirtual.com>
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Wed, 10 Apr 2002 21:55:23 +0200
-Message-ID: <87r8lnxr9w.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
+	id <S313697AbSDJT7S>; Wed, 10 Apr 2002 15:59:18 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:14816 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313690AbSDJT7R>; Wed, 10 Apr 2002 15:59:17 -0400
+Subject: Re: [PATCH] Futex Generalization Patch
+To: frankeh@watson.ibm.com
+Cc: drepper@redhat.com, linux-kernel@vger.kernel.org, Martin.Wirth@dlr.de,
+        pwaechtler@loewe-Komp.de, Rusty Russell <rusty@rustcorp.com.au>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF6ED1E5D5.39630DC3-ON85256B97.006D2F99@raleigh.ibm.com>
+From: "Bill Abt" <babt@us.ibm.com>
+Date: Wed, 10 Apr 2002 15:59:39 -0400
+X-MIMETrack: Serialize by Router on D04NM202/04/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 04/10/2002 03:59:09 PM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons <jsimmons@transvirtual.com> writes:
+On 04/10/2002 at 02:47:50 PM AST, Hubertus Franke <frankeh@watson.ibm.com>
+wrote:
 
->> > Another model you might consider, one which would probably make you
->> > more money, make us happier, and better avoid "freeloaders", would be
->> > to make bitkeeper free for use with free software only.  This would be
->> > rather similar to what I use for reiserfs, which is free for use with
->> > free operating systems only,
->> 
->> Really?  I thought ReiserFS was released under the GPL.  Is this no
->> longer the case?
+> The current interface is
 >
-> Because something is GPL doesn't mean it is free dollar wise. GPL is free
-> as in free speech not free beer.
+> (A)
+> async wait:
+>    sys_futex (uaddr, FUTEX_AWAIT, value, (struct timespec*) sig);
+> upon signal handling
+>    sys_futex(uaddrs[], FUTEX_WAIT, size, NULL);
+>    to retrieve the uaddrs that got woken up...
 
-That's not my point.  Of course you can charge for GPLed software, or,
-as the copyright holder, offer different licensing options for a fee.
+This is actually the preferred way.  I must've misinterpeted what you said
+earlier.  I believe this is actually a more generic way of handling.  A
+thread package can specify the signal to used much in the way the current
+LinuxThreads pre-allocates and uses certain real-time signals...
 
-However, if you release software under the GPL, you do not prevent
-people from using it on proprietary operating systems.
+> I am mainly concerned that SIGIO can be overloaded in a thread package ?
+> How would you know whether a SIGIO came from the futex or from other file
 
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+> handle.
+
+By keep with the original interface, we don't have to contend with this
+problem.  The thread package can use the signal that most suits its'
+implementation...
+
+Make sense?
+
+Regards,
+      Bill Abt
+      Senior Software Engineer
+      Next Generation POSIX Threading for Linux
+      IBM Cambridge, MA, USA 02142
+      Ext: +(00)1 617-693-1591
+      T/L: 693-1591 (M/W/F)
+      T/L: 253-9938 (T/Th/Eves.)
+      Cell: +(00)1 617-803-7514
+      babt@us.ibm.com or abt@us.ibm.com
+      http://oss.software.ibm.com/developerworks/opensource/pthreads
+

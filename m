@@ -1,94 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265951AbUBGWV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 17:21:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265952AbUBGWV6
+	id S265853AbUBGWUD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 17:20:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbUBGWUC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 17:21:58 -0500
-Received: from adsl-68-23-213-254.dsl.wotnoh.ameritech.net ([68.23.213.254]:25925
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265951AbUBGWVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 17:21:55 -0500
-Date: Sat, 7 Feb 2004 17:21:48 -0500
-From: Ryan Boder <icanoop@bitwiser.org>
+	Sat, 7 Feb 2004 17:20:02 -0500
+Received: from imap.gmx.net ([213.165.64.20]:24963 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265853AbUBGWUA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 17:20:00 -0500
+X-Authenticated: #3450509
+Message-ID: <402562D4.7010706@gmx.net>
+Date: Sat, 07 Feb 2004 23:12:36 +0100
+From: =?ISO-8859-1?Q?Georg_M=FCller?= <georgmueller@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031211 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@digeo.com
-Subject: [PATCH] 2.6.2 Documentation fix (Documentation/kbuild/modules.txt)
-Message-ID: <20040207222148.GA3209@bitwiser.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Subject: cpufreq - less possible freqs with 2.6.2 and P4M
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Explains how to compile external modules in
-Documentation/kbuild/modules.txt.
+I have a Pentium 4M at 1.8GHz.
+With 2.6.0 it was possible to slow down my CPU in several steps down to 
+200MHz via cpufreq.
+With 2.6.2 I can only switch between 1.2 and 1.8GHz (as it was with 2.4 
+too).
 
--- 
-Ryan Boder
-http://www.bitwiser.org/icanoop
+Is this change wanted?
 
-
-
---- linux-2.6.2/Documentation/kbuild/modules.txt	2004-02-06 12:31:04.000000000 -0500
-+++ linux-2.6.2-icanoop/Documentation/kbuild/modules.txt	2004-02-07 16:46:52.000000000 -0500
-@@ -17,12 +17,52 @@
- 
- Compiling modules outside the official kernel
- ---------------------------------------------
--Often modules are developed outside the official kernel.
--To keep up with changes in the build system the most portable way
--to compile a module outside the kernel is to use the following command-line:
-+
-+Often modules are developed outside the official kernel.  To keep up
-+with changes in the build system the most portable way to compile a
-+module outside the kernel is to use the kernel build system,
-+kbuild. Use the following command-line:
- 
- make -C path/to/kernel/src SUBDIRS=$PWD modules
- 
- This requires that a makefile exits made in accordance to
--Documentation/kbuild/makefiles.txt.
-+Documentation/kbuild/makefiles.txt. Read that file for more details on
-+the build system.
-+
-+The following is a short summary of how to write your Makefile to get
-+you up and running fast. Assuming your module will be called
-+yourmodule.ko, your code should be in yourmodule.c and your Makefile
-+should include
-+
-+obj-m := yourmodule.o
-+
-+If the code for your module is in multiple files that need to be
-+linked, you need to tell the build system which files to compile. In
-+the case of multiple files, none of these files can be named
-+yourmodule.c because doing so would cause a problem with the linking
-+step. Assuming your code exists in file1.c, file2.c, and file3.c and
-+you want to build yourmodule.ko from them, your Makefile should
-+include
-+
-+obj-m := yourmodule.o
-+yourmodule-objs := file1.o file2.o file3.o
-+
-+Now for a final example to put it all together. Assuming the
-+KERNEL_SOURCE environment variable is set to the directory where you
-+compiled the kernel, a simple Makefile that builds yourmodule.ko as
-+described above would look like
-+
-+# Tells the build system to build yourmodule.ko.
-+obj-m := yourmodule.o
-+
-+# Tells the build system to build these object files and link them as
-+# yourmodule.o, before building yourmodule.ko. This line can be left
-+# out if all the code for your module is in one file, yourmodule.c. If
-+# you are using multiple files, none of these files can be named
-+# yourmodule.c.
-+yourmodule-objs := file1.o file2.o file3.o
- 
-+# Invokes the kernel build system to come back to the current
-+# directory and build yourmodule.ko.
-+default:	
-+	make -C ${KERNEL_SOURCE} SUBDIRS=`pwd` modules
-
+Georg Müller

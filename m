@@ -1,57 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262697AbTH1ADw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 20:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbTH1ADw
+	id S262474AbTH0X7E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 19:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTH0X7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 20:03:52 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:21638 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262697AbTH1ADu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 20:03:50 -0400
-Date: Thu, 28 Aug 2003 01:03:21 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Timo Sirainen <tss@iki.fi>, Martin Konold <martin.konold@erfrakon.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Lockless file reading
-Message-ID: <20030828000321.GC3759@mail.jlokier.co.uk>
-References: <1061987837.1455.107.camel@hurina> <200308271442.48672.martin.konold@erfrakon.de> <1061988729.1457.115.camel@hurina> <Pine.LNX.4.53.0308270925550.278@chaos>
-Mime-Version: 1.0
+	Wed, 27 Aug 2003 19:59:04 -0400
+Received: from ozlabs.org ([203.10.76.45]:34954 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262489AbTH0X67 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 19:58:59 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0308270925550.278@chaos>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16205.17596.600646.259901@martins.ozlabs.org>
+Date: Thu, 28 Aug 2003 09:54:36 +1000
+To: linux-kernel@vger.kernel.org
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
+       Patrick Mochel <mochel@osdl.org>, Con Kolivas <kernel@kolivas.org>
+Subject: 2.6.0-test4 suspends IDE devices after resume
+X-Mailer: VM 7.17 under Emacs 21.3.2
+From: "Martin Schwenke" <martin@meltin.net>
+Reply-To: "Martin Schwenke" <martin@meltin.net>
+X-Kernel: Linux 2.6.0-test4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> Let's see if it is possible for the middle byte of
-> a 3-byte sequence to not be written when both
-> other bytes are written:
+I'm running 2.6.0-test4 (with Con Kolivas' interactivity patch) and
+twice I've had my IDE devices re-suspend after I resume from an APM
+suspend (to disk/hibernation).  This is obviously annoying, because
+there's little you can do to recover from it!  :-) The machine is an
+IBM ThinkPad T22 with an IDE interface that looks like this:
 
-> Even in machines that do load/store operations where individual
-> components of those stores happen in groups, access to/from
-> a buffer of such data is controlled (by hardware) so a write
-> will complete before a read occurs.
+  00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
 
-I don't understand what you mean by this.
+I didn't see this problem with test3 (or test2 or test1).
 
-Do you mean that the writes are forced to appear on a different CPU in
-the same order that they were written?  That isn't true on x86, for
-two reasons: 1. writes aren't always in processor order (see
-CONFIG_X86_OOSTORE and CONFIG_X86_PPRO_FENCE); 2. reads on the other
-processor are out of order anyway.
+Stuff I copied down from the console is at the end of this message.
+"..." indicates intermingled USB stuff that I didn't write down.
 
-> With hardware that can perform byte-access (ix86), the only
-> byte-access that is going to happen is at the end(s) of buffers.
+Apart from that, I've also seen a message in my logs that looks like:
 
-Not true.  Take a look at __copy_user() in arch/i386/lib/usercopy.c.
-The first few bytes are copied using "rep;movsb", which is not
-guaranteed to use a word write for the aligned pair, nor is it
-guaranteed a particular timing (there could be an interrupt between
-each byte).
+  hda: a request made it's way while we are power managing...
 
-Other architectures are similar.
+Any ideas?
 
--- Jamie
+peace & happiness,
+martin
+--------8<---------8<-------- CUT HERE --------8<---------8<--------
+hda: start_power_step(step: 1000)
+blk: queue dfe50800, I/O limit 4095Mb (mask 0xffffffff)
+hda: completing PM request, resume
+hdc: Wakeup request inited, waiting for !BSY...
+hdc: start_power_step(step: 1000)
+hdc: completing PM request, resume
+...
+hdc: start_power_step(step: 0)
+hdc: completing PM request, suspend
+hda: start_power_step(step: 0)
+hda: start_power_step(step: 1)
+hda: complete_power_step(step: 1, stat: 50, err: 0)
+hda: completing PM request, suspend
+hda: Wakeup request inited, waiting for !BSY...
+hda: start_power_step(step: 1000)
+blk: queue dfe50800, I/O limit 4095Mb (mask 0xffffffff)
+hda: completing PM request, resume
+hdc: Wakeup request inited, waiting for !BSY...
+hdc: start_power_step(step: 1000)
+hdc: completing PM request, resume
+...
+hdc: start_power_step(step: 0)
+hdc: completing PM request, suspend
+hda: start_power_step(step: 0)
+hda: start_power_step(step: 1)
+hda: complete_power_step(step: 1, stat: 50, err: 0)
+hda: completing PM request, suspend
+--------8<---------8<-------- CUT HERE --------8<---------8<--------
+

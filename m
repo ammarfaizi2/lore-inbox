@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270332AbTHGPhS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 11:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270342AbTHGPhR
+	id S270212AbTHGPpb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 11:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269736AbTHGPn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 11:37:17 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:51077 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S270332AbTHGPhM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 11:37:12 -0400
-To: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][TRIVIAL] Bugzilla bug # 322 - double logical operator drivers/char/sx.c
-References: <200308061830.05586.jeffpc@optonline.net>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 07 Aug 2003 02:32:28 +0200
-In-Reply-To: <200308061830.05586.jeffpc@optonline.net>
-Message-ID: <m3znimgvdv.fsf@defiant.pm.waw.pl>
+	Thu, 7 Aug 2003 11:43:57 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:16018 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S270326AbTHGPkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 11:40:12 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: rob@landley.net, Ed Sweetman <ed.sweetman@wmich.edu>,
+       Eugene Teo <eugene.teo@eugeneteo.net>
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+Date: Thu, 7 Aug 2003 16:42:55 +0100
+User-Agent: KMail/1.5.3
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel@kolivas.org,
+       Davide Libenzi <davidel@xmailserver.org>
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307271046.30318.phillips@arcor.de> <200308061728.04447.rob@landley.net>
+In-Reply-To: <200308061728.04447.rob@landley.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308071642.55517.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josef 'Jeff' Sipek <jeffpc@optonline.net> writes:
+On Wednesday 06 August 2003 22:28, Rob Landley wrote:
+> So, how does SCHED_SOFTRR fail?  Theoretically there is a minimum timeslice
+> you can hand out, yes?  And an upper bound on scheduling latency.  So
+> logically, there is some maximum number "N" of SCHED_SOFTRR tasks running
+> at once where you wind up round-robining with minimal timeslices and the
+> system is saturated.  At N+1, you fall over.  (And in reality, there are
+> interrupts and kernel threads and other things going on that get kind of
+> cramped somewhere below N.)
 
-> Just a simple fix to make the statements more readable. (instead of
-> "i < TIMEOUT > 0" the statement is divided into two, joined by &&.)
-> 
-> Josef 'Jeff' Sipek
-> 
-> --- linux-2.5/drivers/char/sx.c.orig	2003-08-06 18:23:32.000000000 -0400
-> +++ linux-2.5/drivers/char/sx.c	2003-08-06 18:20:03.000000000 -0400
-> @@ -511,13 +511,13 @@
->  
->  	func_enter ();
->  
-> -	for (i=0; i < TIMEOUT_1 > 0;i++) 
-> +	for (i=0; (i < TIMEOUT_1) && (TIMEOUT_1 > 0);i++) 
->  		if ((read_sx_byte (board, offset) & mask) == correctval) {
->  			func_exit ();
->  			return 1;
->  		}
->  
+The upper bound for softrr realtime scheduling isn't based on number of tasks, 
+it's a global slice of cpu time: so long as the sum of running times of all 
+softrr tasks in the system lies below limit, softrr tasks will be scheduled 
+as SCHED_RR, otherwise they will be SCHED_NORMAL.
 
-While the first version seems to be a notation error (i < X > 0 is
-equivalent to i < X) the changed version doesn't need X > 0 either
-as TIMEOUT_1 (and TIMEOUT_2 respectively) is a positive #define.
+> In theory, the real benefit of SCHED_SOFTRR is that an attempt to switch to
+> it can fail with -EMYBRAINISMELTING up front, so you know when it won't
+> work at the start, rather than having it glitch halfway through the run. 
 
-So I think it should be just (i=0; i < TIMEOUT_1 ;i++) and so on.
--- 
-Krzysztof Halasa
-Network Administrator
+Not as implemented.  Anyway, from the user's point of view, that would be an 
+unpleasant way for a sound player to fail.  What we want is something more 
+like a little red light that comes on (in the form of error statistics, say) 
+any time a softrr process gets demoted.  Granted, there may be situations 
+where what you want is the right behavior, but it's (as you say) a separate 
+issue of resource allocation.
+
+Regards,
+
+Daniel
+

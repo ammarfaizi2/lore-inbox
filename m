@@ -1,111 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268057AbUHYPxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268113AbUHYP53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268057AbUHYPxy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 11:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268043AbUHYPxy
+	id S268113AbUHYP53 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 11:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267985AbUHYP53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 11:53:54 -0400
-Received: from [144.51.25.10] ([144.51.25.10]:40898 "EHLO epoch.ncsc.mil")
-	by vger.kernel.org with ESMTP id S268057AbUHYPwk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 11:52:40 -0400
-Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
-       James Morris <jmorris@redhat.com>
-In-Reply-To: <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp>
-References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
-	 <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
-	 <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil>
-	 <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
-	 <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil>
-	 <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
+	Wed, 25 Aug 2004 11:57:29 -0400
+Received: from smtp5.wanadoo.fr ([193.252.22.26]:53784 "EHLO
+	mwinf0507.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S268121AbUHYP5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 11:57:07 -0400
+Date: Wed, 25 Aug 2004 18:01:07 +0200
+From: Philippe Elie <phil.el@wanadoo.fr>
+To: Zarakin <zarakin@hotpop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nmi_watchdog=2 - Oops with 2.6.8
+Message-ID: <20040825160107.GA562@zaniah>
+References: <021101c48a44$c8f846e0$6401a8c0@novustelecom.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 25 Aug 2004 11:50:48 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <021101c48a44$c8f846e0$6401a8c0@novustelecom.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-25 at 05:51, Kaigai Kohei wrote:
-> The attached take3-patch is modified as follows:
-> - avc_node_dual was eliminated by Paul E.McKenny's suggestion.
->   avc_update_node() calls kmalloc() and may return -ENOMEM.
->   (But, I think this effect is so limited.)
-> - All list_for_each_entry() were replaced by list_for_each_entry_rcu().
-> - All spin_lock()/spin_unlock() were replaced by spin_lock_irqsave()
->   /spin_unlock_restore().
-> - In avc_node_insert(), if an entry with the same ssid/tsid/tclass as new
->   one exists, the older entry is replaced by the new one.
+On Tue, 24 Aug 2004 at 18:42 +0000, Zarakin wrote:
+
+> Hi,
 > 
-> Thanks. I want to make it the last edition hopefully. :)
+> My Gentoo machine will not boot with nmi_watchdog=2 parameter - I get an
+> oops at clear_msr_range.
+> 
+> Handwritten oops Info:
+> CPU 0
+> EIP:  0060: [<0xc0110d4b>] Not tainted
+> EIP is at clear_msr_range+0x18/0x25
+> eax: 0  ebx:1f  ecx: 3ba  edx: 0
+> esi: 3a0  edi: 1a  ebp:0 esp: d7d83f74
+> ds: 7b es: 7b ss: 68
 
-I haven't tracked down the cause yet, but a kernel built with all three
-patches (list_replace_rcu, atomic_inc_return, and selinux.rcu take3) on
-x86 doesn't allow an enforcing boot; it begins auditing denials _before_
-the initial policy load (which should never happen, as
-security_compute_av allows everything until the policy is loaded), and
-prevents /sbin/init from loading the policy.
+> 0xc0110d4b <clear_msr_range+24>:        wrmsr
 
-A few other comments on the patch:
+> model           : 3
+> model name      : Intel(R) Pentium(R) 4 CPU 2.80GHz
 
-+	new = kmalloc(sizeof(struct avc_node), GFP_ATOMIC);
-+	if (!new)
-+		return NULL;
+try this patch please.
 
-Dynamically allocating the nodes at runtime (rather than pre-allocating
-them and then just reclaiming them as necessary as in the current AVC)
-worries me, as it introduces a new failure case for avc_has_perm. 
-Denying permission to a resource due to transient memory shortage is not
-good for robustness.  And changing the GFP_ATOMIC is not an option, as
-calling context may not allow blocking.  Hence, pre-allocation seems
-desirable, regardless of the locking scheme.
-
-+static int avc_latest_notif_update(int seqno, int is_insert)
-+{
-+	int ret = 0;
-+	static spinlock_t notif_lock = SPIN_LOCK_UNLOCKED;
-+	unsigned long flag;
-+
-+	spin_lock_irqsave(&notif_lock, flag);
-+	if (seqno < avc_cache.latest_notif) {
-+		if (is_insert) {
-+			printk(KERN_WARNING "avc:  seqno %d < latest_notif %d\n",
-+			       seqno, avc_cache.latest_notif);
-+			ret = -EAGAIN;
-+		} else {
-+			avc_cache.latest_notif = seqno;
-+		}
+--- linux-2.5/arch/i386/kernel/nmi.c~	2004-06-15 10:52:00.000000000 +0200
++++ linux-2.5/arch/i386/kernel/nmi.c	2004-08-25 17:33:45.000000000 +0200
+@@ -376,7 +376,13 @@
+ 		clear_msr_range(0x3F1, 2);
+ 	/* MSR 0x3F0 seems to have a default value of 0xFC00, but current
+ 	   docs doesn't fully define it, so leave it alone for now. */
+-	clear_msr_range(0x3A0, 31);
++	if (boot_cpu_data.x86_model >= 0x3) {
++		/* MSR_P4_IQ_ESCR0/1 (0x3ba/0x3bb) removed */
++		clear_msr_range(0x3A0, 26);
++		clear_msr_range(0x3BC, 3);
++	} else {
++		clear_msr_range(0x3A0, 31);
 +	}
-+	spin_unlock_irqrestore(&notif_lock, flag);
-+	return ret;
- }
-
-In trying to merge the logic related to latest_notif, you've introduced
-a bug - latest_notif should only be increased, never decreased.  See the
-original logic from avc_control and avc_ss_reset prior to your patch. 
-Those functions update the latest notif based on a policy change event. 
-In the insert case, you are checking that the entry is not stale, i.e.
-has a smaller seqno than the latest notification due to an interleaving
-with a policy change event.
- 
-+			if (node->ae.avd.allowed != (node->ae.avd.allowed|requested))
-+				avc_update_node(AVC_CALLBACK_GRANT
-+				                ,requested,ssid,tsid,tclass);
- 		}
-
-The test seems unnecessary, as the function has already determined that
-not all of the requested permissions were granted, so you should be able
-to just unconditionally call avc_update_node here, and you only need to
-pass it the denied set that has already been computed, as any other
-permissions in requested were already allowed.
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+ 	clear_msr_range(0x3C0, 6);
+ 	clear_msr_range(0x3C8, 6);
+ 	clear_msr_range(0x3E0, 2);

@@ -1,138 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279968AbRKFSnJ>; Tue, 6 Nov 2001 13:43:09 -0500
+	id <S279963AbRKFSyS>; Tue, 6 Nov 2001 13:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279943AbRKFSmu>; Tue, 6 Nov 2001 13:42:50 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:55468 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S279968AbRKFSmf>; Tue, 6 Nov 2001 13:42:35 -0500
-Date: Tue, 6 Nov 2001 13:42:34 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Using %cr2 to reference "current"
-Message-ID: <20011106134234.A27718@redhat.com>
-In-Reply-To: <20011106121313.B16245@redhat.com> <Pine.LNX.4.33.0111060918380.2194-100000@penguin.transmeta.com>
+	id <S280014AbRKFSyI>; Tue, 6 Nov 2001 13:54:08 -0500
+Received: from cc76797-a.ensch1.ov.nl.home.com ([213.51.205.95]:31748 "EHLO
+	jumbo.ceram119") by vger.kernel.org with ESMTP id <S279963AbRKFSx4>;
+	Tue, 6 Nov 2001 13:53:56 -0500
+Date: Tue, 6 Nov 2001 19:54:20 +0100
+From: "Dennis J.A. Bijwaard" <bijwaard@bijwaard.dhs.org>
+To: linux-kernel@vger.kernel.org
+Subject: kernel panic smp & usb scanner
+Message-ID: <20011106195420.A18732@jumbo.ceram119>
+Reply-To: bijwaard@home.nl
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="3V7upXqbjpZ4EhLz"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0111060918380.2194-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Nov 06, 2001 at 09:49:15AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 06, 2001 at 09:49:15AM -0800, Linus Torvalds wrote:
-> That said, how expensive is loading %cr2 anyway? We can do all the same
-> tricks with a 16kB stack and just playing games with using the higher bits
-> as the "offset", ie things like
 
-Here are some numbers:
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-read cr2 best: 11  av: 11.12
-write cr2 cr2 best: 61  av: 64.42
-read cr2 best: 11  av: 11.12
-write cr2 cr2 best: 61  av: 65.01
-read stk best: 10  av: 11.03
-write cr2 stk best: 61  av: 64.95
-read stk best: 10  av: 11.03
-write cr2 stk best: 61  av: 65.23
+Hi,
 
-Which come from insmod of the below two modules.  I didn't test writing to 
-the stack register, but I expect it's similarly expensive as it affects the 
-call return stack and other behind the scenes dependancies.  Suffice it to 
-say that reading %cr2 is essentially free on my box (athlon mp).  Maybe 
-we should use it as a pointer into a per-cpu area to avoid writing it?
+I repeatedly get kernel panics when I try to use my usb scanner. As my
+scanner is not specified in /usr/src/linux/drivers/usb/scanner.h, I
+added it myself at the end of scanner_device_ids as:
+    /* Compeye simplex / Trust combiscan / Powervision Technologies Inc.  */
+        { USB_DEVICE(0x05cb, 0x1483) }, /* compeye simplex */
 
-		-ben
+I've attached the kernel panic info from kernel 2.4.14, with and without
+processing by ksymoops
+-- 
+Kind regards,
+                   Dennis Bijwaard
 
-----teststk_k.c----
-#define USE_STK 1
-#include "testcr2_k.c"
-----testcr2_k.c----
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <asm/errno.h>
-#include <linux/init.h>
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="README.scanner-2.4.14"
 
-static inline long long rdtsc(void)
-{
-        unsigned int low,high;
-        __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high));
-        return low + (((long long)high)<<32);
-}
+[hp] scsi_flush writing 2 bits
+[hp] 0x0000 1B 45                       .E
+invalid operand 0000
+CPU: 1
+EIP: 0010: [<c0114b1a>] not tainted
+FLAGS: 00010282
+eax: 000000018   ebx: c6c15a20   ecx: 00000097   edx: 01000000
+esi: c5aca5edc   edi: c5ca4000   ebp: c5ca5ec8   esp: c5ca5e8c
+ds: 0018 es: 0018 ss: 0018
+Process dnetc(pid: 825,stackpage=c5ca5000)
+Stack: c0221f96 c718b260 c5ca5edc c5ca4000 00000000 00000000 00010000 c73efded
+       c0276b40 eb7278d4 017078d4 00000002 00000002 00000001 c5ca5edc c62cd380
+       c015ab4 c19fda68 c718b1e8 00000001 00000001 c5ca4000 c718b26c c718b262
+Call Trace: [<c0105ab4>] [<c0105dc50>] [<c9oe9dd5>] [<c90dd37a>] [<c90dd6d9>] [<c011efd5>] [<c90dd95a>] [<c0108411>] [<c01086c6>] [<c010a648>]
 
-long dummy;
+Code: 0f 0b 8d 65 c8 5b 5e 5f 89 ec 5d c3 89 f6 55 89 e5 83 ec 10
+<o>kernel panic: Aiee, killing interrupt handler!
+In interupt handler - not syncing
 
-long doit(void)
-{
-	long long start, end;
-	long val;
-
-	start = rdtsc();
-#ifdef USE_STK
-#define WHICH	"stk"
-	__asm__ __volatile__(
-                "movl $0x0003c000,%%eax  \n" // 4 bits at bit 14
-                "movl $-16384,%%edx      \n" // remove low 14 bits
-                "andl %%esp,%%eax		\n"
-                "andl %%esp,%%edx		\n"
-                "shrl $7,%%eax           \n" // color it by 128 bytes
-                "addl %%edx,%%eax		\n"
-		: "=a" (val) :: "edx");
-#else
-#define WHICH "cr2"
-        __asm__ __volatile__("movl %%cr2,%0" : "=r" (val));
-#endif
-	val += 100;
-	dummy = val;
-	end = rdtsc();
-
-	return end - start;
-}
-
-long doit2(void)
-{
-	long long start, end;
-	long val;
-
-	start = rdtsc();
-	val = dummy;
-        __asm__ __volatile__("movl %0,%%cr2" : "=r" (val));
-	end = rdtsc();
-
-	return end - start;
-}
-
-int test_init (void)
-{
-	long min = 1000000000, av = 0;
-	int i;
-	for (i=0; i<100; i++) {
-		long dur = doit();
-		if (dur < min)
-			min = dur;
-		av += dur;
-	}
-	printk("read " WHICH " best: %ld  av: %ld.%02ld\n", min, av / 100, av % 100);
-
-	min = 10000000;
-	av = 0;
-	for (i=0; i<100; i++) {
-		long dur = doit2();
-		if (dur < min)
-			min = dur;
-		av += dur;
-	}
-	printk("write cr2 " WHICH " best: %ld  av: %ld.%02ld\n", min, av / 100, av % 100);
-	return -ENODEV;
-}
-
-void test_exit(void)
-{
-	return;
-}
-
-module_init(test_init);
-module_exit(test_exit);
-MODULE_LICENSE("GPL");
----snip---
+--3V7upXqbjpZ4EhLz--

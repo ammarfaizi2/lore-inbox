@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbUK3To7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbUK3Tp4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262289AbUK3To7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 14:44:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbUK3Tm5
+	id S262277AbUK3Tp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 14:45:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbUK3TpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 14:42:57 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:11166 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262289AbUK3TmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 14:42:13 -0500
+	Tue, 30 Nov 2004 14:45:12 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:42977 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262277AbUK3Tn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 14:43:29 -0500
+Date: Tue, 30 Nov 2004 19:43:28 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Jeff Mahoney <jeffm@suse.com>,
+       James Morris <jmorris@redhat.com>
 Subject: Re: 2.6.10-rc2-mm4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041130183151.GA26967@infradead.org>
-References: <20041130095045.090de5ea.akpm@osdl.org>
-	 <1101837994.2640.67.camel@laptop.fenrus.org>
-	 <20041130183151.GA26967@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1101839913.25609.102.camel@localhost.localdomain>
+Message-ID: <20041130194328.GA28126@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Chris Wright <chrisw@osdl.org>,
+	Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>, Jeff Mahoney <jeffm@suse.com>,
+	James Morris <jmorris@redhat.com>
+References: <20041130095045.090de5ea.akpm@osdl.org> <1101842310.4401.111.camel@moss-spartans.epoch.ncsc.mil> <20041130112903.C2357@build.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 30 Nov 2004 18:38:37 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041130112903.C2357@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-11-30 at 18:31, Christoph Hellwig wrote:
-> The purpose is probably to work around 32bit DMA limited devices on the broken
-> iAMD64 systems.
-> 
-> But I think it's a bad idea, x86_64 doesn't use CONFIG_HIGHMEM at all currenly,
-> and it could easily use it for that purpose like in the patch in older RH
-> kernels for ia64.
+On Tue, Nov 30, 2004 at 11:29:03AM -0800, Chris Wright wrote:
+> My concerns are that the check has to be duplicated in any module,
+> and that thus far we've tried to keep out fs -> module communication,
+> letting vfs do it.  This could at least be fs -> vfs communication,
+> and then either vfs or security framework could check flags and never
+> call into module on fs private objects.
 
-We had very bad experiences with zone balancing that configuration and
-I'm concerned we'd see the same again with such a zone on systems.
-Particulary since nothing I can find needs such a zone but can use
-swiommu and the I/O MMU on some AMD boxes.
+(1) an inode beeing private could have much more uses even outside LSM
+(2) it's an awfull lot of code where having a flag is really little code
+(3) there 's lots of room in the inode flags
 
+I can't find anything that speaks for the messy current implementation
 

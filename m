@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263235AbTJBE0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 00:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263236AbTJBE0Y
+	id S262069AbTJBECQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 00:02:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263236AbTJBECQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 00:26:24 -0400
-Received: from mail01.hansenet.de ([213.191.73.61]:44488 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S263235AbTJBE0W
+	Thu, 2 Oct 2003 00:02:16 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:26775 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262069AbTJBECO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 00:26:22 -0400
-From: Malte =?iso-8859-1?q?Schr=F6der?= <MalteSch@gmx.de>
-To: Dan Hollis <goemon@anime.net>, linux-kernel@vger.kernel.org
-Subject: Re: problem with IDE TCQ on 2.6.0-test6
-Date: Thu, 2 Oct 2003 06:25:45 +0200
-User-Agent: KMail/1.5.3
-References: <Pine.LNX.4.44.0310011659580.32373-100000@sasami.anime.net>
-In-Reply-To: <Pine.LNX.4.44.0310011659580.32373-100000@sasami.anime.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_Qj6e/SwxPZPYBJv";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310020625.52761.MalteSch@gmx.de>
+	Thu, 2 Oct 2003 00:02:14 -0400
+Date: Wed, 1 Oct 2003 21:02:06 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHES] today's batch of "nuking kernel/ksyms.c"
+Message-ID: <20031002040206.GA2382@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20031002030338.GB1699@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031002030338.GB1699@conectiva.com.br>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If this is all the same idea why are you putting it in multiple changesets?
+Where I work we have a rule "one idea, one changeset", which makes it far
+easier to track down problems later.
 
---Boundary-02=_Qj6e/SwxPZPYBJv
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
-
-Hi List,
-I just tried TCQ (hdparm -Q32) on a box with a IBM-DTLA-307030 and a=20
-IC35L120AVVA07-0 and I see the same messages when I create heavy=20
-reading-load.
-
-On Thursday 02 October 2003 02:04, Dan Hollis wrote:
-> We have a bunch of IC35L180AVV207-1 in raid1 configuration.
->
-> If we enable IDE TCQ, we get a 'ide_dmaq_intr: stat=3D40, not expected'
-> every few seconds. If TCQ is disabled, the messages are gone.
->
-> Replies in private email, i'm not subscribed to the list.
->
-> -Dan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-=2D-=20
-=2D--------------------------------------
-Malte Schr=F6der
-MalteSch@gmx.de
-ICQ# 68121508
-=2D--------------------------------------
-
-
---Boundary-02=_Qj6e/SwxPZPYBJv
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/e6jQ4q3E2oMjYtURAsV2AKCmibnddkk7Y7g5/nGjf+o0Ijgk0gCgma0/
-P7SVwajNIwpM5K1CPCXU/5I=
-=Ea/X
------END PGP SIGNATURE-----
-
---Boundary-02=_Qj6e/SwxPZPYBJv--
-
+On Thu, Oct 02, 2003 at 12:03:38AM -0300, Arnaldo Carvalho de Melo wrote:
+> ChangeSet@1.1396, 2003-10-02 02:39:04-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/fcntl.c
+> ChangeSet@1.1395, 2003-10-02 02:32:40-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/attr.c
+> ChangeSet@1.1394, 2003-10-02 02:28:31-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/filesystems.c
+> ChangeSet@1.1393, 2003-10-02 02:14:22-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/fs-writeback.c
+> ChangeSet@1.1392, 2003-10-02 02:10:28-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/partitions/check.c
+> ChangeSet@1.1391, 2003-10-02 02:02:17-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/select.c
+> ChangeSet@1.1390, 2003-10-02 01:54:54-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/locks.c
+> ChangeSet@1.1389, 2003-10-02 01:46:05-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/namespace.c
+> ChangeSet@1.1388, 2003-10-02 01:31:38-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/file_table.c
+> ChangeSet@1.1387, 2003-10-02 01:26:03-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/open.c
+> ChangeSet@1.1386, 2003-10-02 01:17:47-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/stat.c
+> ChangeSet@1.1385, 2003-10-02 01:04:15-03:00, acme@parisc.kerneljanitors.org
+>   o kernel/ksyms.c: move relevant EXPORT_SYMBOLs to fs/read_write.c

@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbTKXXB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 18:01:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTKXXAL
+	id S261506AbTKXW6n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 17:58:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbTKXW6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 18:00:11 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60677 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261602AbTKXW7x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 17:59:53 -0500
+	Mon, 24 Nov 2003 17:58:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55974 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261506AbTKXW6g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 17:58:36 -0500
+Date: Mon, 24 Nov 2003 14:58:35 -0800
+From: cliff white <cliffw@osdl.org>
 To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [RFC] generalise scheduling classes
-Date: 24 Nov 2003 22:48:57 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bpu1sp$vil$1@gatekeeper.tmr.com>
-References: <20031117021511.GA5682@averell> <1010800000.1069532100@[10.10.2.4]> <3FC01817.3090705@cyberone.com.au> <3FC0A0C2.90800@cyberone.com.au>
-X-Trace: gatekeeper.tmr.com 1069714137 32341 192.168.12.62 (24 Nov 2003 22:48:57 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+Subject: Announce: Kernel Tinderbox (OSDL)
+Message-Id: <20031124145835.5ab123cc.cliffw@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3FC0A0C2.90800@cyberone.com.au>,
-Nick Piggin  <piggin@cyberone.com.au> wrote:
+Announcing: Linux Kernel Tinderbox
 
-| We still don't have an HT aware scheduler, which is unfortunate because
-| weird stuff like that looks like it will only become more common in future.
+We are pleased to announce Tinderbox-based tool which Linux kernel
+developers can leverage to flag defects and regressions in the Linux
+kernel and to relate these defects and regressions to recent change sets
+for the kernel.  The tool is under continuing development and it allows
+for distributed testing of the kernel using multiple hardware platforms
+and software configurations.  
 
-The idea is hardly new, in the late 60's GE (still a mainframe vendor at
-that time) was looking at two execution units on a single memory path.
-They decided it would have problems with memory bandwidth, what else is
-new?
+This tool is derived from the Mozilla Tinderbox infrastructure, with
+much help from the kind people at Async (http://www.async.com.br/) The
+Linux Kernel Tinderbox is a client-server system: The clients  do a
+continuous cycle of checking out, compiling and testing the latest 
+code integrated into the source repository.  The server provides 
+output as a set of web pages, showing current changes to the kernel 
+tree and state of the client machines.  Client status is displayed as 
+a set of time-ordered coloured boxes arranged into columns, one per
+client. 
 
+A prototype for the Linux Kernel Tinderbox is viewable at:
+
+http://tinderbox.osdl.org/showbuilds.pl?tree=linux2.5-bk
+
+Project documentation is located at:
+
+http://www.osdl.org/cgi-bin/osdl_development_wiki.pl?Linux_Kernel_Tinderbox
+
+This project will support any architecture capable of running Linux. It
+is our intent to encourage owners of these various hardware platforms to
+contribute Tinderbox clients.
+
+The basic kernel tinderbox client is at: 
+http://developer.osdl.org/cliffw/kernel_tinderclient.tar.gz
+
+Support is via a mailing list:
+Kernel-tinderbox@lists.osdl.org
+http://lists.osdl.org/mailman/listinfo/kernel-tinderbox
+
+Let us know if you can provide a non-Intel client machine
+
+Cliff White
+John Cherry
+OSDL
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+The church is near, but the road is icy.
+The bar is far, but i will walk carefully. - Russian proverb

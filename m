@@ -1,110 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267709AbUHEPsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267757AbUHEPyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267709AbUHEPsi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 11:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267629AbUHEPrK
+	id S267757AbUHEPyc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 11:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267758AbUHEPyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 11:47:10 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:10375 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S267756AbUHEPpu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 11:45:50 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: 2.6.8-rc3-mm1: ip2mainc-add-missing-pci_enable_device breaks compilation
-Date: Thu, 5 Aug 2004 09:45:40 -0600
+	Thu, 5 Aug 2004 11:54:31 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:27115 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S267757AbUHEPxa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 11:53:30 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] scheduling while atomic in visor/serial (2.6.8-rc2-mm2)
+Date: Thu, 5 Aug 2004 08:46:12 -0700
 User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040805031918.08790a82.akpm@osdl.org> <20040805123809.GF2746@fs.tum.de>
-In-Reply-To: <20040805123809.GF2746@fs.tum.de>
+Cc: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org
+References: <20040805072410.GA10350@gamma.logic.tuwien.ac.at>
+In-Reply-To: <20040805072410.GA10350@gamma.logic.tuwien.ac.at>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408050945.40470.bjorn.helgaas@hp.com>
+Message-Id: <200408050846.12661.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 August 2004 6:38 am, Adrian Bunk wrote:
-> This causes the following compile error:
-> drivers/char/ip2main.c:445: request for member `pci_dev' in something not a structure or union
+On Thursday 05 August 2004 00:24, Norbert Preining wrote:
+> Hi USB Gurus!
+> 
+> 2.6.8-rc2-mm2
+> 
+> It just happened to me that my X stopped working (all frozen) while
+> syncing my palm. Sysrq/syslog brought forth:
+> 
+> vmunix: bad: scheduling while atomic!
+> vmunix:  [<c0306098>] schedule+0x3d8/0x3e0
+> vmunix:  [<f0cc273d>] usb_kill_urb+0xdd/0x160 [usbcore]
 
-Thanks for finding this.  Andrew, if you replace that patch with the
-following, it should fix it.  The error occurs when CONFIG_COMPUTONE=m,
-so I've now built it as both built-in and a module.
+Looks like a synchronous unlink from a call context that
+requires asynchronous unlinks ...
+
+> vmunix:  [<c0116ba0>] autoremove_wake_function+0x0/0x50
+> vmunix:  [<c0116ba0>] autoremove_wake_function+0x0/0x50
+> vmunix:  [<f0cc2650>] usb_unlink_urb+0x40/0x50 [usbcore]
+> vmunix:  [<f0de3608>] serial_throttle+0x38/0x90 [usbserial]
+> vmunix:  [<c01e8a7f>] n_tty_receive_buf+0x1cf/0xe50
+
+... aha!  TTY layer, and flush_to_ldisc() ... I seem to recall that
+function is inconsistent about its locking policy.  Evidently
+something about this call gave you the undesirable one.
 
 
-I don't have this hardware, so this has been compiled but not tested.
+> vmunix:  [<f12c2828>] _nv001903rm+0x98/0xa4 [nvidia]
+> vmunix:  [<f0cbd912>] usb_get_dev+0x12/0x20 [usbcore]
+> vmunix:  [<f0bca72e>] uhci_submit_common+0x1ee/0x2a0 [uhci_hcd]
+> vmunix:  [<f0cc1b86>] hcd_submit_urb+0x106/0x190 [usbcore]
+> vmunix:  [<c01e7468>] flush_to_ldisc+0x98/0x100
 
-Add pci_enable_device()/pci_disable_device().  In the past, drivers
-often worked without this, but it is now required in order to route
-PCI interrupts correctly.  In addition, this driver incorrectly used
-the IRQ value from PCI config space rather than the one in the struct
-pci_dev.
+Someone's going to have to sort this out starting from about
+right here... 
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-
-===== drivers/char/ip2main.c 1.44 vs edited =====
---- 1.44/drivers/char/ip2main.c	2004-04-14 11:08:00 -06:00
-+++ edited/drivers/char/ip2main.c	2004-08-05 09:37:22 -06:00
-@@ -440,6 +440,12 @@
- 	// free memory
- 	for (i = 0; i < IP2_MAX_BOARDS; i++) {
- 		void *pB;
-+#ifdef CONFIG_PCI
-+		if (ip2config.type[i] == PCI && ip2config.pci_dev[i]) {
-+			pci_disable_device(ip2config.pci_dev[i]);
-+			ip2config.pci_dev[i] = NULL;
-+		}
-+#endif
- 		if ((pB = i2BoardPtrTable[i]) != 0 ) {
- 			kfree ( pB );
- 			i2BoardPtrTable[i] = NULL;
-@@ -594,9 +600,14 @@
- 							  PCI_DEVICE_ID_COMPUTONE_IP2EX, pci_dev_i);
- 				if (pci_dev_i != NULL) {
- 					unsigned int addr;
--					unsigned char pci_irq;
- 
-+					if (pci_enable_device(pci_dev_i)) {
-+						printk( KERN_ERR "IP2: can't enable PCI device at %s\n",
-+							pci_name(pci_dev_i));
-+						break;
-+					}
- 					ip2config.type[i] = PCI;
-+					ip2config.pci_dev[i] = pci_dev_i;
- 					status =
- 					pci_read_config_dword(pci_dev_i, PCI_BASE_ADDRESS_1, &addr);
- 					if ( addr & 1 ) {
-@@ -604,8 +615,6 @@
- 					} else {
- 						printk( KERN_ERR "IP2: PCI I/O address error\n");
- 					}
--					status =
--					pci_read_config_byte(pci_dev_i, PCI_INTERRUPT_LINE, &pci_irq);
- 
- //		If the PCI BIOS assigned it, lets try and use it.  If we
- //		can't acquire it or it screws up, deal with it then.
-@@ -614,7 +623,7 @@
- //						printk( KERN_ERR "IP2: Bad PCI BIOS IRQ(%d)\n",pci_irq);
- //						pci_irq = 0;
- //					}
--					ip2config.irq[i] = pci_irq;
-+					ip2config.irq[i] = pci_dev_i->irq;
- 				} else {	// ann error
- 					ip2config.addr[i] = 0;
- 					if (status == PCIBIOS_DEVICE_NOT_FOUND) {
-===== drivers/char/ip2/ip2types.h 1.1 vs edited =====
---- 1.1/drivers/char/ip2/ip2types.h	2002-02-05 10:40:06 -07:00
-+++ edited/drivers/char/ip2/ip2types.h	2004-08-04 12:20:02 -06:00
-@@ -49,6 +49,9 @@
- 	short irq[IP2_MAX_BOARDS]; 
- 	unsigned short addr[IP2_MAX_BOARDS];
- 	int type[IP2_MAX_BOARDS];
-+#ifdef CONFIG_PCI
-+	struct pci_dev *pci_dev[IP2_MAX_BOARDS];
-+#endif
- } ip2config_t;
- 
- #endif
+> vmunix:  [<f0dea741>] visor_read_bulk_callback+0x111/0x200 [visor]
+> vmunix:  [<f0bc9f45>] uhci_destroy_urb_priv+0xb5/0x100 [uhci_hcd]
+> vmunix:  [<f0cc20cd>] usb_hcd_giveback_urb+0x1d/0x60 [usbcore]
+> vmunix:  [<f0bcb549>] uhci_finish_urb+0x39/0x60 [uhci_hcd]
+> vmunix:  [<f0bcb5a3>] uhci_finish_completion+0x33/0x50 [uhci_hcd]
+> vmunix:  [<f0bcb789>] uhci_irq+0x179/0x1d0 [uhci_hcd]
+> vmunix:  [<f0cc213e>] usb_hcd_irq+0x2e/0x60 [usbcore]
+> vmunix:  [<c0106140>] handle_IRQ_event+0x30/0x60
+> vmunix:  [<c01064a0>] do_IRQ+0x90/0x130
+> vmunix:  [<c01048f4>] common_interrupt+0x18/0x20
+> vmunix: visor ttyUSB1: visor_unthrottle - failed submitting read urb, error 
+-1 

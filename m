@@ -1,59 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268551AbRG3MWF>; Mon, 30 Jul 2001 08:22:05 -0400
+	id <S268562AbRG3Mhz>; Mon, 30 Jul 2001 08:37:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268556AbRG3MVx>; Mon, 30 Jul 2001 08:21:53 -0400
-Received: from seldon.terminus.sk ([195.146.17.130]:4361 "EHLO
-	seldon.terminus.sk") by vger.kernel.org with ESMTP
-	id <S268551AbRG3MVl>; Mon, 30 Jul 2001 08:21:41 -0400
-Date: Mon, 30 Jul 2001 14:26:23 +0200 (CEST)
-From: Milan WWW Pikula <www@terminus.sk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Announce: fs-salvage mailing list
-Message-ID: <Pine.LNX.4.20.0107301425040.17482-100000@seldon.terminus.sk>
-X-NCC-RegID: sk.napri
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268570AbRG3Mhp>; Mon, 30 Jul 2001 08:37:45 -0400
+Received: from [62.116.8.197] ([62.116.8.197]:10624 "HELO
+	ghanima.endorphin.org") by vger.kernel.org with SMTP
+	id <S268562AbRG3Mhm>; Mon, 30 Jul 2001 08:37:42 -0400
+Date: Mon, 30 Jul 2001 14:13:59 +0200
+From: clemens <therapy@endorphin.org>
+To: netdev@oss.sgi.com
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: final words on udp/ICMP dest unreach issue [+PATCH]
+Message-ID: <20010730141359.A450@ghanima.endorphin.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
-Hi,
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-	I'd like to announce the mailing list, targeted on filesystem repair
-and crash recovery. The mailing list is for discussion of the methods
-for data rescuing, algorithms, hints, existing tools and utilities.
+hi!
 
-	You are invited to join, if you are:
+concerning the bug discussed in the "missing icmp errors for udp
+packets"-thread on netdev a solution has been found.
 
-	* interested in the methods of data rescuing
-	* developer of some filesystem repair tools (fsck, ...)
-	* the one who already lost the data and wants it back ;)
-	* (developer of) or (expert on) a particular filesystem
+here comes the bug (see net/ipv4/icmp.c): 
 
-	You can browse the archives of list at
+#define XRLIM_BURST_FACTOR 6
+int xrlim_allow(struct dst_entry *dst, int timeout)
+{
+ 	unsigned long now;
 
-		http://list.terminus.sk/fs-salvage
+  	now = jiffies;
+  	dst->rate_tokens += now - dst->rate_last;
+  	dst->rate_last = now;
+#1:  	if (dst->rate_tokens > XRLIM_BURST_FACTOR*timeout)    
+#2:  		dst->rate_tokens = XRLIM_BURST_FACTOR*timeout;
+#3:  	if (dst->rate_tokens >= timeout) {
+   		dst->rate_tokens -= timeout;
+                return 1;   
+        }
+ 	return 0;
+}
 
-	(though they are empty yet:) and you can subscribe by
-sending a message containing
+for timeout=0 rate_tokens will be reset to 0 tokens (#2), since #1 always
+holds.
+(icmp ping does have timeout=0, for instance)
+this doesn't cause the packet to be filtered, since in #2
+holds, but will cause the following packet to be filtered, if sent
+before (now - dst->rate_last) < timeout.
+(note: timeout is not 0 in this inequation, since it's the 
+timeout of the icmp type of the following packet)
 
-		subscribe fs-repair
+a patch is attached.
 
-	in the body of message to address list@list.terminus.sk
+thanks to all contributors, especially pekka savola, for discovering
+that pinging before udp scanning will cause the troubles, and alexey 
+for suppling an alternative patch (for those intrested:
+http://therapy.endorphin.org/alexey.patch)
 
-	Regards,
+alan, please take care of that. 
 
-		Milan Pikula
+greets, clemens
 
---
-Milan Pikula, WWW. Finger me for Geek Code.
-http://fornax.elf.stuba.sk/~www, www@fornax.elf.stuba.sk
-.. dajte mi pevnu linku a pohnem zemegulou ..
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="icmp-xrlim_allow.patch"
 
+--- linux/net/ipv4/icmp.c~	Thu Jun 21 06:00:55 2001
++++ linux/net/ipv4/icmp.c	Mon Jul 30 13:32:56 2001
+@@ -16,6 +16,9 @@
+  *	Other than that this module is a complete rewrite.
+  *
+  *	Fixes:
++ *	Clemens Fruhwirth	:	Fix incorrect limiting in xrlim_allow
++ *					for a packet succedding a packet with 
++ *					timeout==0.
+  *		Mike Shaver	:	RFC1122 checks.
+  *		Alan Cox	:	Multicast ping reply as self.
+  *		Alan Cox	:	Fix atomicity lockup in ip_build_xmit 
+@@ -223,11 +226,6 @@
+  *	Note that the same dst_entry fields are modified by functions in 
+  *	route.c too, but these work for packet destinations while xrlim_allow
+  *	works for icmp destinations. This means the rate limiting information
+- *	for one "ip object" is shared.
+- *
+- *	Note that the same dst_entry fields are modified by functions in 
+- *	route.c too, but these work for packet destinations while xrlim_allow
+- *	works for icmp destinations. This means the rate limiting information
+  *	for one "ip object" is shared - and these ICMPs are twice limited:
+  *	by source and by destination.
+  *
+@@ -241,9 +239,12 @@
+ {
+ 	unsigned long now;
+ 
++	if (0 == timeout) return 1;
++
+ 	now = jiffies;
+ 	dst->rate_tokens += now - dst->rate_last;
+ 	dst->rate_last = now;
++
+ 	if (dst->rate_tokens > XRLIM_BURST_FACTOR*timeout)
+ 		dst->rate_tokens = XRLIM_BURST_FACTOR*timeout;
+ 	if (dst->rate_tokens >= timeout) {
 
-
-
-
-
+--lrZ03NoBR/3+SXJZ--

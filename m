@@ -1,67 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268730AbUHaQIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268737AbUHaQJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268730AbUHaQIF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 12:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268737AbUHaQIE
+	id S268737AbUHaQJh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 12:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268754AbUHaQJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 12:08:04 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:14729 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268730AbUHaQHf (ORCPT
+	Tue, 31 Aug 2004 12:09:37 -0400
+Received: from dev.tequila.jp ([128.121.50.153]:61190 "EHLO dev.tequila.jp")
+	by vger.kernel.org with ESMTP id S268737AbUHaQJc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 12:07:35 -0400
-Message-ID: <4134A22F.7000103@us.ibm.com>
-Date: Tue, 31 Aug 2004 09:07:11 -0700
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+	Tue, 31 Aug 2004 12:09:32 -0400
+Message-ID: <4134A2B3.1010008@tequila.co.jp>
+Date: Wed, 01 Sep 2004 01:09:23 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
-Subject: Re: [rfc][patch] DRM initial function table support.
-References: <Pine.LNX.4.58.0408311409530.18657@skynet> <20040831152015.GC22978@redhat.com>
-In-Reply-To: <20040831152015.GC22978@redhat.com>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: oops in 2.6.8.1-mm4 and usb
+References: <4134445B.3040400@tequila.co.jp>
+In-Reply-To: <4134445B.3040400@tequila.co.jp>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Tue, Aug 31, 2004 at 02:11:11PM +0100, Dave Airlie wrote:
-> 
-> One thing that would make things even nicer would be..
-> 
-> instead of this..
-> 
->  > +void gamma_driver_register_fns(drm_device_t *dev)
->  > +{
->  > +	dev->fn_tbl.preinit = gamma_driver_preinit;
->  > +	dev->fn_tbl.pretakedown = gamma_driver_pretakedown;
->  > +	dev->fn_tbl.dma_ready = gamma_driver_dma_ready;
->  > +	dev->fn_tbl.dma_quiescent = gamma_driver_dma_quiescent;
->  > +	dev->fn_tbl.dma_flush_block_and_flush = gamma_flush_block_and_flush;
->  > +	dev->fn_tbl.dma_flush_unblock = gamma_flush_unblock;
->  > +}
-> 
-> having a per-driver struct with regular C99 initialisers..
-> 
-> struct gamma_driver_fntbl {
-> 	.preinit = gamma_driver_preinit,
-> 	.pretakedown = gamma_driver_pretakedown,
-> 	.dma_ready = gamma_driver_dma_ready,
-> 	.dma_quiescent = gamma_driver_dma_quiescent,
-> 	.dma_flush_block_and_flush = gamma_flush_block_and_flush,
-> 	.dma_flush_unblock = gamma_flush_unblock,
-> };
+Clemens Schwaighofer wrote:
+> Hi,
 
-I think the intention is to have default functions set in the 
-device-independent code and have the device-dependent code over-ride 
-them.  Since the defaults may not always be NULL, doing a struct like 
-that wouldn't really work.  I suppose we could have a struct and a 
-device-independent function that copies the non-NULL pointers from the 
-per-device struct.  Would that be better?
+> So I could mount it and then copied some files there. But when I tried
+> to unmount the disk light on the iriver never went of. So after ~1 hour
+> I just pulled the usb cable. I got the oops (see below). The files where
+> never copied to the device at the end.
+> 
+> System is a debian unstable. Kernel 2.6.8.1-mm4, config file attached.
 
-> Thanks for doing this work, it really is starting to look a little more
-> like a Linux driver 8-)
+One more thing: this oops *always* happens on unmount or usb shutdown. 
+eg when I shutdown the system and the iRiver is still connected. That 
+oops gets thrown and the system doesn't shutdown anymore.
 
-I second that!
-
+lg, clemens

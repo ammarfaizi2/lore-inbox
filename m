@@ -1,117 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbVC3Wsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVC3Wvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbVC3Wsp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 17:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVC3Wsp
+	id S262472AbVC3Wvr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 17:51:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVC3Wvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 17:48:45 -0500
-Received: from icecream.egps.com ([38.119.130.6]:25094 "EHLO mail.egps.com")
-	by vger.kernel.org with ESMTP id S262470AbVC3Ws2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 17:48:28 -0500
-Date: Wed, 30 Mar 2005 17:48:28 -0500
-From: Nachman Yaakov Ziskind <awacs@ziskind.us>
-To: linux-kernel@vger.kernel.org
-Subject: Slow SCSI perf in RH 7.3
-Message-ID: <20050330174828.B27631@egps.egps.com>
-Reply-To: awacs@ziskind.us
+	Wed, 30 Mar 2005 17:51:46 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:63161 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262528AbVC3Wus
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 17:50:48 -0500
+Subject: Re: [RFC] Driver States
+From: Adam Belay <abelay@novell.com>
+To: Patrick Mochel <mochel@digitalimplant.org>, Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
+In-Reply-To: <Pine.LNX.4.50.0503292155120.26543-100000@monsoon.he.net>
+References: <1111963367.3503.152.camel@localhost.localdomain>
+	 <Pine.LNX.4.50.0503292155120.26543-100000@monsoon.he.net>
+Content-Type: text/plain
+Date: Wed, 30 Mar 2005 17:45:16 -0500
+Message-Id: <1112222717.3503.213.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Mailer: Outlook stinks. Dump Outlook.
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a server:
-2.4.20-28.7 #1 Thu Dec 18 11:31:59 EST 2003 i686
+On Tue, 2005-03-29 at 21:57 -0800, Patrick Mochel wrote:
+> On Sun, 27 Mar 2005, Adam Belay wrote:
+> 
+> > Dynamic power management may require devices and drivers to transition
+> > between various physical and logical states.  I would like to start a
+> > discussion on how these might be defined at the bus, driver, and class
+> > levels.
+> 
+> <snip>
+> 
+> > Bus Level
+> > =========
+> > At the bus level, there are two state attributes, power and
+> > enable/disable.  Enable/disable may mean different things on different
+> > buses, but they generally refer to resource decoding.  A device can only
+> > be enabled during a non-off power state.
+> 
+> <...>
+> 
+> > Driver Level
+> > ============
+> > At the driver level there are two areas of interest, physical and
+> > logical state.  There is an additional concern of transitioning between
+> > these states multiple times.  Because a driver acts as a bridge between
+> > physical and logical components, I think separating these steps seems
+> > natural.
+> 
+> <...>
+> 
+> > *attach - allocates data structures, creates sysfs entries, prepares driver
+> >        to handle the hardware.
+> >
+> > *start -  Sets up device resources and configures the hardware.  Loads
+> > firmware, etc.
+> > (physical)
+> >
+> > *open -   engages the hardware, and makes it usable by the class device.
+> > (logical and physical)
+> >
+> > *close -  disengages the hardware, and stops class level access
+> > (logical and physical)
+> >
+> > *stop -   physically disables the hardware
+> > (physical)
+> >
+> > *detach - tears down the driver and releases it from the "struct device"
+> >
+> 
+> You have a few things here that can easily conflict, and that will be
+> developed at different paces. I like the direction that it's going, but
+> how do you intend to do it gradually. I.e. what to do first?
 
-with SCSI hard disks (not raid):
+I think the first step would be for us to all agree on a design, whether
+it be this one or another, so we can began planning for long term
+changes.
 
-SCSI subsystem driver Revision: 1.00
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
-        <Adaptec 3960D Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+My arguments for these changes are as follows:
 
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
-        <Adaptec 3960D Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
+     1. If a device has been powered off, powered on, and restored in
+        state, it is identical to a device that the driver is
+        configuring for the first time.  So calling "*start" as part of
+        device resume seems like a logical course of action.
+     2. Being able to start and stop a device is useful outside the
+        realm of power management.  It's required for resource
+        re-balancing.  Also, the user may want to disable a device, but
+        the device must still be able to save state and react correctly
+        during a suspend.  Allowing the user to start and stop drivers
+        gives more flexibility to userspace utilities.  There may be
+        sysfs configuration files that can only be changed when the
+        device isn't active.  Resource configuration cannot be changed
+        when the device is in use.
+     3. *open and *close also might be a possibility.  When a device is
+        put into a lower power state, we want to stop driver timers and
+        prepare the hardware to be inactive, which is exactly the role
+        of "*close".  See the existing code in most net drivers.  I
+        would like to note, however, that this portion of the API is
+        optional, and needs to be looked into further.  I'm considering
+        dropping it in favor of having suspend and resume handle this.
+     4. Having responsibilities at each driver level encourages a
+        layered and object based design, reducing code duplication and
+        complexity.
 
-blk: queue dfdbe014, I/O limit 4095Mb (mask 0xffffffff)
-  Vendor: FUJITSU   Model: MAP3367NP         Rev: 5605
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-blk: queue dfdbe214, I/O limit 4095Mb (mask 0xffffffff)
-  Vendor: FUJITSU   Model: MAP3367NP         Rev: 5605
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-blk: queue dfdbe614, I/O limit 4095Mb (mask 0xffffffff)
-  Vendor: SEAGATE   Model: ST373307LW        Rev: 0005
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-blk: queue dfdbea14, I/O limit 4095Mb (mask 0xffffffff)
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
-scsi0:A:1:0: Tagged Queuing enabled.  Depth 32
-scsi0:A:4:0: Tagged Queuing enabled.  Depth 32
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Attached scsi disk sdb at scsi0, channel 0, id 1, lun 0
-Attached scsi disk sdc at scsi0, channel 0, id 4, lun 0
-(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-SCSI device sda: 71132959 512-byte hdwr sectors (36420 MB)
-Partition check:
- sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 sda9 >
-(scsi0:A:1): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-SCSI device sdb: 71132959 512-byte hdwr sectors (36420 MB) sdb: sdb1
-(scsi0:A:4): 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-SCSI device sdc: 143374744 512-byte hdwr sectors (73408 MB) sdc: sdc1
-Journalled Block Device driver loaded
+* "*start" and "*stop" might even be useful for device error detection.
+(Ex. we currently have no notion of starting up a device over again
+after a hardware failure)
 
-used for graphic files server to Apples (via Netatalk 1.5.2-3) with ext3. OS 
-on one disk, data files on the other two. IDE removable storage.
+I think the next step would be to look at each class subsystem, and
+verify that our proposed API could work well with it.  If it's going to
+change the design of many device drivers, we want to make sure we get it
+right.
 
-It's great with only one user, but with multiple Apple users, it does a
-passable impression of a boat anchor. Even ssh then comes back one character 
-at a time. Top shows nothing out the ordinary, I think. Here's some typical 
-'sar -b' stuff:
+>From there, the bus level changes could be made, as they would affect
+the least upstream code.  Things like PCI PM could also be improved
+during this stage.  Greg, I know that adding *enable, and *disable to
+"struct bus_type" would be nice for PCI, ACPI, etc, as it would control
+whether resources are decoded and other device initialization
+requirements.  What about external devices such as USB?  Would such as
+interface be useful for other buses?
 
-03:20:00 PM       tps      rtps      wtps   bread/s   bwrtn/s
-03:30:00 PM      3.97      1.97      2.00     75.65     37.09
-03:40:00 PM      4.41      2.32      2.09    336.19    122.32
-03:50:00 PM      2.93      1.87      1.05    326.00    131.52
-04:00:00 PM      2.44      1.80      0.65    294.09     27.97
-04:10:00 PM      2.16      0.58      1.57    107.37     53.69
-04:20:00 PM      0.81      0.16      0.66     32.26     31.38
-04:30:00 PM      1.78      0.72      1.06     84.34     94.09
-04:40:00 PM      1.28      0.55      0.73     55.81     97.88
-04:50:00 PM      0.69      0.21      0.48      3.78     13.29
-05:00:01 PM      1.82      0.51      1.32      6.02     51.81
-05:10:00 PM      1.22      0.04      1.18      0.72     89.07
-05:20:00 PM      2.60      1.13      1.47     63.19     30.13
-05:30:00 PM      1.36      0.31      1.05      3.44     46.59
-Average:         2.51      1.57      0.94     42.79     32.36
+Next, we could make changes to "struct device_driver".  As to not break
+things, (*start or *attach) and (*stop or *detach) could be temporarily
+mapped to *probe and *remove until everything is fixed up.  This hack
+could be made at the bus level, so the fixes could be applied one bus at
+a time.
+
+The final step would be to introduce "*open and *close", if we decide to
+use them, and also class device *start and *stop.  Pat, do you have any
+comments on adding *start and *stop to class devices?  It seems like an
+interesting possibility to me.
+
+Thanks,
+Adam
 
 
-which I wish I knew well enough to interpret. :-(
-
-So, I'd like to do *something* to speed things up. The likely suspects are:
-
-1) Tweak the kernel somehow, in the knowledge that I'll probably just make
-things worse (caching?)
-
-2) Buy RAID (which level do I want? Is SATA raid faster than SCSI non-raid?)
-
-3) Buy nicer/more expensive hard disks on the current controller, or, perhaps,
-a faster non-raid controller.
-
-All the connections, terminators, etc. seem happy. 
-
-I would consider trading a little reliability for a lot of performance.
-
-The inevitable omitted information upon request. I was hoping for some
-suggestions from some very kind list members.
-
-Thanks!
-
--- 
-_________________________________________
-Nachman Yaakov Ziskind, FSPA, LLM       awacs@ziskind.us
-Attorney and Counselor-at-Law           http://ziskind.us
-Economic Group Pension Services         http://egps.com
-Actuaries and Employee Benefit Consultants

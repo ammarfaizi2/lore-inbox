@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263098AbUC2TLK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 14:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbUC2TLJ
+	id S263100AbUC2TTG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 14:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUC2TTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 14:11:09 -0500
-Received: from mail.cyclades.com ([64.186.161.6]:24292 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263091AbUC2TLG
+	Mon, 29 Mar 2004 14:19:05 -0500
+Received: from dh132.citi.umich.edu ([141.211.133.132]:47745 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S263100AbUC2TTC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 14:11:06 -0500
-Date: Mon, 29 Mar 2004 15:54:14 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Hasso Tepper <hasso@estpak.ee>
-Cc: Phil Oester <kernel@linuxace.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-net@vger.kernel.org,
-       dlstevens@ibm.com, davem@redhat.com
-Subject: Re: Kernel panic in 2.4.25
-Message-ID: <20040329185414.GB23917@logos.cnet>
-References: <200403260035.09821.hasso@estpak.ee> <200403282033.16204.hasso@estpak.ee> <20040328182522.GA22382@linuxace.com> <200403282217.54539.hasso@estpak.ee>
+	Mon, 29 Mar 2004 14:19:02 -0500
+Subject: Re: kernel 2.6.4 and nfs lockd.udpport?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jan Kesten <rwe.piller@the-hidden-realm.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200403290958.i2T9w2fJ029554@mail.bytecamp.net>
+References: <200403290958.i2T9w2fJ029554@mail.bytecamp.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1080587948.2410.68.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403282217.54539.hasso@estpak.ee>
-User-Agent: Mutt/1.5.5.1i
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 29 Mar 2004 14:19:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-IIRC a similar problem was in v2.6.
-
-I'll dig it up.
-
-On Sun, Mar 28, 2004 at 10:17:54PM +0300, Hasso Tepper wrote:
-> Phil Oester wrote:
-> > Do you have CONFIG_IP_MULTICAST enabled in your .config?
+På må , 29/03/2004 klokka 04:58, skreiv Jan Kesten:
+> Hi all! 
 > 
-> Yes.
+> I'm running a 2.6.4 kernel with compiled in nfs support. I have to tie the 
+> used ports because there is a firewall to gro through. mountd, statd and 
+> rquotad are just fine, I can change ports after booting, no problem. But not 
+> for lockd (or nlockmgr), since AFAIK this must be done with boot parameters. 
 > 
-> > I don't, and a couple of the changes in this changeset depend upon
-> > it. 
-> >
-> > I also run ospfd, so maybe you've hit upon something here...cc'ing
-> > linux-net for comment
+> I read the docs and found that the parameters sould be lockd.udpport and 
+> lockd.tcpport=xxx - but this doesn't work. While booting I got errors that 
+> both are unknown boot options. 
+> 
+> Where is my mistake? 
+
+Someone updated lockd so that it uses a sysctl-based interface instead.
+Apparently without changing the docs.
+
+See the contents of /proc/sys/fs/nfs ...
+
+Cheers,
+  Trond

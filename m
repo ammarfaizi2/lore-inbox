@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbUAIPSy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 10:18:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUAIPSy
+	id S261974AbUAIPQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 10:16:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUAIPQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 10:18:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58315 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262041AbUAIPSw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 10:18:52 -0500
-Subject: Re: 2.6.1-mm1 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20040109014003.3d925e54.akpm@osdl.org>
-References: <20040109014003.3d925e54.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1073661847.2709.3.camel@lightning>
+	Fri, 9 Jan 2004 10:16:27 -0500
+Received: from h80ad25ea.async.vt.edu ([128.173.37.234]:3715 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261974AbUAIPPe (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 10:15:34 -0500
+Message-Id: <200401091515.i09FFSDM030918@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: What SCSI in the IBM? 
+In-Reply-To: Your message of "Fri, 09 Jan 2004 10:05:12 EST."
+             <20040109150512.GF24295@rdlg.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040109150512.GF24295@rdlg.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 09 Jan 2004 07:24:07 -0800
+Content-Type: multipart/signed; boundary="==_Exmh_-159057904P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 09 Jan 2004 10:15:28 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+--==_Exmh_-159057904P
+Content-Type: text/plain; charset=us-ascii
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+On Fri, 09 Jan 2004 10:05:12 EST, "Robert L. Harris" <Robert.L.Harris@rdlg.net>  said:
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+> The network cards in this IBM came up great once I found the right port.
+> Now though I'm trying to find what SCSI driver to use. 
 
-John
+What IBM?  Laptop? PC? Netfinity? RS6K? e/i/p/z-series?
 
+--==_Exmh_-159057904P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE//sWQcC3lWbTT17ARAmnRAKC8iyt39QdoF1Jz1wSL1sDtOtCddwCgsJ6M
+lDJq9tMIDamKuMrn9596f6k=
+=J/8e
+-----END PGP SIGNATURE-----
 
+--==_Exmh_-159057904P--

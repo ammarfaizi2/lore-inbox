@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269688AbTGJXMz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 19:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269687AbTGJXMy
+	id S269693AbTGJXQI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 19:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269694AbTGJXQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 19:12:54 -0400
-Received: from fw-az.mvista.com ([65.200.49.158]:14577 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S269688AbTGJXLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 19:11:24 -0400
-Message-ID: <3F0DF5B8.9040304@mvista.com>
-Date: Thu, 10 Jul 2003 16:24:40 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Samuel Flory <sflory@rackable.com>
-CC: Chad Kitching <CKitching@powerlandcomputers.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org, andre@linux-ide.org, frankt@promise.com
-Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21, patchattached
- to fix
-References: <18DFD6B776308241A200853F3F83D507279B@pl6w2kex.lan.powerlandcomputers.com> <3F0DE61B.1020207@rackable.com> <3F0DE8CF.9060808@mvista.com> <3F0DEDFD.5040805@rackable.com>
-In-Reply-To: <3F0DEDFD.5040805@rackable.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 10 Jul 2003 19:16:08 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:4356 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S269693AbTGJXP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 19:15:58 -0400
+Subject: Re: Linux 2.5.75
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1057879835.584.7.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 11 Jul 2003 01:30:36 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-07-10 at 23:14, Linus Torvalds wrote:
+> Ok. This is it. We (Andrew and me) are going to start a "pre-2.6" series,
+> where getting patches in is going to be a lot harder. This is the last
+> 2.5.x kernel, so take note.
 
+Is there any expected or planned timeframe to finalize the pre-2.6
+series and end up with a stable 2.6.0 kernel?
 
-Samuel Flory wrote:
+I'm worried about the current status of the 2.5 kernel scheduler. I know
+that Con is working hard to nail down all the problems that some people
+like me are having. I don't still feel comfortable with it, and although
+Con patches are several orders of magnitude better than stock scheduler,
+there are minor problems.
 
-> Steven Dake wrote:
->
->> Even with special fasttrack feature enabled, my disk devices on the 
->> PDC20276 is not found.  There is code in pci-setup.c which blocks 
->> other PDC controllers, why not the 20276?  Is that code for some 
->> other purpose, or orthagonal to the force option?
->
->
->  The comments would seem to indicate that this is only needed if you 
-> have a second controller.  Which leads me to wonder what if I have 3 
-> or 4 pdc controllers.
+Sometime ago, I made down a combo patch and, sincerely, it's the one I'm
+using the most for my desktop boxes as it's the one that gets better
+response times and interactive feeling. For my server boxes, neither my
+combo patch, neither Con or stock do feel good when the system is under
+heavy load. It suffers from starvation. Simply doing a "tar jxvf" makes
+logging into the system a PITA.
 
-Hmm thats not how I read the code.  My system has a standard IDE device 
-as part of the chipset, and then also has a fasttrack controller.  The 
-fasttrack controller comes in 2nd, (hence making it the 2nd controller 
-and making it marked disabled).  I think your right about the 3rd/4th 
-controller though, what happens to those !
--steve
-
->
->        for (port = 0; port <= 1; ++port) {
->                ide_pci_enablebit_t *e = &(d->enablebits[port]);
->
->                /*
->                 * If this is a Promise FakeRaid controller,
->                 * the 2nd controller will be marked as
->                 * disabled while it is actually there and enabled
->                 * by the bios for raid purposes.
->                 * Skip the normal "is it enabled" test for those.
->                 */
->                if (((d->vendor == PCI_VENDOR_ID_PROMISE) &&
->                     ((d->device == PCI_DEVICE_ID_PROMISE_20262) ||
->                      (d->device == PCI_DEVICE_ID_PROMISE_20265))) &&
->                    (secondpdc++==1) && (port==1))
->                        goto controller_ok;
->
->
->
->
->
->
+Just my 2 cents.
 

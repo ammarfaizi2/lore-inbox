@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268527AbTANDXW>; Mon, 13 Jan 2003 22:23:22 -0500
+	id <S268338AbTANDNv>; Mon, 13 Jan 2003 22:13:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268544AbTANDXW>; Mon, 13 Jan 2003 22:23:22 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:18082 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268527AbTANDXV>; Mon, 13 Jan 2003 22:23:21 -0500
-Subject: [PATCH][TRIVIAL] linux-2.5.57_x86-tsc-cleanup_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, trivial@rustcorp.com.au
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042514802.1514.30.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 13 Jan 2003 19:26:42 -0800
-Content-Transfer-Encoding: 7bit
+	id <S268551AbTANDMu>; Mon, 13 Jan 2003 22:12:50 -0500
+Received: from dp.samba.org ([66.70.73.150]:19363 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268548AbTANDMq>;
+	Mon, 13 Jan 2003 22:12:46 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Richard Henderson <rth@twiddle.net>
+Cc: linux-kernel@vger.kernel.org, davem@vger.kernel.org
+Subject: Re: [module-init-tools] fix weak symbol handling 
+In-reply-to: Your message of "Mon, 13 Jan 2003 11:04:57 -0800."
+             <20030113110457.A936@twiddle.net> 
+Date: Tue, 14 Jan 2003 14:16:57 +1100
+Message-Id: <20030114032138.7B1482C40D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, All,
-	Since no one complained about this over the weekend, here it is. This
-patch simply removes one more of the remaining CONFIG_X86_TSC #ifdefs
-(this one from get_cycles()). Instead of a compile time switch, it
-switches on cpu_has_tsc. 
+In message <20030113110457.A936@twiddle.net> you write:
+> The pair to the kernel patch posted a moment ago.
 
-Please apply.
+So the semantics you want are that if A declares a weak symbol S, and
+B exports a (presumably non-weak) symbol S, then A depends on B?
 
-thanks
--john
+I think that's right, given that that is what would happen if A and B
+were builtin.
 
+Now, what does Dave think about using weak symbols?  Or is this
+Alpha-specific?
 
-diff -Nru a/include/asm-i386/timex.h b/include/asm-i386/timex.h
---- a/include/asm-i386/timex.h	Mon Jan 13 17:29:06 2003
-+++ b/include/asm-i386/timex.h	Mon Jan 13 17:29:06 2003
-@@ -40,14 +40,10 @@
- 
- static inline cycles_t get_cycles (void)
- {
--#ifndef CONFIG_X86_TSC
--	return 0;
--#else
--	unsigned long long ret;
--
--	rdtscll(ret);
-+	unsigned long long ret = 0;
-+	if(cpu_has_tsc)
-+		rdtscll(ret);
- 	return ret;
--#endif
- }
- 
- extern unsigned long cpu_khz;
-
-
-
+Applied,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

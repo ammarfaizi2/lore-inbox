@@ -1,25 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267664AbUHJVli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267666AbUHJVlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267664AbUHJVli (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 17:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267756AbUHJVin
+	id S267666AbUHJVlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 17:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267753AbUHJVjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 17:38:43 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:25814 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S267753AbUHJVgt
+	Tue, 10 Aug 2004 17:39:09 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:27349 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S267740AbUHJVgV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 17:36:49 -0400
-Date: Mon, 09 Aug 2004 07:49:47 -0700
+	Tue, 10 Aug 2004 17:36:21 -0400
+Date: Sun, 08 Aug 2004 19:53:18 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Paul Jackson <pj@sgi.com>
-cc: akpm@osdl.org, hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
-       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de,
-       lse-tech@lists.sourceforge.net, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] new bitmap list format (for cpusets)
-Message-ID: <2558220000.1092062986@[10.10.2.4]>
-In-Reply-To: <20040809010106.70e74f4b.pj@sgi.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com><250840000.1091738840@flay> <20040809010106.70e74f4b.pj@sgi.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, Paul Jackson <pj@sgi.com>
+cc: alex.williamson@hp.com, haveblue@us.ibm.com,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] Re: [PATCH] cleanup ACPI numa warnings
+Message-ID: <2550950000.1092019997@[10.10.2.4]>
+In-Reply-To: <20040808143631.7c18cae9.rddunlap@osdl.org>
+References: <1091738798.22406.9.camel@tdi><1091739702.31490.245.camel@nighthawk><1091741142.22406.28.camel@tdi><249150000.1091763309@[10.10.2.4]><20040805205059.3fb67b71.rddunlap@osdl.org><20040807105729.6adea633.pj@sgi.com> <20040808143631.7c18cae9.rddunlap@osdl.org>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,36 +26,34 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Paul Jackson <pj@sgi.com> wrote (on Monday, August 09, 2004 01:01:06 -0700):
+--"Randy.Dunlap" <rddunlap@osdl.org> wrote (on Sunday, August 08, 2004 14:36:31 -0700):
 
-> I was looking at this bitmap list format patch over the weekend, and
-> came to the conclusion that the basic list format, as in the example:
+> On Sat, 7 Aug 2004 10:57:29 -0700 Paul Jackson wrote:
 > 
-> 	0,3,5,8-15
+>| > And there's nothing in CodingStyle that agrees with you that I could find.
+>| 
+>| > From the file Documentation/SubmittingPatches:
+>| 
+>|         3) 'static inline' is better than a macro
+>| 
+>|         Static inline functions are greatly preferred over macros.
+>|         They provide type safety, have no length limitations, no formatting
+>|         limitations, and under gcc they are as cheap as macros.
+>| 
+>|         Macros should only be used for cases where a static inline is clearly
+>|         suboptimal [there a few, isolated cases of this in fast paths],
+>|         or where it is impossible to use a static inline function [such as
+>|         string-izing].
 > 
-> was a valuable improvement over a fixed length hex mask, but that on the
-> other hand the support for:
+> Oops.  Thanks, Paul.
 > 
-> 	the prefix characters '=', '-', '+', or '!'
-> 
-> was fluff, that few would learn to use, and fewer find essential.
+> I agree that the inline looks better than the macro (more readable,
+> possibly more maintainable), but not that the multi-line macro
+> is _evil_ (which is what Martin said).
 
-OK, that looks a lot more palletable ;-)
-
-Question:  it looks like you're only parsing on the read-side to me (which
-is good, since it's highly unlikely to break anything existant), but the
-function bitmap_scnlistprintf is still in there - is that needed? I can't
-see any callers, but I might be missing one? I guess it might be for your
-other patch, but it'd seem to make the parsing a whole lot more complicated
-in userspace for the reader if we did use that ...
-
-It looks like cpulist_scnprintf calls __cpulist_scnprintf, which just calls
-bitmap_scnlistprintf, but nobody calls either of the former 2 ... ditto for
-nodelist_scnprintf.
+It's not that this multi-line macro was particularly offensive ... it's
+that I've seen the most heinous crap in the past ... and the only sensible
+place I can find to draw a line is ... no multiline macros ;-)
 
 M.
 
-PS. Similarly, do we really need both cpumask_parse and __cpumask_parse
-in front of bitmap_parse? One seems to make sense for abstracting the generic
-parse routine, but 2 seems like overkill ;-) (yeah, I know that was there
-before this patch ... just seems odd).

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130530AbRAAArJ>; Sun, 31 Dec 2000 19:47:09 -0500
+	id <S131149AbRAAArU>; Sun, 31 Dec 2000 19:47:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131179AbRAAArA>; Sun, 31 Dec 2000 19:47:00 -0500
-Received: from hnlmail1.hawaii.rr.com ([24.25.227.33]:6412 "EHLO hawaii.rr.com")
-	by vger.kernel.org with ESMTP id <S130530AbRAAAqi>;
-	Sun, 31 Dec 2000 19:46:38 -0500
-Message-ID: <000701c07388$1c543100$10a10842@hawaii.rr.com>
-From: "Ray Strode" <halfline@hawaii.rr.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Happy new year^H^H^H^Hkernel..
-Date: Sun, 31 Dec 2000 14:16:39 -1000
+	id <S131179AbRAAArK>; Sun, 31 Dec 2000 19:47:10 -0500
+Received: from mercury.nildram.co.uk ([195.112.4.37]:53776 "EHLO
+	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
+	id <S131149AbRAAAqx>; Sun, 31 Dec 2000 19:46:53 -0500
+Message-ID: <3A4FCC54.14F38593@magenta-netlogic.com>
+Date: Mon, 01 Jan 2001 00:16:20 +0000
+From: Tony Hoyle <tmh@magenta-netlogic.com>
+Organization: Magenta Logic
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Tony Spinillo <tspin@epix.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: TEST13-PRE7 - Nvidia Kernel Module Compile Problem
+In-Reply-To: <3A4E3D6D.4D64E13@epix.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I want people to test it for a while, and I want to give other
-architectures >the chance to catch up with some of the changes
-Does that mean that other architectures have separate mailing lists and
-kernel source trees?  Is that why i've been getting ignored =)?
-If so, what are they? I'd really like to get the bugs I've been experiencing
-on alpha figured out.
+Tony Spinillo wrote:
+> 
+> The nvidia kernel module (from www.nvidia.com) has compiled and loaded
+> correctly with all test13-pre series up to pre6. I just tried to
+> compile and load under pre7.
 
---Ray
+I'm intrigued... how did you resolve the 'mem_map_inc_count' and
+'mem_map_dec_count',
+'put_module_symbol' and 'get_module_symbol' references?
 
+It's only of academic interest for me now as I've ditched the nvidia -
+not worth the hassle.
+
+Amusingly, We're breaking the EULA even by reading the supplied source
+code...
+
+Tony
+
+-- 
+Can't think of a decent signature...
+
+tmh@magenta-netlogic.com		http://www.nothing-on.tv
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

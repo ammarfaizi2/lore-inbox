@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315991AbSEJNhl>; Fri, 10 May 2002 09:37:41 -0400
+	id <S315962AbSEJNki>; Fri, 10 May 2002 09:40:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315990AbSEJNhk>; Fri, 10 May 2002 09:37:40 -0400
-Received: from netcore.fi ([193.94.160.1]:26387 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id <S315796AbSEJNhj>;
-	Fri, 10 May 2002 09:37:39 -0400
-Date: Fri, 10 May 2002 16:37:33 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: Brian Raymond <padrino121@email.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'linux-ppp@vger.kernel.org'" <linux-ppp@vger.kernel.org>,
-        "'linux-net@vger.kernel.org'" <linux-net@vger.kernel.org>
-Subject: Re: mc_forwarding Option in sys.net.ipv4.conf.all
-In-Reply-To: <C144D032EA60D3119AAC00105A75C19A11AB20@SERVER>
-Message-ID: <Pine.LNX.4.44.0205101635190.2935-100000@netcore.fi>
+	id <S315994AbSEJNkh>; Fri, 10 May 2002 09:40:37 -0400
+Received: from www.swazicraftsmarket.com ([196.28.7.66]:55507 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S315962AbSEJNkh>; Fri, 10 May 2002 09:40:37 -0400
+Date: Fri, 10 May 2002 15:18:15 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: A Guy Called Tyketto <tyketto@wizard.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5] opl3 OSS emulation compile fixes
+In-Reply-To: <20020510112819.GA26247@wizard.com>
+Message-ID: <Pine.LNX.4.44.0205101516200.6271-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 May 2002, Brian Raymond wrote:
-> I've been working on a Linux PPTP VPN server for clients that require
-> multicasting. I only have one physical interface in the box and I'm using
-> the PoPToP package for PPTP support. Getting the VPN setup and working
-> hasn't been a problem, getting the multicast traffic to flow between the ppp
-> and eth0 interface is causing me a whole lot of problems. What do I need to
-> do so that I can tell the kernel to forward all relevant multicast traffic
-> through to the clients (in essence just a simple IGMP router)? I've been
-> looking at mrouted, pimd-dense and mrtd but haven't had any luck getting
-> them to work because of the dynamic nature of the PPP interfaces.
+On Fri, 10 May 2002, A Guy Called Tyketto wrote:
 
-You need to run mrouted, pimd (sparse or dense) or something like on the 
-router.  Can't you just restart the daemon when the PPP interface switches 
-state?
+>         This is for OPL3 OSS emulation. With your patch applied to 2.5.15, 
+> opl3_oss.c was not compiled at all, whether into the kernel, or as a module. 
+> Also, your patch for include/sound/opl3.h did not need to be applied as the 
+> #ifdef CONFIG_SND_OSSEMUL and #endif lines are already present sound the two 
+> variables listed.
 
-An alternative mechanisms would be:
- - using bridging (not applicable in this scenario)
- - doing IGMP proxying and other tricks on the router (haven't been 
-implemented at least in Linux AFAIK).
+For my amusement, could you try loading the opl3 module, i didn't get 
+unresolved symbols when i did a depmod. From what i understand of this, 
+opl3_oss should not have been compiled indeed unless CONFIG_SND_OSSEMUL 
+was specified, although Kysela would know best.
+
+Thanks,
+	Zwane
 
 -- 
-Pekka Savola                 "Tell me of difficulties surmounted,
-Netcore Oy                   not those you stumble over and fall"
-Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
+http://function.linuxpower.ca
+		
 

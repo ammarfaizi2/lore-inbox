@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280146AbRKEDKq>; Sun, 4 Nov 2001 22:10:46 -0500
+	id <S280149AbRKEDNq>; Sun, 4 Nov 2001 22:13:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280154AbRKEDKh>; Sun, 4 Nov 2001 22:10:37 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:59121
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S280150AbRKEDKV>; Sun, 4 Nov 2001 22:10:21 -0500
-Date: Sun, 4 Nov 2001 19:10:14 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] vm_swap_full
-Message-ID: <20011104191014.C16017@mikef-linux.matchmail.com>
-Mail-Followup-To: Ed Tomlinson <tomlins@cam.org>,
-	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011104152341.A4C289E898@oscar.casa.dyndns.org> <Pine.LNX.4.33L.0111041436020.2963-100000@imladris.surriel.com> <20011104180840.A16017@mikef-linux.matchmail.com> <20011105025817.D997216E5C@oscar.casa.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011105025817.D997216E5C@oscar.casa.dyndns.org>
-User-Agent: Mutt/1.3.23i
+	id <S280150AbRKEDNh>; Sun, 4 Nov 2001 22:13:37 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:52236 "EHLO
+	localhost") by vger.kernel.org with ESMTP id <S280149AbRKEDNZ>;
+	Sun, 4 Nov 2001 22:13:25 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Jeff Dike <jdike@karaya.com>
+Subject: Re: Special Kernel Modification
+Date: Sun, 4 Nov 2001 19:13:15 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200111050402.XAA05891@ccure.karaya.com>
+In-Reply-To: <200111050402.XAA05891@ccure.karaya.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E160aCK-0001Fs-00@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 09:58:17PM -0500, Ed Tomlinson wrote:
-> On November 4, 2001 09:08 pm, Mike Fedyk wrote:
-> > On Sun, Nov 04, 2001 at 02:36:34PM -0200, Rik van Riel wrote:
-> > > On Sun, 4 Nov 2001, Ed Tomlinson wrote:
-> > > > -/* Swap 50% full? Release swapcache more aggressively.. */
-> > > > -#define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
-> > > > +/* Free swap less than inactive pages? Release swapcache more
-> > > > aggressively.. */ +#define vm_swap_full() (nr_swap_pages <
-> > > > nr_inactive_pages)
-> > > >
-> > > > Comments?
-> > >
-> > > Makes absolutely no sense for systems which have more
-> > > swap than RAM, eg. a 64MB system with 200MB of swap.
-> >
-> > How does the inactive list get bigger than physical ram?
-> >
-> > If swap is bigger than ram, there is *no* possibility of the inactive list
-> > being bigger than swap, and thus no aggressive swapping...
-> 
-> nr_swap_pages is the number of swap pages free.  
+Jeff, 
+>  Mounting it synchronous will  disable caching in the VM. 
+Who told you that? Synchronous mounting turns off write buffering. Even with 
+"-o sync" writes will still end up in the page cache, they'll just be 
+commited immediately. In case you don't believe me, here's a trivial test on 
+a block device mounted -o sync (ext3):
 
-Oh, I thought it was total swap pages...
+bodnar42:/mnt# time cat linux-2.4.13.tar.bz2 > /dev/null
 
->The idea is to start
-> aggressive swap only when we are at risk of running out of swap.  This way
-> we get to take full advantage of throwing away clean pages that are backed
-> up by swap when under vm pressure. 
-> 
-Yes.  My point is that the inactive list can't get bigger than RAM, and thus
-if swap is bigger than ram this case wouldn't trigger...
+real    0m2.837s
+user    0m0.040s
+sys     0m0.350s
+bodnar42:/mnt# time cat linux-2.4.13.tar.bz2 > /dev/null
 
-But now that nr_swap_pages is *free* swap, you'll have to add another test
-for (swap > RAM)... 
+real    0m0.328s
+user    0m0.010s
+sys     0m0.240s
+bodnar42:/mnt#
 
-Mike
+Trust me, the factor of 8 performace improvement the second time is not due 
+to lucky head positioning or anything, that's coming straight out of cache.
+
+> Another possibility is hostfs.  You can directly mount a host directory
+> inside UML.  That can obviously be shared between UMLs, so you again
+> eliminate all the duplication.
+Er, it will be shared in the host's context, but each VM will still have 
+their own copy in the page cache. This is no better than a COW'ed block device
+
+-Ryan

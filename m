@@ -1,100 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266563AbUFRTIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266521AbUFRTIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266563AbUFRTIg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 15:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266542AbUFRTFe
+	id S266521AbUFRTIi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 15:08:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266479AbUFRTEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:05:34 -0400
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:51853 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S266722AbUFRTCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:02:07 -0400
-Message-ID: <40D33C58.1030905@am.sony.com>
-Date: Fri, 18 Jun 2004 12:02:48 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-CC: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
-       Rik van Riel <riel@redhat.com>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>, 4Front Technologies <dev@opensound.com>
-Subject: Re: Stop the Linux kernel madness
-References: <20040618153350.GB20632@lug-owl.de>
-In-Reply-To: <20040618153350.GB20632@lug-owl.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jun 2004 15:04:24 -0400
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:34703 "EHLO
+	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S266521AbUFRTA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 15:00:57 -0400
+Subject: Re: 2.6.7 Samba OOPS (in smb_readdir)
+From: Christophe Saout <christophe@saout.de>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Brice Goglin <Brice.Goglin@ens-lyon.fr>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0406181309440.2228@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+	 <20040618163759.GN1146@ens-lyon.fr> <20040618164125.GO1146@ens-lyon.fr>
+	 <Pine.LNX.4.58.0406181309440.2228@montezuma.fsmlabs.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-szfHXPZsCXHIYF0Eq++n"
+Date: Fri, 18 Jun 2004 21:00:50 +0200
+Message-Id: <1087585251.13235.3.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw wrote:
-> On Fri, 2004-06-18 08:13:15 -0700, William Lee Irwin III
-> <wli@holomorphy.com>
-> wrote in message <20040618151315.GC1863@holomorphy.com>:
-> 
->>On Fri, Jun 18, 2004 at 10:43:19AM -0400, Rik van Riel wrote:
->>
->>>Yes, this is a hint at certain embedded developers.  You
->>>know who you are and chances are you also know what you would
->>>like to develop if you no longer had to spend your time porting
->>>the same old patches from one version of the product to the next.
->>
->>The shame of things is that the economic/effort problem appears to
->>often be "solved" by never migrating to new kernel versions, or
->>otherwise by amortizing the work involved with infrequent migrations.
-> 
-> Unfortunately, you're *very* right on this. Eg. read the linux-mips list
-> (at linux-mips.org). You'll see that this list is often hit by people
-> having problems. Normally, they hack on kernels like 2.4.16 or the like.
-> These are totally unrelated projects, people and companies. I can't find
-> words for that. They're missing a year of development and even feel sane
-> with it. That's what vendors gave them...
 
-It is good to see this issue discussed on LKML.  (It shows a
-recognition of issues I deal with in my space every day.)
-There are indeed armies of developers who work on Linux, but
-who are stuck in version backwaters.  These developers almost
-never visit or contribute to LKML.  The reasons for this
-situation are numerous, and not easily solved with a wave of
-the "just contribute stuff" wand.
+--=-szfHXPZsCXHIYF0Eq++n
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-One important factor is that very often the people
-directly responsible for code generation in the embedded space
-are simply not available for interfacing with the community.
-In the embedded space, there is
-tons of fragmentation and very little network effects between
-developers.  There are language problems, culture problems,
-legal problems, and an array of factors which create barriers
-for developers at major CE companies contributing to Linux.
+Am Fr, den 18.06.2004 um 13:11 Uhr -0400 schrieb Zwane Mwaikambo:
 
-At the CE Linux Forum, we are trying to reduce or eliminate
-some of these barriers, but it is difficult.
+> 	It's a known issue currently being tracked with the bugzilla entry
+> at http://bugzilla.kernel.org/show_bug.cgi?id=3D1671
 
-Realistic ideas for reducing these barriers are very welcome.
-Believe it or not, most CE companies I work with WANT to
-contribute back, but have a very difficult time with the details.
+Hey, nice.
 
-Here's a shameless plug:  I'm having a CELinux BOF at OLS to discuss
-this and other issues.  It's the night of Wednesday, July 21.
-Anyone can drop by if they are interested in this topic.
-> 
-> There's a lot of Linux beyond LKML, with a common problem: outdated
-> source trees, with a shitload of patches. Linus could need another
-> hacker or two working full-time on reviewing / importing those patches!
+I've got a nearly 100% reproducability of the problem here (FAM +
+nautilus + hal.hotplug or something like that, I'm always getting this
+Oops in nautilus trying to do something with its trash folder when I'm
+mounting a remote volume). I'll try this patch and tell you if it's
+working (for me).
 
-The idea of having some dedicated developers perform this function
-is actually a pretty good one, although I wouldn't burden Linus
-with managing them.  That is, it might be useful to have some people
-following behind embedded product developers trying to glean,
-generalize, forward-port and otherwise clean-up patches that
-would otherwise never see the light of day.
 
-=============================
-Tim Bird
-Architecture Group Co-Chair
-CE Linux Forum
-Senior Staff Engineer
-Sony Electronics
-E-mail: Tim.Bird@am.sony.com
-=============================
+--=-szfHXPZsCXHIYF0Eq++n
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA0zviZCYBcts5dM0RAgTgAKCUUQrHvcF29eD5zI9V3Mc+Q/b34wCgmnkU
+6DqEXPliauIV315g+CwHJag=
+=y7He
+-----END PGP SIGNATURE-----
+
+--=-szfHXPZsCXHIYF0Eq++n--
 

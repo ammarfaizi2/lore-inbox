@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265572AbUBPPEw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 10:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265631AbUBPPEw
+	id S265647AbUBPP3I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 10:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUBPP3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 10:04:52 -0500
-Received: from ns.suse.de ([195.135.220.2]:45274 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265572AbUBPPEu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 10:04:50 -0500
-Date: Mon, 16 Feb 2004 18:00:28 +0100
-From: Andi Kleen <ak@suse.de>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
-Subject: [PATCH] Disable useless bootmem warning
-Message-Id: <20040216180028.06402e70.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Feb 2004 10:29:07 -0500
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:5482 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265663AbUBPP3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 10:29:01 -0500
+Date: Mon, 16 Feb 2004 09:28:53 -0600 (CST)
+From: Ryan Reich <ryanr@uchicago.edu>
+Reply-To: Ryan Reich <ryanr@uchicago.edu>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Speaker static, vanishes with APIC
+In-Reply-To: <200402161512.12171.m.watts@eris.qinetiq.com>
+Message-ID: <Pine.LNX.4.58.0402160924150.15314@ryanr.aptchi.homelinux.org>
+References: <Pine.LNX.4.58.0402150903010.1774@ryanr.aptchi.homelinux.org>
+ <200402161512.12171.m.watts@eris.qinetiq.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Feb 2004, Mark Watts wrote:
 
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+>
+> > This is really trivial and I solved it anyway, but in all incarnations of
+> > 2.6 I have had static coming from my speakers shortly after boot.  It only
+> > lasts a few seconds and sounds as though someone were jiggling the plug in
+> > the sound card's socket.  It only happens right after boot.  Since I
+> > enabled Local APIC and IO-APIC it hasn't happened.
+>
+> Did you get a similar noise when shutting down?
+>
+> My other half has an AMD motherboard with onboard Via sound which gives a
+> burst of static when KDE 3.1 starts and another when it shuts down. All other
+> sound is fine. (Kernel 2.4.22)
+>
+> APIC's are disabled on this board...
 
-This bootmem warning has been annoying me forever:
+No, just when starting up.  It doesn't even need to be in KDE; in fact, I've
+never noticed it in KDE since I start in text mode and check my mail before
+starting X (you know how it's impossible to hold off checking mail).  Your
+problem sounds different since it's in 2.4, also, and I never saw this in 2.4.
 
-hm, page 000f5000 reserved twice.
-hm, page 000f6000 reserved twice.
-hm, page 000f1000 reserved twice.
-hm, page 000f2000 reserved twice.
+However, KDE and sound don't always agree, in my experience.  They can't even
+get their own sounds right sometimes; when shutting it down their "shutdown"
+tune is always cut off as the aRts server exits before it finishes playing the
+sound.  This, of course, is not static.
 
-It happens because the i386/x86-64 boot code prereserves the mptable and then later bootmem
-tries to reserve it again because it's marked reserved in the e820 map.
-
-I've never seen a bug uncovered by this warning too. I considered to disable it 
-by passing a special array of "ok to reserve twice" regions, but on second thought 
-it is just best to remove it completely. Reserving things twice is not usually
-an error.
-
-This patch does this.
-
--Andi
-
---- linux-2.6.3rc2-amd64/mm/bootmem.c-o	2004-02-11 22:06:58.000000000 +0100
-+++ linux-2.6.3rc2-amd64/mm/bootmem.c	2004-02-16 17:52:05.000000000 +0100
-@@ -91,8 +91,7 @@
- 	if (end > bdata->node_low_pfn)
- 		BUG();
- 	for (i = sidx; i < eidx; i++)
--		if (test_and_set_bit(i, bdata->node_bootmem_map))
--			printk("hm, page %08lx reserved twice.\n", i*PAGE_SIZE);
-+		set_bit(i, bdata->node_bootmem_map);
- }
- 
- static void __init free_bootmem_core(bootmem_data_t *bdata, unsigned long addr, unsigned long size)
+-- 
+Ryan Reich
+ryanr@uchicago.edu

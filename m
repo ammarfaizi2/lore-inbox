@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264685AbSJUABd>; Sun, 20 Oct 2002 20:01:33 -0400
+	id <S264678AbSJTX7Q>; Sun, 20 Oct 2002 19:59:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264686AbSJUABd>; Sun, 20 Oct 2002 20:01:33 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:48517 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S264685AbSJUABc>; Sun, 20 Oct 2002 20:01:32 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 20 Oct 2002 17:16:14 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Hanna Linder <hannal@us.ibm.com>
-Subject: [patch] sys_epoll ...
-Message-ID: <Pine.LNX.4.44.0210201650000.989-100000@blue1.dev.mcafeelabs.com>
+	id <S264682AbSJTX7Q>; Sun, 20 Oct 2002 19:59:16 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:26692 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S264678AbSJTX7P>; Sun, 20 Oct 2002 19:59:15 -0400
+Date: Sun, 20 Oct 2002 17:13:35 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Jon Portnoy <portnoy@tellink.net>
+cc: Richard Stallman <rms@gnu.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper outrage, old and new
+In-Reply-To: <Pine.LNX.4.44.0210201309120.22852-100000@cerberus.localhost>
+Message-ID: <Pine.LNX.4.44.0210201648510.13602-100000@nakedeye.aparity.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 20 Oct 2002, Jon Portnoy wrote:
+|>On Sun, 20 Oct 2002, Richard Stallman wrote:
+|>> This is the old "We're not free unless we are `free' to deny freedom
+|>> to others" argument that some (not all) advocates of the BSD license
+|>> often make.  It is a word game intended to render the concept of
+|>> freedom so confused that people can't think about it any more.  Once
+|>> people see through this, it loses its effect.
 
-Per Linus request I implemented a syscall interface to the old /dev/epoll
-to avoid the creation of magic inodes inside /dev. Since the new
-implementation shares 95% of the code with the old one, the old interface
-is maintained for compatibility with existing users. The new syscall
-interface adds three system calls ( Linus doesn't like multiplexing ) :
+It seems like people have lost their marbles on this issue.
 
+Using the BSD license gives the receiver certain freedoms.  I'm all
+for that -- if someone takes my BSD licensed code and never releases
+modifications back to me (or anyone else), that's okay.  I chose
+that license because that's what I intended and should even expect
+to happen.
 
-#define EP_CTL_ADD 1
-#define EP_CTL_DEL 2
-#define EP_CTL_MOD 3
+Using the GNU GPL means imposing your idea of freedom on others,
+which in some cases I'm all for.  Either it's required of me (because
+I've modified GPL code and released it) or I think that people
+will benefit from being able to use it and expand upon it openly.
+There's plenty of cases where that's a good thing to do.
 
-asmlinkage int sys_epoll_create(int maxfds);
-asmlinkage int sys_epoll_ctl(int epfd, int op, int fd, unsigned int events);
-asmlinkage int sys_epoll_wait(int epfd, struct pollfd **events, int timeout);
+Using a proprietary license means protecting interests, regardless
+of freedoms for anything.  That's okay as well -- some people like
+to earn a paycheck and/or preserve their investments.  When it
+comes down to putting food on your family's table, or putting a
+roof over their heads, in those cases it's the right thing to do.
+That applies to the mom and pop development companies all the way
+up to a company the size of Microsoft.  Sometimes it's a good thing
+to be paid for you and your company's efforts.
 
+I wish more people would stop and think about why they write code
+in the first place.  If you write code to make a living, or write
+code to help others (like a volunteer might do), or if you write
+code just because you feel like it, each may need a different
+license.  Nobody's wrong to use BSD, GNU GPL, or any other license.
+Nobody's evil or stupid or naive just because they make a certain
+licensing choice.
 
-The function sys_epoll_create() creates a sys_epoll "object" by allocation
-space for "maxfds" descriptors. The sys_epoll "object" is basically a
-file descriptor, and this enable the new interface to :
+Back to writing code (which I'm "free" to do) ... :)
 
-1) Mantain compatibility with the existing interface
-2) Avoid the creation of a sys_epoll_close() syscall
-3) Reuse 95% of the existing code
-4) Inherit the file* automatic cleanup code w/out having to code a
-	dedicated one
-
-The function sys_epoll_ctl() is the controller interface and what it does
-is pretty obvious. The "op" parameter is either EP_CTL_ADD, EP_CTL_DEL or
-EP_CTL_MOD and the parameter "fd" is the target of the operation. The last
-parameter "events" is used in both EP_CTL_ADD and EP_CTL_MOD and rapresent
-the event interest mask. The function sys_epoll_wait() waits for events by
-allowing a maximum timeout "timeout" in milliseconds and returns the
-number of events ( struct pollfd ) that the caller will find available at
-"*events". The port of the old /dev/epoll to 2.5.44 and the new sys_epoll
-are available at :
-
-http://www.xmailserver.org/linux-patches/nio-improve.html#patches
-
-
-
-
-- Davide
-
-
-
+--Matt
 

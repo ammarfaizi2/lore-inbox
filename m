@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278758AbRJZRE4>; Fri, 26 Oct 2001 13:04:56 -0400
+	id <S278769AbRJZRaU>; Fri, 26 Oct 2001 13:30:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278746AbRJZREr>; Fri, 26 Oct 2001 13:04:47 -0400
-Received: from t2.redhat.com ([199.183.24.243]:60663 "EHLO dot.cygnus.com")
-	by vger.kernel.org with ESMTP id <S278758AbRJZREm>;
-	Fri, 26 Oct 2001 13:04:42 -0400
-Date: Fri, 26 Oct 2001 10:03:46 -0700
-From: Richard Henderson <rth@redhat.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: torvalds@transmeta.com, alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: alpha 2.4.13: fix taso osf emulation
-Message-ID: <20011026100346.C1663@redhat.com>
-In-Reply-To: <20011026013101.A1404@redhat.com> <Pine.GSO.3.96.1011026113847.14048A-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
+	id <S278771AbRJZRaK>; Fri, 26 Oct 2001 13:30:10 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:2824 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S278769AbRJZR34>; Fri, 26 Oct 2001 13:29:56 -0400
+Message-ID: <3BD99DB1.7B09DDBE@linux-m68k.org>
+Date: Fri, 26 Oct 2001 19:30:25 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: =?iso-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
+CC: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] strtok --> strsep in framebuffer drivers
+In-Reply-To: <m15vJFv-007qbrC@smtp.web.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.3.96.1011026113847.14048A-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Fri, Oct 26, 2001 at 12:01:10PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 26, 2001 at 12:01:10PM +0200, Maciej W. Rozycki wrote:
->  The following trivial patch reportedly fixes OSF/1 programs using 31-bit
-> addressing.  It's already present in the -ac tree; I guess it just got
-> lost during a merge.  It applies fine to 2.4.13. 
+Hi,
 
-This is the patch that Jay Estabrook forwarded me that I rejected
-in favour of writing a special arch_get_unmapped_area.
+> diff -ur linux-2.4.13-pre5/drivers/video/virgefb.c
+> linux-2.4.13-pre5-rs/drivers/video/virgefb.c
+> --- linux-2.4.13-pre5/drivers/video/virgefb.c   Fri Sep 14 01:04:43 2001
+> +++ linux-2.4.13-pre5-rs/drivers/video/virgefb.c        Sun Oct 21 13:02:11 2001
+> @@ -1085,7 +1085,7 @@
+>         if (!options || !*options)
+>                 return 0;
+> 
+> -       for (this_opt = strtok(options, ","); this_opt; this_opt = strtok(NULL,
+> ","))
+> +       while (this_opt = strsep(&options, ",")) {
+>                 if (!strcmp(this_opt, "inverse")) {
+>                         Cyberfb_inverse = 1;
+>                         fb_invert_cmaps();
 
-> It used to do so.  It breaks things such as dynamic linking of shared
-> objects linked at high load address.
+You add a left brace here.
 
-Err, how?
-
-> It breaks mmap() in principle, as it shouldn't fail when invoked with
-> a non-zero, non-MAP_FIXED, invalid address if there is still address
-> space available elsewhere. 
-
-No, it doesn't.  Or rather, it only does if you only bothered
-to search once.  IMO one should search thrice: once at addr,
-once at TASK_UNMAPPED_BASE, and once at PAGE_SIZE.
-
-
-
-r~
+bye, Roman

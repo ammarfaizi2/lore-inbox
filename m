@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbTHTFrl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 01:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbTHTFrl
+	id S261704AbTHTGiO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 02:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbTHTGiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 01:47:41 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:14720 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261720AbTHTFrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 01:47:40 -0400
-Date: Wed, 20 Aug 2003 06:59:18 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200308200559.h7K5xIK2000438@81-2-122-30.bradfords.org.uk>
-To: jamie@shareable.org, john@grabjohn.com
-Subject: Re: Input issues - key down with no key up
-Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org, macro@ds2.pg.gda.pl,
-       neilb@cse.unsw.edu.au, vojtech@suse.cz
+	Wed, 20 Aug 2003 02:38:14 -0400
+Received: from hendrix.ece.utexas.edu ([128.83.59.42]:17598 "EHLO
+	hendrix.ece.utexas.edu") by vger.kernel.org with ESMTP
+	id S261704AbTHTGiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 02:38:13 -0400
+Date: Wed, 20 Aug 2003 01:38:09 -0500 (CDT)
+From: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
+To: linux-kernel@vger.kernel.org
+Subject: sleeping function called from invalid context include/linux/rwsem.h:43
+Message-ID: <Pine.LNX.4.21.0308200117220.1817-100000@linux08.ece.utexas.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam,
+	SpamAssassin (Disabled due to 10consecutive timeouts)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Also, the keyboard I'm using requires Set 3 to operate fully, although
-> > as it's quite possible that I am the only person on the planet who
-> > uses this model of keyboard with Linux, that might not be a very valid
-> > argument :-).
->
-> It's unfortunate if there are some keyboards that only work properly
-> in one mode, and others that need the other mode, given that there is
-> no way to automatically detect which keyboard is which.
 
-It does work in Set 2, but the Japanese keys generate the same
-scancode as the space bar.  Those keys are only generate unique
-scancodes in Set 3.  Most Japanese keyboards do work fully in Set 2,
-this one is an exception.
+Hi,
 
-John.
+I get this debug message right before the oops(Oops linux-2.6.0-test3
+sound) that I sent earlier to the list. When this Debug message happens
+before the oops, the system freezes. All of this is related to the
+Maestro3.c sound card. I've ran 2.4{16, 20, 21, 22-pre8} without a
+problem. I searched through the list archive for a similar problem, in
+vain. Can someone please tell what's causing this?  
+
+Thanks 
+
+ Debug: sleeping function called from invalid context at
+include/linux/rwsem.h:43
+Aug 19 23:59:34 darkstar kernel: Debug: sleeping function called from
+invalid context at include/linux/rwsem.h:43
+
+Call Trace:
+ [<c012722e>] __might_sleep+0x5e/0x70
+ [<c0127b20>] autoremove_wake_function+0x0/0x50
+ [<c0122869>] do_page_fault+0x79/0x4dc
+ [<c01c71ad>] ext2_get_inode+0xdd/0x140
+ [<c022973c>] avc_has_perm+0x6c/0x7b
+ [<c01227f0>] do_page_fault+0x0/0x4dc
+ [<c010b1b9>] error_code+0x2d/0x38
+ [<c03dabe1>] m3_open+0x131/0x390
+ [<c0159b94>] check_poison_obj+0x54/0x1d0
+ [<c03d4d25>] soundcore_open+0x1e5/0x4e0
+ [<c0186c90>] exact_match+0x0/0x10
+ [<c0186696>] chrdev_open+0x156/0x3e0
+ [<c017a388>] get_empty_filp+0x98/0x100
+ [<c017823c>] dentry_open+0x12c/0x1c0
+ [<c0178106>] filp_open+0x66/0x70
+ [<c0178855>] sys_open+0x55/0x90
+ [<c010b00f>] syscall_call+0x7/0xb
+
+

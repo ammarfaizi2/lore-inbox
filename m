@@ -1,74 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262160AbTIHI6g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 04:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTIHI6f
+	id S262112AbTIHI5P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 04:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTIHI5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 04:58:35 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:41861 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262122AbTIHI54 (ORCPT
+	Mon, 8 Sep 2003 04:57:15 -0400
+Received: from babsi.intermeta.de ([212.34.184.3]:2822 "EHLO mail.intermeta.de")
+	by vger.kernel.org with ESMTP id S262112AbTIHI5L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 04:57:56 -0400
-Date: Mon, 8 Sep 2003 10:58:02 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Sven =?iso-8859-1?Q?K=F6hler?= <skoehler@upb.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [blockdevices/NBD] huge read/write-operations are splitted by the kernel
-Message-ID: <20030908085802.GH840@suse.de>
-References: <bjgh6a$82o$1@sea.gmane.org>
+	Mon, 8 Sep 2003 04:57:11 -0400
+Subject: [COMPLETELY OFF-TOPIC] Re: bandwidth for bkbits.net (good news)
+From: Henning Schmiedehausen <hps@intermeta.de>
+To: Ricky Beam <jfbeam@bluetronic.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.33.0309071435200.13584-100000@sweetums.bluetronic.net>
+References: <Pine.GSO.4.33.0309071435200.13584-100000@sweetums.bluetronic.net>
+Content-Type: text/plain
+Organization: INTERMETA - Gesellschaft  =?ISO-8859-1?Q?=20f=C3=BCr?= Mehrwertdienste mbH
+Message-Id: <1063011421.20933.19.camel@forge.intermeta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <bjgh6a$82o$1@sea.gmane.org>
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 08 Sep 2003 10:57:01 +0200
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -5.2 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08 2003, Sven Köhler wrote:
-> Hi,
-> 
-> i discussed a problem of the NBD-protocl with Pavel Machek. The problem 
-> i saw is that there is no maximum for the length field in the requests 
-> that the NBD kernel module sends to the NBD server. Well, this length 
-> field is the length field from the read/write-operation that the kernel 
-> delegates to the blockdevice-implementation.
-> I did some tests tests like
->   dd if=dev/nbd/0 of=/dev/null bs=10M
-> and our NBD-server implementation printed out the length field of each 
-> reqeust. There was a very regular pattern like
->   0x1fc00 (127KB)
->   0x00400 (1KB)
->   0x1fc00
->   0x00400
->   ...
-> Well, can anybody explain that to me?
-> (why so "little" 1KB requests? but that's not important)
-> 
-> Well, i also tested
->   dd if=dev/nbd/0 of=/dev/null bs=1
-> which means that the device will be read in chunks of 1byte.
-> The result was the same: 127KB, 1KB, 127KB, 1KB...
-> 
-> I guess the caching layer is inbetween, and will devide the huge 10MB 
-> requests into smaller 127KB ones, as well as joining the small 1byte 
-> requests by using read-ahead i guess.
-> Perhaps you could tell me how i can turn off caching. Than i will test 
-> again without the cache.
-> 
-> The thing i want to know is, if there is any part of the kernel that 
-> gaarantees that a read/write requests will not be bigger that a certain 
-> value. If there is no such upper limit, the NBD itself would need to 
-> split things up which might become a complicated task. This task need to 
-> be done, because it can become very difficult for the NBD server to 
-> handle huge values, and one huge requests will block all other pending 
-> small ones due to limitations of the NBD protocol.
+That is where the thread started. ;-) As we reached the max kpps on a
+C37xx point of discussion, we were already on 100 MBit Ethernet. ;-) 
 
-You'll probably find that if you bump the max_sectors count if your
-drive to 256 from 255 (that is the default if you haven't set it), then
-you'll see 128kb chunks all the time.
+Let's end this thread.
 
-See max_sectors[] array.
+	Regards
+		Henning
 
+
+On Sun, 2003-09-07 at 20:41, Ricky Beam wrote:
+> On 7 Sep 2003, Henning Schmiedehausen wrote:
+> >> 64B is the minimum ETHERNET frame size.  That isn't true for PPP, HDLC,
+> >> Frame relay, ATM, etc.
+> >
+> >We were talking 100 MBit Ethernet, weren't we? ;-)
+> 
+> Actually, we're talking about VoIP between remote offices.  We already
+> know this is not accomplished via fast ethernet WAN links.  The WAN
+> link is, in fact, a T1.  T1's do not have minimum frame sizes like
+> ethernet.
+> 
+> --Ricky
 -- 
-Jens Axboe
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire
+
+"Dominate!! Dominate!! Eat your young and aggregate! I have grotty silicon!" 
+      -- AOL CD when played backwards  (User Friendly - 200-10-15)
 

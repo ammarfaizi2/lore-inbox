@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289228AbSA1Qjl>; Mon, 28 Jan 2002 11:39:41 -0500
+	id <S289230AbSA1QpV>; Mon, 28 Jan 2002 11:45:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289230AbSA1Qjc>; Mon, 28 Jan 2002 11:39:32 -0500
-Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:24977 "HELO
-	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S289228AbSA1QjR>; Mon, 28 Jan 2002 11:39:17 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Subject: Re: fonts corruption with 3dfx drm module
-Date: Mon, 28 Jan 2002 17:39:03 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Mark Zealey <mark@zealos.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020128163926Z289228-13996+13380@vger.kernel.org>
+	id <S289231AbSA1QpL>; Mon, 28 Jan 2002 11:45:11 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:48794 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S289230AbSA1QpG>; Mon, 28 Jan 2002 11:45:06 -0500
+Date: Mon, 28 Jan 2002 09:44:45 -0700
+Message-Id: <200201281644.g0SGij202269@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] KERN_INFO for devfs
+In-Reply-To: <200201280750.g0S7oGE21742@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200201280750.g0S7oGE21742@Port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 28, 2002 at 04:12:34PM +0200, Zwane Mwaikambo wrote:
-
-> On Mon, 28 Jan 2002, Zwane Mwaikambo wrote:
+Denis Vlasenko writes:
+> Primary purpose of this patch is to make KERN_WARNING and
+> KERN_INFO log levels closer to their original meaning.
+> Today they are quite far from what was intended.
+> Just look what kernel writes at the WARNING level
+> each time you boot your box!
 > 
-> > Do you guys have CONFIG_MTRR and/or CONFIG_FB_VESA enabled? Also which 
-> > motherboard chipset?
+> Diff for devfs.
+> --
+> vda
+> 
+> diff --recursive -u linux-2.4.13-orig/fs/devfs/base.c linux-2.4.13-new/fs/devfs/base.c
 
-MTRR, of course (do you like 2D and even 3D hardware accelerated without 
-MTRR?), FB, no, chipset is a AMD 750 (Irongate C4), using X 4.1.99.1 DRI CVS.
+This patch won't even remotely apply to 2.4.18-pre7. Please don't
+submit patches which were generated against old kernels unless you've
+verified that they apply to the latest kernel.
 
-I am with the DRI devel team and saw it occasionally with XFree86 DRI CVS 
-trunk and the latest mesa-4-0-branch. At that time I had FB enabled as I 
-remember right.
+Furthermore, if you look at 2.4.18-pre7, you'll notice that devfs has
+changed the way most of it's messages are generated, and uses the
+KERN_ values quite a bit.
 
-The current DRI stuff is "only" missing the latest XFree86 4.2.0 release 2D 
-code. Update is under way.
+				Regards,
 
-I can _NOT_ see it without FB and currently running 
-2.4.18-pre7-J6-VM-23-preempt-lock.
- 
-/home/nuetzel> cat /proc/mtrr
-reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
-reg01: base=0x20000000 ( 512MB), size= 128MB: write-back, count=1
-reg02: base=0xec103000 (3777MB), size=   4KB: write-combining, count=1
-reg03: base=0xe0000000 (3584MB), size=  64MB: write-combining, count=2
-
-Voodoo5 5500 AGP.
-
-Regards,
-	Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

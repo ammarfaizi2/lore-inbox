@@ -1,70 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUHHWDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265248AbUHHWOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbUHHWDm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 18:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbUHHWDm
+	id S265248AbUHHWOt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 18:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUHHWOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 18:03:42 -0400
-Received: from mail.gmx.net ([213.165.64.20]:4582 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265055AbUHHWDk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 18:03:40 -0400
-X-Authenticated: #1725425
-Date: Mon, 9 Aug 2004 00:07:27 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Greg KH <greg@kroah.com>
-Cc: albert@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: dynamic /dev security hole?
-Message-Id: <20040809000727.1eaf917b.Ballarin.Marc@gmx.de>
-In-Reply-To: <20040808162115.GA7597@kroah.com>
-References: <1091969260.5759.125.camel@cube>
-	<20040808175834.59758fc0.Ballarin.Marc@gmx.de>
-	<20040808162115.GA7597@kroah.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 8 Aug 2004 18:14:49 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:56964 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S265248AbUHHWOs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 18:14:48 -0400
+Subject: Re: 2.6.8-rc2-mm1: bluetooth broken?
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040808191912.GA620@elf.ucw.cz>
+References: <20040808191912.GA620@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1092003277.2773.45.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 09 Aug 2004 00:14:37 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Aug 2004 09:21:15 -0700
-Greg KH <greg@kroah.com> wrote:
+Hi Pavel,
 
-> Patches to the udev HOWTO and FAQ are always welcome.
-> 
+> I'm using USB bluetooth dongle for connecting with my cell phone... It
+> works in 2.6.7, but not in -rc2-mm1. Is that known?
 
-How about this? The first part is a spelling fix.
+not that I know of, but I need more details and first you should try the
+latest 2.6.8-rc3, 2.6.8-rc3-bk3 or 2.6.8-rc3-mm2.
 
-(Resend, I hate "smart" features in software...)
+Regards
 
---- udev-FAQ.orig	2004-08-08 18:42:03.639348944 +0200
-+++ udev-FAQ	2004-08-08 23:14:07.895684768 +0200
-@@ -23,7 +23,7 @@
- 	- the former had stayed around for many months with maintainer
- 	  claiming that everything works fine
- 	- the latter had stayed, period.
--	- the devfs maintainer/author disappeared and stoped maintaining
-+	- the devfs maintainer/author disappeared and stopped maintaining
- 	  the code.
- 
- Q: But udev will not automatically load a driver if a /dev node is opened
-@@ -98,6 +98,19 @@
-    And don't have to be root but will get full permissions on /pendrive.
-    This works even without udev if /udev/pendrive is replaced by /dev/sda1
- 
-+Q: Are there any security issues that I should be aware of?
-+A: When using dynamic device numbers, a given pair of major/minor numbers may
-+   point to different hardware over time. If a user has permission to access a
-+   specific device node directly and is able to create hard links to this node,
-+   he or she can do so to create a copy of the device node. When the device is
-+   unplugged and udev removes the device node, the user's copy remains.
-+   If the device node is later recreated with different permissions the hard 
-+   link can still be used to access the device using the old permissions.
-+   (The same problem exists when using PAM to change permissions on login.)
-+    
-+   The simplest solution is to prevent the creation of hard links by putting
-+   /dev in a separate filesystem (tmpfs, ramfs, ...).
-+    
- Q: I have other questions about udev, where do I ask them?
- A: The linux-hotplug-devel mailing list is the proper place for it.  The
-    address for it is linux-hotplug-devel@lists.sourceforge.net
+Marcel
+
+

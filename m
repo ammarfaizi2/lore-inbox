@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVCDIny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262671AbVCDIpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbVCDIny (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 03:43:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbVCDIny
+	id S262671AbVCDIpl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 03:45:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbVCDIpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 03:43:54 -0500
-Received: from smtp3.Stanford.EDU ([171.67.16.138]:18055 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S262659AbVCDInh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 03:43:37 -0500
-Date: Fri, 4 Mar 2005 00:43:26 -0800 (PST)
-From: Junfeng Yang <yjf@stanford.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>,
-       <jfs-discussion@www-124.southbury.usf.ibm.com>, <reiser@namesys.com>
-cc: mc@cs.stanford.edu
-Subject: Re: [MC] [CHECKER] Do ext2, jfs and reiserfs respect mount -o
- sync/dirsync option?
-In-Reply-To: <Pine.GSO.4.44.0503032211570.7754-100000@elaine24.Stanford.EDU>
-Message-ID: <Pine.GSO.4.44.0503040025380.9443-100000@elaine24.Stanford.EDU>
+	Fri, 4 Mar 2005 03:45:41 -0500
+Received: from smtpq3.home.nl ([213.51.128.198]:51934 "EHLO smtpq3.home.nl")
+	by vger.kernel.org with ESMTP id S262671AbVCDIpa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 03:45:30 -0500
+Message-ID: <42281FD5.10000@keyaccess.nl>
+Date: Fri, 04 Mar 2005 09:44:05 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Thomas Gleixner <tglx@linutronix.de>, Adrian Bunk <bunk@stusta.de>,
+       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       "David S. Miller" <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>  <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>  <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>  <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>  <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>  <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>  <20050303170808.GG4608@stusta.de> <1109877336.4032.47.camel@tglx.tec.linutronix.de> <Pine.LNX.4.58.0503031135190.25732@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503031135190.25732@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Mar 2005, Junfeng Yang wrote:
+Linus Torvalds wrote:
 
->
-> Hi,
->
-> FiSC (our file system checker) emits several warnings on ext2, jfs and
-> reiserfs, complaining that diretories or files are lost while FiSC
-> believes they should already be persistent on disk. (ext3 behaves
-> correctly.)
+> On Thu, 3 Mar 2005, Thomas Gleixner wrote:
+> 
+>>It still does not solve the problem of "untested" releases. Users will
+>>still ignore the linus-tree-rcX kernels. 
+> 
+> 
+> .. and maybe that problem is unsolvable. People certainly argued 
+> vehemently that anything we do to try to make test releases (renaming etc) 
+> won't help.
 
-I forget to mention, we are mainly looking for crash-recovery bugs.  The
-warnings can trigger this way:
-1. do several file system operations
-2. "crash" the test machine
-3. get the crashed disk image, run fsck to recover
-4. mount the recovered disk image
+No, we argued that _if_ you don't do real -rc's no amount of renaming 
+will trick people into believing they are (for long). Note how that's 
+what has happened now. Your -rc's are -pre's, certainly the first ones 
+for each kernel, and that's exactly how people treat them -- that is, 
+many avoid them.
 
-I'm able to reproduce the same warnings on ext2 using the following
-program:
+Doing -rc1 to release and beyond from that per-release "sucker tree" as 
+you call it (I prefer "release tree") makes more sense. This gets you 
+real release management and the only thing left to do is appoint the 
+release manager.
 
-main()
-{
-        system("sudo umount /dev/hda9");
-        system("/sbin/mke2fs /dev/hda9");
-        system("sudo mount -t ext2 /dev/hda9 /mnt/sbd1 -o sync,dirsync");
-        creat("/mnt/sbd1/0002", 0777);
-        mkdir("/mnt/sbd1/0003", 0777);
-	// unplug your power cord here :)  then use e2fsck to recover
-}
+> So what do you do if you find an unsolvable problem? You don't solve it: 
+> you make sure it's not a show-stopper.
 
-uname -a shows
-Linux notus 2.6.8-1-686 #1 Thu Nov 25 04:34:30 UTC 2004 i686 GNU/Linux
+It's not unsolveable. Doing real -pre's and -rc's (which means "doing 
+doing real -rc's" in addition to the current situation) would at least 
+to a degree solve it.
 
+> Sneaky. That's my middle name.
+
+Judging by the fact that apparently you know have to few testers "seeing 
+right through Linus" would seem to be everybody else's, though.
+
+Rene.

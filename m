@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265161AbSIWCjv>; Sun, 22 Sep 2002 22:39:51 -0400
+	id <S264887AbSIWC6O>; Sun, 22 Sep 2002 22:58:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265163AbSIWCjv>; Sun, 22 Sep 2002 22:39:51 -0400
-Received: from holomorphy.com ([66.224.33.161]:40595 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265161AbSIWCju>;
-	Sun, 22 Sep 2002 22:39:50 -0400
-Date: Sun, 22 Sep 2002 19:36:55 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 32bit wraps and USER_HZ [64 bit counters], kernel 2.5.37
-Message-ID: <20020923023655.GV3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rolf Fokkens <fokkensr@fokkensr.vertis.nl>,
-	linux-kernel@vger.kernel.org
-References: <200209222207.g8MM7MM04998@fokkensr.vertis.nl>
+	id <S264888AbSIWC6N>; Sun, 22 Sep 2002 22:58:13 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:262 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S264887AbSIWC6M>; Sun, 22 Sep 2002 22:58:12 -0400
+Date: Mon, 23 Sep 2002 00:03:12 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Adeos <adeos-main@mail.freesoftware.fsf.org>,
+       Philippe Gerum <rpm@xenomai.org>
+Subject: Re: [PATCH] Adeos nanokernel for 2.5.38 1/2: no-arch code
+Message-ID: <20020923030312.GM20520@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Karim Yaghmour <karim@opersys.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Adeos <adeos-main@mail.freesoftware.fsf.org>,
+	Philippe Gerum <rpm@xenomai.org>
+References: <3D8E8371.D2070D87@opersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <200209222207.g8MM7MM04998@fokkensr.vertis.nl>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <3D8E8371.D2070D87@opersys.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 23, 2002 at 12:07:22AM +0200, Rolf Fokkens wrote:
-@@ -340,9 +335,12 @@
- 	unsigned long it_real_value, it_prof_value, it_virt_value;
- 	unsigned long it_real_incr, it_prof_incr, it_virt_incr;
- 	struct timer_list real_timer;
--	unsigned long utime, stime, cutime, cstime;
--	unsigned long start_time;
--	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
-+
-+	rwlock_t times_lock;
-+	u64 utime, stime, cutime, cstime;
-+	u64 cpu_utime[NR_CPUS], cpu_stime[NR_CPUS];
-+	u64 start_time;
-+
+Em Sun, Sep 22, 2002 at 10:58:57PM -0400, Karim Yaghmour escreveu:
+> diff -urpN linux-2.5.38/kernel/printk.c linux-2.5.38-adeos/kernel/printk.c
+> --- linux-2.5.38/kernel/printk.c	Sun Sep 22 00:25:31 2002
+> +++ linux-2.5.38-adeos/kernel/printk.c	Sun Sep 22 21:57:19 2002
+> @@ -194,17 +194,33 @@ int do_syslog(int type, char * buf, int 
+>  		if (error)
+>  			goto out;
+>  		i = 0;
+> +#ifdef CONFIG_ADEOS
+> +		ipipe_hw_spin_lock_disable(&logbuf_lock);
+> +#else  /* !CONFIG_ADEOS */
+>  		spin_lock_irq(&logbuf_lock);
+> +#endif /* CONFIG_ADEOS */
+>  		while ((log_start != log_end) && i < len) {
+>  			c = LOG_BUF(log_start);
+>  			log_start++;
+> +#ifdef CONFIG_ADEOS
+> +			ipipe_hw_spin_unlock_enable(&logbuf_lock);
+> +#else  /* !CONFIG_ADEOS */
+>  			spin_unlock_irq(&logbuf_lock);
+> +#endif /* CONFIG_ADEOS */
+>  			__put_user(c,buf);
+>  			buf++;
+>  			i++;
+> +#ifdef CONFIG_ADEOS
+> +			ipipe_hw_spin_lock_disable(&logbuf_lock);
+> +#else  /* !CONFIG_ADEOS */
+>  			spin_lock_irq(&logbuf_lock);
+> +#endif /* CONFIG_ADEOS */
+>  		}
+> +#ifdef CONFIG_ADEOS
+> +		ipipe_hw_spin_unlock_enable(&logbuf_lock);
+> +#else  /* !CONFIG_ADEOS */
+>  		spin_unlock_irq(&logbuf_lock);
+> +#endif /* CONFIG_ADEOS */
+>  		error = i;
 
-Hmm. Isn't task_t bloated enough already? I'd rather remove them than
-make them 64-bit.
+Why this ifdef hell and not something like:
 
+	lockbuf_lock();
+	bla
+	logbuf_unlock();
 
-Thanks,
-Bill
+and have this defined in a header, say printk.h or whatever, with the
+ifdefs?
+
+- Arnaldo

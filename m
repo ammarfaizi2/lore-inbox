@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272363AbTHEAM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 20:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272366AbTHEAM7
+	id S265624AbTHEAIy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 20:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272312AbTHEAIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 20:12:59 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:16793
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272363AbTHEAMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 20:12:45 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] O13.1int
-Date: Tue, 5 Aug 2003 10:17:55 +1000
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>
+	Mon, 4 Aug 2003 20:08:54 -0400
+Received: from law11-oe30.law11.hotmail.com ([64.4.16.87]:27922 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S265624AbTHEAIx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 20:08:53 -0400
+X-Originating-IP: [165.98.111.210]
+X-Originating-Email: [bmeneses_beltran@hotmail.com]
+From: "Viaris" <bmeneses_beltran@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel 2.6.0-test2 hang in Starting RedHat Network Daemon
+Date: Mon, 4 Aug 2003 18:08:50 -0600
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308051017.55616.kernel@kolivas.org>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <Law11-OE30ARn7Ee2Wz00013179@hotmail.com>
+X-OriginalArrivalTime: 05 Aug 2003 00:08:52.0127 (UTC) FILETIME=[C09162F0:01C35AE5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A heck of a lot fairer on disk only tasks; lets them earn sleep avg up to just 
-interactive state so they stay on the active array.
+Hi all
 
-Con
+I have problems with this new kernel, I compiled the 2.6.0-test2 but when
+start the services this kernel hang in the service starting RedHat Network,
+the message are:
 
---- linux-2.6.0-test2-mm4-O13/kernel/sched.c	2003-08-05 10:08:15.000000000 +1000
-+++ linux-2.6.0-test2-mm4-O13.1/kernel/sched.c	2003-08-05 09:58:55.000000000 +1000
-@@ -584,13 +584,16 @@ repeat_lock_task:
- 				goto repeat_lock_task;
- 			}
- 			if (old_state == TASK_UNINTERRUPTIBLE){
-+				rq->nr_uninterruptible--;
- 				/*
- 				 * Tasks on involuntary sleep don't earn
--				 * sleep_avg
-+				 * sleep_avg beyond just interactive state.
- 				 */
--				rq->nr_uninterruptible--;
--				p->timestamp = sched_clock();
--				p->activated = -1;
-+				if (NS_TO_JIFFIES(p->sleep_avg) >=
-+					JUST_INTERACTIVE_SLEEP(p)){
-+						p->timestamp = sched_clock();
-+						p->activated = -1;
-+				}
- 			}
- 			if (sync)
- 				__activate_task(p, rq);
+INIT:Id"1" respawning too fast: disabled for 5 minutes
+INIT:Id"2" respawning too fast: disabled for 5 minutes
+INIT:Id"3" respawning too fast: disabled for 5 minutes
+INIT:Id"4" respawning too fast: disabled for 5 minutes
+INIT:Id"5" respawning too fast: disabled for 5 minutes
+INIT:Id"6" respawning too fast: disabled for 5 minutes
+INIT:Id"4" respawning too fast: disabled for 5 minutes
+INIT: no more processes left in this runlevel.
 
+I have in my grub.conf the oher kernel version 2.4.20, If I start with this
+kernel, all work fine.
+
+How can I to resolv this problem with new kernel?
+
+Thanks in Advanced,
+
+Regards

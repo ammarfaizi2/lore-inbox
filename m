@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287307AbSAUQam>; Mon, 21 Jan 2002 11:30:42 -0500
+	id <S287373AbSAUQcw>; Mon, 21 Jan 2002 11:32:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287359AbSAUQaY>; Mon, 21 Jan 2002 11:30:24 -0500
-Received: from mail.loewe-komp.de ([62.156.155.230]:64009 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S287307AbSAUQaH>; Mon, 21 Jan 2002 11:30:07 -0500
-Message-ID: <3C4C42EE.BAEBE8CB@loewe-komp.de>
-Date: Mon, 21 Jan 2002 17:33:50 +0100
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: LOEWE. Hannover
-X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: de, en
+	id <S287359AbSAUQcm>; Mon, 21 Jan 2002 11:32:42 -0500
+Received: from ns.suse.de ([213.95.15.193]:60430 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287348AbSAUQcd>;
+	Mon, 21 Jan 2002 11:32:33 -0500
+Date: Mon, 21 Jan 2002 17:32:32 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: "David S. Miller" <davem@redhat.com>, <martin.macok@underground.cz>,
+        <linux-kernel@vger.kernel.org>, <ak@muc.de>
+Subject: Re: [andrewg@tasmail.com: remote memory reading through tcp/icmp]
+In-Reply-To: <20020121141436.A11489@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0201211729160.5384-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: yodaiken@fsmlabs.com
-CC: Daniel Phillips <phillips@bonn-fries.net>,
-        george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16SgXE-0001i8-00@starship.berlin> <20020121084344.A13455@hq.fsmlabs.com> <E16SgwP-0001iN-00@starship.berlin> <20020121090602.A13715@hq.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yodaiken@fsmlabs.com schrieb:
-> 
-> On Mon, Jan 21, 2002 at 05:05:01PM +0100, Daniel Phillips wrote:
-> > > I think of "benefit", perhaps naiively, in terms of something that can
-> > > be measured or demonstrated rather than just announced.
-> >
-> > But you see why asap scheduling improves latency/throughput *in theory*,
-> 
-> Nope. And I don't even see a relationship between preemption and asap I/O
-> schedulding. What make you think that I/O threads won't be preempted by
-> other threads?
-> 
+On Mon, 21 Jan 2002, Russell King wrote:
 
-I/O intensive threads block early voluntarily - while CPU hogs don't.
-Statistically there is a higher chance, that a CPU hog gets preempted
-instead of an IO bound (that gives up the CPU in some useconds anyway)
+> 127.0.0.1 sent an invalid ICMP error to a broadcast.
+> from the ipv4 stack after fixing these as per the Andi's patch.  I'm not
+> certain what's causing it; it only happens while the box is coming up.
 
-The next IO request is hitting the device "earlier" - instead of waiting
-for the next schedule() - that makes sense to me.
+Further investigation showed that 2.5.2-pre2 + andi's fix + a minimal
+set of compile fixes made my problem disappear. Looks like a bad
+interaction between something I had in -dj already, and the pre2 merge.
 
-With this scenario the system CPU utilization gets "bigger" for the benefit
-of "faster" IO. OTOH, seti@home needs longer to run.
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271572AbTGQVlp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 17:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271585AbTGQVlp
+	id S271543AbTGQVjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 17:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271574AbTGQViZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 17:41:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:44262 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S271572AbTGQViS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 17:38:18 -0400
-Date: Thu, 17 Jul 2003 14:43:26 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Harald Welte <laforge@netfilter.org>
-Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ip_nat_ftp in 2.6.0-test1
-Message-Id: <20030717144326.4f496995.davem@redhat.com>
-In-Reply-To: <20030717211254.GA27685@sunbeam.de.gnumonks.org>
-References: <20030717211254.GA27685@sunbeam.de.gnumonks.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Thu, 17 Jul 2003 17:38:25 -0400
+Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:53689 "EHLO
+	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S271568AbTGQVgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 17:36:53 -0400
+Date: Thu, 17 Jul 2003 16:51:39 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: debian-user <debian-user@lists.debian.org>
+Subject: 2.6.0-test1: some modules refuse to autoload
+Message-ID: <20030717215139.GA19877@glitch.localdomain>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
+	debian-user <debian-user@lists.debian.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jul 2003 23:12:54 +0200
-Harald Welte <laforge@netfilter.org> wrote:
+My apologies if this is a repeat... I originally sent it yesterday
+evening, and haven't seen any sign of it on the list.
 
-> This is a 2.6 only fix for the FTP NAT helper code.  The patch below
-> (by Martin Josefsson) also closes Bug 933 in the kernel bug tracker.
-> 
-> The bug was introduced while making the helper compliant to the recently
-> introduced support for nonlinear skb's in netfilter.
+---
 
-Applied, thanks Harald.
+I'm starting to test out the 2.6.0-test1 kernel, and for the most part
+everything is going smoothly.  There is one problem that has me
+stumped, however... I can't seem to get module auto-loading to work for
+the cdrom.  None of the other modules seem to have any trouble.
+
+I'm currently running Debian sid, with module-init-tools 0.9.13-pre.
+I've defined the alias "block-major-22 ide-cd", and verified that both
+"modprobe -nv block-major-22" and "modprobe -nv ide-cd" give the
+expected results.  When I try to mount a CD, however, I get the message
+"/dev/hdc not a valid block device".  Browsing the system logfiles, I
+don't see any indication that a module load was even attempted.
+Everything works fine if I load the ide-cd module manually first.
+
+I browsed the list archives and did some googling, but didn't find
+anything which sounded similar.  Any idea what's wrong?
+
+Thanx!

@@ -1,122 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261699AbSIXQZD>; Tue, 24 Sep 2002 12:25:03 -0400
+	id <S261698AbSIXQVL>; Tue, 24 Sep 2002 12:21:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261700AbSIXQZC>; Tue, 24 Sep 2002 12:25:02 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:64902 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261699AbSIXQZB>; Tue, 24 Sep 2002 12:25:01 -0400
-Date: Tue, 24 Sep 2002 11:30:06 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Bob_Tracy <rct@gherkin.frus.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.38: modular IDE broken
-In-Reply-To: <m17tqRL-0005khC@gherkin.frus.com>
-Message-ID: <Pine.LNX.4.44.0209241123370.19606-100000@chaos.physics.uiowa.edu>
+	id <S261702AbSIXQVK>; Tue, 24 Sep 2002 12:21:10 -0400
+Received: from dsl-213-023-039-208.arcor-ip.net ([213.23.39.208]:21435 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S261698AbSIXQVK>;
+	Tue, 24 Sep 2002 12:21:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Tue, 24 Sep 2002 07:09:20 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: trond.myklebust@fys.uio.no, Andrew Morton <akpm@digeo.com>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Urban Widmark <urban@teststation.com>, Chuck Lever <cel@citi.umich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3D811A6C.C73FEC37@digeo.com> <E17ta9C-0003bo-00@starship> <shshegg1g5h.fsf@charged.uio.no>
+In-Reply-To: <shshegg1g5h.fsf@charged.uio.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17thwm-0003fX-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Sep 2002, Bob_Tracy wrote:
-
-> Kai Germaschewski wrote:
-> > ===== Makefile 1.5 vs edited =====
-> > --- 1.5/drivers/ide/Makefile	Wed Sep 18 20:11:21 2002
-> > +++ edited/Makefile	Mon Sep 23 17:50:05 2002
-> > @@ -24,7 +24,7 @@
-> >  obj-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
-> >  obj-$(CONFIG_BLK_DEV_ISAPNP)		+= ide-pnp.o
-> >  
-> > -ifeq ($(CONFIG_BLK_DEV_IDE),y)
-> > +ifdef CONFIG_BLK_DEV_IDE
-> >  obj-$(CONFIG_PROC_FS)			+= ide-proc.o
-> >  endif
+On Tuesday 24 September 2002 00:43, Trond Myklebust wrote:
+> >>>>> " " == Daniel Phillips <phillips@arcor.de> writes:
 > 
-> I neglected to mention that the above patch (exactly the same, as it
-> turns out :-)) is how I forced the ide-proc.o build.  The brokenness
-> extends deeper.
+>     >> Note that in doing so, we do not want to invalidate any reads
+>     >> or writes that may have been already scheduled. The existing
+>     >> mapping still would need to hang around long enough to permit
+>     >> them to complete.
 > 
-> Specific example: proc_ide_read_geometry has the requisite EXPORT_SYMBOL()
-> wrapper in ide-proc.c, yet, I still end up with proc_ide_read_geometry_R*
-> unresolved at depmod time.  In case anyone is wondering, I *did* do a
-> "make clean", manually cleaned out linux/include/modules to make *sure*
-> there wasn't any old cruft lying about, then ran "make dep && make bzImage &&
-> make modules && make modules_install".  The depmod output quoted below is
-> the result of all that.
+>      > With the mechanism I described above, that would just work.
+>      > The fault path would do lock_page, thus waiting for the IO to
+>      > complete.
+> 
+> NFS writes do not hold the page lock until completion. How would you
+> expect to be able to coalesce writes to the same page if they did?
 
-Well, fortunately enough, it turns out not to be a general problem in the
-build nor modversions related at all, but rather a messed up
-drivers/ide/Makefile.
+Coalesce before initiating writeout?  I don't see why NFS should be special 
+in this regard, or why it should not leave a page locked until IO has 
+completed, like other filesystems.  Could you please explain?
 
-The specific problem here is that you have CONFIG_IDE = CONFIG_BLK_DEV_IDE
-= m, but end up with ide-proc.o in $(obj-y). So that asks for ide-proc.o
-being linked into vmlinux. However, since the whole drivers/ide subdir is
-marked as "m" (CONFIG_IDE), it does not end up in vmlinux. Anyway, that's
-not really what you wanted in the first place, so never mind.
-
-There are more problems than this, but the appended patch at least gets
-rid of this issue, it needs a
-
-	mv drivers/ide/ide.c drivers/ide/ide-main.c,
-
-to work. There's still other unresolved symbols which need exporting.
-
-Any of the IDE people interested in figuring this out properly?
-
---Kai
-
-===== drivers/ide/Makefile 1.5 vs edited =====
---- 1.5/drivers/ide/Makefile	Wed Sep 18 20:11:21 2002
-+++ edited/drivers/ide/Makefile	Tue Sep 24 10:21:51 2002
-@@ -7,14 +7,22 @@
- # Note : at this point, these files are compiled on all systems.
- # In the future, some of these should be built conditionally.
- #
--export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide.o ide-probe.o ide-dma.o ide-lib.o setup-pci.o
-+export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide-main.o \
-+	       ide-probe.o ide-dma.o ide-lib.o setup-pci.o
- 
- # First come modules that register themselves with the core
- obj-$(CONFIG_BLK_DEV_IDEPCI)		+= pci/
- 
- # Core IDE code - must come before legacy
- 
--obj-$(CONFIG_BLK_DEV_IDE)		+= ide-probe.o ide-geometry.o ide-iops.o ide-taskfile.o ide.o ide-lib.o
-+ide-y					+= ide-geometry.o \
-+					   ide-iops.o ide-taskfile.o  \
-+					   ide-main.o ide-lib.o
-+ide-$(CONFIG_PROC_FS)			+= ide-proc.o
-+ide-objs				:= $(ide-y)
-+
-+obj-$(CONFIG_BLK_DEV_IDE)		+= ide-probe.o ide.o
-+
- obj-$(CONFIG_BLK_DEV_IDEDISK)		+= ide-disk.o
- obj-$(CONFIG_BLK_DEV_IDECD)		+= ide-cd.o
- obj-$(CONFIG_BLK_DEV_IDETAPE)		+= ide-tape.o
-@@ -23,10 +31,6 @@
- obj-$(CONFIG_BLK_DEV_IDEPCI)		+= setup-pci.o
- obj-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
- obj-$(CONFIG_BLK_DEV_ISAPNP)		+= ide-pnp.o
--
--ifeq ($(CONFIG_BLK_DEV_IDE),y)
--obj-$(CONFIG_PROC_FS)			+= ide-proc.o
--endif
- 
- obj-$(CONFIG_BLK_DEV_IDE)		+= legacy/ ppc/ arm/
- 
-===== drivers/ide/ide-main.c 1.22 vs edited =====
---- 1.22/drivers/ide/ide-main.c	Tue Sep 24 10:20:32 2002
-+++ edited/drivers/ide/ide-main.c	Tue Sep 24 09:40:30 2002
-@@ -3553,7 +3553,9 @@
- 	return 0;
- }
- 
-+#ifndef MODULE
- module_init(ide_init);
-+#endif
- 
- #ifdef MODULE
- char *options = NULL;
-
+-- 
+Daniel

@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267615AbTBQWeF>; Mon, 17 Feb 2003 17:34:05 -0500
+	id <S267622AbTBQWlq>; Mon, 17 Feb 2003 17:41:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267617AbTBQWeF>; Mon, 17 Feb 2003 17:34:05 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:38016 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267615AbTBQWeE>;
-	Mon, 17 Feb 2003 17:34:04 -0500
-Message-Id: <200302172244.h1HMi3n03557@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, cliffw@osdl.org
-Subject: Re: 2.5.61-mm1 
-In-Reply-To: Message from Andrew Morton <akpm@digeo.com> 
-   of "Fri, 14 Feb 2003 23:13:56 PST." <20030214231356.59e2ef51.akpm@digeo.com>
+	id <S267623AbTBQWlk>; Mon, 17 Feb 2003 17:41:40 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:57988 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267622AbTBQWkR>;
+	Mon, 17 Feb 2003 17:40:17 -0500
+Subject: [PATCH] Fix warnings for NTFS 2.5.61
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: linux-ntfs-dev@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1045522197.12949.94.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 17 Feb 2003 14:44:03 -0800
-From: Cliff White <cliffw@osdl.org>
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 17 Feb 2003 14:49:58 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.61/2.5.61-mm1/
-> 
-> . Jens has fixed the request queue aliasing problem and we are no longer
->   able to break the IO scheduler.  This was preventing the OSDL team from
->   running dbt2 against recent kernels, so hopefully that is all fixed up now.
-> 
-Thanks again for doing all this, really appreciate it.
-Well, we're closer....
-The showstopper for us is still the flock() issue. We have Mathew Wilcox's patch from
-2.5.52, which we have been applying to all recent kernels. The patch is in PLM as patch id
-# 1061. The issue is in BugMe as bug #94 . 
-Without proper flock() we cannot stop and restart the database, which means we can't run the test. 
-We've tried applying Wilcox's flock patch to -mm1, but it's doesn't go clean, and frankly we're not smart enough
-to do the merge by hand -  lock code scares us. 
+This patch gets rid of the following warnings.
 
-We just tested 2.5.61 vanilla, and 2.5.61-mm1. 
+fs/ntfs/attrib.c: In function `find_attr':
+fs/ntfs/attrib.c:1187: warning: duplicate `const'
+fs/ntfs/unistr.c: In function `ntfs_collate_names':
+fs/ntfs/unistr.c:102: warning: duplicate `const'
+fs/ntfs/unistr.c:102: warning: duplicate `const'
 
-The patch applies cleanly to stock 2.5.61, and we can cycle the database.
-We can't run dbt2 on stock 2.5.61, because of the scheduler bug. 
-We believe the scheduler fix in -mm1 will be the ticket, but we can't try
-it because of the flock() issue. So we're wedged. 
-Can someone smarter than us maybe do a merge? 
+diff -Nru a/fs/ntfs/attrib.c b/fs/ntfs/attrib.c
+--- a/fs/ntfs/attrib.c	Mon Feb 17 14:16:15 2003
++++ b/fs/ntfs/attrib.c	Mon Feb 17 14:16:15 2003
+@@ -1183,7 +1183,8 @@
+ 			register int rc;
+ 			
+ 			rc = memcmp(val, (u8*)a + le16_to_cpu(
+-					a->_ARA(value_offset)), min(val_len,
++					a->_ARA(value_offset)), 
++				    	min_t(const u32, val_len,
+ 					le32_to_cpu(a->_ARA(value_length))));
+ 			/*
+ 			 * If @val collates before the current attribute's
+diff -Nru a/fs/ntfs/unistr.c b/fs/ntfs/unistr.c
+--- a/fs/ntfs/unistr.c	Mon Feb 17 14:16:15 2003
++++ b/fs/ntfs/unistr.c	Mon Feb 17 14:16:15 2003
+@@ -96,10 +96,10 @@
+ 		const int err_val, const IGNORE_CASE_BOOL ic,
+ 		const uchar_t *upcase, const u32 upcase_len)
+ {
+-	u32 cnt, min_len;
++	u32 cnt;
++	const u32 min_len = min_t(const u32, name1_len, name2_len);
+ 	uchar_t c1, c2;
+ 
+-	min_len = min(name1_len, name2_len);
+ 	for (cnt = 0; cnt < min_len; ++cnt) {
+ 		c1 = le16_to_cpu(*name1++);
+ 		c2 = le16_to_cpu(*name2++);
 
-thanks,
-cliffw
 
 

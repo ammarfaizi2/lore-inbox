@@ -1,116 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261413AbSJ2BGe>; Mon, 28 Oct 2002 20:06:34 -0500
+	id <S261459AbSJ2BIU>; Mon, 28 Oct 2002 20:08:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261434AbSJ2BGe>; Mon, 28 Oct 2002 20:06:34 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:63985 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261413AbSJ2BGd>;
-	Mon, 28 Oct 2002 20:06:33 -0500
-Message-ID: <3DBDDF70.9050609@us.ibm.com>
-Date: Mon, 28 Oct 2002 17:08:00 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S261446AbSJ2BIU>; Mon, 28 Oct 2002 20:08:20 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:37261 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261439AbSJ2BIR>;
+	Mon, 28 Oct 2002 20:08:17 -0500
+Date: Mon, 28 Oct 2002 17:08:44 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+To: Davide Libenzi <davidel@xmailserver.org>, bert hubert <ahu@ds9a.nl>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+Message-ID: <112700000.1035853724@w-hlinder>
+In-Reply-To: <Pine.LNX.4.44.0210281708120.966-100000@blue1.dev.mcafeelabs.com>
+References: <Pine.LNX.4.44.0210281708120.966-100000@blue1.dev.mcafeelabs.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: mochel@osdl.org, alan@lxorguk.ukuu.org.uk, davej@suse.de,
-       mjbligh@us.ibm.com, akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [rfc][patch] DriverFS Topology + per-node (NUMA) meminfo
-References: <20021028233518.53C5E2C105@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> In message <3DBD88EA.7000402@us.ibm.com> you write:
+--On Monday, October 28, 2002 17:13:53 -0800 Davide Libenzi <davidel@xmailserver.org> wrote:
+
+> On Tue, 29 Oct 2002, bert hubert wrote:
 > 
->>Rusty Russell wrote:
->>
->>>On Mon, 21 Oct 2002 14:50:25 -0700
->>>Matthew Dobson <colpatch@us.ibm.com> wrote:
->>>
->>>This clashes with my "move cpu driverfs to generic code" patch.
->>
->>Yes, yes it does.  It does a lot of similar things though.
+>> Ok, so that is two things that need to be in the manpage and probably in
+>> bold:
+>> 
+>> 	1) epoll only works on pipes and sockets
+>>               (not on tty, not on files)
+>> 
+>>         2) epoll must be used on non-blocking sockets only
+>>               (and describe the race that happens otherwise)
+>> 
+>> If you send me the source of your manpages I'll work it in if you want.
 > 
-> Hey, great minds think alike 8)
-
-Indeed!
-
-
->>My patch does not take advantage of the DECLARE_PER_CPU macros, etc.
+> No problem ...
 > 
-> A minor optimization which can be done later.  The important bit is
-> not creating entries for cpus where !cpu_possible(cpu).
 
-Very true.  I only instantiate entries for cpus that are online at the 
-time of the initcall.  With the cpu callback stuff that you had in your 
-patch, we can easily instantiate cpus that (magically? ;) come on line 
-at a later point.
+	If you need any help with the Man pages I will be glad to 
+help too. It looks like providing examples of how to use it would be
+very useful since this is something application writers are supposed 
+to use...
 
-
->> <snip>
- >>
->>What do you think of my patch (other than the obvious that it conflicts 
->>with yours)?
+> events after you received EAGAIN or after accept/connect". And the fact on
+> using the fd immediately after an accept/connect is enforced by two very
+> likely facts :
 > 
-> If I'm reading correctly, you move the cpus under "node" dirs when
-> it's a NUMA system.  I can see the cute appeal, but it makes it harder
-> to answer "how many cpus do I have?": a program would need to do a
-> "find" which is kinda icky (also hard to write HOWTOs).  So I'd prefer
-> symlinks to the node, and no hierarchy.
+> 1) on accept() it's very likely that the first packet brough you something
+> 	more than SYN
+> 
+> 2) on connect() you have the full I/O write space available
 
-Well, in either (NUMA/non-NUMA) case, there are symlinks to the CPUs 
-under class/cpu/devices:
-[root@elm3b79 devices]# ls -al class/cpu/devices/
-total 0
-drwxr-xr-x    2 root     root            0 Oct 25 07:59 .
-drwxr-xr-x    4 root     root            0 Oct 25 07:59 ..
-lrwxrwxrwx    1 root     root           22 Oct 25 07:59 0 -> 
-../../../root/sys/cpu0
-lrwxrwxrwx    1 root     root           22 Oct 25 07:59 1 -> 
-../../../root/sys/cpu1
-lrwxrwxrwx    1 root     root           22 Oct 25 07:59 2 -> 
-../../../root/sys/cpu2
-lrwxrwxrwx    1 root     root           22 Oct 25 07:59 3 -> 
-../../../root/sys/cpu3
-lrwxrwxrwx    1 root     root           22 Oct 25 07:59 4 -> 
-../../../root/sys/cpu4
-lrwxrwxrwx    1 root     root           22 Oct 25 07:59 5 -> 
-../../../root/sys/cpu5
-lrwxrwxrwx    1 root     root           22 Oct 25 07:59 6 -> 
-../../../root/sys/cpu6
-lrwxrwxrwx    1 root     root           22 Oct 25 07:59 7 -> 
-../../../root/sys/cpu7
+	Do you think these should be mentioned explicitly?
 
-These actually work really well because they don't move..  I like the 
-idea (maybe it is just cute) of exposing the topology in a hierarchical 
-(directory) fashion when possible.  And class/cpu/devices seems like a 
-fairly logical place to go inquiring about cpus...
+Thanks a lot.
 
-
-> driver/base/cpu.c should probably be moved into kernel/cpu.c anyway.
-
-What about driver/base/node.c & memblk.c?  My thoughts were to maintain 
-a separation between driverfs-only and other in-core code.
-
-
-> I think exposing the struct cpu array is a good idea, so archs can add
-> properties if they want (ie. node information).
-
-Cool.  I didn't think it was particularly important at first, but Pat 
-showed me the error of my ways ;)
-
-
-> But Patrick is the architect, I'm just a grunt, so it's his call 8)
-> Rusty.
-
-Good call!  What do you think, O architect? ;)
-
-Cheers!
-
--Matt
+Hanna
 

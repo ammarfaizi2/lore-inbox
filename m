@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265661AbUFIHYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265676AbUFIHZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265661AbUFIHYm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 03:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUFIHYm
+	id S265676AbUFIHZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 03:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265685AbUFIHZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 03:24:42 -0400
-Received: from 178-194.leased.cust.tie.cl ([200.54.178.194]:450 "EHLO
-	calvomackenna.cl") by vger.kernel.org with ESMTP id S265661AbUFIHYk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 03:24:40 -0400
-Message-Id: <200406090821.i598LcC3010436@calvomackenna.cl>
-Reply-To: lsblpm@yahoo.com.br
-From: "Sr. Milton" <lsblpm@yahoo.com.br>
-To: gravador@digital.com
-Subject: Saiba como usam seu telefone em sua ausencia !                                             MFPDGPYTDX
-Date: Wed, 9 Jun 2004 04:22:20 -0300
+	Wed, 9 Jun 2004 03:25:57 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:361 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265676AbUFIHZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 03:25:50 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 0/3] Couple of sysfs patches
+Date: Wed, 9 Jun 2004 02:21:24 -0500
+User-Agent: KMail/1.6.2
+Cc: Greg KH <greg@kroah.com>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 1
-X-MSMail-Priority: High
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-Id: <200406090221.24739.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GRAVADOR DIGITAL TELEFONICO AUTOMÁTICO
+Hi,
+
+I am trying to add sysfs support to the serio subsystem and I would like you
+to consider the following changes:
  
-www.gigitech.com.br/gravador
+- when registering platform device, if device id is set to -1, do not add it
+  as a suffix to device's name. It can be used when there is only one device.
+  The reason for change - i find that i80420 looks ugly, just i8042 is much
+  better ;)
 
-gravador@gigitech.com.br
- 
-Telefone: 11 3851-2704 Plantão: 9780-6340 / 9822-0364 
- 
-VOCê CONHECE O NOSSO PRODUTO ? 
- 
-- Gravador  telefônico  digital  automático, para monitoramento de ligações telefonicas.
+- create platform_device_simple_releasse function that would just free memory
+  occupied by platform device. Having such release routine in core allows
+  drivers implementing simple platform devices not wait in module unload code
+  till last reference to the device is dropped.
 
+And of course whitespace changes ;) in the very first patch.
 
-- Indicado para uso em empresas que necessitam monitorar seus contatos telefônicos para avaliar a qualidade de atendimento  para  seus  clientes, além do uso doméstico (monitorar ligações telefônicas de filhos, empregados, etc).
+Please consider applying.
 
-As gravações podem serem efetuadas de modo automático ou manual em formato mp3 que podem serem ouvidas em qualquer computador ou armazenadas em qualquer tipo de midia para serem ouvidas em qualquer lugar, inclusive seu CD player.
-
-Visite nosso site: www.gigitech.com.br/gravador
-
-
-Para aquisição ou  duvidas entre em contato pelos meios abaixo:
-
-Telefone:  11 3851-2704 plantão: 9780-6340 / 9822-0364
-
-E-mail: gravador@gigitech.com.br
-
-
-Para sair da lista por favor envie um e-mail para remover2@gigitech.com.br 
-
- 
+-- 
+Dmitry

@@ -1,110 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUDBShU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 13:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbUDBShU
+	id S264155AbUDBSkz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 13:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbUDBSkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 13:37:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:23275 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264147AbUDBShL (ORCPT
+	Fri, 2 Apr 2004 13:40:55 -0500
+Received: from mail.shareable.org ([81.29.64.88]:1686 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S264155AbUDBSkw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 13:37:11 -0500
-Date: Fri, 2 Apr 2004 10:33:27 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: vatsa@in.ibm.com, mbligh@aracnet.com, hari@in.ibm.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jamesclv@us.ibm.com
-Subject: Re: BUG_ON(!cpus_equal(cpumask, tmp));
-Message-Id: <20040402103327.5ebc1956.rddunlap@osdl.org>
-In-Reply-To: <7621629.1080823120@42.150.104.212.access.eclipse.net.uk>
-References: <20040330173620.6fa69482.akpm@osdl.org>
-	<276260000.1080697873@flay>
-	<109577502.1080783067@[192.168.0.89]>
-	<20040401050413.GA4056@in.ibm.com>
-	<7621629.1080823120@42.150.104.212.access.eclipse.net.uk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 2 Apr 2004 13:40:52 -0500
+Date: Fri, 2 Apr 2004 19:40:35 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Ben Mansell <ben@zeus.com>, Steven Dake <sdake@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Is POLLHUP an input-only or bidirectional condition? (was: epoll reporting events when it hasn't been asked to)
+Message-ID: <20040402184035.GA653@mail.shareable.org>
+References: <Pine.LNX.4.58.0404020950560.3066@stones.cam.zeus.com> <Pine.LNX.4.44.0404020717350.1828-100000@bigblue.dev.mdolabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0404020717350.1828-100000@bigblue.dev.mdolabs.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 01 Apr 2004 12:38:40 +0100 Andy Whitcroft wrote:
+[New thread because I want people who understand POLLHUP to clarify.
+ The parent thread's question was: why does epoll always report POLLHUP
+ and POLLERR conditions even when the program didn't ask for those.
+ The trivial answer is because that's what poll() does.]
 
-| --On 01 April 2004 10:34 +0530 Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
-| 
-| > Hmm ..Doesn't it need to drop tlbstate_lock before returning?
-| > The second lock should be call_lock?
-| 
-| Yes and Yes.  I don't know how Andrew copes with 300 odd patches. 
-| I don't seem to be able to keep track of the versions on 3 of them?
-| Seems I sent out an old version.  Doh.  Explicit version numbers
-| from now on.
-| 
-| Below is tested version of the patch.  If anyone can reproduce the
-| issue I would be interested in knowing if this passes a reboot on
-| that system.
-| 
-| Apologies for the confusion.  And thanks for reviewing!
+Davide Libenzi wrote:
+> Handling by, for example, removing the fd from the epoll set and 
+> unregistering/freeing the associated data structures. IMO we can leave the 
+> current behaviour, but if someone sees huge problems with this, the fix is 
+> a one-liner.
 
+None of select, poll or epoll allow a program to ignore POLLERR while
+checking POLLIN or POLLOUT.  So at least epoll is consistent with the
+other two.
 
-This version works well, thank you.  Without it I still see the
-BUG_ON() in smp.c (line 359).
+It is possible to ignore POLLHUP conditions with select(), but not
+poll() or epoll.  For sockets at least, POLLHUP should indicate the
+socket is fully closed, so that reading and writing will both fail.
+Thus it makes sense that POLLHUP is not ignorable, although curiously
+select() only treats POLLHUP as an _input_ condition, so it won't wake
+something that's waiting only for output readiness.  poll() will
+always wake even if you're only waiting for POLLOUT.
 
+POLLERR is set by UDP sockets with a pending error condition, and that
+will be reported whether you read or write to the socket (except in
+some perverse conditions where MSG_MORE has been used - then app state
+machines could get confused).  So it's appropriate for a POLLIN or
+POLLOUT waiter to be woken when there's a POLLERR condition.
 
-I noted a few comments corrections and style changes below.
-Want a patch for them instead?
+Summary: epoll is consistent with poll().  I'm not sure why poll() and
+select() treat POLLHUP differnently.  A poll() for POLLOUT will be
+woken by a POLLHUP condition, yet a select() for output will _not_ be
+woken by a POLLHUP condition.
 
+Perhaps that indicates some confusion over what POLLHUP is supposed to
+mean, and when it should be set by devices and/or sockets: is it for
+input hangup conditions that allow further output, or for total hangup
+conditions where input and output are both guaranteed to fail?
 
-| @@ -367,16 +365,24 @@ static void flush_tlb_others(cpumask_t c
-|  	 * detected by the NMI watchdog.
-|  	 */
-|  	spin_lock(&tlbstate_lock);
-| +
-| +	/* Subtle, mask the request mask with the currently online cpu's.
-| +	 * Sample this under the lock; cpus in the the middle of going
-                                                   x.x
-| +	 * offline will wait until there is noone in this critical section
-| +	 * before disabling IPI handling. */
-| +	cpus_and(tmp, cpumask, cpu_online_map);
-| +	if(cpus_empty(tmp))
-        if (cpus_empty(tmp))
-| +		goto out_unlock;
+If it's the latter, as it seems to be for sockets, then the poll() and
+epoll behaviour makes sense, but select() doesn't.  If it's the
+former, then the select() behaviour is the only one that makes sense.
 
+Hence my question: does anyone know for sure which POLLHUP behaviour
+is correct and sensible?
 
-| @@ -527,6 +531,15 @@ int smp_call_function (void (*func) (voi
-|  		atomic_set(&data.finished, 0);
-|  
-|  	spin_lock(&call_lock);
-| +
-| +	/* Subtle, get the current number of online cpus.
-| +	 * Sample this under the lock; cpus in the the middle of going
-                                                   x.x
-| +	 * offline will wait until there is noone in this critical section
-| +	 * before disabling IPI handling. */
+-- Jamie
 
 
-| @@ -551,6 +565,20 @@ static void stop_this_cpu (void * dummy)
-|  	 * Remove this CPU:
-|  	 */
-|  	cpu_clear(smp_processor_id(), cpu_online_map);
-| +
-| +	/* Subtle, IPI users assume that they will be able to get IPI's
-| +	 * though to the cpus listed in cpu_online_map.  To ensure this
-           through
-| +	 * we add the requirement that they check cpu_online_map within
-| +	 * the IPI critical sections.  Here we remove ourselves from the
-| +	 * map, then ensure that all other cpus have left the relevant
-| +	 * critical sections since the change.  We do this by aquiring
-                                                              acquiring
-| +	 * the relevant section locks, if we have them none else is in 
-                                                       noone
-| +	 * them.  Once this is done we can go offline. */
-
-
---
-~Randy
-(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature)

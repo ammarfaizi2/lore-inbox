@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUHJPCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266258AbUHJPCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266295AbUHJPCl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 11:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266308AbUHJPCl
+	id S266258AbUHJPCf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 11:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUHJPCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 11:02:41 -0400
-Received: from tristate.vision.ee ([194.204.30.144]:20364 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S266295AbUHJPCi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 11:02:38 -0400
-Message-ID: <4118E38C.2070106@vision.ee>
-Date: Tue, 10 Aug 2004 18:02:36 +0300
-From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
-Organization: Vision
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 10 Aug 2004 11:02:35 -0400
+Received: from web12506.mail.yahoo.com ([216.136.173.198]:10140 "HELO
+	web12506.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266258AbUHJPCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 11:02:32 -0400
+Message-ID: <20040810150232.3937.qmail@web12506.mail.yahoo.com>
+Date: Tue, 10 Aug 2004 08:02:32 -0700 (PDT)
+From: Chirag Pandya <searchformehere@yahoo.com>
+Subject: Compiling External Modules - Local Include Files
 To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <200408101019.i7AAJPH9012045@burner.fokus.fraunhofer.de>
-In-Reply-To: <200408101019.i7AAJPH9012045@burner.fokus.fraunhofer.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
+I'm having trouble recompiling my 2.4 modules that
+contain local include files.  Here is the scenario:
+Dir contents
+------------
+/home/radar/dirA/local.h
+/home/radar/dirB/main.c
+/home/radar/dirB/Makefile
 
->>review the output. Its using a hardcoded 8859-1/15 symbols so it breaks.
->>    
->>
->This is a problem of the people who use UTF-8..... sorry, but when
->they are tought that moving to UTF-8 is without problems is is just wrong.
->N.B. This is not a bug in cdrecord but wrong expectations from the users.
->  
->
-Now I just really want to know what the heck are you eating to get to 
-get so mean and arrogant?
-I really would consider a program spitting random garbage to my screen a 
-buggy one.
+main.c
+------
+#include "dirA/local.h"
+main ()
+{
+/* Module Code*/
+}
 
-Lenar
+Using the following make command
+# make -C /usr/src/linux-2.6.7 M=$(PWD) modules
+
+I get the following error messages
+Entering directory /usr/src/linux-2.6.7
+CC [M] /home_dir/dirB/main.c:15:32: dirA/local.h: No
+such file or directory
+
+Obviously when I am in /usr/src/linux-2.6.7 I cannot
+see local.h.
+
+I noticed that PATCH 5/5 contains an extmodules.txt
+document with but with a "local includes" section
+still blank under TODO. 
+
+Any help on how I can fix this?
+Thanks
 
 
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

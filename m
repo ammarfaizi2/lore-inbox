@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbTBXXQE>; Mon, 24 Feb 2003 18:16:04 -0500
+	id <S262425AbTBXX1y>; Mon, 24 Feb 2003 18:27:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263215AbTBXXQE>; Mon, 24 Feb 2003 18:16:04 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:56541 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262871AbTBXXQD>;
-	Mon, 24 Feb 2003 18:16:03 -0500
-Date: Mon, 24 Feb 2003 15:21:56 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: finger @zeuz.kernel.org modification?
-Message-Id: <20030224152156.3c3c00e1.rddunlap@osdl.org>
-In-Reply-To: <87n0kl5krq.fsf@lapper.ihatent.com>
-References: <87n0kl5krq.fsf@lapper.ihatent.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S262446AbTBXX1y>; Mon, 24 Feb 2003 18:27:54 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:3238 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S262425AbTBXX1w>;
+	Mon, 24 Feb 2003 18:27:52 -0500
+Date: Mon, 24 Feb 2003 16:27:54 -0700
+From: yodaiken@fsmlabs.com
+To: William Lee Irwin III <wli@holomorphy.com>, yodaiken@fsmlabs.com,
+       Andrew Morton <akpm@digeo.com>, Bill Huey <billh@gnuppy.monkey.org>,
+       lm@work.bitmover.com, mbligh@aracnet.com, davidsen@tmr.com,
+       greearb@candelatech.com, linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030224162754.A24766@hq.fsmlabs.com>
+References: <Pine.LNX.3.96.1030223182350.999E-100000@gatekeeper.tmr.com> <33350000.1046043468@[10.10.2.4]> <20030224045717.GC4215@work.bitmover.com> <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com> <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com> <20030224085031.GP10411@holomorphy.com> <20030224091758.A11805@hq.fsmlabs.com> <20030224231341.GQ10411@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030224231341.GQ10411@holomorphy.com>; from wli@holomorphy.com on Mon, Feb 24, 2003 at 03:13:41PM -0800
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Feb 2003 00:19:53 +0100
-Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+On Mon, Feb 24, 2003 at 03:13:41PM -0800, William Lee Irwin III wrote:
+> On Mon, Feb 24, 2003 at 12:50:31AM -0800, William Lee Irwin III wrote:
+> >> There's a vague notion in my head that it should decrease scheduling
+> 
+> On Mon, Feb 24, 2003 at 09:17:58AM -0700, yodaiken@fsmlabs.com wrote:
+> > Vague notions seems to be the level of data on this topic.
+> 
+> Which, if you had bothered reading the rest of my post, is why I asked
+> for data.
 
-| I've been using the above command as a quick reference to get a view
-| of whats state of the art kernel-wise, and wondered who is the right
-| person to pest^H^H^H^Hask about getting the 2.5-mm releases into the
-| same list? :)
+I'm not sure what you are complaining about. I don't think there is good
+or even marginal data or explanations of this "effect". 
 
 
-and how to have kernel announcements show up on linux-kernel-announce
-again too...
 
---
-~Randy
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+www.fsmlabs.com  www.rtlinux.com
+1+ 505 838 9109
+

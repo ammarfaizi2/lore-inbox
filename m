@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262369AbTE2QGS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 12:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbTE2QGO
+	id S262379AbTE2QJX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 12:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbTE2QJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 12:06:14 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:9740 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262366AbTE2QGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 12:06:11 -0400
-Date: Thu, 29 May 2003 17:19:27 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: chas williams <chas@cmf.nrl.navy.mil>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] assorted he driver cleanup
-Message-ID: <20030529171927.A21828@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	chas williams <chas@cmf.nrl.navy.mil>, davem@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <200305291609.h4TG9rx01188@relax.cmf.nrl.navy.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 May 2003 12:09:23 -0400
+Received: from [62.29.80.16] ([62.29.80.16]:25472 "EHLO submoron.org")
+	by vger.kernel.org with ESMTP id S262379AbTE2QJU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 12:09:20 -0400
+From: "ismail (cartman) donmez" <kde@myrealbox.com>
+Organization: Bogazici University
+To: Christoph Hellwig <hch@lst.de>, "H. J. Lu" <hjl@lucon.org>
+Subject: Re: Recent binutils releases and linux kernel 2.5.69+
+Date: Thu, 29 May 2003 19:21:47 +0300
+User-Agent: KMail/1.5.9
+Cc: linux kernel <linux-kernel@vger.kernel.org>,
+       GNU C Library <libc-alpha@sources.redhat.com>
+References: <20030529074448.A29931@lucon.org> <20030529084948.A30796@lucon.org> <20030529160326.GB19751@lst.de>
+In-Reply-To: <20030529160326.GB19751@lst.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200305291609.h4TG9rx01188@relax.cmf.nrl.navy.mil>; from chas@cmf.nrl.navy.mil on Thu, May 29, 2003 at 12:09:54PM -0400
+Content-Type: text/plain;
+   =?ISO-8859-1?Q?=20charset=3D=22=FDso-885?= =?ISO-8859-1?Q?9-9=22?=
+Content-Transfer-Encoding: 7bit
+Message-Id: <200305291921.47154.kde@myrealbox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 12:09:54PM -0400, chas williams wrote:
-> the three following changesets attempt to bring the he atm
-> driver into conformance with the accepted linux coding style,
-> fix some chattiness the irq handler, and address the stack
-> usage issue in he_init_cs_block_rcm().
+Hi,
+> On Thu, May 29, 2003 at 08:49:48AM -0700, H. J. Lu wrote:
+> > This is a kernel issue and should be fixed in kernel unless we want
+> > to do something in <sys/sysctl.h>.
+>
+> You should not include kernel headers from userspace.
 
-btw, could you also remove the BUS_INT_WAR hacks?  There shouldn't
-be anz SHUB1.0 Altix systems around anymore..
+Old story I know but I dont think binutils would use kernel headers if it 
+doesnt need it.
 
+Regards,
+/ismail
+
+P.S: Yeah I am voidcartman@yahoo.com

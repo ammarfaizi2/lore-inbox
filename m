@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbTDMTuJ (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 15:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbTDMTuJ (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 15:50:09 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:13907 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S261808AbTDMTuI (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 15:50:08 -0400
-Message-ID: <3E99C001.7030209@myrealbox.com>
-Date: Sun, 13 Apr 2003 12:52:33 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.67: ppa driver & preempt == oops
-References: <fa.e0puan3.1f34a3p@ifi.uio.no> <fa.h6rb9ej.ml8qhn@ifi.uio.no>
-In-Reply-To: <fa.h6rb9ej.ml8qhn@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id S261826AbTDMTxx (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 15:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbTDMTxx (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 15:53:53 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:63738 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261826AbTDMTxw (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 15:53:52 -0400
+Date: Sun, 13 Apr 2003 13:05:43 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alistair Strachan <alistair@devzero.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-mm2
+Message-Id: <20030413130543.081c80fd.akpm@digeo.com>
+In-Reply-To: <200304132059.11503.alistair@devzero.co.uk>
+References: <200304132059.11503.alistair@devzero.co.uk>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Apr 2003 20:05:35.0244 (UTC) FILETIME=[0B780CC0:01C301F8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Gert Vervoort <gert.vervoort@hccnet.nl> wrote:
+Alistair Strachan <alistair@devzero.co.uk> wrote:
+>
+> > EIP is at devclass_add_driver+0x34/0x8a
+> ...
 > 
->>ppa: Version 2.07 (for Linux 2.4.x)
->>ppa: Found device at ID 6, Attempting to use EPP 16 bit
->>ppa: Communication established with ID 6 using EPP 16 bit
->>scsi0 : Iomega VPI0 (ppa) interface
->>bad: scheduling while atomic!
+> I get the same thing on an mm2 boot. Are you certain it isn't a -bk4 
+> bug? kobject, bus_add_driver and friends have all been touched by greg 
+> in bk, and I can't see anything immediately obvious in the new -mm 
+> patches (-mm1 works fine).
 > 
-> 
-> This patch should make the warnings go away.
-> 
-> I've been sitting on it for a while, waiting for someone to tell me if the
-> ppa driver actually works.  Perhaps that person is you?
+> I'll try with just the linus drop now.
 
-I've responded to your questions more than once but evidently you
-haven't seen or been able to parse my responses.
+It's a bk bug.  This might make it boot:
 
-To recap:  I see a non-fatal kernel-oops and modprobe segfaults after
-successfully loading the ppa module.  Once the ppa module is loaded the
-ppa driver actually does work with 2.5.x for at least x>50 (I haven't 
-tried x<50).
+ drivers/base/class.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-I am using preemptable kernel and devfs and I do NOT see any of the
-warnings that Geert is seeing.  The only problems I see with Linus's
-2.5.x kernels is the segfault by modprobe, not with the function of
-ppa itself.
+diff -puN drivers/base/class.c~a drivers/base/class.c
+--- 25/drivers/base/class.c~a	2003-04-13 13:04:47.000000000 -0700
++++ 25-akpm/drivers/base/class.c	2003-04-13 13:04:52.000000000 -0700
+@@ -105,7 +105,7 @@ int devclass_add_driver(struct device_dr
+ 	struct device_class * cls = get_devclass(drv->devclass);
+ 	int error = 0;
+ 
+-	if (cls) {
++	if (cls && cls->subsys) {
+ 		down_write(&cls->subsys.rwsem);
+ 		pr_debug("device class %s: adding driver %s:%s\n",
+ 			 cls->name,drv->bus->name,drv->name);
 
-What definitely confused me for a long time is that the -ac series
-doesn't work with devfs+ppa because the scsi ppa device never
-shows up in /dev -- but I think that has nothing to do with Geert's
-problem or with your question either, just an aside to explain why
-my previous posts may have been confusing the issue.
-
-BTW, the parallel Zip drive is the only SCSI device I have.  Would
-my kernel config file be of any use to you?
+_
 

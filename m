@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317436AbSGOL0H>; Mon, 15 Jul 2002 07:26:07 -0400
+	id <S317440AbSGOLo6>; Mon, 15 Jul 2002 07:44:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317437AbSGOL0H>; Mon, 15 Jul 2002 07:26:07 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:58498 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S317436AbSGOL0F>; Mon, 15 Jul 2002 07:26:05 -0400
-Date: Mon, 15 Jul 2002 13:27:12 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207151127.g6FBRCmc020464@burner.fokus.gmd.de>
-To: schilling@fokus.gmd.de, willy@w.ods.org
-Cc: linux-kernel@vger.kernel.org
+	id <S317443AbSGOLo5>; Mon, 15 Jul 2002 07:44:57 -0400
+Received: from mail.hometree.net ([212.34.181.120]:40333 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S317440AbSGOLo5>; Mon, 15 Jul 2002 07:44:57 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
 Subject: Re: IDE/ATAPI in 2.5
+Date: Mon, 15 Jul 2002 11:47:50 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <agucp6$sdb$1@forge.intermeta.de>
+References: <200207121937.g6CJb1aq018419@burner.fokus.gmd.de> <Pine.LNX.4.44.0207121345180.3421-100000@hawkeye.luckynet.adm>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1026733670 21701 212.34.181.4 (15 Jul 2002 11:47:50 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 15 Jul 2002 11:47:50 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From willy@w.ods.org Sun Jul 14 21:02:38 2002
+Thunder from the hill <thunder@ngforever.de> writes:
 
->Jörg,
+>implemented in Linux (any more), and will never ever be". If we explicitly 
+>exclude hardware, where do we end?!
 
->could you please stop starting all your mails like this one and
->insulting every people who don't obviously understand what you
->nearly didn't explain in 30 mails ? You're whinning about people
->who don't take you seriously, but you don't try to be constructive.
+Cleaner drivers, sane layers and an overall better working OS?
 
-I have already been constructive and wrote some lines that showed up
-how a driver tree could look like. Unfortunately nobody did take this
-proposal as a base for a future discussion.
-
-Being constuctive does not make sense if it is obvious that other
-people don't listen.
-
-The discussion now looks better than a day ago... If I have read my mail
-from the weekend, I may try to draw an image as it may be that people in this 
-list do not like text.
-
->Since you claim to have very clear ideas about what you'd like to
->see in the kernel, please post a clear and complete proposal here
->(with another subject, BTW since most people won't read it else).
-
-I already did (see above).
-
->This way, you'll be able to argue on technical points with some
->competent and clever people, but you won't if you continue to
->measure your personal experience to that of others. You say you
->don't want to talk to them because, unlike you, they don't know
->what a kernel is, but this is non sense. They may have a different
->conception than you, that's all.
-
-I would be happy to hear about concepts. Currently it looks as if at least
-some people like to keep everything as it is. This is not a conceptional OS but 
-a grown structure. If you like to keep code maintainable for a long time,
-you need to clean up the thicket from time to time. This seems to be something 
-that is not done frequent enough with most free software. I know how to
-clean up software and I do it from time to time with my software.
-Look e.g. at star, it started in 1982 and the fully usable version is now 17 
-years old. It was still possible to add something like POSIX.1-2001 compliance 
-within ~ 2 weeks. Try to do this with GNU tar...
+	SCNR
+		Henning
 
 
->>From your claimed experience, you seem to be 45, but from your
->attitude, 8. I think reality is between both, but I hope the
->former.
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-Well, I try to match with the crowd ;-)
-
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

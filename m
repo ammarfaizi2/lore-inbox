@@ -1,89 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264468AbUD0X5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264515AbUD1AAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264468AbUD0X5G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 19:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264520AbUD0X5G
+	id S264515AbUD1AAF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 20:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUD1AAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 19:57:06 -0400
-Received: from mrout1.yahoo.com ([216.145.54.171]:40465 "EHLO mrout1.yahoo.com")
-	by vger.kernel.org with ESMTP id S264468AbUD0X5A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 19:57:00 -0400
-Message-ID: <408EF33F.5040104@bigfoot.com>
-Date: Tue, 27 Apr 2004 16:56:47 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.5) Gecko/20031111
-X-Accept-Language: en-us, en
+	Tue, 27 Apr 2004 20:00:05 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:8047 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264515AbUD0X7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 19:59:48 -0400
+Date: Wed, 28 Apr 2004 00:59:39 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] rmap 14 i_shared_lock fixes
+Message-ID: <Pine.LNX.4.44.0404280055270.2444-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
-References: <40853060.2060508@bigfoot.com>	 <200404202326.24409.kim@holviala.com> <408A16EB.30208@bigfoot.com>	 <408EEA3E.6030803@bigfoot.com> <1083108549.8203.12.camel@amilo.bradney.info>
-In-Reply-To: <1083108549.8203.12.camel@amilo.bradney.info>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig Bradney wrote:
-> On Wed, 2004-04-28 at 01:18, Erik Steffl wrote:
-> 
->>Erik Steffl wrote:
->>
->>>Kim Holviala wrote:
->>>
->>>
->>>>On Tuesday 20 April 2004 17:14, Erik Steffl wrote:
->>>>
->>>>
->>>>
->>>>>  it looks that after update to 2.6.5 kernel (debian source package but
->>>>>I guess it would be the same with stock 2.6.5) the mouse wheel and side
->>>>>button on Logitech Cordless MouseMan Wheel mouse do not work.
->>>>
->>>>
->>>>
->>>>Try my patch for 2.6.5: http://lkml.org/lkml/2004/4/20/10
->>>>
->>>>Build psmouse into a module (for easier testing) and insert it with 
->>>>the proto parameter. I'd say "modprobe psmouse proto=exps" works for 
->>>>you, but you might want to try imps and ps2pp too. The reason I wrote 
->>>>the patch in the first place was that a lot of PS/2 Logitech mice 
->>>>refused to work (and yes, exps works for me and others)....
->>>
->>>
->>>  didn't help, I still see (without X running):
->>>
->>>8, 0, 0 any button down
->>>9, 0, 0 left button up
->>>12, 0, 0 wheel up, sidebutton up
->>>10, 0, 0 right button up
->>>
->>>8, 0, 0 wheel rotation (any direction)
->>>
->>>except of some protocols (IIRC ps2pp, bare, genps) ignore wheel 
->>>completely. is there any way to verify which protocol the mouse is 
->>>using? modprobe -v printed different messages for each protocol so I 
->>>think that worked (it said Generic Explorer etc.)
->>>
->>>  I tried: exps, imps, ps2pp, bare, genps
->>>
->>>  any ideas?
->>>
->>>  the mouse says: Cordless MouseMan Wheel (Logitech), it has left/right 
->>>buttonss, wheel that can be pushed or rotated and a side button, not 
->>>sure how to better identify it. With 2.4 kernels it used to work with X 
->>>using protocol MouseManPlusPS/2.
->>
->>   anybody? any hints? should I look at driver? are there some docs for 
->>logitech mice (protocol)?
-> 
-> 
-> err.. they all Just Work (tm) here.. ps2 or USB, IMPS/2 driver
+First of batch of six patches against 2.6.6-rc2-mm2, which introduce
+Rajesh Venkatasubramanian's implementation of a radix priority search
+tree of vmas, to handle object-based reverse mapping corner cases well.
 
-   which kernel (mine doesn't work with 2.6.5, used to work with 2.4.x), 
-which mouse models? I guess there might be more models and for some 
-reason my particular model does not work. Can you find out which 
-protocol the kernel is using (psmouse, not usb)?
+rmap 14 i_shared_lock fixes
 
-	erik
+Start the sequence with a couple of outstanding i_shared_lock fixes.
+
+Since i_shared_sem became i_shared_lock, we've had to shift and then
+temporarily remove mremap move's protection of concurrent truncation
+- if mremap moves ptes while unmap_mapping_range_list is making its
+way through the vmas, there's a danger we'd move a pte from an area
+yet to be cleaned back into an area already cleared.
+
+Now site the i_shared_lock with the page_table_lock in move_one_page.
+Replace page_table_present by get_one_pte_map, so we know when it's
+necessary to allocate a new page table: in which case have to drop
+i_shared_lock, trylock and perhaps reorder locks on the way back.
+Yet another fix: must check for NULL dst before pte_unmap(dst).
+
+And over in rmap.c, try_to_unmap_file's cond_resched amidst its
+lengthy nonlinear swapping was now causing might_sleep warnings:
+moved to a rather unsatisfactory and less frequent cond_resched_lock
+on i_shared_lock when we reach the end of the list; and one before
+starting on the nonlinears too: the "cursor" may become out-of-date
+if we do schedule, but I doubt it's worth bothering about.
+
+ mm/mremap.c |   42 +++++++++++++++++++++++++++++++++---------
+ mm/rmap.c   |    3 ++-
+ 2 files changed, 35 insertions(+), 10 deletions(-)
+
+--- 2.6.6-rc2-mm2/mm/mremap.c	2004-04-26 12:39:46.961068192 +0100
++++ rmap14/mm/mremap.c	2004-04-27 19:18:19.421286456 +0100
+@@ -55,16 +55,18 @@ end:
+ 	return pte;
+ }
+ 
+-static inline int page_table_present(struct mm_struct *mm, unsigned long addr)
++static pte_t *get_one_pte_map(struct mm_struct *mm, unsigned long addr)
+ {
+ 	pgd_t *pgd;
+ 	pmd_t *pmd;
+ 
+ 	pgd = pgd_offset(mm, addr);
+ 	if (pgd_none(*pgd))
+-		return 0;
++		return NULL;
+ 	pmd = pmd_offset(pgd, addr);
+-	return pmd_present(*pmd);
++	if (!pmd_present(*pmd))
++		return NULL;
++	return pte_offset_map(pmd, addr);
+ }
+ 
+ static inline pte_t *alloc_one_pte_map(struct mm_struct *mm, unsigned long addr)
+@@ -97,11 +99,23 @@ static int
+ move_one_page(struct vm_area_struct *vma, unsigned long old_addr,
+ 		unsigned long new_addr)
+ {
++	struct address_space *mapping = NULL;
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	int error = 0;
+ 	pte_t *src, *dst;
+ 
++	if (vma->vm_file) {
++		/*
++		 * Subtle point from Rajesh Venkatasubramanian: before
++		 * moving file-based ptes, we must lock vmtruncate out,
++		 * since it might clean the dst vma before the src vma,
++		 * and we propagate stale pages into the dst afterward.
++		 */
++		mapping = vma->vm_file->f_mapping;
++		spin_lock(&mapping->i_shared_lock);
++	}
+ 	spin_lock(&mm->page_table_lock);
++
+ 	src = get_one_pte_map_nested(mm, old_addr);
+ 	if (src) {
+ 		/*
+@@ -109,13 +123,19 @@ move_one_page(struct vm_area_struct *vma
+ 		 * memory allocation.  If it does then we need to drop the
+ 		 * atomic kmap
+ 		 */
+-		if (!page_table_present(mm, new_addr)) {
++		dst = get_one_pte_map(mm, new_addr);
++		if (unlikely(!dst)) {
+ 			pte_unmap_nested(src);
+-			src = NULL;
+-		}
+-		dst = alloc_one_pte_map(mm, new_addr);
+-		if (src == NULL)
++			if (mapping)
++				spin_unlock(&mapping->i_shared_lock);
++			dst = alloc_one_pte_map(mm, new_addr);
++			if (mapping && !spin_trylock(&mapping->i_shared_lock)) {
++				spin_unlock(&mm->page_table_lock);
++				spin_lock(&mapping->i_shared_lock);
++				spin_lock(&mm->page_table_lock);
++			}
+ 			src = get_one_pte_map_nested(mm, old_addr);
++		}
+ 		/*
+ 		 * Since alloc_one_pte_map can drop and re-acquire
+ 		 * page_table_lock, we should re-check the src entry...
+@@ -132,9 +152,13 @@ move_one_page(struct vm_area_struct *vma
+ 			}
+ 			pte_unmap_nested(src);
+ 		}
+-		pte_unmap(dst);
++		if (dst)
++			pte_unmap(dst);
+ 	}
++
+ 	spin_unlock(&mm->page_table_lock);
++	if (mapping)
++		spin_unlock(&mapping->i_shared_lock);
+ 	return error;
+ }
+ 
+--- 2.6.6-rc2-mm2/mm/rmap.c	2004-04-26 12:39:46.000000000 +0100
++++ rmap14/mm/rmap.c	2004-04-27 19:18:19.423286152 +0100
+@@ -777,6 +777,7 @@ static inline int try_to_unmap_file(stru
+ 	 * but even so use it as a guide to how hard we should try?
+ 	 */
+ 	rmap_unlock(page);
++	cond_resched_lock(&mapping->i_shared_lock);
+ 
+ 	max_nl_size = (max_nl_size + CLUSTER_SIZE - 1) & CLUSTER_MASK;
+ 	if (max_nl_cursor == 0)
+@@ -799,13 +800,13 @@ static inline int try_to_unmap_file(stru
+ 				vma->vm_private_data = (void *) cursor;
+ 				if ((int)mapcount <= 0)
+ 					goto relock;
+-				cond_resched();
+ 			}
+ 			if (ret != SWAP_FAIL)
+ 				vma->vm_private_data =
+ 					(void *) max_nl_cursor;
+ 			ret = SWAP_AGAIN;
+ 		}
++		cond_resched_lock(&mapping->i_shared_lock);
+ 		max_nl_cursor += CLUSTER_SIZE;
+ 	} while (max_nl_cursor <= max_nl_size);
+ 
 

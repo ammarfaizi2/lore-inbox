@@ -1,60 +1,98 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315619AbSE2Wn4>; Wed, 29 May 2002 18:43:56 -0400
+	id <S315629AbSE2Wzf>; Wed, 29 May 2002 18:55:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315628AbSE2Wnz>; Wed, 29 May 2002 18:43:55 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:30483 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S315619AbSE2Wnx>; Wed, 29 May 2002 18:43:53 -0400
-Date: Wed, 29 May 2002 15:43:37 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Linux 2.5.19
-In-Reply-To: <20020529214739.F30585@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10205291443020.19493-100000@www.transvirtual.com>
+	id <S315630AbSE2Wze>; Wed, 29 May 2002 18:55:34 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:19978 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315629AbSE2Wze>; Wed, 29 May 2002 18:55:34 -0400
+Message-ID: <3CF54EB9.6050603@evision-ventures.com>
+Date: Wed, 29 May 2002 23:57:13 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.18 IDE 73
+In-Reply-To: <UTC200205291807.g4TI7DN15827.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Due to a error with merging some stuff from a older DJ tree. I fixed it
-> > in the fbdev BK repository.
+Andries.Brouwer@cwi.nl wrote:
+>     - Don't allow check_partition to be more clever then the writer of a driver.
+>        It was interfering with drivers which check partitions as they go and
+>        finally if we want to spew something about it - we can do it ourself.
 > 
-> They haven't *been* in any DJ tree.
+>     - Eliminate ide_geninit(). We scan for partitions now inside the recently
+>        introduced attach method. register_disk() is broken by the way and 90% of
+>        places where it's used it is doing literally nothing. Either some one didn't
+>        finish some code or the code is basically just junk from the past.
+> 
+>        Anyway we grok the partitions now one by one as we detect the channels.
+> 
+> Pity you send this gzipped, otherwise I would have looked at the code.
 
-    Looking threw the many patches I have from people I did grab it from 
-patch-2.5.15-rmk1. It is right above the fbcmap.c fix which I did need.
-That is where I go it from. Thank you for that fix.  
+Well otherwise it wouldn't get through lkml. And since there
+are actually right now quite a lot of people interressted in
+the intermediate patches I'm sending it gzip-ed.
+And no I don't buy in to the fact that we need a separate
+mailing list for every single topic out there.
+The traffic on lkml isn't that high if you learn to filter:
 
-    While grabbing that fix I noticed what a appeared to be a simple two
-line fix for the cyber2000fb driver. Actually I was tempted to port the
-whole driver over to the new api but I didn't because I feared you be
-ticked off. Especially since I don't have the hardware. The only drivers I
-have ported over are the ones that are really simple. I touched the
-anakin driver because of this reason. The complex one where I don't have
-the hardware I don't touch. Now that we have enough functionally drivers
-people can see the new changes needed to be done. 
+1. Some very active people who are posting only garbage.
+2. Some perpetuant topics which are irrelevant.
 
-> Why the fuck should I go around finding and testing peoples trees when I
-> haven't submitted the stuff to them?  
+> Yes, 90% of the uses of register_disk() are empty. I submitted a patch
+> to remove this cruft last year, but Al was attached to it - wanted to
+> make them nonempty.
 
-    Look here. I'm not looking for trouble or to upset anyone. I know alot
-of the fbdev driver maintainers are too busy to properly maintain the
-drivers. Several have told me this. Or the drivers have been abandon.
-Plus the docs have been shotty for porting to the new api. I am willing to
-do extra work and port these drivers to save the maintainers time. I'm
-not going to do a perfect port but I do hope what work I did do will help 
-them out.  
+For what would that be good?
+In the time between the kernel eveolved entierly in to a different
+direction, *we have* now the device tree the devfs and grock
+parition stuff.
 
-    I do admit and apologize for not properly saying which drivers have
-been altered. I will make a special note of doing that in the future.
-Especially since very few actually look at my patches.
-           
+> About scanning for partitions I say the same thing I said to Al a few
+> days ago:
+> Several partitioning schemes exist, and reading partition tables is not
+> something a driver should do without getting explicit requests.
+> For all we know the disk contents may be completely random.
 
+You are right but the fact is right now we have to do it this way.
+And I'm sure some people will start to wimmer about "back-ass compatibility".
+But I agree with Larry that unnecessary compatibility
+concerns for tools which should be considered as tightly coupled to
+the system in question killed partily in the middle of the 90's UNIX
+advancement somehow. For Linux this translates to:
 
+1. util-linux
+2. modutils
+3. pcmci-utils
+and so on...
 
+You know that I'm one of the few who is always trying to
+push such changes where they make sense. However it always turns out
+that the people who don't understand this simlpe fact are just loud
+enough to don't be ignored.
+
+> You should offer the list of disks seen to user space, and user space
+> should decide which disks have to be investigated, and tell the kernel
+> about the partitions it wants to have on these disks.
+> That way all knowledge about partitioning, dynamic disks, disk managers
+> and the like is removed from the kernel, and moved into partx-type code.
+
+But there is one thing, which isn't prette about the above sheme: races
+and atomicity of operations... Well this could be solved
+by making the mount system call passing this information as a parameters.
+You wouldn't even need to pass any list of disks to user land - we don't
+do it right now. Just notify the kernel of the avalibility of a particular
+device on hot plug and let mount scan partitions and therelike itself.
+It could do it perfectly fine itself.
+Since the ATA code was anyway the much uglier part in the game
+well there are chances that finally someone will pick up this
+idea...
+
+But no matter what right now the changes I did had to be done.
 

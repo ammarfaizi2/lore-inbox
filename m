@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264756AbUEYTuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264788AbUEYTuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264756AbUEYTuf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 15:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUEYTue
+	id S264788AbUEYTuX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 15:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUEYTrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 15:50:34 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:25481 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264756AbUEYTt5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 15:49:57 -0400
-Message-ID: <40B3A35D.4020702@colorfullife.com>
-Date: Tue, 25 May 2004 21:49:49 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 4g/4g for 2.6.6
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 May 2004 15:47:37 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:39331 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S265087AbUEYTqj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 15:46:39 -0400
+Subject: Re: System clock running too fast
+From: =?ISO-8859-1?Q?Beno=EEt?= Dejean <TazForEver@free.fr>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200405251939.47165.mbuesch@freenet.de>
+References: <200405251939.47165.mbuesch@freenet.de>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1085514395.11860.8.camel@athlon>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.5 
+Date: Tue, 25 May 2004 21:46:36 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo wrote:
+Le mar, 25/05/2004 à 19:39 +0200, Michael Buesch a écrit :
+> Hi,
+> 
+> I've got the problem with my server, that the system-clock
+> is running really fast. It's running over one second too
+> fast in one hour (aproximately).
 
->also, the 4:4 overhead is really a hardware problem - and there are
->x86-compatible CPUs (amd64) where the TLB flush problem has already been
->solved: on amd64 the 4:4 feature has no noticeable overhead.
->
-Do you have an idea why amd64 is better for 4g4g? Which benchmark did 
-you use for testing?
+you should adjust it with adjtimex (there's a debian package)
 
---
-    Manfred
+-- 
+Benoît Dejean
+JID: TazForEver@jabber.org
+http://gdesklets.gnomedesktop.org
+http://www.paulla.asso.fr
 
 

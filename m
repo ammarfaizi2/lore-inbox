@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262640AbRE3Hgv>; Wed, 30 May 2001 03:36:51 -0400
+	id <S262641AbRE3Hlv>; Wed, 30 May 2001 03:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262641AbRE3Hgl>; Wed, 30 May 2001 03:36:41 -0400
-Received: from t2.redhat.com ([199.183.24.243]:753 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S262640AbRE3Hgi>; Wed, 30 May 2001 03:36:38 -0400
-To: Feng Xian <fxian@fxian.jukie.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.3-ac14 spinlock problem? 
-In-Reply-To: Message from Feng Xian <fxian@fxian.jukie.net> 
-   of "Tue, 29 May 2001 15:52:47 EDT." <Pine.LNX.4.33.0105291550400.28008-100000@tiger> 
-Date: Wed, 30 May 2001 08:36:36 +0100
-Message-ID: <12317.991208196@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@redhat.com>
+	id <S262648AbRE3Hll>; Wed, 30 May 2001 03:41:41 -0400
+Received: from highland.isltd.insignia.com ([195.217.222.20]:36880 "EHLO
+	highland.isltd.insignia.com") by vger.kernel.org with ESMTP
+	id <S262641AbRE3Hl2>; Wed, 30 May 2001 03:41:28 -0400
+Message-ID: <3B14A47F.773FE427@insignia.com>
+Date: Wed, 30 May 2001 08:42:55 +0100
+From: Stephen Thomas <stephen.thomas@insignia.com>
+Organization: Insignia Solutions
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Reproducible oops when loading ns558.o in 2.4.5-ac4
+In-Reply-To: <3B141DCD.C2CE9BCD@insignia.com> <20010530073340.B375@suse.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vojtech Pavlik wrote:
+> Just one question: How to reproduce it? Just by loading the module?
 
-> I was running something on my Dell dual p3 box (optiplex gx300). my kernel
-> is linux-2.4.3-ac14. I got the following message:
+Yes, 'modprobe ns558' generates the oops.  Thereafter, lsmod
+reports that ns558 is initializing.
 
-How often did this message occur?
-
-> __rwsem_do_wake(): wait_list unexpectedly empty
-> [4191] c5966f60 = { 00000001 })
-> kenel BUG at rwsem.c:99!
-> invalid operand: 0000
-> CPU:            1
-> EIP:            0010:[<c0236b99>]
-> EFLAGS: 00010282
-> kenel BUG at /usr/src/2.4.3-ac14/include/asm/spinlock.h:104!
-> 
-> 
-> I upgrade the kernel to 2.4.5, no such problem any more.
-
-I suspect something else corrupted the rw-semaphore structure, but that's very
-hard to prove unless you catch it in the act. If it happens again with any
-frequency, you might want to try turning on rwsem debugging.
-
-David
+Stephen

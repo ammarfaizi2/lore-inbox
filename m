@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264266AbUGFTa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUGFTko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbUGFTa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 15:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUGFTa5
+	id S264377AbUGFTko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 15:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUGFTko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 15:30:57 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:44186 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S264266AbUGFTaz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 15:30:55 -0400
-Message-Id: <200407061930.i66JUpqI009671@eeyore.valparaiso.cl>
-To: Redeeman <lkml@metanurb.dk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: quite big breakthrough in the BAD network performance, which mm6 did not fix 
-In-Reply-To: Your message of "Tue, 06 Jul 2004 15:25:30 +0200."
-             <1089120330.10626.8.camel@localhost> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Tue, 06 Jul 2004 15:30:51 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 6 Jul 2004 15:40:44 -0400
+Received: from mail.shareable.org ([81.29.64.88]:25520 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264358AbUGFTkm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 15:40:42 -0400
+Date: Tue, 6 Jul 2004 20:40:34 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix tcp_default_win_scale.
+Message-ID: <20040706194034.GA11021@mail.shareable.org>
+References: <32886.63.170.215.71.1088564087.squirrel@www.osdl.org> <20040629222751.392f0a82.davem@redhat.com> <20040630152750.2d01ca51@dell_ss3.pdx.osdl.net> <20040630153049.3ca25b76.davem@redhat.com> <20040701133738.301b9e46@dell_ss3.pdx.osdl.net> <20040701140406.62dfbc2a.davem@redhat.com> <20040702013225.GA24707@conectiva.com.br> <20040706093503.GA8147@outpost.ds9a.nl> <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Redeeman <lkml@metanurb.dk> said:
-> On Mon, 2004-07-05 at 17:54 -0700, Matt Heler wrote:
+Stephen Hemminger wrote:
+> Recent TCP changes exposed the problem that there ar lots of really
+> broken firewalls that strip or alter TCP options.  When the options
+> are modified TCP gets busted now.  The problem is that when we
+> propose window scaling, we expect that the other side receives the
+> same initial SYN request that we sent.  If there is corrupting
+> firewalls that strip it then the window we send is not correctly
+> scaled; so the other side thinks there is not enough space to send.
 
-> > Ok first take benchmarks ( use wget ), and secondly results from the
-> > internet vary day by day , hour to hour , minute by minute. Don't
-> > expect all sites on the internet to be the same speed, or even stay the
-> > same speed for that matter. For more accurate benchmark results setup a
-> > personal server on your own private network and benchmark http
-> > trasnfers using different kernels.
+If a firewall strips the window scaling option in both directions,
+then window scaling is disabled (RFC 1323 section 2.2).
 
-> i am aware of this, however, what i use to benchmark is kernel.org, as i
-> can see they have alot bandwith free.
+Are you saying there are broken firewalls which strip TCP options in
+one direction only?
 
-How do you know that?
-
-> if i use kernel.org http i get 50kb/s, if i use ftp, i can easily fetch
-> with 200kb/s
-
-Trafic shaping somewhere along the route? Much more load on HTTP than FTP? 
-Are they the very same machines? Under the exact same load? Are the servers
-written with the same care? Are the clients?
-
-> also, the gnu ftp, where i took gcc3.4.1, it gave me 200kb/s
-
-Ditto.
-
-Unless you set up something where there aren't dozens of unknown variables
-and a hundred or so that you have got no chance at all to even guess what
-their values/effects are...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+-- Jamie

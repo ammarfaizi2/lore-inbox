@@ -1,100 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267441AbRGZAPA>; Wed, 25 Jul 2001 20:15:00 -0400
+	id <S267446AbRGZA3V>; Wed, 25 Jul 2001 20:29:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267446AbRGZAOu>; Wed, 25 Jul 2001 20:14:50 -0400
-Received: from moline.gci.com ([205.140.80.106]:60685 "EHLO moline.gci.com")
-	by vger.kernel.org with ESMTP id <S267441AbRGZAOn>;
-	Wed, 25 Jul 2001 20:14:43 -0400
-Message-ID: <BF9651D8732ED311A61D00105A9CA315053E1297@berkeley.gci.com>
-From: Leif Sawyer <lsawyer@gci.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Sparc-64 kernel build fails on version.h during 'make oldconf
-	ig', small patch for comments
-Date: Wed, 25 Jul 2001 16:14:41 -0800
+	id <S267449AbRGZA3M>; Wed, 25 Jul 2001 20:29:12 -0400
+Received: from [213.82.86.194] ([213.82.86.194]:55044 "EHLO fatamorgana.net")
+	by vger.kernel.org with ESMTP id <S267446AbRGZA3F>;
+	Wed, 25 Jul 2001 20:29:05 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_ZG12SZ89TOD3N2GY1FP2"
+From: Roberto Arcomano <berto@fatamorgana.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] net/ipv4/arp.c, kernel 2.4.6
+Date: Thu, 26 Jul 2001 02:31:47 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Message-Id: <01072602314701.01029@berto.casa.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-David Miller writes:
-> Something is terribly wrong with either your system tools or
-> this ".config" you are using.
-> 
-> If you cannot simply do:
-> 
-> cp arch/sparc64/defconfig .config
-> make oldconfig; make dep; make clean; make vmlinux; make modules
-> 
-> Then something is truly screwed on your machine.  Watch
-> for other errors in the make logs if it fails.  I have a
-> strange feeling that one of the make sub-shells died on
-> you or something.
-> 
 
-Well, since I can:
+--------------Boundary-00=_ZG12SZ89TOD3N2GY1FP2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-make include/linux/version.h
-make vmlinux
+This patch should update proxy arp feature for shaper device. Details are in 
+README file attached.
+Thank you for your support.
+Best Regards
+Roberto Arcomano
+--------------Boundary-00=_ZG12SZ89TOD3N2GY1FP2
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="diff"
+Content-Transfer-Encoding: base64
+Content-Description: Diff file for arp.c
+Content-Disposition: attachment; filename="diff"
 
-and all works correctly, i don't think its my machine.  No other
-errors show up, and the kernel builds fine.
+LS0tIGxpbnV4LTIuNC42Lm9yaWcvbmV0L2lwdjQvYXJwLmMJV2VkIE1heSAxNiAxOToyMTo0NSAy
+MDAxCisrKyBsaW51eC0yLjQuNi9uZXQvaXB2NC9hcnAuYwlUaHUgSnVsIDI2IDAyOjAwOjM1IDIw
+MDEKQEAgLTExMSw2ICsxMTEsNyBAQAogCiAjaW5jbHVkZSA8YXNtL3N5c3RlbS5oPgogI2luY2x1
+ZGUgPGFzbS91YWNjZXNzLmg+CisjaW5jbHVkZSA8bGludXgvaWZfc2hhcGVyLmg+CiAKIAogCkBA
+IC03NjcsOCArNzY4LDE1IEBACiAJCQl9CiAJCQlnb3RvIG91dDsKIAkJfSBlbHNlIGlmIChJTl9E
+RVZfRk9SV0FSRChpbl9kZXYpKSB7CisgICAgICAgICAgICAgICAgICAgICAgICBjaGFyIHNoZmxh
+Zz0wOworICAgICAgICAgICAgICAgICAgICAgICAgaWYgKCAocnQtPnUuZHN0LmRldikgJiYKKwkJ
+CSAgICAgKHJ0LT51LmRzdC5kZXYtPnByaXYpICYmCisJCQkgICAgICgoKHN0cnVjdCBzaGFwZXIg
+KikgcnQtPnUuZHN0LmRldi0+cHJpdiktPmRldikgJiYKKwkJCSAgICAgKHN0cm5jbXAocnQtPnUu
+ZHN0LmRldi0+bmFtZSwic2hhcGVyIiw2KT09MCkgKQorCQkJICBzaGZsYWc9MTsKIAkJCWlmICgo
+cnQtPnJ0X2ZsYWdzJlJUQ0ZfRE5BVCkgfHwKLQkJCSAgICAoYWRkcl90eXBlID09IFJUTl9VTklD
+QVNUICAmJiBydC0+dS5kc3QuZGV2ICE9IGRldiAmJgorCQkJICAgIChhZGRyX3R5cGUgPT0gUlRO
+X1VOSUNBU1QgICYmIAorCQkJICAgICggKChzaGZsYWcpICYmICggKChzdHJ1Y3Qgc2hhcGVyICop
+IHJ0LT51LmRzdC5kZXYtPnByaXYpLT5kZXYgIT0gZGV2KSkgfHwgKCghc2hmbGFnKSAmJiAocnQt
+PnUuZHN0LmRldiAhPSBkZXYpKSApICYmCiAJCQkgICAgIChJTl9ERVZfUFJPWFlfQVJQKGluX2Rl
+dikgfHwgcG5laWdoX2xvb2t1cCgmYXJwX3RibCwgJnRpcCwgZGV2LCAwKSkpKSB7CiAJCQkJbiA9
+IG5laWdoX2V2ZW50X25zKCZhcnBfdGJsLCBzaGEsICZzaXAsIGRldik7CiAJCQkJaWYgKG4pCg==
 
-On my i386 Thinkpad 760E:
-i386# make mrproper
-i386# ls include/linux/version.h
-ls: include/linux/version.h: No such file or directory
-i386 ../.config .
-i386# make oldconfig
-i386# ls include/linux/version.h
-ls: include/linux/version.h: No such file or directory
+--------------Boundary-00=_ZG12SZ89TOD3N2GY1FP2
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="README"
+Content-Transfer-Encoding: base64
+Content-Description: Readme for proxy arp PATCH
+Content-Disposition: attachment; filename="README"
 
+U3ViamVjdDogUEFUQ0ggdG8gdXBkYXRlIHByb3h5IGFycCBmZWF0dXJlIG9uIHNoYXBlciBkZXZp
+Y2UKCkF1dGhvcjogUm9iZXJ0byBBcmNvbWFubywgYmVydG9AZmF0YW1vcmdhbmEuY29tLAogICAg
+ICAgIGh0dHA6Ly93d3cuZmF0YW1vcmdhbmEuY29tL2JlcnRvbGludXgKCkRhdGU6IDA3LzIyLzIw
+MDEKCkRlc2NyaXB0aW9uOiBTaGFwZXIgZGV2aWNlIGlzIHNlZW4gYnkgdGhlIGtlcm5lbCBsaWtl
+IGEgCiAgICAgICAgICAgICBkaWZmZXJlbnQgZGV2aWNlIHRoYW4gdGhlIHBoeXNpY2FsIG9uZSB0
+byB3aGljaAoJICAgICBpcyBhdHRhY2hlZCB0by4gU28ga2VybmVsIGFsd2F5cyBpc3N1ZXMgYW4g
+CgkgICAgICJBUlAgUkVQTFkiIChpZiBwcm94eSBhcnAgaXMgYWN0aXZlKTogdGhpcwoJICAgICBw
+cmV2ZW50IHVzIHRvIGVuYWJsZSBwcm94eSBhcnAgKG9uIGEgc2hhcGVyIGRldmljZSkKCSAgICAg
+YW5kIHR1cm4gb24gbWFjaGluZSBjYXVzZSB3ZSB3b3VsZCByZWNlaXZlCgkgICAgIGFuICJJUCBj
+b25mbGl0Ii4KCSAgICAgClNvbHV0aW9uOiBUaGUgcGF0Y2ggaW52ZXN0aWdhdGVzIGFib3V0IHRo
+ZSBzaGFwZXIgZGV2aWNlIAogICAgICAgICAgKGl0IGNvbXBhcmVzIHN0cmluZyB3aXRoICJzaGFw
+ZXIiKTogaWYgeWVzLCB3ZSAKCSAgc2VhcmNoIHRoZSByZWFsIGludGVyZmFjZSBhdHRhY2hlZCB0
+byBzaGFwZXIKCSAgKHdlIHJlYWQgdmFsdWUgb2YgcHJpdi0+ZGV2KSBhbmQgd2UgdXNlIHRoYXQg
+dG8KCSAgIG1ha2UgdGhlIGNsYXNzaWMgcHJveHkgYXJwIGRldmljZXMgY29tcGFyZS4KClByb2Js
+ZW1zOiBUaGUgcGF0Y2ggdXNlcyByb3V0aW5lICJzdHJuY21wIiB3aGljaCBpcyBub3QgdGhlCiAg
+ICAgICAgICBiZXN0IHRoaW5nIChJIGd1ZXNzKS4KCQpUZXN0czogSSB0ZXN0ZWQgbmV3IGZlYXR1
+cmUgdXNpbmcgMyBQQyBsaWtlIHRoYXQ6CgogICAgICAgICAgIENMSUVOVDEgIC0tLS0tLS0tLS0t
+IExJTlVYIC0tLS0tICBDTElFTlQyCiAgICAgCSAgICAgICAgICAgICAgICAgIHNoYXBlcjAgICBw
+cHAwCgkgICAgICAgICAgICAgICAgICAgW2V0aDBdCgkgICAKICAgICAgIExJTlVYIGhvc3QgaGFz
+IHByb3h5IGFycCBhbmQgc2hhcGVyIGVuYWJsZWQsIHdpdGgKICAgICAgIGEgcm91dGluZyAodXNp
+bmcgc2hhcGVyMCBpbnRlcmZhY2UpIHRvIENMSUVOVDEKICAgICAgIElmIEkgdXNlIG9sZCBmZWF0
+dXJlLCB3aGVuIEkgdHVybiBvbiBDTElFTlQxIEkgcmVjZWl2ZQogICAgICAgYW4gIklQIGNvbmZs
+aXQiIGJ5IGl0cyBPUywgd2hpbGUgdXNpbmcgcGF0Y2hlZCB2ZXJzaW9uCiAgICAgICBJIGhhdmUg
+bm8gcHJvYmxlbSBhbmQgcHJveHkgYXJwIGZlYXR1cmUgZm9yIENMSUVOVDIKICAgICAgIHdvcmtz
+IHdlbGwgKGFzIHJpZ2h0LCBJIGNhbm5vdCBhc3NpZ24gQ0xJRU5UMiBJUCB0bwogICAgICAgQ0xJ
+RU5UMSBob3N0KS4KICAgICAgIAogICAgICAgS2VybmVsIHZlcnNpb24gdGVzdGVkIGlzIDIuNC42
+ICAgICAgIAogICAgICAgCkZpbmFsIG5vdGVzOiBJdCBzaG91bGQgYmUgdmVyeSBzaW1wbGUgdG8g
+cG9ydCBwYXRjaCB0byBvbGRlcgogICAgICAgICAgICAga2VybmVsIHZlcnNpb24gKDIuMC54eCwg
+Mi4xLnh4LCAyLjIueHgsIDIuMy54eCkKCSAgICAKCSAgICAgICAgICAgICAKCSAgICAgCgkgICAg
+IAo=
 
-However, examining makefile traces, for i386 the first step is to
-create the version.h, whereas the sparc64 doesn't create the version.h
-until after performing the check_asm routine and verifying the asm_offsets.h
-file, which occurs in my 'make -n dep' approximately 117 lines into it.
-
-However, 'make -n dep' does not fail under sparc64, as it does under 1386.
-When you then attempt to 'make dep' under sparc64:
-
-make -C arch/sparc64/kernel check_asm
-make[1]: Entering directory `/usr/src/linux/arch/sparc64/kernel'
-sparc64-linux-gcc -E -D__KERNEL__ -I/usr/src/linux/include tmp.c -o tmp.i
-In file included from /usr/src/linux/include/linux/fs.h:660,
-                 from /usr/src/linux/include/linux/capability.h:17,
-                 from /usr/src/linux/include/linux/binfmts.h:5,
-                 from /usr/src/linux/include/linux/sched.h:9,
-                 from tmp.c:3:
-/usr/src/linux/include/linux/udf_fs_sb.h:22: linux/version.h: No such file
-or directory
-make[1]: *** [check_asm] Error 1
-make[1]: Leaving directory `/usr/src/linux/arch/sparc64/kernel'
-make: *** [check_asm] Error 2
-
-So it __appears__ that the dependancies are coming in the wrong order in the
-makefile.  version.h needs to be build before entering the kernel directory.
-
-{ i386 ports work because version.h is a dependancy in
-arch/i386/boot/Makefile
-but there is no equivilant dependancy in any other architecture.
-( find /usr/src/linux -name Makefile -exec grep -il version.h {} \; )
-
-i believe that the proper fix is this:
-
---- Makefile~	Wed Jul 25 15:44:18 2001
-+++ Makefile	Wed Jul 25 16:05:23 2001
-@@ -447 +447 @@
-+dep-files: scripts/mkdep archdep include/linux/version.h
--dep-files: scripts/mkdep include/linux/version.h archdep
-
-which simply changes the order to generate version.h before the 
-archetecture-dependant code is called.
-
-This fixes the build on my sparc64, and causes no problems on my i386.
-Sorry i don't have any other architectures to test it on, but my gut
-feeling is toward the positive.
+--------------Boundary-00=_ZG12SZ89TOD3N2GY1FP2--

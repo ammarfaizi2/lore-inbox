@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267048AbSKSSPW>; Tue, 19 Nov 2002 13:15:22 -0500
+	id <S267072AbSKSSZ3>; Tue, 19 Nov 2002 13:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267050AbSKSSPW>; Tue, 19 Nov 2002 13:15:22 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:424 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S267048AbSKSSPU>;
-	Tue, 19 Nov 2002 13:15:20 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Matt Reppert <arashi@arashi.yi.org>
-Date: Tue, 19 Nov 2002 19:21:54 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] mii module broken under new scheme
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, jgarzik@pobox.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <7FA2FEC6B51@vcnet.vc.cvut.cz>
+	id <S267076AbSKSSZ3>; Tue, 19 Nov 2002 13:25:29 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:52457 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267072AbSKSSZ1>;
+	Tue, 19 Nov 2002 13:25:27 -0500
+Date: Tue, 19 Nov 2002 18:30:54 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Ducrot Bruno <poup@poupinou.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20 ACPI
+Message-ID: <20021119183054.GA6771@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Ducrot Bruno <poup@poupinou.org>, linux-kernel@vger.kernel.org
+References: <4.3.2.7.2.20021119134830.00b53680@mail.dns-host.com> <20021119130728.GA28759@suse.de> <20021119142731.GF27595@poup.poupinou.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021119142731.GF27595@poup.poupinou.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Nov 02 at 12:15, Matt Reppert wrote:
-> On Tue, 19 Nov 2002 12:51:44 -0500
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
-> > Matt Reppert wrote:
-> > 
-> > > drivers/net/mii.c doesn't export module init/cleanup functions. That 
-> > > means it
-> > > can't be loaded under the new module scheme. This patch adds do-nothing
-> > > functions for it, which allows it to load. (8139too depends on mii, so
-> > > without this I don't have network.)
-> > 
-> > ahhh!   I was wondering what was up, but since I was busy with other 
-> > things I just compiled it into the kernel and continued on my way.
-> > 
-> > That's a bug in the new module loader.
-> 
-> Not so sure I agree ... recompiled the kernel with debugging output in
-> module.c and when I try to insert mii.o without above patch it complains
-> "Module has no name!" and returns -ENOEXEC from the syscall. I think
-> naming mii.o would be a good idea. This may not be the best way to do
-> it, but it works. (Granted, I'm not terribly familiar with all the
-> modules code changes yet, but ... ) Having anonymous output in lsmod
-> would be somewhat confusing :) ("Well, whatever it is, 8139too needs
-> it, don't touch it!")
+On Tue, Nov 19, 2002 at 03:27:31PM +0100, Ducrot Bruno wrote:
+ > > The newer ACPI code also introduces problems that aren't
+ > > present with the current 2.4.20rc code.
 
-I think that retrieving module name from module's binary is wrong: I
-need to have dummy.o (network driver) insmodded two times to get my
-test environment up. 
+Got it. This actually isn't a problem with new ACPI code, but
+the addition of the new stack overflow check. It falls flat on
+its face really early if that is enabled.
 
-I do not think that it is correct that I must add multiple device support 
-to the dummy due to new module loader, and creating two dummy.o,
-with different .modulename sections, also does not look like reasonable
-solution to me.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
+The box is totally dead before console is initialised, so I
+don't have backtraces, I'll give that a shot with a serial
+console later. In the meantime, acpi folks should probably
+try testing with CONFIG_DEBUG_STACKOVERFLOW=y to see if they
+hit the same problems I'm getting.
 
+Back later..
+
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

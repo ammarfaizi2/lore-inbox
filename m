@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVAGUuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVAGUxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbVAGUuw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 15:50:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVAGUuv
+	id S261574AbVAGUxG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 15:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVAGUvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 15:50:51 -0500
-Received: from [213.85.13.118] ([213.85.13.118]:130 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S261557AbVAGUtP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 15:49:15 -0500
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Vladimir Saveliev <vs@namesys.com>, linux-mm <linux-mm@kvack.org>,
-       Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] per thread page reservation patch
-References: <20050103011113.6f6c8f44.akpm@osdl.org>
-	<20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com>
-	<1105019521.7074.79.camel@tribesman.namesys.com>
-	<20050107144644.GA9606@infradead.org>
-	<1105118217.3616.171.camel@tribesman.namesys.com>
-	<20050107190545.GA13898@infradead.org>
-From: Nikita Danilov <nikita@clusterfs.com>
-Date: Fri, 07 Jan 2005 23:48:58 +0300
-In-Reply-To: <20050107190545.GA13898@infradead.org> (Christoph Hellwig's
- message of "Fri, 7 Jan 2005 19:05:45 +0000")
-Message-ID: <m1pt0hq81x.fsf@clusterfs.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (chayote, linux)
-MIME-Version: 1.0
+	Fri, 7 Jan 2005 15:51:06 -0500
+Received: from pagoda.mtholyoke.edu ([138.110.30.68]:13466 "EHLO
+	pagoda.mtholyoke.edu") by vger.kernel.org with ESMTP
+	id S261589AbVAGUui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 15:50:38 -0500
+From: Ron Peterson <rpeterso@mtholyoke.edu>
+Date: Fri, 7 Jan 2005 15:50:31 -0500
+To: Robert Love <rml@novell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /dev/random vs. /dev/urandom
+Message-ID: <20050107205031.GA14599@mtholyoke.edu>
+References: <20050107190536.GA14205@mtholyoke.edu> <1105126843.9311.41.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105126843.9311.41.camel@betsy.boston.ximian.com>
+Organization: Mount Holyoke College
+X-Operating-System: Debian GNU/Linux
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
-
->> diff -puN include/linux/gfp.h~reiser4-perthread-pages include/linux/gfp.h
->> --- linux-2.6.10-rc3/include/linux/gfp.h~reiser4-perthread-pages	2004-12-22 20:09:44.153164276 +0300
-
-[...]
-
+On Fri, Jan 07, 2005 at 02:40:43PM -0500, Robert Love wrote:
+> On Fri, 2005-01-07 at 14:05 -0500, Ron Peterson wrote:
+> 
+> >     read( fd, dat, RAND_LEN );
+> >     for( i = 0; i < RAND_LEN; i++ ) {
+> >       dat[i] = (dat[i] & 0x07) + '0';
+> >     }
+> 
+> Your problem is probably because read() need not actually read RAND_LEN
+> bytes.  Particularly with /dev/random, since it will only return bytes
+> up to the entropy estimate.  But you assume it read RAND_LEN, when those
+> are unread.  And possibly zero.  So that is probably your bug.
+> 
+> The AND makes zero sense, either.
 >
->> +int perthread_pages_count(void)
->> +{
->> +	return current->private_pages_count;
->> +}
->> +EXPORT_SYMBOL(perthread_pages_count);
->
-> Again a completely useless wrapper.
+> Just use dd(1).
 
-I disagree. Patch introduces explicit API
+Ah, thanks! (to you and everyone else.)
 
-int  perthread_pages_reserve(int nrpages, int gfp);
-void perthread_pages_release(int nrpages);
-int  perthread_pages_count(void);
+(I can't use dd because I want to use the value to feed gmp_randseed
+from gmp library.  I need the AND to create the proper ascii code for a
+numeral.)
 
-sufficient to create and use per-thread reservations. Using
-current->private_pages_count directly
+Best.
 
- - makes API less uniform, not contained within single namespace
-   (perthread_pages_*), and worse,
-
- - exhibits internal implementation detail to the user.
-
->
-
-[...]
-
-Nikita.
-
+-- 
+Ron Peterson
+Network & Systems Manager
+Mount Holyoke College
+http://www.mtholyoke.edu/~rpeterso

@@ -1,43 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132613AbQLNNlf>; Thu, 14 Dec 2000 08:41:35 -0500
+	id <S129325AbQLNN6K>; Thu, 14 Dec 2000 08:58:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132481AbQLNNkv>; Thu, 14 Dec 2000 08:40:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30475 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131489AbQLNNkh>;
-	Thu, 14 Dec 2000 08:40:37 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200012141246.eBECkoc06148@flint.arm.linux.org.uk>
-Subject: Re: test12 + initrd = swapper at 99.8% CPU time
-To: joseph@cheek.com (Joseph Cheek)
-Date: Thu, 14 Dec 2000 12:46:50 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A38019E.925D809B@cheek.com> from "Joseph Cheek" at Dec 13, 2000 03:09:18 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129401AbQLNN6A>; Thu, 14 Dec 2000 08:58:00 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:17183 "EHLO
+	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129325AbQLNN55>; Thu, 14 Dec 2000 08:57:57 -0500
+Date: Thu, 14 Dec 2000 15:34:53 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Chad Schwartz <cwslist@main.cornernet.com>
+cc: Mark Orr <markorr@intersurf.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dropping chars on 16550
+In-Reply-To: <Pine.LNX.4.30.0012130827380.21891-100000@main.cornernet.com>
+Message-ID: <Pine.LNX.4.21.0012141529580.2159-100000@server.serve.me.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph Cheek writes:
-> i'm using test12 to perform a clean linux install.  as soon as i get to
-> a command prompt, ps axufw shows swapper at 99.8% CPU usage.  this
-> didn't repro with test11, and doesn't repro if i don't use an initrd.
 
-What pid does this task have?  The only process that should be "swapper"
-is pid0, and pid0 should be hidden from view.
+> there are many situations in which a 16550 is KNOWN to be overrunable, all
+> of which can occur in your common PPP connection.
+> 
+> More importantly - if you have 2 16550's talking together (Which is
+> EXACTLY what you have, when you hook it to a modem) there are even MORE
+> overrun possibilities. (For instance, when you fill the transmitter up to
+> 16 bytes - on a uart, and then the receiving side suddenly drops RTS,
+> there is *NO* way for that 16550 to stop its transmitter. Once the bytes
+> are in its fifo, it HAS TO SEND THEM.)
 
-If its not pid0, then I'd guess that it may be a rogue program...
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Indeed. I saw this behaviour some years ago when I was debugging a
+controller that went beserk when been talked to at a 115k2 buad rate. 
+
+My modem isn't on 115k2 now, so I don't see the problem often. I'm gonne
+setup a second machine with remote kernel debugging, since I'm sick of
+rebooting when I want to scan something.
+
+> This is where a 654 or an 854 (I'm only listing startech design chips.
+> there are others that would do the job.)  come in handy. They can pause
+> their transmitter WITH bytes in their fifo. (Automated hardware/software
+> flow control.)
+
+Indeed. Most chips I've seen are 1 16550, or pretend to be. Probably an
+issue of cost (At least, I think :))
+
+> I have no idea why the 16550 caught on as the "De facto standard" like it
+> did. there are UARTS out there that are more efficient, yet cost only a
+> few dollars more to manufacture.
+
+Well.. Why is the i386 the defacto standard ? There architectures that are
+a lot better. Reason it is that the some big company used it, and it got
+populair.
+
+> (Your common QUAD 16654 chip costs $20 to an end user, nowadays. Your
+> common QUAD 16554 costs about $15.)
+> 
+> Imagine what the 2-UART chips would cost. (or, mass-produced all-in-1
+> sets even.)
+> 
+> Really makes you think.
+
+Indeed.. Why do they save $15 bucks on a modem chipset, and replace it
+with a buggy software driven solution... Making things as cheap as
+possible, to make sure the're chaper then their compatitor.
+ 
+> Chad
+
+
+
+	Igmar
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

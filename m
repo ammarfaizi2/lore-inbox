@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267535AbRGMTyr>; Fri, 13 Jul 2001 15:54:47 -0400
+	id <S267534AbRGMTxR>; Fri, 13 Jul 2001 15:53:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267536AbRGMTyh>; Fri, 13 Jul 2001 15:54:37 -0400
-Received: from weta.f00f.org ([203.167.249.89]:11395 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S267535AbRGMTyU>;
-	Fri, 13 Jul 2001 15:54:20 -0400
-Date: Sat, 14 Jul 2001 07:54:20 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Mike Kravetz <mkravetz@sequent.com>
-Cc: Larry McVoy <lm@bitmover.com>, Davide Libenzi <davidel@xmailserver.org>,
-        lse-tech@lists.sourceforge.net, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: CPU affinity & IPI latency
-Message-ID: <20010714075420.A5596@weta.f00f.org>
-In-Reply-To: <20010712164017.C1150@w-mikek2.des.beaverton.ibm.com> <XFMail.20010712172255.davidel@xmailserver.org> <20010712173641.C11719@work.bitmover.com> <20010713100521.D1137@w-mikek2.des.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010713100521.D1137@w-mikek2.des.beaverton.ibm.com>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+	id <S267535AbRGMTxJ>; Fri, 13 Jul 2001 15:53:09 -0400
+Received: from mail1.qualcomm.com ([129.46.64.223]:2299 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S267534AbRGMTxB>; Fri, 13 Jul 2001 15:53:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Organization: Qualcomm
+To: Joerg Reuter <jreuter@suse.de>
+Subject: Re: [BUG?] vtund broken by tun driver changes in 2.4.6
+Date: Fri, 13 Jul 2001 12:44:28 -0700
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0107070058350.29490-100000@mackman.net.suse.lists.linux.kernel> <01071308585200.00792@btdemo1.qualcomm.com> <20010713194317.A18866@suse.de>
+In-Reply-To: <20010713194317.A18866@suse.de>
+MIME-Version: 1.0
+Message-Id: <01071312442805.00792@btdemo1.qualcomm.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 13, 2001 at 10:05:21AM -0700, Mike Kravetz wrote:
+> > Ioctls were defined _without_ IOW macros. And that was ugly. That's why I
+> > redifened them. So, if you recompile everything will be fine.
+>
+> So you break binary compatibilty within a _stable_ kernel release just
+> for the sake of beauty ? 
+I rewrote a lot of driver code to support persistent device and device ownership. So, I thought it was a right time
+to clean up interface as well. API was supposed to be cleaned up before 2.4.0 final.
 
-    It is clear that the behavior of lat_ctx bypasses almost all of
-    the scheduler's attempts at CPU affinity.  The real question is,
-    "How often in running 'real workloads' are the schduler's attempts
-    at CPU affinity bypassed?".
+> Besides, this does not only affect VTUND but  also other applications like Hercules.
+Yeah :(. Dave warned me about that.  I agree that it's a bad thing. Sorry about that.
+I promice that there will be no API changes in 2.4.x. 
+ 
+> Just recompiling Hercules  doesn't  help here anyway, because it (rightfully) refuses to include kernel
+> headers but (due to the lack of net/if_tun.h within glibc) constructs the IOCTL command on its own.
+Which imho is not a good idea.
 
-When encoding mp3s on a dual processor system, naturally I try to
-encode two at once.
+> > > And BTW, you shouldn't include kernel headers from user space programs, should you.
+> > That rule doesn't apply here.
+>
+> Can you tell me why it does not apply here? Just because you happen to
+> be the author of both the driver (which is, without doubt, very
+> valuable) and _one_ of several applications using it?
+No. Just because glibc lacks a lot of if_*.h headers and if_tun.h is one of them.
+Also it seems that there is no standard where if_*.h should go (include/netinet or in include/net).
+On my RH 7.1 box if_ether.h is in netinet (which is imho wrong) and if_ppp.h is in net. 
 
-Most of the time this works as expected, one processed more or less
-sticks to each CPU.  However, I have noticed that if for some reason,
-a third process has to be scheduled (which is inevitable if you
-actually want to do anything), then these two processes seem to bounce
-back and forward for a few seconds, _even_ after this CPU spike has
-gone.
+Max
+-- 
 
-Now, I'm not sure if I'm imagining this or not, as I said, I have two
-CPUs and two CPU-bound tasks, to instrument this as all, I really have
-to affect what I am looking at (rather like the uncertainty principal)
-so I assumed that perhaps my programs to read and process
-/proc/<n>/cpu was simply eating several cycles and each process was
-yielding more or less at random causing what I saw seeing.
+Maksim Krasnyanskiy      
+Senior Kernel Engineer
+Qualcomm Incorporated
 
-
-
-   --cw
+maxk@qualcomm.com
+http://bluez.sf.net
+http://vtun.sf.net

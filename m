@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263610AbVBCOVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263322AbVBCOYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263610AbVBCOVq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 09:21:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVBCOVp
+	id S263322AbVBCOYY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 09:24:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbVBCOWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 09:21:45 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:1790 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S263492AbVBCOVF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 09:21:05 -0500
-Message-Id: <200502031420.j13EKwFx005545@localhost.localdomain>
-To: Bill Huey (hui) <bhuey@lnxw.com>
-cc: Ingo Molnar <mingo@elte.hu>, "Jack O'Quin" <joq@io.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature 
-In-reply-to: Your message of "Wed, 02 Feb 2005 18:46:50 PST."
-             <20050203024650.GA15334@nietzsche.lynx.com> 
-Date: Thu, 03 Feb 2005 09:20:55 -0500
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.197.207.111] at Thu, 3 Feb 2005 08:21:02 -0600
+	Thu, 3 Feb 2005 09:22:43 -0500
+Received: from gprs214-99.eurotel.cz ([160.218.214.99]:62133 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263553AbVBCOVZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 09:21:25 -0500
+Date: Thu, 3 Feb 2005 15:20:57 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dominik Brodowski <linux@dominikbrodowski.de>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
+Message-ID: <20050203142057.GA1402@elf.ucw.cz>
+References: <200502021428.12134.rjw@sisk.pl> <20050203105846.GA1360@elf.ucw.cz> <20050203110155.GA17576@isilmar.linta.de> <200502031230.20302.rjw@sisk.pl> <20050203124006.GA18142@isilmar.linta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050203124006.GA18142@isilmar.linta.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->This is a bit off topic, but I'm interested in applications that are
->more driven by time and has abstraction closer to that in a pure way.
->A lot of audio kits tend to be overly about DSP and not about time.
->This is difficult to explain, but what I'm referring to here is ideally
->the next generation these applications and their design, not the current
->lot. A lot more can be done.
->
->> And it makes possible some of the most sophisticated *audio* apps on
->> the planet, though admittedly not video and other data at this time.
->
->Again, the notion of time based processing with broader uses and not
->just DSP which what a lot of current graph driven audio frameworks
->seem to still do at this time. Think gaming audio in 3d, etc...
+Hi!
 
-Ever since I started work on JACK, it has always been in the back of
-my head that on at least one level, its not about audio at all. Its a
-user-space cooperative scheduler. All it really is a way to fire up a
-bunch of processes (and/or internal callbacks) based on the passing of
-time as measured by some kernel-induced wakeup. It comes with a lot of
-extra stuff, like ports for passing around data, and the notion of a
-"backend" which is what actually responds to the wakeup and has
-somewhat more specific semantics than the client model. It also has
-the notion of enforcing time-related deadlines by evicting clients
-that appear to cause them to be violated. Even so, there is remarkably
-little about audio/DSP that affects the core design of JACK, which is
-why it can be run without any audio hardware, can provide network
-data transport, etc. etc.
+> > > > > On Thu, Feb 03, 2005 at 11:41:26AM +0100, Pavel Machek wrote:
+> > > > > > Okay, you are right, restoring it unconditionaly would be bad
+> > > > > > idea. Still it would be nice to tell cpufreq governor "please change
+> > > > > > the frequency ASAP" so it does not run at 800MHz for half an hour
+> > > > > > compiling kernels on AC power.
+> > > > > 
+> > > > > It already does that... or at least it should. in cpufreq_resume() there is
+> > > > > a call to schedule_work(&cpu_policy->update); which will cause a call
+> > > > > cpufreq_update_policy() in due course. And cpufreq_update_policy() calls the
+> > > > > governor, and it is supposed to adjust the frequency to the user's wish
+> > > > > then.
+> > > > 
+> > > > Ok, so Rafael's suspend() routine seems like good fix...
+> > > 
+> > > No. I don't see a reason why my desktop P4 should drop to 12.5 frequency
+> > > (p4-clockmod) if I ask it to suspend to mem.
+> > 
+> > So, would it be acceptable to check in _suspend() if the state is S4
+> > and drop the frequency in that case or do nothing otherwise?
+> 
+> No. The point is that this is _very_ system-specific. Some systems resume
+> always at full speed, some always at low speed; for S4 the behaviour may be
+> completely unpredictable. And in fact I wouldn't want my desktop P4 drop th
+> 12.5 % frequency if I ask it to suspend to disk, too. "Ignoring" the warning
+> seems to be the best thing to me. The good thing is, after all, that cpufreq
+> detected this situation and tries to correct for it.
 
-There are several kernel-side attributes that would make JACK better from
-my perspective:
-
-	* better ways to acquire and release RT scheduling
-	* better kernel scheduling latency (which has now come a long
-	    way already)
-	* real inter-process handoff. i am thinking of something like
-	    sched_yield(), but it would take a TID as the target
-	    of the yield. this would avoid all the crap we have to 
-	    go through to drive the graph of clients with FIFO's and
-	    write(2) and poll(2). Futexes might be a usable
-	    approximation in 2.6 (we are supporting 2.4, so we can't
-	    use them all the time)
-	* better ways to know what to lock into physical RAM
-
-Gaming audio is really a very different model from
-pro-audio. Developers there have evolved a different approach to
-dealing with latency issues. They use lots of kernel/hardware
-buffering for audio, but they require the ability to overwrite what
-they have already written to the buffers. This lets them get away with
-using rather large audio latency (especially by comparison with us
-audio folk), but still allows them stick new audio into the playback
-stream at short notice based on user actions. This is a design that
-won't work very well for pro-audio. Gamers could use the pro-audio
-"calculate everything at the last moment" model, but guess what:
-they'd be beating down on kernel scheduling door and RT-acquisition
-policy center just like we have, only in much larger numbers :)
-
---p
-
-
+You may not run k8 notebook on max frequency on battery. Your system
+will crash; and you might even damage battery.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

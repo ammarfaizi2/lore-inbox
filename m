@@ -1,86 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbTJFOh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 10:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTJFOh4
+	id S262272AbTJFOqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 10:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbTJFOqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 10:37:56 -0400
-Received: from cafe.hardrock.org ([142.179.182.80]:62117 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S262153AbTJFOhx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 10:37:53 -0400
-Date: Mon, 6 Oct 2003 08:37:52 -0600 (MDT)
-From: James Bourne <jbourne@hardrock.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.4.22-uv2 patch set released
-Message-ID: <Pine.LNX.4.44.0310060829450.2524-100000@cafe.hardrock.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Oct 2003 10:46:16 -0400
+Received: from pub237.cambridge.redhat.com ([213.86.99.237]:21245 "EHLO
+	executor.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S262272AbTJFOqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 10:46:12 -0400
+Subject: Re: [PATCH] Memory leak in mtd/chips/cfi_cmdset_0020
+From: David Woodhouse <dwmw2@redhat.com>
+To: Felipe W Damasio <felipewd@terra.com.br>
+Cc: linux-mtd@lists.infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F81800A.5000500@terra.com.br>
+References: <3F81800A.5000500@terra.com.br>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Red Hat UK Ltd.
+Message-Id: <1065451568.22491.215.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
+Date: Mon, 06 Oct 2003 15:46:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-The Update Version patchset is a set of patches which include only fatal
-compile/runtime bug fixes and security updates for the current kernel
-version.  This patch set can be used in production environments for those
-who wish to run 2.4.22, but do not use vendor kernels and at the same time
-require patches which add to the stability of the current release kernel
-version.  This is a patch set only, it does not include kernel source.
+On Mon, 2003-10-06 at 11:45 -0300, Felipe W Damasio wrote:
+> 	Hi David,
+> 
+> 	Patch against 2.6.0-test6.
+> 
+> 	- Frees a previous allocated kmalloced variable before returning NULL;
+> 
+> 	Found by smatch.
 
-Current version is 2.4.22-uv2
+Applied; thanks. It'll be in the next update sent to Linus, when I get a
+few spare moments for merging and testing.
 
-The complete URL to the patch set is
-http://www.hardrock.org/kernel/current-updates/linux-2.4.22-updates.patch
-
-Individual patches can be viewed and downloaded from
-http://www.hardrock.org/kernel/current-updates/
-
-This patch set only contains and will only contain security updates and
-fixes for the latest kernel version.  Each individual patch contains text
-WRT the patch itself and the creator of the patch, I will try to keep doing
-that as standard reference for the complete collection.
-
-Please send bug reports to jbourne@hardrock.org and CC
-linux-kernel@vger.kernel.org.
-
-Patch specifics are:
-linux-2.4.22-extraversion.patch: Updated the extraversion in the Makefile
-
-linux-2.4.22-amd64-compile.patch: Fixes broken x86-64 compilation
-
-linux-2.4.22-amd76x_pm.c-crash.patch: Fix amd67x_pm.c crash with no chipsets
-        / CONFIG_HOTPLUG
-
-linux-2.4.22-atm-pca-200epc.patch: when clip isnt a module, the common code
-        try to manipulate the module count while fails.
-
-linux-2.4.22-hardirq-race.patch: Fix possible IRQ handling SMP race
-
-linux-2.4.22-initrd-netboot.patch: Handle -EBUSY in mount_block_root for
-        netboot
-
-linux-2.4.22-pcwd-unload-oops.patch: This patch is from Alan Cox and fixes
-        problems when pcwd driver is loaded while there is no pcwd hardware
-        installed.
-
-linux-2.4.22-usb-serial.patch: This patch from Greg K-H stops an oops
-        condition within the USB Serial driver.
-
-linux-2.4.22-acpi_po_tramp.patch: When using ACPI, sysrq-o will oops the
-        kernel.  This patch from Andi Kleen fixes the condition.
-
-linux-2.4.22-aic7xxx_osm-compile.patch: Compile fix for aic7xxx_osm when
-        compiling using CONFIG_EISA and CONFIG_PCI is unset.
-
-Regards
-James Bourne
+Out of interest, why didn't smatch also find the same error 25 lines
+further down?
 
 -- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
-
-
-
+dwmw2

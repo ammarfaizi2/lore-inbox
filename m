@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262969AbVAFV2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbVAFVc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262969AbVAFV2p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 16:28:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbVAFV11
+	id S263003AbVAFVc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 16:32:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbVAFV1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 16:27:27 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:50605 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S263028AbVAFVYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 16:24:35 -0500
-Date: Thu, 6 Jan 2005 16:24:31 -0500
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Norbert van Nobelen <Norbert@edusupport.nl>,
-       Raphael Jacquot <raphael.jacquot@imag.fr>, linux-kernel@vger.kernel.org
-Subject: Re: Open hardware wireless cards
-Message-ID: <20050106212431.GD30311@csclub.uwaterloo.ca>
-References: <20050105200526.GL5159@ruslug.rutgers.edu> <20050106172438.GT5159@ruslug.rutgers.edu> <41DD8D71.7000708@imag.fr> <200501062032.13513.Norbert@edusupport.nl> <1105045205.15823.4.camel@krustophenia.net>
+	Thu, 6 Jan 2005 16:27:13 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:15497 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263036AbVAFVZI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 16:25:08 -0500
+Date: Thu, 6 Jan 2005 13:24:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@davemloft.net>,
+       linux-usb-devel@lists.sourceforge.net, mst@mellanox.co.il,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [PATCH] macros to detect existance of unlocked_ioctl and ioctl_compat
+Message-ID: <20050106212424.GA6465@kroah.com>
+References: <20050106145356.GA18725@infradead.org> <20050106163559.GG5772@vana.vc.cvut.cz> <20050106165715.GH1830@wotan.suse.de> <20050106172613.GI5772@vana.vc.cvut.cz> <20050106175342.GA28889@wotan.suse.de> <20050106193520.GA5481@kroah.com> <20050106195144.GE28889@wotan.suse.de> <20050106115959.45d793e1.davem@davemloft.net> <20050106204431.GH28889@wotan.suse.de> <20050106210921.GK5772@vana.vc.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105045205.15823.4.camel@krustophenia.net>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+In-Reply-To: <20050106210921.GK5772@vana.vc.cvut.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 04:00:05PM -0500, Lee Revell wrote:
-> On Thu, 2005-01-06 at 20:32 +0100, Norbert van Nobelen wrote:
-> > 100mWatt antenna (-: Gives 4 mile range (-:
-> > Make it USB powered (-: (so that the pcmcia card does not overheat!!)
-> 
-> Ah, this reminds me, isn't there some kind of issue with open source
-> wireless and FCC (or whatever your local equivalent is) regulations?  Or
-> was that just an excuse the vendors used for their closed source
-> drivers?
+On Thu, Jan 06, 2005 at 10:09:21PM +0100, Petr Vandrovec wrote:
+> On Thu, Jan 06, 2005 at 09:44:31PM +0100, Andi Kleen wrote:
+> > On Thu, Jan 06, 2005 at 11:59:59AM -0800, David S. Miller wrote:
+> > > On Thu, 6 Jan 2005 20:51:44 +0100
+> > > Andi Kleen <ak@suse.de> wrote:
+> > > 
+> > > > DaveM can probably give you more details since he tried unsucessfully
+> > > > to make it work. I think the problem is that there is no enough
+> > > > information for the compat layer to convert everything.
+> > > 
+> > > When the usbfs async stuff writes back the status, we are no
+> > > longer within the original syscall/ioctl execution any more,
+> > > therefore we don't know if we're doing this for a compat task
+> > > or not.
 
-Just an excuse.
+Ick, yeah, now I remember...
 
-Someone determined enough would hex edit the code to change the signal
-power.  The FCC isn't stupid enough to believe obfuscation prevents
-abuse.  They just have laws against using too high a power.  Of course
-enforcing it isn't easy either.  And the firmware can't prevent you from
-changing the antenna and/or using a signal booster.
+> P.S.:  When designing new API, please do not make it unnecessary complicated.
+> USB video needs rather large bandwidth and low latency, so please no ASCII
+> strings, and scatter-gather aware API helps a bit...
 
-Len Sorensen
+In measurements published on linux-usb-devel, pure userspace calls using
+the current usbfs code generated almost full bandwidth usage (within the
+hardware limits).  So adding the scatter-gather api interface to usbfs
+wouldn't really provide that much benefit.
+
+And, we can always use help in designing such an API, if you could find
+someone at your company to help us out in doing so... :)
+
+thanks,
+
+greg k-h

@@ -1,84 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280320AbRKIXvk>; Fri, 9 Nov 2001 18:51:40 -0500
+	id <S280322AbRKIXxK>; Fri, 9 Nov 2001 18:53:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280322AbRKIXva>; Fri, 9 Nov 2001 18:51:30 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:16334 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S280320AbRKIXvR>;
-	Fri, 9 Nov 2001 18:51:17 -0500
-Message-ID: <3BEC6BE0.6080503@candelatech.com>
-Date: Fri, 09 Nov 2001 16:50:56 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S280323AbRKIXxB>; Fri, 9 Nov 2001 18:53:01 -0500
+Received: from elin.scali.no ([62.70.89.10]:8455 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S280322AbRKIXwt>;
+	Fri, 9 Nov 2001 18:52:49 -0500
+Date: Sat, 10 Nov 2001 00:52:47 +0100 (CET)
+From: Terje Eggestad <terje.eggestad@scali.no>
+To: <linux-kernel@vger.kernel.org>
+Subject: confused about raw-io blocksizes
+Message-ID: <Pine.LNX.4.30.0111092333100.24890-100000@elin.scali.no>
 MIME-Version: 1.0
-To: Stefan Smietanowski <stesmi@stesmi.com>
-CC: Ben Israel <ben@genesis-one.com>, linux-kernel@vger.kernel.org
-Subject: Re: Disk Performance
-In-Reply-To: <000201c16963$365e19e0$5101a8c0@pbc.adelphia.net> <3BEC67BB.3000607@stesmi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I'm curious as to what sets the smallest legal blocksize for raw-io, I
+get different values for different partitions on the same disk drive.
 
-Stefan Smietanowski wrote:
+In all my tests I've used
+raw /dev/raw/raw2 <block speclial file>
+and to test block size:
+dd if=/dev/raw/raw2 of=/dev/null bs=N count=1
+where N is either 512, 1024, or 4096.
+(I've a RH7.1 with a dd that do propper buffer alignment)
+Failure is always "invalid argument" which singify either misaligned
+buffer or illegal read length.
 
-> Hi.
-> 
->> Why does my 40 Megabyte per second IDE drive, transfer files at best 
->> at 1-2
->> Megabytes per second? Can anyone prove that this must be the case? 
->> What is
->> the most efficient way to convince anyone who reads this that it can't be
->> proven because a counter example exists?
->>
->> I wish to be personally CC'ed the answers/comments posted to the list in
->> response to this posting.
->>
->> This is my first attempt at being part of the process. Please give me 
->> some
->> time to adjust.
-> 
-> 
-> 40Megabyte per second you say. Well, if it benchmarks at 1-2 Megabytes 
-> per second it sounds like a 2 Megabytes per second drive to me, not a 40 
-> Megabytes per second drive.
-> 
-> But, to try to speed it up, make sure you're running with DMA mode enabled.
-> 
-> hdparm -d1 /dev/hdx where x = number of drive (a=primary master, 
-> b=primary slave, c=secondary master, etc).
-> 
-> But, apart from that, if it indeed is a real problem, what's the name of 
-> the motherboard, chipset, hard drive, what linux kernel revision are you 
-> running and do you use any special patches or tricks with it?
-> 
+What confuses me is that when raw2 is bound to /dev/hda bs=512 is ok.
+However when binding raw2 to the different partitions on /dev/hda, some
+are ok with 512, some will only accept 1024, and one required 4096.
+
+When creating an lvm vg on one partition (/dev/hda6), and I've created
+two logical volumes on it, one was ok with 1024 and the other required
+4096. When binding a raw to /dev/hda6 dd with bs=512 was ok.
 
 
-I once had a problem where the cable was attached in the middle, and the end was
-not attached to anything (the cable supported two drives).  After changing to
-the end connector, it went from 2MB to 30+MB....
-
-Ben
+When doing dd on the block special files bs=512  is always OK.
 
 
-> // Stefan
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
+The reason I messing with this is that I'm working with an animal called
+Oracle Real Application Cluster 9i which need a partiontion on a shared
+disk to hold the cluster config. Installation stopped because the program
+oracle provides to format the partition do 512 byte io, and require a
+character raw device...
+
+TJ
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+_________________________________________________________________________
 
+Terje Eggestad                  terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
+N-0621 Oslo                     fax:    +47 22 62 89 51
+NORWAY
+_________________________________________________________________________
 

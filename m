@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbUKJO2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbUKJO2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbUKJO2l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 09:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbUKJO0b
+	id S261959AbUKJO2o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 09:28:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUKJO0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:26:31 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4575 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261975AbUKJOXH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 09:23:07 -0500
-Date: Wed, 10 Nov 2004 16:25:09 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.23
-Message-ID: <20041110152509.GA9875@elte.hu>
-References: <OF5FEE4152.258EB1B2-ON86256F48.004DA741-86256F48.004DA76D@raytheon.com>
+	Wed, 10 Nov 2004 09:26:07 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7618 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261978AbUKJOWo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 09:22:44 -0500
+Date: Wed, 10 Nov 2004 08:56:21 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Stefan Schmidt <zaphodb@zaphods.net>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.10-rc1-mm4 -1 EAGAIN after allocation failure was: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+Message-ID: <20041110105621.GA11097@logos.cnet>
+References: <20041109144607.2950a41a.akpm@osdl.org> <20041109235201.GC20754@zaphods.net> <20041110012733.GD20754@zaphods.net> <20041109173920.08746dbd.akpm@osdl.org> <20041110020327.GE20754@zaphods.net> <419197EA.9090809@cyberone.com.au> <20041110102854.GI20754@zaphods.net> <20041110120624.GF28163@zaphods.net> <20041110085831.GB10740@logos.cnet> <20041110124810.GG28163@zaphods.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OF5FEE4152.258EB1B2-ON86256F48.004DA741-86256F48.004DA76D@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+In-Reply-To: <20041110124810.GG28163@zaphods.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 10, 2004 at 01:48:11PM +0100, Stefan Schmidt wrote:
+> On Wed, Nov 10, 2004 at 06:58:31AM -0200, Marcelo Tosatti wrote:
+> > > > > Can you try the following patch, please? It is diffed against 2.6.10-rc1,
+> > > I did. No apparent change with mm4 and vm.min_free_kbytes = 8192. I will try
+> > > latest bk next.
+> 
+> > > > I set it back to CONFIG_PACKET_MMAP=y and if the application does not freeze
+> > > > for some hours at this load we can blame at least this issue (-1 EAGAIN) on
+> > > > that parameter.
+> > > Nope, that didn't change anything, still getting EAGAIN, checked two times.
+> > Its not clear to me - do you have Nick's watermark patch in? 
+> Yes i have vm.min_free_kbytes=8192 and Nick's patch in mm4. I'll try
+> rc1-bk19 with his restore-atomic-buffer patch in a few minutes.
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+Stefan, 
 
-> >- everything else should be SCHED_OTHER. Do latencies get any better if
-> >you do this?
+Please always run your tests with show_free_area() call at the 
+page allocation failure path.
 
-> I can, but that is not necessarily an "apples to apples" comparison.
+I fully disagree with Andrew when he says  
+"I don't think it'd help much - we know what's happening."
 
-the goal now would be to simplify the test and work down the issues in
-isolation, instead of looking at a complex setup of mixed workloads and
-just seeing 'it sucks' without knowing which component causes what. 
-That's why e.g. rtc_wakeup is so useful - it's simple and dependable and
-still it showed a good deal of problems and helped debug/fix them.
-
-	Ingo

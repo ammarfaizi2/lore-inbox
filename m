@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266093AbSKLBub>; Mon, 11 Nov 2002 20:50:31 -0500
+	id <S266069AbSKLCAW>; Mon, 11 Nov 2002 21:00:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266094AbSKLBub>; Mon, 11 Nov 2002 20:50:31 -0500
-Received: from cs6625132-47.austin.rr.com ([66.25.132.47]:45265 "EHLO
-	dragon.taral.net") by vger.kernel.org with ESMTP id <S266093AbSKLBua>;
-	Mon, 11 Nov 2002 20:50:30 -0500
-Date: Mon, 11 Nov 2002 19:56:56 -0600
-From: Taral <taral@taral.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] bogusness in af_key.c
-Message-ID: <20021112015656.GA12342@hatchling.taral.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266086AbSKLCAW>; Mon, 11 Nov 2002 21:00:22 -0500
+Received: from web20702.mail.yahoo.com ([216.136.226.175]:28504 "HELO
+	web20702.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266069AbSKLCAV>; Mon, 11 Nov 2002 21:00:21 -0500
+Message-ID: <20021112020710.44554.qmail@web20702.mail.yahoo.com>
+Date: Tue, 12 Nov 2002 02:07:10 +0000 (GMT)
+From: =?iso-8859-1?q?mark=20walters?= <kanelephant@yahoo.co.uk>
+Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
+To: Con Kolivas <conman@kolivas.net>, Andrew Morton <akpm@digeo.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1037065894.3dd05ea6f1d84@kolivas.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ --- Con Kolivas <conman@kolivas.net> wrote: 
+> 
+> I agree. Fortunately I don't think it's as bad a
+> tradeoff as these numbers make
+> out. The load accounting in contest (johntest?) is
+> still relatively bogus. Apart
+> from saying it's more or less loads I dont think the
+> scale of the numbers are
+> accurate.
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-pfkey_sendmsg returns the wrong value. Patch to fix:
+Is the number of loads the total number of loads done
+during the kernel compile or the number of loads per
+unit time during the kernel compile? I was guessing
+the former. (Andrew appeared to be guessing the
+latter?)
 
---- linux-2.5.47/net/key/af_key.c.dist	2002-11-11 19:55:49.000000000 -0600
-+++ linux-2.5.47/net/key/af_key.c	2002-11-11 19:09:57.000000000 -0600
-@@ -2179,7 +2179,7 @@
- 	if (skb)
- 		kfree_skb(skb);
-=20
--	return err;
-+	return err !=3D 0 ? err : len;
- }
-=20
- static int pfkey_recvmsg(struct kiocb *kiocb,
+Mark
+ 
 
---=20
-Taral <taral@taral.net>
-This message is digitally signed. Please PGP encrypt mail to me.
-"Pretty please with dollars on top?" -- Me
 
---4Ckj6UjgE2iN1+kY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE90F/ooQQF8xCPwJQRAtJjAJ0VtdGUg6UHMDsll1QvUbntvdnxagCeL1HJ
-avosVopDrPGp7MgOtEDKwV0=
-=pTxk
------END PGP SIGNATURE-----
-
---4Ckj6UjgE2iN1+kY--
+__________________________________________________
+Do You Yahoo!?
+Everything you'll ever need on one web page
+from News and Sport to Email and Music Charts
+http://uk.my.yahoo.com

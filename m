@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266983AbTATVa1>; Mon, 20 Jan 2003 16:30:27 -0500
+	id <S266933AbTATV2D>; Mon, 20 Jan 2003 16:28:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266987AbTATVa1>; Mon, 20 Jan 2003 16:30:27 -0500
-Received: from adsl-b3-75-90.telepac.pt ([213.13.75.90]:19597 "HELO
-	puma-vgertech.no-ip.com") by vger.kernel.org with SMTP
-	id <S266983AbTATVaZ>; Mon, 20 Jan 2003 16:30:25 -0500
-Message-ID: <3E2C6C92.6060505@vgertech.com>
-Date: Mon, 20 Jan 2003 21:39:30 +0000
-From: Nuno Silva <nuno.silva@vgertech.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en-us, pt
-MIME-Version: 1.0
-To: Folkert van Heusden <folkert@vanheusden.com>
-CC: "'Rik van Riel'" <riel@conectiva.com.br>,
-       "'Jean-Eric Cuendet'" <jean-eric.cuendet@linkvest.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Disabling file system caching
-References: <004001c2c0bc$d1e69750$3640a8c0@boemboem>
-In-Reply-To: <004001c2c0bc$d1e69750$3640a8c0@boemboem>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266962AbTATV2D>; Mon, 20 Jan 2003 16:28:03 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:19211 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S266933AbTATV2C>;
+	Mon, 20 Jan 2003 16:28:02 -0500
+Date: Mon, 20 Jan 2003 22:37:05 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: David Schwartz <davids@webmaster.com>, david.lang@digitalinsight.com,
+       dana.lacoste@peregrine.com, linux-kernel@vger.kernel.org
+Subject: Re: Is the BitKeeper network protocol documented?
+Message-ID: <20030120213705.GA2086@mars.ravnborg.org>
+Mail-Followup-To: David Schwartz <davids@webmaster.com>,
+	david.lang@digitalinsight.com, dana.lacoste@peregrine.com,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0301201129510.6894-100000@dlang.diginsite.com> <20030120134831.Q1594@schatzie.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030120134831.Q1594@schatzie.adilger.int>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> The fact that BK is used creates information which WOULD NOT HAVE EXISTED
+> had BK not existed.  In fact, until BK was in use by Linus, not even basic
+> CVS checkin comments existed, so the metadata was in a format called
+> linux-kernel mbox (if that).  So, the use of a tool like BK makes more data
+> available, but people cannot be worse off than when the kernel was shipped
+> as a tarball and periodic patches.  For the sake of those people who don't
+> or can't use BK, just pretend BK doesn't exist and they will not be any
+> worse off than a year ago.
 
+linux.bkbits.net:8080/linux-2.5 is accessible for all, even people
+developing another SCM. All incremental changes can be found there
+again without any licensing issues.
 
-Folkert van Heusden wrote:
->>>Is it possible to disable file caching for a given partition or mount?
->>
->>No, if you do that mmap(), read(), write() etc. would be impossible.
-> 
-> 
-> Hmmm, maybe there's some way to explicitly flush the read/write-cache?
-> Ok, sync will do nice for the write-cache, but for the read-one?
+And btw. no-one forces people to use BK to develop the kernel.
+And the kernel is available as patches on kernel.org.
 
-AFAIK, you simply can't... I'm trying to do this for several months and 
-no luck. Linux simply caches everything it can in the read-cache. For 
-99% of all cases this is very good but, for some situations, this is not 
-desireable.
+So what is the point of this thread?
 
-For the write cache, you can minimize memory usage playing with 
-/proc/sys/vm (see Documentation/filesystems/proc.txt).
-
-Regards,
-Nuno Silva
-
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+	Sam

@@ -1,45 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317559AbSGTWuS>; Sat, 20 Jul 2002 18:50:18 -0400
+	id <S317552AbSGTWkN>; Sat, 20 Jul 2002 18:40:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317560AbSGTWuR>; Sat, 20 Jul 2002 18:50:17 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:22515 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317559AbSGTWuR>; Sat, 20 Jul 2002 18:50:17 -0400
-Date: Sat, 20 Jul 2002 15:48:59 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Robert Love <rml@tech9.net>, Linus Torvalds <torvalds@transmeta.com>
-cc: William Lee Irwin III <wli@holomorphy.com>, akpm@zip.com.au,
-       riel@conectiva.com.br, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] for_each_pgdat
-Message-ID: <244469929.1027180137@[10.10.2.3]>
-In-Reply-To: <1027201039.1085.812.camel@sinai>
-References: <1027201039.1085.812.camel@sinai>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317559AbSGTWkM>; Sat, 20 Jul 2002 18:40:12 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:65273 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317552AbSGTWkL>; Sat, 20 Jul 2002 18:40:11 -0400
+Subject: [PATCH] for_each_zone, updated
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: riel@conectiva.com.br, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       wli@holomorphy.com
+In-Reply-To: <1027196543.1555.775.camel@sinai>
+References: <1027196543.1555.775.camel@sinai>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 20 Jul 2002 15:43:13 -0700
+Message-Id: <1027204993.1086.826.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Ok guys, you three (and whoever else wants to play? ;) fight it out amonst
->> yourselves, I'll wait for the end result (iow: I'll just ignore both
->> patches for now).
-> 
-> No no... the issues are fairly orthogonal.
-> 
-> Attached is a patch with the for_each_pgdat implementation and
-> s/node_next/pgdat_next/ per Martin.
+On Sat, 2002-07-20 at 13:22, Robert Love wrote:
+> Attached patch implements for_each_zone(zont_t *) which is a helper
+> macro to cleanup code of the form:
 
-I'm happy with this (obviously ;-))
+Attached patch implements for_each_zone, now using Martin Bligh's newly
+renamed pgdat_next.
+
+This patch applies on top of the updated for_each_pgdat patch.
+
+Please, apply.
+
+	Robert Love
+
+diff -urN linux-2.5.27-rml/include/linux/mmzone.h linux/include/linux/mmzone.h
+--- linux-2.5.27-rml/include/linux/mmzone.h	Sat Jul 20 15:31:06 2002
++++ linux/include/linux/mmzone.h	Sat Jul 20 15:31:38 2002
+@@ -177,6 +177,43 @@
+ #define for_each_pgdat(pgdat) \
+ 	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
  
-> If Bill wants to convert pgdats to lists that is fine but is another
-> step.  Let's get in this first batch and that can be done off this.
++/*
++ * next_zone - helper magic for for_each_zone()
++ * Thanks to William Lee Irwin III for this piece of ingenuity.
++ */
++static inline zone_t * next_zone(zone_t * zone)
++{
++	pg_data_t *pgdat = zone->zone_pgdat;
++
++	if (zone - pgdat->node_zones < MAX_NR_ZONES - 1)
++		zone++;
++	else if (pgdat->pgdat_next) {
++		pgdat = pgdat->pgdat_next;
++		zone = pgdat->node_zones;
++	} else
++		zone = NULL;
++
++	return zone;
++}
++
++/**
++ * for_each_zone - helper macro to iterate over all memory zones
++ * @zone - pointer to zone_t variable
++ *
++ * The user only needs to declare the zone variable, for_each_zone
++ * fills it in. This basically means for_each_zone() is an
++ * easier to read version of this piece of code:
++ *
++ * for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
++ * 	for (i = 0; i < MAX_NR_ZONES; ++i) {
++ * 		zone_t * z = pgdat->node_zones + i;
++ * 		...
++ * 	}
++ * }
++ */
++#define for_each_zone(zone) \
++	for (zone = pgdat_list->node_zones; zone; zone = next_zone(zone))
++
+ #ifndef CONFIG_DISCONTIGMEM
+ 
+ #define NODE_DATA(nid)		(&contig_page_data)
+diff -urN linux-2.5.27-rml/mm/page_alloc.c linux/mm/page_alloc.c
+--- linux-2.5.27-rml/mm/page_alloc.c	Sat Jul 20 15:31:29 2002
++++ linux/mm/page_alloc.c	Sat Jul 20 15:31:38 2002
+@@ -477,12 +477,12 @@
+  */
+ unsigned int nr_free_pages(void)
+ {
+-	unsigned int i, sum = 0;
+-	pg_data_t *pgdat;
++	unsigned int sum;
++	zone_t *zone;
+ 
+-	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
+-		for (i = 0; i < MAX_NR_ZONES; ++i)
+-			sum += pgdat->node_zones[i].free_pages;
++	sum = 0;
++	for_each_zone(zone)
++		sum += zone->free_pages;
+ 
+ 	return sum;
+ }
 
-As we now reference them in only two places (the macro defn and
-numa.c:_alloc_pages) it hardly seems worth converting to lists ... ? 
-(I'm going to take an axe to NUMA _alloc_pages in a minute anyway ;-))
-
-M.

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319334AbSHOBfv>; Wed, 14 Aug 2002 21:35:51 -0400
+	id <S319329AbSHOBdn>; Wed, 14 Aug 2002 21:33:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319335AbSHOBfv>; Wed, 14 Aug 2002 21:35:51 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:56826 "EHLO
+	id <S319330AbSHOBdn>; Wed, 14 Aug 2002 21:33:43 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:55802 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319334AbSHOBfu>; Wed, 14 Aug 2002 21:35:50 -0400
-Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
+	id <S319329AbSHOBdm>; Wed, 14 Aug 2002 21:33:42 -0400
+Subject: Re: Will NFSv4 be accepted?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Willy Tarreau <willy@w.ods.org>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3D5B03A5.5050703@zytor.com>
-References: <3D56B13A.D3F741D1@zip.com.au>	<Pine.NEB.4.44.0208132322340.1351-100000@mima
-	 s.fachschaften.tu-muenchen.de>	<ajc095$hk1$1@cesium.transmeta.com>
-	<20020814194019.A31761@bitwizard.nl>	<3D5AB250.3070104@zytor.com>
-	<20020814204556.GA7440@alpha.home.local> 	<3D5AC481.2080505@zytor.com>
-	<1029374634.28240.26.camel@irongate.swansea.linux.org.uk> 
-	<3D5B03A5.5050703@zytor.com>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: "Kendrick M. Smith" <kmsmith@umich.edu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44.0208141926030.31203-100000@mooru.gurulabs.com>
+References: <Pine.LNX.4.44.0208141926030.31203-100000@mooru.gurulabs.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 15 Aug 2002 02:37:33 +0100
-Message-Id: <1029375453.28240.37.camel@irongate.swansea.linux.org.uk>
+Date: 15 Aug 2002 02:35:27 +0100
+Message-Id: <1029375327.28240.35.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-15 at 02:28, H. Peter Anvin wrote:
-> True indeed as well, although we should still have a busy_wait(); macro
-> that can insert whatever hint instruction the architecture might or
-> might not have.
+On Thu, 2002-08-15 at 02:27, Dax Kelson wrote:
+> On 15 Aug 2002, Alan Cox wrote:
+> 
+> > Thats not an NFS2 or NFS3 issue, thats an implementation matter. A
+> > proper NFS credential system prevents that from occurring. You also have
+> > to fix some bogon assumptions in our NFS client too I grant. 
+> 
+> Please, do tell.
 
-We have one - its called cpu_relax()
+Ok item #1 you authenticate with the server and get a cryptographic key
+for use as credentials. This solves the bad client problem. Kerberos,
+gssapi etc will do the job
+
+Item #2 is a bug in our NFS page cache handling. Its not legal in NFS to
+assume we can share caches between processes unless they have the same
+NFS credentials for the query. The most we can do (and should do) is
+that when we think we can reuse a cache entry we issue an NFS ACCESS
+check for NFSv3 or for NFSv2 we write it back to the server if dirty
+then issue a read for the new credential set.
+
 

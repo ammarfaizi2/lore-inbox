@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267993AbUHPWnX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267999AbUHPWvq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267993AbUHPWnX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 18:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267992AbUHPWnX
+	id S267999AbUHPWvq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 18:51:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268006AbUHPWvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 18:43:23 -0400
-Received: from cantor.suse.de ([195.135.220.2]:48040 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267994AbUHPWnF (ORCPT
+	Mon, 16 Aug 2004 18:51:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39572 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267999AbUHPWvo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:43:05 -0400
-Date: Tue, 17 Aug 2004 00:39:38 +0200
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: /bin/ls: cannot read symbolic link /proc/$$/exe: Permission denied
-Message-ID: <20040816223938.GA9133@suse.de>
-References: <20040816133730.GA6463@suse.de>
+	Mon, 16 Aug 2004 18:51:44 -0400
+Date: Mon, 16 Aug 2004 15:48:15 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>,
+       <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH][linux-usb-devel] Early USB handoff
+Message-Id: <20040816154815.3f0856d4@lembas.zaitcev.lan>
+In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B3015B68E6@scl-exch2k.phoenix.com>
+References: <5F106036E3D97448B673ED7AA8B2B6B3015B68E6@scl-exch2k.phoenix.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040816133730.GA6463@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Aug 16, Olaf Hering wrote:
+On Mon, 16 Aug 2004 13:06:17 -0700
+"Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com> wrote:
 
-> 
-> For some reasons ls -l /proc/$$/exe doesnt work all time for me,
-> with 2.6.8.1 on ppc64. Sometimes it does, sometimes not. No pattern.
-> A few printks show that this check in proc_pid_readlink() triggers
-> an -EACCES:
-> 
->         current->fsuid != inode->i_uid
-> 
-> proc_pid_readlink(755) error -13 ntptrace(11408) fsuid 100 i_uid 0 0
-> sys_readlink(281) ntptrace(11408) error -13 readlink
+>   Here is slightly improved early USB legacy handoff patch for 2.4.27
 
-A better one, clear both new fields, just in case.
+The usual caveat is how we all wait for this to go into 2.6.
 
+>   I've tested it on a number of machines (mostly laptops) for UHCI &
+> OHCI, but PC with EHCI BIOS legacy support was hard to find. I tried
+> Intel D865GRH, but seems like BIOS there have some problems (like lock
+> up during POST when flash drive plugged in), and does not adhere EHCI
+> handoff protocol.
 
-diff -p -purN linux-2.6.8.1.omfg/fs/compat.c linux-2.6.8.1/fs/compat.c
---- linux-2.6.8.1.omfg/fs/compat.c	2004-08-14 12:55:31.000000000 +0200
-+++ linux-2.6.8.1/fs/compat.c	2004-08-17 00:33:36.000000000 +0200
-@@ -1390,6 +1390,8 @@ int compat_do_execve(char * filename,
- 	bprm.sh_bang = 0;
- 	bprm.loader = 0;
- 	bprm.exec = 0;
-+	bprm.interp_flags = 0;
-+	bprm.interp_data = 0;
- 	bprm.security = NULL;
- 	bprm.mm = mm_alloc();
- 	retval = -ENOMEM;
+That part looked ok. Such computers are semi-popular. Our QA department
+has Thinkpads with similarly broken BIOS. I'm glad you did not decide
+to call panic() in such case :-)
 
--- 
-USB is for mice, FireWire is for men!
+>   Handoff is under no-usb-legacy option.
+> +int disable_legacy_usb __initdata = 0;
 
-sUse lINUX ag, nÜRNBERG
+I think it's an unfortunate naming. When I was reading the patch, I got
+the meaning exactly backwards. I think that we should not be afraid
+of using something like "do handoff" or "do NOT do a handoff" in the
+documentation and flag names, for extra clarity.
+
+-- Pete

@@ -1,43 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTFFQcL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 12:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbTFFQcL
+	id S261998AbTFFQhv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 12:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTFFQhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 12:32:11 -0400
-Received: from web12906.mail.yahoo.com ([216.136.174.73]:44553 "HELO
-	web12906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262001AbTFFQcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 12:32:09 -0400
-Message-ID: <20030606164542.84584.qmail@web12906.mail.yahoo.com>
-Date: Fri, 6 Jun 2003 18:45:42 +0200 (CEST)
-From: =?iso-8859-1?q?Terje=20F=E5berg?= <terje_fb@yahoo.no>
-Subject: Re: 2.5.70-bk10: Keyboard failing
-To: linux-kernel@vger.kernel.org
-Cc: vojtech@suse.cz
-In-Reply-To: <20030605192126.69958.qmail@web12908.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 6 Jun 2003 12:37:51 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:30174 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261998AbTFFQht (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 12:37:49 -0400
+Date: Fri, 6 Jun 2003 09:51:53 -0700
+From: Dave Olien <dmo@osdl.org>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DAC960 crash dequeueing request
+Message-ID: <20030606165153.GA20224@osdl.org>
+References: <20030604220415.GA15621@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030604220415.GA15621@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terje Fåberg <terje_fb@yahoo.no> skrev:
 
-> On my Mitac 8375 notebook 2.5.70-bk10 refuses to
-> accept any input from the keyboard although it seems
-> to recognize the keyboard controller:
+Mary,
 
-As I just found out, this might be another appearance
-of bugzilla bug 717. My laptop has a VIA P/KN266 Host
-Bridge, too.
+How's this for a response to Andrew and lkml?
 
-Please let me know, if I can somehow help solving
-this. 
+------------------------------------------------------------------------
 
-Regards,
-Terje
+Andrew,
 
-______________________________________________________
-Få den nye Yahoo! Messenger på http://no.messenger.yahoo.com/
-Nye ikoner og bakgrunner, webkamera med superkvalitet og dobbelt så morsom
+After running several iterations of the database workload, it seems
+the patch below did indeed eliminate the BUG() we were hitting.
+
+In addition, the patched kernel seems to perform somwhat better.
+The workload performance is improved by about 2%, and the standard
+deviation in performance between iterations of the work load was reduced
+from 137 to 48.
+
+A performance results comparison can be found at
+
+http://www.osdl.org/projects/dbt2dev/results/8way/70AKPM/results.html
+
+Thanks to Mary Meredith  <maryedie@osdl.org> for the performance
+measurements and comparisons, and for hitting the BUG() in the first place.
+
+Andrew Morton wrote:
+> 
+> Dave Olien wrote:
+> > 
+> > In linux 2.5.70, with no patches applied, we've had one BUG of the form:
+> > 
+> > kernel BUG at include/linux/blkdev.h:407!
+> 
+> 
+> 
+> The below should fix it.
+> 
+> 
+> diff -puN drivers/block/deadline-iosched.c~deadline-hash-removal-fix drivers/block/deadline-iosched.c
+> --- 25/drivers/block/deadline-iosched.c~deadline-hash-removal-fix	2003-06-04 00:50:36.000000000 -0700
+> +++ 25-akpm/drivers/block/deadline-iosched.c	2003-06-04 00:50:36.000000000 -0700
+> @@ -121,6 +121,15 @@ static inline void deadline_del_drq_hash
+>  		__deadline_del_drq_hash(drq);
+>  }
+>  
+> +static void
+> +deadline_remove_merge_hints(request_queue_t *q, struct deadline_rq *drq)
+> +{
+> +	deadline_del_drq_hash(drq);
+> +
+> +	if (q->last_merge == &drq->request->queuelist)
+> +		q->last_merge = NULL;
+> +}
+> +
+>  static inline void
+>  deadline_add_drq_hash(struct deadline_data *dd, struct deadline_rq *drq)
+>  {
+> @@ -310,7 +319,7 @@ static void deadline_remove_request(requ
+>  		struct deadline_data *dd = q->elevator.elevator_data;
+>  
+>  		list_del_init(&drq->fifo);
+> -		deadline_del_drq_hash(drq);
+> +		deadline_remove_merge_hints(q, drq);
+>  		deadline_del_drq_rb(dd, drq);
+>  	}
+>  }
+> 
+> _
+> 
+> ----- End forwarded message -----
+> 
+> --=-OFfR5BGtLWFFgyRX7TNt--
+

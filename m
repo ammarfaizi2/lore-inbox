@@ -1,76 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293151AbSBWQLP>; Sat, 23 Feb 2002 11:11:15 -0500
+	id <S293154AbSBWQWh>; Sat, 23 Feb 2002 11:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293152AbSBWQLG>; Sat, 23 Feb 2002 11:11:06 -0500
-Received: from mail.gmx.net ([213.165.64.20]:62541 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S293151AbSBWQKx>;
-	Sat, 23 Feb 2002 11:10:53 -0500
+	id <S293155AbSBWQW2>; Sat, 23 Feb 2002 11:22:28 -0500
+Received: from bitmover.com ([192.132.92.2]:52383 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S293154AbSBWQWN>;
+	Sat, 23 Feb 2002 11:22:13 -0500
+Date: Sat, 23 Feb 2002 08:22:11 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Dan Aloni <da-x@gmx.net>
+Cc: bert hubert <ahu@ds9a.nl>, linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC] [PATCH] C exceptions in kernel
-From: Dan Aloni <da-x@gmx.net>
-To: bert hubert <ahu@ds9a.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020223162100.A1952@outpost.ds9a.nl>
-In-Reply-To: <1014412325.1074.36.camel@callisto.yi.org> 
-	<20020223162100.A1952@outpost.ds9a.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 23 Feb 2002 18:05:48 +0200
-Message-Id: <1014480355.1844.16.camel@callisto.yi.org>
+Message-ID: <20020223082211.Z11156@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Dan Aloni <da-x@gmx.net>, bert hubert <ahu@ds9a.nl>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1014412325.1074.36.camel@callisto.yi.org> <20020223162100.A1952@outpost.ds9a.nl> <1014480355.1844.16.camel@callisto.yi.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1014480355.1844.16.camel@callisto.yi.org>; from da-x@gmx.net on Sat, Feb 23, 2002 at 06:05:48PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-02-23 at 17:21, bert hubert wrote:
-> On Fri, Feb 22, 2002 at 09:18:29PM +0000, Dan Aloni wrote:
-> > The attached patch implements C exceptions in the kernel, which *don't*
-> > depend on special support from the compiler. This is a 'request for
-> > comments'. The patch is very initial, should not be applied.
-> > 
-> > I actually got this code to work in the kernel:
-> > 
-> >         try {
-> >                 printk("TEST: before throwing \n");
-> >                 throw(1000);
-> >                 printk("TEST: won't run\n");
-> >         }
-> >         catch(unsigned long, value) {
-> >                 printk("TEST: caught: %ld\n", value);
-> >         } yrt;
-> 
-> Can they fall through multiple function calls? How do they jive with
-> preemtive scheduling? How much is the stack unwinding overhead?
+On Sat, Feb 23, 2002 at 06:05:48PM +0200, Dan Aloni wrote:
+> But, it CAN be used in *local* driver call branches. Writing a new
+> driver? have a lot of local nested calls? Hate goto's? You can use
+> exceptions.
 
-They fall through several function calls like they should.
+Is this really anything other than syntactic sugar?  Maybe it's different 
+in drivers, but I find myself doing the following in user space all the time
 
-I don't see any problem with preemtive scheduling (every kernel thread
-has its own seperated exception frames). 
+	#define	unless(x)	if (!(x))	/* perl/BCPL corrupted me */
 
-The overhead on the stack is 36 bytes for each exception frame (a
-context of a try block). The unwinding procedure itself is short, the
-throw macro calls a rather small asm function for an unwind.
+	function(...)
+	{
+		char	*foo = 0, *bar = 0;
+		int	locked = 0;
+		int	rc = -1;
 
-> Potentially this is very cool but I'm again appalled at the INSTANT
-> rejection seen here by kernel hackers, minor and major. Do NOT reject an
-> idea before you've thought it through. Do NOT reject an idea simply because
-> it is new.
- 
-> Also, do not jump on the bandwagon BECAUSE it is new. But still - people
-> here should get a life if they get off on rejecting new stuff because it is
-> new.
+		if (bad args or something) {
+	out:		if (foo) free(foo);
+			if (bar) free(bar);
+			if (locked) unlock();
+			return (rc);
+		}
 
-Whether it is accepted or not, I can't see it being used in the core
-kernel code, just because there is too much code to rewrite for it to
-happen. Maybe if this thing was proposed back in 1992/3 it would have
-been different.
+		unless (locked = get_the_lock()) goto out;
+		unless (foo = allocate_foo()) goto out;
+		unless (bar = allocate_bar()) goto out;
 
-But, it CAN be used in *local* driver call branches. Writing a new
-driver? have a lot of local nested calls? Hate goto's? You can use
-exceptions.
+		more code....
 
-The only problem is that because C is natively not object oriented, it's
-hard to come up with an exception scheme for the C language that is
-better than ye' old goto's, like in C++ when you have automatic
-destruction during unwinding.
+		rc = 0;
+		goto out;
+	}
 
+It seems ugly at first but it has some nice attributes:
+
+    a) all the cleanup is in one place, for both the error path and the 
+       non-error path.  I could put it at the bottom, I like it at the
+       top because that's where I tend to have the list of things needed
+       to be cleaned.
+
+    b) all the error cases are branches, the normal path is straightline.
+
+    c) it's as dense as I can make it.
+
+So how would you do the same thing with exceptions?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

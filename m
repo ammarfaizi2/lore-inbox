@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289829AbSBGR1E>; Thu, 7 Feb 2002 12:27:04 -0500
+	id <S290519AbSBGR0O>; Thu, 7 Feb 2002 12:26:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290490AbSBGR1A>; Thu, 7 Feb 2002 12:27:00 -0500
-Received: from bitmover.com ([192.132.92.2]:15578 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S289829AbSBGR0o>;
-	Thu, 7 Feb 2002 12:26:44 -0500
-Date: Thu, 7 Feb 2002 09:26:40 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Stelian Pop <stelian.pop@fr.alcove.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020207092640.P27932@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Stelian Pop <stelian.pop@fr.alcove.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020207080714.GA10860@come.alcove-fr> <Pine.LNX.4.33.0202070833400.2269-100000@athlon.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0202070833400.2269-100000@athlon.transmeta.com>; from torvalds@transmeta.com on Thu, Feb 07, 2002 at 08:36:20AM -0800
+	id <S290490AbSBGR0E>; Thu, 7 Feb 2002 12:26:04 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:21939 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S289829AbSBGRZ6>;
+	Thu, 7 Feb 2002 12:25:58 -0500
+Date: Thu, 7 Feb 2002 09:26:01 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Dave Jones <davej@suse.de>
+cc: Pavel Machek <pavel@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andre Hedrick <andre@linuxdiskcert.org>,
+        Russell King <rmk@arm.linux.org.uk>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: driverfs support for motherboard devices
+In-Reply-To: <20020207142333.A22451@suse.de>
+Message-ID: <Pine.LNX.4.33.0202070922460.25114-100000@segfault.osdlab.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 08:36:20AM -0800, Linus Torvalds wrote:
-> > What about people who send you occasionnal patches, and happen to
-> > be using Bitkeeper too ?
-> 
-> For those people, "bk send -d torvalds@transmeta.com" is fine. It ends up
 
-No!  This will send the entire repository.  Do a "bk help send", you probably
-want "bk send -d -r+ torvalds@transmeta.com" to send the most recent cset.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+On Thu, 7 Feb 2002, Dave Jones wrote:
+
+> On Thu, Feb 07, 2002 at 01:31:25PM +0100, Pavel Machek wrote:
+>  > > I suspect PnPBIOS knows for the 486. There is PnPbios code in 2.4-ac 
+>  > > perfectly ready for a 2.5 merger
+>  > PnPBIOS is nasty, and I suspect it is not present/working on all
+>  > models, right?
+> 
+>  For the most part it's fine, it just needs the floppy driver / ps2
+>  driver (and maybe some others) fixed up to not allocate regions
+>  that pnpbios already reserved. Other than these issues, it seems
+>  to be working well. It's certainly handled itself ok on all my
+>  test boxes (Even the weird compaq with the fscked up pnpbios --
+>  it claims to have pnpbios, yet when you call it, you get feature
+>  not supported return codes. cute.)
+
+Hey, speaking of PnPBios, is there a spec somewhere?
+
+Speaking of specs, does anyone know of some sort of list of specs of 
+things kernel related - platforms, hardware and firmware? sandpile.org is 
+good for most x86 things, though they are merely document names. 
+
+	-pat
+

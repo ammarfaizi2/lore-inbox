@@ -1,112 +1,142 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279959AbRKIQOS>; Fri, 9 Nov 2001 11:14:18 -0500
+	id <S279968AbRKIQS2>; Fri, 9 Nov 2001 11:18:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279973AbRKIQOI>; Fri, 9 Nov 2001 11:14:08 -0500
-Received: from [62.144.170.218] ([62.144.170.218]:54788 "EHLO kommserv.eb.de")
-	by vger.kernel.org with ESMTP id <S279968AbRKIQN6>;
-	Fri, 9 Nov 2001 11:13:58 -0500
-Date: Fri, 9 Nov 2001 16:11:18 GMT
-Message-Id: <200111091611.QAA26283@dix.eb.de>
-From: Thomas Braun <nospam@link-up.de>
-To: linux-kernel@vger.kernel.org
-Subject: Oops/Aiee in 2.4.14 when unloading PCMCIA modules
+	id <S279980AbRKIQST>; Fri, 9 Nov 2001 11:18:19 -0500
+Received: from ns.sysgo.de ([213.68.67.98]:35057 "EHLO dagobert.svc.sysgo.de")
+	by vger.kernel.org with ESMTP id <S279968AbRKIQSK>;
+	Fri, 9 Nov 2001 11:18:10 -0500
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_GYJJ32HA1OBBG12CVE3K"
+From: Robert Kaiser <rob@sysgo.de>
+Reply-To: rkaiser@sysgo.de
+Organization: Sysgo RTS GmbH
+To: <robert@schwebel.de>
+Subject: Re: Kernel booting on serial console ... crawling
+Date: Fri, 9 Nov 2001 17:18:16 +0100
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.33.0111091321441.12746-100000@callisto.local>
+In-Reply-To: <Pine.LNX.4.33.0111091321441.12746-100000@callisto.local>
+Cc: Anders Larsen <a.larsen@identecsolutions.de>, <pallaire@gameloft.com>,
+        <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Message-Id: <01110917181600.03671@rob>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I get an oops every time when I stop PCMCIA with
-    cardctl eject; killproc /sbin/cardmgr; lsmod
-With a "sleep 2" before lsmod it does not happen. I tried kernel
-2.4.1[34] with modutils 2.4.{2,10}, pcmcia-cs-3.1.29.
+--------------Boundary-00=_GYJJ32HA1OBBG12CVE3K
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-The lsmod before unloading:
-Module                  Size  Used by
-serial_cb               1268   1
-tulip_cb               32608   2
-cb_enabler              2720   4  [serial_cb tulip_cb]
-ds                      6944   2  [cb_enabler]
-i82365                 23312   2
-pcmcia_core            43104   0  [cb_enabler ds i82365]
-apm                     8768   1
-ide-disk                6624   6
-ide-probe-mod           7696   0
-ide-mod                60460   6  [ide-disk ide-probe-mod]
+Hi Robert,
 
-The lspci for the PCMCIA card:
-06:00.0 Non-VGA unclassified device: Xircom Cardbus Ethernet 10/100
-        Flags: fast devsel, IRQ 9
-        [virtual] I/O ports at 0200 [disabled]
-        [virtual] Memory at 60013000 (32-bit, non-prefetchable) [disabled]
-        [virtual] Memory at 60012000 (32-bit, non-prefetchable) [disabled]
-        Expansion ROM at 6000c000 [disabled]
+Am Freitag,  9. November 2001 13:27 schrieben Sie:
+> On Fri, 9 Nov 2001, Robert Kaiser wrote:
+> > Is this an AMD Elan's built-in serial port, perchance ?
+>
+> I got a patch for the Elan's serial port from Jason Sodergren some days
+> ago, but it's not clear to me what exactly the problem is with this port.
+> I'm using the serial console on a DIL/Net-PC without any problems so far.
+> Perhaps it might be a good idea to join forces and try to get a patch for
+> the Elan series into the main kernel?
+>
+> However, my current affords can be found on
+>
+>   http://www.schwebel.de/software/dnp/index_en.html
+>
+> This currently implements a new CPU configuration parameter and a fix for
+> the clock on the Elan CPUs.
 
-06:00.1 Non-VGA unclassified device: Xircom Cardbus Ethernet + 56k Modem
-        Flags: fast devsel, IRQ 9
-        [virtual] I/O ports at 0280 [disabled]
-        [virtual] Memory at 60011000 (32-bit, non-prefetchable) [disabled]
-        [virtual] Memory at 60010000 (32-bit, non-prefetchable) [disabled]
-        Expansion ROM at 60008000 [disabled]
+This is interesting, I was not aware of the different clock frequency issue.
 
-Below the ksymoops. (Is the compare_maps warning due to loading the ide
-modules in initrd?) It is tainted from the PCMCIA modules.
+Anyway, the patch I am using to fix the crawling console output symptom on 
+the Elan is entirely different (see attachment). It was originally posted by
+Anders Larsen <a.larsen@identecsolutions.de> and we have been using
+it with good success in our embedded Linux product for quite a while now.
+The comments in the source describe the problem. Interestingly, even the
+latest AMD Elan product (SC520) seems to have this problem too.
 
-I can make more tests if needed or provide more data.
-Thanks for any help.
+Rob
 
-Regards,
-Thomas
+----------------------------------------------------------------
+Robert Kaiser                         email: rkaiser@sysgo.de
+SYSGO RTS GmbH
+Am Pfaffenstein 14                    phone: (49) 6136 9948-762
+D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
 
-ksymoops 2.4.0 on i686 2.4.14a.  Options used
-     -V (default)
-     -k /proc/ksyms (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.14a/ (default)
-     -m /boot/System.map-2.4.14a (default)
+--------------Boundary-00=_GYJJ32HA1OBBG12CVE3K
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="patch-AMD-elan-serial"
+Content-Transfer-Encoding: base64
+Content-Description: AMD Elan Workaround
+Content-Disposition: attachment; filename="patch-AMD-elan-serial"
 
-Warning (compare_maps): mismatch on symbol ide_devfs_handle  , ide-mod says c8824be0, /lib/modules/2.4.14a/kernel/drivers/ide/ide-mod.o says c88240b0.  Ignoring /lib/modules/2.4.14a/kernel/drivers/ide/ide-mod.o entry
-Warning (compare_maps): mismatch on symbol ide_hwifs  , ide-mod says c8822d40, /lib/modules/2.4.14a/kernel/drivers/ide/ide-mod.o says c8822210.  Ignoring /lib/modules/2.4.14a/kernel/drivers/ide/ide-mod.o entry
-Warning (compare_maps): mismatch on symbol ide_probe  , ide-mod says c8822d20, /lib/modules/2.4.14a/kernel/drivers/ide/ide-mod.o says c88221f0.  Ignoring /lib/modules/2.4.14a/kernel/drivers/ide/ide-mod.o entry
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c011933c>]    Tainted: P
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010002
-eax: 00000ce0   ebx: 00001000   ecx: c778a510   edx: 00000610
-esi: 00000002   edi: 00000000   ebp: c02165c0   esp: c6663f58
-ds: 0018   es: 0018   ss: 0018
-Process pcmcia (pid: 1003, stackpage=c6663000)
-Stack: 00000000 c02165a0 00000000 c02165c0 c6663fc4 c01193cf c010ac96 c0116406
-       c0116340 00000000 00000001 c02165c0 fffffffe c011616a c02165c0 00000000
-       c0214900 00000000 c6663fbc 00000046 c010817d 00000000 080caa18 00000000
-Call Trace: [<c01193cf>] [<c010ac96>] [<c0116406>] [<c0116340>] [<c011616a>]
-   [<c010817d>] [<c0109f48>]
-Code: 89 42 04 89 10 c7 41 04 00 00 00 00 c7 01 00 00 00 00 fb 53
+SW5kZXg6IHN5c2dvL2VsaW5vcy9saW51eC9kcml2ZXJzL2NoYXIvc2VyaWFsLmMNCmRpZmYgLWMg
+c3lzZ28vZWxpbm9zL2xpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwuYzoxLjIgc3lzZ28vZWxpbm9z
+L2xpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwuYzoxLjMNCioqKiBzeXNnby9lbGlub3MvbGludXgv
+ZHJpdmVycy9jaGFyL3NlcmlhbC5jOjEuMglXZWQgTWF5IDE3IDE0OjA3OjAwIDIwMDANCi0tLSBz
+eXNnby9lbGlub3MvbGludXgvZHJpdmVycy9jaGFyL3NlcmlhbC5jCVdlZCBKdW4gIDcgMTU6MTk6
+NTMgMjAwMA0KKioqKioqKioqKioqKioqDQoqKiogNjA3LDYxMiAqKioqDQotLS0gNjA3LDYxMyAt
+LS0tDQogIAlpbnQgc3RhdHVzOw0KICAJc3RydWN0IGFzeW5jX3N0cnVjdCAqIGluZm87DQogIAlp
+bnQgcGFzc19jb3VudGVyID0gMDsNCisgCWludCBpaXI7DQogIAlzdHJ1Y3QgYXN5bmNfc3RydWN0
+ICplbmRfbWFyayA9IDA7DQogICNpZmRlZiBDT05GSUdfU0VSSUFMX01VTFRJUE9SVAkNCiAgCWlu
+dCBmaXJzdF9tdWx0aSA9IDA7DQoqKioqKioqKioqKioqKioNCioqKiA2MjcsNjM1ICoqKioNCiAg
+CQlmaXJzdF9tdWx0aSA9IGluYihtdWx0aS0+cG9ydF9tb25pdG9yKTsNCiAgI2VuZGlmDQogIA0K
+ICAJZG8gew0KICAJCWlmICghaW5mby0+dHR5IHx8DQohIAkJICAgIChzZXJpYWxfaW4oaW5mbywg
+VUFSVF9JSVIpICYgVUFSVF9JSVJfTk9fSU5UKSkgew0KICAJCQlpZiAoIWVuZF9tYXJrKQ0KICAJ
+CQkJZW5kX21hcmsgPSBpbmZvOw0KICAJCQlnb3RvIG5leHQ7DQotLS0gNjI4LDYzNyAtLS0tDQog
+IAkJZmlyc3RfbXVsdGkgPSBpbmIobXVsdGktPnBvcnRfbW9uaXRvcik7DQogICNlbmRpZg0KICAN
+CisgCWlpciA9IHNlcmlhbF9pbihpbmZvLCBVQVJUX0lJUik7DQogIAlkbyB7DQogIAkJaWYgKCFp
+bmZvLT50dHkgfHwNCiEgCQkgICAgKChpaXIgPSBzZXJpYWxfaW4oaW5mbywgVUFSVF9JSVIpKSAm
+IFVBUlRfSUlSX05PX0lOVCkpIHsNCiAgCQkJaWYgKCFlbmRfbWFyaykNCiAgCQkJCWVuZF9tYXJr
+ID0gaW5mbzsNCiAgCQkJZ290byBuZXh0Ow0KKioqKioqKioqKioqKioqDQoqKiogNjQ1LDY1MCAq
+KioqDQotLS0gNjQ3LDY2MyAtLS0tDQogIAkJaWYgKHN0YXR1cyAmIFVBUlRfTFNSX0RSKQ0KICAJ
+CQlyZWNlaXZlX2NoYXJzKGluZm8sICZzdGF0dXMpOw0KICAJCWNoZWNrX21vZGVtX3N0YXR1cyhp
+bmZvKTsNCisgI2lmZGVmIENPTkZJR19BTURfRUxBTg0KKyAJCS8qDQorIAkJKiogVGhlcmUgaXMg
+YSBidWcgKG1pc2ZlYXR1cmU/KSBpbiB0aGUgVUFSVCBvbiB0aGUgQU1EIEVsYW4NCisgCQkqKiBT
+QzR4MCBhbmQgU0M1MjAgZW1iZWRkZWQgcHJvY2Vzc29yIHNlcmllczsgdGhlIFRIUkUgYml0IG9m
+DQorIAkJKiogdGhlIGxpbmUgc3RhdHVzIHJlZ2lzdGVyIHNlZW1zIHRvIGJlIGRlbGF5ZWQgb25l
+IGJpdA0KKyAJCSoqIGNsb2NrIGFmdGVyIHRoZSBpbnRlcnJ1cHQgaXMgZ2VuZXJhdGVkLCBzbyBr
+bHVkZ2UgdGhpcw0KKyAJCSoqIGlmIHRoZSBJSVIgaW5kaWNhdGVzIGEgVHJhbnNtaXQgSG9sZGlu
+ZyBSZWdpc3RlciBJbnRlcnJ1cHQNCisgCQkqLw0KKyAJCWlmICgoaWlyICYgVUFSVF9JSVJfSUQp
+ID09IFVBUlRfSUlSX1RIUkkpDQorIAkJCXN0YXR1cyB8PSBVQVJUX0xTUl9USFJFOw0KKyAjZW5k
+aWYNCiAgCQlpZiAoc3RhdHVzICYgVUFSVF9MU1JfVEhSRSkNCiAgCQkJdHJhbnNtaXRfY2hhcnMo
+aW5mbywgMCk7DQogIA0KKioqKioqKioqKioqKioqDQoqKiogNjc5LDY4NSAqKioqDQogICAqLw0K
+ICBzdGF0aWMgdm9pZCByc19pbnRlcnJ1cHRfc2luZ2xlKGludCBpcnEsIHZvaWQgKmRldl9pZCwg
+c3RydWN0IHB0X3JlZ3MgKiByZWdzKQ0KICB7DQohIAlpbnQgc3RhdHVzOw0KICAJaW50IHBhc3Nf
+Y291bnRlciA9IDA7DQogIAlzdHJ1Y3QgYXN5bmNfc3RydWN0ICogaW5mbzsNCiAgI2lmZGVmIENP
+TkZJR19TRVJJQUxfTVVMVElQT1JUCQ0KLS0tIDY5Miw2OTggLS0tLQ0KICAgKi8NCiAgc3RhdGlj
+IHZvaWQgcnNfaW50ZXJydXB0X3NpbmdsZShpbnQgaXJxLCB2b2lkICpkZXZfaWQsIHN0cnVjdCBw
+dF9yZWdzICogcmVncykNCiAgew0KISAJaW50IHN0YXR1cywgaWlyOw0KICAJaW50IHBhc3NfY291
+bnRlciA9IDA7DQogIAlzdHJ1Y3QgYXN5bmNfc3RydWN0ICogaW5mbzsNCiAgI2lmZGVmIENPTkZJ
+R19TRVJJQUxfTVVMVElQT1JUCQ0KKioqKioqKioqKioqKioqDQoqKiogNzAxLDcwNiAqKioqDQot
+LS0gNzE0LDcyMCAtLS0tDQogIAkJZmlyc3RfbXVsdGkgPSBpbmIobXVsdGktPnBvcnRfbW9uaXRv
+cik7DQogICNlbmRpZg0KICANCisgCWlpciA9IHNlcmlhbF9pbihpbmZvLCBVQVJUX0lJUik7DQog
+IAlkbyB7DQogIAkJc3RhdHVzID0gc2VyaWFsX2lucChpbmZvLCBVQVJUX0xTUik7DQogICNpZmRl
+ZiBTRVJJQUxfREVCVUdfSU5UUg0KKioqKioqKioqKioqKioqDQoqKiogNzA5LDcxNCAqKioqDQot
+LS0gNzIzLDczOSAtLS0tDQogIAkJaWYgKHN0YXR1cyAmIFVBUlRfTFNSX0RSKQ0KICAJCQlyZWNl
+aXZlX2NoYXJzKGluZm8sICZzdGF0dXMpOw0KICAJCWNoZWNrX21vZGVtX3N0YXR1cyhpbmZvKTsN
+CisgI2lmZGVmIENPTkZJR19BTURfRUxBTg0KKyAJCS8qDQorIAkJKiogVGhlcmUgaXMgYSBidWcg
+KG1pc2ZlYXR1cmU/KSBpbiB0aGUgVUFSVCBvbiB0aGUgQU1EIEVsYW4NCisgCQkqKiBTQzR4MCBh
+bmQgU0M1MjAgZW1iZWRkZWQgcHJvY2Vzc29yIHNlcmllczsgdGhlIFRIUkUgYml0IG9mDQorIAkJ
+KiogdGhlIGxpbmUgc3RhdHVzIHJlZ2lzdGVyIHNlZW1zIHRvIGJlIGRlbGF5ZWQgb25lIGJpdA0K
+KyAJCSoqIGNsb2NrIGFmdGVyIHRoZSBpbnRlcnJ1cHQgaXMgZ2VuZXJhdGVkLCBzbyBrbHVkZ2Ug
+dGhpcw0KKyAJCSoqIGlmIHRoZSBJSVIgaW5kaWNhdGVzIGEgVHJhbnNtaXQgSG9sZGluZyBSZWdp
+c3RlciBJbnRlcnJ1cHQNCisgCQkqLw0KKyAJCWlmICgoaWlyICYgVUFSVF9JSVJfSUQpID09IFVB
+UlRfSUlSX1RIUkkpDQorIAkJCXN0YXR1cyB8PSBVQVJUX0xTUl9USFJFOw0KKyAjZW5kaWYNCiAg
+CQlpZiAoc3RhdHVzICYgVUFSVF9MU1JfVEhSRSkNCiAgCQkJdHJhbnNtaXRfY2hhcnMoaW5mbywg
+MCk7DQogIAkJaWYgKHBhc3NfY291bnRlcisrID4gUlNfSVNSX1BBU1NfTElNSVQpIHsNCioqKioq
+KioqKioqKioqKg0KKioqIDcxNyw3MjMgKioqKg0KICAjZW5kaWYNCiAgCQkJYnJlYWs7DQogIAkJ
+fQ0KISAJfSB3aGlsZSAoIShzZXJpYWxfaW4oaW5mbywgVUFSVF9JSVIpICYgVUFSVF9JSVJfTk9f
+SU5UKSk7DQogIAlpbmZvLT5sYXN0X2FjdGl2ZSA9IGppZmZpZXM7DQogICNpZmRlZiBDT05GSUdf
+U0VSSUFMX01VTFRJUE9SVAkNCiAgCWlmIChtdWx0aS0+cG9ydF9tb25pdG9yKQ0KLS0tIDc0Miw3
+NDggLS0tLQ0KICAjZW5kaWYNCiAgCQkJYnJlYWs7DQogIAkJfQ0KISAJfSB3aGlsZSAoISgoaWly
+ID0gc2VyaWFsX2luKGluZm8sIFVBUlRfSUlSKSkgJiBVQVJUX0lJUl9OT19JTlQpKTsNCiAgCWlu
+Zm8tPmxhc3RfYWN0aXZlID0gamlmZmllczsNCiAgI2lmZGVmIENPTkZJR19TRVJJQUxfTVVMVElQ
+T1JUCQ0KICAJaWYgKG11bHRpLT5wb3J0X21vbml0b3IpDQo=
 
->>EIP; c011933c <timer_bh+228/27c>   <=====
-Trace; c01193cf <do_timer+3f/70>
-Trace; c010ac96 <timer_interrupt+62/110>
-Trace; c0116406 <bh_action+1a/48>
-Trace; c0116340 <tasklet_hi_action+40/60>
-Trace; c011616a <do_softirq+5a/ac>
-Trace; c010817d <do_IRQ+a1/b4>
-Trace; c0109f48 <call_do_IRQ+5/d>
-Code;  c011933c <timer_bh+228/27c>
-00000000 <_EIP>:
-Code;  c011933c <timer_bh+228/27c>   <=====
-   0:   89 42 04                  mov    %eax,0x4(%edx)   <=====
-Code;  c011933f <timer_bh+22b/27c>
-   3:   89 10                     mov    %edx,(%eax)
-Code;  c0119341 <timer_bh+22d/27c>
-   5:   c7 41 04 00 00 00 00      movl   $0x0,0x4(%ecx)
-Code;  c0119348 <timer_bh+234/27c>
-   c:   c7 01 00 00 00 00         movl   $0x0,(%ecx)
-Code;  c011934e <timer_bh+23a/27c>
-  12:   fb                        sti
-Code;  c011934f <timer_bh+23b/27c>
-  13:   53                        push   %ebx
-
- <0>Kernel panic: Aiee, killing interrupt handler!
-
-3 warnings issued.  Results may not be reliable.
+--------------Boundary-00=_GYJJ32HA1OBBG12CVE3K--

@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbUKIF7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbUKIGDC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbUKIF7B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 00:59:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUKIF4H
+	id S261411AbUKIGDC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 01:03:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbUKIGBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 00:56:07 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:12768 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261408AbUKIFgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 00:36:20 -0500
-Subject: /sys/firmware/acpi (Re: [ACPI] [PATCH/RFC 4/4]An experimental
-	implementation for IDE bus)
-From: Len Brown <len.brown@intel.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Shaohua Li <shaohua.li@intel.com>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Greg <greg@kroah.com>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Adam Belay <ambx1@neo.rr.com>, Alex Williamson <alex.williamson@hp.com>
-In-Reply-To: <20041108152450.GB32374@parcelfarce.linux.theplanet.co.uk>
-References: <1099887081.1750.249.camel@sli10-desk.sh.intel.com>
-	 <20041108152450.GB32374@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1099978538.5519.28.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 09 Nov 2004 00:35:39 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Nov 2004 01:01:40 -0500
+Received: from motgate8.mot.com ([129.188.136.8]:21634 "EHLO motgate8.mot.com")
+	by vger.kernel.org with ESMTP id S261411AbUKIFsO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 00:48:14 -0500
+In-Reply-To: <20041108213428.16dfb1f7.akpm@osdl.org>
+References: <20041108213428.16dfb1f7.akpm@osdl.org>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <EA4FB805-3212-11D9-AC65-000393DBC2E8@freescale.com>
+Content-Transfer-Encoding: 8BIT
+Cc: <linux-kernel@vger.kernel.org>, "Kumar Gala" <galak@somerset.sps.mot.com>,
+       <linuxppc-embedded@ozlabs.org>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: [PATCH][PPC32] Added MPC8555/8541 security block infrastructure
+Date: Mon, 8 Nov 2004 23:48:00 -0600
+To: "Andrew Morton" <akpm@osdl.org>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-08 at 10:24, Matthew Wilcox wrote:
-> ... Are we ever going to do anything
-> with /sys/firmware/acpi/namespace/ or will it just stay around
-> consuming inodes and dentries for no good reason?
+Uugh, sorry.  The previous version of pine I was using did not do this. 
+  I will look at trying to change its settings.  Thanks for reformatting 
+the patch.  Can you explain further what you mean by 'space-stuffing'
 
-When I suggested deleting /sys/firmware/acpi, Patrick replied that his
-intention was that real devices would have symbolic links into that
-tree.
+thanks
 
-I think this is not the best way to go.  Two simple reasons come to
-mind:
+- kumar
 
-The ACPI device hierarchy reflects the actual layout of the system
-devices better than the current /sys/devices/ tree, linking into it from
-/sys/devices doesn't fix /sys/devices.  Instead we need to consult ACPI
-during the actual construction of /sys/devices/.
+On Nov 8, 2004, at 11:34 PM, Andrew Morton wrote:
 
-While the layout reflects reality, the device names in
-/sys/firmware/acpi are arbitrary internal BIOS names, and so there will
-never be any consistency between systems such that a human or a program
-could have an easy time navigating the tree structure.
-
-The argument in favor of exposing the tree has been for things like Alex
-Williamson's patch to invoke ACPI methods by reading /sysfs.  But this
-is a really neat solution looking for a problem.  if and when such a
-problem is found, the same technique can always be made available under
-the real /sys/devices tree.
-
--Len
-
+> Kumar Gala <galak@somerset.sps.mot.com> wrote:
+>  >
+>  > This patch adds OCP, interrupt, and memory offset details for the 
+> security
+> >  block on MPC8555/8541 to support drivers.
+>
+> Your email client did space-stuffing on the message, so the patch gets 
+> 100%
+>  rejects.  I fixed it up by hand and applied the patch locally, thanks.
+>
+> I think there's a way of telling Pine to stop doing this.
 

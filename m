@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275332AbTHGOX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275343AbTHGOXz
+	id S275334AbTHGOow (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 10:44:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275365AbTHGOmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:23:55 -0400
-Received: from pdbn-d9bb86f3.pool.mediaWays.net ([217.187.134.243]:31758 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S275332AbTHGOX3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:23:29 -0400
-Date: Thu, 7 Aug 2003 16:23:12 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Oleg Drokin <green@namesys.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
-       Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: reiserfs4
-Message-ID: <20030807142312.GA901@citd.de>
-References: <200308070305.51868.vlad@lazarenko.net> <20030806230220.I7752@schatzie.adilger.int> <3F31DFCC.6040504@cornell.edu> <20030807072751.GA23912@namesys.com> <20030807132111.GB7094@louise.pinerecords.com>
+	Thu, 7 Aug 2003 10:42:55 -0400
+Received: from remt24.cluster1.charter.net ([209.225.8.34]:23786 "EHLO
+	remt24.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S275364AbTHGOmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 10:42:38 -0400
+Subject: Re: NPTL v userland v LT (RH9+custom kernel problem)
+From: Jerry Cooperstein <coop@axian.com>
+To: Frank Cusack <fcusack@fcusack.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030807013930.A26426@google.com>
+References: <20030807013930.A26426@google.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1060267356.1604.10.camel@p3.coop.hom>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030807132111.GB7094@louise.pinerecords.com>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Aug 2003 09:42:36 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 03:21:11PM +0200, Tomas Szepe wrote:
-> > [green@namesys.com]
-> > 
-> > > >Why do people ever want a "converter"?
-> > > That's been discussed before.
-> > > Because people don't have the resources (hard disk space, tape drives, 
-> > > money)  to backup their data, and might still be interested in testing a 
-> > > new filesystem. They might be willing to take a risk with the new fs 
-> > > and converter. Amazing as it may sound, people do that. I am such a 
-> > > tester, and I'd find a converter to be a useful tool. But since the 
-> > > previous discussion on the subject concluded it'd be really hard to 
-> > > impossible to write one, I guess I'll have to settle for new hard drive(s).
-> > 
-> > This is no longer true.
-> > There is sort of "universal" fs convertor for linux that can convert almost
-> > any fs to almost any other fs.
-> > The only requirement seems to be that both fs types should have read/write support in Linux.
-> > http://tzukanov.narod.ru/convertfs/
+If you read the release notes for RH9 you'll see you can adjust what
+thread library gets used with the environmental variable
+LD_ASSUME_KERNEL.  So for instance you can do:
+
+LD_ASSUME_KERNEL=2.2.5 rpm ....
+LD_ASSUME_KERNEL=2.2.5 up2date 
+
+(I've mentioned these two because I've noted these fail when you are
+root...)
+
+
+======================================================================
+ Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
+ Axian, Inc., Software Consulting and Training
+ 4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
+ http://www.axian.com/               
+====================================================================
+
+
+On Thu, 2003-08-07 at 03:39, Frank Cusack wrote:
+> Hi,
 > 
-> I'm afraid I cannot recommend using this tool.
+> The RH9 kernels have NPTL patches.  Standard 2.4.21 does not.
+> I am running a custom kernel without the NPTL stuff.
 > 
-> A test conversion from reiserfs to ext3 (inside a vmware machine)
-> screwed up the data real horrorshow: directory structure seems
-> ok but file contents are apparently shifted.
+.....
+> 
+> So, finally getting to my question, should I even *expect* a non-NPTL
+> kernel to work with the RH9 userland?  If not, is there a simple fix
+> without going to NPTL, say just rebuilding glibc?  hmm... now that I
+> ask it I feel dumb, I do think I would need to rebuild glibc so it
+> knows the kernel has LinuxThreads, not NPTL.  OK, if that's true
+> are there any other libs I should need to rebuild?
+> 
+> thanks
 
-That answers the question that poped up in my mind.
-
-"How does the tool know where the blocks are, and in which order it can
-'move' then without corrupting the data.(*)
-
-Seems it doesn't know it.
-
-But it is possibel(*2) to do what the programm wants to do, you only
-have to find out the order in which you have to copy the blocks to
-prevent garbage. That's all the magic.
-
-
-
-*: I mean the point where it copies the data from the sparse-file to the
-block-device.
-
-*2: All you (theoretically) need is 1 free block, or you go over
-temp-space(e.g. memory) somewhere else.
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
 

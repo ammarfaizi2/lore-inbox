@@ -1,41 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277228AbRKYNf3>; Sun, 25 Nov 2001 08:35:29 -0500
+	id <S276877AbRKYNib>; Sun, 25 Nov 2001 08:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280600AbRKYNfQ>; Sun, 25 Nov 2001 08:35:16 -0500
-Received: from dialin-145-254-223-057.arcor-ip.net ([145.254.223.57]:62962
-	"HELO duron.intern.kubla.de") by vger.kernel.org with SMTP
-	id <S277228AbRKYNfG>; Sun, 25 Nov 2001 08:35:06 -0500
-Date: Sun, 25 Nov 2001 14:34:49 +0100
-From: Dominik Kubla <kubla@sciobyte.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux 2.4.16-pre1
-Message-ID: <20011125143449.B5506@duron.intern.kubla.de>
-In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.23i
-X-No-Archive: yes
-Restrict: no-external-archive
+	id <S273622AbRKYNiQ>; Sun, 25 Nov 2001 08:38:16 -0500
+Received: from pc1-camc3-0-cust88.cam.cable.ntl.com ([80.2.244.88]:27777 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S280892AbRKYNh4>;
+	Sun, 25 Nov 2001 08:37:56 -0500
+From: arjan@fenrus.demon.nl
+To: james_m_davies@yahoo.com (James Davies)
+Subject: Re: linux 2.4.13 Kernel and Ext3 vs Ext2
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011125132713Z280878-17408+19757@vger.kernel.org>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+Message-Id: <E167zTW-0002SK-00@fenrus.demon.nl>
+Date: Sun, 25 Nov 2001 13:37:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 24, 2001 at 04:39:15PM -0200, Marcelo Tosatti wrote:
+In article <20011125132713Z280878-17408+19757@vger.kernel.org> you wrote:
 
-> - Correctly sync inodes in iput()			(Alexander Viro)
+> You can also download a kernel RPM. the latest one released by redhat is 
+> 2.4.13, and it is pretty much guaranteed to work with your current system and 
+> not break anything. It is also be patched with ext3 support. 
 
-Given the  fact that  this bug  in a presumably  stable linux  kernel is
-getting quite some attention in the media (electronic and otherwise). It
-would be prudent  to get out a  2.4.16 which fixes this  bug right about
-now.
-
-Just my 2 cents...
-  Dominik Kubla
--- 
-ScioByte GmbH    Zum Schiersteiner Grund 2     55127 Mainz (Germany)
-Phone: +49 700 724 629 83                    Fax: +49 700 724 629 84
-1024D/717F16BB    A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB
+Ehmmm..... The last released kernel by Red Hat is 2.4.9-13, not
+2.4.13-something....

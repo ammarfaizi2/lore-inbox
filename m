@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318572AbSHBGbp>; Fri, 2 Aug 2002 02:31:45 -0400
+	id <S318623AbSHBGeA>; Fri, 2 Aug 2002 02:34:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318623AbSHBGbp>; Fri, 2 Aug 2002 02:31:45 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:27358 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318572AbSHBGbo>;
-	Fri, 2 Aug 2002 02:31:44 -0400
-Date: Thu, 01 Aug 2002 23:33:26 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: davidm@hpl.hp.com, "David S. Miller" <davem@redhat.com>
-cc: gh@us.ibm.com, riel@conectiva.com.br, akpm@zip.com.au,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, rohit.seth@intel.com,
-       sunil.saxena@intel.com, asit.k.mallick@intel.com
-Subject: Re: large page patch 
-Message-ID: <868823061.1028244804@[10.10.2.3]>
-In-Reply-To: <15690.9727.831144.67179@napali.hpl.hp.com>
-References: <15690.9727.831144.67179@napali.hpl.hp.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S318626AbSHBGeA>; Fri, 2 Aug 2002 02:34:00 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:32523 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S318623AbSHBGd7>; Fri, 2 Aug 2002 02:33:59 -0400
+Date: Thu, 1 Aug 2002 23:37:12 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Douglas Gilbert <dougg@torque.net>
+cc: Banai Zoltan <bazooka@emitel.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.30
+In-Reply-To: <3D49E238.64B48408@torque.net>
+Message-ID: <Pine.LNX.4.44.0208012335000.29483-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   DaveM>    In my opinion the proposed large-page patch addresses a
->   DaveM> relatively pressing need for databases (primarily).
-> 
->   DaveM> Databases want large pages with IPC_SHM, how can this
->   DaveM> special syscal hack address that?
-> 
-> I believe the interface is OK in that regard.  AFAIK, Oracle is happy
-> with it.
+> On Thu, Aug 01, 2002 at 08:12:34PM -0400, Alexander Viro wrote:
+> > >
+> > > Argh.  My fault - it's devfs-only code and it didn't get tested ;-/
+> > >
+> > > Fix: replace line 470 with
+> > >               p[part].de = NULL;
+> > >
+> > Thanks, that help!
+> >
+> > But it does not boot,( nor does 2.5.24)
+> > with 2.5.30 it panics at PNP BIOS initalisation,
+> > without PNPBIOS it freezes after loop device init(no network card)
+> > after network card init if configured (Intel e100).
+> > No SysRq helps.:(
+>
+> Banai,
+> Yep, the anti-devfs regime broke it a few versions ago
+> with console/tty (serial) driver changes. It sort of defeats
+> the purpose, but I can boot with "devfs=nomount" as a
+> kernel boot up option. [This worked in lk 2.5.29]
 
-Is Oracle now the world's only database? I think not.
- 
->   DaveM> It's great for experimentation, but give up syscall slots
->   DaveM> for this?
-> 
-> I'm a bit concerned about this, too.  My preference would have been to
-> use the regular mmap() and shmat() syscalls with some
-> augmentation/hint as to what the preferred page size is 
+I have nothing against devfs. In fact I spent the morning attempting to
+get my machine to use devfs. I discovered that was harding than I thoyght
+which is why I asked people to test my patch out. I think I'm going to
+just send it into linus soon anyways.
 
-I think that's what most users would prefer, and I don't think it
-adds a vast amount of kernel complexity. Linus doesn't seem to
-be dead set against the shmem modifications at least ... so that's
-half way there ;-)
-
-M.

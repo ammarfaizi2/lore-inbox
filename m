@@ -1,116 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbUJZBXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbUJZBTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbUJZBXj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 21:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbUJZBXR
+	id S261877AbUJZBTF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 21:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUJZBSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 21:23:17 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:25045 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261909AbUJZBUX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 21:20:23 -0400
-Date: Mon, 25 Oct 2004 16:47:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1
-Message-Id: <20041025164743.0af550ce.akpm@osdl.org>
-In-Reply-To: <417D88BB.70907@osdl.org>
-References: <20041022032039.730eb226.akpm@osdl.org>
-	<417D7EB9.4090800@osdl.org>
-	<20041025155626.11b9f3ab.akpm@osdl.org>
-	<417D88BB.70907@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Oct 2004 21:18:52 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:4051 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261915AbUJZBSc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 21:18:32 -0400
+X-BrightmailFiltered: true
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Bill Davidsen'" <davidsen@tmr.com>
+Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: The naming wars continue...
+Date: Mon, 25 Oct 2004 15:46:58 -0700
+Organization: Cisco Systems
+Message-ID: <00ba01c4bae4$892ec4f0$ca41cb3f@amer.cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->
-> Andrew Morton wrote:
-> > "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> > 
-> >>I'm trying to spend time on kexec++ this week, but this little BUG
-> >>keeps getting in the way.  Has it already been reported/fixed?
-> >>
-> >>kernel BUG at arch/i386/mm/highmem.c:42!
-> > 
-> > 
-> > oops, we did it again.
-> > 
-> > --- 25/drivers/ide/ide-taskfile.c~ide_pio_sector-kmap-fix	Mon Oct 25 15:54:35 2004
-> > +++ 25-akpm/drivers/ide/ide-taskfile.c	Mon Oct 25 15:54:48 2004
-> > @@ -304,7 +304,7 @@ static void ide_pio_sector(ide_drive_t *
-> >  	else
-> >  		taskfile_input_data(drive, buf, SECTOR_WORDS);
-> >  
-> > -	kunmap_atomic(page, KM_BIO_SRC_IRQ);
-> > +	kunmap_atomic(buf, KM_BIO_SRC_IRQ);
-> >  #ifdef CONFIG_HIGHMEM
-> >  	local_irq_restore(flags);
-> >  #endif
-> > _
-> 
-> Yes, that gets further.   :(
-> Maybe I'll just (try) apply the kexec patch to a vanilla kernel.
 
-I doubt if it'll help much.  It looks like IDE PIO got badly broken. 
-That's something we have to fix - could you work with Bart on it please?
+But not everyone reads LKML or the annoucement..a lot of people may just
+decide whether to try this out based on the name. They go to kernel.org from
+time to time and say: I'll test the next rc release.
 
-How come your disks are running in PIO mode anyway?
+"RC" has a very well-known meaning. It would make people scared if they find
+rc isn't stable, and lose a lot of potential testers. So why break it?
 
-> 
-> Unable to handle kernel paging request at virtual address fffea000
->   printing eip:
-> c02c8e4d
-> *pde = 0064b067
-> *pte = 00000000
-> Oops: 0002 [#1]
-> SMP DEBUG_PAGEALLOC
-> Modules linked in:
-> CPU:    0
-> EIP:    0060:[<c02c8e4d>]    Not tainted VLI
-> EFLAGS: 00010006   (2.6.9-mm1)
-> EIP is at ide_insw+0xd/0x20
-> eax: 000001f0   ebx: c05ee7ec   ecx: 00000100   edx: 000001f0
-> esi: c05ee7ec   edi: fffea000   ebp: c056fe80   esp: c056fe7c
-> ds: 007b   es: 007b   ss: 0068
-> Process swapper (pid: 0, threadinfo=c056e000 task=c0486b80)
-> Stack: c05ee740 c056fea0 c02c93b8 000001f0 fffea000 00000100 c05ee7ec 
-> 00000080
->         fffea000 c056fec0 c02ccf06 c05ee7ec fffea000 00000080 00000000 
-> 00000000
->         c05ee740 c056feec c02cd62b c05ee7ec fffea000 00000080 00000000 
-> fffea000
-> Call Trace:
->   [<c0107eff>] show_stack+0xaf/0xc0
->   [<c010808d>] show_registers+0x15d/0x1e0
->   [<c01082a6>] die+0x106/0x190
->   [<c011c707>] do_page_fault+0x517/0x6a6
->   [<c0107b4d>] error_code+0x2d/0x38
->   [<c02c93b8>] ata_input_data+0x98/0xa0
->   [<c02ccf06>] taskfile_input_data+0x26/0x50
->   [<c02cd62b>] ide_pio_sector+0xcb/0xf0
->   [<c02cd892>] task_in_intr+0xe2/0x100
->   [<c02c8c16>] ide_intr+0xb6/0x150
->   [<c0142cd8>] handle_IRQ_event+0x38/0x70
->   [<c0142df2>] __do_IRQ+0xe2/0x150
->   [<c0109606>] do_IRQ+0x36/0x60
->   [<c0107a30>] common_interrupt+0x18/0x20
->   [<c01050f1>] cpu_idle+0x31/0x50
->   [<c05709bf>] start_kernel+0x15f/0x180
->   [<c0100211>] 0xc0100211
-> Code: e5 8b 55 08 ec 0f b6 c0 5d c3 8d 74 26 00 55 89 e5 8b 55 08 66 
-> ed 0f b7 c
->   <0>Kernel panic - not syncing: Fatal exception in interrupt
->   <0>Dumping messages in 0 seconds : last chance for Alt-SysRq...
-> 
-> 
-> 
-> 
-> -- 
-> ~Randy
-> MOTD:  Always include version info.
-> (Again.  Sometimes I think ln -s /usr/src/linux/.config .signature)
+Even another meaningless name which doesn't collide with RC is better.
+
+> Which is just another reason why the name itself is not that 
+> meaningful. 
+> It can never carry the kind of information that people seem 
+> to _expect_ it to carry. 
+

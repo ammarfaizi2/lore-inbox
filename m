@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130152AbRBMAYR>; Mon, 12 Feb 2001 19:24:17 -0500
+	id <S130145AbRBMAZH>; Mon, 12 Feb 2001 19:25:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130148AbRBMAX7>; Mon, 12 Feb 2001 19:23:59 -0500
-Received: from mailgate.bridgetrading.com ([62.49.201.178]:1802 "EHLO 
-	directcommunications.net") by vger.kernel.org with ESMTP
-	id <S129752AbRBMAXs>; Mon, 12 Feb 2001 19:23:48 -0500
-Date: Tue, 13 Feb 2001 00:25:28 +0000 (GMT)
-From: Chris Funderburg <chris@Funderburg.com>
-To: Scott Murray <scott@spiteful.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: opl3sa not detected anymore
-In-Reply-To: <Pine.LNX.4.30.0102121846040.10962-100000@godzilla.spiteful.org>
-Message-ID: <Pine.LNX.4.30.0102130019100.1412-100000@pikachu.bti.com>
-X-Unexpected-Header: Hello!!!
+	id <S130195AbRBMAY5>; Mon, 12 Feb 2001 19:24:57 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:44504 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S130145AbRBMAYl>;
+	Mon, 12 Feb 2001 19:24:41 -0500
+Date: Tue, 13 Feb 2001 00:24:08 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Werner Almesberger <Werner.Almesberger@epfl.ch>,
+        linux-kernel@vger.kernel.org
+Subject: Re: LILO and serial speeds over 9600
+In-Reply-To: <3A8876FA.EA2034D1@transmeta.com>
+Message-ID: <Pine.SOL.4.21.0102130020440.18655-100000@red.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, Scott Murray wrote:
+On Mon, 12 Feb 2001, H. Peter Anvin wrote:
 
-Thanks!
+> James Sutherland wrote:
+> > >
+> > > Depends on what the client can handle.  For the kernel, that might be
+> > > true, but for example a boot loader may only have a few K worth of buffer
+> > > space.
+> > 
+> > Fortunately, the bulky stuff (printk's from the booting kernel) will be
+> > going from the boot loader to the server, and should be buffered there
+> > OK until they can be processed. Only the stuff sent to the client will
+> > need buffering, and that should be simple keystrokes...
+> 
+> Well, any time there is a network there needs to be buffering, if you
+> want to have any kind of ACK protocol.
 
-The isapnp=0 fixed it.  I don't actually have an isapnp.conf file.
+Yes, but only the last packet sent, if you limit to one packet at a
+time... Shouldn't be a problem, even for the smallest code.
 
-On my next compile I'll just disable the ISA Pnp driver.
-I don't actually need it, but it's something that I've never bothered to
-turn off. :)
 
-CF
-
-> On Mon, 12 Feb 2001, Chris Funderburg wrote:
->
-> >
-> > After the updates to the opl3sa2 driver (2.4.2-pre3?) my card isn't being
-> > detected anymore.  Are there further updates to come, or do I need to
-> > change the settings?  The driver is being loaded as a module with the
-> > following in /etc/modules.conf:
-> [snip]
-> > The midi works fine, but 'modprobe sound' reports:
-> >
-> > opl3sa2: No cards found
-> > opl3sa2: 0 PnP card(s) found.
->
-> If you've configured ISA PnP support into the kernel, then the driver
-> ignores those settings unless you specify isapnp=0.  What I'd suggest
-> is that you try disabling the configuration done by the isapnp tools,
-> which can be done on RedHat and derived systems by renaming your
-> /etc/isapnp.conf to something else.  There seem to be some issues
-> with resetting the PnP configuration with isapnp after the in-kernel
-> ISA PnP driver has done its stuff, as a couple of other people have
-> mentioned similiar problems.
->
-> Scott
->
->
->
-
--- 
-... Any resemblance between the above views and those of my employer,
-my terminal, or the view out my window are purely coincidental.  Any
-resemblance between the above and my own views is non-deterministic.  The
-question of the existence of views in the absence of anyone to hold them
-is left as an exercise for the reader.  The question of the existence of
-the reader is left as an exercise for the second god coefficient.  (A
-discussion of non-orthogonal, non-integral polytheism is beyond the scope
-of this article.)
-
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263136AbTJQAgm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 20:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTJQAgm
+	id S263214AbTJQAmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 20:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbTJQAmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 20:36:42 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:5385 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S263136AbTJQAgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 20:36:41 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [RFC] frandom - fast random generator module
-Date: Fri, 17 Oct 2003 00:34:41 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <bmndf1$a0k$1@abraham.cs.berkeley.edu>
-References: <3F8E552B.3010507@users.sf.net> <20031016121825.D7000@schatzie.adilger.int> <3F8F26F0.6080002@pobox.com> <20031016174227.K7000@schatzie.adilger.int>
-Reply-To: daw@cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1066350881 10260 128.32.153.211 (17 Oct 2003 00:34:41 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Fri, 17 Oct 2003 00:34:41 +0000 (UTC)
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	Thu, 16 Oct 2003 20:42:09 -0400
+Received: from imo-d01.mx.aol.com ([205.188.157.33]:10985 "EHLO
+	imo-d01.mx.aol.com") by vger.kernel.org with ESMTP id S263201AbTJQAmG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 20:42:06 -0400
+Date: Thu, 16 Oct 2003 20:42:04 -0400
+From: aquamodem1@netscape.net
+To: owner-linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: The linux-kernel list has disappeared for me.
+MIME-Version: 1.0
+Message-ID: <7AB48D44.1642A7DE.0E957423@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 68.78.133.213
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger  wrote:
->For the current version of Lustre security is not a primary concern (our
->customers run Lustre in very secure network environments).  We started
->with get_random_bytes() but had to remove it because of the overhead.
->Note that the random numbers are produced and consumed local to a single
->node but are passed over the network to clients as an opaque handle,
->so cross-node collisions are not a concern.
->
->At some point in the future we may need to increase the security of such
->handles, but it would be nice to not increase the CPU usage as much as
->get_random_bytes() did.  Direct HW RNG would suit this perfectly.
+I have been unsuccessful contacting the List Admin with this request.
+Please accept my apology for posting this to the list. Please, somebody, make the mail list admin aware of this request.  Given the possiblilty of a two way filter to kernel.org I am posting this via Netscape mail.  
 
-I don't get it.  What do you mean by "increase the security"?
-If your security relies on unpredictability, then with a non-cryptographic
-PRNG, you have no security.  What am I missing?
+List Admin,
 
-I'm just not seeing how frandom is going to make your life any better
-here.  In almost every security system I've ever looked at, either you
-need a full-strength crypto PRNG, or else a simple counter is enough.
+Help.
 
->Note that the security of these handles isn't really that critical to
->the overall security model when implemented (which will be kerberos based
->like AFS and DCE), but it would be nice from a warm-n-fuzzy point of view
->to have something better than "last handle + N" which is what we have now.
+I have subscribed to the linux-kernel mailing list for years with my SBC-ameritech account.  This turns out to run through prodigy.net. Anyway this is my problem.   I no longer receive the kernel mailing list.
 
-I am always suspicious of warm-n-fuzzy arguments, when it comes to
-security.  Either it is security-critical, or it isn't.  And, if you
-don't know whether or not it is security-critical, look out!
+The e-mail address it is sent to is aquamodem@ameritech.net
 
-If the most compelling argument we can come up with for putting
-frandom in the kernel is warm-n-fuzzies...  well, I think we can all
-draw some conclusions from that.
+I have contacted the SBC administrator and they tell me that unless I can prove that they are blocking the linux-kernel list, they are not at fault.  The only proof that they will accept is a bounce message from:  prodigy.net
+with a possible source of abuse@prodigy.net.  They want to see that bounce message returned to abuse@prodigy.net with the title and first line of Request Removal from Relay.   If they don't see this bounce message then they won't do anything and I am no longer a participant in the list.
+
+I obviously don't want this mail list terminated.
+
+Please look for this bounce and help me, also, cc me on whatever you do.  If possible, also, cc receipt of this message from another domain in-case kernel.org is blocked.
+
+
+Thanks
+
+walter lundby 
+
+__________________________________________________________________
+McAfee VirusScan Online from the Netscape Network.
+Comprehensive protection for your entire computer. Get your free trial today!
+http://channels.netscape.com/ns/computing/mcafee/index.jsp?promo=393397
+
+Get AOL Instant Messenger 5.1 free of charge.  Download Now!
+http://aim.aol.com/aimnew/Aim/register.adp?promo=380455

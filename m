@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132976AbRDEUJ7>; Thu, 5 Apr 2001 16:09:59 -0400
+	id <S132868AbRDEUGS>; Thu, 5 Apr 2001 16:06:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132886AbRDEUJt>; Thu, 5 Apr 2001 16:09:49 -0400
-Received: from anime.net ([63.172.78.150]:55566 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S132976AbRDEUJi>;
-	Thu, 5 Apr 2001 16:09:38 -0400
-Date: Thu, 5 Apr 2001 13:10:13 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: Miao Qingjun <qjmiao@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: How to embed linux into a board based on QED rm5230 mips cpu?
-In-Reply-To: <20010405211550.A1449@werewolf.able.es>
-Message-ID: <Pine.LNX.4.30.0104051309510.12346-100000@anime.net>
+	id <S132886AbRDEUGJ>; Thu, 5 Apr 2001 16:06:09 -0400
+Received: from [216.84.120.7] ([216.84.120.7]:20740 "EHLO mail.wrldcom.com")
+	by vger.kernel.org with ESMTP id <S132868AbRDEUF6>;
+	Thu, 5 Apr 2001 16:05:58 -0400
+Message-ID: <50282217D047D411997400805FEAAA81B1AE12@mail.voicelink>
+From: Stephen Burns <sburns@wave3com.com>
+To: linux-kernel@vger.kernel.org
+Subject: Groups maximum
+Date: Thu, 5 Apr 2001 14:59:40 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Apr 2001, J . A . Magallon wrote:
-> On 04.05 Miao Qingjun wrote:
-> > Can anybody help me?
-> > How to embed linux into a board based on QED rm5230
-> > mips cpu?
-> http://www.uclinux.org/
+Hey all,
 
-rm5230 isnt a microcontroller.
+I have checked out the archives, and I found an old post regarding this.
+The solution in the post, however, did not work for me.  I am attempting to
+raise the maximum 32 group per user limit on my 2.4.2 kernel.  I patched
+both linux/include/linux/limits.h and the asm-i386/param.h, replacing the
+default "32" with "256."  My glibc is 2.1.2.  When I make clean, and
+recompile the kernel, it boots fine but I am still limited to 32 groups.  I
+don't need to do anything with glibc since it is of the 2.1 or greater
+category, correct?  Any ideas, hints, tricks?  Thanks a ton for your help,
+please CC me as I've not been approved yet as a member of this list.
 
--Dan
+
 

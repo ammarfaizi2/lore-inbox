@@ -1,89 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbUK0Dw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbUK0FrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbUK0Dw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 22:52:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbUK0Dvx
+	id S262104AbUK0FrV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 00:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbUK0DvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:51:53 -0500
+	Fri, 26 Nov 2004 22:51:12 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:5572 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262525AbUKZTdj (ORCPT
+	by vger.kernel.org with ESMTP id S262531AbUKZTdm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:33:39 -0500
-Date: Thu, 25 Nov 2004 12:39:13 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: Cleanup PCI power states
-Message-ID: <20041125113913.GC1027@elf.ucw.cz>
-References: <20041116130445.GA10085@elf.ucw.cz> <20041116155613.GA1309@kroah.com> <20041117120857.GA6952@openzaurus.ucw.cz> <20041124234057.GF4649@kroah.com>
+	Fri, 26 Nov 2004 14:33:42 -0500
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+From: David Woodhouse <dwmw2@infradead.org>
+To: Alexandre Oliva <aoliva@redhat.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org,
+       libc-alpha@sources.redhat.com
+In-Reply-To: <ory8goygpr.fsf@livre.redhat.lsd.ic.unicamp.br>
+References: <19865.1101395592@redhat.com>
+	 <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <20041125210137.GD2849@parcelfarce.linux.theplanet.co.uk>
+	 <ory8goygpr.fsf@livre.redhat.lsd.ic.unicamp.br>
+Content-Type: text/plain
+Message-Id: <1101470002.8191.9436.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041124234057.GF4649@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Fri, 26 Nov 2004 11:53:23 +0000
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > This is step 0 before adding type-safety to PCI layer... It introduces
-> > > > constants and uses them to clean driver up. I'd like this to go in
-> > > > now, so that I can convert drivers during 2.6.10... Please apply,
-> > > 
-> > > The tree is in "bugfix only" mode right now.  Changes like this need to
-> > > wait for 2.6.10 to come out before I can send it upward.
-> > > 
-> > > So, care to hold on to it for a while?  Or I can add it to my "to apply
-> > > after 2.6.10 comes out" tree, which will mean it will end up in the -mm
-> > > releases till that happens.
-> > 
-> > I think I'd prefer visibility of "to apply after 2.6.10" tree... Thanks,
+On Fri, 2004-11-26 at 09:47 -0200, Alexandre Oliva wrote:
+> On Nov 25, 2004, Matthew Wilcox <matthew@wil.cx> wrote:
 > 
-> Care to resend this, I seem to have lost them :(
+> > On Thu, Nov 25, 2004 at 04:20:06PM -0200, Alexandre Oliva wrote:
+> >> This means these headers shouldn't reference each other as
+> >> linux/user/something.h, but rather as linux/something.h, such that
+> >> they still work when installed in /usr/include/linux.  This may
+> >> require headers include/linux/something.h to include
+> >> linux/user/something.h, but that's already part of the proposal.
+> 
+> > That's going to take severe brain-ache to get right ... and worse,
+> > keep right.  These headers aren't going to get tested outside the kernel
+> > tree often.  So we'll have missing includes and files that only work if
+> > the <linux/> they're including is a kernel one rather than a user one.
+> 
+> How about moving the internals (i.e., what's not to be exported to
+> userland) from linux and asm elsewhere, then?
+> 
+> Sure, it means significantly more churn in the kernel, but there's
+> going to be a lot of moving stuff around one way or the other.
 
-Could this go to "after 2.6.10 tree", too? It is a helper that
-converts system state into PCI state. We really do not want to have
-this copied into every driver, because it will need to change when
-system state gets type-checked / expanded to struct.
+Not really. The kernel code was what was _allowed_ to be using those
+headers with those names in the first place; it was userspace which
+shouldn't necessarily have been doing so.
 
-								Pavel
+> While at that, we could also split what's kernel internal for real and
+> what's to be visible to external kernel modules as well.  So we'd have
+> 3 layers of headers, instead of two.  I'm not sure this actually makes
+> any sense though, since there might be lots of dependencies of headers
+> for modules on internal headers.
 
---- clean/drivers/pci/pci.c	2004-10-01 00:30:16.000000000 +0200
-+++ linux/drivers/pci/pci.c	2004-11-14 23:36:46.000000000 +0100
-@@ -300,6 +300,30 @@
- }
- 
- /**
-+ * pci_choose_state - Choose the power state of a PCI device
-+ * @dev: PCI device to be suspended
-+ * @state: target sleep state for the whole system
-+ *
-+ * Returns PCI power state suitable for given device and given system
-+ * message.
-+ */
-+
-+pci_power_t pci_choose_state(struct pci_dev *dev, u32 state)
-+{
-+	if (!pci_find_capability(dev, PCI_CAP_ID_PM))
-+		return PCI_D0;
-+
-+	switch (state) {
-+	case 0:	return PCI_D0;
-+	case 2: return PCI_D2;
-+	case 3: return PCI_D3hot;
-+	default: BUG();
-+	}
-+}
-+
-+EXPORT_SYMBOL(pci_choose_state);
-+
-+/**
-  * pci_save_state - save the PCI configuration space of a device before suspending
-  * @dev: - PCI device that we're dealing with
-  * @buffer: - buffer to hold config space context
+All modules will be entirely dependent on the full set of kernel
+headers. Let's not go there.
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+dwmw2
+

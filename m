@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTKJEIk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 23:08:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbTKJEIk
+	id S262848AbTKJEJv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 23:09:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTKJEJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 23:08:40 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39871 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262844AbTKJEIj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 23:08:39 -0500
-Date: Sun, 9 Nov 2003 20:12:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: arief_mulya <arief_m_utama@telkomsel.co.id>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH?] psmouse-base.c
-Message-Id: <20031109201211.2ce2edce.akpm@osdl.org>
-In-Reply-To: <3FAEF7BC.8060503@telkomsel.co.id>
-References: <3FAEF7BC.8060503@telkomsel.co.id>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Nov 2003 23:09:51 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45503 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262848AbTKJEJu (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 23:09:50 -0500
+Date: Sun, 9 Nov 2003 20:09:40 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: Andrew Morton <akpm@osdl.org>, Burton Windle <bwindle@fint.org>,
+       <Linux-kernel@vger.kernel.org>
+Subject: Re: slab corruption in test9 (NFS related?)
+In-Reply-To: <16303.131.838605.661991@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.44.0311092007451.3002-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arief_mulya <arief_m_utama@telkomsel.co.id> wrote:
+
+On Mon, 10 Nov 2003, Neil Brown wrote:
 >
-> static int psmouse_pm_callback(struct pm_dev *dev, pm_request_t request, 
->  void *data)
->  {
->          struct psmouse *psmouse = dev->data;
->          struct serio_dev *ser_dev = psmouse->serio->dev;
->                                                                                 
->   
->          switch (request) {
->          case PM_RESUME:
->                  psmouse->state = PSMOUSE_IGNORE;
->                  serio_rescan(psmouse->serio);
->          default:
->                  return 0;
->          }
->  }
+> An extra dput was introduced in nfsd_rename 20 months ago....
+> 
+> time to remove it.
 
-What does the driver do without this change?  ie: what problem is this
-fixing?
+Oh, you stand-up comedian you.
 
-Why is it calling serio_rescan() rather than serio_reconnect()?
+I'm just wondering how the hell this hasn't bit us seriously until now?  
+What's up?
+
+In other words, your patch certainly looks obviously correct, but it also
+looks _so_ obviously correct that my alarm bells are going off. If the
+code was quite that broken at counting dentries, how the hell did it ever
+work AT ALL?
+
+Call me suspicious, but I find this really strange..
+
+		Linus
 

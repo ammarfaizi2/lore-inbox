@@ -1,36 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268121AbUIPTGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268115AbUIPTIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268121AbUIPTGt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 15:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUIPTGt
+	id S268115AbUIPTIN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 15:08:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268138AbUIPTIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 15:06:49 -0400
-Received: from ozlabs.org ([203.10.76.45]:10127 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268182AbUIPTGp (ORCPT
+	Thu, 16 Sep 2004 15:08:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24752 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268115AbUIPTIH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 15:06:45 -0400
-Date: Fri, 17 Sep 2004 05:06:33 +1000
-From: Anton Blanchard <anton@samba.org>
-To: hugh@veritas.com, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: tmpfs in latest BK
-Message-ID: <20040916190633.GG2825@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040818i
+	Thu, 16 Sep 2004 15:08:07 -0400
+Message-ID: <4149E46E.7010804@redhat.com>
+Date: Thu, 16 Sep 2004 12:07:26 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a4) Gecko/20040915
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Utz Lehmann <lkml@de.tecosim.com>
+CC: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] flexmmap: optimise mmap_base gap for hard limited stack
+References: <20040916165613.GA10825@de.tecosim.com> <20040916174529.GA16439@devserv.devel.redhat.com> <20040916182139.GA21870@de.tecosim.com>
+In-Reply-To: <20040916182139.GA21870@de.tecosim.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi,
+Utz Lehmann wrote:
 
-I just gave BK a try on my ppc32 laptop and tmpfs looks to be playing up:
+> A check for CAP_SYS_RESOURCE can be added. But i dont think it's worth.
 
-# mount -t tmpfs none /mnt
-# ls /mnt
-ls: mnt: Not a directory
+It is needed.  Otherwise how do you allow increasing the stack size
+again once it has been limited?  I've no problem with using the smallest
+reserved stack region with !CAP_SYS_RESOURCE, but otherwise the existing
+method should be used.
 
-Does this ring any bells? :)
+- --
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-Anton
+iD8DBQFBSeRu2ijCOnn/RHQRAi9kAKCvg6KSntcpjNT0Ld8wLQuS5RqxtACfUwDY
+X59x6hGwCtUZUgbX2O/hV7k=
+=mOVA
+-----END PGP SIGNATURE-----

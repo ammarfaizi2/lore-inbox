@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262959AbSLBBRH>; Sun, 1 Dec 2002 20:17:07 -0500
+	id <S263105AbSLBBVZ>; Sun, 1 Dec 2002 20:21:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262981AbSLBBRH>; Sun, 1 Dec 2002 20:17:07 -0500
-Received: from [211.101.140.97] ([211.101.140.97]:41476 "EHLO
-	dns.rabbit.redflag-linux.com") by vger.kernel.org with ESMTP
-	id <S262959AbSLBBRH> convert rfc822-to-8bit; Sun, 1 Dec 2002 20:17:07 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Zou Pengcheng <pczou@redflag-linux.com>
-Organization: RedFlag Linux
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] dnotify fix for readv/writev (Linux 2.4.20)
-Date: Mon, 2 Dec 2002 09:22:43 +0800
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
+	id <S263143AbSLBBVZ>; Sun, 1 Dec 2002 20:21:25 -0500
+Received: from web14508.mail.yahoo.com ([216.136.224.71]:53774 "HELO
+	web14508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263105AbSLBBVY>; Sun, 1 Dec 2002 20:21:24 -0500
+Message-ID: <20021202012850.89815.qmail@web14508.mail.yahoo.com>
+Date: Sun, 1 Dec 2002 17:28:50 -0800 (PST)
+From: Arun Prasad Velu <arun_linux@yahoo.com>
+Subject: Accessing another card's memory from my driver
+To: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212020922.43820.pczou@redflag-linux.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, Marcelo,
+Hello,
 
-this is a patch to fix the dnotify bug of readv/writev. 
+I have a system with two different PCI cards. I am
+writing the driver for one of those cards. However I
+have the source for the other driver. 
 
-Orignally DN_MODIFY is issued on readv while DN_ACCESS is issued on writev, 
-which is obviously wrong. This patch fixes such problem.
+My requirement is to access the memory of other PCI
+device (other device has it's own memory) from my
+driver.
+How to do this?
+Are there any restrictions to do so?
 
-cheers,
-  -- Pengcheng Zou
+Have a nice time.
+Regards
+Arun
 
-diff -uNr fs/read_write.c.orig fs/read_write.c
---- fs/read_write.c.orig        Mon Dec  2 09:07:34 2002
-+++ fs/read_write.c     Mon Dec  2 09:08:26 2002
-@@ -315,7 +315,7 @@
-        /* VERIFY_WRITE actually means a read, as we write to user space */
-        if ((ret + (type == VERIFY_WRITE)) > 0)
-                dnotify_parent(file->f_dentry,
--                       (type == VERIFY_WRITE) ? DN_MODIFY : DN_ACCESS);
-+                       (type == VERIFY_WRITE) ? DN_ACCESS : DN_MODIFY);
-        return ret;
- }
 
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

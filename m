@@ -1,29 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263324AbSIPXSG>; Mon, 16 Sep 2002 19:18:06 -0400
+	id <S263444AbSIPXOY>; Mon, 16 Sep 2002 19:14:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263346AbSIPXSG>; Mon, 16 Sep 2002 19:18:06 -0400
-Received: from mail.cs.utexas.edu ([128.83.139.10]:43162 "EHLO
-	mail.cs.utexas.edu") by vger.kernel.org with ESMTP
-	id <S263324AbSIPXSG>; Mon, 16 Sep 2002 19:18:06 -0400
-Date: Mon, 16 Sep 2002 18:23:04 -0500 (CDT)
-From: Chin-Tser Huang <chuang@cs.utexas.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: save variables to hard disk at kernel mode
-Message-ID: <Pine.LNX.4.33.0209161818120.26471-100000@nurse.cs.utexas.edu>
+	id <S263446AbSIPXOY>; Mon, 16 Sep 2002 19:14:24 -0400
+Received: from web13207.mail.yahoo.com ([216.136.174.192]:10830 "HELO
+	web13207.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263444AbSIPXOV>; Mon, 16 Sep 2002 19:14:21 -0400
+Message-ID: <20020916231919.32664.qmail@web13207.mail.yahoo.com>
+Date: Mon, 16 Sep 2002 16:19:19 -0700 (PDT)
+From: Srinivas Chavva <chavvasrini@yahoo.com>
+Subject: Re: Configuring kernel
+To: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020916231344.A1328@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I am extremely sorry I made a typing error. When I
+executed the command make xconfig I got the following
+output
+rm -f include/asm
+(cd include; ln -sf asm -i386 asm)
+make -C scripts kconfig.tk
+make: *** scripts: No such file or directory. Stop.
+make: *** [xconfig] Error 2
 
-I would like to implement at the kernel a save that
-can periodically store the value of some variables
-to the hard disk. Could anyone please tell me what
-function can I use to achieve this? Will this save
-block the operation of other functions? Thank you
-very much for your help!
+Please help me to fix the error.
+Thanking You.
+Regards,
+Srinivas Chavva
 
-Henry
+--- Sam Ravnborg <sam@ravnborg.org> wrote:
+> On Sun, Sep 15, 2002 at 03:34:08PM -0700, Srinivas
+> Chavva wrote:
+> > When I tried to execute the command "make xconfig"
+> I
+> > got the following output
+> > 
+> > rm -f include/asm
+> > (cd include; ln -sf asm -i386 asm)
+> > make -C scripts knconfig.tk
+> There is no file named "knconfig.tk" - check your
+> top-level Makefile.
+> The correct name is "kconfig.tk".
+> 
+> 	Sam
 
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! News - Today's headlines
+http://news.yahoo.com

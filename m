@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267854AbTBVUWe>; Sat, 22 Feb 2003 15:22:34 -0500
+	id <S267901AbTBVUZZ>; Sat, 22 Feb 2003 15:25:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267878AbTBVUWe>; Sat, 22 Feb 2003 15:22:34 -0500
-Received: from 5-077.ctame701-1.telepar.net.br ([200.193.163.77]:40590 "EHLO
-	5-077.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267854AbTBVUWd>; Sat, 22 Feb 2003 15:22:33 -0500
-Date: Sat, 22 Feb 2003 17:32:33 -0300 (BRT)
-From: Rik van Riel <riel@imladris.surriel.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: oom killer and its superior braindamage in 2.4
-In-Reply-To: <Pine.LNX.4.50L.0302221711100.2206-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.50L.0302221732010.2206-100000@imladris.surriel.com>
-References: <200302222025.48129.m.c.p@wolk-project.de>
- <Pine.LNX.4.50L.0302221711100.2206-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267904AbTBVUZY>; Sat, 22 Feb 2003 15:25:24 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8835
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267901AbTBVUZX>; Sat, 22 Feb 2003 15:25:23 -0500
+Subject: Re: Minutes from Feb 21 LSE Call
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Larry McVoy <lm@bitmover.com>, Hanna Linder <hannal@us.ibm.com>,
+       lse-tech@lists.sf.et,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030222200521.GD10411@holomorphy.com>
+References: <96700000.1045871294@w-hlinder>
+	 <20030222001618.GA19700@work.bitmover.com>
+	 <1045938019.5034.9.camel@irongate.swansea.linux.org.uk>
+	 <20030222200521.GD10411@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045949730.5685.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 22 Feb 2003 21:35:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Feb 2003, Rik van Riel wrote:
-> On Sat, 22 Feb 2003, Marc-Christian Petersen wrote:
->
-> > - Feb 21 10:04:57 codeman kernel: Out of Memory: Killed process 2657 (apache).
-> >
-> > The above log entry (apache) appeared for about 4 hours every some
-> > seconds (same PID) until I thought about sysrq-b
->
-> > Is there any chance we can fix this up?
->
-> Yes.
+On Sat, 2003-02-22 at 20:05, William Lee Irwin III wrote:
+> On Sat, Feb 22, 2003 at 06:20:19PM +0000, Alan Cox wrote:
+> > I'm hoping the Montavista and IBM people will swat each others bogons 8)
+> 
+> Sounds like a bigger win for the bigboxen, since space matters there,
+> but large-scale SMP efficiency probably doesn't make a difference to
+> embedded (though I think some 2x embedded systems are floating around).
 
-Never mind my last idea, it can be done much simpler ;)
+Smaller cleaner code is a win for everyone, and it often pays off in ways
+that are not immediately obvious. For example having your entire kernel
+working set and running app fitting in the L2 cache happens to be very
+good news to most people.
 
-Does the below patch fix your problem ?
+Alan
 
-Rik
--- 
-Engineers don't grow up, they grow sideways.
-http://www.surriel.com/		http://kernelnewbies.org/
-
-
-===== mm/oom_kill.c 1.11 vs edited =====
---- 1.11/mm/oom_kill.c	Fri Aug 16 10:59:46 2002
-+++ edited/mm/oom_kill.c	Sat Feb 22 17:31:49 2003
-@@ -61,6 +61,9 @@
-
- 	if (!p->mm)
- 		return 0;
-+
-+	if (p->flags & PF_MEMDIE)
-+		return 0;
- 	/*
- 	 * The memory size of the process is the basis for the badness.
- 	 */

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbULUAlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbULUAmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbULUAlw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 19:41:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbULUAlw
+	id S261664AbULUAmR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 19:42:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbULUAmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 19:41:52 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:781 "HELO
+	Mon, 20 Dec 2004 19:42:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2061 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261262AbULUAlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 19:41:47 -0500
-Date: Tue, 21 Dec 2004 01:41:41 +0100
+	id S261275AbULUAlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 19:41:49 -0500
+Date: Tue, 21 Dec 2004 01:41:44 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: langa2@kph.uni-mainz.de, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI ibmmca.c: make a struct static (fwd)
-Message-ID: <20041221004141.GD21288@stusta.de>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] ide-scsi.c: make 2 functions static (fwd)
+Message-ID: <20041221004144.GE21288@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -31,29 +31,37 @@ Please apply.
 
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Mon, 15 Nov 2004 03:06:58 +0100
+Date:	Mon, 15 Nov 2004 03:07:55 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: langa2@kph.uni-mainz.de
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI ibmmca.c: make a struct static
+To: James.Bottomley@SteelEye.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] ide-scsi.c: make 2 functions static
 
-The patch below makes a needlessly global struct static.
+The patch below makes two functions without external users static.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm5-full/drivers/scsi/ibmmca.c.old	2004-11-13 21:50:36.000000000 +0100
-+++ linux-2.6.10-rc1-mm5-full/drivers/scsi/ibmmca.c	2004-11-13 21:50:49.000000000 +0100
-@@ -292,7 +292,7 @@
- #define INTEGRATED_SCSI          101
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/ide-scsi.c.old	2004-11-13 21:51:26.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/scsi/ide-scsi.c	2004-11-13 21:51:41.000000000 +0100
+@@ -301,7 +301,7 @@
+ 	return ide_do_drive_cmd(drive, rq, ide_preempt);
+ }
  
- /* List of possible IBM-SCSI-adapters */
--struct subsys_list_struct subsys_list[] = {
-+static struct subsys_list_struct subsys_list[] = {
- 	{0x8efc, "IBM SCSI-2 F/W Adapter"},	/* special = 0 */
- 	{0x8efd, "IBM 7568 Industrial Computer SCSI Adapter w/Cache"},	/* special = 1 */
- 	{0x8ef8, "IBM Expansion Unit SCSI Controller"},	/* special = 2 */
+-ide_startstop_t idescsi_atapi_error (ide_drive_t *drive, const char *msg, byte stat)
++static ide_startstop_t idescsi_atapi_error (ide_drive_t *drive, const char *msg, byte stat)
+ {
+ 	struct request *rq;
+ 	byte err;
+@@ -327,7 +327,7 @@
+ 	return ide_stopped;
+ }
+ 
+-ide_startstop_t idescsi_atapi_abort (ide_drive_t *drive, const char *msg)
++static ide_startstop_t idescsi_atapi_abort (ide_drive_t *drive, const char *msg)
+ {
+ 	struct request *rq;
+ 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

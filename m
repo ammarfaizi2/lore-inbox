@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265272AbTLRSmp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 13:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265271AbTLRSmp
+	id S265293AbTLRSpx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 13:45:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbTLRSpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 13:42:45 -0500
-Received: from nelson.SEDSystems.ca ([192.107.131.136]:5629 "EHLO
-	nelson.sedsystems.ca") by vger.kernel.org with ESMTP
-	id S265268AbTLRSmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 13:42:44 -0500
-Message-ID: <3FE1F516.8070100@sedsystems.ca>
-Date: Thu, 18 Dec 2003 12:42:30 -0600
-From: Kendrick Hamilton <hamilton@sedsystems.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: uClinux development list <uclinux-dev@uclinux.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux Device Drivers 3rd Edition
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Dec 2003 13:45:53 -0500
+Received: from mail.shareable.org ([81.29.64.88]:14470 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S265293AbTLRSpv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 13:45:51 -0500
+Date: Thu, 18 Dec 2003 18:45:10 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Chris Meadors <clubneon@hereintown.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Can't wait for '2.8 or 3.0',or maybe: 2.8 followed by 2.10 ??
+Message-ID: <20031218184510.GD16315@mail.shareable.org>
+References: <20031218170628.GA3129@localhost.localdomain> <1071765527.12681.5.camel@clubneon.priv.hereintown.net> <72060000.1071768833@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <72060000.1071768833@flay>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC response to hamilton@sedsystems.ca
+Martin J. Bligh wrote:
+> > The names could be chosen alphabetically.  Rooster was mentioned for
+> > 2.7, but since 2.6 is beaver, I propose cock, as 'c' follows 'b'.
+> 
+> Oh great. 
+> So now we've progressed from flamewars to cock fighting on LKML. 
 
-Does anybody know if there will be a third edition of Linux Device 
-Drivers covering the 2.6 Kernel, or are the differences for a character 
-device small enough that it is not needed?
+Are you two aware of which body parts are sometimes called
+"beaver" and "cock"?
 
-TIA,
-Kendrick Hamilton
-
+-- Jamie

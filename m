@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130251AbRAOBKR>; Sun, 14 Jan 2001 20:10:17 -0500
+	id <S130461AbRAOBM5>; Sun, 14 Jan 2001 20:12:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130461AbRAOBKI>; Sun, 14 Jan 2001 20:10:08 -0500
-Received: from mail0.netcom.net.uk ([194.42.236.2]:12757 "EHLO
-	mail0.netcom.net.uk") by vger.kernel.org with ESMTP
-	id <S130251AbRAOBJ6>; Sun, 14 Jan 2001 20:09:58 -0500
-Message-ID: <3A624E77.634D42AD@netcomuk.co.uk>
-Date: Mon, 15 Jan 2001 01:12:23 +0000
-From: Bill Crawford <billc@netcomuk.co.uk>
-Organization: Netcom Internet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac8 i586)
-X-Accept-Language: en
+	id <S130803AbRAOBMh>; Sun, 14 Jan 2001 20:12:37 -0500
+Received: from anime.net ([63.172.78.150]:64007 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S130461AbRAOBM3>;
+	Sun, 14 Jan 2001 20:12:29 -0500
+Date: Sun, 14 Jan 2001 17:14:11 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <93t1q7$49c$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0101141706180.30626-100000@anime.net>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.0-ac9
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- I have a problem here with loopback-mounted filesystem freezing. The
-process writing to the filesystem (ext2) gets stuck in uninterruptible
-state with WCHAN showing "lock_p" which I believe to be lock_page.
+On 14 Jan 2001, Linus Torvalds wrote:
+> That's not the point of sendfile(). The point of sendfile() is to be
+> faster than the _combination_ of:
+> 	addr = mmap(file, ...len...);
+> 	write(fd, addr, len);
+> or
+> 	read(file, userdata, len);
+> 	write(fd, userdata, len);
 
- First time I noticed this, the system froze shortly afterwards but I
-do not know if this is related (because on another occasion the system
-has been fine apart from this wedged process).
+And boy is it ever. It blows both away by more than double.
+Not only that the mmap one grinds my box into the ground with swapping,
+while the sendfile() case you can't even tell its running except that the
+drive is going like mad.
 
- Underlying system is also ext2 if that makes any difference.
+> Does anybody but apache actually use it?
 
- Machine is AMD K6-III 400, kernel patched also with the DRM code from
-XFree86 CVS but otherwise untouched, compiler (possible suspect) is
-"(gcc version 2.96 20000731 (Red Hat Linux 7.0))" from gcc-2.96-69.
+I wonder why samba doesn't use it.
 
- However the "vanishing (PS/2) mouse and keyboard" problem seems to be
-cured with this release (he says ;·).
+-Dan
 
- I also had a problem occasionally with -ac8 printing something like
-"Undead swap entry" repeatedly during shutdown recently, not sure if
-that's gone yet.
-
--- 
-/* Bill Crawford, Unix Systems Developer, ebOne, formerly GTS Netcom */
-#include "stddiscl.h"
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

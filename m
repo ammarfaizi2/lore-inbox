@@ -1,55 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264311AbUDSImC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 04:42:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbUDSImC
+	id S264310AbUDSItz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 04:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264309AbUDSItz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 04:42:02 -0400
-Received: from 218-34-33-5.cm.dynamic.apol.com.tw ([218.34.33.5]:37235 "HELO
-	chang") by vger.kernel.org with SMTP id S264197AbUDSIl4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 04:41:56 -0400
-Message-ID: <J4S6U@sky.seed.net.tw>
-From: mgide1@yahoo.com.tw
-To: Dear@vger.kernel.org, Sirs@vger.kernel.org, 040419-D-nfN@vger.kernel.org
-Subject: EMBROIDERED POLICE , FIRE,  MILITARY , SPORTS , CLUBS  PATCHES & EMBLEMS 
-X-Mailer: EYpjVKZBboisJ8JC0bVSph36Yzs
-Content-Type: text/plain;
-X-Priority: 3
-X-MSMail-Priority: Normal
-Date: Mon, 19 Apr 2004 04:41:56 -0400
+	Mon, 19 Apr 2004 04:49:55 -0400
+Received: from web90008.mail.scd.yahoo.com ([66.218.94.66]:18580 "HELO
+	web90008.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S264304AbUDSIto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 04:49:44 -0400
+Message-ID: <20040419084943.61269.qmail@web90008.mail.scd.yahoo.com>
+Date: Mon, 19 Apr 2004 01:49:43 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: periodic flushing of "cached" data
+To: linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from Quoted-Printable to 8bit by alpha.home.local id i3J8hmDf026691
 
-CUSTOM EMBROIDERED EMBLEMS and PATCHES
+Thank you for your response.  I have given this a try
+(and other options to get pdflush to wake up and flush
+more data) with a file system that is currently in use
+with no difference.
 
-Founded in 1931, we have been specializing in the manufacture of Bullion embroideries and computer embroideries for more than 70 years.
+Interestingly enough, I created an application that
+just allocates memory and ran it to eat up 500M.  I
+the app and it forced the cached data to disk and
+freed up 500M which then was filled up again by NFS
+data.
 
-In Taiwan, we are the sole company that was an approved supplier for U.S. Navy Exchange In Taiwan from 1960s to 1973.
+I would like to get similiar behavior as that what I
+see and know of NetWork Appliance Data OnTAP.  Within
+their configuration they have several note worthy
+principles:
 
-Our products are listed as follows:
+1: Cached data can not be older than 20 secs without
+being committed to disk
+2: if there is significant data filling the caches and
+heavy network traffic, it will throttle the network
+interface and begin moving data to disks.  It does
+this very well and in a very balanced fashion.
 
-Police patches, Armed forces patches, Lions Club International badges, Rotary International badges, Junior Chamber of Commerce badges, golf club badges, art designs, Buddhist-image embroideries, wedding photograph embroideries, portrait embroideries, and a variety of 3D raised embroideries and popular embroideries.
+Currently, an older generation NetApp Filer F760 is
+able to out run my linux file server by 30-50% (the
+F880 is a dual 800MHz PIII, my file server is a quad
+Xeon 2.0GHz, both machines are FC).
 
-We offer wholesale and retail services. Welcome to place us orders!
+Is there any way to get the Linux kernel to do the
+same as OnTAP and be on par or better than the F880.
 
-Welcome to contact us (please don't reply the mail directly, as the box for returned mails will be deleted). Please send your mail to mei926@ms32.hinet.net.  
+Thank you very much for your time.
 
-We have many sorts of products on our website if you want to see our products please click the following e-mail address we will send you our URL index link.  mei926@ms32.hinet.net?subject=URL-Index-Link
+Phy Prabab
+--- Andrew Morton <akpm@osdl.org> wrote:
+> Phy Prabab <phyprabab@yahoo.com> wrote:
+> >
+> > Sirs,
+> > 
+> > I am interested in understanding how tot tune the
+> 2.6
+> > kernel such that I can get the WM to write out
+> data
+> > that is held within the "cache".
+> > 
+> > My situtation is that I have a NFS file server
+> that
+> > gets data in bursts.  The first couple of burst
+> move
+> > quickly, but once the system memory becomes
+> filled,
+> > mostly held in "cache", then my NFS performance
+> drops.
+> >  The issue here is how to get the VM to write out
+> the
+> > data held within the cache when times are slow
+> (which
+> > amounts to 90% of the time)?  I have played a
+> little
+> > bit with the /proc/sys/vm/dirty_ratio, etc with
+> out
+> > much help.
+> 
+> Setting dirty_background_ratio lower might smooth
+> things out.
 
-We sincerely apologize for any inconvenience that this mail may cause to you! 
-
-If you don't want to receive this mail any more, please tell us your email address by sending a mail using the following address:
-
-masaru26@ms69.hinet.net?subject=0404019d-new-405067
-
-Very truly yours,
-Chang Wen-sheng
-MEI LUNG HANDICRAFTS CO., LTD
-No.2, LANE 6 CHENG TE ROAD SEC.4, TAIPEI TAIWAN
-TEL:886-2-2886-4629 2885-8538  FAX:2886-8598
-E-mail: mei926@ms32.hinet.net
 
 
+
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Photos: High-quality 4x6 digital prints for 25¢
+http://photos.yahoo.com/ph/print_splash

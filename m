@@ -1,103 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268136AbUJCUim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268141AbUJCUos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268136AbUJCUim (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 16:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268141AbUJCUim
+	id S268141AbUJCUos (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 16:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268142AbUJCUos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 16:38:42 -0400
-Received: from pimout7-ext.prodigy.net ([207.115.63.58]:44452 "EHLO
-	pimout7-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S268136AbUJCUii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 16:38:38 -0400
-Date: Sun, 3 Oct 2004 16:37:03 -0400 (EDT)
-From: Vladimir Dergachev <volodya@mindspring.com>
-X-X-Sender: volodya@node2.an-vo.com
-Reply-To: Vladimir Dergachev <volodya@mindspring.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Merging DRM and fbdev
-In-Reply-To: <9e473391041003105511b77003@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0410031636320.18135@node2.an-vo.com>
-References: <9e47339104100220553c57624a@mail.gmail.com> 
- <Pine.LNX.4.58.0410030824280.2325@skynet>  <9e4733910410030833e8a6683@mail.gmail.com>
-  <Pine.LNX.4.61.0410031145560.17248@node2.an-vo.com> 
- <9e4733910410030924214dd3e3@mail.gmail.com>  <Pine.LNX.4.61.0410031254280.17448@node2.an-vo.com>
- <9e473391041003105511b77003@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 3 Oct 2004 16:44:48 -0400
+Received: from pat.uio.no ([129.240.130.16]:36250 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S268141AbUJCUom convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 16:44:42 -0400
+Subject: Re: [RFC] memory defragmentation to satisfy high order allocations
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, iwamoto@valinux.co.jp,
+       haveblue@us.ibm.com, Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+       piggin@cyberone.com.au, arjanv@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20041004.050320.78713249.taka@valinux.co.jp>
+References: <20041003140723.GD4635@logos.cnet>
+	 <20041004.033559.71092746.taka@valinux.co.jp>
+	 <1096831287.9667.61.camel@lade.trondhjem.org>
+	 <20041004.050320.78713249.taka@valinux.co.jp>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1096836249.9667.100.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 03 Oct 2004 22:44:09 +0200
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+På su , 03/10/2004 klokka 22:03, skreiv Hirokazu Takahashi:
 
+> However, while network is down network/cluster filesystems might not
+> release pages forever unlike in the case of block devices, which may
+> timeout or returns a error in case of failure.
 
-On Sun, 3 Oct 2004, Jon Smirl wrote:
+Where is the difference? As far as the VM is concerned, it is a latency
+problem. The fact of whether or not it is a permanent hang, a hang with
+a long timeout, or just a slow device is irrelevant because the VM
+doesn't actually know about these devices.
 
-> How is the tuner controlled? Is it a V4L insterface?
+> Each filesystem can control what the migration code does.
+> If it doesn't have anything to help memory migration, it's possible
+> to wait for the network coming up before starting memory migration,
+> or give up it if the network happen to be down. That's no problem.
 
-No, the tuner is controlled via Xserver Xv extension. No V4L interface is 
-provided for tuner control.
+Wrong. It *is* a problem: Filesystems aren't required to know anything
+about the particulars of the underlying block/network/... device timeout
+semantics either.
 
-                       best
+Think, for instance about EXT2. Where in the current code do you see
+that it is required to detect that it is running on top of something
+like the NBD device? Where does it figure out what the latencies of this
+device is?
 
-                          Vladimir Dergachev
+AFAICS, most filesystems in linux/fs/* have no knowledge whatsoever
+about the underlying block/network/... devices and their timeout values.
+Basing your decision about whether or not you need to manage high
+latency situations just by inspecting the filesystem type is therefore
+not going to give very reliable results.
 
->
->
-> On Sun, 3 Oct 2004 12:59:38 -0400 (EDT), Vladimir Dergachev
-> <volodya@mindspring.com> wrote:
->> Jon, this is a common misconception - GATOS km module *does* provide a v4l
->> interface.
->>
->> What is different is that the device configuration (like setting the tuner
->> or encoding) is done by Xserver.
->>
->> All km does is check whether the card can supply a v4l stream and, if so,
->> it provides it. This is little different from a webcam driver, especially
->> if a webcam has its own on/off switch.
->>
->> The misconception arises from the fact that many v4l programs were only
->> made to work with bt848 cards - they would *not* work with webcams any
->> more than they would work with km.
->>
->>                                best
->>
->>                                  Vladimir Dergachev
->>
->>>
->>> --
->>> Jon Smirl
->>> jonsmirl@gmail.com
->>>
->>>
->>> -------------------------------------------------------
->>> This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
->>> Use IT products in your business? Tell us what you think of them. Give us
->>> Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
->>> http://productguide.itmanagersjournal.com/guidepromo.tmpl
->>> --
->>> _______________________________________________
->>> Dri-devel mailing list
->>> Dri-devel@lists.sourceforge.net
->>> https://lists.sourceforge.net/lists/listinfo/dri-devel
->>>
->>
->
->
->
-> -- 
-> Jon Smirl
-> jonsmirl@gmail.com
->
->
-> -------------------------------------------------------
-> This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
-> Use IT products in your business? Tell us what you think of them. Give us
-> Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
-> http://productguide.itmanagersjournal.com/guidepromo.tmpl
-> --
-> _______________________________________________
-> Dri-devel mailing list
-> Dri-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/dri-devel
->
+Cheers,
+  Trond
+

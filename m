@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265804AbTF3Jzt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 05:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbTF3Jzt
+	id S265834AbTF3J7d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 05:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265838AbTF3J7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 05:55:49 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:53777 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S265804AbTF3Jzt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 05:55:49 -0400
-Date: Mon, 30 Jun 2003 12:10:17 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel@vger.kernel.org
-Cc: stoffel@lucent.com, willy@w.ods.org, marcelo@conectiva.com.br,
-       kpfleming@cox.net, gibbs@scsiguy.com, green@namesys.com
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-Message-Id: <20030630121017.1ebc1cf4.skraw@ithnet.com>
-In-Reply-To: <20030626133415.4417e2e6.skraw@ithnet.com>
-References: <20030509150207.3ff9cd64.skraw@ithnet.com>
-	<41560000.1055306361@caspian.scsiguy.com>
-	<20030611222346.0a26729e.skraw@ithnet.com>
-	<16103.39056.810025.975744@gargle.gargle.HOWL>
-	<20030613114531.2b7235e7.skraw@ithnet.com>
-	<20030625191655.GA15970@alpha.home.local>
-	<20030625214221.2cd9613f.skraw@ithnet.com>
-	<16122.1630.134766.108510@gargle.gargle.HOWL>
-	<20030626133415.4417e2e6.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 30 Jun 2003 05:59:33 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:26343 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S265834AbTF3J6r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 05:58:47 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
+Date: Mon, 30 Jun 2003 20:16:21 +1000
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+References: <200306291457.40524.kernel@kolivas.org> <5.2.0.9.2.20030630094946.00cfb000@pop.gmx.net>
+In-Reply-To: <5.2.0.9.2.20030630094946.00cfb000@pop.gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306302016.21123.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Mon, 30 Jun 2003 17:57, Mike Galbraith wrote:
+> Greetings,
+>
+> At 03:35 PM 6/30/2003 +1000, Con Kolivas wrote:
+> >Summary:
+> >A patch to reduce audio skipping and X jerking under load.
+>
+> I took it out for a quick spin.  It kills thud graveyard dead.  That's the
+> good news, now for the bad ;-)  With a make -j5 running, kasteroids
+> stutters enough to be pretty annoying.  The patched kernel is making
+> booboos wrt cc1's priority often enough to nail kasteroids pretty
+> hard.  The mouse pointer also jerks around quite a bit,...
 
-it looks like the problem gets worse currently. This is the second day I see 4
-verification errors. This is with kernel 2.4.22-pre2 now.
+Consider it not optimised yet. The workings are still evolving but are now 
+close. It errs on the too-easy to get a bonus in the early ms after an app 
+has started at the moment.
 
-Regards,
-Stephan
+>
+> >It's looking seriously like I'm talking to myelf here, but just in case
+> > there are lurkers testing this patch, there's a big bug that made it
+> > think jiffy wraparound was occurring so interactive tasks weren't
+> > receiving the boost they deserved. Here is a patch with the fix in.
+> >
+> >How to use if you're still thinking of testing:
+> >Use with Hz 1000, and use the granularity patch I posted as well for
+> >smoothing
+> >X off.
+>
+> ...but I'm not using that, because I wanted to see the pure effects of this
+> patch.
+
+Good point. If it's going to be developed properly it should only include what 
+is likely to be used with it.
+
+Con
+

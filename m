@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267944AbTBVW4r>; Sat, 22 Feb 2003 17:56:47 -0500
+	id <S267962AbTBVXKX>; Sat, 22 Feb 2003 18:10:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267948AbTBVW4r>; Sat, 22 Feb 2003 17:56:47 -0500
-Received: from mx2.it.wmich.edu ([141.218.1.94]:39080 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id <S267944AbTBVW4p> convert rfc822-to-8bit;
-	Sat, 22 Feb 2003 17:56:45 -0500
-Reply-To: <camber@yakko.cs.wmich.edu>
-From: "Edward Killips" <camber@yakko.cs.wmich.edu>
-To: "Toplica Tanaskovic" <toptan@EUnet.yu>,
-       "Dave Jones" <davej@codemonkey.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: AGP backport from 2.5 to 2.4.21-pre4
-Date: Sat, 22 Feb 2003 18:07:46 -0500
-Message-ID: <JJEJKAPBMJAOOFPKFDFKKEKACEAA.camber@yakko.cs.wmich.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <200302220716.54218.toptan@EUnet.yu>
-Importance: Normal
+	id <S267963AbTBVXKX>; Sat, 22 Feb 2003 18:10:23 -0500
+Received: from bitmover.com ([192.132.92.2]:39340 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267962AbTBVXKW>;
+	Sat, 22 Feb 2003 18:10:22 -0500
+Date: Sat, 22 Feb 2003 15:20:29 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030222232029.GB31268@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0302221648010.2686-100000@coffee.psychology.mcmaster.ca> <1370000.1045955447@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1370000.1045955447@[10.10.2.4]>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> We would never try to propose such a change, and never have. 
+> Name a scalability change that's hurt the performance of UP by 5%.
+> There isn't one.
 
-The apeture is now set correctly. The ATI 4.2.0-2.5.1 drivers don't work but I 
-think that is a dri problem. Everything works fine with the vesa drivers using XFree86 4.2.99.
+This is *exactly* the reasoning that every OS marketing weenie has used
+for the last 20 years to justify their "feature" of the week.
 
-- -Edward Killips
+The road to slow bloated code is paved one cache miss at a time.  You
+may quote me on that.  In fact, print it out and put it above your
+monitor and look at it every day.  One cache miss at a time.  How much
+does one cache miss add to any benchmark?  .001%?  Less.  
 
-- -----Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Toplica
-Tanaskovic
-Sent: Saturday, February 22, 2003 1:21 AM
-To: Dave Jones
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
+But your pet features didn't slow the system down.  Nope, they just made
+the cache smaller, which you didn't notice because whatever artificial
+benchmark you ran didn't happen to need the whole cache.  
 
-
-Dana petak 21. februar 2003. 14:40 napisali ste:
-
->
-> Yes. via-kt400.c was unnecessary (well, it was useful as a standalone
-> whilst I was developing it) , which was why it was later merged into
-> via-agp.c in 2.5.60. There were also a bunch of other fixes merged
-> there, so if you based your backport on an earlier version, I suggest
-> you grab those changes.
->
-	Done, also fixed warnings from previous patch, and what is most important 
-fixed page locking, no more segmantation faults when unloading drm module.
-
-All test for previous patch passed for this one too, except i've now tested it 
-with GA-7VRX (KT333) too.
-
-BTW code is backported from 2.5.62.
-
-- -- 
-Pozdrav,
-Tanaskovic Toplica
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: PGP 8.0
-
-iQA/AwUBPlgCwXg7wzlNS3haEQIa+wCgghCr47gdTARzeQ60vLYypWZQPuMAn2S0
-Wndxm6BEpA0t8o23iL6SaLz8
-=sQHD
------END PGP SIGNATURE-----
-
+You need to understand that system resources belong to the user.  Not the
+kernel.  The goal is to have all of the kernel code running under any 
+load be less than 1% of the CPU.  Your 5% number up there would pretty 
+much double the amount of time we spend in the kernel for most workloads.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

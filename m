@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131520AbQKQKWM>; Fri, 17 Nov 2000 05:22:12 -0500
+	id <S129183AbQKQK0D>; Fri, 17 Nov 2000 05:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131487AbQKQKWC>; Fri, 17 Nov 2000 05:22:02 -0500
-Received: from [213.8.185.152] ([213.8.185.152]:48400 "EHLO callisto.yi.org")
-	by vger.kernel.org with ESMTP id <S131520AbQKQKVw>;
-	Fri, 17 Nov 2000 05:21:52 -0500
-Date: Fri, 17 Nov 2000 11:51:20 +0200 (IST)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: Jacob Luna Lundberg <jacob@velius.chaos2.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH (2.4)] atomic use count for proc_dir_entry
-In-Reply-To: <Pine.LNX.4.21.0011170026130.10109-100000@velius.chaos2.org>
-Message-ID: <Pine.LNX.4.21.0011171145190.28801-100000@callisto.yi.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131487AbQKQKZy>; Fri, 17 Nov 2000 05:25:54 -0500
+Received: from [213.128.193.82] ([213.128.193.82]:2827 "EHLO
+	mail.ixcelerator.com") by vger.kernel.org with ESMTP
+	id <S129183AbQKQKZj>; Fri, 17 Nov 2000 05:25:39 -0500
+Date: Fri, 17 Nov 2000 12:54:41 +0300
+From: Oleg Drokin <green@ixcelerator.com>
+To: jerdfelt@valinux.com
+Cc: linux-kernel@vger.kernel.org
+Subject: hardcoded HZ in hub.c
+Message-ID: <20001117125441.A28208@iXcelerator.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2000, Jacob Luna Lundberg wrote:
+Hello!
 
-> On Fri, 17 Nov 2000, Dan Aloni wrote:
-> > If you are right, I guess put_files_struct() of kernel/exit.c would
-> > have cleaned files_struct everytime someones called it. 
-> > Everywhere in the kernel, objects are freed when
-> > atomic_dec_and_test() returns true.
-> 
-> Indeed, after studying the asm in question I think I see how it ticks.
-> What is the reasoning behind reversing the result of the test instead of
-> returning the new value of the counter?
+    hub.c in 2.4.0-test10 and above contains hardcoded HZ value,
+    which is wrong. Here is the patch:
 
-Well, at 98% of the cases the code is in position where it 'ought to do
-something' when the counter is 0, and do nothing when it's not, so instead
-of not()'ing the counter value in the condition check, we just return the
-value not()'ed already.
 
--- 
-Dan Aloni 
-dax@karrde.org
+--- drivers/usb/hub.c.orig	Fri Nov 17 12:51:34 2000
++++ drivers/usb/hub.c	Fri Nov 17 12:51:59 2000
+@@ -813,7 +813,7 @@
+ 	ret = kill_proc(khubd_pid, SIGTERM, 1);
+ 	if (!ret) {
+ 		/* Wait 10 seconds */
+-		int count = 10 * 100;
++		int count = 10 * HZ;
+ 
+ 		while (khubd_running && --count) {
+ 			current->state = TASK_INTERRUPTIBLE;
 
+Bye,
+    Oleg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

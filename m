@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290824AbSBLIRS>; Tue, 12 Feb 2002 03:17:18 -0500
+	id <S285352AbSBLIV7>; Tue, 12 Feb 2002 03:21:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290828AbSBLIRI>; Tue, 12 Feb 2002 03:17:08 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:58505 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S290824AbSBLIRC>;
-	Tue, 12 Feb 2002 03:17:02 -0500
-Date: Tue, 12 Feb 2002 09:16:29 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: Dave Jones <davej@suse.de>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] accel wrapper again
-In-Reply-To: <Pine.LNX.4.10.10202111605310.5200-100000@www.transvirtual.com>
-Message-ID: <Pine.GSO.4.21.0202120913150.12840-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290829AbSBLIVs>; Tue, 12 Feb 2002 03:21:48 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:34315 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S285352AbSBLIVh>;
+	Tue, 12 Feb 2002 03:21:37 -0500
+Date: Tue, 12 Feb 2002 09:21:09 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-pre9-ac1
+Message-ID: <20020212092109.Y729@suse.de>
+In-Reply-To: <20020212001547.GA22586@codepoet.org> <E16aQu1-00008C-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16aQu1-00008C-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Feb 2002, James Simmons wrote:
-> diff -urN -X /home/jsimmons/dontdiff linux-2.5.3-dj5/drivers/video/fbcon-accel.c linux/drivers/video/fbcon-accel.c
-> --- linux-2.5.3-dj5/drivers/video/fbcon-accel.c	Wed Dec 31 16:00:00 1969
-> +++ linux/drivers/video/fbcon-accel.c	Mon Feb 11 16:52:44 2002
+On Tue, Feb 12 2002, Alan Cox wrote:
+> > I notice that in linux/drivers/scsi/scsi_merge.c you seem to
+> > be reverting the MO drive clustering fix from Jens:
+> >     http://www.uwsg.indiana.edu/hypermail/linux/kernel/0202.0/1321.html
+> > 
+> > Was this intentional?  If so, why?
+> 
+> I want to find out why it was done first and then test it. Leaving it out
+> will ensure it bugs me until I test it
 
-  [...]
+If you leave it out, you surely want to make sure that the other request
+init and re-init paths agree on the clustering for MO devices. Because
+they don't.
 
-> +void fbcon_accel_clear(struct vc_data *vc, struct display *p, int sy, int sx,
-> +		       int height, int width)
-> +{
-> +	struct fb_info *info = p->fb_info;
-> +	struct fb_fillrect region;
-> +
-> +	region.color = attr_bgcol_ec(p,vc);
-> +	region.dx = sx * fontwidth(p);
-> +	region.dy = sy * fontheight(p);
-> +	region.width = width * fontwidth(p);
-> +	region.height = height * fontheight(p);
-> +	region.rop = ROP_COPY;
-> +
-> +	info->fbops->fb_fillrect(info, &region);
+As far as I'm concerned, removing the MO conditional wrt clustering is
+the right fix.
 
-So now fb_fillrect.color is always the index into the console palette?
-Is there any way to specify a color that's not in the console palette? This is
-very useful in {true,direct}color modes.
-
-How does imageblit work for the logo now, i.e. does an image contain console
-palette indices too?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Jens Axboe
 

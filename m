@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129889AbRBFSRH>; Tue, 6 Feb 2001 13:17:07 -0500
+	id <S129838AbRBFSPR>; Tue, 6 Feb 2001 13:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129830AbRBFSQ5>; Tue, 6 Feb 2001 13:16:57 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:40464 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129636AbRBFSQo>; Tue, 6 Feb 2001 13:16:44 -0500
-Date: Tue, 6 Feb 2001 13:16:44 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: J Brook <jbk@postmark.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Matrox G450 problems with 2.4.0 and xfree
-In-Reply-To: <142905C63D47@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.33.0102061313390.6540-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S129636AbRBFSPH>; Tue, 6 Feb 2001 13:15:07 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:28175 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129838AbRBFSOw>; Tue, 6 Feb 2001 13:14:52 -0500
+Date: Tue, 6 Feb 2001 10:14:21 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ben LaHaise <bcrl@redhat.com>
+cc: "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
+        Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.30.0102061225330.15204-100000@today.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.10.10102060959520.1257-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Petr Vandrovec wrote:
-
->>  I don't have Windows installed on my machine, but I find that if I
->> cold boot to 2.2 (RH7) first and start up X (4.0.2 with Matrox driver
->> 1.00.04 compiled in), I am then able to "shutdown -r now" and warm
->
->Yes, they use same secret code... At least I think...
-
-Are you refering to Windows or Red Hat Linux?  I can assure you
-that Red Hat Linux's XFree package doesn't have any secret code
-in it with 110% certainty.  Nor will it have in the future.
-
-Binary only modules are not acceptable in Red Hat Linux and I
-will not include them in XFree86 unless forced at gunpoint.
 
 
+On Tue, 6 Feb 2001, Ben LaHaise wrote:
+> 
+> On Tue, 6 Feb 2001, Stephen C. Tweedie wrote:
+> 
+> > The whole point of the post was that it is merging, not splitting,
+> > which is troublesome.  How are you going to merge requests without
+> > having chains of scatter-gather entities each with their own
+> > completion callbacks?
+> 
+> Let me just emphasize what Stephen is pointing out: if requests are
+> properly merged at higher layers, then merging is neither required nor
+> desired.
 
+I will claim that you CANNOT merge at higher levels and get good
+performance.
 
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-"If it isn't source, it isn't software."  -- NASA
+Sure, you can do read-ahead, and try to get big merges that way at a high
+level. Good for you.
+
+But you'll have a bitch of a time trying to merge multiple
+threads/processes reading from the same area on disk at roughly the same
+time. Your higher levels won't even _know_ that there is merging to be
+done until the IO requests hit the wall in waiting for the disk.
+
+Qutie frankly, this whole discussion sounds worthless. We have solved this
+problem already: it's called a "buffer head". Deceptively simple at higher
+levels, and lower levels can easily merge them together into chains and do
+fancy scatter-gather structures of them that can be dynamically extended
+at any time.
+
+The buffer heads together with "struct request" do a hell of a lot more
+than just a simple scatter-gather: it's able to create ordered lists of
+independent sg-events, together with full call-backs etc. They are
+low-cost, fairly efficient, and they have worked beautifully for years. 
+
+The fact that kiobufs can't be made to do the same thing is somebody elses
+problem. I _know_ that merging has to happen late, and if others are
+hitting their heads against this issue until they turn silly, then that's
+their problem. You'll eventually learn, or you'll hit your heads into a
+pulp. 
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261304AbSJDFTi>; Fri, 4 Oct 2002 01:19:38 -0400
+	id <S261457AbSJDFV2>; Fri, 4 Oct 2002 01:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261399AbSJDFTi>; Fri, 4 Oct 2002 01:19:38 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:10510 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261304AbSJDFTh>;
-	Fri, 4 Oct 2002 01:19:37 -0400
-Date: Thu, 3 Oct 2002 22:22:18 -0700
-From: Greg KH <greg@kroah.com>
-To: John Tyner <jtyner@cs.ucr.edu>
-Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org,
-       kraxel@bytesex.org
-Subject: Re: Vicam/3com homeconnect usb camera driver
-Message-ID: <20021004052218.GA4105@kroah.com>
-References: <Pine.LNX.4.30.0210032047510.15999-400000@hill.cs.ucr.edu> <20021004045051.GB3556@kroah.com> <000401c26b63$9ac9dc90$0a00a8c0@refresco>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000401c26b63$9ac9dc90$0a00a8c0@refresco>
-User-Agent: Mutt/1.4i
+	id <S261478AbSJDFV2>; Fri, 4 Oct 2002 01:21:28 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:43907 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261457AbSJDFV1>;
+	Fri, 4 Oct 2002 01:21:27 -0400
+Date: Thu, 3 Oct 2002 22:26:21 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Scott Bronson <bronson@rinspin.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: FAT/VFAT and the sync flag
+In-Reply-To: <1033707085.6359.113.camel@emma>
+Message-ID: <Pine.LNX.4.33L2.0210032215020.18964-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 10:05:05PM -0700, John Tyner wrote:
-> > If you send me a patch for 2.5, I'd be glad to add it to the tree.
-> > Right now, I'm not accepting USB drivers that don't show up in 2.5
-> > first.
-> 
-> I'll get to work.
+On 3 Oct 2002, Scott Bronson wrote:
 
-Great!
+| Can anyone tell me if the VFAT filesystem actually recognizes the sync
+| flag?  Early in 2.4, it appeared that it was ignoring it.
+|
+| However, now that a lot of USB devices are VFAT, this gets pretty
+| important.
+| -
 
-> > Other than that, the code looks nice.  Did you look at how the usb video
-> > drivers do their memory management in 2.4.20-pre like I mentioned
-> > before?
-> 
-> I did. The ov511 as well as the bttv and cpia drivers still use the
-> rvmalloc/rvfree methods. They are minor'ly updated from the version I was
-> using, and I've already incorporated those changes to the driver submitted
-> in my previous post.
+USB devices (mostly) don't care what filesystem is on them.
+I have used ext2 on USB floppies and USB Zip.
+You should be able to put any supported filesystem on them.
+The only case I know of that matters is MP3 players, which
+do expect/require a VFAT filesystem (it's usually all they know),
+so media that is used in MP3 players should be VFAT probably. :)
 
-Ah, good, I just wanted to make sure, as I know there were some changes
-there.
+Now, for you first question, I hope that Ogawa or Al or Christoph
+et al can answer it, but my guess is, No, VFAT doesn't
+recognize the sync flag.  I base that on grepping for
+s_sync and for MS_SYNCHRONOUS in linux/fs/{fat,vfat,msdos}
+and finding s_sync a few times, but not finding MS_SYNCHRONOUS
+at all.
 
-thanks,
+'man mount' says that the sync flag is only honored by
+ext2, ext3, and ufs.
+I see it checked/used in ext2, ufs, and ntfs.
 
-greg k-h
+-- 
+~Randy
+

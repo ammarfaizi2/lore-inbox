@@ -1,56 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbUKOLoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbUKOLzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbUKOLoj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 06:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbUKOLoj
+	id S261572AbUKOLzH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 06:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbUKOLzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 06:44:39 -0500
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:39015 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261570AbUKOLoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 06:44:37 -0500
-Message-ID: <419896A1.50605@yahoo.com.au>
-Date: Mon, 15 Nov 2004 22:44:33 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Mon, 15 Nov 2004 06:55:07 -0500
+Received: from isma.kharkov.ua ([217.144.73.247]:19910 "EHLO
+	www.isma.kharkov.ua") by vger.kernel.org with ESMTP id S261572AbUKOLyv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 06:54:51 -0500
+Message-ID: <41989904.7090209@isma.kharkov.ua>
+Date: Mon, 15 Nov 2004 13:54:44 +0200
+From: zergio <zergio@isma.kharkov.ua>
+Organization: =?UTF-8?B?0JjQodCc0JA=?=
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ru-RU; rv:1.7.4) Gecko/20040926
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@osdl.org>,
-       ppc64-dev <linuxppc64-dev@ozlabs.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PPC64 iSeries: don't share request queues in viocd
-References: <20041115165357.2e738704.sfr@canb.auug.org.au> <20041115113410.GA14471@infradead.org>
-In-Reply-To: <20041115113410.GA14471@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.27 suddenly hangs
+References: <419886CE.2030304@isma.kharkov.ua> <41988EEC.3040708@corscience.de>
+In-Reply-To: <41988EEC.3040708@corscience.de>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, Nov 15, 2004 at 04:53:57PM +1100, Stephen Rothwell wrote:
-> 
->>Hi Andrew,
+Simon Braunschmidt wrote:
+
+> I have a similar problem at the moment, i have setup my box with 
+> gentoo and now i get hardlocks from time to time (time < 1.5 days), 
+> happens with and without x, kernel 2.4.27 untainted, with apic on and 
+> off, acpi on and off, apm on and off...
+>
+> @zergio: Can you tell me if it only happened with 2.4.27?
+
+No, it had happened with 2.4.20 kernel.
+
+>
+> The system is really stuck when it crashes. My wireless keyboard has a 
+> led to indicate traffic, an when system hangs, not even the led would 
+> blink, it just stays in either on or off state (its normaly off). No 
+> disk activity, mouse is locked, display remains unchanged (x.org nv or 
+> plain (non-fbdev) console). Havent tried so far to reach the box over 
+> network, but is suspect it will not work.
+>
+> @developers:
+> Maybe thats a hint, could it be that a broken keyboard induces such 
+> behaviour?
+>
+> Im going to change kernel to 2.4.24 (had uptimes > 14 days with it) 
+> and see if it helps.
+>
+> As far as i can see, nothing was written to the logs, no messages, it 
+> just peacefully dies...
+
+In my case it has happened with and without keyboard and with keyboard 
+connected to D-Link KVM Switch
+
+>
+> zergio schrieb:
+>
+>> Hello, all!
+>> I‘m not sure that the below problem is kernel related, however, I 
+>> think, this mailing list is the best place to start. I've got 2x1.8 
+>> Xeon on Intel SE7500CW2 motherboard with Intel SCSI RAID (GDT 
+>> driver). The system powered by Red Hat Linux 7.3 with custom kernel 
+>> version 2.4.27.
+>> Occasionally, the system just hangs, without giving any error messages 
+>
+> how long is occasionaly?
+
+There is no strict period of time. Some time server up for couple of 
+month. Recently the issue occured twice within 7 days.
+It've happened 7 time during last half a year or so.
+
+>> to syslog or any panic-like messages to the screen. No response to 
+>> ping. Usually it happens on weekends in early hours, but not at 
+>> particular time and day, when users’ activity is minimal. Couple of 
+>> times the last few messages before, the hang had strange timestamps. 
+>> It seems like the system time entered a TIME LOOP within a period of 
+>> 1 second.
+>> Nov 6 05:37:31 service dhcpd: Message...
+>> Nov 6 05:37:32 service named: Message...
+>> Nov 6 05:37:31 service named: Message...
+>> Almost all the time last messages came from different services, 
+>> except three times, when mgetty was the last. I'd updated mgetty, 
+>> pppd, kernel (from 2.4.20), BIOS, dhcpd etc., however, the problem 
+>> remains.
+>> Can anyone tell me, how I can detect, what application or hardware 
+>> cause such a problem.
+>> Any ideas would be appreciated.
+>> Thank you in advance
 >>
->>This patch fixes the virtual cdrom driver to not share a single request
->>queue.  Sharing the queue causes an oops if you remove the module and more
->>than one cdrom exists.
-> 
-> 
-> Maybe you should fix that underlying bug?  Queues are supposed to be
-> shareable.
-> 
+>> These are services being run on the server:
+>> gpm
+>> named
+>> iptables
+>> crond
+>> ldap
+>> smb
+>> xinetd (swat amanda)
+>> autofs
+>> nfs
+>> qmail
+>> sqwebmail
+>> dhcpd
+>> ups
+>> sshd
+>> firebird
+>> ntpd
+>> httpd
+>> arpwatch
+>> drwebd
+>> mgetty
+>> pppd
+>> postgresql
+>>
+>>
+>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>
+>
 
-I think shared queues are actually quite fundamentally broken at the
-moment (as pointed out to me by Al). It stems from the refcounting /
-conceptual relationship between a gendisk and a queue (I think - been
-a while since I looked at the code).
-
-I had something which just about fixed it up except that I couldn't
-work out an appropriate place and name for the "queue" in the sysfs
-hierarcy (IIRC I just had it as a sequentially increasing number, in
-/sys/block/).
-
-It is a relationship that I don't think sysfs can capture very well:
-queues are shared between multiple other objects, but they have no
-meaning outside the context of one of these objects.

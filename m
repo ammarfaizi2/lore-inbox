@@ -1,71 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbTKNJqe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 04:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbTKNJqe
+	id S262291AbTKNJue (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 04:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTKNJue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 04:46:34 -0500
-Received: from D715c.d.pppool.de ([80.184.113.92]:45197 "EHLO
-	karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S262303AbTKNJqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 04:46:32 -0500
-Subject: Re: kernel.bkbits.net off the air
-From: Daniel Egger <degger@fhm.edu>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031113162712.GA2462@work.bitmover.com>
-References: <fa.eto0cvm.1v20528@ifi.uio.no>
-	 <200311112021.34631.andrew@walrond.org>
-	 <20031111235215.GA22314@work.bitmover.com>
-	 <200311131010.27315.andrew@walrond.org>
-	 <20031113162712.GA2462@work.bitmover.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DnS3g1cXs/GslMEcmyur"
-Message-Id: <1068766365.15965.228.camel@sonja>
+	Fri, 14 Nov 2003 04:50:34 -0500
+Received: from eva.fit.vutbr.cz ([147.229.10.14]:25348 "EHLO eva.fit.vutbr.cz")
+	by vger.kernel.org with ESMTP id S262291AbTKNJub (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 04:50:31 -0500
+Date: Fri, 14 Nov 2003 10:50:28 +0100
+From: David Jez <dave.jez@seznam.cz>
+To: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] sys32_module_warning cleanup from 2.6.0-test9
+Message-ID: <20031114095027.GA42967@stud.fit.vutbr.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 14 Nov 2003 00:32:45 +0100
+Content-Type: multipart/mixed; boundary="FCuugMFkClbJLl1L"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-DnS3g1cXs/GslMEcmyur
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Am Don, den 13.11.2003 schrieb Larry McVoy um 17:27:
+  Hi, i send you trivial patch for 2.6.0-test9 kernel which removes
+obsolete warning. It is 2.6 kernel, that use module-init-tools so IMHO
+this warning is not necessary.
 
-> I suppose it sounds like we don't want to give out more free engineering
-> but let's put things into perspective.  The CVS server has about 6 users.
+  Regards,
+-- 
+-------------------------------------------------------
+  David "Dave" Jez                Brno, CZ, Europe
+ E-mail: dave.jez@seznam.cz
+PGP key: finger xjezda00@eva.fit.vutbr.cz
+---------=[ ~EOF ]=------------------------------------
 
-I really do believe you about the amount of users. That's probably
-because CVS sucks rocks and everyone complaining about it doesn't make
-it better. Shut it down and we'll all have a merrier live.
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.6.0-test9-amd64.cleanup.diff"
 
-What really makes me mad though is that there's no permanent way to
-retrieve and update current kernels at the moment for those who don't
-want or cannot use BK. I'm waiting for quite some period to get SVN back
-online so I can continue the merging work I've been trying to do. And
-yes, I'm one of those fools who are stuck behind a huge 64k
-pay-big-bucks-for-the-minute and really have troubles changing back and
-forth between several mechanisms to get current versions
-(ftp/rsync/CVS/SVN), especially since Linus obviously doesn't release
-patches as frequently anymore since he uses BK. :(
+diff -urN linux-2.6.0-test9.orig/arch/x86_64/ia32/ia32entry.S linux-2.6.0-test9/arch/x86_64/ia32/ia32entry.S
+--- linux-2.6.0-test9.orig/arch/x86_64/ia32/ia32entry.S	2003-10-25 18:43:32.000000000 +0000
++++ linux-2.6.0-test9/arch/x86_64/ia32/ia32entry.S	2003-11-12 22:44:16.000000000 +0000
+@@ -330,10 +330,10 @@
+ 	.quad sys32_adjtimex
+ 	.quad sys32_mprotect		/* 125 */
+ 	.quad compat_sys_sigprocmask
+-	.quad sys32_module_warning	/* create_module */
++	.quad ni_syscall		/* create_module */
+ 	.quad sys_init_module
+ 	.quad sys_delete_module
+-	.quad sys32_module_warning	/* 130  get_kernel_syms */
++	.quad ni_syscall		/* 130  get_kernel_syms */
+ 	.quad ni_syscall	/* quotactl */ 
+ 	.quad sys_getpgid
+ 	.quad sys_fchdir
+diff -urN linux-2.6.0-test9.orig/arch/x86_64/ia32/sys_ia32.c linux-2.6.0-test9/arch/x86_64/ia32/sys_ia32.c
+--- linux-2.6.0-test9.orig/arch/x86_64/ia32/sys_ia32.c	2003-10-25 18:43:30.000000000 +0000
++++ linux-2.6.0-test9/arch/x86_64/ia32/sys_ia32.c	2003-11-12 22:44:31.000000000 +0000
+@@ -1817,13 +1817,6 @@
+ }
+ #endif
+ 
+-long sys32_module_warning(void)
+-{ 
+-		printk(KERN_INFO "%s: 32bit 2.4.x modutils not supported on 64bit kernel\n",
+-		       current->comm);
+-	return -ENOSYS ;
+-} 
+-
+ extern long sys_io_setup(unsigned nr_reqs, aio_context_t *ctx);
+ 
+ long sys32_io_setup(unsigned nr_reqs, u32 *ctx32p)
 
---=20
-Servus,
-       Daniel
-
---=-DnS3g1cXs/GslMEcmyur
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/tBScchlzsq9KoIYRAupxAKCF5uyxvWKnujr4g5h8bDm3df11OQCgtomW
-/EPLGrzsQeR+s4ZVnflBd4g=
-=XLoJ
------END PGP SIGNATURE-----
-
---=-DnS3g1cXs/GslMEcmyur--
-
+--FCuugMFkClbJLl1L--

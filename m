@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274881AbTHFHES (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 03:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274884AbTHFHES
+	id S274884AbTHFHGj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 03:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274885AbTHFHGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 03:04:18 -0400
-Received: from sngrel7.hp.com ([192.6.86.111]:31729 "EHLO sngrel7.hp.com")
-	by vger.kernel.org with ESMTP id S274881AbTHFHER (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 03:04:17 -0400
-Date: Wed, 6 Aug 2003 17:04:06 +1000
-From: Martin Pool <mbp@samba.org>
-To: linux-kernel@vger.kernel.org, zippel@linux-m68k.org,
-       Alain.Knaff@poboxes.com
-Subject: [patch] [Kconfig] disable CONFIG_FD on ia64, which has no floppy drive
-Message-ID: <20030806070356.GA11405@vexed.ozlabs.hp.com>
+	Wed, 6 Aug 2003 03:06:39 -0400
+Received: from adsl-216-102-91-59.dsl.snfc21.pacbell.net ([216.102.91.59]:6917
+	"EHLO nasledov.com") by vger.kernel.org with ESMTP id S274884AbTHFHGi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 03:06:38 -0400
+Date: Wed, 6 Aug 2003 00:06:25 -0700
+To: OSDL <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5/2.6 PCMCIA Issues
+Message-ID: <20030806070625.GA5602@nasledov.com>
+References: <20030804232204.GA21763@nasledov.com> <20030805144453.A8914@flint.arm.linux.org.uk> <20030806045627.GA1625@nasledov.com> <200308060559.h765xhI05860@mail.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-GPG: 1024D/A0B3E88B: AFAC578F 1841EE6B FD95E143 3C63CA3F A0B3E88B
+In-Reply-To: <200308060559.h765xhI05860@mail.osdl.org>
 User-Agent: Mutt/1.5.4i
+From: Misha Nasledov <misha@nasledov.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As of linux-2.6.0-test2-ia64-030729, there is no asm-ia64/floppy.h,
-and so the fd driver won't work.  Other architectures have various
-legacy floppy controllers, but ia64 does not have one and is never
-likely to.
+Hi,
 
-David Mosberger says:
+On Tue, Aug 05, 2003 at 10:59:43PM -0700, OSDL wrote:
+> You should try with just CONFIG_YENTA - the 82365 stuff is for the old
+> 16-bit only controllers.
 
-> The Merced machines came with SuperDrives (or whatever they
-> were called), but those attached to the IDE controller, not the floppy
-> controller.  The classic (AT-style) floppy controller is an ISA device
-> and since ia64 doesn't support ISA, such controllers never were
-> supported.
-
-There is no reason to ever have CONFIG_FD on ia64, but if it does get
-turned on then the build will fail.  Therefore, I suggest this patch
-to keep it off:
-
---- linux-2.6.0test2-ia64/drivers/block/Kconfig.~1~     2003-07-29 12:07:02.000000000 +1000
-+++ linux-2.6.0test2-ia64/drivers/block/Kconfig 2003-08-06 15:55:16.000000000 +1000
-@@ -6,7 +6,7 @@ menu "Block devices"
-
- config BLK_DEV_FD
-        tristate "Normal floppy disk support"
--       depends on !X86_PC9800
-+       depends on !X86_PC9800 && !IA64
-        ---help---
-          If you want to use the floppy disk drive(s) of your PC under Linux,
-          say Y. Information about this driver, especially important for IBM
-
+While playing around with 2.6.0-test2 on my laptop, I tried to see if
+APM support still worked on it. When I tried apm --suspend, the screen
+would blank, but it would unblank as soon as I hit a key and I would
+have the syslog messages "kernel: Suspending devices" and "kernel:
+Devices Resumed." I found that if I ejected my card and made sure the
+drivers were properly unloaded, apm --suspend once again suspended my
+laptop. Under 2.4, the kernel would properly suspend while cards were
+loaded, although I would sometimes have issues with waking the laptop
+up if the state it was woken up in did not match the state it was put
+to sleep in.
 -- 
-Martin 
+Misha Nasledov
+misha@nasledov.com
+http://nasledov.com/misha/

@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262083AbSJVDf6>; Mon, 21 Oct 2002 23:35:58 -0400
+	id <S262036AbSJVDcc>; Mon, 21 Oct 2002 23:32:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262089AbSJVDf6>; Mon, 21 Oct 2002 23:35:58 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:53741 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262083AbSJVDf4>;
-	Mon, 21 Oct 2002 23:35:56 -0400
-Subject: Re: [PATCH] 2.5.44: lkcd (7/9): dump configuration
-From: "Suparna Bhattacharya" <suparna@sparklet.in.ibm.com>
-Date: Tue, 22 Oct 2002 14:18:14 +0530
-Message-Id: <pan.2002.10.22.14.18.14.702192.1573@sparklet.in.ibm.com>
-References: <200210211016.g9LAG1V21200@nakedeye.aparity.com> <20021021165240.A14993@sgi.com>
-X-Comment-To: "Christoph Hellwig" <hch@sgi.com>
-Pan-Reverse-Path: suparna@sparklet.in.ibm.com
-Pan-Mail-To: "Christoph Hellwig" <hch@sgi.com>
-Pan-Server: ibm-ltc
-Organization: IBM
-Pan-Attribution: On Mon, 21 Oct 2002 19:13:16 +0530, Christoph Hellwig wrote:
-To: undisclosed-recipients:;
+	id <S262080AbSJVDcc>; Mon, 21 Oct 2002 23:32:32 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:38331 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S262036AbSJVDcb>; Mon, 21 Oct 2002 23:32:31 -0400
+Date: Mon, 21 Oct 2002 23:38:34 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper outrage, old and new
+Message-ID: <20021022033834.GA24991@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0210201648510.13602-100000@nakedeye.aparity.com> <E183pTR-0000Ps-00@fencepost.gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E183pTR-0000Ps-00@fencepost.gnu.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Oct 2002 19:13:16 +0530, Christoph Hellwig wrote:
+On Mon, Oct 21, 2002 at 11:12:53PM -0400, Richard Stallman wrote:
+>     Nobody's evil or stupid or naive just because they make a certain
+>     licensing choice.
+> 
+> It is a stretch to conclude anything about the general attitude or
+> character of a person from one action, so I would not say the people
+> who distribute non-free software are "evil people" in a general sense.
+> I will say they have done one thing that is evil: distributing a
+> non-free program.
+> 
+> Non-free software licenses are designed to divide and dominate the
+> users, denying them the basic freedoms for software users.  That's
+> what makes them non-free, and that is what makes it wrong.  Non-free
+> software is a social problem, one that we need to solve if computer
+> users are to have freedom.
+> 
+> There are many different ways people make money; some are ethical
+> while others involve mistreating others.  If we accept "making a
+> living" as a valid excuse to mistreat people, we will be mistreated
+> constantly.  There comes a time when we have to say that we are not
+> impressed by the argument that "We need to do this to people in order
+> to make a living."
 
->> +tristate 'Crash dump support' CONFIG_CRASH_DUMP
-> 
-> I"m very unhappy with this beeing a tristate.  We have the following
-> things depend on it either builtin or modular:
-> 
-> (1) build Kerntypes
-> (2) do not send smp_stop_cpu
-> 
-> and the following goes into dump.o:
-> 
-> (3) dump_base.c
-> (4) dump_<arch>.c
-> 
-> Of those (2) should be replaced by a dump_in_progress check so that we
-> poweroff even with dumping enabled, but not in progress.
+It's a simple concept. I produced it, it's mine until I say otherwise.
+You grant other laborers the right to profit from their labors, do you 
+not? Setting standards the way you have is arbitrary and high-handed.
+Calling people (or their actions) "evil" because they prefer to code 
+for a living rather than dig ditches or answer telephones is rather 
+arrogant and self-righteous. My charging for software *I* write is not
+immoral or unethical - it is what I do and it is perfectly legitimate.
+It is NOT the same as claiming a criminal/immoral/unethical act - you
+still want me to produce software - you just want me to do it for free.
+And no, I am not doing anything to people - they are free to not use my
+software. The majority of the world gets along just fine without it.
 
-The problem here is that dump_in_progress is set by the dump 
-execution code which is invoked a little after this, and only
-stays enabled as long as that function executes. Maybe what
-you meant here is not dump_in_progress but something more like
-dump_okay (which is currently a static in dump drivers code), 
-or a check if the dump function is set, indicating that 
-things are setup so that a dump would be taken ?
+-- 
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker 
 
-Regards
-Suparna
-
-> 
-> The question is whether we should make (1) unconditional either or make
-> it a separate bool (CONFIG_KERNELTYPES) so that that dump.o could be
-> load into any such kernel.  But imho CONFIG_CRASH_DUMP should just
-> become a bool - this way dump_<arch>.c could be moved into
-> arch/<arch>/kernel and a lot of exports could be remove.
-> 
-> It's not much code either and the actual dump drivers stay modular.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org More majordomo
-> info at  http://vger.kernel.org/majordomo-info.html Please read the FAQ
-> at  http://www.tux.org/lkml/

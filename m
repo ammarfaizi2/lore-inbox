@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266746AbSKHDau>; Thu, 7 Nov 2002 22:30:50 -0500
+	id <S261582AbSKHDrg>; Thu, 7 Nov 2002 22:47:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266748AbSKHDau>; Thu, 7 Nov 2002 22:30:50 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:38652 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S266746AbSKHDat>; Thu, 7 Nov 2002 22:30:49 -0500
-Message-ID: <009e01c286d8$2a44e010$77d40a0a@amr.corp.intel.com>
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Is there a way to interrupt MMIO with kprobes/ltt/etc...
-Date: Thu, 7 Nov 2002 19:37:29 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S261583AbSKHDrg>; Thu, 7 Nov 2002 22:47:36 -0500
+Received: from holomorphy.com ([66.224.33.161]:55463 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261582AbSKHDrg>;
+	Thu, 7 Nov 2002 22:47:36 -0500
+Date: Thu, 7 Nov 2002 19:51:02 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+Cc: linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au, dhowells@redhat.com, mingo@elte.hu,
+       torvalds@transmeta.com
+Subject: Re: [Linux-ia64] reader-writer livelock problem
+Message-ID: <20021108035102.GA22031@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
+	linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org,
+	rusty@rustcorp.com.au, dhowells@redhat.com, mingo@elte.hu,
+	torvalds@transmeta.com
+References: <3FAD1088D4556046AEC48D80B47B478C0101F4E7@usslc-exch-4.slc.unisys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C0101F4E7@usslc-exch-4.slc.unisys.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been looking into the possible ways a fault injection tool could be
-implemented on the available tools/hooks in the 2.5 kernel.  I can see how
-kprobes would help by allowing me to setup handlers when a specific address
-is executed, but what about when a specific memory mapped IO address is
-touched or looked at?
+On Thu, Nov 07, 2002 at 09:23:21PM -0600, Van Maren, Kevin wrote:
+> This is a follow-up to the email thread I started on July 29th.
+> See http://www.cs.helsinki.fi/linux/linux-kernel/2002-30/0446.html
+> and the following discussion on LKML.
+> I'll summarize the problem again to refresh the issue.
+> Again, this is a correctness issue, not a performance one.
+> I am seeing a problem on medium-sized SMPs where user programs are
+> able to livelock the Linux kernel to such an extent that the
+> system appears dead.  With the help of some hardware debugging
+> tools, I was able to determine that the problem is caused by
+> the reader-preference reader/writer locks in the Linux kernel.
 
-I know there has been a lot of activity on kprobes, LTT, and others (isn't
-there something else?).  Do any of these patches allow a handler to be
-called just before some MMIO is accessed?  Messing with architecture
-specific debug registers seems problematic since it makes the solution
-architecture specific and the number of watch points is pretty limited.
+This is a very serious problem which I have also encountered. My
+strategy was to make the readers on the tasklist_lock more well-behaved,
+and with Ingo's help and co-authorship those changes were cleaned up,
+tuned to provide performance benefits for smaller systems, bugfixed,
+and incorporated in the kernel. They have at least provided 16x systems
+in my lab with much more stability. The issues are still triggerable on
+32x systems in my lab, to which I do not have regular access.
 
-    -rustyl
+Rusty, Dave, Ingo, and Linus cc:'d for additional commentary/help.
 
+Bill

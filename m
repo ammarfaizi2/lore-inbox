@@ -1,30 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276755AbRJBWkY>; Tue, 2 Oct 2001 18:40:24 -0400
+	id <S276760AbRJBWoy>; Tue, 2 Oct 2001 18:44:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276754AbRJBWkO>; Tue, 2 Oct 2001 18:40:14 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63500 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276755AbRJBWkJ>; Tue, 2 Oct 2001 18:40:09 -0400
-Subject: Re: partition table read incorrectly
-To: wichert@cistron.nl (Wichert Akkerman)
-Date: Tue, 2 Oct 2001 23:45:16 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        linux-lvm@sistina.com
-In-Reply-To: <20011002220053.H14582@wiggy.net> from "Wichert Akkerman" at Oct 02, 2001 10:00:53 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S276759AbRJBWoo>; Tue, 2 Oct 2001 18:44:44 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:62963
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S276758AbRJBWo1>; Tue, 2 Oct 2001 18:44:27 -0400
+Date: Tue, 2 Oct 2001 15:44:46 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
+Message-ID: <20011002154446.C1012@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011002204836.B3026@bug.ucw.cz> <200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15oYHs-0006ED-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If that bit is fine then how can it differ in opinion from fdisk?
+On Tue, Oct 02, 2001 at 03:37:53PM -0700, Jeremy Elson wrote:
+> Pavel Machek writes:
+> >Hi!
+> >
+> >> Sorry to follow-up to my own post.  A few people pointed out that
+> >> v1.00 had some Makefile problems that prevented it from building.
+> >> I've released v1.02, which should be fixed.
+> >
+> >This should be forwared to linmodem list... Killing all those
+> >binary-only modem drivers from kernel modules would be good
+> >thing... Hmm, and maybe we can just hack telephony API over ltmodem
+> >and be done with that. That would be good.
+> >								Pavel
 > 
-> > The exact error would be good too
+> Hi,
 > 
->  I/O error: dev 08:11, sector 0
+> Perhaps I don't understand how linmodems work to understand well
+> enough how FUSD would apply - do you talk to linmodems through the
+> serial driver?  If so, sounds like a good application - but we might
+> still have the same problem with binary-only drivers as the
+> user-to-kernel message format used by FUSD may change over time.
+> (Indeed, it's already changing relative to v1.0 in response to
+> some of the mail I've gotten in the past few days.)
+> 
 
-Nothing before or after it ?
+That's not good.
+
+If there's one part of the kernel API that shouldn't change, this (or
+something like it) should be it...

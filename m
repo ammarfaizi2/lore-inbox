@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315808AbSEZILP>; Sun, 26 May 2002 04:11:15 -0400
+	id <S315805AbSEZIMb>; Sun, 26 May 2002 04:12:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315806AbSEZILO>; Sun, 26 May 2002 04:11:14 -0400
-Received: from jalon.able.es ([212.97.163.2]:33697 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315805AbSEZILN>;
-	Sun, 26 May 2002 04:11:13 -0400
-Date: Sun, 26 May 2002 11:11:08 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1 -march=pentium{-mmx,3,4}
-Message-ID: <20020526091108.GA1749@werewolf.able.es>
-In-Reply-To: <1022360474.21238.5.camel@ldb> <20020525233739.GA2022@werewolf.able.es> <1022380785.11859.59.camel@irongate.swansea.linux.org.uk>
+	id <S315806AbSEZIMa>; Sun, 26 May 2002 04:12:30 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:60450 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S315805AbSEZIM2>; Sun, 26 May 2002 04:12:28 -0400
+Message-Id: <5.1.0.14.2.20020526090557.01ff8200@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 26 May 2002 09:12:32 +0100
+To: Riley Williams <rhw@InfraDead.Org>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: Kernel maintainers
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0205260819210.29968-100000@Consulate.UFP.CX>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.6
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2002.05.26 Alan Cox wrote:
->On Sun, 2002-05-26 at 00:37, J.A. Magallon wrote:
->> Gcc-3.1 has also a -march=pentium2 specific target, that is not a synomym
->> for any other.
->> 
+At 08:22 26/05/02, Riley Williams wrote:
+>Can somebody clarify who maintains which kernel series? I have the
+>following table, so if somebody could fill in the blanks, it'd be
+>very much appreciated:
 >
->Splitting PII from PPro is a good move for another reason. The PPro
->requires a locked spin_unlock due to an errata - the PII seems not to. 
->
+>         2.0     ???
+>         2.2     ???
+>         2.4     Alan Cox        <alan@lxorguk.ukuu.org.uk>
+>         2.5     Linus Torvalds  <torvalds@transmeta.com>
 
-So I can kill CONFIG_X86_PPRO_FENCE for a PII ? If yes, I will try.
+Your table is wrong! Here is corrected and complete version:
+
+>         2.0     David Weinehall <tao@acc.umu.se>
+>         2.2     Alan Cox        <alan@lxorguk.ukuu.org.uk>
+>         2.4     Marcelo Tosatti <marcelo@conectiva.com.br>
+>         2.5     Linus Torvalds  <torvalds@transmeta.com>
+
+Best regards,
+
+         Anton
+
 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre8-jam4 #1 SMP dom may 26 02:36:58 CEST 2002 i686
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

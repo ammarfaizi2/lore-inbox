@@ -1,43 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267773AbUHSAuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267772AbUHSAua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267773AbUHSAuk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 20:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267777AbUHSAuk
+	id S267772AbUHSAua (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 20:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267776AbUHSAua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 20:50:40 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38019 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267773AbUHSAui (ORCPT
+	Wed, 18 Aug 2004 20:50:30 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:49389 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S267772AbUHSAu0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 20:50:38 -0400
-Date: Wed, 18 Aug 2004 17:50:03 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [samuel.thibault@ens-lyon.org: Re: warning: comparison is
- always false due to limited range of  data type]
-Message-Id: <20040818175003.1d1671bb.pj@sgi.com>
-In-Reply-To: <20040818230211.GG22559@bouh.is-a-geek.org>
-References: <20040818230211.GG22559@bouh.is-a-geek.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 18 Aug 2004 20:50:26 -0400
+Message-ID: <4123F9B5.4020702@softhome.net>
+Date: Wed, 18 Aug 2004 17:52:05 -0700
+From: Brannon Klopfer <plazmcman@softhome.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.8.1: kernel panic rmmod'ing apm
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel wrote:
-> Here is another approach. This should never warning, and should get
-> optimized away as needed.
+Linux littleblue 2.6.8.1 #81 Wed Aug 18 17:13:39 PDT 2004 i686 unknown 
+unknown GNU/Linux
 
-Yours looks like it has a better chance of not being broken by some
-future gcc enhancement that can see through the obfuscation in mine.
+Gnu C                  3.3.4
+Gnu make               3.80
+binutils               2.15.90.0.3
+util-linux             2.12a
+mount                  2.12a
+module-init-tools      3.0
+e2fsprogs              1.35
+jfsutils               1.1.6
+xfsprogs               2.6.13
+pcmcia-cs              3.2.7
+quota-tools            3.12.
+PPP                    2.4.2
+nfs-utils              1.0.6
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Linux C++ Library      5.0.6
+Procps                 3.2.1
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.2.1
+Modules Loaded         snd_cs4236 snd_opl3_lib snd_hwdep snd_cs4236_lib 
+snd_mpu401_uart snd_rawmidi snd_cs4231_lib nfsd exportfs intel_agp 
+uhci_hcd serial_cs 3c574_cs ds yenta_socket pcmcia_core agpgart
 
-I didn't actually try it, but yours looks good to me.
+-----------------------------
 
-Thanks.
+Hello,
+    When rmmod'ing apm, I get a kernel panic. However, the machine 
+continues to function properly, AFAIK. Here's the dmesg:
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+[snip]
+Unable to handle kernel paging request at virtual address d2d9f211
+ printing eip:
+d2d9f211
+*pde = 01357067
+*pte = 00000000
+Oops: 0000 [#1]
+PREEMPT
+Modules linked in: snd_cs4236 snd_opl3_lib snd_hwdep snd_cs4236_lib 
+snd_mpu401_uart snd_rawmidi snd_cs4231_lib nfsd exportfs intel_agp 
+uhci_hcd serial_cs 3c574_cs ds yenta_socket pcmcia_core agpgart
+CPU:    0
+EIP:    0060:[<d2d9f211>]    Not tainted
+EFLAGS: 00010246   (2.6.8.1)
+EIP is at 0xd2d9f211
+eax: 00000000   ebx: 00000000   ecx: ffffffff   edx: c03c0000
+esi: 00011ff9   edi: 00000202   ebp: 00000001   esp: c03c0f84
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c03c0000 task=c033fa40)
+Stack: 00005305 00000000 00000000 00090000 c03e0000 c03c0000 00011ff9 
+0000000a
+       00000001 d2d9f373 00005305 00000000 00000000 c03c0fbc 00005305 
+d2d9f4ab
+       c03c0000 00099100 c03e0120 00423007 c0102164 c03c0000 c03c1723 
+c033fa40
+Call Trace:
+ [<c0102164>] cpu_idle+0x34/0x40
+ [<c03c1723>] start_kernel+0x163/0x180
+ [<c03c1340>] unknown_bootoption+0x0/0x160
+Code:  Bad EIP value.
+ <0>Kernel panic: Attempted to kill the idle task!
+In idle task - not syncing
+ 
+[END]
+
+After that, the module is gone, and everything works fine. I just tried 
+inserting and removeing it subsequent times, and it works with no errors 
+(so far). I only rmmod when apm is used by nothing.
+
+The only reason I'm messing around with the apm module is that Loki's UT 
+seems to (sometimes) run much too fast with APM support in kernel, and 
+rmmod'ing it out seems to do the trick. This is probably indicitive of 
+another problem, though my system seems pretty stable (other than that 
+kernel panic...).
+
+All said, this doesn't bother me, as my system stays up.
+
+-Brannon Klopfer

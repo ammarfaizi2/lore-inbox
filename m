@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbUB2TCo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 14:02:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbUB2TCo
+	id S262108AbUB2TUL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 14:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbUB2TUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 14:02:44 -0500
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:16866 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S262154AbUB2TCl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 14:02:41 -0500
-Date: Sun, 29 Feb 2004 19:02:39 +0000
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Sid Boyce <sboyce@blueyonder.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Acer Aspire 1501LCe
-Message-ID: <20040229190239.GA9495@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Sid Boyce <sboyce@blueyonder.co.uk>, linux-kernel@vger.kernel.org
-References: <40423148.6050600@blueyonder.co.uk>
+	Sun, 29 Feb 2004 14:20:11 -0500
+Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:23448 "EHLO
+	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S262108AbUB2TUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 14:20:07 -0500
+Subject: Re: Linux 2.6 Build System and Binary Modules
+From: Larry Reaves <larry@moonshinecomputers.com>
+To: Robbert Haarman <lkml@inglorion.net>
+Cc: kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040229183143.GA8057@shire.sytes.net>
+References: <20040229183143.GA8057@shire.sytes.net>
+Content-Type: text/plain
+Message-Id: <1078082400.3942.21.camel@tux.moonshinecomputers.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
-Content-Disposition: inline
-In-Reply-To: <40423148.6050600@blueyonder.co.uk>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nicks: hugo darksatanic
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 29 Feb 2004 14:20:01 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am trying to do exactly the same thing... unfortunately I have not had
+much success getting it to work.  I have, however, solved your problem. 
+What I did was 'touch -B 9999999 priv_part.c' which creates an empty
+file with a timestamp of the current time minus 9999999 seconds. 
+Because make will only recompile if the source is newer than the .o, it
+will assume it is already compiled and it will just link it in.  I am
+new to kernel development, so I haven't made much progress beyond
+getting the module to compile without errors.  If you are able to get it
+to work, please let me know.
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sun, Feb 29, 2004 at 06:36:56PM +0000, Sid Boyce wrote:
-> Apologies to kernel mailing list. This Athlon-64 laptop is available 
-> here in the UK at quite an attractive price, sold with Windows XP Home, 
-> so fit for repartitioning as a Linux only box if an empty HD isn't an 
-> option. I wonder if anyone has Linux up and running on it or any other 
-> Althon-64 laptop.
-
-   I don't have one myself, but if you head over to the Debian AMD64
-mailing list[1], or #debian-amd64 on irc.oftc.net, there are a couple
-of people with AMD64 laptops running (or sort-of running) Linux on
-them.
-
-   Don't expect much, though -- it's still early days in the Debian
-camp.
-
-   Hugo.
-
-[1] http://lists.debian.org/debian-amd64/
-
+On Sun, 2004-02-29 at 13:31, Robbert Haarman wrote:
+> Hello list,
+> 
+> Excuse me for not finding this if it has been asked before. Please Cc any answers, as I am not subscribed to this list.
+> 
+> I am trying to port a driver for the Realtek 8180 wireless ehternet controller from 2.4 to 2.6. The module comes as a binary-only object file with some sources that can be adapted to fit the specific kernel. My problem is that I can't figure out how to get the 2.6 kernel to include the binary part (it's in a .o file). The new build system does a little too much magic - compiling the module from source to .ko without giving me a chance to sneak in the binary code. How do I get it to link in the .o file, without making it look for the like-named .c file?
+> 
+> Cheers,
+> 
+> Robbert Haarman
+> 
+> ---
+> "UNIX was not designed to stop you from doing stupid things, because that
+> would also stop you from doing clever things."
+> 	--Doug Gwyn
 -- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-                      --- vi: The core of evil. ---                      
+Larry Reaves <larry@moonshinecomputers.com>
 
---17pEHd4RhPHOinZp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAQjdPssJ7whwzWGARAm0qAKCzew3FB/j3JZG9cACBlgRGkvdyCQCfZP2t
-JbuRFlGcHOsRBWSM9zSfYo8=
-=A+TV
------END PGP SIGNATURE-----
-
---17pEHd4RhPHOinZp--

@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbULTJYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbULTJ3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbULTJYX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 04:24:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbULTJYW
+	id S261429AbULTJ3n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 04:29:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbULTJ3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 04:24:22 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:10645 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261327AbULTJYF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 04:24:05 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
-Date: Mon, 20 Dec 2004 17:22:34 +0800
-Message-ID: <894E37DECA393E4D9374E0ACBBE7427013CA31@pdsmsx402.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
-Thread-Index: AcTmcOTy3Z9Q1Y9oRrukhsx3K0/D/gAAw0iQ
-From: "Zou, Nanhai" <nanhai.zou@intel.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>, "Andrew Morton" <akpm@osdl.org>
-Cc: <lista4@comhem.se>, <linux-kernel@vger.kernel.org>, <mr@ramendik.ru>,
-       <kernel@kolivas.org>, <riel@redhat.com>
-X-OriginalArrivalTime: 20 Dec 2004 09:22:35.0234 (UTC) FILETIME=[70DD7420:01C4E675]
+	Mon, 20 Dec 2004 04:29:43 -0500
+Received: from gate.crashing.org ([63.228.1.57]:16292 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261429AbULTJ3l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 04:29:41 -0500
+Subject: Re: /sys/block vs. /sys/class/block
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>, Jens Axboe <axboe@suse.de>
+In-Reply-To: <41C68A6D.6060801@yahoo.com.au>
+References: <1103526532.5320.33.camel@gaston>
+	 <41C68A6D.6060801@yahoo.com.au>
+Content-Type: text/plain
+Date: Mon, 20 Dec 2004 10:29:18 +0100
+Message-Id: <1103534958.14050.13.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> However, based on this and other scattered reports, I'd say it seems
-> quite likely that token based thrashing control is the culprit. Based
-> on the cost/benefit, I wonder if we should disable TBTC by default for
-> 2.6.10, rather than trying to fix it, and try again for 2.6.11?
+
+> Seems like that's where it belongs.
 > 
-> Rik? Andrew?
-> 
-> Also, it would be nice to have a sysctl to *completely* disable TBTC,
-> that would make testing easier.
-> 
-> Nick
+> The reason why it is in /sys/block is because it is apparently a "subsystem",
+> and using decl_subsys - drivers/block/genhd.c
 
-I have run some stress tests against 2.6.9, 
-2.6.9 + ignore-swap-token-when-in-trouble.patch
-and 2.6.10-rc3-mm1 on an Itanium2 with 4G memory.
+I'm not convinced ... If you look at how /sys is organized, it really
+doesn't make any sense ... block devives are really devices of "class
+block", wether we have a block "subsystem" in there is irrelevant imho.
 
-With 2.6.9
-OOM killer will be invoked within a few hours of stress test running.
+Ben.
 
-With 2.6.9 + vmscan-ignore-swap-token-when-in-trouble.patch
-OOM killer will be invoked around 30 hours.
 
-While 2.6.10-rc3-mm1 seems to be much more stable.
-At least for the test I was running, it bypassed 48 hours test.
-
-Zou Nan hai

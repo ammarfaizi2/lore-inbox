@@ -1,187 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbTHUQey (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 12:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbTHUQey
+	id S262799AbTHUQi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 12:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbTHUQi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 12:34:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30866 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262758AbTHUQet (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 12:34:49 -0400
-Date: Thu, 21 Aug 2003 09:30:37 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: IPMI fix for panic handling
-Message-Id: <20030821093037.64962c27.rddunlap@osdl.org>
-In-Reply-To: <3F44C380.3060707@mvista.com>
-References: <3F44C380.3060707@mvista.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 21 Aug 2003 12:38:29 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:64663
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262799AbTHUQiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 12:38:25 -0400
+Date: Thu, 21 Aug 2003 18:39:38 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hannes Reinecke <Hannes.Reinecke@suse.de>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dumb question: BKL on reboot ?
+Message-ID: <20030821163938.GG29612@dualathlon.random>
+References: <3F434BD1.9050704@suse.de> <20030820112918.0f7ce4fe.akpm@osdl.org> <20030820113520.281fe8bb.davem@redhat.com> <1061411024.9371.33.camel@nighthawk> <3F447D40.5020000@suse.de> <20030821154113.GE29612@dualathlon.random> <3F44EB85.5000108@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F44EB85.5000108@suse.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003 08:05:04 -0500 Corey Minyard <cminyard@mvista.com> wrote:
+On Thu, Aug 21, 2003 at 05:55:49PM +0200, Hannes Reinecke wrote:
+> Andrea Arcangeli wrote:
+> >On Thu, Aug 21, 2003 at 10:05:20AM +0200, Hannes Reinecke wrote:
+> [ .. ]
+> >>
+> >>Exactly what happened here. CPU#1 entered sys_reboot, got BKL and 
+> >>prepared to stop. It will never release BKL, leaving a nice big window 
+> >>for CPU#0 to deadlock.
+> >
+> >
+> >if that was really the case it shouldn't deadlock, because CPU0
+> >shouldn't depend on a big kernel lock to be able to re-enable the irqs,
+> >and to receive the IPI. Nor any IPI handler could ever be allowed to
+> >take the big kernel lock.
+> >
+> >Unless you can demonstrate a dependency on the big kernel lock for CPU0
+> >to re-enable the irqs eventually, I can't see how the above could
+> >deadlock.
+> >
+> 
+> What happened was this:
+> 
+> ================================================================
+> TASK HAS CPU (0): 0x904000 (kupdated):
+>  LOWCORE INFO:
+>   -psw      : 0x400100180000000 0x0000000007aa22
+>   -function : sync_old_buffers+58
+>   -prefix   : 0x009c8000
+>   -cpu timer: 0xfffffa77 0x33465f80
+>   -clock cmp: 0x00b9e503 0x235324f4
+>   -general registers:
+>      0000000000000000 0x000000002e1000
+>      0x0000000007aa22 0x0000000004919e
+>      0x00000000907f28 0x0000000022b428
+>      0000000000000000 0000000000000000
+>      0x00000000224340 0000000000000000
+>      0x00000000970000 0x00000000233b00
+>      0x00000000904000 0x000000001deb60
+>      0x00000000907e78 0x00000000907dd8
+> [ .. ]
+>  STACK:
+>  0 kupdate+424 [0x7af4c]
+>  1 arch_kernel_thread+70 [0x18d72]
+> ================================================================
+> TASK HAS CPU (1): 0x3318000 (reboot):
+>  LOWCORE INFO:
+>   -psw      : 0x700100180000000 0x0000007ffe0d8e
+>   -function : not found in System map
+>   -prefix   : 0x009c2000
+>   -cpu timer: 0xfff79e2d 0x014244c0
+>   -clock cmp: 0x00b9e503 0x3a5d9504
+>   -general registers:
+>      0x00000000000001 0000000000000000
+>      0000000000000000 0000000000000000
+>      0x0000000001f268 0000000000000000
+>      0x00000000000003 0x000000000002c0
+>      0x000000000490f0 0x00000003318000
+>      0x00000000016422 0000000000000000
+>      0x00000000000001 0x000000001da280
+>      0x0000000001f268 0x0000000331bae0
+> [ .. ]
+>  STACK:
+>  0 machine_restart_smp+62 [0x1f5f2]
+>  1 machine_restart+48 [0x19884]
+>  2 sys_reboot+306 [0x49222]
+>  3 sysc_noemu+16 [0x16242]
 
-| This patch adds something I missed that previous IPMI drivers did, 
-| adding panic information to the event log. Some programs use this 
+This can't be the lock_kernel, you see, there's no lock_kernel
+invocation at all in the machine_restart_smp path.
 
-adding to which event log?
+> 
+> Not sure why CPU#0 wanted to execute kupdate(), but hey ...
 
-| information to analyze panics. Please apply.
+kupdate always runs in the background, once every few seconds.
 
+I perfectly see why it hangs on s390, that's a bug in the arch code
+and it's unrelated to whatever lock_kernel and even unrelated to the
+potential deadlock prone shutdown of cpus that I mentioned in my
+previous email:
 
-Few corrections below.
+static void do_machine_restart(void * __unused)
+{
+	clear_bit(smp_processor_id(), &cpu_restart_map);
+	if (smp_processor_id() == 0) {
+	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+if the `reboot` program doesn't run by luck on cpu 0, it will be the one
+that will hang instead of the others. the above check must be changed to:
 
-diff -u -r1.3 Kconfig
---- drivers/char/ipmi/Kconfig	28 Mar 2003 05:14:18 -0000	1.3
-+++ drivers/char/ipmi/Kconfig	19 Aug 2003 14:20:43 -0000
-@@ -24,6 +24,18 @@
- 	 generate an IPMI event describing the panic to each interface
- 	 registered with the message handler.
- 
-+config IPMI_PANIC_STRING
-+	bool 'Generate a OEM events holding the panic string'
+	smp_processor_id() == reboot_cpu
 
-I can't decode/translate that quoted string...
-'an OEM event' ??
-s/holding/containing/ ??
+and you should snapshot reboot_cpu in machine_restart_smp. then it won't
+hang anymore.
 
-+	depends on IPMI_PANIC_EVENT
-+	help
-+	  When a panic occurs, this will cause the IPMI message handler to
-+	  generate an IPMI OEM type f0 events holding the IPMB address of the
-                                       event
-+	  panic generator (byte 4 of the event), a sequence number for the
-+	  string (byte 5 of the event) and part of the string (the rest of the
-+	  event).  Bytes 1, 2, and 3 are the normal usage for an OEM event.
-+	  You can fetch these events and use the sequence numbers to piece the
-+	  string together.
-+
- config IPMI_DEVICE_INTERFACE
-        tristate 'Device interface for IPMI'
-        depends on IPMI_HANDLER
+The x86 code may be safe in hanging in the IPI if it's extremely careful
+in not touching any lock that maybe hold by other cpus, between the IPI
+delivery and the hard reboot. So probably we don't need to replace the
+IPI with a kernel thread in 2.4, despite I find the kernel thread way
+more robust.
 
-diff -u -r1.7 ipmi_msghandler.c
---- drivers/char/ipmi/ipmi_msghandler.c	24 May 2003 17:02:51 -0000	1.7
-+++ drivers/char/ipmi/ipmi_msghandler.c	19 Aug 2003 14:20:45 -0000
-@@ -1813,18 +1829,48 @@
- {
- }
- 
--static void send_panic_events(void)
-+#ifdef CONFIG_IPMI_PANIC_STRING
-+static void event_receiver_fetcher(ipmi_smi_t intf, struct ipmi_smi_msg *msg)
-+{
-+	if ((msg->rsp[0] == (0x5 << 2))
+Overall the lock_kernel I think is _needed_ (not only if something it's
+safer), to serialize reboot against reboot and I wouldn't bother
+changing it to another spinlock (at least not in 2.4)
 
-Some named constants would be good here (defines/macros)
-and below.
-
-+	    && (msg->rsp[1] == 1)
-+	    && (msg->rsp[2] == 0))
-+	{
-+		/* A get event receiver command, save it. */
-+		intf->event_receiver = msg->rsp[3];
-+		intf->event_receiver_lun = msg->rsp[4] & 0x3;
-+	}
-+}
-+
-+static void device_id_fetcher(ipmi_smi_t intf, struct ipmi_smi_msg *msg)
-+{
-+	if ((msg->rsp[0] == (0x7 << 2))
-
-Named constant.
-
-+	    && (msg->rsp[1] == 1)
-+	    && (msg->rsp[2] == 0))
-+	{
-+		/* A get device id command, save if we are an event
-+		   receiver or generator. */
-+		intf->local_sel_device = (msg->rsp[8] >> 2) & 1;
-+		intf->local_event_generator = (msg->rsp[8] >> 5) & 1;
-+	}
-+}
-+#endif
-@@ -1837,12 +1883,13 @@
- 	data[4] = 0x6f; /* Sensor specific, IPMI table 36-1 */
- 	data[5] = 0xa1; /* Runtime stop OEM bytes 2 & 3. */
- 
--	/* These used to have the first three bytes of the panic string,
--	   but not only is that not terribly useful, it's not available
--	   any more. */
--	data[3] = 0;
--	data[6] = 0;
--	data[7] = 0;
-+	/* Put a few breadcrums in.  Hopefully later we can add more things
-                     breadcrumbs
-+	   to make the panic events more useful. */
-+	if (str) {
-+		data[3] = str[0];
-+		data[6] = str[1];
-+		data[7] = str[2];
-+	}
- 
- 	smi_msg.done = dummy_smi_done_handler;
- 	recv_msg.done = dummy_recv_done_handler;
-@@ -1865,6 +1913,130 @@
- 			       intf->my_address,
- 			       intf->my_lun);
- 	}
-+
-+#ifdef CONFIG_IPMI_PANIC_STRING
-+	/* On every interface, dump a bunch of OEM event holding the
-                                                   events
-+	   string. */
-+	if (!str) 
-+		return;
-+
-+	for (i=0; i<MAX_IPMI_INTERFACES; i++) {
-+		char                  *p = str;
-+		struct ipmi_ipmb_addr *ipmb;
-+		int                   j;
-+
-+		intf = ipmi_interfaces[i];
-+		if (intf == NULL)
-+			continue;
-+
-+		/* First job here is to figure out where to send the
-+		   OEM events.  There's no way in IPMI to send OEM
-+		   events using an event send command, so we have to
-+		   find the SEL to put them in and stick them in
-+		   there. */
-+
-+		/* Get capabilities from the get device id. */
-+		intf->local_sel_device = 0;
-+		intf->local_event_generator = 0;
-+		intf->event_receiver = 0;
-+
-+		/* Request the device info from the local MC. */
-+		msg.netfn = 0x06; /* App. */
-+		msg.cmd = 0x01; /* Get device id cmd */
-+		msg.data = NULL;
-+		msg.data_len = 0;
-+		intf->null_user_handler = device_id_fetcher;
-+		i_ipmi_request(NULL,
-+			       intf,
-+			       &addr,
-+			       0,
-+			       &msg,
-+			       &smi_msg,
-+			       &recv_msg,
-+			       0,
-+			       intf->my_address,
-+			       intf->my_lun);
-
-Looks like a Windows interface call.  One parameter/line isn't needed.
-
---
-~Randy   [mantra:  Always include kernel version.]
-"Everything is relative."
+Andrea

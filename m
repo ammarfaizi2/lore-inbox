@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131497AbRCSQTj>; Mon, 19 Mar 2001 11:19:39 -0500
+	id <S131499AbRCSQWt>; Mon, 19 Mar 2001 11:22:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131499AbRCSQT3>; Mon, 19 Mar 2001 11:19:29 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:39150
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S131497AbRCSQTZ>; Mon, 19 Mar 2001 11:19:25 -0500
-Date: Mon, 19 Mar 2001 09:15:59 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "J. Michael Kolbe" <wicked@convergence.de>, linux-kernel@vger.kernel.org
-Subject: Re: sysrq.txt
-Message-ID: <20010319091559.A22291@opus.bloom.county>
-In-Reply-To: <20010316161919.A30690@midget.convergence.de> <20010318233955.D13058@bug.ucw.cz>
-Mime-Version: 1.0
+	id <S131502AbRCSQWj>; Mon, 19 Mar 2001 11:22:39 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:63633 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S131499AbRCSQWb>; Mon, 19 Mar 2001 11:22:31 -0500
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200103191620.RAA20893@sunrise.pg.gda.pl>
+Subject: Re: ide.2.2.18.02122001.patch
+To: andre@linux-ide.org (Andre Hedrick)
+Date: Mon, 19 Mar 2001 17:20:57 +0100 (MET)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10103190741010.17416-100000@master.linux-ide.org> from "Andre Hedrick" at Mar 19, 2001 07:41:20 AM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010318233955.D13058@bug.ucw.cz>; from pavel@suse.cz on Sun, Mar 18, 2001 at 11:39:55PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 18, 2001 at 11:39:55PM +0100, Pavel Machek wrote:
-> Hi!
+"Andre Hedrick wrote:"
 > 
-> > I've found that the Sysrq Keys on Apple Computers
-> > are 'Keypad+-F13-<command key>', maybe it would
-> > be a good idea to include that in Documentation/sysrq.txt.
-> > 
-> > The Patch:
-> 
-> This patch is reversed, but otherwise looks okay. Generate
-> non-reversed one and mail it to linus, possibly saying I agree.
+> Has arrived...
 
-Speaking of reversed, there's a slightly "nicer" one in 2.2.18+:
-On PowerPC - You press 'ALT-Print Screen-<command key>'.
+Where ?
 
-(And yes, all the apple keyboards I've seen w/ F13 have Print Screen
-right below it).  Tho I'm also rather sure this didn't get into
-Linus' tree until after the 2.3 split..
+Can't find it in  ftp://ftp.kernel.org/pub/people/hedrick/
+(nor on mirror sites).
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

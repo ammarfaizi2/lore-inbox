@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261660AbTAQWGR>; Fri, 17 Jan 2003 17:06:17 -0500
+	id <S261529AbTAQWE5>; Fri, 17 Jan 2003 17:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261686AbTAQWGQ>; Fri, 17 Jan 2003 17:06:16 -0500
-Received: from ausadmmsrr503.aus.amer.dell.com ([143.166.83.90]:10244 "HELO
-	AUSADMMSRR503.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S261660AbTAQWGP>; Fri, 17 Jan 2003 17:06:15 -0500
-X-Server-Uuid: 91331657-2068-4fb8-8b09-a4fcbc1ed29f
-Message-ID: <20BF5713E14D5B48AA289F72BD372D68011A4264@AUSXMPC122.aus.amer.dell.com>
-From: Gary_Lerhaupt@Dell.com
-To: linux-kernel@vger.kernel.org
-Subject: Devlabel: static device naming via symlinks (improved)
-Date: Fri, 17 Jan 2003 16:15:08 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 12365FE7138022-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
+	id <S261599AbTAQWE5>; Fri, 17 Jan 2003 17:04:57 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:34434 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261529AbTAQWE4>; Fri, 17 Jan 2003 17:04:56 -0500
+Subject: Re: [OSDL][BENCHMARK] Database results 2.4 versus 2.5
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Cliff White <cliffw@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030117133718.36df6e42.akpm@digeo.com>
+References: <20030117130046.0f73d6d6.akpm@digeo.com>
+	 <200301172123.h0HLNBd19275@mail.osdl.org>
+	 <20030117133718.36df6e42.akpm@digeo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: Open Source Development Lab, Inc.
+Message-Id: <1042841472.1863.106.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 17 Jan 2003 14:11:13 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've added a couple useful features to devlabel (available at
-http://domsch.com/linux/devlabel).  Of the foremost of these is that it now
-includes the usage of Partition UUIDs (as provided by ext2, ext3, xfs, jfs
-or ocfs).  Since these UUIDs are partition specific, if a partition-level
-failure event occurs (eg. you delete /dev/sde6 and /dev/sde7 then becomes
-/dev/sde6), devlabel is now smart enough to handle it for the aforementioned
-filesystem types.  If you aren't using one of these filesystem types or if
-there is no filesystem at all, devlabel will then fall back on using SCSI
-UUIDs or IDE identifiers as it used before (these support disk-wide
-failures, when /dev/sdb6 becomes /dev/sda6).
+On Fri, 2003-01-17 at 13:37, Andrew Morton wrote:
+> Cliff White <cliffw@osdl.org> wrote:
+> >
+> > > So it sounds like DBT2 is stabilised now, and producing repeatable results? 
+> > > That's excellent.
+> > Thanks. the kit's available off Sourceforge now, and we'll have STP version 
+> > up Mondayish. 
+> 
+> OK.  My utter database ignorance was an
+> insurmountable-within-two-hour-attention-span problem when I tried to set up
+> dbt1.
 
-As well, devlabel now also supports automounting.  For example, with a USB
-flash reader, you should now add it to devlabel with the --automount option.
-If --automount is specified, every time you hotplug your device, it will
-check /etc/fstab for an entry containing the symlink that you've added for
-this device, and if it finds one, it will automatically mount it.  Nice and
-simple.
+  That is what we are trying to do with setting it up on STP.  So you
+don't have to be a database guy. :-)  I guess what we need to explore
+is how to change the setup of dbt{123} on STP so that it gives you 
+the information that you need.
 
-Lastly, you can also now do adds by UUID.  This is especially helpful in
-shared storage environments.  For example, you can add a symlink on the
-master node and then add by UUID on all the secondary nodes to ensure that
-the same symlink on all nodes points to the same shared storage device
-regardless of the device naming scheme of those nodes.
+Tim
 
-Gary Lerhaupt
-Linux Development
-Dell Computer Corporation
+> 
+> > > So either the I/O scheduler is doing a better job, or the VM page
+> > > replacement decisions are agreeable for this load.
+> > 
+> > Okay. Is there something we could do that would point at one or the other?
+> 
+> Different combinations of working set and physical memory will tell us.
+> 
+> Also, when we have a lot of vmstat/etc traces available we can decide how I/O
+> bound it is, and whether we need to look at upping the request queue sizes. 
+> Which is something which we can now do, and which could easily make a
+> difference here.
+> 
+> But we'll have to get you onto at least 2.5.58 for that ;)
+>
+> > would a smaller memory database (say 2GB instead of 4GB ) really show you
+> > anything interesting on a 4GB system, since there's so little pressure? 
+> 
+> Yes, that would be interesting.  We're dealing with single points in
+> twenty-seven-dimensional space.  Tweaking input parameter individually helps
+> one gain an understanding of what is going on.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265258AbTLRSWD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 13:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265260AbTLRSWD
+	id S265266AbTLRSXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 13:23:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbTLRSXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 13:22:03 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:19623 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265258AbTLRSWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 13:22:01 -0500
-Date: Thu, 18 Dec 2003 18:21:41 +0000
-From: Dave Jones <davej@redhat.com>
-To: Jon Masters <jonathan@jonmasters.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Buffalo Airstation
-Message-ID: <20031218182141.GA12734@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jon Masters <jonathan@jonmasters.org>, linux-kernel@vger.kernel.org
-References: <3FE1DC69.9050704@jonmasters.org>
+	Thu, 18 Dec 2003 13:23:25 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:24220 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S265266AbTLRSXY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 13:23:24 -0500
+Date: Thu, 18 Dec 2003 13:21:17 -0500
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: 2.6.0 keyboard not working
+Message-ID: <20031218182117.GA31558@gnu.org>
+References: <20031218060053.GA645@gnu.org> <Pine.LNX.4.58.0312180230150.1710@montezuma.fsmlabs.com> <20031218145434.GA20303@gnu.org> <20031218150431.GA20543@gnu.org> <Pine.LNX.4.58.0312181129260.1710@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FE1DC69.9050704@jonmasters.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0312181129260.1710@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.3.28i
+From: Lennert Buytenhek <buytenh@gnu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 18, 2003 at 04:57:13PM +0000, Jon Masters wrote:
- > -----BEGIN PGP SIGNED MESSAGE-----
- > Hash: SHA1
- > 
- > Hi there,
- > 
- > I made some progress getting up to date code from Buffalo today, after I
- > called them, in getting a link to the older source and information about
- > the forthcoming new release. Apparently they are having a meeting on
- > January 6 to try to push forward a new release soon thereafter.
- > 
- > http://www2.melcoinc.co.jp/pub/lan/linux_src.tgz
+On Thu, Dec 18, 2003 at 11:30:27AM -0500, Zwane Mwaikambo wrote:
 
-http://www.linux.org.uk/~davej/buffalo.diff.gz
+> Thanks Lennert, could you try without CONFIG_HIGHMEM64G, perhaps just
+> CONFIG_HIGHMEM4G, how much memory in the system? dmesg also would be nice.
 
-Quite amusing as the bulk of the diff seems to be
-a) XFS merge (came in from SGI as the original tree seems to
-   be cloned from the linux-mips tree).
-b) Someone seems to have gone right through the 2.4.5 tree
-   deleting every comment with FIXME/XXX in it, along with
-   anything #if'd out.
+Hi Zwane, I just finished checking, and without highmem and with HIGHMEM4G
+it works just fine, only with 64G I get the 'Unknown key pressed' flood which
+I described.  I had 64G on because I copied my .config from Arjan's 2.6 RPMs,
+none of which worked on this machine because of those keyboard troubles.  The
+box has 1G of RAM.
 
-		Dave
+Thanks!  Anything else I can try?
 
+
+--L

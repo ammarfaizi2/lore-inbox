@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130670AbRA3Sx2>; Tue, 30 Jan 2001 13:53:28 -0500
+	id <S132241AbRA3Sz2>; Tue, 30 Jan 2001 13:55:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131188AbRA3SxT>; Tue, 30 Jan 2001 13:53:19 -0500
-Received: from clueserver.org ([206.163.47.224]:9988 "HELO clueserver.org")
-	by vger.kernel.org with SMTP id <S130670AbRA3SxI>;
-	Tue, 30 Jan 2001 13:53:08 -0500
-Date: Tue, 30 Jan 2001 11:04:09 -0800 (PST)
-From: Alan Olsen <alan@clueserver.org>
-To: Dale Amon <amon@vnl.com>
+	id <S132249AbRA3SzS>; Tue, 30 Jan 2001 13:55:18 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:33267
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S132241AbRA3SzA>; Tue, 30 Jan 2001 13:55:00 -0500
+Date: Tue, 30 Jan 2001 11:53:19 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Micha? 'CeFeK' Nazarewicz" <CeFeK@MichalNazarewicz.COM>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Secure Linux
-In-Reply-To: <20010130184717.E1653@vnl.com>
-Message-ID: <Pine.LNX.4.10.10101301103480.4437-100000@clueserver.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: FW: 2.4.1 - ppc - compile problems
+Message-ID: <20010130115319.G17512@opus.bloom.county>
+In-Reply-To: <NEBBIOGJMKPNNALEPMFGMEJACCAA.CeFeK@MichalNazarewicz.COM>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <NEBBIOGJMKPNNALEPMFGMEJACCAA.CeFeK@MichalNazarewicz.COM>; from CeFeK@MichalNazarewicz.COM on Sun, Jan 28, 2001 at 03:32:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001, Dale Amon wrote:
+On Sun, Jan 28, 2001 at 03:32:33PM +0100, Micha? 'CeFeK' Nazarewicz wrote:
 
-> Has anyone else signed up on the NSA's secure Linux
-> discussion list? The idea of NSA backing the development
-> of  a secure GPL'd linux is one I find intriguing. 
-> 
-> However I have only seen one posting. Is there anyone
-> "real" involved with it?
+> There appears to be undefined variable (in pmac_pci), called
+> PCI_DEVICE_ID_APPLE_KL_USB. When anyone tries to compile the newest kernel
+> on PPC machine with USB support on, there is an error saying that this is
+> undefined.
 
-That would be telling.
+2.4.x from kernel.org currently does not work on PPC.  Take a look at:
+http://www.fsmlabs.com/linuxppcbk.html
 
-Be seeing you!
-
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
-    "In the future, everything will have its 15 minutes of blame."
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

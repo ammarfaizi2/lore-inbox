@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287488AbRLaLwg>; Mon, 31 Dec 2001 06:52:36 -0500
+	id <S287493AbRLaMMk>; Mon, 31 Dec 2001 07:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287493AbRLaLw0>; Mon, 31 Dec 2001 06:52:26 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:22533 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S287488AbRLaLwI>;
-	Mon, 31 Dec 2001 06:52:08 -0500
-Date: Mon, 31 Dec 2001 12:51:57 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Peter Osterlund <petero2@telia.com>, Greg KH <greg@kroah.com>,
-        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: "sr: unaligned transfer" in 2.5.2-pre1
-Message-ID: <20011231125157.D1246@suse.de>
-In-Reply-To: <m2vgexzv90.fsf@ppro.localdomain> <20011223112249.B4493@kroah.com> <m23d1trr4w.fsf@pengo.localdomain> <20011230122756.L1821@suse.de> <20011230212700.B652@one-eyed-alien.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011230212700.B652@one-eyed-alien.net>
+	id <S287492AbRLaMMb>; Mon, 31 Dec 2001 07:12:31 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:55478 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S287493AbRLaMMS>;
+	Mon, 31 Dec 2001 07:12:18 -0500
+Date: Mon, 31 Dec 2001 13:10:34 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Timothy Covell <timothy.covell@ashavan.org>
+cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [patch] Re: Framebuffer...Why oh Why???
+In-Reply-To: <200112302117.fBULHISr011887@svr3.applink.net>
+Message-ID: <Pine.GSO.4.21.0112311307330.1086-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 30 2001, Matthew Dharm wrote:
-> If it shouldn't be used, it should be removed from the structure to force
-> people to change.
+On Sun, 30 Dec 2001, Timothy Covell wrote:
+> 	When X11 locks up, I can still kill it and my box lives.  When
+> framebuffers crash, their is no recovery save rebooting.  Back in 1995
 
-It will be soonish. Davem has practically finished this already.
+When your SCSI driver crashes, their is no recovery save rebooting.
+When your IDE driver crashes, their is no recovery save rebooting.
+When your Ethernet driver crashes, their is no recovery save rebooting.
+...
 
-> This is probably why usb-storage broke, and it wasn't obvious to me what
-> went wrong.
+If a frame buffer device crashes, it's a bug in the frame buffer device driver
+(unless the kernel got `tainted' by a user space application with root
+ privileges that messed with the graphics card without the frame buffer device
+ driver being aware of that).
 
-It's been discussed here before, both wrt 2.5 and 2.4 with the block
-highmem patches.
+Gr{oetje,eeting}s,
 
-> So now I guess I need to either (a) compute the address for the USB layer,
-> or (b) figure out how to pass the memory parameters directly, so we can use
-> highmem.
+						Geert
 
-If you don't set highmem_io in the scsi host structure, then you can
-always do
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-	vaddr = page_address(sg->page) + sg->offset;
-
--- 
-Jens Axboe
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

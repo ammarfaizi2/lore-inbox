@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270097AbTGXUNT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 16:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270436AbTGXUNT
+	id S270094AbTGXUMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 16:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270097AbTGXUMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 16:13:19 -0400
-Received: from pop.gmx.net ([213.165.64.20]:39637 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S270097AbTGXUNM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 16:13:12 -0400
-From: Michael Schierl <schierlm-usenet@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: touchpad doesn't work under 2.6.0-test1-ac2
-Date: Thu, 24 Jul 2003 22:27:51 +0200
-Reply-To: schierlm@gmx.de
-References: <bXg8.4Wg.1@gated-at.bofh.it>
-In-Reply-To: <bXg8.4Wg.1@gated-at.bofh.it>
-X-Mailer: Forte Agent 1.93/32.576 English (American)
+	Thu, 24 Jul 2003 16:12:16 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:11234 "HELO
+	develer.com") by vger.kernel.org with SMTP id S270094AbTGXUMP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 16:12:15 -0400
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+To: Willy Tarreau <willy@w.ods.org>
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase
+Date: Thu, 24 Jul 2003 22:27:16 +0200
+User-Agent: KMail/1.5.9
+Cc: Christoph Hellwig <hch@lst.de>,
+       uClinux development list <uclinux-dev@uclinux.org>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <200307232046.46990.bernie@develer.com> <200307240007.15377.bernie@develer.com> <20030723222747.GF643@alpha.home.local>
+In-Reply-To: <20030723222747.GF643@alpha.home.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S270097AbTGXUNM/20030724201313Z+7864@vger.kernel.org>
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307242227.16439.bernie@develer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Benfell <benfell@greybeard95a.com> wrote:
+On Thursday 24 July 2003 00:27, Willy Tarreau wrote:
 
->Hello all,
+> On Thu, Jul 24, 2003 at 12:07:15AM +0200, Bernardo Innocenti wrote:
+> >    text    data     bss     dec     hex filename
+> >  633028   37952  134260  805240   c4978 linux-2.4.x/linux-Os
+> >  819276   52460   78896  950632   e8168 linux-2.5.x/vmlinux-inline-Os
+> >  ^^^^^^
+> >        2.6 still needs a hard diet... :-/
 >
->Finally decided to give a development kernel a try on an HP zt1180
->laptop.  The kernel build went smoothly and I thought all was well
->(well except I guess I've gotta figure out frame buffer support again)
->until I started X and discovered that the mouse wasn't working.
+> I did the same observation a few weeks ago on 2.5.74/gcc-2.95.3. I tried
+> to track down the responsible, to the point that I completely disabled
+> every driver, networking option and file-system, just to see, and got about
+> a 550 kB vmlinux compiled with -Os. 550 kB for nothing :-(
 
-same for me under 'vanilla' 2.6.0-test1.
+Some of the bigger 2.6 additions cannot be configured out.
+I wish sysfs and the different I/O schedulers could be removed.
 
-However, giving 'psmouse_noext' as kernel param helped for me to make
-the touchpad work (using /dev/input/mice (protocol autops2) as source
-for gpm and gpm repeater as source for x, as I did in 2.4.x kernels).
+There are probably many other things mostly useless for embedded
+systems that I'm not aware of.
 
-Setting "#define DEBUG" in drivers/input/serio/i8042.c caused lots of
-lines of text on my console whenever i touched either the touchpad or
-one of the (four) buttons.
-
-with 'psmouse_noext' it creates less lines on my console, and only for
-two buttons, not for the other two.
-
-HTH,
-
-Michael
 -- 
-"New" PGP Key! User ID: Michael Schierl <schierlm@gmx.de>
-Key ID: 0x58B48CDD    Size: 2048    Created: 26.03.2002
-Fingerprint:  68CE B807 E315 D14B  7461 5539 C90F 7CC8
-http://home.arcor.de/mschierlm/mschierlm.asc
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+
+

@@ -1,76 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264418AbTLYXpf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 18:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264425AbTLYXpf
+	id S264386AbTLYXoG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 18:44:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264418AbTLYXoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 18:45:35 -0500
-Received: from hendrix.ece.utexas.edu ([128.83.59.42]:32419 "EHLO
-	hendrix.ece.utexas.edu") by vger.kernel.org with ESMTP
-	id S264418AbTLYXpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 18:45:24 -0500
-Date: Thu, 25 Dec 2003 17:45:10 -0600 (CST)
-From: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Gergely Tamas <dice@mfa.kfki.hu>, Keith Lea <keith@cs.oswego.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11 data loss
-In-Reply-To: <20031225164628.GB22578@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.21.0312251710040.5486-100000@linux08.ece.utexas.edu>
+	Thu, 25 Dec 2003 18:44:06 -0500
+Received: from zork.zork.net ([64.81.246.102]:23780 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S264386AbTLYXn7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 18:43:59 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH,SILLY] /proc/updike -- uptime histogram
+References: <6uad5h0x50.fsf@zork.zork.net>
+Reply-To: Sean Neakums <sneakums@zork.net>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Thu, 25 Dec 2003 23:43:57 +0000
+In-Reply-To: <6uad5h0x50.fsf@zork.zork.net> (Sean Neakums's message of "Thu,
+ 25 Dec 2003 14:50:35 +0000")
+Message-ID: <6ufzf8zcn6.fsf@zork.zork.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: 
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sean Neakums <sneakums@zork.net> writes:
 
-I'm getting a system freeze but no file corruption. The freeze happens
-randomly after all rc.d scripts run. The freeze seems to happen slightly
-at a "later" time when I applied the 2.6.0-mm1 patch(I was able to login
-and startx) whereas before the freeze happened before/while logging
-in. 
+> If you don't find the notion of represting uptime with an ASCII
+> phallus amusing on any level at all, then this patch is not for you.
 
-My boot parameters usually look like this:
-
-BOOT_IMAGE=Linux-2.6.0 ro root=303 apm=on acpi=off
-
-IBM Thinkpad T22
-linux-2.6.0 | linux-2.6.0-mm1
-slackware 9.1
-
-bash-2.05b# lspci 
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge
-(rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge
-(rev 03)
-00:02.0 CardBus bridge: Texas Instruments PCI1450 (rev 03)
-00:02.1 CardBus bridge: Texas Instruments PCI1450 (rev 03)
-00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev
-0c)
-00:03.1 Serial controller: Lucent Microelectronics LT WinModem (rev 01)
-00:05.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24
-[CrystalClear SoundFusion Audio Accelerator] (rev 01)
-00:07.0 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
-01:00.0 VGA compatible controller: S3 Inc. 86C270-294 Savage/IX-MV (rev
-13)
+Also applies to this message.
 
 
-Now that I went back and tested the kernel(mm1) with the following
-parameters, the system hasn't freezed yet. I'll report if anything goes
-wrong.
 
-BOOT_IMAGE=Linux-2.6.0 ro root=303 idebus=66 ide0=ata66 ide1=ata66
-ide2=ata66 apm=on acpi=off
+Below is a /proc/updike patch for legacy Linux 2.4:
 
-Thank you
+(Boy, 2.5's kconfig sure is nice.)
 
-On Thu, 25 Dec 2003, Tomas Szepe wrote:
 
-> On Dec-24 2003, Wed, 23:22 +0100
-> Gergely Tamas <dice@mfa.kfki.hu> wrote:
->
+diff -urN --exclude '*~' linux-2.4.23/Documentation/Configure.help edited/Documentation/Configure.help
+--- linux-2.4.23/Documentation/Configure.help	2003-12-25 18:24:46.000000000 +0000
++++ edited/Documentation/Configure.help	2003-12-25 18:28:16.000000000 +0000
+@@ -16703,6 +16703,12 @@
+   This option will enlarge your kernel by about 67 KB. Several
+   programs depend on this, so everyone should say Y here.
+ 
++visual uptime reporting support
++CONFIG_PROC_UPDIKE
++  A dynamic commentary on the nature of uptime contests, drawing on               
++  principles of the visual display of quantitative information                    
++  espoused by Ed Tufte.                                                           
++
+ Support for PReP Residual Data
+ CONFIG_PREP_RESIDUAL
+   Some PReP systems have residual data passed to the kernel by the
+diff -urN --exclude '*~' linux-2.4.23/fs/Config.in edited/fs/Config.in
+--- linux-2.4.23/fs/Config.in	2003-12-25 18:24:57.000000000 +0000
++++ edited/fs/Config.in	2003-12-25 18:26:22.000000000 +0000
+@@ -71,6 +71,7 @@
+ tristate 'OS/2 HPFS file system support' CONFIG_HPFS_FS
+ 
+ bool '/proc file system support' CONFIG_PROC_FS
++dep_bool 'visual uptime reporting support' CONFIG_PROC_UPDIKE $CONFIG_PROC_FS
+ 
+ # For some reason devfs corrupts memory badly on x86-64. Disable it 
+ # for now.
+diff -urN --exclude '*~' linux-2.4.23/fs/proc/proc_misc.c edited/fs/proc/proc_misc.c
+--- linux-2.4.23/fs/proc/proc_misc.c	2003-11-28 18:26:21.000000000 +0000
++++ edited/fs/proc/proc_misc.c	2003-12-25 18:14:43.000000000 +0000
+@@ -152,6 +152,28 @@
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ }
+ 
++#ifdef CONFIG_PROC_UPDIKE
++static int updike_read_proc(char *page, char**start, off_t off,
++				int count, int *eof, void *data)
++{
++	struct timespec uptime;
++	int days;
++	int i = 0;
++
++	do_posix_clock_monotonic_gettime(&uptime);
++	days = uptime.tv_sec / (3600 * 24);
++	page[0] = '8';
++	while ((i < days) && (i <= PAGE_SIZE - 4)) {
++		page[++i] = '=';
++	}
++	page[i + 1] = 'D';
++	page[i + 2] = '\n';
++	page[i + 3] = '\0';
++
++	return proc_calc_metrics(page, start, off, count, eof, i + 3);
++}
++#endif
++
+ static int meminfo_read_proc(char *page, char **start, off_t off,
+ 				 int count, int *eof, void *data)
+ {
+@@ -596,6 +618,9 @@
+ 	} *p, simple_ones[] = {
+ 		{"loadavg",     loadavg_read_proc},
+ 		{"uptime",	uptime_read_proc},
++#ifdef CONFIG_PROC_UPDIKE
++		{"updike",	updike_read_proc},
++#endif
+ 		{"meminfo",	meminfo_read_proc},
+ 		{"version",	version_read_proc},
+ #ifdef CONFIG_PROC_HARDWARE
 

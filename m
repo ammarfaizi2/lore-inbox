@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266169AbUFIPbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUFIPcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbUFIPbw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 11:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266168AbUFIPbw
+	id S266170AbUFIPcV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 11:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266168AbUFIPcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 11:31:52 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:15512 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S266169AbUFIPbj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 11:31:39 -0400
+	Wed, 9 Jun 2004 11:32:00 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:20442 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266166AbUFIPbA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 11:31:00 -0400
 From: Kevin Corry <kevcorry@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] DM 4/5: dm-zero version
-Date: Wed, 9 Jun 2004 10:32:23 +0000
+Subject: [PATCH] DM 3/5: Fix error cleanup in dm_create_persistent()
+Date: Wed, 9 Jun 2004 10:31:52 +0000
 User-Agent: KMail/1.6.2
 Cc: LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
@@ -20,22 +20,26 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406091032.23217.kevcorry@us.ibm.com>
+Message-Id: <200406091031.52249.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add missing dm-zero version number.
+dm-exception-store.c: Fix error cleanup in dm_create_persistent().
+This was originally found by chrisw during code review.
 
-From: Alasdair Kergon <agk@redhat.com>
+From: Dave Olien <dmo@osdl.org>
 Signed-off-by: Kevin Corry <kevcorry@us.ibm.com>
 
---- diff/drivers/md/dm-zero.c	2004-06-09 08:47:09.000000000 +0000
-+++ source/drivers/md/dm-zero.c	2004-06-09 10:24:52.314139776 +0000
-@@ -66,6 +66,7 @@
+--- diff/drivers/md/dm-exception-store.c	2004-06-09 08:47:09.210467016 +0000
++++ source/drivers/md/dm-exception-store.c	2004-06-09 08:49:14.167470664 +0000
+@@ -569,8 +569,8 @@
+       bad:
+ 	dm_io_put(sectors_to_pages(chunk_size));
+ 	if (ps) {
+-		if (ps->callbacks)
+-			vfree(ps->callbacks);
++		if (ps->area)
++			free_area(ps);
  
- static struct target_type zero_target = {
- 	.name   = "zero",
-+	.version = {1, 0, 0},
- 	.module = THIS_MODULE,
- 	.ctr    = zero_ctr,
- 	.map    = zero_map,
+ 		kfree(ps);
+ 	}

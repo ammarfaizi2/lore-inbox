@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311242AbSCSNyV>; Tue, 19 Mar 2002 08:54:21 -0500
+	id <S311247AbSCSOKo>; Tue, 19 Mar 2002 09:10:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311241AbSCSNyL>; Tue, 19 Mar 2002 08:54:11 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:43257 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S311240AbSCSNx5>; Tue, 19 Mar 2002 08:53:57 -0500
-Date: Tue, 19 Mar 2002 21:53:35 +0800 (MYT)
-From: David Woodhouse <dwmw2@infradead.org>
-X-X-Sender: dwmw2@lapdancer.baythorne.internal
-To: David Woodhouse <dwmw2@redhat.com>
-cc: Paul Mackerras <paulus@samba.org>, "J.A. Magallon" <jamagallon@able.es>,
-        <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] zlib double-free bug 
-In-Reply-To: <Pine.LNX.4.44.0203191044150.26226-100000@passion.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.44.0203192141290.6019-100000@lapdancer.baythorne.internal>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311252AbSCSOKe>; Tue, 19 Mar 2002 09:10:34 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:22700 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S311247AbSCSOKQ>; Tue, 19 Mar 2002 09:10:16 -0500
+Date: Tue, 19 Mar 2002 15:05:38 +0100
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: alternative linux configurator prototype v0.2
+Message-ID: <20020319150538.B1350@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C9396F5.7319AB27@linux-m68k.org> <3C94948E.777B5BAF@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Mar 2002, David Woodhouse wrote:
+Neat.
+I would appreciate somewhat more readability, though. It's not very
+simple to figure out in which state an option is (Y/N/M) if it's not focused.
+Maybe put the selected variant before the option name:
++ Networking options
+  + Packet socket
+  | <M> Netlink device emulation
+  | <N> Network packet filtering ...
 
-> For the record - it's not worth bothering with fs/jffs2/zlib.c; if they 
-> can corrupt your file system on the medium, why bother with cracking zlib? 
-> :)
+Besides, i think your selection of qt as gui platform is not making you
+many friends, though greatly speeded up the development.
 
-To preempt anyone else objecting to this...
-
-I mean, given that we have a CRC on jffs2 nodes anyway, so the chances of
-any accidentally corrupted input actually being fed to the decompressor
-are virtually zero, it's not worth patching the 2.4.19 zlib when I want to
-put the shared zlib into 2.4.20 anyway.
-
-I'm not going to object to anyone else doing so, but I can't be bothered
-to do it myself, as it would have virtually zero benefit and would mean
-I'd have to update the shared-zlib patches for 2.4.
-
-Infinitely more people (i.e. at least one) have been bitten by the fact
-that you can't build both ppp_deflate and jffs2 into a 2.4 kernel.
-
--- 
-dwmw2
-
+-alex
+  
+On Sun, Mar 17, 2002 at 02:05:18PM +0100, Roman Zippel wrote:
+> Hi,
+> 
+> I wrote:
+> 
+> > At http://www.xs4all.nl/~zippel/lc.tar.gz you can find a prototype for a
+> > new linux configurator (see the included README for build/use
+> > information). It has reached a point, where it's becoming usable and I
+> > need some feedback on how/if to continue.
+> 
+> There is a new version at http://www.xs4all.nl/~zippel/lc/lc-0.2.tar.gz,
+> this version also works with qt2.x.
+> So far I hadn't very much feedback. What's up? Is everyone suddenly
+> completely happy with cml2? Now is your chance to evaluate the
+> alternatives or does this require too much work before you can start
+> flaming?
+> 
+> bye, Roman
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

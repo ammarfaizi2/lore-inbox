@@ -1,239 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbUBZXX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:23:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbUBZXXL
+	id S261264AbUBZXTh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUBZXSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:23:11 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:59121 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261253AbUBZXTv
+	Thu, 26 Feb 2004 18:18:13 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55549 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261297AbUBZXOJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:19:51 -0500
-Message-ID: <403E7F0C.6000009@mvista.com>
-Date: Thu, 26 Feb 2004 15:19:40 -0800
+	Thu, 26 Feb 2004 18:14:09 -0500
+Message-ID: <403E7DBB.6070202@mvista.com>
+Date: Thu, 26 Feb 2004 15:14:03 -0800
 From: George Anzinger <george@mvista.com>
 Organization: MontaVista Software
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Tom Rini <trini@kernel.crashing.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH][2/3] Update CVS KGDB's have kgdb_{schedule,process}_breakpoint
-References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net> <200402261300.34911.amitkale@emsyssoft.com>
-In-Reply-To: <200402261300.34911.amitkale@emsyssoft.com>
+To: john stultz <johnstul@us.ibm.com>
+CC: Albert Cahalan <albert@users.sourceforge.net>,
+       David Ford <david+powerix@blue-labs.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: /proc or ps tools bug?  2.6.3, time is off
+References: <403C014F.2040504@blue-labs.org>	 <1077674048.10393.369.camel@cube>  <403C2E56.2060503@blue-labs.org>	 <1077679677.10393.431.camel@cube>  <403CCD3A.7080200@mvista.com>	 <1077725042.8084.482.camel@cube>  <403D0F63.3050101@mvista.com> <1077760348.2857.129.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1077760348.2857.129.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit S. Kale wrote:
-> On Thursday 26 Feb 2004 3:13 am, Tom Rini wrote:
-> 
->>The following adds, and then makes use of kgdb_process_breakpoint /
->>kgdb_schedule_breakpoint.  Using it i kgdb_8250.c isn't strictly needed,
->>but it isn't wrong either.
-> 
-> 
-> That makes 8250 response it a _bit_ slower. A user will notice when kgdb 
-> doesn't respond within a millisecond of pressing Ctrl+C :-)
+John,
 
-Hm...  I have been wondering if it might not be a good idea to put some comments 
-to the user at or around the breakpoint.  Possibly we might want to tell the 
-user about where the info files are or some such.  This would then come up on 
-his screen when the source code at the breakpoint is displayed.
+This is the other place I found "start_time" being used.  It is at about line 
+340 in kernel/acct.c.  The same sort of math should be done here:
 
-comments...
+	elapsed = get_jiffies_64() - current->start_time;
+	ac.ac_etime = encode_comp_t(elapsed < (unsigned long) -1l ?
+	                       (unsigned long) elapsed : (unsigned long) -1l);
+	do_div(elapsed, HZ);
 
 -g
+
+john stultz wrote:
+> On Wed, 2004-02-25 at 13:10, George Anzinger wrote:
 > 
-> OK to checkin.
-> -Amit
+>>Albert Cahalan wrote:
+>>
+>>>This is NOT sane. Remeber that procps doesn't get to see HZ.
+>>>Only USER_HZ is available, as the AT_CLKTCK ELF note.
+>>>
+>>>I think the way to fix this is to skip or add a tick
+>>>every now and then, so that the long-term HZ is exact.
+>>>
+>>>Another way is to simply choose between pure old-style
+>>>tick-based timekeeping and pure new-style cycle-based
+>>>(TSC or ACPI) timekeeping. Systems with uncooperative
+>>>hardware have to use the old-style time keeping. This
+>>>should simply the code greatly.
+>>
+>>On checking the code and thinking about this, I would suggest that we change 
+>>start_time in the task struct to be the wall time (or monotonic time if that 
+>>seems better).  I only find two places this is used, in proc and in the 
+>>accounting code.  Both of these could easily be changed.  Of course, even 
+>>leaving it as it is, they could be changed to report more correct values by 
+>>using the correct conversions to translate the system HZ to USER_HZ.
 > 
 > 
->># This is a BitKeeper generated patch for the following project:
->># Project Name: Linux kernel tree
->># This patch format is intended for GNU patch command version 2.5 or
->>higher. # This patch includes the following deltas:
->>#	           ChangeSet	1.1663  -> 1.1664
->>#	arch/i386/kernel/irq.c	1.48    -> 1.49
->>#	drivers/net/kgdb_eth.c	1.2     -> 1.3
->>#	arch/x86_64/kernel/irq.c	1.21    -> 1.22
->>#	drivers/serial/kgdb_8250.c	1.3     -> 1.4
->>#	       kernel/kgdb.c	1.3     -> 1.4
->>#	arch/ppc/kernel/irq.c	1.36    -> 1.37
->>#	include/linux/kgdb.h	1.3     -> 1.4
->>#
->># The following is the BitKeeper ChangeSet Log
->># --------------------------------------------
->># 04/02/25	trini@kernel.crashing.org	1.1664
->># process_breakpoint/schedule_breakpoint.
->># --------------------------------------------
->>#
->>diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
->>--- a/arch/i386/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>+++ b/arch/i386/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>@@ -34,6 +34,7 @@
->> #include <linux/proc_fs.h>
->> #include <linux/seq_file.h>
->> #include <linux/kallsyms.h>
->>+#include <linux/kgdb.h>
->>
->> #include <asm/atomic.h>
->> #include <asm/io.h>
->>@@ -507,6 +508,8 @@
->> 	spin_unlock(&desc->lock);
->>
->> 	irq_exit();
->>+
->>+	kgdb_process_breakpoint();
->>
->> 	return 1;
->> }
->>diff -Nru a/arch/ppc/kernel/irq.c b/arch/ppc/kernel/irq.c
->>--- a/arch/ppc/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>+++ b/arch/ppc/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>@@ -46,6 +46,7 @@
->> #include <linux/random.h>
->> #include <linux/seq_file.h>
->> #include <linux/cpumask.h>
->>+#include <linux/kgdb.h>
->>
->> #include <asm/uaccess.h>
->> #include <asm/bitops.h>
->>@@ -536,7 +537,9 @@
->> 	if (irq != -2 && first)
->> 		/* That's not SMP safe ... but who cares ? */
->> 		ppc_spurious_interrupts++;
->>-        irq_exit();
->>+	irq_exit();
->>+
->>+	kgdb_process_breakpoint();
->> }
->>
->> unsigned long probe_irq_on (void)
->>diff -Nru a/arch/x86_64/kernel/irq.c b/arch/x86_64/kernel/irq.c
->>--- a/arch/x86_64/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>+++ b/arch/x86_64/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>@@ -405,6 +405,8 @@
->> 	spin_unlock(&desc->lock);
->>
->> 	irq_exit();
->>+
->>+	kgdb_process_breakpoint();
->> 	return 1;
->> }
->>
->>diff -Nru a/drivers/net/kgdb_eth.c b/drivers/net/kgdb_eth.c
->>--- a/drivers/net/kgdb_eth.c	Wed Feb 25 14:21:32 2004
->>+++ b/drivers/net/kgdb_eth.c	Wed Feb 25 14:21:32 2004
->>@@ -60,7 +60,6 @@
->> static atomic_t in_count;
->> int kgdboe = 0;			/* Default to tty mode */
->>
->>-extern void breakpoint(void);
->> static void rx_hook(struct netpoll *np, int port, char *msg, int len);
->>
->> static struct netpoll np = {
->>@@ -106,14 +105,12 @@
->>
->> 	np->remote_port = port;
->>
->>-	/* Is this gdb trying to attach? */
->>-	if (!netpoll_trap() && len == 8 && !strncmp(msg, "$Hc-1#09", 8))
->>-		breakpoint();
->>+	/* Is this gdb trying to attach (!kgdb_connected) or break in
->>+	 * (msg[0] == 3) ? */
->>+	if (!netpoll_trap() && (!kgdb_connected || msg[0] == 3))
->>+		 kgdb_schedule_breakpoint();
->>
->> 	for (i = 0; i < len; i++) {
->>-		if (msg[i] == 3)
->>-			breakpoint();
->>-
->> 		if (atomic_read(&in_count) >= IN_BUF_SIZE) {
->> 			/* buffer overflow, clear it */
->> 			in_head = in_tail = 0;
->>diff -Nru a/drivers/serial/kgdb_8250.c b/drivers/serial/kgdb_8250.c
->>--- a/drivers/serial/kgdb_8250.c	Wed Feb 25 14:21:32 2004
->>+++ b/drivers/serial/kgdb_8250.c	Wed Feb 25 14:21:32 2004
->>@@ -248,7 +248,7 @@
->>
->> 	/* If we get an interrupt, then KGDB is trying to connect. */
->> 	if (!kgdb_connected) {
->>-		breakpoint();
->>+		kgdb_schedule_breakpoint();
->> 		return IRQ_HANDLED;
->> 	}
->>
->>diff -Nru a/include/linux/kgdb.h b/include/linux/kgdb.h
->>--- a/include/linux/kgdb.h	Wed Feb 25 14:21:32 2004
->>+++ b/include/linux/kgdb.h	Wed Feb 25 14:21:32 2004
->>@@ -11,8 +11,22 @@
->> #include <asm/atomic.h>
->> #include <linux/debugger.h>
->>
->>+/*
->>+ * This file should not include ANY others.  This makes it usable
->>+ * most anywhere without the fear of include order or inclusion.
->>+ * TODO: Make it so!
->>+ *
->>+ * This file may be included all the time.  It is only active if
->>+ * CONFIG_KGDB is defined, otherwise it stubs out all the macros
->>+ * and entry points.
->>+ */
->>+
->>+#if defined(CONFIG_KGDB) && !defined(__ASSEMBLY__)
->> /* To enter the debugger explicitly. */
->>-void breakpoint(void);
->>+extern void breakpoint(void);
->>+extern void kgdb_schedule_breakpoint(void);
->>+extern void kgdb_process_breakpoint(void);
->>+extern volatile int kgdb_connected;
->>
->> #ifndef KGDB_MAX_NO_CPUS
->> #if CONFIG_NR_CPUS > 8
->>@@ -112,4 +126,7 @@
->> char *kgdb_hex2mem(char *buf, char *mem, int count);
->> int kgdb_get_mem(char *addr, unsigned char *buf, int count);
->>
->>+#else
->>+#define kgdb_process_breakpoint()      do {} while(0)
->>+#endif /* KGDB && !__ASSEMBLY__ */
->> #endif				/* _KGDB_H_ */
->>diff -Nru a/kernel/kgdb.c b/kernel/kgdb.c
->>--- a/kernel/kgdb.c	Wed Feb 25 14:21:32 2004
->>+++ b/kernel/kgdb.c	Wed Feb 25 14:21:32 2004
->>@@ -1169,6 +1169,29 @@
->> 	printk("Connected.\n");
->> }
->>
->>+/*
->>+ * Sometimes we need to schedule a breakpoint because we can't break
->>+ * right where we are.
->>+ */
->>+static int kgdb_need_breakpoint[NR_CPUS];
->>+
->>+void kgdb_schedule_breakpoint(void)
->>+{
->>+	kgdb_need_breakpoint[smp_processor_id()] = 1;
->>+}
->>+
->>+void kgdb_process_breakpoint(void)
->>+{
->>+	/*
->>+	 * Handle a breakpoint queued from inside network driver code
->>+	  * to avoid reentrancy issues
->>+	 */
->>+	if (kgdb_need_breakpoint[smp_processor_id()]) {
->>+		 kgdb_need_breakpoint[smp_processor_id()] = 0;
->>+		 breakpoint();
->>+	}
->>+}
->>+
->> #ifdef CONFIG_KGDB_CONSOLE
->> char kgdbconbuf[BUFMAX];
+> Is this close to what your thinking of? 
+> I can't reproduce the issue on my systems, so I'll need someone else to
+> test this. 
+> 
+> thanks
+> -john
+> 
+> --- 1.5/include/linux/times.h	Sun Nov  9 19:26:08 2003
+> +++ edited/include/linux/times.h	Wed Feb 25 17:39:11 2004
+> @@ -7,7 +7,7 @@
+>  #include <asm/param.h>
+>  
+>  #if (HZ % USER_HZ)==0
+> -# define jiffies_to_clock_t(x) ((x) / (HZ / USER_HZ))
+> +# define jiffies_to_clock_t(x) (((x*TICK_NSEC*HZ)/NSEC_PER_SEC) / (HZ / USER_HZ))
+>  #else
+>  # define jiffies_to_clock_t(x) ((clock_t) jiffies_64_to_clock_t((u64) x))
+>  #endif
+> 
+> 
 > 
 > 
 > -

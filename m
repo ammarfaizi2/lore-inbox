@@ -1,87 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbTLCUk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 15:40:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbTLCUk3
+	id S261500AbTLCUpV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 15:45:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTLCUpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 15:40:29 -0500
-Received: from gw-oko.i4u.sk ([212.89.237.40]:28432 "EHLO 212.89.237.40")
-	by vger.kernel.org with ESMTP id S261311AbTLCUkX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 15:40:23 -0500
-Date: Wed, 3 Dec 2003 21:40:21 +0100
-From: ivan vadovic <pivo@pobox.sk>
-To: Adam Belay <ambx1@neo.rr.com>
-Cc: rogerspl@datasync.com, linux-kernel@vger.kernel.org
-Subject: Re: isapnp modem working [PATCH]
-Message-ID: <20031203204021.GF2218@larva.oko>
-References: <20031111005856.GB2104@larva.oko> <20031202224337.GA3531@neo.rr.com> <20031202232512.GA14946@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20031202232512.GA14946@neo.rr.com>
-User-Agent: Mutt/1.5.4i
+	Wed, 3 Dec 2003 15:45:21 -0500
+Received: from aples1.dom1.jhuapl.edu ([128.244.26.85]:4626 "EHLO
+	aples1.jhuapl.edu") by vger.kernel.org with ESMTP id S261500AbTLCUov convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 15:44:51 -0500
+Message-ID: <E37E01957949D611A4C30008C7E691E20915BBC3@aples3.dom1.jhuapl.edu>
+From: "Collins, Bernard F. (Skip)" <Bernard.Collins@jhuapl.edu>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Visor USB hang
+Date: Wed, 3 Dec 2003 15:44:47 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 11:25:12PM +0000, Adam Belay wrote:
-> Date: Tue, 2 Dec 2003 23:25:12 +0000
-> From: Adam Belay <ambx1@neo.rr.com>
-> To: ivan vadovic <pivo@pobox.sk>
-> Subject: Re: isapnp modem in 2.6.0-test9-bk13 not working
-> 
-> On Tue, Dec 02, 2003 at 10:43:37PM +0000, Adam Belay wrote:
-> > On Tue, Nov 11, 2003 at 01:58:58AM +0100, ivan vadovic wrote:
-> > > I've got an ordinary isapnp modem which provides a serial port unlike
-> > > winmodems and it just happens to work under 2.4 kernels. When I boot into
-> > > the 2.6 kernel on the same machine, everything ( sound, ide, md, networking,
-> > > input devices) seems to work right but the modem. Modprobing 8250_pnp only
-> > > detects the 2 onboard serial ports. Am I doing anything wrong? What am I
-> > > supposed to test? Should I provide any more info? Please Cc me as I'm not
-> > > on the list.
-> > >
-> > 
-> > Could you try this patch.
-> > 
-> > --- a/drivers/serial/8250_pnp.c	2003-11-26 20:42:52.000000000 +0000
-> > +++ b/drivers/serial/8250_pnp.c	2003-12-02 22:41:04.000000000 +0000
-> > @@ -310,6 +310,8 @@
-> >  	{	"PNPCXXX",		UNKNOWN_DEV	},
-> >  	/* More unkown PnP modems */
-> >  	{	"PNPDXXX",		UNKNOWN_DEV	},
-> > +	/* check all devices and guess if they are modems */
-> > +	{	"ANYDEVS",		UNKNOWN_DEV	},
-> >  	{	"",			0	}
-> >  };
-> > 
-> > Thanks,
-> > Adam
-> > 
-> 
-> On second thought this isn't a very good idea because of the way the current
-> code enables devices on a match.  Instead I'll need the EISA ID for your modem.
-> You can find it by catting /proc/isapnp in 2.4 or through sysfs in 2.6.
-> 
-> Thanks,
-> Adam
+I am running 2.4.23 on a RedHat 9 system. Whenever I try to sync my Visor
+Deluxe, the system hangs/freezes soon after I press the sync button on my
+cradle. Trying to find the cause of the problem, I preloaded the usbserial
+and visor modules with "debug=1". Nothing obviously wrong appears in the
+logs. The last message before the system freezes is a usb-uhci.c interrupt
+message. Any help debugging this further would be appreciated. Please CC me
+on any replies.
 
-Well, your patch works if I modify it a little. And here goes the proper fix (
-or is it?)
-
---- linux-2.6.0-test5/drivers/serial/8250_pnp.c	2003-12-03 21:30:15.064886440 +0100
-+++ ivan/drivers/serial/8250_pnp.c	2003-12-03 21:31:20.805892288 +0100
-@@ -259,6 +259,8 @@
- 	{	"RSS00A0",		0	},
- 	/* Viking 56K FAX INT */
- 	{	"RSS0262",		0	},
-+	/* K56 par,VV,Voice,Speakphone,AudioSpan,PnP */
-+	{	"RSS0250",		0	},
- 	/* SupraExpress 28.8 Data/Fax PnP modem */
- 	{	"SUP1310",		0	},
- 	/* SupraExpress 33.6 Data/Fax PnP modem */
-
-Wow my first kernel patch. Will I get credit in the changelog to impress my
-friends?
-
-Ivan Vadovic
+Here are the relevant lines from /var/log/messages:
+Dec  3 15:19:20 xtr45wac kernel: usb.c: registered new driver serial
+Dec  3 15:19:20 xtr45wac kernel: usbserial.c: USB Serial support registered
+for Generic
+Dec  3 15:19:20 xtr45wac kernel: usbserial.c: USB Serial Driver core v1.4
+Dec  3 15:19:27 xtr45wac kernel: usbserial.c: USB Serial support registered
+for Handspring Visor / Treo / Palm 4.0 / Clié4.x
+Dec  3 15:19:28 xtr45wac kernel: usbserial.c: USB Serial support registered
+for Sony Clié3.5
+Dec  3 15:19:28 xtr45wac kernel: visor.c: USB HandSpring Visor, Palm m50x,
+Treo, Sony Cliédriver v1.7
+Dec  3 15:20:35 xtr45wac kernel: hub.c: new USB device 00:1d.1-2, assigned
+address 3
+Dec  3 15:20:35 xtr45wac kernel: usbserial.c: Handspring Visor / Treo / Palm
+4.0 / Clié4.x converter detected
+Dec  3 15:20:35 xtr45wac kernel: visor.c: Handspring Visor / Treo / Palm 4.0
+/ Clié4.x: Number of ports: 2
+Dec  3 15:20:35 xtr45wac kernel: visor.c: Handspring Visor / Treo / Palm 4.0
+/ Clié4.x: port 1, is for Generic use and is bound to ttyUSB0
+Dec  3 15:20:35 xtr45wac kernel: visor.c: Handspring Visor / Treo / Palm 4.0
+/ Clié4.x: port 2, is for HotSync use and is bound to ttyUSB1
+Dec  3 15:20:35 xtr45wac kernel: usbserial.c: Handspring Visor / Treo / Palm
+4.0 / Clié4.x converter now attached to ttyUSB0 (or usb/tts/0 for devfs)
+Dec  3 15:20:35 xtr45wac kernel: usbserial.c: Handspring Visor / Treo / Palm
+4.0 / Clié4.x converter now attached to ttyUSB1 (or usb/tts/1 for devfs)
+Dec  3 15:20:36 xtr45wac kernel: usb-uhci.c: interrupt, status 2, frame#
+1499
+Dec  3 15:21:58 xtr45wac syslogd 1.4.1: restart.
+D

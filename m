@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUHMOCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265817AbUHMOLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUHMOCf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 10:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265499AbUHMOCf
+	id S265817AbUHMOLw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 10:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265833AbUHMOLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 10:02:35 -0400
-Received: from gw-oleane.hubxpress.net ([81.80.52.129]:26326 "EHLO
-	yoda.hubxpress.net") by vger.kernel.org with ESMTP id S265487AbUHMOCa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 10:02:30 -0400
-From: "Sylvain COUTANT" <sylvain.coutant@illicom.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: High CPU usage (up to server hang) under heavy I/O load
-Date: Fri, 13 Aug 2004 16:01:35 +0200
-Organization: ILLICOM
+	Fri, 13 Aug 2004 10:11:51 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:5626 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265817AbUHMOLt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 10:11:49 -0400
+Date: Fri, 13 Aug 2004 10:15:45 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Keith Owens <kaos@ocs.com.au>, Linus Torvalds <torvalds@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
+In-Reply-To: <20040813103902.GE11200@holomorphy.com>
+Message-ID: <Pine.LNX.4.58.0408131015070.18353@montezuma.fsmlabs.com>
+References: <20040812010115.GY11200@holomorphy.com>
+ <Pine.LNX.4.58.0408112133470.2544@montezuma.fsmlabs.com>
+ <20040812020424.GB11200@holomorphy.com> <20040812072058.GH11200@holomorphy.com>
+ <20040813080116.GY11200@holomorphy.com> <20040813091640.GZ11200@holomorphy.com>
+ <20040813093002.GA11200@holomorphy.com> <20040813094614.GB11200@holomorphy.com>
+ <20040813100540.GC11200@holomorphy.com> <20040813102334.GD11200@holomorphy.com>
+ <20040813103902.GE11200@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcSBPdykdNbyY+XFR4iSOX7E4jeWtgAABWeA
-Message-Id: <20040813140229.4F48B2FC2C@illicom.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gurus,
+On Fri, 13 Aug 2004, William Lee Irwin III wrote:
 
-I have a problem with one server (DELL, 1 TB RAID5 + RAID0, Bi-Xeon, 8 GB
-RAM) which, sometimes, goes mad when the I/O pressure gets too high. We use
-this server as a VMWare server and as a backup server (200 GB are dedicated
-to the backup part). We have run full hardware diags and checked every
-software that runs on the system. We have been able to reproduce the problem
-once without having launched the VMWare server (so I believe this software
-is not responsible for the problem).
+> On Fri, Aug 13, 2004 at 03:23:34AM -0700, William Lee Irwin III wrote:
+> > Reinlining read_unlock_irq() also yields:
+> >               text    data     bss     dec     hex filename
+> > mainline:    19973522        6607761 1878448 28459731        1b242d3 vmlinux
+> > cool:        19839487        6585707 1878448 28303642        1afe11a vmlinux
+> > C-func:      19923848        6582771 1878384 28385003        1b11eeb vmlinux
+> > unlock:      19895498        6582746 1878384 28356628        1b0b014 vmlinux
+> > unlock-irq:  19889858        6582721 1878384 28350963        1b099f3 vmlinux
+> > read-unlock: 19883858        6582674 1878384 28344916        1b08254 vmlinux
+> > irqrestore:  19855759        6582442 1878384 28316585        1b013a9 vmlinux
+> > rdunlockirq: 19855255        6582369 1878384 28316008        1b01168 vmlinux
+>
+> Reinlining read_unlock_irqrestore() also yields:
+> rdunlckrestor: 19855007        6582236 1878384 28315627        1b00feb vmlinux
 
-We have tested kernels 2.4.22 and 2.4.26. The server is running under Debian
-Woody.
-
-The exact problem is the unix load sometimes goes _very high_ under I/O
-activity (mainly disk writes seem to cause this). Even having just two or
-three tar+gz processes running can cause the 15 minutes load average to get
-as high as 20 or 30 (where we would expect it being between 2 and 4). The
-load can go to so high value that we can't do anything anymore on the server
-during some delay (between a few seconds and a few days). Our Friday night
-backups often hang the server until we unplug the power to reboot on monday
-morning. From what we have seen, it can happen that kswapd and kupdated eats
-up to 70% of one CPU each. Otherwise, it's very hard to tell what happens
-exactly because when the server is slowing down we have no possible
-monitoring, no log, no alerts, no automatic reboot (must power off/on to
-reboot), no console alert, ... Just, that it's still pingable !!
-
-We didn't found a way to reproduce this behaviour with a specific test case.
-Sometimes the server will be fine during a few days then slow down and hang.
-Sometimes it will hang just a few hours after having been booted.
-
-I have spent hours searching for information and found our problem was very
-common in early 2.4.x kernels (virtual memory management) between 2000 and
-2002 on servers with large RAM. Only recent information I found was some
-patches related to kernel hanging or something like, but symptoms described
-was never exactly the same as ours.
-
-I tried to play a little with "/proc/sys/vm/*" settings (mainly bdflush) but
-I didn't found any major improvement (perhaps just because I didn't put in
-the good values). What I was trying to do was reducing the amount of memory
-the kernel could use for dirty buffers, thus having more regular flush to
-disks.
-
-Hopefully, some people here could be of help ;-))
-
-
-Regards,
-Sylvain.
-
+I was meaning to ask before, got ideas for lock profiling with this?

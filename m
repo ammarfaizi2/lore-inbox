@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264577AbUGRWwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUGRXSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264577AbUGRWwn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 18:52:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264585AbUGRWwm
+	id S264585AbUGRXSC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 19:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUGRXSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 18:52:42 -0400
-Received: from hell.org.pl ([212.244.218.42]:51218 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S264577AbUGRWwl (ORCPT
+	Sun, 18 Jul 2004 19:18:02 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:29468 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264585AbUGRXR7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 18:52:41 -0400
-Date: Mon, 19 Jul 2004 00:52:47 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Video memory corruption during suspend
-Message-ID: <20040718225247.GA30971@hell.org.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	acpi-devel@lists.sourceforge.net
+	Sun, 18 Jul 2004 19:17:59 -0400
+Date: Sun, 18 Jul 2004 16:15:49 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: solar@openwall.com, tigran@aivazian.fsnet.co.uk, alan@redhat.com,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: question about /proc/<PID>/mem in 2.4 (fwd)
+Message-Id: <20040718161549.5c61d4a9.pj@sgi.com>
+In-Reply-To: <20040718212721.GC1545@alpha.home.local>
+References: <20040707234852.GA8297@openwall.com>
+	<Pine.LNX.4.44.0407181336040.2374-100000@einstein.homenet>
+	<20040718125925.GA20133@openwall.com>
+	<20040718212721.GC1545@alpha.home.local>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm having an odd problem with video memory being corrupted during suspend.
+> What exactly is passed then ...
 
-My setup is:
-ASUS L3800C laptop, Radeon M7, i845 chipset, using DRI and radeonfb.
+The patch /proc/self/mem will be evaluated just once, on the open
+by the original shell.  Whatever bucket of bits that resolves to
+will remain the source for fd == 0 reads.
 
-Note that this is not specific to the kernel used, as I've been seeing 
-similar corruption every now and then, most recently under 2.6.7 +
-ACPICA20040715 + swsusp2.0.0.100 (S3, S4), but also under 2.4 with S1 (but 
-not with S4/swsusp2).
+That original shell's mem file will be read by whatever follows, exec or
+not.  The 'exec' just stops the shell from forking before it exec's, and
+certainly won't cause the path that was used earlier to open fd 0 to be
+re-evaluated.
 
-I have a very simple script I use to suspend (i.e. basically echo $arg >
-/proc/acpi/sleep), which is usually started by acpid. Once the script is
-triggered (by pressing power / sleep button) and an X session is running, 
-various red and green patches appear on the screen (the background image
-and the tinted terminal emulator), followed by the VT switch the PM code
-does. After resume and subsequent VT switch by the PM code the corruption
-is still visible. The screen is properly restored by a manual VT switch.
-The corruption is clearly related to the existing background pixmap, as
-moving the windows does not change its pattern. Oddly enough, starting a GL
-app such as glxgears and moving it into and out of focus also properly
-restores the screen.
+The setuidapp will see the shell's memory.  In general, a app, setuid or
+not, should make no assumption that any open fd's handed to it at birth
+were opened using the same priviledges that the app itself has.
 
-I'll be happy to provide any useful information.
-Best regards,
+Or, more to the point, no higher priviledge app, when calling down to a
+lessor priviledge app (say a setuid or root app invoking a less trusted
+app) should allow any open file descriptors across the fork or exec,
+except those open on files to which it determines the lessor context has
+rights.
 
 -- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

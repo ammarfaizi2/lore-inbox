@@ -1,65 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132037AbRCVPBK>; Thu, 22 Mar 2001 10:01:10 -0500
+	id <S132046AbRCVOzA>; Thu, 22 Mar 2001 09:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132047AbRCVPBC>; Thu, 22 Mar 2001 10:01:02 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:59093 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132037AbRCVPAk>;
-	Thu, 22 Mar 2001 10:00:40 -0500
-Date: Thu, 22 Mar 2001 14:58:10 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Stephen Tweedie <sct@redhat.com>,
-        arjanv@redhat.com, Linus Torvalds <torvalds@transmeta.com>
-Subject: Thinko in kswapd?
-Message-ID: <20010322145810.A7296@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Kj7319i9nmIyA2yE"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S132037AbRCVOyy>; Thu, 22 Mar 2001 09:54:54 -0500
+Received: from mail.missioncriticallinux.com ([208.51.139.18]:60687 "EHLO
+	missioncriticallinux.com") by vger.kernel.org with ESMTP
+	id <S132044AbRCVOyp>; Thu, 22 Mar 2001 09:54:45 -0500
+Message-ID: <3ABA11F3.60004@missioncriticallinux.com>
+Date: Thu, 22 Mar 2001 09:53:39 -0500
+From: "Patrick O'Rourke" <orourke@missioncriticallinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-pre6 i686; en-US; 0.8) Gecko/20010218
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi,
-
-There is what appears to be a simple thinko in kswapd.  We really
-ought to keep kswapd running as long as there is either a free space
-or an inactive page shortfall; but right now we only keep going if
-_both_ are short.
-
-Diff below.  With this change, I've got a 64MB box running Applix and
-Star Office with multiple open documents plus a few other big apps
-running, and switching desktops or going between documents is once
-more nice and snappy.  Running a normal heavily populated desktop in
-256MB used to be painful, with much apparently unnecessary swapping,
-if we had background page-cache intensive operations (eg find|wc)
-going on: the patched kernel feels much better interactively,
-presumably because kswapd is now doing the work it is supposed to do,
-instead of forcing normal apps to go into page stealing mode
-themselves.
-
---Stephen
+Rik van Riel wrote:
 
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="2.4.2-ac20.kswap.diff"
+> One question ... has the OOM killer ever selected init on
+> anybody's system ?
 
---- mm/vmscan.c.~1~	Fri Mar 16 15:39:24 2001
-+++ mm/vmscan.c	Thu Mar 22 13:05:37 2001
-@@ -1010,7 +1010,7 @@
- 		 * We go to sleep for one second, but if it's needed
- 		 * we'll be woken up earlier...
- 		 */
--		if (!free_shortage() || !inactive_shortage()) {
-+		if (!free_shortage() && !inactive_shortage()) {
- 			interruptible_sleep_on_timeout(&kswapd_wait, HZ);
- 		/*
- 		 * If we couldn't free enough memory, we see if it was
+Yes, which is why I created the patch.
 
---Kj7319i9nmIyA2yE--
+-- 
+Patrick O'Rourke
+978.606.0236
+orourke@missioncriticallinux.com
+

@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264922AbUGBUvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264926AbUGBVCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbUGBUvw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 16:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264920AbUGBUvv
+	id S264926AbUGBVCR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 17:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbUGBVCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 16:51:51 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6365 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264922AbUGBUvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 16:51:38 -0400
-Date: Fri, 2 Jul 2004 22:51:29 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: limaunion <limaunion@fibertel.com.ar>
+	Fri, 2 Jul 2004 17:02:17 -0400
+Received: from mail.kroah.org ([65.200.24.183]:15748 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264926AbUGBVCQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 17:02:16 -0400
+Date: Fri, 2 Jul 2004 13:57:12 -0700
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <roland@topspin.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm2 build errors...
-Message-ID: <20040702205129.GK28324@fs.tum.de>
-References: <40DCEFFB.5020605@fibertel.com.ar>
+Subject: Re: [PATCH] Add some PCI Express constants to pci.h
+Message-ID: <20040702205712.GE29580@kroah.com>
+References: <52r7rwj40o.fsf@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40DCEFFB.5020605@fibertel.com.ar>
+In-Reply-To: <52r7rwj40o.fsf@topspin.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 26, 2004 at 12:39:39AM -0300, limaunion wrote:
-
->   LD      .tmp_vmlinux1
-> arch/i386/kernel/built-in.o(.text+0xbe14): In function `powernow_acpi_init':
-> : undefined reference to `acpi_processor_register_performance'
-> arch/i386/kernel/built-in.o(.text+0xbe3b): In function `powernow_acpi_init':
-> : undefined reference to `acpi_processor_unregister_performance'
-> arch/i386/kernel/built-in.o(.exit.text+0x3b): In function `powernow_exit':
-> : undefined reference to `acpi_processor_unregister_performance'
-> make: *** [.tmp_vmlinux1] Error 1
+On Wed, Jun 30, 2004 at 11:26:47AM -0700, Roland Dreier wrote:
+> This patch adds some PCI Express register constants to <linux/pci.h>
 > 
-> This also happens in 2.6.7-mm1, I'm wondering if this is my fault or 
-> something's wrong?
+> For my device, setting the Max_Read_Request_Size value in the PCI
+> Express device control register makes a huge performance difference.
+> I wanted my driver code that does this to be a little more
+> self-documenting than:
+> 
+> 	pci_read_config_word(mdev->pdev, cap + 8, &val);
+> 	val = (val & ~(5 << 12)) | (5 << 12);
+> 
+> I went a little overboard and added all the basic device register
+> fields.  If desired I could go even further overboard and add the
+> link, slot and root registers as well.
+> 
+> This patch is based on Matthew Wilcox's patch for pciutils, corrected
+> for some PCI Express spec 1.0a changes.
+> 
+> Signed-off-by: Roland Dreier <roland@topspin.com>
 
-It seems something is/was wrong.
+Applied, thanks.
 
-Can you still reproduce it in 2.6.7-mm5?
-If yes, please send your .config.
-
-> Thanks in advance!
-> JC
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+greg k-h

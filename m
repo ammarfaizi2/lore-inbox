@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUHAAZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUHAA22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbUHAAZS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 20:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUHAAZR
+	id S263775AbUHAA22 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 20:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUHAA22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 20:25:17 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:47540 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263772AbUHAAZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 20:25:11 -0400
-Subject: Re: [Unichrome-devel] Dragging window in
-	X	causes	soundcard	interrupts to be lost
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <40FB0092.3070800@shipmail.org>
-References: <1089952196.25689.7.camel@mindpipe>
-	 <40F78D21.10305@shipmail.org>  <40F793C1.2080908@shipmail.org>
-	 <1090001316.27995.3.camel@mindpipe>  <40F8298E.8080508@shipmail.org>
-	 <1090010147.30435.2.camel@mindpipe> <1090107507.10795.1.camel@mindpipe>
-	 <40FA3AEC.9050906@shipmail.org> <1090190244.22282.8.camel@mindpipe>
-	 <40FB0092.3070800@shipmail.org>
-Content-Type: text/plain
-Message-Id: <1091319939.20819.67.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 31 Jul 2004 20:25:39 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 31 Jul 2004 20:28:28 -0400
+Received: from mail.dif.dk ([193.138.115.101]:17316 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S263775AbUHAA2N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 20:28:13 -0400
+Date: Sun, 1 Aug 2004 02:32:43 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] drivers/net/wan/cycx_x25.c:189: warning: conflicting types
+ for built-in function 'log2'
+Message-ID: <Pine.LNX.4.60.0408010225180.2660@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-07-18 at 18:58, Thomas Hellstrom wrote:
-> Hi, Lee. 
-> 
-> Most of the code is inherited from VIA, but as far as I know, there
-> are no locks held except the DRM lock when DRI is used, which it isn't
-> in your case. 
-> 
 
-Thomas,
+To silence the warning in $subject, rename log2 to cycx_log2 in this file 
+to remove the clash, so there's no doubt that this file uses it's own
+defined log2 function.
 
-Do you have the original driver source from VIA handy?  This is looking
-more and more like a hardware bug - 2D acceleration engine activity
-causes interrupts from the PCI slot to be disabled for long periods. 
-Maybe it disables interrupts to prevent other processes writing to the
-shared video/system RAM as it DMAs.  I would like to verify that the
-problem still occurs with their driver, before I try to convince them
-there's a hardware issue with the EPIA boards.
+Patch against 2.6.8-rc2-mm1
 
-On that note, assuming I verify the bug, does anyone have any
-recommendations for getting VIA to take me seriously?  The problem is
-very easy to reproduce.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-Lee
 
+diff -up linux-2.6.8-rc2-mm1-orig/drivers/net/wan/cycx_x25.c linux-2.6.8-rc2-mm1/drivers/net/wan/cycx_x25.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/net/wan/cycx_x25.c	2004-06-16 07:19:01.000000000 +0200
++++ linux-2.6.8-rc2-mm1/drivers/net/wan/cycx_x25.c	2004-07-31 22:10:02.000000000 +0200
+@@ -186,7 +186,7 @@ static void nibble_to_byte(u8 *s, u8 *d,
+  	    reset_timer(struct net_device *dev);
+
+  static u8 bps_to_speed_code(u32 bps);
+-static u8 log2(u32 n);
++static u8 cycx_log2(u32 n);
+
+  static unsigned dec_to_uint(u8 *str, int len);
+
+@@ -263,7 +263,7 @@ int cycx_x25_wan_init(struct cycx_device
+  	else
+  		card->wandev.mtu = 64;
+
+-	cfg.pktlen = log2(card->wandev.mtu);
++	cfg.pktlen = cycx_log2(card->wandev.mtu);
+
+  	if (conf->station == WANOPT_DTE) {
+  		cfg.locaddr = 3; /* DTE */
+@@ -1513,7 +1513,7 @@ static u8 bps_to_speed_code(u32 bps)
+  }
+
+  /* log base 2 */
+-static u8 log2(u32 n)
++static u8 cycx_log2(u32 n)
+  {
+  	u8 log = 0;
 
 

@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262174AbTCVKxw>; Sat, 22 Mar 2003 05:53:52 -0500
+	id <S262128AbTCVLeL>; Sat, 22 Mar 2003 06:34:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262165AbTCVKxw>; Sat, 22 Mar 2003 05:53:52 -0500
-Received: from packet.digeo.com ([12.110.80.53]:6372 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262161AbTCVKxu>;
-	Sat, 22 Mar 2003 05:53:50 -0500
-Date: Sat, 22 Mar 2003 03:04:19 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: dougg@torque.net
-Cc: pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [patch for playing] 2.5.65 patch to support > 256 disks
-Message-Id: <20030322030419.1451f00b.akpm@digeo.com>
-In-Reply-To: <3E7C4251.4010406@torque.net>
-References: <200303211056.04060.pbadari@us.ibm.com>
-	<3E7C4251.4010406@torque.net>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262148AbTCVLeL>; Sat, 22 Mar 2003 06:34:11 -0500
+Received: from csl.Stanford.EDU ([171.64.73.43]:56000 "EHLO csl.stanford.edu")
+	by vger.kernel.org with ESMTP id <S262128AbTCVLeK>;
+	Sat, 22 Mar 2003 06:34:10 -0500
+From: Dawson Engler <engler@csl.stanford.edu>
+Message-Id: <200303221145.h2MBjAW09391@csl.stanford.edu>
+Subject: [CHECKER] races in 2.5.65/mm/swapfile.c?
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Date: Sat, 22 Mar 2003 03:45:10 -0800 (PST)
+Cc: engler@csl.stanford.edu (Dawson Engler)
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Mar 2003 11:04:16.0250 (UTC) FILETIME=[C7645DA0:01C2F062]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert <dougg@torque.net> wrote:
->
-> > Slab:           464364 kB
+Hi All,
 
-It's all in slab.
+mm/swapfile.c seems to have three potential races.
 
-> I did notice a rather large growth of nodes
-> in sysfs. For 84 added scsi_debug pseudo disks the number
-> of sysfs nodes went from 686 to 3347.
-> 
-> Does anybody know what is the per node memory cost of sysfs?
+The first two are in 
+        linux-2.5.62/mm/swap_state.c:87:add_to_swap_cache
 
-Let's see all of /pro/slabinfo please.
+which seems reachable without a lock from the callchain:
 
+        mm/swapfile.c:sys_swapoff:998->
+              sys_swapoff:1026->
+                try_to_unuse:591->
+                        mm/swap_state.c:read_swap_cache_async:377->
+                            add_to_swap_cache
+
+add_to_swap_cache increments two global variables without a lock:
+        INC_CACHE_INFO(add_total);
+and
+        INC_CACHE_INFO(exist_race);
+
+
+The final one is in
+        linux-2.5.62/mm/swapfile.c:213:swap_entry_free
+which seems to increment
+        nr_swap_pages++;
+without a lock.
+
+Are these real races?  Or are these just stats variables?  (Or is
+there some implicit locking that protects these?)
+
+Regards,
+Dawson

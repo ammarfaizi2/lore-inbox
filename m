@@ -1,84 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268311AbSIRT0K>; Wed, 18 Sep 2002 15:26:10 -0400
+	id <S268860AbSIRTdI>; Wed, 18 Sep 2002 15:33:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268330AbSIRT0K>; Wed, 18 Sep 2002 15:26:10 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:16589 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S268311AbSIRT0J>;
-	Wed, 18 Sep 2002 15:26:09 -0400
-Date: Wed, 18 Sep 2002 21:31:02 +0200
-From: axel@hh59.org
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre7-ac1
-Message-ID: <20020918193102.GA248@prester.hh59.org>
-Mail-Followup-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-References: <200209181703.g8IH3dk10674@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209181703.g8IH3dk10674@devserv.devel.redhat.com>
-Organization: hh59.org
-User-Agent: Mutt/1.5.1i
+	id <S268915AbSIRTdI>; Wed, 18 Sep 2002 15:33:08 -0400
+Received: from nuevo.divinia.com ([216.32.176.4]:15750 "HELO nuevo.divinia.com")
+	by vger.kernel.org with SMTP id <S268860AbSIRTdG>;
+	Wed, 18 Sep 2002 15:33:06 -0400
+Date: Wed, 18 Sep 2002 12:32:15 -0700 (PDT)
+From: Aaron Gowatch <aarong@divinia.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: disass kfree_s (was: Oops in 2.2.19)
+Message-ID: <Pine.LNX.4.44.0209181217410.13536-100000@nuevo.divinia.com>
+X-Favorite-Cola: Coke
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan!
+Dean helped me track down the NULL pointer from the oops I posted 
+yesterday.  It looks like someone ran across the same or similar issue in 
+1999:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=94277765400609&w=2
+
+I dont know much about kernel mm, but if someone who does or has seen this
+before is willing to help me track this down, it'd be much appreciated.
+
+Thanks in advance,
+Aa.
+
+---------- Forwarded message ----------
+Date: Tue, 17 Sep 2002 20:35:25 -0700 (PDT)
+From: dean gaudet <dean@arctic.org>
+To: Aaron Gowatch <aarong@divinia.com>
+Subject: Re: disass kfree_s
+
+On Tue, 17 Sep 2002, Aaron Gowatch wrote:
+
+> 0x8012353c <kfree_s+148>:	mov    0x8(%ecx),%ebp
+> 0x8012353f <kfree_s+151>:	cmp    $0xa5c32f2b,%ebp
+> 0x80123545 <kfree_s+157>:	jne    0x80123630 <kfree_s+392>
+
+well that magic number up there is SLAB_MAGIC_ALLOC ... and the test here
+is the check_magic label in __kfree_cache_free ... but i dunno why slabp
+is NULL at that point.
+
+you might want to play with the completely untested patch below... it
+should at least stop the system from oopsing -- and it'll log a message
+when the bug occurs.  then you can see what you're doing which triggers it
+maybe.
+
+-dean
+
+--- slab.c.orig	Fri Nov  2 08:39:16 2001
++++ slab.c	Tue Sep 17 20:34:05 2002
+@@ -1555,6 +1555,8 @@
+ 		slabp = bufp->buf_slabp;
+
+ check_magic:
++	if (slabp == NULL)
++		goto bad_slab;
+ 	if (slabp->s_magic != SLAB_MAGIC_ALLOC)		/* Sanity check. */
+ 		goto bad_slab;
+
+@@ -1636,7 +1638,9 @@
+
+ bad_slab:
+ 	/* Slab doesn't contain the correct magic num. */
+-	if (slabp->s_magic == SLAB_MAGIC_DESTROYED) {
++	if (slabp == NULL) {
++		kmem_report_free_err("null slabp", objp, cachep);
++	} else if (slabp->s_magic == SLAB_MAGIC_DESTROYED) {
+ 		/* Magic num says this is a destroyed slab. */
+ 		kmem_report_free_err("free from inactive slab", objp, cachep);
+ 	} else
 
 
-I wanted to see whether I have those strange ide kernel boot messages I 
-had in 2.5.36 in 2.4.20-pre7-ac1 as well, as you suggested me to check.
 
-There is a compile error in piix.c:
-
-make[4]: Entering directory /usr/src/linux-2.4.20-pre7-ac1/drivers/ide/pci'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-pre7-ac1/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686  -I../
--nostdinc -iwithprefix include -DKBUILD_BASENAME=piix  -c -o piix.o piix.c
-piix.c: In function 	nit_chipset_piix':
-piix.c:533: init_chipset_piix causes a section type conflict
-/usr/src/linux-2.4.20-pre7-ac1/include/linux/ide.h: At top level:
-piix.c:696: warning: `piix_remove_one' defined but not used
-make[4]: *** [piix.o] Error 1
-
-
-
-Best regards,
-Axel Siebenwirth
-
-
-
-gcc version 3.2.1 20020915 (prerelease)
-
-CONFIG_HAZARD_READ=y
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-# CONFIG_IDEDISK_MULTI_MODE is not set
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=m
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-CONFIG_IDE_TASK_IOCTL=y
-CONFIG_IDE_TASKFILE_IO=y
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-CONFIG_BLK_DEV_ADMA=y
-
-CONFIG_BLK_DEV_PIIX=y

@@ -1,34 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264529AbUEJIS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264537AbUEJIZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264529AbUEJIS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 04:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbUEJIS2
+	id S264537AbUEJIZn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 04:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264562AbUEJIZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 04:18:28 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:31428 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264529AbUEJIS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 04:18:27 -0400
-Date: Mon, 10 May 2004 01:17:02 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>,
-       Niccolo Rigacci <niccolo@rigacci.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2Gb file size limit on 2.4.24, LVM and ext3?
-Message-ID: <20040510081702.GA10157@taniwha.stupidest.org>
-References: <20040506172152.GB17351@paros.rigacci.org> <409AA9EA.9020108@pointblue.com.pl> <20040507100142.GA30872@harddisk-recovery.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040507100142.GA30872@harddisk-recovery.com>
+	Mon, 10 May 2004 04:25:43 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:51462 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264560AbUEJIZm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 04:25:42 -0400
+Message-ID: <409F3CEE.8060102@aitel.hist.no>
+Date: Mon, 10 May 2004 10:27:26 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Mackall <mpm@selenic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: dentry bloat.
+References: <20040508120148.1be96d66.akpm@osdl.org> <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org> <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org> <20040508204239.GB6383@in.ibm.com> <20040508135512.15f2bfec.akpm@osdl.org> <20040508211920.GD4007@in.ibm.com> <20040508171027.6e469f70.akpm@osdl.org> <Pine.LNX.4.58.0405081947290.1592@ppc970.osdl.org> <20040508201215.24f0d239.davem@redhat.com> <Pine.LNX.4.58.0405082039510.1592@ppc970.osdl.org> <20040509210312.GL5414@waste.org>
+In-Reply-To: <20040509210312.GL5414@waste.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 07, 2004 at 12:01:42PM +0200, Erik Mouw wrote:
+Matt Mackall wrote:
 
-> I always forget about the glibc #define-du-jour to get O_LARGEFILE
-> defined, this always works.
+>One also wonders about whether all the RCU stuff is needed on UP. I'm
+>not sure if I grok all the finepoints here, but it looks like the
+>answer is no and that we can make struct_rcu head empty and have
+>call_rcu fall directly through to the callback. This would save
+>something like 16-32 bytes (32/64bit), not to mention a bunch of
+>dinking around with lists and whatnot.
+>
+>So what am I missing?
+>  
+>
+Preempt can happen anytime, I believe.
 
-#define _GNU_SOURCE
-#include <...>
-
+Helge Hafting

@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268697AbUILMMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268690AbUILMSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268697AbUILMMo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 08:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268689AbUILMMo
+	id S268690AbUILMSN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 08:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268695AbUILMSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 08:12:44 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:49618 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S268697AbUILMLD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 08:11:03 -0400
-Date: Sun, 12 Sep 2004 14:10:20 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Tejun Heo <tj@home-tj.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, alan@redhat.com
-Subject: Re: [PATCH] via-velocity fixes
-Message-ID: <20040912121020.GB20942@electric-eye.fr.zoreil.com>
-References: <20040912093301.GC13359@home-tj.org>
+	Sun, 12 Sep 2004 08:18:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2235 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268690AbUILMSL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 08:18:11 -0400
+Subject: Re: /proc/sys/kernel/pid_max issues
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu,
+       viro@parcelfarce.linux.theplanet.co.uk, wli@holomorphy.com
+In-Reply-To: <20040912085609.GK32755@krispykreme>
+References: <20040912085609.GK32755@krispykreme>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-i0A6oVaUNP9T5pXrBREW"
+Organization: Red Hat UK
+Message-Id: <1094991480.2626.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040912093301.GC13359@home-tj.org>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 12 Sep 2004 14:18:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo <tj@home-tj.org> :
-[...]
->  First of all, many thanks for the driver.  I've encountered problems
-> with recent updates to the driver and fixed them and some others.  I'm
-> also interested in improving this driver, and having the programming
-> manual would be very helpful.  Does anybody know how to obtain the
-> programming manual for this chip?  Is it available online somewhere?
 
-See www.viaarena.com for a .exe driver which turns out to be a .zip.
+--=-i0A6oVaUNP9T5pXrBREW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-[...]
->  Recent receive ring related updates to via-velocity broke the driver.
-> My box lost packets, recevied duplicate truncated packets and soon
-> locked into infinite error interrupt handling.  This patch fixes
-> receive ring handling and some other parts of the driver.  List of
-> fixes follow.
-> 
-> Using cpu_to_le32 on OWNED_BY_NIC is wrong.  It will produce
-> 0x10000000 on big endian machines while owner bitfield would still
-> evaluate to 0 or 1.
+On Sun, 2004-09-12 at 10:56, Anton Blanchard wrote:
+> Hi,
+>=20
+> I tried creating 100,000 threads just for the hell of it. I was
+> surprised that it appears to have worked even with pid_max set at 32k.
 
-The rx_desc structure is used in the network device, not in the host
-computer. I see nowhere in the code where it is said to the network
-adapter that it should change the ordering of the bytes in its registers.
+there are a lot of other reasons why you can't go over 64k threads ;)
+(esp on a 32 bit machine)
 
-Was this change tested on a big endian machine ?
+such as all the 16 bit counters in rwsems etc etc...=20
+Just Say No(tm) :)
 
-> In velocity_give_rx_desc(), there should be a wmb() between resetting
-> the first four bytes of rdesc0 and setting owner.  As resetting the
-> first four bytes isn't necessary, I just removed the function and
-> directly set owner.
 
-- The function keeps code factored. Feel free to modify the function
-  but please keep the function in place. 
-- having the lower bytes cleaned can help when something goes wrong.
-  I would favor a removal of the bitfield and use dumb accesses to
-  registers (as u32) like can be found in others drivers (just mho).
+--=-i0A6oVaUNP9T5pXrBREW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Though simple, the changes to velocity_init_td_ring could be commented
-(it takes a few seconds to realize that the settings in velocity_info_tbl()
-allowed the former buggy code to work as well).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Can you be convinced to post the whole thing as a serie of incremental
-patches on netdev@oss.sgi.com with Cc: to jgarzik@pobox.com and
-alan@redhat.com ?
+iD8DBQBBRD54xULwo51rQBIRAqnoAJ9jBM+4C3s9YcDYwJLSz7SyM3LP4gCgg4aB
+kRkf5kdIituEPwTZqewCqpE=
+=9rVz
+-----END PGP SIGNATURE-----
 
-The patch looks quite good and it clearly fixes several points but
-I guess that most people prefer to review small incremental changes.
+--=-i0A6oVaUNP9T5pXrBREW--
 
---
-Ueimor

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131051AbQLGQhy>; Thu, 7 Dec 2000 11:37:54 -0500
+	id <S131080AbQLGQiY>; Thu, 7 Dec 2000 11:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131047AbQLGQho>; Thu, 7 Dec 2000 11:37:44 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:49321 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131051AbQLGQh2>;
-	Thu, 7 Dec 2000 11:37:28 -0500
-Date: Thu, 7 Dec 2000 17:06:56 +0100
-From: Andries Brouwer <aeb@veritas.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Tigran Aivazian <tigran@veritas.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
-Message-ID: <20001207170656.A23858@veritas.com>
-In-Reply-To: <Pine.LNX.4.21.0012071007420.970-100000@penguin.homenet> <Pine.GSO.4.21.0012070709400.20144-100000@weyl.math.psu.edu>
+	id <S130887AbQLGQiR>; Thu, 7 Dec 2000 11:38:17 -0500
+Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:46822 "EHLO
+	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S130235AbQLGQiF>; Thu, 7 Dec 2000 11:38:05 -0500
+From: richardj_moore@uk.ibm.com
+X-Lotus-FromDomain: IBMGB
+To: linux-kernel@vger.kernel.org
+Message-ID: <802569AE.00588787.00@d06mta06.portsmouth.uk.ibm.com>
+Date: Thu, 7 Dec 2000 16:04:21 +0000
+Subject: Why is double_fault serviced by a trap gate?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.GSO.4.21.0012070709400.20144-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Dec 07, 2000 at 08:23:59AM -0500
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2000 at 08:23:59AM -0500, Alexander Viro wrote:
 
-> <looking at the truncate(2) manpage>
-> Oh, lovely - where the hell had the following come from?
-> % man truncate
-> ...
->        EINVAL The  pathname  contains  a character with the high-
->               order bit set.
-> ...
-> Andries, would you mind removing that, erm, statement? I'm curious about
-> its genesis - AFAIK we had 8bit-clean namei for ages (quite possibly since
-> 0.01).
 
-I removed it in man-pages-1.30.
-Apparently you have an older version.
-(1.31 has been released; expect 1.32 soon)
+Why is double_fault serviced by a trap gate? The problem with this is that
+any double-fault caused by a stack-fault, which is the usual reason,
+becomes a triple-fault. And a triple-fault results in a processor reset or
+shutdown making the fault damn near impossible to get any information on.
 
-Andries
+Oughtn't the double-fault exception handler be serviced by a task gate? And
+similarly the NMI handler in case the NMI is on the current stack page
+frame?
+
+
+
+
+Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
+
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

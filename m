@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132844AbRDDPtB>; Wed, 4 Apr 2001 11:49:01 -0400
+	id <S132846AbRDDPuv>; Wed, 4 Apr 2001 11:50:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132846AbRDDPsv>; Wed, 4 Apr 2001 11:48:51 -0400
-Received: from [213.97.45.174] ([213.97.45.174]:17166 "EHLO pau.intranet.ct")
-	by vger.kernel.org with ESMTP id <S132844AbRDDPsh>;
-	Wed, 4 Apr 2001 11:48:37 -0400
-Date: Wed, 4 Apr 2001 17:47:20 +0200 (CEST)
-From: Pau Aliagas <linux4u@wanadoo.es>
-X-X-Sender: <pau@pau.intranet.ct>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: processes stuck in D state
-Message-ID: <Pine.LNX.4.33.0104041744100.1585-100000@pau.intranet.ct>
+	id <S132849AbRDDPur>; Wed, 4 Apr 2001 11:50:47 -0400
+Received: from atlrel2.hp.com ([156.153.255.202]:61429 "HELO atlrel2.hp.com")
+	by vger.kernel.org with SMTP id <S132846AbRDDPtR>;
+	Wed, 4 Apr 2001 11:49:17 -0400
+Message-ID: <3ACB4278.2E4F48C0@fc.hp.com>
+Date: Wed, 04 Apr 2001 09:49:12 -0600
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Hubertus Franke <frankeh@us.ibm.com>, mingo@elte.hu,
+        Mike Kravetz <mkravetz@sequent.com>,
+        Fabio Riccardi <fabio@chromium.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: a quest for a better scheduler
+In-Reply-To: <OFB30A8B18.2E3AD16C-ON85256A24.004BD696@pok.ibm.com> <20010404171227.W20911@athlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli wrote:
+> 
+> On Wed, Apr 04, 2001 at 10:03:10AM -0400, Hubertus Franke wrote:
+> > I understand the dilemma that the Linux scheduler is in, namely satisfy
+> > the low end at all cost. [..]
+> 
+> We can satisfy the low end by making the numa scheduler at compile time (that's
+> what I did in my patch at least).
+> 
+> Andrea
 
-Since 2.2.4-ac28 and 2.4.3 I keep on getting processes in D state that I
-cannot kill, usually mozilla or nautilus which use a large amount of RAM.
-Today is galeon:
+I fully agree with this approach. It would be very hard to design a
+scheduler that performs equally well on a UP machine running couple of
+processes and a NUMA machine. These two cases represent the two ends of
+spectrum. The two schedulers should be separate IMO and one of them
+should be selected at compile time.
 
-A ps -eo pid,stat,pcpu,nwchan,wchan=WIDE-WCHAN-COLUMN -o args shows the
-following:
-11520 D     0.0 105db1 down_write_failed /usr/bin/galeon-bin
-
-This didn't happen neither with 2.4.2 nor with 2.4.3-pre7; I'm not sure
-about pre8.
-
-Pau
-
+--
+Khalid
+ 
+====================================================================
+Khalid Aziz                             Linux Development Laboratory
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

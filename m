@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268881AbUIMTOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268870AbUIMTS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268881AbUIMTOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 15:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268878AbUIMTOQ
+	id S268870AbUIMTS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 15:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268878AbUIMTS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 15:14:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:26273 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S268870AbUIMTN6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 15:13:58 -0400
-Date: Mon, 13 Sep 2004 21:12:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Joshua Schmidlkofer <kernel@pacrimopen.com>
-Cc: Con Kolivas <kernel@kolivas.org>, jch@imr-net.com,
-       ck kernel mailing list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Cliff Wells <clifford.wells@comcast.net>
-Subject: Re: [ck] Re: 2.6.8.1-ck7, Two Badnessess, one dump.
-Message-ID: <20040913191237.GF18883@suse.de>
-References: <41412765.4010005@kolivas.org> <4144F691.6040405@pacrimopen.com> <41451957.7000101@kolivas.org> <4145BAE9.1040800@pacrimopen.com>
+	Mon, 13 Sep 2004 15:18:28 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:35852 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S268870AbUIMTS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 15:18:26 -0400
+Date: Mon, 13 Sep 2004 21:18:10 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Tonnerre <tonnerre@thundrix.ch>
+Cc: Paul Jakma <paul@clubi.ie>, Toon van der Pas <toon@hout.vanvergehaald.nl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial of Service Attack
+Message-ID: <20040913191810.GE2780@alpha.home.local>
+References: <002301c498ee$1e81d4c0$0200a8c0@wolf> <1095008692.11736.11.camel@localhost.localdomain> <20040912192331.GB8436@hout.vanvergehaald.nl> <Pine.LNX.4.61.0409130413460.23011@fogarty.jakma.org> <Pine.LNX.4.61.0409130425440.23011@fogarty.jakma.org> <20040913041846.GD2780@alpha.home.local> <20040913190741.GD19399@thundrix.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4145BAE9.1040800@pacrimopen.com>
+In-Reply-To: <20040913190741.GD19399@thundrix.ch>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 13 2004, Joshua Schmidlkofer wrote:
-> Con,
+On Mon, Sep 13, 2004 at 09:07:41PM +0200, Tonnerre wrote:
+> Salut,
 > 
+> On Mon, Sep 13, 2004 at 06:18:47AM +0200, Willy Tarreau wrote:
+> > > The BGP state machine should instead, in normal operation, have 
+> > > only treated Hold time expired as the definitive sign of "peer is 
+> > > down" and allowed reconnects.
+> > 
+> > It should not necessarily wait for the time-out, but at least wait for
+> > a few reconnect errors.
 > 
->    I did not mention before, I thought it was a fluke on my system. Now 
-> its affecting two systems since applying ck7.
+> Problem  there: you  can fake  connection errors  almost as  easily as
+> sending an RST packet, so the DoS might reappear, might it not?
 > 
-> 
-> <snip>
-> hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
-> 
-> ide: failed opcode was: unknown
-> hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete 
-> DataRequest }ide: failed opcode was 100
-> hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
-> 
-> ide: failed opcode was: unknown
-> hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete 
-> DataRequest }ide: failed opcode was 100
-> hda: CHECK for good STATUS
-> <snip>
-> 
-> That is happening while applying the dma settings to the hard drive.
-> 
-> In both cases, the drive is a Western Digital 40GB hard drive.  That is 
-> the only solid commoniality.  One is a P4 2.8, the other a P4 2.4.   
-> Intel Chipset + Intel IDE in one, Intel Chipset + HighPoint chipset in 
-> the other. 
-> 
-> However, the code is exactly the same.
 
-Is your drive idle while applying dma settings? Current 2.6 kernels
-aren't even close to being safe to modify drive settings, since it makes
-no effective attempts to serialize with ongoing commands. I have a
-half-assed patch to fix that.
+No, as long as you don't keep the routes from the old session until the
+new one establishes and fills up (or you reach the timeout). And when I
+spoke about "connection errors", I really spoke about connection
+establishment. I bet you'll have more difficulties trying to send the
+right RST just after a SYN (or an ICMP unreachable with the right payload)
+than sending them once the session is already established. It does make
+a big difference.
 
--- 
-Jens Axboe
+Willy
 

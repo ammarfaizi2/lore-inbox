@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131371AbQJ2AGC>; Sat, 28 Oct 2000 20:06:02 -0400
+	id <S131468AbQJ2AIo>; Sat, 28 Oct 2000 20:08:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131437AbQJ2AFw>; Sat, 28 Oct 2000 20:05:52 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:57092 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S131371AbQJ2AFk>;
-	Sat, 28 Oct 2000 20:05:40 -0400
-Message-Id: <200010282351.e9SNpjk11986@sleipnir.valparaiso.cl>
-To: sweh@spuddy.mew.co.uk (Stephen Harris)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: syslog() blocks on glibc 2.1.3 with kernel 2.2.x 
-In-Reply-To: Message from sweh@spuddy.mew.co.uk (Stephen Harris) 
-   of "Sat, 28 Oct 2000 19:36:00 GMT." <G35ns0.3rD@spuddy.mew.co.uk> 
-Date: Sat, 28 Oct 2000 20:51:45 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S131469AbQJ2AIe>; Sat, 28 Oct 2000 20:08:34 -0400
+Received: from hera.cwi.nl ([192.16.191.1]:17366 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131468AbQJ2AIX>;
+	Sat, 28 Oct 2000 20:08:23 -0400
+Date: Sun, 29 Oct 2000 02:08:20 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200010290008.CAA107942.aeb@aak.cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: panther ethernet and SCSI
+Cc: linux-scsi@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sweh@spuddy.mew.co.uk (Stephen Harris) said:
-> A lot of talk here has been about syslog and DNS blocking, but the
-> original message mentioned:
-> 
-> > If you send SIGSTOP to syslogd on a Red Hat 6.2 system (glibc 2.1.3,
-> > kernel 2.2.x), within a few minutes you will find your entire machine
-> > grinds to a halt.  For example, nobody can log in.
+Recently I got a "Professional Workstation" - a 486DX33
+with 82596 on board ethernet and NCR(?) on board SCSI.
 
-Great! Yet another way in which root can get the rope to shoot herself in
-the foot. Anything _really_ new?
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+It was not very difficult to get the 82596 to work
+(I put something that works on
+	ftp.XX.kernel.org/pub/linux/kernel/people/aeb/lp486e.c
+comments are welcome)
+The 82596 itself is well-documented in Intel's 29021806.pdf
+but I have almost no information on the use of the I/O ports
+and do not know a good way to find the ethernet address.
+
+But there is also SCSI on this board - at boot time it prints
+        Ballard Synergy CAMcore(R), Copyright 1991, 1.602
+        LP486E  NCR SDMS
+if and only if SCSI is enabled in the BIOS setup.
+Does anybody have an idea how to make this do something?
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313314AbSE1NrU>; Tue, 28 May 2002 09:47:20 -0400
+	id <S313638AbSE1NwS>; Tue, 28 May 2002 09:52:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313638AbSE1NrT>; Tue, 28 May 2002 09:47:19 -0400
-Received: from adsl-161-92.barak.net.il ([62.90.161.92]:21521 "EHLO
-	qlusters.com") by vger.kernel.org with ESMTP id <S313314AbSE1NrP>;
-	Tue, 28 May 2002 09:47:15 -0400
+	id <S313743AbSE1NwR>; Tue, 28 May 2002 09:52:17 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:3083 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S313638AbSE1NwQ>;
+	Tue, 28 May 2002 09:52:16 -0400
+Date: Tue, 28 May 2002 09:46:04 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: =?iso-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@loewe-komp.de>
+Cc: Karim Yaghmour <karim@opersys.com>, Larry McVoy <lm@bitmover.com>,
+        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
 Subject: Re: business models [was patent stuff]
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-To: Paratimer@aol.com
-Cc: lm@bitmover.com, adam@yggdrasil.com, linux-kernel@vger.kernel.org
-In-Reply-To: <50.c105234.2a24c92d@aol.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 28 May 2002 16:42:18 +0300
-Message-Id: <1022593339.21314.63.camel@sake>
+Message-ID: <20020528094604.A16952@mark.mielke.cc>
+In-Reply-To: <200205272152.OAA03070@adam.yggdrasil.com> <20020527152452.A24502@work.bitmover.com> <3CF2BE26.4FF03387@opersys.com> <3CF34DF4.9050905@loewe-komp.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-28 at 14:51, Paratimer@aol.com wrote:
-> In a message dated 5/28/2002 3:55:00 AM Eastern Daylight Time, 
-> gilad@benyossef.com writes:
-> 
-> 
-> > On Tue, 2002-05-28 at 01:24, Larry McVoy wrote:
-> > 
-> > > If the free software community is ever going to really compete with the
-> > > non-free software community, they simply have to come up with a better
-> > > business model than giving it away and trying to make money on support.
-> > > It's economics 101 - a free market will go to whomever can provide the
-> > > needed service most cheaply.  With no barrier to entry, that means as
-> > .........^^^^^^^^
-> > > soon as the price gets high enough, someone will resell the 
-> > > product for
-> > ..^^^^^^^
-> > > less.  Which results in razor thin profits, if any at all.
-> > 
-> > Software is not a "product" any more then a lawyer argument in a case is
-> > a "product" or an architect plan for a building is a "product".  
-> 
-> Actually, a lawyer's argument or an architects plan can certainly
-> be work products, and if I hire a lawyer to draw up a contract for
-> me or an architect to design a building for me, unless our agreements
-> say otherwise, I own the contract or the building plans.
-> 
+On Tue, May 28, 2002 at 11:29:24AM +0200, Peter Wächtler wrote:
+> Karim Yaghmour wrote:
+> > I agree that this should go on some other list, but 'til then, here
+> > are my 2c.  No offense Larry, but many of your arguments are the
+> > same used by Microsoft to push their vision of publicly available
+> > source.
+> Just a quick suggestion: keep Linux open (THE operating system) as basis
+> for future development, enhancement. I think it's called "public facility"
+> like power plants and infrastructure that is needed for a healthy society
+> (at least politicians shall work for the publics benefit).
 
-Of course you *can*, but do you (or anyone else) actually does this?
-AFAIK this is not a very common business model. 
+Just for a quick interjection... under the model you describe, the
+governments of this world should be paying for linux kernel
+development. :-)
 
-Gilad.
+mark
+
 -- 
-Gilad Ben-Yossef <gilad@benyossef.com>
-Code mangler, senior coffee drinker and VP SIGSEGV
-Qlusters ltd.
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-"A billion flies _can_ be wrong - I'd rather eat lamb chops than shit."
-	-- Linus Torvalds on lkml
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-
-
+                           http://mark.mielke.cc/
 

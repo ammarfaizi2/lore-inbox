@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbUKPMDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbUKPMGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbUKPMDS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 07:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbUKPMDR
+	id S261961AbUKPMGc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 07:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbUKPMGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 07:03:17 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:30219 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261949AbUKPMCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 07:02:14 -0500
-Subject: Re: Linux 2.6.9-ac9
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1100549228.27278.12.camel@localhost.localdomain>
-References: <1100549228.27278.12.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1100606527.2811.33.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 16 Nov 2004 13:02:07 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?ip=80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 16 Nov 2004 07:06:31 -0500
+Received: from smtp1.netcabo.pt ([212.113.174.28]:11037 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S261961AbUKPMGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 07:06:22 -0500
+Message-ID: <18732.195.245.190.93.1100606711.squirrel@195.245.190.93>
+In-Reply-To: <20041116104143.GA31090@elte.hu>
+References: <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu>
+    <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu>
+    <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu>
+    <61930.195.245.190.94.1100529227.squirrel@195.245.190.94>
+    <20041115161159.GA32580@elte.hu>
+    <33583.195.245.190.93.1100537554.squirrel@195.245.190.93>
+    <32825.192.168.1.5.1100558154.squirrel@192.168.1.5>
+    <20041116104143.GA31090@elte.hu>
+Date: Tue, 16 Nov 2004 12:05:11 -0000 (WET)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
+       "Florian Schmidt" <mista.tapas@gmx.net>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>,
+       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
+       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 16 Nov 2004 12:06:20.0020 (UTC) FILETIME=[AED95340:01C4CBD4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+>
+> Rui Nuno Capela wrote:
+>
+>> Already testing with RT-0.7.26-5 now. No good. Same lockup behavior on
+>> alsa shutdown, altought not always, but very frequently. Nothing comes
+>> out via serial console. Not even SysRq is of any help, pretty hard
+>> these lockups are.
+>
+> i'm rebasing to -rc2-mm1 currently, it should be completed today and
+> we'll see whether those ALSA problems are upstream related.
+>
+> is it stable if you dont unload the ALSA modules?
+>
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
+Yes, it looks like the stabliest of the RTs I've tested to date. Trouble
+only comes when '/etc/init.d/alsasound stop' is called.
 
-now also available in RPM format for Fedora Core 2 and 3:
-
-http://zeniv.linux.org.uk/pub/people/arjan/zen/
-
+Bye.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 

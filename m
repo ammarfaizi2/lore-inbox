@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263786AbTKFTdc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 14:33:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbTKFTd2
+	id S263698AbTKFTmd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 14:42:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbTKFTmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 14:33:28 -0500
-Received: from [198.70.193.2] ([198.70.193.2]:46420 "EHLO AVEXCH01.qlogic.org")
-	by vger.kernel.org with ESMTP id S263786AbTKFTdY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 14:33:24 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Thu, 6 Nov 2003 14:42:33 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:5801 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263698AbTKFTmc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 14:42:32 -0500
+Date: Thu, 6 Nov 2003 11:37:16 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: azarah@gentoo.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
+ defined (trivial)
+Message-Id: <20031106113716.7382e5d2.davem@redhat.com>
+In-Reply-To: <1068144179.12287.283.camel@nosferatu.lan>
+References: <1068140199.12287.246.camel@nosferatu.lan>
+	<20031106093746.5cc8066e.davem@redhat.com>
+	<1068143563.12287.264.camel@nosferatu.lan>
+	<1068144179.12287.283.camel@nosferatu.lan>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
-Date: Thu, 6 Nov 2003 11:33:28 -0800
-Message-ID: <B179AE41C1147041AA1121F44614F0B0598CEA@AVEXCH02.qlogic.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
-Thread-Index: AcOkj+gF5A+Vh7P2Q4WyTG/HmlakdgACNKLQ
-From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
-To: <arjanv@redhat.com>
-Cc: "Christoph Hellwig" <hch@infradead.org>,
-       "Linux-Kernel" <linux-kernel@vger.kernel.org>,
-       "Linux-SCSI" <linux-scsi@vger.kernel.org>
-X-OriginalArrivalTime: 06 Nov 2003 19:33:29.0088 (UTC) FILETIME=[DAE63800:01C3A49C]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan,
+On Thu, 06 Nov 2003 20:42:59 +0200
+Martin Schlemmer <azarah@gentoo.org> wrote:
 
-> > No.  We've had this IOWR problem since the inception of 5.x series
-> > driver.  Software (SMS 3.0) has been built on top of the this
-> > IOCTL
-> 
-> how about removing most if not all of these ioctls ?  The scsi layer
-> has a *generic* "send passthrough" mechanism already for example.
-> 
+> Ok, so maybe above is not a case to work on, but if I write an
+> app that use only 32bit data types, and it links to a library that
+> also handles 64bit, it does not matter, as I do not call the functions
+> that handle 64bit data types, no ?
 
-I'm not entirely clear on what you are alluding to here, are you
-referring to SCSI_IOCTL_SEND_COMMAND?  There's significantly more
-functionality embedded within the IOCTLs than simply sending passthrus
-to devices.  Also, all of QLogic's drivers (linux, solaris, windows)
-implement to this 'external ioctl' spec, making changes to Linux alone
-would difficult.
-
-Regards,
-Andrew Vasquez
+Let's say that you end up using some inline function
+that takes u32 arguments, and internally it uses
+u64 types to speed up the calculation or make it more
+accurate or something like that.

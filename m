@@ -1,74 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265671AbTF2Om0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 10:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265674AbTF2Om0
+	id S265683AbTF2Osy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 10:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265676AbTF2Osy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 10:42:26 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:47876 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265671AbTF2OmZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 10:42:25 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: IDE-disk spindown fails
-Date: Sun, 29 Jun 2003 16:56:23 +0200
-User-Agent: KMail/1.5.2
+	Sun, 29 Jun 2003 10:48:54 -0400
+Received: from mail.cs.Virginia.EDU ([128.143.137.19]:10151 "EHLO
+	ares.cs.Virginia.EDU") by vger.kernel.org with ESMTP
+	id S265674AbTF2Osv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 10:48:51 -0400
+Date: Sun, 29 Jun 2003 11:03:00 -0400 (EDT)
+From: Ronghua Zhang <rz5b@cs.virginia.edu>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: linux-net@vger.kernel.org, kernelnewbies@nl.linux.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: How to send multiple TCP packets from a kernel thread ASAP?
+In-Reply-To: <20030629145054.GZ28900@mea-ext.zmailer.org>
+Message-ID: <Pine.GSO.4.51.0306291101190.18257@mamba.cs.Virginia.EDU>
+References: <Pine.GSO.4.51.0306291023170.12980@mamba.cs.Virginia.EDU>
+ <20030629145054.GZ28900@mea-ext.zmailer.org>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200306291656.32704.fsdeveloper@yahoo.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I don't think so, because the timestamp is when prinkt is called, not when
+the content is actually printed out, and printk will not block.
 
-Hi.
+Ronghua
 
-I have a problem spinning down my Western Digital 80GB harddisk.
-root@server:~> cat /proc/ide/hdc/model  
-WDC WD800BB-00CAA1
+On Sun, 29 Jun 2003, Matti Aarnio wrote:
 
-Neither hdparm -S nor noflushd is able to spin down this disk.
-
-The machine is a very old Pentium 1 machine. It's BIOS doesn't
-recognize this new (I've bought it a few days ago) harddisk.
-So I've set this IDE-channel to "none" in the BIOS to avoid
-very long searches on this channel from BIOS while booting.
-
-Reading and writing on the disk works quite fine.
-
-/dev/hda is the drive, the system is installed on.
-It's a very old 2GB Quantum drive.
-root@server:~> cat /proc/ide/hda/model 
-QUANTUM FIREBALL_TM2110A
-
-The BIOS recognizes it and I'm able to spindown it.
-
-
-Does linux depend on the BIOS when spinning down?
-
-root@server:~> cat /proc/version 
-Linux version 2.4.21 (mb@lfs) (gcc-Version 3.3.1 20030519 (prerelease)) #2 Son Jun 15 13:08:42 CEST 2003
-
-If you want me to run any tests on the machine, or if you
-want some information, I've not given, just ask, please.
-
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 16:45:47 up  5:54,  4 users,  load average: 1.05, 1.04, 1.08
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+/v4goxoigfggmSgRAmnuAJ9z+ih7RLTZm4xPvk2k0a8Ia4wz9QCfckcI
-onkajeTZ37uxFsjmSBmgVIc=
-=PgqV
------END PGP SIGNATURE-----
-
+> On Sun, Jun 29, 2003 at 10:37:12AM -0400, Ronghua Zhang wrote:
+> > Hi,
+> >   I came to a situation that requires to send multiple TCP packets (one
+> > for each connection) from a kernel thread as soon as possible. The
+> > following is the skeleton of my code:
+>
+>   I should say this is a heissenbug ... one which happens because
+>   you are observing it with printk().
+>
+> > kernel_thread()
+> > {
+> >     foreach sk in (alive connections){
+> >         tp = &(sk->tp_pinfo.af_tcp);
+> >
+> >         skb = alloc_skb(xxx, GFP_ATOMIC);
+> >         /* build TCP header */
+> >         tcp_build_and_update_options(.....);
+> >         tp->af_specific->send_check(sk, th, skb->len, skb);
+> >
+> >         tp->af_specific->queue_xmit(skb);
+> >         printk("packet send out for sk %p, at %lu\n", sk, jiffies);
+> >     }
+> > }
+> >
+> > the output is always like this:
+> > packet send out for sk 1 at 1000
+> > packet send out for sk 2 at 1001
+> > packet send out for sk 3 at 1002
+> > ...
+> >
+> > It looks like this kernel thread get rescheduled after it has sent out 1
+> > packet. But why? each iteration certainly does not need 10ms, why it get
+> > rescheduled? Is it because af_specific->queue_xmit() is blocking
+> > operation? but I notice that tcp_transmit_skb() also call it, and
+> > tcp_transmit_skb() should not call any blockalbe operation. I try to
+> > increase its priority or change its schedule policy,but has no effect
+> > at all. Any suggestion is appreciated! This is really urgent.
+> >
+> >
+> > Ronghua
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>

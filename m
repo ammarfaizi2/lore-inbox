@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270042AbRHMJge>; Mon, 13 Aug 2001 05:36:34 -0400
+	id <S270031AbRHMKJ3>; Mon, 13 Aug 2001 06:09:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270051AbRHMJgO>; Mon, 13 Aug 2001 05:36:14 -0400
-Received: from polypc17.chem.rug.nl ([129.125.25.92]:37784 "EHLO
-	polypc17.chem.rug.nl") by vger.kernel.org with ESMTP
-	id <S270042AbRHMJgL>; Mon, 13 Aug 2001 05:36:11 -0400
-Date: Mon, 13 Aug 2001 11:36:23 +0200 (CEST)
-From: "J.R. de Jong" <jdejong@chem.rug.nl>
+	id <S270063AbRHMKJT>; Mon, 13 Aug 2001 06:09:19 -0400
+Received: from mail1-gui.server.ntli.net ([194.168.222.13]:22498 "EHLO
+	mail1-gui.server.ntli.net") by vger.kernel.org with ESMTP
+	id <S270031AbRHMKJG>; Mon, 13 Aug 2001 06:09:06 -0400
+Date: Mon, 13 Aug 2001 11:09:07 +0100
+From: Chris Wilson <jakdaw@lists.jakdaw.org>
 To: linux-kernel@vger.kernel.org
-Subject: RZ1000 chipset support/bugfix broken in 2.4.x
-Message-ID: <Pine.LNX.4.21.0108131122400.32539-100000@polypc17.chem.rug.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Are we going too fast?
+Message-Id: <20010813110907.5555dde4.jakdaw@lists.jakdaw.org>
+In-Reply-To: <20010813105554.A8387@se1.cogenit.fr>
+In-Reply-To: <Pine.LNX.4.20.0108130303120.1037-100000@eriador.mirkwood.net>
+	<20010813105554.A8387@se1.cogenit.fr>
+Organization: Hah!
+X-Mailer: Sylpheed version 0.5.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-Since I'm not a member of the list, I would appreciate it if people would
-cc me if sending a reply.
-
-I have encountered a problem with RZ1000 chipset support/bugfix in
-2.4.8. I recently tried upgrading my old Pentium firewall, which has this
-chipset, from 2.2.19 to 2.4.8 because of the new netfilter
-support.
-
-However, with RZ1000 support enabled the kernel did not detect my 
-harddrives. Without it they do get detected, but then I have to work
-around the prefetch bug by disabeling IDE prefetch in the BIOS. Moreover
-the kernel complains about RZ1000 being handled by a seperate driver and
-about ignoring the RZ1000 interface. 
-
-The ATA configuration in whe working/non-working cases are:
-
-working:
-* Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support
-* Include IDE/ATA-2 DISK support
-M Include IDE/ATAPI CDROM support
-* Generic PCI IDE chipset support
-
-non working:
-working +
-* RZ1000 chipset bugfix/support
-
-Have I stumbled across a real bug here, or am I just plain stupid ;)
-
-Note that this setup used to work with 2.2.19.
-
-Regards,
-
-Johan.
 
 
+> > until 2.2.10!).  Furthermore, I have had a HELL of a time trying
+> > to get responses to the first two problems (this is the first report
+for
+> > the third).  It used to be that I could ask a question on this list,
+and
+> > receive responses.  Not anymore.  I can't seem to get the time of day
+from
+> > anyone on this list now.
+> 
+> Try and send specific bug-reports to the maintainers. 
+> l-k archives may give you some light on issues with VIA chipsets.
+> 
+> I'm not convinced that gaining stability on a VIA + G400 + X + smp 
+> combo is an easy task anyway.
+
+Certainly seems to be moving backwards in that respect - from 2.4.6
+onwards the bog standard PS/2 keyboard does not work (at all from bootup -
+"keyboard: Timeout - AT keyboard not present?(ed)") on my SMP VIA w. G400
+(although I've not got as far as loading X on it without the keyboard!) :(
+
+I can't even see what's changed in 2.4.6 that might cause this - soft_irq?
+or is that completely unrelated to the keyboard???
+
+
+Chris

@@ -1,91 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbULEHTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbULEHT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbULEHTf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 02:19:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbULEHTf
+	id S261270AbULEHT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 02:19:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbULEHT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 02:19:35 -0500
-Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:44477 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261268AbULEHTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 02:19:31 -0500
-Date: Sun, 5 Dec 2004 00:18:37 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] NX: Fix noexec kernel parameter / x86_64
-In-Reply-To: <Pine.LNX.4.61.0412042356340.6378@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.61.0412050016560.6378@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0412041135570.6378@montezuma.fsmlabs.com>
- <Pine.LNX.4.61.0412042356340.6378@montezuma.fsmlabs.com>
+	Sun, 5 Dec 2004 02:19:58 -0500
+Received: from relay00.pair.com ([209.68.1.20]:46854 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S261270AbULEHTz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 02:19:55 -0500
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <41B2A853.9050504@kegel.com>
+Date: Sat, 04 Dec 2004 22:18:59 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, de-de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Proposal for a userspace "architecture portability" library
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-noexec_setup runs too late to take any effect, so parse it earlier. 
-Rediffed to incorporate suggestions.
+Roland McGrath <roland () redhat ! com> wrote:
+ >> I don't think glibc exports any atomic operations.
+ >
+ >That is true.  But it does have implementations in bits/atomic.h for many
+ >processors, and that is under the LGPL.
 
-Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Interesting.  This seems to be new as of glibc-2.3.3.
+(glibc-2.3.2 had implementations of all sorts of things,
+spinlocks even, but they were all internal.)
 
-Index: linux-2.6.10-rc2-mm3-x86_64/include/asm-x86_64/pgtable.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc2-mm3/include/asm-x86_64/pgtable.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 pgtable.h
---- linux-2.6.10-rc2-mm3-x86_64/include/asm-x86_64/pgtable.h	24 Nov 2004 16:14:38 -0000	1.1.1.1
-+++ linux-2.6.10-rc2-mm3-x86_64/include/asm-x86_64/pgtable.h	5 Dec 2004 07:14:44 -0000
-@@ -20,6 +20,7 @@ extern unsigned long __supported_pte_mas
- 
- #define swapper_pml4 init_level4_pgt
- 
-+extern void nonx_setup(const char *str);
- extern void paging_init(void);
- extern void clear_kernel_mapping(unsigned long addr, unsigned long size);
- 
-Index: linux-2.6.10-rc2-mm3-x86_64/arch/x86_64/kernel/setup.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc2-mm3/arch/x86_64/kernel/setup.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 setup.c
---- linux-2.6.10-rc2-mm3-x86_64/arch/x86_64/kernel/setup.c	24 Nov 2004 16:17:13 -0000	1.1.1.1
-+++ linux-2.6.10-rc2-mm3-x86_64/arch/x86_64/kernel/setup.c	5 Dec 2004 07:14:59 -0000
-@@ -312,6 +312,9 @@ static __init void parse_cmdline_early (
- 		if (!memcmp(from,"oops=panic", 10))
- 			panic_on_oops = 1;
- 
-+		if (!memcmp(from, "noexec=", 7))
-+			nonx_setup(from + 7);
-+
- 	next_char:
- 		c = *(from++);
- 		if (!c)
-Index: linux-2.6.10-rc2-mm3-x86_64/arch/x86_64/kernel/setup64.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-rc2-mm3/arch/x86_64/kernel/setup64.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 setup64.c
---- linux-2.6.10-rc2-mm3-x86_64/arch/x86_64/kernel/setup64.c	24 Nov 2004 16:17:12 -0000	1.1.1.1
-+++ linux-2.6.10-rc2-mm3-x86_64/arch/x86_64/kernel/setup64.c	5 Dec 2004 07:13:58 -0000
-@@ -50,7 +50,7 @@ Control non executable mappings for 64bi
- on	Enable(default)
- off	Disable
- */ 
--static int __init nonx_setup(char *str)
-+void __init nonx_setup(const char *str)
- {
- 	if (!strcmp(str, "on")) {
-                 __supported_pte_mask |= _PAGE_NX; 
-@@ -59,11 +59,8 @@ static int __init nonx_setup(char *str)
- 		do_not_nx = 1;
- 		__supported_pte_mask &= ~_PAGE_NX;
-         } 
--        return 1;
- } 
- 
--__setup("noexec=", nonx_setup); 
--
- /*
-  * Great future plan:
-  * Declare PDA itself and support (irqstack,tss,pml4) as per cpu data.
+gcc's libstdc++ also exports an atomicity.h
+(in e.g. /usr/include/c++/3.4.2/bits/atomicity.h).
+
+gcc's libjava also has its own set of lock primitives
+(buried in a file named locks.h).
+
+It would be quite the engineering feat to demonstrate
+a gcc/glibc toolchain actually using your proposed
+portability layer and demonstrate zero loss of performance.
+Even that might not be enough to convince the glibc
+maintainer to use it...
+- Dan
+
+-- 
+Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html

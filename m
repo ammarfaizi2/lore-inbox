@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287882AbSA3BeO>; Tue, 29 Jan 2002 20:34:14 -0500
+	id <S287919AbSA3BhO>; Tue, 29 Jan 2002 20:37:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287880AbSA3BeB>; Tue, 29 Jan 2002 20:34:01 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47115 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287872AbSA3Bdx>;
-	Tue, 29 Jan 2002 20:33:53 -0500
-Message-ID: <3C574BD1.E5343312@zip.com.au>
-Date: Tue, 29 Jan 2002 17:26:41 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
+	id <S287933AbSA3BhG>; Tue, 29 Jan 2002 20:37:06 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:16010 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287880AbSA3Bgy>;
+	Tue, 29 Jan 2002 20:36:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <garzik@havoc.gtf.org>, Stuart Young <sgy@amc.com.au>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Wed, 30 Jan 2002 02:41:11 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org,
+        Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
+        John Weber <weber@nyc.rr.com>
+In-Reply-To: <3C5600A6.3080605@nyc.rr.com> <5.1.0.14.0.20020130113958.00a04390@mail.amc.localnet> <20020129201806.B12201@havoc.gtf.org>
+In-Reply-To: <20020129201806.B12201@havoc.gtf.org>
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: push BKL out of llseek
-In-Reply-To: <Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>,
-		<Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com> <1012351309.813.56.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VjkO-0000BM-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On January 30, 2002 02:18 am, Jeff Garzik wrote:
+> On Wed, Jan 30, 2002 at 12:00:11PM +1100, Stuart Young wrote:
+> > Perhaps it's time we set up a specific lkml-patch mailing list, and leave 
 > 
-> @@ -84,9 +84,9 @@
->         fn = default_llseek;
->         if (file->f_op && file->f_op->llseek)
->                 fn = file->f_op->llseek;
-> -       lock_kernel();
-> +       down(&file->f_dentry->d_inode->i_sem);
->         retval = fn(file, offset, origin);
-> -       unlock_kernel();
-> +       up(&file->f_dentry->d_inode->i_sem);
->         return retval;
->  }
+> I like the suggestion (most recently, of Daniel?  pardon if I
+> miscredit) of having patches-2.[45]@vger.kernel.org type addresses,
+> which would archive patches, and have a high noise-to-signal ratio.
+> Maybe even filter out all non-patches.
+> 
+> The big issue I cannot decide upon is whether standard e-mails should be
+> 	To: torvalds@
+> 	CC: patches-2.4@
+> or just
+> 	To: patches-2.4@
+> 
+> (I'm guessing Linus would prefer the first, but who knows)
 
-Just a little word of caution here.  Remember the
-apache-flock-synchronisation fiasco, where removal
-of the BKL halved Apache throughput on 8-way x86.
+I'd say: cc Linus specifically if you think it's something he'd find 
+personally interesting.  Leave out the cc if it's a minor bugfix or 
+maintainance.
 
-This was because the BKL removal turned serialisation
-on a quick codepath from a spinlock into a schedule().
+Oh, as somebody suggested in this thread, there is a difference in priority 
+between bugfixes and other kinds of patches.  Should buxfixes go to 
+patches-xxx@kernel.org with [BUGFIX] in the subject, or would 
+bugs-xxx@kernel.org be a better idea?
 
-So...  I'd suggest that changes such as this should be
-benchmarked in isolation; otherwise we end up spending
-quite some time hunting down mysterious reports of
-performance regression, and having to rethink stuff.
+> Also, something noone has mentioned is out-of-band patches.  Security fixes
+> and other patches which for various reasons go straight to Linus.
 
-And llseek is *fast*.  If we're seeing significant
-lock contention in there then adding a schedule() is
-likely to turn Anton into one unhappy dbencher.
+Out-of-band patches are not going to stop.  The difference is, they will be 
+duly noticed after the fact because they should be relatively few in 
+comparison to in-band patches.
 
--
+Another kind of out-of-band patch is where Linus takes the basic idea from 
+somebody's patch and completely rewrites it, or does some hacking on his own, 
+which he's been known to do.  Somehow I wouldn't expect he'd bother emailing 
+the results to himself.
+
+-- 
+Daniel

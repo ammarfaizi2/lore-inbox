@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVB1W0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVB1W0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVB1W0Q (ORCPT <rfc822;willy@w.ods.org>);
+	id S261796AbVB1W0Q (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 28 Feb 2005 17:26:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVB1WZ6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVB1W0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 17:25:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:63725 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261787AbVB1WZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 17:25:23 -0500
-Date: Mon, 28 Feb 2005 22:25:09 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Mark_Salyzyn@adaptec.com
-Subject: Re: [2.6 patch] SCSI: possible cleanups
-Message-ID: <20050228222509.GB19376@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@stusta.de>, James.Bottomley@SteelEye.com,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Mark_Salyzyn@adaptec.com
-References: <20050228213159.GO4021@stusta.de>
+	Mon, 28 Feb 2005 17:26:16 -0500
+Received: from mail.tmr.com ([216.238.38.203]:56849 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261798AbVB1WZx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 17:25:53 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH 2.6.11-rc4] oom_kill.c: Kill obvious processes first
+Date: Mon, 28 Feb 2005 17:30:53 -0500
+Organization: TMR Associates, Inc
+Message-ID: <42239B9D.80001@tmr.com>
+References: <200502250024.30450.kernel-stuff@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050228213159.GO4021@stusta.de>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1109628867 7513 192.168.12.100 (28 Feb 2005 22:14:27 GMT)
+X-Complaints-To: abuse@tmr.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+In-Reply-To: <200502250024.30450.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 28, 2005 at 10:31:59PM +0100, Adrian Bunk wrote:
-> Before I'm getting flamed to death:
-> This patch contains possible cleanups. If parts of this patch conflict 
-> with pending changes these parts of my patch have to be dropped.
+Parag Warudkar wrote:
+> oom_kill.c misses very obvious targets - For example, a process occupying > 
+> 80% memory, not superuser and not having hardware access gets ignored by it. 
+> Logically, such a process, if killed , is going to make things return to 
+> normal thereby eliminating the need for oom killer to further scan for more 
+> processes.
 > 
-> This patch contains the following possible cleanups:
-> - make needlessly global code static
-> - remove or #if 0 the following unused functions:
->   - scsi.h: print_driverbyte
->   - scsi.h: print_hostbyte
+> This patch calculates the approximate integer percentage of memory occupied by 
+> the process by looking at num_physpages and p->mm->total_vm. If this process 
+> is not super user and doesn't have hardware access, and the percentage of 
+> occupied memory is more than 60%, it immediately selects this process for 
+> killing by returning unusually high points from badness().
+> 
+> Without this patch, when KDevelop running as non root user gobbles up 90% 
+> memory, the OOM killer kills many other irrelevant processes but not KDevelop 
+> And machine never recovers.. (Pls see LKML for my previous message with 
+> subject "2.6.11-rc4 OOM Killer - Kill the Innocent".) 
+> 
+> With this patch OOM killer immediately kills kdevelop and machine recovers.
 
-these two please kill.
+Thank you for the patch, I'm in agreement with the idea, and I'll give 
+it a try after I look at the code a bit. The current code frequently 
+seems bit... non-deterministic.
 
->   - constants.c: scsi_print_hostbyte
->   - constants.c: scsi_print_driverbyte
-
-these we'll probably keep for now.
-
->   - scsi_scan.c: scsi_scan_single_target
-
-this one will grow a user soon, but maybe it'll be completely
-rewritten before.
-
-> - remove the following unneeded EXPORT_SYMBOL's:
->   - constants.c: __scsi_print_sense
-
-this was put in for a drivea and makes sense as API.
-
->   - hosts.c: scsi_host_lookup
-
-we should probably kill this export.
-
->   - scsi.c: scsi_device_cancel
->   - scsi_lib.c: scsi_device_resume
-
-dito.
-
->   - scsi_error.c: scsi_normalize_sense
->   - scsi_error.c: scsi_sense_desc_find
-
-st is expected to use these soon.
-
->   - scsi_scan.c: scsi_rescan_device
-
-aacraid was going to use that one, Mark, any chance to get a patch
-anytime soon?
-
->   - scsi_scan.c: scsi_scan_single_target
-
-as mentioned above we'll need this one soon.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTDVE5W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 00:57:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbTDVE5W
+	id S262932AbTDVFa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 01:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262933AbTDVFa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 00:57:22 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:18370 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S262930AbTDVE5V convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 00:57:21 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780C263852@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'karim@opersys.com'" <karim@opersys.com>
-Cc: "'Tom Zanussi'" <zanussi@us.ibm.com>,
-       "'Martin Hicks'" <mort@wildopensource.com>,
-       "'Daniel Stekloff'" <dsteklof@us.ibm.com>,
-       "'Patrick Mochel'" <mochel@osdl.org>,
-       "'Randy.Dunlap'" <rddunlap@osdl.org>, "'hpa@zytor.com'" <hpa@zytor.com>,
-       "'pavel@ucw.cz'" <pavel@ucw.cz>,
-       "'jes@wildopensource.com'" <jes@wildopensource.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'wildos@sgi.com'" <wildos@sgi.com>,
-       "'Robert Wisniewski'" <bob@watson.ibm.com>
-Subject: RE: [patch] printk subsystems
-Date: Mon, 21 Apr 2003 22:09:18 -0700
+	Tue, 22 Apr 2003 01:30:26 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:29446 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S262932AbTDVFaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 01:30:25 -0400
+Date: Tue, 22 Apr 2003 15:42:21 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: gordon anderson <gordonski_anderson@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.68 build - modules_install - depmod probs - 815fb / zlib -
+ help
+In-Reply-To: <20030422030917.12838.qmail@web40810.mail.yahoo.com>
+Message-ID: <Mutt.LNX.4.44.0304221540520.3736-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 21 Apr 2003, gordon anderson wrote:
 
-> From: Karim Yaghmour [mailto:karim@opersys.com]
 > 
-> "Perez-Gonzalez, Inaky" wrote:
->
-> > Not meaning to be an smartass here, but I don't buy the "lockless" tag,
-> > I would agree it is an optimized-lock scheme ....
-> >
-> > Although it is not that important, no need to make a fuss out of that :)
+> Sorry if wrong forum!
 > 
-> I actually think this is important.
+> Building 2.5.68 kernel with intel815 framebuffer support &
+> crypto options.
+> 
+> make modules_install gives -
+> 
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.5.68/kernel/crypto/deflate.ko
+> depmod:         zlib_inflateInit2_
+> depmod:         zlib_inflate
+> depmod:         zlib_inflate_workspacesize
+> depmod:         zlib_deflateInit2_
+> depmod:         zlib_deflate_workspacesize
+> depmod:         zlib_deflate
+> depmod:         zlib_inflateReset
+> depmod:         zlib_deflateReset
 
-Don't get me wrong - I don't mean the actual difference is not important;
-what I mean is not important is me buying the "lockless" tag or not. I 
-actually think that the method you guys use is really sharp.
+You need CONFIG_ZLIB_INFLATE and CONFIG_ZLIB_DEFLATE for crypto/deflate.c, 
+which is provided by the default Kconfig.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+

@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbTJSTmr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 15:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTJSTmr
+	id S262110AbTJSTja (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbTJSTja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 15:42:47 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:22156 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S262114AbTJSTmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 15:42:45 -0400
+	Sun, 19 Oct 2003 15:39:30 -0400
+Received: from ncircle.nullnet.fi ([62.236.96.207]:35266 "EHLO
+	ncircle.nullnet.fi") by vger.kernel.org with ESMTP id S262110AbTJSTj2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 15:39:28 -0400
+Message-ID: <49794.192.168.9.10.1066592366.squirrel@ncircle.nullnet.fi>
+In-Reply-To: <013801c39677$035e1d40$0514a8c0@HUSH>
+References: <00b801c3955c$7e623100$0514a8c0@HUSH>   
+    <1066579176.7363.3.camel@milo.comcast.net><41102.192.168.9.10.1066584247.squirrel@ncircle.nullnet.fi>
+       <yw1x3cdpgm46.fsf@users.sourceforge.net>
+    <48232.192.168.9.10.1066590873.squirrel@ncircle.nullnet.fi>
+    <013801c39677$035e1d40$0514a8c0@HUSH>
+Date: Sun, 19 Oct 2003 22:39:26 +0300 (EEST)
 Subject: Re: HighPoint 374
-From: Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>
-Reply-To: christian.guggenberger@physik.uni-regensburg.de
-To: linux-kernel@vger.kernel.org, tomi.orava@ncircle.nullnet.fi
-Content-Type: text/plain
-Message-Id: <1066592564.745.12.camel@bonnie79>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 19 Oct 2003 21:42:44 +0200
-Content-Transfer-Encoding: 7bit
+From: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
+To: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>
->>> What's the current status of HPT 374 support? Is it working in any
->>> kernel
->>> version?
->>
->> In 2.4.21 and 2.4.22 it's working great for me.  I'm using the
->> "experimental" IDE Raid with two disks on a HPT 374 controller with the
->> drivers that come with the kernel.
+
+> Tomy,
 >
->I have tried these versions in the past as well without success.
->However, I don't use HPT-raid features at all ie. I'm using the
->disks as JBOD. What hardware do you have and have you enabled
->ACPI/local-apic/io-apic ? What brand & model of disk-drives you
->are using with HPT374 controller ? And finally what does
->the /proc/interrupts show for you ?
+> The
 >
->There really must be some explanation why some of us are
->having really huge problems with HPT374-contollers while for
->others it's working just fine. I haven't exactly heard anyone
->been too succesfull for example with Epox 8K9A3+ motherboard
->even on this mailing-list based on previous questions seen here.
+> hdparm -m0 device
+>
+> seems to have fixed the problem for me. I'll try increasing the number in
+> the following days and run extensive tests, but for now, it's quite
+> enough.
 
-well, it's not an Epox 8k9a3+ here, but an 8k5a3+ with two HPT374 onboard
-and it is working well with recent 2.6.0-test* kernels.
-I also just use JBOD - only one disk connected as /dev/hde to the first HPT 374, 
-an IBM-DTLA-305040, and I really don't see any probs here.
+That is *very* interesting. I quess that's about the only hdparm
+option that I have never tried before. I'm really interested in hearing
+if that really fixes the problem for you and for good. The thing is
+that the machine with HPT374-chip is running as a server so I'm
+not very eager to use it as a test bed (unless it's absolutely necessary).
+Please, if it's possible for you, try to copy say two big files from
+one disk to another at the same time couple of times in order to see if
+your machine is able to handle it ... I have been able to run mine
+2-3 days in the past without any problems if there are _no_ major
+disk transfers going on.
 
-Christian
+The question of course is why does that hdparm option seem to fix
+the problem in this case ? Is it perhaps a bug in HPT374-driver or
+some lower IDE-layer ? (Just quessing ...)
+
+> BTW your email server doesn't seem to like my address and refuses to
+> deliver
+> any mail, if you aren't running it maybe you should tell the admin that
+> he's
+> blocking Spain's largest ISP for some reason?
+
+I'm sorry, I don't accept mails coming from dsl/cable/modem-pools due to
+high amount of spam. I will accept mails coming from your ISP's mail
+gateway though.
+
+Regards,
+Tomi Orava
 
 
-
+-- 
+Tomi.Orava@ncircle.nullnet.fi

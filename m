@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262076AbRFRNJh>; Mon, 18 Jun 2001 09:09:37 -0400
+	id <S262835AbRFRNSh>; Mon, 18 Jun 2001 09:18:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262436AbRFRNJ0>; Mon, 18 Jun 2001 09:09:26 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:62726 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S262076AbRFRNJS>;
-	Mon, 18 Jun 2001 09:09:18 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15149.64869.116478.513419@cargo.ozlabs.ibm.com>
-Date: Mon, 18 Jun 2001 23:08:53 +1000 (EST)
+	id <S262707AbRFRNS3>; Mon, 18 Jun 2001 09:18:29 -0400
+Received: from [203.143.19.4] ([203.143.19.4]:36362 "EHLO kitul.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S262835AbRFRNSL>;
+	Mon, 18 Jun 2001 09:18:11 -0400
+Date: Mon, 18 Jun 2001 19:17:09 +0600
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux/PPC maintainer changing
-In-Reply-To: <20010617151351.B16494@hq.fsmlabs.com>
-In-Reply-To: <20010617151351.B16494@hq.fsmlabs.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Subject: Unresolved symbol do_softirq in 2.4.6-pre3
+Message-ID: <20010618191709.A711@bee.lk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: Anuradha Ratnaweera <anuradha@bee.lk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cort has put in an enormous amount of time and effort into maintaining
-the PowerPC port of Linux over the past 5 or 6 years, and I for one
-would like to acknowledge that publicly and thank him for that.  It
-has not always been an easy task, I know, because there are a wide
-range of opinions within the PPC/Linux camp and Cort has been the man
-on the spot to sort out the balance between the competing interests.
-And I for one will miss the time, effort and resources he has put into
-the infrastructure things such as the repository, web pages, ftp site
-etc.
 
-I would also like to thank FSM Labs for contributing the space and
-bandwidth for the PPC/Linux repository over the last couple of years.
+Hi all,
 
-Paul.
+I started running 2.4.6-pre3 using the same configuration file as 2.4.5.
+Diff shows no effective differences between two config files.
+
+depmod complains unresolved symbols (do_softirq) in ppp_generic, ppp_async
+and sunrpc.
+
+do_softirq is listed in System.map-2.4.6-pre3.
+
+I started with a new source tree and built the kernel with Debian kernel
+package.
+
+Any comment? Thanks in advance.
+
+Regards,
+
+Anuradha

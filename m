@@ -1,84 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTI1LHK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 07:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbTI1LHK
+	id S262378AbTI1LFl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 07:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbTI1LFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 07:07:10 -0400
-Received: from e39087.upc-e.chello.nl ([213.93.39.87]:33804 "EHLO
-	hackaholic.org") by vger.kernel.org with ESMTP id S262409AbTI1LHA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 07:07:00 -0400
-Message-ID: <35776.10.0.0.50.1064747073.squirrel@mail.hackaholic.org>
-Date: Sun, 28 Sep 2003 13:04:33 +0200 (CEST)
-Subject: PROBLEM: kernel 2.6-test5 rmmod: kernel NULL pointer dereference
-From: "detach" <detach@hackaholic.org>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-X-Mailer: SquirrelMail (version 1.2.6)
+	Sun, 28 Sep 2003 07:05:40 -0400
+Received: from quechua.inka.de ([193.197.184.2]:42420 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262378AbTI1LFZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 07:05:25 -0400
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: Linux 2.6.0-test6
+Date: Sun, 28 Sep 2003 13:05:35 +0200
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+Message-Id: <pan.2003.09.28.11.05.34.596021@dungeon.inka.de>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+test6 (plus hostap patch) hangs during boot.
+The last line I see is 
+cpufreq: Intel(R) SpeedStep(TM) for this chip set not (yet) available.
 
-I hope I'm using the right method to reporting this problem, I'll send it
-to the mailing list as this problem seems to be an overall kernel problem.
-No flames please :).
-Here's what happened,
-I wrote a CD so I did a modprobe ide-scsi .. then wrote the CD, now I
-wanted to check the contents of the CD, so i did rmmod ide-scsi first so
-that i could load ide-cd. Well, rmmod hung, and I checked /proc/kern.log
-on debian woody (with custom compiled linux 2.6-test5).Here's the output in /proc/kern.log:
+and with test5 the next line would be:
+IA-32 Microcode Update Driver: v1.11 <tigran@veritas.com>
 
-Sep 28 12:49:32 debian kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000024Sep 28 12:49:32 debian kernel:  printing eip:
-Sep 28 12:49:32 debian kernel: c0176546
-Sep 28 12:49:32 debian kernel: *pde = 00000000
-Sep 28 12:49:32 debian kernel: Oops: 0002 [#1]
-Sep 28 12:49:32 debian kernel: CPU:    0
-Sep 28 12:49:32 debian kernel: EIP:    0060:[<c0176546>]    Not tainted
-Sep 28 12:49:32 debian kernel: EFLAGS: 00010202
-Sep 28 12:49:32 debian kernel: EIP is at simple_rmdir+0x26/0x50
-Sep 28 12:49:32 debian kernel: eax: 00000000   ebx: c2cb1480   ecx:
-c2cb149c   edx: ffffffd9Sep 28 12:49:32 debian kernel: esi: cde97540   edi: c2cb10c0   ebp:
-c542beac   esp: c542be9cSep 28 12:49:32 debian kernel: ds: 007b   es: 007b   ss: 0068
-Sep 28 12:49:32 debian kernel: Process rmmod (pid: 2282,
-threadinfo=c542a000 task=cbb6a650)Sep 28 12:49:32 debian kernel: Stack: c2cb1480 ca5e0c80 cde975a8 cde97540
-c542becc c018bf9e cde97540 c2cb1480Sep 28 12:49:32 debian kernel:        c2cb1480 c2cb1600 c542a000 c2cb1480
-c542beec c018c092 c2cb1480 c2cb1600Sep 28 12:49:32 debian kernel:        c2cb149c ce60c8c4 c03e9b68 cf8adec0
-c542bf04 c021b223 ce60c8c4 c03e9b20Sep 28 12:49:32 debian kernel: Call Trace:
-Sep 28 12:49:32 debian kernel:  [<c018bf9e>] remove_dir+0x6e/0x90
-Sep 28 12:49:32 debian kernel:  [<c018c092>] sysfs_remove_dir+0xc2/0x130
-Sep 28 12:49:32 debian kernel:  [<c021b223>] kobject_del+0x43/0x70
-Sep 28 12:49:32 debian kernel:  [<c0274291>] device_del+0x81/0xb0
-Sep 28 12:49:32 debian kernel:  [<cf8ac049>] idescsi_cleanup+0x49/0x60
-[ide_scsi]Sep 28 12:49:32 debian kernel:  [<c0295944>] ide_unregister_driver+0x74/0xcb
-Sep 28 12:49:32 debian kernel:  [<cf8acb7a>] exit_idescsi_module+0x2a/0x2c
-[ide_scsi]Sep 28 12:49:32 debian kernel:  [<c013582f>] sys_delete_module+0x12f/0x150
-Sep 28 12:49:32 debian kernel:  [<c014ae67>] sys_munmap+0x57/0x80
-Sep 28 12:49:32 debian kernel:  [<c010a32f>] syscall_call+0x7/0xb
-Sep 28 12:49:32 debian kernel:
-Sep 28 12:49:32 debian kernel: Code: ff 48 24 89 34 24 89 5c 24 04 e8 ab
-ff ff ff 31 d2 ff 4e 24
-A uname -a:
+booted with parameters:
+kernel /vmlinuz-2.6.0-test6 root=/dev/hda2 ro hda=2432,255,63 resume=/dev/hda3
+elevator=deadline psmouse_noext
 
-Linux debian 2.6.0-test5 #6 Wed Sep 24 23:03:29 CEST 2003 i686 GNU/Linux
+but without the last three params it didn't change anything.
 
-/proc/cpuinfo:
+any idea?
 
+Andreas
 
+machine is a p3, dell latitude c600, lspci:
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+00:03.0 CardBus bridge: Texas Instruments PCI1420
+00:03.1 CardBus bridge: Texas Instruments PCI1420
+00:07.0 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
+00:08.0 Multimedia audio controller: ESS Technology ES1983S Maestro-3i PCI Audio Accelerator (rev 10)
+00:10.0 Ethernet controller: 3Com Corporation 3c556 Hurricane CardBus (rev 10)
+00:10.1 Communication controller: 3Com Corporation Mini PCI 56k Winmodem (rev 10)
+01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility M3 AGP 2x (rev 02)
+
+ cat /proc/cpuinfo 
 processor       : 0
-vendor_id       : AuthenticAMD
+vendor_id       : GenuineIntel
 cpu family      : 6
 model           : 8
-model name      : mobile AMD Athlon(tm) XP 1800+
-stepping        : 0
-cpu MHz         : 1500.770
+model name      : Pentium III (Coppermine)
+stepping        : 10
+cpu MHz         : 701.620
 cache size      : 256 KB
 fdiv_bug        : no
 hlt_bug         : no
@@ -86,80 +68,288 @@ f00f_bug        : no
 coma_bug        : no
 fpu             : yes
 fpu_exception   : yes
-cpuid level     : 1
+cpuid level     : 2
 wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnowbogomips        : 2957.31
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1388.54
 
-/proc/ioports:
-
-0000-001f : dma1
-0020-0021 : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-0378-037a : parport0
-037b-037f : parport0
-03c0-03df : vga+
-03f6-03f6 : ide0
-0cf8-0cff : PCI conf1
-1100-110f : 0000:00:11.1
-  1100-1107 : ide0
-  1108-110f : ide1
-1200-121f : 0000:00:11.2
-  1200-121f : uhci-hcd
-c000-dfff : PCI Bus #01
-e000-e0ff : 0000:00:11.5
-  e000-e0ff : via82cxxx_audio
-e100-e103 : 0000:00:11.5
-  e100-e103 : via82cxxx_audio
-e104-e107 : 0000:00:11.5
-  e104-e107 : via82cxxx_audio
-e200-e2ff : 0000:00:11.6
-e800-e8ff : 0000:00:12.0
-  e800-e8ff : via-rhine
-
-/proc/iomem:
-
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000e0000-000effff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-0efeffff : System RAM
-  00100000-0034ae73 : Kernel code
-  0034ae74-0042e13f : Kernel data
-0eff0000-0effffbf : ACPI Tables
-0effffc0-0effffff : ACPI Non-volatile Storage
-10000000-10000fff : 0000:00:0a.0
-90000000-9fffffff : PCI Bus #01
-  90000000-97ffffff : 0000:01:00.0
-a0000000-a3ffffff : 0000:00:00.0
-e0000000-efffffff : PCI Bus #01
-  e0000000-e007ffff : 0000:01:00.0
-f0000000-f00000ff : 0000:00:12.0
-  f0000000-f00000ff : via-rhine
-fff80000-ffffffff : reserved
-
-I hope this is enough information..
-Ohyeah, a killall -9 rmmod doesn't work..
-I tried to do 'cat /proc/modules',
-but this command hangs too.. it looks like the whole module system crashed..
-
-If I reported this problem to the wrong address, please forgive me. If you
-need any more information, just ask.
-Rob.
-
--- 
-]- detach \
-]- The Hackaholic <http://hackaholic.org/> \
-]- PGP KEY ID; 0X80FD4B50
-
+config:
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_PREEMPT=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_I8K=y
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_EDD=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_SOFTWARE_SUSPEND=y
+CONFIG_PM_DISK=y
+CONFIG_PM_DISK_PARTITION="hda3"
+CONFIG_ACPI_HT=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+CONFIG_CPU_FREQ_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_TABLE=y
+CONFIG_X86_ACPI_CPUFREQ=y
+CONFIG_X86_SPEEDSTEP_CENTRINO=y
+CONFIG_X86_SPEEDSTEP_ICH=y
+CONFIG_X86_SPEEDSTEP_SMI=y
+CONFIG_X86_SPEEDSTEP_LIB=y
+CONFIG_X86_P4_CLOCKMOD=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA=y
+CONFIG_YENTA=y
+CONFIG_CARDBUS=y
+CONFIG_I82092=y
+CONFIG_I82365=y
+CONFIG_TCIC=y
+CONFIG_PCMCIA_PROBE=y
+CONFIG_HOTPLUG_PCI=y
+CONFIG_HOTPLUG_PCI_ACPI=y
+CONFIG_BINFMT_ELF=y
+CONFIG_FW_LOADER=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_PNPBIOS=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_CRYPTOLOOP=y
+CONFIG_BLK_DEV_NBD=y
+CONFIG_LBD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECS=m
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_NET_IPIP=y
+CONFIG_INET_ECN=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_INET_IPCOMP=y
+CONFIG_IPV6=y
+CONFIG_INET6_AH=y
+CONFIG_INET6_ESP=y
+CONFIG_INET6_IPCOMP=y
+CONFIG_IPV6_TUNNEL=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_HTB=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_NET_RADIO=y
+CONFIG_HOSTAP=y
+CONFIG_HOSTAP_FIRMWARE=y
+CONFIG_HOSTAP_CS=m
+CONFIG_NET_WIRELESS=y
+CONFIG_NET_PCMCIA=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_INPUT_UINPUT=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_ACPI=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_PIIX4=y
+CONFIG_I2C_SIS5595=y
+CONFIG_I2C_SIS630=y
+CONFIG_I2C_SENSOR=y
+CONFIG_SENSORS_ADM1021=y
+CONFIG_SENSORS_EEPROM=y
+CONFIG_SENSORS_LM75=y
+CONFIG_SENSORS_LM78=y
+CONFIG_SENSORS_LM85=y
+CONFIG_SENSORS_W83781D=y
+CONFIG_HW_RANDOM=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_ATI=y
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_DRM_R128=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_FAT_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+CONFIG_DEVPTS_FS=y
+CONFIG_RAMFS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_UTF8=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=y
+CONFIG_SND_MAESTRO3=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_DYNAMIC_MINORS=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_AUDIO=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_SCANNER=y
+CONFIG_SECURITY=y
+CONFIG_SECURITY_NETWORK=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=y
+CONFIG_CRYPTO_SHA512=y
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=y
+CONFIG_CRYPTO_TWOFISH=y
+CONFIG_CRYPTO_SERPENT=y
+CONFIG_CRYPTO_AES=y
+CONFIG_CRYPTO_CAST5=y
+CONFIG_CRYPTO_CAST6=y
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_X86_BIOS_REBOOT=y
 

@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbTIOJbT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 05:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbTIOJbT
+	id S261704AbTIOJoI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 05:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbTIOJoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 05:31:19 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:32519 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S261595AbTIOJbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 05:31:18 -0400
-Date: Mon, 15 Sep 2003 11:31:10 +0200
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
+	Mon, 15 Sep 2003 05:44:07 -0400
+Received: from pc3-hitc2-5-cust152.lutn.cable.ntl.com ([81.99.82.152]:16031
+	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
+	id S261704AbTIOJoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 05:44:05 -0400
+Message-ID: <3F658B36.2010503@reactivated.net>
+Date: Mon, 15 Sep 2003 10:49:42 +0100
+From: Daniel Drake <dsd@reactivated.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030905 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <piggin@cyberone.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23-pre4 ide-scsi irq timeout
-Message-ID: <20030915093110.GD2268@gamma.logic.tuwien.ac.at>
-References: <20030913220121.GA1727@gamma.logic.tuwien.ac.at> <shs3cezap0u.fsf@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <shs3cezap0u.fsf@charged.uio.no>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+Subject: Re: Developing Kernel Code newbie
+References: <000d01c37b5f$47722b80$1101a8c0@CARTMAN> <3F6579CD.5010609@cyberone.com.au>
+In-Reply-To: <3F6579CD.5010609@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Son, 14 Sep 2003, Trond Myklebust wrote:
->      > I only have patched in cpufreq, nothing else, and I am running
->      > debian/sid.
+I'm in a similar situation here.. a C/C++ beginner, very keen to work on 
+  the Linux kernel.
+Those two books you mentioned, the latest editions cover the 2.4 series 
+kernel. Would reading these still be useful for working on the 2.6 (and 
+onwards) kernels?
+
+Thanks.
+
+Nick Piggin wrote:
 > 
-> I saw the same thing, and have narrowed it down to a possible compiler
-> bug. Just drop gcc-3.3, and all will be well.
+> 
+> Amir Hermelin wrote:
+> 
+>> Hi,
+>> I've recently started development on the Linux Kernel, and wondered if
+>> there's any kernel-dev FAQ/Howto/online courses/etc to help me get 
+>> started
+>> with debugging techniques. Any help would be greatly appreciated.
+>>
+> 
+> Understanding the Linux Kernel and Linux Device Drivers (free online I
+> think) are 2 good books to start with. Also www.kernelnewbies.org.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Hmmm, that sounds very strange, since I used the same gcc for the
-previous kernels (pre3 and before), too!?
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-FARNHAM (n.)
-The feeling you get about four o'clock in the afternoon when you
-haven't got enough done.
-			--- Douglas Adams, The Meaning of Liff

@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUHDVd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267444AbUHDVd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267445AbUHDVd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 17:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUHDVao
+	id S267444AbUHDVd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 17:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267451AbUHDVbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 17:30:44 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:17361 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267451AbUHDVaK (ORCPT
+	Wed, 4 Aug 2004 17:31:18 -0400
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:23563 "EHLO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S267443AbUHDVaH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 17:30:10 -0400
-Date: Wed, 4 Aug 2004 23:31:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, Rick Lindsley <ricklind@us.ibm.com>
-Subject: Re: 2.6.8-rc2-mm2 performance improvements (scheduler?)
-Message-ID: <20040804213113.GA29434@elte.hu>
-References: <20040804122414.4f8649df.akpm@osdl.org> <211490000.1091648060@flay> <20040804201019.GA25908@elte.hu> <216720000.1091651795@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <216720000.1091651795@flay>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 4 Aug 2004 17:30:07 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: cciss update [6 of 6]
+Date: Wed, 4 Aug 2004 16:29:57 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF107436097@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-topic: cciss update [6 of 6]
+Thread-index: AcR6ajDWiN8bN9UPT6OaUQUC8Kw8FA==
+From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+To: <akpm@osdl.org>, <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Aug 2004 21:29:58.0621 (UTC) FILETIME=[315850D0:01C47A6A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patch 6 of 6
+Name: p006_intr_fix_for_268rc2.patch
 
-* Martin J. Bligh <mbligh@aracnet.com> wrote:
+This patch fixes our usage of pdev->intr. We were truncating it to an
+unchar. We were also reading it before calling pci_enable_device. This
+patch fixes both of those. Thanks to Bjorn Helgaas for the patch.
+Please apply in order.
 
-> > Martin, could you try 2.6.8-rc2-mm2 with staircase-cpu-scheduler 
-> > unapplied a re-run at least part of your tests?
-> > 
-> > there are a number of NUMA improvements queued up on -mm, and it would
-> > be nice to know what effect these cause, and what effect the staircase
-> > scheduler has.
-> 
-> Sure. I presume it's just the one patch:
-> 
-> staircase-cpu-scheduler-268-rc2-mm1.patch
-> 
-> which seemed to back out clean and is building now. Scream if that's
-> not all of it ...
+Thanks,
+mikem
+-------------------------------------------------------------------------------
+diff -burpN lx268-rc2-p005/drivers/block/cciss.c lx268-rc2/drivers/block/cciss.c
+--- lx268-rc2-p005/drivers/block/cciss.c        2004-08-03 14:19:26.195069000 -0500
++++ lx268-rc2/drivers/block/cciss.c     2004-08-03 15:04:23.730981696 -0500
+@@ -2301,7 +2301,6 @@ static int find_PCI_BAR_index(struct pci
+ static int cciss_pci_init(ctlr_info_t *c, struct pci_dev *pdev)
+ {
+        ushort subsystem_vendor_id, subsystem_device_id, command;
+-       unchar irq = pdev->irq;
+        __u32 board_id, scratchpad = 0;
+        __u64 cfg_offset;
+        __u32 cfg_base_addr;
+@@ -2360,11 +2359,11 @@ static int cciss_pci_init(ctlr_info_t *c
 
-correct, that's the end of the scheduler patch-queue and it works fine
-if unapplied. (The schedstats patch i just sent applies cleanly to that
-base, in case you need one.)
+ #ifdef CCISS_DEBUG
+        printk("command = %x\n", command);
+-       printk("irq = %x\n", irq);
++       printk("irq = %x\n", pdev->irq);
+        printk("board_id = %x\n", board_id);
+ #endif /* CCISS_DEBUG */
 
-	Ingo
+-       c->intr = irq;
++       c->intr = pdev->irq;
+
+        /*
+         * Memory base addr is first addr , the second points to the config
+diff -burpN lx268-rc2-p005/drivers/block/cciss.h lx268-rc2/drivers/block/cciss.h
+--- lx268-rc2-p005/drivers/block/cciss.h        2004-06-16 00:18:37.000000000 -0500
++++ lx268-rc2/drivers/block/cciss.h     2004-08-03 15:14:41.089128992 -0500
+@@ -48,7 +48,7 @@ struct ctlr_info
+        unsigned long io_mem_addr;
+        unsigned long io_mem_length;
+        CfgTable_struct *cfgtable;
+-       int     intr;
++       unsigned int intr;
+        int     interrupts_enabled;
+        int     max_commands;
+        int     commands_outstanding;
+

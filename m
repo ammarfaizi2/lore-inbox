@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbRC0ONx>; Tue, 27 Mar 2001 09:13:53 -0500
+	id <S131304AbRC0ONN>; Tue, 27 Mar 2001 09:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131308AbRC0ONn>; Tue, 27 Mar 2001 09:13:43 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:40929 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S131305AbRC0ONj>; Tue, 27 Mar 2001 09:13:39 -0500
-Message-Id: <l03130335b6e64c775376@[192.168.239.101]>
-In-Reply-To: <3AC09480.E8317507@evision-ventures.com>
-In-Reply-To: <l03130332b6e632432b9f@[192.168.239.101]>
+	id <S131305AbRC0OND>; Tue, 27 Mar 2001 09:13:03 -0500
+Received: from ma-northadams1-47.nad.adelphia.net ([24.51.236.47]:15876 "EHLO
+	sparrow.net") by vger.kernel.org with ESMTP id <S131304AbRC0OM5>;
+	Tue, 27 Mar 2001 09:12:57 -0500
+Date: Tue, 27 Mar 2001 09:12:05 -0500
+From: Eric Buddington <eric@sparrow.nad.adelphia.net>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: ebuddington@mail.wesleyan.edu, linux-kernel@vger.kernel.org
+Subject: Re: 386 'ls' gets SIGILL iff /proc is mounted
+Message-ID: <20010327091205.B80@sparrow.nad.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
+In-Reply-To: <20010327012709.I59@sparrow.nad.adelphia.net> <3AC09F14.53D06AC7@didntduck.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 27 Mar 2001 14:57:52 +0100
-To: Martin Dalecki <dalecki@evision-ventures.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: OOM killer???
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AC09F14.53D06AC7@didntduck.org>; from bgerst@didntduck.org on Tue, Mar 27, 2001 at 09:09:24AM -0500
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Plase change to 100 to 500 - this would make it consistant with
->the useradd command, which starts adding new users at the UID 500
+On Tue, Mar 27, 2001 at 09:09:24AM -0500, Brian Gerst wrote:
+> > 
+> > The problems are varied enough that I suspect bad hardware, but would
+> > flaky RAM cause such similar failures repeatedly? And is there a way
+> > to test RAM explicitly?
+> > 
+> > Any tips appreciated, either to me (ebuddington@wesleyan.edu) or to
+> > the list.
+> 
+> Silly question, but is math emulation enabled?
 
-Depends on which distribution you're using.  In my experience, almost all
-the really important stuff happens below 100.  In any case, the
-OOM-kill-selection algorithm in this patch is *not* final.  See my
-accompanying mail.
+Yes. I should have mentioned that in the original, since it occurred
+to me also.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
+-Eric
 

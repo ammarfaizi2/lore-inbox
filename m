@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVA0FJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbVA0FLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbVA0FJe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 00:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbVA0FJe
+	id S262436AbVA0FLr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 00:11:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbVA0FLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 00:09:34 -0500
-Received: from holomorphy.com ([66.93.40.71]:60038 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262192AbVA0FJb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 00:09:31 -0500
-Date: Wed, 26 Jan 2005 21:09:27 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Antill <james.antill@redhat.com>,
-       Bryn Reeves <breeves@redhat.com>
-Subject: Re: don't let mmap allocate down to zero
-Message-ID: <20050127050927.GR10843@holomorphy.com>
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com> <20050126172538.GN10843@holomorphy.com>
-Mime-Version: 1.0
+	Thu, 27 Jan 2005 00:11:46 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:37599 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262436AbVA0FLg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 00:11:36 -0500
+To: linux-kernel@vger.kernel.org
+Cc: linux-kernel@plan9.de
+Subject: Re: critical bugs in md raid5
+References: <20050127035906.GA7025@schmorp.de>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 27 Jan 2005 06:11:34 +0100
+In-Reply-To: <20050127035906.GA7025@schmorp.de> (Marc Lehmann's message of
+ "Thu, 27 Jan 2005 04:59:07 +0100")
+Message-ID: <m1vf9j4fsp.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050126172538.GN10843@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 11:18:08AM -0500, Rik van Riel wrote:
->> With some programs the 2.6 kernel can end up allocating memory
->> at address zero, for a non-MAP_FIXED mmap call!  This causes
->> problems with some programs and is generally rude to do. This
->> simple patch fixes the problem in my tests.
->> Make sure that we don't allocate memory all the way down to zero,
->> so the NULL pointer never gets covered up with anonymous memory
->> and we don't end up violating the C standard.
->> Signed-off-by: Rik van Riel <riel@redhat.com>
+Marc Lehmann <linux-kernel@plan9.de> writes:
+>
+> The summary seems to be that the linux raid driver only protects your data
+> as long as all disks are fine and the machine never crashes.
 
-On Wed, Jan 26, 2005 at 09:25:38AM -0800, William Lee Irwin III wrote:
-> SHLIB_BASE does not appear to be present in 2.6.9; perhaps something
-> else is going on.
-> I think we are better off:
-> 	(a) checking for hitting zero explicitly as opposed to
-> 		enforcing a randomly-chosen lower limit for addresses
-> 	(b) enforcing vma allocation above FIRST_USER_PGD_NR*PGDIR_SIZE,
-> 		to which SHLIB_BASE bears no relation.
+"as long as the machine never crashes". That's correct. If you think
+about how RAID 5 works there is no way around it. When a write to 
+a single stripe is interrupted (machine crash) and you lose a disk
+during the recovery a lot of data (even unrelated to the data just written)
+is lost. That is because there is no way to figure out what part
+of the data on the stripe belonged to the old and what part to 
+the new write.
 
-There's a long discussion here, in which no one appears to have noticed
-that SHLIB_BASE does not exist in mainline. Is anyone else awake here?
+But that's nothing inherent in Linux RAID5. It's a generic problem.
+Pretty much all Software RAID5 implementations have it.
 
+The only way around it is to journal all writes, to make stripe
+updates atomic, but in general that's too slow unless you have a
+battery backed up journal device. 
 
--- wli
+There are some tricks to avoid this (e.g. always write to a new disk
+location and update an disk index atomically), but they tend to be
+heavily patented and are slower too. They also go far beyond RAID-5
+(use disk space less efficiently etc.)  and typically need support
+from the file system to be efficient.
+
+RAID-1 helps a bit, because you either get the old or the new data,
+but not some corruption. In practice even old data can be a big
+problem though (e.g. when file system metadata is affected)
+
+Morale: if you really care about your data backup very often and
+use RAID-1 or get an expensive hardware RAID with battery backup
+(all the cheap "hardware RAIDs" are equally useless for this) 
+
+-Andi

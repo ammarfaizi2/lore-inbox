@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbUKPQd2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbUKPQl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbUKPQd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 11:33:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbUKPQcD
+	id S262040AbUKPQl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 11:41:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUKPQju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 11:32:03 -0500
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:57110 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S262032AbUKPQbB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 11:31:01 -0500
-Message-ID: <419A2B3A.80702@tebibyte.org>
-Date: Tue, 16 Nov 2004 17:30:50 +0100
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: pt-br, pt
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andrea Arcangeli <andrea@novell.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Nick Piggin <piggin@cyberone.com.au>,
-       Rik van Riel <riel@redhat.com>,
-       Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de,
-       akpm@osdl.org
-Subject: Re: [PATCH] fix spurious OOM kills
-References: <20041111112922.GA15948@logos.cnet> <4193E056.6070100@tebibyte.org> <4194EA45.90800@tebibyte.org> <20041113233740.GA4121@x30.random> <20041114094417.GC29267@logos.cnet> <20041114170339.GB13733@dualathlon.random> <20041114202155.GB2764@logos.cnet>
-In-Reply-To: <20041114202155.GB2764@logos.cnet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Nov 2004 11:39:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:27861 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262020AbUKPQgv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 11:36:51 -0500
+Date: Tue, 16 Nov 2004 08:33:14 -0800
+From: Greg KH <greg@kroah.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Message-ID: <20041116163314.GA6264@kroah.com>
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org> <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Marcelo Tosatti escreveu:
-> If its not the case, increasing the all_unreclaimable "timer" to a higher value
-> than 5 seconds will certainly delay the OOM killer such to a point where 
-> its not triggered until the VM reclaiming efforts make progress.
-[...]
+On Tue, Nov 16, 2004 at 03:01:10PM +0100, Miklos Szeredi wrote:
+> > "fuse/version" you have in /proc while it belongs to /proc
+> > "fuse/dev"     you have in /proc while it belongs to /dev
 > 
-> Chris, can you change the "500*HZ" in mm/vmscan.c balance_pgdat() function
-> to "1000*HZ" and see what you get, please?
+> Well, 'Documentation/devices.txt' says:
+> 
+>   THE DEVICE REGISTRY IS OFFICIALLY FROZEN FOR LINUS TORVALDS' KERNEL
+>   TREE.  At Linus' request, no more allocations will be made official
+>   for Linus' kernel tree; the 3 June 2001 version of this list is the
+>   official final version of this registry.
 
-Changed. FWIW it's been running happily for hours without a single oom, 
-including the normally guaranteed build UML test. I'll leave it running 
-and see how it goes. The daily cron run is a usually a popular time for 
-killing off a few essential daemons (ntpd, sshd &c), in fact I think the 
-OOM Killer actually looks forward to it :)
+Not true, you can get new numbers.
 
-Regards,
-Chris R.
+Don't put things that should be in /dev into /proc, not allowed.
+
+> So placing it in /proc doesn't seem to me such a bad idea.
+
+No.  Actually, put it in sysfs, and then udev will create your /dev node
+for you automatically.  And in sysfs you can put your other stuff
+(version, etc.) which is the proper place for it.
+
+thanks,
+
+greg k-h

@@ -1,54 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273809AbRIXG2r>; Mon, 24 Sep 2001 02:28:47 -0400
+	id <S273814AbRIXGhh>; Mon, 24 Sep 2001 02:37:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273812AbRIXG2h>; Mon, 24 Sep 2001 02:28:37 -0400
-Received: from codepoet.org ([166.70.14.212]:63039 "HELO winder.codepoet.org")
-	by vger.kernel.org with SMTP id <S273809AbRIXG2Z>;
-	Mon, 24 Sep 2001 02:28:25 -0400
-Date: Mon, 24 Sep 2001 00:28:54 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: David Woodhouse <dwmw2@cambridge.redhat.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.10
-Message-ID: <20010924002854.A25226@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	David Woodhouse <dwmw2@cambridge.redhat.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <16995.1001284442@redhat.com>
+	id <S273812AbRIXGh2>; Mon, 24 Sep 2001 02:37:28 -0400
+Received: from [63.227.79.185] ([63.227.79.185]:9714 "EHLO
+	marge.lubricants-oil.com") by vger.kernel.org with ESMTP
+	id <S273813AbRIXGhR>; Mon, 24 Sep 2001 02:37:17 -0400
+From: ddkilzer@theracingworld.com
+Date: Mon, 24 Sep 2001 01:37:30 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>
+Subject: Re: pre12 fails to compile: wakeup_bdflush issues
+Message-ID: <20010924013730.A11591@lubricants-oil.com>
+In-Reply-To: <3BAA2BA8.34873B27@candelatech.com> <20010920.113037.59650292.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16995.1001284442@redhat.com>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.9-ac10-rmk1, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010920.113037.59650292.davem@redhat.com>; from davem@redhat.com on Thu, Sep 20, 2001 at 13:30:37 EST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun Sep 23, 2001 at 11:34:02PM +0100, David Woodhouse wrote:
-> 
-> torvalds@transmeta.com said:
-> > In addition to the VM changes that have gotten so much attention there
-> > are architecture updates, various major filesystem updates (jffs2 and
-> > NTFS),
-> 
-> JFFS2 can't actually be built at the moment because the magic in 
-> fs/Makefile and fs/Config.in appears to be absent. The fix for that is
-> about number 20 in the patchbomb I'm currently preparing.
-> 
-> The terminally impatient can find the whole patch, before I finish removing 
-> some of the backward-compatibility crap, at 
-> 	ftp.uk.linux.org:/pub/people/dwmw2/mtd/mtd-diff-against-2.4.10-v2
+What about the other two calls to wakeup_bdflush(0) in 
+drivers/char/sysrq.c?  Should they be fixed using the patch below?
 
-Is jffs2 still showing the
-    Child dir "." (ino #1) of dir ino #1 appears to be a hard link
-problem?  I saw you patched mkfs.jffs2 after my changes -- do you
-still need me to hunt down that bug I added?
+Dave
 
- -Erik
 
---
-Erik B. Andersen   email:  andersee@debian.org, formerly of Lineo
---This message was written using 73% post-consumer electrons--
+--- drivers/char/sysrq.c.orig	Sun Sep 23 17:24:55 2001
++++ drivers/char/sysrq.c	Mon Sep 24 01:11:07 2001
+@@ -32,7 +32,6 @@
+ 
+ #include <asm/ptrace.h>
+ 
+-extern void wakeup_bdflush(int);
+ extern void reset_vc(unsigned int);
+ extern struct list_head super_blocks;
+ 
+@@ -221,7 +220,7 @@
+ static void sysrq_handle_sync(int key, struct pt_regs *pt_regs,
+ 		struct kbd_struct *kbd, struct tty_struct *tty) {
+ 	emergency_sync_scheduled = EMERG_SYNC;
+-	wakeup_bdflush(0);
++	wakeup_bdflush();
+ }
+ static struct sysrq_key_op sysrq_sync_op = {
+ 	handler:	sysrq_handle_sync,
+@@ -232,7 +231,7 @@
+ static void sysrq_handle_mountro(int key, struct pt_regs *pt_regs,
+ 		struct kbd_struct *kbd, struct tty_struct *tty) {
+ 	emergency_sync_scheduled = EMERG_REMOUNT;
+-	wakeup_bdflush(0);
++	wakeup_bdflush();
+ }
+ static struct sysrq_key_op sysrq_mountro_op = {
+ 	handler:	sysrq_handle_mountro,
+
+
+On Thu, Sep 20, 2001 at 13:30:37 EST, David S. Miller wrote:
+
+>    From: Ben Greear <greearb@candelatech.com>
+>    Date: Thu, 20 Sep 2001 10:47:20 -0700
+> 
+>    I get this error:
+>    
+>    sysrq.c:35: conflicting types for 'wakeup_bdflush'
+>    /root/linux/include/linux/fs.h:1347: previous declaration of 'wakeup_bdflush'
+>    
+>    One says it takes a void argument, the other an int......
+> 
+> The fix is simple:
+> 
+> --- drivers/char/sysrq.c.~1~ Wed Sep 19 14:30:53 2001
+> +++ drivers/char/sysrq.c Thu Sep 20 11:29:30 2001
+> @@ -32,7 +32,6 @@
+>  
+>  #include <asm/ptrace.h>
+>  
+> -extern void wakeup_bdflush(int);
+>  extern void reset_vc(unsigned int);
+>  extern struct list_head super_blocks;
+>  
+

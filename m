@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbTIOJAc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 05:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbTIOJAb
+	id S261596AbTIOJNO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 05:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbTIOJNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 05:00:31 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:49160 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S261700AbTIOJAa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 05:00:30 -0400
-Date: Mon, 15 Sep 2003 11:00:28 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: xsdg <xsdg@freenode.org>
+	Mon, 15 Sep 2003 05:13:14 -0400
+Received: from imo-d02.mx.aol.com ([205.188.157.34]:5537 "EHLO
+	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S261596AbTIOJNN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 05:13:13 -0400
+Date: Mon, 15 Sep 2003 05:12:59 -0400
+From: jpo234@netscape.net
+To: remi.colinet@wanadoo.fr
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1, -test4 control key "stuck"
-Message-ID: <20030915110028.B957@pclin040.win.tue.nl>
-References: <20030915000411.6d35386d.xsdg@freenode.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030915000411.6d35386d.xsdg@freenode.org>; from xsdg@freenode.org on Mon, Sep 15, 2003 at 12:04:11AM +0000
+Subject: Re: 1:1 M:N threading
+MIME-Version: 1.0
+Message-ID: <1717A06D.56EB198A.00065BAA@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 62.96.207.14
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 15, 2003 at 12:04:11AM +0000, xsdg wrote:
+remi.colinet@wanadoo.fr wrote:
+ > For 2.6, the default is NGPT (see 
+ > http://www-124.ibm.com/developerworks/oss/pthreads/) which is 1:1.
 
-> Exhibit 1:
-> kernel: atkbd.c: Unknown key (set 2, scancode 0xb6, on isa0060/serio0) pressed.
-> i8042 history: 19 a2 99 0f 8f 0f 8f 1c 9c 04 84 36 09 b6 89 b6 
+NGPT is frozen and in maintenance mode (which is a different
+wording for "dead"). See
+http://www-124.ibm.com/pthreads/docs/announcement
+The new default Linux pthread implementation is RedHats NPTL. See
+http://people.redhat.com/~drepper/nptl-design.pdf
+for details, which btw. is 1:1 as well.
 
-p g-release p-release tab tab-release tab tab-release enter enter-release 3 3-release
-RShift * RShift-release 8/*-release RShift-release
+Regards
+  jpo
 
-That is: the Shift key gave two release events.
+__________________________________________________________________
+McAfee VirusScan Online from the Netscape Network.
+Comprehensive protection for your entire computer. Get your free trial today!
+http://channels.netscape.com/ns/computing/mcafee/index.jsp?promo=393397
 
-> atkbd.c: Unknown key (set 2, scancode 0xa5, on isa0060/serio0) pressed.
-> i8042 history: a7 20 9e 21 9f 24 25 26 27 a0 a4 a5 a6 a7 a1 a5 
-
-;-release d a-release f s-release j k l ; d-release j-release k-release
-l-release ;-release f-release k-release
-
-The k key gave two release events.
-
-> atkbd.c: Unknown key (set 2, scancode 0xa6, on isa0060/serio0) pressed.
-> i8042 history: 20 9e 21 9f 24 25 26 27 a0 a4 a5 a6 a7 a1 a5 a6 
-
-d a-release f s-release j k l ; d-release j-release k-release
-l-release ;-release f-release k-release l-release
-
-And so did the l key.
-
-> atkbd.c: Unknown key (set 2, scancode 0xa7, on isa0060/serio0) pressed.
-> i8042 history: 9e 21 9f 24 25 26 27 a0 a4 a5 a6 a7 a1 a5 a6 a7 
-
-And so did the ; key.
-
-Apparently your keyboard has problems handling the situation where many
-keys are down simultaneously.
-
-No kernel problem here - just a confusing message.
-
-(Have not seen your [1]. Please do not use attachments. Please
-do not gzip. It makes reading and replying to mail much more
-time consuming.)
-
-Andries
-
+Get AOL Instant Messenger 5.1 free of charge.  Download Now!
+http://aim.aol.com/aimnew/Aim/register.adp?promo=380455

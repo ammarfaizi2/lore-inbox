@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbTIOKrg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 06:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbTIOKrg
+	id S261304AbTIOKpn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 06:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTIOKpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 06:47:36 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:13722
-	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
-	id S261346AbTIOKrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 06:47:35 -0400
-Date: Mon, 15 Sep 2003 12:47:46 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Greg Stark <gsstark@mit.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Mike Fedyk <mfedyk@matchmail.com>, Antonio Vargas <wind@cocodriloo.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>
-Subject: Re: Andrea VM changes
-Message-ID: <20030915104746.GE1394@velociraptor.random>
-References: <Pine.LNX.4.55L.0308301248380.31588@freak.distro.conectiva> <Pine.LNX.4.55L.0308301607540.31588@freak.distro.conectiva> <Pine.LNX.4.55L.0308301618500.31588@freak.distro.conectiva> <20030830231904.GL24409@dualathlon.random> <1062339003.10208.1.camel@dhcp23.swansea.linux.org.uk> <87y8wq638s.fsf@stark.dyndns.tv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87y8wq638s.fsf@stark.dyndns.tv>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Mon, 15 Sep 2003 06:45:43 -0400
+Received: from MAILGW02.bang-olufsen.dk ([193.89.221.125]:57614 "EHLO
+	mailgw02.bang-olufsen.dk") by vger.kernel.org with ESMTP
+	id S261304AbTIOKpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 06:45:42 -0400
+Message-ID: <3F659850.9000603@bitplanet.net>
+Date: Mon, 15 Sep 2003 12:45:36 +0200
+From: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@bitplanet.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Typo in scripts/postmod.c
+X-MIMETrack: Itemize by SMTP Server on BeoSmtp/Bang & Olufsen/DK(Release 5.0.11  |July
+ 24, 2002) at 15-09-2003 12:45:35,
+	Serialize by Router on dzln13/Bang & Olufsen/DK(Release 6.0.2CF1|June 9, 2003) at
+ 15-09-2003 12:45:42,
+	Serialize complete at 15-09-2003 12:45:42
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 15, 2003 at 01:16:03AM -0400, Greg Stark wrote:
-> http://groups.google.com/groups?threadm=3F510688.1050709%40colorfullife.com
+Hi Rusty,
 
-btw, side note about the "swap space should be 2*physical memory" that's
-not true anymore for a long time. Personally I normally install swap =
-ram.
+There's a small typo in scripts/postmod.c, see patch below.
 
-Andrea
+regards, Kristian
 
-/*
- * If you refuse to depend on closed software for a critical
- * part of your business, these links may be useful:
- *
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
- * http://www.cobite.com/cvsps/
- *
- * svn://svn.kernel.org/linux-2.6/trunk
- * svn://svn.kernel.org/linux-2.4/trunk
- */
+--- orig/linux-2.6.0-test5/scripts/modpost.c    2003-09-08
+21:49:55.000000000 +0200
++++ linux-2.6.0-test5/scripts/modpost.c 2003-09-15 12:00:05.000000000 +0200
+@@ -193,7 +193,7 @@
+
+
+         *size = st.st_size;
+         map = mmap(NULL, *size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
+-       if (mmap == MAP_FAILED) {
++       if (map == MAP_FAILED) {
+                 perror(filename);
+                 abort();
+         }
+
+

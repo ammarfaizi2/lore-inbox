@@ -1,32 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261370AbSJCQKg>; Thu, 3 Oct 2002 12:10:36 -0400
+	id <S261385AbSJCQss>; Thu, 3 Oct 2002 12:48:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261638AbSJCQKg>; Thu, 3 Oct 2002 12:10:36 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:38668 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261370AbSJCQKf>;
-	Thu, 3 Oct 2002 12:10:35 -0400
-Date: Thu, 3 Oct 2002 09:13:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Kevin Corry <corryk@us.ibm.com>, linux-kernel@vger.kernel.org,
-       evms-devel@lists.sourceforge.net
-Cc: Alexander Viro <viro@math.psu.edu>, torvalds@transmeta.com
+	id <S261407AbSJCQss>; Thu, 3 Oct 2002 12:48:48 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:57491 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S261385AbSJCQsp>;
+	Thu, 3 Oct 2002 12:48:45 -0400
+Date: Thu, 3 Oct 2002 09:55:33 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Alexander Viro <viro@math.psu.edu>
+cc: Kevin Corry <corryk@us.ibm.com>, <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, <evms-devel@lists.sourceforge.net>
 Subject: Re: EVMS Submission for 2.5
-Message-ID: <20021003161320.GA32588@kroah.com>
-References: <02100308045305.05904@boiler> <Pine.GSO.4.21.0210031042210.15787-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <Pine.GSO.4.21.0210031042210.15787-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.4i
+Message-ID: <Pine.LNX.4.44.0210030945060.27710-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 10:51:39AM -0400, Alexander Viro wrote:
-> 
-> 
-> On Thu, 3 Oct 2002, Kevin Corry wrote:
-> 
+
 > > > I might agree with something along the lines of
 > > > 	* when evms is initialized, it's notified of all existing gendisks
 > > > 	* whenever disk is added after evms initialization, we notify evms
@@ -44,11 +38,31 @@ On Thu, Oct 03, 2002 at 10:51:39AM -0400, Alexander Viro wrote:
 > can have userland up and running before _any_ block devices are initialized,
 > so it might be a work for userland helper.
 
-/sbin/hotplug already gets called for _every_ device that is added to
-the system as of 2.5.40, so you should probably use that as your
-userspace notifier event.  If there's anything that the /sbin/hotplug
-call misses, that you need for evms, please let me know.
+There should be (almost) enough infrastructure in place to do either of
+those things using the driver model core. There is now a disk
+device_class, with which a struct device_interface can register with. When 
+a device is added to the class, it is passed to each of the interfaces 
+registered with the class (via the add_device method). 
 
-thanks,
+There is a struct device in struct gendisk, and each device registered 
+with the class will be the member of a struct gendisk. So, you can do
 
-greg k-h
+int add_device(struct device * dev)
+{
+	struct gendisk * disk = container_of(dev,struct gendisk,disk_dev);
+	...
+
+to get the gendisk structure. 
+
+See include/linux/device.h and Documentation/driver-model/ for more info.
+
+Also, /sbin/hotplug will be called after a device is registered with a 
+class. Greg has been working on this aspect, and should be close to having 
+it done. 
+
+The missing piece is converting the disk drivers to have thier ->devclass 
+set to the disk class, and having them register with the core. 
+
+
+	-pat
+

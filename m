@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271683AbTGRD5N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 23:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271688AbTGRD5N
+	id S271691AbTGRD7z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 23:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271692AbTGRD7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 23:57:13 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:18395 "HELO
-	develer.com") by vger.kernel.org with SMTP id S271683AbTGRD5M (ORCPT
+	Thu, 17 Jul 2003 23:59:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54738 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271691AbTGRD7y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 23:57:12 -0400
-Message-ID: <3F17743D.2090006@develer.com>
-Date: Fri, 18 Jul 2003 06:14:53 +0200
-From: Bernardo Innocenti <bernie@develer.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk, torvalds@osdl.org
-Subject: Re: do_div64 generic
-References: <3F1360F4.2040602@mvista.com>	<3F149747.3090107@mvista.com>	<200307162033.34242.bernie@develer.com>	<200307172310.48918.bernie@develer.com>	<20030717141608.5f1b7710.akpm@osdl.org>	<3F172CDB.3000005@mvista.com> <20030717201905.6ab4a90f.akpm@osdl.org>
-In-Reply-To: <20030717201905.6ab4a90f.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 17 Jul 2003 23:59:54 -0400
+Date: Thu, 17 Jul 2003 21:15:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Ruvolo <chris+lkml@ruvolo.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-t1 garbage in /proc/ioports and oops
+Message-Id: <20030717211533.77c0f943.akpm@osdl.org>
+In-Reply-To: <20030718011101.GD15716@ruvolo.net>
+References: <20030718011101.GD15716@ruvolo.net>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
->>>Ths one's OK by me.  Let's just fix the bug with minimum risk and churn.
->>
->> Uh, bug?  I was not aware that there was a bug.  As far as I know, 
->> nothing is broken.
+Chris Ruvolo <chris+lkml@ruvolo.net> wrote:
+>
+> Hi, I am seeing some garbage data in /proc/ioports.  Currently, I can cat
+>  the file without an oops, but on a previous boot, the following oops came
+>  up when catting the file.
 > 
-> wtf?  Then why are people running around brandishing big scary patches
-> at me?
+>  Exact output from /proc/ioports is attached (some 8-bit garbage), as well as
+>  lsmod output.  Let me know if further data is needed.
+> 
+>  I suspect that this is a problem in one of the drivers I am using, but
+>  how do I track down which one it is (since the name is not there)?
 
-ROTFL! :-)
+You could load all those modules one at a time, doing a `cat /proc/ioports'
+after each one.  One sneaky way of doing that would be to make your
+modprobe executable be:
 
-I've been asked by George to add generic support for the existing
-div_long_long_rem() inline function.
 
-The patch might be big, but not that much scary... I'm just replacing
-two local redefinitions of the macro with a single inline in
-asm-generic/div64.h. It's more a cleanup than a bug fix.
+	#!/bin/sh
+	echo Loading $* > /dev/console
+	modprobe.orig $*
+	cat /proc/ioports > /dev/null
+	echo that worked
 
-The patch also takes care of the few archs that wrote their own
-optimized versions of do_div(). For those, I've implemented
-div_long_long_rem() in terms of do_div() because it might still
-be better than the generic version. I've left a FIXME there to
-let the arch maintainers know that these could be better optimized.
+and then just boot in the normal manner.
 
-And, as a special bonus, the patch also adds missing parentheses
-around do_div() arguments in asm-arm/div64.h. This is the only real
-bug being fixed.
 
+
+Have you ever unloaded a module?  The usual source of this crash is some
+driver forgot to unregister an IO region during module unload.  So a read
+of /proc/ioports crashes _after_ the module is rmmodded.
 
 

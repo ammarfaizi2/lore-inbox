@@ -1,64 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135213AbREESOm>; Sat, 5 May 2001 14:14:42 -0400
+	id <S135210AbREESMM>; Sat, 5 May 2001 14:12:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135242AbREESOc>; Sat, 5 May 2001 14:14:32 -0400
-Received: from [136.159.55.21] ([136.159.55.21]:6024 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S135213AbREESOT>; Sat, 5 May 2001 14:14:19 -0400
-Date: Sat, 5 May 2001 12:12:58 -0600
-Message-Id: <200105051812.f45ICwd12489@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
-        Alexander Viro <viro@math.psu.edu>, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <200105051352.PAA14913@cave.bitwizard.nl>
-In-Reply-To: <200105041820.f44IKec11204@vindaloo.ras.ucalgary.ca>
-	<200105051352.PAA14913@cave.bitwizard.nl>
+	id <S135213AbREESMC>; Sat, 5 May 2001 14:12:02 -0400
+Received: from s02.hamberger.co.at ([193.83.64.20]:33030 "EHLO
+	khan.hamberger.loc") by vger.kernel.org with ESMTP
+	id <S135210AbREESLy>; Sat, 5 May 2001 14:11:54 -0400
+Message-ID: <3AF441C2.1E3A4D9C@tcp-ip.at>
+Date: Sat, 05 May 2001 20:09:06 +0200
+From: Thomas Warwaris <war@tcp-ip.at>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: torvalds@transmeta.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Restrict VT-Switching per VT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogier Wolff writes:
-> Richard Gooch wrote:
-> > 
-> > - next boot, init(8) checks the file, and if it exists, opens the root
-> >   FS block device and reads in each block listed in the file. The
-> >   effect is to warm the buffer cache extremely quickly. The head will
-> >   move in one direction, grabbing data as it flys by. I expect this
-> >   will take around 1 second
-> 
-> FYI: 
-> 
-> Around 1992 or 1993, I rewrote Minix-fsck to do this instead of
-> seeking all over the place.
-> 
-> Cut the total time to fsck my filesystem from around 30 to 28
-> seconds. (remember the days of small filesystems?)
-> 
-> That's when I decided that this was NOT an interesting project: there
-> was very little to be gained.
-> 
-> The explanation is: A seek over a few tracks isn't much slower than a
-> seek over hundreds of tracks. Almost any "skip" in linear access
-> incurs the average 6ms rotational latency anyway.
+Linus,
 
-Hm. I think the access patterns between boot-up and fsck are quite
-different. An fsck has to seek to a large number of tracks. During
-bootup, I think the number of tracks accessed is much lower, and there
-is probably more data locality as well. Still, only one way to be
-sure.
+this patch on 2.4.4 adds the ability to turn VT-switching
+on and off for each (existing) VT via ioctl().
 
-I haven't had time to look closely at this, but one thing that bothers
-me is how to find out what is being accessed in the first place. A
-C-library wrapper to intercept read(2) calls isn't any good, because a
-lot of stuff is memory-mapped (in particular shared libraries). Anyone
-have a clean way to do this?
+It works exactly like the existing code by blocking
+VT-switching to the blocked terminals.
 
-				Regards,
+It is a very nice feature to 'hide' VT's of users
+allowing others to work with other VT's on the same
+machine.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+I am not on the kernel list. Pleas CC me followups
+to war@tcp-ip.at
+
+BTW: Thank you all for your work.
+
+Thomas
+
+diff -urN -X dontdiff linux-2.4.4.ori/include/linux/vt.h linux/include/linux/vt.h
+--- linux-2.4.4.ori/include/linux/vt.h	Sat May  5 20:46:51 2001
++++ linux/include/linux/vt.h	Sat May  5 21:33:26 2001
+@@ -50,5 +50,7 @@
+ #define VT_RESIZEX      0x560A  /* set kernel's idea of screensize + more */
+ #define VT_LOCKSWITCH   0x560B  /* disallow vt switching */
+ #define VT_UNLOCKSWITCH 0x560C  /* allow vt switching */
++#define VT_LOCKSWITCHTO 	0x560D  /* disallow vt switching to a vt*/
++#define VT_UNLOCKSWITCHTO 	0x560E  /* allow vt switching to a vt*/
+ 
+ #endif /* _LINUX_VT_H */
+diff -urN -X dontdiff linux-2.4.4.ori/drivers/char/vt.c linux/drivers/char/vt.c
+--- linux-2.4.4.ori/drivers/char/vt.c	Fri Feb  9 20:30:22 2001
++++ linux/drivers/char/vt.c	Sat May  5 21:33:44 2001
+@@ -7,6 +7,7 @@
+  *  Dynamic keymap and string allocation - aeb@cwi.nl - May 1994
+  *  Restrict VT switching via ioctl() - grif@cs.ucr.edu - Dec 1995
+  *  Some code moved for less code duplication - Andi Kleen - Mar 1997
++ *  Restrict VT switching per VT - Thomas Warwaris - May 2001
+  */
+ 
+ #include <linux/config.h>
+@@ -41,6 +42,7 @@
+ #endif /* CONFIG_FB_COMPAT_XPMAC */
+ 
+ char vt_dont_switch;
++char vt_dont_switch_to [MAX_NR_CONSOLES];
+ extern struct tty_driver console_driver;
+ 
+ #define VT_IS_IN_USE(i)	(console_driver.table[i] && console_driver.table[i]->count)
+@@ -1047,6 +1049,16 @@
+ 		   return -EPERM;
+ 		vt_dont_switch = 0;
+ 		return 0;
++	case VT_LOCKSWITCHTO:
++		if (!suser())
++			return -EPERM;
++		vt_dont_switch_to[arg-1] = 1;
++		return 0;
++	case VT_UNLOCKSWITCHTO:
++		if (!suser())
++			return -EPERM;
++		vt_dont_switch_to[arg-1] = 0;
++		return 0;
+ #ifdef CONFIG_FB_COMPAT_XPMAC
+ 	case VC_GETMODE:
+ 		{
+@@ -1243,6 +1255,8 @@
+ void change_console(unsigned int new_console)
+ {
+         if ((new_console == fg_console) || (vt_dont_switch))
++                return;
++        if ( vt_dont_switch_to[new_console] )
+                 return;
+         if (!vc_cons_allocated(new_console))
+ 		return;

@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRBEMME>; Mon, 5 Feb 2001 07:12:04 -0500
+	id <S129525AbRBEMQd>; Mon, 5 Feb 2001 07:16:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbRBEMLx>; Mon, 5 Feb 2001 07:11:53 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:7894 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129436AbRBEMLs>;
-	Mon, 5 Feb 2001 07:11:48 -0500
-Date: Mon, 5 Feb 2001 12:09:34 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: bsuparna@in.ibm.com
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-        kiobuf-io-devel@lists.sourceforge.net,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christoph Hellwig <hch@caldera.de>, Andi Kleen <ak@suse.de>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-Message-ID: <20010205120934.B1167@redhat.com>
-In-Reply-To: <CA2569E9.004A4E23.00@d73mta05.au.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <CA2569E9.004A4E23.00@d73mta05.au.ibm.com>; from bsuparna@in.ibm.com on Sun, Feb 04, 2001 at 06:54:58PM +0530
+	id <S129448AbRBEMQX>; Mon, 5 Feb 2001 07:16:23 -0500
+Received: from bastion.power-x.co.uk ([62.232.19.201]:43269 "EHLO
+	bastion.power-x.co.uk") by vger.kernel.org with ESMTP
+	id <S129116AbRBEMQL>; Mon, 5 Feb 2001 07:16:11 -0500
+Date: Mon, 5 Feb 2001 12:16:48 +0000 (GMT)
+From: "Dr. David Gilbert" <dg@px.uk.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>, <reiserfs-list@namesys.com>
+Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink
+ related)
+In-Reply-To: <E14PkHY-0003BN-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0102051215180.1654-100000@springhead.px.uk.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 5 Feb 2001, Alan Cox wrote:
 
-On Sun, Feb 04, 2001 at 06:54:58PM +0530, bsuparna@in.ibm.com wrote:
-> 
-> Can't we define a kiobuf structure as just this ? A combination of a
-> frag_list and a page_list ?
+> > In an __init function, have some code that will trigger the bug.
+> > This can be used to disable Reiserfs if the compiler was bad.
+> > Then the admin gets a printk() and the Reiserfs mount fails.
+>
+> Thats actually quite doable. I'll see about dropping the test into -ac that
+> way.
 
-Then all code which needs to accept an arbitrary kiobuf needs to be
-able to parse both --- ugh.
+It would actually be nice to have a whole collect of compiler tests in the
+kernel; whenever we fall over a compiler bug add the test and leave it in.
+Possibly as a separate block of the code.
 
-> BTW, We could have a higher level io container that includes a <status>
-> field and a <wait_queue_head> to take care of i/o completion
+One thing to remember is not to test for compiler versions; versions which
+cause problems on x86 might work fine on real systems and the otherway
+round.
 
-IO completion requirements are much more complex.  Think of disk
-readahead: we can create a single request struct for an IO of a
-hundred buffer heads, and as the device driver satisfies that request,
-it wakes up the buffer heads as it goes.  There is a separete
-completion notification for every single buffer head in the chain.
+Dave
 
-It's the very essence of readahead that we wake up the earlier buffers
-as soon as they become available, without waiting for the later ones
-to complete, so we _need_ this multiple completion concept.
+-- 
+/------------------------------------------------------------------\
+| Dr. David Alan Gilbert | Work:dg@px.uk.com +44-161-286-2000 Ex258|
+| -------- G7FHJ --------|---------------------------------------- |
+| Home: dave@treblig.org            http://www.treblig.org         |
+\------------------------------------------------------------------/
 
-Which is exactly why we have one kiobuf per higher-level buffer, and
-we chain together kiobufs when we need to for a long request, but we
-still get the independent completion notifiers.
-
-Cheers,
- Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

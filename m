@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290804AbSARU3R>; Fri, 18 Jan 2002 15:29:17 -0500
+	id <S290806AbSARU3H>; Fri, 18 Jan 2002 15:29:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290805AbSARU3H>; Fri, 18 Jan 2002 15:29:07 -0500
-Received: from mta9n.bluewin.ch ([195.186.1.215]:50680 "EHLO mta9n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S290804AbSARU3F>;
-	Fri, 18 Jan 2002 15:29:05 -0500
-Message-ID: <3C4884BB.6170979@bluewin.ch>
-Date: Fri, 18 Jan 2002 21:25:31 +0100
-From: Nicolas Aspert <Nicolas.Aspert@bluewin.ch>
-Reply-To: Nicolas.Aspert@epfl.ch
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S290805AbSARU25>; Fri, 18 Jan 2002 15:28:57 -0500
+Received: from ns.suse.de ([213.95.15.193]:56068 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290804AbSARU2v>;
+	Fri, 18 Jan 2002 15:28:51 -0500
+Date: Fri, 18 Jan 2002 21:28:43 +0100
+From: Dave Jones <davej@suse.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Didier Moens <moensd@xs4all.be>, linux-kernel@vger.kernel.org
+Cc: Didier Moens <moensd@xs4all.be>, linux-kernel@vger.kernel.org,
+        Nicolas Aspert <Nicolas.Aspert@epfl.ch>
 Subject: Re: OOPS in APM 2.4.18-pre4 with i830MP agpgart
-In-Reply-To: <E16RfZf-0007nk-00@the-village.bc.nu>
+Message-ID: <20020118212843.A6416@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Didier Moens <moensd@xs4all.be>,
+	linux-kernel@vger.kernel.org, Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+In-Reply-To: <3C487E68.1000404@xs4all.be> <E16RfZf-0007nk-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16RfZf-0007nk-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 18, 2002 at 08:25:19PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Unfortunately, loading agpgart yields an oops when APM ("apm -s") is
-> > invoked, both in terminal and in X. APM functions perfectly when agpgart
-> > is absent.
-> 
-> Looks like the author forgot to set the suspend/resume methods in the
-> structure to the generic ones
+On Fri, Jan 18, 2002 at 08:25:19PM +0000, Alan Cox wrote:
+ > > Unfortunately, loading agpgart yields an oops when APM ("apm -s") is 
+ > > invoked, both in terminal and in X. APM functions perfectly when agpgart 
+ > > is absent.
+ > Looks like the author forgot to set the suspend/resume methods in the
+ > structure to the generic ones
 
-Aargh... stupid me !! Well, I told Marcelo that I was not feeling too
-good the day I submitted the patch :-) And  I just saw myself that the
-netry was missing in the intel_820 stuff also (duh !)
-The origin of the problem is that I happen to have an old kernel at home
-(RH 7.1 2.4.2) that has no suspend/resume stuff, and this was where I
-wrote the original patch, and the rest propagated through the usual
-copy/paste way.
-I correctly updated a part of the stuff but it's missing in other
-places, and since I don't use APM, the problem did not show up. 
-However, I am out of fast connection, so I am unable to make a patch
-right now. 
-If nobody has made it by monday, I'll send the patch
+   1373 static int __init intel_i830_setup(struct pci_dev *i830_dev)
+   1374 {
+   1375     intel_i830_private.i830_dev = i830_dev;
+   1376     
+ ...
+   1404     agp_bridge.suspend = agp_generic_suspend;
+   1405     agp_bridge.resume = agp_generic_resume;
 
-Best regards, and thanks Didier for pointing the problem (and Alan for
-*very* quickly seeing what went wrong).
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,99 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262054AbTELJt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 05:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTELJtW
+	id S262031AbTELJqi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 05:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbTELJpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 05:49:22 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:58425 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262056AbTELJpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 05:45:14 -0400
-Date: Mon, 12 May 2003 11:54:42 +0200
-Message-Id: <200305120954.h4C9sgW4001039@callisto.of.borg>
+	Mon, 12 May 2003 05:45:21 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:61781 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262021AbTELJpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 05:45:03 -0400
+Date: Mon, 12 May 2003 11:54:34 +0200
+Message-Id: <200305120954.h4C9sYEm000967@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k IRQ API updates [15/20]
+Subject: [PATCH] M68k IRQ API updates [3/20]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k input drivers: Update to the new irq API (from Roman Zippel and me) [15/20]
+M68k Apollo: Update to the new irq API (from Roman Zippel and me) [3/20]
 
---- linux-2.5.69/drivers/input/joystick/amijoy.c	Sun Feb 16 12:16:23 2003
-+++ linux-m68k-2.5.69/drivers/input/joystick/amijoy.c	Fri May  9 10:21:31 2003
-@@ -52,7 +52,7 @@
+--- linux-2.5.69/arch/m68k/apollo/config.c	Tue Mar 25 10:06:07 2003
++++ linux-m68k-2.5.69/arch/m68k/apollo/config.c	Fri May  9 10:21:29 2003
+@@ -26,9 +26,9 @@
+ u_long timer_physaddr;
+ u_long apollo_model;
  
- static char *amijoy_name = "Amiga joystick";
+-extern void dn_sched_init(void (*handler)(int,void *,struct pt_regs *));
++extern void dn_sched_init(irqreturn_t (*handler)(int,void *,struct pt_regs *));
+ extern void dn_init_IRQ(void);
+-extern int dn_request_irq(unsigned int irq, void (*handler)(int, void *, struct pt_regs *), unsigned long flags, const char *devname, void *dev_id);
++extern int dn_request_irq(unsigned int irq, irqreturn_t (*handler)(int, void *, struct pt_regs *), unsigned long flags, const char *devname, void *dev_id);
+ extern void dn_free_irq(unsigned int irq, void *dev_id);
+ extern void dn_enable_irq(unsigned int);
+ extern void dn_disable_irq(unsigned int);
+@@ -41,12 +41,12 @@
+ extern struct fb_info *dn_fb_init(long *);
+ extern void dn_dummy_debug_init(void);
+ extern void dn_dummy_video_setup(char *,int *);
+-extern void dn_process_int(int irq, struct pt_regs *fp);
++extern irqreturn_t dn_process_int(int irq, struct pt_regs *fp);
+ #ifdef CONFIG_HEARTBEAT
+ static void dn_heartbeat(int on);
+ #endif
+-static void dn_timer_int(int irq,void *, struct pt_regs *);
+-static void (*sched_timer_handler)(int, void *, struct pt_regs *)=NULL;
++static irqreturn_t dn_timer_int(int irq,void *, struct pt_regs *);
++static irqreturn_t (*sched_timer_handler)(int, void *, struct pt_regs *)=NULL;
+ static void dn_get_model(char *model);
+ static const char *apollo_models[] = {
+ 	"DN3000 (Otter)",
+@@ -195,7 +195,7 @@
  
--static void amijoy_interrupt(int irq, void *dummy, struct pt_regs *fp)
-+static irqreturn_t amijoy_interrupt(int irq, void *dummy, struct pt_regs *fp)
- {
- 	int i, data = 0, button = 0;
+ }		
  
-@@ -74,6 +74,7 @@
+-void dn_timer_int(int irq, void *dev_id, struct pt_regs *fp) {
++irqreturn_t dn_timer_int(int irq, void *dev_id, struct pt_regs *fp) {
  
- 			input_sync(amijoy_dev + i);
- 		}
+ 	volatile unsigned char x;
+ 
+@@ -204,9 +204,10 @@
+ 	x=*(volatile unsigned char *)(timer+3);
+ 	x=*(volatile unsigned char *)(timer+5);
+ 
 +	return IRQ_HANDLED;
  }
  
- static int amijoy_open(struct input_dev *dev)
---- linux-2.5.69/drivers/input/keyboard/amikbd.c	Sun Apr 20 12:28:34 2003
-+++ linux-m68k-2.5.69/drivers/input/keyboard/amikbd.c	Fri May  9 10:21:31 2003
-@@ -71,7 +71,7 @@
- static char *amikbd_name = "Amiga keyboard";
- static char *amikbd_phys = "amikbd/input0";
+-void dn_sched_init(void (*timer_routine)(int, void *, struct pt_regs *)) {
++void dn_sched_init(irqreturn_t (*timer_routine)(int, void *, struct pt_regs *)) {
  
--static void amikbd_interrupt(int irq, void *dummy, struct pt_regs *fp)
-+static irqreturn_t amikbd_interrupt(int irq, void *dummy, struct pt_regs *fp)
- {
- 	unsigned char scancode, down;
+ 	/* program timer 1 */       	
+ 	*(volatile unsigned char *)(timer+3)=0x01;
+--- linux-2.5.69/arch/m68k/apollo/dn_ints.c	Tue Nov  5 10:09:40 2002
++++ linux-m68k-2.5.69/arch/m68k/apollo/dn_ints.c	Fri May  9 10:21:29 2003
+@@ -14,19 +14,20 @@
  
-@@ -93,16 +93,14 @@
- 			input_report_key(&amikbd_dev, scancode, 1);
- 			input_report_key(&amikbd_dev, scancode, 0);
- 			input_sync(&amikbd_dev);
--			return;
-+		} else {
-+			input_report_key(&amikbd_dev, scancode, down);
-+			input_sync(&amikbd_dev);
- 		}
-+	} else				/* scancodes >= 0x78 are error codes */
-+		printk(amikbd_messages[scancode - 0x78]);
+ static irq_handler_t dn_irqs[16];
  
--		input_report_key(&amikbd_dev, scancode, down);
--		input_sync(&amikbd_dev);
+-void dn_process_int(int irq, struct pt_regs *fp) {
 -
--		return;
--	}
--
--	printk(amikbd_messages[scancode - 0x78]);	/* scancodes >= 0x78 are error codes */
-+	return IRQ_HANDLED;
++irqreturn_t dn_process_int(int irq, struct pt_regs *fp)
++{
++  irqreturn_t res = IRQ_NONE;
+ 
+   if(dn_irqs[irq-160].handler) {
+-    dn_irqs[irq-160].handler(irq,dn_irqs[irq-160].dev_id,fp);
+-  }
+-  else {
++    res = dn_irqs[irq-160].handler(irq,dn_irqs[irq-160].dev_id,fp);
++  } else {
+     printk("spurious irq %d occurred\n",irq);
+   }
+ 
+   *(volatile unsigned char *)(pica)=0x20;
+   *(volatile unsigned char *)(picb)=0x20;
+ 
++  return res;
  }
  
- static int __init amikbd_init(void)
---- linux-2.5.69/drivers/input/mouse/amimouse.c	Sun Feb 16 12:16:23 2003
-+++ linux-m68k-2.5.69/drivers/input/mouse/amimouse.c	Tue May  6 13:50:50 2003
-@@ -40,7 +40,7 @@
- static char *amimouse_name = "Amiga mouse";
- static char *amimouse_phys = "amimouse/input0";
- 
--static void amimouse_interrupt(int irq, void *dummy, struct pt_regs *fp)
-+static irqreturn_t amimouse_interrupt(int irq, void *dummy, struct pt_regs *fp)
- {
- 	unsigned short joy0dat, potgor;
- 	int nx, ny, dx, dy;
-@@ -73,6 +73,8 @@
- 	input_report_key(&amimouse_dev, BTN_RIGHT,  potgor & 0x0400);
- 
- 	input_sync(&amimouse_dev);
-+
-+	return IRQ_HANDLED;
+ void dn_init_IRQ(void) {
+@@ -42,7 +43,7 @@
+   
  }
  
- static int amimouse_open(struct input_dev *dev)
+-int dn_request_irq(unsigned int irq, void (*handler)(int, void *, struct pt_regs *), unsigned long flags, const char *devname, void *dev_id) {
++int dn_request_irq(unsigned int irq, irqreturn_t (*handler)(int, void *, struct pt_regs *), unsigned long flags, const char *devname, void *dev_id) {
+ 
+   if((irq<0) || (irq>15)) {
+     printk("Trying to request illegal IRQ\n");
 
 Gr{oetje,eeting}s,
 

@@ -1,93 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268097AbUJOQCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268117AbUJOQHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268097AbUJOQCp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 12:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268134AbUJOQCo
+	id S268117AbUJOQHx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 12:07:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268107AbUJOQHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 12:02:44 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:14803 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S268097AbUJOQB6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 12:01:58 -0400
-Subject: Re: [Ext2-devel] Ext3 -mm reservations code: is this fix really
-	correct?
-From: mingming cao <cmm@us.ibm.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1097846833.1968.88.camel@sisko.scot.redhat.com>
-References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097856114.4591.28.camel@localhost.localdomain>
+	Fri, 15 Oct 2004 12:07:53 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:7398 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S268117AbUJOQEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 12:04:32 -0400
+Date: Fri, 15 Oct 2004 18:04:24 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Albert Cahalan <albert@users.sourceforge.net>
+Subject: Re: per-process shared information
+Message-ID: <20041015160424.GA17849@dualathlon.random>
+References: <20041014223730.GI17849@dualathlon.random> <Pine.LNX.4.44.0410151207140.5682-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 15 Oct 2004 09:01:55 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0410151207140.5682-100000@localhost.localdomain>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-15 at 06:27, Stephen C. Tweedie wrote:
-> Hi,
-> 
-> In ext3-reservations-window-allocation-fix.patch from -mm, we try to
-> make sure that we always search for a new reservation from the goal
-> forwards, not just from the previous window forwards.  I'm assuming this
-> is done to optimise random writes.
-> 
-> I'm still not convinced we get it right.  In alloc_new_reservation(), we
-> do:
-> 
-> 		if ((my_rsv->rsv_start <= group_end_block) &&
-> 				(my_rsv->rsv_end > group_end_block))
-> 			return -1;
-> 
-> We get into alloc_new_reservation in the first place either when the
-> goal is outside the window, or we could not allocate inside the window.
-> 
-> Now, in the latter case, the check is correct --- if the window spans
-> two block groups and we couldn't allocate in the first block group, then
-> we should continue in the next one.
-> 
-> But what if the goal was in the current block group, but was *prior* to
-> the window?  The goal is outside the window, yet the above check may
-> still be true, and we'll incorrectly decide to avoid the current block
-> group entirely.
-> 
-> I think we need an "&& start_block >= my_rsv->rsv_start" to deal with
-> this.
-> 
+On Fri, Oct 15, 2004 at 12:56:22PM +0100, Hugh Dickins wrote:
+> Well, it didn't quite mean that in 2.4: since any pagecache (including
+> swapcache) page mapped into a single task would have page_count 2 and
+> so be counted as shared.
 
-You are right. I think at the beginning we were decide the honor the the
-reservation window if the goal is out of the window. Considering the
-goal is selected with good reason, we agreed that we should try honor
-the goal block all the time.But we missed this case apparently.
+Well, doing page_mapcount + !PageAnon should do the trick. My point is
+that the confusion of an anon page going in swapcache (the one you
+mentioned) is easily fixable.
 
-> If we get past that test --- the reservation window is all entirely
-> inside one group --- then we have the following chunk in
-> xt3-reservations-window-allocation-fix.patch:
-> 
-> -		/* remember where we are before we discard the old one */
-> -		if (my_rsv->rsv_end + 1 > start_block)
-> -			start_block = my_rsv->rsv_end + 1;
-> -		search_head = my_rsv;
-> +		search_head = search_reserve_window(&my_rsv->rsv_node, start_block);
-> 
-> which I'm assuming is trying to pin the search start to the goal block. 
-> But that's wrong --- search_reserve_window does a downwards-traversing
-> tree search, and needs to be given the root of the tree in order to find
-> a given block.  Giving it the current reservation node as the search
-> start point is not going to allow it to find the right node in all
-> cases.
-> 
-> Have I misunderstood something?
-> 
-You are correct, again:) We should do a search_reserve_window() from the
-root.
+> I think 2.4 was already trying to come up with a plausible simulacrum
+> of numbers that made sense to gather in 2.2, but the numbers had lost
+> their point, and it only had page_count to play with.  Or maybe 2.2
+> was already trying to make up numbers to fit with 2.0...
 
-I will post a fix for these two soon.
+;)
 
-Mingming
+> [..] and I don't want to
+> give the cpu unnecessary work, [..]
 
+this doesn't make much sense to me, then you should as well forbid
+the user to run main () { for(;;) }.
+
+Of course doing a sort of for(;;) in each pid of ps xav is overkill, but
+on demand easily killable and reschedule friendly would be no different
+than allowing an user to execute main () { for(;;) }. All you can do is
+to renice it or use CKRM to lower its cpu availability from the
+scheduler, or kill -9.
+
+> remove even the vma walk; but I accept you're being careful to propose
+> that we keep the overhead out of existing /proc/pid uses - right if
+> we have to go that way, but I just prefer to avoid the work myself.
+
+correct. I'd also prefer to avoid this work myself.
+
+> I hope that's what my patch would be sufficient to achieve.
+
+I hope too.
+
+> It would be unfair to say 2.4's numbers were actually a bug, but
+> certainly peculiar: I'm about as interested in exactly reproducing
+> their oddities as in building a replica of some antique furniture.
+
+sure the swapcache bit would need fixing ;)
+
+> Oh, if that's all we need, I can do a simpler patch ;)
+
+yep ;) though such simpler patch would return no-sensical results, it
+would provide no-information at all in some case.
+
+> Interesting idea, and now (well, 2.6.9-mm heading to 2.6.10) we have
+> atomic_inc_return and atomic_dec_return supported on all architectures,
+> it should be possible to adjust an mm->shared_rss each time mapcount
+> goes up from 1 or down to 1, as well as adjusting nr_mapped count
+> as we do when it goes up from 0 or down to 0.
+
+I believe your approach will work fine, and it's much closer to the 2.4
+physical-driven semantics. It looks like "shared" really means
+not-anonymous memory, but accounted on a physical basis.
+
+However I wouldn't mind if you want to add a new field and to provide
+both the "virtual" shared like 2.6 right now, along the "physical"
+shared miming the semantics of 2.4 (they could be both in statm since
+they're O(1) to collect).

@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315275AbSELB0O>; Sat, 11 May 2002 21:26:14 -0400
+	id <S316291AbSELB1s>; Sat, 11 May 2002 21:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316291AbSELB0N>; Sat, 11 May 2002 21:26:13 -0400
-Received: from elin.scali.no ([62.70.89.10]:40455 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S315275AbSELB0M>;
-	Sat, 11 May 2002 21:26:12 -0400
-Date: Sun, 12 May 2002 03:26:09 +0200 (CEST)
-From: Steffen Persvold <sp@scali.com>
-To: Linux Kernel malinglist <linux-kernel@vger.kernel.org>
-cc: Arjan van de Ven <arjanv@redhat.com>
-Subject: Strange problem with /proc/ksyms
-Message-ID: <Pine.LNX.4.30.0205120313590.24933-100000@elin.scali.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316294AbSELB1r>; Sat, 11 May 2002 21:27:47 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:53515 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316291AbSELB1r>;
+	Sat, 11 May 2002 21:27:47 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "skidley" <skidley@crrstv.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre8-ac2 compile error 
+In-Reply-To: Your message of "Sat, 11 May 2002 21:56:40 -0300."
+             <20020512005640.GA2171@crrstv.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 12 May 2002 11:27:35 +1000
+Message-ID: <17777.1021166855@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+On Sat, 11 May 2002 21:56:40 -0300, 
+"skidley" <skidley@crrstv.net> wrote:
+>
+>make[1]: Leaving directory `/home/kernel/linux/Documentation/DocBook'
+>gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o
+>scripts/split-include scripts/split-include.c
+>scripts/split-include include/linux/autoconf.h include/config
+>make -r -f .tmp_include_depends all
+>make[1]: Entering directory `/home/kernel/linux'
+>make[1]: .tmp_include_depends: No such file or directory
+>make[1]: *** No rule to make target `.tmp_include_depends'.  Stop.
+>make[1]: Leaving directory `/home/kernel/linux'
+>make: *** [.tmp_include_depends] Error 2
 
-I've discovered this wierd problem with /proc/ksyms on RedHat's
-2.4.18-4smp (i686 build) for 7.3. The thing is that with utilities like
-'cat' and 'grep' it seems like the whole list isn't showing :
-
-[root@puma1 root]# uname -a
-Linux puma1.office.scali.no 2.4.18-4smp #1 SMP Thu May 2 18:32:34 EDT 2002 i686 unknown
-
-[root@puma1 root]# grep del_timer /proc/ksyms
-[root@puma1 root]# grep printk /proc/ksyms
-c011c870 printk_Rsmp_1b7d4074
-
-[root@puma1 root]# cat /proc/ksyms >cat_test
-[root@puma1 root]# ls -l cat_test
--rw-r--r--    1 root     root        28519 May  4 02:48 cat_test
-
-
-But if I use 'dd', all of it is listed :
-
-[root@puma1 root]# dd if=/proc/ksyms of=dd_test
-149+1 records in
-149+1 records out
-[root@puma1 root]# ls -l dd_test
--rw-r--r--    1 root     root        76683 May  4 02:49 dd_test
-[root@puma1 root]# grep printk dd_test
-c011c870 printk_Rsmp_1b7d4074
-c03d9488 tux_Dprintk_Rsmp_a12c9a12
-c03d9484 tux_TDprintk_Rsmp_c0ce7778
-[root@puma1 root]# grep del_timer dd_test
-c0124900 del_timer_Rsmp_fc62f16d
-c0124960 del_timer_sync_Rsmp_daff266a
-
-
-What could this be ? Buffering issues ? I haven't seen this on a stock
-2.4.18 kernel.
-
-Regards,
--- 
-  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
- mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency
+You forgot to make dep after applying the patch.
 

@@ -1,79 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUIUDCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267483AbUIUDZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266839AbUIUDCk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 23:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbUIUDCk
+	id S267483AbUIUDZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 23:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267490AbUIUDZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 23:02:40 -0400
-Received: from mailhub.hp.com ([192.151.27.10]:2028 "EHLO mailhub.hp.com")
-	by vger.kernel.org with ESMTP id S266839AbUIUDCe (ORCPT
+	Mon, 20 Sep 2004 23:25:27 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:16570 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267483AbUIUDZP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 23:02:34 -0400
-Subject: RE: [ACPI] PATCH-ACPI based CPU hotplug[2/6]-ACPI Eject
-	interfacesupport
-From: Alex Williamson <alex.williamson@hp.com>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       acpi-devel@lists.sourceforge.net,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       LHNS list <lhns-devel@lists.sourceforge.net>,
-       Linux IA64 <linux-ia64@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F84059309EF@pdsmsx403>
-References: <3ACA40606221794F80A5670F0AF15F84059309EF@pdsmsx403>
-Content-Type: text/plain
-Date: Mon, 20 Sep 2004 21:02:18 -0600
-Message-Id: <1095735738.3920.29.camel@mythbox>
+	Mon, 20 Sep 2004 23:25:15 -0400
+Message-ID: <8e6f9472040920202565041b61@mail.gmail.com>
+Date: Mon, 20 Sep 2004 23:25:10 -0400
+From: Will Dyson <will.dyson@gmail.com>
+Reply-To: Will Dyson <will.dyson@gmail.com>
+To: James Morris <jmorris@redhat.com>
+Subject: Re: [PATCH 1/6] xattr consolidation v2 - generic xattr API
+Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       Christoph Hellwig <hch@infradead.org>,
+       Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Xine.LNX.4.44.0409201904220.23206-100000@thoron.boston.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <8e6f9472040920105013b4e0cd@mail.gmail.com>
+	 <Xine.LNX.4.44.0409201904220.23206-100000@thoron.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 20 Sep 2004 19:07:21 -0400 (EDT), James Morris
+<jmorris@redhat.com> wrote:
 
->   This sounds like a good idea. To call the raw AML methods from
-> User space, just need to solve the problem of argument passing.
+> > For example:
+> >
+> > /*
+> > In order to implement different sets of xattr operations for each
+> > xattr prefix, a filesystem should create a null-terminated array of
+> > struct xattr_handler (one for each prefix) and hang a pointer to it
+> > off of the s_xattr field of the superblock. The generic_fooxattr
+> > functions will search this list for a xattr_handler with a prefix
+> > field that matches the prefix of the xattr we are dealing with and
+> > call the apropriate function pointer from that xattr_handler.
+> > */
+> 
+> The above is inaccurate.  e.g. not all of the generic functions search for
+> a matching xattr handler.
 
-   Solved, the driver I proposed takes an acpi_object_list for passing
-arguments to the methods.  The kernel-userspace interface replaces the
-pointers in these structures with offsets into the buffer (userspace
-responsibility to pass in offsets, kernel responsibility to pass back
-offsets).  I've modified the sysfs bin_file to allow ACPI object files
-to have backing store on a per-open basis.  There are special commands
-that can be written to the ACPI object files to evaluate attributes of
-them.  Perhaps these could include some of the things we're looking for
-here.
+Ok. You see the difficulty of documenting code that someone else
+wrote.  Please consider the following:
 
-> But, some AML methods are risky to be called directly from user space,
-> Not only because the side effect of its execution, but also because
-> it could trigger potential AML method bug or interpreter bug, or even
-> architectural defect.  All of these headache is due to the AML method
->  is NOT intended for being used by userspace program.
+--- xattr.c.old	2004-09-20 22:39:18.000000000 -0400
++++ xattr.c	2004-09-20 23:13:53.000000000 -0400
+@@ -359,11 +359,24 @@
+ 	return *a_prefix ? NULL : a;
+ }
+ 
++/*
++ * In order to implement different sets of xattr operations for each xattr
++ * prefix, a filesystem should create a null-terminated array of struct
++ * xattr_handler (one for each prefix) and hang a pointer to it off of the
++ * s_xattr field of the superblock.
++ *
++ * The generic_fooxattr() functions will use this list to dispatch xattr
++ * operations to the correct xattr_handler.
++ */
++
+ #define for_each_xattr_handler(handlers, handler)		\
+ 		for ((handler) = *(handlers)++;			\
+ 			(handler) != NULL;			\
+ 			(handler) = *(handlers)++)	
+ 			
++/*
++ * Find the xattr_handler with the matching prefix
++ */
+ static struct xattr_handler *xattr_resolve_name(struct xattr_handler
+**handlers, const char **name)
+ {
+ 	struct xattr_handler *handler;
+@@ -381,6 +394,9 @@
+ 	return handler;
+ }
+ 
++/*
++ * Find the handler for the prefix and dispatch the operation through it
++ */
+ ssize_t generic_getxattr(struct dentry *dentry, const char *name,
+void *buffer, size_t size)
+ {
+ 	struct xattr_handler *handler;
+@@ -392,6 +408,10 @@
+ 	return handler->get(inode, name, buffer, size);
+ }
+ 
++/*
++ * Combine the results of the list() function from every xattr_handler in the
++ * list.
++ */
+ ssize_t generic_listxattr(struct dentry *dentry, char *buffer, size_t
+buffer_size)
+ {
+ 	struct inode *inode = dentry->d_inode;
+@@ -417,6 +437,9 @@
+ 	return size;
+ }
+ 
++/*
++ * Find the handler for the prefix and dispatch the operation through it
++ */
+ int generic_setxattr(struct dentry *dentry, const char *name, const
+void *value, size_t size, int flags)
+ {
+ 	struct xattr_handler *handler;
+@@ -430,6 +453,9 @@
+ 	return handler->set(inode, name, value, size, flags);
+ }
+ 
++/*
++ * Find the handler for the prefix and dispatch the operation through it
++ */
+ int generic_removexattr(struct dentry *dentry, const char *name)
+ {
+ 	struct xattr_handler *handler;
 
-   I've made an attempt to hide the most obvious dangerous methods, but
-undoubtedly, there will be some.  Why are we any more likely to hit an
-AML method bug, interpreter bug or architectural bug by having a
-userspace interface?  Because we can more easily exercise the code?  It
-calls the same code paths a driver could.  The driver I propose for this
-task does not require any additionally low-level ACPI functions to be
-exported.  I think it's too much complexity in the kernel to abstract
-every possible bit of data someone might find useful into kernel
-drivers.
 
-   Take a simple case of looking for a device with a specific _HID value
-and wanting the _CRS data for it.  The _HID value part is easy, but add
-all the smarts to parse the _CRS data into something human readable, and
-code bloat gets huge.  Then throw in the problem of parsing vendor data
-types, and you'll never get finished.  This is a real example.  The zx1
-ia64 chipset can only be discovered through ACPI namespace.  It's
-physical address is saved in a vendor resource descriptor.  We currently
-have to do some pretty ugly stuff in X to take a reasonable guess a what
-chipset we're using.  We need some mechanism to get this data in
-userspace, and I don't see an approach better than offloading the
-complicated data parsing into userspace.  Adding only the methods needed
-to solve a specific problem sounds like a maintainability nightmare.
-Thanks,
-
-	Alex
-
+-- 
+Will Dyson - Consultant
+http://www.lucidts.com/

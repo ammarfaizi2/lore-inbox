@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312323AbSCUAiq>; Wed, 20 Mar 2002 19:38:46 -0500
+	id <S312325AbSCUAr7>; Wed, 20 Mar 2002 19:47:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312324AbSCUAig>; Wed, 20 Mar 2002 19:38:36 -0500
-Received: from edinburgh.cisco.com ([144.254.112.76]:23183 "EHLO cisco.com")
-	by vger.kernel.org with ESMTP id <S312323AbSCUAiW>;
-	Wed, 20 Mar 2002 19:38:22 -0500
-Date: Thu, 21 Mar 2002 00:38:13 +0000
-From: Derek Fawcus <dfawcus@cisco.com>
-To: Itai Nahshon <nahshon@actcom.co.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OT: "real" letters [Was: 10.31 second kernel compile]
-Message-ID: <20020321003813.A8328@edinburgh.cisco.com>
-In-Reply-To: <E16mfGE-00034P-00@the-village.bc.nu> <200203180130.g2I1Ui729376@lmail.actcom.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0.1i
+	id <S312327AbSCUArj>; Wed, 20 Mar 2002 19:47:39 -0500
+Received: from ns01.passionet.de ([62.153.93.33]:8085 "HELO
+	mail.cgn.kopernikus.de") by vger.kernel.org with SMTP
+	id <S312325AbSCUArQ> convert rfc822-to-8bit; Wed, 20 Mar 2002 19:47:16 -0500
+Date: Thu, 21 Mar 2002 01:47:09 +0100
+From: Manon Goo <manon@manon.de>
+Reply-To: Manon Goo <manon@manon.de>
+To: "Cameron, Steve" <Steve.Cameron@COMPAQ.com>, linux-kernel@vger.kernel.org
+Subject: RE: Hooks for random device entropy generation missing incpqarray.c
+Message-ID: <130041.1016675229@[212.18.27.11]>
+In-Reply-To: <45B36A38D959B44CB032DA427A6E106401281374@cceexc18.americas.cpqcorp.net>
+X-Mailer: Mulberry/2.2.0b3 (Mac OS X)
+X-manon-file: sentbox
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 18, 2002 at 03:30:32AM +0200, Itai Nahshon wrote:
-> 
-> > There are still a couple of places you can legitimaely use an ae symbol in
-> > English. It's not quite dead yet 8)
-> 
-> The only example that I've seen in English texts is use of ï as in "naïve".
-> 
+OK I'll try tell you tomorrwo how iz worked out
 
-The two I can recall off the top of my head are "dæmon" and "færie".
+--On Mittwoch, 20. März 2002 15:59 Uhr -0600 "Cameron, Steve" 
+<Steve.Cameron@COMPAQ.com> wrote:
 
-DF
+>
+>> I have not tried your patch.  but this is in cpqarray_init()
+>> and it is only
+>> called when the driver is initilaized.
+>> How is the entropy-pool further updated ?
+>
+> It's done in linux/arch/*/kernel/irq.c.
+> for i386, in handle_IRQ_event() function.
+>
+> -- steve
+>
+
+

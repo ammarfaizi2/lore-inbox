@@ -1,103 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263692AbUEMAU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263733AbUEMAYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263692AbUEMAU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 20:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263708AbUEMAU5
+	id S263733AbUEMAYi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 20:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbUEMAYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 20:20:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38882 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263692AbUEMAUy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 20:20:54 -0400
-Date: Wed, 12 May 2004 17:20:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: marcus hall <marcus@tuells.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Block device swamping disk cache
-Message-Id: <20040512172022.78d35f19.akpm@osdl.org>
-In-Reply-To: <20040512133329.GA20030@bastille.tuells.org>
-References: <20040511191124.GA16014@bastille.tuells.org>
-	<20040511201936.A19384@infradead.org>
-	<20040511172643.36df7c94.akpm@osdl.org>
-	<20040512133329.GA20030@bastille.tuells.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 12 May 2004 20:24:38 -0400
+Received: from bern.wildisoft.net ([66.80.62.108]:16398 "EHLO
+	bern.wildisoft.net") by vger.kernel.org with ESMTP id S263734AbUEMAYd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 20:24:33 -0400
+Date: Wed, 12 May 2004 17:24:20 -0700 (PDT)
+From: Patrick Wildi <patrick@wildi.com>
+X-X-Sender: patrick@bern.wildisoft.net
+To: dobrev <dobrev666@prostak.org>
+cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Craig Bradney <cbradney@zip.com.au>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+In-Reply-To: <40A270D6.1070802@prostak.org>
+Message-ID: <Pine.LNX.4.58.0405121720540.11847@bern.wildisoft.net>
+References: <409F4944.4090501@keyaccess.nl> <1084280198.9420.5.camel@amilo.bradney.info>
+ <40A0FB04.1000902@prostak.org> <200405122007.46784.bzolnier@elka.pw.edu.pl>
+ <40A270D6.1070802@prostak.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-marcus hall <marcus@tuells.org> wrote:
+On Wed, 12 May 2004, dobrev wrote:
+
 >
-> On Tue, May 11, 2004 at 05:26:43PM -0700, Andrew Morton wrote:
->  > no, sorry, it'll still happen.  I haven't fixed the ramdisk driver yet.
->  > 
->  > The problem is that ->memory_backed means both "doesn't contribute
->  > to dirty memory" and also "doesn't need writeback".
->  > 
->  > These concepts need to be split apart for the ramdisk driver.  I'll do it
->  > for 2.6.7, promise.
-> 
->  Well, I believe that the inodes that are marked as memory_backed are
->  for the ramdisk, and that isn't really a problem.  The block device
->  that I am writing to is a compact flash, so it's going through the ide-disk
->  device.  I do not see this inode show up on any superblock's dirty queue
->  (since it doesn't appear that mark_inode_dirty() is being called for
->  it).  So the question I am asking is, what strategy is *supposed* to be
->  in place to flush the blocks out?  (Or is this a hole that isn't plugged?)
+>
+> Bartlomiej Zolnierkiewicz wrote:
+>
+> >On Tuesday 11 of May 2004 18:10, dobrev wrote:
+> >
+> >
+> >>Craig Bradney wrote:
+> >>
+> >>
+> >>>On Tue, 2004-05-11 at 13:24, Rene Herman wrote:
+> >>>
+> >>>
+> >>>>Bartlomiej Zolnierkiewicz wrote:
+> >>>>
+> >>>>
+> >>>>>Rene, can you send me copies of /proc/ide/hda/identify and
+> >>>>>/proc/ide/hdc/identify?
+> >>>>>
+> >>>>>
+> >>>>Sure, attached. Quite sure you wanted hdc though? That's a DVD-ROM.
+> >>>>
+> >>>>
+> >>>>
+> >>>>>I still would like to know why these drives don't accept flush cache
+> >>>>>commands (or it is a driver's bug?).
+> >>>>>
+> >>>>>
+> >>>>No idea I'm afraid. Seems at least new Maxtor drives are affected. Both
+> >>>>the "120P0" (120G, 8M cache) and "L0" (120G, 2M cache) were reported in
+> >>>>this thread.
+> >>>>
+> >>>>
+> >>>At a guess the 80P0 drives will also be affected (80G, 8mb cache), but
+> >>>as yet I havent tried 2.6.6 on the boxes with them. Tonight if theres
+> >>>time.
+> >>>
+> >>>Craig
+> >>>
+> >>>
+> >>I have Maxtor 6Y060L0 and is also affected. Now I am with 2.6.5.
+> >>
+> >>
+> >
+> >Please see http://bugme.osdl.org/show_bug.cgi?id=2672
+> >
+> >
+>
+> Yes, I know.
+>
+> >
+> >
+> >>SvrWks IDE controller also have problems with 2.6.6 because the drive
+> >>works in mdma2 mode.
+> >>When in 2.6.5 the transfer mode is udma2.
+> >>
+> >>
+> >
+> >UDMA2 on OSB4?  Weird.
+> >
+> >from serverwoks.c:
+> >
+> >	/* If we are about to put a disk into UDMA mode we screwed up.
+> >	   Our code assumes we never _ever_ do this on an OSB4 */
+> >
+> >	if(dev->device == PCI_DEVICE_ID_SERVERWORKS_OSB4 &&
+> >		drive->media == ide_disk && speed >= XFER_UDMA_0)
+> >			BUG();
+> >
+> >I need more data: .config (2.6.5/2.6.6) and full dmesg output (2.6.5/2.6.6).
+> >
+> >
+>
+> Yes, it's a OSB4.
+> I attached files you need. .config is the same.
+> The problem is that when in 2.6.6 hdparm  reports that the drive is much
+> slower than 2.6.5
+> 2.6.6 => 13 MB/s
+> 2.6.5 => 23 MB/s
+> When I  remove the code related to serverworks.c (see bellow) in
+> patch-2.6.6 transfer is like 2.6.5.
 
-Not sure why you're stuck running Krufty Old Kernels, but this patch from
-June 2003 should fix it.
+I believe what happens, is that with the old logic UDMA disks on
+OSB4 "fell through the cracks" in svwks_config_drive_xfer_rate().
+It was basically a noop (unintentionally) and the settings were
+left at whatever BIOS set them to.
+Looking through some old threads, it looks like UDMA was considered
+not safe on an OSB4.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2003/06/13 17:43:10-07:00 akpm@digeo.com 
-#   [PATCH] fix writeback for dirty ramdisk blockdev inodes
-#   
-#   Once the blockdev inode for /dev/ram0 is dirtied we have a memory-backed
-#   inode on the blockdev superblock's s_dirty list.
-#   
-#   sync_sb_inodes() sees the memory-backed inode on the superblock and assumes
-#   that all the other inodes on the superblock are also memory-backed.  This is
-#   not true for the blockdev superblock!  We forget to write out dirty pages
-#   against the following blockdevs.
-#   
-#   Fix this by just leaving the inode dirty and moving on to inspect the other
-#   blockdev inodes on sb->s_io.
-#   
-#   (This is a little inefficient: an alternative is to leave dirtied
-#   memory-backed inodes on inode_in_use, so nobody ever even considers them for
-#   writeout.  But that introduces an inconsistency and is a bit kludgey).
-# 
-# fs/fs-writeback.c
-#   2003/06/13 08:39:48-07:00 akpm@digeo.com +14 -1
-#   fix writeback for dirty ramdisk blockdev inodes
-# 
-diff -Nru a/fs/fs-writeback.c b/fs/fs-writeback.c
---- a/fs/fs-writeback.c	Wed May 12 17:18:54 2004
-+++ b/fs/fs-writeback.c	Wed May 12 17:18:54 2004
-@@ -260,8 +260,21 @@
- 		struct address_space *mapping = inode->i_mapping;
- 		struct backing_dev_info *bdi = mapping->backing_dev_info;
- 
--		if (bdi->memory_backed)
-+		if (bdi->memory_backed) {
-+			if (sb == blockdev_superblock) {
-+				/*
-+				 * Dirty memory-backed blockdev: the ramdisk
-+				 * driver does this.
-+				 */
-+				list_move(&inode->i_list, &sb->s_dirty);
-+				continue;
-+			}
-+			/*
-+			 * Assume that all inodes on this superblock are memory
-+			 * backed.  Skip the superblock.
-+			 */
- 			break;
-+		}
- 
- 		if (wbc->nonblocking && bdi_write_congested(bdi)) {
- 			wbc->encountered_congestion = 1;
+Patrick
 
+> >
+> >
+> >>Probably because of this (from patch-2.6.6):
+> >>diff -Nru a/drivers/ide/pci/serverworks.c b/drivers/ide/pci/serverworks.c
+> >>--- a/drivers/ide/pci/serverworks.c     Sun May  9 19:33:36 2004
+> >>+++ b/drivers/ide/pci/serverworks.c     Sun May  9 19:33:36 2004
+> >>@@ -472,7 +472,9 @@
+> >>                                int dma = config_chipset_for_dma(drive);
+> >>                                if ((id->field_valid & 2) && !dma)
+> >>                                        goto try_dma_modes;
+> >>-                       }
+> >>+                       } else
+> >>+                               /* UDMA disabled by mask, try other DMA
+> >>modes */+                               goto try_dma_modes;
+> >>                } else if (id->field_valid & 2) {
+> >> try_dma_modes:
+> >>                        if ((id->dma_mword & hwif->mwdma_mask) ||
+> >>
+> >>
+>
+>
+>
+>
+>

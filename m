@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267765AbUHFFTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268093AbUHFFYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267765AbUHFFTN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 01:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268093AbUHFFTN
+	id S268093AbUHFFYr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 01:24:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268095AbUHFFYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 01:19:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8345 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267765AbUHFFTM (ORCPT
+	Fri, 6 Aug 2004 01:24:47 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:55717 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S268093AbUHFFYq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 01:19:12 -0400
-Date: Thu, 5 Aug 2004 22:17:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm1
-Message-Id: <20040805221734.69597956.akpm@osdl.org>
-In-Reply-To: <20040806043915.GT17188@holomorphy.com>
-References: <20040805031918.08790a82.akpm@osdl.org>
-	<20040806033448.GP17188@holomorphy.com>
-	<20040806042420.GS17188@holomorphy.com>
-	<20040806043915.GT17188@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Aug 2004 01:24:46 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: error inserting module - invalid argument
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Fri, 6 Aug 2004 10:55:51 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB34811067EE8@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: error inserting module - invalid argument
+Thread-Index: AcR7cu0mmnROcfqQS9S27Nzzynm+NAAAAVjAAABphHA=
+From: "Srinivas G." <srinivasg@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> On Thu, Aug 05, 2004 at 08:34:48PM -0700, William Lee Irwin III wrote:
->  >> It appears that init_idle() and fork_by_hand() could be combined into
->  >> a single method that calls init_idle() on behalf of the caller, which
->  >> would amount to something like:
->  >> task_t * __init fork_idle(int cpu)
-> 
->  On Thu, Aug 05, 2004 at 09:24:20PM -0700, William Lee Irwin III wrote:
->  > Atop the full 2.6.8-rc3-mm1 series:
-> 
->  Fix up sparc32 properly (incremental).
+Hi all,
+I have a problem regarding inserting a module.
+ 
+I have the driver rpm with me in which I insert the module & accomplish other requirements of my driver.
 
-Well I had to significantly smash these patches to get stuff in the right
-place.  Please check that next -mm has it all right.
+When I say 
 
+rpm -ivh tifm-1.3-1.i586.rpm
+ 
+This is working fine on my system i.e on Suse 9.1 ( 2.6.5-7.71 kernel).
+ 
+But, the client has a problem even when he works on a system with the same configuration 
+i.e. Suse 9.1 ( 2.6.5-7.71 kernel)
+ 
+He got the following error message :-
+ 
+Error inserting tifm  (/lib/modules/2.6.5-7.71-default/kernel/drivers/block/tifm.ko): Invalid argument.
+ 
+His system hangs after then.
+What might be the reason behind it.
+ 
+Regards,
+Seenu.
+ 
+ 

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131238AbRCOVVr>; Thu, 15 Mar 2001 16:21:47 -0500
+	id <S131328AbRCOVlH>; Thu, 15 Mar 2001 16:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131311AbRCOVVh>; Thu, 15 Mar 2001 16:21:37 -0500
-Received: from ns2.cypress.com ([157.95.67.5]:36264 "EHLO ns2.cypress.com")
-	by vger.kernel.org with ESMTP id <S131238AbRCOVVV>;
-	Thu, 15 Mar 2001 16:21:21 -0500
-Message-ID: <3AB1321B.ECBFFCEA@cypress.com>
-Date: Thu, 15 Mar 2001 15:20:27 -0600
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor Southeast Design Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
+	id <S131311AbRCOVk5>; Thu, 15 Mar 2001 16:40:57 -0500
+Received: from robur.slu.se ([130.238.98.12]:36625 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S131197AbRCOVkj>;
+	Thu, 15 Mar 2001 16:40:39 -0500
+From: Robert Olsson <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
-To: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-CC: pedwards@disaster.jaj.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: State of RAID (and the infamous FastTrak100 card)
-In-Reply-To: <20010314155801.A7054@disaster.jaj.com> <20010314232714.A19404@unthought.net> <3AB12C4A.84152B20@gmx.at>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15025.13985.360488.40746@robur.slu.se>
+Date: Thu, 15 Mar 2001 22:39:45 +0100 (CET)
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Robert.Olsson@data.slu.se, linux-kernel@vger.kernel.org
+Subject: Re: How to optimize routing performance
+In-Reply-To: <3AB12640.79E7B4FB@colorfullife.com>
+In-Reply-To: <3AB12640.79E7B4FB@colorfullife.com>
+X-Mailer: VM 6.75 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wilfried Weissmann wrote:
-> 
-> Jakob Østergaard wrote:
-> > > So... am I just begging for pain if I try to install, say, a stock RH7
-> > > on a machine with the FastTrak100 doing it's little RAID0/JBOD thing?
-> > > If it requires this machine to always boot from a floppy because the driver
-> > > cannot be linked into the kernel, well, I'm okay with that.
-> >
-> > I don't know about the state of the FastTrak100 IDE drivers - but if you can
-> > get that running, putting software RAID on top of that should be a simple
-> > matter.
-> 
-> I do not think that would work. These IDE RAID use a slightly different layout that someone would
-> expect. This means that you cannot map it 1:1 to any RAID personality, therefore you cannot boot
-> from it.
-> 
-> (Free)BSD supports this IDE RAID controller with the RAID functionality. Maybe you want to check it
-> out.
 
-Jakob ment the kernel software-RAID, md.0, raid0.o, raid1.o, raid5.o,
-and linear.o
-Not the Promise RAID software.
+Manfred Spraul writes:
+ > >
+ > > http://Linux/net-development/experiments/010313
+ > >
+ > The link is broken, and I couldn't find it at www.linux.com. Did you
+ > forget the host?
 
-	-Thomas
+ Yes Sir!
+
+ The profile data from the Linux production router is at:
+ 
+ http://robur.slu.se/Linux/net-development/experiments/010313
+
+ Cheers.
+
+						--ro
+

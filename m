@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262420AbREUJkC>; Mon, 21 May 2001 05:40:02 -0400
+	id <S262428AbREUJzX>; Mon, 21 May 2001 05:55:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262421AbREUJjw>; Mon, 21 May 2001 05:39:52 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:57869 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262420AbREUJjl>;
-	Mon, 21 May 2001 05:39:41 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: kees <kees@schoen.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Hang with SMP 2.4.4 snd log 
-In-Reply-To: Your message of "Mon, 21 May 2001 10:26:20 +0200."
-             <Pine.LNX.4.21.0105211022430.4818-200000@schoen3.schoen.nl> 
-Mime-Version: 1.0
+	id <S262431AbREUJzN>; Mon, 21 May 2001 05:55:13 -0400
+Received: from indyio.rz.uni-sb.de ([134.96.7.3]:7005 "EHLO
+	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
+	id <S262428AbREUJzI>; Mon, 21 May 2001 05:55:08 -0400
+Message-ID: <3B08E5F1.BD33D6F7@stud.uni-saarland.de>
+Date: Mon, 21 May 2001 09:54:57 +0000
+From: Studierende der Universitaet des Saarlandes 
+	<masp0008@stud.uni-sb.de>
+Reply-To: manfred@colorfullife.com
+Organization: Studierende Universitaet des Saarlandes
+X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
+MIME-Version: 1.0
+To: jbk@postmark.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tulip driver BROKEN in 2.4.5-pre4
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 21 May 2001 19:39:23 +1000
-Message-ID: <9363.990437963@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 May 2001 10:26:20 +0200 (CEST), 
-kees <kees@schoen.nl> wrote:
->I got a next hang with my SMP system, kdb log attached. Something strange
->with the backtrace for CPU 0. Here is the first cut from the kdb log..
+Could you post the output of
 
-I do not trust either of those backtraces.  There is no way to get from
-do_nmi to do_exit.  The presence of "unknown" entries indicates that
-the cpu 0 back trace is bad.  Also all the ebp pointers are suspect,
-they are way out of range for the task addresses.  You could be looking
-at a stack overrun or just random corruption of kernel data.
+#tulip-diag -mm -aa -f
 
-If you can reproduce the problem, set KDBDEBUG=0xff and bt.  That will
-debug kdb and produce a lot of output.  Send it to me, although I
-suspect it will just prove that you have stack corruption.
+with the broken driver?
+Some code that's required for Linksys Tulip clones was moved from pnic
+specific part into the generic part, perhaps that causes problems.
 
+--
+	Manfred

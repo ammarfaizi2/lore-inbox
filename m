@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289384AbSBBUhq>; Sat, 2 Feb 2002 15:37:46 -0500
+	id <S292382AbSBBUoP>; Sat, 2 Feb 2002 15:44:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292381AbSBBUhe>; Sat, 2 Feb 2002 15:37:34 -0500
-Received: from [200.240.18.5] ([200.240.18.5]:37646 "EHLO ipanema.inx.com.br")
-	by vger.kernel.org with ESMTP id <S289384AbSBBUhV>;
-	Sat, 2 Feb 2002 15:37:21 -0500
-Message-ID: <3C5C4E00.2080400@cetuc.puc-rio.br>
-Date: Sat, 02 Feb 2002 18:37:20 -0200
-From: Marcelo Roberto Jimenez <mroberto@cetuc.puc-rio.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3: Unresolved Symbols in ppp_deflate.o and ufs.o
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S292383AbSBBUnz>; Sat, 2 Feb 2002 15:43:55 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:60357 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S292382AbSBBUnv>;
+	Sat, 2 Feb 2002 15:43:51 -0500
+Date: Sat, 2 Feb 2002 15:43:48 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Francois Romieu <romieu@cogenit.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SIOCDEVICE ?
+Message-ID: <20020202154348.A26147@havoc.gtf.org>
+In-Reply-To: <200201311304.FAA00344@adam.yggdrasil.com> <20020131181241.A3524@fafner.intra.cogenit.fr> <m3665iqhqn.fsf@defiant.pm.waw.pl> <20020202154424.A5845@fafner.intra.cogenit.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020202154424.A5845@fafner.intra.cogenit.fr>; from romieu@cogenit.fr on Sat, Feb 02, 2002 at 03:44:24PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having the same problem:
+On Sat, Feb 02, 2002 at 03:44:24PM +0100, Francois Romieu wrote:
+> Your patch doesn't apply against 2.5.3. I did a quick update and noticed the
+> patch is the sole user of SIOCDEVICE (with dscc4) and SIOCDEVPRIVATE.
 
-...
-make -C  arch/i386/lib modules_install
-make[1]: Entering directory 
-`/home/mroberto/programs/kernel/2.5.3/plain/linux/arch/i386/lib'
-make[1]: Nothing to be done for `modules_install'.
-make[1]: Leaving directory 
-`/home/mroberto/programs/kernel/2.5.3/plain/linux/arch/i386/lib'
-cd /lib/modules/2.5.3; \
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.3; fi
-depmod: *** Unresolved symbols in 
-/lib/modules/2.5.3/kernel/drivers/net/ppp_deflate.o
-depmod:         zlib_inflateIncomp
+SIOCDEVPRIVATE is verboten in 2.5.x, it doesn't pass through ioctl
+translation layers like that which exists on sparc64 and ia64; they are
+untyped awful interfaces.
 
+The correction would perhaps define a real command as needed...
 
-Regards,
+	Jeff
 
-Marcelo.
 
 

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131562AbRAWSvL>; Tue, 23 Jan 2001 13:51:11 -0500
+	id <S129604AbRAWSwv>; Tue, 23 Jan 2001 13:52:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131560AbRAWSvB>; Tue, 23 Jan 2001 13:51:01 -0500
-Received: from [63.109.146.2] ([63.109.146.2]:17655 "EHLO mail0.myrio.com")
-	by vger.kernel.org with ESMTP id <S131559AbRAWSuu>;
-	Tue, 23 Jan 2001 13:50:50 -0500
-Message-ID: <4461B4112BDB2A4FB5635DE1995874320223E1@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Mike A. Harris'" <mharris@opensourceadvocate.org>,
-        "Trever L. Adams" <trever_Adams@bigfoot.com>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: RE: Total loss with 2.4.0 (release) [off topic now...]
-Date: Tue, 23 Jan 2001 10:50:43 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129773AbRAWSwl>; Tue, 23 Jan 2001 13:52:41 -0500
+Received: from [209.6.19.225] ([209.6.19.225]:45203 "EHLO linus.aaxion.com")
+	by vger.kernel.org with ESMTP id <S129604AbRAWSw1>;
+	Tue, 23 Jan 2001 13:52:27 -0500
+Message-Id: <5.0.2.1.0.20010123134832.00aa3c80@linus.aaxion.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Tue, 23 Jan 2001 13:53:17 -0500
+To: "Christopher Friesen" <cfriesen@nortelnetworks.com>,
+        georgn@somanetworks.com
+From: James Kelly <kelly@linus.aaxion.com>
+Subject: Re: [OT?] Coding Style
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3A6DC807.1451EB61@nortelnetworks.com>
+In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCCD@zcard00g.ca.nortel.com>
+ <200101231600.LAA24562@mah21awu.cas.org>
+ <14957.44505.115108.445550@somanetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is getting off topic, but it's good to spread the info around:
+I am not sure about Linux IDEs, but when I programmed Objective-C using the 
+OpenStep IDE, you could not only do auto-completion on those, but on any 
+word that had been previously used.  That was cool, and didn't cause wacky 
+problems like you might think it would (auto-completing words like the, to, 
+for, etc when trying to type something else).
 
-Mike A. Harris (mailto:mharris@opensourceadvocate.org) said:
-On Tue, 23 Jan 2001, Trever L. Adams wrote:
->I know if you have a 8G drive or larger, and install NT4 on it it
->will fry everything entirely unless you stand on your head and
->read about 50 MS kb articles.  Thankfully, I will _never_ have to
->encounter this sort of thing again though.  ;o)
+JBuilder comes close, so I am guessing the Klyx will also.  I sent an email 
+suggestion to Inprise, excuse me..Borland, on the subject last year.  They 
+seemed to like it.
 
-If you have to share a machine with a Microsoft OS, the best thing is to
-install the Microsoft OS first.  That way it can set up the partition tables
-however it likes.  Just leave enough hard drive space free.  
+jk
 
-Then install Linux.  This has several advantages - you can more easily set
-up Grub or Lilo to dual boot, and Linux can deal with whatever Microsoft's
-partition table flavor of the year is.  The Microsoft OS is less likely to
-become confused and violently lash out using that approach :-) 
+At 01:05 PM 1/23/01 -0500, Christopher Friesen wrote:
+>This is why the autocompletion of functions and struct members in VC++ is
+>awfully nice...hit the first few unique letters and it will complete the 
+>rest of
+>the function for you, then hit tab and keep going.  Is there anything with 
+>that
+>functionality under Linux?
+>
+>Chris
 
-Another note: If dual-booting Windows 2000, upgrade to service pack 1 before
-installing Linux.  I was able to blue-screen W2K before SP1 by starting
-their disk management tool on a disk with dozens of Linux partitions.  And I
-agree - I am thankful that I will never have to deal with this again either.
-
-Torrey Hoffman
-torrey.hoffman@myrio.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

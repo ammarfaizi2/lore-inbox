@@ -1,105 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289598AbSAOTf3>; Tue, 15 Jan 2002 14:35:29 -0500
+	id <S290265AbSAOTha>; Tue, 15 Jan 2002 14:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290265AbSAOTfU>; Tue, 15 Jan 2002 14:35:20 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:50345 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S289598AbSAOTfH>;
-	Tue, 15 Jan 2002 14:35:07 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2AA0@ottonexc1.ottawa.loran.com>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "'Luigi Genoni'" <kernel@Expansa.sns.it>, Amit Gupta <amit.gupta@amd.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: arpd not working in 2.4.17 or 2.5.1
-Date: Tue, 15 Jan 2002 11:34:51 -0800
+	id <S290266AbSAOThW>; Tue, 15 Jan 2002 14:37:22 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:53891 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S290265AbSAOThI>; Tue, 15 Jan 2002 14:37:08 -0500
+Message-ID: <00a301c19dfc$26928320$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Kent Borg" <kentborg@borg.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <005901c19dec$59a89e30$0201a8c0@HOMER> <20020115125702.B8840@borg.org>
+Subject: Re: Why not "attach" patches?
+Date: Tue, 15 Jan 2002 20:38:03 +0100
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a 2.4 compatible arpd running, but with our
-company being bought by a big US software company
-I'm having trouble convincing management to allow
-the GPL release.  It's becoming very important so
-I'm hopeful that I'll be successful shortly, but
-until then I have to be quiet :)
+----- Original Message -----
+From: "Kent Borg" <kentborg@borg.org>
+To: "Martin Eriksson" <nitrax@giron.wox.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, January 15, 2002 6:57 PM
+Subject: Re: Why not "attach" patches?
 
---
-Dana Lacoste      - Linux Developer
-Peregrine Systems - Ottawa, Canada
 
-(Note that Peregrine acquired Loran, and jlayes@loran.com
-is an email address of a former employee, so i'm kind of
-the relevant person to talk to for arpd stuff, because that
-other address won't work :)
+> On Tue, Jan 15, 2002 at 06:44:58PM +0100, Martin Eriksson wrote:
+> > Why do many of you not _attach_ patches instead of merging them with the
+> > mail? It's so much cleaner and easier to have a "xxx-yyy.patch" file
+> > attached to the mail which can be saved in an appropriate directory.
+Also,
+> > the whitespace is always retained that way.
+>
+> It is nice to have the patch to look at when looking at the mail, and
+> it is nice to have the mail to look at when looking at the patch.
+>
+> One of the features of patch is that you can save the whole patch
+> e-mail to a file and use it directly; patch is willing to skip over
+> all the e-mail headers and regular looking text until it sees
+> something that looks like a patch.  Handy, huh?
 
-> -----Original Message-----
-> From: Luigi Genoni [mailto:kernel@Expansa.sns.it]
-> Sent: January 15, 2002 10:03
-> To: Amit Gupta
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: arpd not working in 2.4.17 or 2.5.1
-> 
-> 
-> Latest  kernel I saw working with arpd (user space daemon) I 
-> am manteining
-> is 2.2.16, then from 2.4.4 (for 2.4 series), some changes were done to
-> kernel so that the kernel does not talk correctly with the device
-> /dev/arpd anymore.
-> It is not the first time I write about this on lkml, but it 
-> seems none is
-> interested in manteining the kernel space component for arpd support.
-> I did some investigation, but the code for arpd support 
-> itself inside of
-> the kernel seems to be ok, something else is wrong with neighour.c.
-> 
-> So at less I can say the user space daemon works well on 2.2.16 I have
-> around ;).
-> 
-> Luigi
-> 
-> On Mon, 14 Jan 2002, Amit Gupta wrote:
-> 
-> >
-> > Hi All,
-> >
-> > I am running 2.5.1 kernel on a 2 AMD processor system and 
-> have enable
-> > routing messages, netlink and arpd support inside kernel as 
-> described in
-> > arpd docs.
-> >
-> > Then after making 36 character devices, when I run arpd, 
-> it's starts up
-> > but always keeps silent (strace) and the kernel also does 
-> not keep it's
-> > 256 arp address limit.
-> >
-> > Pls help fix it, I need linux to be able to talk to more than 1024
-> > clients.
-> >
-> > Thanks in Advance.
-> >
-> > Amit
-> > amit.gupta@amd.com
-> >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Aaah.. DOH! That was just what was lurking in the back of my head, but the
+thinking part of the brain didn't quite grasp it. Of course "patch" will
+skip "no-patch" text instead of crapping out. Hell, if I'd designed the
+"patch" program that behaviour would have been one of the first things to
+implement.
+
+Sorry for the LKML spam then =) but ain't it nice with one of these
+"easy-to-answer" mails from time to time...?
+
+/Martin Eriksson
+
+PS. I really hate OE. Anyone care to recommend THE Windoze Mail+News reader
+program, with EXTREME filtering capabilities AND not looking like crap?
+

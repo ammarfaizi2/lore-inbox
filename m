@@ -1,74 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315988AbSGSLp3>; Fri, 19 Jul 2002 07:45:29 -0400
+	id <S318336AbSGSMKc>; Fri, 19 Jul 2002 08:10:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317931AbSGSLp3>; Fri, 19 Jul 2002 07:45:29 -0400
-Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:28908 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S315988AbSGSLp2>;
-	Fri, 19 Jul 2002 07:45:28 -0400
-Date: Fri, 19 Jul 2002 08:52:39 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Anders Gustafsson <andersg@0x63.nu>
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-       jsimmons@transvirtual.com
-Subject: Re: [PATCH] CONFIG_MAGIC_SYSRQ without CONFIG_VT broken in 2.5.26
-Message-ID: <20020719085239.F1424@almesberger.net>
-References: <20020718220635.A15794@almesberger.net> <20020719091017.A28569@flint.arm.linux.org.uk> <20020719105244.GB13706@h55p111.delphi.afb.lu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020719105244.GB13706@h55p111.delphi.afb.lu.se>; from andersg@0x63.nu on Fri, Jul 19, 2002 at 12:52:44PM +0200
+	id <S318498AbSGSMKc>; Fri, 19 Jul 2002 08:10:32 -0400
+Received: from cibs9.sns.it ([192.167.206.29]:25612 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S318336AbSGSMKb>;
+	Fri, 19 Jul 2002 08:10:31 -0400
+Date: Fri, 19 Jul 2002 14:12:55 +0200 (CEST)
+From: venom@sns.it
+To: Robert Sinko <RSinko@island.com>
+cc: "'Hubbard, Dwight'" <DHubbard@midamerican.com>, <Matt_Domsch@Dell.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Wrong CPU count
+In-Reply-To: <628900C9F8A7D51188E000A0C9F3FDFA024FF09D@S-NY-EXCH01>
+Message-ID: <Pine.LNX.4.43.0207191409110.18007-100000@cibs9.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Gustafsson wrote:
-> Shouldn't that be something more like?
-> 
-> +#ifdef CONFIG_VT
->  /* r */      &sysrq_unraw_op,
-> +#else
-> +/* r */      NULL,
-> +#endif
 
-Argl, I'm an idiot. Yes, you're absolutely right. Corrected patch
-below.
+yes, as bios option.
 
-- Werner
+On my point of view it would be interesting to verify is hyperthreading is
+really usefull or not.
 
------------------------------------- patch ------------------------------------
+Recently I am studying new Athlon XP architecture, and I am programming
+to study Xeon as soon, and then to compare them, to decide to which
+architecture I should refer for new servers. Point is that instrction unit
+management is too different, while real word benchs are 50% pro Athlon,
+50% pro Xeon depending on the applications (well, more or less) ...
 
---- linux-2.5.26/drivers/char/sysrq.c.orig	Fri Jul 19 08:37:18 2002
-+++ linux-2.5.26/drivers/char/sysrq.c	Fri Jul 19 08:37:53 2002
-@@ -74,7 +74,6 @@
- 	help_msg:	"saK",
- 	action_msg:	"SAK",
- };
--#endif
- 
- 
- /* unraw sysrq handler */
-@@ -91,6 +90,7 @@
- 	help_msg:	"unRaw",
- 	action_msg:	"Keyboard mode set to XLATE",
- };
-+#endif /* CONFIG_VT */
- 
- 
- /* reboot sysrq handler */
-@@ -371,7 +371,11 @@
- 		 as 'Off' at init time */
- /* p */	&sysrq_showregs_op,
- /* q */	NULL,
-+#ifdef CONFIG_VT
- /* r */	&sysrq_unraw_op,
-+#else
-+/* r */	NULL,
-+#endif
- /* s */	&sysrq_sync_op,
- /* t */	&sysrq_showstate_op,
- /* u */	&sysrq_mountro_op,
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://icapeople.epfl.ch/almesber/_____________________________________/
+On Thu, 18 Jul 2002, Robert Sinko wrote:
+
+> Date: Thu, 18 Jul 2002 16:35:29 -0400
+> From: Robert Sinko <RSinko@island.com>
+> To: "'Hubbard, Dwight'" <DHubbard@midamerican.com>, Matt_Domsch@Dell.com,
+>      linux-kernel@vger.kernel.org
+> Subject: RE: Wrong CPU count
+>
+> That's interesting.  Can it be disabled?
+>
+> -----Original Message-----
+> From: Hubbard, Dwight [mailto:DHubbard@midamerican.com]
+> Sent: Thursday, July 18, 2002 4:30 PM
+> To: Matt_Domsch@Dell.com; RSinko@island.com;
+> linux-kernel@vger.kernel.org
+> Subject: RE: Wrong CPU count
+>
+>
+> And doubles the cost of licensing software that uses per cpu licensing while
+> giving marginally better performance.
+>
+> -----Original Message-----
+> From: Matt_Domsch@Dell.com [mailto:Matt_Domsch@Dell.com]
+> Sent: Thursday, July 18, 2002 3:01 PM
+> To: RSinko@island.com; linux-kernel@vger.kernel.org
+> Subject: RE: Wrong CPU count
+>
+>
+> > After upgrading  from kernel 2.4.7-10smp to 2.4.9-34smp using
+> > the Red Hat
+> > RPM downloaded from RH Network, the CPU count on the machine
+> > reported by
+> > dmesg and listed in /proc/cpuinfo was 4 rather than the actual 2.
+> >
+> > This has occured on all 4 Dell 2650's that I've installed
+> > this patch on.  I
+> > don't have any other mult-processor machines available to
+> > test this with.
+>
+> Congratulations, you purchased a fine PowerEdge 2650 with processors which
+> contain HyperThreading technology.  Each physical processor appears as two
+> logical processors.  This behaviour is expected, and correct. :-)
+>
+> Thanks,
+> Matt
+>
+> --
+> Matt Domsch
+> Sr. Software Engineer, Lead Engineer, Architect
+> Dell Linux Solutions www.dell.com/linux
+> Linux on Dell mailing lists @ http://lists.us.dell.com
+> #1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+> DISCLAIMER: The information contained herein is confidential and is intended
+> solely for the addressee(s). It shall not be construed as a recommendation
+> to buy or sell any security. Any unauthorized access, use, reproduction,
+> disclosure or dissemination is prohibited. Neither ISLAND nor any of its
+> subsidiaries or affiliates shall assume any legal liability or
+> responsibility for any incorrect, misleading or altered information
+> contained herein. Thank you.
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318038AbSG2GPx>; Mon, 29 Jul 2002 02:15:53 -0400
+	id <S318042AbSG2GSV>; Mon, 29 Jul 2002 02:18:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318039AbSG2GPx>; Mon, 29 Jul 2002 02:15:53 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:13971 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318038AbSG2GPx>;
-	Mon, 29 Jul 2002 02:15:53 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318058AbSG2GSU>; Mon, 29 Jul 2002 02:18:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:17636 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318042AbSG2GST>;
+	Mon, 29 Jul 2002 02:18:19 -0400
+Date: Sun, 28 Jul 2002 23:10:17 -0700 (PDT)
+Message-Id: <20020728.231017.40779367.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/13] remove pages from the LRU in __free_pages_ok()
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0207282256460.872-100000@home.transmeta.com>
+References: <20020728.224302.36837419.davem@redhat.com>
+	<Pine.LNX.4.44.0207282256460.872-100000@home.transmeta.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15684.56787.18191.406577@argo.ozlabs.ibm.com>
-Date: Mon, 29 Jul 2002 16:16:51 +1000 (EST)
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix include/linux/timer.h compile
-X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-include/linux/timer.h needs to include <linux/stddef.h>
-to get the definition of NULL.
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Sun, 28 Jul 2002 23:16:24 -0700 (PDT)
 
-Paul.
+ [ This is Linus speaking in all the quoted material below... ]
 
-diff -urN linux-2.5/include/linux/timer.h pmac-2.5/include/linux/timer.h
---- linux-2.5/include/linux/timer.h	Mon Jun 24 23:59:11 2002
-+++ pmac-2.5/include/linux/timer.h	Thu Jul 25 21:58:42 2002
-@@ -2,6 +2,7 @@
- #define _LINUX_TIMER_H
- 
- #include <linux/config.h>
-+#include <linux/stddef.h>
- #include <linux/list.h>
- 
- /*
+   >    But the thing is, nobody should normally have a reference to such a
+   >    page anyway. The only way they happen is by something mapping a
+   >    page from user space, and saving it away, while the user space goes
+   >    away and drops its references to the page.
+ ...
+   But hopefully nobody should have the problematic last reference to a LRU
+   page _except_ the user space itself. That should be safe for page cache
+   pages thanks to the truncate change.
+
+[ Now DaveM is talking :-) ]
+
+So let's say that we have a page going out a socket.  The socket's FD
+has multiple references so when the user exit()'s the anonymous page
+is still "in-flight" but the socket isn't closed and thus we won't
+wait for the write to complete.
+
+So when the user's reference is dropped, does that operation kill it
+from the LRU or will the socket's remaining reference to that page
+defer the LRU removal?

@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269482AbRGaVfd>; Tue, 31 Jul 2001 17:35:33 -0400
+	id <S269489AbRGaVrO>; Tue, 31 Jul 2001 17:47:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269475AbRGaVfX>; Tue, 31 Jul 2001 17:35:23 -0400
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:9741 "HELO
-	clueserver.org") by vger.kernel.org with SMTP id <S269491AbRGaVfN>;
-	Tue, 31 Jul 2001 17:35:13 -0400
-Date: Tue, 31 Jul 2001 15:49:03 -0700 (PDT)
-From: Alan Olsen <alan@clueserver.org>
-To: Ian Stirling <root@mauve.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Virii on vger.kernel.org lists
+	id <S269490AbRGaVq4>; Tue, 31 Jul 2001 17:46:56 -0400
+Received: from oe29.law3.hotmail.com ([209.185.240.22]:25102 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S269489AbRGaVqv>;
+	Tue, 31 Jul 2001 17:46:51 -0400
+X-Originating-IP: [64.108.8.236]
+Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
+To: "Ian Stirling" <root@mauve.demon.co.uk>, <linux-kernel@vger.kernel.org>
 In-Reply-To: <200107312127.WAA15043@mauve.demon.co.uk>
-Message-ID: <Pine.LNX.4.10.10107311547060.24695-100000@clueserver.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Virii on vger.kernel.org lists
+Date: Tue, 31 Jul 2001 16:50:18 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2479.0006
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+Message-ID: <OE29R77bieLYCT4aJ6p00003436@hotmail.com>
+X-OriginalArrivalTime: 31 Jul 2001 21:46:54.0751 (UTC) FILETIME=[509C72F0:01C11A0A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 31 Jul 2001, Ian Stirling wrote:
+Totally irrelevant.  As long as the other people those messages get sent
+to have their act together, the problem dies there.  If not, then the
+morons responsible for maintaining the clients and mailservers that will
+still allow this to happen get taught a lesson, don't they?
 
-> Not everyone has control of the system they can post from.
-> Some IS departments are poor at keeping systems secure, but still
-> won't let users touch them.
+----- Original Message -----
+From: "Ian Stirling" <root@mauve.demon.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, July 31, 2001 4:27 PM
+Subject: Re: Virii on vger.kernel.org lists
 
-Or have been told by management that they are required to use buggy e-mail
-clients because "it is company policy".
 
-They tried to get me to use Exchange at the last company I worked for.  I
-laughed and then moved all my mail to the Linux box under my desk.  I was
-one of the few people in the company that had a stable mail account.
-
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
- "All power is derived from the barrel of a gnu." - Mao Tse Stallman
+| >
+| > |  > No. If you look carefully, you would be surprised at how many
+| > |  > are using OutlookSExpress to handle their email.
+| > |  > Of course in case of Viruses using OE security bugs, we all are
+| > |  > seeing the distilled evil.
+|
+| > Of course, non of the common "holes" in OE are left unfixed.  People
+| > should be responsible to update their mail clients.  People using
+| > Windows (like me) should also be responsible to maintain current
+virus
+| > software themselves, rather than leaving that job to the mail
+server,
+| > which seems like an unfair burden on the mail server to me.
+|
+| Not everyone has control of the system they can post from.
+| Some IS departments are poor at keeping systems secure, but still
+| won't let users touch them.
+|
+| -
+| To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/
+|
 

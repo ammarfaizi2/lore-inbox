@@ -1,83 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266674AbUHBROD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266657AbUHBRRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266674AbUHBROD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 13:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266655AbUHBROD
+	id S266657AbUHBRRd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 13:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266655AbUHBRRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 13:14:03 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:37586 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S266674AbUHBRNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 13:13:32 -0400
-Date: Mon, 2 Aug 2004 19:13:25 +0200
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [linux-usb-devel] 2.6.8-rc2-mm2 with usb and input problems
-Message-ID: <20040802171325.GA26949@gamma.logic.tuwien.ac.at>
-References: <20040802162845.GA24725@gamma.logic.tuwien.ac.at> <200408021003.42090.david-b@pacbell.net>
+	Mon, 2 Aug 2004 13:17:32 -0400
+Received: from imf21aec.mail.bellsouth.net ([205.152.59.69]:47807 "EHLO
+	imf21aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S266680AbUHBRQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 13:16:23 -0400
+Date: Mon, 2 Aug 2004 12:16:20 -0500
+From: Zinx Verituse <zinx@epicsol.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problems
+Message-ID: <20040802171620.GA802@bliss>
+References: <20040730193651.GA25616@bliss> <20040731153609.GG23697@suse.de> <20040731182741.GA21845@bliss> <20040731200036.GM23697@suse.de> <20040731210257.GA22560@bliss>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200408021003.42090.david-b@pacbell.net>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+In-Reply-To: <20040731210257.GA22560@bliss>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David!
-On Mon, 02 Aug 2004, David Brownell wrote:
-> > - USB deadlocking
-> >   USB is still deadlocky, quite often process hang in D+ state.
+On Sat, Jul 31, 2004 at 04:02:57PM -0500, Zinx Verituse wrote:
+> On Sat, Jul 31, 2004 at 10:00:36PM +0200, Jens Axboe wrote:
+> > On Sat, Jul 31 2004, Zinx Verituse wrote:
+> > > On Sat, Jul 31, 2004 at 05:36:10PM +0200, Jens Axboe wrote:
+> > > > On Fri, Jul 30 2004, Zinx Verituse wrote:
+> > > > > I'm going to bump this topic a bit, since it's been a while..
+> > > > > There are still some issues with ide-cd's SG_IO, listed from
+> > > > > most important as percieved by me to least:
+> > > > > 
+> > > > >  * Read-only access grants you the ability to write/blank media in the drive
+> > > > >  * (with above) You can open the device only in read-only mode.
+> > > > 
+> > > > That's by design. Search linux-scsi or this list for why that is so.
+> > > 
+> > > The only thing I can find on the linux-scsi list is refering to sg
+> > > devices, which are on a different device node from the non-generic
+> > > device.  This means you can still allow users read access to the disk
+> > > without allowing them to send random commands to the disk -- this isn't
+> > > currently possible with the IDE interface, since the device with
+> > > generic access is the same as the one with the original read/cdrom
+> > > commands access.
+> > > 
+> > > As it is, it's impossible grant users read-only access to an IDE cd-rom
+> > > without allowing them to do things like replacing the firmware with a
+> > > malicious/non-working one.
+> > > 
+> > > Generic access allowing such things is fine; but only if we can grant
+> > > non-generic access without granting generic access.
+> > 
+> > If you want it to work that way, you have the have a pass-through filter
+> > in the kernel knowing what commands are out there (including vendor
+> > specific ones). That's just too ugly and not really doable or
+> > maintainable, sorry.
+> > 
+> > If you have access to issue ioctls to the device, you have access to
+> > send it arbitrary commands - period.
 > 
-> So what does alt-sysrq-t show you about those processes?
+> I don't believe command filtering is neccessary, since all of the
+> ide-cd ioctls are still there (ioctls that allow playing, reading, etc)
+> Only the SG_IO ioctl itself would have to be checked (i.e., not each
+> individual command available with SG_IO, just the overall ioctl itself,
+> categorizing all of SG_IO more or less as raw IO.  If this isn't doable
+> with the current design, then the ide-cd interface should at least be
+> very conspicuously documented as being extremely insecure as far as
+> "read" access is concerned, as I know I wouldn't expect users to be able
+> to overwrite my drive's firmware simply by granting the read access.
 
-Ok, I will write it down next time ;-) It happens during the boot
-process, but I will try to get it happen after login by starting hotplug
-by hand.
+I'm replying to this because this message was never addressed, and
+instead fell in to Yet Another war on cdrecord's stupid naming scheme.
+The two have nothing to do with each other, and this issue (i.e., not
+the stupid naming scheme) needs addressed.
 
-> How do you reproduce these hangs?  I'm guesssing that
-> And does 2.6.8-rc (without the MM patch) acts the same.
-
-Hmm, haven't tested this yet, always running -mm kernels.
-
-> > - psmouse/synaptics
-> >   If I have usb as module, I cannot get synaptics to be recognized.
-> 
-> Odd.  BIOS settings maybe?
-
-No, definitely not. I think it only depends on the modules loaded, and
-if usb is modular then input is loaded after psmouse/mousedev and this I
-cannot reverse, because I cannot get mousedev/psaux to be build modular.
-
-> The S2R issue is caused by delivering bogus PCI
-> device power states to PCI drivers.  See if the patch
-> in http://bugme.osdl.org/show_bug.cgi?id=2886
-> helps at all.  (It might be better to map STANDBY
-
-Will try this. Thanks.
-
-> If you don't actually have code trying to suspend
-> USB devices, don't enable it.  Until some other
-
-Ok.
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-LOWTHER (vb.)
-(Of a large group of people who have been to the cinema together.) To
-stand aimlessly about on the pavement and argue about whatever to go
-and eat either a Chinese meal nearby or an Indian meal at a restaurant
-which somebody says is very good but isn't certain where it is, or
-have a drink and think about it, or just go home, or have a Chinese
-meal nearby - until by the time agreement is reached everything is
-shut.
-			--- Douglas Adams, The Meaning of Liff
+-- 
+Zinx Verituse                                    http://zinx.xmms.org/

@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312113AbSCQUUy>; Sun, 17 Mar 2002 15:20:54 -0500
+	id <S312121AbSCQUn0>; Sun, 17 Mar 2002 15:43:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312112AbSCQUUp>; Sun, 17 Mar 2002 15:20:45 -0500
-Received: from mail020.mail.bellsouth.net ([205.152.58.60]:13212 "EHLO
-	imf20bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S312110AbSCQUUZ>; Sun, 17 Mar 2002 15:20:25 -0500
-Message-ID: <00c101c1cdf1$1c031120$0100a8c0@DELLXP1>
-From: "Ken Hirsch" <kenhirsch@myself.com>
-To: "Anton Altaparmakov" <aia21@cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <3C945635.4050101@mandrakesoft.com> <5.1.0.14.2.20020317170621.00abd980@pop.cus.cam.ac.uk> <5.1.0.14.2.20020317190303.03289ec0@pop.cus.cam.ac.uk>
-Subject: Re: fadvise syscall?
-Date: Sun, 17 Mar 2002 15:19:36 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S312120AbSCQUnR>; Sun, 17 Mar 2002 15:43:17 -0500
+Received: from ns.suse.de ([213.95.15.193]:34318 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312119AbSCQUm6>;
+	Sun, 17 Mar 2002 15:42:58 -0500
+Date: Sun, 17 Mar 2002 21:42:56 +0100
+From: Dave Jones <davej@suse.de>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.6-dj1
+Message-ID: <20020317214256.C5010@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C94E400.99DCBC12@torque.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C94E400.99DCBC12@torque.net>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov writes:
-> Last time I heard serious databases use their own memmory
-> management/caching in combination with O_DIRECT, i.e. they bypass the
-> kernel's buffering system completely. Hence I would deem them irrelevant
-to
-> the problem at hand...
->
-> If a database were not to use O_DIRECT I would think it would be using
-mmap
-> so it would have madvise already... but I am not a database expert so take
-> this with a pinch of salt...
->
+On Sun, Mar 17, 2002 at 01:44:16PM -0500, Douglas Gilbert wrote:
 
-I don't think that either MySQL or PostgreSQL use O_DIRECT; I just grepped
-the source and didn't find it.  They can't use mmap() because it uses up too
-much process address space.
+ > Compiled here but didn't link (SMP) :-(
+ >  page_cache_release undefined multiple times in mm/mm.o
 
-It's true that commercial databases mostly do their own scheduling and
-caching, and if they are the only thing running on your system and you tune
-them right, that works.  But it's not necessarily a good thing.  If there
-are other processes on your system, there would be a benefit if the DBMS
-could inform the operating system of its intentions.
+ Probably a side-effect of me removing the radix tree patch.
+ I'll look into this.
 
-A posix_fadvise() call would be a start, but you could potentially go beyond
-that.   For some interesting ideas, see
-Seltzer, M., Small, C., Smith, K., "The Case for Extensible Operating
-Systems",
-Harvard University Center for Research in Computing Technology TR16 -95
-(July 1995).
-http://citeseer.nj.nec.com/article/seltzer95case.html
+ > There are over 30 scsi subsystem patches backed up in
+ > your tree. Some are over 2 months old. Could
+ > some (or perhaps all) of them get promoted to the
+ > main tree? 
 
-Ken Hirsch
+ Indeed. Once Linus returns from vacation, I'll be doing a
+ patch-bombing on a larger scale than usual 8-)
 
+ Any bits I'm uncertain of, I'll bounce your way first for
+ clarification, deal ?
 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,36 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbUKDMOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbUKDMOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbUKDMOv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 07:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbUKDMOu
+	id S262182AbUKDMOm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 07:14:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbUKDML7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 07:14:50 -0500
-Received: from smtp-out-02.utu.fi ([130.232.202.172]:18418 "EHLO
-	smtp-out-02.utu.fi") by vger.kernel.org with ESMTP id S262179AbUKDMMq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 07:12:46 -0500
-Date: Thu, 04 Nov 2004 14:12:40 +0200
-From: Jan Knutar <jk-lkml@sci.fi>
-Subject: Re: is killing zombies possible w/o a reboot?
-In-reply-to: <200411040657.10322.gene.heskett@verizon.net>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org, Tom Felker <tfelker2@uiuc.edu>
-Message-id: <200411041412.42493.jk-lkml@sci.fi>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <200411030751.39578.gene.heskett@verizon.net>
- <200411040919.54226.jk-lkml@sci.fi>
- <200411040657.10322.gene.heskett@verizon.net>
+	Thu, 4 Nov 2004 07:11:59 -0500
+Received: from dev.tequila.jp ([128.121.50.153]:56338 "EHLO dev.tequila.jp")
+	by vger.kernel.org with ESMTP id S262182AbUKDMHN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 07:07:13 -0500
+Message-ID: <418A1B37.5060708@tequila.co.jp>
+Date: Thu, 04 Nov 2004 21:06:15 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040926 Thunderbird/0.8 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: still no cd/dvd burning as user with 2.6.9
+References: <41889857.5040506@tequila.co.jp> <20041103084330.GB10434@suse.de> <41889EB5.3060304@tequila.co.jp> <20041103090550.GG10434@suse.de> <41896816.2090204@tequila.co.jp> <20041104091909.GD14993@suse.de>
+In-Reply-To: <20041104091909.GD14993@suse.de>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 November 2004 13:57, Gene Heskett wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I'e had that turned on since forever Jan, but usually, when its hung 
-> someplace, its well and truely hung, and hardware reset button time.
+On 11/04/2004 06:19 PM, Jens Axboe wrote:
 
-Are you saying that these zombies (or tasks stuck in state D) also make
-sysrq-T hang, and not list all tasks?
+> Probably talk to the firewire folks about this issue.
+
+Yeah, just give a view up from what I tried today
+
+2.6.9-rc2-mm2: works as user & root
+2.6.9: doesn't work
+2.6.9-ac3: doesn't work
+2.6.9-ac6: doesn't work
+
+I know I had first successful burned DVDs with 2.6.9-ac3, but I couldn't
+get it running agin. The kernel sees the device somehow, but totaly
+wrong, corrupted and not usable for burning. As root its often not seen
+at all.
+
+Should I try the thing again with the IEEE/Firewire people? This might
+be the only solution to this very annoying problem.
+
+lg, clemens
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBihs3jBz/yQjBxz8RAianAJ4yEijyoQIpt93J1hWsw50tSzfd7ACg4XnH
+IYMX6mu3xlnzJ2LeT0hqBas=
+=Otk+
+-----END PGP SIGNATURE-----

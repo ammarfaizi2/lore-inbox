@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311919AbSC2LAY>; Fri, 29 Mar 2002 06:00:24 -0500
+	id <S313434AbSC2LeH>; Fri, 29 Mar 2002 06:34:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313434AbSC2LAP>; Fri, 29 Mar 2002 06:00:15 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:56845 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S311919AbSC2LAA>;
-	Fri, 29 Mar 2002 06:00:00 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Amit S. Kale" <kgdb@vsnl.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: announce: kgdb 1.5 with reworked buggy smp handling 
-In-Reply-To: Your message of "Fri, 29 Mar 2002 16:01:36 +0530."
-             <3CA44288.EF27E043@vsnl.net> 
-Mime-Version: 1.0
+	id <S313435AbSC2Ld5>; Fri, 29 Mar 2002 06:33:57 -0500
+Received: from h00403399c977.ne.client2.attbi.com ([24.218.248.214]:21943 "EHLO
+	fred.cambridge.ma.us") by vger.kernel.org with ESMTP
+	id <S313434AbSC2Ldx>; Fri, 29 Mar 2002 06:33:53 -0500
+From: pjd@fred001.dynip.com
+Message-Id: <200203291133.g2TBXsi10506@fred.cambridge.ma.us>
+Subject: Re: Networking with slow CPUs
+To: robert@schwebel.de
+Date: Fri, 29 Mar 2002 06:33:54 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <Pine.LNX.4.33.0203271944020.16178-100000@callisto.local> from "Robert Schwebel" at Mar 27, 2002 07:46:24 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 29 Mar 2002 21:59:50 +1100
-Message-ID: <30144.1017399590@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Mar 2002 16:01:36 +0530, 
-"Amit S. Kale" <kgdb@vsnl.net> wrote:
->kgdb 1.5 at http://kgdb.sourceforge.net/
->
->smp handling is completely reworked. Previous kgdb had a bug
->which caused it to hang when a processor spun with
->interrupts disabled and another processor enters kgdb. kgdb
->now uses nmi watchdog for holding other processors while
->a machine is in kgdb. 
+Robert Schwebel wrote:
+> 
+> Is there a possibility to "harden" a small machine (33 MHz embedded
+> device) against e.g. flood pings from the outside world?
 
-IA64 disabled spin loops ignore NMI :(.
-
+It *is* bleeding edge, as someone else pointed out, but you should 
+really investigate NAPI.  It's designed to make Linux resiliant against
+non-flow-controlled network loads like routing, which sounds like 
+just the ticket.
+ --
+ Peter Desnoyers 

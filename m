@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265003AbSKUW3m>; Thu, 21 Nov 2002 17:29:42 -0500
+	id <S265097AbSKUWf1>; Thu, 21 Nov 2002 17:35:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264992AbSKUW3l>; Thu, 21 Nov 2002 17:29:41 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:13952 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S265003AbSKUWZ1>;
-	Thu, 21 Nov 2002 17:25:27 -0500
-Date: Thu, 21 Nov 2002 14:32:34 -0800
-From: Bob Miller <rem@osdl.org>
-To: trivial@rustcorp.com.au
+	id <S265098AbSKUWf1>; Thu, 21 Nov 2002 17:35:27 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:19607 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265097AbSKUWf0>;
+	Thu, 21 Nov 2002 17:35:26 -0500
+Date: Thu, 21 Nov 2002 22:40:35 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Stian Jordet <liste@jordet.nu>
 Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL PATCH 2.5.48] Use max_t() instead of max() in mm/vmscan.c
-Message-ID: <20021121223234.GF1431@doc.pdx.osdl.net>
+Subject: Re: Unsupported AGP-bridge on VIA VT8633
+Message-ID: <20021121224035.GA28094@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Stian Jordet <liste@jordet.nu>, linux-kernel@vger.kernel.org
+References: <1037916067.813.7.camel@chevrolet.hybel> <20021121221134.GA25741@suse.de> <1037917231.3ddd5c2f5d98a@webmail.jordet.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1037917231.3ddd5c2f5d98a@webmail.jordet.nu>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 21, 2002 at 11:20:31PM +0100, Stian Jordet wrote:
 
-This change removes a "duplicate 'const'" compiler warning.
+ > You were not really clear here. I tried it as a boot-time argument, because I
+ > have agp-support compiled in. But I guess I could and should try it as a module.
 
-diff -Nru a/mm/vmscan.c b/mm/vmscan.c
---- a/mm/vmscan.c	Thu Nov 21 13:51:25 2002
-+++ b/mm/vmscan.c	Thu Nov 21 13:51:25 2002
-@@ -743,7 +743,7 @@
- 			continue;	/* zone has enough memory */
- 
- 		to_reclaim = min(to_reclaim, SWAP_CLUSTER_MAX);
--		to_reclaim = max(to_reclaim, nr_pages);
-+		to_reclaim = max_t(const int, to_reclaim, nr_pages);
- 
- 		/*
- 		 * If we cannot reclaim `nr_pages' pages by scanning twice
+Yup. Then do a `modprobe agpgart agp_try_unsupported=1'
+
+ > I'll do that now. But why do I have to use agp_try_unsupported=1?
+
+Because if it works, we can then add it to the ID table.
+
+	Dave
+
 -- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271129AbUJVANo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271124AbUJVASh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271129AbUJVANo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 20:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271110AbUJVANj
+	id S271124AbUJVASh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 20:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271130AbUJVAR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 20:13:39 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:10207 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S271129AbUJVALB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 20:11:01 -0400
-Subject: Linux 2.6.9-ac3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098400086.18025.0.camel@localhost.localdomain>
+	Thu, 21 Oct 2004 20:17:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15008 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271150AbUJVANI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 20:13:08 -0400
+Date: Thu, 21 Oct 2004 17:15:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: andrea@novell.com, shaggy@austin.ibm.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH] zap_pte_range should not mark non-uptodate pages dirty
+Message-Id: <20041021171558.3214cea4.akpm@osdl.org>
+In-Reply-To: <20041021164245.4abec5d2.akpm@osdl.org>
+References: <1098393346.7157.112.camel@localhost>
+	<20041021144531.22dd0d54.akpm@osdl.org>
+	<20041021223613.GA8756@dualathlon.random>
+	<20041021160233.68a84971.akpm@osdl.org>
+	<20041021232059.GE8756@dualathlon.random>
+	<20041021164245.4abec5d2.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 22 Oct 2004 00:08:19 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> I don't get it.  invalidate has the pageframe.  All it need to do is to
+> lock the page, examine mapcount and if it's non-zero, do the shootdown. 
 
-2.6.9-ac3
-o	Fix syncppp/async ppp problems with new hangup	(Paul Fulghum)
-o	Fix broken parport_pc unload			(Andrea Arcangeli)
-o	Security fix for smbfs leak/overrun		(Urban Widmark)
-o	Stop i8xx_tco making some boxes reboot on load	(wim@iguana)
-o	Fix cpia/module tools deadlock			(Peter Pregler)
-o	Fix missing suid_dumpable export		(Alan Cox)
+unmap_mapping_range() will do that - can call it one page at a time, or
+batch up runs of pages.  It's not fast, but presumably not frequent either.
 
-2.6.9-ac2
-o	Fix invalid kernel version stupidity		(Adrian Bunk)
-o	Compiler ICE workaround/fixup			(Linus Torvalds)
-o	Fix network DoS bug in 2.6.9			(Herbert Xu)
-	| Suggested by Sami Farin
-o	Flash lights on panic as in 2.4			(Andi Kleen)
+The bigger problem is shooting down the buffer_heads.  It's certainly the
+case that mpage_readpage() will call block_read_full_page() which will then
+bring the page uptodate without performing any I/O.
 
-2.6.9-ac1
+And invalidating the buffer_heads in invalidate_inode_pages2() is tricky -
+we need to enter the filesystem and I'm not sure that either
+->invalidatepage() or ->releasepage() are quite suitable.  For a start,
+they're best-effort and may fail.  If we just go and mark the buffers not
+uptodate we'll probably give ext3 a heart attack, so careful work would be
+needed there.
 
-Security Fixes
-o	Set VM_IO on areas that are temporarily		(Alan Cox)
-	marked PageReserved (Serious bug)
-o	Lock ide-proc against driver unload		(Alan Cox)
-	(very low severity)
-
-Bug Fixes
-o	Working IDE locking				(Alan Cox)
-	| And a great deal of review by Bartlomiej
-o	Handle E7xxx boxes with USB legacy flaws	(Alan Cox)
-	
-Functionality
-o	Allow booting with "irqpoll" or "irqfixup"	(Alan Cox)
-	on systems with broken IRQ tables.
-o	Support for setuid core dumping in some		(Alan Cox)
-	environments (off by default)
-o	Support for drives that don't report geometry
-o	IT8212 support (raid and passthrough)		(Alan Cox)
-o	Allow IDE to grab all unknown generic IDE	(Alan Cox)
-	devices (boot with "all-generic-ide")
-o	Restore PWC driver				(Luc Saillard)
-
-Other
-o	Small pending tty clean-up to moxa		(Alan Cox)
-o	Put VIA Velocity (tm) adapters under gigabit	(VIA)
+Let's go back to why we needed all of this.  Was it just for the NFS
+something-changed-on-the-server code?  If so, would it be sufficient to add
+a new invalidate_inode_pages3() just for NFS, which clears the uptodate
+bit?  Or something along those lines?
 

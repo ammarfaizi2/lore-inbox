@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130520AbRCTRde>; Tue, 20 Mar 2001 12:33:34 -0500
+	id <S130519AbRCTRYX>; Tue, 20 Mar 2001 12:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130531AbRCTRd0>; Tue, 20 Mar 2001 12:33:26 -0500
-Received: from unthought.net ([212.97.129.24]:9928 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S130520AbRCTRdU>;
-	Tue, 20 Mar 2001 12:33:20 -0500
-Date: Tue, 20 Mar 2001 18:32:38 +0100
-From: Jakob Østergaard <jakob@unthought.net>
-To: Josh Grebe <squash@primary.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about memory usage in 2.4 vs 2.2
-Message-ID: <20010320183238.B1508@unthought.net>
-Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
-	Josh Grebe <squash@primary.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <200103190207.UAA13397@senechalle.net> <Pine.LNX.4.21.0103201038140.2405-100000@scarface.primary.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0103201038140.2405-100000@scarface.primary.net>; from squash@primary.net on Tue, Mar 20, 2001 at 11:01:52AM -0600
+	id <S130520AbRCTRYO>; Tue, 20 Mar 2001 12:24:14 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:6155 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130519AbRCTRYJ>; Tue, 20 Mar 2001 12:24:09 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: LDT allocated for cloned task!
+Date: 20 Mar 2001 09:23:14 -0800
+Organization: Transmeta Corporation
+Message-ID: <9983m2$1l5$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0103201745080.1701-100000@pau.intranet.ct>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 20, 2001 at 11:01:52AM -0600, Josh Grebe wrote:
-> Greetings,
-...
-> Doing the math, the 2.4 machine is using 44% of available memory, while
-> the 2.2 is using only about 14%.
+In article <Pine.LNX.4.33.0103201745080.1701-100000@pau.intranet.ct>,
+Pau  <linuxnow@terra.es> wrote:
+>
+>I've been running 2.4.3-pre4 for a few days now and today I've got this
+>message in the logs a couple of times. Is it harmless?
 
-How is the performance difference ?
+It's harmless.
 
-...
-> These machines are dual P2-400's, with 512M ECC ram, adaptec 2940, and
-> dual intel etherexpress pro 100 cards.
-> 
-> I also tried 2.4.2-ac20 with similar results.
-> 
-> Am I missing something here? I'd really like to move the farm back up to
-> 2.4 series.
+It's really a warning that says: the mm that you allocated a new LDT for
+may have multiple users, and while the LDT is added to all of them, we
+don't guarantee _when_ the other users will actually see the LDT.
 
-Free memory is wasted memory.   It seemed like 2.4 wasted a lot less memory
-than 2.2 on your workload.
+It so happens that the other users are probably just something like
+"top" or similar, that increment the MM count to make sure that the MM
+doesn't go away while they get information about the process. And those
+users don't care about the LDT in the least.
 
-Could you do some performance measurements (eg. average latency on IMAP
-connection or something like that)   ?    It would be great to know wheter
-2.4 is better or worse than 2.2  (it's most likely better, since it probably
-uses the memory better, but it would be nice to know)
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+		Linus

@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbTGAMge (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 08:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTGAMge
+	id S262319AbTGAM7m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 08:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTGAM7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 08:36:34 -0400
-Received: from mail.hometree.net ([212.34.181.120]:30123 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S262312AbTGAMgd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 08:36:33 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Dell vs. GPL
-Date: Tue, 1 Jul 2003 12:50:55 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bds03f$i0d$2@tangens.hometree.net>
-References: <200306302043.h5UKhqjn003817@turing-police.cc.vt.edu> <Pine.LNX.4.10.10306301341290.5840-100000@master.linux-ide.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1057063855 18445 212.34.181.4 (1 Jul 2003 12:50:55 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 1 Jul 2003 12:50:55 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Tue, 1 Jul 2003 08:59:42 -0400
+Received: from ip252-142.choiceonecom.com ([216.47.252.142]:50704 "EHLO
+	explorer.reliacomp.net") by vger.kernel.org with ESMTP
+	id S262319AbTGAM7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 08:59:38 -0400
+Message-ID: <3F0188FE.90603@cendatsys.com>
+Date: Tue, 01 Jul 2003 08:13:34 -0500
+From: Edward King <edk@cendatsys.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 IDE problems (lost interrupt, bad DMA status)
+References: <20030630221542.GA17416@alf.amelek.gda.pl>
+In-Reply-To: <20030630221542.GA17416@alf.amelek.gda.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick <andre@linux-ide.org> writes:
 
->Now you are being silly, and I have to stop because your lack of
->seriousness.  
 
->You can not talk about what you see or hear.
+Marek Michalkiewicz wrote:
 
->What is not clear?
+>Hi,
+>
+>After upgrading the kernel from 2.4.20 to 2.4.21, sometimes I see
+>the following messages:
+>
+>hda: dma_timer_expiry: dma status == 0x24
+>hda: lost interrupt
+>hda: dma_intr: bad DMA status (dma_stat=30)
+>hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+>
+>It happens especially when there is a lot of disk I/O (which stops
+>for a few seconds when these messages appear), with three different
+>disks (very unlikely they all decided to die at the same time...),
+>  
+>
 
-Well, in Germany this would be illegal. The term is "sittenwidrig". 
-You could even get sued if you _know_ about a crime being committed
-and do not tell the police.
+Are you using software raid or devfs?
 
-However, there is also "Verh‰ltnism‰ﬂigkeit" and I'd think that
-breaking an NDA because "uh, they're ripping off some non profit
-organization that gives out their sources for free and don't put their
-modifications back in the open" don't exactly qualify as a
-court-relevant fact.
+I was losing interrupts and disabling devfs removed the problem (very 
+reproducable with software raid 5 -- never really tried much heavy disk 
+use without raid.)
 
-	Regards
-		Henning
+Edward King
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
-
---- Quote of the week: "It is pointless to tell people anything when
-you know that they won't process the message." --- Jonathan Revusky

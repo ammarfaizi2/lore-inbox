@@ -1,63 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264391AbUD0WtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264387AbUD0WyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264391AbUD0WtO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 18:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbUD0WtO
+	id S264387AbUD0WyM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 18:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbUD0WyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 18:49:14 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:19681 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S264390AbUD0WtM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 18:49:12 -0400
-In-Reply-To: <20040427180924.GA22366@merlin.emma.line.org>
-References: <200404261532.37860.dj@david-web.co.uk> <20040426161004.GE5430@merlin.emma.line.org> <20040427131941.GC10264@logos.cnet> <20040427142643.GA10553@merlin.emma.line.org> <6A88E87D-985B-11D8-AA97-000A9585C204@able.es> <20040427161314.GA18682@merlin.emma.line.org> <20040427180924.GA22366@merlin.emma.line.org>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <1911B825-989D-11D8-A81A-000A9585C204@able.es>
+	Tue, 27 Apr 2004 18:54:12 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:20439 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264387AbUD0WyF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 18:54:05 -0400
+Date: Tue, 27 Apr 2004 15:52:28 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-parport@lists.infradead.org
+cc: linux-kernel@vger.kernel.org, greg@kroah.com, hannal@us.ibm.com
+Subject: [PATCH 2.6.6-rc1] Add class support to drivers/char/ppdev.c
+Message-ID: <12810000.1083106348@dyn318071bld.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Illegal-Object: Syntax error in From: address found on vger.kernel.org:
-	From:	J.A.Magallon<jamagallon@able.es>
-				    ^-missing end of mailbox
-Subject: Re: [PATCH] incomplete dependencies with BK tree (was: Anyone got aic7xxx working with 2.4.26?)
-Date: Wed, 28 Apr 2004 00:49:10 +0200
-From: <jamagallon@able.es>
-To: Matthias Andree <matthias.andree@gmx.de>
-X-Mailer: Apple Mail (2.613)
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 27 abr 2004, at 20:09, Matthias Andree wrote:
+Here is a patch to add class support to drivers/char/ppdev.c. I have verified
+it compiles and works on my system. 
 
-> On Tue, 27 Apr 2004, Matthias Andree wrote:
->
->> On Tue, 27 Apr 2004, J.A.Magallon wrote:
->>
->>> -nostdinc should be mandatory ?
->>
->> Seems to be in use on my machine, looking at what "make" prints.
->
-> Given that init wants stdarg.h, -nostdinc is not an option for 
-> init/main.c.
->
+Please test or consider for inclusion.
 
-At least gcc3 has [v][s][n]printf and friends as builtins, and also
-has __builtin_va_list,_start,_end, etc, so it looks easy to get rid of 
-the
-stdarg.h dependency.
+Thanks
 
-Easy way: create stdarg.h in kernel includes with defines to builtins.
-Next step: kill printfs from linux/lib, if __builtins support the same
-features (ie, kernel printfs do not have any particular % code).
-
-Anybody knows if gcc2.95.3 has this builtins ?
-
-I think gcc builtins are under-used in kernel...
-
---
-J.A. Magallon <jamagallon()able!es>   \          Software is like sex:
-werewolf!able!es                       \    It's better when it's free
-MacOS X 10.3.3, Build 7F44, Darwin Kernel Version 7.3.0
+Hanna Linder
+IBM Linux Technology Center
+--------
+diff -Nrup linux-2.6.6-rc1/drivers/char/ppdev.c linux-2.6.6-rc1p/drivers/char/ppdev.c
+--- linux-2.6.6-rc1/drivers/char/ppdev.c	2004-04-14 18:36:01.000000000 -0700
++++ linux-2.6.6-rc1p/drivers/char/ppdev.c	2004-04-27 14:56:56.000000000 -0700
+@@ -84,6 +84,8 @@ struct pp_struct {
+ 	long default_inactivity;
+ };
+ 
++static struct class_simple *ppdev_class;
++
+ /* pp_struct.flags bitfields */
+ #define PP_CLAIMED    (1<<0)
+ #define PP_EXCL       (1<<1)
+@@ -752,29 +754,53 @@ static struct file_operations pp_fops = 
+ 
+ static int __init ppdev_init (void)
+ {
+-	int i;
++	int i, err = 0;
+ 
+ 	if (register_chrdev (PP_MAJOR, CHRDEV, &pp_fops)) {
+ 		printk (KERN_WARNING CHRDEV ": unable to get major %d\n",
+ 			PP_MAJOR);
+-		return -EIO;
++		err = -EIO;
++		goto out;
++	}
++	ppdev_class = class_simple_create(THIS_MODULE, CHRDEV);
++	if (IS_ERR(ppdev_class)) {
++		err = PTR_ERR(ppdev_class);
++		goto out_chrdev;
+ 	}
+ 	devfs_mk_dir("parports");
+ 	for (i = 0; i < PARPORT_MAX; i++) {
+-		devfs_mk_cdev(MKDEV(PP_MAJOR, i),
++		class_simple_device_add(ppdev_class, MKDEV(PP_MAJOR, i), 
++				NULL, "parport%d", i);
++		err = devfs_mk_cdev(MKDEV(PP_MAJOR, i),
+ 				S_IFCHR | S_IRUGO | S_IWUGO, "parports/%d", i);
++		if (err) 
++			goto out_class;
+ 	}
+ 
+ 	printk (KERN_INFO PP_VERSION "\n");
+-	return 0;
++	err = 0;
++	goto out;
++
++out_class:
++	for (i = 0; i < PARPORT_MAX; i++) 
++		class_simple_device_remove(MKDEV(PP_MAJOR, i));
++	class_simple_destroy(ppdev_class);
++out_chrdev:
++	unregister_chrdev(PP_MAJOR, CHRDEV);
++out:
++	return err;
++
+ }
+ 
+ static void __exit ppdev_cleanup (void)
+ {
+ 	int i;
+ 	/* Clean up all parport stuff */
+-	for (i = 0; i < PARPORT_MAX; i++)
++	for (i = 0; i < PARPORT_MAX; i++) {
++		class_simple_device_remove(MKDEV(PP_MAJOR, i));
+ 		devfs_remove("parports/%d", i);
++	}
++	class_simple_destroy(ppdev_class);
+ 	devfs_remove("parports");
+ 	unregister_chrdev (PP_MAJOR, CHRDEV);
+ }
 

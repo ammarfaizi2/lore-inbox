@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317068AbSF1ItO>; Fri, 28 Jun 2002 04:49:14 -0400
+	id <S317072AbSF1I4I>; Fri, 28 Jun 2002 04:56:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317072AbSF1ItN>; Fri, 28 Jun 2002 04:49:13 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:5070 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S317068AbSF1ItN>; Fri, 28 Jun 2002 04:49:13 -0400
-Date: Fri, 28 Jun 2002 09:51:23 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Austin Gonyou <austin@digitalroadkill.net>
-cc: Andrea Arcangeli <andrea@suse.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: vm fixes for 2.4.19rc1
-In-Reply-To: <1025234354.2087.10.camel@UberGeek>
-Message-ID: <Pine.LNX.4.21.0206280939300.1553-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317073AbSF1I4H>; Fri, 28 Jun 2002 04:56:07 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:34320 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S317072AbSF1I4H>;
+	Fri, 28 Jun 2002 04:56:07 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Greg Banks <gnb@alphalink.com.au>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, mec@shout.net,
+       kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] [PATCH] kconfig: menuconfig and config uses $objtree 
+In-reply-to: Your message of "Fri, 28 Jun 2002 18:07:45 +1000."
+             <3D1C1951.987E1FF8@alphalink.com.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 28 Jun 2002 18:58:17 +1000
+Message-ID: <934.1025254697@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Jun 2002, Austin Gonyou wrote:
-> For something like DB work, would this patch be *too* aggressive on
-> freeing memory/cache as to introduced increased latency there?
-> Just curious, I'm all for using *any* good VM changes. 
+On Fri, 28 Jun 2002 18:07:45 +1000, 
+Greg Banks <gnb@alphalink.com.au> wrote:
+>Sam Ravnborg wrote:
+>> 
+>> In order to prepare for separate obj and src trees make use of $objtree
+>> within scripts/Menuconfig and scripts/Configure.
+>> All temporary and all result files are located in directory pointed at
+>> by $objtree.
+>
+>Interesting, but there's an alternative approach.  Let the scripts dump
+>any files they like into the current directory, but move the current
+>directory to be the *object* directory not the source directory.  Then
+>all you need to change are the places where the arch config.in files are
+>initially included, and to override the "source" statement to look relative
+>to $srctree not the current directory.  That last can be done like this:
 
-No, you're taking the "_cache_" too seriously.  This has nothing to
-do with taking pages out of the lookup cache: it's a matter of when
-anonymous pages not in any lookup cache, which were put on an LRU list
-for fair aging, can safely be removed from that LRU list when they are
-freed.  An issue of the best place to catch them all, an issue of when
-the locking is safe, but no macroscopic issue of caching versus latency.
+You are still forcing all the CML code to know about the difference
+between source and object trees and to handle multiple source trees.
+With that approach, the knowledge has to be embedded in every CML
+program, and changed every time the tree structure changes.
 
-> On Thu, 2002-06-27 at 15:14, Andrea Arcangeli wrote:
-> > some fix for 2.4.19rc1 (btw, the lru_cache_del() in the LRU path is
-> > needed in 2.5 too and it's also more efficient than the
-> > page_cache_release, see ptrace freeing the anon pages with put_page(),
-> > it will not pass through page_cache_release and it will trigger the
-> > PageLRU check that __free_pages_ok isn't capable to handle in 2.5, I
-> > will make a full vm update for 2.5 [in small pieces based on post-Andrew
-> > split of the monolithic patch] in the next days anyways):
+It is far better to retain the existing CML design which assumes that
+there is only one tree.  Then use symlinks to hide the real tree
+structure from CML.  That gives us the flexibility to change the tree
+structure without changing every CML program.
+
+Notice that kbuild 2.5 handles separate source and object trees and
+even multiple source trees with _no_ changes to CML code.  The only
+change to CML in kbuild 2.5 is to add Ghozlane Toumi's extra config
+targets.  scripts/Makefile-2.5 hides all the complexity of separate
+source and object and multiple source trees from both CML1 and CML2.
 

@@ -1,69 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317096AbSFWUDq>; Sun, 23 Jun 2002 16:03:46 -0400
+	id <S317101AbSFWUMb>; Sun, 23 Jun 2002 16:12:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317101AbSFWUDp>; Sun, 23 Jun 2002 16:03:45 -0400
-Received: from pD9E7E5FA.dip.t-dialin.net ([217.231.229.250]:5249 "EHLO
-	bonzo.nirvana") by vger.kernel.org with ESMTP id <S317096AbSFWUDn>;
-	Sun, 23 Jun 2002 16:03:43 -0400
-Date: Sun, 23 Jun 2002 22:02:08 +0200
-From: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
-To: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sander van Malssen <svm@kozmix.cistron.nl>
-Subject: 1000000000 as irq count init (was: Procinfo behaving strange under 2.4.19-pre10)
-Message-ID: <20020623220208.A5272@bonzo.nirvana>
-References: <Pine.LNX.4.44.0206210849450.678-100000@grignard.amagerkollegiet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0206210849450.678-100000@grignard.amagerkollegiet.dk>; from moffe@amagerkollegiet.dk on Fri, Jun 21, 2002 at 08:57:25AM +0200
+	id <S317102AbSFWUMa>; Sun, 23 Jun 2002 16:12:30 -0400
+Received: from mail.science.uva.nl ([146.50.4.51]:16847 "EHLO
+	mail.science.uva.nl") by vger.kernel.org with ESMTP
+	id <S317101AbSFWUM3>; Sun, 23 Jun 2002 16:12:29 -0400
+Message-Id: <200206232008.g5NK8NO22468@mail.science.uva.nl>
+X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
+X-URL: http://www.science.uva.nl/
+Content-Type: text/plain; charset=US-ASCII
+From: Rudmer van Dijk <rvandijk@science.uva.nl>
+Reply-To: rvandijk@science.uva.nl
+Organization: UvA
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kbuild fixes and more
+Date: Sun, 23 Jun 2002 22:11:37 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <Pine.LNX.4.44.0206231325280.6241-100000@chaos.physics.uiowa.edu>
+In-Reply-To: <Pine.LNX.4.44.0206231325280.6241-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Fri, Jun 21, 2002 at 08:57:25AM +0200, Rasmus Bøg Hansen wrote:
-> I upgraded a short time ago from kernel 2.4.18 to 2.4.19-pre10, but now
-> procinfo reports interrupts in a strange way.
-> 
-> 2.4.19-pre10:
-> 
-> # procinfo
-> [...]
-> irq  0:1000207681 timer                 irq  8:1000000003
-> irq  1:1000004868 keyboard              irq  9:1000000000 acpi
-> irq  2:1000000000 cascade [4]           irq 10:1000007854 eth0
-> irq  3:1000000000                       irq 11:1000114199 nvidia
-> irq  4:1000000000                       irq 12:1000026199 PS/2 Mouse
-> irq  5:1000003195 es1370                irq 13:1000000000
-> irq  6:1000000000                       irq 14:1000016806 ide0
-> irq  7:1000000000                       irq 15:1000000000
-> [...]
+On Sunday 23 June 2002 20:39, Kai Germaschewski wrote:
+> I suppose we won't see any official / -dj releases any time soon, since
+> everybody is at OLS, so I figured it may make sense to publish my
+> current tree, which fixes some outstanding build problems and adds more
+> cleanup.
+>
+> Most notably:
+>
+> make KBUILD_VERBOSE= bzImage
+>
+> (or export KBUILD_VERBOSE=0 / setenv KBUILD_VERBOSE 0; make bzImage)
+>
+> looks certainly improved now.
+>
+> Fixes include:
+> o the defkeymap/loadkeys issue
+> o calling host programs for khttpd / soundmodem
+> o make net_dev_init() a subsys_initcall, to make sure it's called
+>   before any net device registers.
+>
+> Patch is available from
+>
+> http://www.tp1.ruhr-uni-bochum.de/~kai/kbuild/patch-2.5.24-kg1.gz
+>
+> 	or
+>
+> bk pull http://linux-isdn.bkbits.net/linux-2.5.make
+>
+>
+> Feedback is very welcome, of course ;)
 
-I can second this (while I switched from 2.4.19-pre6 to 2.4.18 with RedHat/SGI
-patches, but obviously the same patch hit me also).
+patched against 2.5.24-dj1 (one failed hunk) generates errors:
+# make clean
+<snip>
+make -C /aicasm clean
+make: Entering an unknown directory
+make: *** /aicasm: No such file or directory.  Stop.
+make: Leaving an unknown directory
+make[3]: *** [clean] Error 2
+make[3]: Leaving directory 
+`/usr/src/kernel/linux-2.5.24-dj1/drivers/scsi/aic7xxx'
+make[2]: *** [aic7xxx] Error 2
+make[2]: Leaving directory `/usr/src/kernel/linux-2.5.24-dj1/drivers/scsi'
+make[1]: *** [scsi] Error 2
+make[1]: Leaving directory `/usr/src/kernel/linux-2.5.24-dj1/drivers'
+make: *** [_clean_drivers] Error 2
 
-procinfo reads that info from /proc/stat, which is giving away that bogus (?) 
-interrupt counts. It also causes xosview a horrible cpu 100% hang. :(
+patching it against 2.5.24 (starting from 2.5.13 and patched up to) gives the 
+same failed hunk as with 2.5.24-dj1
 
-[root@bonzo root]# uname -a
-Linux bonzo.nirvana 2.4.18-4SGI_XFS_1.1-bonzo #1 Sun Jun 23 17:49:32 CEST 2002
-i686 unknown
-[root@bonzo root]# cat /proc/stat 
-cpu  204580 0 5397 181674
-cpu0 204580 0 5397 181674
-page 193512 228084
-swap 1 0
-intr 668955 1000391651 1000008974 1000000000 1000000007 1000000008 1000000002
-1000000008 1000000002 1000000001 1000212403 1000000000 1000000002 1000027284
-1000000000 [...] 1000000000 1000000000 1000000000 1000000000 1000000000
-1000000000 1000000000 1000000000 1000000000
-disk_io: (3,0):(28638,17974,387024,10664,456168) 
-ctxt 1276299
-btime 1024858081
-processes 5380
--- 
-Axel.Thimm@physik.fu-berlin.de
+patching it against 2.5.24 (the tarball) generates a lot of failures and 
+offsets...
+
+so i would like to try it, but it just is not possible...
+
+	Rudmer

@@ -1,61 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264079AbTIINQA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 09:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbTIINQA
+	id S264073AbTIINMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 09:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbTIINMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 09:16:00 -0400
-Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:22423 "EHLO
-	bilbo.math.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S264079AbTIINP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 09:15:59 -0400
-Message-ID: <20030909131707.11490.qmail@bilbo.math.uni-mannheim.de>
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix build of fs/ufs/namei.c (was: Linux 2.6.0-test5: ufs build fails)
-Date: Tue, 9 Sep 2003 15:10:12 +0200
-User-Agent: KMail/1.5.3
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, Linus Torvalds <torvalds@osdl.org>
+	Tue, 9 Sep 2003 09:12:53 -0400
+Received: from paiol.terra.com.br ([200.176.3.18]:10881 "EHLO
+	paiol.terra.com.br") by vger.kernel.org with ESMTP id S264073AbTIINMw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 09:12:52 -0400
+Message-ID: <3F5DD237.4040909@terra.com.br>
+Date: Tue, 09 Sep 2003 10:14:31 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Richard Procter <rnp@paradise.net.nz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix SMP support on 3c527 net driver, take 2
+References: <Pine.LNX.4.21.0309091029230.252-100000@ps2.local>
+In-Reply-To: <Pine.LNX.4.21.0309091029230.252-100000@ps2.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Von Eyal Lebedinsky:
+	Hi Richard,
 
-> allmodconfig on i386:
-> 
->   CC [M]  fs/ufs/namei.o
-> fs/ufs/namei.c: In function `ufs_mknod':
-> fs/ufs/namei.c:119: parse error before `int'
-> fs/ufs/namei.c:127: `err' undeclared (first use in this function)
-> fs/ufs/namei.c:127: (Each undeclared identifier is reported only once
-> fs/ufs/namei.c:127: for each function it appears in.)
-> fs/ufs/namei.c:131: warning: control reaches end of non-void function
-> make[2]: *** [fs/ufs/namei.o] Error 1
-> make[1]: *** [fs/ufs] Error 2
-> make: *** [fs] Error 2
+Richard Procter wrote:
+> I've had a good look over your revised patch, and it looks fine to me. I
+> didn't manage to get an MCA kernel booting to test it, but I'm not sure if
+> it would have added a lot, especially as I don't have an SMP MCA machine.
 
-Your gcc doesn't like declarations after code I think. Try attached patch.
+	That's closer the a proper test box than me, since I don't even have 
+an that NIC ;)
 
-Eike
+> That said, over the weekend I realised that the need to unroll wait_event
+> was a consequence of using the same queue to perform two quite distinct
+> functions: serialising the issuing of commands, and waiting for the card
+> to complete command execution. This forces us to use a private variable to
+> indicate which situation has occured. That's ok on UP, but requires us to
+> jump through hoops to use it safely on SMP with spinlocks. 
 
---- linux-2.6.0-test5/fs/ufs/namei.c	2003-09-08 21:50:57.000000000 +0200
-+++ linux-2.6.0-test5-caliban/fs/ufs/namei.c	2003-09-09 15:06:19.000000000 +0200
-@@ -113,10 +113,12 @@
- static int ufs_mknod (struct inode * dir, struct dentry *dentry, int mode, dev_t rdev)
- {
- 	struct inode * inode;
-+	int err;
-+
- 	if (!old_valid_dev(rdev))
- 		return -EINVAL;
- 	inode = ufs_new_inode(dir, mode);
--	int err = PTR_ERR(inode);
-+	err = PTR_ERR(inode);
- 	if (!IS_ERR(inode)) {
- 		init_special_inode(inode, mode, rdev);
- 		/* NOTE: that'll go when we get wide dev_t */
+	True, but since the patch uses a per-device lock, aren't we safe (and 
+relatively scaleable) on SMP too?
+
+	Using wait_event as "prepare_for_wait" and all that IMHO is needed 
+because wait_event calls schedule, and we can't do that with our 
+device lock held..hence the prepare_to_wait/spin_unlock/schedule stuff 
+on mc32::wait_pending.
+
+	I don't know if using 2 different locks is worth it, since we may 
+starve mc_reload on SMP...but since the ammount of code dropped, it's 
+worth testing to see if we scale better than the inline wait_pending 
+stuff.
+
+> I've rewritten things using completions (== semaphores?), and it's both
+> cleaner and (unexpectedly) smaller (see example below). I'm in the process
+> of convincing myself it all works; should have something out there by the
+> end of the week.
+
+	Great!
+
+	Please let me know when you have something...I'm really enjoying 
+helping to fix this bug. :)
+
+> If there's a merge deadline coming up, please feel free to submit the
+> patch, otherwise I'd like to hold off for a couple of days and see where
+> we stand then.
+
+	There isn't.
+
+	Maybe we won't make 2.6.0-test5, but there's no need to rush things. 
+Let's get this right.
+
+	Kind Regards,
+
+Felipe
+

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291394AbSCMAm7>; Tue, 12 Mar 2002 19:42:59 -0500
+	id <S291401AbSCMAna>; Tue, 12 Mar 2002 19:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291401AbSCMAmu>; Tue, 12 Mar 2002 19:42:50 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:25340 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S291394AbSCMAmi>; Tue, 12 Mar 2002 19:42:38 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3C8E6C63.E8B72195@zip.com.au> 
-In-Reply-To: <3C8E6C63.E8B72195@zip.com.au>  <3C8D9999.83F991DB@zip.com.au>, <3C8D9999.83F991DB@zip.com.au> <E16kkcq-0001rV-00@starship> 
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT] delayed allocation and multipage I/O patches for 2.5.6. 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 13 Mar 2002 00:42:15 +0000
-Message-ID: <5812.1015980135@redhat.com>
+	id <S291460AbSCMAnV>; Tue, 12 Mar 2002 19:43:21 -0500
+Received: from smtprelay6.dc2.adelphia.net ([64.8.50.38]:18568 "EHLO
+	smtprelay6.dc2.adelphia.net") by vger.kernel.org with ESMTP
+	id <S291401AbSCMAnO>; Tue, 12 Mar 2002 19:43:14 -0500
+Message-ID: <010701c1ca27$dc05fdc0$60d53318@pbc.adelphia.net>
+From: "Ben Israel" <ben@genesis-one.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Write allocated mallocs
+Date: Tue, 12 Mar 2002 19:41:48 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have noticed some unexpected behavior of my Linux 2.4.7 kernel. It appears
+that my user level task is only allowed 512 mallocs before each malloc
+starts getting physical memory. I want to malloc virtual address space and
+only get physical memory when I write to a page. Is this some compiled
+constant in the kernel? Are there any ways to get more? Where can I read
+about such architecture decisions, so other behavior won't be so unexpected?
 
-akpm@zip.com.au said:
->  Really, I don't think we can lose page->buffers for *enough* users of
-> address_spaces to make it worthwhile.
-
-> If it was only being used for, say, blockdev inodes then we could
-> perhaps take it out and hash for it, but there are a ton of
-> filesystems out there... 
-
-I have plenty of boxes which never have any use for page->buffers. Ever.
-
---
-dwmw2
+Ben Israel
 
 

@@ -1,98 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264512AbUEJEvm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264514AbUEJFHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264512AbUEJEvm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 00:51:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264506AbUEJEvm
+	id S264514AbUEJFHi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 01:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUEJFHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 00:51:42 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:56552 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264505AbUEJEvj (ORCPT
+	Mon, 10 May 2004 01:07:37 -0400
+Received: from duke.cs.duke.edu ([152.3.140.1]:43936 "EHLO duke.cs.duke.edu")
+	by vger.kernel.org with ESMTP id S264514AbUEJFHe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 00:51:39 -0400
-Message-ID: <409F09FD.778D4231@melbourne.sgi.com>
-Date: Mon, 10 May 2004 14:50:05 +1000
-From: Greg Banks <gnb@melbourne.sgi.com>
-Organization: SGI Australian Software Group
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-6mdk i686)
-X-Accept-Language: en
+	Mon, 10 May 2004 01:07:34 -0400
+Date: Mon, 10 May 2004 01:07:31 -0400 (EDT)
+From: Patrick Reynolds <reynolds@cs.duke.edu>
+To: Len Brown <len.brown@intel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI and broken PCI IRQ sharing on Asus M5N laptop
+In-Reply-To: <1084160004.12352.82.camel@dhcppc4>
+Message-ID: <Pine.GSO.4.58.0405100054430.20030@shekel.cs.duke.edu>
+References: <A6974D8E5F98D511BB910002A50A6647615FAF0D@hdsmsx403.hd.intel.com>
+ <1084160004.12352.82.camel@dhcppc4>
 MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: Nikita Danilov <Nikita@Namesys.COM>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       alexander viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       trond myklebust <trondmy@trondhjem.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: d_splice_alias() problem.
-References: <16521.5104.489490.617269@laputa.namesys.com>
-		<16529.56343.764629.37296@cse.unsw.edu.au>
-		<409634B9.8D9484DA@melbourne.sgi.com>
-		<16534.54704.792101.617408@cse.unsw.edu.au>
-		<40973F7F.A9FA4F1@melbourne.sgi.com> <16542.61686.49097.41973@cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> 
-> On Tuesday May 4, gnb@melbourne.sgi.com wrote:
-> > > >
-> > Ok, how about this...it's portable, and not racy, but may perturb the
-> > logic slightly by also taking dentries off the unused list in the case
-> > where they already had d_count>=1.  I'm not sure how significant that is.
-> > In any case this also passes my tests.
-> 
-> I think this patch is good and needed.
-> 
-> I think the race can happen if:
->        dentry->d_count == 1, not on list
-> 
->    thread 1                       thread 2
->    enter __dget_locked            enter dput
->    atomic_inc(d_count) (now 2)
->                                   atomic_dec_and_lock(d_count...) (now 1)
->    if(atomic_read(d_count)==1 ....
->          remove from list
-> 
-> This will remove it from the unused list when it isn't
-> on, and will decrement nr_unused which, as you say, is bad.
+On Sun, 9 May 2004, Len Brown wrote:
 
-This is precisely the race that my tracing indicated was happening
-during my tests.
+> On Sun, 2004-05-09 at 20:44, Patrick Reynolds wrote:
+> > Booting with default parameters puts the i8042 psmouse channel, the
+> > Intel
+> > 8x0 sound card, and the Cardbus controller all on IRQ 12.  The mouse
+> try booting with "acpi_irq_isa=12"
 
-> [...]  Possibly that patch should update the
-> d_lookup comment to add __dget_locked to the set of functions that
-> clean up after it.
+That worked.  The interrupts got redistributed like so:
+  6:        172          XT-PIC  Intel 82801DB-ICH4, yenta
+  7:       3014          XT-PIC  uhci_hcd, yenta, ndiswrapper
+  8:          4          XT-PIC  rtc
+  9:        188          XT-PIC  acpi
+ 12:       1028          XT-PIC  i8042
 
-Ok, updated patch below.
+> I'd be interested to see your dmesg and /proc/interrupts from 2.6.1
 
+It piles the sound and cardbus onto IRQ 5, along with a USB that I'm
+actually using.  For some reason it doesn't touch IRQ 6.  Here are dmesg
+and /proc/interrupts from 2.6.1, 2.6.6 w/ acpi_irq_isa=12, and 2.6.6 w/
+your patch:
 
---- linux.orig/fs/dcache.c	2004-05-10 13:38:09.000000000 +1000
-+++ linux/fs/dcache.c	2004-05-10 14:45:44.000000000 +1000
-@@ -257,7 +257,7 @@
- static inline struct dentry * __dget_locked(struct dentry *dentry)
- {
- 	atomic_inc(&dentry->d_count);
--	if (atomic_read(&dentry->d_count) == 1) {
-+	if (!list_empty(&dentry->d_lru)) {
- 		dentry_stat.nr_unused--;
- 		list_del_init(&dentry->d_lru);
- 	}
-@@ -940,8 +942,9 @@
-  * lookup is going on.
-  *
-  * dentry_unused list is not updated even if lookup finds the required dentry
-- * in there. It is updated in places such as prune_dcache, shrink_dcache_sb and
-- * select_parent. This laziness saves lookup from dcache_lock acquisition.
-+ * in there. It is updated in places such as prune_dcache, shrink_dcache_sb,
-+ * select_parent and __dget_locked. This laziness saves lookup from dcache_lock
-+ * acquisition.
-  *
-  * d_lookup() is protected against the concurrent renames in some unrelated
-  * directory using the seqlockt_t rename_lock.
+http://www.cs.duke.edu/~reynolds/acpi-notes
 
+On Sun, 9 May 2004, Len Brown wrote:
 
-Greg.
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+> On the assumption that cmdline works, please try this patch
+> (without any cmdline param).
+>
+> It simply tweaks the heuristic and makes IRQ12 less attractive compared
+> to the others.
+
+That also worked and produced the same IRQ mapping as acpi_irq_isa=12.
+
+Thanks!  If you want any more logs, etc, let me know.
+
+--Patrick

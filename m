@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273027AbTHFAoA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 20:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273028AbTHFAoA
+	id S273049AbTHFA4C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 20:56:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273060AbTHFA4C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 20:44:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37811 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S273027AbTHFAn7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 20:43:59 -0400
-Date: Tue, 5 Aug 2003 17:45:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu,
-       piggin@cyberone.com.au, kernel@kolivas.org, linux-mm@kvack.org
-Subject: Re: [patch] real-time enhanced page allocator and throttling
-Message-Id: <20030805174536.6cb5fbf0.akpm@osdl.org>
-In-Reply-To: <1060130368.4494.166.camel@localhost>
-References: <1060121638.4494.111.camel@localhost>
-	<20030805170954.59385c78.akpm@osdl.org>
-	<1060130368.4494.166.camel@localhost>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 5 Aug 2003 20:56:02 -0400
+Received: from dyn-ctb-210-9-244-102.webone.com.au ([210.9.244.102]:24326 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S273049AbTHFAz4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 20:55:56 -0400
+Message-ID: <3F305205.2010705@cyberone.com.au>
+Date: Wed, 06 Aug 2003 10:55:33 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter Chubb <peter@chubb.wattle.id.au>
+CC: Andrew Morton <akpm@osdl.org>, Martin Konold <martin.konold@erfrakon.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Interactive Usage of 2.6.0.test1 worse than 2.4.21
+References: <200308050704.22684.martin.konold@erfrakon.de>	<20030804232654.295c9255.akpm@osdl.org> <16176.13066.601441.179810@wombat.chubb.wattle.id.au>
+In-Reply-To: <16176.13066.601441.179810@wombat.chubb.wattle.id.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> wrote:
+
+
+Peter Chubb wrote:
+
+>>>>>>"Andrew" == Andrew Morton <akpm@osdl.org> writes:
+>>>>>>
 >
-> On Tue, 2003-08-05 at 17:09, Andrew Morton wrote:
-> 
-> > -void balance_dirty_pages(struct address_space *mapping)
-> > +static void balance_dirty_pages(struct address_space *mapping)
-> 
-> Hrm. void? I have this as an int in my tree (test2-mm4), did you change
-> something? The function returns stuff.. I made it a 'static int'
+>Andrew> Martin Konold <martin.konold@erfrakon.de> wrote:
+>
+>>>Hi,
+>>>
+>>>when using 2.6.0.test1 on a high end laptop (P-IV 2.2 GHz, 1GB RAM)
+>>>I notice very significant slowdown in interactive usage compared to
+>>>2.4.21.
+>>>
+>>>The difference is most easily seen when switching folders in
+>>>kmail. While 2.4.21 is instantaneous 2.6.0.test1 shows the clock
+>>>for about 2-3 seconds.
+>>>
+>>>
+>
+>I see the same problem, and I'm using XFS.  Booting with
+>elevator=deadline fixed it for me.  The anticipatory scheduler hurts
+>if you have a disc optimised for low power consumption, not speed.
+>
+>
 
-ah, I had inserted that patch before the AIO patches, which change that.
+I don't think this generalisation is really fair. All hard disks
+have the same basic properties which AS exploits. There seems to
+be something going wrong though.
 
-> >  		dirty_exceeded = 1;
-> > +		if (rt_task(current))
-> > +			break;
-> 
-> OK, this was my other option. I think this is better because, as we have
-> both said, it allows us to wake up pdflush.
-> 
-> Here is what I have right now, now ..
 
-It's testing time.

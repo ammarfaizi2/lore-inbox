@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262020AbREYXQ2>; Fri, 25 May 2001 19:16:28 -0400
+	id <S262027AbREYXcC>; Fri, 25 May 2001 19:32:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262022AbREYXQS>; Fri, 25 May 2001 19:16:18 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5892 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262020AbREYXQK>; Fri, 25 May 2001 19:16:10 -0400
-Subject: Re: [with-PATCH-really] highmem deadlock removal, balancing & cleanup
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Sat, 26 May 2001 00:13:13 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105251919480.10469-100000@duckman.distro.conectiva> from "Rik van Riel" at May 25, 2001 07:20:20 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262050AbREYXbv>; Fri, 25 May 2001 19:31:51 -0400
+Received: from smtp6vepub.gte.net ([206.46.170.27]:17435 "EHLO
+	smtp6ve.mailsrvcs.net") by vger.kernel.org with ESMTP
+	id <S262027AbREYXbj>; Fri, 25 May 2001 19:31:39 -0400
+From: George France <france@handhelds.org>
+Date: Fri, 25 May 2001 19:31:21 -0400
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+To: Jay Thorne <Yohimbe@userfriendly.org>
+In-Reply-To: <990827407.27355.2.camel@gracie.userfriendly.org> <01052518523300.28075@shadowfax.middleearth> <990831934.27357.4.camel@gracie.userfriendly.org>
+In-Reply-To: <990831934.27357.4.camel@gracie.userfriendly.org>
+Subject: Re: PROBLEM: Alpha SMP Low Outbound Bandwidth
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E153Qld-0007Df-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01052519312101.28075@shadowfax.middleearth>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 25 May 2001, Linus Torvalds wrote:
-> > On Fri, 25 May 2001, Rik van Riel wrote:
-> > >
-> > > OK, shoot me.  Here it is again, this time _with_ patch...
+On Friday 25 May 2001 19:05, Jay Thorne wrote:
+> On 25 May 2001 18:52:33 -0400, George France wrote:
+> > Hello Jay,
 > >
-> > I'm not going to apply this as long as it plays experimental games with
-> > "shrink_icache()" and friends. I haven't seen anybody comment on the
-> > performance on this,
-> 
-> Yeah, I guess the way Linux 2.2 balances things is way too
-> experimental ;)
+> > I see that you are using the tulip driver.  Could you try the de4x5
+> > driver??
+>
+> Its worse: reports 3.1 MBs and 1.6 MBs
 
-Compared to the 2.0 performance - yes. 2.0 is faster than 2.2 is twice the
-speed of 2.4 starting X and the session apps on my MediaGX box with 64Mb
+wuftp is not exactly a performance benchmark, have you tried 'netperf'?
 
-But Linus is right I think - VM changes often prove 'interesting'. Test it in
--ac , gets some figures for real world use then plan further
-
-
+--George

@@ -1,140 +1,266 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbTIMOv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 10:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbTIMOv1
+	id S261284AbTIMPc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 11:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTIMPcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 10:51:27 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:11782 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S261174AbTIMOvY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 10:51:24 -0400
-From: Michael Frank <mhf@linuxmail.org>
-To: Pat LaVarre <p.lavarre@ieee.org>, mpm@selenic.com
-Subject: Re: console lost to Ctrl+Alt+F$n in 2.6.0-test5
-Date: Sat, 13 Sep 2003 22:49:39 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <1063378664.5059.19.camel@patehci2> <20030913015747.GC4489@waste.org> <1063460312.2905.13.camel@patehci2>
-In-Reply-To: <1063460312.2905.13.camel@patehci2>
-X-OS: KDE 3 on GNU/Linux
+	Sat, 13 Sep 2003 11:32:17 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:34067 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id S261284AbTIMPcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 11:32:02 -0400
+Date: Sat, 13 Sep 2003 17:31:51 +0200 (CEST)
+From: Urban Widmark <Urban.Widmark@enlight.net>
+X-X-Sender: puw@cola.enlightnet.local
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] smbfs module unload and highuid
+Message-ID: <Pine.LNX.4.44.0309131700070.18453-100000@cola.enlightnet.local>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200309132249.40283.mhf@linuxmail.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't think this is a keyboard problem and have seen
-this several times related to video drivers in particular
-when switching back to X.
 
-The script below switches every $wait (5) seconds between
-VT $vt (1) and X @vt$x (7). It logs to $log (log=/tmp/_vt)
-syncs and waits before doing the switch to allow data to
-reach the disk. So if it dies, you should know quite 
-accurately when and where and if it also happens wo KB. 
+Hello,
 
-Put this into a file and make it executable. It must
-be run as root unless chvt is in sudoers or suid root. 
+I haven't been doing much smbfs work recently, but here are some bugfixes:
 
-#!/bin/bash
+- Fix module unload (Angus Sawyer).
+- Fix the smbfs error handling if kernel_thread() should fail.
+- Allow high uids/gids to be used as the fake uid smbfs sets as file owner.
 
-cycle=1
-log=/tmp/_vt.log
-vt=1
-x=7
-wait=5
-#rm -f $log
-echo Starting VT <> X test
-while ((1)); do
-  echo Cycle $cycle switching to VT $vt >> $log    
-  sync
-  sleep $wait
-  chvt $vt
-  echo Cycle $cycle switching to X >> $log    
-  sync
-  sleep $wait
-  chvt $x
-  echo Cycle $cycle
-  ((cycle += 1))
-done
-;;
+Patch vs 2.6.0-test5, please apply.
+
+/Urban
 
 
-On Saturday 13 September 2003 21:38, Pat LaVarre wrote:
-> 
-> > What video are you using?
-> > I'm guessing you've got a framebuffer console?
-> > VESA by any chance?
-> 
-> I do not yet know how to answer such questions confidently.
-> 
-> I see (redhat-config-xfree86 --> tab Advanced) reports:
-> 
-> Video Card
-> Video Card Type = Intel 865
-> Memory Size = 16 megabytes
-> Driver = i810
-> Enable Hardware 3D Acceleration = no
-> 
-> > > Yes, thank you, Ctrl+Alt+F$n now works
-> > > if only I CONFIG_DEBUG_SPINLOCK_SLEEP=n.
-> 
-> Please allow me to disavow that first impression.
-> 
-> With CONFIG_DEBUG_SPINLOCK_SLEEP=y, I've now been counting keystrokes
-> til crash.  I count each of Ctrl+Alt+F5 and Ctrl+Alt+F7 as one stroke. 
-> Sometimes I crash, sometimes I do not.  I began logging life more
-> carefully when first I saw a few strokes cause a crash, and thereafter,
-> per boot:
-> 
-> 8 strokes crashed.
-> 
-> 60 strokes did not crash, so I gave up and rebooted to try again.
-> 
-> 4 strokes crashed.  The first 2 seeming had logged me out, killing my
-> cat /proc/kmsg process.
-> 
-> 8 strokes crashed.
-> 
-> 26 strokes crashed.
-> 
-> ...
-> 
-> The only consistency I see is that always an even number of strokes
-> cause a crash i.e. always the Ctrl+Alt+F7 switch back to my X console,
-> not the switch to a text console.
-> 
-> To prepare to crash, I only know of: sync umount ext3.  For me as yet
-> "Checking ... filesystem..." wastes less than three minutes per crash,
-> and I haven't yet perceptibly lost a disk.
-> 
-> > > I wonder if somehow /proc/kmsg now working is a clue?
-> 
-> Meanwhile, whether `sudo cat /proc/kmsg | tee ...` displays printk
-> intact or not also varies, without clearly correlating with whether a
-> crash will or will not occur.
-> 
-> So far, with CONFIG_DEBUG_SPINLOCK_SLEEP=y, trying `sudo cat /proc/kmsg
-> | tee ...` has never run well enough to capture the cause of the crash.
-> 
-> > >  I could easily check ... ssh ...
-> 
-> Remote ssh freezes and remote ping starts losing all packets.
-> 
-> Pat LaVarre
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
+diff -urN -X exclude linux-2.6.0-test5-orig/fs/smbfs/Makefile linux-2.6.0-test5-smbfs/fs/smbfs/Makefile
+--- linux-2.6.0-test5-orig/fs/smbfs/Makefile	Mon Sep  8 21:49:58 2003
++++ linux-2.6.0-test5-smbfs/fs/smbfs/Makefile	Sat Sep 13 17:14:04 2003
+@@ -32,6 +32,8 @@
+ 	@echo >> proto2.h " */"
+ 	@echo >> proto2.h ""
+ 	@echo >> proto2.h "struct smb_request;"
++	@echo >> proto2.h "struct sock;"
++	@echo >> proto2.h "struct statfs;"
+ 	@echo >> proto2.h ""
+ 	cproto -E "gcc -E" -e -v -I $(TOPDIR)/include -DMAKING_PROTO -D__KERNEL__ $(SRC) >> proto2.h
+ 	mv proto2.h proto.h
+diff -urN -X exclude linux-2.6.0-test5-orig/fs/smbfs/inode.c linux-2.6.0-test5-smbfs/fs/smbfs/inode.c
+--- linux-2.6.0-test5-orig/fs/smbfs/inode.c	Mon Sep  8 21:49:53 2003
++++ linux-2.6.0-test5-smbfs/fs/smbfs/inode.c	Sat Sep 13 16:53:10 2003
+@@ -25,6 +25,7 @@
+ #include <linux/mount.h>
+ #include <linux/net.h>
+ #include <linux/vfs.h>
++#include <linux/highuid.h>
+ #include <linux/smb_fs.h>
+ #include <linux/smbno.h>
+ #include <linux/smb_mount.h>
+@@ -447,6 +448,19 @@
+ }
+ 
+ static void
++smb_unload_nls(struct smb_sb_info *server)
++{
++	if (server->remote_nls) {
++		unload_nls(server->remote_nls);
++		server->remote_nls = NULL;
++	}
++	if (server->local_nls) {
++		unload_nls(server->local_nls);
++		server->local_nls = NULL;
++	}
++}
++
++static void
+ smb_put_super(struct super_block *sb)
+ {
+ 	struct smb_sb_info *server = SMB_SB(sb);
+@@ -461,15 +475,7 @@
+ 		kill_proc(server->conn_pid, SIGTERM, 1);
+ 
+ 	smb_kfree(server->ops);
+-
+-	if (server->remote_nls) {
+-		unload_nls(server->remote_nls);
+-		server->remote_nls = NULL;
+-	}
+-	if (server->local_nls) {
+-		unload_nls(server->local_nls);
+-		server->local_nls = NULL;
+-	}
++	smb_unload_nls(server);
+ 	sb->s_fs_info = NULL;
+ 	smb_unlock_server(server);
+ 	smb_kfree(server);
+@@ -545,10 +551,8 @@
+ 	if (ver == SMB_MOUNT_OLDVERSION) {
+ 		mnt->version = oldmnt->version;
+ 
+-		/* FIXME: is this enough to convert uid/gid's ? */
+-		mnt->mounted_uid = oldmnt->mounted_uid;
+-		mnt->uid = oldmnt->uid;
+-		mnt->gid = oldmnt->gid;
++		mnt->uid = low2highuid(oldmnt->uid);
++		mnt->gid = low2highuid(oldmnt->gid);
+ 
+ 		mnt->file_mode = (oldmnt->file_mode & S_IRWXUGO) | S_IFREG;
+ 		mnt->dir_mode = (oldmnt->dir_mode & S_IRWXUGO) | S_IFDIR;
+@@ -557,9 +561,8 @@
+ 	} else {
+ 		if (parse_options(mnt, raw_data))
+ 			goto out_bad_option;
+-
+-		mnt->mounted_uid = current->uid;
+ 	}
++	mnt->mounted_uid = current->uid;
+ 	smb_setcodepage(server, &mnt->codepage);
+ 
+ 	/*
+@@ -571,6 +574,11 @@
+ 	else if (mnt->flags & SMB_MOUNT_DIRATTR)
+ 		printk("SMBFS: Using dir ff getattr\n");
+ 
++	if (smbiod_register_server(server) < 0) {
++		printk(KERN_ERR "smbfs: failed to start smbiod\n");
++		goto out_no_smbiod;
++	}
++
+ 	/*
+ 	 * Keep the super block locked while we get the root inode.
+ 	 */
+@@ -584,12 +592,12 @@
+ 		goto out_no_root;
+ 	smb_new_dentry(sb->s_root);
+ 
+-	smbiod_register_server(server);
+-
+ 	return 0;
+ 
+ out_no_root:
+ 	iput(root_inode);
++out_no_smbiod:
++	smb_unload_nls(server);
+ out_bad_option:
+ 	smb_kfree(mem);
+ out_no_mem:
+diff -urN -X exclude linux-2.6.0-test5-orig/fs/smbfs/proto.h linux-2.6.0-test5-smbfs/fs/smbfs/proto.h
+--- linux-2.6.0-test5-orig/fs/smbfs/proto.h	Mon Sep  8 21:50:07 2003
++++ linux-2.6.0-test5-smbfs/fs/smbfs/proto.h	Sat Sep 13 17:18:52 2003
+@@ -1,5 +1,5 @@
+ /*
+- *  Autogenerated with cproto on:  Sun Sep 29 21:48:59 CEST 2002
++ *  Autogenerated with cproto on:  Sat Sep 13 17:18:51 CEST 2003
+  */
+ 
+ struct smb_request;
+@@ -34,6 +34,7 @@
+ extern int smb_proc_symlink(struct smb_sb_info *server, struct dentry *d, const char *oldpath);
+ extern int smb_proc_link(struct smb_sb_info *server, struct dentry *dentry, struct dentry *new_dentry);
+ extern int smb_proc_query_cifsunix(struct smb_sb_info *server);
++extern void smb_install_null_ops(struct smb_ops *ops);
+ /* dir.c */
+ extern struct file_operations smb_dir_operations;
+ extern struct inode_operations smb_dir_inode_operations;
+@@ -71,7 +72,7 @@
+ extern int smb_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg);
+ /* smbiod.c */
+ extern void smbiod_wake_up(void);
+-extern void smbiod_register_server(struct smb_sb_info *server);
++extern int smbiod_register_server(struct smb_sb_info *server);
+ extern void smbiod_unregister_server(struct smb_sb_info *server);
+ extern void smbiod_flush(struct smb_sb_info *server);
+ extern int smbiod_retry(struct smb_sb_info *server);
+diff -urN -X exclude linux-2.6.0-test5-orig/fs/smbfs/smbiod.c linux-2.6.0-test5-smbfs/fs/smbfs/smbiod.c
+--- linux-2.6.0-test5-orig/fs/smbfs/smbiod.c	Mon Sep  8 21:50:09 2003
++++ linux-2.6.0-test5-smbfs/fs/smbfs/smbiod.c	Sat Sep 13 16:54:02 2003
+@@ -49,7 +49,7 @@
+ static long smbiod_flags;
+ 
+ static int smbiod(void *);
+-static void smbiod_start(void);
++static int smbiod_start(void);
+ 
+ /*
+  * called when there's work for us to do
+@@ -65,30 +65,36 @@
+ /*
+  * start smbiod if none is running
+  */
+-static void smbiod_start()
++static int smbiod_start()
+ {
+ 	pid_t pid;
+ 	if (smbiod_state != SMBIOD_DEAD)
+-		return;
++		return 0;
+ 	smbiod_state = SMBIOD_STARTING;
++	__module_get(THIS_MODULE);
+ 	spin_unlock(&servers_lock);
+ 	pid = kernel_thread(smbiod, NULL, 0);
++	if (pid < 0)
++		module_put(THIS_MODULE);
+ 
+ 	spin_lock(&servers_lock);
+-	smbiod_state = SMBIOD_RUNNING;
++	smbiod_state = pid < 0 ? SMBIOD_DEAD : SMBIOD_RUNNING;
+ 	smbiod_pid = pid;
++	return pid;
+ }
+ 
+ /*
+  * register a server & start smbiod if necessary
+  */
+-void smbiod_register_server(struct smb_sb_info *server)
++int smbiod_register_server(struct smb_sb_info *server)
+ {
++	int ret;
+ 	spin_lock(&servers_lock);
+ 	list_add(&server->entry, &smb_servers);
+ 	VERBOSE("%p\n", server);
+-	smbiod_start();
++	ret = smbiod_start();
+ 	spin_unlock(&servers_lock);
++	return ret;
+ }
+ 
+ /*
+@@ -282,7 +288,6 @@
+  */
+ static int smbiod(void *unused)
+ {
+-	MOD_INC_USE_COUNT;
+ 	daemonize("smbiod");
+ 
+ 	allow_signal(SIGKILL);
+@@ -330,6 +335,5 @@
+ 	}
+ 
+ 	VERBOSE("SMB Kernel thread exiting (%d) ...\n", current->pid);
+-	MOD_DEC_USE_COUNT;
+-	return 0;
++	module_put_and_exit(0);
+ }
+diff -urN -X exclude linux-2.6.0-test5-orig/include/linux/smb_mount.h linux-2.6.0-test5-smbfs/include/linux/smb_mount.h
+--- linux-2.6.0-test5-orig/include/linux/smb_mount.h	Mon Sep  8 21:49:51 2003
++++ linux-2.6.0-test5-smbfs/include/linux/smb_mount.h	Sat Sep 13 12:34:31 2003
+@@ -43,11 +43,11 @@
+ struct smb_mount_data_kernel {
+ 	int version;
+ 
+-	__kernel_uid_t mounted_uid;	/* Who may umount() this filesystem? */
+-	__kernel_uid_t uid;
+-	__kernel_gid_t gid;
+-	__kernel_mode_t file_mode;
+-	__kernel_mode_t dir_mode;
++	uid_t mounted_uid;	/* Who may umount() this filesystem? */
++	uid_t uid;
++	gid_t gid;
++	mode_t file_mode;
++	mode_t dir_mode;
+ 
+ 	u32 flags;
+ 
 

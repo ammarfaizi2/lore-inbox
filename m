@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262066AbSIPPC0>; Mon, 16 Sep 2002 11:02:26 -0400
+	id <S262372AbSIPOwH>; Mon, 16 Sep 2002 10:52:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262081AbSIPPC0>; Mon, 16 Sep 2002 11:02:26 -0400
-Received: from 62-190-201-140.pdu.pipex.net ([62.190.201.140]:54788 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S262066AbSIPPCZ>; Mon, 16 Sep 2002 11:02:25 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209161514.g8GFEjL0000740@darkstar.example.net>
-Subject: Re: [PATCH] Experimental IDE oops dumper v0.1
-To: landley@trommello.org (Rob Landley)
-Date: Mon, 16 Sep 2002 16:14:45 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200209161444.g8GEhw2f017462@pimout1-ext.prodigy.net> from "Rob Landley" at Sep 16, 2002 05:43:50 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S262398AbSIPOwG>; Mon, 16 Sep 2002 10:52:06 -0400
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:36815 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S262372AbSIPOwF>; Mon, 16 Sep 2002 10:52:05 -0400
+Message-ID: <3D85F1B5.7020904@drugphish.ch>
+Date: Mon, 16 Sep 2002 16:59:01 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Rolf Eike Beer <eike@bilbo.math.uni-mannheim.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.5.35: fs.o
+References: <200209161651.23546@bilbo.math.uni-mannheim.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Talking about dumping oopsen, would there be any usefulness in outputting
-> > crash data to the PC speaker, using a slow, (~300 bps) modulation that
-> > would survive being captured on a cassette using a walkman with a
-> > microphone, then decoded using a userspace program from a sampled .au file?
-> 
-> This is easier and less error-prone than copying the oops down by hand?
+Hello,
 
-Well, it is easy to make a mistake writing it down...
+> fs/fs.o: In function `flush_old_exec':
+> fs/fs.o(.text+0x9b1c): undefined reference to `wait_task_inactive'
 
-> I remember using 300 bps.  On a closed electrical circuit without acoustic 
-> couplers, you still got line noise.  Acoustic couplers put the speaker and 
-> microphone right on top of each other and surrounded them with a muffler to 
-> try to minimize ambient noise from the room...
+The following worked for me but I'm not convinced that this is the right 
+thing (tm):
 
-WHAT?  I have captured 1200/75 'prestel' style modem communications on tape, and played them back through a speaker, in to a phone handset, and had them faithfully reproduced on a terminal.  Having said that, trying to use a 300 bps accustic coupler with a GSM phone wasn't successful, because you get some kind of inductive interference from the phone.
+--- linux-2.5.35/kernel/sched.c Mon Sep 16 04:18:24 2002
++++ linux-2.5.35-ratz/kernel/sched.c    Mon Sep 16 13:29:28 2002
+@@ -331,8 +331,6 @@
+  #endif
+  }
 
-> > Just thought it might be easily implementable, as it doesn't have any
-> > pre-requisits, (other than having a PC speaker, which *almost* everybody
-> > has).
-> 
-> Not everybody has a tape recorder, though.
-> 
-> And the -ac branch already does output in morse code.  Try taping that and 
-> writing a user mode interpreter for it, if you like...
+-#ifdef CONFIG_SMP
+-
+  /*
+   * wait_task_inactive - wait for a thread to unschedule.
+   *
+@@ -366,7 +364,6 @@
+         task_rq_unlock(rq, &flags);
+         preempt_enable();
+  }
+-#endif
 
-Hmmm, that might be worth doing, because it gives you a way to automatically recover the data, rather than typing it in again, (which is prone to errors).
+  /*
+   * kick_if_running - kick the remote CPU if the task is running currently.
 
-John.
+I think Ingo should check this and take appropriate actions. I could 
+also be that ../fs/exec.c and others in binfmt* should not call this 
+wait_task_inactive under UP anymore.
+
+Best regards,
+Roberto Nibali, ratz
+-- 
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
+

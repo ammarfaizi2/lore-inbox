@@ -1,61 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135875AbRDTLqv>; Fri, 20 Apr 2001 07:46:51 -0400
+	id <S135881AbRDTLtU>; Fri, 20 Apr 2001 07:49:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135876AbRDTLqj>; Fri, 20 Apr 2001 07:46:39 -0400
-Received: from hitpro.hitachi.co.jp ([133.145.224.7]:18907 "EHLO
-	hitpro.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id <S135875AbRDTLqY>; Fri, 20 Apr 2001 07:46:24 -0400
-To: andrea@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panics on raw I/O stress test
-From: Takanori Kawano <t-kawano@ebina.hitachi.co.jp>
-In-Reply-To: <20010419193322.F752@athlon.random>
-In-Reply-To: <20010419210153Z.t-kawano@ebina.hitachi.co.jp>
-	<20010419193322.F752@athlon.random>
-X-Mailer: Mew version 1.94.1 on Emacs 20.4 / Mule 4.1 (AOI)
-Reply-To: t-kawano@ebina.hitachi.co.jp
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S135880AbRDTLtK>; Fri, 20 Apr 2001 07:49:10 -0400
+Received: from fe000.worldonline.dk ([212.54.64.194]:7 "HELO
+	fe000.worldonline.dk") by vger.kernel.org with SMTP
+	id <S135879AbRDTLtF>; Fri, 20 Apr 2001 07:49:05 -0400
+Message-ID: <3AE02DE1.C8C05C6D@eisenstein.dk>
+Date: Fri, 20 Apr 2001 12:38:57 +0000
+From: Jesper Juhl <juhl@eisenstein.dk>
+Organization: Eisenstein
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: npunmia@hss.hns.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RTC !
+In-Reply-To: <65256A34.003CDC69.00@sandesh.hss.hns.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20010420204435M.t-kawano@ebina.hitachi.co.jp>
-Date: Fri, 20 Apr 2001 20:44:35 +0900 (JST)
-X-Dispatcher: imput version 990905(IM130)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+npunmia@hss.hns.com wrote:
 
-> Could you try again with 2.4.4pre4 plus the below patch?
-> 
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.4pre2/rawio-3
+> Hi,
+>
+> When i compiled the following program , (taken from
+> /usr/src/linux/Documentation/rtc.txt )
+>
+> (See attached file: rtc2.c)
+>
+> it gave me the following error:
+>
+> [root@msatuts1 timer1]#  gcc -s -Wall -Wstrict-prototypes rtc2.c -o rtc2
+> In file included from rtc2.c:17:
+> /usr/include/linux/mc146818rtc.h:29: parse error before `rtc_lock'
+> /usr/include/linux/mc146818rtc.h:29: warning: data definition has no type or
+> storage class
+> rtc2.c:25: warning: return type of `main' is not `int'
+> [root@msatuts1 timer1]#
+>
+>  Is this a bug?Can anyone tell me how to remove this parse error ?
 
-I suppose that 2.4.4-pre4 + rawio-3 patch still has SMP-unsafe
-raw i/o code and can cause the same panic I reported.
+It works fine for me using a 2.2.16 kernel and egcs-2.91.66 (see below)...
 
-I think the following scenario is possible if there are 3 or more CPUs.
 
-(1) CPU0 enter rw_raw_dev()
-(2) CPU0 execute alloc_kiovec(1, &iobuf)    // drivers/char/raw.c line 309
-(3) CPU0 enter brw_kiovec(rw, 1, &iobuf,..) // drivers/char/raw.c line 362
-(4) CPU0 enter __wait_on_buffer()
-(5) CPU0 execute run_task_queue() and wait
-    while buffer_locked(bh) is true.        // fs/buffer.c line 152-158
-(6) CPU1 enter end_buffer_io_kiobuf() with
-     iobuf allocated at (2)
-(7) CPU1 execute unlock_buffer()            // fs/buffer.c line 1994
-(8) CPU0 exit __wait_on_buffer()
-(9) CPU0 exit brw_kiovec(rw, 1, &iobuf,..)
-(10) CPU0 execute free_kiovec(1, &iobuf)     // drivers/char/raw.c line 388
-(11) The task on CPU2 reused the area freed
-     at (10).
-(12) CPU1 enter end_kio_request() and touch
-     the corrupted iobuf, then panic.
+bash-2.04$ gcc -s -Wall -Wstrict-prototypes rtc2.c -o rtc2
+rtc2.c:24: warning: return type of `main' is not `int'
+bash-2.04$ ./rtc2
 
----
-Takanori Kawano
-Hitachi Ltd,
-Internet Systems Platform Division
-t-kawano@ebina.hitachi.co.jp
+                        RTC Driver Test Example.
 
+Counting 5 update (1/sec) interrupts from reading /dev/rtc: 1 2 3 4 5
+Again, from using select(2) on /dev/rtc: 1 2 3 4 5
+
+Current RTC date/time is 20-4-2001, 12:34:01.
+Alarm time now set to 12:34:06.
+Waiting 5 seconds for alarm... okay. Alarm rang.
+
+Periodic IRQ rate was 1024Hz.
+Counting 20 interrupts at:
+2Hz:     1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+4Hz:     1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+8Hz:     1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+16Hz:    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+32Hz:    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+64Hz:    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+
+                         *** Test complete ***
+
+Typing "cat /proc/interrupts" will show 131 more events on IRQ 8.
+
+bash-2.04$
+
+
+Regards,
+Jesper Juhl
+juhl@eisenstein.dk
 
 

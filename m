@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262510AbSJPPLE>; Wed, 16 Oct 2002 11:11:04 -0400
+	id <S265052AbSJPPOZ>; Wed, 16 Oct 2002 11:14:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265004AbSJPPLE>; Wed, 16 Oct 2002 11:11:04 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:57729 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S262510AbSJPPLD> convert rfc822-to-8bit; Wed, 16 Oct 2002 11:11:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Theurer <habanero@us.ibm.com>
-To: "David S. Miller" <davem@redhat.com>, neilb@cse.unsw.edu.au
-Subject: Re: [PATCH] zerocopy NFS for 2.5.36
-Date: Wed, 16 Oct 2002 10:04:27 -0500
-X-Mailer: KMail [version 1.4]
-Cc: taka@valinux.co.jp, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net
-References: <15786.23306.84580.323313@notabene.cse.unsw.edu.au> <15788.57476.858253.961941@notabene.cse.unsw.edu.au> <20021015.213102.80213000.davem@redhat.com>
-In-Reply-To: <20021015.213102.80213000.davem@redhat.com>
+	id <S265053AbSJPPOZ>; Wed, 16 Oct 2002 11:14:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34316 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265052AbSJPPOY>;
+	Wed, 16 Oct 2002 11:14:24 -0400
+Message-ID: <3DAD83AD.4000306@pobox.com>
+Date: Wed, 16 Oct 2002 11:20:13 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210161004.27314.habanero@us.ibm.com>
+To: Anton Blanchard <anton@samba.org>
+CC: Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>
+Subject: Re: [PATCH] Device-mapper submission 6/7
+References: <20021015175858.GA28170@fib011235813.fsnet.co.uk> <3DAC5B47.7020206@pobox.com> <20021015214420.GA28738@fib011235813.fsnet.co.uk> <3DAD75AE.7010405@pobox.com> <20021016143822.GA4320@krispykreme>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 October 2002 11:31 pm, David S. Miller wrote:
->    From: Neil Brown <neilb@cse.unsw.edu.au>
->    Date: Wed, 16 Oct 2002 13:44:04 +1000
->
->    Presumably on a sufficiently large SMP machine that this became an
->    issue, there would be multiple NICs.  Maybe it would make sense to
->    have one udp socket for each NIC.  Would that make sense? or work?
->    It feels to me to be cleaner than one for each CPU.
->
-> Doesn't make much sense.
->
-> Usually we are talking via one IP address, and thus over
-> one device.  It could be using multiple NICs via BONDING,
-> but that would be transparent to anything at the socket
-> level.
->
-> Really, I think there is real value to making the socket
-> per-cpu even on a 2 or 4 way system.
+Anton Blanchard wrote:
+>>AFAIK Linus and Al Viro (and myself <g>) have always considered ioctls 
+>>an ugly -ism that should have never made it into Unix.  Over and above 
+>>the Unix/VFS design problems with ioctl(2), ioctl(2) is a pain for 
+>>people like David Miller who must maintain 32<->64 bit ioctl translation 
+>>layers for their architecture.  ia64 and x64-64 must do this too.  Each 
+>>ioctl you add is an additional headache for them.
+> 
+> 
+> And ppc64 :) Lately Dave, Andi and I seem to be spending too much time
+> bouncing fixes around for 32/64 bit ioctl and syscall translation code.
 
-I am trying my best today to get a 4 way system up and running for this test.  
-IMO, per cpu is best..  with just one socket, I seriously could not get over 
-33% cpu utilization on a 4 way (back in April).  With TCP, I could max it 
-out.  I'll update later today hopefully with some promising results.
 
--Andrew
+Tangent:  everyone agrees a shared ioctl32 would be immensely useful, 
+but noone has bothered ;-)
+

@@ -1,81 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbUKCBKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbUKCBNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbUKCBKY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 20:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbUKCBKY
+	id S261276AbUKCBNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 20:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbUKCBNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 20:10:24 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:25573 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261186AbUKCBKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 20:10:10 -0500
-Date: Wed, 3 Nov 2004 02:09:52 +0100
-From: Andrea Arcangeli <andrea@novell.com>
+	Tue, 2 Nov 2004 20:13:09 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:62180 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261276AbUKCBM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 20:12:28 -0500
+Date: Tue, 2 Nov 2004 19:12:10 -0600
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
 To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andrew Morton <akpm@digeo.com>,
-       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: PG_zero
-Message-ID: <20041103010952.GA3571@dualathlon.random>
-References: <20041030141059.GA16861@dualathlon.random> <418671AA.6020307@yahoo.com.au> <161650000.1099332236@flay> <20041101223419.GG3571@dualathlon.random> <20041102022122.GJ3571@dualathlon.random> <11900000.1099410137@[10.10.2.4]> <20041102130910.3e779d32.akpm@osdl.org> <20041102215651.GU3571@dualathlon.random> <235610000.1099435275@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <235610000.1099435275@flay>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       hugh@veritas.com
+Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
+In-Reply-To: <239530000.1099435919@flay>
+Message-ID: <Pine.SGI.4.58.0411021832240.79056@kzerza.americas.sgi.com>
+References: <Pine.SGI.4.58.0411011901540.77038@kzerza.americas.sgi.com><14340000.1099410418@[10.10.2.4]>
+ <20041102155507.GA323@wotan.suse.de><40740000.1099414515@[10.10.2.4]>
+ <Pine.SGI.4.58.0411021613300.79056@kzerza.americas.sgi.com> <239530000.1099435919@flay>
+Organization: "Silicon Graphics, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 02:41:15PM -0800, Martin J. Bligh wrote:
-> eh? I don't see how that matters at all. After the DMA transfer, all the 
-> cache lines will have to be invalidated in every CPUs cache anyway, so
-> it's guaranteed to be stone-dead zero-degrees-kelvin cold. I don't see how
-> however hot it becomes afterwards is relevant? 
+On Tue, 2 Nov 2004, Martin J. Bligh wrote:
 
-if the cold page becomes hot, it means the hot pages in the hot
-quicklist will become colder. The cache size is limited, so if something
-becomes hot, something will become cold.
+> > The manner I'm concerned about is when a long-lived file (long-lived
+> > meaning at least for the duration of the run of a large multithreaded app)
+> > is placed in memory as an accidental artifact of the CPU which happened
+> > to create the file.
+>
+> Agreed, I see that point - if it's a globally accessed file that's
+> created by one CPU, you want it spread around. However ... how the hell
+> is the VM meant to distinguish that? The correct way is for the application
+> to tell us that - ie use the NUMA API.
 
-The only difference is that the hot pages will become cold during the
-dma if we return an hot page, or the hot pages will become cold while
-the cpu touches the data of the previously cold page, if we return a
-cold page. Or are you worried that the cache snooping is measurable?
+Right.  The application can already tell us that without this patch,
+but only if the file is mapped.  Using writes there doesn't appear to
+be any way to control this behavior (unless I overlooked something).
+So it is impossible to use normal system utilities (i.e. cp, dd, tar)
+and get appropriate placement.
 
-I believe the hot-cold thing, is mostly important for the hot
-allocations not for the cold one. So that the hot allocations are served
-in a strict LIFO order, that truly matters but the cold allocations are
-a grey area.
+This change gives us a method to get a different default (i.e write)
+behavior.
 
-What kind of slowdown can you measure if you drop __GFP_COLD enterely?
+> > It's a tough situation, as shown above.  The HPC workload I mentioned
+> > would much prefer the tmpfs file to be distributed.  A non-HPC workload
+> > would prefer the tmpfs files be local.  Short of a sysctl I'm not sure
+> > how the system could make an intelligent decision about what to do under
+> > memory pressure -- it simply isn't knowledge the kernel can have.
+>
+> It is if you tell it from the app ;-) But otherwise yes, I'd agree.
 
-Don't get me wrong, __GFP_COLD makes perfect sense since it's so little
-cost to do it that it most certainly worth the branch in the
-allocator, but I don't think the hot pages worth a _reservation_ since
-they'll become cold anwyays after the I/O has completed, so then we
-could have returned an hot page in the first place without slowing down
-in the buddy to get it.
+Yep.  Also, bear in mind that many applications/utilities are not going
+to be very savvy in regard to tmpfs placement, and really shouldn't be.
+I wouldn't expect a compiler to have special code to lay out the generated
+objects in a friendly manner.  Currently, all it takes is one unaware
+application/utility to mess things up for us.
 
-> If the DMA is to pages that are hot in the CPUs cache - it's WORSE ... we
-> have more work to do in terms of cacheline invalidates. Mmm ... in terms
-> of DMAs, we're talking about disk reads (ie a new page allocates) - we're
-> both on the same page there, right?
+With local-by-default placement, as today, every single application and
+utility needs to cooperate in order to be successful.
 
-the DMA snoops the cache for the cacheline invalidate but I didn't think
-it's measurable.
+Which, I guess, might be something to consider (thinking out loud here)...
 
-I would really like to see the performance difference of disabling the
-__GFP_COLD thing for the allocations and to force picking from the head
-of the list (and to always free the cold pages a the tail), I doubt you
-will measure anything.
+An application which uses the NUMA API obviously cares about placement.
+If it causes data to be placed locally when it would otherwise be placed
+globally, it will not cause a problem for a seperate application/utility
+which doesn't care (much?) about locality.
 
-NOTE: I'm not talking about the freeing of cold pages. the freeing of
-cold pages definitely must not free at the head, this way hot
-allocations will keep going fast. But reserving hot pages during cold
-allocations I doubt it's measurable. I wonder if you've any measurement
-that collides with my theory. I could be wrong of course.
+However, if an application/utility which does not care (much?) about
+locality fails to use the NUMA API and causes data to be placed locally,
+it may very well cause a problem for a seperate application which does
+care about locality.
 
-I can change my patch to reserve hot pages during cold allocations, no
-problem, but I'd really like to have any measurement data before doing
-that, since I feel I'd be wasting some tons of memory on a many-cpu
-lots-of-ram box for a worthless cause.
+Thus, to me, a default of spreading the allocation globally makes
+sense.  The burden of adding code to "do the right thing" falls to
+the applications which care.  No other program requires changes and
+as such everything will "just work".
+
+But, once again, I fess up to a bias. :)
+
+> Another way might be a tmpfs mount option ... I'd prefer that to a sysctl
+> personally, but maybe others wouldn't. Hugh, is that nuts?
+
+I kind of like that -- it shouldn't be too hard to stuff into the tmpfs
+superblock.  But I agree, Hugh knows better than I do.
+
+Brent
+
+-- 
+Brent Casavant             bcasavan@sgi.com        Forget bright-eyed and
+Operating System Engineer  http://www.sgi.com/     bushy-tailed; I'm red-
+Silicon Graphics, Inc.     44.8562N 93.1355W 860F  eyed and bushy-haired.

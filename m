@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268957AbUIMUjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268963AbUIMUnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268957AbUIMUjj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 16:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268961AbUIMUjj
+	id S268963AbUIMUnP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 16:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268961AbUIMUnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 16:39:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28807 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268957AbUIMUjg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 16:39:36 -0400
-Date: Mon, 13 Sep 2004 13:39:33 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christian Borntraeger <linux-kernel@borntraeger.net>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
-Subject: Re: Linux 2.6.9-rc2 : oops
-In-Reply-To: <200409132203.08286.linux-kernel@borntraeger.net>
-Message-ID: <Pine.LNX.4.58.0409131318320.2378@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
- <200409132203.08286.linux-kernel@borntraeger.net>
+	Mon, 13 Sep 2004 16:43:15 -0400
+Received: from castle.comp.uvic.ca ([142.104.5.97]:37060 "EHLO
+	castle.comp.uvic.ca") by vger.kernel.org with ESMTP id S268963AbUIMUnM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 16:43:12 -0400
+Message-ID: <4146062B.8040603@linuxboxen.org>
+Date: Mon, 13 Sep 2004 13:42:19 -0700
+From: David Bronaugh <dbronaugh@linuxboxen.org>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alex Deucher <alexdeucher@gmail.com>
+CC: Jon Smirl <jonsmirl@gmail.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: radeon-pre-2
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>	 <1094853588.18235.12.camel@localhost.localdomain>	 <Pine.LNX.4.58.0409110137590.26651@skynet>	 <1094912726.21157.52.camel@localhost.localdomain>	 <Pine.LNX.4.58.0409122319550.20080@skynet>	 <1095035276.22112.31.camel@admin.tel.thor.asgaard.local>	 <Pine.LNX.4.61.0409122042370.9611@node2.an-vo.com>	 <1095036743.22137.48.camel@admin.tel.thor.asgaard.local>	 <Pine.LNX.4.61.0409131047060.4885@node2.an-vo.com>	 <Pine.LNX.4.58.0409130803340.2378@ppc970.osdl.org> <a728f9f9040913122160dd0134@mail.gmail.com>
+In-Reply-To: <a728f9f9040913122160dd0134@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-UVic-Virus-Scanned: OK - Passed virus scan by Sophos (sophie) on castle
+X-UVic-Spam-Scan: castle.comp.uvic.ca Not_scanned_LOCAL
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Deucher wrote:
 
-
-On Mon, 13 Sep 2004, Christian Borntraeger wrote:
+>How would any of these plans handle power management and ACPI events?
+>I'd like to be able to suspect my laptop with the DRI enabled, or have
+>the DDX (or whatever) handle acpi lid and button events or put the
+>chip into various power modes.
 >
-> I got an oops with 2.6.9-rc2 in free_block. 
+>Alex
+>  
+>
+Since I've been doing a little bit of ACPI hacking (and gained a bit of 
+understanding of it), I think I should probably speak on this one.
 
-The disassembly is:
+With the current ACPI infrastructure, you don't have the DDX or whatever 
+catching ACPI events -- acpid catches ACPI events, and does appropriate 
+things via scripts. So lid and button events can do things, but -- X 
+doesn't handle them. Scripts called by acpid do.
 
-		mov    0xc04fef10,%edx			edx is "mem_map"
-		lea    0x40000000(%ecx),%eax		ecx is virtual address of "obj"
-		shr    $0xc,%eax			eax is now pfn
-		shl    $0x5,%eax			pfn * sizeof(struct page)
-		mov    0x1c(%edx,%eax,1),%ebx		page->lru.prev
-****		mov    0x4(%ebx),%edx			*****
-		mov    (%ebx),%eax
-		mov    %edx,0x4(%eax)
-		mov    %eax,(%edx)
+As to putting chips into various power modes -- wouldn't this be better 
+off in kernel, not in X? My impression is that this wouldn't be a large 
+amount of code. It could also abstract away some details of chip power 
+management -- it could (potentially) not matter if it's done via ACPI or 
+via a custom bit of code for a chip. And it could expose a file in sysfs 
+to adjust power settings for the graphics chip. Then the system that 
+exists for handling ACPI events can happily keep being how it is.
 
-and your "%ebx" value is obviously crap. In fact, it looks like your %ecx 
-is crap to begin with.
+Yu, Luming has been doing a lot of work in the area of a generic ACPI 
+"video features" driver -- such a driver could do such things as change 
+which heads are enabled, set backlight power, and generally muck with 
+graphics state. I suspect some possible nasty interaction could happen, 
+since ACPI could affect graphics state in some pretty hairy ways. It 
+might be a good idea to get in contact with him before the user emails 
+show up...
 
-Looks like this code (mm/slab.c: 2131):
+David Bronaugh
 
-                slabp = GET_PAGE_SLAB(virt_to_page(objp));
-		list_del(&slabp->list);
-
-and in particular, you have "slabp" in %ebx, and the thing that oopses is 
-trying to load "entry->prev" in list_del(). 
-
-Looking at the register state:
-
-	eax: 0080cc00   ebx: 013bab03   ecx: 00660044   edx: c1000000
-	esi: c178f7e0   edi: 00000000   ebp: eff09f04   esp: eff09ee8
-
-That "ecx" value looks strange. It should be a kernel virtual address, and 
-it isn't.
-
-Looks like somebody is trying to free an invalid address. Sadly, your 
-traceback doesn't show _who_, because it's hidden in the buffering.
-
-The only changes to slab itself have been by Christoph lately, I don't 
-think that matters. Can you enable slab debugging? That should catch it 
-much earlier..
-
-		Linus
+ps: I kinda trimmed the CC: list on this

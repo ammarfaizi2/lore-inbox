@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbULBSUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbULBS2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbULBSUo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 13:20:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbULBSUo
+	id S261685AbULBS2O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 13:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbULBS2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 13:20:44 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:37341 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261702AbULBSUe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 13:20:34 -0500
-To: cliff white <cliffw@osdl.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, mbligh@aracnet.com, akpm@osdl.org,
-       torvalds@osdl.org, clameter@sgi.com, hugh@veritas.com,
-       benh@kernel.crashing.org, nickpiggin@yahoo.com.au, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance tests 
-In-reply-to: Your message of Thu, 02 Dec 2004 10:10:29 PST.
-             <20041202101029.7fe8b303.cliffw@osdl.org> 
-Date: Thu, 02 Dec 2004 10:17:55 -0800
-Message-Id: <E1CZvWd-0001hv-00@w-gerrit.beaverton.ibm.com>
+	Thu, 2 Dec 2004 13:28:14 -0500
+Received: from mail.linicks.net ([217.204.244.146]:4869 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261685AbULBS2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 13:28:11 -0500
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to understand flow of kernel code
+Date: Thu, 2 Dec 2004 18:28:07 +0000
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412021828.07990.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Interesting trivia. Krishna in hindi means "all attractive". The Greeks 
+> took the word and
+> over time it was corrupted into the word "Christ" which was later used 
+> for Jesus of Nazereth.
+> I lot of people probably don't know his last name actually came from the 
+>Vedic culture.
 
-On Thu, 02 Dec 2004 10:10:29 PST, cliff white wrote:
-> On Thu, 02 Dec 2004 02:31:35 -0500
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
-> > Martin J. Bligh wrote:
-> > > Yeah, probably. Though the stress tests catch a lot more than the 
-> > > functionality ones. The big pain in the ass is drivers, because I don't
-> > > have a hope in hell of testing more than 1% of them.
-> > 
-> > My dream is that hardware vendors rotate their current machines through 
-> > a test shop :)  It would be nice to make sure that the popular drivers 
-> > get daily test coverage.
-> > 
-> > 	Jeff, dreaming on
-> 
-> OSDL has recently re-done the donation policy, and we're much better positioned
-> to support that sort of thing now - Contact Tom Hanrahan at OSDL if you 
-> are a vendor, or know a vendor. ( Or you can become a vendor ) 
+So I presume the 'Hare' bit came from that famous race with the tortoise...
 
-Specifically Tom Hanrahan == hanrahat@osdl.org
+JK'ing aside, good tips - I am trying to learn also to enable me to debug oops 
+I get here and report properly back to the devs.
 
-gerrit
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

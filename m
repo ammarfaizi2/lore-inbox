@@ -1,124 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262716AbTJUJhF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 05:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTJUJhF
+	id S262827AbTJUJdw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 05:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbTJUJdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 05:37:05 -0400
-Received: from mail.convergence.de ([212.84.236.4]:33471 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262716AbTJUJgz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 05:36:55 -0400
-Subject: [PATCH 1/3] Fix bugs in various DVB drivers
-In-Reply-To: <10667290142321@convergence.de>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Tue, 21 Oct 2003 11:36:54 +0200
-Message-Id: <10667290141444@convergence.de>
+	Tue, 21 Oct 2003 05:33:52 -0400
+Received: from panda.sul.com.br ([200.219.150.4]:23821 "EHLO panda.sul.com.br")
+	by vger.kernel.org with ESMTP id S262827AbTJUJdv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 05:33:51 -0400
+Date: Tue, 21 Oct 2003 07:28:58 -0200
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>, Mike Christie <mikenc@us.ibm.com>
+Subject: Re: [patch] qlogic_cs: init legacy_hosts
+Message-ID: <20031021092858.GA8632@cathedrallabs.org>
+References: <20031020232523.GD473@cathedrallabs.org> <20031021091118.A22761@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Michael Hunold <hunold@linuxtv.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031021091118.A22761@infradead.org>
+From: aris@cathedrallabs.org (Aristeu Sergio Rozanski Filho)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- [DVB] DVB networking uses big endian crc32, so change all occurences of crc32_le to crc32_be
-- [DVB] fix usage of firmware location Kconfig option in tda1004x frontend driver
-- [DVB] add missing VBI line decoding initialization to saa7113 code for av7110 driver
-- [DVB] make av7110 firmware static and *not* __initdata, so recover_arm() can work in case the driver is compiled in statically
-diff -u linux/drivers/media/dvb/dvb-core/dvb_demux.c:1.38 linux/drivers/media/dvb/dvb-core/dvb_demux.c:1.39
---- linux/drivers/media/dvb/dvb-core/dvb_demux.c:1.38	Mon Oct 13 02:34:51 2003
-+++ linux/drivers/media/dvb/dvb-core/dvb_demux.c	Thu Oct 16 10:36:58 2003
-@@ -107,7 +107,7 @@
- {
- 	u32 crc;
- 
--	crc = crc32_le(~0, data, length);
-+	crc = crc32_be(~0, data, length);
- 
- 	data[length]   = (crc >> 24) & 0xff;
- 	data[length+1] = (crc >> 16) & 0xff;
-@@ -118,7 +118,7 @@
- 
- static u32 dvb_dmx_crc32 (struct dvb_demux_feed *f, const u8 *src, size_t len)
- {
--	return (f->feed.sec.crc_val = crc32_le (f->feed.sec.crc_val, src, len));
-+	return (f->feed.sec.crc_val = crc32_be (f->feed.sec.crc_val, src, len));
- }
+hi Christoph,
+> > @@ -249,6 +249,8 @@
+> >  	else
+> >  		qlogicfas_preset(link->io.BasePort1, link->irq.AssignedIRQ);
+> >  
+> > +	INIT_LIST_HEAD(&qlogicfas_driver_template.legacy_hosts);
+> > +
+> 
+> qlogic_cs is a newstyle driver, no need to initialize it.
+then it needs more work. without initializing it i get an oops in
+scsi_register(). i guess the qlogic_cs is an oldstyle driver by now
+because it uses qlogicfas template and functions.
 
-
-diff -u linux/drivers/media/dvb/frontends/tda1004x.c:1.7 linux/drivers/media/dvb/frontends/tda1004x.c:1.8
---- linux/drivers/media/dvb/frontends/tda1004x.c:1.7	Thu Oct  9 01:12:46 2003
-+++ linux/drivers/media/dvb/frontends/tda1004x.c	Thu Oct 16 10:40:02 2003
-@@ -44,12 +44,12 @@
- #include "dvb_frontend.h"
- #include "dvb_functions.h"
- 
--#ifndef CONFIG_TDA1004X_MC_LOCATION
--#define CONFIG_TDA1004X_MC_LOCATION "/etc/dvb/tda1004x.mc"
-+#ifndef DVB_TDA1004X_FIRMWARE_FILE
-+#define DVB_TDA1004X_FIRMWARE_FILE "/etc/dvb/tda1004x.mc"
- #endif
- 
- static int tda1004x_debug = 0;
--static char *tda1004x_firmware = CONFIG_TDA1004X_MC_LOCATION;
-+static char *tda1004x_firmware = DVB_TDA1004X_FIRMWARE_FILE;
- 
- 
- #define TDA10045H_ADDRESS        0x08
-diff -u linux/drivers/media/dvb/ttpci/av7110.c:1.90 linux/drivers/media/dvb/ttpci/av7110.c:1.91
---- linux/drivers/media/dvb/ttpci/av7110.c:1.90	Wed Oct 15 12:06:04 2003
-+++ linux/drivers/media/dvb/ttpci/av7110.c	Fri Oct 17 19:01:24 2003
-@@ -4498,6 +4498,30 @@
- 	0x1d, 0x00,
- 	0x1e, 0x00,
- 
-+	0x41, 0x77,
-+	0x42, 0x77,
-+	0x43, 0x77,
-+	0x44, 0x77,
-+	0x45, 0x77,
-+	0x46, 0x77,
-+	0x47, 0x77,
-+	0x48, 0x77,
-+	0x49, 0x77,
-+	0x4a, 0x77,
-+	0x4b, 0x77,
-+	0x4c, 0x77,
-+	0x4d, 0x77,
-+	0x4e, 0x77,
-+	0x4f, 0x77,
-+	0x50, 0x77,
-+	0x51, 0x77,
-+	0x52, 0x77,
-+	0x53, 0x77,
-+	0x54, 0x77,
-+	0x55, 0x77,
-+	0x56, 0x77,
-+	0x57, 0xff,
-+	
- 	0xff
- };
- 
-diff -u linux/drivers/media/dvb/ttpci/av7110_firm.h:1.18 linux/drivers/media/dvb/ttpci/av7110_firm.h:1.19
---- linux/drivers/media/dvb/ttpci/av7110_firm.h:1.18	Mon Oct 13 19:46:23 2003
-+++ linux/drivers/media/dvb/ttpci/av7110_firm.h	Mon Oct 20 17:33:17 2003
-@@ -1,7 +1,7 @@
- 
- #include <asm/types.h>
- 
--u8 Dpram [] __initdata = {
-+static u8 Dpram [] = {
- 	0xe5, 0x9f, 0xf0, 0x1c, 0xe1, 0xb0, 0xf0, 0x0e, 
- 	0xe5, 0x9f, 0xf0, 0x18, 0xe2, 0x5e, 0xf0, 0x04, 
- 	0xe2, 0x5e, 0xf0, 0x08, 0xe1, 0xa0, 0x00, 0x00, 
-@@ -41,7 +41,7 @@
- };
- 
- 
--u8 Root [] __initdata = {
-+static u8 Root [] = {
- 	0xb4, 0x90, 0x49, 0x18, 0x1c, 0x0b, 0x4a, 0x18, 
- 	0x1a, 0x50, 0x4f, 0x18, 0x1a, 0x79, 0x10, 0x8f, 
- 	0x21, 0x00, 0x2f, 0x00, 0xdd, 0x04, 0xcb, 0x10, 
+--
+aris
 

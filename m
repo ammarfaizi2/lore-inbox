@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287835AbSAIU74>; Wed, 9 Jan 2002 15:59:56 -0500
+	id <S288759AbSAIVAg>; Wed, 9 Jan 2002 16:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288759AbSAIU7r>; Wed, 9 Jan 2002 15:59:47 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:21911
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S287835AbSAIU7a>; Wed, 9 Jan 2002 15:59:30 -0500
-Date: Wed, 9 Jan 2002 15:44:25 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Doug McNaught <doug@wireboard.com>
-Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, linux-kernel@vger.kernel.org,
-        greg@kroah.com, felix-dietlibc@fefe.de
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Message-ID: <20020109154425.A28755@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Doug McNaught <doug@wireboard.com>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>,
-	linux-kernel@vger.kernel.org, greg@kroah.com,
-	felix-dietlibc@fefe.de
-In-Reply-To: <200201092005.g09K5OL28043@snark.thyrsus.com> <m3n0zn6ysr.fsf@varsoon.denali.to>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3n0zn6ysr.fsf@varsoon.denali.to>; from doug@wireboard.com on Wed, Jan 09, 2002 at 03:43:00PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S289025AbSAIVA3>; Wed, 9 Jan 2002 16:00:29 -0500
+Received: from mta01ps.bigpond.com ([144.135.25.133]:50368 "EHLO
+	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S288759AbSAIVAQ>; Wed, 9 Jan 2002 16:00:16 -0500
+Message-ID: <3C3CAEDD.8040707@bigpond.net.au>
+Date: Thu, 10 Jan 2002 04:58:05 +0800
+From: peter <arevill@bigpond.net.au>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Steps to open a file/handled by kernel?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug McNaught <doug@wireboard.com>:
-> "Eric S. Raymond" <esr@snark.thyrsus.com> writes:
-> 
-> > greg k-h:
-> > >What does everyone else need/want there?
-> > 
-> > dmidecode, so the init script can dump a DMI report in a known
-> > location such as /var/run/dmi.  
-> > 
-> > I want this for autoconfiguration purposes.  If I can have it, I
-> > won't need /proc/dmi.
-> 
-> Why can't this happen inside the regular startup scripts?  They know
-> where to put such files; the kernel-level stuff doesn't--I can't think
-> of any current situation where the kernel writes to an arbitrary file
-> in the filesystem as it boots.  Sure, /var/run is in the FHS, but that
-> doesn't mean every system will have it.
-> 
-> IMHO, since /var/run/dmi is not needed by any stage of the kernel
-> boot, it should be created in the regular startup scripts (invoked by
-> init(8)). 
+CC: all replies to: arevill@bigpond.net.au
+Hi guys, im in discussion with one of my compsci mates to start an 
+intresting little project, its not concrete yet, not at all, i really 
+need to get a good grasp of what im going to have to code before i 
+decide to jump in or not, ill give you a quick run down
 
-You're right, I don't need this to be done at kernel level.  I do need it to
-be done *everywhere*.  I'm not sure how else to guarantee this will happen. 
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Basically we want to make a sort of.. auto compression/uncompression of 
+files as there accessed/not accessed, basically to save a hell of alot 
+of space, but before we even BEGIN to do it, i really need to understand 
+the calls and the "arguments" and the stages the kernel/userspace (if it 
+is invovled (if userspace is even the right word!) takes to read from a 
+file (and write to it while we are at it)
 
-The American Republic will endure, until politicians realize they can
-bribe the people with their own money.
-	-- Alexis de Tocqueville
+any information people feel is relevant or any sort of url u can point 
+me to or just a little guide of waht happens would be appreciiated, 
+please CC: all msgs to arevill@bigpond.net.au
+
+Cheers
+:)
+Peter
+
+
+

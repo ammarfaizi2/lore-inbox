@@ -1,42 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUIVP04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUIVPgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266143AbUIVP04 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 11:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUIVP04
+	id S266155AbUIVPgR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 11:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUIVPgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 11:26:56 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:48033 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266143AbUIVP0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 11:26:55 -0400
-Subject: Re: Popping/Crackling on via82xx, ALSA
-From: Lee Revell <rlrevell@joe-job.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-In-Reply-To: <41519691.6010006@techsource.com>
-References: <41519691.6010006@techsource.com>
-Content-Type: text/plain
-Message-Id: <1095866813.498.37.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 22 Sep 2004 11:26:54 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Sep 2004 11:36:17 -0400
+Received: from slartibartfast.pa.net ([66.59.111.182]:26765 "EHLO
+	slartibartfast.pa.net") by vger.kernel.org with ESMTP
+	id S266155AbUIVPgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 11:36:14 -0400
+Date: Wed, 22 Sep 2004 11:31:51 -0400 (EDT)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow
+Reply-To: William Stearns <wstearns@pobox.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Martin Josefsson <gandalf@wlug.westbo.se>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Marc Ballarin <Ballarin.Marc@gmx.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       ML-netfilter-devel <netfilter-devel@lists.netfilter.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       William Stearns <wstearns@pobox.com>
+Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
+In-Reply-To: <Pine.LNX.4.53.0409220800200.2147@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.58.0409221110260.3523@sparrow>
+References: <1095721742.5886.128.camel@bach>  <20040921143613.2dc78e2f.Ballarin.Marc@gmx.de>
+ <1095803902.1942.211.camel@bach> <Pine.LNX.4.53.0409220735080.2066@chaos.analogic.com>
+ <Pine.LNX.4.58.0409221347010.23967@tux.rsn.bth.se>
+ <Pine.LNX.4.53.0409220800200.2147@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-22 at 11:13, Timothy Miller wrote:
-> I just wanted to mention that the problems I was having with my sound 
-> seem to have gone away.
-> 
-> The two things that contributed to fixing the problem:
-> 
-> - Enabling ACPI
-> - Upgrading from 2.6.7 to 2.6.8
-> 
+Good day, all,
 
-This is very good news.  Several users have reported this problem on the
-ALSA list.  Does anyone know what change might have fixed this?
+On Wed, 22 Sep 2004, Richard B. Johnson wrote:
 
-Lee
+> On Wed, 22 Sep 2004, Martin Josefsson wrote:
+> 
+> > On Wed, 22 Sep 2004, Richard B. Johnson wrote:
+> >
+> > > What replaces the firewall stuff? It can't just "go away"!
+> >
+> > Ever heard of iptables?
+> 
+> I guess I'll have to convert 1340 lines of ipchains commands to
+> iptables -yech!
 
+	I have a script that does a first pass of converting an ipchains 
+firewall script to an iptables firewall script at 
+
+http://www.stearns.org/i2i/ipchains2iptables
+http://www.stearns.org/i2i/ipchains2iptables.README
+
+	Because of architectural differences between the two firewall 
+technologies it can't produce a perfect translation, but it does handle 
+most of the grunt work.
+	Cheers,
+	- Bill
+
+---------------------------------------------------------------------------
+        "The sign on the window next to the entrance of OptInRealBig's
+offices in Westminster leaves no room for misunderstanding.  Or irony.
+NO SOLICITING."
+http://www.westword.com/issues/2004-01-29/feature.html/3/index.html
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
+rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
+--------------------------------------------------------------------------

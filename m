@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131565AbRCQGaa>; Sat, 17 Mar 2001 01:30:30 -0500
+	id <S131566AbRCQHKY>; Sat, 17 Mar 2001 02:10:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131574AbRCQGaU>; Sat, 17 Mar 2001 01:30:20 -0500
-Received: from mail.cis.nctu.edu.tw ([140.113.23.5]:11535 "EHLO
-	mail.cis.nctu.edu.tw") by vger.kernel.org with ESMTP
-	id <S131565AbRCQGaL>; Sat, 17 Mar 2001 01:30:11 -0500
-Message-ID: <003301c0aeac$517b31d0$ae58718c@cis.nctu.edu.tw>
-Reply-To: "gis88530" <gis88530@cis.nctu.edu.tw>
-From: "gis88530" <gis88530@cis.nctu.edu.tw>
-To: <linux-kernel@vger.kernel.org>
-Subject: measurement
-Date: Sat, 17 Mar 2001 14:34:27 +0800
+	id <S131567AbRCQHKO>; Sat, 17 Mar 2001 02:10:14 -0500
+Received: from www.wen-online.de ([212.223.88.39]:12298 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131566AbRCQHKJ>;
+	Sat, 17 Mar 2001 02:10:09 -0500
+Date: Sat, 17 Mar 2001 08:09:00 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Will Newton <will@misconception.org.uk>
+cc: Tim Waugh <twaugh@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: VIA audio and parport in 2.4.2
+In-Reply-To: <Pine.LNX.4.33.0103161450000.1403-100000@dogfox.localdomain>
+Message-ID: <Pine.LNX.4.33.0103170756470.2637-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 16 Mar 2001, Will Newton wrote:
 
-I use PSCHED_GET_TIME(stamp) to measure the
-delay of some kernel function.
+> On Fri, 16 Mar 2001, Tim Waugh wrote:
+>
+> > > I don't know why it prints it twice.
+> >
+> > Looks like the module is getting loaded, then unloaded, then loaded
+> > again.  Perhaps because of module autocleaning?
+>
+> Could be, but the final lp0 line is only printed once:
+> lp0: using parport0 (interrupt-driven).
+>
+> > > I also get spurios interrupts on 7 when the parport is not loaded.
+> >
+> > I'm not sure what you mean here.  Can you be more specific?
+>
+> messages.1:Mar  8 22:49:00 dogfox kernel: spurious 8259A interrupt: IRQ7.
 
-function_name( ) {
-int psched_clock_scale;
-psched_time_t stamp1, stamp2;
-psched_tdiff_t delay;
+I see these once in a while too in 2.4.x, and only when copying largish
+files between boxes.  NIC is IRQ-10, but the spurious interrupt is always
+IRQ-7.  I'm not using the printer port for anything on this box.  It only
+happens here when the network is going full bore for at least a few secs.
 
-PSCHED_GET_TIME(stamp1);
-PSCHED_GET_TIME(stamp2);
-delay=PSCHED_TDIFF(stamp2, stamp1);
-printk(KERN_INFO "[%ld], [%ld], [%ld]\n", stamp1, stamp2, delay);
-}
-
-But the result like this [135967], [0], [135967].
-I really don't know why stamp2 is 0, and
-I can't find out the scale of stamp1/stamp2.
-(micro-second ?? )
-
-Thanks.
-Cheers,
-Steven
-
+	-Mike
 

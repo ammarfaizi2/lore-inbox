@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268254AbTBNKDv>; Fri, 14 Feb 2003 05:03:51 -0500
+	id <S268337AbTBNKGW>; Fri, 14 Feb 2003 05:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268335AbTBNKDv>; Fri, 14 Feb 2003 05:03:51 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49425 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268254AbTBNKDu>; Fri, 14 Feb 2003 05:03:50 -0500
-Date: Fri, 14 Feb 2003 10:13:39 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Consolidate signal numbers
-Message-ID: <20030214101339.A3825@flint.arm.linux.org.uk>
-Mail-Followup-To: Stephen Rothwell <sfr@canb.auug.org.au>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20030214171953.10a7d71e.sfr@canb.auug.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030214171953.10a7d71e.sfr@canb.auug.org.au>; from sfr@canb.auug.org.au on Fri, Feb 14, 2003 at 05:19:53PM +1100
+	id <S268338AbTBNKGW>; Fri, 14 Feb 2003 05:06:22 -0500
+Received: from mail.scram.de ([195.226.127.117]:19911 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S268337AbTBNKGV>;
+	Fri, 14 Feb 2003 05:06:21 -0500
+Date: Fri, 14 Feb 2003 11:15:27 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+To: Olivier Galibert <galibert@pobox.com>, <mike_phillips@urscorp.com>,
+       <phillim2@comcast.net>, Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] smctr.c changes in latest BK
+In-Reply-To: <20030214044818.A5658@kerberos.ncsl.nist.gov>
+Message-ID: <Pine.LNX.4.44.0302141106340.28838-100000@gfrw1044.bocc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 14, 2003 at 05:19:53PM +1100, Stephen Rothwell wrote:
-> I intend to try to consolidate some more of the signal code over time,
-> this is just a small beginning.
+Hi Olivier,
 
-It would be a good idea to let the dust settle after the recent set of
-signal changes before making any inroads into this.
+> Doesn't that mean that the original function was buggy and it should
+> not have copied the mac address over if one was user-provided?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Right. But for now i preferred to clean up the offending code. The driver
+still needs some serious cleanup (not 64bit clean, lots of IMHO
+unnecessary and confusing casts, not using propper reference counting,
+and probably some more), so i plan to clean up those first before adding
+new features to the driver.
+
+Fortunately, i recently go hold of one of these cards, so i will be able
+to test the cleanup on my Alpha for 64bit cleanliness :-)
+
+Cheers,
+--jochen
 

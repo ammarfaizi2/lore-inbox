@@ -1,31 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264535AbTIJE30 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 00:29:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTIJE30
+	id S264524AbTIJEWb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 00:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264525AbTIJEWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 00:29:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2980 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264535AbTIJE3Z (ORCPT
+	Wed, 10 Sep 2003 00:22:31 -0400
+Received: from www.mail15.com ([194.186.131.96]:57355 "EHLO www.mail15.com")
+	by vger.kernel.org with ESMTP id S264524AbTIJEW2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 00:29:25 -0400
-Date: Tue, 9 Sep 2003 21:31:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]O20.1int
-Message-Id: <20030909213107.13a9671f.akpm@osdl.org>
-In-Reply-To: <200309101300.20634.kernel@kolivas.org>
-References: <200309101300.20634.kernel@kolivas.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Wed, 10 Sep 2003 00:22:28 -0400
+Date: Wed, 10 Sep 2003 08:22:27 +0400 (MSD)
+Message-Id: <200309100422.h8A4MRc5084257@www.mail15.com>
+From: Muthukumar <kmuthukumar@mail15.com>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Mailer: 
+X-Proxy-IP: [203.129.254.138]
+X-Originating-IP: [172.16.1.46]
+Subject: Introduction
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> Credit. Is this too bold?
+Hello all ,
 
-No.  Thanks for all your work on this.
+I am working in squid developments oriented works.Then at presently 
+i  want to upgrade my kernel to 2.6 for epoll support testing on 
+Squid.
+
+
+For that i have upgrade my gcc and i have tried to  compiled the 
+kernel ,but i am getting some errors on kernel-2.6.0-test3 on IA64 
+with ia64 linux patch.
+
+
+The problem is as 
+HOSTCC  scripts/lxdialog/checklist.o
+In file included from scripts/lxdialog/checklist.c:24:
+scripts/lxdialog/dialog.h:29:20: curses.h: No such file or 
+directory
+In file included from scripts/lxdialog/checklist.c:24:
+scripts/lxdialog/dialog.h:127: error: parse error before 
+"use_colors"
+And so many error and warning so what is the problem in this.
+
+I have browsed for this problem but i didn't get the answers for 
+that.
+
+SO pls inform about this/.
+
+Thanks
+Mvthv

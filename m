@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131702AbQK2RNC>; Wed, 29 Nov 2000 12:13:02 -0500
+        id <S131762AbQK2RRX>; Wed, 29 Nov 2000 12:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131708AbQK2RMx>; Wed, 29 Nov 2000 12:12:53 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:36317 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S131702AbQK2RMs>;
-        Wed, 29 Nov 2000 12:12:48 -0500
-Date: Wed, 29 Nov 2000 11:42:18 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: Hugh Dickins <hugh@veritas.com>, Andries Brouwer <aeb@veritas.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: access() says EROFS even for device files if /dev is mounted RO
-In-Reply-To: <Pine.LNX.4.21.0011291612190.1306-100000@penguin.homenet>
-Message-ID: <Pine.GSO.4.21.0011291130460.14112-100000@weyl.math.psu.edu>
+        id <S131761AbQK2RRN>; Wed, 29 Nov 2000 12:17:13 -0500
+Received: from windsormachine.com ([206.48.122.28]:62727 "EHLO
+        router.windsormachine.com") by vger.kernel.org with ESMTP
+        id <S131708AbQK2RQ5>; Wed, 29 Nov 2000 12:16:57 -0500
+Message-ID: <3A2532E0.F72BFB02@windsormachine.com>
+Date: Wed, 29 Nov 2000 11:46:25 -0500
+From: Mike Dresser <mdresser@windsormachine.com>
+Organization: Windsor Machine & Stamping
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: e.jokisch@u-code.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 test10 error reading from HP colorado 7/14 Gb tape
+In-Reply-To: <3A24DDD1.D4731F6C@winealley.com> <00112912565800.21358@eckhard>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I  reported this a few weeks ago or so, it seems that HP 7/14's are not exactly
+standard.  First is the proprietory tape size.  Second is that the drive doesn't
+support locking the tape in, but reports it as possible.  At least, that's what i
+gather from Jens's posting.
 
+To be honest, I'm not sure the drives are worth fixing <grin>  Unreliable media,
+unreliable tape drives.  I've got two dead out of 10, in under a year.  And half a
+dozen tapes or so.  Plus, under 2.2.17+ide, the tape drive wouldn't restore tapes.
+Something weird about the tape drive again.  Had to boot up under plain 2.2.17 to
+read my tapes.
 
-On Wed, 29 Nov 2000, Tigran Aivazian wrote:
+Eckhard Jokisch wrote:
 
-> All I am saying is that if open on HP/UX allows writing but access denies
-> it, it is definitely a bug (in HP/UX). Let's remember why access(2) was
-> invented at all -- to allow setuid-privileged programs to do permission
-> checks based on real uid instead of relying on open(2) to fail. This
-> should make it clear that the two (access(2) and open(2)) should behave
-> identically modulo the euid->ruid transformation.
-
-Umm... Correction: open() may fail when access() succeeds (e.g. if you've
-got too many opened descriptors, etc.), but it shouldn't be other way
-round. However, if access() returns an error open() should also fail.
- 
-> Regards,
-> Tigran
-> 
-> PS. This is the sort of dicussion where openly showing snippets of
-> proprietary UNIX source code would benefit but, alas, we can't...
-
-Considering your previous workplace... How does official SVR{4,5} behave?
+> >
+> > # tar -tvf  /dev/ht0
+> > ide-tape: ht0: I/O error, pc = 8, key = 5, asc = 2c, ascq = 0
+> >
+> > A search on deja.com shows that I am not the only one to have
+> > experienced this and that it did not occur with previous versions of
+> > ide-tape.c. The same error occurs with a non-modular kernel build.
+> >
+> I experience the same with OnStream DI30 - but these errors occure in 2.2.17 as
+> well. In my oppinion they show up in fewer cases with 2.4-test10.
+> The error is not quite"stable" because it occures on different tape positions
+> (filenames) when I retension the tape three aor four times befor writing to it.
+>
+> I checked the tapes on a Windows machine and they seem to be o.k..
+>
+> Eckhard Jokisch
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

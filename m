@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129250AbQKBXSY>; Thu, 2 Nov 2000 18:18:24 -0500
+	id <S129834AbQKBXUE>; Thu, 2 Nov 2000 18:20:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129277AbQKBXSE>; Thu, 2 Nov 2000 18:18:04 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:11584 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129250AbQKBXR7>; Thu, 2 Nov 2000 18:17:59 -0500
-Date: Fri, 3 Nov 2000 00:17:51 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Looking for better 2.2-based VM (do_try_to_free_pages fails, machine hangs)
-Message-ID: <20001103001751.D29743@athlon.random>
-In-Reply-To: <20001101133307.A10265@bylbo.nowhere.earth> <Pine.LNX.4.21.0011010940450.2774-100000@freak.distro.conectiva> <20001101174339.A1167@bylbo.nowhere.earth> <20001101174816.A18510@athlon.random> <20001102031517.A766@werewolf.able.es>
-Mime-Version: 1.0
+	id <S129843AbQKBXTy>; Thu, 2 Nov 2000 18:19:54 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46930 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129834AbQKBXTs>; Thu, 2 Nov 2000 18:19:48 -0500
+Subject: Re: select() bug
+To: pmarquis@iname.com (Paul Marquis)
+Date: Thu, 2 Nov 2000 23:20:51 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3A01F3EF.59761C8E@iname.com> from "Paul Marquis" at Nov 02, 2000 06:08:31 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001102031517.A766@werewolf.able.es>; from jamagallon@able.es on Thu, Nov 02, 2000 at 03:15:17AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13rTfB-00023L-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2000 at 03:15:17AM +0100, J . A . Magallon wrote:
-> "Includes" means that the full patch is not included in pre18 ?.
+> I'm not exactly sure what you mean by this statement.  Would you mind
+> explaining further?
 
-Only the strict bugfix broadcasted to l-k is been included in pre18.
+Well take a socket with 64K of buffering. You don't want to wake processes
+waiting in select or in write every time you can scribble another 1460 bytes
+to the buffer. Instead you wait until there is 32K of room then wake the
+user. That means that there is one wakeup/trip through userspace every 32K
+rather than potentially every time a byte is read the other end
 
-> So, will the VM-pre17 work with pre18 ?.
-
-It will generate a trivial reject but I just uploaded a new VM-global against
-pre18 that generates exactly the same source code of the previous one against
-pre17.
-
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

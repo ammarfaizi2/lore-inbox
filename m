@@ -1,58 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264675AbRFZAaN>; Mon, 25 Jun 2001 20:30:13 -0400
+	id <S264677AbRFZAaX>; Mon, 25 Jun 2001 20:30:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264688AbRFZAaE>; Mon, 25 Jun 2001 20:30:04 -0400
-Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:24070 "EHLO
-	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
-	id <S264675AbRFZA3w>; Mon, 25 Jun 2001 20:29:52 -0400
-Message-ID: <000d01c0fdd7$1c416e60$d55355c2@microsoft>
-From: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>
-To: "Hacksaw" <hacksaw@hacksaw.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200106252330.f5PNUqE13722@habitrail.home.fools-errant.com>
-Subject: Re: GCC3.0 Produce REALLY slower code! 
-Date: Tue, 26 Jun 2001 04:29:49 +0400
+	id <S264688AbRFZAaO>; Mon, 25 Jun 2001 20:30:14 -0400
+Received: from web10406.mail.yahoo.com ([216.136.130.98]:12818 "HELO
+	web10406.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S264677AbRFZAaD>; Mon, 25 Jun 2001 20:30:03 -0400
+Message-ID: <20010626003002.74103.qmail@web10406.mail.yahoo.com>
+Date: Tue, 26 Jun 2001 10:30:02 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: supermount
+To: Sam Halliday <10226982@qub.ac.uk>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B376BBB.4EB646AE@qub.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2488.0001
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2488.0001
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is not so much code in asm, so it's easy to patch code
-the most reasonable method is to write parsing program for that
-
-Best regards,
-Alexander         mailto:dmor@7ka.mipt.ru
-------------------------------------------------------
-Let's start the war, said Meggy
-------------------------------------------------------
------ Original Message -----
-From: "Hacksaw" <hacksaw@hacksaw.org>
-To: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>;
-<linux-kernel@vger.kernel.org>
-Sent: Tuesday, June 26, 2001 3:30 AM
-Subject: Re: GCC3.0 Produce REALLY slower code!
+ --- Sam Halliday <10226982@qub.ac.uk> wrote: > This
+email was delivered to you by The Free
+> Internet,
+> a Business Online Group company.
+> http://www.thefreeinternet.net
+I totally aggree, supermount is nice features and it
+should be integrated into the main kernel stream (just
+my HO)
 
 
-> >Here is link to Intel C compiler, that provide really faster code.
-> >
-> >http://developer.intel.com/software/products/compilers/linuxbeta.htm
+
 >
-> A quote from the site:
->
-> * Not all of the GNU C language extensions, including the GNU inline
-assembly
-> format, are currently supported and, due to this, one cannot build the
-Linux
-> kernel with the beta release of the Intel compilers and the initial
-product
-> release.
->
+---------------------------------------------------------------
+> hello,
+>     i am fairly new to linux, i need it's fast
+> number crunching powers
+> for my research... and i have only recently begun to
+> have a look at the
+> kernel (i believe every workman should know his
+> tools)..... but i have
+> noticed that supermount is not a standard part of
+> the project, is there
+> any reason why this is? is it due to man power? i
+> would have been less
+> shocked by the absense of other features in the
 >
 
+> radio support, supermount seems to me to be
+> essential in any operating
+> system.....
+>     i apologise if this is a very silly question or
+> if i have posted
+> this question in the wrong place, but please excuse
+> me, im new to this
+> whole world.
+> 
+> and keep up the good work, i wish i knew more about
+> the whole thing so i
+> could contribute something.
+> 
+> Sam, Ireland
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/ 
+
+=====
+S.KIEU
+
+_____________________________________________________________________________
+http://messenger.yahoo.com.au - Yahoo! Messenger
+- Voice chat, mail alerts, stock quotes and favourite news and lots more!

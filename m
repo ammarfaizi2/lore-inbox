@@ -1,68 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUHYNli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268511AbUHYHhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267423AbUHYNli (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 09:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUHYNli
+	id S268511AbUHYHhK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 03:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268515AbUHYHhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 09:41:38 -0400
-Received: from cantor.suse.de ([195.135.220.2]:30355 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267423AbUHYNl3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 09:41:29 -0400
-Date: Wed, 25 Aug 2004 15:41:29 +0200
-From: Olaf Kirch <okir@suse.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent memory leak in devpts
-Message-ID: <20040825134129.GJ24572@suse.de>
-References: <20040825105252.GA24572@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="4ZLFUWh1odzi/v6L"
-Content-Disposition: inline
-In-Reply-To: <20040825105252.GA24572@suse.de>
-User-Agent: Mutt/1.5.6i
+	Wed, 25 Aug 2004 03:37:10 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:40718 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S268511AbUHYHhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 03:37:04 -0400
+Message-ID: <412C4295.1000700@hist.no>
+Date: Wed, 25 Aug 2004 09:41:09 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David N. Welton" <davidw@dedasys.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux Incompatibility List
+References: <87r7q0th2n.fsf@dedasys.com>
+In-Reply-To: <87r7q0th2n.fsf@dedasys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David N. Welton wrote:
 
---4ZLFUWh1odzi/v6L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>Hi,
+>
+>I'm reviving an idea I implemented several years ago, namely the Linux
+>Incompatibility List.
+>
+>The idea is simple: most hardware works fine with Linux, and the
+>situation is generally pretty good, with Linux increasingly showing up
+>on the corporate radar.
+>
+>However, there are devices that don't work with Linux, for various
+>reasons (no specs, too new and no one has written a driver, etc...),
+>and it's easier to keep track of those devices so that people can
+>avoid them (or the hero types can write drivers for them).
+>
+[...]
 
-This is a lame self-followup. Kurt Garloff pointed out that I should
-obviously handle the error case more gracefully than by oopsing.
-Improved patch attached.
+>I think (correct me if I'm wrong) the information we would want to
+>collect is:
+>
+>Product Name:
+>
+>Manufacturer:
+>
+>Model Number:
+>
+>Chipset:
+>
+>How bad it is (1 to 10, 9 being it almost works and has only minor
+>bugs):
+>
+>Reason (no specs, driver still being worked on, ...):
+>
+>Url for more info:
+>
+>An email address of yours that we may publish (so that we can contact
+>you if someone says "no, that works just fine!"):
+>
+>Notes:
+>
+>Ideas/comments/suggestions are welcome at this stage.
+>
+>  
+>
+An idea:  To really put some pressure on vendors, also have an entry for
+"alternate/better solution" where people can list a way to achieve the
+same result with someone else's product and open drivers.  Example:
 
-Olaf
--- 
-Olaf Kirch     |  The Hardware Gods hate me.
-okir@suse.de   |
----------------+ 
+Product: Matrox parhelia  (a triplehead graphichs card)
+Reason: Bad binary-only 2D-only driver
+Alternate solution: Achieve triplehead with two radeon cards (1 AGP 
+dualhead + 1 PCI) instead!
 
---4ZLFUWh1odzi/v6L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=devpts-dentry-refcount
+This will be useful for anyone planning a upgrade but finding their 
+favourite
+solution on the incompatibility list.  And it'll sure put some pressure 
+on the manufacturer
+to at least get a _good_ driver out (changing the reason), or even 
+better, an open one
+which get rid of the incompatibility entry. 
 
-Index: linux-2.6.5/fs/devpts/inode.c
-===================================================================
---- linux-2.6.5.orig/fs/devpts/inode.c
-+++ linux-2.6.5/fs/devpts/inode.c
-@@ -178,9 +178,13 @@ struct tty_struct *devpts_get_tty(int nu
- {
- 	struct dentry *dentry = get_node(number);
- 	struct tty_struct *tty;
--
--	tty = (IS_ERR(dentry) || !dentry->d_inode) ? NULL :
--			dentry->d_inode->u.generic_ip;
-+	
-+	tty = NULL;
-+	if (!IS_ERR(dentry)) {
-+		if (dentry->d_inode)
-+			tty = dentry->d_inode->u.generic_ip;
-+		dput(dentry);
-+	}
- 
- 	up(&devpts_root->d_inode->i_sem);
- 
-
---4ZLFUWh1odzi/v6L--
+Helge Hafting

@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263502AbTHWFYm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 01:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTHWFYm
+	id S261406AbTHWFWD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 01:22:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbTHWFWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 01:24:42 -0400
-Received: from ns.aratech.co.kr ([61.34.11.200]:17294 "EHLO ns.aratech.co.kr")
-	by vger.kernel.org with ESMTP id S263502AbTHWFYk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 01:24:40 -0400
-Date: Sat, 23 Aug 2003 14:26:34 +0900
-From: TeJun Huh <tejun@aratech.co.kr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Race condition in 2.4 tasklet handling (cli() broken?)
-Message-ID: <20030823052633.GA4307@atj.dyndns.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030823025448.GA32547@atj.dyndns.org> <20030823040931.GA3872@atj.dyndns.org>
-Mime-Version: 1.0
+	Sat, 23 Aug 2003 01:22:02 -0400
+Received: from mail.netapps.org ([12.162.17.40]:58808 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261406AbTHWFWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 01:22:00 -0400
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, kai.germaschewski@gmx.de,
+       rusty@rustcorp.com.au
+Subject: Re: [PATCH] eliminate gcc warnings on assert [__builtin_expect]
+References: <20030822220500.6c0e1053.rddunlap@osdl.org>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 22 Aug 2003 22:21:52 -0700
+In-Reply-To: <20030822220500.6c0e1053.rddunlap@osdl.org>
+Message-ID: <5265kp0wzz.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030823040931.GA3872@atj.dyndns.org>
-User-Agent: Mutt/1.5.4i
+X-OriginalArrivalTime: 23 Aug 2003 05:21:53.0562 (UTC) FILETIME=[769C6FA0:01C36936]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Oops, Sorry.  Only bh handling is relevant.  Softirq and tasklet are
-not of concern to cli().
+>>>>> "Randy" == Randy Dunlap <Randy.Dunlap> writes:
 
-On Sat, Aug 23, 2003 at 01:09:31PM +0900, TeJun Huh wrote:
->  Additional suspicious things.
-> 
-> 1. tasklet_kill() has similar race condition.  mb() required before
-> tasklet_unlock_wait().
+    Randy> Building genksyms on ia64 (gcc 3.3.1) produces these
+    Randy> warnings:
 
-Corrected 2.
+        [...]
 
- global_bh_lock test inside wait_on_irq() suggests that cli() tries to
-block not only interrupt handling but also bh handlings of all cpus;
-however, current implementation does not guarantee that.
+    Randy> Is there a problem with coercing the pointer parameter to
+    Randy> be (int)?
 
- Because global_bh_lock is acquired in bh_action() <call trace:
-handle_IRQ_event()->do_softirq()->tasklet_action()->bh_action()> after
-decrementing local_irq_count(), other cpus may happily begin bh
-handling while a cpu is still inside cli() - sti() critical section.
+Doesn't this produce "warning: cast from pointer to integer of different size"?
+It would be better to do something like "!!__ptr" or "__ptr != 0" to
+test if the pointer is NULL.  (This was discussed to death recently on LKML)
 
- If bh hanlding is not guaranteed to be blocked during cli() - sti()
-critical section, global_bh_lock test inside wait_on_irq() is
-redundant and if it should be guaranteed, current implmentation seems
-broken.
-
--- 
-tejun
+ - R.

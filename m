@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315923AbSGLMxb>; Fri, 12 Jul 2002 08:53:31 -0400
+	id <S316217AbSGLM4S>; Fri, 12 Jul 2002 08:56:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316210AbSGLMxa>; Fri, 12 Jul 2002 08:53:30 -0400
-Received: from ns.suse.de ([213.95.15.193]:7954 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315923AbSGLMx2>;
-	Fri, 12 Jul 2002 08:53:28 -0400
-Date: Fri, 12 Jul 2002 14:56:16 +0200
-From: Dave Jones <davej@suse.de>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] agpgart splitup and cleanup for 2.5.25
-Message-ID: <20020712145616.F14671@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20020711230222.GA5143@kroah.com> <20020711231804.GA5635@kroah.com>
-Mime-Version: 1.0
+	id <S316223AbSGLM4R>; Fri, 12 Jul 2002 08:56:17 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16132 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316217AbSGLM4Q>; Fri, 12 Jul 2002 08:56:16 -0400
+Subject: Re: IDE/ATAPI in 2.5
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Fri, 12 Jul 2002 14:22:23 +0100 (BST)
+Cc: hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+In-Reply-To: <3D2EC778.7000203@evision-ventures.com> from "Martin Dalecki" at Jul 12, 2002 02:11:36 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020711231804.GA5635@kroah.com>; from greg@kroah.com on Thu, Jul 11, 2002 at 04:18:05PM -0700
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17T0NL-0002z3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 11, 2002 at 04:18:05PM -0700, Greg KH wrote:
- > And here's the version against the 2.5.25-dj1 tree.  Dave, will you
- > please add it to your tree?
+> In favour of the scrap:
+> 
+> 1. HPA.
+> 2. Adam J. Richter.
+> 3. Marcin Dalecki (basically due to give up on the idea
+> of gradual unification).
 
-Done. Along with some small CodingStyle changes (to existing code,
-not anything you added).
+In other words nobody who understands IDE is for and everyone who 
+understands you can't actually get rid of ide-floppy, tape, cdrom internal
+support and knows about IDE is..
 
-Thanks for doing this, it's a big improvement.
+> Against:
+> 1. Bart=B3omiej =AFo=B3nierkiewcz.
+> 
 
-        Dave
+against..
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Alan

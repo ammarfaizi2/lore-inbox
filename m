@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbULFW7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbULFXBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbULFW7n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 17:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbULFW7n
+	id S261482AbULFXBq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 18:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbULFXBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 17:59:43 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:20713 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S261469AbULFW7g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 17:59:36 -0500
-Date: Tue, 7 Dec 2004 00:59:34 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ARCH_SLAB_MINALIGN for 2.6.10-rc3
-Message-ID: <20041206225934.GA30317@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Manfred Spraul <manfred@colorfullife.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <41B37E06.3030702@colorfullife.com> <20041205222001.GB25689@linux-sh.org> <41B4D9F8.6000309@colorfullife.com>
+	Mon, 6 Dec 2004 18:01:45 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:29194 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261482AbULFXBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 18:01:33 -0500
+Date: Mon, 6 Dec 2004 23:48:34 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
+Cc: kernel list <linux-kernel@vger.kernel.org>, coreteam@netfilter.org
+Subject: Re: ip contrack problem, not strictly followed RFC, DoS very much possible
+Message-ID: <20041206224834.GB17946@alpha.home.local>
+References: <41B464B3.8020807@pointblue.com.pl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41B4D9F8.6000309@colorfullife.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <41B464B3.8020807@pointblue.com.pl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 06, 2004 at 02:54:59PM +0100, Grzegorz Piotr Jaskiewicz wrote:
+ 
+> If someone has argumentation for 5 days timeout, please speak out. In 
+> everyday life, router, desktop, server usage 100s is enough there, and 
+> makes my life easier, as many other linux admins.
 
---liOOAslEiF7prFVr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Uhh ?
 
-Hi Manfred,
+please try to start 4 xterms through your firewall, then work for 100s in
+one of them, then only start to use anyone of the other ones. If it's hung,
+maybe you'll remember how low you put the timeout, and think about all those
+users coming to you complaining that they only have to stop typing to talk
+to someone before they find their xemacs, xterms, etc... dead.
 
-On Mon, Dec 06, 2004 at 11:15:20PM +0100, Manfred Spraul wrote:
-> With your patch, ARCH_SLAB_MINALIGN is not a hard limit: A few lines=20
-> further down align is reset to word size if SLAB_RED_ZONE is set. I=20
-> don't like the asymmetry - it just asks for trouble.
->=20
-Yes, that's true. I don't see much of a point in leaving it as
-BYTES_PER_WORD in the SLAB_RED_ZONE case, at least this wasn't
-intentional. Would you accept ARCH_SLAB_MINALIGN if this was set
-regardless of whether SLAB_RED_ZONE is set or not?
+I've seen several firewalls which caused trouble by breaking connections
+after 2 hours of idle, while applications used a default keep-alive of 4
+hours. Eventhough 5 days may seem a bit long for some usages (eg: frontal
+web servers), several hours is not that much for internal firewalls.
 
-I suppose we can live with align being 0 in the CONFIG_DEBUG_SLAB
-case as the unaligned accesses are not fatal..
+Willy
 
---liOOAslEiF7prFVr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBtORW1K+teJFxZ9wRAsE9AJ9IPegK1s36XoI9KZS441eeQhb1sQCfZqPy
-fFBCEIn1o6hXnFd9iHMKuhs=
-=r3Vn
------END PGP SIGNATURE-----
-
---liOOAslEiF7prFVr--

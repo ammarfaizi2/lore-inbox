@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261684AbSI0K51>; Fri, 27 Sep 2002 06:57:27 -0400
+	id <S261688AbSI0Kwy>; Fri, 27 Sep 2002 06:52:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261689AbSI0K51>; Fri, 27 Sep 2002 06:57:27 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:16516 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S261684AbSI0K50>;
-	Fri, 27 Sep 2002 06:57:26 -0400
-Date: Fri, 27 Sep 2002 13:11:47 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@digeo.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
-In-Reply-To: <Pine.LNX.4.33.0209261533230.1345-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209271307510.8893-100000@localhost.localdomain>
+	id <S261689AbSI0Kwy>; Fri, 27 Sep 2002 06:52:54 -0400
+Received: from 62-190-200-218.pdu.pipex.net ([62.190.200.218]:33540 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S261688AbSI0Kwy>; Fri, 27 Sep 2002 06:52:54 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209271106.g8RB6PDg000759@darkstar.example.net>
+Subject: Re: Framebuffer still "EXPERIMENTAL"?
+To: pommnitz@yahoo.com (=?iso-8859-1?q?Joerg=20Pommnitz?=)
+Date: Fri, 27 Sep 2002 12:06:24 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020927070948.77241.qmail@web13307.mail.yahoo.com> from "=?iso-8859-1?q?Joerg=20Pommnitz?=" at Sep 27, 2002 09:09:48 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hello Listees,
+> yesterday I compiled 2.5.38 for the first time and noticed that the
+> framebuffer option is still marked "EXPERIMENTAL". Well, I know for sure
+> that I used the VESA-FB 3 years ago to get X running on a strange laptop
+> graphic chip, so it is at least that long available (actually I think it
+> got introduced for the Sparc port somewhen in 1995??). 
+> 
+> I think it's about time to promote the framebuffer code to a full fledged
+> kernel feature. Comments?
 
-On Thu, 26 Sep 2002, Linus Torvalds wrote:
+I've noticed a bug with it, but haven't had time to investigate more fully, infact it might not be a kernel bug, but I suspect that it is.  I don't usually use the framebuffer, (I prefer the standard text mode).
 
-> and then the "callback" function just updates the page information in
-> the futex block directly - as if it was looked up anew.
+On a standard Slackware 8.1 install, (kernel 2.4.18), on a machine with an ATI graphics card, and with the framebuffer enabled, if you type clear, then fill the screen with text so that it scrolls, (e.g. do a find /), the top four lines where the penguin used to be do not scroll, they just keep the text that is originally put there.  If you press shift-pageup, and then shift-pagedown, it fixes it.
 
-yes. And it would also have to rehash the futex queue (which is hashed
-along (page,offset), because a FUTEX_WAKE has to find the proper queue -
-but it's still very cheap.
+If anybody has got the time to look in to this, I'll post more details.
 
-this also means that FUTEX_WAIT does not have to make the futex page
-writable - just making it present and hashing it along the physical page.  
-Ie. more robust and less intrusive futexes.
-
-	Ingo
-
+John.

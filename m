@@ -1,73 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbVC2L4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbVC2L7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262242AbVC2L4y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 06:56:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVC2L4F
+	id S262247AbVC2L7v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 06:59:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVC2L45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 06:56:05 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:37015 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262242AbVC2Lxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 06:53:36 -0500
-Subject: Re: [RFC] logdev debugging memory device for tough to debug areas
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050329090707.GD7074@elte.hu>
-References: <1109032784.32648.24.camel@localhost.localdomain>
-	 <20050329090707.GD7074@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 29 Mar 2005 06:53:30 -0500
-Message-Id: <1112097210.3691.51.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Mar 2005 06:56:57 -0500
+Received: from web52909.mail.yahoo.com ([206.190.39.186]:43967 "HELO
+	web52909.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262247AbVC2LyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 06:54:06 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=buaSWMErrA9tP9E9G5nsr9hPvPGsrLFJZFCopaNVwMYXm73brWtkN20+vjG7IQBQGKfg92JWRorM+ENDD4jmawCBJ7le8Q6KLQMa6fK3ytNoYCam1p9VCkysfIXN/PKNWb2+2XencFLsn4gDdp6g4vEcKjm6Dc7H26juHT9PyNU=  ;
+Message-ID: <20050329115405.97559.qmail@web52909.mail.yahoo.com>
+Date: Tue, 29 Mar 2005 12:54:05 +0100 (BST)
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-29 at 11:07 +0200, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
+I have one IDE hard disc, but I was using a USB memory stick at one point. (Notice the usb-storage
+and vfat modules in my list.) Could that be the troublesome SCSI device?
+
+--- Jens Axboe <axboe@suse.de> wrote:
+> On Sun, Mar 27 2005, Chris Rankin wrote:
+> > [gcc-3.4.3, Linux-2.6.11-SMP, Dual P4 Xeon with HT enabled]
+> > 
+> > Hi,
+> > 
+> > My Linux 2.6.11 box oopsed when I tried to logout. I have switched to using the anticipatory
+> > scheduler instead.
+> > 
+> > Cheers,
+> > Chris
+> > 
+> > NMI Watchdog detected LOCKUP on CPU1, eip c0275cc7, registers:
+> > Modules linked in: snd_pcm_oss snd_mixer_oss snd_usb_audio snd_usb_lib snd_intel8x0
+> snd_seq_oss
+> > snd_seq_midi snd_emu10k1_synth snd_emu10k1 snd_ac97_codec snd_pcm snd_page_alloc
+> snd_emux_synth
+> > snd_seq_virmidi snd_rawmidi snd_seq_midi_event snd_seq_midi_emul snd_hwdep snd_util_mem
+> snd_seq
+> > snd_seq_device snd_rtctimer snd_timer snd nls_iso8859_1 nls_cp437 vfat fat usb_storage radeon
+> drm
+> > i2c_algo_bit emu10k1_gp gameport deflate zlib_deflate zlib_inflate twofish serpent aes_i586
+> > blowfish des sha256 crypto_null af_key binfmt_misc eeprom i2c_sensor button processor psmouse
+> > pcspkr p4_clockmod speedstep_lib usbserial lp nfsd exportfs md5 ipv6 sd_mod scsi_mod autofs
+> nfs
+> > lockd sunrpc af_packet ohci_hcd parport_pc parport e1000 video1394 raw1394 i2c_i801 i2c_core
+> > ohci1394 ieee1394 ehci_hcd soundcore pwc videodev uhci_hcd usbcore intel_agp agpgart ide_cd
+> cdrom
+> > ext3 jbd
+> > CPU:    1
+> > EIP:    0060:[<c0275cc7>]    Not tainted VLI
+> > EFLAGS: 00200086   (2.6.11) 
+> > EIP is at _spin_lock+0x7/0xf
+> > eax: f7b8b01c   ebx: f7c82b88   ecx: f7c82b94   edx: f6c33714
+> > esi: eb68ad88   edi: f6c33708   ebp: f6c33714   esp: f5b32f70
+> > ds: 007b   es: 007b   ss: 0068
+> > Process nautilus (pid: 5757, threadinfo=f5b32000 task=f7518020)
+> > Stack: c01f7f79 00200282 f76bda24 f6c323e4 f7518020 00000000 00000000 c01f1d0c 
+> >        f5b32000 c011d7b3 00000001 00000000 b65ffa40 00000000 f5b32fac 00000000 
+> >        00000000 00000000 f5b32000 c011d8d6 c0102e7f 00000000 b65ffbf0 b6640bf0 
+> > Call Trace:
+> >  [<c01f7f79>] cfq_exit_io_context+0x54/0xb3
+> >  [<c01f1d0c>] exit_io_context+0x45/0x51
+> >  [<c011d7b3>] do_exit+0x205/0x308
+> >  [<c011d8d6>] next_thread+0x0/0xc
+> >  [<c0102e7f>] syscall_call+0x7/0xb
+> > Code: 05 e8 3a e6 ff ff c3 ba 00 f0 ff ff 21 e2 81 42 14 00 01 00 00 f0 81 28 00 00 00 01 74
+> 05 e8
+> > 1d e6 ff ff c3 f0 fe 08 79 09 f3 90 <80> 38 00 7e f9 eb f2 c3 f0 81 28 00 00 00 01 74 05 e8 ff
+> e5
+> > ff 
+> > console shuts up ...
 > 
-> > I've created a tracing tool several years ago for my master's thesis 
-> > against the 2.2 kernel and onto the 2.4 kernel. I'm currently using 
-> > this in the 2.6 kernel to debug some customizations against Ingo's RT 
-> > kernel.
+> The queue was gone by the time the process exited. What type of storage
+> do you have attached to the box? At least with SCSI, it has some
+> problems in this area - it will glady free the scsi device structure
+> (where the queue lock is located) while the queue reference count still
+> hasn't dropped to zero.
 > 
-> neat. It seems there's some overlap with relayfs, which is in -mm 
-> currently:
+> -- 
+> Jens Axboe
 > 
->  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm3/broken-out/relayfs.patch
 > 
 
-Thanks Ingo, I didn't know about this. I'll look into it further when I
-have more time, and maybe my tools already implement things that need to
-be done in here, and I can port them (if they're interested).  I first
-wrote this back in 1998 or 1999 and have added on since then. So it is
-pretty mature. Unfortunately I still had to clean it up for the post. It
-was only for my personal use till someone mentioned to me that I should
-share it.
-
-Also, I'm almost done adding the pending owner work against .41-11. I
-see you now have 41-13, and if you already implemented it, let me know.
-I've been fighting your deadlock detection to make sure it works with
-the changes. Then finally I found a race condition that I'm solving.
-
-To have a task take back the ownership, I had the stealer call
-task_blocks_on_lock on the task that it stole it from. To get this to
-work, when a task is given the pending ownership, it doesn't NULL the
-blocked_on at that point (although the waiter->task is set to NULL). But
-this gives the race condition in pi_setprio where it checks for
-p->blocked_on still exists. Reason is that I don't want the waking up of
-a process to call any more locks. To solve this, I had to (and this is
-what I don't like right now) add another flag for the process called
-PF_BLOCKED. So that this can tell the pi_setprio when to stop. This flag
-is set in task_blocks_on_lock and cleared in pick_new_owner where the
-setting of blocked_on to NULL use to be.
-
-Unless you already implemented this, I'll have a patch for you to look
-at later today, and you can then (if you want) critique it :-)
-
--- Steve
-
-
+Send instant messages to your online friends http://uk.messenger.yahoo.com 

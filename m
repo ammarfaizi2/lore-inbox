@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262062AbSJZKdR>; Sat, 26 Oct 2002 06:33:17 -0400
+	id <S262184AbSJZKjx>; Sat, 26 Oct 2002 06:39:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262154AbSJZKdC>; Sat, 26 Oct 2002 06:33:02 -0400
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:32780 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262062AbSJZKYV>; Sat, 26 Oct 2002 06:24:21 -0400
-X-Envelope-From: pavel@bug.ucw.cz
-Date: Mon, 21 Oct 2002 11:08:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Hiroshi Miura <miura@da-cha.org>
-Cc: sfr@canb.auug.org.au, linux-kernel@vger.kernel.org
-Subject: Re: APM work around for bad bios.
-Message-ID: <20021021090819.GA2876@elf.ucw.cz>
-References: <20021017172155.BCA3F11782A@triton2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021017172155.BCA3F11782A@triton2>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S262194AbSJZKjx>; Sat, 26 Oct 2002 06:39:53 -0400
+Received: from mail.hometree.net ([212.34.181.120]:1700 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S262184AbSJZKjv>; Sat, 26 Oct 2002 06:39:51 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: One for the Security Guru's
+Date: Sat, 26 Oct 2002 10:46:07 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <apdrpf$hap$1@forge.intermeta.de>
+References: <Pine.LNX.3.95.1021023105535.13301A-100000@chaos.analogic.com> <Pine.LNX.4.44.0210231346500.26808-100000@innerfire.net> <ap8f36$8ge$1@forge.intermeta.de> <20021026114452.B16359@bitwizard.nl>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1035629167 29653 212.34.181.4 (26 Oct 2002 10:46:07 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sat, 26 Oct 2002 10:46:07 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Rogier Wolff <R.E.Wolff@BitWizard.nl> writes:
 
-> I use CASIO CASSIOPEIA FIVA 101 and 103. (http://www.da-cha.org/fiva/fiva.html)
-> this use Cyrix MediaGX and Award BIOS.
-> This APM BIOS report broken value for dseg_len.
-> it asumes granularity is 1.
-> 
-> I made a work around for this situation.
-> 
->   *  if (cseg_len < bios.offset) BIOS report BAD len value.
->      -- segment length must be always larger than code offset
-> 
->   *  if (dseg_len <= 0x40 ) BIOS asumes granularity =1.
->      -- 0x40 * 4kB = 64kB, my pc reports 0x40.
-> 
-> 
-> diff -urB -x .config -x '*.[oasS]' -x '*.in' -x '*.rej' -x '*.orig' linux-2.5.43-orig/arch/i386/kernel/apm.c linux-2.5.43/arch/i386/kernel/apm.c
-> --- linux-2.5.43-orig/arch/i386/kernel/apm.c	2002-10-12 13:21:05.000000000 +0900
-> +++ linux-2.5.43/arch/i386/kernel/apm.c	2002-10-14 21:36:14.000000000 +0900
-> @@ -1980,6 +2141,14 @@
->  				(apm_info.bios.cseg_16_len - 1) & 0xffff);
->  			_set_limit((char *)&cpu_gdt_table[i][APM_DS >> 3],
->  				(apm_info.bios.dseg_len - 1) & 0xffff);
-> +		      /* workaround for broken BIOSes */
-> +	                if (apm_info.bios.cseg_len <= apm_info.bios.offset)
-> +        	                _set_limit((char *)&cpu_gdt_table[i][APM_CS >> 3], 64 * 1024 -1);
+>On Thu, Oct 24, 2002 at 09:38:46AM +0000, Henning P. Schmiedehausen wrote:
+>> Get the real thing. Checkpoint. PIX. But that's a little
+>> more expensive than "xxx firewall based on Linux".
 
-Maybe add printk KERN_WARNING "apm: broken bios -- code segment too
-short, assuming 64k"
+>PIX? Is that the one that breaks TCP/IP when an ACK is lost on
+>the side that the data is coming from?
 
-> +                       if (apm_info.bios.dseg_len <= 0x40) { /* 0x40 * 4kB == 64kB */
-> +                        	/* for the BIOS that assumes granularity = 1 */
-> +                        	cpu_gdt_table[i][APM_DS >> 3].b |= 0x800000;
-> +                        	printk(KERN_NOTICE "apm: we set the
-> granularity of dseg.\n");
+Depends on your PIX OS. As with any other OS, there are bugs and you
+should monitor the vendor mailing lists for updates and fixes.
 
-Maybe better KERN_WARNING "apm: broken bios -- assuming granularity 1
-on dseg"
-										Pavel
+It did broke SACK once. There was an update and the problem was
+solved.  Thats what a vendor is for.
+
+	Regards
+		Henning
+
+What did you think? That I fall bait to this troll? :-)
+
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

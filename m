@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264904AbTFVTdj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 15:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbTFVTdj
+	id S265803AbTFVThj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 15:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbTFVThj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 15:33:39 -0400
-Received: from windsormachine.com ([206.48.122.28]:1551 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S264904AbTFVTdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 15:33:36 -0400
-Date: Sun, 22 Jun 2003 15:47:40 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: xircom card bus with 2.4.20 link trouble
-In-Reply-To: <1056195410.25975.1.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0306221545350.6572-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 22 Jun 2003 15:37:39 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55250 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265803AbTFVThi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 15:37:38 -0400
+Date: Sun, 22 Jun 2003 21:51:34 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GCC speed (was [PATCH] Isapnp warning)
+Message-ID: <20030622195134.GA29280@fs.tum.de>
+References: <20030621125111.0bb3dc1c.akpm@digeo.com> <20030622103251.158691c3.akpm@digeo.com> <bd4u7s$jkp$1@tangens.hometree.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bd4u7s$jkp$1@tangens.hometree.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Jun 2003, Alan Cox wrote:
+On Sun, Jun 22, 2003 at 06:58:04PM +0000, Henning P. Schmiedehausen wrote:
+> Andrew Morton <akpm@digeo.com> writes:
+> 
+> Your problem is not the compiler but the build tool / system which
+> forces you to recompile all of your kernel if you change only small
+> parts.
 
-> On Gwe, 2003-06-20 at 16:49, Mike Dresser wrote:
-> > Now if only DMA mode would work on the Opti 621 chipset inside this
-> > Omnibook 5500/5700 hybrid laptop :)  Then it wouldn't take 38 minutes to
-> > compile.
->
-> It should do - drivers/ide/pci/opti621.c
+That's not true in 2.5, the 2.5 build system only recompiles files that 
+have to be recompiled.
 
-Indeed, I have it compiled in even.
+But if you edit an often used header file many fils have to be 
+recompiled.
 
-Let me see if hte laptop is turned on currently.
+> 	Regards
+> 		Henning
 
-Unfortunately, no.  But anyways, it does the classic error of {your drive}
-{shouldn't do this}
+cu
+Adrian
 
-and then disables DMA mode, and goes back to working.
+-- 
 
-It's an HP Omnibook 5700, and it's a Toshiba 1.3 gig drive in there.  I
-don't remember if my Omnibook 5500 did it, and it's a pain to take the
-donor screen back off the 5700 and putting it on the 5500 to try.
-
-I had to disable "automatically enable DMA" for the laptop not to jam up
-for a minute while it figures out the DMA mode isn't going to work.
-
-It doesn't work in windows either for that matter, if I remember right the
-option is completely greyed out.  Blacklist on windows?
-
-I will check the exact lspci and hdparm -i when I get to the office
-tomorrow.
-
-Mike
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

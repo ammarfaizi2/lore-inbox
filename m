@@ -1,60 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265809AbTBTXfu>; Thu, 20 Feb 2003 18:35:50 -0500
+	id <S267035AbTBTXr3>; Thu, 20 Feb 2003 18:47:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265894AbTBTXfu>; Thu, 20 Feb 2003 18:35:50 -0500
-Received: from B53d0.pppool.de ([213.7.83.208]:45735 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S265809AbTBTXft>; Thu, 20 Feb 2003 18:35:49 -0500
-Subject: Re: [Patch] Enable SSE for AMD Athlon (Thoroughbred) in 2.4.20
-From: Daniel Egger <degger@fhm.edu>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030220184525.GA23768@codemonkey.org.uk>
-References: <1045266292.12105.41.camel@sonja>
-	 <20030220184525.GA23768@codemonkey.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YyKjnEwObPyhtfO9I8W6"
-Organization: 
-Message-Id: <1045772262.5732.4.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 20 Feb 2003 21:17:43 +0100
+	id <S267042AbTBTXr3>; Thu, 20 Feb 2003 18:47:29 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:56068 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267035AbTBTXr2>; Thu, 20 Feb 2003 18:47:28 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200302202357.h1KNvXo29517@devserv.devel.redhat.com>
+Subject: Re: Linux 2.5.62-ac1
+To: elenstev@mesatop.com (Steven Cole)
+Date: Thu, 20 Feb 2003 18:57:33 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <1045783862.6615.82.camel@spc9.esa.lanl.gov> from "Steven Cole" at Feb 20, 2003 04:31:02 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> ide_xlate_1024+0xf5
+> read_dev_sector+0x69
+> handle_ide_mess+0x179
 
---=-YyKjnEwObPyhtfO9I8W6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Am Don, 2003-02-20 um 19.45 schrieb Dave Jones:
-
->  > A similar change for the just released Barton would also be nice but
->  > I do not have the model number handy.
-
-> It's model 10. Somehow they skipped model 9.
-
-> if (c->x86_model >=3D 6 && c->x86_model <=3D 10) {
-
-> should do the right thing on all current models with SSE afaics..
-
-I think so, too. The specific checks where just to be on the sure side....
-
---=20
-Servus,
-       Daniel
-
---=-YyKjnEwObPyhtfO9I8W6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+VTfmchlzsq9KoIYRAr6PAJ48SWh9VYPE0oTyG/87PWbG44ydpgCdEkCt
-y6RNTaR+/IAMddjoHmzhHeo=
-=QDZy
------END PGP SIGNATURE-----
-
---=-YyKjnEwObPyhtfO9I8W6--
-
+Ok I broke it with the change to the partiton stuff I put back. If you drop
+that partition tweak out it ought to boot.

@@ -1,53 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbULQQGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbULQQLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbULQQGX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 11:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbULQQGX
+	id S261445AbULQQLa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 11:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbULQQLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 11:06:23 -0500
-Received: from holomorphy.com ([207.189.100.168]:58837 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261416AbULQQGP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 11:06:15 -0500
-Date: Fri, 17 Dec 2004 08:05:52 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk
-Subject: Re: arch/xen is a bad idea
-Message-ID: <20041217160552.GZ771@holomorphy.com>
-References: <41BF1983.mailP9C1B91GB@suse.de.suse.lists.linux.kernel> <p73acsg1za1.fsf@bragg.suse.de>
+	Fri, 17 Dec 2004 11:11:30 -0500
+Received: from ns1.digitalpath.net ([65.164.104.5]:46740 "HELO
+	mail.digitalpath.net") by vger.kernel.org with SMTP id S261445AbULQQLT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 11:11:19 -0500
+Date: Fri, 17 Dec 2004 08:11:18 -0800
+From: Ray Van Dolson <rayvd@digitalpath.net>
+To: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org
+Subject: Re: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Message-ID: <20041217161118.GA27919@digitalpath.net>
+Mail-Followup-To: Matt Domsch <Matt_Domsch@dell.com>,
+	linux-kernel@vger.kernel.org
+References: <20041215013228.GA3390@digitalpath.net> <20041215162943.GB31494@lists.us.dell.com> <20041215163651.GA7037@digitalpath.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p73acsg1za1.fsf@bragg.suse.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041215163651.GA7037@digitalpath.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2004 at 07:59:50PM +0100, Andi Kleen wrote:
-> I suspect xen64 will be rather different from xen32 anyways
-> because as far as I can see the tricks Xen32 uses to be
-> fast (segment limits) just plain don't work on 64bit
-> because the segments don't extend into 64bit space.
-> So having both in one architecture may also end up messy.
-> And i386 and x86-64 are in many pieces very different anyways,
-> I have my doubts that trying to mesh them together in arch/xen
-> will be very pretty.
+Just a follow-up on this.  Things seem to run better (no crashes yet after
+two days of runtime) after booting with nosmp noapic.
 
-I have an inkling that the xen implementors may have plots of
-additional architecture ports. If it really is x86/x86-64 -only it
-isn't worth bothering with a separate arch/ dir, but it would be if it
-were ported to a large number of architectures.
+Any issues with the MPPE or CryptoAPI code that might only be triggered
+when running in SMP mode?
 
-Maybe they're modelling it after UML which has its own arch/ dir but
-then grabs assorted things from other architectures; in that event I
-wouldn't consider it so misguided.
+Ray
 
-Probably best if the implementors chimed in about all this.
-
-
--- wli
+On Wed, Dec 15, 2004 at 08:36:51AM -0800, Ray Van Dolson wrote:
+> On Wed, Dec 15, 2004 at 10:29:43AM -0600, Matt Domsch wrote:
+> > These messages I have gotten for years. They're debugging messages,
+> > as a result of:
+> > register_netdevice( alloc_divert_blk( (sees it's not an ethernet device, )
+> > printk's the message )
+> >
+> > So I believe they're harmless.
+> This is what I was thinking too. I see plenty of these messages that do
+> not result in crashes.
+>
+> > > ksymoops output of problem:
+> > > Unable to handle kernel NULL pointer dereference
+> > > 00000000
+> > > *pde = 00000000
+> > > Oops: 0000 [#1]
+> > > CPU: 2
+> > > EIP: 0060:[<00000000>] Not tainted VLI
+> > > Using defaults from ksymoops -t elf32-i386 -a i386
+> > > EFLAGS: 00010286 (2.6.9)
+> > > eax: ed13b000 ebx: d1d0a000 ecx: c029e9de edx: f795ef40
+> > > esi: d1d0a000 edi: 00000000 ebp: e2f30080 esp: d2b0dea0
+> > > ds: 007b es: 007b ss: 0068
+> > > Stack: c02a205a ed13b000 00000000 c02a122c d1d0a000 13208a2e c040956f
+> > > d1d0a000 d1d0a00c e2f30080 00000000 c029cda9 d1d0a000 e2f30080 00000000
+> > > c01552cd e2f30080 00000010 00000004 00000004 c0166aa0 e2f30080 00000000
+> > > 00000000
+> > > Call Trace: [<c02a205a>] pty_chars_in_buffer+0x2c/0x49 [<c02a122c>]
+> > > normal_poll+0xed/0x150 [<c040956f>] schedule_timeout+0x75/0xbf
+> > > [<c029cda9>] tty_poll+0xa0/0xb0 [<c01552cd>] fget+0x49/0x5e [<c0166aa0>]
+> > > do_select+0x269/0x2c6 [<c0166691>] __pollwait+0x0/0xc7 [<c0166dd5>]
+> > > sys_select+0x2b3/0x4c6 [<c0105971>] sysenter_past_esp+0x52/0x71
+> > > Code: Bad EIP value.
+> > It looks like pty_chars_in_buffer() dereferenced a NULL function
+> > pointer, but I don't see how that can be, the one deference is tested
+> > for NULL before doing so.
+> >
+> > I can't rule out the ppp_mppe code, but I haven't seen this crash
+> > before myself. Does this happen on simlar systems that aren't running
+> > poptop?
+> >
+> > Thanks,
+> > Matt
+> Fortunately we use the DL140 server pretty widely here. None of the
+> non-poptop servers exhibit this problem. Every single one of them that has
+> been used as a Poptop server however does exhibit this issue. It seems to
+> happen more frequenly on the machines with a higher number of users
+> connected.
+>
+> I have switched one of the servers (the one with the highest load) to use
+> Jan Dubiec's MPPC/MPPE patches for ppp 2.4.3 and Kernel 2.6.9. We'll see
+> how that goes.
+>
+> Any information I can provide or something I can do on my end to better
+> trace this down?
+>
+> Ray

@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287840AbSBIWAP>; Sat, 9 Feb 2002 17:00:15 -0500
+	id <S287908AbSBIWAP>; Sat, 9 Feb 2002 17:00:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287908AbSBIWAG>; Sat, 9 Feb 2002 17:00:06 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:18698 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S287895AbSBIWAE>; Sat, 9 Feb 2002 17:00:04 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: [PATCH/RFC] videodev.[ch] redesign
-Date: 9 Feb 2002 20:44:07 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrna6b2gn.nnn.kraxel@bytesex.org>
-In-Reply-To: <20020209194602.A23061@bytesex.org> <200202092053.g19KrSN05200@oenone.homelinux.org>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1013287447 24328 127.0.0.1 (9 Feb 2002 20:44:07 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S287895AbSBIWAG>; Sat, 9 Feb 2002 17:00:06 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:39627 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S287840AbSBIWAC>;
+	Sat, 9 Feb 2002 17:00:02 -0500
+Date: Sat, 09 Feb 2002 21:59:56 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Mike Touloumtzis <miket@bluemug.com>,
+        Daniel Phillips <phillips@bonn-fries.net>
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+Message-ID: <2350931647.1013291995@[195.224.237.69]>
+In-Reply-To: <20020207210823.GH26826@bluemug.com>
+In-Reply-To: <20020207210823.GH26826@bluemug.com>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It also provides a ioctl wrapper function which handles copying the
-> > ioctl args from/to userspace, so we have this at one place can drop all
-> > the copy_from/to_user calls within the v4l device driver ioctl handlers.
->  
->  That is a large improvement.
->  But you don't include a lock against reentry, which is bad.
 
-I don't want to handle the wrapper function too much.  IMHO it is the
-job of the driver to do locking if needed.  For some read-only ioctls
-like VIDIOCGCAP you don't need locking at all.
 
-> > Comments?
->  
->  Could you make a helper for open like for ioctl ?
+--On Thursday, 07 February, 2002 1:08 PM -0800 Mike Touloumtzis 
+<miket@bluemug.com> wrote:
 
-video_open does call video_device[minor]->fops->open(), isn't that
-enought?
+> My understanding is that "keep features out of the kernel if possible"
+> is the majority opinion, not a crackpot weirdo stance.
 
->  And please don't use a pointer to the device descriptor
->  in the file structure. It makes live for USB devices much harder.
+Mmmm... well my understanding is that the majority opinion is not
+to minimize kernel functionality as a goal in isolation, but to
+minimize putting into the kernel features which are done just
+as well in userspace. Note the words 'just as well'. Consider,
+for instance, the recent discussion (like it or not) on packing
+some initrd equivalent with modules for all drivers, as opposed
+to keeping said modules in separate files on traditional disk
+storage. I cite this as it's about the closest analogy.
 
-Sorry, I don't understand.  What exactly do you mean?
-file->private_data?  videodev.c doesn't touch it ...
+The argument comes down to 'do you want the option of dealing
+with your kernel as one lump, or multiple smaller lumps' (i.e.
+kernel as we know it, modules, ksysms, config file, tea cosy,
+jacuzzi etc. - remember I suggested one be able to stick
+any files there). It seems sensible at a distribution level to
+restrict the use of this option (you could put the whole of
+/bin there if you wanted). It seems perverse to reject the
+concept of the option in toto, given that it's, urm, an option.
+Just like any option, it is possible, though far from compulsorary,
+to mindlessly abuse it.
 
-  Gerd
-
--- 
-#define	ENOCLUE 125 /* userland programmer induced race condition */
+--
+Alex Bligh

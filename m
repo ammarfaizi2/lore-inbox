@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276930AbRJCJFv>; Wed, 3 Oct 2001 05:05:51 -0400
+	id <S276933AbRJCJJB>; Wed, 3 Oct 2001 05:09:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276928AbRJCJFa>; Wed, 3 Oct 2001 05:05:30 -0400
-Received: from unnamed.deltanet.ro ([193.226.175.58]:35332 "HELO
-	kamov.deltanet.ro") by vger.kernel.org with SMTP id <S276929AbRJCJF1>;
-	Wed, 3 Oct 2001 05:05:27 -0400
-Date: Wed, 03 Oct 2001 12:05:35 +0300
-From: Petru Paler <ppetru@ppetru.net>
-To: Pierre PEIFFER <pierre.peiffer@sxb.bsf.alcatel.fr>,
-        linux-kernel@vger.kernel.org
-Subject: Re: e2compress in kernel 2.4
-Message-ID: <46620000.1002099935@shiva>
-In-Reply-To: <3BBACF29.7BB980C4@sxb.bsf.alcatel.fr>
-In-Reply-To: <3BBACF29.7BB980C4@sxb.bsf.alcatel.fr>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S276932AbRJCJIv>; Wed, 3 Oct 2001 05:08:51 -0400
+Received: from csa.iisc.ernet.in ([144.16.67.8]:53772 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S276931AbRJCJIl>;
+	Wed, 3 Oct 2001 05:08:41 -0400
+Date: Wed, 3 Oct 2001 14:39:09 +0530 (IST)
+From: "M.Gopi Krishna" <mgopi@csa.iisc.ernet.in>
+To: Jan Hudec <bulb@ucw.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: wait_event() :(
+In-Reply-To: <20011003110629.A29671@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.21.0110031437570.21820-100000@opal.csa.iisc.ernet.in>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-AntiVirus: DeltaNET> Mesaj verificat cu / Message scanned with: AntiVir/Linux Version 6.7.0.1, (Apr 22 2001, 19:14:45)!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 Oct 2001, Jan Hudec wrote:
 
+> > I have a doubt regarding wait_event.
+> > In the macro __wait_event, the calling process changes its state to
+> > TASK_UNINTERRUPTIBLE and calls schedule.
+> > And does this in infinite loop.
+> > After the loop, it itself changes its state to TASK_RUNNING.
+> > 
+> > Once it calls schedule(), the scheduler will remove it from task list as
+> > it is in uninterruptible mode.
+> > Then when does it come again into running state to check the condition.
+> > 
+> > kindly cc the reply to me as i'm not subscribed to the list
+> > thanks
+> 
+> It inserts itself in a wait queue. The schedule returns when wakeup is called
+> on the wait queue.
+> 
+> --------------------------------------------------------------------------------
+>                   				- Jan Hudec `Bulb' <bulb@ucw.cz>
+> 
 
---On Wednesday, October 03, 2001 10:41:14 +0200 Pierre PEIFFER 
-<pierre.peiffer@sxb.bsf.alcatel.fr> wrote:
-
->     So, here, we are a little bit confused because we don't know where
-> to introduce the compression, if we keep the same idea of the 2.2
-> design... In fact, on one hand, once the buffers will be compressed, the
-> pages will also become compressed, but on the other hand, we don't want
-> the pages to be compressed, because, the pages, once registered and
-> linked to the inode are supposed to be uncompressed...
-
-Why don't you build it on top of ext3, and do compression right before a 
-transaction commit?
-
---
-Real programmers use chmod +x /dev/random and cross their fingers.
+Then why does it have a for(;;) around it when anyway someone is going to
+wake it up after the condition is true.
+Or is that it may be woken up even when the condition is not true.
+-- 
+gopi.
 

@@ -1,79 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268860AbSIRTdI>; Wed, 18 Sep 2002 15:33:08 -0400
+	id <S268907AbSIRTdK>; Wed, 18 Sep 2002 15:33:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268915AbSIRTdI>; Wed, 18 Sep 2002 15:33:08 -0400
-Received: from nuevo.divinia.com ([216.32.176.4]:15750 "HELO nuevo.divinia.com")
-	by vger.kernel.org with SMTP id <S268860AbSIRTdG>;
-	Wed, 18 Sep 2002 15:33:06 -0400
-Date: Wed, 18 Sep 2002 12:32:15 -0700 (PDT)
-From: Aaron Gowatch <aarong@divinia.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: disass kfree_s (was: Oops in 2.2.19)
-Message-ID: <Pine.LNX.4.44.0209181217410.13536-100000@nuevo.divinia.com>
-X-Favorite-Cola: Coke
+	id <S268915AbSIRTdK>; Wed, 18 Sep 2002 15:33:10 -0400
+Received: from h00010256f583.ne.client2.attbi.com ([66.30.243.14]:34789 "EHLO
+	portent.dyndns.org") by vger.kernel.org with ESMTP
+	id <S268907AbSIRTdG>; Wed, 18 Sep 2002 15:33:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Lev Makhlis <mlev@despammed.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [RFC][PATCH] sard changes for 2.5.34
+Date: Wed, 18 Sep 2002 15:43:09 -0400
+User-Agent: KMail/1.4.2
+Cc: <ricklind@us.ibm.com>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.33L2.0209181052360.19972-100000@dragon.pdx.osdl.net>
+In-Reply-To: <Pine.LNX.4.33L2.0209181052360.19972-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209181543.09111.mlev@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dean helped me track down the NULL pointer from the oops I posted 
-yesterday.  It looks like someone ran across the same or similar issue in 
-1999:
+On Wednesday 18 September 2002 01:54 pm, Randy.Dunlap wrote:
+> On Sat, 14 Sep 2002, Lev Makhlis wrote:
+> | > +#define MSEC(x) ((x) * 1000 / HZ)
+> |
+> | Perhaps it would be better to report the times in ticks using
+> | jiffies_to_clock_t(), and let the userland do further conversions?
+> | The macro above has an overflow problem, it creates a counter
+> | that wraps at 2^32 / HZ (instead of 2^32), and theoretically, the
+> | userland doesn't even know what the internal HZ is.  The overflow
+> | can be avoided with something like
+> | #define MSEC(x) (((x) / HZ) * 1000 + ((x) % HZ) * 1000 / HZ)
+> | but I think it would be cleaner just to change the units to ticks,
+> | especially if we're moving it to a different file and procps will
+> | need to be changed anyway.
+>
+> Thanks for pointing this out.
+>
+> I'd rather not expose more ticks in /proc, so for now
+> I'll ask Rick to use this #define for MSEC, which does
+> indeed work nicely.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=94277765400609&w=2
+In that case, I also suggest manual optimization for "convenient"
+values of HZ, because from what I've seen, GCC can't figure this
+out on its own:
 
-I dont know much about kernel mm, but if someone who does or has seen this
-before is willing to help me track this down, it'd be much appreciated.
-
-Thanks in advance,
-Aa.
-
----------- Forwarded message ----------
-Date: Tue, 17 Sep 2002 20:35:25 -0700 (PDT)
-From: dean gaudet <dean@arctic.org>
-To: Aaron Gowatch <aarong@divinia.com>
-Subject: Re: disass kfree_s
-
-On Tue, 17 Sep 2002, Aaron Gowatch wrote:
-
-> 0x8012353c <kfree_s+148>:	mov    0x8(%ecx),%ebp
-> 0x8012353f <kfree_s+151>:	cmp    $0xa5c32f2b,%ebp
-> 0x80123545 <kfree_s+157>:	jne    0x80123630 <kfree_s+392>
-
-well that magic number up there is SLAB_MAGIC_ALLOC ... and the test here
-is the check_magic label in __kfree_cache_free ... but i dunno why slabp
-is NULL at that point.
-
-you might want to play with the completely untested patch below... it
-should at least stop the system from oopsing -- and it'll log a message
-when the bug occurs.  then you can see what you're doing which triggers it
-maybe.
-
--dean
-
---- slab.c.orig	Fri Nov  2 08:39:16 2001
-+++ slab.c	Tue Sep 17 20:34:05 2002
-@@ -1555,6 +1555,8 @@
- 		slabp = bufp->buf_slabp;
-
- check_magic:
-+	if (slabp == NULL)
-+		goto bad_slab;
- 	if (slabp->s_magic != SLAB_MAGIC_ALLOC)		/* Sanity check. */
- 		goto bad_slab;
-
-@@ -1636,7 +1638,9 @@
-
- bad_slab:
- 	/* Slab doesn't contain the correct magic num. */
--	if (slabp->s_magic == SLAB_MAGIC_DESTROYED) {
-+	if (slabp == NULL) {
-+		kmem_report_free_err("null slabp", objp, cachep);
-+	} else if (slabp->s_magic == SLAB_MAGIC_DESTROYED) {
- 		/* Magic num says this is a destroyed slab. */
- 		kmem_report_free_err("free from inactive slab", objp, cachep);
- 	} else
-
-
-
+#if 1000 % HZ == 0
+#define MSEC(x) ((x) * (1000 / HZ))
+#elif HZ % 1000 == 0
+#define MSEC(x) ((x) / (HZ / 1000))
+#else
+#define MSEC(x) (((x) / HZ) * 1000 + ((x) % HZ) * 1000 / HZ)
+#endif

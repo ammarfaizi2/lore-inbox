@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268970AbRH0VNw>; Mon, 27 Aug 2001 17:13:52 -0400
+	id <S268997AbRH0VSm>; Mon, 27 Aug 2001 17:18:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268997AbRH0VNo>; Mon, 27 Aug 2001 17:13:44 -0400
-Received: from johnson.mail.mindspring.net ([207.69.200.177]:60425 "EHLO
-	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S268970AbRH0VNb>; Mon, 27 Aug 2001 17:13:31 -0400
-Subject: Re: How to disable blanking of the screen in the kernel ?
+	id <S269041AbRH0VSc>; Mon, 27 Aug 2001 17:18:32 -0400
+Received: from barry.mail.mindspring.net ([207.69.200.25]:31548 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S268997AbRH0VSY>; Mon, 27 Aug 2001 17:18:24 -0400
+Subject: Re: Updated Linux kernel preemption patches
 From: Robert Love <rml@tech9.net>
-To: Patrick Allaire <pallaire@gameloft.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <9A1957CB9FC45A4FA6F35961093ABB84041F9D2F@srvmail-mtl.ubisoft.qc.ca>
-In-Reply-To: <9A1957CB9FC45A4FA6F35961093ABB84041F9D2F@srvmail-mtl.ubisoft.qc.ca>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Cc: J Sloan <jjs@toyota.com>, Cliff Albert <cliff@oisec.net>
+In-Reply-To: <998941465.1993.9.camel@phantasy>
+In-Reply-To: <998877465.801.19.camel@phantasy>
+	<20010827093835.A15153@oisec.net>  <3B8AA02D.6F7561AB@lexus.com> 
+	<998941465.1993.9.camel@phantasy>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
-Date: 27 Aug 2001 17:14:13 -0400
-Message-Id: <998946860.11858.23.camel@phantasy>
+Date: 27 Aug 2001 17:18:57 -0400
+Message-Id: <998947154.11860.30.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-08-27 at 16:50, Patrick Allaire wrote:
-> I am on a 2.2.19 kernel. I am doing an embedded box and I want to disable
-> the console blanking ... how can I do that ? I dont have apm support in the
-> kernel. there is no X on the box ...
+ahhh I think I got it. nevermind the bit about CONFIG_PREEMPT not being
+set, that is not it (as I am sure you all know).
 
-the userspace solution is simply `setterm -blank 0'
+The problem is that dec_and_lock.c is not being compiled (or at least
+the object isnt being included).  I believe this is caused by having bad
+dependencies.  My .depend has a dependency to compile the object -- I
+wager your's does not.
 
-if you dont want setterm, I wager it just uses an ioctl to set the
-appropriate option.
+So... did you rerun `make dep' ?
 
-if you want to disable it permanently, take a look around
-drivers/char/console.c
+If not, try a fresh kernel tree and make sure to do `make oldconfig dep
+clean' after patching.
 
-there is a
-static int blankinterval = 10*60*HZ;
-setting that to 0 should do the job.  you could take it further and rip
-out some of the *blank* functions that you wont be needing, to make your
-kernel smaller.
+Please let me know because I am trying to track this down, and I don't
+have it happening to me.  I think this should do it.
+
+Of note, I will release a patch against 2.4.9-ac2 and 2.4.10-pre1 soon.
 
 -- 
 Robert M. Love

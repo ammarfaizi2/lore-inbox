@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265817AbRF2Jhc>; Fri, 29 Jun 2001 05:37:32 -0400
+	id <S265813AbRF2Jgc>; Fri, 29 Jun 2001 05:36:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265816AbRF2JhQ>; Fri, 29 Jun 2001 05:37:16 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39940 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265803AbRF2JhJ>; Fri, 29 Jun 2001 05:37:09 -0400
-Subject: Re: directory order of files
-To: edmundo@rano.org (Edmund GRIMLEY EVANS)
-Date: Fri, 29 Jun 2001 10:36:36 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010629101818.A13817@rano.org> from "Edmund GRIMLEY EVANS" at Jun 29, 2001 10:18:18 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265803AbRF2JgW>; Fri, 29 Jun 2001 05:36:22 -0400
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:29907 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S265813AbRF2JgN>; Fri, 29 Jun 2001 05:36:13 -0400
+Message-ID: <3B3C4CB4.6B3D2B2F@kegel.com>
+Date: Fri, 29 Jun 2001 02:39:00 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: O_DIRECT please; Sybase 12.5
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15FuhY-0008QC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With Linux ext2, and some other systems, when you create files in a
-> new directory, the file system remembers their order:
+At work I had to sit through a meeting where I heard
+the boss say "If Linux makes Sybase go through the page cache on
+reads, maybe we'll just have to switch to Solaris.  That's
+a serious performance problem."
+All I could say was "I expect Linux will support O_DIRECT
+soon, and Sybase will support that within a year."  
 
-No - it merely seems too. 
+Er, so did I promise too much?  Andrea mentioned O_DIRECT recently
+( http://marc.theaimsgroup.com/?l=linux-kernel&m=99253913516599&w=2,
+ http://lwn.net/2001/0510/bigpage.php3 )
+Is it supported yet in 2.4, or is this a 2.5 thing?
 
-> $ touch one two three four
-> $ ls -U
-> one  two  three  four
+And what are the chances Sybase will support that flag any time
+soon?  I just read on news://forums.sybase.com/sybase.public.ase.linux
+that Sybase ASE 12.5 was released today, and a 60 day eval is downloadable
+for NT and Linux.  I'm downloading now; it's a biggie.
 
-Then try 'rm three; touch five'
+It supports raw partitions, which is good; that might satisfy my
+boss (although the administration will be a pain, and I'm not
+sure whether it's really supported by Dell RAID devices).
+I'd prefer O_DIRECT :-(
 
-> 
-> (1) Is there any standard that says a system should behave this way?
-> Is there any software that depends on this behaviour?
+Hope somebody can give me encouraging news.
 
-The order is arbitary. 
-
+Thanks,
+Dan

@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVBFQBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVBFQJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVBFQBl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 11:01:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVBFQBl
+	id S261169AbVBFQJy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 11:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVBFQJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 11:01:41 -0500
-Received: from main.gmane.org ([80.91.229.2]:4038 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261174AbVBFQB0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 11:01:26 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Dell Inspiron sensors (was: Re: Huge unreliability - does Linux have something to do with it?)
-Date: Sun, 6 Feb 2005 16:58:58 +0100
-Message-ID: <MPG.1c7035d63901d496989710@news.gmane.org>
-References: <5a2cf1f605020401037aa610b9@mail.gmail.com> <20050204121817.GA7721@animx.eu.org> <d120d50005020406441ba6f919@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
+	Sun, 6 Feb 2005 11:09:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24549 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261169AbVBFQJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 11:09:52 -0500
+Message-ID: <42064141.6040003@pobox.com>
+Date: Sun, 06 Feb 2005 11:09:37 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Arjan van de Ven <arjan@infradead.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Martins Krikis <mkrikis@yahoo.com>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [ANNOUNCE] "iswraid" (ICHxR ataraid sub-driver) for 2.4.29
+References: <87651hdoiv.fsf@yahoo.com> <420582C6.7060407@pobox.com> <1107682076.22680.58.camel@laptopd505.fenrus.org> <58cb370e050206044513eb7f89@mail.gmail.com> <42062BFE.7070907@pobox.com> <1107701373.22680.115.camel@laptopd505.fenrus.org> <420631BF.7060407@pobox.com> <20050206155017.GA1215@infradead.org>
+In-Reply-To: <20050206155017.GA1215@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-219-149.29-151.libero.it
-User-Agent: MicroPlanet-Gravity/2.70.2067
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Fri, 4 Feb 2005 07:18:17 -0500, Wakko Warner <wakko@animx.eu.org> wrote:
-> > > particular hardware (Dell Inspiron 8100)? I run Linux on 3 other
+Christoph Hellwig wrote:
+> On Sun, Feb 06, 2005 at 10:03:27AM -0500, Jeff Garzik wrote:
 > 
-> Hmm, I guess it's a hit and run. I had replaced:
+>>Red herring.
+>>
+>>2.4.x has ICH5/6 support -- but is missing the RAID support component.
+>>
+>>We are talking about hardware that is ALREADY supported by 2.4.x kernel, 
+>>not new hardware.
 > 
-> 4. Original Hitachi hard driver died horrible death - I returned home
-> and heard it making grinding sounds and hitting heads against
-> something.
+> 
+> You're talking about software not support (the intel bios fakeraid format).
 
-I have a Dell Inspiron 8200, from March 2002. Since end of 
-December 2004 I've started having system lockups which at first 
-I couldn't identify, although they seemed to be overheating 
-related. So I started monitoring the temperatures on all the 
-components in my system (I can monitor CPU, GPU and HD temp; 
-more on this later), and noticed that the lockups happen when 
-the HD temp gets around 40 C. Indeed, they are 99% of the time 
-preceded by a loud "click" coming from the HD wereabouts ... 
-haven't lost any data yet but I've started backing up 
-everything and getting ready to get a replacement HD.
+I'm talking about being able to access data, or not.
 
-Concerning sensors, though: under Windows I can use the 
-i8kfangui applet to monitor all the sensors provided in the 
-computer, but under Linux I only seem able to get the CPU 
-temperature, using the i8k module, and no other sensor module 
-seems to be loadable. Does anybody know how to access the other 
-sensors on the Dell Inspiron? Or should I suggest Massimo to 
-upgrade the i8k module to add the new sensors (i8kfangui has a 
-GPL source code so it shouldn't be a problem) and possibly 
-interface it all with the Linux sensors framework?
+	Jeff
 
--- 
-Giuseppe "Oblomov" Bilotta
 
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
 

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129132AbQKPMX7>; Thu, 16 Nov 2000 07:23:59 -0500
+	id <S129245AbQKPMbt>; Thu, 16 Nov 2000 07:31:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129245AbQKPMXv>; Thu, 16 Nov 2000 07:23:51 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:7139 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129132AbQKPMXf>;
-	Thu, 16 Nov 2000 07:23:35 -0500
-Date: Thu, 16 Nov 2000 06:53:30 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: aeb@veritas.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test10 truncate() change broke `dd'
-In-Reply-To: <200011161132.MAA26011@harpo.it.uu.se>
-Message-ID: <Pine.GSO.4.21.0011160637290.11017-100000@weyl.math.psu.edu>
+	id <S129745AbQKPMbj>; Thu, 16 Nov 2000 07:31:39 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:30973 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129245AbQKPMbe>; Thu, 16 Nov 2000 07:31:34 -0500
+Date: Thu, 16 Nov 2000 10:01:11 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Christoph Rohland <cr@sap.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: shm swapping in 2.4 again
+In-Reply-To: <qww1ywcz5z4.fsf@sap.com>
+Message-ID: <Pine.LNX.4.21.0011160959340.13085-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 16 Nov 2000, Mikael Pettersson wrote:
-
-> On Thu, 16 Nov 2000, Alexander Viro wrote:
+On 16 Nov 2000, Christoph Rohland wrote:
+> On Wed, 15 Nov 2000, Rik van Riel wrote:
+> > On 15 Nov 2000, Christoph Rohland wrote:
+> > You really want to have it in the swap cache, so we have
+> > a place for it allocated in cache, etc...
+> > 
+> > Basically, when we unmap it in try_to_swap_out(), we
+> > should add the page to the swap cache, and when the
+> > last user stops using the page, we should push the
+> > page out to swap.
 > 
-> > And what kind of meaning would you assign to truncate on floppy?
-> 
-> On a block or char device, truncate == lseek seems reasonable.
+> So in shm_swap_out I check if the page is already in the swap
+> cache. If not I put the page into it and note the swap entry in
+> the shadow pte of shm. Right?
 
-Huh? On regular files ftruncate() doesn't modify the current position
-at all. Try and you'll see. Besides, WTF _is_ lseek() for a character
-device?
+Exactly. And I'll change page_launder() to:
+1. write dirty swap cache pages to disk
+2. do some IO clustering (maybe) or rely on luck ;)
 
-> My guess is that dd uses ftruncate because that's correct for
-> regular files and has happened to also work (as an alias for
-> lseek) for devices.
-> 
-> > Use conv=notrunc.
-> 
-> I didn't know about notrunc. Yet another GNU invention?
+> So does the page live all the time in the swap cache? This would
+> lead to a vastly increased swap usage since we would have to
+> preallocate the swap entries on page allocation.
 
-Maybe, but I doubt it. Anyway, it made its way into 4.4BSD, it's present
-in Solaris, it's in SuS and AFAIK in POSIX. GNU might be the origin, but
-it might equally well be a BSDism.
+If the usage count of the swap entry is 1 (all users of the
+page have swapped it in and the swap cache is the only user),
+then we can free the page from swap and the swap cache.
+
+regards,
+
+Rik
+--
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
+
+http://www.conectiva.com/		http://www.surriel.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,63 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272770AbTHKPmK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 11:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272776AbTHKPmK
+	id S272680AbTHKPo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 11:44:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272729AbTHKPo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 11:42:10 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:42629 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S272770AbTHKPmD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 11:42:03 -0400
-Date: Mon, 11 Aug 2003 17:41:43 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Flameeyes <daps_mls@libero.it>,
-       Christoph Bartelmus <columbus@hit.handshake.de>,
-       LIRC list <lirc-list@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
-Message-ID: <20030811154143.GD2627@elf.ucw.cz>
-References: <1059820741.3116.24.camel@laurelin> <20030807214311.GC211@elf.ucw.cz> <1060334463.5037.13.camel@defiant.flameeyes> <20030808231733.GF389@elf.ucw.cz> <8rZ2nqa1z9B@hit-columbus.hit.handshake.de> <20030811124744.GB1733@elf.ucw.cz> <1060607466.5035.8.camel@defiant.flameeyes> <20030811144242.GE4562@www.13thfloor.at>
+	Mon, 11 Aug 2003 11:44:59 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:63247 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S272680AbTHKPo4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 11:44:56 -0400
+Date: Mon, 11 Aug 2003 17:44:44 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, andrew.grover@intel.com
+Subject: Re: Linux 2.4.22-rc2 : ACPI warning ?
+Message-ID: <20030811154444.GA2868@alpha.home.local>
+References: <Pine.LNX.4.44.0308081751390.10734-100000@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030811144242.GE4562@www.13thfloor.at>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0308081751390.10734-100000@logos.cnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > I converted lirc_gpio into input/ layer (and killed support for
-> > > hardware I do not have; sorry but it was essential to keep code
-> > > small). Ported driver looks like this; I believe it looks better than
-> > > old code. Patch is here.
-> > You can here see the problem... not all tv cards use the same remote,
-> > the switch doesn't work with my remote for example, so we have 2
-> > possibilities:
-> > 
-> > a) hardcode all the possible remotes adding these as new one come up,
-> > this is a big work in the kernel source, and also we lost compatibility
-> > with remotes that use the same frequency of the ones with the tv card,
-> > and that now can be used.
-> > 
-> > b) create an userspace utility that read the input layer for codes an
-> > then translates them in user-definable commands. This is what lircd do
-> > now...
+On Fri, Aug 08, 2003 at 05:53:24PM -0300, Marcelo Tosatti wrote:
 > 
-> what about 
->   
->   c) hardcode the basic decoding and use a mapping table
->      which can be configure from userspace ...
->      (like dvbs haupauge or xmodmap)
+> Hi, 
+> 
+> Here goes release candidate 2. 
+> 
+> It contains yet another bunch of important fixes, detailed below.
 
-Acceptable, too; but I'd like remotes to work out-of-the-box, without
-any config.
+Hi Marcelo,
 
-Of course, if you have homemade serial receiver, you should still be
-able to use it, but in such case lircd solution is acceptable.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-rc2 seems really fine to me.
+
+But I noticed a strange message at boot time during the PCI IRQ routing through
+ACPI, and I'm not sure whether it's an info, a warning or an error :
+
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: System [ACPI] (supports S0 S3 S4 S5)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+Disabling VIA memory write queue (PCI ID 0305, rev 03): [55] 8d & 1f -> 0d
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 7 *9 10 11 12)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 7 9 *10 11 12)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 *5 7 9 10 11 12)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 7 *9 10 11 12)
+ACPI: Embedded Controller [EC0] (gpe 1)
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PPB_._PRT]
+ACPI: Power Resource [PCR0] (off)
+ACPI: Power Resource [PCR1] (off)
+schedule_task(): keventd has not started
+^^^^^^^^^^^^^^^^
+=> this one  !!
+
+PCI: Probing PCI hardware
+PCI: Using ACPI for IRQ routing
+
+And here is the portion of .config related to ACPI. I can send the whole
+config too, but that doesn't seem useful to me to pollute LKML for the rest...
+
+# CONFIG_HOTPLUG_PCI_ACPI is not set
+# ACPI Support
+CONFIG_ACPI=y
+# CONFIG_ACPI_HT_ONLY is not set
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_ACPI_AC=m
+CONFIG_ACPI_BATTERY=m
+CONFIG_ACPI_BUTTON=m
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+# CONFIG_ACPI_ASUS is not set
+# CONFIG_ACPI_TOSHIBA is not set
+# CONFIG_ACPI_DEBUG is not set
+CONFIG_ACPI_RELAXED_AML=y
+
+Cheers,
+Willy
+

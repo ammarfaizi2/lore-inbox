@@ -1,188 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbUB1SDw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 13:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUB1SDw
+	id S261897AbUB1S0T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 13:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbUB1S0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 13:03:52 -0500
-Received: from pop.gmx.de ([213.165.64.20]:36277 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261895AbUB1SD2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 13:03:28 -0500
-X-Authenticated: #20450766
-Date: Sat, 28 Feb 2004 19:02:43 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Brad Cramer <bcramer@callahanfuneralhome.com>
-cc: linux-kernel@vger.kernel.org, <linux-scsi@vger.kernel.org>
-Subject: RE: sym53c8xx_2 driver and tekram dc-390u2w kernel-2.6.x
-In-Reply-To: <008801c3fd40$933d2ca0$6501a8c0@office>
-Message-ID: <Pine.LNX.4.44.0402281901240.4514-100000@poirot.grange>
+	Sat, 28 Feb 2004 13:26:19 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8900 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261897AbUB1S0N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 13:26:13 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Kyle" <kyle@southa.com>
+Subject: Re: Is "ACARD" AEC-6885S 4-CH ATA133 supported?
+Date: Sat, 28 Feb 2004 19:33:21 +0100
+User-Agent: KMail/1.5.3
+References: <02dd01c3fe1f$095df660$353ffea9@kyle>
+In-Reply-To: <02dd01c3fe1f$095df660$353ffea9@kyle>
+Cc: <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="big5"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402281933.21959.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just forwarding this to the _correct_ linux-scsi list address.
+On Saturday 28 of February 2004 18:19, Kyle wrote:
+> Hi!
+>
+> Is this product work with kernel 2.6.x?
+> http://www.acard.com/eng/product/adapter/pc/ide/aec-6885s.html
 
-Guennadi
+No.
 
-On Fri, 27 Feb 2004, Brad Cramer wrote:
+> It mentioned that it's compatible with Linux RedHat 7.3 & 8.0 & 9.0, but I
 
-> OK, it took me some time, but here is what I did.
-> I installed a debian kernel image (kernel_image-2.4.24-1-k7) to tell if this
-> was just a problem with the driver or because of the upgrade to kernel 2.6.x
-> I the sym53c8xx and sym53c8xx_2 drivers are modules and this is what I got.
->
-> bigdaddy:~# modprobe sym53c8xx
-> PCI: Found IRQ 11 for device 00:0f.0
-> PCI: Sharing IRQ 11 with 00:0d.0
-> PCI: Sharing IRQ 11 with 00:0d.1
-> sym53c8xx: at PCI bus 0, device 15, function 0
-> sym53c8xx: 53c895 detected with Tekram NVRAM
-> sym53c895-0: rev 0x1 on pci bus 0 device 15 function 0 irq 11
-> sym53c895-0: Tekram format NVRAM, ID 7, Fast-40, NO Parity
-> sym53c895-0: SCSI bus mode change from 80 to 80.
-> scsi0 : sym53c8xx-1.7.3c-20010512
-> blk: queue f6eed0d4, I/O limit 4095Mb (mask 0xffffffff)
-> Vendor: SEAGATE   Model: SX4234514         Rev: 9E21
-> Type:   Direct-Access                      ANSI SCSI revision: 02
-> blk: queue f6eed2d4, I/O limit 4095Mb (mask 0xffffffff)
-> Vendor: PIONEER   Model: DVD-ROM DVD-303R  Rev: 2.00
-> Type:   CD-ROM                             ANSI SCSI revision: 02
-> blk: queue f6eed3d4, I/O limit 4095Mb (mask 0xffffffff)
-> Vendor: IOMEGA    Model: ZIP 100           Rev: J.02
-> Type:   Direct-Access                      ANSI SCSI revision: 02
-> blk: queue f6eed4d4, I/O limit 4095Mb (mask 0xffffffff)
-> Vendor: SONY      Model: SDT-5000          Rev: 3.26
-> Type:   Sequential-Access                  ANSI SCSI revision: 02
-> blk: queue f6eedad4, I/O limit 4095Mb (mask 0xffffffff)
-> Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-> Attached scsi removable disk sdb at scsi0, channel 0, id 5, lun 0
-> sym53c895-0-<0,*>: asynchronous.
-> SCSI device sda: 45322644 512-byte hdwr sectors (23205 MB)
-> /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3
-> sym53c895-0-<5,*>: target did not report SYNC.
-> sym53c895-0-<5,*>: target did not report SYNC.
-> sym53c895-0-<5,*>: target did not report SYNC.
-> sdb: Unit Not Ready, sense:
-> Current 00:00: sense key Not Ready
-> Additional sense indicates Medium not present
-> sym53c895-0-<5,*>: target did not report SYNC.
-> sym53c895-0-<5,*>: target did not report SYNC.
-> sym53c895-0-<5,*>: target did not report SYNC.
-> sdb : READ CAPACITY failed.
-> sdb : status = 1, message = 00, host = 0, driver = 28
-> Current sd00:00: sense key Not Ready
-> Additional sense indicates Medium not present
-> sdb : block size assumed to be 512 bytes, disk size 1GB.
-> /dev/scsi/host0/bus0/target5/lun0: I/O error: dev 08:10, sector 0
-> I/O error: dev 08:10, sector 0
-> unable to read partition table
->
-> sdb is a zip drive without a disk in it and that is the reason for those
-> errors. Then when I mount a partition that is on /dev/sda I get this:
->
-> bigdaddy:~# mount /var
-> reiserfs: found format "3.6" with standard journal
-> reiserfs: checking transaction log (device sd(8,2)) ...
-> for (sd(8,2))
-> sd(8,2):Using r5 hash to sort names
->
-> and everything works fine, then when I do :
->
-> bigdaddy:~# modprobe sym53c8xx_2
-> PCI: Found IRQ 11 for device 00:0f.0
-> PCI: Sharing IRQ 11 with 00:0d.0
-> PCI: Sharing IRQ 11 with 00:0d.1
-> sym.0.15.0: setting PCI_COMMAND_INVALIDATE.
-> sym0: <895> rev 0x1 on pci bus 0 device 15 function 0 irq 11
-> sym0: Tekram NVRAM, ID 7, Fast-40, SE, NO parity
-> sym0: SCSI BUS has been reset.
-> sym0: SCSI BUS mode change from SE to SE.
-> sym0: SCSI BUS has been reset.
-> scsi0 : sym-2.1.17a
-> blk: queue f6eed4d4, I/O limit 4095Mb (mask 0xffffffff)
-> Vendor: SEAGATE   Model: SX4234514         Rev: 9E21
-> Type:   Direct-Access                      ANSI SCSI revision: 02
-> blk: queue f6eed3d4, I/O limit 4095Mb (mask 0xffffffff)
-> Vendor: PIONEER   Model: DVD-ROM DVD-303R  Rev: 2.00
-> Type:   CD-ROM                             ANSI SCSI revision: 02
-> blk: queue f6eed2d4, I/O limit 4095Mb (mask 0xffffffff)
-> Vendor: IOMEGA    Model: ZIP 100           Rev: J.02
-> Type:   Direct-Access                      ANSI SCSI revision: 02
-> blk: queue f6eed0d4, I/O limit 4095Mb (mask 0xffffffff)
-> Vendor: SONY      Model: SDT-5000          Rev: 3.26
-> Type:   Sequential-Access                  ANSI SCSI revision: 02
-> blk: queue f6eed9d4, I/O limit 4095Mb (mask 0xffffffff)
-> sym0:0:0: tagged command queuing enabled, command queue depth 16.
-> Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-> Attached scsi removable disk sdb at scsi0, channel 0, id 5, lun 0
-> sym0:0: FAST-20 SCSI 20.0 MB/s ST (50.0 ns, offset 15)
-> SCSI device sda: 45322644 512-byte hdwr sectors (23205 MB)
-> /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3
-> sym0:5:0:phase change 6-7 6@35a4cf84 resid=4.
-> sdb: Unit Not Ready, sense:
-> Current 00:00: sense key Not Ready
-> Additional sense indicates Medium not present
-> sdb : READ CAPACITY failed.
-> sdb : status = 1, message = 00, host = 0, driver = 08
-> Current sd00:00: sense key Not Ready
-> Additional sense indicates Medium not present
-> sdb : block size assumed to be 512 bytes, disk size 1GB.
-> /dev/scsi/host0/bus0/target5/lun0: I/O error: dev 08:10, sector 0
-> I/O error: dev 08:10, sector 0
-> unable to read partition table
->  and then when I try to mount a partition on /dev/sda I get this:
->
-> bigdaddy:~# mount /var
-> reiserfs: found format "3.6" with standard journal
-> reiserfs: checking transaction log (device sd(8,2)) ...
-> for (sd(8,2))
-> SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 8000002
-> Current sd08:02: sense key Aborted Command
-> Additional sense indicates Scsi parity error
-> I/O error: dev 08:02, sector 65680
-> sd(8,2):reiserfs: journal-837: IO error during journal replay
-> sd(8,2):Replay Failure, unable to mount
-> sd(8,2):sh-2022: reiserfs_read_super: unable to initialize journal space
-> mount: wrong fs type, bad option, bad superblock on /dev/sda2,
->         or too many mounted file systems
->
-> So I don't understand what is wrong, my only guess is a problem with the
-> driver, but As I said I am not a programmer and I can not figure out where
-> the problem is.
-> Thanks
-> Brad
-> -----Original Message-----
-> From: Guennadi Liakhovetski [mailto:g.liakhovetski@gmx.de]
-> Sent: Wednesday, February 18, 2004 4:03 PM
-> To: Brad Cramer
-> Cc: linux-kernel@vger.kernel.org
-> Subject: RE: sym53c8xx_2 driver and tekram dc-390u2w kernel-2.6.x
->
-> On Wed, 18 Feb 2004, Brad Cramer wrote:
->
-> > Yes that is my drive, but after it scans the scsi bus and finds all the
-> > devices it will not mount any of the partitions. And I know it is not
-> > corrupted partitions because they mount fine under 2.4.18 using the
-> > sym53c8xx driver.
-> > I don't have the exact message in front of me, but when I try to manually
-> > mount the partitions under 2.6.2 I get errors something about parity
-> errors,
-> > again I could get the exact message when I get home tonight.
->
-> That might give a clue.
->
-> Guennadi
-> ---
-> Guennadi Liakhovetski
->
->
->
->
->
+They provide binary only / 2.4 only drivers.
 
----
-Guennadi Liakhovetski
+> seached through the whole mail list with keyword "ATP-867" and "AEC6885"
+> with no luck. Anyone tried this?
 
+I wasn't aware that there is a new ATP chip (867), interesting...
+
+Bartlomiej
 

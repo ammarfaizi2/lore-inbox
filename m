@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269097AbUJQKQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269099AbUJQKW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269097AbUJQKQy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 06:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269099AbUJQKQx
+	id S269099AbUJQKW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 06:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269100AbUJQKW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 06:16:53 -0400
-Received: from smtp06.web.de ([217.72.192.224]:3710 "EHLO smtp06.web.de")
-	by vger.kernel.org with ESMTP id S269097AbUJQKQv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 06:16:51 -0400
-From: Thomas Maguin <T.Maguin@web.de>
-Reply-To: T.Maguin@web.de
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9-rc3 and rc4: parallel printer has gone
-Date: Sun, 17 Oct 2004 12:18:10 +0200
-User-Agent: KMail/1.7
+	Sun, 17 Oct 2004 06:22:28 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:2769 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S269099AbUJQKW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 06:22:26 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org, wwolf@vt.edu
+Subject: Re: AMD64 Swsusp on 2.6.9-rc4-mm1
+Date: Sun, 17 Oct 2004 12:24:14 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>
+References: <417188EA.4090205@vt.edu> <200410162252.33347.rjw@sisk.pl> <1100589554.7496.2.camel@Xnix>
+In-Reply-To: <1100589554.7496.2.camel@Xnix>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1317083.ImgWtAbBiV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410171218.23232.T.Maguin@web.de>
+Message-Id: <200410171224.14434.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1317083.ImgWtAbBiV
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tuesday 16 of November 2004 08:19, William Wolf wrote:
+> Is this supposedly something new in rc4-mm1?  I have been having the
+> same problems since around 2.6.8.1, though i havent gone through every
+> single -mm patch, i have tried at least one in every -rcx candidate, and
+> they have all done this same thing.
 
-After upgrading kernel 2.6.7 to 2.6.9-rc3 my parallel printer can't be foun=
-d=20
-anymore. Same situation with rc4. The .config file is the same as for 2.6.7=
-=2E=20
-Starting kernel 2.6.7 makes printer available again. Printer is a Brother H=
-L=20
-1430, which never made troubles before. Bios is set to ECP/EPP.
+This may be for another reason.  I generally test all of the -rc and -mm 
+patches on an AMD64 box and apparently 2.6.9-rc4-mm1 is the first one that 
+has the problem I was talking about.  AFAICT, the other kernels may fail in a 
+similar way if memory is stuffed with something (eg after updatedb).
 
-Tom
+Greets,
+RJW
 
-
-=2D-=20
-
-=2D------------------------------------------
-protect your privacy - encrypt your mails
-my key is: 0x2AA933B6
-
---nextPart1317083.ImgWtAbBiV
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBckbvyat6ziqpM7YRArazAJ4syY32r2OiF3cvzdgsY2MUoRwJWwCgsryg
-RAF35H8wW0UrbQ0n4zarwwc=
-=9Gcg
------END PGP SIGNATURE-----
-
---nextPart1317083.ImgWtAbBiV--
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

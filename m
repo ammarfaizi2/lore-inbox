@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311403AbSDULAJ>; Sun, 21 Apr 2002 07:00:09 -0400
+	id <S312638AbSDULKO>; Sun, 21 Apr 2002 07:10:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312410AbSDULAI>; Sun, 21 Apr 2002 07:00:08 -0400
-Received: from rogersmta-1.gci.net ([208.138.130.86]:18822 "EHLO
-	mail.rogershsa.com") by vger.kernel.org with ESMTP
-	id <S311403AbSDULAI>; Sun, 21 Apr 2002 07:00:08 -0400
-Message-ID: <007001c1e923$b07cf170$0a0aa8c0@ws0>
-From: "Dennis Stout" <crazyman@rogershsa.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: keybaord nacks on 80386
-Date: Sun, 21 Apr 2002 03:00:03 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S313044AbSDULKN>; Sun, 21 Apr 2002 07:10:13 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:3892 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S312638AbSDULKM>; Sun, 21 Apr 2002 07:10:12 -0400
+Message-Id: <5.1.0.14.2.20020421120820.040107b0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 21 Apr 2002 12:10:05 +0100
+To: Jochen Friedrich <jochen@scram.de>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Cc: Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
+        Jeff Garzik <garzik@havoc.gtf.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0204211121010.18496-100000@alpha.bocc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an AMD 80386DX40 on an unknown motherboard (it's sodlered to it :P)
-and it never used to do this, but recently showed this in dmesg.
+<taken Linus out of cc: list>
 
-keyboard: Too many NACKs -- noisy kbd cable?
-keyboard: Too many NACKs -- noisy kbd cable?
+At 10:22 21/04/02, Jochen Friedrich wrote:
+>Hi Larry,
+>
+> > Huh?  BK requires no more net access than you require when submitting
+> > a regular patch.  You need to be connected to move the bits.
+>
+>Wrong. Many corporate firewalls allow email and http (both via proxy) and
+>reject any other traffic. CVS and BK are both unusable in this
+>environment.
 
-I don't know exactly how long ago this started, since I was troublshooting
-other problems (resolved, it was a routing + dns issue)  when I found it.
+Not wrong. BK works fine over http protocol. CVS is another matter which I 
+cannot comment on...
 
-The thing is, I don't have a keybaord plugged in.  How can I have a noisy
-keybaord cable if I don't have one?
+Best regards,
 
-It still routes internet services just fine, and it's only other glitch is
-hte clock has been 30 years and a few months off ever since I turned it into
-a router :)  Time is off too..  I haven't been worried enough about it to
-change it tho.
+Anton
 
-Dennis Stout
 
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,112 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317192AbSFXCXJ>; Sun, 23 Jun 2002 22:23:09 -0400
+	id <S317232AbSFXCd2>; Sun, 23 Jun 2002 22:33:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317230AbSFXCXI>; Sun, 23 Jun 2002 22:23:08 -0400
-Received: from insgate.stack.nl ([131.155.140.2]:763 "EHLO skynet.stack.nl")
-	by vger.kernel.org with ESMTP id <S317192AbSFXCXH>;
-	Sun, 23 Jun 2002 22:23:07 -0400
-Date: Mon, 24 Jun 2002 04:23:08 +0200 (CEST)
-From: Serge van den Boom <svdb@stack.nl>
-To: linux-kernel@vger.kernel.org
-Subject: On the forgotten ptrace EIP bug (patch included)
-Message-ID: <20020624042057.R24485-100000@toad.stack.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317253AbSFXCd2>; Sun, 23 Jun 2002 22:33:28 -0400
+Received: from TK212017087078.teleweb.at ([212.17.87.78]:7111 "EHLO elch.elche")
+	by vger.kernel.org with ESMTP id <S317232AbSFXCdP>;
+	Sun, 23 Jun 2002 22:33:15 -0400
+Date: Mon, 24 Jun 2002 04:19:45 +0200
+From: Armin Obersteiner <armin@xos.net>
+To: neomagic@XFree86.Org, vortex@scyld.com
+Subject: Re: neomagic 256AV/3com 3c575_cb problem
+Message-ID: <20020624041945.A30907@elch.elche>
+References: <20020624041632.A30594@elch.elche>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="17pEHd4RhPHOinZp"
+Content-Disposition: inline
+In-Reply-To: <20020624041632.A30594@elch.elche>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I've come across a bug where the EIP of a process would be incorrectly
-decremented by 2 after being modified by ptrace when it was interrupted
-in a system call.
-After some searching through the linux-kernel archives it appeared this
-bug was already known, but the patch that was supposed to fix it had been
-reverted as it broke more than it fixed.
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Sep 02 2000 Silvio Cesare formulated the problem as follows:
-> Noteably, if the eip changes and a syscall was interrupted, the signal
-> handling code will subtract 2 from the eip thinking its trying to restart
-> the syscall (obviously, only on systems that restart slow syscalls).
+hi!
 
-He proposed the following patch:
-> My fix would be to change orig_eax to -1 if the eip register is modified.
-> Thus the signal handling code wouldnt think it needed to restart any
-> syscalls.
-> This is untested code btw.
-> in the putreg function
->     case EIP:
->         put_stack_long(child, 4*ORIG_EAX - sizeof(struct pt_regs), -1);
->         break;
+sorry forgot lspci:
+ 
+> this goes to both neomagic an vortex mailing list, because without starting X
+> i don't have problems, but the problems are with then network card ...
+> (and it worked, some releases back ...)
+> 
+> hardware: sony vaio F350, neomagic 256AV 2.5MB, 3com 575 pcmcia card
+> software: linux 2.4.19-pre10/linux 2.4.18, pcmcia-cs-3.1.33/pcmcia-cs-3.1.34,
+>           xfree86-4.2.0
+> distibution: gentoo 1.2 (compiled *everything*)/suse 8.0
+> (items seperated with / mean i tried it with BOTH versions)
+> 
+> problem: when i start x (X or X -probeonly) i get PCI errors with my network card (pcmcia)
+>          it seems to be the fault of the pci probing, its possibly an irq conflict
+> 
+> question: can it be really the pci probing? can i disable the probing?
+>           how to force the networkcard/gfx-chip to a certain irq?
+> 
+> info: 
+>  * worked the last time with suse 7.3 (xfree86-4.0.2 or 4.1.0, pcmcia-3.1.29, linux 2.4.10)
+>  * starting sound does not interfere in any way (neomagic 256 AV has sound too)
+>  * it worked once, but i could not reproduce it (i beleive for once the networkcard
+>    was not on irq9 (shared), which ist the irq of the neomagic)
+>  * current start order: pcmcia, sound, network, X
+>  
+> attached: xfree86 config, /var/log/messges, XF86 start log, /proc/interrupts, dmesg
 
-This patch was applied into 2.4.0test8-pre4 and reverted when it broke
-several programs. The original bug has remained in the kernel since.
+Ciao,
+	Armin
 
-I think I found out what the problem is.
-4*ORIG_EAX - sizeof(struct pt_regs)' is not the offset of the original
-EAX on the child's stack. There are no FS and GS on the stack (which
-would come before ORIG_EAX) so, analogous to EFLAGS, it should be
-'(ORIG_EAX-2)*4-sizeof(struct pt_regs)'. The original form would
-instead point to CS on the child's stack.
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=lspci
 
-Also, by changing orig_eax to -1, we not only prevent the EIP from being
-decremented, but we're preventing EAX from being restored from ORIG_EAX
-as well. I think this is undesired, which means EAX will have to be
-restored manually.
+00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (AGP disabled) (rev 03)
+	Flags: bus master, medium devsel, latency 64
+	Memory at <unassigned> (32-bit, prefetchable) [size=64M]
 
-The patch below should fix these issues.
-I have tested it on my machine, where it appears to work.
+00:07.0 Bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
+	Flags: bus master, medium devsel, latency 0
 
+00:07.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01) (prog-if 80 [Master])
+	Flags: bus master, medium devsel, latency 64
+	I/O ports at fcf0 [size=16]
 
---- arch/i386/kernel/ptrace.c.org	Mon Jun 24 01:39:13 2002
-+++ arch/i386/kernel/ptrace.c	Mon Jun 24 04:14:58 2002
-@@ -34,9 +34,11 @@
- #define TRAP_FLAG 0x100
+00:07.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+	Flags: medium devsel
+	I/O ports at fcc0 [disabled] [size=32]
 
- /*
-- * Offset of eflags on child stack..
-+ * Offset of several registers on child stack..
-  */
--#define EFL_OFFSET ((EFL-2)*4-sizeof(struct pt_regs))
-+#define EAX_OFFSET       (EAX*4-sizeof(struct pt_regs))
-+#define ORIG_EAX_OFFSET  ((ORIG_EAX-2)*4-sizeof(struct pt_regs))
-+#define EFL_OFFSET       ((EFL-2)*4-sizeof(struct pt_regs))
+00:07.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 02)
+	Flags: medium devsel, IRQ 9
 
- /*
-  * this routine will get a word off of the processes privileged stack.
-@@ -100,6 +102,19 @@
- 			value &= FLAG_MASK;
- 			value |= get_stack_long(child, EFL_OFFSET) & ~FLAG_MASK;
- 			break;
-+		case EIP: {
-+			/* If the child was interrupted in a system call, set ORIG_EAX
-+			 * to -1 so that no attempt will be made to restart it.
-+			 * EAX needs to be restored manually in this case. */
-+			long tmp;
-+			tmp = get_stack_long(child, ORIG_EAX_OFFSET);
-+			if (tmp >= 0) {
-+				/* The child was interrupted in a system call */
-+				put_stack_long(child, EAX_OFFSET, tmp);
-+				put_stack_long(child, ORIG_EAX_OFFSET, -1);
-+			}
-+			break;
-+		}
- 	}
- 	if (regno > GS*4)
- 		regno -= 2*4;
+00:08.0 VGA compatible controller: Neomagic Corporation [MagicMedia 256AV] (rev 20) (prog-if 00 [VGA])
+	Subsystem: Sony Corporation: Unknown device 8040
+	Flags: medium devsel, IRQ 9
+	Memory at fd000000 (32-bit, prefetchable) [size=16M]
+	Memory at fe800000 (32-bit, non-prefetchable) [size=4M]
+	Memory at fed00000 (32-bit, non-prefetchable) [size=1M]
+	Capabilities: <available only to root>
 
+00:08.1 Multimedia audio controller: Neomagic Corporation [MagicMedia 256AV Audio] (rev 20)
+	Subsystem: Sony Corporation: Unknown device 8041
+	Flags: medium devsel, IRQ 9
+	Memory at fe000000 (32-bit, prefetchable) [size=4M]
+	Memory at fec00000 (32-bit, non-prefetchable) [size=1M]
+	Capabilities: <available only to root>
 
-Note that I'm pretty inexperienced with Linux kernel internals, so some of
-what I have written or assumed might not be correct, though I'm pretty
-confident the patch will do the trick.
+00:09.0 FireWire (IEEE 1394): Sony Corporation CXD1947Q i.LINK Controller (rev 01) (prog-if 00 [Generic])
+	Subsystem: Sony Corporation: Unknown device 8043
+	Flags: medium devsel, IRQ 9
+	Memory at fe7ffc00 (32-bit, non-prefetchable) [disabled] [size=512]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: <available only to root>
 
+00:0a.0 CardBus bridge: Ricoh Co Ltd RL5c478 (rev 80)
+	Subsystem: Sony Corporation: Unknown device 8042
+	Flags: bus master, medium devsel, latency 168, IRQ 9
+	Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=01, subordinate=04, sec-latency=176
+	I/O window 0: 00000000-00000003
+	I/O window 1: 00000000-00000003
+	16-bit legacy interface ports at 0001
 
-Serge
-
-
--- 
-Heisenberg knew exactly how fast his car-keys were travelling.
+00:0a.1 CardBus bridge: Ricoh Co Ltd RL5c478 (rev 80)
+	Subsystem: Sony Corporation: Unknown device 8042
+	Flags: bus master, medium devsel, latency 168, IRQ 9
+	Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=05, subordinate=08, sec-latency=176
+	Memory window 0: 60000000-60021000
+	I/O window 0: 00000200-0000027f
+	I/O window 1: 00000000-00000003
+	16-bit legacy interface ports at 0001
 
 
-
+--17pEHd4RhPHOinZp--

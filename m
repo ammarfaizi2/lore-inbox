@@ -1,109 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289027AbSAVAJH>; Mon, 21 Jan 2002 19:09:07 -0500
+	id <S289039AbSAVAIr>; Mon, 21 Jan 2002 19:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289065AbSAVAI6>; Mon, 21 Jan 2002 19:08:58 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:60944
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S289027AbSAVAIp>; Mon, 21 Jan 2002 19:08:45 -0500
-Date: Mon, 21 Jan 2002 15:53:20 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Jens Axboe <axboe@suse.de>, Davide Libenzi <davidel@xmailserver.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-In-Reply-To: <20020121235743.A28134@suse.cz>
-Message-ID: <Pine.LNX.4.10.10201211535030.15703-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S289029AbSAVAIh>; Mon, 21 Jan 2002 19:08:37 -0500
+Received: from jalon.able.es ([212.97.163.2]:32739 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S289027AbSAVAId>;
+	Mon, 21 Jan 2002 19:08:33 -0500
+Date: Tue, 22 Jan 2002 01:08:21 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
+        alad@hss.hns.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] free_swap_and_cache misses
+Message-ID: <20020122010821.A19992@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.21.0201210016040.1153-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.21.0201210016040.1153-100000@localhost.localdomain>; from hugh@veritas.com on lun, ene 21, 2002 at 01:21:29 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002, Vojtech Pavlik wrote:
 
-> On Mon, Jan 21, 2002 at 12:18:21PM -0800, Andre Hedrick wrote:
-> 
-> > > > Again, the HOST(Linux) is not following the device side rules so expect
-> > > > difficulty when we depart.  The Brain Damage is how to talk to the
-> > > > hardware, and it is clear we are not doing it right because we are bending
-> > > > the rules stuff it into and API that not acceptable.  However we are
-> > > > stuck.  Again, simplicity works, generate a MEMPOOL for PIO such that the
-> > > > buffer pages are contigious and the 4k page dance is a NOOP.  Until that
-> > > > time we will be fussing about.
-> > > 
-> > > Andre,
-> > > 
-> > > Do you know how to say "I was wrong"? You are walking off-track again.
-> > > It's clearly the way that Vojtech and I describe, otherwise current code
-> > > would just not work. And 2.4, 2.2, 2.0 neither.
-> > 
-> > I will and have done so in the past when I am, and it would be nice if you
-> > and Linus could do the same.  However since both are going to enforce the
-> > partial completion of IO on page boundaries or 4k, and you are not
-> > allowed to pause or stop in the middle of a command execution to play
-> > memory games under ATA/IDE PIO rules, period.
-> 
-> Maybe I'm again totally off-the-track, but I see no reason why I
-> couldn't stop in the middle of a PIO transfer (that is anytime, not even
-> on a sector boundary), do whatever I wish, like change the destination
-> buffer or whatever, and then continue. Sure, I can't send ANY commands
-> to the drive, and reading the status might not be a good idea either,
-> but I believe I can do anything else on the system. Is there a reason
-> why this shouldn't be possible?
+On 20020121 Hugh Dickins wrote:
+>free_swap_and_cache() often misses its purpose and leaves freeable page
+>in swap and cache.  Wrong in mainline 2.4 and 2.5, but looks okay in -aa
+>(so don't bother to apply this if you're now merging that).
+>
+>Hugh
+>
+>--- 2.4.18-pre4/mm/swapfile.c	Sun Dec 23 10:47:32 2001
+>+++ linux/mm/swapfile.c	Sun Jan 20 23:30:52 2002
+>@@ -344,7 +344,7 @@
+> 	if (page) {
+> 		page_cache_get(page);
+> 		/* Only cache user (+us), or swap space full? Free it! */
+>-		if (page_count(page) == 2 || vm_swap_full()) {
+>+		if (page_count(page) - !!page->buffers == 2 || vm_swap_full()) {
 
-Okay if the execution of the command block is ATOMIC, and we want to stop
-an ATOMIC operation to go alter buffers?  But that is not the real
-question.  The real question is do we stop and ATOMIC process to return
-data of a partial completeion, and then return to a HALTED ATOMIC and hope
-it will still go?
+Don't you trust too much on precendence, people...?
 
-DEAD Method:
-issue atomic write 255 sectors
-	write 8 sector or 4k or 1 page of memory
+-		if (page_count(page) == 2 || vm_swap_full()) {
++		if ( ((page_count(page) - !!page->buffers) == 2) || vm_swap_full() ) {
 
-	interrupt_issued
-		exit atomic write
-			update top layer buffers
-			return;
-	continue write_loop;
-	exit on completion and update remainder.
+Or i'm paranoid.
 
-BASTARDIZED Method:
-issue write 255 sectors
-	truncate to max of 8 sectors
-	issue atomic write 8 sectors
-		interrupt_issued
-		end request and notify 4k page complete
-	make new request and merge and repeat.
-	note there is a new memcpy fo new request. (max 16 to completion)
-
-
-OLD Method, with Request Page Walking:
-issue atomic write 255 sectors
-        write sectors
-        interrupt_issued
-		walk copy of request
-	continue write_loop;
-	exit on completion and request and free local buffer.
-
-CORRECT Method:
-collect contigious physical buffer of 255 sectors
-memcpy_to_local (one memcpy)
-issue atomic write 255 sectors
-	write sectors
-	interrupt_issued
-		update pointer
-	continue write_loop;
-	exit on completion and request and free local buffer.
-
-The price of the overhead and the direct flakyness of the driver we are
-running from is returning, so the alternative is to disable MULTI-Sector
-Operations.
-
-Respectfully,
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre4-beo #3 SMP Wed Jan 16 02:58:41 CET 2002 i686

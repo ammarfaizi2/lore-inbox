@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289231AbSANNgb>; Mon, 14 Jan 2002 08:36:31 -0500
+	id <S289234AbSANNkV>; Mon, 14 Jan 2002 08:40:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289234AbSANNgV>; Mon, 14 Jan 2002 08:36:21 -0500
-Received: from zero.tech9.net ([209.61.188.187]:30739 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S289231AbSANNgJ>;
-	Mon, 14 Jan 2002 08:36:09 -0500
+	id <S289236AbSANNkL>; Mon, 14 Jan 2002 08:40:11 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:13575 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S289234AbSANNkA>; Mon, 14 Jan 2002 08:40:00 -0500
+Date: Mon, 14 Jan 2002 14:39:45 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <yodaiken@fsmlabs.com>, Daniel Phillips <phillips@bonn-fries.net>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: Robert Love <rml@tech9.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@zip.com.au>, jogi@planetzork.ping.de,
-        Ed Sweetman <ed.sweetman@wmich.edu>, yodaiken@fsmlabs.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020114125619.E10227@athlon.random>
-In-Reply-To: <20020112121315.B1482@inspiron.school.suse.de>
-	<20020112160714.A10847@planetzork.spacenet>
-	<20020112095209.A5735@hq.fsmlabs.com>
-	<20020112180016.T1482@inspiron.school.suse.de>
-	<005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au>
-	<20020113184249.A15955@planetzork.spacenet>
-	<1010946178.11848.14.camel@phantasy> <3C41E415.9D3DA253@zip.com.au>
-	<1010952276.12125.59.camel@phantasy>  <20020114125619.E10227@athlon.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 14 Jan 2002 08:38:54 -0500
-Message-Id: <1011015540.4137.1.camel@phantasy>
-Mime-Version: 1.0
+In-Reply-To: <E16Q6D2-0001aZ-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0201141330350.29208-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-14 at 06:56, Andrea Arcangeli wrote:
-> On Sun, Jan 13, 2002 at 03:04:35PM -0500, Robert Love wrote:
-> > user system.  But things like (ack!) dbench 16 show a marked
-> > improvement.
-> 
-> please try again on top of -aa, and I've to specify this : benchmarked
-> in a way that can be trusted and compared, so we can make some use of
-> this information.  This mean with -18pre2aa2 alone and only -preempt on
-> top of -18pre2aa2.
+Hi,
 
-I realize the test isn't directly comparing what we want, so I asked him
-for ll+O(1) benchmark, which he gave.  Another set would be to do
-preempt and ll alone.
+On Mon, 14 Jan 2002, Alan Cox wrote:
 
-	Robert Love
+> You seem to be missing the fact that latency guarantees only work if you
+> can make progress. If a low priority process is pre-empted owning a
+> resource (quite likely) then you won't get your good latency. To
+> handle those cases you get into priority boosting, and all sorts of lock
+> complexity - so that the task that owns the resource temporarily can borrow
+> your priority in order that you can make progress at your needed speed.
+> That gets horrendously complex, and you get huge chains of priority
+> dependancies including hardware level ones.
+
+Any ll approach so far only addresses a single type of latency - the time
+from waking up an important process until it really gets the cpu. What is
+not handled by any patch are i/o latencies, that means the average time to
+get access to a specific resource. (To be exact breaking up locks modifies
+of course i/o latencies, but that's more a side effect.)
+I/O latencies are only relevant for this discussion insofar, as to verify
+they are not overly harmed by improving scheduling latencies. Preempting
+does not modify the behaviour of the scheduler, all it does is to increase
+the scheduling frequency. This means it can happen that a low priority
+task locks a resource for a longer time, because it's interrupted by
+another task. Nethertheless the current scheduler guarantees every process
+gets its share of the cpu time(*), so the low priority task will continue
+and release the resource within a guaranteed amount of time.
+So the worst behaviour I see is that on a loaded system, a low priority
+task can hold up another task, if that task should be our interactive
+task, the interactivity is of course gone. But this problem is not really
+new, as we have no guarantees regarding i/o latencies. So everyone using
+any patch should be aware of that it's not a magical tool and for getting
+better scheduling latencies, one has to trade something else, but so far
+I haven't seen any evidence that it makes something else much worse.
+
+(*) This of course assumes accurate cpu time accounting, but I mentioned
+this problem before. On the other hand it's also fixable, the tickless
+patch looks most interesting in this regard.
+
+bye, Roman
 

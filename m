@@ -1,109 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265971AbUAQDnu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 22:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUAQDnu
+	id S265981AbUAQD6e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 22:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265982AbUAQD6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 22:43:50 -0500
-Received: from wilma.widomaker.com ([204.17.220.5]:9235 "EHLO
-	wilma.widomaker.com") by vger.kernel.org with ESMTP id S265971AbUAQDnr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 22:43:47 -0500
-Date: Fri, 16 Jan 2004 22:19:26 -0500
-From: Charles Shannon Hendrix <shannon@widomaker.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: kernel 2.6.1 and cdrecord on ATAPI bus
-Message-ID: <20040117031925.GA26477@widomaker.com>
+	Fri, 16 Jan 2004 22:58:33 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:62215 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S265981AbUAQD6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 22:58:32 -0500
+Date: Sat, 17 Jan 2004 14:58:17 +1100
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [I810_AUDIO] 11/x: Fix dead lock in drain_dac
+Message-ID: <20040117035817.GA21455@gondor.apana.org.au>
+References: <20031122070931.GA27231@gondor.apana.org.au> <20031122071345.GA27303@gondor.apana.org.au> <20031122071935.GA27371@gondor.apana.org.au> <20031122082227.GA27692@gondor.apana.org.au> <20031122082635.GA27752@gondor.apana.org.au> <20031122083912.GA27884@gondor.apana.org.au> <20031122235101.GA9276@gondor.apana.org.au> <20031122235323.GA9326@gondor.apana.org.au> <20031123000202.GA9424@gondor.apana.org.au> <20031123110401.GA15665@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Content-Type: multipart/mixed; boundary="RnlQjJ0d97Da+TV1"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Message-Flag: Microsoft Loves You!
+In-Reply-To: <20031123110401.GA15665@gondor.apana.org.au>
 User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Is CD burning supposed to work with kernel 2.6.1 using the ATAPI
-interface, or are bugs still being worked out?
-
-I have run cdrecord under kernel 2.4.2x and it worked great using the
-ATAPI interface like this:
-
-% cdrecord dev=ATAPI:bus,drive,lun
-
-Instant disk information reads, never had to reload media, and burns
-were fast and reliable.  It worked fine with ide-scsi as well, but I
-wanted to get away from that as it is going away.  It worked with
-several versions of cdrecord equally well.
-
-I'm now running kernel 2.6.1, and using cdrecord with ATAPI is
-problematic.
-
-First problem is that cdrecord now must reload media often, runs slowly,
-and burns slowly.  Reading CD/RW disks burned under 2.6.x is much slower
-than those burned under kernel 2.4 (same version of cdrecord in all
-cases).
-
--scanbus works fine:
-
-% cdrecord dev=ATAPI -scanbus
-scsidev: 'ATAPI'
-devname: 'ATAPI'
-scsibus: -2 target: -2 lun: -2
-Warning: Using ATA Packet interface.
-Warning: The related libscg interface code is in pre alpha.
-Warning: There may be fatal problems.
-Cdrecord 2.00.3 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
-Using libscg version 'schily-0.7'
-scsibus0:
-	0,0,0	  0) *
-	0,1,0	  1) 'OPTORITE' 'CD-RW CW5205    ' '180E' Removable CD-ROM
-[rest of output snipped]
-
-However, -msinfo doesn't work at all.
-
-With a previously recorded CD/R, I get this:
-
-% cdrecord dev=ATAPI:0,1,0 -msinfo
-cdrecord: No disk / Wrong disk!
-
-With a previously recorded CD/RW disc, I get this:
-
-% cdrecord dev=ATAPI:0,1,0 -msinfo
-cdrecord: Drive needs to reload the media to return to proper status.
-cdrecord: Input/output error. read track info: scsi sendcmd: no error
-CDB:  52 01 00 00 00 FF 00 00 1C 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 00 00 00
-Sense Key: 0x5 Illegal Request, Segment 0
-Sense Code: 0x24 Qual 0x00 (invalid field in cdb) Fru 0x0
-Sense flags: Blk 0 (not valid) 
-cmd finished after 0.000s timeout 240s
-cdrecord: Cannot read first writable address
-
-Both are successful and verified burns.
-
-Another problem is that in later 2.4 kernels and 2.6 kernels, I often
-have to reload a CD several times before the drive recognizes it.  At
-first I figured the kernel could not possibly cause this, but it does.
-This doesn't happen when using ide-scsi.
-
-It almost seems like cd burning worked in 2.6.0-mm2, but I no longer
-have that kernel to test.  I could possibly be convinced to rebuild it
-if anyone wants to confirm this.
-
-I've had better overall luck using ide-scsi, but since it is going away,
-I decided to quit building it.
-
-What should I do to continue debugging this problem?
-
-
-
-
-
-
-
+This patch fixes a typo in a previous change that causes the driver
+to deadlock under SMP.
 -- 
-UNIX/Perl/C/Pizza____________________s h a n n o n@wido !SPAM maker.com
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: kernel-2.4/drivers/sound/i810_audio.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/drivers/sound/i810_audio.c,v
+retrieving revision 1.19
+diff -u -r1.19 i810_audio.c
+--- kernel-2.4/drivers/sound/i810_audio.c	29 Nov 2003 09:53:43 -0000	1.19
++++ kernel-2.4/drivers/sound/i810_audio.c	16 Jan 2004 22:49:54 -0000
+@@ -1260,7 +1260,7 @@
+ 	 * any possible deadlocks.
+ 	 */
+ 	dmabuf->trigger = PCM_ENABLE_OUTPUT;
+-	i810_update_lvi(state, 0);
++	__i810_update_lvi(state, 0);
+ 
+ 	spin_unlock_irqrestore(&state->card->lock, flags);
+ 
+
+--RnlQjJ0d97Da+TV1--

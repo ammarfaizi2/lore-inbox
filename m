@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263204AbTBXWzM>; Mon, 24 Feb 2003 17:55:12 -0500
+	id <S263333AbTBXW5K>; Mon, 24 Feb 2003 17:57:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263215AbTBXWzM>; Mon, 24 Feb 2003 17:55:12 -0500
-Received: from dial-ctb05215.webone.com.au ([210.9.245.215]:10756 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S263204AbTBXWzK>;
-	Mon, 24 Feb 2003 17:55:10 -0500
-Message-ID: <3E5AA51F.20402@cyberone.com.au>
-Date: Tue, 25 Feb 2003 10:05:03 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: anticipation is killing me
-References: <Pine.LNX.4.44.0302242142570.1343-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0302242142570.1343-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263342AbTBXW5J>; Mon, 24 Feb 2003 17:57:09 -0500
+Received: from 12-225-92-115.client.attbi.com ([12.225.92.115]:2944 "EHLO
+	p3.coop.hom") by vger.kernel.org with ESMTP id <S263333AbTBXW5I>;
+	Mon, 24 Feb 2003 17:57:08 -0500
+Date: Mon, 24 Feb 2003 15:06:40 -0800
+From: Jerry Cooperstein <coop@axian.com>
+To: linux-kernel@vger.kernel.org
+Subject: Thinkpad Keyboard nuttiness since 2.5.60 with power management
+Message-ID: <20030224230640.GA1225@p3.attbi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
+Since 2.5.60 the keyboard on my Thinkpad 600X randomly
+autorepeats each stroke multiple times, only when
+power management is enabled (either APM or ACPI) and
+only when powered up with no AC power.  With AC power
+everything is fine, and pulling the plug out has
+no effects.
 
->With 2.5.62-mm3 (not -mm2) I need small patch to can_start_anticipation.
->I've not studied the code, this patch may be the worst nonsense; and if
->it's at all mysterious to you, sorry, I probably won't be able to give
->more info until tomorrow...
->
->Hugh
->
->--- 2.5.62-mm3/drivers/block/as-iosched.c	Mon Feb 24 12:29:49 2003
->+++ linux/drivers/block/as-iosched.c	Mon Feb 24 21:38:39 2003
->@@ -856,7 +856,8 @@
-> 		 */
-> 		del_timer(&ad->antic_timer);
-> 		ad->antic_status = ANTIC_FINISHED;
->-		blk_remove_plug(arq->request->q);
->+		if (arq)
->+			blk_remove_plug(arq->request->q);
-> 		schedule_work(&ad->antic_work);
-> 		return 0;
-> 	}
->
-No that makes sense. We want to remove the plug even if
-arq is null however so I'll have to pass it in I suppose.
+Everything was fine in 2.5.59, and I can't find anything
+in the 2.5.59->2.5.60 patch that could have caused this.
+Anyone else see this -- or maybe I have a hardware problem
+the patch is making visible?
+
+Thanks
+
+======================================================================
+ Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
+ Axian, Inc., Software Consulting and Training
+ 4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
+ http://www.axian.com/               
+======================================================================
 

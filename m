@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267879AbTBYJpG>; Tue, 25 Feb 2003 04:45:06 -0500
+	id <S267881AbTBYKDS>; Tue, 25 Feb 2003 05:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267883AbTBYJpG>; Tue, 25 Feb 2003 04:45:06 -0500
-Received: from packet.digeo.com ([12.110.80.53]:19340 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267879AbTBYJpF>;
-	Tue, 25 Feb 2003 04:45:05 -0500
-Date: Tue, 25 Feb 2003 01:55:37 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-Cc: helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Dave McCracken <dmccr@us.ibm.com>
-Subject: Re: 2.5.62-mm3 - no X for me
-Message-Id: <20030225015537.4062825b.akpm@digeo.com>
-In-Reply-To: <20030225094526.GA18857@gemtek.lt>
-References: <20030223230023.365782f3.akpm@digeo.com>
-	<3E5A0F8D.4010202@aitel.hist.no>
-	<20030224121601.2c998cc5.akpm@digeo.com>
-	<20030225094526.GA18857@gemtek.lt>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267883AbTBYKDS>; Tue, 25 Feb 2003 05:03:18 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:26863 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S267881AbTBYKDR>; Tue, 25 Feb 2003 05:03:17 -0500
+Subject: Re: kernel -2.4.18
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Fernando R Secco <TByteP@netscape.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3E5AB69B.5020907@netscape.net>
+References: <3E5AB69B.5020907@netscape.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SlQAuGtT1onVo3w/LWzW"
+Organization: 
+Message-Id: <1046168007.1523.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Feb 2003 09:55:13.0727 (UTC) FILETIME=[FDEDC4F0:01C2DCB3]
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 25 Feb 2003 11:13:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zilvinas Valinskas <zilvinas@gemtek.lt> wrote:
->
-> On Mon, Feb 24, 2003 at 12:16:01PM -0800, Andrew Morton wrote:
-> > Helge Hafting <helgehaf@aitel.hist.no> wrote:
-> > >
-> > > 2.5.62-mm3 boots up fine, but won't run X.  Something goes
-> > > wrong switching to graphics so my monitor says "no signal"
-> > > 
-> >
-> This is the boot messages and decoded ksymoops which happens when I try
-> to log off and login as a different user in KDE3.1 (debian/unstable).
-> 
 
-Ah, thank you.
+--=-SlQAuGtT1onVo3w/LWzW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	kernel BUG at mm/rmap.c:248!
+On Tue, 2003-02-25 at 01:19, Fernando R Secco wrote:
+> mmap
+> forget_pte: old mapping existed!
+> ------------[ cut here ]------------
+> kernel BUG at memory.c:314!
+> invalid operand: 0000
+> driver_myrinet nls_iso8859-1 cmpci soundcore ide-cd cdrom agpgart nvidia=20
 
-The fickle finger of fate points McCrackenwards.
+thank you for using nvidia and driver_myrinet. please report this bug to
+either of the vendors of these modules instead, the driver_myrinet seems
+to be the cause of this one.
 
-> > Does 2.5.63 do the same thing?
-> I haven't tried this yet.
 
-2.5.63 should be OK.
+--=-SlQAuGtT1onVo3w/LWzW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+W0HHxULwo51rQBIRAhcMAJ9JLBwOAVoCpCY4ATaqxcxLN2xspgCgiRhj
+AEGzbs2zc+lUsHkz0sb8G9Y=
+=utce
+-----END PGP SIGNATURE-----
+
+--=-SlQAuGtT1onVo3w/LWzW--

@@ -1,44 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbTI3Qr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 12:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTI3Qr7
+	id S261601AbTI3QzO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 12:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbTI3QzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 12:47:59 -0400
-Received: from main.gmane.org ([80.91.224.249]:65434 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261291AbTI3Qr6 (ORCPT
+	Tue, 30 Sep 2003 12:55:14 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:8582 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S261601AbTI3QzJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 12:47:58 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Schwarz <usenet.2117@andreas-s.net>
-Subject: Re: Call traces due to lost IRQ
-Date: Tue, 30 Sep 2003 16:47:56 +0000 (UTC)
-Message-ID: <slrnbnjcu8.43n.usenet.2117@home.andreas-s.net>
-References: <20030930154032.GA795@donald.balu5>
+	Tue, 30 Sep 2003 12:55:09 -0400
+Date: Tue, 30 Sep 2003 17:54:50 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Dave Jones <davej@redhat.com>, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, richard.brunner@amd.com
+Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
+Message-ID: <20030930165450.GF28876@mail.shareable.org>
+References: <20030930073814.GA26649@mail.jlokier.co.uk> <20030930132211.GA23333@redhat.com> <20030930133936.GA28876@mail.shareable.org> <20030930135324.GC5507@redhat.com> <20030930144526.GC28876@mail.shareable.org> <20030930150825.GD5507@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.8.0 (Linux)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930150825.GD5507@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Pitt wrote:
-> [1.] Kernel boot yields lost IRQ with some call traces
->
-> [2.] When booting 2.6.0-test6, the following message appears:
->
-> 	------------- snip -------------
-> 	irq 12: nobody cared!
-> 	Call Trace:
-> 	 [<c010b5ca>] __report_bad_irq+0x2a/0x90
-> 	 [<c010b6bc>] note_interrupt+0x6c/0xa0
+Dave Jones wrote:
+> >    - I don't see anything that prevents a PPro-compiled kernel from booting
+> >      on a P5MMX with the F00F erratum.
+> 
+> Compiled with -m686 - Uses CMOV, won't boot.
 
-I've got the same messages (2.6.0-test6-mm1).
+Ok, not PPro, but with Processor Family set to K6, CYRIXIII, or any of
+the 3 WINCHIP choices, it is compiled with -march=i585 and without F00F.
 
--- 
-AVR-Tutorial, über 350 Links
-Forum für AVRGCC und MSPGCC
--> http://www.mikrocontroller.net
+(Fixing that by adding F00F too all those non-Intel processors, just to
+make sure non-F00F kernels crash with a cmov instruction is too subtle
+for my taste.)
 
+Anyway, it should complain about lack of cmov not crash :)
+
+> 1. The splitting of X86_FEATURE_XMM into X86_FEATURE_XMM_PREFETCH and
+>    X86_FEATURE_3DNOW_PREFETCH doesn't seem to really buy us anything
+>    other than complication.
+
+I once suggested turning off XMM entirely when prefetch is broken and
+not fixed, but that resulted in a mild toasting, hence the extra
+synthetic flag.
+
+It's not really split: XMM_PREFETCH is an additional flag, on top of
+XMM, which simply means Linux decided it's safe to use the prefetch
+instruction.
+
+The only reason it's a feature flag is because the "alternative" macro
+needs one.
+
+> +       /* Prefetch works ok? */
+> +#ifndef CONFIG_X86_PREFETCH_FIXUP
+> +       if (c->x86_vendor != X86_VENDOR_AMD || c->x86 < 6)
+> +#endif
+> +       {
+> +               if (cpu_has(c, X86_FEATURE_XMM))
+> +                       set_bit(X86_FEATURE_XMM_PREFETCH, c->x86_capability);
+> +               if (cpu_has(c, X86_FEATURE_3DNOW))
+> +                       set_bit(X86_FEATURE_3DNOW_PREFETCH, c->x86_capability);
+> +       }
+> 
+> - If we haven't set CONFIG_X86_PREFETCH_FIXUP (say a P4 kernel), this
+>   code path isn't taken, and we end up not doing prefetches on P4's too
+>   as you're not setting X86_FEATURE_XMM_PREFETCH anywhere else, and apply_alternatives
+>   leaves them as NOPs.
+> - Newer C3s are 686's with prefetch, this nobbles them too.
+
+Read the code again.  It does what you think it doesn't do, so to speak.
+
+-- Jamie

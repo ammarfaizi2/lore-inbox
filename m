@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272046AbTHHWmL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 18:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272059AbTHHWmL
+	id S272042AbTHHWeq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 18:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272059AbTHHWeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 18:42:11 -0400
-Received: from codepoet.org ([166.70.99.138]:13267 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S272046AbTHHWmJ (ORCPT
+	Fri, 8 Aug 2003 18:34:46 -0400
+Received: from fw1.masirv.com ([65.205.206.2]:700 "EHLO NEWMAN.masirv.com")
+	by vger.kernel.org with ESMTP id S272042AbTHHWep (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 18:42:09 -0400
-Date: Fri, 8 Aug 2003 16:42:10 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Georg Schwarz <geos@epost.de>
-Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
-Subject: Re: 2.4.21/2.4.22-rc1: IDE error message on startup
-Message-ID: <20030808224210.GA26877@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Georg Schwarz <geos@epost.de>, linux-kernel@vger.kernel.org,
-	andre@linux-ide.org
-References: <1fze7ly.1v3ap5q173m695M@geos.net.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1fze7ly.1v3ap5q173m695M@geos.net.eu.org>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	Fri, 8 Aug 2003 18:34:45 -0400
+Message-ID: <1060328695.9074.95.camel@huykhoi>
+From: Anthony Truong <Anthony.Truong@mascorp.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Physically contiguous (DMA) memory allocation
+Date: Fri, 8 Aug 2003 00:44:55 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Aug 08, 2003 at 10:05:08PM +0200, Georg Schwarz wrote:
-> Dear Linux kernel maintainers,
-> 
-> the following problem (aka bug?) appeared in 2.4.21 and still exists in
-> 2.4.22-rc1 (kernels prior to 2.4.21 work fine):
-> 
-> SETUP:
-> various mostly older PCs (486, Pentium I) and various smaller IDE drives
-> (can would be happy to more details if needed)
-> 
-> PROBLEM:
-> With Linux 2.4.21 or 2.4.22-rc1 (not with prior versions using the same
-> .config however) on startup I get the following error messages for any
-> connected IDE disk (but not ATAPI CR-ROM):
-> 
-> hda: attached ide-disk driver.
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
+Hello,
+I'm working on a driver for one of our devices with some heavy DMA
+memory requirements - 20 - 30 MB in all.  As a loadable module (perfect
+for development stage), the driver frequently causes annoying OOM
+problems.
+Is there a quick solution to this problem, like increasing the size of
+the physically contiguous page pool (like in Windows NT and some other
+OS'es :-( )? (Is it a good idea to make this one of the future
+enhancements to Linux?)  Or should I write a driver loaded at boot time
+grabbing the required memory pages and allocating them to my loadable
+driver when requested?
+Your suggestion is very much appreciated.
 
-A change was made to ide-disk.c where it _always_ attempts to do
-a READ_NATIVE_MAX call regardless of whether the drive supports
-the host protected area feature set in the
-init_idedisk_capacity() function.  I submitted a patch to address
-this, which is currently being reworked a bit in the 2.6 kernel 
-tree and will then be backported again to 2.4.
+Regards,
+Anthony Dominic Truong.
 
- -Erik
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+
+
+
+Disclaimer: The information contained in this transmission, including any
+attachments, may contain confidential information of Matsushita Avionics
+Systems Corporation.  This transmission is intended only for the use of the
+addressee(s) listed above.  Unauthorized review, dissemination or other use
+of the information contained in this transmission is strictly prohibited.
+If you have received this transmission in error or have reason to believe
+you are not authorized to receive it, please notify the sender by return
+email and promptly delete the transmission.
+
+

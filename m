@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbTAJPWd>; Fri, 10 Jan 2003 10:22:33 -0500
+	id <S265230AbTAJPZD>; Fri, 10 Jan 2003 10:25:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbTAJPVC>; Fri, 10 Jan 2003 10:21:02 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:47250
+	id <S265246AbTAJPYy>; Fri, 10 Jan 2003 10:24:54 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48530
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265201AbTAJPUj>; Fri, 10 Jan 2003 10:20:39 -0500
-Subject: Re: [2.4.20] e1000 as module gives unresolved symbol _mmx_memcpy
+	id <S265305AbTAJPYn>; Fri, 10 Jan 2003 10:24:43 -0500
+Subject: Re: [PATCH] ne.c 8139too.c to fix CERT VU#412115, 2.4.20
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042211459.2706.9.camel@paragon.slim>
-References: <1042206299.1694.12.camel@paragon.slim>
-	 <1042211643.31612.2.camel@irongate.swansea.linux.org.uk>
-	 <1042211459.2706.9.camel@paragon.slim>
+To: David McCullough <davidm@snapgear.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, becker@scyld.com,
+       jgarzik@mandrakesoft.com
+In-Reply-To: <20030111005234.A4803@beast.internal.moreton.com.au>
+References: <20030111005234.A4803@beast.internal.moreton.com.au>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1042215336.31848.1.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1042215573.31848.6.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 10 Jan 2003 16:15:37 +0000
+Date: 10 Jan 2003 16:19:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-10 at 15:10, Jurgen Kramer wrote:
-> a) a kernel build for a VIA C3 doesn't use MMX, userspace programs can
-> still use it
+On Fri, 2003-01-10 at 14:52, David McCullough wrote:
+> Hi all,
+> 
+> Here's a patch for the ne2000 driver (ne.c) and the RealTek driver
+> (8139too.c) in the 2.4.20 kernel to fix the CERT vulnerability VU#412115:
+> 
+> 	http://www.kb.cert.org/vuls/id/412115
 
-Basically true. It might be instructive to do more benching on this with
-the C3 and MMX especially if the new cores add full prefetch stuff
+See Marcelo pre tree and -ac tree. I think we have them all covered
+between the -ac tree and Marcelo's BK stuff
 
-> b) Both kernel and userspace can't use MMX any more
+> For interest,  the smc9194 and FEC ethernet drivers appear to be ok.
+> Please CC me on any replies,
 
-MMX is designed to need no OS support. SSE/SSE2 do need OS helpers but
-not MMX.
+FEC I agree with. SMC9194 I believe needs fixing (and is fixed in the
+-ac tree).
+
+Alan
 

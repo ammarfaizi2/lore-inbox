@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263828AbTKXRyy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 12:54:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263830AbTKXRyy
+	id S262360AbTKXSLK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 13:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbTKXSLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 12:54:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:14017 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263828AbTKXRyw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 12:54:52 -0500
-Date: Mon, 24 Nov 2003 10:00:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC] Make balance_dirty_pages zone aware (1/2)
-Message-Id: <20031124100043.5416ed4c.akpm@osdl.org>
-In-Reply-To: <1034580000.1069688202@[10.10.2.4]>
-References: <3FBEB27D.5010007@us.ibm.com>
-	<20031123143627.1754a3f0.akpm@osdl.org>
-	<1034580000.1069688202@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Nov 2003 13:11:10 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:13699 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262360AbTKXSLH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 13:11:07 -0500
+Date: Mon, 24 Nov 2003 13:13:42 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: splite@purdue.edu
+cc: Jakob Lell <jlell@JakobLell.de>, linux-kernel@vger.kernel.org
+Subject: Re: hard links create local DoS vulnerability and security problems
+In-Reply-To: <20031124180838.GA8065@sigint.cs.purdue.edu>
+Message-ID: <Pine.LNX.4.53.0311241312180.18685@chaos>
+References: <200311241736.23824.jlell@JakobLell.de> <Pine.LNX.4.53.0311241205500.18425@chaos>
+ <200311241857.41324.jlell@JakobLell.de> <20031124180838.GA8065@sigint.cs.purdue.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+On Mon, 24 Nov 2003 splite@purdue.edu wrote:
+
+> On Mon, Nov 24, 2003 at 06:57:41PM +0100, Jakob Lell wrote:
+> > [...]
+> > Setuid-root binaries also work in a home directory.
+> > You can try it by doing this test:
+> > ln /bin/ping $HOME/ping
+> > $HOME/ping localhost
+> > [...]
 >
-> >> Currently the VM decides to start doing background writeback of pages if 
-> >>  10% of the systems pages are dirty, and starts doing synchronous 
-> >>  writeback of pages if 40% are dirty.  This is great for smaller memory 
-> >>  systems, but in larger memory systems (>2GB or so), a process can dirty 
-> >>  ALL of lowmem (ZONE_NORMAL, 896MB) without hitting the 40% dirty page 
-> >>  ratio needed to force the process to do writeback. 
-> > 
-> > Yes, it has been that way for a year or so.  I was wondering if anyone
-> > would hit any problems in practice.  Have you hit any problem in practice?
-> > 
-> > I agree that the per-zonification of this part of the VM/VFS makes some
-> > sense, although not _complete_ sense, because as you've seen, we need to
-> > perform writeout against all zones' pages if _any_ zone exceeds dirty
-> > limits.  This could do nasty things on a 1G highmem machine, due to the
-> > tiny highmem zone.  So maybe that zone should not trigger writeback.
-> > 
-> > However the simplest fix is of course to decrease the default value of the
-> > dirty thresholds - put them back to the 2.4 levels.  It all depends upon
-> > the nature of the problems which you have been observing?
-> 
-> I'm not sure that'll fix the problem for NUMA boxes, which is where we 
-> started.
+> That's why you don't put user-writable directories on the root or /usr
+> partitions.  (For extra points, mount your /tmp and /var/tmp partitions
+> nodev,nosuid.)  Seriously guys, this is Unix Admin 101, not a major new
+> security problem.
+>
 
-What problems?
-
-> When any node fills up completely with dirty pages (which would
-> only require one process doing a streaming write (eg an ftp download),
-> it seems we'll get into trouble.
-
-What trouble?
-
-> If we change the thresholds from 40% to
-> 20%, that just means you need a slightly larger system to trigger it,
-> it never fixes the problem ;-(
-
-What problem?
+And if the inode that was referenced in the root-owned directory
+was deleted, it would no longer function as setuid root.
 
 
-If we make the dirty threshold a proportion of the initial amount of free
-memory in ZONE_NORMAL, as is done in 2.4 it will not be possible to fill
-any node with dirty pages.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

@@ -1,55 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbVCPLFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbVCPLMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262544AbVCPLFu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 06:05:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVCPLFu
+	id S262546AbVCPLMv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 06:12:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVCPLMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 06:05:50 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:40903 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262544AbVCPLFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 06:05:34 -0500
-Date: Wed, 16 Mar 2005 06:05:09 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Andrew Morton <akpm@osdl.org>
-cc: Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
-In-Reply-To: <20050316024022.6d5c4706.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
-References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
- <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain> <20050315120053.GA4686@elte.hu>
- <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> <20050315133540.GB4686@elte.hu>
- <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain> <20050316085029.GA11414@elte.hu>
- <20050316011510.2a3bdfdb.akpm@osdl.org> <20050316095155.GA15080@elte.hu>
- <20050316020408.434cc620.akpm@osdl.org> <20050316101906.GA17328@elte.hu>
- <20050316024022.6d5c4706.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Mar 2005 06:12:51 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:64775
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S262546AbVCPLMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 06:12:48 -0500
+Date: Wed, 16 Mar 2005 12:12:47 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Noah Meyerhans <noahm@csail.mit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OOM problems with 2.6.11-rc4
+Message-ID: <20050316111247.GD11192@opteron.random>
+References: <20050315204413.GF20253@csail.mit.edu> <20050316003134.GY7699@opteron.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050316003134.GY7699@opteron.random>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 16, 2005 at 01:31:34AM +0100, Andrea Arcangeli wrote:
+> In short I think we can start by trying this fix (which has some risk,
+> since now it might become harder to detect an oom condition, but I don't
 
-
-On Wed, 16 Mar 2005, Andrew Morton wrote:
-
->
-> Those two are in the journal, actually.  You refer to jbd_lock_bh_state()
-> and jbd_lock_bh_journal_head().  I think they both need to be in the
-> buffer_head.  jbd_lock_bh_journal_head() can probably go away (just use
-> caller's jbd_lock_bh_state()).
->
-> Or make them global, or put them in the journal.
-
-The jbd_lock_bh_journal_head can be one global lock without a problem. But
-when I made jbd_lock_bh_state a global lock, I believe it deadlocked on
-me.  So this one has to go into the buffer head.  What do you mean with
-"put them in the journal", do you mean the journal_s structure? Is there a
-safe way to get to that structure from the buffer head?  The state lock is
-used quite a bit and it gets tricky trying to figure out how to use other
-structures wrt buffer_heads at all the locations that use
-jbd_lock_bh_state.
-
--- Steve
+Some testing shows that oom conditions are still detected fine (I
+expected this but I wasn't completely sure until I tested it ;). Now the
+main question is if this is enough to fix your problem or if there are
+more hidden bugs in the same area.

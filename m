@@ -1,94 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263033AbUEQW6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUEQW7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263033AbUEQW6V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 18:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUEQW6U
+	id S263085AbUEQW7O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 18:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUEQW7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 18:58:20 -0400
-Received: from grouse.mail.pas.earthlink.net ([207.217.120.116]:45299 "EHLO
-	grouse.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S263033AbUEQW57 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 18:57:59 -0400
-Subject: Re: HDIO_SET_DMA failed: with nforce2 board
-From: Mike Kordik <Mike@Kordik.net>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200405171813.07359.bzolnier@elka.pw.edu.pl>
-References: <pan.2004.05.17.02.15.01.317598@kordik.net>
-	 <200405171434.24417.bzolnier@elka.pw.edu.pl>
-	 <22324.64.214.120.194.1076836710.squirrel@www.kordik.net>
-	 <200405171813.07359.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Message-Id: <1084834674.3436.7.camel@Jacob>
+	Mon, 17 May 2004 18:59:14 -0400
+Received: from mail.kroah.org ([65.200.24.183]:32710 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263045AbUEQW7G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 18:59:06 -0400
+Date: Mon, 17 May 2004 15:58:16 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
+       james.bottomley@steeleye.com
+Subject: Re: [PATCH] init. mca_bus_type even if !MCA_bus
+Message-ID: <20040517225816.GA21333@kroah.com>
+References: <20040517144603.1c63895f.rddunlap@osdl.org> <20040517151412.1f7fb7d4.akpm@osdl.org> <20040517150828.2d5afc1a.rddunlap@osdl.org> <20040517155222.11f4b253.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 17 May 2004 18:57:54 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040517155222.11f4b253.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-17 at 12:13, Bartlomiej Zolnierkiewicz wrote:
-> On Sunday 15 of February 2004 10:18, mike@kordik.net wrote:
-> > > On Monday 17 of May 2004 13:39, Mike Kordik wrote:
-> > >> On Mon, 2004-05-17 at 07:13, Bartlomiej Zolnierkiewicz wrote:
-> > >> > On Monday 17 of May 2004 04:15, Mike wrote:
-> > >> > > I have an nforce2 based board and I cannot enable dma.
-> > >> >
-> > >> > 'dmesg' output, please
-> > >>
-> > >> I posted using PAN and I am trying to respond with PAM but todays posts
-> > >> and some of yesterdays are not showing up. I do not know what the
-> > >> problem is but I apologize for responding this way. Here is my dmesg
-> > >> output:
-> > >
-> > > OK, thanks.
-> > >
-> > >> Linux version 2.6.4-rc1-mm1 (root@cdimage) (gcc version 3.3.3 20040217
-> > >> (Gentoo Linux 3.3.3, propolice-3.3-7)) #3 Mon May 17 00:17:40 EDT 2004
-> > >
-> > > ...
-> > >
-> > >> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> > >> ide: Assuming 33MHz system bus speed for PIO modes; override with
-> > >> idebus=xx
-> > >> pnp: the driver 'ide' has been registered
-> > >> hda: Maxtor 6Y120L0, ATA DISK drive
-> > >> hdb: WDC WD1600BB-00HTA0, ATA DISK drive
-> > >> hdc: MATSHITADVD-ROM SR-8582, ATAPI CD/DVD-ROM drive
-> > >> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > >> ide1 at 0x170-0x177,0x376 on irq 15
-> > >
-> > > AMD/nVidia IDE driver didn't recognize the controller
-> > > (or driver wasn't compiled in for some reason).
-> > >
-> > > I need full .config and 'lspci -vvv' output to know more.
-> > >
-> > > Bartlomiej
+On Mon, May 17, 2004 at 03:52:22PM -0700, Andrew Morton wrote:
+> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
 > >
-> > Bartlomiej,
-> >      Thank you for your help!
-> >
-> > I double checked my boot partition to make sure I actually had copied over
-> > the latest kernel I had compiled and it has the right date and time stamp
-> > on it.
-> >
-> > The info you requessted.
-> >
-> > .config:
+> > On Mon, 17 May 2004 15:14:12 -0700 Andrew Morton wrote:
+> > 
+> > | "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+> > | >
+> > | > -	if(mca_system_init()) {
+> > | > +	if (mca_system_init()) {
+> > | >  		printk(KERN_ERR "MCA bus system initialisation failed\n");
+> > | >  		return -ENODEV;
+> > | >  	}
+> > | >  
+> > | > +	if (!MCA_bus)
+> > | > +		return -ENODEV;
+> > | 
+> > | Why is it appropriate to register the MCA bus type when there is no
+> > | MCA bus present?
+> > 
+> > Mostly because it was selected with CONFIG_MCA=y.
+> > 
+> > Another option (I think, need to test) is to check !MCA_bus
+> > in drivers/mca/mca-legacy.c::find_mca_adapter(), so that
+> > mca_bus_type isn't used when it shouldn't be.
+> > 
+> > Do you prefer that approach?
 > 
-> Weird, everything looks OK.  Can you retest with vanilla 2.6.4-rc1?
+> well my question really was a question, rather than a reimplementation
+> suggestion.  If it _is_ appropriate that mca_bus_type be registered on a
+> platform which is discovered to have no MCA hardware then fine.
 > 
+> Greg? James?  Any insights?
 
-Bartlomiej,
-	I am running Gentoo and there is not an ebuild for the Vanilla kernel
-for 2.6. I know I can still build it but since you said that I had
-everything configured correctly I got to thinking. I had remembered a
-"feature" to rebuild the kernel cleanly, mrproper, so I gave it a shot.
-I did a make mrproper and rebuilt the kernel as normal. Now the nforce2
-chipset is detected on boot and DMA is on! 
+Ick, James is the one to answer here, as I remember this being pretty
+messy at times due to the way the MCA code currently is...
 
-Thank you so much for your time and the help you have given me. :)
+thanks,
 
-Kindest regards,
-Mike
-
+greg k-h

@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281692AbRLFRxd>; Thu, 6 Dec 2001 12:53:33 -0500
+	id <S281726AbRLFR7E>; Thu, 6 Dec 2001 12:59:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281717AbRLFRxY>; Thu, 6 Dec 2001 12:53:24 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63502 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281692AbRLFRxN>; Thu, 6 Dec 2001 12:53:13 -0500
-Subject: Re: Linux/Pro  -- clusters
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Thu, 6 Dec 2001 18:02:12 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9uo83q$aa7$1@penguin.transmeta.com> from "Linus Torvalds" at Dec 06, 2001 04:58:34 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281754AbRLFR6z>; Thu, 6 Dec 2001 12:58:55 -0500
+Received: from femail45.sdc1.sfba.home.com ([24.254.60.39]:41659 "EHLO
+	femail45.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S281726AbRLFR6j>; Thu, 6 Dec 2001 12:58:39 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Date: Thu, 6 Dec 2001 04:57:17 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16C2qa-0002RR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011206175837.IRKQ15590.femail45.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Timeouts for different commands were so different that people ended up
-> making most timeouts so long that they no longer made sense for other
-> commands etc.
+On Thursday 06 December 2001 11:49 am, Rik van Riel wrote:
 
-Thats per _target_ not host. Which needs to be common code.
+> > It's insidious, isn't it?
+>
+> Yes, I agree the method you're using to smuggle CML2 into
+> a stable kernel is insidious. Please stop it.
 
-> Other device drivers have been able to handle timeouts and errors on
-> their own before, and have _not_ had the kinds of horrendous problems
-> that the SCSI layer has had.
+1) I'm not.  You're getting your players confused.
 
-Every IDE layer uses the same IDE error handling code, because every IDE
-driver would otherwise have to make a copy of it - ditto scsi. 
+2) I don't think Marcelo would take it, so I wouldn't even bother offering it 
+to him.
 
-> that it is a major mistake to try to have generic error handling.  The
-> only true generic thing is "this request finished successfully / with an
-> error", and _no_ high-level retries etc. It's up to the driver to decide
-> if retries make sense.
+3) I'm suggesting that if it does go in the old method doesn't go away, so 
+that people who don't want to use the new stuff don't have to.  I think 
+making the old pile of cruft disappear in a stable series IS a bad thing.  
+However, if adding new modular subsystems which people don't have to use (and 
+which require newer tools if you DO want to use them) was a bad thing...  
+Reiser, ext3, and the new vm circa 2.4.10 broke several GUI system monitors...
 
-Retries and retry handling are target specific not host specific (think
-about the ton of logic you need every time your cd rom decides to error
-a read). You can have a read turn into a sequence of operations while you
-go and work out why it failed, ask it if its ready, tell it to lock the
-door, spin up the media, wait for it to be ready, reissue the I/O.
+> regards,
+>
+> Rik
 
-This processing has to be robust because scsi cd-roms for example are
-rarely robust themselves.
-
-So its very much
-
-	request->controller
-			libscsi -> make me a command block
-			issue command
-	
-	interrupt->controller
-		error ?
-			libscsi recommend an action please
-			add suggested recovery to queue head
-			kick request handling
-
-> (Often retrying _doesn't_ make sense, because the firmware on the
-> high-end card or disk itself may already have done retries on its own,
-> and high-level error handling is nothing but a waste of time and causes
-> the error notification to be even more delayed).
-
-Those devices aren't SCSI controllers, and they don't want to appear as one.
-Thats a horrible windows NT habit that harms performance badly. Of course
-everyone is now doing it with Linux because someone wouldn't provide more
-major numbers.
-
-Which is another thing - can you make the internal dev_t 32 or 64bits now.
-You can have 65536 volumes on an S/390 so even with perfectly distributed
-devfs allocated device identifiers - we don't have enough.
-
-Alan
+Rob

@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314082AbSFQO32>; Mon, 17 Jun 2002 10:29:28 -0400
+	id <S314138AbSFQOuT>; Mon, 17 Jun 2002 10:50:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314080AbSFQO32>; Mon, 17 Jun 2002 10:29:28 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:31249 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S314078AbSFQO31>; Mon, 17 Jun 2002 10:29:27 -0400
-Message-Id: <200206171429.g5HETBV02481@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Kurt Garloff <kurt@garloff.de>, Oliver Neukum <oliver@neukum.name>,
-       dougg@torque.net, Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       David Brownell <david-b@pacbell.net>, Andries.Brouwer@cwi.nl,
-       sancho@dauskardt.de, linux-usb-devel@lists.sourceforge.net,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: [garloff@suse.de: Re: [linux-usb-devel] Re: /proc/scsi/map] 
-In-Reply-To: Message from Kurt Garloff <kurt@garloff.de> 
-   of "Mon, 17 Jun 2002 03:24:00 +0200." <20020617012400.GH21461@gum01m.etpnet.phys.tue.nl> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 17 Jun 2002 09:29:11 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S314243AbSFQOuS>; Mon, 17 Jun 2002 10:50:18 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:38065 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S314138AbSFQOuS>;
+	Mon, 17 Jun 2002 10:50:18 -0400
+Date: Mon, 17 Jun 2002 16:48:05 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: [patch] cli() preemption fix, 2.5.22
+Message-ID: <Pine.LNX.4.44.0206171643200.15396-100000@e2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kurt@garloff.de said:
-> This may work for your disks. You just can't open the device node for
-> a tape, if there is no medium inserted. If you know the mapping
-> between to a sg device you can use it.
 
-Actually, you have to use sg for a disc as well since you send a scsi CDB 
-directly to the device for inquiry page 0x83.
+the attached patch should fix a bug in __global_cli(). One failure
+scenario: if irqs-enabled syscall-level code calls cli() then we might get
+a preemption right after the 'cpu' assignment, but before the __cli(). The
+task might be moved to another CPU, and from that point on evil things
+might happen, get_irqlock() will do wild things if 'cpu' is not the
+current one. This is a one-instruction race but should be well possible to
+trigger. Comments?
 
-> That's the second piece of information that /proc/scsi/map provides. 
+	Ingo
 
-Oh no question.  The way the current code doing this works is that it opens 
-all scsi devices and issues a GET_IDLUN to compile a database of the nodes and 
-then matches them up to sg nodes.
-
-James
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.509   -> 1.510  
+#	arch/i386/kernel/irq.c	1.9     -> 1.10   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/06/17	mingo@elte.hu	1.510
+# - fix preemption bug in cli().
+# --------------------------------------------
+#
+diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
+--- a/arch/i386/kernel/irq.c	Mon Jun 17 16:43:08 2002
++++ b/arch/i386/kernel/irq.c	Mon Jun 17 16:43:08 2002
+@@ -356,8 +356,9 @@
+ 
+ 	__save_flags(flags);
+ 	if (flags & (1 << EFLAGS_IF_SHIFT)) {
+-		int cpu = smp_processor_id();
++		int cpu;
+ 		__cli();
++		cpu = smp_processor_id();
+ 		if (!local_irq_count(cpu))
+ 			get_irqlock(cpu);
+ 	}
 

@@ -1,28 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317006AbSGSUUM>; Fri, 19 Jul 2002 16:20:12 -0400
+	id <S316935AbSGSUPw>; Fri, 19 Jul 2002 16:15:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317017AbSGSUUM>; Fri, 19 Jul 2002 16:20:12 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:36829 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S317006AbSGSUUL>;
-	Fri, 19 Jul 2002 16:20:11 -0400
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Fri, 19 Jul 2002 14:17:51 -0600
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: Rob Landley <landley@trommello.org>, CaT <cat@zip.com.au>,
-       Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-Message-ID: <20020719141751.A32043@host110.fsmlabs.com>
-References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> <20020718213857.E23208@work.bitmover.com> <20020719044518.GK5608@zip.com.au> <200207190532.g6J5Wia87042@pimout3-int.prodigy.net> <yw1xbs9332xo.fsf@gladiusit.e.kth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <yw1xbs9332xo.fsf@gladiusit.e.kth.se>; from mru@users.sourceforge.net on Fri, Jul 19, 2002 at 09:58:27PM +0200
+	id <S317006AbSGSUPw>; Fri, 19 Jul 2002 16:15:52 -0400
+Received: from server72.aitcom.net ([208.234.0.72]:26375 "EHLO test-area.com")
+	by vger.kernel.org with ESMTP id <S316935AbSGSUPw>;
+	Fri, 19 Jul 2002 16:15:52 -0400
+Message-Id: <200207192018.QAA19141@test-area.com>
+Content-Type: text/plain; charset=US-ASCII
+From: anton wilson <anton.wilson@camotion.com>
+To: J Sloan <jjs@lexus.com>
+Subject: Re: 2.4 O(1) scheduler
+Date: Fri, 19 Jul 2002 16:17:56 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+References: <200207191943.PAA00351@test-area.com> <3D386E70.4040401@lexus.com>
+In-Reply-To: <3D386E70.4040401@lexus.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It should be spelled it GNU/i-node.
+On Friday 19 July 2002 03:54 pm, J Sloan wrote:
+> Use 2.4-aa, 2.4-ac or 2.4-redhat kernel
+> and you get the O(1) secheduler at
+> no extra cost -
+>
 
-} Andrew S. Tanenbaum claims it's index nodes in 'Modern Operating
-} Systems, 2nd ed.'. He also wants them spelled i-node.
+
+> Joe
+
+
+I'm actually worried not about just the O(1) scheduler but if these patches 
+will be incorporating the O(1) bug fixes such as the serious one in 
+balance_load where curr->next was used instead of current->prev. Also, I need 
+to use a patch that won't tamper with the usb implementation because I'd have 
+to update our current usb driver to fit into the new system, and I'm getting 
+flack about wasting time trying to update that thing already . . . So if you 
+tell me no, I can go tell my boss I have to update the usb driver.
+
+
+Anton

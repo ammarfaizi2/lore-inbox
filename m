@@ -1,78 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262484AbTIURwt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 13:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbTIURwt
+	id S262491AbTIUSIo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 14:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTIUSIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 13:52:49 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:47520 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262484AbTIURwr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 13:52:47 -0400
-Date: Sun, 21 Sep 2003 19:52:46 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Norman Diamond <ndiamond@wta.att.ne.jp>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5 vs. Japanese keyboards [3]
-Message-ID: <20030921175246.GA21967@ucw.cz>
-References: <1b7301c37a73$861bea70$2dee4ca5@DIAMONDLX60> <20030914122034.C3371@pclin040.win.tue.nl> <206701c37ab2$6a8033e0$2dee4ca5@DIAMONDLX60> <20030916154305.A1583@pclin040.win.tue.nl> <20030921110629.GC18677@ucw.cz> <20030921143934.A11315@pclin040.win.tue.nl> <20030921124817.GA19820@ucw.cz> <20030921164914.C11315@pclin040.win.tue.nl> <20030921170710.GA20856@ucw.cz> <20030921194200.A11423@pclin040.win.tue.nl>
-Mime-Version: 1.0
+	Sun, 21 Sep 2003 14:08:44 -0400
+Received: from 12-229-144-126.client.attbi.com ([12.229.144.126]:38283 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S262491AbTIUSIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 14:08:43 -0400
+Message-ID: <3F6DE929.4040904@comcast.net>
+Date: Sun, 21 Sep 2003 11:08:41 -0700
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030914
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Walt H <waltabbyh@comcast.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux XFS Mailing List <linux-xfs@oss.sgi.com>
+Subject: Re: 2.6.0-test5-mm3 & XFS FS Corruption (or not?)
+References: <3F6DC819.8060003@comcast.net>
+In-Reply-To: <3F6DC819.8060003@comcast.net>
+X-Enigmail-Version: 0.76.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030921194200.A11423@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 21, 2003 at 07:42:00PM +0200, Andries Brouwer wrote:
+Just a follow-up to my earlier post:
 
-> > > 	static unsigned char atkbd_set2_keycode[512];
-> > 
-> > We may need to change this to a u16, IF we'll ever need to load a
-> > keycode above 256 for an AT keyboard. So far all the keys on AT keyboards
-> > are within the 0..255 range. That's of course not true for other,
-> > more crazy keyboards.
-> > 
-> > > It really seems a pity to have to add new ioctls, and to have to release
-> > > a new version of the kbd package, and to waste a lot of kernel space,
-> > > while essentially nobody needs the resulting functionality.
-> >  
-> > We could do an audit of the key definitions, document which KEY_* symbol
-> > means exactly what (and it'd be a good thing anyway), by that try to
-> > remove duplicities and try to stuff everything in 0..255.
-> 
-> Yes.
-> 
-> I think that if you remove everything that is not used inside the kernel,
-> the rest fits problemless into 0..255.
+I've put in the xfs code from mm2 into the mm3 tree and all files get
+copied and I can manually copy the fstab.backup file afterward. I
+realized that the "rebuilding directory inode 256" was the lost+found
+directory, which contained 4 old zero length files. That was the key.
+XFS under -mm2 doesn't care about old lost+found directories, while -mm3
+does. If I removed the source lost+found/ and retried rsync's with -mm3,
+it finishes fine and I can copy fstab files. Adding a bogus lost+found
+dir with any file in it at the source, and retrying the rsync will lead
+to a state where I can't overwrite the existing /etc/fstab file at the
+end. So it doesn't look like there's actually any filesystem corruption,
+just a strange bug. Hope that helps,
 
-But that's definitely not a way to go. Since the scancode->keycode maps
-are loadable in atkbd.c and a couple other drivers. So, if you change to
-'cannot be used' by the kernel, then fine ...
+-Walt
 
-> > We'd lose te potential possibility to map keysyms to buttons, though
-> > since that never was used, nobody would cry probably.
-> > 
-> > However, my experience tells me that whenever some range is tight, and
-> > 0..255 is in this case, we will very soon overflow as new weird devices
-> > come into market.
-> 
-> True. In the long run more may be needed. (If we really want to assign
-> a different keycode to each possible picture on a key.)
-
-I think it's a good thing to do that. It makes a lot of things simpler.
-
-> I would be happy if we could pass smoothly from old to new - no new
-> ioctls for 2.6.0 yet, a kbd package that only changes the NR_KEYS define,
-> and later worry about whether we really need lots of keycodes.
-> Everything we add will never go away, so we must be slow in adding.
-
-It's not as bad as it seems. Old ioctls can go away, namely if they're
-not widely used. But I agree - for 2.6 it probably is wise to try to fit
-into 256 keycodes. One has to keep in mind that there might be more in
-the future, though.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVBDKlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263241AbVBDKpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbVBDKlV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 05:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbVBDKlV
+	id S263241AbVBDKpf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 05:45:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbVBDKpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 05:41:21 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43476 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261892AbVBDKlL (ORCPT
+	Fri, 4 Feb 2005 05:45:34 -0500
+Received: from quechua.inka.de ([193.197.184.2]:2439 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S263355AbVBDKpY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 05:41:11 -0500
-Subject: Re: ext3 extended attributes refcounting wrong?
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Mikael Pettersson <mikpe@user.it.uu.se>, Andrew Morton <akpm@osdl.org>,
-       Andreas Dilger <adilger@clusterfs.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <16899.12681.98586.426731@alkaid.it.uu.se>
-References: <16898.43219.133783.439910@alkaid.it.uu.se>
-	 <1107473817.2058.172.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <16899.12681.98586.426731@alkaid.it.uu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1107513634.2245.46.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Fri, 04 Feb 2005 10:40:35 +0000
+	Fri, 4 Feb 2005 05:45:24 -0500
+From: Bernd Eckenfels <ecki-news2005-01@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Huge unreliability - does Linux have something to do with it?
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <5a2cf1f605020401037aa610b9@mail.gmail.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1Cx0xm-0000GD-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Fri, 04 Feb 2005 11:45:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <5a2cf1f605020401037aa610b9@mail.gmail.com> you wrote:
+> I halted the machine correctly yesterday night. I never dropped the
+> box in 3 years. Am I just being unlucky? Or could the fact that I am
+> using Linux on the box affect the reliability in some ways on that
+> particular hardware (Dell Inspiron 8100)? I run Linux on 3 other
+> computers and never had single problems with them.
 
-On Fri, 2005-02-04 at 08:25, Mikael Pettersson wrote:
+There are a lot of possible problems with your actual hardware. Like
+Interrupt handling, power control, dma, ... Those are seldom but possible.
+Notebooks tend to require some special handling.
 
->  > In which kernel(s) exactly?  There was a fix for that applied fairly
->  > recently upstream.
-> 
-> I've been seeing this over the last couple of months, with
-> (at least) 2.4.28 and newer, and 2.6.9 and newer standard kernels.
-> But since I dual boot and switch kernels often, I can't point
-> at any given kernel or kernel series as being the culprit.
+> Could a hardware failure look like bad sectors to fsck?
 
-Plain upstream 2.4.28?  If so, that's probably the trouble, as 2.4
-doesn't have any xattr support, so if you delete a file on 2.4 it won't
-delete the xattr block for it.
+A failure of the bus or a former sporadic error can cause defective fs, but
+normally you have a read error in fsck no structure error.
 
-> How recent was that fix? Maybe I'm seeing the aftereffects of
-> pre-fix corruption?
+Are you using hdparm? is the system perhaps overheating or overclocked?
 
-It went in on the 15th of January this year.
-
---Stephen
-
+Greetings
+Bernd

@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265528AbUBPNc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 08:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265529AbUBPNc5
+	id S265513AbUBPNZb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 08:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265515AbUBPNZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 08:32:57 -0500
-Received: from dp.samba.org ([66.70.73.150]:39326 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265528AbUBPNcz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 08:32:55 -0500
-Date: Mon, 16 Feb 2004 22:42:44 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Dirk Morris <dmorris@metavize.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.2] Badness in futex_wait revisited
-Message-Id: <20040216224244.3928d477.rusty@rustcorp.com.au>
-In-Reply-To: <402D3DFF.4040609@metavize.com>
-References: <402D3DFF.4040609@metavize.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 16 Feb 2004 08:25:31 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42195 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S265513AbUBPNZ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 08:25:28 -0500
+Date: Mon, 16 Feb 2004 12:52:22 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jurriaan on adsl-gate <thunder7@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: Keyboard on ... reports too many keys pressed
+Message-ID: <20040216115221.GC470@openzaurus.ucw.cz>
+References: <20040207064027.GA20495@gates.of.nowhere>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040207064027.GA20495@gates.of.nowhere>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Feb 2004 13:13:35 -0800
-Dirk Morris <dmorris@metavize.com> wrote:
+Hi!
 
-> In reference to this previous post:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0401.1/1966.html
+> On my laptop, I get a lot of
 > 
-> I also get:
-> Feb 13 11:43:52 timmy kernel: Call Trace:
-> Feb 13 11:43:52 timmy kernel:  [<c01387e1>] futex_wait+0x191/0x1a0
-> Feb 13 11:43:52 timmy kernel:  [<c011e9e0>] default_wake_function+0x0/0x20
-> Feb 13 11:43:52 timmy kernel:  [<c011e9e0>] default_wake_function+0x0/0x20
-> Feb 13 11:43:52 timmy kernel:  [<c0138abb>] do_futex+0x6b/0x80
-> Feb 13 11:43:52 timmy kernel:  [<c0138be6>] sys_futex+0x116/0x130
-> Feb 13 11:43:52 timmy kernel:  [<c010959f>] syscall_call+0x7/0xb
+> Keyboard on ... reports too many keys pressed.
 > 
-> I get this in 2.6.1 and 2.6.2.
-> In userland a call to sem_wait returns with -1, and errno = -EINTR
+> That may well be the case, I use my normal hands on a small
+> laptop-keyboard.
+> Why is that message printed? There nothing I can do about pressing
+> multiple keys by accident, so I don't think it's useful.
+> 
+> It does, however, frequently mess up the commandline, which leads to big
+> frustration.
+> 
+> Couldn't this be wrapped in #ifdef ATKBD_DEBUG or something? Is it
+> really necessary to see this message?
 
-Yes...
-
-	Please send your config.  What's happening at the time?
-
-(Andrew's patch was buggy, I fixed it and can send you an update).
-
-Rusty.
+Its error condition -- keyboard lost track of keys -- and
+yes thats worth a printk. Try running klogd.
 -- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

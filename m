@@ -1,57 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266810AbSKRXaA>; Mon, 18 Nov 2002 18:30:00 -0500
+	id <S267030AbSKRXpb>; Mon, 18 Nov 2002 18:45:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266948AbSKRX3U>; Mon, 18 Nov 2002 18:29:20 -0500
-Received: from guru.webcon.net ([66.11.168.140]:65184 "EHLO guru.webcon.net")
-	by vger.kernel.org with ESMTP id <S266810AbSKRX3E>;
-	Mon, 18 Nov 2002 18:29:04 -0500
-Date: Mon, 18 Nov 2002 18:35:59 -0500 (EST)
-From: Ian Morgan <imorgan@webcon.net>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.4-AC] sync 2.4 asm-i386/cpufeature.h to 2.5.47
-In-Reply-To: <Pine.LNX.4.44.0211181831031.1538-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.44.0211181835470.6121-100000@light.webcon.net>
-Organization: "Webcon, Inc."
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267032AbSKRXpW>; Mon, 18 Nov 2002 18:45:22 -0500
+Received: from dp.samba.org ([66.70.73.150]:14043 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267029AbSKRXpS>;
+	Mon, 18 Nov 2002 18:45:18 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Greg KH <greg@kroah.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Subject: Re: [2.5 patch] fix compile error in usb-serial.c 
+In-reply-to: Your message of "Mon, 18 Nov 2002 13:35:09 -0800."
+             <20021118213508.GC13154@kroah.com> 
+Date: Tue, 19 Nov 2002 10:26:40 +1100
+Message-Id: <20021118235221.561DD2C3CC@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Nov 2002, Zwane Mwaikambo wrote:
-
-> On Mon, 18 Nov 2002, Ian Morgan wrote:
+In message <20021118213508.GC13154@kroah.com> you write:
+> On Mon, Nov 18, 2002 at 03:39:09PM +0100, Adrian Bunk wrote:
+> > drivers/usb/serial/usb-serial.c in 2.5.48 fails to compile with the
+> > following error:
 > 
-> > On Sun, 17 Nov 2002, Zwane Mwaikambo wrote:
-> > 
-> > > Ian this should fix your compilation problem.
-> > > Alan, Dave this applies clean to 2.4.19 vanilla too.
-> > 
-> > Close. Really close. It compiles, but now has an unresolvable symbol?
-> > 
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.20-rc1-ac4/kernel/arch/i386/kernel/p4-clockmod.o
-> > depmod:         smp_num_siblings
-> > 
-> > This is baffling me, because 'smp_num_siblings' is indeed listed in
-> > System.map as:
-> > 
-> > c0292e28 D smp_num_siblings
-> > 
-> > Any clues?
-> 
-> Is CONFIG_SMP set?
+> I don't get this error when building.  What does your .config look like?
 
-Yup.
+No doubt CONFIG_MODULE=n.  His patch looks correct.
 
-Regards,
-Ian Morgan
-
--- 
--------------------------------------------------------------------
- Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
- imorgan@webcon.ca          PGP: #2DA40D07           www.webcon.ca
-    *  Customized Linux network solutions for your business  *
--------------------------------------------------------------------
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

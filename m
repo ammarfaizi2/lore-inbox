@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269065AbUI2VuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269066AbUI2Vx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269065AbUI2VuD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 17:50:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269070AbUI2VuD
+	id S269066AbUI2Vx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 17:53:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269070AbUI2Vx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 17:50:03 -0400
-Received: from imap.gmx.net ([213.165.64.20]:30876 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269065AbUI2Vt6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 17:49:58 -0400
-X-Authenticated: #7318305
-Date: Wed, 29 Sep 2004 23:52:38 +0200
-From: Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: dri-devel@lists.sourceforge.net, xorg@freedesktop.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: New DRM driver model - gets rid of DRM() macros!
-Message-Id: <20040929235238.46c55c58.felix@trabant>
-In-Reply-To: <9e4733910409280854651581e2@mail.gmail.com>
-References: <9e4733910409280854651581e2@mail.gmail.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 29 Sep 2004 17:53:59 -0400
+Received: from [69.25.196.29] ([69.25.196.29]:4833 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S269066AbUI2Vx6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 17:53:58 -0400
+Date: Wed, 29 Sep 2004 17:53:15 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz
+Subject: Re: [PROPOSAL/PATCH 2] Fortuna PRNG in /dev/random
+Message-ID: <20040929215315.GB6769@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Jean-Luc Cooke <jlcooke@certainkey.com>, linux@horizon.com,
+	linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz
+References: <20040924005938.19732.qmail@science.horizon.com> <20040929171027.GJ16057@certainkey.com> <20040929193117.GB6862@thunk.org> <20040929202707.GO16057@certainkey.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040929202707.GO16057@certainkey.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Sep 2004 11:54:35 -0400
-Jon Smirl <jonsmirl@gmail.com> wrote:
-
-> I've checked two new directories into DRM CVS for Linux 2.6 -
-> linux-core, shared-core. This code implements a new model for DRM
-> where DRM is split into a core piece and personality modules that
-> share the core. The major reason for doing this is that it allows me
-> to remove all of the DRM() macros; something that is causing lot's of
-> complaints from the Linux kernel people.
-
-A single savage works just fine. This is lsmod output with X running:
-
-Module                  Size  Used by
-savage                  3520  0
-drm                    62500  3 savage
-
-Is it normal that the savage module looks unused? I can actually rmmod
-the savage module while X is running. After that direct rending fails
-with some error message about permissions ... reloading savage didn't
-help (of course, because X wouldn't reinitialize it). A bit later the
-box locked up. Is this 0 usage count and the ability to rmmod the module
-while X is running specific to the savage driver or do other drivers
-show the same behaviour?
-
-Some questions about future driver development: So the new linux-core
-and shared-core are the place to do new driver development? If this is
-correct then it will be for 2.6 kernels only, right? I suppose there
-would some back-porting effort involved in getting a future savage
-driver to work with 2.4 again (like adding back all the DRM() macros).
-
+On Wed, Sep 29, 2004 at 04:27:07PM -0400, Jean-Luc Cooke wrote:
 > 
-[snip]
-> -- 
-> Jon Smirl
-> jonsmirl@gmail.com
+> Here's patch v2.1.2 that waits at least 0.1 sec before reseeding for
+> non-blocking reads to alleviate Ted's concern wrt waiting for reseeds.
 
-| Felix Kühling <fxkuehl@gmx.de>                     http://fxk.de.vu |
-| PGP Fingerprint: 6A3C 9566 5B30 DDED 73C3  B152 151C 5CC1 D888 E595 |
+You didn't include the patch, and in any case, you'll probably want to
+probably want to do it for both blocking as well as non-blocking
+reads.  And keep in mind, it's not *my* concerns, but it's Neil
+Ferguson and Bruce Schneier's concerns.  After all, if you're going to
+call it Fortuna, you might as well be faithful to their design,
+especially since if you don't, you're leaving it to be utterly
+vulnerable to this state extension attack they are so worried about.
+
+						- Ted

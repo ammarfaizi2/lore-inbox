@@ -1,124 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270029AbUJNKgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUJNKle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270029AbUJNKgi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 06:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270028AbUJNKgh
+	id S266683AbUJNKle (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 06:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUJNKle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 06:36:37 -0400
-Received: from zone3.gcu-squad.org ([217.19.50.74]:38920 "EHLO
-	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S270024AbUJNKfo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 06:35:44 -0400
-Date: Thu, 14 Oct 2004 12:31:26 +0200 (CEST)
-To: greg@kroah.com
-Subject: [RFC] SMBus multiplexing for the Tyan S4882
-X-IlohaMail-Blah: khali@gcu.info
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <K2nOCbfL.1097749885.3147790.khali@gcu.info>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+	Thu, 14 Oct 2004 06:41:34 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24193 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S266683AbUJNKlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 06:41:13 -0400
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Paul Jackson <pj@sgi.com>, Simon.Derr@bull.net, colpatch@us.ibm.com,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040806231013.2b6c44df.pj@sgi.com> <411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com> <415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au> <821020000.1096814205@[10.10.2.4]>
+	<20041003083936.7c844ec3.pj@sgi.com>
+	<834330000.1096847619@[10.10.2.4]> <835810000.1096848156@[10.10.2.4]>
+	<20041003175309.6b02b5c6.pj@sgi.com>
+	<838090000.1096862199@[10.10.2.4]>
+	<20041003212452.1a15a49a.pj@sgi.com>
+	<843670000.1096902220@[10.10.2.4]>
+	<Pine.LNX.4.61.0410051111200.19964@openx3.frec.bull.fr>
+	<58780000.1097004886@flay> <20041005172808.64d3cc2b.pj@sgi.com>
+	<1193270000.1097025361@[10.10.2.4]>
+	<20041005190852.7b1fd5b5.pj@sgi.com>
+	<1097103580.4907.84.camel@arrakis>
+	<20041007015107.53d191d4.pj@sgi.com>
+	<Pine.LNX.4.61.0410071439070.19964@openx3.frec.bull.fr>
+	<1250810000.1097160595@[10.10.2.4]>
+	<20041007105425.02e26dd8.pj@sgi.com>
+	<1344740000.1097172805@[10.10.2.4]>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Oct 2004 04:35:54 -0600
+In-Reply-To: <1344740000.1097172805@[10.10.2.4]>
+Message-ID: <m1ekk1egdx.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-Hi Greg, all,
+> My main problem is that I don't think we want lots of overlapping complex 
+> interfaces in the kernel. Plus I think some of the stuff proposed is fairly 
+> klunky as an interface (physical binding where it's mostly not needed, and
+> yes I sort of see your point about keeping jobs on separate CPUs, though I
+> still think it's tenuous), and makes heavy use of stuff that doesn't work 
+> well (e.g. cpus_allowed). So I'm searching for various ways to address that.
 
-A couple weeks ago, I started working on hardware monitoring support for
-the Tyan S4882 4-CPU motherboard [1]. The board features an AMD-8111
-dual SMBus adapter. All hardware monitoring devices are located on the
-first (SMBus 1.0) adapter, which the i2c-amd756 driver supports (both in
-the lm_sensors project for Linux 2.4 and in Linux 2.6).
+Sorry I spotted this thread late.  People seem to be looking at how things
+are done on clusters and then apply them to numa machines.  Which I agree
+looks totally backwards.  
 
-The particularity of the board is that the SMBus is multiplexed using 3
-Philips chips: one PCA9556 (8-way I/O, [2]) for control and two PCA9516
-(5-way I2C mux, [3]). I2C bus multiplexing at the i2c core level was
-discussed before [4], but nothing was ever integrated. I also did write
-a stand-alone driver for the Philips PCA9540 (3-way I2C mux) some times
-ago but this approach is neither convenient (the user has to manually
-switch the mux, only one channel is visible at a given time) nor safe
-(no lock, breaks client buffers).
+The actual application requirement (ignoring the sucky batch schedulers)
+is for a group of processes (a magic process group?) to all be
+simultaneously runnable.  On a cluster that is accomplished by having
+an extremely stupid scheduler place one process per machine.   On a
+NUMA machine you can do better because you can suspend and migrate
+processes.  
 
-This time, I tried a different approach. I integrated the multiplexing
-into the bus driver (i2c-amd756). I do think it is the correct way,
-since it isn't too complex (and doesn't affect the i2c subsystem
-core), while still safe and transparent to both the user-space and the
-i2c clients. The drawback is that the added code is highly
-board-specific. I yet have to see a different, working approach with
-less board-specific code though.
+The other difference on these large machines is these compute jobs
+that are cpu hogs will often have priority over all of the other
+processes in the system.  
 
-A patch against lm_sensors CVS can be seen here:
-http://khali.linux-fr.org/devel/i2c/lm_sensors-CVS-S4882.patch
-This is for Linux 2.4 but I plan to port it to 2.6 soon, which is why I
-am requesting for comments on the LKML.
+A batch scheduler should be able to prevent a machine from being
+overloaded by simply not putting too many processes on the machine at
+a time.  Or if a higher priority job comes in suspending all of
+the processes that of some lower priority job to make run for the
+new job.  Being able to swap page tables is likely a desirable feature
+in that scenario so all of the swapped out jobs resources can be
+removed from memory.
 
-Here is a summary of what the code does:
-1* Detect the S4882 systems, using the PCI subvendor and subdevice of the
-SMBus device.
-2* Dynamically allocate and fill 4 i2c_adapter structures and the 4
-associated i2c_algorithm structures (one adapter+algorthm per CPU). Also
-alter the main adapter's algorithm structure to point to a slightly
-modified smbus_xfer function.
-3* Register the mux chip (I2C address 0x18) as an i2c_client so that
-nobody else will request it. I do not otherwise use the client, since I
-can send SMBus transfer commands directly.
-4* Clean everything up on unload, of course.
+> It all just seems like a lot of complexity for a fairly obscure set of
+> requirements for a very limited group of users, to be honest. 
 
-The new SMBus access functions are simple wrappers which change the mux
-configuration and call the main access function. I refactored the code
-wherever possible. The wrappers for "virtual" busses will also only
-accept mux'd addresses, while the wrapper for the main bus will accept
-only non-mux'd addresses. Note that doing this required specific
-knowledge about the S4882 (you need to know which addresses can be
-multiplexed).
+I think that is correct to some extent.  I think the requirements are
+much more reasonable when people stop hanging on to the cludges they
+have been using because they cannot migrate jobs, or suspend
+sufficiently jobs to get out of the way of other jobs. 
 
-Since the monitoring devices (LM63) are located on 4 mux'd busses and
-the memory module EEPROMS are located on 4 other mux'd busses at
-different addresses, I chose to merge the channels on a per-CPU basis.
-This has the advantage of lowering the overhead, reducing the mux
-switching and being overall more user-friendly. Note that doing this
-required specific knowledge about the S4882 (you need to know which
-channels can/should be merged). In particular, there is no way to guess
-which pair of channels corresponds to any given CPU.
+Martin does enhancing the scheduler to deal with a group of processes 
+that all run in lock-step, usually simultaneously computing or
+communicating sound sane?  Where preempting one is effectively preempting
+all of them.
 
-The driver also remembers the last mux combination used and only send a
-mux switch command when this is really needed. This significantly lowers
-the SMBus use overhead.
+I have been quite confused by this thread in that I have not seen
+any mechanism that looks beyond an individual processes at a time,
+which seems so completely wrong.
 
-Since this adds a significant amount of code to the driver, I made the
-S4882 support selectable as a configuration option.
 
-Expected Objections & Answers:
-
-O: The PCA9556 support could be moved to a separate driver.
-A: I don't see no benefit. There is very little code for the PCA9556
-driver among the code I added, and I believe that calling a PCA9556
-interface would represent no less code. There is not much code to reuse
-anyway, since the way the PCA9556 driver is used is specific to each
-board. It could even be used for something compeletly different than
-SMBus multiplexing, since it is a simple 8 channel I/O chip.
-
-O: The specific S4882 support could be moved to a completely different
-driver.
-A: This would duplicate most of the i2c-amd756 driver code. The
-additional support will not affect non-S4882 users except for the size
-of the driver. People concerned about the size can recompile the driver
-without the S4882 support.
-
-Before I commit my changes to the lm_sensors CVS and port them to the
-Linux 2.6 driver, I welcome constructive comments about my work.
-
-Thanks,
-Jean Delvare
-
-[1] http://www.tyan.com/products/html/thunderk8qspro.html
-[2] http://www.semiconductors.philips.com/pip/PCA9556PW.html
-[3] http://www.semiconductors.philips.com/pip/PCA9516.html
-[4] http://archives.andrew.net.au/lm-sensors/msg05047.html
-    http://archives.andrew.net.au/lm-sensors/msg23149.html
-    http://archives.andrew.net.au/lm-sensors/msg27255.html
+Eric

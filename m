@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289792AbSAJXzM>; Thu, 10 Jan 2002 18:55:12 -0500
+	id <S289793AbSAKAHx>; Thu, 10 Jan 2002 19:07:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289793AbSAJXzD>; Thu, 10 Jan 2002 18:55:03 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:23005 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S289792AbSAJXyx>; Thu, 10 Jan 2002 18:54:53 -0500
-Date: Thu, 10 Jan 2002 18:54:50 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>, Dave Jones <davej@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pagecache lock ordering
-Message-ID: <20020110185450.G8433@redhat.com>
-In-Reply-To: <3C3CE5D6.2204BD27@zip.com.au> <Pine.LNX.4.21.0201101332560.1121-100000@localhost.localdomain> <3C3DFBEF.BA050536@zip.com.au>, <3C3DFBEF.BA050536@zip.com.au>; <20020110182804.D8433@redhat.com> <3C3E2819.6A3AAD77@zip.com.au>
+	id <S289794AbSAKAHo>; Thu, 10 Jan 2002 19:07:44 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:16147 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S289793AbSAKAH3>;
+	Thu, 10 Jan 2002 19:07:29 -0500
+Date: Thu, 10 Jan 2002 16:04:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Bjorn Wesen <bjorn@sparta.lu.se>
+Cc: linux-kernel@vger.kernel.org, felix-dietlibc@fefe.de,
+        andersen@codepoet.org
+Subject: Re: [RFC] klibc requirements, round 2
+Message-ID: <20020111000457.GC28945@kroah.com>
+In-Reply-To: <20020110231849.GA28945@kroah.com> <Pine.LNX.3.96.1020110232055.7473C-100000@medusa.sparta.lu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C3E2819.6A3AAD77@zip.com.au>; from akpm@zip.com.au on Thu, Jan 10, 2002 at 03:47:37PM -0800
+In-Reply-To: <Pine.LNX.3.96.1020110232055.7473C-100000@medusa.sparta.lu.se>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 13 Dec 2001 21:18:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 03:47:37PM -0800, Andrew Morton wrote:
-> You seem to be using writeout_one_page().  What I was
-> thinking of was:
+On Thu, Jan 10, 2002 at 11:29:24PM +0100, Bjorn Wesen wrote:
 > 
-> - Kill generic_buffer_fdatasync().
-> - Move writeout_one_page() into fs/buffer.c
-> - Move waitfor_one_page() into fs/buffer.c.  This is just
->   for completeness; I expect this function will have no
->   callers soon.  __iodesc_sync_wait_page() could use it though.
-> 
-> OK by you?
+> I'm sorry I must have missed why yet another libc was needed in the first
+> place :)
 
-*shrug* it just makes my task of merging patches harder, that's all.
+Please see these threads:
+	http://marc.theaimsgroup.com/?t=101045445500001
+	http://marc.theaimsgroup.com/?t=101051901100018
+and other initramfs threads recently on this mailing list.
 
-		-ben
--- 
-Fish.
+thanks,
+
+greg k-h

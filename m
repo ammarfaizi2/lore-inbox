@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265884AbUFWBSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUFWBeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265884AbUFWBSm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 21:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265907AbUFWBSl
+	id S264058AbUFWBeW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 21:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265088AbUFWBeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 21:18:41 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:5258 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S265884AbUFWBSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 21:18:40 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: long <tlnguyen@snoqualmie.dp.intel.com>, akpm@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
-Subject: Re: [PATCH]2.6.7 MSI-X Update
-X-Message-Flag: Warning: May contain useful information
-References: <200406222148.i5MLmA4Y001949@snoqualmie.dp.intel.com>
-	<52n02vkuy6.fsf@topspin.com> <40D8CE3F.4010306@pobox.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 22 Jun 2004 18:18:13 -0700
-In-Reply-To: <40D8CE3F.4010306@pobox.com> (Jeff Garzik's message of "Tue, 22
- Jun 2004 20:26:39 -0400")
-Message-ID: <528yefkr6y.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Tue, 22 Jun 2004 21:34:22 -0400
+Received: from web51805.mail.yahoo.com ([206.190.38.236]:53395 "HELO
+	web51805.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264058AbUFWBeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 21:34:20 -0400
+Message-ID: <20040623013419.18165.qmail@web51805.mail.yahoo.com>
+Date: Tue, 22 Jun 2004 18:34:19 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Re: slow performance w/patch-2.6.7-mjb1
+To: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <103650000.1087949393@flay>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 23 Jun 2004 01:18:13.0419 (UTC) FILETIME=[F45167B0:01C458BF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Jeff> hmmmmmmm.
+Martin et al,
 
-    Jeff> Unless it's already inside the lock somehow...  it
-    Jeff> definitely needs to take the lock, one way or another.
+So I configed with your patch just the basics and get
+similar times that I do with 2.6.7 virigin and 2.4.21.
+ However, as soon as I enable 4G split, the rt
+increases by ~35s (out of 1m45s compared to 1m10s). 
+Do you know if this is in line w/expectations?  Is
+there anyway to reduce this?
 
-At least most (in not all) of the code paths are not inside the lock.
-For example pci_enable_msi() is called from a device driver, and it
-directly does
+Thank you for your time.
+Phy
 
-	dev->bus->ops->read(dev->bus, dev->devfn, msi_control_reg(pos),
-		2, &control);
+--- "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+> > To the mbligh, maintainer of mjb patch sets:
+> > 
+> > I am trying to track down why I am seeing 2x in
+> run
+> > time with patch-2.6.7-mjb1.  I would like to get
+> the
+> > 4g/4g patch, hence the use of this patch set,
+> however,
+> > something within this patch has more than doubled
+> the
+> > run time for a test executable I have so I would
+> like
+> > to see what component might be the cause.  Is
+> there a
+> > list of the various patches that went into this
+> patch
+> > set and if so, are the patches in a broken out
+> format?
+> 
+> Yeah, though I'd start with "time foo" and if it's
+> system time,
+> do a kernel profile. Let me know what it is, or give
+> me a testcase ...
+> This is compared to 2.6.7 virgin? or -current?
+> current code has some
+> wierd timer problems in mainline ... make sure to
+> compare it to virgin.
+> 
+> Broken out patches are here under the patches/
+> subdir if you're desperate ;-)
+> eg:
+>
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/patches/2.6.7/2.6.7-mjb1
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-as well as calling lots of other functions that do similar stuff.
 
-In fact I don't see how any of the stuff in msi.c could be protected
-by pci_lock, since pci_lock is static to access.c and only used inside
-the pci_bus_read_config_xxx and pci_bus_write_config_xxx functions
-defined there.
-
- - Roland
-
-
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

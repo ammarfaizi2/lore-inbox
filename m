@@ -1,90 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279190AbRKIDpi>; Thu, 8 Nov 2001 22:45:38 -0500
+	id <S279264AbRKIFL4>; Fri, 9 Nov 2001 00:11:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279202AbRKIDp1>; Thu, 8 Nov 2001 22:45:27 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:56198 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S279190AbRKIDpQ>;
-	Thu, 8 Nov 2001 22:45:16 -0500
-Message-ID: <3BEB5149.B0B7990F@pobox.com>
-Date: Thu, 08 Nov 2001 19:45:13 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Developer <linux_developer@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: CPQARRAY driver horribly broken in 2.4.14
-In-Reply-To: <F5uLCTaogxLDp7mvjkO00000742@hotmail.com>
-Content-Type: multipart/mixed;
- boundary="------------0B4AB4FD009D357EEBF46038"
+	id <S279303AbRKIFLq>; Fri, 9 Nov 2001 00:11:46 -0500
+Received: from [202.135.142.195] ([202.135.142.195]:1803 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S279277AbRKIFLg>; Fri, 9 Nov 2001 00:11:36 -0500
+Date: Fri, 9 Nov 2001 14:12:15 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@suse.de>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives?
+Message-Id: <20011109141215.08d33c96.rusty@rustcorp.com.au>
+In-Reply-To: <p731yj8kgvw.fsf@amdsim2.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0111081802380.15975-100000@localhost.localdomain.suse.lists.linux.kernel>
+	<Pine.LNX.4.33.0111081836080.15975-100000@localhost.localdomain.suse.lists.linux.kernel>
+	<p731yj8kgvw.fsf@amdsim2.suse.de>
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------0B4AB4FD009D357EEBF46038
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On 09 Nov 2001 00:00:19 +0100
+Andi Kleen <ak@suse.de> wrote:
 
-Linux Kernel Developer wrote:
+> Ingo Molnar <mingo@elte.hu> writes:
+> > 
+> > we should fix this by trying to allocate continuous physical memory if
+> > possible, and fall back to vmalloc() only if this allocation fails.
+> 
+> Check -aa. A patch to do that has been in there for some time now.
+> 
+> -Andi
+> 
+> P.S.: It makes a measurable difference with some Oracle benchmarks with
+> the Qlogic driver.
 
-> Hi all,
->
->      I'm using the cpqarray driver for a Compaq Smart Arrat 3100ES
-> controller on a Compaq Proliant 7000.  Today I tried upgrading the kernel to
-> 2.4.14.  Soon after the upgrade I though about making a small change in the
-> kernel however as soon as I tried doing a "make dep" the system oopsed and
-> froze.
+Modules have lots of little disadvantages that add up.  The speed penalty
+on various platforms is one, the load/unload race complexity is another.
 
-Been there, done that, bought the t-shirt.
+There's a widespread "modules are free!" mentality: they're not, and we
+can add complexity trying to make them "free", but it might be wiser to
+realize that dynamic adding and deleting from a running kernel is a
+problem on par with a pagagble kernel, and may not be the greatest thing
+since sliced bread.
 
-The attached patch courtesy of Jens Axboe
-fixed my Compaq 6500 which was giving me
-fits - basically in 2.4.14 it had a nasty habit of
-scribbling on the disk and then locking up,
-requiring a power cycle, manual fsck and
-file restoration to get it running again.
-
-With this patch 2.4.14 has been solid.
-
-cu
-
-jjs
-
-
-
---------------0B4AB4FD009D357EEBF46038
-Content-Type: text/plain; charset=us-ascii;
- name="cciss-dequeue-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cciss-dequeue-1"
-
---- linux/drivers/block/cciss.c~	Thu Nov  8 11:36:24 2001
-+++ linux/drivers/block/cciss.c	Thu Nov  8 11:37:03 2001
-@@ -1307,6 +1307,8 @@
- 	if (( c = cmd_alloc(h, 1)) == NULL)
- 		goto startio;
- 
-+	blkdev_dequeue_request(creq);
-+
- 	spin_unlock_irq(&io_request_lock);
- 
- 	c->cmd_type = CMD_RWREQ;      
-@@ -1386,12 +1388,6 @@
- 
- 	spin_lock_irq(&io_request_lock);
- 
--	blkdev_dequeue_request(creq);
--
--        /*
--         * ehh, we can't really end the request here since it's not
--         * even started yet. for now it shouldn't hurt though
--         */
- 	addQ(&(h->reqQ),c);
- 	h->Qdepth++;
- 	if(h->Qdepth > h->maxQsinceinit)
-
---------------0B4AB4FD009D357EEBF46038--
-
+Rusty.

@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbUEOSLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264155AbUEOSxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbUEOSLg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 14:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUEOSLf
+	id S264155AbUEOSxS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 14:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUEOSxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 14:11:35 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35200 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262045AbUEOSL1
+	Sat, 15 May 2004 14:53:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44449 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264155AbUEOSxQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 14:11:27 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [RFC][DOC] writing IDE driver guidelines
-Date: Sat, 15 May 2004 20:13:34 +0200
-User-Agent: KMail/1.5.3
-Cc: Marc Singer <elf@buici.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <200405151923.50343.bzolnier@elka.pw.edu.pl> <20040515173430.GA28873@havoc.gtf.org> <200405151958.03322.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200405151958.03322.bzolnier@elka.pw.edu.pl>
+	Sat, 15 May 2004 14:53:16 -0400
+Message-ID: <40A6670F.3050300@pobox.com>
+Date: Sat, 15 May 2004 14:53:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: akpm@osdl.org, bunk@fs.tum.de
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix tlan.c for !PCI
+References: <200405151823.i4FINj8T001262@hera.kernel.org>
+In-Reply-To: <200405151823.i4FINj8T001262@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405152013.34189.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 of May 2004 19:58, Bartlomiej Zolnierkiewicz wrote:
-> > > - ide_init_hwif_ports() is obsolete and dying,
-> > >   define IDE_ARCH_NO_OBSOLETE_INIT in <asm/ide.h>
-> >
-> > hmmmm.  Please consider reversing this:
-> >
-> > Make ide_init_hwif_ports() present _only_ if IDE_ARCH_OBSOLETE_INIT
-> > is defined.
-> >
-> > Then add that define for all arches that still use ide_init_hwif_ports().
->
-> Well, I started with this idea but it requires adding this define for far
-> too many archs.  This is a problem especially for arm because we have to
-> either leave <asm-arm/arch-*/ide.h> or add #ifdef horror <asm-arm/ide.h>.
+Linux Kernel Mailing List wrote:
+> ChangeSet 1.1691, 2004/05/15 10:23:43-07:00, akpm@osdl.org
+> 
+> 	[PATCH] fix tlan.c for !PCI
+> 	
+> 	From: Adrian Bunk <bunk@fs.tum.de>
+> 	
+> 	drivers/net/tlan.c: In function `tlan_remove_one':
+> 	drivers/net/tlan.c:449: warning: implicit declaration of function `pci_release_regions'
+> 
+> 
+> # This patch includes the following deltas:
+> #	           ChangeSet	1.1690  -> 1.1691 
+> #	  drivers/net/tlan.c	1.31    -> 1.32   
+> #
+> 
+>  tlan.c |    4 ++++
+>  1 files changed, 4 insertions(+)
+> 
+> 
+> diff -Nru a/drivers/net/tlan.c b/drivers/net/tlan.c
+> --- a/drivers/net/tlan.c	Sat May 15 11:23:50 2004
+> +++ b/drivers/net/tlan.c	Sat May 15 11:23:50 2004
+> @@ -446,7 +446,9 @@
+>  		pci_free_consistent(priv->pciDev, priv->dmaSize, priv->dmaStorage, priv->dmaStorageDMA );
+>  	}
+>  
+> +#ifdef CONFIG_PCI
+>  	pci_release_regions(pdev);
+> +#endif
 
-It was thinko.  I will change this, thanks.
+
+Ug.  Please revert and fix it the right way.
+
+Think about this one:  we are getting the warning inside a function that 
+will only ever be called when CONFIG_PCI is defined, the PCI ->remove hook.
+
+IMO one of two things needs to happen:
+a) wrap the PCI probe functions in tlan.c with CONFIG_PCI
+	or
+b) create the proper wrapper in include/linux/pci.h, following 
+established practice in that header
+
 

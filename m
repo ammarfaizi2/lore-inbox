@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316434AbSFJWFx>; Mon, 10 Jun 2002 18:05:53 -0400
+	id <S316446AbSFJWZH>; Mon, 10 Jun 2002 18:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316435AbSFJWFw>; Mon, 10 Jun 2002 18:05:52 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:34951 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S316434AbSFJWFw>; Mon, 10 Jun 2002 18:05:52 -0400
-Date: Mon, 10 Jun 2002 15:02:05 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Olivier Galibert <galibert@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: MTU discovery
-In-Reply-To: <Pine.LNX.3.96.1020610174357.23851D-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0206101453270.767-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316459AbSFJWZG>; Mon, 10 Jun 2002 18:25:06 -0400
+Received: from holomorphy.com ([66.224.33.161]:51865 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316446AbSFJWZG>;
+	Mon, 10 Jun 2002 18:25:06 -0400
+Date: Mon, 10 Jun 2002 15:24:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 kill warnings 5/19
+Message-ID: <20020610222438.GD22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Martin Dalecki <dalecki@evision-ventures.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D048D5A.1030103@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 10, 2002 at 01:28:26PM +0200, Martin Dalecki wrote:
+> Fix improper __FUNCTION__ usage in st680 driver code,
+> cdc-ether.c. Fix namespace clash in cdc-ether.h
 
-9000 is the limit on gigabit ethernet, other media type have different 
-maximum frame sizes (ie 4470 on fddi, 9216 on pos oc12 interfaces). 
-
-On Mon, 10 Jun 2002, Bill Davidsen wrote:
-
-> On Mon, 10 Jun 2002, Olivier Galibert wrote:
-> 
-> > On Mon, Jun 10, 2002 at 11:05:13AM +0300, Matti Aarnio wrote:
-> > >   Some devices do, however, support reception (and transmit) of what
-> > >   is called "jumbograms".  With boomerang you can set a register
-> > >   to contain the limit value.  Alternatively with boomerang, and
-> > >   its predecessors, you can set a bit to accept extra-large frames.
-> > > 
-> > >   I recall the ultimate limit is in order of 4kB.
-> > 
-> > Actually, in my experience jumbograms are usually 9000 bytes.
-> 
-> To assist in searching for info, I've also seen the terms "jumbo packets"
-> and "jumbo frames." 
-> 
-> 
-
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-  In Dr. Johnson's famous dictionary patriotism is defined as the last
-  resort of the scoundrel.  With all due respect to an enlightened but
-  inferior lexicographer I beg to submit that it is the first.
-	   	            -- Ambrose Bierce, "The Devil's Dictionary"
+Would you mind sending these as original posts and not as replies to
+Linus' announcement?
 
 
+Thanks,
+Bill

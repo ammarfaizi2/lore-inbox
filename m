@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311411AbSCSQZz>; Tue, 19 Mar 2002 11:25:55 -0500
+	id <S311418AbSCSQ3S>; Tue, 19 Mar 2002 11:29:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311418AbSCSQZp>; Tue, 19 Mar 2002 11:25:45 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:8972 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S311411AbSCSQZ3>; Tue, 19 Mar 2002 11:25:29 -0500
-Date: Tue, 19 Mar 2002 11:22:44 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Ken Brownfield <ken@irridia.com>
-cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: I/O APIC fixed in 2.4.19-pre3 & 2.5.6 (was Re: Linux 2.4.19-pre3)
-In-Reply-To: <20020318204106.A24611@asooo.flowerfire.com>
-Message-ID: <Pine.LNX.3.96.1020319111636.1772A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311419AbSCSQ3H>; Tue, 19 Mar 2002 11:29:07 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1299 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S311418AbSCSQ2s>; Tue, 19 Mar 2002 11:28:48 -0500
+Date: Tue, 19 Mar 2002 16:28:40 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4 and 2.5: remove Alt-Sysrq-L
+Message-ID: <20020319162840.F11739@flint.arm.linux.org.uk>
+In-Reply-To: <sc91c4ce.020@mail-01.med.umich.edu> <20020315150241.H24984@flint.arm.linux.org.uk> <3C96F015.24BDC9FF@daimi.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Mar 2002, Ken Brownfield wrote:
-
-> As a followup, this APIC patch also prevents 2.4 machines on quite a bit
-> of common hardware from freezing up after a few hours to a few days of
-> production use.  Especially ServerWorks boards distributed by HP and
-> Rackable/Tyan.
+On Tue, Mar 19, 2002 at 09:00:21AM +0100, Kasper Dupont wrote:
+> Russell King wrote:
+> > 
+> > With all recent kernels, init exiting causes the last of these to trigger:
+> > 
+> > NORET_TYPE void do_exit(long code)
+> > {
+> >         struct task_struct *tsk = current;
+> > 
+> >         if (in_interrupt())
+> >                 panic("Aiee, killing interrupt handler!");
+> >         if (!tsk->pid)
+> >                 panic("Attempted to kill the idle task!");
+> >         if (tsk->pid == 1)
+> >                 panic("Attempted to kill init!");
 > 
-> This patch (applied to 2.4.18) seems to fix my long-standing (and
-> oft-mentioned on LKML) I/O APIC issue with all 2.4 kernels, and I no
-> longer need my "pintimer" patch to disable the through-8259A mode.
+> Why actually panic because of an attempt to kill init?
+> 
+> Of course a message should be printed, but after that
+> couldn't do_exit enter a loop where it just handles
+> signals and zombies?
 
-  Any chance this will cure the lockups on a Dell Latitude C600 every time
-you exit X? I've disabled both the IO-APIC and APIC-uni, which was
-supposed to fix the problem but didn't. Dare I hope that the disable
-wasn't enough?
+Examine the LKML archive around 23rd December 2001, where Alan Cox wrote:
 
-  A quick google tells me other people have the same problem, but I
-haven't seen a working solution yet. Nice machine other than needing to be
-rebooted after every use of X :-(
+| pid1 ends up trying to kill pid1 and it goes deeply down the toilet from
+| that point onwards. The Unix traditional world reboots when pid 1 dies.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

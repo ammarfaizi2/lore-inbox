@@ -1,50 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266830AbUHISm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266846AbUHISm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266830AbUHISm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266846AbUHISaU
+	id S266846AbUHISm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266864AbUHISm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:30:20 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:34572 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S266837AbUHIS0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:26:51 -0400
-Message-ID: <4117C1E6.7070004@superbug.demon.co.uk>
-Date: Mon, 09 Aug 2004 19:26:46 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Noah Misch <noah@cs.caltech.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make scsi.h nominally userspace-clean
-References: <20040809172406.GA1042@orchestra.cs.caltech.edu>
-In-Reply-To: <20040809172406.GA1042@orchestra.cs.caltech.edu>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 14:42:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:4536 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266830AbUHISjW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 14:39:22 -0400
+Date: Mon, 9 Aug 2004 20:38:58 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Kern Alexander <alexander.kern@siemens.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'alex.kern@gmx.de'" <alex.kern@gmx.de>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devic es
+Message-ID: <20040809183857.GD28302@suse.de>
+References: <DB51EBFA5812D611B6200002A528BC270379BF72@khes002a.khe1.siemens.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <DB51EBFA5812D611B6200002A528BC270379BF72@khes002a.khe1.siemens.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Noah Misch wrote:
-> As Joerg Schilling, the author of cdrecord, has noted in threads such as
-> 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0309.3/1355.html and
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0408.0/0799.html,
-> 
-> scsi/scsi.h does not compile cleanly in userspace programs due to its use of
-> ``u8''.  I have confirmed this bug and prepared and tested a fix that simply
-> changes all such uses to ``__u8''.  Please consider for inclusion.
-> 
-> I do not argue that including this header file in a program is appropriate, but
-> other kernel headers already take as many precautions as this patch introduces.
-> I chose __u8 over uint8_t as more in the style of the kernel generally.
-> 
-> Please keep me on cc:; I do not subscribe to the lists.
-> 
 
-Why not use /usr/include/scsi/scsi.h instead of 
-/usr/src/linux/include/scsi/scsi.h ?
-That already has uint8_t.
+(if you don't cc me, I don't see your mail. it's been 4 days now. always
+cc on linux-kernel, it's the etiquette!)
+
+On Thu, Aug 05 2004, Kern Alexander wrote:
+> Jens Axboe wrote:
+> 
+> > On Thu, Aug 05 2004, Joerg Schilling wrote:
+> > 
+> >>>From: Jens Axboe <axboe@suse.de>
+> >>
+> >>>ATA method is misnamed, it's really SG_IO that is used. And you want to
+> >>>use that regardless of the device type, SCSI or ATAPI. There's no such
+> >>>thing as an ATA burner, and there's no need to differentiate between
+> >>>SCSI or ATAPI CD-ROM's when burning - SG_IO is the method to use. So
+> >>>forget browsing /proc/ide and other hacks.
+> >>
+> >>I am sorry but as Linux already has 6 different interfaces for sending 
+> >>Generic SCSI commands and thus, we are running out of names.
+> >>
+> >>Let me give you an advise: consolidate Linux so that is does only need
+> >>/dev/sg and fix the bugs in ide-scsi instead of constantly inventing new
+> >>unneeded interfaces.
+> > 
+> > 
+> > That's been the general direction for quite some time, just that SG_IO
+> > is the preferred method since that works all around. You were the one
+> > that merged support for the CDROM_SEND_PACKET interface, which has
+> > _never_ been advertised as a way to burn CDs in Linux. I'd suggest you
+> > remove that.
+> > 
+> Silly, as I suggested a patch to Joerg, it was the uniquely ability to
+> burn without ide-scsi. And known you, it simply works, it let me to
+> scan for burners(what SG_IO cannot), it works in 2.4.X and 2.6.X.
+
+Yes it simply works, as long as it works...
+
+> Make SG_IO better and CDROM_SEND_PACKET will die, without your
+> suggestions.
+
+SG_IO is perfect as is, what problems are you referring to?
+
+> P.S. I'm know that CDROM_SEND_PACKET has a overhead, by me it's 4%. I
+> can live with it.
+
+In 2.6, there is basically zero extra overhead with CDROM_SEND_PACKET,
+since it's just a small wrapper on top of SG_IO (see scsi_ioctl.c if you
+are curious), so you cannot measure a performance difference between the
+two there.
+
+In 2.4 it's orders of magnitude slower, since it will not use
+CDROM_SEND_PACKET and it puts unnecessary strain on the memory allocator
+to larger chunks of physically contigous memory. Note that you will not
+see interrupt handler load if you are only doing casual performance
+monitoring.
+
+-- 
+Jens Axboe
 

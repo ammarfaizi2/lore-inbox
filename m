@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUGBSKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUGBSMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264717AbUGBSKM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 14:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264851AbUGBSKL
+	id S264726AbUGBSMh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 14:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264851AbUGBSMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 14:10:11 -0400
-Received: from 82-44-164-116.cable.ubr03.haye.blueyonder.co.uk ([82.44.164.116]:19219
-	"HELO phoneware.com.au") by vger.kernel.org with SMTP
-	id S264717AbUGBSKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 14:10:07 -0400
-Message-ID: <bff901c4605f$f89b513a$9665f452@phoneware.com.au>
-From: "Alissa Shepard" <ashepard_au@keebleantiques.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Lose 19% weight. New weightloss available to you.
-Date: Fri, 02 Jul 2004 14:10:39 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Fri, 2 Jul 2004 14:12:37 -0400
+Received: from mail.gurulabs.com ([67.137.148.7]:40103 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S264726AbUGBSMe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 14:12:34 -0400
+Subject: Re: 2.6.7-mm5
+From: Dax Kelson <dax@gurulabs.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040630172656.6949ec60.akpm@osdl.org>
+References: <20040630172656.6949ec60.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1088791945.3808.3.camel@mentorng.gurulabs.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 02 Jul 2004 12:12:25 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have a special offer for you...
-WANT TO LOSE WEIGHT?
-The most powerful weightloss is now available
-without prescription. All natural Adipren720
-100% Money Back Guarantée!
-- Lose up to 19% Total Body Weight.
-- Loss of 20-35% abdominal Fat.
-- Up to 300% more Weight Loss while dieting.
-- Increase metabolic rate by 76.9% without Exercise.
-- Reduction of 40-70% overall Fat under skin.
-- Suppresses appetite for sugar.
-- Burns calorized fat.
-- Boost your Confidence level and Self Esteem.
-Get the facts about all-natural Adipren720 <http://adipren10.com/>
+On Wed, 2004-06-30 at 18:26, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm5/
+> 
+> - bk-acpi.patch is back.  If devices mysteriously fail to function please
+>   try reverting it with
+> 
+>        patch -p1 -R -i ~/bk-acpi.patch
 
+Just some positive feedback. I tried this on my brand new IBM Thinkpad
+T42p and nothing regressed.
 
+I do have a problem with PCMCIA/CardBus not working with the FC2 kernel
+(kernel-2.6.6-1.435.2.1) I tried 2.6.7-mm5 in hopes of it working, but
+alas it is still borked.
 
----- system information ----
-of content development supersede aspects function script POSIX 
-To distinct conventions clients operation hidden result information) 
-This attribute populate behaviors lang members tag or 
-variety parsing Internationalization patent Identifiers:: controls if example
-
-provide segments single Status sounds comment However implement 
+Dax
 

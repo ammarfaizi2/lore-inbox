@@ -1,70 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbTFOHIL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 03:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbTFOHIL
+	id S261994AbTFOHon (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 03:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbTFOHon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 03:08:11 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:34189 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261939AbTFOHIJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 03:08:09 -0400
-Date: Sun, 15 Jun 2003 09:21:54 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Eric Wong <normalperson@yhbt.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       linus@transmeta.com
-Subject: Re: [PATCH] Logitech PS/2++ updates
-Message-ID: <20030615092154.A29763@ucw.cz>
-References: <20030326025538.GB12549@BL4ST> <20030615005947.E27599@ucw.cz> <20030615002933.GB17706@BL4ST>
+	Sun, 15 Jun 2003 03:44:43 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:41738 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261994AbTFOHom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 03:44:42 -0400
+Subject: Re: 2.5.70-mm9
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
+Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030615031421.1ed6640a.diegocg@teleline.es>
+References: <20030613013337.1a6789d9.akpm@digeo.com>
+	 <20030615031421.1ed6640a.diegocg@teleline.es>
+Content-Type: text/plain; charset=ISO-8859-15
+Message-Id: <1055663908.631.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030615002933.GB17706@BL4ST>; from normalperson@yhbt.net on Sat, Jun 14, 2003 at 05:29:33PM -0700
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 15 Jun 2003 09:58:29 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 14, 2003 at 05:29:33PM -0700, Eric Wong wrote:
-
-> Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Tue, Mar 25, 2003 at 06:55:38PM -0800, Eric Wong wrote:
-> > >  /*
-> > >   * The PS2++ protocol is a little bit complex
-> > >   */
-> > > +	if (psmouse->type == PSMOUSE_PS2PP) { 
-> > > +
-> > > +		if ((packet[0] & 0x48) == 0x48 && (packet[1] & 0x02) == 0x02 ) {
-> > >  
+On Sun, 2003-06-15 at 03:14, Diego Calleja García wrote:
+> On Fri, 13 Jun 2003 01:33:37 -0700
+> Andrew Morton <akpm@digeo.com> wrote:
+> 
 > > 
-> > Hmm, is this change needed? This
-> > 
-> > if ((packet[0] & 0x40) == 0x40 && abs((int)packet[1] - (((int)packet[0] & 0x10) << 4)) > 191 ) {
-> > 
-> > condition is from Logitech docs and should work with any PS2PP device.
-> > It doesn't with yours?
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm9/
 > 
-> The updated PS2PP uses 6 bits to determine packet-type instead of 4 as
-> used previously, so compatibility with the touchpad protocol was broken
-> if I recall correctly.
 > 
-> NEW (6 t bits):
->        bit7 bit6 bit5 bit4 bit3 bit2 bit1 bit0
-> packet0   E    1   t5   t4    1    M    R    L   
-> packet1  t3   t2   t1   t0   d2   d1    1    0  
-> packet2  d8   d7   d6   d5   d4   d3   d2   d1 
+> I had the following messages: (ide, ext3 without any option, SMP, AS, JBD
+> debugging enabled):
 > 
-> OLD (4 t bits)
->        bit7 bit6 bit5 bit4 bit3 bit2 bit1 bit0
-> packet0   E    1   t3   t2    1    M    R    L   
-> packet1   ?    ?   t1   t0   d2   d1    1    0  
-> packet2  d8   d7   d6   d5   d4   d3   d2   d1 
+> VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+>     ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
+> hda: Maxtor 6Y060L0, ATA DISK drive
+> anticipatory scheduling elevator
+> [...]
+> kjournald starting.  Commit interval 5 seconds
+> EXT3-fs: mounted filesystem with ordered data mode.
+> VFS: Mounted root (ext3 filesystem) readonly.
+> [...]
+> EXT3 FS 2.4-0.9.16, 02 Dec 2001 on hda5, internal journal
+> [...]
 > 
-> E is set if it's an external device
+> __mark_inode_dirty: this cannot happen
+> __mark_inode_dirty: this cannot happen
+> __mark_inode_dirty: this cannot happen
+> __mark_inode_dirty: this cannot happen
+> PPP: VJ decompression error
+> PPP: VJ decompression error
+> PPP: VJ decompression error
+> __mark_inode_dirty: this cannot happen
+> __mark_inode_dirty: this cannot happen
+> __mark_inode_dirty: this cannot happen
+> __mark_inode_dirty: this cannot happen
+> __mark_inode_dirty: this cannot happen
+> __mark_inode_dirty: this cannot happen
+> invalid via82xx_cur_ptr, using last valid pointer
+> invalid via82xx_cur_ptr, using last valid pointer
+> invalid via82xx_cur_ptr, using last valid pointer
+> PPP: VJ decompression error
 
-Thanks for the info. I didn't expect Logitech to ever need more than 16
-special packets bits. 
+The "__mark_inode_dirty" message is a deugging leftofer from Andrew that
+is spit out the first time the machine starts swapping out. You can
+safely ignore it.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

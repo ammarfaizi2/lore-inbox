@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318348AbSH0Cpd>; Mon, 26 Aug 2002 22:45:33 -0400
+	id <S318355AbSH0Ctp>; Mon, 26 Aug 2002 22:49:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318355AbSH0Cpd>; Mon, 26 Aug 2002 22:45:33 -0400
-Received: from mx7.sac.fedex.com ([199.81.194.38]:21511 "EHLO
-	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S318348AbSH0Cpc>; Mon, 26 Aug 2002 22:45:32 -0400
-Date: Tue, 27 Aug 2002 10:49:13 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] initrd >24MB corruption (fwd)
-Message-ID: <Pine.LNX.4.44.0208271038450.25059-100000@boston.corp.fedex.com>
+	id <S318356AbSH0Ctp>; Mon, 26 Aug 2002 22:49:45 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:19144 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318355AbSH0Ctp>; Mon, 26 Aug 2002 22:49:45 -0400
+Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
+To: Robert Olsson <Robert.Olsson@data.slu.se>
+Cc: "Bill Hartner" <bhartner@us.ibm.com>, davem@redhat.com,
+       jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org,
+       "Mala Anand" <manand@us.ibm.com>, netdev@oss.sgi.com,
+       Robert Olsson <Robert.Olsson@data.slu.se>
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF815FDA48.08A89D80-ON87256C22.000D9ED4@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Mon, 26 Aug 2002 21:53:37 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 08/26/2002 08:53:39 PM
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/27/2002
- 10:49:45 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/27/2002
- 10:49:48 AM,
-	Serialize complete at 08/27/2002 10:49:48 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Alan,
+Robert Olsson wrote..
+ >In slab terms you moved part of the destructor to the constructor
+ >but the main problem is still there. The skb entered the "wrong" CPU
+ >so to be "reused from the slab again" the work has to done regardless
+ >if it's in the constructor or destructor.
+That is true if it is a uni processor but in smp the initialization,
+if happened in two different CPUs, affects performance due to cache
+effects.
 
-Who else can help with this problem? I tried to write to Werner
-Almesberger <werner.almesberger@epfl.ch> (no such email) and Hans Lermen
-<lermen@fgan.de>, but no response from either.
+The problem of object (skb) allocation, usage and deallocation occurring
+in multiple CPUs need to be addressed separately. This patch is not
+attempting to address that.
 
-I'm suspecting that somehow part of initrd is being corrupted during boot
-up or may be ungzip is not working properly, because I can definitely
-gzip/ungzip on all versions of running Linux for the ram.gz filesystem I
-created.  Again, the only difference between ram-18mb.gz (6MB) and
-ram-24mb.gz (8MB) is ram24.gz contains one extra file to fill up the
-filesystem to 90%.
+ >Eventually if we accept some cache misses a skb could possibly be
+re-routed
+ >to the proper slab/CPU for this we would need some skb coloring.
+You still can do this. I don't see skbinit patch hindering this.
 
-Same bzImage, same ramdisk_size=28000, just different initrd files.
-ram-18mb.gz boots, ram-24mb.gz hangs.
-
-gzip 1.3.3
-
-I noticed that lib/inflate.c says gzip is based on gzip-1.0.3
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
----------- Forwarded message ----------
-Date: Tue, 27 Aug 2002 08:05:14 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] initrd >24MB corruption
+Regards,
+    Mala
 
 
-On 26 Aug 2002, Alan Cox wrote:
-
-> > 	RAMDISK: Compressed image found at block 0 ... then stuck!
-> Force a 1K block size when you make the fs
-
-That was the default for mke2fs.
-
-Tried compress instead of gzip. Same problem. I guess the compressed file
-is too big for the kernel. The 8MB compressed (from 24MB) didn't work. 6MB
-compressed from 18MB worked. The 24MB filesystem has just one extra junk
-file in /tmp to fill up the filesystem to 90% and this caused the system
-to hang.
-
-I'm thinking it could be the ungzip function in the kernel that's causing
-the problem.
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   http://www-124.ibm.com/developerworks/opensource/linuxperf
+   http://www-124.ibm.com/developerworks/projects/linuxperf
+   Phone:838-8088; Tie-line:678-8088
 
 
-Jeff.
 
 

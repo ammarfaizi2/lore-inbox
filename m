@@ -1,92 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265859AbUFIR6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265872AbUFISCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265859AbUFIR6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 13:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265894AbUFIR6X
+	id S265872AbUFISCf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 14:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbUFISCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 13:58:23 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:64201 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S265859AbUFIR6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 13:58:17 -0400
-Date: Wed, 9 Jun 2004 11:58:15 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Goldwyn Rodrigues <goldwyn_r@myrealbox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Breaking Ext3/VFS file size limit
-Message-ID: <20040609175815.GI24042@schnapps.adilger.int>
-Mail-Followup-To: Goldwyn Rodrigues <goldwyn_r@myrealbox.com>,
-	linux-kernel@vger.kernel.org
-References: <1086787280.98272bfcgoldwyn_r@myrealbox.com>
+	Wed, 9 Jun 2004 14:02:35 -0400
+Received: from noc.safeweb.be ([82.138.76.65]:7131 "EHLO safeweb.be")
+	by vger.kernel.org with ESMTP id S265872AbUFISCa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 14:02:30 -0400
+Subject: RE: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+From: Evaldo Gardenali <evaldo@gardenali.biz>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.56.0406091911340.26677@jjulnx.backbone.dif.dk>
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAWUyJbbFwtUuY/ZGbgGI8TwEAAAAA@casabyte.com>
+	 <Pine.LNX.4.56.0406091911340.26677@jjulnx.backbone.dif.dk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0LoS7T0r0pgEPR7MR913"
+Message-Id: <1086804146.2047.29.camel@server1.aguabranca.com.br>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k9xkV0rc9XGsukaG"
-Content-Disposition: inline
-In-Reply-To: <1086787280.98272bfcgoldwyn_r@myrealbox.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 09 Jun 2004 15:02:26 -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---k9xkV0rc9XGsukaG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-0LoS7T0r0pgEPR7MR913
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Jun 09, 2004  18:51 +0530, Goldwyn Rodrigues wrote:
-> I am building a custom kernel which could break the max file size limit f=
-rom
-> 2TB. I found the dependancy on number of 512-byte blocks, as i_blocks.
+Hi there :)
+
+Jesper Juhl wrote:
+> On Tue, 8 Jun 2004, Robert White wrote:
 >=20
-> i_blocks is a 32 bit unsigned long in structures struct inode and
-> struct ext3_inode. I changed it to unsigned long long in struct inode (in
-> fs.h) and used a reserved field in ext3_inode to carry the higher order b=
-its.
+> > I would think that having an easy call to disable the NX modification w=
+ould be both
+> > safe and effective.  That is, adding a syscall (or whatever) that would=
+ let you mark
+> > your heap and/or stack executable while leaving the new default as NX, =
+is "just as
+> > safe" as flagging the executable in the first place.
+> >
+>=20
+> Just having the abillity to turn protection off opens the door. If it is
 
-Just FYI, this should all be made conditional upon CONFIG_LBD so that the
-majority of users who don't have/need such large files do not consume excess
-space in their inodes.
+indeed!
 
-> Also changed a checking function which returns the maximun possible size
-> as 2TB.
+> possible to turn it off then a way will be found to do it - either via
+> buggy kernel code or otherwhise. Only safe approach is to have it
+> enabled by default and not be able to turn it off IMHO.
 
-Again FYI, the next limit for ext3 is 4TB for 4kB block size when you run o=
-ut
-of space for indirect blocks.
+if there's a way to turn it off, there's certainly a hole waiting for
+trouble.
 
-> My question is:
-> Would changing the data type of i_blocks in struct inode (in fs.h) result
-> in any breakdowns. It could happen if the inode structure is directly map=
-ped
-> to some other structure.
+This reminds me of the "Safe Level" of NetBSD. want to run X? downgrade
+your Safe Level (0 by default, can run anything)
+http://netbsd.gw.com/cgi-bin/man-cgi/man?options+4+NetBSD-current --
+look for "options INSECURE"
+I know there may be some flaws on that concept, but it looks interesting
+:)
 
-If you don't also fix the stat code you won't be able to stat such files.
-
-> PS: I am posting for the first time, so please forgive me (but do tell me,
-> personally if possible) if I commit a mistake.
-
-It is usually good to include a patch with any discussion (diff -up format).
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/                 http://members.shaw.ca/goli=
-nux/
+Evaldo
 
 
---k9xkV0rc9XGsukaG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--=-0LoS7T0r0pgEPR7MR913
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta =?ISO-8859-1?Q?=E9?= uma parte de mensagem
+	assinada digitalmente
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQFAx0+3pIg59Q01vtYRAhrNAKCdYQKC7juEQVNDIeti2F5SAXRAxgCfWtJR
-X1W0VbyVaUmZyzL+IORl10k=
-=YW/C
+iD8DBQBAx1Cy5121Y+8pAbIRAkN/AJ9+L8nKvJwsadURmhs2nOjiL1hw7gCeJg/f
+G4dssn04CG+Dc6H43aUmeY0=
+=pqdu
 -----END PGP SIGNATURE-----
 
---k9xkV0rc9XGsukaG--
+--=-0LoS7T0r0pgEPR7MR913--
+

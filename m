@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268200AbUIAWKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268231AbUIAWPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268200AbUIAWKE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 18:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268095AbUIAWCP
+	id S268231AbUIAWPf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 18:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267708AbUIAWMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 18:02:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42512 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268196AbUIAVzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 17:55:17 -0400
-Date: Wed, 1 Sep 2004 22:55:03 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MMC block major dev
-Message-ID: <20040901225503.A26520@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Pierre Ossman <drzeus-list@drzeus.cx>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <4134CDF0.7070600@drzeus.cx> <20040831201556.B11053@flint.arm.linux.org.uk> <4134D5EF.9080903@drzeus.cx> <1094040990.2399.56.camel@localhost.localdomain>
+	Wed, 1 Sep 2004 18:12:51 -0400
+Received: from mail.shareable.org ([81.29.64.88]:19914 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S268165AbUIAWHE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 18:07:04 -0400
+Date: Wed, 1 Sep 2004 23:05:46 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Alex Zarochentsev <zam@namesys.com>
+Cc: Christophe Saout <christophe@saout.de>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040901220546.GL31934@mail.shareable.org>
+References: <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <412DA40B.5040806@namesys.com> <20040826140500.GA29965@fs.tum.de> <1093530313.11694.56.camel@leto.cs.pocnet.net> <20040826150434.GF5733@mail.shareable.org> <20040829123428.GP5108@backtop.namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1094040990.2399.56.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Wed, Sep 01, 2004 at 01:16:30PM +0100
+In-Reply-To: <20040829123428.GP5108@backtop.namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 01:16:30PM +0100, Alan Cox wrote:
-> On Maw, 2004-08-31 at 20:47, Pierre Ossman wrote:
-> > >Registering with the block layer with a major number of zero means
-> > >"find me a free major number and assign that to me."  This is nothing
-> > >new.  If devfs can't cope with that, devfs is buggy.  Use udev instead.
+Alex Zarochentsev wrote:
+> > > What reiser4 can do, but the VFS can't is to insert or remove data in
+> > > the middle of a file. Adding this above the page cache would probably be
+> > > almost impossible (truncate seems already complicated enough).
+> > 
+> > That would be one of those "special features" that a
+> > VFS-plus-userspace implementation of archive views could take
+> > advantage of on reiser4, while using a slower method (sometimes much
+> > slower) on all other filesystems.
+> > 
+> > By the way, can reiser4 share parts of files between different files?
 > 
-> Registering with an ID of 0 is bad because you've no idea what existing
-> device node you may reallocate and thus what permissions may be present
-> for access unless you sweep all of storage.
+> no, those file plugins are not written yet :)
+> 
+> Do you mean COW files or some another thing?
 
-Surely the same arguments also apply to character drivers as well?
+COW files would be nice as well, but I meant another thing: for files
+which are parts of an uncompressed archive, it makes sense, if the fs
+offers it efficiently, to share the storage.
 
->From what you're saying, any use of these dynamic majors what so
-ever is buggy.  So WTF do we have this facility in the kernel in
-the first place?
+Doing it properly requires that memory is also shared, for example
+when COW files are used to isolate trees in virtual server jails, you
+still want the mapped executables to share memory.
 
-What about dynamically assigning physical serial ports to ttyS
-numbers?  I suggest that your argument also applies there as well.
-Also to SCSI disks, where if you load SCSI driver modules in a
-differnet order your disks all move about.  It's all the same
-problem.
+You can't do that just by writing a plugin.
 
+> For COW files, the reiser4 support is not enough, we need to teach
+> cp(1) or another utility to inform the fs layer that copying can be
+> done by creation of COW files.
 
-I suggest that someone submits a patch to rip out this apparantly
-buggy and useless feature, or at least make the kernel print a
-warning when its used such that people are aware of its dangerous
-nature.
+Actually we don't.  The VM and VFS layers could deduce it with no
+changes to cp(1), by tracking which pages are identical due to read(3)
+and write(3).  However, changing cp(1) is easier.
 
-Of course, if you do rip out dynamic majors then you _will_ need
-to have an assigned major number for PCMCIA driver services, and
-probably a bunch of other stuff.
+reiser4 support is obviously the first prerequisite...
 
-I also seem to remember hearing that we will only be using dynamically
-assigned device numbers in the new expanded device space.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-- Jamie

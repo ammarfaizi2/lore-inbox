@@ -1,80 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266223AbUIMHEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266236AbUIMHIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266223AbUIMHEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 03:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbUIMHEQ
+	id S266236AbUIMHIy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 03:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUIMHIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 03:04:16 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:42245 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S266221AbUIMHEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 03:04:07 -0400
-Date: Mon, 13 Sep 2004 09:03:35 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, ipslinux@adaptec.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: 2.4.28-pre3: broken ips update
-Message-ID: <20040913070334.GD1937@fs.tum.de>
-References: <20040911220117.GA4669@logos.cnet>
+	Mon, 13 Sep 2004 03:08:54 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:45216 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266236AbUIMHIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 03:08:52 -0400
+Date: Mon, 13 Sep 2004 00:08:27 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, bcasavan@sgi.com, ak@suse.de, anton@samba.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: more numa maxnode confusions
+Message-Id: <20040913000827.1164dbdf.pj@sgi.com>
+In-Reply-To: <20040913065621.GB12185@wotan.suse.de>
+References: <20040912200253.3d7a6ff5.pj@sgi.com>
+	<20040913065621.GB12185@wotan.suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040911220117.GA4669@logos.cnet>
-User-Agent: Mutt/1.5.6+20040818i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 11, 2004 at 07:01:17PM -0300, Marcelo Tosatti wrote:
->...
-> Summary of changes from v2.4.28-pre2 to v2.4.28-pre3
-> ============================================
->...
-> Jack Hammer:
->   o ServeRAID driver (ips) Version 7.10.18
->...
+Andi writes:
+> Thanks for catching this.
 
-<--  snip  -->
-
-...
-gcc-3.4 -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre3-full/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
--fno-unit-at-a-time   -nostdinc -iwithprefix include 
--DKBUILD_BASENAME=ips  -c -o ips.o ips.c
-In file included from ips.c:190:
-ips.h:101: error: redefinition of typedef 'irqreturn_t'
-/home/bunk/linux/kernel-2.4/linux-2.4.28-pre3-full/include/linux/interrupt.h:16: 
-error: previous declaration of 'irqreturn_t' was here
-make[3]: *** [ips.o] Error 1
-make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.28-pre3-full/drivers/scsi'
-
-<--  snip  -->
-
-
-This update was obviously submitted without even testing the compilation 
-of the driver (not to mention testing whether it actually works).
-
-
-Even worse:
-
-We had _exactly the same problem_ with the 7.00.15 driver in 
-2.4.27-pre3, but 7.10.18 now simply reverts my (trivial) fix for this 
-compile error.
-
-
-Marcelo, can you please refuse patches from people who don't bother to 
-do even the simplest compile testing when blindly submitting the latest 
-version of a driver?
-
-
-TIA
-Adrian
+You're welcome.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

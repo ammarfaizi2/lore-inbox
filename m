@@ -1,50 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268913AbTBSOOx>; Wed, 19 Feb 2003 09:14:53 -0500
+	id <S268901AbTBSOUv>; Wed, 19 Feb 2003 09:20:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268912AbTBSOOx>; Wed, 19 Feb 2003 09:14:53 -0500
-Received: from [213.151.209.11] ([213.151.209.11]:33428 "EHLO ns.isdd.sk")
-	by vger.kernel.org with ESMTP id <S268910AbTBSOOw>;
-	Wed, 19 Feb 2003 09:14:52 -0500
-Date: Wed, 19 Feb 2003 15:26:03 +0100
-From: "m." <michal017@centrum.sk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.19 & 2.4.20 unresolved symbols problem
-Message-Id: <20030219152603.1e0a75a6.michal017@centrum.sk>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: "7G@=HHlcOkKWZV<cSewsGaS*#SBut}LoqAyp$62lJCCTqP0O$L}3}wCawPrDNJm~yvwO&<yD*5
- %JNxYJ|yq20:It~!Owg.wy\]Nud`{o#\MP/ol'&2M)\3/d<!\xMok:*d2^RGVHJ@knU*jg@Rdse
- <+6>FPLL[t]}0<n+am^H>}'H7Z]q%C-NluRPzo!|l,v$7,LU_$hsWoUM2_V!BFF8dBIV
+	id <S268915AbTBSOUv>; Wed, 19 Feb 2003 09:20:51 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10509 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S268901AbTBSOUt>;
+	Wed, 19 Feb 2003 09:20:49 -0500
+Date: Wed, 19 Feb 2003 14:30:52 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: chas williams <chas@locutus.cmf.nrl.navy.mil>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH][2.5] convert atm_dev_lock from spinlock to semaphore
+Message-ID: <20030219143052.G22992@parcelfarce.linux.theplanet.co.uk>
+References: <20030219025347.D22992@parcelfarce.linux.theplanet.co.uk> <200302190452.h1J4qoGi002198@locutus.cmf.nrl.navy.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200302190452.h1J4qoGi002198@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Tue, Feb 18, 2003 at 11:52:50PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi.. I have problem building 2.4.19 and 2.4.20 kernel on my Linux
-machine.. I'm using gcc 3.2.2 to build this kernel.
-My commands are:
-make xconfig
-make dep
-make bzImage
-make modules
-make modules_install
+On Tue, Feb 18, 2003 at 11:52:50PM -0500, chas williams wrote:
+> yes, atm_dev_lock is wrapped around large chunks of the code. however,
+> it should probably never have been a spinlock--it certainly doesnt need
+> to be one.  as a mutex its far less offensive.  i am willing to take
+> suggestions as to what would need to be done to fix atm properly?
 
-The last step fails with unresolved symbols in modules, such as:
+well, I'm no networking guru, but here are some of the things that seem
+useful to me:
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.19/kernel/drivers/net/8139too.o depmod:        
-__ioremap_R9eac042a depmod:         cpu_raise_softirq_Rd01f3ee8
-depmod:         eth_type_trans_R81d268af
-depmod:         __get_user_4
-depmod:         netif_rx_R367bbba8
-depmod:         __out_of_line_bug_R8b0fd3c5
-depmod:         __const_udelay_Reae3dfd6
-depmod:         skb_over_panic_R940e064f
-depmod:         softnet_data_Re3822906
+Try to use `struct sock' where you can.  For example, using sk->stamp
+would allow the SIOCGSTAMP ioctl to be dealt with at a higher level.
+Right now, atm uses a timestamp embedded in vcc.  (Actually, I think
+I see how to do this one.  I'll send you a patch for your review and
+testing, OK?)
 
-I did see some posts in this maillist but only when building 2.5 kernel,
-not 2.4..
-Can you suggest a solution?
-Thanks..
-michal
+Figure out what actually needs to be locked and lock only that.
+spinlocks are, by and large, the right solution -- having a Big ATM Lock
+isn't a good thing (though I do recognise that you may want to do this
+temporarily while you work on fixing it properly).
+
+You should probably do away with SOCKOPS_WRAP / SOCKOPS_WRAPPED.  The
+BKL doesn't really protect you from much any more.
+
+Might want to consider converting the proc files to the seqfile interface.
+
+There seems to be some custom doubly-linked-list handling going on in
+atm/resources.c.  Should probably be switched to use <linux/list.h>.
+
+I don't like the look of the locking in ipcommon.c:skb_migrate().
+If there's really no better way of doing it, I'd recommend something like:
+
+	spinlock_t *first, *second;
+	if ((unsigned long)from < (unsigned long) to)) {
+		first = &from->lock;
+		second = &to->lock;
+	} else {
+		first = &to->lock;
+		second = &from->lock;
+	}
+
+	local_irq_save(flags);
+	spin_lock(&first);
+	spin_lock(&second);
+
+(note that you can leave the spin_unlock and spin_unlock_irqrestore
+calls as they are).
+
+
+That's just a quick survey... I'm sure someone who actually uses ATM
+could find more things to look at ;-)
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

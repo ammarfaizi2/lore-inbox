@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263979AbTJFFMN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 01:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbTJFFMN
+	id S263983AbTJFFUn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 01:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTJFFUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 01:12:13 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:29113 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S263979AbTJFFMM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 01:12:12 -0400
-Date: Mon, 6 Oct 2003 08:12:10 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: Jamie Lokier <jamie@shareable.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: idt change in a running kernel? what locking?
-In-Reply-To: <20031003170210.GA18415@mail.shareable.org>
-Message-ID: <Pine.LNX.4.58.0310060810440.26313@hosting.rdsbv.ro>
-References: <Pine.LNX.4.58.0310030850110.10930@hosting.rdsbv.ro>
- <20031003063411.GF15691@mail.shareable.org> <Pine.LNX.4.58.0310030945050.10930@hosting.rdsbv.ro>
- <20031003170210.GA18415@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Oct 2003 01:20:43 -0400
+Received: from smtp3.libero.it ([193.70.192.127]:23804 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id S263983AbTJFFUm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 01:20:42 -0400
+Date: Mon, 6 Oct 2003 07:21:54 +0200
+From: "M. Fioretti" <m.fioretti@inwind.it>
+To: linux-kernel@vger.kernel.org
+Cc: io <m.fioretti@inwind.it>
+Subject: Kernel 2.6: new features and older computers
+Message-ID: <20031006052154.GB26388@inwind.it>
+Reply-To: "M. Fioretti" <m.fioretti@inwind.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks again!
+Greetings,
 
-On Fri, 3 Oct 2003, Jamie Lokier wrote:
+I am looking for some information on the issues listed below for two
+reasons. One is an article I am writing for a magazine, the other (as
+the coordinator of the non-profit RULE project, see my signature) is
+to understand if, how and how much the next linux kernel can be kept
+compatible with older computers.
 
-> Catalin BOIE wrote:
-> > > It's more likely, you want to use get_cpu()/put_cpu() to prevent the
-> > > current kernel thread from being pre-empted to a different CPU.
-> > get_cpu locks the thread on a CPU until put_cpu?
->
+Any feedback is welcome. Should you have the time and right mood to
+answer here or privately with detailed explanations, thanks a thousand
+in advance. If not, please just point me to the relevant stuff to read
+(be it URLs, email threads, comments in specific source files,
+whatever). I have already downloaded the "wonderful world of Linux
+2.6" and the documents pointed in it.
 
-> Yes, it disables preemption.
-> Taking any spinlock will do it too.
->
-> > > If you are intending to change idt on all CPUs, you'll need something
-> > > more complicated.
-> >
-> > Hm. I realized that on a SMP it's a little hard to do it.
-> > How can I change that on all cpus?
-> > There is something to use that i can force my code to run on a specific
-> > cpu?
->
-> on_each_cpu() will call a function on each CPU.  Be careful that the
-> function is safe in the contexts in which it will be called.
->
-> If you just want to force you code to run on one cpu, that is
-> automatic if you are holding a spinlock (but then you can't schedule,
-> return to userspace etc.)
->
-> In general you can fix a task to a cpu using set_cpus_allowed().
->
-> -- Jamie
->
+On to the questions now:
 
-What I realy want is to reload idt on every cpu.
-So, probably on_each_cpu is the way to go, right?
+1) minimal hw requirements (RAM, disk...) both to *use* and to
+   *compile* the kernel
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
+2) Which compilation switches could be used, if any, to lessen the
+   above requirements and increase performance on obsolete systems
+   (which in RULE means starting from 386/486/586 CPUs, 16+ MB RAM,
+   hard disk ~ 400/500 MB, and the kind of peripherals used 6/7 years ago)
+
+3) Details on how the build system is changed
+4) What is RCU and which kind of performances it will improve
+5) Online Kernel-related tutorials which I could/should mention in the
+   "resource" section of the article
+6) Anything else you might find relevant
+
+Thanks again,
+
+Marco Fioretti
+
+-- 
+Marco Fioretti                 m.fioretti, at the server inwind.it
+Red Hat for low memory         http://www.rule-project.org/en/
+

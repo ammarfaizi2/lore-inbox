@@ -1,90 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265784AbUATV1g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 16:27:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265797AbUATV1g
+	id S265736AbUATVYd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 16:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265748AbUATVYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 16:27:36 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:34043 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S265784AbUATV1a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 16:27:30 -0500
-Subject: Re: 2.6.1 "clock preempt"?
-From: john stultz <johnstul@us.ibm.com>
-To: hauan@cmu.edu
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1074630968.19174.49.camel@steinar.cheme.cmu.edu>
-References: <1074630968.19174.49.camel@steinar.cheme.cmu.edu>
-Content-Type: text/plain
-Message-Id: <1074633977.16374.67.camel@cog.beaverton.ibm.com>
+	Tue, 20 Jan 2004 16:24:33 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30953 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265736AbUATVYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 16:24:32 -0500
+Date: Tue, 20 Jan 2004 22:24:21 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: dri-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] disallow DRM on 386
+Message-ID: <20040120212421.GF12027@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 20 Jan 2004 13:26:18 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-01-20 at 12:36, Steinar Hauan wrote:
->   i've started to test the 2.6 series of kernels and observed a
->   strange thing: with moderate background load, the system clock
->   (i.e. time) seems to slow down to about 60% of normal speed
->   and the normally reliable ntp process (v4.2.0)
-> 
->   details: working interactively with a couple of background dummy
->   processes (*1), my system clock slowed down approx 90 mins over
->   a period of approx 4 hrs real time.
->  
-> (*1) infinite loop: 1 rip, 1 encode -- both run at nice 10
-> 
->   the kernel logs show messages on the form:
-> 
-> localhost kernel: Losing too many ticks!
-> localhost kernel: TSC cannot be used as a timesource.
->                        (Are you running with SpeedStep?)
+I got the following compile error in 2.6.1-mm5 with X86_CMPXCHG=n.
+This problem is not specific to -mm, and it always occurs when you 
+include support for the 386 cpu (oposed to the 486 or later cpus) since 
+in this case X86_CMPXCHG=n and therefoore cmpxchg isn't defined in 
+include/asm-i386/system.h .
 
-How quickly do you see this message? Does it happen right at boot time,
-or during load?
+The patch below disallows DRM if X86_CMPXCHG=n.
 
+Please apply
+Adrian
 
-> localhost kernel: Falling back to a sane timesource.
-> localhost kernel: set_rtc_mmss: can't update from 5 to 58
-> 
->   without the background load, the system keeps perfect time.
-> 
-> ==> any ideas of what could be going on would be appreciated.
-
-You seem to be losing lots of timer ticks. If this happens enough, the
-system will fall back to the PIT thinking that your cpu frequency must
-have changed w/o notification. 
-
-You might want to try the attached patch to see if we're overreacting
-when we fall back to the PIT or if your system really is having trouble.
-Basically I'm just disabling the lost tick compensation code, which
-means if your system is really having issues, you'll still lose time.
-
->   hardware details
->     Intel P4 2.53gz on Supermicro P4SAA mobo (Intel 7205 chipset)
->     1gb memory; multiple drives; Promise Ultra/133 raid controller
->   software
->     kernel 2.6.1 w/APIC and PREEMPT options turned on.
-
-Also, do you see the problem when preempt is disabled (without using the
-attached patch?)
-
-thanks
--john
-
-===== arch/i386/kernel/timers/timer_tsc.c 1.35 vs edited =====
---- 1.35/arch/i386/kernel/timers/timer_tsc.c	Wed Jan  7 00:31:11 2004
-+++ edited/arch/i386/kernel/timers/timer_tsc.c	Tue Jan 20 13:22:54 2004
-@@ -226,7 +226,7 @@
- 	delta += delay_at_last_interrupt;
- 	lost = delta/(1000000/HZ);
- 	delay = delta%(1000000/HZ);
--	if (lost >= 2) {
-+	if (0 && (lost >= 2)) {
- 		jiffies_64 += lost-1;
- 
- 		/* sanity check to ensure we're not always losing ticks */
-
-
+--- linux-2.6.1-mm5/drivers/char/drm/Kconfig.old	2004-01-20 14:42:27.000000000 +0100
++++ linux-2.6.1-mm5/drivers/char/drm/Kconfig	2004-01-20 14:43:02.000000000 +0100
+@@ -6,6 +6,7 @@
+ #
+ config DRM
+ 	bool "Direct Rendering Manager (XFree86 4.1.0 and higher DRI support)"
++	depends on !X86 || X86_CMPXCHG
+ 	help
+ 	  Kernel-level support for the Direct Rendering Infrastructure (DRI)
+ 	  introduced in XFree86 4.0. If you say Y here, you need to select

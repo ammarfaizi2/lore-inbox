@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbUDSTrT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 15:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUDSTrT
+	id S261787AbUDSTsh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 15:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbUDSTsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 15:47:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20937 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261779AbUDSTrS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 15:47:18 -0400
-Subject: Re: [Ext2-devel] Re: [RFC] extents,delayed allocation,mballoc for
-	ext3
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alex Tomas <alex@clusterfs.com>
-Cc: Matt Mackall <mpm@selenic.com>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <m3llkyojcx.fsf@bzzz.home.net>
-References: <m365c3pthi.fsf@bzzz.home.net> <20040414040101.GO1175@waste.org>
-	 <m3llkyojcx.fsf@bzzz.home.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1082404030.2237.72.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 Apr 2004 20:47:10 +0100
+	Mon, 19 Apr 2004 15:48:37 -0400
+Received: from msgdirector3.onetel.net.uk ([212.67.96.159]:32570 "EHLO
+	msgdirector3.onetel.net.uk") by vger.kernel.org with ESMTP
+	id S261787AbUDSTse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 15:48:34 -0400
+From: Chris Lingard <chris@ukpost.com>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Subject: Re: initramfs howto?
+Date: Mon, 19 Apr 2004 20:48:29 +0100
+User-Agent: KMail/1.5.2
+References: <1081451826.238.23.camel@clubneon.priv.hereintown.net> <buo4qrt4pga.fsf@mcspd15.ucom.lsi.nec.co.jp> <1081531299.19918.13.camel@serpentine.pathscale.com>
+In-Reply-To: <1081531299.19918.13.camel@serpentine.pathscale.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404192048.29666.chris@ukpost.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 09 April 2004 6:21 pm, Bryan O'Sullivan wrote:
+> On Thu, 2004-04-08 at 23:48, Miles Bader wrote:
 
-On Wed, 2004-04-14 at 13:05, Alex Tomas wrote:
+> I'm agnostic.  It's a two-line patch.  I don't care if it's called
+> /spam/fandango/wubble, so long as the brave souls who are trying out
+> initramfs don't keep stumbling over the same problem again and again :-)
 
->  MM> I'm going to assume that there's no way for ext3 without extents
->  MM> support to mount such a filesystem, so I think this means changing the
->  MM> FS name. Is there a simple migration path to extents for existing filesystems?
-> 
-> yeah. you're right. I see no way to make it backward-compatible. in fact,
-> I haven't think much about name. probably you're right again and this
-> "ext3 on steroids" should have another name.
+May I suggest
 
-We've already got feature compatibility bits that can deal with this
-sort of thing.  There are various other proposed incompatible features,
-such as large inodes and dynamically placed metadata (eg. placing inode
-tables into an inode "file"), too.  Rather than invent new names for
-each combination of incompatible feature set, we're probably better off
-just using the feature masks.
+diff -Naur linux-2.6.5.old/init/main.c linux-2.6.5/init/main.c
+--- linux-2.6.5.old/init/main.c 2004-04-05 18:19:04.000000000 +0100
++++ linux-2.6.5/init/main.c     2004-04-18 15:37:56.000000000 +0100
+@@ -604,7 +604,12 @@
+        smp_init();
+        do_basic_setup();
 
-Cheers,
- Stephen
+-       prepare_namespace();
++       /*
++       * check if there is an early userspace init, if yes
++       * let it do all the work
++       */
++       if ( ! sys_access("/linuxrc", 0) == 0)
++               prepare_namespace();
 
+        /*
+         * Ok, we have completed the initial bootup, and
 
+linuxrc already exists for initrd systems, and is coded in anyway.
+
+I have tested this with both with both linuxrc -> bin/ash
+and with a script that brings up a full system.  (I have made
+a boot CD that installs Linux-2.6.5 with udev)
+
+Chris Lingard

@@ -1,66 +1,164 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272484AbRIVXaV>; Sat, 22 Sep 2001 19:30:21 -0400
+	id <S272533AbRIVXkv>; Sat, 22 Sep 2001 19:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272511AbRIVXaJ>; Sat, 22 Sep 2001 19:30:09 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:38311 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S272484AbRIVX3z>; Sat, 22 Sep 2001 19:29:55 -0400
-Message-ID: <3BAD1F04.8EFA46F4@kegel.com>
-Date: Sat, 22 Sep 2001 16:30:12 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6 i686)
-X-Accept-Language: en
+	id <S272552AbRIVXkm>; Sat, 22 Sep 2001 19:40:42 -0400
+Received: from mail5.speakeasy.net ([216.254.0.205]:14858 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S272533AbRIVXk2>; Sat, 22 Sep 2001 19:40:28 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: safemode <safemode@speakeasy.net>
+To: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        george anzinger <george@mvista.com>, Robert Love <rml@tech9.net>
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+Date: Sat, 22 Sep 2001 19:40:44 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Oliver Xymoron <oxymoron@waste.org>, Andrea Arcangeli <andrea@suse.de>,
+        Roger Larsson <roger.larsson@norran.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <Pine.LNX.4.30.0109201659210.5622-100000@waste.org> <3BAB614E.8600D074@mvista.com> <20010922211919Z272247-760+15646@vger.kernel.org>
+In-Reply-To: <20010922211919Z272247-760+15646@vger.kernel.org>
 MIME-Version: 1.0
-To: Vitaly Luban <vitaly@luban.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] Signal-per-fd for RT signals; write_lock_bh(file_lock)?
-In-Reply-To: <3BA2AFFF.C7B8C4DF@kegel.com> <3BA2E144.FB0E5D55@luban.org> <3BA2E99A.1134E382@kegel.com> <3BA350A7.7D39FC23@kegel.com> <3BA3C61A.DED5A27A@luban.org> <3BA3D10B.FE3C6C79@kegel.com> <3BA40FEC.A6E0557E@luban.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010922234039Z272533-760+15665@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vitaly Luban wrote:
-> Could you please try attached one? It's mostly untested, but my home site
-> will be down next week.
+ok. The preemption patch helps realtime applications in linux be a little 
+more close to realtime.  I understand that.  But your mp3 player shouldn't 
+need root permission or renicing or realtime priority flags to play mp3s.  To 
+test how well the latency patches are working you should be running things 
+all at the same priority.  The main issue people are having with skipping 
+mp3s is not in the decoding of the mp3 or in the retrieving of the file, it's 
+in the playing in the soundcard.  That's being affected by dbench flooding 
+the system with irq requests.  I'm inclined to believe it's irq requests 
+because the _only_ time i have problems with mp3s (and i dont change priority 
+levels) is when A. i do a cdparanoia -Z -B "1-"    or dbench 32.   I bet if 
+someone did these tests on scsi hardware with the latency patch, they'd find 
+much better results than us users of ide devices.  
 
-I just had time to read your new patch; have not yet run it.
-I think there may be some problems in send_signal:
+even i dont get any skips when i run the player at nice -n -20.   That 
+doesn't tell you much about the preemption patch though.  And it doesn't tell 
+you about performance when you dont give linux the chance to do what it does, 
+ multitask.  That's where the latency patch is directed at improving, i 
+think.  
 
-1) might still have null pointer dereference.  If files is NULL, following section
-+        if( newsignal && q )
-+            filep->f_infoptr = q;
-+        write_unlock( &files->file_lock);
-may crash due to NULL filep and unlocking an already unlocked lock.
-BTW, you might be able to use a read lock there.
 
-2) You're using a kind of spinlock that compiles to a no-op on single
-processor, but the crash (see the old oops traceback in
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100055931808169&w=2 )
-happens on a single processor, so your locking shouldn't help.
-The conflict is between a bottom half and normal.  Thus write_lock, besides
-not helping on uniprocessor, might cause a deadlock on smp.  
-Might have to convert the write_lock in get_unused_fd() and friends to be a
-write_lock_bh() instead to prevent the bottom half from running until the normal
-part is done with the file lock!
 
-This bottom-half-vs-normal issue worries me greatly.  It may take
-a lot of thought to fix this.  Then again, maybe I'm just confused;
-I've never dealt with kernel spinlocks before, and anyone who reads
-my posts regularly knows that I'm wrong most of the time.  Anyone
-who actually *understands* this stuff, please speak up with corrections...
 
-3) you still save info in the file even if you don't end up queuing
-a signal; your changes in send_signal should be in the default case
-of the switch, just to keep things in a good state.
-
-4) collect_signal references the file table, so it needs to lock it;
-probably read_lock (but maybe write_lock, I dunno), and probably
-_bh, too, to avoid deadlock.
-
-> I'm looking forward to see a test case, all I could come up with happily
-> runs on the old version.
-
-I'll try to put it together today.  
-- Dan
+On Saturday 22 September 2001 17:09, Dieter Nützel wrote:
+> Am Freitag, 21. September 2001 17:48 schrieb george anzinger:
+> > Robert Love wrote:
+> > > On Thu, 2001-09-20 at 18:51, Dieter Nützel wrote:
+> > > > > Does your audio source depend on any files (eg mp3s) and if so,
+> > > > > could they be moved to a ramfs? Do the skips go away then?
+> > > >
+> > > > Good point.
+> > > >
+> > > > I've copied one video (MP2) and one Ogg-Vorbis file into /dev/shm.
+> > > > Little bit better but hiccup still there :-(
+> > >
+> > > As I've been saying, the problem really shouldn't be disk I/O.  I would
+> > > think (and really hope) the readahead code can fit a little mp3 in
+> > > memory.  Even if not, its a quick read to load it.  The continued blips
+> > > you see are caused by something, well, continual :)
+> >
+> > Are you running your application at some real time priority?  I suspect
+> > that, when dbench starts, it floods the system with a lot of new tasks
+> > and the system must visit each one until it gets back to your ap.  Nice
+> > will only do so much here.  Real time priority is the way to go.
+> > Attached are a couple of small programs to help here.  "rt" runs a given
+> > ap at a given priority.  I.e. > rt 10 foo, runs foo at priority 10.
+> > (There are more options, try rt -h.)  getrt reports the priority of a
+> > task.  If you do something like > rt 10 bash   everything you run from
+> > the new bash prompt will be at priority 10.  You must be root to run rt
+>
+> Yes, I do like I've posted in all the related threads.
+>
+> Here is some more input for you. I hope it could help nail it down.
+>
+> Regards,
+> 	Dieter
+>
+> BTW I'll now switching to 2.4.10-pre14
+>
+> SunWave1#time tar xIf /Pakete/Linux/linux-2.4.9.tar.bz2
+> 34.570u 5.350s 0:47.84 83.4%    0+0k 0+0io 295pf+0w
+>
+> I "hear" some have disk activities (disk trashing).
+>
+> SunWave1#sync
+>
+> Runs for ages!!!
+>
+> User	 CPU  0%
+> System	 CPU  0%
+> Idle	 CPU 99%
+>
+> So where did it wait???
+>
+> Here comes what latencytimes show:
+>
+> Worst 20 latency times of 5061 measured in this period.
+>   usec      cause     mask   start line/file      address   end line/file
+> 322263   reacqBKL        1  1375/sched.c         c01138b4   697/sched.c
+> 216174        BKL        1    30/inode.c         c016b971    52/inode.c
+> 158328        BKL        9   742/block_dev.c     c0144d51   697/sched.c
+>  66975        BKL        1  1101/super.c         c014250d   697/sched.c
+>  53560        BKL        1  1101/super.c         c014250d  1130/super.c
+>  37742  spin_lock        1   547/sched.c         c0111b04   795/block_dev.c
+>  24822  spin_lock        1   678/inode.c         c01551f7   704/inode.c
+>  24739  spin_lock        1   291/buffer.c        c014003c   285/buffer.c
+>  19330  spin_lock        1   547/sched.c         c0111b04   697/sched.c
+>  16566        BKL        1    30/inode.c         c016b971   697/sched.c
+>  14049  spin_lock        1  2043/tcp_ipv6.c      e9078837   119/softirq.c
+>  11993  spin_lock        1  2111/tcp_ipv4.c      c0220517   119/softirq.c
+>  11704        BKL        1   706/block_dev.c     c0144bd7  1381/sched.c
+>  11405  spin_lock        1   291/buffer.c        c014003c   280/buffer.c
+>  11288        BKL        1   706/block_dev.c     c0144bd7   697/sched.c
+>  11213   reacqBKL        9  1375/sched.c         c01138b4   696/block_dev.c
+>  11212  spin_lock        1   547/sched.c         c0111b04   696/block_dev.c
+>   7552  spin_lock        1   298/buffer.c        c013bb1c   285/buffer.c
+>   5013        BKL        0  2763/buffer.c        c013fbca   697/sched.c
+>   4641        BKL        1  1302/inode.c         c016de79   697/sched.c
+>
+> SunWave1#ksymoops -m /boot/System.map -A " c01138b4 c016b971 c0144d51
+> c014250d c014250d c0111b04 c01551f7 c014003c c0111b04 c016b971 e9078837
+> c0220517 c0144bd7 c014003c c0144bd7 c01138b4 c0111b04 c013bb1c c013fbca
+> c016de79"
+> ksymoops 2.4.3 on i686 2.4.10-pre12-preempt.  Options used
+>      -V (default)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.10-pre12-preempt/ (default)
+>      -m /boot/System.map (specified)
+>
+>
+> Adhoc c01138b4 <preempt_schedule+34/b0>
+> Adhoc c016b970 <reiserfs_delete_inode+30/110>
+> Adhoc c0144d50 <blkdev_close+60/1b0>
+> Adhoc c014250c <kill_super+ac/280>
+> Adhoc c014250c <kill_super+ac/280>
+> Adhoc c0111b04 <schedule+34/550>
+> Adhoc c01551f6 <prune_icache+36/160>
+> Adhoc c014003c <kupdate+11c/210>
+> Adhoc c0111b04 <schedule+34/550>
+> Adhoc c016b970 <reiserfs_delete_inode+30/110>
+> Adhoc e9078836 <[ipv6]tcp6_get_info+4a6/770>
+> Adhoc c0220516 <tcp_get_info+4b6/7a0>
+> Adhoc c0144bd6 <blkdev_put+46/160>
+> Adhoc c014003c <kupdate+11c/210>
+> Adhoc c0144bd6 <blkdev_put+46/160>
+> Adhoc c01138b4 <preempt_schedule+34/b0>
+> Adhoc c0111b04 <schedule+34/550>
+> Adhoc c013bb1c <wait_for_locked_buffers+3c/60>
+> Adhoc c013fbca <sync_old_buffers+2a/130>
+> Adhoc c016de78 <reiserfs_dirty_inode+58/f0>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

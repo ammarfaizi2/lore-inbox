@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268494AbTBOBow>; Fri, 14 Feb 2003 20:44:52 -0500
+	id <S268500AbTBOBsz>; Fri, 14 Feb 2003 20:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268500AbTBOBow>; Fri, 14 Feb 2003 20:44:52 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:2219 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S268494AbTBOBov>; Fri, 14 Feb 2003 20:44:51 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sat, 15 Feb 2003 12:53:53 +1100
-MIME-Version: 1.0
+	id <S268501AbTBOBsz>; Fri, 14 Feb 2003 20:48:55 -0500
+Received: from bjl1.jlokier.co.uk ([81.29.64.88]:10880 "EHLO
+	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S268500AbTBOBsz>; Fri, 14 Feb 2003 20:48:55 -0500
+Date: Sat, 15 Feb 2003 02:00:44 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Vlad@geekizoid.com" <vlad@geekizoid.com>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Larry McVoy'" <lm@bitmover.com>
+Subject: Re: openbkweb-0.0
+Message-ID: <20030215020044.GG4333@bjl1.jlokier.co.uk>
+References: <1045273835.2961.0.camel@irongate.swansea.linux.org.uk> <008e01c2d48d$d0fe28f0$0200a8c0@wsl3>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15949.40369.601166.550803@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
+Content-Disposition: inline
+In-Reply-To: <008e01c2d48d$d0fe28f0$0200a8c0@wsl3>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: Re: Routing problem with udp, and a multihomed host in 2.4.20
-In-Reply-To: message from Herbert Xu on Saturday February 15
-References: <15948.13879.734412.313081@notabene.cse.unsw.edu.au>
-	<E18jpaa-0007Rc-00@gondolin.me.apana.org.au>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-FCC: ~/.mail/linux
-X-face:	[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
---text follows this line--
-On Saturday February 15, herbert@gondor.apana.org.au wrote:
-> Neil Brown <neilb@cse.unsw.edu.au> wrote:
-> > 
-> > It turns out that the problem occurs when send_msg is used to send a
-> > UDP packet, and the control information contains
-> >              struct in_pktinfo {
-> >                  unsigned int   ipi_ifindex;  /* Interface index */
-> >                  struct in_addr ipi_spec_dst; /* Local address */
-> >                  struct in_addr ipi_addr;     /* Header Destination address */
-> >              };
-> > specifying the address and interface of the message that we are
-> > replying to.
-> 
-> So your application is forcing the packet to go out on a specific
-> interface bypassing the routing table...
+Vlad@geekizoid.com wrote:
+> Seriously, it's not like you [Alan] can't work under the
+> circumstances - you just refuse to.  That's your choice - one I respect.
+> Why try to, or even advocate limiting Larry's choices?  That seems unfair
+> and blatantly hypocritical at best.  :-(
 
-No.
-My application (which is just using standard rpc server libraries) is
-saying
-  "This is in reply to a request that came in through a given
-  interface".
+Fwiw, even though Larry's offered to special-case Alan, (and presumed
+that Alan's doesn't work for anyone other than Red Hat), in private
+email Larry made it clear _I_ am not allowed to use Bitkeeper.  This
+is because I work on scripts which analyse repositories - and even
+though I was prepared to limit the scope of that work for a time.
 
-It is not reasonable to treat that statement as equivalent to:
-  "This packet must go out that interface"
+Now I am hardly the high-profile kernel hacker that Alan is.
+But that shouldn't matter, should it?
 
-which is what appears to be happening.
+Thanks for not using Word, Alan :)
 
-NeilBrown
-
-
-> -- 
-> Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-> Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+-- Jamie

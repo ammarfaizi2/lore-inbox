@@ -1,93 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271858AbRH1RVr>; Tue, 28 Aug 2001 13:21:47 -0400
+	id <S271863AbRH1R3s>; Tue, 28 Aug 2001 13:29:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271857AbRH1RVh>; Tue, 28 Aug 2001 13:21:37 -0400
-Received: from mustard.heime.net ([194.234.65.222]:32128 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S271862AbRH1RV3>; Tue, 28 Aug 2001 13:21:29 -0400
-Date: Tue, 28 Aug 2001 19:21:39 +0200 (CEST)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Jannik Rasmussen <jannik@east.no>, <linux-kernel@vger.kernel.org>
-Subject: Re: Error 3c900 driver in 2.2.19?
-In-Reply-To: <3B8BD0F8.7308F0C9@zip.com.au>
-Message-ID: <Pine.LNX.4.30.0108281914220.2808-100000@mustard.heime.net>
+	id <S271862AbRH1R3m>; Tue, 28 Aug 2001 13:29:42 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2433 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S271860AbRH1R3G>; Tue, 28 Aug 2001 13:29:06 -0400
+Date: Tue, 28 Aug 2001 13:29:15 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Andreas Schwab <schwab@suse.de>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <je4rqsdv4z.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.3.95.1010828132756.16020A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Aug 2001, Andrew Morton wrote:
+On 28 Aug 2001, Andreas Schwab wrote:
 
-> Possibly, VM system changes have taken you over some threshold.
-> Are you putting a lot of traffic through that machine?
-
-There's <= 2500 messages (sendmail - usually <5 concurrently) going
-through per day, some 10.000 pop connections per day (mostly at working
-hours). The server's got some 256 megs of RAM, and is doing some small
-databases with postgresql and mysql in addition to the apache server. The
-server does not have any problems with swapping, as the text below should
-show.
-
-As far as I can see from linux/mm/swap.c, it shouldn't have anything to do
-with freepages... Am I wrong?
-
-roy
-
-[root@server log]# free
-             total       used       free     shared    buffers     cached
-Mem:        257876     252976       4900      64120      65156     147368
--/+ buffers/cache:      40452     217424
-Swap:       136512        268     136244
+> Roman Zippel <zippel@linux-m68k.org> writes:
+> 
+> |> Hi,
+> |> 
+> |> Linus Torvalds wrote:
+> [...]
+> |> > You just fixed the "re-use arguments" bug - which is a bug, but doesn't
+> |> > address the fact that most of the min/max bugs are due to the programmer
+> |> > _indending_ a unsigned compare because he didn't even think about the
+> |> > type.
 
 
+#if 0
+If the comparison was made unsigned, cast to the largest natural
+value on the target, while keeping the types and sizes of the
+input variables the same, this macro does about what 99.9999999 percent
+of what everybody wants:
+#endif
 
-> Have you tried altering the `freepages' setting?
->
-> Roy Sigurd Karlsbakk wrote:
-> >
-> > But...
-> >
-> > I haven't seen the problem before 2.2.19. Going back to 2.2.16 solved it
-> >
-> > On Mon, 27 Aug 2001, Andrew Morton wrote:
-> >
-> > > Well, it shouldn't hang - it should just fail to do anything for a while
-> > > and then recover.
-> > >
-> > > You can reserve more memory for the network driver by altering
-> > > the contents of /proc/sys/vm/freepages.  Try doubling everything
-> > > in there.
-> > >
-> > >
-> > >
-> > > Roy Sigurd Karlsbakk wrote:
-> > > >
-> > > > Hi
-> > > >
-> > > > I have a 3c900 card in a server, and after upgrading to 2.2.19 it started
-> > > > hanging every now and then, giving me the error message "kernel: eth0:
-> > > > memory shortage". The card is this (as reported during boot)
-> > > >
-> > > > 3c59x.c:v0.99H 27May00 Donald Becker
-> > > > http://cesdis.gsfc.nasa.gov/linux/drivers/vortex.html
-> > > > eth0: 3Com 3c900 Boomerang 10Mbps Combo at 0xa800,  00:a0:24:ef:ef:50, IRQ 5
-> > > >   8K word-wide RAM 3:5 Rx:Tx split, 10baseT interface.
-> > > >   Enabling bus-master transmits and whole-frame receives.
-> > > >
-> > > > Please cc: to me (roy@karlsbakk.net) and Jannik (jannik@east.no), as we're
-> > > > not on the list.
-> > > >
-> > > > Best regards
-> > > >
-> > > > roy
-> > > >
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
->
+#include <stdio.h>
+
+#define min(a,b) ((size_t)(a) < (size_t)(b) ? (a) : (b))
+
+int main()
+{
+    printf("%d\n", min(1,2));
+    printf("%d\n", min(-1,2));
+    printf("%d\n", min(0xffffffff,3));
+    printf("%d\n", min(0x8000,4));
+    printf("%d\n", min(0x7fff,5));
+    printf("%d\n", min(0x80000000,6));
+    printf("%d\n", min(0x7fffffff,7));
+
+    printf("%ld\n", min(1L,2L));
+    printf("%ld\n", min(-1L,2L));
+    printf("%ld\n", min(0xffffffff,3L));
+    printf("%ld\n", min(0x8000,4L));
+    printf("%ld\n", min(0x7fff,5L));
+    printf("%ld\n", min(0x80000000,6L));
+    printf("%ld\n", min(0x7fffffff,7L));
+
+    printf("%lu\n", min(1L,2LU));
+    printf("%lu\n", min(-1L,2LU));
+    printf("%lu\n", min(0xffffffff,3LU));
+    printf("%lu\n", min(0x8000,4LU));
+    printf("%lu\n", min(0x7fff,5LU));
+    printf("%lu\n", min(0x80000000,6LU));
+    printf("%lu\n", min(0x7fffffff,7LU));
+
+    printf("%d\n", min(-1, -2));
+    printf("%d\n", min(-1, 0));
+    printf("%p\n", min((void *)0x80000000, (void *)0x7fffffff));
+    return 0;
+}
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUHJOBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266174AbUHJNXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUHJOBR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 10:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUHJMma
+	id S266174AbUHJNXX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 09:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUHJNUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 08:42:30 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:25564 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S264954AbUHJMmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 08:42:01 -0400
-Date: Tue, 10 Aug 2004 14:41:05 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408101241.i7ACf5WC013958@burner.fokus.fraunhofer.de>
-To: matthias.andree@gmx.de, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
-       eric@lammerts.org, linux-kernel@vger.kernel.org
+	Tue, 10 Aug 2004 09:20:36 -0400
+Received: from lakermmtao09.cox.net ([68.230.240.30]:766 "EHLO
+	lakermmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S264808AbUHJNSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 09:18:52 -0400
+In-Reply-To: <200408101246.i7ACkTbm014030@burner.fokus.fraunhofer.de>
+References: <200408101246.i7ACkTbm014030@burner.fokus.fraunhofer.de>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <D20572A9-EACF-11D8-BC30-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: lkml List <linux-kernel@vger.kernel.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Tue, 10 Aug 2004 09:18:51 -0400
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Aug 10, 2004, at 08:46, Joerg Schilling wrote:
+> Your statements are correct for programs that include locale support.
 
->From: Matthias Andree <matthias.andree@gmx.de>
+Programs that do not support locales _must_ restrict themselves to
+7-bit ASCII, or they are likely to break any number of things by 
+outputting
+invalid characters to the terminal.  You could quite easily replace the 
+(C)
+symbol with the string "Copyright", or you could pick a more complicated
+solution by actually implementing locales, but you should change the
+behavior of cdrecord, as that is broken/buggy.
 
->> >From: Jens Axboe <axboe@suse.de>
->> 
->> >> Please try again after you had a look into the cdrtools sources.
->> >> 
->> >> Cdrecord also needs privilleges to lock memory and to raise prioirity.
->> 
->> >They are not required, or at least not with the version I use. It warns
->> >of failing to set priority and lock memory, I can continue fine though.
->> >With the casual burning of CDs I do, it's never been a problem.
->> 
->> You should believe people who know better.....
+Cheers,
+Kyle Moffett
 
->Jï¿½rg, this is insulting. Who knows better than Jens if his computer has
->needed burn-proof and if his writes have been successful?  You for one
->don't. I don't either but at least I don't claim to.
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
-So you really like to recommend everyone to cross the street while the 
-traffic light shows red just because you did not yet get any harm from doing 
-so? 
 
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

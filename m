@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136387AbRD2WG1>; Sun, 29 Apr 2001 18:06:27 -0400
+	id <S136389AbRD2WHr>; Sun, 29 Apr 2001 18:07:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136386AbRD2WGR>; Sun, 29 Apr 2001 18:06:17 -0400
-Received: from pc-25-211.mountaincable.net ([24.215.25.211]:2200 "HELO
-	adrock.vbfx.com") by vger.kernel.org with SMTP id <S136390AbRD2WGF>;
-	Sun, 29 Apr 2001 18:06:05 -0400
-Message-ID: <3AEC9052.EA3ECBAC@vbfx.com>
-Date: Sun, 29 Apr 2001 18:06:10 -0400
-From: Adam <adam@vbfx.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S136390AbRD2WH3>; Sun, 29 Apr 2001 18:07:29 -0400
+Received: from colorfullife.com ([216.156.138.34]:13574 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S136389AbRD2WHQ>;
+	Sun, 29 Apr 2001 18:07:16 -0400
+Message-ID: <001001c0d0f8$bf5ec5e0$5517fea9@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: <frank@unternet.org>
+Cc: "Alexander Viro" <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Severe trashing in 2.4.4
+Date: Mon, 30 Apr 2001 00:06:52 +0200
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 8139too in 2.4.4 Hanging/Locking
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC this back, as I'm not yet on the kernel-mailing-list
+> On Sun, Apr 29, 2001 at 01:58:52PM -0400, Alexander Viro wrote:
+> > Hmm... I'd say that you also have a leak in kmalloc()'ed stuff -
+> > something in 1K--2K range. From your logs it looks like the
+> > thing never shrinks and grows prettu fast...
 
-I'm currently running the following:
+You could enable STATS in mm/slab.c, then the number of alloc and free
+calls would be printed in /proc/slabinfo.
 
-kernel 2.4.3
-gcc 2.95.3
-modutils 2.4.2
-dhcpcd v.1.3.19-pl8
+> Yeah, those as well. I kinda guessed they were related...
 
-The problem is, after compiling the 2.4.4 kernel with the exact
-configuration as I had used on the 2.4.3 kernel, my system hangs at:
+Could you check /proc/sys/net/core/hot_list_length and skb_head_pool
+(not available in /proc, use gdb --core /proc/kcore)? I doubt that this
+causes your problems, but the skb_head code uses a special per-cpu
+linked list for even faster allocations.
 
-8139too Fast Ethernet driver 0.9.16 loaded [the version number is
-greater than 0.9.15c (which is used in 2.4.3) though I'm not exactly
-sure if it's 0.9.16]
-PCI: Found IRQ 9 for device 00:0b.0
-eth0: RealTek RTL8139 Fast Ethernet at 0xd0814000, 00:50:ba:d2:45:21,
-IRQ 9
-eth0:  Identified 8139 chip type 'RTL-8139B'
-eth0: Setting half-duplex based on auto-negotiated partner ability 0000.
-[this is where it hangs, it requires me to reboot and load up a backup
-kernel (2.4.3)]
+Which network card do you use? Perhaps a bug in the zero-copy code of
+the driver?
 
-If there is any other information you require to solve this problem, I'd
-be happy to help.
+--
+    Manfred
 
-
--- 
-Adam
-adam@vbfx.com
-Linux user #190288

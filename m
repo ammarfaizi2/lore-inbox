@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263646AbUBREsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 23:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbUBREsZ
+	id S263742AbUBREyr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 23:54:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUBREyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 23:48:25 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:9889 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S263646AbUBREsT (ORCPT
+	Tue, 17 Feb 2004 23:54:46 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:65185 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263742AbUBREyp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 23:48:19 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Tue, 17 Feb 2004 23:54:45 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Matthew Rench <lists@pelennor.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problem rmmod'ing module 
+In-reply-to: Your message of "Tue, 17 Feb 2004 15:38:58 MDT."
+             <20040217153858.A11859@pelennor.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16434.61061.493041.238724@napali.hpl.hp.com>
-Date: Tue, 17 Feb 2004 20:48:05 -0800
-To: Matthew Wilcox <willy@debian.org>
-Cc: davidm@hpl.hp.com, torvalds@osdl.org, Michel D?nzer <michel@daenzer.net>,
-       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: radeon warning on 64-bit platforms
-In-Reply-To: <20040218022831.GI11824@parcelfarce.linux.theplanet.co.uk>
-References: <1077054385.2714.72.camel@thor.asgaard.local>
-	<16434.36137.623311.751484@napali.hpl.hp.com>
-	<1077055209.2712.80.camel@thor.asgaard.local>
-	<16434.37025.840577.826949@napali.hpl.hp.com>
-	<1077058106.2713.88.camel@thor.asgaard.local>
-	<16434.41884.249541.156083@napali.hpl.hp.com>
-	<20040217234848.GB22534@krispykreme>
-	<16434.46860.429861.157242@napali.hpl.hp.com>
-	<20040218015423.GH11824@parcelfarce.linux.theplanet.co.uk>
-	<16434.50928.682219.187846@napali.hpl.hp.com>
-	<20040218022831.GI11824@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Date: Wed, 18 Feb 2004 15:06:21 +1100
+Message-ID: <7711.1077077181@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 18 Feb 2004 02:28:31 +0000, Matthew Wilcox <willy@debian.org> said:
+On Tue, 17 Feb 2004 15:38:58 -0600, 
+Matthew Rench <lists@pelennor.net> wrote:
+>I'm getting some strange behavior while trying to rmmod a module from my
+>2.4.21 kernel. Each call to "rmmod" segfaults, leaving the module usage count
+>incremented.
 
-  Matthew> On Tue, Feb 17, 2004 at 05:59:12PM -0800, David Mosberger
-  Matthew> wrote:
-  >> I personally would be more than happy to reformat things to 80
-  >> cols, but it's a waste of time unless almost all Linux code gets
-  >> reformatted.
+kernel/module.c bumps the use count at the start of each query, to
+prevent the module being removed while it is being queried.  The use
+count is droped at the end of normal query processing, but
+kernel/module.c is breaking and leaving the raised use count.
 
-  Matthew> Hm?  I don't know where you're getting that from.  Let's
-  Matthew> talk numbers.
+>When I strace rmmod, the last few lines are:
+>
+>  query_module(NULL, QM_MODULES, { /* 5 entries */ }, 5) = 0
+>  query_module("serial", QM_INFO, {address=0xd8816000, size=43620, flags=MOD_RUNNING, usecount=14}, 16) = 0
+>  query_module( <unfinished ...>
+>  +++ killed by SIGSEGV +++
 
-If it bothers you, you're perfectly free to submit patches.
-Source-code width is not something I get overly excited about.
+Information about the second module in the chain (after "serial") is
+corrupt.  What does lsmod report?
 
-	--david
+You should have several oops reports in your syslog.  Run the first two
+through ksymoops and send in the ksymoops output.
+

@@ -1,72 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316069AbSEZNWJ>; Sun, 26 May 2002 09:22:09 -0400
+	id <S316070AbSEZN3N>; Sun, 26 May 2002 09:29:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316072AbSEZNWI>; Sun, 26 May 2002 09:22:08 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:44984 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316069AbSEZNWG>;
-	Sun, 26 May 2002 09:22:06 -0400
-Date: Sun, 26 May 2002 15:22:04 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>,
-        linux-kernel@vger.kernel.org
-Subject: [patch] Trivial: move PCI ID definitions from ide-pci.c to pci_ids.h
-Message-ID: <20020526152204.A18812@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316078AbSEZN3M>; Sun, 26 May 2002 09:29:12 -0400
+Received: from postfix2-2.free.fr ([213.228.0.140]:2792 "EHLO
+	postfix2-2.free.fr") by vger.kernel.org with ESMTP
+	id <S316070AbSEZN3L>; Sun, 26 May 2002 09:29:11 -0400
+Message-Id: <200205261203.g4QC3ad27554@colombe.home.perso>
+Date: Sun, 26 May 2002 14:03:33 +0200 (CEST)
+From: fchabaud@free.fr
+Reply-To: fchabaud@free.fr
+Subject: Re: 2.4.19-pre8-ac5 swsusp panic
+To: matthias.andree@stud.uni-dortmund.de
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200205260654.g4Q6sld07709@colombe.home.perso>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le 26 Mai, Pour: matthias.andree@stud.uni-dortmund.de a écrit :
+> Le 26 Mai, Matthias Andree a écrit :
+>> On Sat, 25 May 2002, fchabaud@free.fr wrote:
+>> 
+>>> Le 24 Mai, Matthias Andree a écrit :
+>>> > I tried SysRq-D and finally got a kernel "panic: Request while ide driver
+>>> > is blocked?"
+>>> > 
+>>> > Before that, I saw "waiting for tasks to stop... suspending kreiserfsd",
+>>> > nfsd exiting, "Freeing memory", "Syncing disks beofre copy", then some
+>>> > "Probem while suspending", then some "Resume" and finally the panic.
+>>> > 
+>>> > It may be worth noting that one swap partition is on a SCSI drive, and
+>>> > that my IDE drives were in standby (not idle) mode, i. e. their spindle
+>>> > motors were stopped.
+>>> 
+>>> AFAIK swap partition under SCSI is not supported for the moment.
+>> 
+>> Gee. Swsusp should know when it must panic later and not start in the
+>> first place. If that's true: swsusp people, consider this a feature
+>> request ;-)
+>> 
+> 
+> I'll do it. Besides I don't imagine it's too difficult to support SCSI,
+> but I had no time before for doing this.
 
-ChangeSet@1.585, 2002-05-26 15:19:41+02:00, vojtech@twilight.ucw.cz
-  This cset moves a PCI ID definition from ide-pci.c to
-  pci_ids.h where it belongs.
+To prevent problems with SCSI, maybe something like that ?
 
-
- drivers/ide/ide-pci.c   |    6 +-----
- include/linux/pci_ids.h |    4 ++++
- 2 files changed, 5 insertions(+), 5 deletions(-)
-
-
-diff -Nru a/drivers/ide/ide-pci.c b/drivers/ide/ide-pci.c
---- a/drivers/ide/ide-pci.c	Sun May 26 15:20:16 2002
-+++ b/drivers/ide/ide-pci.c	Sun May 26 15:20:16 2002
-@@ -27,10 +27,6 @@
+Index: suspend.c
+===================================================================
+RCS file: /home/cvs/linux-src/kernel/Attic/suspend.c,v
+retrieving revision 1.3
+diff -u -r1.3 suspend.c
+--- suspend.c   2002/05/26 11:49:24     1.3
++++ suspend.c   2002/05/26 11:56:25
+@@ -745,6 +745,9 @@
+ #ifdef CONFIG_BLK_DEV_IDE
+        ide_disk_unsuspend();
+ #endif
++#ifdef CONFIG_BLK_DEV_SD
++# error  Do not use SCSI swap partition while using software suspend
++#endif
+ }
  
- #include "pcihost.h"
- 
--/* Missing PCI device IDs: */
--#define PCI_VENDOR_ID_HINT 0x3388
--#define PCI_DEVICE_ID_HINT 0x8013
--
- /*
-  * This is the list of registered PCI chipset driver data structures.
-  */
-@@ -756,7 +752,7 @@
- 	},
- 	{
- 		vendor: PCI_VENDOR_ID_HINT,
--		device: PCI_DEVICE_ID_HINT,
-+		device: PCI_DEVICE_ID_HINT_VXPROII_IDE,
- 		bootable: ON_BOARD
- 	},
- 	{
-diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
---- a/include/linux/pci_ids.h	Sun May 26 15:20:16 2002
-+++ b/include/linux/pci_ids.h	Sun May 26 15:20:16 2002
-@@ -1787,3 +1787,7 @@
- #define PCI_DEVICE_ID_MICROGATE_USC	0x0010
- #define PCI_DEVICE_ID_MICROGATE_SCC	0x0020
- #define PCI_DEVICE_ID_MICROGATE_SCA	0x0030
-+
-+#define PCI_VENDOR_ID_HINT		0x3388
-+#define PCI_DEVICE_ID_HINT_VXPROII_IDE	0x8013
-+
+ /* Called from process context */
+@@ -753,7 +756,7 @@
+ #ifdef CONFIG_BLK_DEV_IDE
+        ide_disk_suspend();
+ #else
+-#error Are you sure your disk driver supports suspend?
++# error Are you sure your disk driver supports suspend?
+ #endif
+        if(!pm_suspend_state) {
+                if(pm_send_all(PM_SUSPEND,(void *)3)) {
 
 
+--
+Florent Chabaud         ___________________________________
+SGDN/DCSSI/SDS/LTI     | florent.chabaud@polytechnique.org
+http://www.ssi.gouv.fr | http://fchabaud.free.fr
 
--- 
-Vojtech Pavlik
-SuSE Labs

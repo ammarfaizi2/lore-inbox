@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269192AbUIHWzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269194AbUIHXJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269192AbUIHWzV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 18:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269194AbUIHWzV
+	id S269194AbUIHXJM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 19:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269197AbUIHXJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 18:55:21 -0400
-Received: from imf20aec.mail.bellsouth.net ([205.152.59.68]:35836 "EHLO
-	imf20aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S269192AbUIHWy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 18:54:29 -0400
-Date: Wed, 8 Sep 2004 17:54:31 -0500
-From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ISA DMA
-Message-Id: <20040908175431.5872dda0.Tommy.Reynolds@MegaCoder.com>
-In-Reply-To: <413F7960.8070500@drzeus.cx>
-References: <413F7960.8070500@drzeus.cx>
-X-Mailer: Sylpheed version 0.9.12cvs7 (GTK+ 1.2.10; i686-redhat-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Wed__8_Sep_2004_17_54_31_-0500_M.IqQFWsR/h5MnG6"
+	Wed, 8 Sep 2004 19:09:12 -0400
+Received: from netblock-66-159-231-38.dslextreme.com ([66.159.231.38]:16048
+	"EHLO mail.cavein.org") by vger.kernel.org with ESMTP
+	id S269194AbUIHXJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 19:09:08 -0400
+Date: Wed, 8 Sep 2004 16:07:21 -0700 (PDT)
+From: Richard A Nelson <cowboy@debian.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc1-mm4 kjournald oops (repeatable)
+In-Reply-To: <Pine.LNX.4.58.0409081011170.7419@hygvzn-guhyr.pnirva.bet>
+Message-ID: <Pine.LNX.4.58.0409081604060.6248@hygvzn-guhyr.pnirva.bet>
+References: <Pine.LNX.4.58.0409071707100.6982@onaqvg-unyy.qla.jronurnq.voz.pbz>
+  <20040908020402.3823a658.akpm@osdl.org> <1094635403.1985.12.camel@sisko.scot.redhat.com>
+ <Pine.LNX.4.58.0409081011170.7419@hygvzn-guhyr.pnirva.bet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__8_Sep_2004_17_54_31_-0500_M.IqQFWsR/h5MnG6
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Wed, 8 Sep 2004, Richard A Nelson wrote:
 
-Uttered Pierre Ossman <drzeus-list@drzeus.cx>, spake thus:
+> On Wed, 8 Sep 2004, Stephen C. Tweedie wrote:
+>
+> > On Wed, 2004-09-08 at 10:04, Andrew Morton wrote:
+> >
+> > > >   Unable to handle kernel paging request at virtual address 6b6b6b93
+> > > > ...
+> > > >   EIP: 0060:[__journal_clean_checkpoint_list+199/240]    Not tainted VLI
+> > >
+> > > This might have been caused by a fishy latency-reduction patch.  I today
+> > > dropped that patch so could you please test next -mm and let me know?
+> >
+> > That, or preempt.  If the next -mm still breaks, time to hunt for the
+> > preempt problem, I guess.
+>
+> Ok, if it still fails (I'll have to wait until this afternoon for the
+> true test - dpkg breaks it everytime), I'll check out preempt.
 
-> I've been trying to figure out how other drivers do it but I can't see 
-> what I'm missing. And the documentation doesn't cover ISA DMA.
+Well, it looks like backing out the patch was sufficient, I've made it
+through the torture that is a dpkg install (70+meg).
 
-Allocate your DMA buffer area by OR'ing in the "GFP_DMA" flag.  This
-keeps your DMA buffer below the magical 16MB limit.  Also be sure to
-use "virt_to_bus()" to convert the kernel buffer address into one
-that you can give to the DMA engine.
+So we needn't (at this time) look to preempt.
 
-HTH.
-
---Signature=_Wed__8_Sep_2004_17_54_31_-0500_M.IqQFWsR/h5MnG6
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBP42r/0ydqkQDlQERAiGuAKCbHAeISDfqulA/nYMxvRuAnnQl3gCfaL9U
-uMEMYUxG2nLdspikjDCQW/w=
-=IXfv
------END PGP SIGNATURE-----
-
---Signature=_Wed__8_Sep_2004_17_54_31_-0500_M.IqQFWsR/h5MnG6--
+-- 
+Rick Nelson
+<LackOfKan> What are 'bots'?
+<``Erik> rsg is a bot, not a human, not a human usable client, just a bot.
+<``Erik> about the same as a quake bot, except irc bots are (usually)
+         built to help, not shoot your ass full of holes

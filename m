@@ -1,48 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263857AbTK2RN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 12:13:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTK2RN3
+	id S263913AbTK2ROk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 12:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTK2ROk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 12:13:29 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:25475
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263857AbTK2RNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 12:13:22 -0500
-Date: Sat, 29 Nov 2003 12:12:09 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT] kmem_cache_alloc_node
-In-Reply-To: <3FC8C794.50005@colorfullife.com>
-Message-ID: <Pine.LNX.4.58.0311291154060.1646@montezuma.fsmlabs.com>
-References: <3FC8C794.50005@colorfullife.com>
+	Sat, 29 Nov 2003 12:14:40 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:45784 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S263913AbTK2ROe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 12:14:34 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: amanda vs 2.6
+Date: Sat, 29 Nov 2003 12:14:33 -0500
+User-Agent: KMail/1.5.1
+Cc: Nick Piggin <piggin@cyberone.com.au>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <200311261212.10166.gene.heskett@verizon.net> <200311270505.50242.gene.heskett@verizon.net> <20031127133929.GX8039@holomorphy.com>
+In-Reply-To: <20031127133929.GX8039@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.58.0311291154062.1646@montezuma.fsmlabs.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311291214.33130.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.54.127] at Sat, 29 Nov 2003 11:14:33 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Nov 2003, Manfred Spraul wrote:
-
-> I've written a prototype kmem_cache_alloc_node function: I'm not yet
-> convinced that it's really necessary to guarantee that kmalloc and
-> kmem_cache_alloc are strictly node-local (adds noticable costs to the
-> hot paths, and many objects will be touched by multiple nodes anyway),
-> but at least the cpu bound data structures should be allocated from the
-> right node.
-> The attached patch adds a simple kmem_cache_alloc_node function and
-> moves the cpu local structures within slab onto the right node.
-> One problem is the bootstrap: there is an
-> alloc_pages_node(,,cpu_to_node()) during CPU_UP_PREPARE: Does that work,
-> or is that too early?
-> Please test it, I don't have access to suitable hardware.
+On Thursday 27 November 2003 08:39, William Lee Irwin III wrote:
+>On Thu, Nov 27, 2003 at 05:05:50AM -0500, Gene Heskett wrote:
+>> My $0.02, but performance like that would scare a new user right
+>> back to winderz.
+>> Around here, its thanksgiving day, and we traditionally eat way
+>> too much turkey (or something like that :)  And then complain
+>> about the weight we've gained of course...
 >
-> The patch also includes fixes for two accounting bugs in error paths,
-> I'll send them seperately to Andrew.
+>This isn't a performance problem. This is a bug. It vaguely sounds
+> like a missed wakeup or missing setting of TIF_NEED_RESCHED, but
+> could be a number of other things too.
+>
+>(The missing setting of TIF_NEED_RESCHED theory is right if it's
+>possible to clean up after it by ignoring need_resched() in the
+>scheduler and always rescheduling.)
+>
+>
+>-- wli
 
-Hi Manfred,
-	I just booted this patch on a 4 quad NUMAQ successfully, this was
-only a test boot, i'll get around to having a closer look a bit later on.
+Another data point about this, still unsolved problem:
 
-Thanks
+The number of times I can do an 'su amanda' then exit, and redo the it 
+seem to be somewhat random,  One test I managed to get to the 4th su 
+before it hung.  I turned on the linux normal security stuff in the 
+.config, rebuilt and rebooted.  It had been off previously because 
+this machine is behind a firewall.
+
+That time I only got one free ride, it hung on the next attempt.  So I 
+left it hung, and put the ksysguard highlight line on the hung su 
+process, then put ksysguard into the tree mode.  The last item in the 
+branch was an 'stty', which was reported to be 'stopped'.  I killed 
+it.  I got my prompt back, as the user amanda, confirmed by a whoami.
+
+Another data point that might be a clue is that there appears to be no 
+such restriction if the 'su amanda -c "command"' syntax is used.  The 
+only place that hangs is if I try to do an amcheck after refilling 
+the tape robots magazine, under 2.4.22 ti will load the last tape 
+slot and resume the search thru the magazine for the right tape.  
+Under 2.60-test-whatever, I'm getting a signal 11 from the chg-scsi 
+script after a long delay, but it does load from the last loaded 
+tapeslot in the magazine.  If I simply up-arrow and repeat, it works 
+as the first pass did load the tape just fine.
+
+I think these are really two seperate problems.
+
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

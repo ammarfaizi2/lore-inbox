@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315779AbSENPOy>; Tue, 14 May 2002 11:14:54 -0400
+	id <S313537AbSENPZR>; Tue, 14 May 2002 11:25:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315780AbSENPOx>; Tue, 14 May 2002 11:14:53 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:57023 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S315779AbSENPOv> convert rfc822-to-8bit; Tue, 14 May 2002 11:14:51 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Bug with shared memory.
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF6D316E56.12B1A4B0-ONC1256BB9.004B5DB0@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Tue, 14 May 2002 17:13:06 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 14/05/2002 17:14:40
+	id <S315780AbSENPZQ>; Tue, 14 May 2002 11:25:16 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17158 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313537AbSENPZQ>; Tue, 14 May 2002 11:25:16 -0400
+Subject: Re: [PATCH] 2.5.15 IDE 61
+To: nconway.list@ukaea.org.uk (Neil Conway)
+Date: Tue, 14 May 2002 15:45:55 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rmk@arm.linux.org.uk (Russell King),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3CE10B2B.822CA194@ukaea.org.uk> from "Neil Conway" at May 14, 2002 02:03:39 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E177dYp-00083c-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-we managed to hang the kernel with a db/2 stress test on s/390. The test
-was done on 2.4.7 but the problem is present on all recent 2.4.x and 2.5.x
-kernels (all architectures). In short a schedule is done while holding
-the shm_lock of a shared memory segment. The system call that caused
-this has been sys_ipc with IPC_RMID and from there the call chain is
-as follows: sys_shmctl, shm_destroy, fput, dput, iput, truncate_inode_pages,
-truncate_list_pages, schedule. The scheduler picked a process that called
-sys_shmat. It tries to get the lock and hangs.
+> I think you're wrong Alan.  Take a good IDE chipset as an example: both
+> channels can be active at the same time, but you still can't talk to one
+> drive while the other drive on the same channel is DMAing.
 
-One way to fix this is to remove the schedule call from truncate_list_pages:
+Sure.
 
---- linux-2.5/mm/filemap.c~   Tue May 14 17:04:14 2002
-+++ linux-2.5/mm/filemap.c    Tue May 14 17:04:33 2002
-@@ -237,11 +237,6 @@
+> I'm not a block layer expert, but it appears to me that the block layer
+> only synchronises requests by use of the spinlock.  If I'm right, then
+> the block layer has no way of knowing that hda is DMAing when a request
+> is initiated for hdb.  This was the whole reason (as I see it) that
+> hwgroup->busy existed: to prevent attempts to use the same IDE cable for
+> two things at the same time.
 
-                  page_cache_release(page);
+The newer block code has queues. Its up to the block layer to deal with
+the queue locking.
 
--                 if (need_resched()) {
--                       __set_current_state(TASK_RUNNING);
--                       schedule();
--                 }
--
-                  write_lock(&mapping->page_lock);
-                  goto restart;
-            }
+> It doesn't matter how you perform the queue abstraction in this case:
+> the fact that the device+channel+cable is busy in an asynchronous manner
+> makes it impossible for the block layer to deal with this.  [[Or am I
+> way off base?!]]
 
-Another way is to free the lock before calling fput in shm_destroy but the
-comment says that this functions has to be called with shp and shm_ids.sem
-locked. Comments?
+I think you are way off base. If you have a single queue for both hda and
+hdb then requests will get dumped into that in a way that processing that
+queue implicitly does the ordering you require.
 
-blue skies,
-   Martin
+>From an abstract hardware point of view each ide controller is a queue not
+each device. Not following that is I think the cause of much of the existing
+pain and suffering.
 
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
-
+Alan

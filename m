@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280190AbRL1V4T>; Fri, 28 Dec 2001 16:56:19 -0500
+	id <S281863AbRL1WOX>; Fri, 28 Dec 2001 17:14:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280426AbRL1V4J>; Fri, 28 Dec 2001 16:56:09 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6925 "EHLO
+	id <S281921AbRL1WOM>; Fri, 28 Dec 2001 17:14:12 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41997 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280190AbRL1Vz7>; Fri, 28 Dec 2001 16:55:59 -0500
-Message-ID: <3C2CEA54.5050907@zytor.com>
-Date: Fri, 28 Dec 2001 13:55:32 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S281863AbRL1WOF>; Fri, 28 Dec 2001 17:14:05 -0500
+Date: Fri, 28 Dec 2001 14:11:37 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: State of the new config & build system
+In-Reply-To: <20011228141211.B15338@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0112281408170.23445-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org
-Subject: Re: zImage not supported for 2.2.20?
-In-Reply-To: <UTC200112282106.VAA133464.aeb@cwi.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
 
-> 
-> I my A20 writeup (http://www.win.tue.nl/~aeb/linux/kbd/A20.html) I wrote:
-> 
-> ------------------------------------------------------------------------
-> Jens Maurer reported in 1996 on boot problems with a bzImage kernel: 
-> 
->     On the Toshiba laptop, the first two bytes at 0x100000 are incorrect
->     and identical to those from address 0x000000 (which was an alias for
->     0x100000 before the A20 gate enable). At a second read from 0x100000
->     immediately afterwards, the correct memory content is returned.
->     Asus P55TP5XE boards (Triton I chipset) show quite the same problem,
->     but there, only the first byte is incorrect and booting bzImage kernels
->     works fine. To me, this looks like some buffer or cache coherency
->     problem although I think that caches are organized in at least 16
->     byte cache lines. ... This exact same problem reportedly also exists
->     on Fujitsu 555T (report from Andrea Caltroni) laptop and Compudyne
->     Pentium 60 (report from David Kerr) desktop computers. 
-> 
-> He gives a patch, and adds "Unfortunately, Philip Hands reports that
-> the above patch makes some people with other non-laptop computers unable
-> to boot." 
-> 
-> Using zImage instead of bzImage avoids the problem (since zImage is not
-> loaded high). Debian has distributed special Tecra boot floppies for a while.
-> Later it was found out that these laptops just have an incredibly slow
-> keyboard controller and that all is fine with a larger timeout. 
-> ------------------------------------------------------------------------
-> 
-> Is this inaccurate?
-> 
+On Fri, 28 Dec 2001, Eric S. Raymond wrote:
+>
+> I'm not certain what you're objecting to, and I want to understand it.
+> There are rules that use architecture symbols to suppress things like
+> bus types.  I presume that's not a problem for you, but tell me if it is.
 
+It _is_ a problem for me, because I want to do "diffstat" on a patch from
+a PPC maintainer, and if I see anything non-PPC, loud ringing
+noises go off in my head. I want that diffstat to say _only_
 
-No, it's consistent with my information; the point is that the 
-workaround for these laptops have existed for a long time... the timeout 
-applied in current kernels is positively glacial.
+	arch/ppc/...
+	include/asm-ppc/...
 
-	-hpa
+and nothing else. That way I know that I don't have to worry.
 
+In contrast, if it starts talking about Documentation/Configure.help and
+the main config file, I start worrying.
+
+For example, that MATHEMU thing is just ugly. It was perfectly fine in the
+per-architecture version, now it suddenly has magic dependencies just
+because different architectures call it different things, and different
+architectures have different rules on when it's needed.
+
+		Linus
 

@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312178AbSD2Nxm>; Mon, 29 Apr 2002 09:53:42 -0400
+	id <S312254AbSD2N5Z>; Mon, 29 Apr 2002 09:57:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312194AbSD2Nxl>; Mon, 29 Apr 2002 09:53:41 -0400
-Received: from conn6m.toms.net ([64.32.246.219]:9453 "EHLO conn6m.toms.net")
-	by vger.kernel.org with ESMTP id <S312178AbSD2Nxk>;
-	Mon, 29 Apr 2002 09:53:40 -0400
-Date: Mon, 29 Apr 2002 08:07:15 -0400 (EDT)
-From: Tom Oehser <tom@toms.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: linux-kernel@vger.rutgers.org, <torvalds@transmeta.com>
-Subject: Re: I made a bzip2 bootloader and ramdisk patch, ?useful/not?
-In-Reply-To: <3CCCD819.4080108@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44.0204290738470.32489-100000@conn6m.toms.net>
+	id <S312253AbSD2N5Y>; Mon, 29 Apr 2002 09:57:24 -0400
+Received: from windsormachine.com ([206.48.122.28]:11019 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S312254AbSD2N5V>; Mon, 29 Apr 2002 09:57:21 -0400
+Date: Mon, 29 Apr 2002 09:57:10 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 48-bit IDE [Re: 160gb disk showing up as 137gb]
+In-Reply-To: <200204291106.NAA18202@cave.bitwizard.nl>
+Message-ID: <Pine.LNX.4.33.0204290951460.27860-100000@router.windsormachine.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> For some reason, my 160G disks work on the "native" controllers, but
+> not on the promise cards that I bought for the purpose... After
+> figuring this out I haven't taken the time to find the root cause, as
+> I'm just a user in this respect...
+>
+> 			Roger.
 
-On Mon, 29 Apr 2002, Jeff Garzik wrote:
+I seem to remember something about new Promise BIOS's that fix that
+LBA48 issue.  Try updating the bios, and see what happens.
 
-> I made this patch for 2.2.x kernels long ago, and if you search
+Looking at their bios page, I see the Ultra 100 TX2 supports LBA48, don't
+see any info on the Ultra 100, Ultra 66, etc though.  I believe the 133
+TX2 has it built in.
 
-Ah.  But it looks like you only patched the ramdisk loader, I did
-the bootloader also.  My intention is that it would be used as a
-replacement for the gzip thoughout, the kernel I have on tomsrtbt
-2.0.88 does the bzip2 kernel load and bzip2 ramdisk load, and does
-not include the gzip code at all.
+Hope this helps,
 
-As for figures-
-
-I have only tested with bzip2 -9, and my patch only supports small
-(not fast), (remember that I'm coming from a floppy diskette...).
-I'm aiming for compression then memory then speed, so, I don't have
-numbers for what bzip2 -1 or fast-RLE would be like.  Moreover, the
-tomsrtbt is loading a 4MB ramdisk from a 1.722 floppy, so I'm not
-testing memory usage beyond pass/fail on an 8MB machine.
-
-In _my_ configuration, (tomsrtbt 2.0.88), the numbers (to the best
-accuracy I have, using the current best measure I have performed):
-
-Size:
-
-             gzip    bzip2    savings
-
-Kernel     862209   831381      30828
-
-Ramdisk    939474   880756      58718
-           ______   ______      _____
-
-Total     1801683  1712137      89546
-
-
-              Speed    Memory
-
-Gzip      Lightning   Thimble
-
-Bzip2      Molasses   Bathtub
-
-
--Tom
-
+Mike
 

@@ -1,98 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263563AbUDPQ5a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 12:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUDPQ51
+	id S263564AbUDPQ7F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 12:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263551AbUDPQ7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 12:57:27 -0400
-Received: from smtp.rol.ru ([194.67.21.9]:49467 "EHLO smtp.rol.ru")
-	by vger.kernel.org with ESMTP id S263425AbUDPQ5I (ORCPT
+	Fri, 16 Apr 2004 12:59:04 -0400
+Received: from fire.osdl.org ([65.172.181.4]:63683 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S263564AbUDPQ6V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 12:57:08 -0400
-From: Konstantin Sobolev <kos@supportwizard.com>
-Reply-To: kos@supportwizard.com
-Organization: SupportWizard
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: poor sata performance on 2.6
-Date: Fri, 16 Apr 2004 20:59:44 +0400
-User-Agent: KMail/1.6.1
-Cc: Jeff Garzik <jgarzik@pobox.com>, Justin Cormack <justin@street-vision.com>,
-       Ryan Geoffrey Bourgeois <rgb005@latech.edu>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-References: <200404150236.05894.kos@supportwizard.com> <407F315E.2000809@pobox.com> <200404161748.38958.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200404161748.38958.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200404162059.44465.kos@supportwizard.com>
+	Fri, 16 Apr 2004 12:58:21 -0400
+Subject: DBT3-pgsql large performance improvement 2.6.6-rc1
+From: Mary Edie Meredith <maryedie@osdl.org>
+Reply-To: maryedie@osdl.org
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: OSDL
+Message-Id: <1082134307.16437.461.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 16 Apr 2004 09:51:47 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 16 April 2004 18:48, Denis Vlasenko wrote:
-> > When you mount a filesystem, it changes the default block size (512 or
-> > 1024) to the filesystem block size, normally 4096.  This would certainly
-> > increase the throughput.
->
-> Yes, this works.
->
-> But if one uses unpartitioned disk, why does (s)he need to
-> do some blocksize tricks before hdparm starts to measure good performance?
-> I think that in this case block layer can coalesce small read requests
-> into large ones regardless of block size.
->
-> Konstantin, does dd give you the same behaviour as hdparm?
+Performance in DBT-3 (using PostgreSQL) has vastly
+improved for _both in the "power" portion (single 
+process/query) and in the "throughput" portion of 
+the test (when the test is running multiple processes) 
+on our 4-way(4GB) and 8-way(8GB) STP systems as 
+compared 2.6.5  kernel results.
 
-Sorry, I already partitioned it and put lots of data there.
-But situation is reproducible by removing all /dev/sda entries from fstab and rebooting. Here are results of my experiments with dd:
+Using the default DBT-3 options (ie using LVM, ext2, 
+PostgreSQL version 7.4.1) 
 
-kos root # bash -c "sleep 10 && killall -3 dd &" && LANG=C time dd if=/dev/sda of=/dev/null ibs=512 obs=512
-537152+0 records in
-537152+0 records out
-Command terminated by signal 3
-0.23user 3.73system 0:10.07elapsed 39%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+121minor)pagefaults 0swaps
+Note: Bigger numbers are better.
 
-kos root # hdparm -t /dev/sda
+Kernel....Runid..CPUs.Power..%incP.Thruput %incT 
+2.6.5     291308   4  97.08  base   120.46  base   
+2.6.6-rc1 291876   4  146.11 50.5%  222.94 85.1%
 
-/dev/sda:
- Timing buffered disk reads:   84 MB in  3.07 seconds =  27.37 MB/sec
-kos root # bash -c "sleep 10 && killall -3 dd &" && LANG=C time dd if=/dev/sda of=/dev/null ibs=4096 obs=4096
-71691+0 records in
-71691+0 records out
-Command terminated by signal 3
-0.07user 3.83system 0:10.08elapsed 38%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+122minor)pagefaults 0swaps
+Kernel....Runid..CPUs.Power..%incP..Thruput %incT
+2.6.5     291346   8  101.08  base   138.95 base
+2.6.6-rc1 291915   8  151.69  50.1%  273.69 97.0%
 
-kos root # mount /dev/sda2 /wd
-kos root # hdparm -t /dev/sda
+So the improvement is between 50% and 97%!
 
-/dev/sda:
- Timing buffered disk reads:   84 MB in  3.07 seconds =  27.38 MB/sec
+Profile 2.6.5 8way throughput phase:
+http://khack.osdl.org/stp/291346/profile/after_throughput_test_1-tick.sort
+Profile 2.6.6-r1 8way throughput phase:
+http://khack.osdl.org/stp/291915/profile/after_throughput_test_1-tick.sort
 
-kos root # hdparm -t /dev/sda
+What I notice is that radix_tree_lookup is in 
+the top 20 in the 2.6.5 profile, but not in 
+2.6.6-rc1.  Could theradix tree changes be 
+responsible for this?
 
-/dev/sda:
- Timing buffered disk reads:  206 MB in  3.02 seconds =  68.13 MB/sec
+DBT-3 is a read mostly DSS workload and the throughput 
+phase  is where we run multiple query streams (as 
+many as we have CPUs).  In this workload, the database 
+is stored on a file system, but it is small relative 
+to the amount of memory (4GB and 8GB).  It almost 
+completely caches in page cache early on.   So there 
+is some physical IO in the first few minutes, but very 
+little to none in the remainder. 
 
-kos root # bash -c "sleep 10 && killall -3 dd &" && LANG=C time dd if=/dev/sda of=/dev/null ibs=512 obs=512
-1402384+0 records in
-1402384+0 records out
-Command terminated by signal 3
-0.54user 2.57system 0:10.02elapsed 31%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+121minor)pagefaults 0swaps
 
-kos root # bash -c "sleep 10 && killall -3 dd &" && LANG=C time dd if=/dev/sda of=/dev/null ibs=4096 obs=4096
-329705+0 records in
-329705+0 records out
-Command terminated by signal 3
-0.32user 2.43system 0:10.13elapsed 27%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+122minor)pagefaults 0swaps
-
-It looks like dd behaves similarly to hdparm
+ 
 
 -- 
-/KoS
-* yas eh d'tahW.	ÀÀmih raeh uoy diD				      
+Mary Edie Meredith 
+maryedie@osdl.org
+503-626-2455 x42
+Open Source Development Labs
+

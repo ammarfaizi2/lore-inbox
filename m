@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263592AbUAHDe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 22:34:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUAHDeZ
+	id S263564AbUAHDdI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 22:33:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbUAHDdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 22:34:25 -0500
-Received: from hera.kernel.org ([63.209.29.2]:48619 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S263592AbUAHDeY (ORCPT
+	Wed, 7 Jan 2004 22:33:08 -0500
+Received: from users.ccur.com ([208.248.32.211]:8013 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S263564AbUAHDdF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 22:34:24 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Use of floating point in the kernel
-Date: Wed, 07 Jan 2004 19:34:06 -0800
-Organization: Zytor Communications
-Message-ID: <3FFCCFAE.8090302@zytor.com>
-References: <20040107235912.GA23812@ee.oulu.fi>
+	Wed, 7 Jan 2004 22:33:05 -0500
+Date: Wed, 7 Jan 2004 22:32:24 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: seperator error in __mask_snprintf_len
+Message-ID: <20040108033224.GA13325@rudolph.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
+References: <20040107165607.GA11483@rudolph.ccur.com> <20040107170650.0fca07a7.pj@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: terminus.zytor.com 1073532846 5033 66.80.2.163 (8 Jan 2004 03:34:06 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Thu, 8 Jan 2004 03:34:06 +0000 (UTC)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en, sv, es, fr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040107170650.0fca07a7.pj@sgi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Pietikainen wrote:
-> Hi
+On Wed, Jan 07, 2004 at 05:06:50PM -0800, Paul Jackson wrote:
+> Joe proposed this change to the loop displaying masks:
+> -		len += snprintf(buf+len, buflen-len, "%s%x", sep, wordp[i]);
+> +		len += snprintf(buf+len, buflen-len, "%x%s", wordp[i], sep);
 > 
-> There are a few instances of use of floating point in 2.6,
 > 
+> I doubt that your patch is correct, Joe.
+> 
+> Consider for example the case that exactly three words are displayed.
+> 
+> Before your patch, the code would output one hex word, then (after
+> looping around once) the "," separator and the second word, then on the
+> final loop another separator and word, resulting in something such as:
+> 
+>     deadbeef,12345678,87654321
+> 
+> After your patch, it would output the first word, then the second word,
+> then a trailing separator, and then the third word and separator,
+> resulting in something such as:
+> 
+>     deadbeef12345678,87654321,
 
-Has anyone considered asking the gcc people to add an -fno-fpu (or 
--mno-fpu) option, throwing an error if any FP instructions are used?
+Sorry about the bit of conceptual dylexia on my part.
 
-	-hpa
+Paul, there might be a problem with __mask_snprintf_len.  Won't a
+value that should be displayed as:
 
+     d,00abcdef      be displayed as
+     d,abcdef
+
+Joe

@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272664AbRHaLBT>; Fri, 31 Aug 2001 07:01:19 -0400
+	id <S272665AbRHaLH3>; Fri, 31 Aug 2001 07:07:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272663AbRHaLBJ>; Fri, 31 Aug 2001 07:01:09 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:15887 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S272664AbRHaLA6>; Fri, 31 Aug 2001 07:00:58 -0400
-Date: Fri, 31 Aug 2001 13:58:42 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <985431419.20010831135842@port.imtp.ilyichevsk.odessa.ua>
-To: Theodore Tso <tytso@mit.edu>
-CC: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
-Subject: Re[4]: fsck root fs: fsck, devfs, /proc/mounts miscooperate.
-In-Reply-To: <20010830153910.C3114@thunk.org>
-In-Reply-To: <22075604.20010829095413@port.imtp.ilyichevsk.odessa.ua>
- <20010829021304.D24270@turbolinux.com>
- <6410958637.20010829151417@port.imtp.ilyichevsk.odessa.ua>
- <20010830153910.C3114@thunk.org>
+	id <S272666AbRHaLHV>; Fri, 31 Aug 2001 07:07:21 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:33033 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S272665AbRHaLHQ>;
+	Fri, 31 Aug 2001 07:07:16 -0400
+Date: Fri, 31 Aug 2001 13:06:18 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
+Message-Id: <20010831130618.0d3b4b4c.skraw@ithnet.com>
+In-Reply-To: <20010829232929Z16206-32383+2351@humbolt.nl.linux.org>
+In-Reply-To: <20010829140706.3fcb735c.skraw@ithnet.com>
+	<20010829232929Z16206-32383+2351@humbolt.nl.linux.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ted,
+On Thu, 30 Aug 2001 01:36:10 +0200
+Daniel Phillips <phillips@bonn-fries.net> wrote:
 
-Thursday, August 30, 2001, 10:39:10 PM, you wrote:
->> # fsck /
->> Parallelizing fsck version 1.15 (18-Jul-1999)
->> e2fsck 1.15, 18-Jul-1999 for EXT2 FS 0.5b, 95/08/09
->> /sbin/e2fsck: Is a directory while trying to open /
+> [...]
+> Let's try another way of dealing with it.  What I'm trying to do with the
+> patch below is leave a small reserve of 1/12 of pages->min, above the
+> emergency reserve, to be consumed by non-PF_MEMALLOC atomic allocators.
+> Please bear in mind this is completely untested, but would you try it
+> please and see if the failure frequency goes down?
+> 
+> --- ../2.4.9.clean/mm/page_alloc.c	Thu Aug 16 12:43:02 2001
+> +++ ./mm/page_alloc.c	Wed Aug 29 23:47:39 2001
+> @@ -493,6 +493,9 @@
+>  		}
+>  
+>  		/* XXX: is pages_min/4 a good amount to reserve for this? */
+> +		if (z->free_pages < z->pages_min / 3 && (gfp_mask & __GFP_WAIT) &&
+> +				!(current->flags & PF_MEMALLOC))
+> +			continue;
+>  		if (z->free_pages < z->pages_min / 4 &&
+>  				!(current->flags & PF_MEMALLOC))
+>  			continue;
+> 
 
-TT> Umm... it works for me.  (No, I don't use devfs, but I do test
-TT> e2fsprogs to make sure they do some sane vs. devfs by using UML...)
-...
-TT> What does your /etc/mtab file show for an entry for the root
-TT> filesystem when you're trying to make it work?  Fsck does require that
-TT> /etc/mtab is sane, and I'm guessing that you're missing an entry in
-TT> /etc/mtab for /. 
+Hello Daniel,
 
-My /etc/mtab is symlinked to /proc/mounts and have these entries:
-/dev/scsi/host0/bus0/target1/lun0/part1 / ext2 ro 0 0
-/dev/sda2 /.share ext2 rw 0 0
-...
+I tried this patch and it makes _no_ difference. Failures show up in same situation and amount. Do you need traces? They look the same
 
-Also fsck does not work for my second mountpoint if specified
-as a relative path:
-
-pegasus:/#fsck .share    <--- relative path
-Parallelizing fsck version 1.23 (15-Aug-2001)
-No devices specified to be checked!
-pegasus:/#fsck /.share    <--- absolute path
-Parallelizing fsck version 1.23 (15-Aug-2001)
-e2fsck 1.23, 15-Aug-2001 for EXT2 FS 0.5b, 95/08/09
-/dev/sda2 is mounted.
-WARNING! Running e2fsck on a mounted filesystem...
-
-Looks like running "fsck <mountpoint>" is uncommon
-and isn't tested much.
---
-Best regards,
-VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-http://port.imtp.ilyichevsk.odessa.ua/vda/
-
-
+Regards,
+Stephan

@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268064AbUHXQCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268054AbUHXQVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268064AbUHXQCy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 12:02:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUHXQCy
+	id S268054AbUHXQVu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 12:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268066AbUHXQVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 12:02:54 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:10888 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S268064AbUHXQCh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 12:02:37 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] [broken?] Add MSI support to e1000
-Date: Tue, 24 Aug 2004 09:01:04 -0700
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024061F9A4A@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [broken?] Add MSI support to e1000
-Thread-Index: AcSJ5fOn/FdXqYfBRhel//U7RTwX6AAC5+Qg
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Roland Dreier" <roland@topspin.com>, "Andi Kleen" <ak@muc.de>
-Cc: <linux-kernel@vger.kernel.org>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 24 Aug 2004 16:01:06.0695 (UTC) FILETIME=[90765970:01C489F3]
+	Tue, 24 Aug 2004 12:21:50 -0400
+Received: from alumni.cs.wisc.edu ([128.105.2.11]:18654 "EHLO
+	alumni.cs.wisc.edu") by vger.kernel.org with ESMTP id S268054AbUHXQVs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 12:21:48 -0400
+Date: Tue, 24 Aug 2004 11:21:47 -0500
+From: Will McDonald <will@cs.wisc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4: Mount of /dev/hdb1 impssible
+Message-ID: <20040824162147.GG24167@cs.wisc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-PGP-Key: http://www.upl.cs.wisc.edu/~will/pubkey.asc
+X-GPG-Fingerprint: DDD6 4020 6A8C 712E 2211  826C D5F9 D8E5 F433 2B28
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, August 24 Roland Dreier wrote: 
->    Andi> Yes, the flag word is 0x8b after the call. And
->    Andi> pci_enable_msi returns 0.
->
->Actually I bet the problem is that the driver is doing request_irq()
->on the wrong IRQ.  In s2io.c, s2io_init_nic() does
->
->	sp->irq = pdev->irq;
->
->and then sometime later s2io_open() does
->
->	err =
->	    request_irq((int) sp->irq, s2io_isr, SA_SHIRQ, sp->name,
-dev);
->
->If you put the call to pci_enable_msi() after sp->irq is assigned, the
->driver will request the original irq (which will still be in INTx
->mode, of course), rather than the new vector assigned by the MSI core.
+For the benefit of those searching list archives:
 
-My guess is the same as Roland's bet. I've not tested MSI support in 
-2.6.8.1 kernel. I'll provide an update later if MSI support
-in x86-64 has any issue.
+I had this problem while upgrading from 2.6.2 to 2.6.6 (and 2.6.7/2.6.8), so
+the problems seems to have arrision in either 2.6.3 or 2.6.4.
 
-Thanks,
-Long
+The solution (at least for a few people who have experienced this) is to
+remove the evms package. Look for the existence of (on my system) /dev/evms/.
+
+Not strictly necessary, but can anyone in the know explain why this broke?
+
+-will
+
+On Thu, 11 Mar 2004 21:29:53 +0200, Markus Hstbacka wrote:
+> Hi list,
+> I upgraded from 2.6.4-rc2 to 2.6.4 today, a few minutes before reboot I
+> noticed that my /dev/hdb1 hadn't been mounted on last reboot, so I tried
+> to mount it by hand:
+> # mount /work
+> mount: /dev/hdb1 already mounted or /work/ busy
+> 
+> Then I thought it'll be fixed when I boot up my 2.6.4, it wasn't, I
+> tried to mount it to various locations (/mnt/ /mnt/work etc..) and it
+> didn't want to mount, I'm totally out of ideas with this. according to
+> df it's not mounted, according to mount it's not mounted and according
+> to mtab it's not mounted, so what's going on?
+> 
+> It mounts fine on my 2.6.1-mm4 kernel that I use for SCSI burning and
+> fallback if something fails.
+

@@ -1,55 +1,194 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265128AbRGENBA>; Thu, 5 Jul 2001 09:01:00 -0400
+	id <S265130AbRGENDU>; Thu, 5 Jul 2001 09:03:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265130AbRGENAx>; Thu, 5 Jul 2001 09:00:53 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:12294 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S265128AbRGENAe>; Thu, 5 Jul 2001 09:00:34 -0400
-Date: Thu, 5 Jul 2001 14:56:26 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Cyril ADRIAN <c.adrian@alplog.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unresolved symbols since 2.4.5 ?
-Message-ID: <20010705145626.L30999@arthur.ubicom.tudelft.nl>
-In-Reply-To: <873d8b4kve.fsf@galaxie.alplog.net> <20010705143944.J30999@arthur.ubicom.tudelft.nl> <87wv5n35jf.fsf@galaxie.alplog.net>
+	id <S265135AbRGENDL>; Thu, 5 Jul 2001 09:03:11 -0400
+Received: from linux.kappa.ro ([194.102.255.131]:12694 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S265130AbRGENDF>;
+	Thu, 5 Jul 2001 09:03:05 -0400
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: linux.kappa.ro
+Date: Thu, 5 Jul 2001 16:04:11 +0300
+From: Mircea Damian <dmircea@kappa.ro>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
+Message-ID: <20010705160411.C14170@linux.kappa.ro>
+In-Reply-To: <20010705104650.A2820@linux.kappa.ro> <E15I79i-0002NI-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <87wv5n35jf.fsf@galaxie.alplog.net>; from c.adrian@alplog.fr on Thu, Jul 05, 2001 at 02:48:52PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+In-Reply-To: <E15I79i-0002NI-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jul 05, 2001 at 12:18:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 05, 2001 at 02:48:52PM +0200, Cyril ADRIAN wrote:
-> >>>>> "Erik" == Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> writes:
+On Thu, Jul 05, 2001 at 12:18:46PM +0100, Alan Cox wrote:
+> > This bug hits me since 2.4.6-pre5 but nobody answered to my emails... The
+> > code line is identical (and the softirq.c:206 ofc).
+> > 
+> > Anyone, any idea?
 > 
->     Erik> Looks like your system has an old version of modutils. You need Adrian
->     Erik> Bunk's linux-2.4 packages for running linux-2.4.* with Debian potato.
->     Erik> Add the following two lines to /etc/apt/sources.list:
-> 
->     Erik> deb http://people.debian.org/~bunk/debian potato main
->     Erik> deb-src http://people.debian.org/~bunk/debian potato main
-> 
->     I have just the first line of those. dpkg --list | grep modutils shows:
-> 
-> ii  modutils       2.4.6-2.bunk   Linux module utilities.
-> 
->     Is it OK?
+> None at all. There are odd items in your config - like khttpd which if 
+> involved might explain why there are not more reports.
 
-Yes, that's the same as I have in my system. The only difference is
-that I don't use kbuild but build the kernels by hand (done that since
-linux-1.0.8, hard habit to break :). Or maybe you still have some cruft
-left in /etc/modutils/paths.
+If you look closer at my post you'll see that I do not have khttpd
+configured. I've just replied to that message because I saw somebody
+crying about the same thing. My configuration is posted in an earlier
+message but here it is again:
 
 
-Erik
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_M586=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_USE_STRING_486=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_NETLINK_DEV=y
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_RTNETLINK=y
+CONFIG_NETLINK=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_UNCLEAN=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_MIRROR=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_NET_SCHED=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_NET_SCH_CBQ=y
+CONFIG_NET_SCH_CSZ=y
+CONFIG_NET_SCH_PRIO=y
+CONFIG_NET_SCH_RED=y
+CONFIG_NET_SCH_SFQ=y
+CONFIG_NET_SCH_TEQL=y
+CONFIG_NET_SCH_TBF=y
+CONFIG_NET_SCH_GRED=y
+CONFIG_NET_SCH_DSMARK=y
+CONFIG_NET_SCH_INGRESS=y
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=y
+CONFIG_NET_CLS_ROUTE4=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=y
+CONFIG_NET_CLS_U32=y
+CONFIG_NET_CLS_RSVP=y
+CONFIG_NET_CLS_RSVP6=y
+CONFIG_NET_CLS_POLICE=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_ISA=y
+CONFIG_NE2000=y
+CONFIG_NET_PCI=y
+CONFIG_NE2K_PCI=y
+CONFIG_8139TOO=y
+CONFIG_PPP=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_PPPOE=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_REISERFS_FS=y
+CONFIG_FAT_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_TMPFS=y
+CONFIG_MINIX_FS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_MAGIC_SYSRQ=y
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Mircea Damian
+E-mails: dmircea@kappa.ro, dmircea@roedu.net
+WebPage: http://taz.mania.k.ro/~dmircea/

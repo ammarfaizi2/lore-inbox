@@ -1,80 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265540AbSKAAn4>; Thu, 31 Oct 2002 19:43:56 -0500
+	id <S265515AbSKAAsj>; Thu, 31 Oct 2002 19:48:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265541AbSKAAn4>; Thu, 31 Oct 2002 19:43:56 -0500
-Received: from dhcp31182033.columbus.rr.com ([24.31.182.33]:52097 "EHLO
-	caphernaum.rivenstone.net") by vger.kernel.org with ESMTP
-	id <S265540AbSKAAnw>; Thu, 31 Oct 2002 19:43:52 -0500
-Date: Thu, 31 Oct 2002 19:47:51 -0500
-To: tytso@mit.edu, linux-kernel@vger.kernel.org
-Cc: zippel@linux-m68k.org
-Subject: Re: [PATCH] [BK] 0/11  Ext2/3 Updates: Extended attributes, ACL, etc.
-Message-ID: <20021101004751.GB1683@rivenstone.net>
-Mail-Followup-To: tytso@mit.edu, linux-kernel@vger.kernel.org,
-	zippel@linux-m68k.org
-References: <E187Agn-0003b9-00@snap.thunk.org> <20021101002419.GA1683@rivenstone.net>
+	id <S265519AbSKAAsj>; Thu, 31 Oct 2002 19:48:39 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:48094 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265515AbSKAAsg>;
+	Thu, 31 Oct 2002 19:48:36 -0500
+Subject: Re: What's left over.
+From: john stultz <johnstul@us.ibm.com>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021031195442.Y1421@almesberger.net>
+References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
+	<Pine.LNX.4.44L.0210310105160.1697-100000@imladris.surriel.com>
+	<20021031031932.GQ15886@ns> <1036098562.12714.50.camel@cog>
+	<20021031184933.B2599@almesberger.net> <1036103533.12714.71.camel@cog> 
+	<20021031195442.Y1421@almesberger.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 31 Oct 2002 16:54:11 -0800
+Message-Id: <1036112051.12713.134.camel@cog>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
-Content-Disposition: inline
-In-Reply-To: <20021101002419.GA1683@rivenstone.net>
-User-Agent: Mutt/1.4i
-From: jhf@rivenstone.net (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-10-31 at 14:54, Werner Almesberger wrote:
+> john stultz wrote:
+> > Ugh, that seems dangerous. Too many forgotten ACL links and then I could
+> > accidentally give a vague acquaintance access to all my data meant for
+> > close friends. 
+> 
+> The idea is that you'd typically have (a) (small number of) specific
+> location(s) where you keep your files representing groups, e.g.
+> $HOME/acls/ for your personal lists, maybe ~project/acls/ for
+> projects, etc.
 
---H+4ONPRPur6+Ovig
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Oh! Ok, that's exactly like the user-definable ACL groups I was
+describing. My mistake, I thought you were suggesting some crazy ACL
+symlink like: "Make file foo's ACL be the same as file blah's ACL" and
+if I then go and add some untrusted user to blah's ACL it would then
+automatically change foo's ACL. That just seemed a bit out there, but it
+was just my mis-interpretation. Sorry :)
 
-On Thu, Oct 31, 2002 at 07:24:19PM -0500, Joseph Fannin wrote:
-> On Thu, Oct 31, 2002 at 03:28:29AM -0500, tytso@mit.edu wrote:
-> > Hi Linus,
-> >=20
-> > I've updated the ext2/3 patches for 2.5.45.  All of these changes can
-> > also be grabbed by pulling from:
-> >=20
-> > 	bk://extfs.bkbits.net/extfs-2.5-update
+> If you think already this is dangerous, then you should be
+> terrified by regular, non-aggregateable ACLs ;-)
 
-[build error]
+Eh, as long as the ACLs are per-file, I can't ever accidentally give
+access to a file I didn't mean to. The corner cases of "remove my
+ex-friend from all my files" could be annoying, but could be done w/ the
+equiv of chgrp -r 
 
-    Okay, this looks like it's a problem with the transition to
-kconfig.  I have ext3 built in and ext2 built as a module, but
-CONFIG_FS_MBCACHE=3Dm.  So the problem would be this bit, right?
+> I'm not saying that ACLs aren't useful, only that the lack of
+> aggregateability makes them hard to maintain, so that people
+> frequently fall back to setup scripts that simple re-create
+> their ACL configuration. Once you're at this point, ACLs have
+> lost much of their usefulness, and you might as well use some
+> suid program that creates groups for you.
 
-# Meta block cache for Extended Attributes (ext2/ext3)
-config FS_MBCACHE
-       tristate
-       depends on EXT2_FS_XATTR || EXT3_FS_XATTR
-       default m if EXT2_FS=3Dm || EXT3_FS=3Dm
-       default y if EXT2_FS=3Dy || EXT3_FS=3Dy
+Hmmm. I'm way out of my realm of competency here. I just know ACLs were
+*really* useful w/ AFS. 
 
-    Which looks right -- it depends on either ext2 or ext3, and needs
-to be built in if either of ext2 or ext3 are, but if both are modular
-(or one is modular and the other is not built) then FS_MBCACHE should
-be modular.  But it doesn't work.
+I probably should just go read the specs. Anyone have a pointer, or care
+to explain what the differences are between AFS's ACLs and POSIX ACLs?
 
---=20
-Joseph Fannin
-jhf@rivenstone.net
+thanks
+-john
 
-"For future reference - don't anybody else try to send patches as vi
-scripts, please. Yes, it's manly, but let's face it, so is bungee-jumping
-with the cord tied to your testicles." -- Linus Torvalds
 
---H+4ONPRPur6+Ovig
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE9wc83Wv4KsgKfSVgRAoc9AJ0YBgQzqFKNj7OXtauQCAm+saj+sACeNxqz
-eMkHdKnJfM3kG24elSHfQmg=
-=vNOn
------END PGP SIGNATURE-----
-
---H+4ONPRPur6+Ovig--

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265374AbUBPHCY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 02:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265384AbUBPHCY
+	id S265379AbUBPG7j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 01:59:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265374AbUBPG7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 02:02:24 -0500
-Received: from gate.crashing.org ([63.228.1.57]:61343 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265374AbUBPHBr (ORCPT
+	Mon, 16 Feb 2004 01:59:39 -0500
+Received: from gate.crashing.org ([63.228.1.57]:60319 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265379AbUBPG7U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 02:01:47 -0500
-Subject: Re: [PATCH] Update platinumfb driver
+	Mon, 16 Feb 2004 01:59:20 -0500
+Subject: [PATCH] Update platinumfb driver
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@osdl.org>,
        James Simmons <jsimmons@infradead.org>
-In-Reply-To: <1076914615.6949.216.camel@gaston>
-References: <1076914615.6949.216.camel@gaston>
 Content-Type: text/plain
-Message-Id: <1076914762.6958.218.camel@gaston>
+Message-Id: <1076914615.6949.216.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 16 Feb 2004 17:59:23 +1100
+Date: Mon, 16 Feb 2004 17:56:56 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-02-16 at 17:56, Benjamin Herrenschmidt wrote:
-> Hi !
-> 
-> This patch updates the PowerMac-only platinumfb driver to use
-> the new mac-io device infrastructure. It also switch allocation
-> to the new framebuffer_alloc/release and fix a couple of bugs.
-> 
-> I finally found the old hardware to really test it so please
-> apply :)
+Hi !
 
-Grrr... Here again I forgot the crappy fbdev initialisation stuff,
-here's an updated patch.
+This patch updates the PowerMac-only platinumfb driver to use
+the new mac-io device infrastructure. It also switch allocation
+to the new framebuffer_alloc/release and fix a couple of bugs.
 
-diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/platinumfb.c
---- linux-2.5/drivers/video/platinumfb.c	2004-01-22 11:20:31.000000000 +1100
-+++ linuxppc-2.5-benh/drivers/video/platinumfb.c	2004-02-16 17:03:04.285218240 +1100
+I finally found the old hardware to really test it so please
+apply :)
+
+Ben.
+
+diff -urN linux-2.5/drivers/video/platinumfb.c
+linuxppc-2.5-benh/drivers/video/platinumfb.c
+--- linux-2.5/drivers/video/platinumfb.c	2004-01-22 11:20:31.000000000
++1100
++++ linuxppc-2.5-benh/drivers/video/platinumfb.c	2004-02-16
+17:03:04.285218240 +1100
 @@ -43,16 +43,13 @@
  static int default_vmode = VMODE_NVRAM;
  static int default_cmode = CMODE_NVRAM;
@@ -99,7 +98,8 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  	.owner =	THIS_MODULE,
 @@ -124,16 +117,7 @@
   */
- static int platinumfb_check_var (struct fb_var_screeninfo *var, struct fb_info *info)
+ static int platinumfb_check_var (struct fb_var_screeninfo *var, struct
+fb_info *info)
  {
 -	struct fb_info_platinum *p = (struct fb_info_platinum *) info;
 -	struct fb_par_platinum par;
@@ -140,23 +140,29 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
 +	init = platinum_reg_init[pinfo->vmode-1];
  	
 -	info->screen_base = (char *) p->frame_buffer + init->fb_offset + 0x20;
--	info->fix.smem_start = (p->frame_buffer_phys) + init->fb_offset + 0x20;
+-	info->fix.smem_start = (p->frame_buffer_phys) + init->fb_offset +
+0x20;
 -	info->fix.visual = (p->par.cmode == CMODE_8) ?
 +	if (pinfo->vmode == 13 && pinfo->cmode > 0)
 +		offset = 0x10;
-+	info->screen_base = (char *) pinfo->frame_buffer + init->fb_offset + offset;
-+	info->fix.smem_start = (pinfo->frame_buffer_phys) + init->fb_offset + offset;
++	info->screen_base = (char *) pinfo->frame_buffer + init->fb_offset +
+offset;
++	info->fix.smem_start = (pinfo->frame_buffer_phys) + init->fb_offset +
+offset;
 +	info->fix.visual = (pinfo->cmode == CMODE_8) ?
  		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_DIRECTCOLOR;
--	info->fix.line_length = vmode_attrs[p->par.vmode-1].hres * (1<<p->par.cmode) + 0x20;
+-	info->fix.line_length = vmode_attrs[p->par.vmode-1].hres *
+(1<<p->par.cmode) + 0x20;
 -
-+	info->fix.line_length = vmode_attrs[pinfo->vmode-1].hres * (1<<pinfo->cmode) + offset;
++	info->fix.line_length = vmode_attrs[pinfo->vmode-1].hres *
+(1<<pinfo->cmode) + offset;
 +	printk("line_length: %x\n", info->fix.line_length);
  	return 0;
  }
  
 @@ -198,8 +183,8 @@
- static int platinumfb_setcolreg(u_int regno, u_int red, u_int green, u_int blue,
+ static int platinumfb_setcolreg(u_int regno, u_int red, u_int green,
+u_int blue,
  			      u_int transp, struct fb_info *info)
  {
 -	struct fb_info_platinum *p = (struct fb_info_platinum *) info;
@@ -223,7 +229,8 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  
  /* Now how about actually saying, Make it so! */
  /* Some things in here probably don't need to be done each time. */
--static void platinum_set_hardware(struct fb_info_platinum *info, const struct fb_par_platinum *par)
+-static void platinum_set_hardware(struct fb_info_platinum *info, const
+struct fb_par_platinum *par)
 +static void platinum_set_hardware(struct fb_info_platinum *pinfo)
  {
 -	volatile struct platinum_regs	*platinum_regs = info->platinum_regs;
@@ -248,18 +255,23 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  		out_be32(&platinum_regs->reg[i+32].r, init->regs[i]);
  
 -	out_be32(&platinum_regs->reg[26+32].r, (info->total_vram == 0x100000 ?
-+	out_be32(&platinum_regs->reg[26+32].r, (pinfo->total_vram == 0x100000 ?
++	out_be32(&platinum_regs->reg[26+32].r, (pinfo->total_vram == 0x100000
+?
  						init->offset[cmode] + 4 - cmode :
  						init->offset[cmode]));
--	out_be32(&platinum_regs->reg[16].r, (unsigned) info->frame_buffer_phys+init->fb_offset+0x10);
-+	out_be32(&platinum_regs->reg[16].r, (unsigned) pinfo->frame_buffer_phys+init->fb_offset+0x10);
+-	out_be32(&platinum_regs->reg[16].r, (unsigned)
+info->frame_buffer_phys+init->fb_offset+0x10);
++	out_be32(&platinum_regs->reg[16].r, (unsigned)
+pinfo->frame_buffer_phys+init->fb_offset+0x10);
  	out_be32(&platinum_regs->reg[18].r, init->pitch[cmode]);
 -	out_be32(&platinum_regs->reg[19].r, (info->total_vram == 0x100000 ?
 +	out_be32(&platinum_regs->reg[19].r, (pinfo->total_vram == 0x100000 ?
  					     init->mode[cmode+1] :
  					     init->mode[cmode]));
--	out_be32(&platinum_regs->reg[20].r, (info->total_vram == 0x100000 ? 0x11 : 0x1011));
-+	out_be32(&platinum_regs->reg[20].r, (pinfo->total_vram == 0x100000 ? 0x11 : 0x1011));
+-	out_be32(&platinum_regs->reg[20].r, (info->total_vram == 0x100000 ?
+0x11 : 0x1011));
++	out_be32(&platinum_regs->reg[20].r, (pinfo->total_vram == 0x100000 ?
+0x11 : 0x1011));
  	out_be32(&platinum_regs->reg[21].r, 0x100);
  	out_be32(&platinum_regs->reg[22].r, 1);
  	out_be32(&platinum_regs->reg[23].r, 1);
@@ -283,8 +295,10 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  /*
   * Set misc info vars for this driver
   */
--static void __devinit platinum_init_info(struct fb_info *info, struct fb_info_platinum *p)
-+static void __devinit platinum_init_info(struct fb_info *info, struct fb_info_platinum *pinfo)
+-static void __devinit platinum_init_info(struct fb_info *info, struct
+fb_info_platinum *p)
++static void __devinit platinum_init_info(struct fb_info *info, struct
+fb_info_platinum *pinfo)
  {
  	/* Fill fb_info */
 -	info->par = &p->par;
@@ -303,9 +317,11 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
 +	info->fix.mmio_start = pinfo->platinum_regs_phys;
  	info->fix.mmio_len = 0x1000;
  	info->fix.type = FB_TYPE_PACKED_PIXELS;
--	info->fix.smem_start = p->frame_buffer_phys + 0x20; /* will be updated later */
+-	info->fix.smem_start = p->frame_buffer_phys + 0x20; /* will be updated
+later */
 -	info->fix.smem_len = p->total_vram - 0x20;
-+	info->fix.smem_start = pinfo->frame_buffer_phys + 0x20; /* will be updated later */
++	info->fix.smem_start = pinfo->frame_buffer_phys + 0x20; /* will be
+updated later */
 +	info->fix.smem_len = pinfo->total_vram - 0x20;
          info->fix.ywrapstep = 0;
  	info->fix.xpanstep = 0;
@@ -332,13 +348,17 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  	/*
  	 * Reduce the pixel size if we don't have enough VRAM.
  	 */
--	while(default_cmode > CMODE_8 && platinum_vram_reqd(default_vmode, default_cmode) > p->total_vram)
+-	while(default_cmode > CMODE_8 && platinum_vram_reqd(default_vmode,
+default_cmode) > p->total_vram)
 +	while(default_cmode > CMODE_8 &&
-+	      platinum_vram_reqd(default_vmode, default_cmode) > pinfo->total_vram)
++	      platinum_vram_reqd(default_vmode, default_cmode) >
+pinfo->total_vram)
  		default_cmode--;
  
--	printk("using video mode %d and color mode %d.\n", default_vmode, default_cmode);
-+	printk("platinumfb:  Using video mode %d and color mode %d.\n", default_vmode, default_cmode);
+-	printk("using video mode %d and color mode %d.\n", default_vmode,
+default_cmode);
++	printk("platinumfb:  Using video mode %d and color mode %d.\n",
+default_vmode, default_cmode);
  
  	/* Setup default var */
  	if (mac_vmode_to_var(default_vmode, default_cmode, &var) < 0) {
@@ -355,7 +375,8 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  	var.activate = FB_ACTIVATE_NOW;
 -	rc = fb_set_var(&p->info, &var);
 +	rc = fb_set_var(info, &var);
- 	if (rc && (default_vmode != VMODE_640_480_60 || default_cmode != CMODE_8))
+ 	if (rc && (default_vmode != VMODE_640_480_60 || default_cmode !=
+CMODE_8))
  		goto try_again;
  
  	/* Register with fbdev layer */
@@ -366,7 +387,8 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  
 -	printk(KERN_INFO "fb%d: platinum frame buffer device\n",
 -	       p->info.node);
-+	printk(KERN_INFO "fb%d: Apple Platinum frame buffer device\n", info->node);
++	printk(KERN_INFO "fb%d: Apple Platinum frame buffer device\n",
+info->node);
  
  	return 0;
  }
@@ -374,12 +396,14 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  	return sense;
  }
  
--/* This routine takes a user-supplied var, and picks the best vmode/cmode from it. */
+-/* This routine takes a user-supplied var, and picks the best
+vmode/cmode from it. */
 -static int platinum_var_to_par(const struct fb_var_screeninfo *var, 
 -			       struct fb_par_platinum *par,
 -			       const struct fb_info_platinum *info)
 +/*
-+ * This routine takes a user-supplied var, and picks the best vmode/cmode from it.
++ * This routine takes a user-supplied var, and picks the best
+vmode/cmode from it.
 + * It also updates the var structure to the actual mode data obtained
 + */
 +static int platinum_var_to_par(struct fb_var_screeninfo *var, 
@@ -390,7 +414,8 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
 +	int vmode, cmode;
 +
 +	if (mac_var_to_vmode(var, &vmode, &cmode) != 0) {
- 		printk(KERN_ERR "platinum_var_to_par: mac_var_to_vmode unsuccessful.\n");
+ 		printk(KERN_ERR "platinum_var_to_par: mac_var_to_vmode
+unsuccessful.\n");
  		printk(KERN_ERR "platinum_var_to_par: var->xres = %d\n", var->xres);
  		printk(KERN_ERR "platinum_var_to_par: var->yres = %d\n", var->yres);
 @@ -462,37 +450,39 @@
@@ -398,16 +423,19 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  	}
  
 -	if(!platinum_reg_init[par->vmode-1]) {
--		printk(KERN_ERR "platinum_var_to_par, vmode %d not valid.\n", par->vmode);
+-		printk(KERN_ERR "platinum_var_to_par, vmode %d not valid.\n",
+par->vmode);
 +	if (!platinum_reg_init[vmode-1]) {
 +		printk(KERN_ERR "platinum_var_to_par, vmode %d not valid.\n", vmode);
  		return -EINVAL;
  	}
  
 -	if (platinum_vram_reqd(par->vmode, par->cmode) > info->total_vram) {
--		printk(KERN_ERR "platinum_var_to_par, not enough ram for vmode %d, cmode %d.\n", par->vmode, par->cmode);
+-		printk(KERN_ERR "platinum_var_to_par, not enough ram for vmode %d,
+cmode %d.\n", par->vmode, par->cmode);
 +	if (platinum_vram_reqd(vmode, cmode) > pinfo->total_vram) {
-+		printk(KERN_ERR "platinum_var_to_par, not enough ram for vmode %d, cmode %d.\n", vmode, cmode);
++		printk(KERN_ERR "platinum_var_to_par, not enough ram for vmode %d,
+cmode %d.\n", vmode, cmode);
  		return -EINVAL;
  	}
  
@@ -451,7 +479,8 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  	char *this_opt;
  
 @@ -536,7 +526,8 @@
- static int __devinit platinumfb_probe(struct of_device* odev, const struct of_match *match)
+ static int __devinit platinumfb_probe(struct of_device* odev, const
+struct of_match *match)
  {
  	struct device_node	*dp = odev->node;
 -	struct fb_info_platinum	*info;
@@ -461,7 +490,8 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  	volatile __u8		*fbuffer;
  	int			i, bank0, bank1, bank2, bank3, rc;
 @@ -545,11 +536,12 @@
- 		printk(KERN_ERR "expecting 2 address for platinum (got %d)", dp->n_addrs);
+ 		printk(KERN_ERR "expecting 2 address for platinum (got %d)",
+dp->n_addrs);
  		return -ENXIO;
  	}
 +	printk(KERN_INFO "platinumfb: Found Apple Platinum video hardware\n");
@@ -509,11 +539,15 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
 +	pinfo->cmap_regs = ioremap(pinfo->cmap_regs_phys, 0x1000);
  
  	/* Grok total video ram */
--	out_be32(&info->platinum_regs->reg[16].r, (unsigned)info->frame_buffer_phys);
--	out_be32(&info->platinum_regs->reg[20].r, 0x1011);	/* select max vram */
+-	out_be32(&info->platinum_regs->reg[16].r,
+(unsigned)info->frame_buffer_phys);
+-	out_be32(&info->platinum_regs->reg[20].r, 0x1011);	/* select max vram
+*/
 -	out_be32(&info->platinum_regs->reg[24].r, 0);	/* switch in vram */
-+	out_be32(&pinfo->platinum_regs->reg[16].r, (unsigned)pinfo->frame_buffer_phys);
-+	out_be32(&pinfo->platinum_regs->reg[20].r, 0x1011);	/* select max vram */
++	out_be32(&pinfo->platinum_regs->reg[16].r,
+(unsigned)pinfo->frame_buffer_phys);
++	out_be32(&pinfo->platinum_regs->reg[20].r, 0x1011);	/* select max vram
+*/
 +	out_be32(&pinfo->platinum_regs->reg[24].r, 0);	/* switch in vram */
  
 -	fbuffer = info->base_frame_buffer;
@@ -526,9 +560,11 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
  	bank2 = fbuffer[0x200000] == 0x56;
  	bank3 = fbuffer[0x300000] == 0x78;
 -	info->total_vram = (bank0 + bank1 + bank2 + bank3) * 0x100000;
--	printk(KERN_INFO "Total VRAM = %dMB %d%d%d%d\n", (int) (info->total_vram / 1024 / 1024), bank3, bank2, bank1, bank0);
+-	printk(KERN_INFO "Total VRAM = %dMB %d%d%d%d\n", (int)
+(info->total_vram / 1024 / 1024), bank3, bank2, bank1, bank0);
 +	pinfo->total_vram = (bank0 + bank1 + bank2 + bank3) * 0x100000;
-+	printk(KERN_INFO "platinumfb: Total VRAM = %dMB (%d%d%d%d)\n", (int) (pinfo->total_vram / 1024 / 1024),
++	printk(KERN_INFO "platinumfb: Total VRAM = %dMB (%d%d%d%d)\n", (int)
+(pinfo->total_vram / 1024 / 1024),
 +	       bank3, bank2, bank1, bank0);
  
  	/*
@@ -554,7 +590,8 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
 -		info->clktype = 0;
 -		printk(KERN_INFO "Unknown DACula type: %x\n", info->dactype);
 +		pinfo->clktype = 0;
-+		printk(KERN_INFO "platinumfb: Unknown DACula type: %x\n", pinfo->dactype);
++		printk(KERN_INFO "platinumfb: Unknown DACula type: %x\n",
+pinfo->dactype);
  		break;
  	}
  	dev_set_drvdata(&odev->dev, info);
@@ -621,26 +658,5 @@ diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5-benh/drivers/video/p
 +module_init(platinumfb_init);
 +module_exit(platinumfb_exit);
  #endif
-===== drivers/video/fbmem.c 1.87 vs edited =====
---- 1.87/drivers/video/fbmem.c	Sun Feb 15 21:43:42 2004
-+++ edited/drivers/video/fbmem.c	Mon Feb 16 17:58:08 2004
-@@ -103,6 +103,8 @@
- extern int matroxfb_init(void);
- extern int matroxfb_setup(char*);
- extern int hpfb_init(void);
-+extern int platinumfb_init(void);
-+extern int platinumfb_setup(char*);
- extern int control_init(void);
- extern int control_setup(char*);
- extern int platinum_init(void);
-@@ -230,7 +232,7 @@
- 	{ "controlfb", control_init, control_setup },
- #endif
- #ifdef CONFIG_FB_PLATINUM
--	{ "platinumfb", platinum_init, platinum_setup },
-+	{ "platinumfb", platinumfb_init, platinumfb_setup },
- #endif
- #ifdef CONFIG_FB_VALKYRIE
- 	{ "valkyriefb", valkyriefb_init, valkyriefb_setup },
 
 

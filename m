@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289212AbSANMQV>; Mon, 14 Jan 2002 07:16:21 -0500
+	id <S289225AbSANMQL>; Mon, 14 Jan 2002 07:16:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289224AbSANMQL>; Mon, 14 Jan 2002 07:16:11 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1298 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289212AbSANMQD>; Mon, 14 Jan 2002 07:16:03 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: zippel@linux-m68k.org (Roman Zippel)
-Date: Mon, 14 Jan 2002 12:27:28 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), yodaiken@fsmlabs.com,
-        phillips@bonn-fries.net (Daniel Phillips),
-        arjan@fenrus.demon.nl (Arjan van de Ven), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201141248220.29048-100000@serv> from "Roman Zippel" at Jan 14, 2002 01:00:53 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289224AbSANMQC>; Mon, 14 Jan 2002 07:16:02 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:31671 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S289212AbSANMPv>; Mon, 14 Jan 2002 07:15:51 -0500
+Date: Mon, 14 Jan 2002 13:14:43 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+cc: Jim Studt <jim@federated.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with ServerWorks CNB20LE and lost interrupts
+In-Reply-To: <Pine.LNX.4.33.0201141107230.28735-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.GSO.3.96.1020114130649.10091E-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Q6D2-0001aZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm really trying to avoid this, I'm more than happy to discuss
-> theoretical or practical problems _if_ they are backed by arguments,
-> latter are very thin with Victor. Making pointless claims only triggers
-> above reaction. If I did really miss a major argument so far, I will
-> publicly apologize.
+On Mon, 14 Jan 2002, Zwane Mwaikambo wrote:
 
-You seem to be missing the fact that latency guarantees only work if you
-can make progress. If a low priority process is pre-empted owning a
-resource (quite likely) then you won't get your good latency. To
-handle those cases you get into priority boosting, and all sorts of lock
-complexity - so that the task that owns the resource temporarily can borrow
-your priority in order that you can make progress at your needed speed.
-That gets horrendously complex, and you get huge chains of priority
-dependancies including hardware level ones.
+> Alan Cox pointed out this problem to me and hinted that it was an IRQ
+> routing problem, i'm not sure wether it is possible to code workarounds
+> which don't break normal systems though. Anyone want to use Jim as a
+> guinea ping? ;)
 
-The low latency patches don't make that problem go away, but they achieve
-equivalent real world latencies up to at least the point you have to do
-priority handling of that kind. 
+ Why to code complicated workarounds for broken firmware?  It's so easy to
+fix, so either bother the vendor for a fix or replace the system with a
+sane one.  Reading and understanding the Intel's MP spec is a day or at
+most two worth of man's work.  I wouldn't trust the vendor that refuses to
+invest in a product even that little.
 
-Alan
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQKOKfm>; Wed, 15 Nov 2000 05:35:42 -0500
+	id <S129340AbQKOK6j>; Wed, 15 Nov 2000 05:58:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129272AbQKOKfd>; Wed, 15 Nov 2000 05:35:33 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:57101 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S129097AbQKOKfW>; Wed, 15 Nov 2000 05:35:22 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200011151005.LAA20027@green.mif.pg.gda.pl>
-Subject: PCI configuration changes
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Wed, 15 Nov 2000 11:05:07 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org (kernel list)
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S129386AbQKOK63>; Wed, 15 Nov 2000 05:58:29 -0500
+Received: from slc62.modem.xmission.com ([166.70.9.62]:44808 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S129340AbQKOK6Q>; Wed, 15 Nov 2000 05:58:16 -0500
+To: andersen@codepoet.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Q: Linux rebooting directly into linux.
+In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001114011331.B1496@codepoet.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Nov 2000 07:59:18 -0700
+In-Reply-To: Erik Andersen's message of "Tue, 14 Nov 2000 01:13:32 -0700"
+Message-ID: <m1bsvia9bt.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   Looking at the latest drivers/net/Config.in changes I noticed, that
-two (modified earlier) lines are buggy:
+Erik Andersen <andersen@codepoet.org> writes:
 
-      dep_tristate '    3c523 "EtherLink/MC" support' CONFIG_ELMC $CONFIG_MCA
-      dep_tristate '    3c527 "EtherLink/MC 32" support (EXPERIMENTAL)' CONFIG_ELMC_II $CONFIG_MCA $CONFIG_EXPERIMENTAL
+> On Thu Nov 09, 2000 at 01:18:24AM -0700, Eric W. Biederman wrote:
+> > 
+> > I have recently developed a patch that allows linux to directly boot
+> > into another linux kernel.  
+> 
+> Looks very cool.  I'm curious about your decision to use ELF images.  This
+> makes it much less conveinient to use due to the kernel postprocessing, and
+> makes it that the kernel binary from which you initially boot is not
+> necessirily the same as the binary that you re-boot into.  
 
-Note, that as CONFIG_MCA is defined only for i386 the dependencies on 
-$CONFIG_MCA are no-op for other architectures (in Configure/Menuconfig).
-Either CONFIG_MCA should be defined for all architectures or there should be
-if ... fi around these lines.
+The decision here was that I needed to pass a vector of 
+<physical address, length, data> pairs.  The elf program header
+is dead simple and provides it.  So I either had to invent a
+complicated argument passing mechanism for a syscall or have the
+kernel parse a file.
 
-BTW, is there any reason for not replacing 
+> Wouldn't it be more reasonable to simply try to exec whatever file is provided?
+> If the concern is initrds; they can be simply pasted into the kernel binary.
 
-   bool '  Other ISA cards' CONFIG_NET_ISA
+That's exactly what my preprocessing does. 
 
-by
+vmlinux is also an elf binary.  As is arch/i386/boot/bvmlinux but it
+is compressed.
 
-  dep_bool '  Other ISA cards' CONFIG_NET_ISA $CONFIG_ISA
+All mkelfImage does is the pasting of initrd's, command lines,
+and just a touch of argument conversion code.
 
-to eliminate more drivers from non-ISA arch configs ?
+What I don't do deliberately is allow or need setup.S which does
+syscalls to run.  All it does are BIOS calls, and store them in a
+nasty data structure.  I have replaced that data structure with 
+something that is maintainable.  
 
-Andrzej
+I would like very much to not need mkelfImage.  However that
+requires further changes to the kernel, and I cannot boot an unpatched
+kernel with that method.  
 
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

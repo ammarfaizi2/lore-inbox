@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290993AbSBGARC>; Wed, 6 Feb 2002 19:17:02 -0500
+	id <S290973AbSBGA1D>; Wed, 6 Feb 2002 19:27:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290988AbSBGAQr>; Wed, 6 Feb 2002 19:16:47 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33042 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290984AbSBGAQK>; Wed, 6 Feb 2002 19:16:10 -0500
-Message-ID: <3C61C72B.1010105@zytor.com>
-Date: Wed, 06 Feb 2002 16:15:39 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en, sv
+	id <S291007AbSBGA04>; Wed, 6 Feb 2002 19:26:56 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41231 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290973AbSBGA0o>; Wed, 6 Feb 2002 19:26:44 -0500
+Subject: Re: driverfs support for motherboard devices
+To: pavel@suse.cz (Pavel Machek)
+Date: Thu, 7 Feb 2002 00:38:39 +0000 (GMT)
+Cc: mochel@osdl.org (Patrick Mochel), andre@linuxdiskcert.org (Andre Hedrick),
+        rmk@arm.linux.org.uk (Russell King), pavel@suse.cz (Pavel Machek),
+        linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <20020206122253.GB446@elf.ucw.cz> from "Pavel Machek" at Feb 06, 2002 01:22:55 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Jakub Jelinek <jakub@redhat.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: kernel: ldt allocation failed
-In-Reply-To: <20020206163118.E21624@devserv.devel.redhat.com> <E16YcJW-0006vG-00@the-village.bc.nu> <20020206191233.I21624@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16YcaF-0006z9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek wrote:
-
+> Case 5: 486 with both PCI and VLB, where ide is on the VLB?
 > 
-> We have changed it already (e.g,. for regparm(1), fewer relocs, shorter insn
-> sequences, etc.), but with exception of 2 non-dynamic relocs (which get
-> different numbers) we are still compatible.
-> But as written later, just using a different GDT descriptor could avoid
-> having to change the ABI, but would still have the undesirable property of
-> requiring every app to mmap a new page at fixed location.
+> cases 4 and 5 are IMO hard, because it is difficult to know where it
+> really is... and I'm not sure current kernel knows it.
 
->
-
-It's not that bad, though, especially if your fixed location is just
-beneath the standard mmap base address (e.g. 0x3f000000 -- leave some room
-for future expansion -- or thereabouts on the standard 3:1 split space.)
-
-Do you support tlsalloc() or whatever it is called?
-
-	-hpa
-
+I suspect PnPBIOS knows for the 486. There is PnPbios code in 2.4-ac 
+perfectly ready for a 2.5 merger

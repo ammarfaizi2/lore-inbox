@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVC2VlW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVC2VpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVC2VlW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 16:41:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVC2VlV
+	id S261507AbVC2VpF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 16:45:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVC2VpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 16:41:21 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:15410 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261502AbVC2Vjf (ORCPT
+	Tue, 29 Mar 2005 16:45:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27284 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261461AbVC2VoZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 16:39:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=jnOl+I1G1R23KWEuRdWwWtSMSY27FkD7hUPmnlASxD7UVwH6iuGi7Vcwy8GQtvG8FCkg5aUJKFntrNHneNxw/o2ATLyv0rN7pEN0Cu7JvOjrZ8/mOOyNcZkjtva2DwIhXL86qcbJ7zUrAf1FpDiMw5wY4+9e8xbVj6fICEYEAzI=
-Message-ID: <d120d500050329133838b0ebb6@mail.gmail.com>
-Date: Tue, 29 Mar 2005 16:38:35 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Cc: Pavel Machek <pavel@suse.cz>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Stefan Seyfried <seife@suse.de>,
+	Tue, 29 Mar 2005 16:44:25 -0500
+Date: Tue, 29 Mar 2005 23:44:08 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Stefan Seyfried <seife@suse.de>, Andy Isaacson <adi@hexapodia.org>,
        kernel list <linux-kernel@vger.kernel.org>,
-       Andy Isaacson <adi@hexapodia.org>
-In-Reply-To: <Pine.LNX.4.50.0503291321490.29474-100000@monsoon.he.net>
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Message-ID: <20050329214408.GH8125@elf.ucw.cz>
+References: <4243D854.2010506@suse.de> <d120d50005032908183b2f622e@mail.gmail.com> <20050329181831.GB8125@elf.ucw.cz> <d120d50005032911114fd2ea32@mail.gmail.com> <20050329192339.GE8125@elf.ucw.cz> <d120d50005032912051fee6e91@mail.gmail.com> <20050329205225.GF8125@elf.ucw.cz> <d120d500050329130714e1daaf@mail.gmail.com> <20050329211239.GG8125@elf.ucw.cz> <d120d50005032913331be39802@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <4242CE43.1020806@suse.de> <20050324235439.GA27902@hexapodia.org>
-	 <4243D854.2010506@suse.de> <d120d50005032908183b2f622e@mail.gmail.com>
-	 <20050329181831.GB8125@elf.ucw.cz>
-	 <d120d50005032911114fd2ea32@mail.gmail.com>
-	 <20050329192339.GE8125@elf.ucw.cz>
-	 <d120d50005032912051fee6e91@mail.gmail.com>
-	 <20050329205225.GF8125@elf.ucw.cz>
-	 <Pine.LNX.4.50.0503291321490.29474-100000@monsoon.he.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <d120d50005032913331be39802@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Mar 2005 13:23:35 -0800 (PST), Patrick Mochel
-<mochel@digitalimplant.org> wrote:
+On Út 29-03-05 16:33:04, Dmitry Torokhov wrote:
+> On Tue, 29 Mar 2005 23:12:39 +0200, Pavel Machek <pavel@suse.cz> wrote:
+> > >
+> > > I am leaning towards calling disable_usermodehelper (not writtent yet)
+> > > after swsusp completes snapshotting memory. We really don't care about
+> > > hotplug events in this case and this will allow keeping "normal"
+> > > resume in drivers as is. What do you think?
+> > 
+> > That would certianly do the trick.
+> > 
+> > [Or perhaps in_suspend() is slightly nicer solution? People wanted it
+> > for other stuff (sanity checking, like BUG_ON(in_suspend())), too....]
+> > 
 > 
-> On Tue, 29 Mar 2005, Pavel Machek wrote:
-> 
-> > I don't really want us to try execve during resume... Could we simply
-> > artifically fail that execve with something if (in_suspend()) return
-> > -EINVAL; [except that in_suspend() just is not there, but there were
-> > some proposals to add it].
-> >
-> > Or just avoid calling hotplug at all in resume case? And then do
-> > coldplug-like scan when userspace is ready...
-> 
-> I thought that cold-plugging only worked for devices, not all objects.
-> 
+> We might want having both... Hmm... in_suspend - is it only for swsusp
+> (in_swsusp) or for suspend-to-ram as well? For suspend to ram we might
+> need slightly different rules, I don't know. A separate call will
+> allow more fine-grained control and will explicitely tell reader what
+> is happening.
 
-It really depens on the script - nothing stops it from traversing
-entire /sys tree and if an object it not exported in the tree I'd say
-userspace should not care about such object anyway.
-
-> Can we just queue up hotplug events? That way we wouldn't lose any across
-> the transition, and could be used to send resume events to userspace for
-> various devices that need help..
->
-
-The point is that at this point any changes to the system state will
-be discarded - we already did the image and about to write it. When we
-resume for real all those events will be regenerated once again.
- 
+We currently freeze processes for suspend-to-ram, too. I guess that
+disable_usermodehelper is probably better and that in_suspend() should
+only be used for sanity checks... go with disable_usermodehelper and
+sorry for the noise.
+								Pavel
 -- 
-Dmitry
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

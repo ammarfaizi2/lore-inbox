@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbTEFDAs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 23:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTEFC63
+	id S262321AbTEFDYB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 23:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbTEFDYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 22:58:29 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:33936 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S262285AbTEFC5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 22:57:10 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][v850]  Remove some unneeded register saving on the v850
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030506030925.821B737AE@mcspd15.ucom.lsi.nec.co.jp>
-Date: Tue,  6 May 2003 12:09:25 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+	Mon, 5 May 2003 23:24:01 -0400
+Received: from exchsrv1.cs.washington.edu ([128.95.3.128]:29562 "EHLO
+	exchsrv1.cseresearch.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S262321AbTEFDYA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 23:24:00 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Buggy drivers/modules needed
+Date: Mon, 5 May 2003 20:36:32 -0700
+Message-ID: <2B0E86920B2B9C43A043DA80E447FCBC7BB895@exchsrv1.cseresearch.cs.washington.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Buggy drivers/modules needed
+Thread-Index: AcMTgNBFXehet51CRX6unsOPURc3xw==
+From: "Michael Swift" <mikesw@cs.washington.edu>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These registers are now saved in a difference place, but the old code
-was inadvertently left in.
+I'm working on a Linux patch to prevent buggy modules/drivers from causing the kernel to crash. Instead, the kernel detects a crash in the driver, and transparently restarts the module. Currently this patch supports network interface card drivers, sound drivers, and file systems.
 
-diff -ruN -X../cludes linux-2.5.69-uc0/arch/v850/kernel/entry.S linux-2.5.69-uc0-v850-20030506/arch/v850/kernel/entry.S
---- linux-2.5.69-uc0/arch/v850/kernel/entry.S	2003-04-21 10:52:40.000000000 +0900
-+++ linux-2.5.69-uc0-v850-20030506/arch/v850/kernel/entry.S	2003-05-06 10:40:26.000000000 +0900
-@@ -610,10 +627,9 @@
- 	br	restore_extra_regs_and_ret_from_trap
- END(sys_sigreturn_wrapper)
- L_ENTRY(sys_rt_sigreturn_wrapper):
--        SAVE_EXTRA_STATE(TRAP)		// Save state not saved by entry.
- 	movea	PTO, sp, r6		// add user context as 1st arg
--	mov	hilo(CSYM(sys_rt_sigreturn)), r18	// syscall function
--	jarl	save_extra_state_tramp, lp	// Save state and do it
-+	mov	hilo(CSYM(sys_rt_sigreturn)), r18// syscall function
-+	jarl	save_extra_state_tramp, lp	 // Save state and do it
- 	br	restore_extra_regs_and_ret_from_trap
- END(sys_rt_sigreturn_wrapper)
- 
+I've tested the patch by generating artifical bugs in drivers, but I want to see how well it works on real bugs.
+
+What I would like is either:
+
+a) sound card, network interface, or file system code with bugs that cause an oops. In particular, a pointer to what piece of code causes the oops would be helpful.
+
+b) fragments of code from any kernel module that has caused an oops. I can splice this code into existing modules to see if it can be successfully isolated.
+
+Thanks in advance
+
+- Mike Swift

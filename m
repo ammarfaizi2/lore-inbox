@@ -1,120 +1,200 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265045AbTLHQms (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 11:42:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265515AbTLHQka
+	id S265048AbTLHQmr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 11:42:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265516AbTLHQky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 11:40:30 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:15846 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S265510AbTLHQjJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 11:39:09 -0500
-From: Vladimir Saveliev <vs@namesys.com>
-Organization: namesys
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.23] kernel BUG at page_alloc.c:235!
-Date: Mon, 8 Dec 2003 19:39:07 +0300
-User-Agent: KMail/1.5.4
+	Mon, 8 Dec 2003 11:40:54 -0500
+Received: from abyss.devicen.de ([217.6.173.34]:41890 "EHLO abyss.devicen.de")
+	by vger.kernel.org with ESMTP id S265491AbTLHQgq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 11:36:46 -0500
+Message-ID: <3FD4A801.5010909@devicen.de>
+Date: Mon, 08 Dec 2003 17:34:09 +0100
+From: Oliver Teuber <teuber@devicen.de>
+Organization: DEVICE/N GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20030821
+X-Accept-Language: de-at, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312081939.07390.vs@namesys.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 hard lock, 100% reproducible.
+References: <20031207090723.GV8039@holomorphy.com> <29654.1070788614@ocs3.intra.ocs.com.au> <20031207093622.GW8039@holomorphy.com>
+In-Reply-To: <20031207093622.GW8039@holomorphy.com>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------050609080103060908030505"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+This is a multi-part message in MIME format.
+--------------050609080103060908030505
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-A program which reads spontaneously 4k blocks from a device (sda1) causes the following quite fast.
+hi
 
+i have got some oops too ... reported some days earlier.
 
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sda: 1600864640 512-byte hdwr sectors (819643 MB)
- sda: sda1
-kernel BUG at page_alloc.c:235!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c012cf70>]    Not tainted
-EFLAGS: 00010202
-eax: 0100004c   ebx: c11a2fc0   ecx: 00001000   edx: 0000985b
-esi: c02ee698   edi: 00000001   ebp: c02ee698   esp: cd6b9e5c
-ds: 0018   es: 0018   ss: 0018
-Process reiserfsck (pid: 604, stackpage=cd6b9000)
-Stack: 00001000 00000286 0000885b 00000296 00000000 c02ee698 c02ee698 c02ee84c
-       00000001 00000001 c012d273 2fb59ff0 cd546a40 c8f38940 c8f388c0 0000000c
-       c02ee698 c02ee848 00000000 000001d0 00000001 cd546af4 0029a366 0029a385
-Call Trace:    [<c012d273>] [<c0124f78>] [<c01394e0>] [<c01255ef>] [<c012584c>]
-  [<c0125e30>] [<c0125f84>] [<c0125e30>] [<d08fcdfa>] [<c01335d3>] [<c01072cf>]
+yours, oliver teuber
 
-Code: 0f 0b eb 00 bd 2f 2a c0 8b 43 18 a9 80 00 00 00 74 08 0f 0b
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107036079102352&w=2
 
 
-Ksymoops provides
+--------------050609080103060908030505
+Content-Type: text/plain;
+ name="oops-2423-20031202.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="oops-2423-20031202.txt"
 
-vs@tribesman:/tmp/> ksymoops -m System.map file2 -V -O -K
-ksymoops 2.4.9 on i686 2.4.21-144-default.  Options used
-     -V (specified)
-     -K (specified)
+ksymoops 2.4.9 on i686 2.4.23.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -k /proc/ksyms (default)
      -l /proc/modules (default)
-     -O (specified)
-     -m System.map (specified)
+     -o /lib/modules/2.4.23/ (default)
+     -m /usr/src/linux/System.map (default)
 
-No ksyms, skipping lsmod
-kernel BUG at page_alloc.c:235!
-invalid operand: 0000
+Reading Oops report from the terminal
+Oops: 0000
 CPU:    0
-EIP:    0010:[<c012cf70>]    Not tainted
+EIP:    0010:[<c0119780>]    Not tainted
 Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: 0100004c   ebx: c11a2fc0   ecx: 00001000   edx: 0000985b
-esi: c02ee698   edi: 00000001   ebp: c02ee698   esp: cd6b9e5c
+EFLAGS: 00010086
+eax: c83a643c   ebx: 00000000   ecx: 00000001   edx: 00000001
+esi: ce6d2980   edi: c83a643c   ebp: cdb61a6c   esp: cdb61a54
 ds: 0018   es: 0018   ss: 0018
-Process reiserfsck (pid: 604, stackpage=cd6b9000)
-Stack: 00001000 00000286 0000885b 00000296 00000000 c02ee698 c02ee698 c02ee84c
-       00000001 00000001 c012d273 2fb59ff0 cd546a40 c8f38940 c8f388c0 0000000c
-       c02ee698 c02ee848 00000000 000001d0 00000001 cd546af4 0029a366 0029a385
-Call Trace:    [<c012d273>] [<c0124f78>] [<c01394e0>] [<c01255ef>] [<c012584c>]
-  [<c0125e30>] [<c0125f84>] [<c0125e30>] [<d08fcdfa>] [<c01335d3>] [<c01072cf>]
-Code: 0f 0b eb 00 bd 2f 2a c0 8b 43 18 a9 80 00 00 00 74 08 0f 0b
+Process lpd (pid: 4136, stackpage=cdb61000)
+Stack: 00000001 00000286 00000001 c41c1680 ce6d2980 00000000 00000046 c02282d4
+       cfca1400 00000000 00000202 c41c1680 c022789b c41c1680 c8c9b180 c02288d1
+       ce6d2980 cfca1560 fffffffd c022c7cb ce6d2980 cdb61af0 00000001 c033aa88
+Call Trace:    [<c02282d4>] [<c022789b>] [<c02288d1>] [<c022c7cb>] [<c0120bb1>]
+  [<c010aa19>] [<c010cf18>] [<d094c782>] [<d094cbe4>] [<d094c3c0>] [<d094d048>]
+  [<d094ead2>] [<d094f0f2>] [<d095e82f>] [<d093d719>] [<d095e83d>] [<d0955057>]
+  [<d093ebd0>] [<d095e83d>] [<c0150356>] [<c013e224>] [<c013cd7d>] [<c013ce0b>]
+  [<c0108f27>]
+Code: 8b 13 0f 18 02 39 c3 74 76 8d b4 26 00 00 00 00 8b 4b fc 8b
 
 
->>EIP; c012cf70 <rmqueue+1f0/220>   <=====
+>>EIP; c0119780 <__wake_up+20/b0>   <=====
 
->>esi; c02ee698 <contig_page_data+d8/3c0>
->>ebp; c02ee698 <contig_page_data+d8/3c0>
+>>eax; c83a643c <_end+80372e8/1057bf0c>
+>>esi; ce6d2980 <_end+e36382c/1057bf0c>
+>>edi; c83a643c <_end+80372e8/1057bf0c>
+>>ebp; cdb61a6c <_end+d7f2918/1057bf0c>
+>>esp; cdb61a54 <_end+d7f2900/1057bf0c>
 
-Trace; c012d273 <__alloc_pages+e3/260>
-Trace; c0124f78 <page_cache_read+68/c0>
-Trace; c01394e0 <blkdev_get_block+0/60>
-Trace; c01255ef <generic_file_readahead+cf/170>
-Trace; c012584c <do_generic_file_read+18c/450>
-Trace; c0125e30 <file_read_actor+0/a0>
-Trace; c0125f84 <generic_file_read+b4/1a0>
-Trace; c0125e30 <file_read_actor+0/a0>
-Trace; d08fcdfa <END_OF_CODE+10585f0e/????>
-Trace; c01335d3 <sys_read+a3/130>
-Trace; c01072cf <system_call+33/38>
+Trace; c02282d4 <sock_def_write_space+64/90>
+Trace; c022789b <sock_wfree+3b/40>
+Trace; c02288d1 <__kfree_skb+41/100>
+Trace; c022c7cb <net_tx_action+2b/b0>
+Trace; c0120bb1 <do_softirq+51/a0>
+Trace; c010aa19 <do_IRQ+99/b0>
+Trace; c010cf18 <call_do_IRQ+5/d>
+Trace; d094c782 <[reiserfs]comp_keys+362/3f0>
+Trace; d094cbe4 <[reiserfs]is_tree_node+64/70>
+Trace; d094c3c0 <[reiserfs]__constant_memcpy+c0/120>
+Trace; d094d048 <[reiserfs]search_for_position_by_key+f8/4c0>
+Trace; d094ead2 <[reiserfs]reiserfs_cut_from_item+222/4b0>
+Trace; d094f0f2 <[reiserfs]reiserfs_do_truncate+322/580>
+Trace; d095e82f <[reiserfs].rodata.end+5ab0/5ca1>
+Trace; d093d719 <[reiserfs]reiserfs_truncate_file+e9/230>
+Trace; d095e83d <[reiserfs].rodata.end+5abe/5ca1>
+Trace; d0955057 <[reiserfs]journal_end+27/30>
+Trace; d093ebd0 <[reiserfs]reiserfs_file_release+3a0/450>
+Trace; d095e83d <[reiserfs].rodata.end+5abe/5ca1>
+Trace; c0150356 <locks_remove_flock+76/80>
+Trace; c013e224 <fput+114/120>
+Trace; c013cd7d <filp_close+4d/90>
+Trace; c013ce0b <sys_close+4b/60>
+Trace; c0108f27 <system_call+33/38>
 
-Code;  c012cf70 <rmqueue+1f0/220>
+Code;  c0119780 <__wake_up+20/b0>
 00000000 <_EIP>:
-Code;  c012cf70 <rmqueue+1f0/220>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c012cf72 <rmqueue+1f2/220>
-   2:   eb 00                     jmp    4 <_EIP+0x4>
-Code;  c012cf74 <rmqueue+1f4/220>
-   4:   bd 2f 2a c0 8b            mov    $0x8bc02a2f,%ebp
-Code;  c012cf79 <rmqueue+1f9/220>
-   9:   43                        inc    %ebx
-Code;  c012cf7a <rmqueue+1fa/220>
-   a:   18 a9 80 00 00 00         sbb    %ch,0x80(%ecx)
-Code;  c012cf80 <rmqueue+200/220>
-  10:   74 08                     je     1a <_EIP+0x1a>
-Code;  c012cf82 <rmqueue+202/220>
-  12:   0f 0b                     ud2a
+Code;  c0119780 <__wake_up+20/b0>   <=====
+   0:   8b 13                     mov    (%ebx),%edx   <=====
+Code;  c0119782 <__wake_up+22/b0>
+   2:   0f 18 02                  prefetchnta (%edx)
+Code;  c0119785 <__wake_up+25/b0>
+   5:   39 c3                     cmp    %eax,%ebx
+Code;  c0119787 <__wake_up+27/b0>
+   7:   74 76                     je     7f <_EIP+0x7f>
+Code;  c0119789 <__wake_up+29/b0>
+   9:   8d b4 26 00 00 00 00      lea    0x0(%esi,1),%esi
+Code;  c0119790 <__wake_up+30/b0>
+  10:   8b 4b fc                  mov    0xfffffffc(%ebx),%ecx
+Code;  c0119793 <__wake_up+33/b0>
+  13:   8b 00                     mov    (%eax),%eax
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
+
+--------------050609080103060908030505
+Content-Type: text/plain;
+ name="oops-2423-20031203.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="oops-2423-20031203.txt"
+
+ksymoops 2.4.9 on i686 2.4.23.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.23/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Reading Oops report from the terminal
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c0119780>]     Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010086
+eax: c86ef23c   ebx: 00000000  ecx: 00000001  edx: 00000001
+esi: ce074e80   edi: c86ef23c  ebp: cee19f40  esp: cee19f28
+ds: 0018   es: 0018   ss: 0018
+Process if (pid: 4571, stackpage=cee19000)
+Stack: 00000001 00000286 00000001 cd876c80 ce074e80 00000000 00000046 c02282d4
+       00001000 00000000 00000202 cd876c80 c022789b cd876c80 cb01ca80 c02288d1
+       ce074e80 cfcbcd60 fffffffd c022c7cb ce074e80 cee19fc4 00000001 c033aa88
+Call Trace:    [<c02282d4>] [<c022789b>] [<c02288d1>] [<c022c7cb>] [<c0120bb1>]
+  [<c010aa19>] [<c010cf18>]
+Code: 8b 13 0f 18 02 39 c3 74 76 8d b4 26 00 00 00 00 8b 4b fc 8b
 
 
-Thanks,
-vs
+>>EIP; c0119780 <__wake_up+20/b0>   <=====
 
+>>eax; c86ef23c <_end+83800e8/1057bf0c>
+>>esi; ce074e80 <_end+dd05d2c/1057bf0c>
+>>edi; c86ef23c <_end+83800e8/1057bf0c>
+>>ebp; cee19f40 <_end+eaaadec/1057bf0c>
+>>esp; cee19f28 <_end+eaaadd4/1057bf0c>
+
+Trace; c02282d4 <sock_def_write_space+64/90>
+Trace; c022789b <sock_wfree+3b/40>
+Trace; c02288d1 <__kfree_skb+41/100>
+Trace; c022c7cb <net_tx_action+2b/b0>
+Trace; c0120bb1 <do_softirq+51/a0>
+Trace; c010aa19 <do_IRQ+99/b0>
+Trace; c010cf18 <call_do_IRQ+5/d>
+
+Code;  c0119780 <__wake_up+20/b0>
+00000000 <_EIP>:
+Code;  c0119780 <__wake_up+20/b0>   <=====
+   0:   8b 13                     mov    (%ebx),%edx   <=====
+Code;  c0119782 <__wake_up+22/b0>
+   2:   0f 18 02                  prefetchnta (%edx)
+Code;  c0119785 <__wake_up+25/b0>
+   5:   39 c3                     cmp    %eax,%ebx
+Code;  c0119787 <__wake_up+27/b0>
+   7:   74 76                     je     7f <_EIP+0x7f>
+Code;  c0119789 <__wake_up+29/b0>
+   9:   8d b4 26 00 00 00 00      lea    0x0(%esi,1),%esi
+Code;  c0119790 <__wake_up+30/b0>
+  10:   8b 4b fc                  mov    0xfffffffc(%ebx),%ecx
+Code;  c0119793 <__wake_up+33/b0>
+  13:   8b 00                     mov    (%eax),%eax
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
+
+--------------050609080103060908030505--
 

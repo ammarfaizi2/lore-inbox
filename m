@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317276AbSHFHCv>; Tue, 6 Aug 2002 03:02:51 -0400
+	id <S318976AbSHFEav>; Tue, 6 Aug 2002 00:30:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317667AbSHFHCu>; Tue, 6 Aug 2002 03:02:50 -0400
-Received: from p50886F8E.dip.t-dialin.net ([80.136.111.142]:20693 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317276AbSHFHCu>; Tue, 6 Aug 2002 03:02:50 -0400
-Date: Tue, 6 Aug 2002 01:06:21 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: James Simmons <captain_delete@yahoo.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: New Email address
-In-Reply-To: <Pine.LNX.4.44.0208052147010.16399-100000@www.transvirtual.com>
-Message-ID: <Pine.LNX.4.44.0208060105210.10270-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318983AbSHFEau>; Tue, 6 Aug 2002 00:30:50 -0400
+Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:12440 "EHLO
+	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S318976AbSHFEau>; Tue, 6 Aug 2002 00:30:50 -0400
+Date: Tue, 6 Aug 2002 00:36:48 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.4.19-rc5
+Message-ID: <20020806043648.GA23256@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> I sort of hoped it would be better in performance, not
+> increasingly worse.
 
-On Mon, 5 Aug 2002, James Simmons wrote:
-> Sorry about the inconvince. Thank you.
+There were a lot of improvements during the 2.4.19-pre series on 
+several I/O benchmarks.  Comparing 2.4.18 to 2.4.19 on a quad xeon. 
+Here are a few of the big changes (average of 5 runs):
 
-Why? I stand convinced.
+200% improvement on reiserfs for dbench 192
+125% improvement on ext3     for dbench 192
+248% improvement on ext2     for dbench 192
+ 40% improvement on reiserfs for dbench  64
+ 30% improvement on ext3     for dbench  64
+ 67% improvement on ext2     for dbench  64
+ 30% improvement on ext2 for tiobench seq reads with threads >= 32
+100% improvement on ext2 and reiserfs for tiobench seq writes with threads >= 32
+300% drop in cpu usage on ext3 for tiobench seq reads
+     (latency and throughput also improved)
 
-			Thunder
+In most cases, average and max tiobench latency went down with 2.4.19.
+Max sequential write latency with one thread on ext2 went up 1000% though.
+
+imho, it's worthwhile to track and investigate regressions
+and improvements.
+
+More benchmarks and several pre's and rc's in between at:
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+
+Small boxes are important too:
+http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
 -- 
-.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
+Randy Hron
 

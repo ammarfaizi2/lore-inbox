@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130540AbQKRTAx>; Sat, 18 Nov 2000 14:00:53 -0500
+	id <S130673AbQKRTEX>; Sat, 18 Nov 2000 14:04:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130614AbQKRTAo>; Sat, 18 Nov 2000 14:00:44 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:1796 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S130540AbQKRTA2>; Sat, 18 Nov 2000 14:00:28 -0500
-Date: Sat, 18 Nov 2000 18:30:22 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] more up_and_exit() fixes.
-Message-ID: <Pine.LNX.4.30.0011181829460.1056-100000@imladris.demon.co.uk>
+	id <S130775AbQKRTED>; Sat, 18 Nov 2000 14:04:03 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:19985 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S130673AbQKRTDz>; Sat, 18 Nov 2000 14:03:55 -0500
+Message-ID: <3A16CB81.30AD0439@Hell.WH8.TU-Dresden.De>
+Date: Sat, 18 Nov 2000 19:33:37 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Markus Schoder <markus_schoder@yahoo.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Freeze on FPU exception with Athlon
+In-Reply-To: <20001118182230.14470.qmail@web3407.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Markus Schoder wrote:
 
-Index: drivers/media/video/msp3400.c
-===================================================================
-RCS file: /net/passion/inst/cvs/linux/drivers/media/video/Attic/msp3400.c,v
-retrieving revision 1.1.2.2
-diff -u -r1.1.2.2 msp3400.c
---- drivers/media/video/msp3400.c	2000/11/15 12:15:02	1.1.2.2
-+++ drivers/media/video/msp3400.c	2000/11/18 18:27:17
-@@ -912,7 +912,7 @@
- 	msp->thread = NULL;
+> My test program caused the exception (and the freeze)
+> unintendedly in the return statement since the
+> division was optimized away as Brian pointed out.
 
- 	if(msp->notify != NULL)
--		up(msp->notify);
-+		up_and_exit(msp->notify, 0);
- 	return 0;
- }
+It's quite strange that I cannot seem to trigger the
+problem here on my machine.
 
-Index: drivers/media/video/tvaudio.c
-===================================================================
-RCS file: /net/passion/inst/cvs/linux/drivers/media/video/Attic/tvaudio.c,v
-retrieving revision 1.1.2.1
-diff -u -r1.1.2.1 tvaudio.c
---- drivers/media/video/tvaudio.c	2000/11/15 12:15:02	1.1.2.1
-+++ drivers/media/video/tvaudio.c	2000/11/18 18:27:19
-@@ -291,7 +291,7 @@
- 	chip->thread = NULL;
- 	dprintk("%s: thread exiting\n", chip->c.name);
- 	if(chip->notify != NULL)
--		up(chip->notify);
-+		up_and_exit(chip->notify, 0);
+> I know of another guy with the exact same CPU (Athlon
+> Thunderbird 900MHz) and mainboard (ABIT KT7-RAID) who
+> has the same problem.
+>
+> I use gcc 2.95.2 to compile the kernel.
 
- 	return 0;
- }
+Makes me wonder whether it could be an issue with your
+board (I have an Asus A7V) or with gcc 2.95-2 (I use
+egcs-1.1.2).
 
--- 
-dwmw2
+> Note that cpuinfo shows model 4 whereas e.g. Brian had
+> model 2 if that means anything.
 
+Mine is a model 4 also, so if it's related to that, I
+should probably see the problem here as well.
 
+/proc/cpuinfo
+
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 807.000213
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+features        : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 1608.91
+
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

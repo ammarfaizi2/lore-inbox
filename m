@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267976AbTAHW5G>; Wed, 8 Jan 2003 17:57:06 -0500
+	id <S267955AbTAHXDE>; Wed, 8 Jan 2003 18:03:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267978AbTAHW5G>; Wed, 8 Jan 2003 17:57:06 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:45063 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267976AbTAHW5E>; Wed, 8 Jan 2003 17:57:04 -0500
-Date: Wed, 8 Jan 2003 17:49:54 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Robert Love <rml@tech9.net>, Adrian Bunk <bunk@fs.tum.de>,
-       "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: observations on 2.5 config screens
-In-Reply-To: <20030108195000.GA670@codemonkey.org.uk>
-Message-ID: <Pine.LNX.3.96.1030108164157.23971A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267957AbTAHXDE>; Wed, 8 Jan 2003 18:03:04 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:26857 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267955AbTAHXDD>;
+	Wed, 8 Jan 2003 18:03:03 -0500
+Date: Wed, 08 Jan 2003 15:03:03 -0800 (PST)
+Message-Id: <20030108.150303.130044451.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: levon@movementarian.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /proc/sys/kernel/pointer_size
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0301081502270.7688-100000@penguin.transmeta.com>
+References: <20030108.143441.31155028.davem@redhat.com>
+	<Pine.LNX.4.44.0301081502270.7688-100000@penguin.transmeta.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, Dave Jones wrote:
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Wed, 8 Jan 2003 15:04:05 -0800 (PST)
 
-> On Wed, Jan 08, 2003 at 01:36:06PM -0500, Bill Davidsen wrote:
-> 
->  > I guess, depending on your definition of fundemental. I would put any
->  > option which affects the kernel as a whole in that category, myself.
->  > Compiling with frame pointers comes to mind, since every object file is
->  > changed and there are performance implications as well.
-> 
-> No-one other than kernel hackers should be playing with that option,
-> hence it's in the kernel hacking menu.
+   System binaries match the kernel. It's as easy as that. So what if 90% of 
+   the user binaries use 32-bit mode because it's smaller and faster? We're 
+   talking about a system binary that is _very_ intimate with the kernel.
+   
+oprofile can perfectly legitimately be used to monitor 32-bit binaries
+running on under a 64-bit kernel environment.  In fact I expect such
+exercises to be very instructive.  Anton Blanchard has done this
+already on ppc64.
 
-  Anyone who wants to be able to debug a problem should be playing with
-that, it's one thing which affects the whole kernel, and is't really a
-hack in the usualy sense. And sysctl isn't really a hack, it's just
-another feature (my opinion).
+And being that 64-bit sparc systems run several orders of magnitude
+faster than 32-bit ones, I think I'd prefer to oprofile 32-bit
+programs on sparc64 boxes :-)
 
->  > Processor option would select the processor and any architecture dependent
->  > options, I would think. Something like "kernel characteristics" could have
->  > options like smp.
-> 
-> SMP isn't a processor option ?
-
-  Clearly not, it's not processor dependent or even architecture dependent
-generally. It's a characteristic of the os, unlike microcode, mtrr, and
-other stuff not on some architectures. You can select it for 386/486/P5
-(and it works in 2.4 at least, for P5, have several).
-
-  I would think that processor options would select the processor and any
-options which are specific to it rather than generally supported. Serial
-numbers, firmware loads, that sort of feature.
-
-  Preempt and smp, are general, I guess not supported on every possible
-hardware, but certainly not restricted to a single model or family.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Hey, if this is so distasteful we could just add a
+sys_kernel_pointer_size() to sparc64 and ppc64 and be done with it.
+The other choice, as mentioned, is to make every platform use u64's
+in the tables.

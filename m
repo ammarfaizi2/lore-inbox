@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261898AbTCTVjR>; Thu, 20 Mar 2003 16:39:17 -0500
+	id <S262639AbTCTVnO>; Thu, 20 Mar 2003 16:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262284AbTCTVjQ>; Thu, 20 Mar 2003 16:39:16 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:61840 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261898AbTCTVjP>;
-	Thu, 20 Mar 2003 16:39:15 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 20 Mar 2003 22:50:14 +0100 (MET)
-Message-Id: <UTC200303202150.h2KLoEl09978.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] alternative dev patch
-Cc: Andries.Brouwer@cwi.nl, akpm@digeo.com
+	id <S262641AbTCTVnO>; Thu, 20 Mar 2003 16:43:14 -0500
+Received: from marc2.theaimsgroup.com ([63.238.77.172]:3591 "EHLO
+	mailer.progressive-comp.com") by vger.kernel.org with ESMTP
+	id <S262639AbTCTVnN>; Thu, 20 Mar 2003 16:43:13 -0500
+Date: Thu, 20 Mar 2003 16:54:13 -0500
+Message-Id: <200303202154.h2KLsDcT009516@marc2.theaimsgroup.com>
+From: Hank Leininger <linux-kernel@progressive-comp.com>
+Reply-To: Hank Leininger <hlein@progressive-comp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Deprecating .gz format on kernel.org
+X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
+X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
+X-Warning: Report any violation of list policy to abuse@progressive-comp.com
+X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Roman Zippel <zippel@linux-m68k.org>
+On 2003-03-20, Joern Engel <joern () wohnheim ! fh-wedel ! de> wrote:
+> On Thu, 20 March 2003 17:39:20 +0000, Jamie Lokier wrote:
+> > (b) On something as large as a .tar, decompressing a bz2 file to
+> > check the signature is really quite slow, compared with checking the
+> > signature of the compressed file.
 
-> Here is a more detailed explanation of the patch
+> That shouldn't matter, most of the times. If you want to build the
+> code, you have to [bg]unzip anyway, so there is no extra cost.
+> And I have a hard time to think of a real-world application where you
+> don't want to unpack but need to verify the signature.
 
-Thanks!
+A few come to mind:
+-To verify and then use a .tar.[bg]z2?, you must gpg --verify and then
+  tar -x[jz]vf, but to unpack, then verify, then use you must uncompress
+  to a tempfile or pipe to gpg, then verify, then untar.  Silly waste of
+  CPU and/or disk space.[*]
+-Verifying downloads immediately, when they won't necessarily be needed /
+  used right away; no need to unpack until it's needed, but would like to
+  know the download is bad right away.
+-Verifying something pulled down to one machine before scp'ing it elsewhere
+  where it will actually be used.
+-Verifying before [bg]unzip means you won't expose [bg]unzip to likely
+  malicious data (think bugs in [bg]unzip which make them crash on bad
+  compressed files).  Of course GPG/PGP is still subject to input-based 
+  bugs, but they are in any case; no need for the decompression tools to
+  be as well.
 
-However, I am unconvinced.
+[*] ...Now if tar had a --sig option to chain gpg between gunzip and 
+    untar... but that would just be Wrong.
 
-(i)
-There was some unused code, and you decide to start using that
-in order to speed up the open() of a chardev. Is that urgent?
-Is the speed of opening a chardev a bottleneck?
-I think something is wrong with this philosophy.
-Look at what happens on open("/dev/ttyS1") - there is a hash
-lookup of the "dev", then a hash lookup of the "ttyS1", then
-we find that this is device (4,65) and do a hash lookup for
-(4,65). You want to eliminate this last hash lookup by building
-infrastructure to cache it? That is possible of course.
-Some extra code, an extra slab cache, a field i_cdev in struct inode,
-a semaphore, refcounting..
-I have not benchmarked anything but it sure feels like a lot of
-machinery to avoid a simple hash lookup.
-
-I very much doubt that Al had speeding up the open() in mind when
-he wrote that (so far unused) infrastructure.
-
-(ii)
-> Further he introduces a new function register_chrdev_region(),
-> which is only needed by the tty code and rather hides the problem
-> than solves it.
-
-What does one want? A driver announces the device number regions
-that it wants to cover. Simple and straightforward.
-Hardly a new idea. How is this done for block devices?
-Using blk_register_region(). How is register_chrdev_region()
-hiding problems? It eliminates the tty kludges that you only
-move to a different file.
-
-[Al muttered for an entirely different reason:
-He wants to specify the region like "dev_t dev, unsigned long range",
-where I left the parts of dev separate. I plan (eventually, there is
-no hurry) to turn the dev_t here into a kdev_t since that is much
-faster, and once that is done both blk_register_region() and
-register_chrdev_region() can get a kdev_t as first parameter.]
-
-(iii)
-> this patch helps drivers to manage them without huge tables
-> (this latter part is also missing in Andries patch).
-
-I am not sure I understand. Where are these huge tables?
-And how did you remove them?
-
-Andries
+--
+Hank Leininger <hlein@progressive-comp.com> 
+  

@@ -1,70 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263144AbSJBPWg>; Wed, 2 Oct 2002 11:22:36 -0400
+	id <S263142AbSJBPRu>; Wed, 2 Oct 2002 11:17:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263145AbSJBPWg>; Wed, 2 Oct 2002 11:22:36 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:17508 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263144AbSJBPWf>; Wed, 2 Oct 2002 11:22:35 -0400
-Date: Wed, 2 Oct 2002 09:11:10 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20pre8aa2
-Message-ID: <20021002071110.GC1158@dualathlon.random>
+	id <S263144AbSJBPRu>; Wed, 2 Oct 2002 11:17:50 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:6078 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S263142AbSJBPRu>;
+	Wed, 2 Oct 2002 11:17:50 -0400
+Date: Wed, 2 Oct 2002 16:21:30 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New console layer and 2.5
+Message-ID: <20021002152130.GA1988@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Louis Garcia <louisg00@bellsouth.net>, linux-kernel@vger.kernel.org
+References: <1033510580.16548.7.camel@tiger>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <1033510580.16548.7.camel@tiger>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-URL:
+On Tue, Oct 01, 2002 at 06:16:17PM -0400, Louis Garcia wrote:
+ > Is the new console layer that is sitting in dj tree going to be merged
+ > any time soon?
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre8aa2.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre8aa2/
+I actually dropped the remants a while ago, as whilst James starting
+merging some of the console/tty/fb changes with Linus, it became a pain
+to try and track what to keep/drop.
 
-Changelog between 2.4.20pre8aa1 and 2.4.20pre8aa2:
+I've no idea how much is left for him to push these days.
 
-Only in 2.4.20pre8aa1: 00_extraversion-8
-Only in 2.4.20pre8aa2: 00_extraversion-9
+		Dave
 
-	Rediffed.
-
-Only in 2.4.20pre8aa2: 00_proc-cmdline-1
-
-	Read within the page.
-
-Only in 2.4.20pre8aa2: 00_thinkpad-1
-
-	Thinkpad support at http://tpctl.sourceforge.net/ integrated
-	by Chip Salzenberg.
-
-Only in 2.4.20pre8aa2: 00_usb_get_string-len-1
-
-	Don't read behind the end of the string
-	to avoid timeouts with some hardware. From Andreas Klein.
-
-Only in 2.4.20pre8aa1: 08_qlogicfc-template-aa-3
-Only in 2.4.20pre8aa2: 08_qlogicfc-template-aa-4
-
-	Allow qlogicfc to compile.
-
-Only in 2.4.20pre8aa1: 20_sched-o1-fixes-1
-Only in 2.4.20pre8aa2: 20_sched-o1-fixes-2
-
-	Resurrect the starvation logic, fix the idle->prio value, and further
-	fixes to the run-child-first logic too.
-
-Only in 2.4.20pre8aa2: 84_x86-64-arch-1
-Only in 2.4.20pre8aa2: 85_x86-64-includes-1
-
-	Synchronize x86-64 with all the additional features
-	(aio, cpu affinity etc..)
-
-Only in 2.4.20pre8aa1: 9900_aio-8.gz
-Only in 2.4.20pre8aa2: 9900_aio-9.gz
-
-	Add reiserfs support and fix one bug with timeout
-	null to getevents. From Chris Mason.
-
-Andrea
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

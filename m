@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbULUNzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbULUN7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbULUNzF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 08:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbULUNzF
+	id S261760AbULUN7M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 08:59:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbULUN7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 08:55:05 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:29899 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261759AbULUNy7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 08:54:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ehtTMobTcIHjAPkNXUm6v2rWdvucTOvYxiaEbS/1HetTN7PTCSJZf+qyaa1gxp9nttPX0AVuVeM0laS/2dR1Hfb1xvnWGLOtwjOi6b6N87aCEx+fiRFXcl/BZkwXygf3yUPj+X168QLJjh8lZNDz6OV3Ieq8Z4OJFs75haiOuWM=
-Message-ID: <72c6e3790412210554400907c8@mail.gmail.com>
-Date: Tue, 21 Dec 2004 19:24:58 +0530
-From: linux lover <linux.lover2004@gmail.com>
-Reply-To: linux lover <linux.lover2004@gmail.com>
-To: Adrian von Bidder <avbidder@fortytwo.ch>
-Subject: Re: how to solve kernel oops message
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-In-Reply-To: <200412211415.22276@fortytwo.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Dec 2004 08:59:12 -0500
+Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:6865 "EHLO
+	moving-picture.com") by vger.kernel.org with ESMTP id S261760AbULUN7I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 08:59:08 -0500
+Message-ID: <41C82C2A.9060301@moving-picture.com>
+Date: Tue, 21 Dec 2004 13:59:06 +0000
+From: James Pearson <james-p@moving-picture.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reducing inode cache usage on 2.4?
+References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com> <20041217172104.00da3517.akpm@osdl.org> <20041220192046.GM4630@dualathlon.random> <41C80A04.9070504@moving-picture.com> <20041221132255.GI2143@dualathlon.random>
+In-Reply-To: <20041221132255.GI2143@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <72c6e37904122101137698b6a1@mail.gmail.com>
-	 <200412211415.22276@fortytwo.ch>
+X-Disclaimer: This email and any attachments are confidential, may be legally
+X-Disclaimer: privileged and intended solely for the use of addressee. If you
+X-Disclaimer: are not the intended recipient of this message, any disclosure,
+X-Disclaimer: copying, distribution or any action taken in reliance on it is
+X-Disclaimer: strictly prohibited and may be unlawful. If you have received
+X-Disclaimer: this message in error, please notify the sender and delete all
+X-Disclaimer: copies from your system.
+X-Disclaimer: 
+X-Disclaimer: Email may be susceptible to data corruption, interception and
+X-Disclaimer: unauthorised amendment, and we do not accept liability for any
+X-Disclaimer: such corruption, interception or amendment or the consequences
+X-Disclaimer: thereof.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Adrian,
-               I have RH9 with its default kernel 2.4.20-8. And i
-compile a new kernel 2.4.24 with minimum options in make menuconfig on
-2 pcs connected via crossover wire. When i boot both pcs either one
-starting first got oops when other pc try to bring eth0 up. What is
-the problem?
-              I add a lot printk's in kernel to check packet path in
-case of TCP connection.
-regards,
-linux.lover
+Andrea Arcangeli wrote:
+> On Tue, Dec 21, 2004 at 11:33:24AM +0000, James Pearson wrote:
+> 
+>>Setting vm_mapped_ratio to 20 seems to give a 'better' memory usage 
+>>using my very contrived test - running a find will result in about 900Mb 
+>>of dcache/icache, but then running a cat to /dev/null will shrink the 
+>>dcache/icache down to between 100-300Mb - running the find and cat at 
+>>the same time results in about the same dcache/icache usage.
+>>
+>>I'll give this a go on the production NFS server and I'll see if it 
+>>improves things.
+> 
+> 
+> Ok great. If 20 isn't enough just set it to 40, just be careful that if
+> you set it too high the system may swap a bit too early.
 
-On Tue, 21 Dec 2004 14:15:17 +0100, Adrian von Bidder
-<avbidder@fortytwo.ch> wrote:
-> On Tuesday 21 December 2004 10.13, linux lover wrote:
-> > Hi all,
-> >             I need urgent help on kernel oops message. Can anybody
-> [..]
-> 
-> This information is next to useless. At least report
->  - what did you do that caused the oops message?
->  - what kernel version, exactly, are you using
->    - can you reproduce it with other (newer) kernel versions, too?
->    - can you reproduce it on other machines, too?
->  - how does your kernel configuration look like?
-> 
-> (btw, your previous message about loading a module makes me wonder if you
-> understand enough of Linux to understand what people here might propose
-> that you do to solve the problem.  There are are many places where people
-> who are new to Linux can request help, but the kernel mailing list is
-> probably not one of those...)
-> 
-> greetings
-> -- vbi
-> 
-> --
-> Beware of the FUD - know your enemies. This week
->     * The Alexis de Toqueville Institue *
-> http://fortytwo.ch/opinion/adti
-> 
-> 
->
+I've changed the value of vm_mapped_ratio to 20 - which has a default 
+value of 100 - I guess you're talking about vm_cache_scan_ratio?
+
+I've tried changing just vm_cache_scan_ratio to 20, but it doesn't seem 
+to make any difference - I though a higher vm_cache_scan_ratio value 
+meant less is scanned?
+
+James Pearson

@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270440AbRHHKEu>; Wed, 8 Aug 2001 06:04:50 -0400
+	id <S270444AbRHHKSL>; Wed, 8 Aug 2001 06:18:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270438AbRHHKEl>; Wed, 8 Aug 2001 06:04:41 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19463 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270440AbRHHKE0>; Wed, 8 Aug 2001 06:04:26 -0400
-Subject: Re: [Bug]No ATARAID chip, But ATARAID loaded
-To: dfbb@linux.net.cn (Fang Han)
-Date: Wed, 8 Aug 2001 11:06:12 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, laughing@shared-source.org (Alan Cox)
-In-Reply-To: <20010808154653.B1355@dfbbb.cn.mvd> from "Fang Han" at Aug 08, 2001 03:46:53 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270445AbRHHKSB>; Wed, 8 Aug 2001 06:18:01 -0400
+Received: from [216.6.80.34] ([216.6.80.34]:273 "EHLO dcmtechdom.dcmtech.co.in")
+	by vger.kernel.org with ESMTP id <S270444AbRHHKRt>;
+	Wed, 8 Aug 2001 06:17:49 -0400
+Message-ID: <7FADCB99FC82D41199F9000629A85D1A01C650D2@dcmtechdom.dcmtech.co.in>
+From: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>
+To: imran.badr@cavium.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Exporting kernel memory to application
+Date: Wed, 8 Aug 2001 15:48:50 +0530 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15UQE8-0004xy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  ) driver loaded.  And it can see the partitions of 70G IDE HD,
-> All partition know as  ataraid1 ataraid5...
->  But when mounting the root filesystem(in hda1) it complain IO 
-> error, Then kernl panic.
+You can do that by using kiobuf's ( only in kernel 2.4.x ).
+That way you could lock the user buffers in kernel but you 
+would have to allocate user buffer prior to using any kiobuf's functions 
+like map_user_kiobuf() 
 
-hda/hdb are the idividual disks. If your root fs is on a ataraid and in
-a supported format you want (ie device 114,1) for first partition of the
-raid . Try root=7201
+For example you could look at arch/cris/drivers/examples/kiobuftest.c
 
-for ataraid1 for the partition on the raid
+:),
+Nitin
 
 
+ -----Original Message-----
+From: 	Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
+Sent:	Tuesday, August 07, 2001 4:31 PM
+To:	imran.badr@cavium.com
+Cc:	linux-kernel@vger.kernel.org
+Subject:	Re: Exporting kernel memory to application
+
+> I am in a situation where it is required to export a kernel memory
+> (allocated by kmalloc in the device driver) to the user application. I
+would
+> really appreciate any guidance or suggestion.
+
+Look at the sound drivers, they do this, although with memory allocated
+by get_free_pages() - the rest of the theory is the same
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

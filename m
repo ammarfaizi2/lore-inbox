@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVA0CBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVA0CBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbVA0CBp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 21:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVAZXqZ
+	id S262038AbVA0CBl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 21:01:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVAZXrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:46:25 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:57799 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262034AbVAZTNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 14:13:37 -0500
-Message-ID: <41F7EBC7.5030108@nortelnetworks.com>
-Date: Wed, 26 Jan 2005 13:13:11 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: Bryn Reeves <breeves@redhat.com>, Rik van Riel <riel@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Antill <james.antill@redhat.com>
-Subject: Re: don't let mmap allocate down to zero
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com>  <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com>  <41F7D4B0.7070401@nortelnetworks.com> <1106762261.10384.30.camel@breeves.surrey.redhat.com> <Pine.LNX.4.61.0501261325540.18301@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0501261325540.18301@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 26 Jan 2005 18:47:00 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:36997 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262049AbVAZTSG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 14:18:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=mH7tIrmnZoP3tt6QxzhCoxIYcBPXmNdLTdqDOPdpcFg7L9SGRuqc3zzgockNUY+D/y5Ml9Q05CxKMjxSU6LOs5x1QLhNUQlen5pA4mPRSMfz0W8Rq2V0iE5uKZqbN4T8xSLCMjRk+u76ZkdevEid34B1ocgyaRKIhUZNZokA8go=
+Message-ID: <41b516cb0501261111e5edbc5@mail.gmail.com>
+Date: Wed, 26 Jan 2005 11:11:25 -0800
+From: Chris Leech <chris.leech@gmail.com>
+Reply-To: Chris Leech <chris.leech@gmail.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: [BUG] Onboard Ethernet Pro 100 on a SMP box: a very strange errors
+In-Reply-To: <20050126073749.A2142@natasha.ward.six>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050122014646.A1038@natasha.ward.six>
+	 <200501252319.11304.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <20050126073749.A2142@natasha.ward.six>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
+On Wed, 26 Jan 2005 07:37:49 +0500, Denis Zaitsev <zzz@anda.ru> wrote:
+> On Tue, Jan 25, 2005 at 11:19:11PM +0200, Denis Vlasenko wrote:
+> >
+> > Something corrupts packets. It can be sending NIC, switch in the middle,
+> > or receiving NIC.
+> 
+> Changing the receiving card closes the question.  Doesn't it matter?
 
-> The seg-fault you get when you de-reference a pointer to NULL
-> is caused by the kernel. You are attempting to access memory
-> that has not been mapped into your address space. Once that
-> memory gets mmap()ed, you will no longer get a seg-fault.
-> Again, the seg-fault has nothing to do with 'C'. It's an
-> implementation behavior that can be changed with mmap().
+Take a look at this technical advisory for the STL2 board, I'm fairly
+sure this is your issue.
+http://support.intel.com/support/motherboards/server/sb/CS-010790.htm
 
-The segfault *does* have something to do with C.  The standard says that 
-the result of dereferencing a NULL pointer is *undefined*.  Not 
-implementation-defined, but undefined.  Anything relying on 
-dereferencing NULL pointers is not valid C code.
+IP fragmented packets as part of an NFS file transfer are improperly
+being identified as TCO management packets and are being routed to the
+BMC.  The fix is to upgrade the BMC firmware.
 
-Chris
+Updated BMC firmware and BIOS images for this board are available at
+http://support.intel.com/support/motherboards/server/STL2/sb/CS-007118.htm
+
+- Chris

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265382AbRGBSXu>; Mon, 2 Jul 2001 14:23:50 -0400
+	id <S265388AbRGBSVA>; Mon, 2 Jul 2001 14:21:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265390AbRGBSXk>; Mon, 2 Jul 2001 14:23:40 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:46562 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S265382AbRGBSXd>; Mon, 2 Jul 2001 14:23:33 -0400
-Date: Mon, 2 Jul 2001 21:23:16 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: kernel@ddx.a2000.nu, linux-kernel@vger.kernel.org,
-        Enforcer <enforcer@ddx.a2000.nu>
-Subject: [OT] Re: Strange errors in /var/log/messages
-Message-ID: <20010702212316.X1503@niksula.cs.hut.fi>
-In-Reply-To: <Pine.LNX.4.30.0107021800410.5490-100000@ddx.a2000.nu> <Pine.LNX.3.95.1010702125419.5216A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+	id <S265385AbRGBSUv>; Mon, 2 Jul 2001 14:20:51 -0400
+Received: from [64.64.109.142] ([64.64.109.142]:53516 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S265382AbRGBSUm>; Mon, 2 Jul 2001 14:20:42 -0400
+Message-ID: <3B40BB72.64EE38C6@didntduck.org>
+Date: Mon, 02 Jul 2001 14:20:34 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Swami <swamis@iastate.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Doubt in interrupts
+In-Reply-To: <Pine.OSF.3.95.1010702123304.30601F-100000@isua1.iastate.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.95.1010702125419.5216A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Jul 02, 2001 at 01:00:33PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 02, 2001 at 01:00:33PM -0400, you [Richard B. Johnson] claimed:
-> > Jul  2 15:12:16 gateway SERVER[1240]: Dispatch_input: bad request line
-> > 'BBXXXXXXXXXXXXXXXXXX%.176u%3
-> > 00$nsecurity.%301$n%302$n%.192u%303$n\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
-> > 0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+Swami wrote:
 > 
-> I think you just got 'rooted'. Look at /etc/inetd.conf (if it exists
-> on your system, the xinetd is more robust). It may have a new entry
-> on its last line providing a root shell to anybody. This looks somewhat
-> like an attack shown by CERN about 6 to 12 months ago.
+> Hi,
+> 
+> Are there any interrupts which doesn't affect local_irq_count(cpu) or that
+> doesn't enter do_IRQ()? (other than NMIs).
+> 
+> Because I'm implementing my own locking routine and I'm getting
+> interrupted during spin, but I check and found that in_interupt() returns
+> zero.
 
-(This has nothing to do with linux-kernel, sorry...)
+All hardware interrupts go through do_IRQ.  There are also CPU
+exceptions and inter-processor interupts (SMP only) that have individual
+handlers.
 
-I don't think anything particular in that message suggests he actually got
-rooted? It just seems that somebody tried to exploit lprNG hole (or
-something else) and the daemon logged that. Of course, it *is* perfectly
-possible, that he _got_ rooted (although he said he was running redhat-7.0
-with all the updates). 
+--
 
-(The attacker may have tried other attacks so if he got rooted, those above
-are not necessarily the related log messages. In any case, a 'smart' intruder
-would have cleaned the log. Also, 'smart' attacker propably uses something
-more advanced as backdoor than /etc/inetd.conf these days.)
-
-Or is there something that actually indicates a succesfull intrusion in the
-log snippet that I'm missing?
-
-
--- v --
-
-v@iki.fi
+				Brian Gerst

@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129774AbQLUBph>; Wed, 20 Dec 2000 20:45:37 -0500
+	id <S129675AbQLUCHC>; Wed, 20 Dec 2000 21:07:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129884AbQLUBp2>; Wed, 20 Dec 2000 20:45:28 -0500
-Received: from mail2.edu.stockholm.se ([193.12.6.147]:60678 "EHLO
-	mail2.edu.stockholm.se") by vger.kernel.org with ESMTP
-	id <S129774AbQLUBpL>; Wed, 20 Dec 2000 20:45:11 -0500
-From: Thomas Habets <thomas@habets.pp.se>
-To: linux-kernel@vger.kernel.org
-Subject: PANIC: reproducable with nfs, lynx and kernel 2.4.0-test12
-Date: Thu, 21 Dec 2000 02:14:35 +0100
-X-Mailer: KMail [version 1.1.95.2]
-Content-Type: text/plain; charset=US-ASCII
+	id <S129807AbQLUCGw>; Wed, 20 Dec 2000 21:06:52 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:22034 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129675AbQLUCGk>; Wed, 20 Dec 2000 21:06:40 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: nfs@lists.sourceforge.net, nfs-devel@linux.kernel.org
+Date: Thu, 21 Dec 2000 12:05:41 +1100 (EST)
 MIME-Version: 1.0
-Message-Id: <00122102143500.06834@marvin>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14913.22373.943123.320678@notabene.cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: kNFSd maintenance in 2.2.19pre
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
 
-I'm not on the list, send private for more info
+Greeting all.
 
-I got a kernel panic with 2.4.0-test12 on a p90 with 24 MB RAM.
-It's a newly installed debian potato.
+ Now that 2.2.18 is out with all the nfs (client and server) patches
+ that we were waiting for for so long, it is time to look at on-going
+ maintenance for knfsd.
 
-What I do to trigger the panic is:
-mount otherbox:/export /mnt
-cd /mnt
-lynx www.pgpi.com
-[ i click to download the latest pgp from norway over http ]
-[ it downloads and asks where to save it, I just click enter for default ]
+ There are already a couple of issues that have come up and it is
+ quite possible that more will arise as the user-base grows.
+ Also, there are quite a few changes that have gone into 2.4 that
+ could usefully go into 2.2.
 
-*crash*
+ I have discussed the issue of maintenance with Dave Higgen - the
+ maintainer of the knfsd patchset that finally went into 2.2.18, and
+ he is happy to leave knfsd for a while and let me run with it.
 
-A lot of stuff goes by that looks like (this is the last line of this kind):
-[<c011c2c2>] [<c010b60e>] [<c01134e>] [<c02459fe>]
+ So, I have started putting some patches together and they can be
+ found at
+    http://www.cse.unsw.edu.au/~neilb/patches/knfsd-2.2/
 
-Followed by:
-Code: 89 42 04 89 10 b8 01 00 00 00 c7 43 04 00 00 00 00 c7 03 00
-Aiee, killing interrupt handler
-Kernel panic: attempted to kill the idle task!
-In interrupt handler - not syncing
+ They are mostly back ports of bits from 2.4 with a couple of real bug
+ fixes, one thanks to Chip Salzenberg and one which allows Solaris
+ clients to access /dev/null over NFSv3 properly.
 
-NOTE that I just compiled the entire kernel source over that same nfs mount,
-without problems, which leads me to think that it's not a hw issue.
+ I hope to feed these patches to Alan for inclusion in 2.2.19-preX
+ early in the new year after I (and you?) have done a bit of testing.
 
-More information availible by request.
+ Note: the patches aren't all quite as independant as they should be
+ just at the moment (e.g. I made a patch, started on another and then
+ found a bug in the first, so the fix for the first ended up in the
+ second).  This will get sorted out next time I generate a patch set.
 
----------
-typedef struct me_s {
-  char name[]      = { "Thomas Habets" };
-  char email[]     = { "thomas@habets.pp.se" };
-  char kernel[]    = { "Linux 2.2" };
-  char *pgpKey[]   = { "finger -m thompa@darkface.pp.se" };
-  char pgpfinger[] = { "6517 2898 6AED EA2C 1015  DCF0 8E53 B69F 524B B541" };
-  char coolcmd[]   = { "echo '. ./_&. ./_'>_;. ./_" };
-} me_t;
-
-
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 5.0i for non-commercial use
-MessageID: F/1sCKH/HYdhVYGAp9oLQgVrxJAoT9GU
-
-iQA/AwUBOkFZgyhq6QqtSOhUEQLkvACfTEODuoCPF/Ve3EA1F8xIuT0ClL4AoPtw
-MKFh2IhXngI87G4BGhRWKVuY
-=CSfy
------END PGP SIGNATURE-----
+NeilBrown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268031AbUIUTym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUIUUBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268031AbUIUTym (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 15:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268032AbUIUTyl
+	id S268036AbUIUUBD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 16:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268033AbUIUUBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 15:54:41 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:10120
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S268031AbUIUTye convert rfc822-to-8bit (ORCPT
+	Tue, 21 Sep 2004 16:01:02 -0400
+Received: from gprs214-135.eurotel.cz ([160.218.214.135]:26501 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S268036AbUIUUA5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 15:54:34 -0400
-Date: Tue, 21 Sep 2004 12:54:06 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RARP support disapeard in kernel 2.6.x ?
-Message-Id: <20040921125406.3d768d48.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.60L.0409212019090.15099@rudy.mif.pg.gda.pl>
-References: <Pine.LNX.4.44.0409211359270.5322-100000@localhost.localdomain>
-	<Pine.LNX.4.44.0409211359270.5322-100000@localhost.localdomain>
-	<Pine.LNX.4.60L.0409211511290.15099@rudy.mif.pg.gda.pl>
-	<cipqh4$g9d$1@gatekeeper.tmr.com>
-	<Pine.LNX.4.60L.0409212019090.15099@rudy.mif.pg.gda.pl>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 21 Sep 2004 16:00:57 -0400
+Date: Tue, 21 Sep 2004 21:58:02 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: Andi Kleen <ak@suse.de>, acpi-devel <acpi-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: [PATCH/RFC] exposing ACPI objects in sysfs
+Message-ID: <20040921195802.GF30425@elf.ucw.cz>
+References: <1095716476.5360.61.camel@tdi> <20040921122428.GB2383@elf.ucw.cz> <1095785315.6307.6.camel@tdi> <20040921172625.GA30425@elf.ucw.cz> <20040921190606.GE18938@wotan.suse.de> <1095794035.24751.54.camel@tdi> <20040921191826.GF18938@wotan.suse.de> <1095795954.24751.74.camel@tdi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095795954.24751.74.camel@tdi>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Sep 2004 20:28:13 +0200 (CEST)
-Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl> wrote:
+Hi!
 
-> rarp from old net-tools still try to open /proc/net/rarp and depending on
-> not avalaibability this file prints above message.
+> > >    All pointers are actually interpreted as offsets into the buffer for
+> > > this interface.  They are not actually pointers.  I believe the 32bit
+> > > emulation problem is limited to an ILP32 application generating data
+> > > structures appropriate for an LP64 kernel.  While difficult, it can be
+> > > done.
+> > 
+> > If this involves patching the application - no it cannot be done.
+> > The 64bit kernel is supposed to run vanilla 32bit user land.
+> > 
+> > Please find some other solution for this. An ioctl doesn't sound that bad.
+> 
+>    Please read the rest of my response to Pavel, I don't think we're on
+> the same page as to the extent of this problem.  There is no application
+> yet, we're in the process of architecting the interface to it right now.
+> Is it impossible to expect an ILP32 application to generate LP64 data
+> structures?  Perhaps the LP64 kernel interface could be made smart
+> enough to digest ILP32 data structures as Arjan suggests.
 
-You're not supposed to use the 'rarp' tool to configure
-the rarpd daemon, you're supposed to use configuration files
-such as /etc/ethers to configure it.
+You can be pretty sure someone, somewhere will bypass that library,
+hardcode types into application, and break it on 64-bit platform.
+
+If I were you, I'd just replace read and write with ioctl, and leave
+the rest of design as it was. If we find that someone who bypasses
+your userspace library, at least we have a way to deal with it. (And
+"cat a file and kill machine" issue is gone, too).
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

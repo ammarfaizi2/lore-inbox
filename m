@@ -1,75 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265591AbTFWXJP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 19:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265579AbTFWXHr
+	id S265577AbTFWXBI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 19:01:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265558AbTFWW7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 19:07:47 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27400 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265575AbTFWXGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 19:06:08 -0400
-Date: Tue, 24 Jun 2003 00:20:08 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@ftp.uk.linux.org>
-Subject: [PATCH] Fix cockups (wot I made) in fs/partitions/acorn.c
-Message-ID: <20030624002008.K28325@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Al Viro <viro@ftp.uk.linux.org>
+	Mon, 23 Jun 2003 18:59:18 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:22997 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S265546AbTFWW55 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 18:57:57 -0400
+Date: Mon, 23 Jun 2003 16:12:00 -0700
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4 IrDA]  Static init fixes
+Message-ID: <20030623231200.GJ12593@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that my test config didn't actually have this enabled (it does
-now.)  I'll push it Linus-wards tomorrow unless someone screams.
+	Hi Marcelo,
 
-diff -urN orig/fs/partitions/acorn.c linux/fs/partitions/acorn.c
---- orig/fs/partitions/acorn.c	Mon Jun 23 11:51:28 2003
-+++ linux/fs/partitions/acorn.c	Mon Jun 23 12:28:58 2003
-@@ -517,7 +517,7 @@
- 	const unsigned char *data;
- 	unsigned char buffer[256];
- 	struct eesox_part *p;
--	u32 start = 0;
-+	sector_t start = 0;
- 	int i, slot = 1;
- 
- 	data = read_dev_sector(bdev, 7, &sect);
-@@ -533,22 +533,22 @@
- 	put_dev_sector(sect);
- 
- 	for (i = 0, p = (struct eesox_part *)buffer; i < 8; i++, p++) {
--		u32 next;
-+		sector_t next;
- 
- 		if (memcmp(p->magic, "Eesox", 6))
- 			break;
- 
--		next = le32_to_cpu(p->start) + first_sector;
-+		next = le32_to_cpu(p->start);
- 		if (i)
- 			put_partition(state, slot++, start, next - start);
- 		start = next;
- 	}
- 
- 	if (i != 0) {
--		unsigned long size;
-+		sector_t size;
- 
--		size = hd->part[minor(to_kdev_t(bdev->bd_dev))].nr_sects;
--		add_gd_partition(hd, minor++, start, size - start);
-+		size = get_capacity(bdev->bd_disk);
-+		put_partition(state, slot++, start, size - start);
- 		printk("\n");
- 	}
- 
+	This make the static initialisation of some IrDA driver a bit
+less broken.
+	Please apply ;-)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+	Jean
+
+
+ir241_static_init.diff :
+----------------------
+	o [CORRECT] fix some obvious static init bugs.
+
+
+diff -u -p linux/net/irda/irda_device.d0.c linux/net/irda/irda_device.c
+--- linux/net/irda/irda_device.d0.c	Mon Jun 16 16:57:31 2003
++++ linux/net/irda/irda_device.c	Mon Jun 16 17:06:46 2003
+@@ -68,6 +68,7 @@ extern int actisys_init(void);
+ extern int girbil_init(void);
+ extern int sa1100_irda_init(void);
+ extern int ep7211_ir_init(void);
++extern int mcp2120_init(void);
+ 
+ static void __irda_task_delete(struct irda_task *task);
+ 
+@@ -122,6 +123,9 @@ int __init irda_device_init( void)
+ 	/* 
+ 	 * Call the init function of the device drivers that has not been
+ 	 * compiled as a module 
++	 * Note : non-modular IrDA is not supported in 2.4.X, so don't
++	 * waste too much time fixing this code. If you require it, please
++	 * upgrade to the IrDA stack in 2.5.X. Jean II
+ 	 */
+ #ifdef CONFIG_IRTTY_SIR
+ 	irtty_init();
+@@ -135,7 +139,7 @@ int __init irda_device_init( void)
+ #ifdef CONFIG_NSC_FIR
+ 	nsc_ircc_init();
+ #endif
+-#ifdef CONFIG_TOSHIBA_FIR
++#ifdef CONFIG_TOSHIBA_OLD
+ 	toshoboe_init();
+ #endif
+ #ifdef CONFIG_SMC_IRCC_FIR
+@@ -161,6 +165,9 @@ int __init irda_device_init( void)
+ #endif
+ #ifdef CONFIG_EP7211_IR
+  	ep7211_ir_init();
++#endif
++#ifdef CONFIG_MCP2120_DONGLE
++	mcp2120_init();
+ #endif
+ 	return 0;
+ }
 

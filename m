@@ -1,82 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262807AbVCDAEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262795AbVCDAKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262807AbVCDAEy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 19:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVCDAEb
+	id S262795AbVCDAKU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 19:10:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVCDAIN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 19:04:31 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:56054 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262726AbVCCXWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 18:22:02 -0500
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][3/26] IB/mthca: improve CQ locking part 1
-In-Reply-To: <2005331520.GI2ijwUAkM9zyNyy@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Thu, 3 Mar 2005 15:20:26 -0800
-Message-Id: <2005331520.cHJfJcRbBu1fFgB6@topspin.com>
+	Thu, 3 Mar 2005 19:08:13 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50527
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S262741AbVCCXpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 18:45:31 -0500
+Date: Fri, 4 Mar 2005 00:45:23 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>, jgarzik@pobox.com, torvalds@osdl.org,
+       davem@davemloft.net, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050303234523.GS8880@opteron.random>
+References: <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com> <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com> <20050303151752.00527ae7.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 03 Mar 2005 23:20:27.0113 (UTC) FILETIME=[95652D90:01C52047]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050303151752.00527ae7.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@mellanox.co.il>
+On Thu, Mar 03, 2005 at 03:17:52PM -0800, Andrew Morton wrote:
+> That's the only way it _can_ work.  The maintainer of 2.6.x.y shouldn't be
 
-Avoid taking the CQ table lock in the fast path path by using
-synchronize_irq() after removing a CQ from the table to make sure that
-no completion events are still in progress.  This gets a nice speedup
-(about 4%) in IP over IB on my hardware.
-
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <roland@topspin.com>
-
-
---- linux-export.orig/drivers/infiniband/hw/mthca/mthca_cq.c	2005-03-03 14:12:51.832670421 -0800
-+++ linux-export/drivers/infiniband/hw/mthca/mthca_cq.c	2005-03-03 14:12:52.368554099 -0800
-@@ -33,6 +33,7 @@
-  */
- 
- #include <linux/init.h>
-+#include <linux/hardirq.h>
- 
- #include <ib_pack.h>
- 
-@@ -181,11 +182,7 @@
- {
- 	struct mthca_cq *cq;
- 
--	spin_lock(&dev->cq_table.lock);
- 	cq = mthca_array_get(&dev->cq_table.cq, cqn & (dev->limits.num_cqs - 1));
--	if (cq)
--		atomic_inc(&cq->refcount);
--	spin_unlock(&dev->cq_table.lock);
- 
- 	if (!cq) {
- 		mthca_warn(dev, "Completion event for bogus CQ %08x\n", cqn);
-@@ -193,9 +190,6 @@
- 	}
- 
- 	cq->ibcq.comp_handler(&cq->ibcq, cq->ibcq.cq_context);
--
--	if (atomic_dec_and_test(&cq->refcount))
--		wake_up(&cq->wait);
- }
- 
- void mthca_cq_clean(struct mthca_dev *dev, u32 cqn, u32 qpn)
-@@ -783,6 +777,11 @@
- 			  cq->cqn & (dev->limits.num_cqs - 1));
- 	spin_unlock_irq(&dev->cq_table.lock);
- 
-+	if (dev->mthca_flags & MTHCA_FLAG_MSI_X)
-+		synchronize_irq(dev->eq_table.eq[MTHCA_EQ_COMP].msi_x_vector);
-+	else
-+		synchronize_irq(dev->pdev->irq);
-+
- 	atomic_dec(&cq->refcount);
- 	wait_event(cq->wait, !atomic_read(&cq->refcount));
- 
-
+Andrew, what about my suggestion of shifting left x.y of 8 bits? ;) Do
+we risk the magic 2.7 number to get us stuck in unstable mode for 2
+years instead of 2 months? Doesn't 2.6.x.y pose the same risk but
+by also breaking the numbering and the stable kernel identification for
+no good reason? (ignoring the "2.6." part that carries no useful info
+anymore ;)

@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268010AbUHWVlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268095AbUHWVhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268010AbUHWVlm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268148AbUHWVjv
+	id S268095AbUHWVhj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 17:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUHWVcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 17:39:51 -0400
-Received: from cantor.suse.de ([195.135.220.2]:65237 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268010AbUHWVc4 (ORCPT
+	Mon, 23 Aug 2004 17:32:08 -0400
+Received: from mail.tmr.com ([216.238.38.203]:48143 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S268017AbUHWVaC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 17:32:56 -0400
-Date: Mon, 23 Aug 2004 23:32:49 +0200
-From: Andi Kleen <ak@suse.de>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [patch] lazy TSS's I/O bitmap copy ...
-Message-Id: <20040823233249.09e93b86.ak@suse.de>
-In-Reply-To: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 23 Aug 2004 17:30:02 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: SMP cpu deep sleep
+Date: Mon, 23 Aug 2004 17:30:29 -0400
+Organization: TMR Associates, Inc
+Message-ID: <cgdn8t$l27$1@gatekeeper.tmr.com>
+References: <1092989207.18275.14.camel@linux.local> <pan.2004.08.20.16.44.39.888193@austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1093296221 21575 192.168.12.100 (23 Aug 2004 21:23:41 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <pan.2004.08.20.16.44.39.888193@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Aug 2004 14:23:35 -0700 (PDT)
-Davide Libenzi <davidel@xmailserver.org> wrote:
+Wes Felter wrote:
 
+> I worked on this last year (I call it CPU packing, because the idea is to
+> pack the load onto the fewest number of CPUs).
 > 
-> The following patch implements a lazy I/O bitmap copy for the i386 
-> architecture. With I/O bitmaps now reaching considerable sizes, if the 
-> switched task does not perform any I/O operation, we can save the copy 
-> altogether. In my box X is working fine with the following patch, even if 
-> more test would be required.
+> The CPU hotplug patch is the way to go, but the hardware is the problem. I
+> talked to an Intel CPU architect at MICRO last year and he confirmed that
+> SMP Intel systems don't support any low-power modes besides HLT. AMD's
+> documentation says that Opterons support voltage/frequency scaling (aka
+> Cool 'n' Quiet), but AFAICT the documentation is wrong. In summary, you
+> are doomed.
+> 
 
-IMHO this needs benchmarks first to prove that the additional 
-exception doesn't cause too much slow down.
+For power saving, HLT is hard to beat ;-) You note HLT as if there was 
+some good reason not to use it... Mask everything except some BACK2WORK 
+int from the night watchman CPU. I would really like this on some 
+machines which seem to leave all CPUs generating heat even when booted 
+with a uni kernel.
 
->  asmlinkage void do_general_protection(struct pt_regs * regs, long error_code)
->  {
-> +	int cpu = smp_processor_id();
-> +	struct tss_struct *tss = init_tss + cpu;
-> +	struct task_struct *tsk = current;
-> +	struct thread_struct *tsk_th = &tsk->thread;
-> +
-> +	/*
-> +	 * Perform the lazy TSS's I/O bitmap copy. If the TSS has an
-> +	 * invalid offset set (the LAZY one) and the faulting thread has
-> +	 * a valid I/O bitmap pointer, we copy the I/O bitmap in the TSS
-> +	 * and we set the offset field correctly. Then we let the CPU to
-> +	 * restart the faulting instruction.
-> +	 */
+Whilst thinking about this, *if* using HLT is practical in therms of 
+power saving, perhaps all but the last CPU could HLT if the run queue 
+was empty, and only be awakened by the "last" CPU, in some case where 
+the run queue length was longer than {some_value}.
 
-I don't like it very much that most GPFs will be executed twice now
-when the process has ioperm enabled.
-This will confuse debuggers and could have other bad side effects.
-Checking the EIP would be better.
-
--Andi
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

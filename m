@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUD2PuN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264880AbUD2QCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbUD2PuN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 11:50:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUD2PuN
+	id S264880AbUD2QCX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 12:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUD2QCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 11:50:13 -0400
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:19871 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S261300AbUD2PuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 11:50:09 -0400
-Date: Thu, 29 Apr 2004 08:50:07 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, jgarzik@pobox.com,
-       mpm@selenic.com, zwane@linuxpower.ca
-Subject: Re: [PATCH] Kconfig.debug family
-Message-ID: <20040429155007.GU3731@smtp.west.cox.net>
-References: <20040421205140.445ae864.rddunlap@osdl.org> <20040426164252.GA19246@smtp.west.cox.net> <20040429083820.6457fa84.rddunlap@osdl.org>
+	Thu, 29 Apr 2004 12:02:22 -0400
+Received: from r2l237.mistral.cz ([62.245.75.237]:640 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S264880AbUD2QCV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 12:02:21 -0400
+Date: Thu, 29 Apr 2004 18:02:54 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: locking in psmouse
+Message-ID: <20040429160254.GA295@ucw.cz>
+References: <20040428213040.GA954@elf.ucw.cz> <200404282347.47411.dtor_core@ameritech.net> <20040429095830.GD390@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040429083820.6457fa84.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040429095830.GD390@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 08:38:20AM -0700, Randy.Dunlap wrote:
+On Thu, Apr 29, 2004 at 11:58:30AM +0200, Pavel Machek wrote:
 
-> On Mon, 26 Apr 2004 09:42:52 -0700 Tom Rini wrote:
-> 
-> | On Wed, Apr 21, 2004 at 08:51:40PM -0700, Randy.Dunlap wrote:
-> | 
-> | > Localizes kernel debug options in lib/Kconfig.debug.
-> | > Puts arch-specific debug options in $ARCH/Kconfig.debug.
-> | [snip]
-> | >  arch/ppc/Kconfig             |  124 -------------------------
-> | >  arch/ppc/Kconfig.debug       |   71 ++++++++++++++
-> | 
-> | OCP shouldn't be moved into Kconfig.debug, it's just in an odd location
-> | right now.
-> 
-> 
-> Thanks.  I moved it to under Processor options, before Platform
-> options.  Is that OK?
+> > > psmouse-base.c does not have any locking. For example psmouse_command
+> > > could race with data coming from the mouse, resulting in problem. This
+> > > should fix it.
+> > 
+> > Although I am not arguing that locking might be needed in psmouse module I
+> > am somewhat confused how it will help in case of data stream coming from the
+> > mouse... If mouse sent a byte before the kernel issue a command then it will
+> > be delivered by KBC controller and will be processed by the interrupt handler,
+> > probably messing up detection process. That's why as soon as we decide that
+> > the device behind PS/2 port is some kind of mouse we disable the stream mode.
 
-Yup, thanks.
+Any PS/2 device is supposed to stop talking as soon as it gets a command
+until it's done with it. Supposed to. Namely USB Legacy emulation breaks
+this rule.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,54 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUJOWFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUJOWKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUJOWFe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 18:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUJOWFe
+	id S261426AbUJOWKh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 18:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUJOWKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 18:05:34 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:44037 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261451AbUJOWFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 18:05:08 -0400
-Date: Fri, 15 Oct 2004 23:04:45 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Andrea Arcangeli <andrea@novell.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       Albert Cahalan <albert@users.sourceforge.net>
-Subject: Re: per-process shared information
-In-Reply-To: <20041015214026.GR5607@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0410152255290.7849-100000@localhost.localdomain>
+	Fri, 15 Oct 2004 18:10:37 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4224 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261426AbUJOWK1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 18:10:27 -0400
+Date: Fri, 15 Oct 2004 18:08:37 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Greg KH <greg@kroah.com>, Lee Revell <rlrevell@joe-job.com>,
+       David Woodhouse <dwmw2@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
+       gene.heskett@verizon.net, Linux kernel <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       David Howells <dhowells@redhat.com>,
+       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
+Subject: Re: Fw: signed kernel modules?
+In-Reply-To: <4170426E.5070108@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.61.0410151744220.3651@chaos.analogic.com>
+References: <27277.1097702318@redhat.com> <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
+ <1097843492.29988.6.camel@weaponx.rchland.ibm.com> <200410151153.08527.gene.heskett@verizon.net>
+ <1097857049.29988.29.camel@weaponx.rchland.ibm.com>
+ <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com>
+ <1097860121.13633.358.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com>
+ <1097873791.5119.10.camel@krustophenia.net> <20041015211809.GA27783@kroah.com>
+ <4170426E.5070108@nortelnetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Oct 2004, William Lee Irwin III wrote:
-> On Fri, Oct 15, 2004 at 11:28:31PM +0200, Andrea Arcangeli wrote:
-> > Ok fine. But first it has to be included into mainline, then of course
-> > we'll merge it. Fixing Oracle at the expense of being incompatible with
-> > the user-ABI with future 2.6 is a no-way.
-> 
-> The thing I wanted to convey most was that I got an acknowledgment from
-> the original sources of Oracle's requirement, including the project
-> lead for the team that maintains statistics collection kit that uses
-> the statistics to estimate the client capacity of a system and not just
-> whoever got the bug assigned to them inside Oracle, that Hugh's specific
-> implementation we want to go with also satisfies the user requirements.
-> They've even committed to runtime testing the patches to verify the
-> patch does everything they want it to.
+On Fri, 15 Oct 2004, Chris Friesen wrote:
 
-Andrea, Bill, great, thanks a lot for doing all the fieldwork on this.
+> Greg KH wrote:
+>
+>> If you have a BSD licensed module, you do not have to provide the source
+>> code for it.
+>
+> Maybe we need a "BSD with source" module string that doesn't taint?  Or is 
+> that getting too ridiculous?
+>
+> Chris
+>
 
-After going through the discussions, I'm inclined to stick with the
-patch as is i.e. "correct the 2.6 bug" in the "shared" third field of
-/proc/pid/statm, rather than adding this as another field on the end.
+Like I said, once you put policy in the kernel it can't be right:
 
-Once 2.6.9 is out and we're open for patches again, I'll break it
-into the four parts originally outlined, and send to Andrew.
+module: module license 'Public domain' taints kernel.
 
-Hugh
+And, of course, one can always do:
+
+echo "0" >/proc/sys/kernel/tainted
+
+... to make everything "better" after you've loaded a module
+from Hell.
+
+Any time somebody puts some "deny" hooks in readable source-code
+(the kernel) somebody can either remove them or make a corresponding
+countermeasure, usually in user-mode. It is entirely counter-productive
+to bloat the kernel with this kind of stuff.
+
+The moving of module load/unload code from user-mode code to the
+kernel is a prime example. Time would have been better spent
+removing the races in the hot-swap and module-removal code.
+
+One can make a 'certified' kernel with 'certified' modules
+for some hush-hush project. Adding this kind of junk isn't
+how it's done. You just take your favorite kernel with the
+modules you require, you verify that it meets your security
+requirements, then you CRC the kernel and its modules. You
+keep the CRCs somewhere safe, available from a read-only
+source like a CD/ROM or a network file-server. You automatically
+check these CRCs occasionally using a read-only program on
+read-only source like the network or a CD/ROM. If the checks
+fail, you call the "super" and shut down the system.
+
+It's done all the time and it works. Putting more strings
+and other junk in the kernel with all the checking-code
+just tries to hide from the real elements of security.
+
+But, it's not __really__ security everybody's after. It's
+sucking up to GNU. For 15 years, before there was a GNU, I
+was the SYSOP of the "Program Exchange". I know what free
+software really is. And, it has nothing to do with FSF and
+Richard Stallman. That's where M$ got their first version
+of Flight Simulator from. The source was in Turbo Pascal
+and MASM assembly. I wrote the assembly. So I know how
+these things go. Been there, done that.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
 

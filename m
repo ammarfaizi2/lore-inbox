@@ -1,53 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267471AbTCFAt5>; Wed, 5 Mar 2003 19:49:57 -0500
+	id <S267602AbTCFAzF>; Wed, 5 Mar 2003 19:55:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267560AbTCFAt4>; Wed, 5 Mar 2003 19:49:56 -0500
-Received: from mail.casabyte.com ([209.63.254.226]:31758 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP
-	id <S267471AbTCFAt4>; Wed, 5 Mar 2003 19:49:56 -0500
-From: "Robert White" <rwhite@casabyte.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: PNP Support for PCI bus
-Date: Wed, 5 Mar 2003 17:00:27 -0800
-Message-ID: <PEEPIDHAKMCGHDBJLHKGOEPCCBAA.rwhite@casabyte.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-Importance: Normal
+	id <S267648AbTCFAzF>; Wed, 5 Mar 2003 19:55:05 -0500
+Received: from ns.suse.de ([213.95.15.193]:12300 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267602AbTCFAzC>;
+	Wed, 5 Mar 2003 19:55:02 -0500
+Date: Thu, 6 Mar 2003 02:05:17 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Better CLONE_SETTLS support for Hammer
+Message-ID: <20030306010517.GB17865@wotan.suse.de>
+References: <3E664836.7040405@redhat.com> <20030305190622.GA5400@wotan.suse.de> <3E6650D4.8060809@redhat.com> <20030305212107.GB7961@wotan.suse.de> <3E668267.5040203@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E668267.5040203@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Wed, Mar 05, 2003 at 03:04:07PM -0800, Ulrich Drepper wrote:
+> >>1. every process will already use the prctl(ARCH_SET_FS).  We are
+> >>talking here only about the 2nd thread and later.  We need to use
+> >>prctl(ARCH_SET_FS) for TLS support.
+> > 
+> > 
+> > Not when you put it into the first four GB. Then you can use the same
+> > calls as 32bit.
+> 
+> Show me numbers.  Or even better: fix the kernel so that I can run it
 
-Someone just brought me a laptop (Toshiba Satellite 5205-S505) that does not
-allow you to access the BIOS.  It has a one question setup "reset defaults
-(Y/N)?".  They wanted me to put Linux on the beast.
+You want the change, not me ;)
 
-The thing is, the inaccessible bios is strictly plug and pray.
+I did benchmark it some time ago (cannot share numbers sorry) and it 
+didn't look like a good idea.
 
-The (2.4.18) kernel contains a plug-and-pray enumerator for the ISA bus, but
-not the PCI bus.
+> myself.  What is the time difference between using the segment register
+> switching with all the different allocated thread areas version using wrmsr.
 
-Is anybody working on this (or does it already exist) somewhere?  It would
-seem that such a beast "would only" have to do what the bios does (populate
-registers in the chipset to define INT#A through INT#D) with otherwise
-unused values. (I love it when people use any variant of "couldn't you just"
-in a requirements proposal don't you? 8-)
+It should already work on the current kernel, modulo clone.
+(but arch_prctl, set_thread_area in 2.5, ldt in 2.4 etc.) 
 
-My immediate patch was to send the guy back to the store to exchange the
-laptop for something that didn't suck.
+> 
+> 
+> *Iff* using the MSR is slower, as far as I'm concerned the
+> set_thread_area syscall should complete go away from x86-64.  Require
 
-Meanwhile I suspect that we are going to be seeing more of this sort of
-thing.  While I have time to contribute I have now exhausted my knowledge of
-PCI internals, so rather than adding something to make me look even more
-stupid I will just pose the question... (I'm an application-level
-programmer... 8-)
+It's needed for 32bit emulation at least. The code is 100% shared
+between the emulation and the native 64bit model.
+In theory it could be removed from the system call table for 64bit
+but there didn't seem a good reason to do so - after all 64bit programs
+can put their thread local data into the first 4GB and 
+fast context switches.
 
-Rob.
+> the use of prctl to get and set the base address.  Then internally in
+> the prctl call map it to either the use of a 32 base address segment or
+> use the MSR.
 
+The problem is that the 64bit base has different semantics. 
+
+When you use a segment register you have to do:
+
+	call kernel to set gdt/ldt
+	movl index,%%fs
+
+But when the kernel did set the 64bit base in the kernel call the
+following movl to the selector would destroy it again
+
+Loading the index inside the system call would also be problematic:
+First it would be different from what i386 does, causing porting headaches.
+Also you could not easily do it from a different thread unlike the 
+LDT load.
+	
+
+> This way whoever needs a segment base address can preferably allocate it
+> in the low 4GB, but if it fails the kernel support still work.  And with
+> the same interface.  Currently this is not the case and this is not
+> acceptable.
+
+That should already work and it is in fact how I imagined this to be: 
+
+do MAP_32BIT - if yes use set_thread_area or an LDT entry;
+
+if not use arch_prctl
+
+The NPTL signal race problem for the clones in case you have a 64bit
+base is a bit ugly though I agree.
+
+I don't like your patch currently because it'll guarantee slow 
+context switch times for 64bit.
+
+Automatic switching based on the set bits in the base may be possible 
+(in fact I had something like this in set_thread_area for some time, but 
+removed it because of the ugly semantics because set_thread_area doesn't
+already load the selector). If the selector load is forced
+in clone however it would not be as weird, just only somewhat
+ugly. You'll have to guarantee in user space then that you don't
+reload it.
+
+Real solution would be Windowish - Create clone7() with both
+selectors and bases 
+
+[I suspect 2.8 and 3.0 will get that anyways as experience
+on other operating systems who started on the same path 
+shows. e.g. AmigaOS grew more CreateTask
+variants with more arguments with each release until they eventually
+settled on passing tag lists.]
+
+-Andi

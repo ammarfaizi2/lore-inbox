@@ -1,86 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262424AbUEAWQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbUEAWVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbUEAWQw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 18:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUEAWQw
+	id S262431AbUEAWVa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 18:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbUEAWVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 18:16:52 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52967 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262424AbUEAWPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 18:15:47 -0400
-Date: Sat, 1 May 2004 15:14:01 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Sean Estabrooks <seanlkml@rogers.com>
-Cc: marc@linuxant.com, mbligh@aracnet.com,
-       tconnors+linuxkernel1083378452@astro.swin.edu.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Message-Id: <20040501151401.6d238243.rddunlap@osdl.org>
-In-Reply-To: <20040501153319.6f9ece87.seanlkml@rogers.com>
-References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com>
-	<Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org>
-	<90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com>
-	<6900000.1083388078@[10.10.2.4]>
-	<772768DC-9BA3-11D8-B83D-000A95BCAC26@linuxant.com>
-	<20040501153319.6f9ece87.seanlkml@rogers.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 1 May 2004 18:21:30 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:47348 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262431AbUEAWVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 18:21:04 -0400
+Date: Sat, 1 May 2004 18:21:04 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Keith Owens <kaos@sgi.com>
+Subject: Re: [PATCH][2.6-mm] Allow i386 to reenable interrupts on lock
+ contention
+In-Reply-To: <20040501143955.10d1cea1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405011750070.2332@montezuma.fsmlabs.com>
+References: <2015.1083331968@ocs3.ocs.com.au> <Pine.LNX.4.58.0405010628030.2332@montezuma.fsmlabs.com>
+ <20040501143955.10d1cea1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 May 2004 15:33:19 -0400 Sean Estabrooks <seanlkml@rogers.com> wrote:
+On Sat, 1 May 2004, Andrew Morton wrote:
 
-| On Sat, 1 May 2004 15:12:18 -0400
-| Marc Boucher <marc@linuxant.com> wrote:
-| 
-| > It was already screwed up, and causing unnecessary support burdens
-| > both on the community ("help! what does tainted mean") and vendors.
-| > This thread and previous ones have shown ample evidence of that.
-| 
-| Tainting is working just like it is supposed to work.   The reduced
-| support burden for senior Linux maintainers has been a benefit.
-| 
-| > Let's deal with the root problem and fix the messages, as Rik van Riel
-| > has suggested.
-| 
-| The kernel maintainers will decide what's best for Linux.   They're the
-| ones responsible for overseeing Linux.    But if we're going to change
-| the message i'd prefer something along the lines of:
-| 
-| "Now loading a non GPL driver.   Please consider supporting vendors that
-| provide open source drivers for their hardware.  Your kernel will now be
-| marked as tainted, all this means is that you should send any support
-| requests to the author of this driver."
+> Could we move all the irq-handling stuff into the out-of-line section, to
+> keep the fast-path cache footprint smaller?
 
-I agree, this is better than the Aunt Tillie message.
-(Second sentence could be omitted.  I agree with it,
-but it's not in the right setting IMO.)
+Of course, oversight on my part. Done and restested.
 
-[snip]
+Index: linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 spinlock.h
+--- linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h	1 May 2004 08:19:15 -0000	1.1.1.1
++++ linux-2.6.6-rc3-mm1/include/asm-i386/spinlock.h	1 May 2004 21:53:36 -0000
+@@ -42,7 +42,6 @@ typedef struct {
 
-| > > What's wrong with the printk setting workaround? Simply write a number
-| > > to the appropriate file before you load the modules.
-| > >
-| > > I just tried googling for the relevant post, but failed...
-| > >
-| > > He doesn't need to wait for the patches to propogate. He can act on
-| > > his own scripts immediately in readiness for the next version.
-| > >
-| > > Easy.
-| > 
-| > Not. We don't use a script to systematically load the modules,
-| > because they are large and not always required, nor want to
-| > interfere with the system's normal logging.
-| >
-| > Manipulating printk settings or redirecting the superfluous
-| > messages elsewhere are also ugly hacks, which can
-| > potentially also divert/hide important messages.
+ #define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
+ #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
+-#define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
 
-So why is the tainted message to be different?
+ #ifdef CONFIG_SPINLINE
 
---
-~Randy
+@@ -58,6 +57,21 @@ typedef struct {
+ 		"jmp 1b\n" \
+ 		"3:\t"
+
++	#define spin_lock_string_flags \
++		"\n1:\t" \
++		"lock ; decb %0\n\t" \
++		"jns 3f\n" \
++		"testl $0x200, %1\n\t" \
++		"jz 2f\n\t" \
++		"sti\n\t" \
++		"2:\t" \
++		"rep;nop\n\t" \
++		"cmpb $0, %0\n\t" \
++		"jle 2b\n\t" \
++		"cli\n\t" \
++		"jmp 1b\n" \
++		"3:\t"
++
+ #else /* !CONFIG_SPINLINE */
+
+ 	#define spin_lock_string \
+@@ -72,6 +86,23 @@ typedef struct {
+ 		"jmp 1b\n" \
+ 		LOCK_SECTION_END
+
++	#define spin_lock_string_flags \
++		"\n1:\t" \
++		"lock ; decb %0\n\t" \
++		"js 2f\n\t" \
++		LOCK_SECTION_START("") \
++		"2:\t" \
++		"testl $0x200, %1\n\t" \
++		"jz 3f\n\t" \
++		"sti\n\t" \
++		"3:\t" \
++		"rep;nop\n\t" \
++		"cmpb $0, %0\n\t" \
++		"jle 3b\n\t" \
++		"cli\n\t" \
++		"jmp 1b\n" \
++		LOCK_SECTION_END
++
+ #endif /* CONFIG_SPINLINE */
+ /*
+  * This works. Despite all the confusion.
+@@ -143,6 +174,20 @@ here:
+ 		:"=m" (lock->lock) : : "memory");
+ }
+
++static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
++{
++#ifdef CONFIG_DEBUG_SPINLOCK
++	__label__ here;
++here:
++	if (unlikely(lock->magic != SPINLOCK_MAGIC)) {
++		printk("eip: %p\n", &&here);
++		BUG();
++	}
++#endif
++	__asm__ __volatile__(
++		spin_lock_string_flags
++		:"=m" (lock->lock) : "r" (flags) : "memory");
++}
+
+ /*
+  * Read-write spinlocks, allowing multiple readers

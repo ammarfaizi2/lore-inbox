@@ -1,96 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVA3Xfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVA3Xeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbVA3Xfr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 18:35:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVA3Xfn
+	id S261838AbVA3Xeu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 18:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVA3Xeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 18:35:43 -0500
-Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:65164 "HELO
-	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261839AbVA3XfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 18:35:20 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 0/16] New set of input patches
-Date: Sun, 30 Jan 2005 18:35:18 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-input@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>
-References: <200412290217.36282.dtor_core@ameritech.net> <d120d5000501271018358c1d56@mail.gmail.com> <20050127221623.GA2300@ucw.cz>
-In-Reply-To: <20050127221623.GA2300@ucw.cz>
+	Sun, 30 Jan 2005 18:34:50 -0500
+Received: from mid-2.inet.it ([213.92.5.19]:7422 "EHLO mid-2.inet.it")
+	by vger.kernel.org with ESMTP id S261838AbVA3Xeq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 18:34:46 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: 2.6.11-rc[1,2]-mmX scsi cdrom problem, 2.6.10-mm2 ok
+Date: Mon, 31 Jan 2005 00:34:31 +0100
+User-Agent: KMail/1.7.91
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200501301835.19220.dtor_core@ameritech.net>
+Message-Id: <200501310034.32005.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 January 2005 17:16, Vojtech Pavlik wrote:
-> On Thu, Jan 27, 2005 at 01:18:55PM -0500, Dmitry Torokhov wrote:
-> > On Thu, 27 Jan 2005 17:36:05 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > > On Thu, Jan 27, 2005 at 05:15:18PM +0100, Vojtech Pavlik wrote:
-> > > 
-> > > > OK. I'll go through them, and apply as appropriate. I still need to wrap
-> > > > my mind around the start() and stop() methods and see the necessity. I
-> > > > still think a variable in the serio struct, only accessed by the serio.c
-> > > > core driver itself (and never by the port driver) that'd cause all
-> > > > serio_interrupt() calls to be ignored until set in the asynchronous port
-> > > > registration would be well enough.
-> > > 
-> > > I've read he start() and stop() code, and I came to the conclusion
-> > > again that we don't need them as serio port driver methods. i8042 uses
-> > > them to set the exists variable only and uses that variable _solely_ for
-> > > the purpose of skipping calls to serio_interrupt(), serio_cleanup() and
-> > > serio_unregister().
-> > > 
-> > > By instead checking a member of the serio struct in these functions, and
-> > > doing nothing if not set, we achieve the same goal, without adding extra
-> > > cruft to the interface, making it allowed to call these serio functions
-> > > on a non-registered or half-registered serio struct, with the effect
-> > > being defined to nothing.
-> > > 
-> > 
-> > No, you can not peek into serio structure from a driver, not when it
-> > was dynamically allocated and can be gone at any time. Please consider
-> > the following screnario when shutting down 8042 when you have a MUX
-> > with several ports:
-> > 
-> > The rough call sequence is:
-> > i8042_exit
-> >   serio_unregister_port
-> >      driver->disconnect
-> >         serio_close
-> >            i8042->close
-> >      free(serio)
-> > 
-> > We need to keep interrupts passed to serio core until serio_close is
-> > completed so device properly ACKs/responds to cleanup commands.
-> > Additionally, in i8042 close we do not free IRQ until last port is
-> > unregistered nor we disable the port because we want to support
-> > hotplugging. If interrupt comes after port was freed but before
-> > serio_unregister_port has returned i8042_interrupt will call
-> > serio_interrupt for port that was just free()ed. Special flag in serio
-> > will not help because you need to know that port pointer is valid. You
-> > could try pinning the port in memory buy taking a refernce but then
-> > asynchronous unregister is not possible and it is needed in some
-> > cases.
-> > 
-> > I think that having these 2 interface functions helps clearly define
-> > these sequence points when port can/can not be used, simplifies logic
-> > and alerts driver authors of this potential problem.
->  
-> You're right. I forgot that serio isn't anymore tied to the driver and
-> can cease to exist on its own asynchronously. However, I'm still not
-> sure whether it's worth it. We might as well simply drop the unregister
-> call in i8042_open for AUX completely and forget about asynchronous
-> unregisters and use normal refcounting. As far as grep knows, it's the
-> only user.
+I'm seeing a problem with latest mm releases; with 2.6.11-rc1,2-mmX every time 
+I fire up k3b, it get stuck here: (last line, previous lines just for 
+documentation :) )
 
-I am pretty sure I will need asynchronous unregister in some form when
-I finish dynamic protocol switching in psmouse (those darned pass-through
-ports!). Plus again, having these 2 methods will draw driver writers'
-attention to the existence of this particular problem.
+open("/dev/hdc", O_RDONLY|O_NONBLOCK)   = 11
+ioctl(11, CDROM_SEND_PACKET, 0xbfffc4e0) = 0
+close(11)                               = 0
+open("/dev/hdc", O_RDONLY|O_NONBLOCK)   = 11
+ioctl(11, CDROM_SEND_PACKET, 0xbfffc590) = -1 EIO (Input/output error)
+close(11)                               = 0
+open("/dev/hdc", O_RDONLY|O_NONBLOCK)   = 11
+ioctl(11, CDROM_SEND_PACKET, 0xbfffc4e0) = 0
+ioctl(11, CDROM_SEND_PACKET, 0xbfffc4e0) = 0
+close(11)                               = 0
+open("/dev/hdc", O_RDONLY|O_NONBLOCK)   = 11
+ioctl(11, CDROM_GET_CAPABILITY or SNDRV_SEQ_IOCTL_UNSUBSCRIBE_PORT, 
+0x7fffffff) = 3735535
+close(11)                               = 0
+lstat64("/dev", {st_mode=S_IFDIR|S_ISVTX|0777, st_size=30220, ...}) = 0
+lstat64("/dev/sr1", {st_mode=S_IFBLK|0600, st_rdev=makedev(11, 1), ...}) = 0
+open("/dev/sr1", O_RDONLY|O_NONBLOCK)   = 11
+fstat64(11, {st_mode=S_IFBLK|0600, st_rdev=makedev(11, 1), ...}) = 0
+ioctl(11, CDROM_SEND_PACKET, 0xbfffd740) = 0
+close(11)                               = 0
+open("/dev/sr1", O_RDONLY|O_NONBLOCK)   = 11
+fstat64(11, {st_mode=S_IFBLK|0600, st_rdev=makedev(11, 1), ...}) = 0
+ioctl(11, CDROMAUDIOBUFSIZ or SCSI_IOCTL_GET_IDLUN, 0xbfffd7e8) = 0
+ioctl(11, SCSI_IOCTL_GET_BUS_NUMBER, 0xbfffd8a4) = 0
+close(11)                               = 0
+open("/dev/sr1", O_RDONLY|O_NONBLOCK)   = 11
+ioctl(11, CDROM_SEND_PACKET, 0xbfffd7d0) = 0
+ioctl(11, CDROM_SEND_PACKET          
+
+At this point k3b is stuck in D stat, needs reboot.
+
+I've thinked of faulty HW, but 2.6.10-mm2 can complete the scan (I haven't 
+tried to use that device, to ber honest, after successful initialization).
+
+On scsi- bus I've the following devices:
+cova@kefk ~ $ cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 02 Lun: 00
+  Vendor: Nikon    Model: COOLSCANIII      Rev: 1.31
+  Type:   Scanner                          ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 03 Lun: 00
+  Vendor: PLEXTOR  Model: CD-ROM PX-40TS   Rev: 1.01
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 05 Lun: 00
+  Vendor: YAMAHA   Model: CRW6416S         Rev: 1.0c
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 00 Lun: 00
+  Vendor: ATA      Model: Maxtor 6Y160M0   Rev: YAR5
+  Type:   Direct-Access                    ANSI SCSI revision: 05
+
+cova@kefk ~ $ cat /proc/scsi/aic7xxx/0
+Adaptec AIC7xxx driver version: 6.2.36
+Adaptec 2902/04/10/15/20C/30C SCSI adapter
+aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
+Allocated SCBs: 4, SG List Length: 128
+
+
+
+Let me know if further details/testing are needed.
+
+
 
 -- 
-Dmitry
+Fabio Coatti       http://members.ferrara.linux.it/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.

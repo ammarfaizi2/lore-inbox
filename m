@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264669AbTFAQto (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 12:49:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264670AbTFAQto
+	id S264671AbTFARIu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 13:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264672AbTFARIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 12:49:44 -0400
-Received: from main.gmane.org ([80.91.224.249]:20891 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264669AbTFAQtn (ORCPT
+	Sun, 1 Jun 2003 13:08:50 -0400
+Received: from smtp1.wanadoo.es ([62.37.236.135]:2487 "EHLO smtp.wanadoo.es")
+	by vger.kernel.org with ESMTP id S264671AbTFARIt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 12:49:43 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: weird keyboard with 2.5.70
-Date: 01 Jun 2003 19:03:04 +0200
-Message-ID: <yw1xn0h13f3r.fsf@zaphod.guide>
-References: <3ED93A62.9080504@g-house.de> <20030601122903.GA18783@sexmachine.doom> <3EDA052A.20807@g-house.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+	Sun, 1 Jun 2003 13:08:49 -0400
+Message-ID: <3EDA361C.4080702@wanadoo.es>
+Date: Sun, 01 Jun 2003 19:21:32 +0200
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Hyper-threading
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Kujau <evil@g-house.de> writes:
+> Hello,
+> 
+> Anybody know how to enable hyperthreading? I
+> have an ABIT IC7-G motherboard (absolute garbage)
+> with a Phoenix AwardBIOS. They don't provide
+> any BIOS upgrades and say you have to contact
+> the board vendor. ABIT doesn't answer email
+> and www.abit.com ends up being answered by
+> www.motherboards.com that doesn't provide
+> any support.
 
-> i wonder when the problem will diesappear as it did on linux/alpha :-)
+all latest bios of ABIT are here:
+http://fae.abit.com.tw/eng/download/bios/i_new.htm
 
-So it's ok on Alpha now?  That's where I saw it.  Strangely, though,
-only on one of my machines.  I guess I'll give 2.5.70 a try some day,
-but the ALSA problems have been keeping me away from it.
-
+regards,
 -- 
-Måns Rullgård
-mru@users.sf.net
+Software is like sex, it's better when it's bug free.
 

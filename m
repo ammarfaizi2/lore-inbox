@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129373AbRBUR5o>; Wed, 21 Feb 2001 12:57:44 -0500
+	id <S129051AbRBUR7O>; Wed, 21 Feb 2001 12:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129512AbRBUR5e>; Wed, 21 Feb 2001 12:57:34 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:59264 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129931AbRBUR5Y>; Wed, 21 Feb 2001 12:57:24 -0500
-Date: Wed, 21 Feb 2001 12:56:32 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Giuliano Pochini <pochini@shiny.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 128MB lost... where ?
-In-Reply-To: <XFMail.010221182231.pochini@shiny.it>
-Message-ID: <Pine.LNX.3.95.1010221125207.15293A-100000@chaos.analogic.com>
+	id <S129144AbRBUR7E>; Wed, 21 Feb 2001 12:59:04 -0500
+Received: from host217-32-138-113.hg.mdip.bt.net ([217.32.138.113]:4872 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129051AbRBUR6r>;
+	Wed, 21 Feb 2001 12:58:47 -0500
+Date: Wed, 21 Feb 2001 18:01:46 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Burton Windle <burton@fint.org>, linux-kernel@vger.kernel.org
+Subject: Re: Detecting SMP
+In-Reply-To: <Pine.LNX.3.96.1010221115214.13788T-100000@mandrakesoft.mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0102211758290.2050-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Feb 2001, Giuliano Pochini wrote:
+On Wed, 21 Feb 2001, Jeff Garzik wrote:
 
+> On Wed, 21 Feb 2001, Tigran Aivazian wrote:
+> > yes, just run the famous mptable program. If the machine is SMP then it
+> > will have a valid Intel MP 1.4 configuration tables so the program will
+> > show meaningful output.
 > 
-> Perhaps this is a faq...
-> I have a dual-800 (mb asus, no AGP) with 1GB ram,
-> but according to /proc/meminfo tells I only have
-> 900000KB. I tried "mem=1024" boot parameter without
-> success. How can I get my 128MB back ?
-> 
-> 
-> Bye.
->     Giuliano Pochini ->)|(<- Shiny Corporation {AS6665} ->)|(<-
+> Does that allow you to detect multiple processors... or just an SMP board?
 > 
 
-You can't. You have to enable HIGHMEM4G in `make config`, then
-rebuild the entire kernel. This doesn't work well with 2.4.1 because
-many modules will have unresolved symbols. Maybe this has been
-fixed in a later kernel.
+the answer is in section 4.1 of the Intel MP 1.4 spec:
 
+   "An MP-compliant system must implement the MP floating pointer
+    structure, ..."
 
-Cheers,
-Dick Johnson
+So, one would normally expect this to mean an SMP board rather than
+multiple processors, _HOWEVER_, I can imagine a very clever MP-aware BIOS
+implementation which detects that there are many processors and prepares
+MP floating config table and does _not_ prepare it otherwise. So, it all
+depends on the BIOS implementation.
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+Actually, I never tried unplugging all-1 processors from my SMP machines
+and seeing what sort of MP table is left...
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+Regards,
+Tigran
 

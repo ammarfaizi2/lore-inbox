@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261476AbSIVJsc>; Sun, 22 Sep 2002 05:48:32 -0400
+	id <S262205AbSIVJyi>; Sun, 22 Sep 2002 05:54:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262012AbSIVJsc>; Sun, 22 Sep 2002 05:48:32 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:19182 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261476AbSIVJsb>; Sun, 22 Sep 2002 05:48:31 -0400
-Subject: Re: make bzImage fails on 2.5.38
-From: Arjan van de Ven <arjanv@fenrus.demon.nl>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Aniruddha Shankar <ashankar@nls.ac.in>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0209220229480.22740-100000@weyl.math.psu.edu>
-References: <Pine.GSO.4.21.0209220229480.22740-100000@weyl.math.psu.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-SU7AgSgmX6GKGnsbNZ1L"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Sep 2002 11:54:44 +0200
-Message-Id: <1032688484.2150.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S262298AbSIVJyh>; Sun, 22 Sep 2002 05:54:37 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:35986 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S262205AbSIVJyh>;
+	Sun, 22 Sep 2002 05:54:37 -0400
+Date: Sun, 22 Sep 2002 11:59:45 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200209220959.LAA09702@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix UP_APIC linkage problem in 2.5.3[78]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The problem is that the local APIC code references stuff in
+mpparse, but 2.5.37 changed arch/i386/kernel/Makefile to only
+compile mpparse for SMP.
 
---=-SU7AgSgmX6GKGnsbNZ1L
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This patch works around this by enforcing CONFIG_X86_MPPARSE
+for all LOCAL_APIC-enabled configs.
 
-On Sun, 2002-09-22 at 08:31, Alexander Viro wrote:
->=20
->=20
-> On Sun, 22 Sep 2002, Aniruddha Shankar wrote:
->=20
-> > First post to the list, I've followed the format given in REPORTING-BUG=
-S
-> >=20
-> > 1. make bzImage fails on 2.5.38
->=20
-> Arrgh.
->=20
-> ed fs/partitions/check.c <<EOF
-> 365s/devfs_handle/cdroms/
-> w
-> q
-> EOF
+/Mikael
 
-using ed now that you can't post vi scripts ?
-
-/me runs
-
---=-SU7AgSgmX6GKGnsbNZ1L
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9jZNkxULwo51rQBIRAtHOAKCZtcUOa95SkdEXuTdOnwHTjUyQNgCePbok
-32DyuTXyD7Cs5AocJ+o+zrU=
-=gvbi
------END PGP SIGNATURE-----
-
---=-SU7AgSgmX6GKGnsbNZ1L--
-
+--- linux-2.5.38/arch/i386/config.in.~1~	Sat Sep 21 18:15:16 2002
++++ linux-2.5.38/arch/i386/config.in	Sun Sep 22 11:13:49 2002
+@@ -260,7 +260,6 @@
+    if [ "$CONFIG_SMP" = "y" ]; then
+       define_bool CONFIG_X86_IO_APIC y
+       define_bool CONFIG_X86_LOCAL_APIC y
+-      define_bool CONFIG_X86_MPPARSE y
+    fi
+    bool 'PCI support' CONFIG_PCI
+    if [ "$CONFIG_PCI" = "y" ]; then
+@@ -441,6 +440,7 @@
+ if [ "$CONFIG_X86_LOCAL_APIC" = "y" ]; then
+    define_bool CONFIG_X86_EXTRA_IRQS y
+    define_bool CONFIG_X86_FIND_SMP_CONFIG y
++   define_bool CONFIG_X86_MPPARSE y
+ fi
+ 
+ endmenu

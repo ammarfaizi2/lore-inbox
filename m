@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131533AbQLFOCd>; Wed, 6 Dec 2000 09:02:33 -0500
+	id <S130560AbQLFOS3>; Wed, 6 Dec 2000 09:18:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131542AbQLFOCY>; Wed, 6 Dec 2000 09:02:24 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:14855 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S131533AbQLFOCL>;
-	Wed, 6 Dec 2000 09:02:11 -0500
-Message-ID: <3A2E3FB5.3993FE29@innominate.com>
-Date: Wed, 06 Dec 2000 14:31:33 +0100
-From: Juri Haberland <juri.haberland@innominate.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: All INNOMINATE linux-list feeds are now killed...
-In-Reply-To: <Pine.LNX.4.21.0012061126130.18930-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131132AbQLFOSS>; Wed, 6 Dec 2000 09:18:18 -0500
+Received: from air.lug-owl.de ([62.52.24.190]:39184 "HELO air.lug-owl.de")
+	by vger.kernel.org with SMTP id <S130560AbQLFOSK>;
+	Wed, 6 Dec 2000 09:18:10 -0500
+Date: Wed, 6 Dec 2000 14:47:41 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel boot params
+Message-ID: <20001206144741.A27613@lug-owl.de>
+Reply-To: jbglaw@lug-owl.de
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <003201c05f88$db6fc4a0$7930000a@hcd.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <003201c05f88$db6fc4a0$7930000a@hcd.net>; from whtdrgn@mail.cannet.com on Wed, Dec 06, 2000 at 08:31:31AM -0500
+X-Operating-System: Linux air 2.4.0-test8-pre1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Wed, 6 Dec 2000, Juri Haberland wrote:
-> 
-> > We deeply regret this and apologize honestly, but also would
-> > like to resubscribe...
-> 
-> Could you make it a one-way list this time?
-> These two-way lists always give horrible problems
-> and I would hate to killfile all of innominate ;)
 
-Allright, I think we have choice :-/
-Sorry again...
+--J/dobhs11T7y2rNN
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Juri 
+On Wed, Dec 06, 2000 at 08:31:31AM -0500, Timothy A. DeWees wrote:
 
--- 
-juri.haberland@innominate.com
-system engineer                                         innominate AG
-clustering & security                            the linux architects
-tel: +49-30-308806-45   fax: -77            http://www.innominate.com
+Hi!
+
+> a list of parameters I can pass to a kernel on boot.  I am looking for=20
+
+=2E/linux/init/main.c
+
+MfG, JBG
+
+--=20
+Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
+!!!
+/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
+keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
+99 E1BB
+     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
+
+--J/dobhs11T7y2rNN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjouQ3wACgkQHb1edYOZ4btmVQCePw5MlqokKWzxgUDDQFuy940J
+rOgAn2i7+HO0kp8dr0SZWGepsLskFynT
+=daSS
+-----END PGP SIGNATURE-----
+
+--J/dobhs11T7y2rNN--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

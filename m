@@ -1,82 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265148AbRFUT0M>; Thu, 21 Jun 2001 15:26:12 -0400
+	id <S265149AbRFUT1U>; Thu, 21 Jun 2001 15:27:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265149AbRFUT0A>; Thu, 21 Jun 2001 15:26:00 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:47649 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S265148AbRFUTZo>; Thu, 21 Jun 2001 15:25:44 -0400
-Date: Thu, 21 Jun 2001 14:25:27 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200106211925.OAA09622@tomcat.admin.navo.hpc.mil>
-To: jgolds@resilience.com, "Eric S. Raymond" <esr@snark.thyrsus.com>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Controversy over dynamic linking -- how to end the panic
-X-Mailer: [XMailTool v3.1.2b]
+	id <S265153AbRFUT1D>; Thu, 21 Jun 2001 15:27:03 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:21225 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S265149AbRFUT0z>;
+	Thu, 21 Jun 2001 15:26:55 -0400
+Message-ID: <XFMail.20010621123002.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="_=XFMail.1.4.7.Linux:20010621123002:1037=_"
+Date: Thu, 21 Jun 2001 12:30:02 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: linux-kernel@vger.kernel.org
+Subject: do_select() improvement ...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
+This message is in MIME format
+--_=XFMail.1.4.7.Linux:20010621123002:1037=_
+Content-Type: text/plain; charset=us-ascii
 
-> 
-> "Eric S. Raymond" wrote:
-> > ------------------------------------------------------------------------
-> > The GPL license reproduced below is copyrighted by the Free Software
-> > Foundation, but the Linux kernel is copyrighted by me and others who
-> > actually wrote it.
-> > 
-> > The GPL license requires that derivative works of the Linux kernel
-> > also fall under GPL terms, including the requirement to disclose
-> > source.  The meaning of "derivative work" has been well established
-> > for traditional media, and those precedents can be applied to
-> > inclusion of source code in a straightforward way.  But as of
-> > mid-2001, neither case nor statute law has yet settled under what
-> > circumstances *binary* linkage of code to a kernel makes that code a
-> > derivative work of the kernel.
-> > 
-> > To calm down the lawyers, I as the principal kernel maintainer and
-> > anthology copyright holder on the code am therefore adding the
-> > following interpretations to the kernel license:
-> > 
-> > 1. Userland programs which request kernel services via normal system
-> >    calls *are not* to be considered derivative works of the kernel.
-> > 
-> > 2. A driver or other kernel component which is statically linked to
-> >    the kernel *is* to be considered a derivative work.
-> > 
-> > 3. A kernel module loaded at runtime, after kernel build, *is not*
-> >    to be considered a derivative work.
-> > 
-> > These terms are to be considered part of the kernel license, applying
-> > to all code included in the kernel distribution.  They define your
-> > rights to use the code in *this* distribution, however any future court
-> > may rule on the underlying legal question and regardless of how the
-> > license or interpretations attached to future distributions may change.
-> 
-> I disagree with 2.  Consider the following:
-> 
-> - GPL library foo is used by application bar.  bar must be GPL because
-> foo is.  I agree with this.
-> - Non-GPL library foo is used by GPL application bar.  foo does NOT
-> become GPL just because bar is, even if bar statically linked foo in.
-> 
-> The kernel is the equivalent of an application.  If someone needs to
-> statically link in a driver, which is the equivalent of a library, I
-> don't see how that should make the driver GPL.
 
-Isn't this all covered by the LGPL ? (Library GPL)
+This patch can improve do_select() ==> select() performance due :
 
-If the kernel is counted as a library (by the module, or the module
-counted as a library by the kernel) doesn't that fit with the LGPL
-definition? I believe the LGPL covers the runtime library.
+1) the load from the fd bitmap is done every __NFDBITS instead of every bit.
+        If You look at the BITS() macro You'll see that it's not cheap in terms
+        of memory operations
 
-This was hashed out some time ago - If I remember correctly Linus didn't
-favor the LGPL for kernel because that ment the interface between
-the kernel and modules had to become more "static", restricting the
-future enhancements of the kernel/module interface.
+2) if a sequential hole of __NFDBITS is found it'll be skipped without doing a
+        bit by bit check
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
 
-Any opinions expressed are solely my own.
+
+
+*** select.orig.c       Thu Jun 21 08:52:04 2001
+--- select.c    Thu Jun 21 12:09:25 2001
+***************
+*** 164,171 ****
+--- 164,172 ----
+  {
+        poll_table table, *wait;
+        int retval, i, off;
+        long __timeout = *timeout;
++       unsigned long bits;
+ 
+        read_lock(&current->files->file_lock);
+        retval = max_select_fd(n, fds);
+        read_unlock(&current->files->file_lock);
+***************
+*** 186,194 ****
+                        unsigned long mask;
+                        struct file *file;
+ 
+                        off = i / __NFDBITS;
+!                       if (!(bit & BITS(fds, off)))
+                                continue;
+                        file = fget(i);
+                        mask = POLLNVAL;
+                        if (file) {
+--- 187,202 ----
+                        unsigned long mask;
+                        struct file *file;
+ 
+                        off = i / __NFDBITS;
+!                       if (!(i & (__NFDBITS - 1))) {
+!                               bits = BITS(fds, off);
+!                               if (!bits) {
+!                                       i += __NFDBITS;
+!                                       continue;
+!                               }
+!                       }
+!                       if (!(bit & bits))
+                                continue;
+                        file = fget(i);
+                        mask = POLLNVAL;
+                        if (file) {
+ 
+                                                                               
+                                             
+
+                                                                             
+                                             
+
+- Davide
+
+
+--_=XFMail.1.4.7.Linux:20010621123002:1037=_
+Content-Disposition: attachment; filename="select.c.diff"
+Content-Transfer-Encoding: base64
+Content-Description: select.c.diff
+Content-Type: application/octet-stream; name=select.c.diff; SizeOnDisk=918
+
+KioqIHNlbGVjdC5vcmlnLmMJVGh1IEp1biAyMSAwODo1MjowNCAyMDAxCi0tLSBzZWxlY3QuYwlU
+aHUgSnVuIDIxIDEyOjA5OjI1IDIwMDEKKioqKioqKioqKioqKioqCioqKiAxNjQsMTcxICoqKioK
+LS0tIDE2NCwxNzIgLS0tLQogIHsKICAJcG9sbF90YWJsZSB0YWJsZSwgKndhaXQ7CiAgCWludCBy
+ZXR2YWwsIGksIG9mZjsKICAJbG9uZyBfX3RpbWVvdXQgPSAqdGltZW91dDsKKyAJdW5zaWduZWQg
+bG9uZyBiaXRzOwogIAogICAJcmVhZF9sb2NrKCZjdXJyZW50LT5maWxlcy0+ZmlsZV9sb2NrKTsK
+ICAJcmV0dmFsID0gbWF4X3NlbGVjdF9mZChuLCBmZHMpOwogIAlyZWFkX3VubG9jaygmY3VycmVu
+dC0+ZmlsZXMtPmZpbGVfbG9jayk7CioqKioqKioqKioqKioqKgoqKiogMTg2LDE5NCAqKioqCiAg
+CQkJdW5zaWduZWQgbG9uZyBtYXNrOwogIAkJCXN0cnVjdCBmaWxlICpmaWxlOwogIAogIAkJCW9m
+ZiA9IGkgLyBfX05GREJJVFM7CiEgCQkJaWYgKCEoYml0ICYgQklUUyhmZHMsIG9mZikpKQogIAkJ
+CQljb250aW51ZTsKICAJCQlmaWxlID0gZmdldChpKTsKICAJCQltYXNrID0gUE9MTE5WQUw7CiAg
+CQkJaWYgKGZpbGUpIHsKLS0tIDE4NywyMDIgLS0tLQogIAkJCXVuc2lnbmVkIGxvbmcgbWFzazsK
+ICAJCQlzdHJ1Y3QgZmlsZSAqZmlsZTsKICAKICAJCQlvZmYgPSBpIC8gX19ORkRCSVRTOwohIAkJ
+CWlmICghKGkgJiAoX19ORkRCSVRTIC0gMSkpKSB7CiEgCQkJCWJpdHMgPSBCSVRTKGZkcywgb2Zm
+KTsKISAJCQkJaWYgKCFiaXRzKSB7CiEgCQkJCQlpICs9IF9fTkZEQklUUzsKISAJCQkJCWNvbnRp
+bnVlOwohIAkJCQl9CiEgCQkJfQohIAkJCWlmICghKGJpdCAmIGJpdHMpKQogIAkJCQljb250aW51
+ZTsKICAJCQlmaWxlID0gZmdldChpKTsKICAJCQltYXNrID0gUE9MTE5WQUw7CiAgCQkJaWYgKGZp
+bGUpIHsK
+
+--_=XFMail.1.4.7.Linux:20010621123002:1037=_--
+End of MIME message

@@ -1,86 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265939AbSKVHBD>; Fri, 22 Nov 2002 02:01:03 -0500
+	id <S266640AbSKVHHI>; Fri, 22 Nov 2002 02:07:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266100AbSKVHBD>; Fri, 22 Nov 2002 02:01:03 -0500
-Received: from wiprom2mx2.wipro.com ([203.197.164.42]:48875 "EHLO
-	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
-	id <S265939AbSKVHBC>; Fri, 22 Nov 2002 02:01:02 -0500
-Message-ID: <3DDDD7C6.D09B2501@wipro.com>
-Date: Fri, 22 Nov 2002 12:37:50 +0530
-From: Rashmi Agrawal <rashmi.agrawal@wipro.com>
-Reply-To: rashmi.agrawal@wipro.com
-Organization: wipro tech
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
-X-Accept-Language: en
+	id <S266955AbSKVHHI>; Fri, 22 Nov 2002 02:07:08 -0500
+Received: from front.ethz.ch ([129.132.53.17]:11472 "EHLO seismo.ifg.ethz.ch")
+	by vger.kernel.org with ESMTP id <S266640AbSKVHHH>;
+	Fri, 22 Nov 2002 02:07:07 -0500
+Message-ID: <3DDDD923.1070702@seismo.ifg.ethz.ch>
+Date: Fri, 22 Nov 2002 08:13:39 +0100
+From: jan <jan@seismo.ifg.ethz.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ragnar =?iso-8859-1?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-CC: Jesse Pollard <pollard@admin.navo.hpc.mil>, linux-kernel@vger.kernel.org
-Subject: Re: Failover in NFS
-References: <3DD90197.4DDEEE61@wipro.com> <20021118164408.B30589@vestdata.no> <200211181611.06241.pollard@admin.navo.hpc.mil> <20021118232230.F30589@vestdata.no>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 22 Nov 2002 07:07:53.0696 (UTC) FILETIME=[E05C5E00:01C291F5]
+To: linux-kernel@vger.kernel.org
+Subject: Re: A7M266-D
+References: <200211211124.36280.shawn.starr@datawire.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+thanks to all who helped me out. I finally found that option
+in :
+ATA/IDE/MFM/RLL support
+It is the AMD Viper support button.
 
-As an alternative to NFS, how about using OpenAFS(Andrew file system) which
-happens to provide following
+Jan
 
-1. Failover
-2. Common namespace
-3. Client cachin and efficient wide area protocol for excellent performance.
 
-Or how about using SAMBA.
+Shawn Starr wrote:
+> Works fine in 2.4.18+ (since I had the machine only durning 2.4.18).
+> 
+> Shawn.
+> 
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of jan
+> Sent: Thursday, November 21, 2002 8:34 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: A7M266-D
+> 
+> dear list,
+> 
+> i have an A7M266-D board with two AMD Athlon MP 2000+ on it.
+> Unfortunately I am unable to compile the correct driver for the AM7441 
+> IDE Controller (using 2.4.19)
+> I always get this under SuSE :
+> 
+> AMD7441: detected chipset, but driver not compiled in!
+> 
+> When using a precompiled SUSE or RedHat Kernel it gets recognized.
+> 
+> 
+> 
+> SuSE Linux 2.4.18-64GB-SMP output :
+> 
+> AMD_IDE: IDE controller on PCI bus 00 dev 39
+> AMD_IDE: chipset revision 4
+> AMD_IDE: not 100% native mode: will probe irqs later
+> AMD_IDE: AMD-768 Opus (rev 04) IDE UDMA100 controller on pci00:07.1
+>      ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
+>      ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
+> 
+> RedHat 2.4.18-14smp output :
+> 
+> AMD7441: IDE controller on PCI bus 00 dev 39
+> AMD7441: chipset revision 4
+> AMD7441: not 100% native mode: will probe irqs later
+> AMD7441: disabling single-word DMA support (revision < C4)
+>      ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
+>      ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:pio
+> 
+> 
+> What am I doing wrong ? and why RedHat and SuSE Kernel have no Problem 
+> with this Chipset ?
+> 
+> 
+> best regards,
+> 
+> 
+> Jan
 
-Any views on the pros and cons??
 
-Regards
-Rashmi
-Ragnar Kjørstad wrote:
+-- 
+Jan ZELLER
 
-> On Mon, Nov 18, 2002 at 04:11:06PM -0600, Jesse Pollard wrote:
-> > > No, you need to move the IP-address from the old nfs-server to the new
-> > > one. Then to the clients it will look like a regular reboot. (Check out
-> > > heartbeat, at http://www.linux-ha.org/)
-> > >
-> > > You need to make sure that NFS is using the shared ip (the one you move
-> > > around) rather than the fixed ip. (I assume you will have a fixed ip on
-> > > each host in addition to the one you move around). Also, you need to put
-> > > /var/lib/nfs on shared stoarage. See the archive for more details.
-> >
-> > It would actually be better to use two floating IP numbers. That way during
-> > normal operation, both servers would be functioning simultaneously
-> > (based on the shared storage on two nodes).
-> >
-> > Then during failover, the floating IP of the failed node is activated on the
-> > remaining node (total of 3 IP numbers now, one real, two floating). The NFS
-> > recovery cycle should then cause the clients to remount the filesystem from
-> > the backup server.
->
-> Yes, that would be better.
->
-> But it would not work as described above. There are some important
-> limitations here:
->
-> - I assumed that /var/lib/nfs is shared. If you want two servers to
->   be active at once you need a different way to share lock-data.
->
-> - AFAIK there is no way for statd to service 2 IP's at once.
->   It will (AFAIK) bind to both adresses, but the problem is the
->   message that is sent out at startup and includes the ip of
->   the local host.
->
-> Neither limitation is a law of nature. They can be fixed. I think there
-> is work going on to change the way locks are stored, and I'm sure the
-> second problem can be solved as well.
->
-> There may be solutions out there already. E.g. maybe Lifekeeper or
-> Convolo include better support for this?
->
-> --
-> Ragnar Kjørstad
-> Big Storage
+Swiss Seismological Service
+ETH-Hoenggerberg / HPP P 9
+CH-8093 Zurich
+Switzerland
+
+Phone : +41-1-633-3243
+Fax   : +41-1-633-1065
+
+Microsoft gives you Windows but Unix gives you the whole house!
 

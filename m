@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbVAYPKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVAYPMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbVAYPKP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 10:10:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVAYPKP
+	id S261977AbVAYPMV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 10:12:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVAYPKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 10:10:15 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:55759 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261974AbVAYPJk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 10:09:40 -0500
-Date: Tue, 25 Jan 2005 16:09:14 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
-Message-ID: <20050125150914.GA23423@elte.hu>
-References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <87u0p6t7fi.fsf@sulphur.joq.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87u0p6t7fi.fsf@sulphur.joq.us>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 25 Jan 2005 10:10:35 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:19716 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261971AbVAYPKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 10:10:10 -0500
+Message-ID: <41F66131.1@techsource.com>
+Date: Tue, 25 Jan 2005 10:09:37 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OT] News about the Open Graphics Project
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Some of you may recall my post back in October 
+(http://marc.theaimsgroup.com/?l=linux-kernel&m=109831011607347&w=2) 
+about an open-source-friendly graphics board.  We've been working on 
+that, and we've made a lot of progress on it.  A LOT has changed, and 
+we're now working on an OpenGL-compliant 3D GPU.
 
-* Jack O'Quin <joq@io.com> wrote:
+This morning, KernelTrap put up an interview that we've been working on 
+which talks about the project and its current status.  Here's a link to 
+the article:
 
-> I was just pointing out that saying nice(-20) works as well as
-> SCHED_ISO, though true, doesn't mean much since neither of them
-> (currently) work well enough to be useful.
+http://kerneltrap.org/node/4622
 
-ok. While i still think nice--20 can be quite good for some purposes, it
-will probably not solve all problems that the audio applications need
-solved.
+Usually, KernelTrap quotes LKML.  Therefore, I figure it wouldn't be too 
+bad for me to quote KernelTrap on LKML.  :)  Here's a relevant bit of 
+the article:
 
-> For good reasons, most audio developers prefer the POSIX realtime
-> interfaces.  They are far from perfect, but remain the only workable,
-> portable solution available.  That is why I like your rt_cpu_limit
-> proposal so much better that this one.
+The Open Graphics Project is a collaboration between the Free and Open 
+Source Software (FOSS) Community and Tech Source Inc. to develop new 3D 
+graphics products that are compatible with Free Software, both 
+philosophically and practically. The project is currently designing an 
+"open source friendly graphics card" which will offer quality 3D and 2D 
+acceleration with an impressive feature set at an affordable price, 
+aiming for availability as early as June of 2005. Though the project was 
+only started in October of 2004, it has already released the card's 
+specifications, a design document, and a software model for early 
+testing and driver development. In this interview, Timothy provides a 
+wealth of information about the project and its current status, 
+highlights contributions needed from the free and open source community, 
+and fully describes the specific capabilities of the card.
 
-ok - lets forget about nice--20 for now.
 
-	Ingo
+
+[Note:  I used to subscribe to LKML, but this project and my own mailing 
+list have made it impossible for me to keep up with LKML.  If you have 
+questions, feel free to email me directly.]

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317811AbSGPMrS>; Tue, 16 Jul 2002 08:47:18 -0400
+	id <S317817AbSGPMrP>; Tue, 16 Jul 2002 08:47:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317814AbSGPMrR>; Tue, 16 Jul 2002 08:47:17 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2835 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S317811AbSGPMrP>; Tue, 16 Jul 2002 08:47:15 -0400
-Date: Tue, 16 Jul 2002 09:49:53 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Jens Axboe <axboe@suse.de>, William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] loop.c oopses
-In-Reply-To: <3D33DED8.C5C92C06@zip.com.au>
-Message-ID: <Pine.LNX.4.44L.0207160948160.3009-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317814AbSGPMrO>; Tue, 16 Jul 2002 08:47:14 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:30906 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S317811AbSGPMrM>; Tue, 16 Jul 2002 08:47:12 -0400
+Date: Tue, 16 Jul 2002 14:49:56 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Gerhard Mack <gmack@innerfire.net>
+Cc: Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020716124956.GK7955@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Gerhard Mack <gmack@innerfire.net>,
+	Mathieu Chouquet-Stringer <mathieu@newview.com>,
+	linux-kernel@vger.kernel.org
+References: <20020716081809.GE7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207160821100.16079-100000@innerfire.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207160821100.16079-100000@innerfire.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jul 2002, Andrew Morton wrote:
+On Tue, Jul 16, 2002 at 08:22:53AM -0400, Gerhard Mack wrote:
 
-> That's maybe wrong - if there are a decent number of pages
-> under writeback then we should be able to just wait it out.
-> But it gets tricky with the loop driver...
+> > This needs to be "according to Linus, dump is deprecated". Given the
+> > interest Linus has manifested for backups, I wouldn't really rely on
+> > his statement :-)
+> 
+> Either way dump is not likely to give you a reliable backup when used
+> with a 2.4.x kernel.
 
-I wonder if it is possible to exhaust the mempool with
-the loop driver requests before getting around to the
-requests to the underlying block device(s)...
+Since you are so well informed, maybe you could share your knowledge
+with us.
 
+I'm the dump maintainer, so I'll be very interested in knowing how
+comes that dump works for me and many other users... :-)
 
-regards,
-
-Rik
+Stelian.
 -- 
-	http://www.linuxsymposium.org/2002/
-"You're one of those condescending OLS attendants"
-"Here's a nickle kid.  Go buy yourself a real t-shirt"
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUEMOQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263460AbUEMOjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264213AbUEMOQj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 10:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbUEMOQi
+	id S263460AbUEMOjt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 10:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUEMOjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 10:16:38 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6902 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264213AbUEMOP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 10:15:56 -0400
-Date: Thu, 13 May 2004 16:15:49 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm2
-Message-ID: <20040513141548.GG22202@fs.tum.de>
-References: <20040513032736.40651f8e.akpm@osdl.org> <20040513114520.A8442@infradead.org> <20040513035134.2e9013ea.akpm@osdl.org>
+	Thu, 13 May 2004 10:39:49 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38834 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263460AbUEMOjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 10:39:48 -0400
+Date: Thu, 13 May 2004 16:39:47 +0200
+From: Jan Kara <jack@ucw.cz>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
+       Jerome Borsboom <j.borsboom@erasmusmc.nl>,
+       Eugene Crosser <crosser@average.org>
+Subject: [PATCH] Quota fix 1
+Message-ID: <20040513143947.GP3629@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="/04w6evG8XlLl3ft"
 Content-Disposition: inline
-In-Reply-To: <20040513035134.2e9013ea.akpm@osdl.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 13, 2004 at 03:51:34AM -0700, Andrew Morton wrote:
-> Christoph Hellwig <hch@infradead.org> wrote:
-> >
-> > > +hugetlb_shm_group-sysctl-gid-0-fix.patch
-> > > 
-> > >  Don't make gid 0 special for hugetlb shm.
-> > 
-> > As Oracle has agreed on fixing their DB to use hugetlbfs could we
-> > please stop doctoring around on this broken patch and revert it.
-> 
-> Once I'm convinced that kernel.org kernels will be able to run applications
-> which vendor kernels will run, sure.
->...
 
-Vendor 2.4 kernels support the "old" EVMS application.
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Despite this fact, the code was rejected by Linus during 2.5.
+  Hello,
 
-cu
-Adrian
+  I'm sending you a patch which fixes the problem with release_dqblk()
+being NULL for old quota format. The patch is against 2.6.6 (+the patch
+you submitted to Linus). Please apply.
 
--- 
+								Honza
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="quota-2.6.6-1-releasefix.diff"
+
+diff -ru linux-2.6.6-quotactl/fs/dquot.c linux-2.6.6-1-releasefix/fs/dquot.c
+--- linux-2.6.6-quotactl/fs/dquot.c	Thu May 13 16:31:35 2004
++++ linux-2.6.6-1-releasefix/fs/dquot.c	Thu May 13 16:32:09 2004
+@@ -367,7 +367,8 @@
+ 	if (atomic_read(&dquot->dq_count) > 1)
+ 		goto out_dqlock;
+ 	down(&dqopt->dqio_sem);
+-	ret = dqopt->ops[dquot->dq_type]->release_dqblk(dquot);
++	if (dqopt->ops[dquot->dq_type]->release_dqblk)
++		ret = dqopt->ops[dquot->dq_type]->release_dqblk(dquot);
+ 	clear_bit(DQ_ACTIVE_B, &dquot->dq_flags);
+ 	up(&dqopt->dqio_sem);
+ out_dqlock:
+
+--/04w6evG8XlLl3ft--

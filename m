@@ -1,57 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263263AbTDRV7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 17:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTDRV7Q
+	id S263273AbTDRWCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 18:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbTDRWCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 17:59:16 -0400
-Received: from ool-4352eb9e.dyn.optonline.net ([67.82.235.158]:63883 "EHLO
-	nikolas.hn.org") by vger.kernel.org with ESMTP id S263263AbTDRV7P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 17:59:15 -0400
-Date: Fri, 18 Apr 2003 18:10:29 -0400
-From: Nick Orlov <bugfixer@list.ru>
-To: Christoph Hellwig <hch@infradead.org>,
-       Andrei Ivanov <andrei.ivanov@ines.ro>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-mm4
-Message-ID: <20030418221029.GA3956@nikolas>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrei Ivanov <andrei.ivanov@ines.ro>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.50L0.0304182236480.1931-100000@webdev.ines.ro> <20030418205403.GA3366@nikolas> <20030418225447.A8626@infradead.org>
+	Fri, 18 Apr 2003 18:02:46 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:44992 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263273AbTDRWCn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 18:02:43 -0400
+Date: Fri, 18 Apr 2003 15:15:26 -0700
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB fixes for 2.4.21-pre7
+Message-ID: <20030418221526.GA8638@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030418225447.A8626@infradead.org>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 18, 2003 at 10:54:47PM +0100, Christoph Hellwig wrote:
-> On Fri, Apr 18, 2003 at 04:54:03PM -0400, Nick Orlov wrote:
-> > In my case sshd was not able to allocate pts...
-> > Actually it was not possible to allocate pts under 2.5.67-mm4 at all.
-> 
-> do you have the devpts filesystem mounted on /dev/pts/ ?
+Hi,
 
-No, I don't.
-I'm using devfs and it works perfectly under 2.5.67-mm3.
+Here are some USB bugfixes for 2.4.21-pre7.  These are all pretty small
+and important (the ftdi_sio one is a bit bigger, but still needed.)
 
-Below is part of my .config related to devpts and devfs:
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/marcelo-2.4
 
-nick@nikolas:/boot$ egrep "DEVFS|DEVPTS" config-2.5.67-mm4-1
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-# CONFIG_DEVFS_DEBUG is not set
-CONFIG_DEVPTS_FS=y
+The individual patches will be sent in follow up messages to this email
+to you and the linux-usb-devel mailing list.
 
-BTW, system is Debian/unstable, daily updated.
+thanks,
 
-Thanks,
-	Nick.
+greg k-h
 
--- 
-With best wishes,
-	Nick Orlov.
+ drivers/usb/CDCEther.c             |   50 +-
+ drivers/usb/CDCEther.h             |    3 
+ drivers/usb/acm.c                  |    1 
+ drivers/usb/host/ehci-mem.c        |    1 
+ drivers/usb/host/ehci-q.c          |   10 
+ drivers/usb/host/uhci.c            |    2 
+ drivers/usb/pegasus.c              |   10 
+ drivers/usb/pegasus.h              |    6 
+ drivers/usb/scanner.c              |   11 
+ drivers/usb/scanner.h              |    2 
+ drivers/usb/serial/ftdi_sio.c      |  855 ++++++++++++++++++++++++++++---------
+ drivers/usb/serial/ftdi_sio.h      |   56 ++
+ drivers/usb/serial/io_edgeport.c   |    8 
+ drivers/usb/serial/ipaq.c          |    1 
+ drivers/usb/serial/ipaq.h          |    3 
+ drivers/usb/storage/unusual_devs.h |    9 
+ drivers/usb/usb.c                  |    2 
+ 18 files changed, 798 insertions(+), 252 deletions(-)
+-----
+
+<alborchers@steinerpoint.com>:
+  o USB: patch for oops in io_edgeport.c
+
+<arndt@lin02384n012.mc.schoenewald.de>:
+  o USB: Patch against unusual_devs.h to enable Pontis SP600
+
+<bryder@paradise.net.nz>:
+  o USB: ftdi_sio update
+
+<legoll@free.fr>:
+  o USB: New USB serial device ID: Asus A600 PDA cradle
+
+<soruk@eridani.co.uk>:
+  o USB: enable Motorola cellphone USB modems
+
+Alan Stern <stern@rowland.harvard.edu>:
+  o USB: usb-storage START-STOP under Linux 2.4
+
+David Brownell <david-b@pacbell.net>:
+  o USB: CDC Ether fix notifications
+  o USB: usbcore deadlock paranoia
+  o USB: ehci-hcd, minor hardware tweaks
+
+Duncan Sands <baldrick@wanadoo.fr>:
+  o USB: uhci bandaid
+
+Henning Meier-Geinitz <henning@meier-geinitz.de>:
+  o USB: scanner.c endpoint detection fix
+
+Petko Manolov <petkan@users.sourceforge.net>:
+  o USB: pegasus link status detection fix
 

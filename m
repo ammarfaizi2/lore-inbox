@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264870AbUEYO1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264873AbUEYO1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264870AbUEYO1b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 10:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbUEYO1b
+	id S264873AbUEYO1u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 10:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbUEYO1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 10:27:31 -0400
-Received: from mail.ccur.com ([208.248.32.212]:52491 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S264870AbUEYO13 (ORCPT
+	Tue, 25 May 2004 10:27:50 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:55938 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264873AbUEYO1r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 10:27:29 -0400
-Date: Tue, 25 May 2004 10:27:28 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: markh@compro.net, linux-kernel@vger.kernel.org
-Subject: Re: mlockall and mmap of IO devices don't mix
-Message-ID: <20040525142728.GA10738@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20031003214411.GA25802@rudolph.ccur.com> <40ADE959.822F1C23@compro.net> <20040521191326.58100086.akpm@osdl.org>
-Mime-Version: 1.0
+	Tue, 25 May 2004 10:27:47 -0400
+Date: Tue, 25 May 2004 07:27:40 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: FabF <fabian.frederick@skynet.be>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7rc1 vs 2.6.0
+Message-ID: <367240000.1085495259@[10.10.2.4]>
+In-Reply-To: <1085464727.3762.4.camel@localhost.localdomain>
+References: <1085464727.3762.4.camel@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040521191326.58100086.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 21, 2004 at 07:13:26PM -0700, Andrew Morton wrote:
-> Mark Hounschell <markh@compro.net> wrote:
-> >
-> > Joe Korty wrote:
-> > > 
-> > > 2.6.0-test6: the use of mlockall(2) in a process that has mmap(2)ed
-> > > the registers of an IO device will hang that process uninterruptibly.
-> > > The task runs in an infinite loop in get_user_pages(), invoking
-> > > follow_page() forever.
-> > > 
-> > > Using binary search I discovered that the problem was introduced
-> > > in 2.5.14, specifically in ChangeSetKey
-> > > 
-> > >     zippel@linux-m68k.org|ChangeSet|20020503210330|37095
-> > > 
-> > 
-> > I know this is an old thread but can anyone tell me if this problem is
-> > resolved in the current 2.6.6 kernel? 
-> > 
+> 	Here's trivial fgrep vs report (using ffb1) :
 > 
-> There's an utterly ancient patch in -mm which might fix this.
+> 2.6.7rc1 : 
+> Grepping  /usr/bin  :
+> 45% cpu - 38.06 RT Sec - 1.10 Sec in KM
+> Entries scanned : 1527
+> 85112 Kb analyzed this time
 > 
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm4/broken-out/get_user_pages-handle-VM_IO.patch
+> 2.6.0 : 
+> Grepping  /usr/bin  :
+> 51% cpu - 33.12 RT Sec - 1.10 Sec in KM
+> Entries scanned :1527
+> 85112 Kb analyzed this time
+> 
+> 	This is done against ext3 fs. Same .config, same box, same box state.
+> What relevance could explain this 5s delta ? IOW, what big ext3, mm new functionnalities have been plugged in-between ?
 
-[ 2nd send -- corporate email system in the throes of being scrambled / updated ]
+Take kernel profiles of both (see Documentation/basic_profiling.txt)
 
-Andrew,
-I have been using this patch for ages.  Any chance of it being forwared to
-the official tree?
+M.
 
-Regards,
-Joe

@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292415AbSBZRbL>; Tue, 26 Feb 2002 12:31:11 -0500
+	id <S292419AbSBZRav>; Tue, 26 Feb 2002 12:30:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292421AbSBZRbC>; Tue, 26 Feb 2002 12:31:02 -0500
-Received: from charger.oldcity.dca.net ([207.245.82.76]:8088 "EHLO
-	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
-	id <S292415AbSBZRap>; Tue, 26 Feb 2002 12:30:45 -0500
-Date: Tue, 26 Feb 2002 12:30:38 -0500
-From: christophe =?iso-8859-15?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 3c59x and cardbus
-Message-ID: <20020226173038.GD803@ufies.org>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+	id <S292418AbSBZRaf>; Tue, 26 Feb 2002 12:30:35 -0500
+Received: from L1180P04.dipool.highway.telekom.at ([62.46.211.100]:39176 "HELO
+	the-happy-freaks") by vger.kernel.org with SMTP id <S292415AbSBZRaR>;
+	Tue, 26 Feb 2002 12:30:17 -0500
+Date: Tue, 26 Feb 2002 18:30:18 +0100
+From: Clemens Kirchgatterer <clemens@thf.ath.cx>
+To: linux-kernel@vger.kernel.org
+Subject: strange behaviour difference of scsi driver aha152x in 2.4.x and 2.2.x
+Message-Id: <20020226183018.730eb0ca.clemens@thf.ath.cx>
+Organization: The Happy Freaks
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1sNVjLsmu1MXqwQ/"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: debian SID Gnu/Linux 2.4.18 on i586
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i had a very hard time to get my old microtek scanmaker e3 scanner to
+work on an ava1502 isa scsi controller under linux 2.4.17. host adapter
+was allways detected correctly, but never the scanner. i tried to
+change some timeout values within the kernel driver, but this wild
+guessing didn't change anything. today i tired kernel 2.2.20. and it
+seemed to work at first sight, as it reported the scanner at bootup, but
+refused to start init with FATAL: kernel to old. (maybe a drm problem?)
+anyway. i rebooted with 2.4.17 and this time the scanner was detected
+without problems. this looks like the scsi bus has been initialized
+slightly diffrent with the 2.2 kernel, what made it work under 2.4
+afterwards.
 
---1sNVjLsmu1MXqwQ/
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+is this something that can be fixed? or ain't it broken, anyway? i'm
+willing to provide any information i can, if somebody wants to have a
+look at this.
 
-When you remove a 3c59x-based cardbus, the fonction vortex_remove_one
-is called and this function end with kfree(dev).
-
-I was looking why enable_wol loose its value after a remove/insert cycle
-but this value is store in the private part of dev so it's free with
-dev.
-
-The driver is not unloaded during the remove/insert cycle so it's a
-kernel space problem.
-
-Have I missed something here ?
-
-Christophe
-
-
---=20
-Christophe Barb=E9 <christophe.barbe@ufies.org>
-GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
-
-There is no snooze button on a cat who wants breakfast.
-
---1sNVjLsmu1MXqwQ/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
-
-iD8DBQE8e8Y+j0UvHtcstB4RAkYjAKCUW3N0AJPdH+J79u4gY293oZCNnwCgjjMV
-tnaFE9X8+l4LWH4oP84DNbQ=
-=YyTH
------END PGP SIGNATURE-----
-
---1sNVjLsmu1MXqwQ/--
+best regards ...
+clemens

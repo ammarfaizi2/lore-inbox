@@ -1,34 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbQKAUei>; Wed, 1 Nov 2000 15:34:38 -0500
+	id <S129112AbQKAUpk>; Wed, 1 Nov 2000 15:45:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129112AbQKAUe2>; Wed, 1 Nov 2000 15:34:28 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:15442 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129057AbQKAUeY>; Wed, 1 Nov 2000 15:34:24 -0500
-Date: Wed, 1 Nov 2000 21:34:12 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: J J Sloan <jjs@mirai.cx>
-Cc: linux-kernel@vger.kernel.org, linux-lvm@msede.com
-Subject: Re: [Fixed] - Repeatable oops mounting snapshots w/ test 10
-Message-ID: <20001101213412.A22947@athlon.random>
-In-Reply-To: <Pine.LNX.4.10.10011011214490.12293-100000@mirai.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10011011214490.12293-100000@mirai.cx>; from jjs@mirai.cx on Wed, Nov 01, 2000 at 12:19:31PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S130547AbQKAUpb>; Wed, 1 Nov 2000 15:45:31 -0500
+Received: from core.federated.com ([199.217.175.51]:30225 "EHLO
+	core.federated.com") by vger.kernel.org with ESMTP
+	id <S129112AbQKAUpQ>; Wed, 1 Nov 2000 15:45:16 -0500
+From: Jim Studt <jim@federated.com>
+Message-Id: <200011012045.OAA08574@core.federated.com>
+Subject: [PATCH] tulip oops for some eeproms in 2.4.0-test10
+To: linux-kernel@vger.kernel.org
+Date: Wed, 1 Nov 2000 14:45:06 -0600 (CST)
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2000 at 12:19:31PM -0800, J J Sloan wrote:
-> But why is the "official" release of the lvm utils so buggy?
+(please cc me, I follow the list on a web page)
 
-I guess it was a minor merging typo in the userspace tools and I'm sure Heinz
-will solve it shortly now that we're aware of the problem.
+The printk()s which enumerate media types during boot will oops
+for some eeproms.  They use the media type as an index into an
+array of strings without doing any bounds checking.
 
-Andrea
+This patch fixes it.  The leaf->type is the killer for my card, I 
+have a descriptor where that is 128, the block_name table only has 6 
+entries.  (The card is a Lite-On Communications Inc LNE100TX, based
+on a Kingston card.  Freebie from SWBell on DSL install.)
+
+The "leaf->media & 0x0f" range check is sufficient, but not as nice
+as the explicit size check on leaf->type.  There are 16 entires in
+medianame, but that is not known to this file during compilation.
+(leaf->media could be as high as 0x3f, so some sort of check is called for.
+If anyone named linus asks me to make a patch that uses the real size
+of medianame I will. :-)
+
+--- linux/drivers/net/tulip/eeprom.c.orig	Wed Nov  1 14:32:18 2000
++++ linux/drivers/net/tulip/eeprom.c	Wed Nov  1 14:14:02 2000
+@@ -236,8 +236,9 @@
+ 			}
+ 			printk(KERN_INFO "%s:  Index #%d - Media %s (#%d) described "
+ 				   "by a %s (%d) block.\n",
+-				   dev->name, i, medianame[leaf->media], leaf->media,
+-				   block_name[leaf->type], leaf->type);
++				   dev->name, i, medianame[leaf->media & 0x0f], leaf->media,
++				   ((leaf->type < sizeof(block_name)/sizeof(block_name[0])) ? block_name[leaf->type] : "unknown"), 
++				   leaf->type);
+ 		}
+ 		if (new_advertise)
+ 			tp->to_advertise = new_advertise;
+
+-- 
+                                     Jim Studt, President
+                                     The Federated Software Group, Inc.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

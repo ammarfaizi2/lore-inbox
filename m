@@ -1,35 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267743AbTAHFDR>; Wed, 8 Jan 2003 00:03:17 -0500
+	id <S267737AbTAHFC7>; Wed, 8 Jan 2003 00:02:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267748AbTAHFDR>; Wed, 8 Jan 2003 00:03:17 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:40713 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267743AbTAHFDQ>;
-	Wed, 8 Jan 2003 00:03:16 -0500
-Date: Tue, 7 Jan 2003 21:11:34 -0800
-From: Greg KH <greg@kroah.com>
-To: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-Cc: linux-kernel@vger.kernel.org, "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [PATCH] [2.5] IRQ distribution in the 2.5.52  kernel
-Message-ID: <20030108051134.GA32422@kroah.com>
-References: <E88224AA79D2744187E7854CA8D9131DA5CE52@fmsmsx407.fm.intel.com>
+	id <S267743AbTAHFC7>; Wed, 8 Jan 2003 00:02:59 -0500
+Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:30106 "EHLO
+	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S267737AbTAHFC5>; Wed, 8 Jan 2003 00:02:57 -0500
+Date: Wed, 8 Jan 2003 00:16:51 -0500
+To: linux-kernel@vger.kernel.org
+Subject: IDE DMA disabled with via82cxxx on kernels >= 2.5.35
+Message-ID: <20030108051651.GA6511@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E88224AA79D2744187E7854CA8D9131DA5CE52@fmsmsx407.fm.intel.com>
 User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 06:52:59PM -0800, Kamble, Nitin A wrote:
-> +# define MIN(a,b) (((a) < (b)) ? (a) : (b))
-> +# define MAX(a,b) (((a) > (b)) ? (a) : (b))
+I have two machines with VIA chipsets.  Recent 2.5 
+kernels boot with "DMA disabled".  
 
-There are alread definitions for min() and max(), it would be good to
-use them and not try to define your own.
+On Athlon, hdparm -tT /dev/hda is about 8 times higher 
+on 2.4 than 2.5 kernels.  hdparm -i says dma is (on) though.
 
-thanks,
+I tried CONFIG_BLK_DEV_IDEDMA_FORCED=y, but that didn't 
+eliminated the "DMA disabled" message.  Other IDE settings are:
 
-greg k-h
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+
+boot message:
+VP_IDE: IDE controller at PCI slot 00:07.1
+VP_IDE: chipset revision 6
+VP_IDE: not 100%% native mode: will probe irqs later
+VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
+hda: IC35L040AVER07-0, ATA DISK drive
+hda: IRQ probe failed (0xffffffba)
+hda: DMA disabled
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+
+lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (rev 06)
+00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+
+I also have a K6/2 with a VIA chipset.  2.5.34 and earlier were fine.
+2.5.34-mm4 and subsequent 2.5.x kernels boot with "DMA disabled".
+
+lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 04)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo VP] (rev 47)
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+
+The K6/2 boots with:
+
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 00:07.1
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt82c586b (rev 47) IDE UDMA33 controller on pci00:07.1
+ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
+ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: Maxtor 51536U3, ATA DISK drive
+hdb: ATAPI CDROM, ATAPI CD/DVD-ROM drive
+hda: DMA disabled
+hdb: DMA disabled
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+

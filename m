@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUGMGZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUGMGbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUGMGZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 02:25:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbUGMGZ6
+	id S263159AbUGMGbv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 02:31:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbUGMGbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 02:25:58 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:30442 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261638AbUGMGZ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 02:25:57 -0400
-Subject: Re: [PATCH] Making i/dhash_entries cmdline work as it use to.
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Jose R. Santos" <jrsantos@austin.ibm.com>
-Cc: dhowells@redhat.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       slpratt@us.ibm.com
-In-Reply-To: <20040713023721.GA7461@austin.ibm.com>
-References: <20040712175605.GA1735@rx8.austin.ibm.com>
-	 <20040713023721.GA7461@austin.ibm.com>
-Content-Type: text/plain
-Message-Id: <1089699910.19847.13357.camel@nighthawk>
+	Tue, 13 Jul 2004 02:31:51 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:34772 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S263159AbUGMGbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 02:31:49 -0400
+Date: Tue, 13 Jul 2004 02:31:45 -0400
+From: Paul Winkler <pw_lists@slinkp.com>
+To: "The Linux Audio Developers' Mailing List" 
+	<linux-audio-dev@music.columbia.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040713063145.GA14583@slinkp.com>
+Mail-Followup-To: Paul Winkler <pw_lists@slinkp.com>,
+	The Linux Audio Developers' Mailing List <linux-audio-dev@music.columbia.edu>,
+	linux-kernel@vger.kernel.org
+References: <20040709182638.GA11310@elte.hu> <20040710222510.0593f4a4.akpm@osdl.org> <1089673014.10777.42.camel@mindpipe> <20040712163141.31ef1ad6.akpm@osdl.org> <1089677823.10777.64.camel@mindpipe> <1089689478.2523.16.camel@rivendell.home.local>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 12 Jul 2004 23:25:10 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089689478.2523.16.camel@rivendell.home.local>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-07-12 at 19:37, Jose R. Santos wrote:
-> * Jose R. Santos <jrsantos@austin.ibm.com> [2004-07-12 12:56:05 -0500]:
-> > Also, any particular reason why MAX_SYS_HASH_TABLE_ORDER was set to 14?
-> > I am already seeing the need to go higher on my 64GB setup and was 
-> > wondering if this could be bumped up to 19.
+On Mon, Jul 12, 2004 at 08:31:18PM -0700, Florin Andrei wrote:
+> On Mon, 2004-07-12 at 17:17, Lee Revell wrote:
 > 
-> Actualy, it doesnt look like we need MAX_SYS_HASH_TABLE_ORDER at all so
-> I'm resending the patch which now limits the max size of a hash table to
-> 1/16 total memory pages.  This would keep people from doing dangerous
-> things when using the hash_entries.
+> > There is an overwhelming consensus amongst Linux audio
+> > folks that you should use reiserfs for low latency work.
+> 
+> I doubt the "overwhelming consensus" part. 
 
-Do you worry that you're just expanding the hash table as long as it
-gives benefit on your one, single benchmark?  There have to be plenty of
-other workloads that could benefit from an extra 1/16th more memory. 
-Not every workload is as dcache heavy as SFS.  
+me too, but at some point in the 2.4 kernel cycle,  
+reiserfs came out much better than ext3 in some latency tests* that 
+were reported on linux-audio-dev and linux-audio-user lists.
+This seems to have left many of us musicianly types with a vague 
+"reiser good, ext3 bad" mindset.
 
--- Dave
 
+* i think it was this:
+http://myweb.cableone.net/eviltwin69/Arcana.html#Mark%20Knecht's%20filesystem%20tests
+ 
+-- 
+
+Paul Winkler
+http://www.slinkp.com

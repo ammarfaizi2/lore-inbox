@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132127AbQKBO4w>; Thu, 2 Nov 2000 09:56:52 -0500
+	id <S129873AbQKBPo1>; Thu, 2 Nov 2000 10:44:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132163AbQKBO4l>; Thu, 2 Nov 2000 09:56:41 -0500
-Received: from nnj-dialup-60-237.nni.com ([216.107.60.237]:4800 "EHLO
-	nnj-dialup-60-237.nni.com") by vger.kernel.org with ESMTP
-	id <S132127AbQKBO40>; Thu, 2 Nov 2000 09:56:26 -0500
-Message-ID: <3A017FBB.AF8C596D@cybernex.net>
-Date: Thu, 02 Nov 2000 09:52:43 -0500
-From: TenThumbs <tenthumbs@cybernex.net>
-Reply-To: tenthumbs@cybernex.net
-Organization: <>
-X-Mailer: Mozilla 4.08C-See the fnords. [en] (X11; U; Linux 2.2.18pre18 i486)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.18pre18: many calls to kwhich
+	id <S129932AbQKBPoR>; Thu, 2 Nov 2000 10:44:17 -0500
+Received: from tetsuo.zabbo.net ([204.138.55.44]:57095 "HELO tetsuo.zabbo.net")
+	by vger.kernel.org with SMTP id <S129873AbQKBPoD>;
+	Thu, 2 Nov 2000 10:44:03 -0500
+Date: Thu, 2 Nov 2000 10:44:01 -0500
+From: Zach Brown <zab@zabbo.net>
+To: Mo McKinlay <mmckinlay@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Maestro3/Allegro: (was ESS device "1998")
+Message-ID: <20001102104401.C16000@tetsuo.zabbo.net>
+In-Reply-To: <Pine.LNX.4.21.0011021158250.8426-100000@kyle.altai.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21.0011021158250.8426-100000@kyle.altai.org>; from mmckinlay@gnu.org on Thu, Nov 02, 2000 at 12:03:41PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed that kwhich is called a lot:
+On Thu, Nov 02, 2000 at 12:03:41PM +0000, Mo McKinlay wrote:
 
-make oldconfig:        10
-make dep:              65
-make bzImage modules: 142
+> I recently obtained an HP Omnibook XE2 laptop. It's a reasonably
 
-Assuming that this is unintentional, this patch helps a lot.
+As people have mentioned, there is an alpha free driver near
+http://www.zabbo.net/maestro3/.  Its not quite up to par yet.  
 
---- Makefile.orig       Sun Oct 29 09:09:16 2000
-+++ Makefile    Tue Oct 31 11:39:11 2000
-@@ -28,7 +28,7 @@
- #      kgcc for Conectiva and Red Hat 7
- #      otherwise 'cc'
- #
--CC     =$(shell if [ -n "$(CROSS_COMPILE)" ]; then echo $(CROSS_COMPILE)gcc; else \
-+CC     :=$(shell if [ -n "$(CROSS_COMPILE)" ]; then echo $(CROSS_COMPILE)gcc; else \
-        $(CONFIG_SHELL) scripts/kwhich gcc272 2>/dev/null || $(CONFIG_SHELL) scripts/kwhich kgcc 2>/dev/null || echo cc; fi) \
-        -D__KERNEL__ -I$(HPATH)
- CPP    =$(CC) -E
+maybe the web page should talk a bit more about the chip familiy. The
+maestro3 has a lot of pieces in common with the maestro2, except for
+the part of the chip that did pcm manipulation.  the m3 only has a dsp
+where the m2 had specific silicon for doing pcm work.  the allegro
+is a "slimmed down" maestro3, and neither have anything to do with
+cirrus/crystal CSxxxx parts as far as I know :)
 
-(If it gets wrapped, it's just "=" -> ":=").
+I expect you'll have the 'slow down' problem on the Xe2, we have the
+clocking messed up on some implementations (those that don't clock the
+thing at 49mhz, as god intended? :))
+ 
+> I've given up on the internal modem (I'm 90% sure it's some kind of
 
-It's also interesting that make dep calls kwhich an odd number
-of times including one case where it looked for "gcc." I suspect
-a makefile isn't playing nice but I haven't looked for it.
+*nod*  Its the usual mc97 codec setup that leaves the hard work for the
+processor.  I'm sure one can play around with the dsp on it as well,
+but we don't have specs on the dsp's internals.
+
+-- 
+ zach
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

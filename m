@@ -1,43 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281435AbRKTWU1>; Tue, 20 Nov 2001 17:20:27 -0500
+	id <S281439AbRKTWZ0>; Tue, 20 Nov 2001 17:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281436AbRKTWUQ>; Tue, 20 Nov 2001 17:20:16 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:61705 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S281435AbRKTWUD>;
-	Tue, 20 Nov 2001 17:20:03 -0500
-Date: Tue, 20 Nov 2001 20:19:47 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <dmaas@dcine.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Swap
-In-Reply-To: <20011120.141129.57454002.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33L.0111202019170.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S281429AbRKTWZH>; Tue, 20 Nov 2001 17:25:07 -0500
+Received: from erasmus.jurri.net ([62.236.96.196]:18049 "EHLO
+	oberon.erasmus.jurri.net") by vger.kernel.org with ESMTP
+	id <S281439AbRKTWZF>; Tue, 20 Nov 2001 17:25:05 -0500
+To: linux-kernel@vger.kernel.org
+Subject: 3Com Carbus adapter need to be re-inserted before detection
+From: Samuli Suonpaa <suonpaa@iki.fi>
+Date: 21 Nov 2001 00:20:33 +0200
+Message-ID: <87itc5axu6.fsf@puck.erasmus.jurri.net>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Nov 2001, David S. Miller wrote:
->    From: Rik van Riel <riel@conectiva.com.br>
->    Date: Tue, 20 Nov 2001 20:05:05 -0200 (BRST)
->
->    Consider this a VM bug, mmap() really should be more efficient.
->
-> read() is always going to be faster until mmap() can
-> use large page mappings for the user.  This is why
-> mmap() is slower.
+I recall somebody reported, a month or a few ago, that he had 3Com
+Cardbus ethernet-adapter, which needed to be inserted, removed and
+then inserted again before network was set up properly. I didn't
+follow that thread and wasn't able to find it now that I have exactly
+the same problem. Did anybody have any solution to this?
 
-Uhhhh, read his original mail.  When using mmap() he had
-problems with the VM doing bad page replacement, while
-read() was smooth.
+I have experienced this problem with every kernel I have tried this
+card with (2.4.9, 2.4.1[0-3]ac, 2.4.15pre[67]). When I boot my Dell
+Latitude with the card (3CCFE575BT-D) inserted, it _does_ detect a
+card in the socket:
 
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
+Nov 21 00:01:00 puck cardmgr[188]: initializing socket 1
+Nov 21 00:01:00 puck cardmgr[188]: socket 1: 3Com 3CCFE575B/3CXFE575B Fast EtherLink XL
 
-http://www.surriel.com/		http://distro.conectiva.com/
+At this point, the module 3c59x does not load. Also at this point the
+adapter has 10BaseT led on, though my network is 100BaseT. 
 
+Then I remove remove the card and insert it again:
+
+Nov 21 00:02:07 puck kernel: cs: cb_free(bus 6)
+Nov 21 00:02:07 puck cardmgr[188]: shutting down socket 1
+Nov 21 00:02:07 puck /etc/hotplug/pci.agent: PCI remove event not supported
+Nov 21 00:02:12 puck kernel: cs: cb_alloc(bus 6): vendor 0x10b7, device 0x5157
+Nov 21 00:02:12 puck kernel: PCI: Enabling device 06:00.0 (0000 -> 0003)
+Nov 21 00:02:12 puck cardmgr[188]: initializing socket 1
+Nov 21 00:02:12 puck cardmgr[188]: socket 1: 3Com 3CCFE575B/3CXFE575B Fast EtherLink XL
+Nov 21 00:02:12 puck /etc/hotplug/pci.agent: Modprobe and setup 3c59x for PCI slot 06:00.0
+Nov 21 00:02:12 puck kernel: 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+Nov 21 00:02:12 puck kernel: 06:00.0: 3Com PCI 3CCFE575BT Cyclone CardBus at 0x4800. Vers LK1.1.16
+Nov 21 00:02:12 puck kernel: PCI: Setting latency timer of device 06:00.0 to 64
+Nov 21 00:02:12 puck /etc/hotplug/net.agent: invoke ifup eth0
+
+Now it now loads 3c59x and has the 100BaseT led on, but at this point
+it still does not get the network up and running. (Meaning: ifconfig
+still shows only loopback-interface up.)
+
+So, let's remove and insert again:
+
+Nov 21 00:02:24 puck kernel: cs: cb_free(bus 6)
+Nov 21 00:02:24 puck cardmgr[188]: shutting down socket 1
+Nov 21 00:02:24 puck /etc/hotplug/net.agent: invoke ifdown eth0
+Nov 21 00:02:24 puck /etc/hotplug/pci.agent: PCI remove event not supported
+Nov 21 00:02:26 puck kernel: cs: cb_alloc(bus 6): vendor 0x10b7, device 0x5157
+Nov 21 00:02:26 puck kernel: PCI: Enabling device 06:00.0 (0000 -> 0003)
+Nov 21 00:02:26 puck kernel: 06:00.0: 3Com PCI 3CCFE575BT Cyclone CardBus at 0x4800. Vers LK1.1.16
+Nov 21 00:02:26 puck kernel: PCI: Setting latency timer of device 06:00.0 to 64
+Nov 21 00:02:26 puck cardmgr[188]: initializing socket 1
+Nov 21 00:02:26 puck cardmgr[188]: socket 1: 3Com 3CCFE575B/3CXFE575B Fast EtherLink XL
+Nov 21 00:02:26 puck /etc/hotplug/net.agent: invoke ifup eth0
+Nov 21 00:02:26 puck /etc/hotplug/pci.agent: Modprobe and setup 3c59x for PCI slot 06:00.0
+Nov 21 00:02:29 puck kernel: eth0: Setting full-duplex based on MII #0 link partner capability of 45e1.
+
+Now everything works like a charm.
+
+What should I look at in order to find out what's going on here?
+
+The current kernel is 2.4.15pre7 and the hotplug-utilities are from
+Debian package with versioned as 0.0.20010919-2.
+
+Suonp‰‰...

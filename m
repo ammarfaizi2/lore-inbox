@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVC1JrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVC1JtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVC1JrG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 04:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVC1JrG
+	id S261443AbVC1JtV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 04:49:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVC1JtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 04:47:06 -0500
-Received: from userf193.dsl.pipex.com ([62.188.53.193]:1465 "HELO
-	mail.ezplanet.net") by vger.kernel.org with SMTP id S261416AbVC1JrB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 04:47:01 -0500
-Subject: Re: imps2 mouse driver and bug 2082
-From: Mauro Mozzarelli <mauro@ezplanet.net>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200503272321.49899.dtor_core@ameritech.net>
-References: <1111966642.5789.7.camel@helios.ezplanet.org>
-	 <200503272321.49899.dtor_core@ameritech.net>
-Content-Type: text/plain
-Organization: EzPlanet
-Date: Mon, 28 Mar 2005 09:46:52 +0000
-Message-Id: <1112003212.5698.9.camel@helios.ezplanet.org>
+	Mon, 28 Mar 2005 04:49:21 -0500
+Received: from colino.net ([213.41.131.56]:32238 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S261443AbVC1JtQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 04:49:16 -0500
+Date: Mon, 28 Mar 2005 11:49:04 +0200
+From: Colin Leroy <colin@colino.net>
+To: linux-usb-devel@lists.sf.net
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: [PATCH] fix shared key auth in zd1201
+Message-ID: <20050328114904.09291da8@jack.colino.net>
+X-Mailer: Sylpheed-Claws 1.9.6cvs9 (GTK+ 2.6.1; powerpc-unknown-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry,
+Hi,
 
-I reckon that the reconnection should be automatic, with the kernel
-driver being able to detect a sync loss. I understand that the patch you
-originally posted might not be ideal, however I have been using it
-successfully for months now (modified for 2.6.9 and 2.6.10) and I have
-included it in the standard kernel distributed with EzPlanet One.
+this is a resend of a patch that Andrew put in -mm, but that I think is
+ok and should go into mainline. I did not get any feedback (positive or
+negative) about it. Please either apply it or explain why not...
 
-Although we may not want to include this patch as it is, I would
-consider the prioritization of this issue to be resolved in future
-kernel releases.
+It's currently impossible to associate with a shared-key-only access
+point using the zd1201 driver. The attached patch fixes it. The reason
+was (probably) a typo in the definitions of the authentification types.
+I found that they should be (1,2) instead of (0,1) by looking at the
+old linux-wlan-ng driver by Zydas.
 
-Mauro
-
-On Sun, 2005-03-27 at 23:21 -0500, Dmitry Torokhov wrote:
-> Hi,
-> 
-> On Sunday 27 March 2005 18:37, Mauro Mozzarelli wrote:
-> > The mouse driver, re-developed for kernel 2.6, ever since the earliest
-> > 2.6 release lost the ability to reset a broken link with an IMPS2 mouse
-> > (this happens when disconnecting the mouse plug either physically or
-> > through a "non imps2" KVM switch). The result is that the mouse can no
-> > longer be controlled, with the only solution being a RE-BOOT!
-> >
-> 
-> You can re-initialize mouse with the following command (while mouse is
-> connected):
-> 
->         echo -n "reconnect" > /sys/bus/serio/devices/serioX/drvctl
-> 
-> where serioX is serio port your mouse is connected to. You can find out
-> which one by examining the driver link:
-> 
-
-
-
+Signed-off-by: Colin Leroy <colin@colino.net>
+--- a/drivers/usb/net/zd1201.h	2005-03-25 09:14:49.000000000 +0100
++++ b/drivers/usb/net/zd1201.h	2005-03-25 09:11:59.000000000 +0100
+@@ -141,7 +141,7 @@
+ #define ZD1201_RATEB5	4	/* 5.5 really, but 5 is shorter :) */
+ #define ZD1201_RATEB11	8
  
-
+-#define ZD1201_CNFAUTHENTICATION_OPENSYSTEM	0
+-#define ZD1201_CNFAUTHENTICATION_SHAREDKEY	1
++#define ZD1201_CNFAUTHENTICATION_OPENSYSTEM	0x0001
++#define ZD1201_CNFAUTHENTICATION_SHAREDKEY	0x0002
+ 
+ #endif /* _INCLUDE_ZD1201_H_ */

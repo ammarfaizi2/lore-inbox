@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266691AbUGVD1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266797AbUGVDa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266691AbUGVD1u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 23:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUGVD1u
+	id S266797AbUGVDa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 23:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266799AbUGVDa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 23:27:50 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:3040 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266691AbUGVD1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 23:27:49 -0400
-Subject: Re: reserve legacy io regions on powermac
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: olh@suse.de, benh@kernel.crashing.org, geert@linux-m68k.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1090457945.1231.711.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 21 Jul 2004 20:59:06 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jul 2004 23:30:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1194 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266797AbUGVDa6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 23:30:58 -0400
+Date: Wed, 21 Jul 2004 23:30:18 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@devserv.devel.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Delete cryptoloop
+In-Reply-To: <20040721230044.20fdc5ec.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0407212319560.13098@devserv.devel.redhat.com>
+References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com>
+ <20040721230044.20fdc5ec.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think a great many drivers could be cleaned up
-by making IO fail if the proper IO address cookies
-haven't been obtained. This might be done with
-byteswapping, XOR, addition, putting a checksum in
-the top 2 bytes of a 64-bit cookie, or simply
-tracking where an ioremap has been done. Then the
-read and write operations can check this.
+On Wed, 21 Jul 2004, Andrew Morton wrote:
 
-In general, make IO fail if a driver doesn't play
-by the rules.
+> > which is buggy, unmaintained, and
+> > reportedly has mutliple security weaknesses.
+> 
+> Doesn't dm-crypt have the same security weaknesses?
 
-Perhaps some of the low memory-mapped stuff on
-x86 could be moved.
+Jari Ruusu claims that anything with on-disk cryptoloop compatibility is 
+vulnerable to dictionary attacks and IV deduction.  Fruhwirth Clemens 
+claims that this is FUD, per the thread below.
 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108447509327847&w=2
+
+It would be good if we could get some further review on the issue by an 
+independent, well known cryptographer.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 

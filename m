@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUFXKsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUFXKvU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264238AbUFXKsm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 06:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUFXKsm
+	id S264251AbUFXKvU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 06:51:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUFXKvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 06:48:42 -0400
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:26030 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264238AbUFXKsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 06:48:36 -0400
-Subject: [PATCH] fs/isofs/inode.c, 2-4GB files rejected on DVDs
-From: Jason Mancini <xorbe@sbcglobal.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Thu, 24 Jun 2004 03:44:30 -0700
-Message-Id: <1088073870.17691.8.camel@xorbe.dyndns.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.2-2mdk 
+	Thu, 24 Jun 2004 06:51:20 -0400
+Received: from mail4.speakeasy.net ([216.254.0.204]:43476 "EHLO
+	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S264236AbUFXKvC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 06:51:02 -0400
+Date: Thu, 24 Jun 2004 03:50:59 -0700
+Message-Id: <200406241050.i5OAoxKC032703@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Fcc: ~/Mail/linus
+Subject: [PATCH] fix x86-64 ptrace access to 32-bit vsyscall page
+X-Zippy-Says: Yow!  It's a hole all the way to downtown Burbank!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let me try this again with Evolution...
+When I made get_user_pages support looking up a pte for the "gate" area, I
+assumed it would be part of the kernel's fixed mappings.  On x86-64 running
+a 32-bit task, the 32-bit vsyscall DSO page still has no vma but has its
+pte allocated in the user mm in the normal fashion.  This patch makes it
+use the generic page-table lookup calls rather than the shortcuts.
+With this, ptrace on x86-64 can access a 32-bit process's vsyscall page.
+The behavior on x86 is unchanged.
 
-> DVDs with 2-4GB files get their filesizes truncated.  Are there even
-> "cruft" CDs in circulation today?  Maybe it should be a config item.
-> A popular competing os seems to handle 2-4GB isofs filesizes.
-> -Jason Mancini
-
-=============================================================================
-diff -Nru inode.c.orig inode.c
---- inode.c.orig        2004-06-24 03:38:09.171898370 -0700
-+++ inode.c     2004-06-24 03:37:47.997909378 -0700
-@@ -1282,12 +1282,20 @@
-         * WARNING: ISO-9660 filesystems > 1 GB and even > 2 GB are fully
-         *          legal. Do not prevent to use DVD's schilling@fokus.gmd.de
-         */
-+       /*
-        if ((inode->i_size < 0 || inode->i_size > 0x7FFFFFFE) &&
-            sbi->s_cruft == 'n') {
-                printk(KERN_WARNING "Warning: defective CD-ROM.  "
-                       "Enabling \"cruft\" mount option.\n");
-                sbi->s_cruft = 'y';
-        }
-+       */
-+
-+       /*  Forget "cruft", I have DVDs to read with 2-4GB files.
-+        */
-+       if (inode->i_size < 0) {
-+         inode->i_size &= 0x0FFFFFFFF;
-+       }
-
-        /*
-         * Some dipshit decided to store some other bit of information
-=============================================================================
+Signed-off-by: Roland McGrath <roland@redhat.com>
 
 
+Thanks,
+Roland
+
+
+Index: linux-2.6/mm/memory.c
+===================================================================
+RCS file: /home/roland/redhat/bkcvs/linux-2.5/mm/memory.c,v
+retrieving revision 1.172
+diff -p -u -r1.172 memory.c
+--- linux-2.6/mm/memory.c 5 Jun 2004 17:52:06 -0000 1.172
++++ linux-2.6/mm/memory.c 24 Jun 2004 10:37:12 -0000
+@@ -718,19 +718,24 @@ int get_user_pages(struct task_struct *t
+ 			pte_t *pte;
+ 			if (write) /* user gate pages are read-only */
+ 				return i ? : -EFAULT;
+-			pgd = pgd_offset_k(pg);
++			pgd = pgd_offset(mm, pg);
+ 			if (!pgd)
+ 				return i ? : -EFAULT;
+ 			pmd = pmd_offset(pgd, pg);
+ 			if (!pmd)
+ 				return i ? : -EFAULT;
+-			pte = pte_offset_kernel(pmd, pg);
+-			if (!pte || !pte_present(*pte))
++			pte = pte_offset_map(pmd, pg);
++			if (!pte)
+ 				return i ? : -EFAULT;
++			if (!pte_present(*pte)) {
++				pte_unmap(pte);
++				return i ? : -EFAULT;
++			}
+ 			if (pages) {
+ 				pages[i] = pte_page(*pte);
+ 				get_page(pages[i]);
+ 			}
++			pte_unmap(pte);
+ 			if (vmas)
+ 				vmas[i] = gate_vma;
+ 			i++;

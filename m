@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264140AbTH1SKW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 14:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTH1SKW
+	id S264108AbTH1SM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 14:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264109AbTH1SM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 14:10:22 -0400
-Received: from greendale.ukc.ac.uk ([129.12.21.13]:18821 "EHLO
-	greendale.ukc.ac.uk") by vger.kernel.org with ESMTP id S264140AbTH1SKS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 14:10:18 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Spam? was: Linux 2.4.23-pre1
-References: <Pine.LNX.4.55L.0308271449170.23236@freak.distro.conectiva>
-	<20030828174247.GD21352@matchmail.com>
-From: Adam Sampson <azz@us-lot.org>
-Organization: Don't wake me, 'cos I'm dreaming, and I might just stay inside
- again today.
-Date: Thu, 28 Aug 2003 19:10:08 +0100
-In-Reply-To: <20030828174247.GD21352@matchmail.com> (Mike Fedyk's message of
- "Thu, 28 Aug 2003 10:42:47 -0700")
-Message-ID: <y2aptip64cf.fsf@cartman.at.fivegeeks.net>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+	Thu, 28 Aug 2003 14:12:27 -0400
+Received: from mx1.it.wmich.edu ([141.218.1.89]:47531 "EHLO mx1.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S264108AbTH1SMZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 14:12:25 -0400
+Message-ID: <3F4E4605.6040706@wmich.edu>
+Date: Thu, 28 Aug 2003 14:12:21 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-UKC-Mail-System: No virus detected
+To: Alex Tomas <bzzz@tmi.comex.ru>
+CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [RFC] extents support for EXT3
+References: <m33cfm19ar.fsf@bzzz.home.net>
+In-Reply-To: <m33cfm19ar.fsf@bzzz.home.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> writes:
+This patch seems to be against test2, just wondering if anyone before me 
+has used it on the latest test release.  If not then i'm gonna do 
+something stupid and be the first.
 
->> RCVD_IN_OSIRUSOFT_COM (0.6 points) RBL: Received via a relay in
->> relays.osirusoft.com
-> This was marked as spam from spamassassin.
 
-relays.osirusoft.com have closed down, and are now apparently
-reporting all addresses as blacklisted (which strikes me as not
-exactly the most user-friendly way to shut down a blacklist, but I
-guess they've got their reasons...).
+Alex Tomas wrote:
+> this is 2nd version of the patch. changes:
+>   - error handling seems completed
+>   - lots of cleanups and comments
+>   - few minor bug fixed
+> 
+> this version of the patch tries to solve couple
+> of corner cases:
+>   - very long truncate
+>   - rewrite 
+> 
+> it survived dbench, bonnie++ and fsx tests.
+> 
+> take a look at numbers I've just got, please.
+> 
+>                       before      after
+> 5GB file, creation:   2m31.197s   2m21.933s
+> 5GB file, read:       2m25.439s   2m24.833s
+> 5GB file, rewrite:    2m48.434s   2m20.958s
+> 5GB file, removal:    0m8.760s    0m0.858s
+> 
+>              before           after
+> dbench 16:   99.9868 MB/sec   179.243 MB/sec 16 procs
+> dbench 16:   89.9919 MB/sec   203.119 MB/sec 16 procs
+> dbench 16:   73.5519 MB/sec   185.815 MB/sec 16 procs
+> dbench 16:   94.6312 MB/sec   188.519 MB/sec 16 procs
+> 
+> 
+> to use extents you have to use 'extents' mount option
+> 
+> Alex
 
--- 
-Adam Sampson <azz@us-lot.org>                        <http://offog.org/>

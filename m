@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270621AbTHORrW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 13:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270624AbTHORrW
+	id S270472AbTHORq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 13:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270621AbTHORq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 13:47:22 -0400
-Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:32389 "EHLO
-	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
-	id S270621AbTHORrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 13:47:19 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-From: Alistair J Strachan <alistair@devzero.co.uk>
-To: Clock <clock@twibright.com>
-Subject: Re: nforce2 lockups
-Date: Fri, 15 Aug 2003 18:47:20 +0100
-User-Agent: KMail/1.5.9
-References: <df962fdf9006.df9006df962f@us.army.mil> <200308151738.08965.alistair@devzero.co.uk> <20030815210601.A5452@beton.cybernet.src>
-In-Reply-To: <20030815210601.A5452@beton.cybernet.src>
+	Fri, 15 Aug 2003 13:46:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30414 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270472AbTHORqZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 13:46:25 -0400
+Date: Fri, 15 Aug 2003 10:42:56 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Dave Jones <davej@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: Debug: sleeping function called from invalid context
+Message-Id: <20030815104256.3644fb1b.rddunlap@osdl.org>
+In-Reply-To: <20030815173246.GB9681@redhat.com>
+References: <20030815101856.3eb1e15a.rddunlap@osdl.org>
+	<20030815173246.GB9681@redhat.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200308151847.20128.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 August 2003 20:06, Clock wrote:
-[SNIP]
->
-> I have had three boards with nforce2 replaced (all of them Soltek
-> SL75FRN2-L) and all three did the same. However it seemed the frequency of
-> the crashes varies with actual piece of board.
+On Fri, 15 Aug 2003 18:32:47 +0100 Dave Jones <davej@redhat.com> wrote:
 
-That's certainly interesting.
+| On Fri, Aug 15, 2003 at 10:18:56AM -0700, Randy.Dunlap wrote:
+| 
+|  > Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
+|  > Call Trace:
+|  >  [<c0120d94>] __might_sleep+0x54/0x5b
+|  >  [<c010d001>] save_v86_state+0x71/0x1f0
+|  >  [<c010dbd5>] handle_vm86_fault+0xc5/0xa90
+|  >  [<c019cab8>] ext3_file_write+0x28/0xc0
+|  >  [<c011cd96>] __change_page_attr+0x26/0x220
+|  >  [<c010b310>] do_general_protection+0x0/0x90
+|  >  [<c010a69d>] error_code+0x2d/0x40
+|  >  [<c0109657>] syscall_call+0x7/0xb
+| 
+| That's one really wierd looking backtrace. What else was that
+| machine up to at the time ?
 
->
-> The crashes aren't in software - bare 'cat /dev/hda > /dev/null' is
-> often to lock up the machine to the point that poweroff fails.
+Mostly I was just testing the ppa driver, so mostly "nothing."
+As I said:
+Wrote some files to a Zip ppa device, did sync and umount:
+Then I exited xfce and saw those messages.
 
-[root] 06:43 PM [/home/alistair] time cat /dev/discs/disc0/disc > /dev/null
-(I ctrl-C'd here)
+X and xfce (window manager) were loaded and some console windows
+were open.  Nothing else other than daemons.
 
-real    1m23.275s
-user    0m0.979s
-sys     0m12.608s
-
-I don't know how obvious the problem is on your machine, but it's clearly not 
-an issue on this nForce2. When I was referring to software, that included the 
-kernel i.e., I suspect it isn't a design fault.
-
-Any other details?
-
-Cheers,
-Alistair.
+--
+~Randy

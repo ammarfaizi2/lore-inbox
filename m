@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVCRAQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVCRAS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbVCRAQi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 19:16:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCRAQi
+	id S261293AbVCRAS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 19:18:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCRAS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 19:16:38 -0500
-Received: from ozlabs.org ([203.10.76.45]:10462 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261398AbVCRAQf (ORCPT
+	Thu, 17 Mar 2005 19:18:26 -0500
+Received: from fire.osdl.org ([65.172.181.4]:16348 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261293AbVCRASJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 19:16:35 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Mar 2005 19:18:09 -0500
+Date: Thu, 17 Mar 2005 16:17:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prezeroing V8
+Message-Id: <20050317161752.761fe8e9.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503171600320.10205@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com>
+	<20050317140831.414b73bb.akpm@osdl.org>
+	<Pine.LNX.4.58.0503171423590.10008@schroedinger.engr.sgi.com>
+	<20050317151151.47fd6e5f.akpm@osdl.org>
+	<Pine.LNX.4.58.0503171525360.10205@schroedinger.engr.sgi.com>
+	<20050317155908.56e77b8e.akpm@osdl.org>
+	<Pine.LNX.4.58.0503171600320.10205@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16954.7656.838769.483631@cargo.ozlabs.ibm.com>
-Date: Fri, 18 Mar 2005 11:16:40 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       riel@redhat.com, Ian.Pratt@cl.cam.ac.uk, kurt@garloff.de,
-       Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
-In-Reply-To: <1111067594.1213.27.camel@localhost.localdomain>
-References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk>
-	<16952.41973.751326.592933@cargo.ozlabs.ibm.com>
-	<200503161406.01788.jbarnes@engr.sgi.com>
-	<29ab1884ee5724e9efcfe43f14d13376@cl.cam.ac.uk>
-	<16953.20279.77584.501222@cargo.ozlabs.ibm.com>
-	<1111067594.1213.27.camel@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-
-> On Iau, 2005-03-17 at 09:34, Paul Mackerras wrote:
-> > This code needs real physical addresses, which are not the same things
-> > as bus addresses.  
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> On Thu, 17 Mar 2005, Andrew Morton wrote:
 > 
-> Not always. The code needs platform specific goodies. We've only never
-> been burned so far because there isn't a box with an IOMMU and AGPGART
-> where one maps through the other.
+> > >  http://oss.sgi.com/projects/page_fault_performance/
+> >
+> > Oh no, not that page again ;)
+> 
+> Yes indeed!
+> 
+> > Seems to say that prezeroing makes negligible difference to kernel builds,
+> > but speeds up a big malloc+memset by 3x to 4x, yes?
+> 
+> Correct.
+> 
+> > Are there any real-worldish workloads which show an appreciable benefit?
+> 
+> Ummm. Big loads are our real-worldish workloads here.
 
-That sounds like a good way to make AGP accesses slower. :)
+Sure, but not malloc+memset+exit.
 
-Seriously, given that AGP is a technology that is being superseded by
-PCI Express, I think it's reasonable to look at the range of current
-implementations to see what we have to cope with.  So I don't think
-it's worth worrying too much about the possibility of GARTs that go
-through the IOMMU.  However, the idea of having phys_to_agp/agp_to_phys
-(or virt_to_agp/agp_to_virt) sounds like it wouldn't be too much
-effort, if it would help Xen.
+How much improvement do these big numerical tasks get from the patch?
 
-Paul.
+> > The large speedup for a big memset seems odd - I assume it's simply
+> > transferring CPU load from the user's process over to kscrubd.  Or is it
+> > the fancy page-zeroing hardware?  How do we differentiate the two?
+> 
+> I switched off the page-zeroing hardware for the tests.
+
+What tests?
+
+See, a speedup in a simple malloc+memset could be due to either a simple
+transfer of load from user to kscrubd, or it could be due to leveraging the
+page-zeroing hardware.
+
+The latter, I expect, if the workload is actually touching every byte of
+all the pages.  Is it?
+
+If we're doing kscrubd zeroing via memset() then the total system load
+would actually be increased if the application is touching every byte, yes?
+
+> > Are there any workloads which are seeing a benefit on a CPU which doesn't
+> > have the zeroing hardware?
+> 
+> Without zeroing hardware the eroing actions are moved to idle
+> system time (load < /proc/sys/vm/scrub_load). Its shifting the cpu load.
+
+Right.  We'd expect that to be a net regression if the application is
+touching all of the memory and a net win if it is touching the memory
+sparsely, yes?
+
+

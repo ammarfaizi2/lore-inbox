@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130226AbRBUW1I>; Wed, 21 Feb 2001 17:27:08 -0500
+	id <S129842AbRBUW2S>; Wed, 21 Feb 2001 17:28:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130227AbRBUW07>; Wed, 21 Feb 2001 17:26:59 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:52238 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129842AbRBUW0n>; Wed, 21 Feb 2001 17:26:43 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: rayn <Wilfried.Weissmann@gmx.at>
-Date: Thu, 22 Feb 2001 09:26:16 +1100 (EST)
-MIME-Version: 1.0
+	id <S130170AbRBUW2I>; Wed, 21 Feb 2001 17:28:08 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:57868 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S129842AbRBUW1H>;
+	Wed, 21 Feb 2001 17:27:07 -0500
+Date: Wed, 21 Feb 2001 17:27:06 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Nye Liu <nyet@curtis.curtisfong.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Very high bandwith packet based interface and performance problems
+Message-ID: <20010221172705.C5113@xi.linuxpower.cx>
+In-Reply-To: <20010220181955.A1994@hobag.internal.zumanetworks.com> <E14VXub-0001vv-00@the-village.bc.nu> <20010221140055.A8113@curtis.curtisfong.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14996.16520.832011.18@notabene.cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: partitions for RAID volumes?
-In-Reply-To: message from rayn on Wednesday February 21
-In-Reply-To: <3A942AEC.4004DA3F@gmx.at>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <20010221140055.A8113@curtis.curtisfong.org>; from nyet@curtis.curtisfong.org on Wed, Feb 21, 2001 at 02:00:55PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday February 21, Wilfried.Weissmann@gmx.at wrote:
-> Hi,
+On Wed, Feb 21, 2001 at 02:00:55PM -0800, Nye Liu wrote:
+[snip]
+> This is NOT what I'm seeing at all.. the kernel load appears to be
+> pegged at 100% (or very close to it), the user space app is getting
+> enough cpu time to read out about 10-20Mbit, and FURTHERMORE the kernel
+> appears to be ACKING ALL the traffic, which I don't understand at all
+> (e.g. the transmitter is simply blasting 300MBit of tcp unrestricted)
 > 
-> Is there any chance that RAID volumes would support partitions like the
-> hard-disk driver in the future? 
+> With udp, we can get the full 300MBit throughput, but only if we shape
+> the load to 300Mbit. If we increase the load past 300 MBit, the received
+> frames (at the user space udp app) drops to 10-20MBit, again due to
+> user-space application scheduling problems.
 
-Yep.
-See: http://www.cse.unsw.edu.au/~neilb/patches/linux/2.4.2-pre4/
-
-You would need patches H,I,N,O,P,Q,R,  and you should consider this a
-very early release, but it works for me.
-It uses a second major device number for partitioned md arrays. You
-can only partition the first 16 arrays (md0 - md15) and only have 15
-partitions per array.  It wont work well for raid5, but for raid1
-(which is what I particularly want) or raid0 it should be fine.
-
-Using this, I can RAID1 hda and hdc together as md0 == mda and then
-partition it up as mda1 (root) mda2 (swap) mda3 (other).  And if I
-have too, I can boot off either drive individually with any raid
-happening.
-
-Lilo needs to be hacked a bit to do the right thing, and I have got a
-major number officially allocated from lanana, but as I said, this is
-a very early release.
-
-NeilBrown
+Perhaps excess context switches are thrashing the system?

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315170AbSEYRyf>; Sat, 25 May 2002 13:54:35 -0400
+	id <S315171AbSEYSCI>; Sat, 25 May 2002 14:02:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315179AbSEYRyf>; Sat, 25 May 2002 13:54:35 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26637 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315170AbSEYRyd>; Sat, 25 May 2002 13:54:33 -0400
-Date: Sat, 25 May 2002 10:54:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Brownell <david-b@pacbell.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ehci-hcd on CARDBUS hangs when stopping card service
-In-Reply-To: <3CEFC6A3.6080002@pacbell.net>
-Message-ID: <Pine.LNX.4.44.0205251049380.6515-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315182AbSEYSCH>; Sat, 25 May 2002 14:02:07 -0400
+Received: from bitmover.com ([192.132.92.2]:59090 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S315171AbSEYSCG>;
+	Sat, 25 May 2002 14:02:06 -0400
+Date: Sat, 25 May 2002 11:02:08 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Wolfgang Denk <wd@denx.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+Message-ID: <20020525110208.A15969@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Wolfgang Denk <wd@denx.de>, Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0205251015350.6515-100000@home.transmeta.com> <20020525175035.3580211972@denx.denx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 25, 2002 at 07:50:30PM +0200, Wolfgang Denk wrote:
+> I do like it very much when all code I write is GPLed, but there  are
+> situations  where  a there are good reasons for some application code
+> to remain closed. 
 
+Yeah, like you're trying to make money.  Which is fine.  But if that 
+"application" needs to use the RT/Linux patent in order to work, it
+either has to buy a license or be GPLed.
 
-On Sat, 25 May 2002, David Brownell wrote:
->
-> Seems to me it'd be worth mentioning this issue somewhere in the
-> documentation or source.  One could get the impression that the
-> main issue for a CardBus-enabled PCI driver is to make sure that
-> the "new style" driver APIs -- with a DEVICE_TABLE etc -- are used.
-> (Maybe just a brief comment in <asm/io.h> ...)
+It's somewhat two faced that the protesters here are arguing that
+everything has to be free in order for Linux to be used as a RT platform,
+but then come back and complain that the FSMlabs patent says everything
+has to be free if you don't want to pay.
 
-Documentation might be a good thing, indeed. I doubt <asm/io.h> is the
-right place for it, people tend to look at other drivers etc to pattern
-after (as clearly showed by how often a bug in one place is replicated in
-lots of other places ;)
-
-We've actually fixed a number of these things - there are drivers that
-notice removal on their own silently, and just turn it into a no-op.
-
-> I'm hardly averse to changing that loop (which normally does have an end :)
-> and I expected to need to at some point.  It's interesting to me just how
-> long that has been there without causing problems.  In this case the root
-> cause is that Cardbus "improper shutdown sequence" problem, so "no end"
-> is just a particularly nasty secondary failure mode.
-
-Most people don't unplug their devices while they are in use, and on
-cardbus the most common case ends up (I think) being the fact that the
-cardbus PCI static interrupt itself is shared with the device interrupt.
-So what happens is that when you remove the CardBus card, that causes the
-cardbus controller to send an interrupt (for removal), but since that
-interrupt is shared with the card driver, the card driver also sees the
-interrupt even if the card itself is otherwise idle.
-
-This meant that some tulip cards at least were _guaranteed_ to lock up
-some time ago, simply because their interrupt handler would loop forever
-on seeing the "more work" bit continually (all bits in the status register
-were set due to the removal and floating data lines).
-
-		Linus
-
+Maybe Victor should have used a different model: if no money changes hands,
+then it's free to use the patent, if money changes hand, FSMlabs wants a 
+cut.  I think that was the intent, but as with all things, it's hard to 
+state that clearly in a legal document.  If that was the intent, I support
+it, I think it's perfectly reasonable.  
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

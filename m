@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVBMTqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVBMUK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVBMTqX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 14:46:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVBMTqW
+	id S261265AbVBMUK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 15:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVBMUK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 14:46:22 -0500
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:46865 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261235AbVBMTqS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 14:46:18 -0500
-Date: Sun, 13 Feb 2005 20:46:39 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: linux-pci@atrey.karlin.mff.cuni.cz
-Cc: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
-       Frans Pop <aragorn@tiscali.nl>
-Subject: [PATCH 2.6] Add PCI quirk for SMBus on the Toshiba Satellite A40
-Message-Id: <20050213204639.1f0b4a27.khali@linux-fr.org>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 13 Feb 2005 15:10:26 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:64945 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261265AbVBMUKU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 15:10:20 -0500
+Date: Sun, 13 Feb 2005 21:10:06 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Seth, Rohit" <rohit.seth@intel.com>
+Cc: Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Andrey Savochkin <saw@sawoct.com>, linux-kernel@vger.kernel.org
+Subject: Re: possible CPU bug and request for Intel contacts
+Message-ID: <20050213201006.GA28783@elte.hu>
+References: <01EF044AAEE12F4BAAD955CB7506494302E88991@scsmsx401.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01EF044AAEE12F4BAAD955CB7506494302E88991@scsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-The Toshiba Satellite A40 laptop hides its SMBus device, much like a
-number of Asus boards reputedly do. This prevents access to the LM90
-hardware monitoring chip. This simple patch extends the PCI quirk used
-for the Asus and HP systems to this Toshiba laptop.
+* Seth, Rohit <rohit.seth@intel.com> wrote:
 
-Please consider for merge into the PCI subsystem,
-thanks.
+> On a little different note, while running the 4G-4G kernel on our
+> machine, we saw occasional hangs.  Those are root caused to the fact
+> that this kernel was first chaging the stack pointer from virtual
+> stack to kernel and then changing the CR3 to that of kernel.  Any
+> interrupt between these two instructions will result in those hangs as
+> the interruption handler will execute with user's CR3(as the kernel
+> thinks that it is already in kernel because of the value of esp). 
+> Swapping the order, first loading the CR3 with kernel and then
+> switching the stack to kernel fixes this issue.  Venki will generate
+> that patch and send to lkml.
 
-Signed-off-by: Frans Pop <aragorn@tiscali.nl>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+i'm not sure what you mean. Here's the relevant 4:4 code from Fedora:
 
---- linux/drivers/pci/quirks.c.orig	2005-02-12 19:44:37.000000000 +0100
-+++ linux/drivers/pci/quirks.c	2005-02-13 12:35:28.000000000 +0100
-@@ -801,6 +801,12 @@
- 			case 0x12bc: /* HP D330L */
- 				asus_hides_smbus = 1;
- 			}
-+	} else if (unlikely(dev->subsystem_vendor == PCI_VENDOR_ID_TOSHIBA)) {
-+		if (dev->device == PCI_DEVICE_ID_INTEL_82855GM_HB)
-+			switch(dev->subsystem_device) {
-+			case 0x0001: /* Toshiba Satellite A40 */
-+				asus_hides_smbus = 1;
-+			}
- 	}
- }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82845_HB,	asus_hides_smbus_hostbridge );
+#define __SWITCH_KERNELSPACE                            \
+...
+        movl %edx, %cr3;                                \
+        movl %ebx, %esp;                                \
 
+i.e. we _first_ load cr3 with the kernel pagetable value, then do we
+switch esp to the real kernel stack.
 
--- 
-Jean Delvare
+	Ingo

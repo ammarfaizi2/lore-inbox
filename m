@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbTLUMsO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 07:48:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTLUMsN
+	id S262844AbTLUNDm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 08:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbTLUNDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 07:48:13 -0500
-Received: from crisium.vnl.com ([194.46.8.33]:53266 "EHLO crisium.vnl.com")
-	by vger.kernel.org with ESMTP id S262925AbTLUMsM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 07:48:12 -0500
-Date: Sun, 21 Dec 2003 12:48:12 +0000
-From: Dale Amon <amon@vnl.com>
+	Sun, 21 Dec 2003 08:03:42 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:44815 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S262844AbTLUNDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 08:03:40 -0500
+Message-ID: <3FE59BAC.6030003@snapgear.com>
+Date: Sun, 21 Dec 2003 23:10:04 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Is there still at 2TB limit?
-Message-ID: <20031221124812.GE5126@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-References: <20031221010112.GX25351@vnl.com> <20031221101406.GA3211@localhost> <20031221121158.GA5126@vnl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031221121158.GA5126@vnl.com>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux, the choice of a GNU generation
+Subject: [PATCH]: linux-2.6.0-uc0 (MMU-less fixups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 21, 2003 at 12:11:58PM +0000, Dale Amon wrote:
-> Thanks. I notice the notes there are quite old. Are 
-> there libraries available now that work with LFS?
+Hi All,
 
-Actually I've got the answer. glibc 2.1.3 has full api;
-glibc 2.2 has full support; I'm currently using glibc
-2.3.2ds1 so if I toggle on that LFS option, it should
-all just work merrily with many terries of bytes.
+An update of the uClinux (MMU-less) fixups against 2.6.0.
+No changes over linux-2.6.0-test11-uc0 just generated and tested
+against 2.6.0.
 
--- 
-------------------------------------------------------
-   Dale Amon     amon@islandone.org    +44-7802-188325
-       International linux systems consultancy
-     Hardware & software system design, security
-    and networking, systems programming and Admin
-	      "Have Laptop, Will Travel"
-------------------------------------------------------
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.0-uc0.patch.gz
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

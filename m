@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265695AbUF2KvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265698AbUF2KxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265695AbUF2KvG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 06:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265703AbUF2KvG
+	id S265698AbUF2KxX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 06:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265703AbUF2KxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 06:51:06 -0400
-Received: from [65.196.50.46] ([65.196.50.46]:44987 "HELO frg.eur.nl")
-	by vger.kernel.org with SMTP id S265695AbUF2Kty (ORCPT
+	Tue, 29 Jun 2004 06:53:22 -0400
+Received: from cantor.suse.de ([195.135.220.2]:9606 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265698AbUF2KxM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 06:49:54 -0400
-Message-ID: <652b01c45dc7$3237db04$0f5e1bd9@frg.eur.nl>
-From: "Lillie Hollingsworth" <lillie_hollingsworthmn@e-j.de>
-To: linux-kernel@vger.kernel.org
-Subject: Get $200 bonus at our Casino!
-Date: Tue, 29 Jun 2004 15:54:07 +0500
+	Tue, 29 Jun 2004 06:53:12 -0400
+Date: Tue, 29 Jun 2004 12:53:10 +0200 (CEST)
+From: Steffen Winterfeldt <snwint@suse.de>
+To: Kurt Garloff <garloff@suse.de>
+Cc: Bart Hartgers <bart@etpmod.phys.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: hwscan hangs on USB2 disk - SCSI_IOCTL_SEND_COMMAND
+In-Reply-To: <20040629094557.GR4732@tpkurt.garloff.de>
+Message-ID: <Pine.LNX.4.58.0406291250200.27235@ligeti.suse.de>
+References: <20040629093739.40243364C@etpmod.phys.tue.nl>
+ <20040629094557.GR4732@tpkurt.garloff.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-I have a special offer available for you at our casino.
+Hi,
 
-$20 to try our internet casino, no deposit is necessary!
-At the casino software's cashier enter bonus code: FR93P
+On Tue, 29 Jun 2004, Kurt Garloff wrote:
 
-$200 bonus on your first deposit!
-At the casino software's cashier enter bonus code: FMJKU
+> On Tue, Jun 29, 2004 at 11:37:36AM +0200, Bart Hartgers wrote:
+> > The problem is that both hwscan and usb-storage get stuck in the 'D"
+> > state until I unplug the harddisk.
+> > 
+> > A strace of hwscan shows:
+> > 
+> > 21141 open("/dev/sda", O_RDONLY|O_NONBLOCK) = 3
+> > 21141 ioctl(3, 0x301, 0xbfffeba0)       = 0
+> > 21141 ioctl(3, BLKSSZGET, 0xbfffeb9c)   = 0
+> > 21141 ioctl(3, 0x80041272, 0xbfffeb90)  = 0
+> > 21141 ioctl(3, FIBMAP, 0xbfffec40)      = 0  <--- hwscan gets stuck here
 
-Allow us to show you our quality operation, fast payouts,
-generous bonuses, and super friendly around-the-clock
-customer support.
+[...]
 
-Click here: http://gozealgaming.biz
+> Does it work if you send the INQUIRY with 36 bytes allocation length?
+> scsi_cmd_buf[8 + 4] = 0x26;
 
-Best regards,
-Jamie Zawinsky
-
+It's indeed the inquiry size, sticking to the minium 36 bytes helps. 
+That's fixed in sles9. Update for 9.1 planned.
 
 
-No thanks: http://izealgaming.biz/u
-
+Steffen

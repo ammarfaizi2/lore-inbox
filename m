@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288787AbSAIRZg>; Wed, 9 Jan 2002 12:25:36 -0500
+	id <S288859AbSAIR3g>; Wed, 9 Jan 2002 12:29:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288246AbSAIRZ1>; Wed, 9 Jan 2002 12:25:27 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:25104 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S288830AbSAIRZK>;
-	Wed, 9 Jan 2002 12:25:10 -0500
-Date: Wed, 9 Jan 2002 09:23:41 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Jens Axboe <axboe@suse.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: bounce buffer usage
-In-Reply-To: <20020108084200.B19380@suse.de>
-Message-ID: <Pine.LNX.4.33L2.0201090844550.9139-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288862AbSAIR32>; Wed, 9 Jan 2002 12:29:28 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:34710
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288902AbSAIR3B>; Wed, 9 Jan 2002 12:29:01 -0500
+Date: Wed, 9 Jan 2002 12:13:37 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Giacomo Catenazzi <cate@debian.org>
+Cc: reddog83 <reddog83@chartermi.net>, linux-kernel@vger.kernel.org
+Subject: Re: CML2-2.0.4 is available
+Message-ID: <20020109121337.A23105@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Giacomo Catenazzi <cate@debian.org>,
+	reddog83 <reddog83@chartermi.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <fa.ijumnqv.13juc98@ifi.uio.no> <fa.fvl9anv.u6q1pu@ifi.uio.no> <3C3C02E2.4050008@debian.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C3C02E2.4050008@debian.org>; from cate@debian.org on Wed, Jan 09, 2002 at 09:44:18AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jan 2002, Jens Axboe wrote:
+Giacomo Catenazzi <cate@debian.org>:
+> Maybe better: use other keystrings. I.e. Control + key.
+> In this way is more difficult to press the wrong key sequence, but we
+> still have the full features in all modes.
 
-| On Mon, Jan 07 2002, Randy.Dunlap wrote:
-| >
-| > OK, here's 'fillmem 700' run against 5 kernels as described below,
-| > with my bounce io/swap statistics patch added.
-| >
-| > All tests are 6 instances of "fillmem 700" (700 MB) on a 4-way 4 GB
-| > x86 VA 4450 server.
-| >
-| > I'm including a reduced version of /proc/stat -- before and after the
-| > fillmem test in each case.
-| >
-| > Let me know if you'd like to see other variations.
-|
-| The results look very promising, although I'm a bit surprised that 2.5
-| is actually that much quicker :-)
+Not a bad idea, but where possible I like to keep the ttyconfig and menuconfig
+commands the same -- and ttyconfig can't easily see control characters.
 
-I was too.  When I have the bounce accounting straightened out,
-I'll run each test multiple times.
-
-| The bounce counts you are doing don't make too much sense to me though,
-| how come 2.4 + block-high and 2.5 show any bounced numbers at all? Maybe
-| you are not doing the accounting correctly? To get the right counts do
-| something ala:
-
-Clearly I mucked that up.  Thanks for pointing it out.
-The patch below makes sense, but I also want to count
-"bounced swap IOs" separately.  I'll retest and report that
-when I have it done.
-
-| +++ mm/highmem.c
-| @@ -409,7 +409,9 @@
-|                         vfrom = kmap(from->bv_page) + from->bv_offset;
-|                         memcpy(vto, vfrom, to->bv_len);
-|                         kunmap(from->bv_page);
-| -               }
-| +                       bounced_write++;
-| +               } else
-| +                       bounced_read++;
-|         }
-|
-| Of course those are all bounces, not just (or only) swap bounces. Also
-| note that the above is not SMP safe.
-
-Is this the only place that kstat (kernel_stat) counters
-are not SMP safe...?
-
+Anyway this would just address a surface symptom.  The real problem is
+that the deduction engine can do bad things when suppression is off.
+I want to fix that.
 -- 
-~Randy
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+"Experience should teach us to be most on our guard to protect liberty when the
+government's purposes are beneficient...The greatest dangers to liberty lurk in
+insidious encroachment by men of zeal, well meaning but without understanding."
+	-- Supreme Court Justice Louis Brandeis

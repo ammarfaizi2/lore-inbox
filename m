@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUI0QGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUI0QIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266578AbUI0QGI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 12:06:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUI0QGI
+	id S266485AbUI0QIV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 12:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266705AbUI0QIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 12:06:08 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:57991 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S266578AbUI0QGD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 12:06:03 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org, lkml@lpbproductions.com
-Subject: Re: 2.6.9-rc2-mm4
-Date: Mon, 27 Sep 2004 12:06:01 -0400
-User-Agent: KMail/1.7
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <200409271131.27329.gene.heskett@verizon.net> <200409270852.44366.lkml@lpbproductions.com>
-In-Reply-To: <200409270852.44366.lkml@lpbproductions.com>
+	Mon, 27 Sep 2004 12:08:20 -0400
+Received: from web40708.mail.yahoo.com ([66.218.78.165]:29532 "HELO
+	web40708.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266485AbUI0QIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 12:08:09 -0400
+Message-ID: <20040927160807.80266.qmail@web40708.mail.yahoo.com>
+Date: Mon, 27 Sep 2004 09:08:07 -0700 (PDT)
+From: Timothy Miller <theosib@yahoo.com>
+Subject: Using certain graphics cards on non-x86 systems?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409271206.01753.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [141.153.74.116] at Mon, 27 Sep 2004 11:06:02 -0500
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 September 2004 11:52, Matt Heler wrote:
->On Monday 27 September 2004 8:31 am, Gene Heskett wrote:
->> ones to be effected, so lets compare notes:
->>
->> AMD Athlon 2800xp, biostar N7-NCD-Pro motherboard with an nforce2
->> chipset, and using the forcedeth driver for eth0.  A gigabyte of
->> DDR400 rated ram running in DDR333 dual channel mode, the 2800xp
->> Athlon can't handle the DDR400 fsb correctly. No acpi is enabled,
->> and apm only for shutdown control & rtc handling.
->
->Simular system here. Athlon 3000xp , with nforce2 chipset.
+I have a quick question.  There are certain devices, like graphics
+cards, which require that their BIOS be run at POST in order to
+initialize certain critical (and often undocumented) bits of their
+hardware before they can be used by the OS.  What does Linux do about
+that on non-x86 systems?  I remember old Alphas had like and 8088
+emulator that allowed SOME PC graphics cards to be used as a console
+even.  But on, say, a G5, are you out of luck?  Is there an x86
+emulator that you use to run the BIOS?  At what stage is it run so that
+you can have a console?  Many cards can't even do basic VGA without the
+BIOS first being run.
 
-Can your athlon 3000xp do the DDR400 setting for the fsb?
+Thanks.
 
-For all the marketing hoopla, this 2800 is nowhere near twice as fast 
-the 1400xp it replaced, the 1400 was doing about 4.5 units of seti 
-per day, and this one is normally doing about 7.1.  I expected to see 
-about 9/day.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+
+	
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - 100MB free storage!
+http://promotions.yahoo.com/new_mail 

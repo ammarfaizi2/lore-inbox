@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288086AbSAQCIK>; Wed, 16 Jan 2002 21:08:10 -0500
+	id <S288089AbSAQCPK>; Wed, 16 Jan 2002 21:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288089AbSAQCH7>; Wed, 16 Jan 2002 21:07:59 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:56194
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288086AbSAQCHn>; Wed, 16 Jan 2002 21:07:43 -0500
-Date: Wed, 16 Jan 2002 20:51:19 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Ross Vandegrift <ross@willow.seitz.com>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: CML2-2.1.4 is available
-Message-ID: <20020116205119.A23383@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Ross Vandegrift <ross@willow.seitz.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20020116145605.A10792@thyrsus.com> <20020116175014.A21277@willow.seitz.com> <20020116174340.A16302@thyrsus.com> <20020116180042.A21447@willow.seitz.com> <20020116180112.C16592@thyrsus.com> <20020116200240.B22161@willow.seitz.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020116200240.B22161@willow.seitz.com>; from ross@willow.seitz.com on Wed, Jan 16, 2002 at 08:02:40PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S288090AbSAQCPA>; Wed, 16 Jan 2002 21:15:00 -0500
+Received: from redazione.oltrelinux.com ([80.17.149.253]:8349 "HELO
+	oltrelinux.com") by vger.kernel.org with SMTP id <S288089AbSAQCOk>;
+	Wed, 16 Jan 2002 21:14:40 -0500
+Date: Thu, 17 Jan 2002 03:14:40 +0100 (CET)
+From: Andrea Scrimieri <livore@karma.oltrelinux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Rik spreading bullshit about VM
+In-Reply-To: <Pine.LNX.4.33L.0201162235480.32617-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.40L0.0201170230530.3361-100000@karma.oltrelinux.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ross Vandegrift <ross@willow.seitz.com>:
-> Sorry, didn't mean to be so terse.  Same as before - 'make config' or 'make
-> menuconfig', press enter upon being shown the main menu while the default
-> selection is "Intel or Processor type (FROZEN)".
+On Wed, 16 Jan 2002, Rik van Riel wrote:
 
-Got it.  Looks like a bug I introduced when I filled someone else's request
-to make frozen symbols invisible two point releases ago.  I should have it
-fixed tonight.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> 1) the journalist may be good, but his english was far from
+>    fluent, there was some confusion at times during the
+>    interview
 
-The danger (where there is any) from armed citizens, is only to the
-*government*, not to *society*; and as long as they have nothing to
-revenge in the government (which they cannot have while it is in their
-own hands) there are many advantages in their being accustomed to the 
-use of arms, and no possible disadvantage.
-        -- Joel Barlow, "Advice to the Privileged Orders", 1792-93
+This email is just to let you all know that the original interview was the
+english one. I published it as it was in my IRC log, without correcting
+any grammatical/syntactical error, removing emoticons, changing any word.
+
+
+
+> 2) the interview was done quite informally on IRC, with me
+>    replying in normal IRC style  ...  it appears however
+>    that the sentence fragments were just cut'n'pasted
+>    together into something gramatically dubious, this has
+>    messed up the contents in some places ;)
+
+Rik, I asked you to choose between an email or IRC interview, you chose
+IRC, so from that moment if you used an informal language, it was out
+of my job. If you aren't able to take your responsabilities for your
+actions or words, this probably means you're not enough mature to be a
+maintainer. If you are sure to be a victim, publish your logs, i'll be
+happy to publish mine.
+
+
+
+> 3) I guess this whole stuff was converted to gramatically
+>    correct Italian, possibly meaning something slightly
+>    different from the text in (2), definately something
+>    else than what I wanted to say.
+
+The interview was translated to italian by a highly qualified person.
+Anyway, both italian and english interviews are on the web, i'm sure
+Andrea, or whoever, will be happy to tell you if anything was changed.
+
+
+Best regards,
+Andrea Scrimieri
+

@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261660AbTBTItp>; Thu, 20 Feb 2003 03:49:45 -0500
+	id <S264992AbTBTJKl>; Thu, 20 Feb 2003 04:10:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262469AbTBTItp>; Thu, 20 Feb 2003 03:49:45 -0500
-Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.224]:29333 "EHLO
-	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S261660AbTBTIto>; Thu, 20 Feb 2003 03:49:44 -0500
-Message-ID: <3E54990A.1070007@nyc.rr.com>
-Date: Thu, 20 Feb 2003 03:59:54 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: My House
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PCMCIA: cardmgr setting up two interfaces for one card?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264986AbTBTJKl>; Thu, 20 Feb 2003 04:10:41 -0500
+Received: from newpeace.netnation.com ([204.174.223.7]:40616 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S264984AbTBTJKj>; Thu, 20 Feb 2003 04:10:39 -0500
+Date: Thu, 20 Feb 2003 01:20:43 -0800
+From: Simon Kirby <sim@netnation.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, davem@redhat.com
+Subject: Re: Longstanding networking / SMP issue? (duplextest)
+Message-ID: <20030220092043.GA25527@netnation.com>
+References: <20030219174757.GA5373@netnation.com.suse.lists.linux.kernel> <p73r8a3xub5.fsf@amdsimf.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73r8a3xub5.fsf@amdsimf.suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am getting a strange error with the 2.5 kernels.  If the PCMCIA card 
-is in the socket when I run cardmgr, cardmgr will load the appropriate 
-module but inexplicably sets up two interfaces (eth1 and eth2 for 
-example) for the same card.  The first interface (eth1), in this case, 
-will not work -- even if i removed the modules and reinserted the card, 
-etc.  However, if the card is NOT in the socket when I run cardmgr, 
-inserting the card loads the modules and sets up the interfaces 
-correctly.  This problem does not occur in the 2.4 kernel.
+On Thu, Feb 20, 2003 at 08:52:46AM +0100, Andi Kleen wrote:
 
-Does anyone have any suggestions?
+> That's probably because of the lazy ICMP socket locking used for the
+> ICMP socket. When an ICMP is already in process the next ICMP triggered
+> from a softirq (e.g. ECHO-REQUEST) is dropped  
+> (see net/ipv4/icmp_xmit_lock_bh())
 
--- 
-(o- j o h n  e  w e b e r
-//\  weber@nyc.rr.com
-v_/_  aim/yahoo/msn: worldwidwebers
+Hmm...and this is considered desired behavior?  It seems like an odd way
+of handling packets intended to test latency and reliability. :)
 
+This is most likely the cause, but I will test tomorrow to confirm.
+
+Thanks,
+
+Simon-
+
+[        Simon Kirby        ][        Network Operations        ]
+[     sim@netnation.com     ][     NetNation Communications     ]
+[  Opinions expressed are not necessarily those of my employer. ]

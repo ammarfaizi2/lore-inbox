@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277253AbRJVRkA>; Mon, 22 Oct 2001 13:40:00 -0400
+	id <S277230AbRJVRps>; Mon, 22 Oct 2001 13:45:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277206AbRJVRik>; Mon, 22 Oct 2001 13:38:40 -0400
-Received: from [63.193.79.18] ([63.193.79.18]:7152 "HELO mwg.inxservices.lan")
-	by vger.kernel.org with SMTP id <S277260AbRJVRfr>;
-	Mon, 22 Oct 2001 13:35:47 -0400
-Date: Mon, 22 Oct 2001 10:35:53 -0700
-From: George Garvey <tmwg-linuxknl@inxservices.com>
-To: Wayne.Brown@altec.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-Message-ID: <20011022103553.I3276@inxservices.com>
-In-Reply-To: <86256AED.005FB443.00@smtpnotes.altec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <86256AED.005FB443.00@smtpnotes.altec.com>; from Wayne.Brown@altec.com on Mon, Oct 22, 2001 at 12:21:43PM -0500
-Organization: inX Services, Los Angeles, CA, USA
+	id <S277237AbRJVRpi>; Mon, 22 Oct 2001 13:45:38 -0400
+Received: from mail.ndchealth.com ([206.227.248.145]:52486 "EHLO
+	mail.ndcorp.com") by vger.kernel.org with ESMTP id <S277230AbRJVRp3>;
+	Mon, 22 Oct 2001 13:45:29 -0400
+Message-ID: <4242F92CA015D5119B9600600834014201C09754@claven.cistech.com>
+From: "Lakey, Jeremy # IHTUL" <jeremy.lakey@ndchealth.com>
+To: linux-kernel@vger.kernel.org
+Subject: RE: Linux 2.2.20pre11
+Date: Mon, 22 Oct 2001 12:37:11 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   So you want to make the decision for Alan to get into a lawsuit and
-possibly go to jail to fight the law? Will you pay his legal bills? Will
-you take over his maintenance duties if necessary? Will you give him a
-job when he's done if it comes to that?
-   That's a personal decision, don't you think? Who can judge another
-without knowing their circumstances? Do you understand the situation at
-all? Truthfully, I don't.
+>> 1) publish a patch (ie. telling us all the changes)
+>> 2) describe the set of changes which are not security
+>>    related (ie. telling us the non-security related
+>>    changes)
+>> 
+>> By deduction aren't you in fact "telling us what the secutiry related 
+>> changes are"? :-)
+>
+>Not directly, and if you have enough skill to work through the code you
+could do so anyway. Whether reading >the source code for that purpose is
+legal I don't know.
+>
+>Have fun
+>
+>Alan
 
-On Mon, Oct 22, 2001 at 12:21:43PM -0500, Wayne.Brown@altec.com wrote:
-> It's highly unlikely that Alan withholding information from a handful
-> of US Linux users and developers will have any effect on US laws.
+So those of us in the USA are free to run a diff on cvs ourselves, document
+the changes, and publish our findings.  *shrug*
+
+

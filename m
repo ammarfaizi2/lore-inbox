@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129375AbRBWP41>; Fri, 23 Feb 2001 10:56:27 -0500
+	id <S129108AbRBWP7T>; Fri, 23 Feb 2001 10:59:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129548AbRBWP4I>; Fri, 23 Feb 2001 10:56:08 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:62459 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129375AbRBWP4F>; Fri, 23 Feb 2001 10:56:05 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200102231554.f1NFsfI03168@webber.adilger.net>
-Subject: Re: Network console project (was: LILO and serial speeds over 9600)
-In-Reply-To: <20010222225208.B14571@bug.ucw.cz> from Pavel Machek at "Feb 22,
- 2001 10:52:08 pm"
-To: Pavel Machek <pavel@suse.cz>
-Date: Fri, 23 Feb 2001 08:54:41 -0700 (MST)
-CC: "H. Peter Anvin" <hpa@transmeta.com>, James Sutherland <jas88@cam.ac.uk>,
-        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S129165AbRBWP7K>; Fri, 23 Feb 2001 10:59:10 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:11136 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129108AbRBWP66>; Fri, 23 Feb 2001 10:58:58 -0500
+Date: Fri, 23 Feb 2001 10:58:28 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.1 network (socket) performance
+In-Reply-To: <3A966FF1.2C9E5641@colorfullife.com>
+Message-ID: <Pine.LNX.3.95.1010223104549.2101B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You write:
-> > We have set up a network console project on sourceforge and are starting
-> > to work on actual details.  If you're interested in this subject please
-> > do join that list.
-> > 
-> > Please see:
-> > 
-> > 	http://sourceforge.net/mail/?group_id=20426
+Hello,
+The problem with awful socket performance on 2.4.1 has been discovered
+and fixed by Manfred Spraul. Here is some info, and his patch:
+
+
+On Fri, 23 Feb 2001, Manfred Spraul wrote:
+
+> Could you post your results to linux-kernel?
+> My mail from this morning wasn't accurate enough, you patched the wrong
+> line. Sorry.
+
+Yep. The patch you sent was a little broken. I tried to fix it, but
+ended up pathing the wrong line.
+
 > 
-> Unfortunately maillist archives at sourceforge do not work.
+> I've attached the 2 patches that should cure your problems.
+> patch-new is integrated into the -ac series, and it's a bugfix - simple
+> unix socket sends eat into memory reserved for atomic allocs.
+> patch-new2 is the other variant, it just deletes the fallback system.
 
-Yes, I noticed this as well - there are several bug reports open already.
-I have subscribed some of the mailing lists at sourceforge that I'm using
-to marc.theaimsgroup.com, which has good searching facilities, etc.
+--- linux/net/core/sock.c	Fri Dec 29 23:07:24 2000
++++ linux/net/core/sock.c.new	Fri Feb 23 15:02:46 2001
+@@ -777,7 +777,7 @@
+ 				/* The buffer get won't block, or use the atomic queue.
+ 			 	* It does produce annoying no free page messages still.
+ 			 	*/
+-				skb = alloc_skb(size, GFP_BUFFER);
++				skb = alloc_skb(size, sk->allocation & (~__GFP_WAIT));
+ 				if (skb)
+ 					break;
+ 				try_size = fallback;
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

@@ -1,75 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314602AbSE2JLf>; Wed, 29 May 2002 05:11:35 -0400
+	id <S314584AbSE2JQf>; Wed, 29 May 2002 05:16:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314634AbSE2JLf>; Wed, 29 May 2002 05:11:35 -0400
-Received: from [212.176.239.134] ([212.176.239.134]:9094 "EHLO
-	vzhik.octet.spb.ru") by vger.kernel.org with ESMTP
-	id <S314602AbSE2JLe>; Wed, 29 May 2002 05:11:34 -0400
-Message-ID: <000901c206f0$cfd42620$baefb0d4@nick>
-Reply-To: "Nick Evgeniev" <nick@octet.spb.ru>
-From: "Nick Evgeniev" <nick@octet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.19-pre8-ac5 ide & raid0 bugs
-Date: Wed, 29 May 2002 13:11:26 +0400
-Organization: Octet Corp.
+	id <S314596AbSE2JQf>; Wed, 29 May 2002 05:16:35 -0400
+Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:52361 "EHLO
+	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S314584AbSE2JQe>; Wed, 29 May 2002 05:16:34 -0400
+Date: Wed, 29 May 2002 10:16:34 +0100 (BST)
+From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+X-X-Sender: alastair@gerber
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre9 - emu10k1 Audigy support?
+Message-ID: <Pine.GSO.4.44.0205291012550.459-100000@gerber>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-Scanner: exiscan *17CzUM-0000Qx-00*xW.sgZmpYmw* http://duncanthrax.net/exiscan/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>  <rui.sousa@laposte.net> (02/05/28 1.478)
+>           [PATCH]	Emu10k1 patch for 2.4.19pre8
 
-I wrote about ide problems with 2.4.19-pre8 a few days ago (it just trashed
-filesystem in a couple hours) & I was told to try 2.4.19-pre8-ac5 it was a
-little bit better though every 5-8 hours I've got ide errors in log (at
-least it didn't crash my reiserfs volumes yet):
->-----------------------------
-May 27 14:38:02 vzhik kernel: hdg: status error: status=0x58 { DriveReady
-SeekComplete DataRequest }
-May 27 14:38:02 vzhik kernel:
-May 27 14:38:02 vzhik kernel: hdg: drive not ready for command
-May 27 14:38:02 vzhik kernel: hdg: status error: status=0x58 { DriveReady
-SeekComplete DataRequest }
-May 27 14:38:02 vzhik kernel:
-May 27 14:38:02 vzhik kernel: hdg: drive not ready for command
-May 27 17:08:05 vzhik kernel: hdg: drive_cmd: status=0xd0 { Busy }
-May 27 17:08:05 vzhik kernel:
-May 27 17:08:05 vzhik kernel: hdg: status error: status=0x58 { DriveReady
-SeekComplete DataRequest }
->-----------------------------
-But now I've got even more bugs in log like:
->-----------------------------
-May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
-across chunks or bigger than 16k 37713311 4
-May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
-across chunks or bigger than 16k 37713343 4
-May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
-across chunks or bigger than 16k 37713375 4
-May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
-across chunks or bigger than 16k 37713407 2
-May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
-across chunks or bigger than 16k 38161563 4
-May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
-across chunks or bigger than 16k 38161595 4
-May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
-across chunks or bigger than 16k 38161627 4
-May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
-across chunks or bigger than 16k 38161659 4
-May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
-across chunks or bigger than 16k 37713308 4
->-----------------------------
+Does this patch include support for the Audigy card? It's not mentioned
+anywhere in the source or kernel documentation, but the latest driver
+set from SourceForge *does* include Audigy support. If this is now in
+the kernel, can the Audigy at least be mentioned in the docs (and the
+source) for clarity?
 
-I don't even think about trying 2.4.19-pre9 since it doesn't has any ide
-related issues in its changelist.
-The question is -- What I have to try to get WORKING ide driver under
-"STABLE" kernel?
+I'll even try making a small patch myself if you want....
 
+Cheers
+Alastair                            .-=-.
+__________________________________,'     `.
+                                           \   www.mrc-bsu.cam.ac.uk
+Alastair Stevens, Systems Management Team   \       01223 330383
+MRC Biostatistics Unit, Cambridge UK         `=.......................
 

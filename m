@@ -1,72 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266777AbUGLKLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266779AbUGLKQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266777AbUGLKLr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 06:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266779AbUGLKLq
+	id S266779AbUGLKQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 06:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266780AbUGLKQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 06:11:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26528 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266777AbUGLKLo (ORCPT
+	Mon, 12 Jul 2004 06:16:57 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:55988 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S266779AbUGLKQy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 06:11:44 -0400
-Date: Mon, 12 Jul 2004 12:11:07 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Daniel Phillips <phillips@istop.com>, sdake@mvista.com,
-       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
+	Mon, 12 Jul 2004 06:16:54 -0400
+Date: Mon, 12 Jul 2004 12:14:39 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Daniel Phillips <phillips@redhat.com>
 Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-Message-ID: <20040712101107.GA31013@devserv.devel.redhat.com>
-References: <200407050209.29268.phillips@redhat.com> <200407101657.06314.phillips@redhat.com> <1089501890.19787.33.camel@persist.az.mvista.com> <200407111544.25590.phillips@istop.com> <20040711210624.GC3933@marowsky-bree.de> <1089615523.2806.5.camel@laptop.fenrus.com> <20040712100547.GF3933@marowsky-bree.de>
+Message-ID: <20040712101439.GG3933@marowsky-bree.de>
+References: <200407050209.29268.phillips@redhat.com> <200407061734.51023.phillips@redhat.com> <20040707181650.GD12255@marowsky-bree.de> <200407072114.07291.phillips@redhat.com> <20040708091043.GS12255@marowsky-bree.de> <20040708105338.GA16115@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040712100547.GF3933@marowsky-bree.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040708105338.GA16115@redhat.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2004-07-08T18:53:38,
+   David Teigland <teigland@redhat.com> said:
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> I'm afraid the fencing issue has been rather misrepresented.  Here's
+> what we're doing (a lot of background is necessary I'm afraid.)  We
+> have a symmetric, kernel-based, stand-alone cluster manager (CMAN)
+> that has no ties to anything else whatsoever.  It'll simply run and
+> answer the question "who's in the cluster?" by providing a list of
+> names/nodeids.
+
+Excuse my ignorance, but does this ensure that there's concensus among
+the nodes about this membership?
+
+> has quorum.  It's a very standard way of doing things -- we modelled it
+> directly off the VMS-cluster style.  Whether you care about this quorum value
+> or what you do with it are beside the point. 
+
+OK, I agree with this. As long as the CMAN itself doesn't care about
+this either but just reports it to the cluster, that's fine.
+
+> What about Fencing?  Fencing is not a part of the cluster manager, not
+> a part of the dlm and not a part of gfs.  It's an entirely independent
+> system that runs on its own in userland.  It depends on cman for
+> cluster information just like the dlm or gfs does.  I'll repeat what I
+> said on the linux-cluster mailing list:
+
+I doubt it can be entirely independent; or how do you implement lock
+recovery without a fencing mechanism?
+
+> This fencing system is suitable for us in our gfs/clvm work.  It's
+> probably suitable for others, too.  For everyone? no. 
+
+It sounds useful enough even for our work, given appropriate
+notification of fencing events; instead of scheduling a fencing event,
+we'd need to make sure that the node joins a fencing domain and later
+block until receiving a notification. It's not as fine grained, but our
+approach (based on the dependencies of the resources managed, basically)
+might have been more fine grained than required in a typical
+environment.
+
+Yes, I can see how that could be made to work.
 
 
-On Mon, Jul 12, 2004 at 12:05:47PM +0200, Lars Marowsky-Bree wrote:
-> On 2004-07-12T08:58:46,
->    Arjan van de Ven <arjanv@redhat.com> said:
-> 
-> > Running realtime and mlocked (prealloced) is most certainly not
-> > sufficient for causes like this; any system call that internally
-> > allocates memory (even if it's just for allocating the kernel side of
-> > the filename you handle to open) can lead to this RT, mlocked process to
-> > cause VM writeout elsewhere. 
-> 
-> Of course; appropriate safety measures - like not doing any syscall
-> which could potentially block, or isolating them from the main task via
-> double-buffering childs - need to be done. (heartbeat does this in
-> fact.)
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-well the problem is that you cannot prevent a syscall from blocking really.
-O_NONBLOCK only impacts the waiting for IO/socket buffer space to not do so
-(in general), it doesn't impact the memory allocation strategies by
-syscalls. And there's a whopping lot of that in the non-boring syscalls...
-So while your heartbeat process won't block during getpid, it'll eventually
-need to do real work too .... and I'm quite certain that will lead down to
-GFP_KERNEL memory allocations.
+-- 
+High Availability & Clustering	    \ ever tried. ever failed. no matter.
+SUSE Labs, Research and Development | try again. fail again. fail better.
+SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
 
-
-
---x+6KMIRAuhnl3hBn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA8mO6xULwo51rQBIRAi1UAJ0dZDU3dAEiyXfjhntigkxJTHt7hQCfWuKI
-5nXGvlFq9X3B/mi/EWbh8vY=
-=1Nlu
------END PGP SIGNATURE-----
-
---x+6KMIRAuhnl3hBn--

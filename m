@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266999AbSLPSXi>; Mon, 16 Dec 2002 13:23:38 -0500
+	id <S267007AbSLPS0r>; Mon, 16 Dec 2002 13:26:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267003AbSLPSXi>; Mon, 16 Dec 2002 13:23:38 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:5904 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S266999AbSLPSXh>;
-	Mon, 16 Dec 2002 13:23:37 -0500
-Date: Mon, 16 Dec 2002 19:31:31 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCHSET] PC-9800 addtional for 2.5.50-ac1
-Message-ID: <20021216183131.GB1607@mars.ravnborg.org>
-Mail-Followup-To: Osamu Tomita <tomita@cinet.co.jp>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <3DFC50E9.656B96D0@cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DFC50E9.656B96D0@cinet.co.jp>
-User-Agent: Mutt/1.4i
+	id <S267015AbSLPS0r>; Mon, 16 Dec 2002 13:26:47 -0500
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:45265 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S267007AbSLPS0q>; Mon, 16 Dec 2002 13:26:46 -0500
+Message-ID: <008401c2a531$9e79d400$0201a8c0@csn.tuchemnitz.de>
+From: "PSI-Systems" <psi-systems@gmx.net>
+To: "Grover, Andrew" <andrew.grover@intel.com>,
+       "'Pavel Machek'" <pavel@suse.cz>,
+       "ACPI mailing list" <acpi-devel@lists.sourceforge.net>,
+       "kernel list" <linux-kernel@vger.kernel.org>
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A5A4@orsmsx119.jf.intel.com>
+Subject: Re: [ACPI] Metolious hardware-sensors-using-ACPI specs
+Date: Mon, 16 Dec 2002 19:33:24 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Spam-Score: 0.5 (/)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18O04g-00066C-00*Kc5PAUvBNVE*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 15, 2002 at 06:52:41PM +0900, Osamu Tomita wrote:
-> NEC PC-9800 subarchitecture support patch updated.
-
-Hi Osamu, next time can you give the mails sensible names, that makes it
-a lot easier to pick up whats looks good.
-Maybe even a short intro in this summary file.
-
-The splitup looks good btw.
-
-	Sam
+> Wow, is that still on a website somewhere?
+http://www.intel.com/design/servers/ipmi/metolious.htm
+http://www.acpi.info/papers/Imple6/metolious.pdf

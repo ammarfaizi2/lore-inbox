@@ -1,109 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268260AbTALHET>; Sun, 12 Jan 2003 02:04:19 -0500
+	id <S268247AbTALHBx>; Sun, 12 Jan 2003 02:01:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268259AbTALHET>; Sun, 12 Jan 2003 02:04:19 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:58352 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S268258AbTALHEQ> convert rfc822-to-8bit; Sun, 12 Jan 2003 02:04:16 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Sat, 11 Jan 2003 23:13:02 -0800
-In-Reply-To: 
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20030112071303.AAA21788@shell.webmaster.com@whenever>
+	id <S267321AbTALHBx>; Sun, 12 Jan 2003 02:01:53 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:58245 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S268247AbTALHBs>; Sun, 12 Jan 2003 02:01:48 -0500
+Message-ID: <3E21157D.30607@didntduck.org>
+Date: Sun, 12 Jan 2003 02:13:01 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mikael Pettersson <mikpe@csd.uu.se>
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: 2.5.55/.56 instant reboot problem on 486
+References: <200301120231.DAA14711@harpo.it.uu.se>
+Content-Type: multipart/mixed;
+ boundary="------------000509000002030104030808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000509000002030104030808
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sun, 12 Jan 2003 01:16:54 -0500, Mark Mielke wrote:
+Mikael Pettersson wrote:
+> My '94 vintage 486 has problems booting 2.5.55 and 2.5.56.
+> When it fails, the boot gets to loading the kernel and
+> printing "Ok, booting the kernel.". Then there is a short
+> pause (line a tenth of a second) and the machine reboots.
+> 
+> After doing a binary search with "for(;;);" statements
+> (printk doesn't work this early) I found that the reboot
+> occurs in arch/i386/mm/init.c:kernel_physical_mapping_init():
+> (start_kernel() -> setup_arch() -> paging_init() ->
+> pagetable_init() -> kernel_physical_mapping_init())
+> 
 
->Atrocious how? My qualification "without significant side effects"
->means just that - *without* *significant* *side* *effects*. Note
->that
->I did not say web clients, but that below you assume web clients. I
->don't know about you, but I don't consider a web server to be an RT
->application.
+The problem is that one_page_table_init() pulls the rug out from under 
+the kernel by installing a new page table before setting it up.  A 486 
+has a small TLB so any miss will cause a triple fault and reset.  Try 
+this patch and see if it fixes it.
 
-    I don't understand how you could possibly say this. Any 
-application that was using an RTOS does so because it has 
-requirements that must be met. Switching from an RTOS to a non-RTOS 
-means that you can't provide those guarantees anymore, which is a 
-significant side effect.
+--
+				Brian Gerst
 
->>Perhaps Linux can handle more web clients than vxWorks, but can
->>Linux guarantee that if the temperature in the core coolant exceeds
+--------------000509000002030104030808
+Content-Type: text/plain;
+ name="ptefix-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ptefix-1"
 
->>350 degrees, the secondary pump circuit will be activated within 13
->>milliseconds?
+diff -urN linux-2.5.56/arch/i386/mm/init.c linux/arch/i386/mm/init.c
+--- linux-2.5.56/arch/i386/mm/init.c	Sun Jan 12 00:16:22 2003
++++ linux/arch/i386/mm/init.c	Sun Jan 12 01:48:28 2003
+@@ -71,12 +71,16 @@
+  */
+ static pte_t * __init one_page_table_init(pmd_t *pmd)
+ {
+-	pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+-	set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
+-	if (page_table != pte_offset_kernel(pmd, 0))
+-		BUG();	
++	if (pmd_none(*pmd)) {
++		pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++		set_pmd(pmd, __pmd(__pa(page_table) | _PAGE_TABLE));
++		if (page_table != pte_offset_kernel(pmd, 0))
++			BUG();	
+ 
+-	return page_table;
++		return page_table;
++	}
++	
++	return pte_offset_kernel(pmd, 0);
+ }
+ 
+ /*
 
->If you truly wanted to fit the requirements you list above (350
->degress, secondary pump activated in < 13 milliseconds), I suggest
->you
->use a hardware solution.
-
-    You can't do everything in hard wired hardware and wouldn't want 
-to for a large variety of reasons. Hardware is hard to change, hard 
-to validate, and hard to test. You're much better off sticking with
-generic, well tested, well understood hardware. However, you *must*
-use an RTOS. Different job, different tool.
-
->I remain very optimistic that Linux+RT will be able to handle more
->capacity than vxWorks for the majority of RT applications.
-
-    Probably so, but we weren't talking about "Linux+RT", were we?
-Trust me, any real RT code for Linux will cause its performance to 
-drop significantly. There will be constant checks for pre-emption, 
-for example. (Disclaimer: I'm not familiar with what RT stuff is 
-available for Linux. I'd be only too happy to discover it's really 
-good and doesn't significantly affect performance.)
-
->But... this has gone too far off a dead thread. You obviously like
->vxWorks. Quite a few people I socialize with curse vxWorks. That's
->your freedom and their freedom. I don't want to be part of this
->anymore. :-)  (Private query: What does webmaster.com use vxWorks
->for?)
-
-    No, I've never used vxWorks, I just understand the difference
-between an RTOS and a non-RTOS and how to choose the right tool for
-the job. If an application can run on an OS that is not an RTOS, it
-almost always does. RTOSes are usually used where you *must* *have*
-guarantees.
-
-    It is extremely handy for many problems to be able to guarantee
-that you can turn the pump on within 13 milliseconds without having 
-to hard wire a specific circuit for that. This is the problem domain
-RTOSes were meant for. This has inevitable overhead. If you need to
-meet specific time requirements, then the overhead is a low price to
-pay.
-
-    Most applications that require RTOSes don't need a lot of
-computing. Controlling a nuclear power plant takes less CPU power 
-than playing Solitaire on a GUI. A P3 can easily provide 13 
-millisecond response time without breaking a sweat, but not running a 
-general purpose OS. That doesn't mean we should all run RTOSes.
-
-    That you would even dream of comparing the performance of an RTOS
-to a non-RTOS as a way of comparatively evaluating two operating
-systems suggests you don't understand what an RTOS actually is for. 
-You're not alone, by the way, I once had a conversation with the 
-product manager for a leading RTOS and quickly discovered he had no 
-idea what an RTOS was either. He was under the misconception that 
-real time means high performance.
-
-	The truth is that an RTOS allows you to use generic hardware for 
-cases that would otherwise require highly specialized hardware. The 
-benefit is flexibility, maintainability, and reliability. Generally, 
-the CPUs you use are at least an order of magnitude faster than the 
-task actually requires, so you don't particularly care about 
-performance.
-
--- 
-David Schwartz
-<davids@webmaster.com>
-
+--------------000509000002030104030808--
 

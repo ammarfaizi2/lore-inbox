@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUHWBck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUHWBfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265264AbUHWBck (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 21:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUHWBck
+	id S265768AbUHWBfu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 21:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUHWBfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 21:32:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37275 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265264AbUHWBcj (ORCPT
+	Sun, 22 Aug 2004 21:35:50 -0400
+Received: from gate.crashing.org ([63.228.1.57]:6815 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265768AbUHWBfs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 21:32:39 -0400
-Date: Sun, 22 Aug 2004 18:30:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lockmeter for x86_64
-Message-Id: <20040822183053.06628fb2.akpm@osdl.org>
-In-Reply-To: <1093183598.806.9.camel@boxen>
-References: <1093183598.806.9.camel@boxen>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 22 Aug 2004 21:35:48 -0400
+Subject: Re: [PATCH] ppc32 use simplified mmenonics
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: tab@snarc.org, linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1093135526.5759.2513.camel@cube>
+References: <1093135526.5759.2513.camel@cube>
+Content-Type: text/plain
+Message-Id: <1093224281.9537.279.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 23 Aug 2004 11:24:42 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg <alexn@telia.com> wrote:
->
-> This is basically a cut and paste from i386 code.
->  At some places however some unresolved addresses at places
->  like [0x1000211eb38] shows up, which is a bit weird. I'm hoping
->  for a comment from any of the SGI guys, as the code is so similar
->  to i386 I don't know if problem lies below or in the generic code.
+
+> I'd rather you went the other way, replacing these
+> barely-documented instructions with ones that are
+> easy to look up. Motorola has about a zillion of
+> these "simplified" instructions. I guess Motorola
+> and IBM were jealous of Intel's CISC instructions.
+
+It's just simplified mnemonics, not instructions ;)
+
+> The big problem is this:
+>         THESE ARE NOT IN THE INDEX!!!!!!
+
+Yah, that sucks, I tend to agree... I've had a hard time in the
+"early days" finding some of them in the manuals
+
+> So, if I forget what one of these many instructions
+> does, I'll have quite the time paging through the
+> manual trying to find it.
 > 
->  Against 2.6.8.1-mm2, but should apply against just about any -mm
-
-Thanks - I'll add it to -mm.
-
-If you want the SGI developers to pay attention to it, you'd better Cc
-them.  One never knows how closely individuals monitor this list.
+> If it's not in the index, please avoid it.
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

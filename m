@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264925AbTFQUTo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 16:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264926AbTFQUTo
+	id S264864AbTFQUXz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 16:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264924AbTFQUXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 16:19:44 -0400
-Received: from [62.75.136.201] ([62.75.136.201]:32641 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S264925AbTFQUTm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 16:19:42 -0400
-Message-ID: <3EEF7B20.5030208@g-house.de>
-Date: Tue, 17 Jun 2003 22:33:36 +0200
-From: Christian Kujau <evil@g-house.de>
-Reply-To: evil@g-house.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
-X-Accept-Language: de, en
-MIME-Version: 1.0
+	Tue, 17 Jun 2003 16:23:55 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:16285 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264864AbTFQUXt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 16:23:49 -0400
+Date: Tue, 17 Jun 2003 13:37:39 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.71 compile error on alpha
-References: <3EEE4A14.4090505@g-house.de> <wrpr85te3fa.fsf@hina.wild-wind.fr.eu.org> <3EEF585E.9030404@g-house.de> <yw1xk7bk36hw.fsf@zaphod.guide> <20030617202221.GH6353@lug-owl.de>
-In-Reply-To: <20030617202221.GH6353@lug-owl.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: [Bug 819] New: uptime wrong on x86-64 (fwd)
+Message-ID: <38850000.1055882259@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw schrieb:
->>That's typical for the slower Avantis.  Is your's something like 100 MHz?
-> 
-> Well, that's mainly a question of compiler version and the quantity of
-> modules you attempt to build...
-
-it's both :-)
-
-lila:~# cat /proc/cpuinfo
-cpu			: Alpha
-cpu model		: EV45
-cpu variation		: 7
-cpu revision		: 0
-cpu serial number	:
-system type		: Avanti
-system variation	: 0
-system revision		: 0
-system serial number	:
-cycle frequency [Hz]	: 232018561
-timer frequency [Hz]	: 1024.00
-page size [bytes]	: 8192
-phys. address bits	: 34
-max. addr. space #	: 63
-BogoMIPS		: 458.36
-kernel unaligned acc	: 32 (pc=fffffc0000478394,va=fffffc0002dbf176)
-user unaligned acc	: 0 (pc=0,va=0)
-platform string		: AlphaStation 255/233
-cpus detected		: 1
-
-lila:~# find /lib/modules/2.5.70/ | wc -l
-      62
-lila:~#
+           Summary: uptime wrong on x86-64
+    Kernel Version: 2.5.72
+            Status: NEW
+          Severity: normal
+             Owner: johnstul@us.ibm.com
+         Submitter: johnstul@us.ibm.com
 
 
-(still compiling (gcc3.3) 2.5.72....)
+Distribution: SLES8  
+Hardware Environment: AMD64 Melody box  
+Software Environment: 2.5.72  
+Problem Description:   
+  
+uptime reports wrong value after booting  
+  
+Steps to reproduce:  
+jstultz@elm3b31:~/linux-2.5> uptime  
+  
+Actual result:  
+  1:19pm  up 12220 days, 20:19,  1 user,  load average: 0.00, 0.00, 0.00  
+  
+Expected result:  
+  1:19pm  up 15 min,  1 user,  load average: 0.00, 0.01, 0.02  
+  
+Additional info:  
+jstultz@elm3b31:~/linux-2.5> date +%s  
+1055881186  
+jstultz@elm3b31:~/linux-2.5> cat /proc/stat | grep btime  
+btime 1055880294  
+  
+I've been unable to reproduce the problem on i386, however this has also been  
+reported against sparc64 by Daniel Whitener.    
+  
+I suspect it might have something to do w/ do_posix_clock_monotonic_gettime() on  
+these arches.
 

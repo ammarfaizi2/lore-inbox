@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129915AbRCGDQM>; Tue, 6 Mar 2001 22:16:12 -0500
+	id <S129932AbRCGDYm>; Tue, 6 Mar 2001 22:24:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129932AbRCGDQC>; Tue, 6 Mar 2001 22:16:02 -0500
-Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:32129
-	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S129915AbRCGDP5>; Tue, 6 Mar 2001 22:15:57 -0500
-Date: Tue, 6 Mar 2001 19:13:56 -0800
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Message-Id: <200103070313.f273Dut01801@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-To: relson@osagesoftware.com, Thiago Rondon <maluco@mileniumnet.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 - do_try_to_free_pages failed
-In-Reply-To: <4.3.2.7.2.20010306214749.00cdd880@mail.osagesoftware.com>
-In-Reply-To: <4.3.2.7.2.20010306185522.00c54dd0@mail.osagesoftware.com> <4.3.2.7.2.20010306214749.00cdd880@mail.osagesoftware.com>
-Reply-To: whitney@math.berkeley.edu
+	id <S129953AbRCGDYd>; Tue, 6 Mar 2001 22:24:33 -0500
+Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.42.218.237]:252 "EHLO
+	scotch.homeip.net") by vger.kernel.org with ESMTP
+	id <S129932AbRCGDYX>; Tue, 6 Mar 2001 22:24:23 -0500
+Date: Tue, 6 Mar 2001 22:31:32 -0500 (EST)
+From: God <atm@pinky.penguinpowered.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: scott1021@mediaone.net, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2-ac12
+In-Reply-To: <E14aHXp-0000gN-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0103062113470.878-100000@scotch.homeip.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists.linux-kernel, you wrote:
+On Tue, 6 Mar 2001, Alan Cox wrote:
 
-> I know that 2.2.19 is still in the -pre state.  [ . . . ]  Have
-> significant VM problems been fixed?
+> >  I have not had problems with 2.4.2, just tried 2.4.2-ac12.  About the IDE
+> > stage it just reboots.
+> 
+> Does ac11 also reboot like that. -ac is currently testing versions of the new
+> VIA IDE driver so knowing if the latest update did that would be very 
+> useful
+> 
 
-Yes, 2.2.19-pre incorporates what was known as Andrea's VM-global
-patch, and it is widely reported to fix the exact problem you
-mentioned.
 
-Wayne
+Stock 2.4.2 kernel.  It (so far), hasn't happened again .. the drive led
+is still screwed though.   It's weird, the other drives seem to seek at
+odd times too (like when they aren't even mounted).
+
+
+

@@ -1,47 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbUAUOn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 09:43:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbUAUOn2
+	id S264981AbUAUPGt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 10:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbUAUPGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 09:43:28 -0500
-Received: from pooh.lsc.hu ([195.56.172.131]:18883 "EHLO pooh.lsc.hu")
-	by vger.kernel.org with ESMTP id S262425AbUAUOn1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 09:43:27 -0500
-Date: Wed, 21 Jan 2004 15:28:02 +0100
-From: GCS <gcs@lsc.hu>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm5 dies booting, possibly ipv6 related
-Message-ID: <20040121142802.GA8840@lsc.hu>
-References: <20040120000535.7fb8e683.akpm@osdl.org> <400D083F.6080907@aitel.hist.no> <20040120175408.GA12805@lsc.hu> <20040120102302.47fa26cd.akpm@osdl.org> <400E47CB.5030000@aitel.hist.no>
+	Wed, 21 Jan 2004 10:06:49 -0500
+Received: from SMTP3.andrew.cmu.edu ([128.2.10.83]:23234 "EHLO
+	smtp3.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S264981AbUAUPGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 10:06:47 -0500
+Subject: Re: 2.6.1 "clock preempt"?
+From: Steinar Hauan <steinhau@andrew.cmu.edu>
+Reply-To: hauan@cmu.edu
+To: john stultz <johnstul@us.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1074633977.16374.67.camel@cog.beaverton.ibm.com>
+References: <1074630968.19174.49.camel@steinar.cheme.cmu.edu>
+	 <1074633977.16374.67.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: Carnegie Mellon University
+Message-Id: <1074697593.5650.26.camel@steinar.cheme.cmu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <400E47CB.5030000@aitel.hist.no>
-X-Operating-System: GNU/Linux
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
+Date: Wed, 21 Jan 2004 10:06:33 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 21, 2004 at 10:35:07AM +0100, Helge Hafting <helgehaf@aitel.hist.no> wrote:
-[...]
-> It still crashes at boot time, in a slightly different way.
-> I got an "endless" amount of
-> [<c011f202>] register_proc_table+0xc0/0xd6
-> scrolling by at high speed.  After a minute or so it ended with
-> addr_conf_init
-> inet6_init
-> oo_initcalls
-> init
-> init
-> kernel_thread_helper
-> 
-> 
-> I have ipv6 compiled into the kernel, others with the same problem
-> seems to have this common factor.  
- I have switched off CONFIG_IPV6, and now it boots.
+On Tue, 2004-01-20 at 16:26, john stultz wrote:
+> On Tue, 2004-01-20 at 12:36, Steinar Hauan wrote:
+> >   i've started to test the 2.6 series of kernels and observed a
+> >   strange thing: with moderate background load, the system clock
+> >   (i.e. time) seems to slow down to about 60% of normal speed
+> >   and the normally reliable ntp process (v4.2.0)
 
-Cheers,
-GCS
+omission in original post: 
+  [...] ntp process "was running", but failed to update time.
+
+> >   the kernel logs show messages on the form:
+> > 
+> > localhost kernel: Losing too many ticks!
+> > localhost kernel: TSC cannot be used as a timesource.
+> >                        (Are you running with SpeedStep?)
+> 
+> How quickly do you see this message? Does it happen right at boot time,
+> or during load?
+
+boottime:
+  Jan 19 08:59:24 localhost kernel: Linux version 2.6.1
+                        (root@offa) (gcc version 3.3.2 20031218
+                        (Red Hat Linux 3.3.2-5)) #2 
+                        SMP Sat Jan 17 18:05:09 EST 2004
+
+  (yes, i have SMP enabled even for a single cpu machine; the kernel
+   will be run on a multitude of machines of which most are SMP)
+
+log messages prior to time issues:
+
+Jan 20 04:02:01 localhost anacron[6057]: Updated timestamp for 
+                                             job `cron.daily' to
+2004-01-20
+Jan 20 04:05:38 localhost kernel: hdb: dma_timer_expiry:
+                                             dma status == 0x61
+Jan 20 04:05:48 localhost kernel: hdb: DMA timeout error
+Jan 20 04:05:48 localhost kernel: hdb: dma timeout error:
+                                             status=0xd0 {Busy }
+Jan 20 04:05:48 localhost kernel: hda: DMA disabled
+Jan 20 04:05:48 localhost kernel: hdb: DMA disabled
+Jan 20 04:05:48 localhost kernel: ide0: reset: success
+
+(hda and hdb are on the same controller; the only active disk at
+ this time should be hda ... hdb should be essentially idle
+ except for cron.daily scripts running around then)
+
+timing error starts here; interactive work
+
+Jan 20 07:52:40 localhost kernel: Losing too many ticks!
+
+> You might want to try the attached patch to see if we're overreacting
+[...]
+> Also, do you see the problem when preempt is disabled 
+
+testing overnight failed to reproduce the problem. note that the
+original event only occurred after about 12 hrs of testing.
+i'll install lm_sensors & smarttools and run cpuburn for a while
+to ensure this is not related to any hardware issues.
+
+--> other suggestions also appreciated.
+
+regards,
+-- 
+  Steinar Hauan, dept of ChemE  --  hauan@cmu.edu
+  Carnegie Mellon University, Pittsburgh PA, USA
+
+

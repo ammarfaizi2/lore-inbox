@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318538AbSGaXNN>; Wed, 31 Jul 2002 19:13:13 -0400
+	id <S318541AbSGaXV1>; Wed, 31 Jul 2002 19:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318539AbSGaXNN>; Wed, 31 Jul 2002 19:13:13 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:38653 "EHLO
+	id <S318561AbSGaXV1>; Wed, 31 Jul 2002 19:21:27 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:46845 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318538AbSGaXNM>; Wed, 31 Jul 2002 19:13:12 -0400
-Subject: Re: [2.6] The List, pass #2
+	id <S318541AbSGaXV0>; Wed, 31 Jul 2002 19:21:26 -0400
+Subject: Re: [PATCH] 2.5.29: some compilation fixes for irq frenzy [OSS +
+	i8x0 audio]
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: trond.myklebust@fys.uio.no
-Cc: Christoph Hellwig <hch@infradead.org>, Bill Davidsen <davidsen@tmr.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <15688.18891.446678.320123@charged.uio.no>
-References: <3D3761A9.23960.8EB1A2@localhost>
-	<Pine.LNX.3.96.1020731133038.10066A-100000@gatekeeper.tmr.com>
-	<20020731185850.A20614@infradead.org> <shsk7nbps2u.fsf@charged.uio.no>
-	<20020731212308.A23828@infradead.org> 
-	<15688.18891.446678.320123@charged.uio.no>
+To: Dave Jones <davej@suse.de>
+Cc: Andy Pfiffer <andyp@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020801010217.K10436@suse.de>
+References: <1028062608.964.6.camel@andyp>
+	<1028067951.8510.44.camel@irongate.swansea.linux.org.uk>
+	<1028063953.964.13.camel@andyp>
+	<1028069255.8510.46.camel@irongate.swansea.linux.org.uk>
+	<1028152202.964.84.camel@andyp>
+	<1028160492.13008.7.camel@irongate.swansea.linux.org.uk> 
+	<20020801010217.K10436@suse.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 01:31:44 +0100
-Message-Id: <1028161904.13048.20.camel@irongate.swansea.linux.org.uk>
+Date: 01 Aug 2002 01:41:30 +0100
+Message-Id: <1028162490.13047.30.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-31 at 21:34, Trond Myklebust wrote:
-> Care to comment on why it is not GPL compatible? Given that they are
-> interested in merging their code into the standard kernel ASAP, I know
-> that they'd be interested in correcting any incompatibilities.
+On Thu, 2002-08-01 at 00:02, Dave Jones wrote:
+> Are there any OSS drivers for any particular cards for which we don't have
+> an equivalent ALSA driver ?  If we're ultimately going to be dropping
+> any of the OSS drivers, I'd rather know about it so I don't waste time
+> pushing the ~200kb of patches in that area I'm currently carrying
+> towards Linus.  (Given that most of them don't compile right now due to
+> the collateral damage from the cli() etc changes , I'd *love* to take
+> the lazy^Weasy option and just drop them)
 
-The 3 clause BSD though very much a completely free/open license has
-requirements conflicting with the GPL 
-
-http://www.fsf.org/licenses/license-list.html#GPLIncompatibleLicenses
-http://www.fsf.org/philosophy/bsd.html
-
-An additional problem with a BSD like license is that it makes no
-statement on patents - regrettably a critical issue now days in the
-USSA. That means nothing prevents CITI from providing BSD licensed code
-and then 6 months later sueing everyone who used it. I don't see CITI
-doing that but the basic problem is still there.
-
-If it is all their own code, and they want to have a BSD licensed copy
-for other reasons - eg to merge the same code into BSD, sell it to
-proprietary vendors or whatever, then it would be immensely saner if
-they would submit a copy for the Linux kernel under the GPL and keep it
-dual licensed. As the owner of a work they can license it many many ways
-all at the same time.
-
-The random driver has a nice example of this.
-
-Alan
+ALSA should have complete coverage of everything but some weird corner
+cases like the bose speaker setup. For those its going to be far better
+to fix ALSA (and plugging a new isa card into alsa is really easy) than
+lug the entire OSS mess around for it.
 

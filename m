@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269116AbUH0IX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269193AbUH0I1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269116AbUH0IX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 04:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268924AbUH0IXM
+	id S269193AbUH0I1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 04:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269242AbUH0I1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 04:23:12 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:49288 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S268160AbUH0IUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 04:20:19 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Rik van Riel <riel@redhat.com>,
+	Fri, 27 Aug 2004 04:27:13 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:10438 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269193AbUH0I0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 04:26:25 -0400
+X-Comment: AT&T Maillennium special handling code - c
+Message-ID: <412EEB75.1030401@namesys.com>
+Date: Fri, 27 Aug 2004 01:06:13 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Masover <ninja@slaphack.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
        Diego Calleja <diegocg@teleline.es>, jamie@shareable.org,
        christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
-       christer@weinigel.se, spam@tnonline.net, Andrew Morton <akpm@osdl.org>,
-       wichert@wiggy.net, jra@samba.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
+       wichert@wiggy.net, jra@samba.org, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        flx@namesys.com, reiserfs-list@namesys.com
-In-Reply-To: <Pine.LNX.4.58.0408261348500.2304@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com>
-	 <Pine.LNX.4.58.0408261101110.2304@ppc970.osdl.org>
-	 <45010000.1093553046@flay>
-	 <Pine.LNX.4.58.0408261348500.2304@ppc970.osdl.org>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Message-Id: <1093594771.5994.1.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 27 Aug 2004 09:19:32 +0100
+Subject: Re: silent semantic changes with reiser4
+References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408261101110.2304@ppc970.osdl.org> <412E33D6.5020500@slaphack.com>
+In-Reply-To: <412E33D6.5020500@slaphack.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-26 at 21:54, Linus Torvalds wrote:
-> The S_ISDIR/S_ISREG tests show real information: it shows not only user
-> intent ("you should consider this a file, even if it has attributes"), but
-> also whether it is a directory or a container.
-> 
-> And there's a real technical difference there: the streams contained
-> within a file are bound to that file. The files contained within a
-> directory are _independent_ of that directory. Big difference. HUGE
-> difference.
-> 
-> So it's not confusing. If it tests as a file, you think of it as a file.  
-> It may have attributes aka named streams associated with it, and you may
-> be able to open those attributes by treating the file as a directory, but
-> that doesn't really change the fact that it's a file.
-
-What about the attributes/named streams of a directory though?  If you
-open it as a directory, you would get the files inside the directory. 
-So how do you get at the attributes and named streams of the directory
-itself using this interface?
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
-
+Why are you guys even considering going to any pain at all to distort 
+semantics for the sake of backup?  tar is easy, we'll fix it and send in 
+a patch. 

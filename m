@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUKVQzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbUKVQzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbUKVQzg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 11:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbUKVQyF
+	id S262215AbUKVQzf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 11:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUKVQx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:54:05 -0500
-Received: from lilah.hetzel.org ([199.250.128.2]:45798 "EHLO lilah.hetzel.org")
-	by vger.kernel.org with ESMTP id S261537AbUKVQvN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:51:13 -0500
-Date: Mon, 22 Nov 2004 13:13:07 -0500
-From: Dorn Hetzel <kernel@dorn.hetzel.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Dorn Hetzel <kernel@dorn.hetzel.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, jgarzik@pobox.com
-Subject: Re: r8169.c
-Message-ID: <20041122181307.GA3625@lilah.hetzel.org>
-References: <20041119162920.GA26836@lilah.hetzel.org> <20041119201203.GA13522@electric-eye.fr.zoreil.com> <20041120003754.GA32133@lilah.hetzel.org> <20041120002946.GA18059@electric-eye.fr.zoreil.com>
+	Mon, 22 Nov 2004 11:53:57 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:45325 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262212AbUKVQvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 11:51:48 -0500
+Date: Mon, 22 Nov 2004 17:51:46 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: Re: drivers/w1/: why is dscore.c not ds9490r.c ?
+Message-ID: <20041122165145.GH19419@stusta.de>
+References: <20041121220251.GE13254@stusta.de> <1101108672.2843.55.camel@uganda> <20041122133344.GA19419@stusta.de> <1101140745.9784.7.camel@uganda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041120002946.GA18059@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1101140745.9784.7.camel@uganda>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 20, 2004 at 01:29:46AM +0100, Francois Romieu wrote:
-> Dorn Hetzel <kernel@dorn.hetzel.org> :
+On Mon, Nov 22, 2004 at 07:25:45PM +0300, Evgeniy Polyakov wrote:
+> On Mon, 2004-11-22 at 14:33 +0100, Adrian Bunk wrote:
+> > On Mon, Nov 22, 2004 at 10:31:12AM +0300, Evgeniy Polyakov wrote:
+> > > On Mon, 2004-11-22 at 01:02, Adrian Bunk wrote:
+> > > > Hi Evgeniy,
+> > > 
+> > > Hello, Adrian.
+> > 
+> > Hi Evgeniy,
+> > 
+> > > > drivers/w1/Makefile in recent 2.6 kernels contains:
+> > > >   obj-$(CONFIG_W1_DS9490)         += ds9490r.o 
+> > > >   ds9490r-objs    := dscore.o
+> > > > 
+> > > > Is there a reason, why dscore.c isn't simply named ds9490r.c ?
+> > > 
+> > > dscore.c is a core function set to work with ds2490 chip.
+> > > ds9490* is built on top of it.
+> > > Any vendor can create it's own w1 bus master using this chip, 
+> > > not ds9490.
+> > 
+> > if it was built on top of it, I'd have expected ds9490r.o to contain 
+> > additional object files.
 > 
-> You have two options (or more) on top of 2.6.10-rc2:
-> - ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm2/2.6.10-rc2-mm2.bz2
-> - http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.10-rc2-netdev1.patch.bz2
->
-I have gotten as far as rc2-mm2, which was a fairly complete failure.  After
-just a couple of pings on the interface, the whole system started to freeze
-up fairly hard.  Please see   http://www.hetzel.org/8169/rc2-mm2/   for a
-set of information on the system state this time around.  The last two
-lines in messages.txt are:
-
-illyria kernel: NETDEV WATCHDOG: eth0: transmit timed out
-illyria kernel: eth0: interrupt 0001 taken in poll
-
-Then things go south pretty hard and fast...
-
-I'll try the other patches on top of rc2-mm2 tonight and see if that turns
-out any better :)
-
-> Once you have applied one of the patch above, the patch below will improve
-> your "transmit timed out" (please apply in order and enable NAPI):
-> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.10-rc2-mm1/r8169-250.patch
-> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.10-rc2-mm1/r8169-255.patch
+> DS9490 does not have anything except this chip and simple 64bit memory
+> chip,
+> so it is not needed to have any additional code.
 > 
-> If things perform better you may want to use bigger frames and apply as
-> well r8169-260.patch and r8169-265.patch.
-> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.10-rc2-mm1/r8169-260.patch
-> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.10-rc2-mm1/r8169-265.patch
->
+> > How would a different w1 bus master chip look like in 
+> > drivers/w1/Makefile?
+> 
+> obj-m: proprietary_module.o
+> proprietary_module-objs: dscore.o proprietary_module_init.o
+> 
+> Actually it will live outside the kernel tree, but will require ds2490
+> driver.
+> It could be called ds2490.c but I think dscore is better name.
 
-Thanks again for all your help!
+Why are you talking about proprietary modules living outside the kernel 
+tree?
 
--Dorn
- 
+The only interesting case is the one of modules shipped with the kernel.
+And for them, this will break at link time if two such modules are 
+included statically into the kernel.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,92 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289243AbSA3PSG>; Wed, 30 Jan 2002 10:18:06 -0500
+	id <S289251AbSA3PUg>; Wed, 30 Jan 2002 10:20:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289251AbSA3PR6>; Wed, 30 Jan 2002 10:17:58 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:9963 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S289243AbSA3PRr>;
-	Wed, 30 Jan 2002 10:17:47 -0500
-Date: Wed, 30 Jan 2002 20:51:15 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-Subject: Fw: Writeup on AIO design (uploaded) - corrected url
-Message-ID: <20020130205115.B1864@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-Mime-Version: 1.0
+	id <S289270AbSA3PU0>; Wed, 30 Jan 2002 10:20:26 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64785 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289251AbSA3PUW>; Wed, 30 Jan 2002 10:20:22 -0500
+Subject: Re: A modest proposal -- We need a patch penguin
+To: zippel@linux-m68k.org (Roman Zippel)
+Date: Wed, 30 Jan 2002 15:31:47 +0000 (GMT)
+Cc: garzik@havoc.gtf.org (Jeff Garzik), landley@trommello.org (Rob Landley),
+        miles@megapathdsl.net (Miles Lane), kaboom@gatech.edu (Chris Ricker),
+        linux-kernel@vger.kernel.org (World Domination Now!)
+In-Reply-To: <Pine.LNX.4.33.0201301350020.7674-100000@serv> from "Roman Zippel" at Jan 30, 2002 01:59:56 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16VwiB-0007ZD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I don't care what Linus uses, but Linus decision should not lock other
+> developers into using the same tools, e.g. it should not become
+> inconvenient to send simple patches. The basic communication tools should
+> still be mail and patches. What we IMO need is a patch management system
+> not a source management system.
 
-Oops, oops, oops, I mispelt the website.
-It should have been:
+Thats been promised long back. And Linus said many times both in mail and
+in person that if he started using bitkeeper he wouldnt force others to do
+so.
 
-http://lse.sourceforge.net/io/aionotes.txt
-
-My apologies !
-
-(Thanks to Daniel Phillips and John Williams for pointing this out)
-
-Regards
-Suparna
-
------ Forwarded message from Suparna Bhattacharya <suparna@in.ibm.com> -----
-
-Date: 	Wed, 30 Jan 2002 20:13:04 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Benjamin LaHaise <bcrl@redhat.com>, ak@suse.de, viro@math.psu.edu,
-   jgmyers@netscape.com
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
-   lse-tech@lists.sourceforge.net
-Subject: Writeup on AIO design (uploaded)
-Reply-To: suparna@in.ibm.com
-
-Hello,
-
-I have just uploaded the aio design notes to:
- http://lse.sourcefourge.net/io/aionotes.txt
-
-Thanks to all those who helped with inputs and reviews of the interim 
-drafts.
-
-The writeup attempts to bring out some of the interesting design issues 
-and discuss the solutions to those issues and the approach taken in 
-Ben's design, and touches on the ideas for addressing some of the pending 
-issues, todo items and potential enhancements. It also looks at some of
-these aspects in the context of other implementations that exist or have 
-been attempted on Linux (SGI kaio, Univ of Winsconsin-Madison's BAIO, 
-Andi Kleen's early prototype), and the AIO related interfaces available 
-on other OS's (POSIX aio, NT IOCPs, BSD kqueues), and also the DAFS api 
-specifications. 
-
-This was written with the intention of triggering discussions (though
-this writeup wouldn't have been possible without all the discusions we've
-already had :)). 
-
-So please do share your insights, perspectives and comments. 
-
-All the more so, if you already have a good understanding the aio 
-design ! 
-
-For those who are new to aio:
-The focus here is only the in-kernel aio design, so you won't find much 
-about actually using aio (Dan Kegel's page might be a better
-place to start on that). There should, however, be some insights,
-and pointers to the in-kernel primitives introduced as part of aio,
-say, if you intend to implement your own async state machine (for some 
-reason !). However, the writeup does not get into low level details and 
-is not intended to be a substitute for looking at the code :). 
-It should help you follow the code more easily though (I hope).
-
-Regards
-Suparna
-
---
-To unsubscribe, send a message with 'unsubscribe linux-aio' in
-the body to majordomo@kvack.org.  For more info on Linux AIO,
-see: http://www.kvack.org/aio/
-
------ End forwarded message -----

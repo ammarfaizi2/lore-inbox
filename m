@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262388AbTCIDrZ>; Sat, 8 Mar 2003 22:47:25 -0500
+	id <S262389AbTCIECH>; Sat, 8 Mar 2003 23:02:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262389AbTCIDrZ>; Sat, 8 Mar 2003 22:47:25 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:4623 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262388AbTCIDrY>; Sat, 8 Mar 2003 22:47:24 -0500
-Date: Sun, 9 Mar 2003 04:57:54 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: linux-kernel@vger.kernel.org
-cc: Romain Lievin <roms@tilp.info>
-Subject: [PATCH] kconfig update
-Message-ID: <Pine.LNX.4.44.0303090432200.32518-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262391AbTCIECH>; Sat, 8 Mar 2003 23:02:07 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:36736 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S262389AbTCIECC>; Sat, 8 Mar 2003 23:02:02 -0500
+Date: Sun, 9 Mar 2003 13:12:08 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] PC-9800 subarch. support for 2.5.64-ac3 (1/20) boot98 update
+Message-ID: <20030309041208.GB1231@yuzuki.cinet.co.jp>
+References: <20030309035245.GA1231@yuzuki.cinet.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030309035245.GA1231@yuzuki.cinet.co.jp>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is the patch to support NEC PC-9800 subarchitecture
+against 2.5.64-ac3. (1/20)
 
-It took a bit longer than I wanted, but here is finally another kconfig 
-update. There are two important changes: I included Romain's gtk front 
-end and the support for the menuconfig keyword. Unfortunately the first is 
-lacking a bit support for the latter. Romain, you have to check that menu 
-entries of type P_MENU can now also have a config symbol. I looked a bit 
-at it myself but my gtk knowledge is insufficient. :)
-Other changes are small parser fixes and the config list in qconf has a 
-parent entry, so it should be more obvious, how to get to a parent menu.
-I don't expect bigger problems, so I want to send this patch soon to 
-Linus.
-The patch is at http://www.xs4all.nl/~zippel/lc/patches/kconfig-2.5.64.diff
+Updates for files under arch/i386/boot98 directory.
 
-bye, Roman
+Regards,
+Osamu Tomita
 
+diff -Nru linux-2.5.64-ac1/arch/i386/boot98/Makefile linux98-2.5.64-ac1/arch/i386/boot98/Makefile
+--- linux-2.5.64-ac1/arch/i386/boot98/Makefile	1970-01-01 09:00:00.000000000 +0900
++++ linux98-2.5.64-ac1/arch/i386/boot98/Makefile	2003-03-05 13:23:00.000000000 +0900
+@@ -32,10 +32,6 @@
+ 
+ host-progs	:= tools/build
+ 
+-# 	Default
+-
+-boot: bzImage
+-
+ # ---------------------------------------------------------------------------
+ 
+ $(obj)/zImage:  IMAGE_OFFSET := 0x1000

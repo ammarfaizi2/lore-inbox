@@ -1,89 +1,769 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267674AbUHEN05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267679AbUHENd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267674AbUHEN05 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267677AbUHEN04
+	id S267679AbUHENd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267677AbUHENd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:26:56 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:2468 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267674AbUHENYv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:24:51 -0400
-Date: Thu, 5 Aug 2004 19:03:48 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: prasanna@in.ibm.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: [1/3] kprobes-func-args-268-rc3.patch
-Message-ID: <20040805133348.GA4471@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <2pMJz-13N-9@gated-at.bofh.it> <m3acx9yh6t.fsf@averell.firstfloor.org> <20040805122431.GA4411@in.ibm.com> <20040805125423.GA63682@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040805125423.GA63682@muc.de>
-User-Agent: Mutt/1.4i
+	Thu, 5 Aug 2004 09:33:26 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:31616 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S267680AbUHEN3L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 09:29:11 -0400
+Message-Id: <200408051329.i75DT3Y26431@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+Cc: "Seth, Rohit" <rohit.seth@intel.com>
+Subject: Hugetlb demanding paging for -mm tree
+Date: Thu, 5 Aug 2004 06:29:02 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcR68Ctowb6n2zacRlab5pHZQfhl2Q==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 02:54:23PM +0200, Andi Kleen wrote:
-> On Thu, Aug 05, 2004 at 05:54:31PM +0530, Suparna Bhattacharya wrote:
-> > > I think you misunderstood Linus' suggestion.  The problem with
-> > > modifying arguments on the stack frame is always there because the C
-> > > ABI allows it. One suggested solution was to use a second function
-> > 
-> > I did realise that it is the ABI which allows this, but I thought
-> > that the only situation in which we know gcc to actually clobber
-> > arguments from the callee in practice is for tailcall optimization. 
-> 
-> It just breaks the most common workaround. 
+Dusted it off from 3 month ago.  This time re-diffed against 2.6.8-rc3-mm1.
+One big change compare to previous release is this patch should work for
+ALL arch that supports hugetlb page.  I have tested it on ia64 and x86.
+For x86, tested with no highmem config, 4G highmem config and PAE config.
+I have not tested it on sh, sparc64 and ppc64, but I have no reason to
+believe that this feature won't work on these arches.
 
-Just curious, do you know if other cases/optimizations where the
-callee clobbers arguments on stack ?
+Patches are broken into two pieces.  But they should be applied together
+to have correct functionality for hugetlb demand paging.
 
-> 
-> > I'm not sure if that can be guaranteed and yes saving bytes from
-> > stack would avoid the problem totally (hence the comment) and make
-> > it less tied to expected innards of the compiler. The only issue 
-> > with that is deciding the maximum number of arguments so it is 
-> > generic enough. 
-> 
-> 64bytes, aka 16 arguments seem far enough.
+00.demandpaging.patch - core hugetlb demand paging
+01.overcommit.patch   - hugetlbfs strict overcommit accounting.
 
-OK, is there is consensus on this ? 
-We'd have to make the code check for stack boundary etc and probably 
-compare and copy back only if there has been a change.
+Testing and comments are welcome.  Thanks.
 
-> 
-> > > call that passes the arguments again to get a private copy. But the
-> > > compiler's tail call optimization could sabotate that when you a
-> > > are not careful.
-> > > 
-> > > That's all quite hackish and compiler dependent. I would suggest an 
-> > > assembly wrapper that copies the arguments when !CONFIG_REGPARM.
-> > > Just assume the function doesn't have more than a fixed number
-> > > of arguments, that should be good enough.
-> > > 
-> > > This way you avoid any subtle compiler dependencies.
-> > > With CONFIG_REGPARM it's enough to just save/restore pt_regs,
-> > > which kprobes will do anyways.
-> > > >  
-> > 
-> > Even with CONFIG_REGPARM, if you have a large 
-> > number of arguments for example, is spill over into stack 
-> > a possibility ?
-> 
-> Yes. For more than three (Linux uses -mregparm=3) 
-> Also varargs arguments will be always on the stack I think.
+- Ken Chen
 
-Right, so making the copy dependent on !CONFIG_REGPARM wouldn't
-make sense would it ?
 
-Regards
-Suparna
+begin 666 00.demandpaging.patch
+M9&EF9B M3G5R<"!L:6YU>"TR+C8N-R]A<F-H+VDS.#8O;6TO:'5G971L8G!A
+M9V4N8R!L:6YU>"TR+C8N-RYH=6=E=&QB+V%R8V@O:3,X-B]M;2]H=6=E=&QB
+M<&%G92YC"BTM+2!L:6YU>"TR+C8N-R]A<F-H+VDS.#8O;6TO:'5G971L8G!A
+M9V4N8PDR,# T+3 X+3 T(#$V.C4P.C,Q+C P,# P,# P," M,#<P, HK*RL@
+M;&EN=7@M,BXV+C<N:'5G971L8B]A<F-H+VDS.#8O;6TO:'5G971L8G!A9V4N
+M8PDR,# T+3 X+3 T(#$W.C$P.C$T+C P,# P,# P," M,#<P, I 0" M,3@L
+M,3,@*S$X+#(V($! "B C:6YC;'5D92 \87-M+W1L8BYH/@H@(VEN8VQU9&4@
+M/&%S;2]T;&)F;'5S:"YH/@H@"BUS=&%T:6,@<'1E7W0@*FAU9V5?<'1E7V%L
+M;&]C*'-T<G5C="!M;5]S=')U8W0@*FUM+"!U;G-I9VYE9"!L;VYG(&%D9'(I
+M"BMS=&%T:6,@=F]I9"!S8W)U8E]O;F5?<&UD*'!M9%]T("H@<&UD*0HK>PHK
+M"7-T<G5C="!P86=E("IP86=E.PHK"BL):68@*'!M9" F)B A<&UD7VYO;F4H
+M*G!M9"D@)B8@(7!M9%]H=6=E*"IP;60I*2!["BL)"7!A9V4@/2!P;61?<&%G
+M92@J<&UD*3L**PD)<&UD7V-L96%R*'!M9"D["BL)"61E8U]P86=E7W-T871E
+M*&YR7W!A9V5?=&%B;&5?<&%G97,I.PHK"0EP86=E7V-A8VAE7W)E;&5A<V4H
+M<&%G92D["BL)?0HK?0HK"BMP=&5?=" J:'5G95]P=&5?86QL;V,H<W1R=6-T
+M(&UM7W-T<G5C=" J;6TL('5N<VEG;F5D(&QO;F<@861D<BD*('L*( EP9V1?
+M=" J<&=D.PH@"7!M9%]T("IP;60@/2!.54Q,.PH@"B )<&=D(#T@<&=D7V]F
+M9G-E="AM;2P@861D<BD["B )<&UD(#T@<&UD7V%L;&]C*&UM+"!P9V0L(&%D
+M9'(I.PHK"7-C<G5B7V]N95]P;60H<&UD*3L*( ER971U<FX@*'!T95]T("HI
+M('!M9#L*('T*( I 0" M,S0L,3$@*S0W+#$T($! ('-T871I8R!P=&5?=" J
+M:'5G95]P=&5?;V9F<V5T*'-T<G5C="!M;5\*( EP;61?=" J<&UD(#T@3E5,
+M3#L*( H@"7!G9" ]('!G9%]O9F9S970H;6TL(&%D9'(I.PHM"7!M9" ]('!M
+M9%]O9F9S970H<&=D+"!A9&1R*3L**PEI9B H<&=D7W!R97-E;G0H*G!G9"DI
+M('L**PD)<&UD(#T@<&UD7V]F9G-E="AP9V0L(&%D9'(I.PHK"0ES8W)U8E]O
+M;F5?<&UD*'!M9"D["BL)?0H@"7)E='5R;B H<'1E7W0@*BD@<&UD.PH@?0H@
+M"BUS=&%T:6,@=F]I9"!S971?:'5G95]P=&4H<W1R=6-T(&UM7W-T<G5C=" J
+M;6TL('-T<G5C="!V;5]A<F5A7W-T<G5C=" J=FUA+"!S=')U8W0@<&%G92 J
+M<&%G92P@<'1E7W0@*B!P86=E7W1A8FQE+"!I;G0@=W)I=&5?86-C97-S*0HK
+M=F]I9"!S971?:'5G95]P=&4H<W1R=6-T(&UM7W-T<G5C=" J;6TL('-T<G5C
+M="!V;5]A<F5A7W-T<G5C=" J=FUA+"!S=')U8W0@<&%G92 J<&%G92P@<'1E
+M7W0@*B!P86=E7W1A8FQE+"!I;G0@=W)I=&5?86-C97-S*0H@>PH@"7!T95]T
+M(&5N=')Y.PH@"D! ("TW,RPQ-R K.#DL,3@@0$ @:6YT(&-O<'E?:'5G971L
+M8E]P86=E7W)A;F=E*'-T<G5C="!M;5]S= H@"75N<VEG;F5D(&QO;F<@861D
+M<B ]('9M82T^=FU?<W1A<G0["B )=6YS:6=N960@;&]N9R!E;F0@/2!V;6$M
+M/G9M7V5N9#L*( HM"7=H:6QE("AA9&1R(#P@96YD*2!["BL)9F]R("@[(&%D
+M9'(@/"!E;F0[(&%D9'(K/2!(4$%'15]325I%*2!["BL)"7-R8U]P=&4@/2!H
+M=6=E7W!T95]O9F9S970H<W)C+"!A9&1R*3L**PD):68@*"%S<F-?<'1E('Q\
+M('!T95]N;VYE*"IS<F-?<'1E*2D**PD)"6-O;G1I;G5E.PH@"0ED<W1?<'1E
+M(#T@:'5G95]P=&5?86QL;V,H9'-T+"!A9&1R*3L*( D):68@*"%D<W1?<'1E
+M*0H@"0D)9V]T;R!N;VUE;3L*+0D)<W)C7W!T92 ](&AU9V5?<'1E7V]F9G-E
+M="AS<F,L(&%D9'(I.PH@"0EE;G1R>2 ]("IS<F-?<'1E.PH@"0EP=&5P86=E
+M(#T@<'1E7W!A9V4H96YT<GDI.PH@"0EG971?<&%G92AP=&5P86=E*3L*( D)
+M<V5T7W!T92AD<W1?<'1E+"!E;G1R>2D["B )"61S="T^<G-S("L]("A(4$%'
+M15]325I%("\@4$%'15]325I%*3L*+0D)861D<B K/2!(4$%'15]325I%.PH@
+M"7T*( ER971U<FX@,#L*( I 0" M,C(Q+#8S("LR,S@L,R! 0"!V;VED('5N
+M;6%P7VAU9V5P86=E7W)A;F=E*'-T<G5C="!V;5]A<F5A"B );6TM/G)S<R M
+M/2 H96YD("T@<W1A<G0I(#X^(%!!1T5?4TA)1E0["B )9FQU<VA?=&QB7W)A
+M;F=E*'9M82P@<W1A<G0L(&5N9"D["B!]"BT*+6EN="!H=6=E=&QB7W!R969A
+M=6QT*'-T<G5C="!A9&1R97-S7W-P86-E("IM87!P:6YG+"!S=')U8W0@=FU?
+M87)E85]S=')U8W0@*G9M82D*+7L*+0ES=')U8W0@;6U?<W1R=6-T("IM;2 ]
+M(&-U<G)E;G0M/FUM.PHM"75N<VEG;F5D(&QO;F<@861D<CL*+0EI;G0@<F5T
+M(#T@,#L*+0HM"4)51U]/3BAV;6$M/G9M7W-T87)T("8@?DA004=%7TU!4TLI
+M.PHM"4)51U]/3BAV;6$M/G9M7V5N9" F('Y(4$%'15]-05-+*3L*+0HM"7-P
+M:6Y?;&]C:R@F;6TM/G!A9V5?=&%B;&5?;&]C:RD["BT)9F]R("AA9&1R(#T@
+M=FUA+3YV;5]S=&%R=#L@861D<B \('9M82T^=FU?96YD.R!A9&1R("L]($A0
+M04=%7U-)6D4I('L*+0D)=6YS:6=N960@;&]N9R!I9'@["BT)"7!T95]T("IP
+M=&4@/2!H=6=E7W!T95]A;&QO8RAM;2P@861D<BD["BT)"7-T<G5C="!P86=E
+M("IP86=E.PHM"BT)"6EF("@A<'1E*2!["BT)"0ER970@/2 M14Y/345-.PHM
+M"0D)9V]T;R!O=70["BT)"7T*+0HM"0EI9B H(7!T95]N;VYE*"IP=&4I*2![
+M"BT)"0EP;61?=" J<&UD(#T@*'!M9%]T("HI('!T93L*+0HM"0D)<&%G92 ]
+M('!M9%]P86=E*"IP;60I.PHM"0D)<&UD7V-L96%R*'!M9"D["BT)"0ED96-?
+M<&%G95]S=&%T92AN<E]P86=E7W1A8FQE7W!A9V5S*3L*+0D)"7!A9V5?8V%C
+M:&5?<F5L96%S92AP86=E*3L*+0D)?0HM"BT)"6ED>" ]("@H861D<B M('9M
+M82T^=FU?<W1A<G0I(#X^($A004=%7U-(2494*0HM"0D)*R H=FUA+3YV;5]P
+M9V]F9B ^/B H2%!!1T5?4TA)1E0@+2!004=%7U-(2494*2D["BT)"7!A9V4@
+M/2!F:6YD7V=E=%]P86=E*&UA<'!I;F<L(&ED>"D["BT)"6EF("@A<&%G92D@
+M>PHM"0D)+RH@8VAA<F=E('1H92!F<R!Q=6]T82!F:7)S=" J+PHM"0D):68@
+M*&AU9V5T;&)?9V5T7W%U;W1A*&UA<'!I;F<I*2!["BT)"0D)<F5T(#T@+45.
+M3TU%33L*+0D)"0EG;W1O(&]U=#L*+0D)"7T*+0D)"7!A9V4@/2!A;&QO8U]H
+M=6=E7W!A9V4H*3L*+0D)"6EF("@A<&%G92D@>PHM"0D)"6AU9V5T;&)?<'5T
+M7W%U;W1A*&UA<'!I;F<I.PHM"0D)"7)E=" ]("U%3D]-14T["BT)"0D)9V]T
+M;R!O=70["BT)"0E]"BT)"0ER970@/2!A9&1?=&]?<&%G95]C86-H92AP86=E
+M+"!M87!P:6YG+"!I9'@L($=&4%]!5$]-24,I.PHM"0D):68@*"$@<F5T*2![
+M"BT)"0D)=6YL;V-K7W!A9V4H<&%G92D["BT)"0E](&5L<V4@>PHM"0D)"6AU
+M9V5T;&)?<'5T7W%U;W1A*&UA<'!I;F<I.PHM"0D)"69R965?:'5G95]P86=E
+M*'!A9V4I.PHM"0D)"6=O=&\@;W5T.PHM"0D)?0HM"0E]"BT)"7-E=%]H=6=E
+M7W!T92AM;2P@=FUA+"!P86=E+"!P=&4L('9M82T^=FU?9FQA9W,@)B!635]7
+M4DE412D["BT)?0HM;W5T.@HM"7-P:6Y?=6YL;V-K*"9M;2T^<&%G95]T86)L
+M95]L;V-K*3L*+0ER971U<FX@<F5T.PHM?0ID:69F("U.=7)P(&QI;G5X+3(N
+M-BXW+V%R8V@O:6$V-"]M;2]H=6=E=&QB<&%G92YC(&QI;G5X+3(N-BXW+FAU
+M9V5T;&(O87)C:"]I838T+VUM+VAU9V5T;&)P86=E+F,*+2TM(&QI;G5X+3(N
+M-BXW+V%R8V@O:6$V-"]M;2]H=6=E=&QB<&%G92YC"3(P,#0M,#@M,#0@,38Z
+M-3 Z,S$N,# P,# P,# P("TP-S P"BLK*R!L:6YU>"TR+C8N-RYH=6=E=&QB
+M+V%R8V@O:6$V-"]M;2]H=6=E=&QB<&%G92YC"3(P,#0M,#@M,#0@,38Z-3$Z
+M-30N,# P,# P,# P("TP-S P"D! ("TR-"PW("LR-"PW($! "B *('5N<VEG
+M;F5D(&EN="!H<&%G95]S:&EF=#U(4$%'15]32$E&5%]$149!54Q4.PH@"BUS
+M=&%T:6,@<'1E7W0@*@HK<'1E7W0@*@H@:'5G95]P=&5?86QL;V,@*'-T<G5C
+M="!M;5]S=')U8W0@*FUM+"!U;G-I9VYE9"!L;VYG(&%D9'(I"B!["B )=6YS
+M:6=N960@;&]N9R!T861D<B ](&AT;&)P86=E7W1O7W!A9V4H861D<BD["D! 
+M("TU.2PW("LU.2PW($! (&AU9V5?<'1E7V]F9G-E=" H<W1R=6-T(&UM7W-T
+M<G5C=" J;6TL('4*( H@(V1E9FEN92!M:U]P=&5?:'5G92AE;G1R>2D@>R!P
+M=&5?=F%L*&5N=')Y*2!\/2!?4$%'15]0.R!]"B *+7-T871I8R!V;VED"BMV
+M;VED"B!S971?:'5G95]P=&4@*'-T<G5C="!M;5]S=')U8W0@*FUM+"!S=')U
+M8W0@=FU?87)E85]S=')U8W0@*G9M82P*( D@(" @("!S=')U8W0@<&%G92 J
+M<&%G92P@<'1E7W0@*B!P86=E7W1A8FQE+"!I;G0@=W)I=&5?86-C97-S*0H@
+M>PI 0" M.3DL,3<@*SDY+#$X($! (&EN="!C;W!Y7VAU9V5T;&)?<&%G95]R
+M86YG92AS=')U8W0@;6U?<W0*( EU;G-I9VYE9"!L;VYG(&%D9'(@/2!V;6$M
+M/G9M7W-T87)T.PH@"75N<VEG;F5D(&QO;F<@96YD(#T@=FUA+3YV;5]E;F0[
+M"B *+0EW:&EL92 H861D<B \(&5N9"D@>PHK"69O<B H.R!A9&1R(#P@96YD
+M.R!A9&1R("L]($A004=%7U-)6D4I('L**PD)<W)C7W!T92 ](&AU9V5?<'1E
+M7V]F9G-E="AS<F,L(&%D9'(I.PHK"0EI9B H(7-R8U]P=&4@?'P@<'1E7VYO
+M;F4H*G-R8U]P=&4I*0HK"0D)8V]N=&EN=64["B )"61S=%]P=&4@/2!H=6=E
+M7W!T95]A;&QO8RAD<W0L(&%D9'(I.PH@"0EI9B H(61S=%]P=&4I"B )"0EG
+M;W1O(&YO;65M.PHM"0ES<F-?<'1E(#T@:'5G95]P=&5?;V9F<V5T*'-R8RP@
+M861D<BD["B )"65N=')Y(#T@*G-R8U]P=&4["B )"7!T97!A9V4@/2!P=&5?
+M<&%G92AE;G1R>2D["B )"6=E=%]P86=E*'!T97!A9V4I.PH@"0ES971?<'1E
+M*&1S=%]P=&4L(&5N=')Y*3L*( D)9'-T+3YR<W,@*ST@*$A004=%7U-)6D4@
+M+R!004=%7U-)6D4I.PHM"0EA9&1R("L]($A004=%7U-)6D4["B )?0H@"7)E
+M='5R;B P.PH@;F]M96TZ"D! ("TR-#,L-R K,C0T+#<@0$ @=F]I9"!U;FUA
+M<%]H=6=E<&%G95]R86YG92AS=')U8W0@=FU?87)E80H@"B )9F]R("AA9&1R
+M97-S(#T@<W1A<G0[(&%D9')E<W,@/"!E;F0[(&%D9')E<W,@*ST@2%!!1T5?
+M4TE:12D@>PH@"0EP=&4@/2!H=6=E7W!T95]O9F9S970H;6TL(&%D9')E<W,I
+M.PHM"0EI9B H<'1E7VYO;F4H*G!T92DI"BL)"6EF("@A<'1E('Q\('!T95]N
+M;VYE*"IP=&4I*0H@"0D)8V]N=&EN=64["B )"7!A9V4@/2!P=&5?<&%G92@J
+M<'1E*3L*( D)<'5T7W!A9V4H<&%G92D["D! ("TR-3,L-3D@*S(U-"PV($! 
+M('9O:60@=6YM87!?:'5G97!A9V5?<F%N9V4H<W1R=6-T('9M7V%R96$*( EF
+M;'5S:%]T;&)?<F%N9V4H=FUA+"!S=&%R="P@96YD*3L*('T*( HM:6YT(&AU
+M9V5T;&)?<')E9F%U;'0H<W1R=6-T(&%D9')E<W-?<W!A8V4@*FUA<'!I;F<L
+M('-T<G5C="!V;5]A<F5A7W-T<G5C=" J=FUA*0HM>PHM"7-T<G5C="!M;5]S
+M=')U8W0@*FUM(#T@8W5R<F5N="T^;6T["BT)=6YS:6=N960@;&]N9R!A9&1R
+M.PHM"6EN="!R970@/2 P.PHM"BT)0E5'7T].*'9M82T^=FU?<W1A<G0@)B!^
+M2%!!1T5?34%32RD["BT)0E5'7T].*'9M82T^=FU?96YD("8@?DA004=%7TU!
+M4TLI.PHM"BT)<W!I;E]L;V-K*"9M;2T^<&%G95]T86)L95]L;V-K*3L*+0EF
+M;W(@*&%D9'(@/2!V;6$M/G9M7W-T87)T.R!A9&1R(#P@=FUA+3YV;5]E;F0[
+M(&%D9'(@*ST@2%!!1T5?4TE:12D@>PHM"0EU;G-I9VYE9"!L;VYG(&ED>#L*
+M+0D)<'1E7W0@*G!T92 ](&AU9V5?<'1E7V%L;&]C*&UM+"!A9&1R*3L*+0D)
+M<W1R=6-T('!A9V4@*G!A9V4["BT*+0D):68@*"%P=&4I('L*+0D)"7)E=" ]
+M("U%3D]-14T["BT)"0EG;W1O(&]U=#L*+0D)?0HM"0EI9B H(7!T95]N;VYE
+M*"IP=&4I*0HM"0D)8V]N=&EN=64["BT*+0D):61X(#T@*"AA9&1R("T@=FUA
+M+3YV;5]S=&%R="D@/CX@2%!!1T5?4TA)1E0I"BT)"0DK("AV;6$M/G9M7W!G
+M;V9F(#X^("A(4$%'15]32$E&5" M(%!!1T5?4TA)1E0I*3L*+0D)<&%G92 ]
+M(&9I;F1?9V5T7W!A9V4H;6%P<&EN9RP@:61X*3L*+0D):68@*"%P86=E*2![
+M"BT)"0DO*B!C:&%R9V4@=&AE(&9S('%U;W1A(&9I<G-T("HO"BT)"0EI9B H
+M:'5G971L8E]G971?<75O=&$H;6%P<&EN9RDI('L*+0D)"0ER970@/2 M14Y/
+M345-.PHM"0D)"6=O=&\@;W5T.PHM"0D)?0HM"0D)<&%G92 ](&%L;&]C7VAU
+M9V5?<&%G92@I.PHM"0D):68@*"%P86=E*2!["BT)"0D):'5G971L8E]P=71?
+M<75O=&$H;6%P<&EN9RD["BT)"0D)<F5T(#T@+45.3TU%33L*+0D)"0EG;W1O
+M(&]U=#L*+0D)"7T*+0D)"7)E=" ](&%D9%]T;U]P86=E7V-A8VAE*'!A9V4L
+M(&UA<'!I;F<L(&ED>"P@1T907T%43TU)0RD["BT)"0EI9B H(2!R970I('L*
+M+0D)"0EU;FQO8VM?<&%G92AP86=E*3L*+0D)"7T@96QS92!["BT)"0D):'5G
+M971L8E]P=71?<75O=&$H;6%P<&EN9RD["BT)"0D)<&%G95]C86-H95]R96QE
+M87-E*'!A9V4I.PHM"0D)"6=O=&\@;W5T.PHM"0D)?0HM"0E]"BT)"7-E=%]H
+M=6=E7W!T92AM;2P@=FUA+"!P86=E+"!P=&4L('9M82T^=FU?9FQA9W,@)B!6
+M35]74DE412D["BT)?0HM;W5T.@HM"7-P:6Y?=6YL;V-K*"9M;2T^<&%G95]T
+M86)L95]L;V-K*3L*+0ER971U<FX@<F5T.PHM?0HM"B!U;G-I9VYE9"!L;VYG
+M(&AU9V5T;&)?9V5T7W5N;6%P<&5D7V%R96$H<W1R=6-T(&9I;&4@*F9I;&4L
+M('5N<VEG;F5D(&QO;F<@861D<BP@=6YS:6=N960@;&]N9R!L96XL"B )"75N
+M<VEG;F5D(&QO;F<@<&=O9F8L('5N<VEG;F5D(&QO;F<@9FQA9W,I"B!["F1I
+M9F8@+4YU<G @;&EN=7@M,BXV+C<O87)C:"]P<&,V-"]M;2]H=6=E=&QB<&%G
+M92YC(&QI;G5X+3(N-BXW+FAU9V5T;&(O87)C:"]P<&,V-"]M;2]H=6=E=&QB
+M<&%G92YC"BTM+2!L:6YU>"TR+C8N-R]A<F-H+W!P8S8T+VUM+VAU9V5T;&)P
+M86=E+F,),C P-"TP."TP-" Q-CHU,#HS,2XP,# P,# P,# @+3 W,# **RLK
+M(&QI;G5X+3(N-BXW+FAU9V5T;&(O87)C:"]P<&,V-"]M;2]H=6=E=&QB<&%G
+M92YC"3(P,#0M,#@M,#4@,#0Z,#0Z,S8N,# P,# P,# P("TP-S P"D! ("TT
+M,3,L-C(@*S0Q,RPV($! ('9O:60@=6YM87!?:'5G97!A9V5?<F%N9V4H<W1R
+M=6-T('9M7V%R96$*( EM;2T^<G-S("T]("AE;F0@+2!S=&%R="D@/CX@4$%'
+M15]32$E&5#L*('T*( HM:6YT(&AU9V5T;&)?<')E9F%U;'0H<W1R=6-T(&%D
+M9')E<W-?<W!A8V4@*FUA<'!I;F<L('-T<G5C="!V;5]A<F5A7W-T<G5C=" J
+M=FUA*0HM>PHM"7-T<G5C="!M;5]S=')U8W0@*FUM(#T@8W5R<F5N="T^;6T[
+M"BT)=6YS:6=N960@;&]N9R!A9&1R.PHM"6EN="!R970@/2 P.PHM"BT)5T%2
+M3E]/3B@A:7-?=FU?:'5G971L8E]P86=E*'9M82DI.PHM"4)51U]/3B@H=FUA
+M+3YV;5]S=&%R=" E($A004=%7U-)6D4I("$](# I.PHM"4)51U]/3B@H=FUA
+M+3YV;5]E;F0@)2!(4$%'15]325I%*2 A/2 P*3L*+0HM"7-P:6Y?;&]C:R@F
+M;6TM/G!A9V5?=&%B;&5?;&]C:RD["BT)9F]R("AA9&1R(#T@=FUA+3YV;5]S
+M=&%R=#L@861D<B \('9M82T^=FU?96YD.R!A9&1R("L]($A004=%7U-)6D4I
+M('L*+0D)=6YS:6=N960@;&]N9R!I9'@["BT)"6AU9V5P=&5?=" J<'1E(#T@
+M:'5G97!T95]A;&QO8RAM;2P@861D<BD["BT)"7-T<G5C="!P86=E("IP86=E
+M.PHM"BT)"4)51U]/3B@A:6Y?:'5G97!A9V5?87)E82AM;2T^8V]N=&5X="P@
+M861D<BDI.PHM"BT)"6EF("@A<'1E*2!["BT)"0ER970@/2 M14Y/345-.PHM
+M"0D)9V]T;R!O=70["BT)"7T*+0D):68@*"%H=6=E<'1E7VYO;F4H*G!T92DI
+M"BT)"0EC;VYT:6YU93L*+0HM"0EI9'@@/2 H*&%D9'(@+2!V;6$M/G9M7W-T
+M87)T*2 ^/B!(4$%'15]32$E&5"D*+0D)"2L@*'9M82T^=FU?<&=O9F8@/CX@
+M*$A004=%7U-(2494("T@4$%'15]32$E&5"DI.PHM"0EP86=E(#T@9FEN9%]G
+M971?<&%G92AM87!P:6YG+"!I9'@I.PHM"0EI9B H(7!A9V4I('L*+0D)"2\J
+M(&-H87)G92!T:&4@9G,@<75O=&$@9FER<W0@*B\*+0D)"6EF("AH=6=E=&QB
+M7V=E=%]Q=6]T82AM87!P:6YG*2D@>PHM"0D)"7)E=" ]("U%3D]-14T["BT)
+M"0D)9V]T;R!O=70["BT)"0E]"BT)"0EP86=E(#T@86QL;V-?:'5G95]P86=E
+M*"D["BT)"0EI9B H(7!A9V4I('L*+0D)"0EH=6=E=&QB7W!U=%]Q=6]T82AM
+M87!P:6YG*3L*+0D)"0ER970@/2 M14Y/345-.PHM"0D)"6=O=&\@;W5T.PHM
+M"0D)?0HM"0D)<F5T(#T@861D7W1O7W!A9V5?8V%C:&4H<&%G92P@;6%P<&EN
+M9RP@:61X+"!'1E!?051/34E#*3L*+0D)"6EF("@A(')E="D@>PHM"0D)"75N
+M;&]C:U]P86=E*'!A9V4I.PHM"0D)?2!E;'-E('L*+0D)"0EH=6=E=&QB7W!U
+M=%]Q=6]T82AM87!P:6YG*3L*+0D)"0EF<F5E7VAU9V5?<&%G92AP86=E*3L*
+M+0D)"0EG;W1O(&]U=#L*+0D)"7T*+0D)?0HM"0ES971U<%]H=6=E7W!T92AM
+M;2P@<&%G92P@<'1E+"!V;6$M/G9M7V9L86=S("8@5DU?5U))5$4I.PHM"7T*
+M+6]U=#H*+0ES<&EN7W5N;&]C:R@F;6TM/G!A9V5?=&%B;&5?;&]C:RD["BT)
+M<F5T=7)N(')E=#L*+7T*+0H@+RH@0F5C875S92!W92!H879E(&%N(&5X8VQU
+M<VEV92!H=6=E<&%G92!R96=I;VX@=VAI8V@@;&EE<R!W:71H:6X@=&AE"B @
+M*B!N;W)M86P@=7-E<B!A9&1R97-S('-P86-E+"!W92!H879E('1O('1A:V4@
+M<W!E8VEA;"!M96%S=7)E<R!T;R!M86ME"B @*B!N;VXM:'5G92!M;6%P*"ES
+M(&5V861E('1H92!H=6=E<&%G92!R97-E<G9E9"!R96=I;VYS+B J+PI 0" M
+M-S8P+#,@*S<P-"PU.2! 0"!S=&%T:6,@=F]I9"!F;'5S:%]H87-H7VAU9V5P
+M86=E*&UM7V-O;G1E"B *( EP<&-?;60N:'!T95]I;G9A;&ED871E*'-L;W0L
+M('9A+" Q+"!L;V-A;"D["B!]"BL**VEN= HK:&%N9&QE7VAU9V5T;&)?;6U?
+M9F%U;'0H<W1R=6-T(&UM7W-T<G5C=" J;6TL('-T<G5C="!V;5]A<F5A7W-T
+M<G5C=" J('9M82P**PEU;G-I9VYE9"!L;VYG(&%D9'(L(&EN="!W<FET95]A
+M8V-E<W,I"BM["BL):'5G97!T95]T("IP=&4["BL)<W1R=6-T('!A9V4@*G!A
+M9V4["BL)<W1R=6-T(&%D9')E<W-?<W!A8V4@*FUA<'!I;F<["BL):6YT(&ED
+M>"P@<F5T.PHK"BL)<W!I;E]L;V-K*"9M;2T^<&%G95]T86)L95]L;V-K*3L*
+M*PEP=&4@/2!H=6=E<'1E7V%L;&]C*&UM+"!A9&1R("8@2%!!1T5?34%32RD[
+M"BL):68@*"%P=&4I"BL)"6=O=&\@;V]M.PHK"6EF("@A:'5G97!T95]N;VYE
+M*"IP=&4I*0HK"0EG;W1O(&]U=#L**PES<&EN7W5N;&]C:R@F;6TM/G!A9V5?
+M=&%B;&5?;&]C:RD["BL**PEM87!P:6YG(#T@=FUA+3YV;5]F:6QE+3YF7V1E
+M;G1R>2T^9%]I;F]D92T^:5]M87!P:6YG.PHK"6ED>" ]("@H861D<B M('9M
+M82T^=FU?<W1A<G0I(#X^($A004=%7U-(2494*0HK"0DK("AV;6$M/G9M7W!G
+M;V9F(#X^("A(4$%'15]32$E&5" M(%!!1T5?4TA)1E0I*3L**W)E=')Y.@HK
+M"7!A9V4@/2!F:6YD7V=E=%]P86=E*&UA<'!I;F<L(&ED>"D["BL):68@*"%P
+M86=E*2!["BL)"7!A9V4@/2!A;&QO8U]H=6=E7W!A9V4H*3L**PD):68@*"%P
+M86=E*0HK"0D)+RH**PD)"2 J('=I=&@@<W1R:6-T(&]V97)C;VUM:70@86-C
+M;W5N=&EN9RP@=V4@<VAO=6QD(&YE=F5R"BL)"0D@*B!R=6X@;W5T(&]F(&AU
+M9V5T;&(@<&%G92P@<V\@;75S="!B92!A(&9A=6QT(')A8V4**PD)"2 J(&%N
+M9"!L970G<R!R971R>2X**PD)"2 J+PHK"0D)9V]T;R!R971R>3L**PD)<F5T
+M(#T@861D7W1O7W!A9V5?8V%C:&4H<&%G92P@;6%P<&EN9RP@:61X+"!'1E!?
+M051/34E#*3L**PD):68@*"%R970I('L**PD)"75N;&]C:U]P86=E*'!A9V4I
+M.PHK"0E](&5L<V4@>PHK"0D)<'5T7W!A9V4H<&%G92D["BL)"0EI9B H<F5T
+M(#T]("U%15A)4U0I"BL)"0D)9V]T;R!R971R>3L**PD)"65L<V4**PD)"0ER
+M971U<FX@5DU?1D%53%1?3T]-.PHK"0E]"BL)?0HK"BL)<W!I;E]L;V-K*"9M
+M;2T^<&%G95]T86)L95]L;V-K*3L**PEI9B H:'5G97!T95]N;VYE*"IP=&4I
+M*0HK"0ES971U<%]H=6=E7W!T92AM;2P@<&%G92P@<'1E+"!V;6$M/G9M7V9L
+M86=S("8@5DU?5U))5$4I.PHK"65L<V4**PD)<'5T7W!A9V4H<&%G92D["BMO
+M=70Z"BL)<W!I;E]U;FQO8VLH)FUM+3YP86=E7W1A8FQE7VQO8VLI.PHK"7)E
+M='5R;B!635]&055,5%]-24Y/4CL**V]O;3H**PES<&EN7W5N;&]C:R@F;6TM
+M/G!A9V5?=&%B;&5?;&]C:RD["BL)<F5T=7)N(%9-7T9!54Q47T]/33L**WT*
+M9&EF9B M3G5R<"!L:6YU>"TR+C8N-R]A<F-H+W-H+VUM+VAU9V5T;&)P86=E
+M+F,@;&EN=7@M,BXV+C<N:'5G971L8B]A<F-H+W-H+VUM+VAU9V5T;&)P86=E
+M+F,*+2TM(&QI;G5X+3(N-BXW+V%R8V@O<V@O;6TO:'5G971L8G!A9V4N8PDR
+M,# T+3 V+3$U(#(R.C$Y.C,V+C P,# P,# P," M,#<P, HK*RL@;&EN=7@M
+M,BXV+C<N:'5G971L8B]A<F-H+W-H+VUM+VAU9V5T;&)P86=E+F,),C P-"TP
+M."TP-" Q-SHQ.3HR-2XP,# P,# P,# @+3 W,# *0$ @+3(T+#<@*S(T+#<@
+M0$ *("-I;F-L=61E(#QA<VTO=&QB9FQU<V@N:#X*("-I;F-L=61E(#QA<VTO
+M8V%C:&5F;'5S:"YH/@H@"BUS=&%T:6,@<'1E7W0@*FAU9V5?<'1E7V%L;&]C
+M*'-T<G5C="!M;5]S=')U8W0@*FUM+"!U;G-I9VYE9"!L;VYG(&%D9'(I"BMP
+M=&5?=" J:'5G95]P=&5?86QL;V,H<W1R=6-T(&UM7W-T<G5C=" J;6TL('5N
+M<VEG;F5D(&QO;F<@861D<BD*('L*( EP9V1?=" J<&=D.PH@"7!M9%]T("IP
+M;60["D! ("TU-BPW("LU-BPW($! ('-T871I8R!P=&5?=" J:'5G95]P=&5?
+M;V9F<V5T*'-T<G5C="!M;5\*( H@(V1E9FEN92!M:U]P=&5?:'5G92AE;G1R
+M>2D@9&\@>R!P=&5?=F%L*&5N=')Y*2!\/2!?4$%'15]36DA51T4[('T@=VAI
+M;&4@*# I"B *+7-T871I8R!V;VED('-E=%]H=6=E7W!T92AS=')U8W0@;6U?
+M<W1R=6-T("IM;2P@<W1R=6-T('9M7V%R96%?<W1R=6-T("IV;6$L"BMV;VED
+M('-E=%]H=6=E7W!T92AS=')U8W0@;6U?<W1R=6-T("IM;2P@<W1R=6-T('9M
+M7V%R96%?<W1R=6-T("IV;6$L"B )"0D@<W1R=6-T('!A9V4@*G!A9V4L('!T
+M95]T("H@<&%G95]T86)L92P@:6YT('=R:71E7V%C8V5S<RD*('L*( EU;G-I
+M9VYE9"!L;VYG(&D["D! ("TQ,#$L,3(@*S$P,2PQ,R! 0"!I;G0@8V]P>5]H
+M=6=E=&QB7W!A9V5?<F%N9V4H<W1R=6-T(&UM7W-T"B )=6YS:6=N960@;&]N
+M9R!E;F0@/2!V;6$M/G9M7V5N9#L*( EI;G0@:3L*( HM"7=H:6QE("AA9&1R
+M(#P@96YD*2!["BL)9F]R("@[(&%D9'(@/"!E;F0[(&%D9'(@*ST@2%!!1T5?
+M4TE:12D@>PHK"0ES<F-?<'1E(#T@:'5G95]P=&5?;V9F<V5T*'-R8RP@861D
+M<BD["BL)"6EF("@A<W)C7W!T92!\?"!P=&5?;F]N92@J<W)C7W!T92DI"BL)
+M"0EC;VYT:6YU93L*( D)9'-T7W!T92 ](&AU9V5?<'1E7V%L;&]C*&1S="P@
+M861D<BD["B )"6EF("@A9'-T7W!T92D*( D)"6=O=&\@;F]M96T["BT)"7-R
+M8U]P=&4@/2!H=6=E7W!T95]O9F9S970H<W)C+"!A9&1R*3L*+0D)0E5'7T].
+M*"%S<F-?<'1E('Q\('!T95]N;VYE*"IS<F-?<'1E*2D["B )"65N=')Y(#T@
+M*G-R8U]P=&4["B )"7!T97!A9V4@/2!P=&5?<&%G92AE;G1R>2D["B )"6=E
+M=%]P86=E*'!T97!A9V4I.PI 0" M,3$V+#<@*S$Q-RPV($! (&EN="!C;W!Y
+M7VAU9V5T;&)?<&%G95]R86YG92AS=')U8W0@;6U?<W0*( D)"61S=%]P=&4K
+M*SL*( D)?0H@"0ED<W0M/G)S<R K/2 H2%!!1T5?4TE:12 O(%!!1T5?4TE:
+M12D["BT)"6%D9'(@*ST@2%!!1T5?4TE:13L*( E]"B )<F5T=7)N(# ["B *
+M0$ @+3$Y-BPX("LQ.38L-R! 0"!V;VED('5N;6%P7VAU9V5P86=E7W)A;F=E
+M*'-T<G5C="!V;5]A<F5A"B *( EF;W(@*&%D9')E<W,@/2!S=&%R=#L@861D
+M<F5S<R \(&5N9#L@861D<F5S<R K/2!(4$%'15]325I%*2!["B )"7!T92 ]
+M(&AU9V5?<'1E7V]F9G-E="AM;2P@861D<F5S<RD["BT)"4)51U]/3B@A<'1E
+M*3L*+0D):68@*'!T95]N;VYE*"IP=&4I*0HK"0EI9B H(7!T92!\?"!P=&5?
+M;F]N92@J<'1E*2D*( D)"6-O;G1I;G5E.PH@"0EP86=E(#T@<'1E7W!A9V4H
+M*G!T92D["B )"7!U=%]P86=E*'!A9V4I.PI 0" M,C Y+#4V("LR,#@L,R! 
+M0"!V;VED('5N;6%P7VAU9V5P86=E7W)A;F=E*'-T<G5C="!V;5]A<F5A"B )
+M;6TM/G)S<R M/2 H96YD("T@<W1A<G0I(#X^(%!!1T5?4TA)1E0["B )9FQU
+M<VA?=&QB7W)A;F=E*'9M82P@<W1A<G0L(&5N9"D["B!]"BT*+6EN="!H=6=E
+M=&QB7W!R969A=6QT*'-T<G5C="!A9&1R97-S7W-P86-E("IM87!P:6YG+"!S
+M=')U8W0@=FU?87)E85]S=')U8W0@*G9M82D*+7L*+0ES=')U8W0@;6U?<W1R
+M=6-T("IM;2 ](&-U<G)E;G0M/FUM.PHM"75N<VEG;F5D(&QO;F<@861D<CL*
+M+0EI;G0@<F5T(#T@,#L*+0HM"4)51U]/3BAV;6$M/G9M7W-T87)T("8@?DA0
+M04=%7TU!4TLI.PHM"4)51U]/3BAV;6$M/G9M7V5N9" F('Y(4$%'15]-05-+
+M*3L*+0HM"7-P:6Y?;&]C:R@F;6TM/G!A9V5?=&%B;&5?;&]C:RD["BT)9F]R
+M("AA9&1R(#T@=FUA+3YV;5]S=&%R=#L@861D<B \('9M82T^=FU?96YD.R!A
+M9&1R("L]($A004=%7U-)6D4I('L*+0D)=6YS:6=N960@;&]N9R!I9'@["BT)
+M"7!T95]T("IP=&4@/2!H=6=E7W!T95]A;&QO8RAM;2P@861D<BD["BT)"7-T
+M<G5C="!P86=E("IP86=E.PHM"BT)"6EF("@A<'1E*2!["BT)"0ER970@/2 M
+M14Y/345-.PHM"0D)9V]T;R!O=70["BT)"7T*+0D):68@*"%P=&5?;F]N92@J
+M<'1E*2D*+0D)"6-O;G1I;G5E.PHM"BT)"6ED>" ]("@H861D<B M('9M82T^
+M=FU?<W1A<G0I(#X^($A004=%7U-(2494*0HM"0D)*R H=FUA+3YV;5]P9V]F
+M9B ^/B H2%!!1T5?4TA)1E0@+2!004=%7U-(2494*2D["BT)"7!A9V4@/2!F
+M:6YD7V=E=%]P86=E*&UA<'!I;F<L(&ED>"D["BT)"6EF("@A<&%G92D@>PHM
+M"0D)+RH@8VAA<F=E('1H92!F<R!Q=6]T82!F:7)S=" J+PHM"0D):68@*&AU
+M9V5T;&)?9V5T7W%U;W1A*&UA<'!I;F<I*2!["BT)"0D)<F5T(#T@+45.3TU%
+M33L*+0D)"0EG;W1O(&]U=#L*+0D)"7T*+0D)"7!A9V4@/2!A;&QO8U]H=6=E
+M7W!A9V4H*3L*+0D)"6EF("@A<&%G92D@>PHM"0D)"6AU9V5T;&)?<'5T7W%U
+M;W1A*&UA<'!I;F<I.PHM"0D)"7)E=" ]("U%3D]-14T["BT)"0D)9V]T;R!O
+M=70["BT)"0E]"BT)"0ER970@/2!A9&1?=&]?<&%G95]C86-H92AP86=E+"!M
+M87!P:6YG+"!I9'@L($=&4%]!5$]-24,I.PHM"0D):68@*"$@<F5T*2!["BT)
+M"0D)=6YL;V-K7W!A9V4H<&%G92D["BT)"0E](&5L<V4@>PHM"0D)"6AU9V5T
+M;&)?<'5T7W%U;W1A*&UA<'!I;F<I.PHM"0D)"69R965?:'5G95]P86=E*'!A
+M9V4I.PHM"0D)"6=O=&\@;W5T.PHM"0D)?0HM"0E]"BT)"7-E=%]H=6=E7W!T
+M92AM;2P@=FUA+"!P86=E+"!P=&4L('9M82T^=FU?9FQA9W,@)B!635]74DE4
+M12D["BT)?0HM;W5T.@HM"7-P:6Y?=6YL;V-K*"9M;2T^<&%G95]T86)L95]L
+M;V-K*3L*+0ER971U<FX@<F5T.PHM?0ID:69F("U.=7)P(&QI;G5X+3(N-BXW
+M+V%R8V@O<W!A<F,V-"]M;2]H=6=E=&QB<&%G92YC(&QI;G5X+3(N-BXW+FAU
+M9V5T;&(O87)C:"]S<&%R8S8T+VUM+VAU9V5T;&)P86=E+F,*+2TM(&QI;G5X
+M+3(N-BXW+V%R8V@O<W!A<F,V-"]M;2]H=6=E=&QB<&%G92YC"3(P,#0M,#8M
+M,34@,C(Z,3DZ-#(N,# P,# P,# P("TP-S P"BLK*R!L:6YU>"TR+C8N-RYH
+M=6=E=&QB+V%R8V@O<W!A<F,V-"]M;2]H=6=E=&QB<&%G92YC"3(P,#0M,#@M
+M,#4@,#,Z,S$Z-3@N,# P,# P,# P("TP-S P"D! ("TR,2PW("LR,2PW($! 
+M"B C:6YC;'5D92 \87-M+W1L8F9L=7-H+F@^"B C:6YC;'5D92 \87-M+V-A
+M8VAE9FQU<V@N:#X*( HM<W1A=&EC('!T95]T("IH=6=E7W!T95]A;&QO8RAS
+M=')U8W0@;6U?<W1R=6-T("IM;2P@=6YS:6=N960@;&]N9R!A9&1R*0HK<'1E
+M7W0@*FAU9V5?<'1E7V%L;&]C*'-T<G5C="!M;5]S=')U8W0@*FUM+"!U;G-I
+M9VYE9"!L;VYG(&%D9'(I"B!["B )<&=D7W0@*G!G9#L*( EP;61?=" J<&UD
+M.PI 0" M-3,L-R K-3,L-R! 0"!S=&%T:6,@<'1E7W0@*FAU9V5?<'1E7V]F
+M9G-E="AS=')U8W0@;6U?"B *("-D969I;F4@;6M?<'1E7VAU9V4H96YT<GDI
+M(&1O('L@<'1E7W9A;"AE;G1R>2D@?#T@7U!!1T5?4UI(54=%.R!]('=H:6QE
+M("@P*0H@"BUS=&%T:6,@=F]I9"!S971?:'5G95]P=&4H<W1R=6-T(&UM7W-T
+M<G5C=" J;6TL('-T<G5C="!V;5]A<F5A7W-T<G5C=" J=FUA+ HK=F]I9"!S
+M971?:'5G95]P=&4H<W1R=6-T(&UM7W-T<G5C=" J;6TL('-T<G5C="!V;5]A
+M<F5A7W-T<G5C=" J=FUA+ H@"0D)('-T<G5C="!P86=E("IP86=E+"!P=&5?
+M=" J('!A9V5?=&%B;&4L(&EN="!W<FET95]A8V-E<W,I"B!["B )=6YS:6=N
+M960@;&]N9R!I.PI 0" M.3@L,3(@*SDX+#$S($! (&EN="!C;W!Y7VAU9V5T
+M;&)?<&%G95]R86YG92AS=')U8W0@;6U?<W0*( EU;G-I9VYE9"!L;VYG(&5N
+M9" ]('9M82T^=FU?96YD.PH@"6EN="!I.PH@"BT)=VAI;&4@*&%D9'(@/"!E
+M;F0I('L**PEF;W(@*#L@861D<B \(&5N9#L@861D<B K/2!(4$%'15]325I%
+M*2!["BL)"7-R8U]P=&4@/2!H=6=E7W!T95]O9F9S970H<W)C+"!A9&1R*3L*
+M*PD):68@*"%S<F-?<'1E('Q\('!T95]N;VYE*"IS<F-?<'1E*2D**PD)"6-O
+M;G1I;G5E.PH@"0ED<W1?<'1E(#T@:'5G95]P=&5?86QL;V,H9'-T+"!A9&1R
+M*3L*( D):68@*"%D<W1?<'1E*0H@"0D)9V]T;R!N;VUE;3L*+0D)<W)C7W!T
+M92 ](&AU9V5?<'1E7V]F9G-E="AS<F,L(&%D9'(I.PHM"0E"54=?3TXH(7-R
+M8U]P=&4@?'P@<'1E7VYO;F4H*G-R8U]P=&4I*3L*( D)96YT<GD@/2 J<W)C
+M7W!T93L*( D)<'1E<&%G92 ]('!T95]P86=E*&5N=')Y*3L*( D)9V5T7W!A
+M9V4H<'1E<&%G92D["D! ("TQ,3,L-R K,3$T+#8@0$ @:6YT(&-O<'E?:'5G
+M971L8E]P86=E7W)A;F=E*'-T<G5C="!M;5]S= H@"0D)9'-T7W!T92LK.PH@
+M"0E]"B )"61S="T^<G-S("L]("A(4$%'15]325I%("\@4$%'15]325I%*3L*
+M+0D)861D<B K/2!(4$%'15]325I%.PH@"7T*( ER971U<FX@,#L*( I 0" M
+M,3DS+#@@*S$Y,RPW($! ('9O:60@=6YM87!?:'5G97!A9V5?<F%N9V4H<W1R
+M=6-T('9M7V%R96$*( H@"69O<B H861D<F5S<R ]('-T87)T.R!A9&1R97-S
+M(#P@96YD.R!A9&1R97-S("L]($A004=%7U-)6D4I('L*( D)<'1E(#T@:'5G
+M95]P=&5?;V9F<V5T*&UM+"!A9&1R97-S*3L*+0D)0E5'7T].*"%P=&4I.PHM
+M"0EI9B H<'1E7VYO;F4H*G!T92DI"BL)"6EF("@A<'1E('Q\('!T95]N;VYE
+M*"IP=&4I*0H@"0D)8V]N=&EN=64["B )"7!A9V4@/2!P=&5?<&%G92@J<'1E
+M*3L*( D)<'5T7W!A9V4H<&%G92D["D! ("TR,#8L-38@*S(P-2PS($! ('9O
+M:60@=6YM87!?:'5G97!A9V5?<F%N9V4H<W1R=6-T('9M7V%R96$*( EM;2T^
+M<G-S("T]("AE;F0@+2!S=&%R="D@/CX@4$%'15]32$E&5#L*( EF;'5S:%]T
+M;&)?<F%N9V4H=FUA+"!S=&%R="P@96YD*3L*('T*+0HM:6YT(&AU9V5T;&)?
+M<')E9F%U;'0H<W1R=6-T(&%D9')E<W-?<W!A8V4@*FUA<'!I;F<L('-T<G5C
+M="!V;5]A<F5A7W-T<G5C=" J=FUA*0HM>PHM"7-T<G5C="!M;5]S=')U8W0@
+M*FUM(#T@8W5R<F5N="T^;6T["BT)=6YS:6=N960@;&]N9R!A9&1R.PHM"6EN
+M="!R970@/2 P.PHM"BT)0E5'7T].*'9M82T^=FU?<W1A<G0@)B!^2%!!1T5?
+M34%32RD["BT)0E5'7T].*'9M82T^=FU?96YD("8@?DA004=%7TU!4TLI.PHM
+M"BT)<W!I;E]L;V-K*"9M;2T^<&%G95]T86)L95]L;V-K*3L*+0EF;W(@*&%D
+M9'(@/2!V;6$M/G9M7W-T87)T.R!A9&1R(#P@=FUA+3YV;5]E;F0[(&%D9'(@
+M*ST@2%!!1T5?4TE:12D@>PHM"0EU;G-I9VYE9"!L;VYG(&ED>#L*+0D)<'1E
+M7W0@*G!T92 ](&AU9V5?<'1E7V%L;&]C*&UM+"!A9&1R*3L*+0D)<W1R=6-T
+M('!A9V4@*G!A9V4["BT*+0D):68@*"%P=&4I('L*+0D)"7)E=" ]("U%3D]-
+M14T["BT)"0EG;W1O(&]U=#L*+0D)?0HM"0EI9B H(7!T95]N;VYE*"IP=&4I
+M*0HM"0D)8V]N=&EN=64["BT*+0D):61X(#T@*"AA9&1R("T@=FUA+3YV;5]S
+M=&%R="D@/CX@2%!!1T5?4TA)1E0I"BT)"0DK("AV;6$M/G9M7W!G;V9F(#X^
+M("A(4$%'15]32$E&5" M(%!!1T5?4TA)1E0I*3L*+0D)<&%G92 ](&9I;F1?
+M9V5T7W!A9V4H;6%P<&EN9RP@:61X*3L*+0D):68@*"%P86=E*2!["BT)"0DO
+M*B!C:&%R9V4@=&AE(&9S('%U;W1A(&9I<G-T("HO"BT)"0EI9B H:'5G971L
+M8E]G971?<75O=&$H;6%P<&EN9RDI('L*+0D)"0ER970@/2 M14Y/345-.PHM
+M"0D)"6=O=&\@;W5T.PHM"0D)?0HM"0D)<&%G92 ](&%L;&]C7VAU9V5?<&%G
+M92@I.PHM"0D):68@*"%P86=E*2!["BT)"0D):'5G971L8E]P=71?<75O=&$H
+M;6%P<&EN9RD["BT)"0D)<F5T(#T@+45.3TU%33L*+0D)"0EG;W1O(&]U=#L*
+M+0D)"7T*+0D)"7)E=" ](&%D9%]T;U]P86=E7V-A8VAE*'!A9V4L(&UA<'!I
+M;F<L(&ED>"P@1T907T%43TU)0RD["BT)"0EI9B H(2!R970I('L*+0D)"0EU
+M;FQO8VM?<&%G92AP86=E*3L*+0D)"7T@96QS92!["BT)"0D):'5G971L8E]P
+M=71?<75O=&$H;6%P<&EN9RD["BT)"0D)9G)E95]H=6=E7W!A9V4H<&%G92D[
+M"BT)"0D)9V]T;R!O=70["BT)"0E]"BT)"7T*+0D)<V5T7VAU9V5?<'1E*&UM
+M+"!V;6$L('!A9V4L('!T92P@=FUA+3YV;5]F;&%G<R F(%9-7U=2251%*3L*
+M+0E]"BUO=70Z"BT)<W!I;E]U;FQO8VLH)FUM+3YP86=E7W1A8FQE7VQO8VLI
+M.PHM"7)E='5R;B!R970["BU]"F1I9F8@+4YU<G @;&EN=7@M,BXV+C<O9G,O
+M:'5G971L8F9S+VEN;V1E+F,@;&EN=7@M,BXV+C<N:'5G971L8B]F<R]H=6=E
+M=&QB9G,O:6YO9&4N8PHM+2T@;&EN=7@M,BXV+C<O9G,O:'5G971L8F9S+VEN
+M;V1E+F,),C P-"TP."TP-" Q-CHU,#HT,BXP,# P,# P,# @+3 W,# **RLK
+M(&QI;G5X+3(N-BXW+FAU9V5T;&(O9G,O:'5G971L8F9S+VEN;V1E+F,),C P
+M-"TP."TP-" Q-CHU,3HU-"XP,# P,# P,# @+3 W,# *0$ @+3<Y+#$P("LW
+M.2PV($! ('-T871I8R!I;G0@:'5G971L8F9S7V9I;&5?;6UA<"AS=')U8W0@
+M9FD*( EI9B H(2AV;6$M/G9M7V9L86=S("8@5DU?5U))5$4I("8F(&QE;B ^
+M(&EN;V1E+3YI7W-I>F4I"B )"6=O=&\@;W5T.PH@"BT)<F5T(#T@:'5G971L
+M8E]P<F5F875L="AM87!P:6YG+"!V;6$I.PHM"6EF("AR970I"BT)"6=O=&\@
+M;W5T.PHM"B ):68@*&EN;V1E+3YI7W-I>F4@/"!L96XI"B )"6EN;V1E+3YI
+M7W-I>F4@/2!L96X["B!O=70Z"F1I9F8@+4YU<G @;&EN=7@M,BXV+C<O:6YC
+M;'5D92]L:6YU>"]H=6=E=&QB+F@@;&EN=7@M,BXV+C<N:'5G971L8B]I;F-L
+M=61E+VQI;G5X+VAU9V5T;&(N: HM+2T@;&EN=7@M,BXV+C<O:6YC;'5D92]L
+M:6YU>"]H=6=E=&QB+F@),C P-"TP."TP-" Q-CHU,#HS-2XP,# P,# P,# @
+M+3 W,# **RLK(&QI;G5X+3(N-BXW+FAU9V5T;&(O:6YC;'5D92]L:6YU>"]H
+M=6=E=&QB+F@),C P-"TP."TP-2 P-#HP.3HU,2XP,# P,# P,# @+3 W,# *
+M0$ @+3$W+#<@*S$W+#$P($! (&EN="!C;W!Y7VAU9V5T;&)?<&%G95]R86YG
+M92AS=')U8W0@;6U?<W0*(&EN="!F;VQL;W=?:'5G971L8E]P86=E*'-T<G5C
+M="!M;5]S=')U8W0@*BP@<W1R=6-T('9M7V%R96%?<W1R=6-T("HL('-T<G5C
+M="!P86=E("HJ+"!S=')U8W0@=FU?87)E85]S=')U8W0@*BHL('5N<VEG;F5D
+M(&QO;F<@*BP@:6YT("HL(&EN="D["B!V;VED('IA<%]H=6=E<&%G95]R86YG
+M92AS=')U8W0@=FU?87)E85]S=')U8W0@*BP@=6YS:6=N960@;&]N9RP@=6YS
+M:6=N960@;&]N9RD["B!V;VED('5N;6%P7VAU9V5P86=E7W)A;F=E*'-T<G5C
+M="!V;5]A<F5A7W-T<G5C=" J+"!U;G-I9VYE9"!L;VYG+"!U;G-I9VYE9"!L
+M;VYG*3L*+6EN="!H=6=E=&QB7W!R969A=6QT*'-T<G5C="!A9&1R97-S7W-P
+M86-E("HL('-T<G5C="!V;5]A<F5A7W-T<G5C=" J*3L**W!T95]T("IH=6=E
+M7W!T95]A;&QO8RAS=')U8W0@;6U?<W1R=6-T("HL('5N<VEG;F5D(&QO;F<I
+M.PHK=F]I9"!S971?:'5G95]P=&4H<W1R=6-T(&UM7W-T<G5C=" J+"!S=')U
+M8W0@=FU?87)E85]S=')U8W0@*BP@<W1R=6-T('!A9V4@*BP@<'1E7W0@*BP@
+M:6YT*3L**VEN="!H86YD;&5?:'5G971L8E]M;5]F875L="AS=')U8W0@;6U?
+M<W1R=6-T("HL('-T<G5C="!V;5]A<F5A7W-T<G5C=" J+"!U;G-I9VYE9"!L
+M;VYG+"!I;G0I.PHK"B!I;G0@:'5G971L8E]R97!O<G1?;65M:6YF;RAC:&%R
+M("HI.PH@:6YT(&AU9V5T;&)?<F5P;W)T7VYO9&5?;65M:6YF;RAI;G0L(&-H
+M87(@*BD["B!I;G0@:7-?:'5G97!A9V5?;65M7V5N;W5G:"AS:7IE7W0I.PI 
+M0" M-C$L-R K-C0L-R! 0"!S=&%T:6,@:6YL:6YE('5N<VEG;F5D(&QO;F<@
+M:'5G971L8E]T;W1A"B C9&5F:6YE(&9O;&QO=U]H=6=E=&QB7W!A9V4H;2QV
+M+' L=G,L82QB+&DI"2A[($)51R@I.R P.R!]*0H@(V1E9FEN92!F;VQL;W=?
+M:'5G95]A9&1R*&UM+"!A9&1R+"!W<FET92D)15)27U!44B@M14E.5D%,*0H@
+M(V1E9FEN92!C;W!Y7VAU9V5T;&)?<&%G95]R86YG92AS<F,L(&1S="P@=FUA
+M*0DH>R!"54<H*3L@,#L@?2D*+2-D969I;F4@:'5G971L8E]P<F5F875L="AM
+M87!P:6YG+"!V;6$I"0DH>R!"54<H*3L@,#L@?2D**R-D969I;F4@:&%N9&QE
+M7VAU9V5T;&)?;6U?9F%U;'0H;6TL('9M82P@861D<BP@=W)I=&4I(%9-7T9!
+M54Q47U-)1T)54PH@(V1E9FEN92!Z87!?:'5G97!A9V5?<F%N9V4H=FUA+"!S
+M=&%R="P@;&5N*0E"54<H*0H@(V1E9FEN92!U;FUA<%]H=6=E<&%G95]R86YG
+M92AV;6$L('-T87)T+"!E;F0I"4)51R@I"B C9&5F:6YE(&ES7VAU9V5P86=E
+M7VUE;5]E;F]U9V@H<VEZ92D)"3 *9&EF9B M3G5R<"!L:6YU>"TR+C8N-R]M
+M;2]H=6=E=&QB+F,@;&EN=7@M,BXV+C<N:'5G971L8B]M;2]H=6=E=&QB+F,*
+M+2TM(&QI;G5X+3(N-BXW+VUM+VAU9V5T;&(N8PDR,# T+3 X+3 T(#$V.C4P
+M.C,V+C P,# P,# P," M,#<P, HK*RL@;&EN=7@M,BXV+C<N:'5G971L8B]M
+M;2]H=6=E=&QB+F,),C P-"TP."TP-2 P,SHT.3HQ,"XP,# P,# P,# @+3 W
+M,# *0$ @+3@L-B K."PW($! "B C:6YC;'5D92 \;&EN=7@O;6]D=6QE+F@^
+M"B C:6YC;'5D92 \;&EN=7@O;6TN:#X*("-I;F-L=61E(#QL:6YU>"]H=6=E
+M=&QB+F@^"BLC:6YC;'5D92 \;&EN=7@O<&%G96UA<"YH/@H@(VEN8VQU9&4@
+M/&QI;G5X+W-Y<V-T;"YH/@H@(VEN8VQU9&4@/&QI;G5X+VAI9VAM96TN:#X*
+M( I 0" M,C,Q+#$Q("LR,S(L-C4@0$ @=6YS:6=N960@;&]N9R!H=6=E=&QB
+M7W1O=&%L7W!A9V5S*'9O:60I"B!]"B!%6%!/4E1?4UE-0D],*&AU9V5T;&)?
+M=&]T86Q?<&%G97,I.PH@"BMI;G0@7U]A='1R:6)U=&5?7R H*'=E86LI*0HK
+M:&%N9&QE7VAU9V5T;&)?;6U?9F%U;'0H<W1R=6-T(&UM7W-T<G5C=" J;6TL
+M('-T<G5C="!V;5]A<F5A7W-T<G5C=" J('9M82P**PEU;G-I9VYE9"!L;VYG
+M(&%D9'(L(&EN="!W<FET95]A8V-E<W,I"BM["BL)<'1E7W0@*G!T93L**PES
+M=')U8W0@<&%G92 J<&%G93L**PES=')U8W0@861D<F5S<U]S<&%C92 J;6%P
+M<&EN9SL**PEI;G0@:61X+"!R970["BL**PES<&EN7VQO8VLH)FUM+3YP86=E
+M7W1A8FQE7VQO8VLI.PHK"7!T92 ](&AU9V5?<'1E7V%L;&]C*&UM+"!A9&1R
+M("8@2%!!1T5?34%32RD["BL):68@*"%P=&4I"BL)"6=O=&\@;V]M.PHK"6EF
+M("@A<'1E7VYO;F4H*G!T92DI"BL)"6=O=&\@;W5T.PHK"7-P:6Y?=6YL;V-K
+M*"9M;2T^<&%G95]T86)L95]L;V-K*3L**PHK"6UA<'!I;F<@/2!V;6$M/G9M
+M7V9I;&4M/F9?9&5N=')Y+3YD7VEN;V1E+3YI7VUA<'!I;F<["BL):61X(#T@
+M*"AA9&1R("T@=FUA+3YV;5]S=&%R="D@/CX@2%!!1T5?4TA)1E0I"BL)"2L@
+M*'9M82T^=FU?<&=O9F8@/CX@*$A004=%7U-(2494("T@4$%'15]32$E&5"DI
+M.PHK<F5T<GDZ"BL)<&%G92 ](&9I;F1?9V5T7W!A9V4H;6%P<&EN9RP@:61X
+M*3L**PEI9B H(7!A9V4I('L**PD)<&%G92 ](&%L;&]C7VAU9V5?<&%G92@I
+M.PHK"0EI9B H(7!A9V4I"BL)"0DO*@HK"0D)("H@=VET:"!S=')I8W0@;W9E
+M<F-O;6UI="!A8V-O=6YT:6YG+"!W92!S:&]U;&0@;F5V97(**PD)"2 J(')U
+M;B!O=70@;V8@:'5G971L8B!P86=E+"!S;R!M=7-T(&)E(&$@9F%U;'0@<F%C
+M90HK"0D)("H@86YD(&QE="=S(')E=')Y+@HK"0D)("HO"BL)"0EG;W1O(')E
+M=')Y.PHK"0ER970@/2!A9&1?=&]?<&%G95]C86-H92AP86=E+"!M87!P:6YG
+M+"!I9'@L($=&4%]!5$]-24,I.PHK"0EI9B H(7)E="D@>PHK"0D)=6YL;V-K
+M7W!A9V4H<&%G92D["BL)"7T@96QS92!["BL)"0EP=71?<&%G92AP86=E*3L*
+M*PD)"6EF("AR970@/3T@+45%6$E35"D**PD)"0EG;W1O(')E=')Y.PHK"0D)
+M96QS90HK"0D)"7)E='5R;B!635]&055,5%]/3TT["BL)"7T**PE]"BL**PES
+M<&EN7VQO8VLH)FUM+3YP86=E7W1A8FQE7VQO8VLI.PHK"6EF("AP=&5?;F]N
+M92@J<'1E*2D**PD)<V5T7VAU9V5?<'1E*&UM+"!V;6$L('!A9V4L('!T92P@
+M=FUA+3YV;5]F;&%G<R F(%9-7U=2251%*3L**PEE;'-E"BL)"7!U=%]P86=E
+M*'!A9V4I.PHK;W5T.@HK"7-P:6Y?=6YL;V-K*"9M;2T^<&%G95]T86)L95]L
+M;V-K*3L**PER971U<FX@5DU?1D%53%1?34E.3U(["BMO;VTZ"BL)<W!I;E]U
+M;FQO8VLH)FUM+3YP86=E7W1A8FQE7VQO8VLI.PHK"7)E='5R;B!635]&055,
+M5%]/3TT["BM]"BL*("\J"BT@*B!792!C86YN;W0@:&%N9&QE('!A9V5F875L
+M=',@86=A:6YS="!H=6=E=&QB('!A9V5S(&%T(&%L;"X@(%1H97D@8V%U<V4*
+M+2 J(&AA;F1L95]M;5]F875L="@I('1O('1R>2!T;R!I;G-T86YT:6%T92!R
+M96=U;&%R+7-I>F5D('!A9V5S(&EN('1H90HM("H@:'5G96=P86=E(%9-02X@
+M(&1O7W!A9V5?9F%U;'0H*2!I<R!S=7!P;W-E9"!T;R!T<F%P('1H:7,L('-O
+M($)51R!I<R!W92!G970*+2 J('1H:7,@9F%R+@HK("H@5V4@<VAO=6QD(&YO
+M="!G970@:&5R92!B96-A=7-E(&AA;F1L95]M;5]F875L="@I(&ES('-U<'!O
+M<V5D('1O('1R87 **R J(&AU9V5T;&(@<&%G92!F875L="X@($)51R!I9B!W
+M92!G970@:&5R92X*(" J+PH@<W1A=&EC('-T<G5C="!P86=E("IH=6=E=&QB
+M7VYO<&%G92AS=')U8W0@=FU?87)E85]S=')U8W0@*G9M82P*( D)"0EU;G-I
+M9VYE9"!L;VYG(&%D9')E<W,L(&EN=" J=6YU<V5D*0ID:69F("U.=7)P(&QI
+M;G5X+3(N-BXW+VUM+VUE;6]R>2YC(&QI;G5X+3(N-BXW+FAU9V5T;&(O;6TO
+M;65M;W)Y+F,*+2TM(&QI;G5X+3(N-BXW+VUM+VUE;6]R>2YC"3(P,#0M,#@M
+M,#0@,38Z-3 Z-#,N,# P,# P,# P("TP-S P"BLK*R!L:6YU>"TR+C8N-RYH
+M=6=E=&QB+VUM+VUE;6]R>2YC"3(P,#0M,#@M,#0@,38Z-3$Z-30N,# P,# P
+M,# P("TP-S P"D! ("TW-C0L,3$@*S<V-"PV($! (&EN="!G971?=7-E<E]P
+M86=E<RAS=')U8W0@=&%S:U]S=')U8W0@*G0*( D):68@*"AP86=E<R F)B!V
+M;5]I;RD@?'P@(2AF;&%G<R F('9M82T^=FU?9FQA9W,I*0H@"0D)<F5T=7)N
+M(&D@/R!I(#H@+45&055,5#L*( HM"0EI9B H:7-?=FU?:'5G971L8E]P86=E
+M*'9M82DI('L*+0D)"6D@/2!F;VQL;W=?:'5G971L8E]P86=E*&UM+"!V;6$L
+M('!A9V5S+"!V;6%S+ HM"0D)"0D))G-T87)T+" F;&5N+"!I*3L*+0D)"6-O
+M;G1I;G5E.PHM"0E]"B )"7-P:6Y?;&]C:R@F;6TM/G!A9V5?=&%B;&5?;&]C
+M:RD["B )"61O('L*( D)"7-T<G5C="!P86=E("IM87 @/2!.54Q,.PI 0" M
+M,3<P.2PW("LQ-S T+#<@0$ @:6YT(&AA;F1L95]M;5]F875L="AS=')U8W0@
+M;6U?<W1R=6-T("IM;0H@"6EN8U]P86=E7W-T871E*'!G9F%U;'0I.PH@"B )
+M:68@*&ES7W9M7VAU9V5T;&)?<&%G92AV;6$I*0HM"0ER971U<FX@5DU?1D%5
+M3%1?4TE'0E53.PDO*B!M87!P:6YG('1R=6YC871I;VX@9&]E<R!T:&ES+B J
+M+PHK"0ER971U<FX@:&%N9&QE7VAU9V5T;&)?;6U?9F%U;'0H;6TL('9M82P@
+M861D<F5S<RP@=W)I=&5?86-C97-S*3L*( H@"2\J"B )("H@5V4@;F5E9"!T
+M:&4@<&%G92!T86)L92!L;V-K('1O('-Y;F-H<F]N:7IE('=I=&@@:W-W87!D
+!"@``
+`
+end
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+begin 666 01.overcommit.patch
+M9&EF9B M3G5R<"!L:6YU>"TR+C8N-R]F<R]H=6=E=&QB9G,O:6YO9&4N8R!L
+M:6YU>"TR+C8N-RYH=6=E=&QB+V9S+VAU9V5T;&)F<R]I;F]D92YC"BTM+2!L
+M:6YU>"TR+C8N-R]F<R]H=6=E=&QB9G,O:6YO9&4N8PDR,# T+3 X+3 U(# V
+M.C$R.C4Q+C P,# P,# P," M,#<P, HK*RL@;&EN=7@M,BXV+C<N:'5G971L
+M8B]F<R]H=6=E=&QB9G,O:6YO9&4N8PDR,# T+3 X+3 U(# V.C$V.C X+C P
+M,# P,# P," M,#<P, I 0" M,S(L-B K,S(L,C S($! "B O*B!S;VUE(')A
+M;F1O;2!N=6UB97(@*B\*("-D969I;F4@2%5'151,0D937TU!1TE#"3!X.34X
+M-#4X9C8*( HK+RH@0V]N=F5R="!L;V9F7W0@86YD(%!!1T5?4TE:12!C;W5N
+M=',@=&\@:'5G971L8B!P86=E(&-O=6YT<RX@*B\**R-D969I;F4@5DU!0T-4
+M*'@I("@H>"D@/CX@*$A004=%7U-(2494*2D**R-D969I;F4@5DU!0T-44$<H
+M>"D@*"AX*2 ^/B H2%!!1T5?4TA)1E0@+2!004=%7U-(2494*2D**PHK871O
+M;6EC7W0@:'5G971L8GIO;F5?<F5S=B ]($%43TU)0U])3DE4*# I.PHK"BMI
+M;G0@:'5G971L8E]A8V-T7VUE;6]R>2AL;VYG(&1E;'1A*0HK>PHK"6%T;VUI
+M8U]A9&0H9&5L=&$L("9H=6=E=&QB>F]N95]R97-V*3L**PEI9B H9&5L=&$@
+M/B P("8F(&%T;VUI8U]R96%D*"9H=6=E=&QB>F]N95]R97-V*2 ^"BL)"0E6
+M34%#0U101RAH=6=E=&QB7W1O=&%L7W!A9V5S*"DI*2!["BL)"6%T;VUI8U]A
+M9&0H+61E;'1A+" F:'5G971L8GIO;F5?<F5S=BD["BL)"7)E='5R;B M14Y/
+M345-.PHK"7T**PER971U<FX@,#L**WT**PHK<W1R=6-T(&9I;&5?<F5G:6]N
+M('L**PES=')U8W0@;&ES=%]H96%D(&QI;FL["BL):6YT(&9R;VT["BL):6YT
+M('1O.PHK?3L**PHK<W1A=&EC(&EN="!R96=I;VY?861D*'-T<G5C="!L:7-T
+M7VAE860@*FAE860L(&EN="!F+"!I;G0@="D**WL**PES=')U8W0@9FEL95]R
+M96=I;VX@*G)G.PHK"7-T<G5C="!F:6QE7W)E9VEO;B J;G)G.PHK"7-T<G5C
+M="!F:6QE7W)E9VEO;B J=')G.PHK"BL)+RH@3&]C871E('1H92!R96=I;VX@
+M=V4@87)E(&5I=&AE<B!I;B!O<B!B969O<F4N("HO"BL);&ES=%]F;W)?96%C
+M:%]E;G1R>2AR9RP@:&5A9"P@;&EN:RD**PD):68@*&8@/#T@<F<M/G1O*0HK
+M"0D)8G)E86L["BL**PDO*B!!9&0@82!N97<@<F5G:6]N(&EF('1H92!E>&ES
+M=&EN9R!R96=I;VX@<W1A<G1S(&%B;W9E(&]U<B!E;F0N"BL)("H@5V4@<VAO
+M=6QD(&%L<F5A9'D@:&%V92!A('-P86-E('1O(')E8V]R9"X@*B\**PEI9B H
+M)G)G+3YL:6YK(#T](&AE860@?'P@=" \(')G+3YF<F]M*0HK"0E"54<H*3L*
+M*PHK"2\J(%)O=6YD(&]U<B!L969T(&5D9V4@=&\@=&AE(&-U<G)E;G0@<V5G
+M;65N="!I9B!I="!E;F-L;W-E<R!U<RX@*B\**PEI9B H9B ^(')G+3YF<F]M
+M*0HK"0EF(#T@<F<M/F9R;VT["BL**PDO*B!#:&5C:R!F;W(@86YD(&-O;G-U
+M;64@86YY(')E9VEO;G,@=V4@;F]W(&]V97)L87 @=VET:"X@*B\**PEN<F<@
+M/2!R9SL**PEL:7-T7V9O<E]E86-H7V5N=')Y7W-A9F4H<F<L('1R9RP@<F<M
+M/FQI;FLN<')E=BP@;&EN:RD@>PHK"0EI9B H)G)G+3YL:6YK(#T](&AE860I
+M"BL)"0EB<F5A:SL**PD):68@*')G+3YF<F]M(#X@="D**PD)"6)R96%K.PHK
+M"BL)"2\J($EF('1H:7,@87)E82!R96%C:&5S(&AI9VAE<B!T:&5N(&5X=&5N
+M9"!O=7(@87)E82!T;PHK"0D@*B!I;F-L=61E(&ET(&-O;7!L971E;'DN("!)
+M9B!T:&ES(&ES(&YO="!T:&4@9FER<W0@87)E80HK"0D@*B!W:&EC:"!W92!I
+M;G1E;F0@=&\@<F5U<V4L(&9R964@:70N("HO"BL)"6EF("AR9RT^=&\@/B!T
+M*0HK"0D)=" ](')G+3YT;SL**PD):68@*')G("$](&YR9RD@>PHK"0D);&ES
+M=%]D96PH)G)G+3YL:6YK*3L**PD)"6MF<F5E*')G*3L**PD)?0HK"7T**PEN
+M<F<M/F9R;VT@/2!F.PHK"6YR9RT^=&\@/2!T.PHK"7)E='5R;B P.PHK?0HK
+M"BMS=&%T:6,@:6YT(')E9VEO;E]C:&<H<W1R=6-T(&QI<W1?:&5A9" J:&5A
+M9"P@:6YT(&8L(&EN="!T*0HK>PHK"7-T<G5C="!F:6QE7W)E9VEO;B J<F<[
+M"BL)<W1R=6-T(&9I;&5?<F5G:6]N("IN<F<["BL);&]F9E]T(&-H9R ](# [
+M"BL**PDO*B!,;V-A=&4@=&AE(')E9VEO;B!W92!A<F4@8F5F;W)E(&]R(&EN
+M+B J+PHK"6QI<W1?9F]R7V5A8VA?96YT<GDH<F<L(&AE860L(&QI;FLI"BL)
+M"6EF("AF(#P](')G+3YT;RD**PD)"6)R96%K.PHK"BL)+RH@268@=V4@87)E
+M(&)E;&]W('1H92!C=7)R96YT(')E9VEO;B!T:&5N(&$@;F5W(')E9VEO;B!I
+M<R!R97%U:7)E9"X**PD@*B!3=6)T;&4L(&%L;&]C871E(&$@;F5W(')E9VEO
+M;B!A="!T:&4@<&]S:71I;VX@8G5T(&UA:V4@:70@>F5R;PHK"2 J('-I>F4@
+M<W5C:"!T:&%T('=E(&-A;B!G=6%R96YT964@=&\@<F5C;W)D('1H92!R97-E
+M<G9A=&EO;BX@*B\**PEI9B H)G)G+3YL:6YK(#T](&AE860@?'P@=" \(')G
+M+3YF<F]M*2!["BL)"6YR9R ](&MM86QL;V,H<VEZ96]F*"IN<F<I+"!'1E!?
+M2T523D5,*3L**PD):68@*&YR9R ]/2 P*0HK"0D)<F5T=7)N("U%3D]-14T[
+M"BL)"6YR9RT^9G)O;2 ](&8["BL)"6YR9RT^=&\@(" ](&8["BL)"4E.251?
+M3$E35%](14%$*"9N<F<M/FQI;FLI.PHK"0EL:7-T7V%D9"@F;G)G+3YL:6YK
+M+"!R9RT^;&EN:RYP<F5V*3L**PHK"0ER971U<FX@=" M(&8["BL)?0HK"BL)
+M+RH@4F]U;F0@;W5R(&QE9G0@961G92!T;R!T:&4@8W5R<F5N="!S96=M96YT
+M(&EF(&ET(&5N8VQO<V5S('5S+B J+PHK"6EF("AF(#X@<F<M/F9R;VTI"BL)
+M"68@/2!R9RT^9G)O;3L**PEC:&<@/2!T("T@9CL**PHK"2\J($-H96-K(&9O
+M<B!A;F0@8V]N<W5M92!A;GD@<F5G:6]N<R!W92!N;W<@;W9E<FQA<"!W:71H
+M+B J+PHK"6QI<W1?9F]R7V5A8VA?96YT<GDH<F<L(')G+3YL:6YK+G!R978L
+M(&QI;FLI('L**PD):68@*"9R9RT^;&EN:R ]/2!H96%D*0HK"0D)8G)E86L[
+M"BL)"6EF("AR9RT^9G)O;2 ^('0I"BL)"0ER971U<FX@8VAG.PHK"BL)"2\J
+M(%=E(&]V97)L87 @=VET:"!T:&ES(&%R96$L(&EF(&ET(&5X=&5N9',@9G5T
+M:&5R('1H86X**PD)("H@=7,@=&AE;B!W92!M=7-T(&5X=&5N9"!O=7)S96QV
+M97,N("!!8V-O=6YT(&9O<B!I=',**PD)("H@97AI<W1I;F<@<F5S97)V871I
+M;VXN("HO"BL)"6EF("AR9RT^=&\@/B!T*2!["BL)"0EC:&<@*ST@<F<M/G1O
+M("T@=#L**PD)"70@/2!R9RT^=&\["BL)"7T**PD)8VAG("T](')G+3YT;R M
+M(')G+3YF<F]M.PHK"7T**PER971U<FX@8VAG.PHK?0HK"BMS=&%T:6,@:6YT
+M(')E9VEO;E]T<G5N8V%T92AS=')U8W0@;&ES=%]H96%D("IH96%D+"!I;G0@
+M96YD*0HK>PHK"7-T<G5C="!F:6QE7W)E9VEO;B J<F<["BL)<W1R=6-T(&9I
+M;&5?<F5G:6]N("IT<F<["BL):6YT(&-H9R ](# ["BL**PDO*B!,;V-A=&4@
+M=&AE(')E9VEO;B!W92!A<F4@96ET:&5R(&EN(&]R(&)E9F]R92X@*B\**PEL
+M:7-T7V9O<E]E86-H7V5N=')Y*')G+"!H96%D+"!L:6YK*0HK"0EI9B H96YD
+M(#P](')G+3YT;RD**PD)"6)R96%K.PHK"6EF("@F<F<M/FQI;FL@/3T@:&5A
+M9"D**PD)<F5T=7)N(# ["BL**PDO*B!)9B!W92!A<F4@:6X@=&AE(&UI9&1L
+M92!O9B!A(')E9VEO;B!T:&5N(&%D:G5S="!I="X@*B\**PEI9B H96YD(#X@
+M<F<M/F9R;VTI('L**PD)8VAG(#T@<F<M/G1O("T@96YD.PHK"0ER9RT^=&\@
+M/2!E;F0["BL)"7)G(#T@;&ES=%]E;G1R>2AR9RT^;&EN:RYN97AT+"!T>7!E
+M;V8H*G)G*2P@;&EN:RD["BL)?0HK"BL)+RH@1')O<"!A;GD@<F5M86EN:6YG
+M(')E9VEO;G,N("HO"BL);&ES=%]F;W)?96%C:%]E;G1R>5]S869E*')G+"!T
+M<F<L(')G+3YL:6YK+G!R978L(&QI;FLI('L**PD):68@*"9R9RT^;&EN:R ]
+M/2!H96%D*0HK"0D)8G)E86L["BL)"6-H9R K/2!R9RT^=&\@+2!R9RT^9G)O
+M;3L**PD);&ES=%]D96PH)G)G+3YL:6YK*3L**PD):V9R964H<F<I.PHK"7T*
+M*PER971U<FX@8VAG.PHK?0HK"BLC:68@, HK<W1A=&EC(&EN="!R96=I;VY?
+M9'5M<"AS=')U8W0@;&ES=%]H96%D("IH96%D*0HK>PHK"7-T<G5C="!F:6QE
+M7W)E9VEO;B J<F<["BL**PEL:7-T7V9O<E]E86-H7V5N=')Y*')G+"!H96%D
+M+"!L:6YK*0HK"0EP<FEN=&LH2T523E]705).24Y'(")R9SPE<#X@9CPE;&QD
+M/B!T/"5L;&0^7&XB+ HK"0D)"7)G+"!R9RT^9G)O;2P@<F<M/G1O*3L**PER
+M971U<FX@,#L**WT**R-E;F1I9@HK"BLO*B!#86QC=6QA=&4@=&AE(&-O;6UI
+M=&UE;G0@8VAA;F=E('1H870@=&AI<R!M87!P:6YG(&EM<&QI97,**R J(&%N
+M9"!C:&5C:R!I="!A9V%I;G-T(&)O=&@@=&AE(&-O;6UI=&UE;G0@86YD('%U
+M;W1A(&QI;6ET<RX@*B\**W-T871I8R!I;G0@:'5G971L8E]A8V-T7V-O;6UI
+M="AS=')U8W0@:6YO9&4@*FEN;V1E+"!I;G0@9G)O;2P@:6YT('1O*0HK>PHK
+M"6EN="!C:&<["BL):6YT(')E=#L**PHK"6-H9R ](')E9VEO;E]C:&<H)FEN
+M;V1E+3YI7VUA<'!I;F<M/G!R:79A=&5?;&ES="P@9G)O;2P@=&\I.PHK"6EF
+M("AC:&<@/" P*0HK"0ER971U<FX@8VAG.PHK"7)E=" ](&AU9V5T;&)?86-C
+M=%]M96UO<GDH8VAG*3L**PEI9B H<F5T(#P@,"D**PD)<F5T=7)N(')E=#L*
+M*PER970@/2!H=6=E=&QB7V=E=%]Q=6]T82AI;F]D92T^:5]M87!P:6YG+"!C
+M:&<I.PHK"6EF("AR970@/" P*0HK"0EG;W1O('5N9&]?8V]M;6ET.PHK"7)E
+M=" ](')E9VEO;E]A9&0H)FEN;V1E+3YI7VUA<'!I;F<M/G!R:79A=&5?;&ES
+M="P@9G)O;2P@=&\I.PHK"7)E='5R;B!R970["BL**W5N9&]?8V]M;6ET.@HK
+M"6AU9V5T;&)?86-C=%]M96UO<GDH+6-H9RD["BL)<F5T=7)N(')E=#L**WT*
+M*W-T871I8R!V;VED(&AU9V5T;&)?86-C=%]R96QE87-E*'-T<G5C="!I;F]D
+M92 J:6YO9&4L(&EN="!T;RD**WL**PEI;G0@8VAG.PHK"BL)8VAG(#T@<F5G
+M:6]N7W1R=6YC871E*"9I;F]D92T^:5]M87!P:6YG+3YP<FEV871E7VQI<W0L
+M('1O*3L**PEH=6=E=&QB7V%C8W1?;65M;W)Y*"UC:&<I.PHK"6AU9V5T;&)?
+M<'5T7W%U;W1A*&EN;V1E+3YI7VUA<'!I;F<L(&-H9RD["BM]"BL**VEN="!H
+M=6=E=&QB9G-?<F5P;W)T7VUE;6EN9F\H8VAA<B J8G5F*0HK>PHK"6QO;F<@
+M:'1L8B ](&%T;VUI8U]R96%D*"9H=6=E=&QB>F]N95]R97-V*3L**PER971U
+M<FX@<W!R:6YT9BAB=68L(")(=6=E4&%G97-?4F5S97)V960Z("4U;'5<;B(L
+M(&AT;&(I.PHK?0HK"B!S=&%T:6,@<W1R=6-T('-U<&5R7V]P97)A=&EO;G,@
+M:'5G971L8F9S7V]P<SL*('-T871I8R!S=')U8W0@861D<F5S<U]S<&%C95]O
+M<&5R871I;VYS(&AU9V5T;&)F<U]A;W!S.PH@<W1R=6-T(&9I;&5?;W!E<F%T
+M:6]N<R!H=6=E=&QB9G-?9FEL95]O<&5R871I;VYS.PI 0" M-#@L-R K,C0U
+M+#8@0$ @:6YT('-Y<V-T;%]H=6=E=&QB7W-H;5]G<F]U<#L*('-T871I8R!I
+M;G0@:'5G971L8F9S7V9I;&5?;6UA<"AS=')U8W0@9FEL92 J9FEL92P@<W1R
+M=6-T('9M7V%R96%?<W1R=6-T("IV;6$I"B!["B )<W1R=6-T(&EN;V1E("II
+M;F]D92 ](&9I;&4M/F9?9&5N=')Y+3YD7VEN;V1E.PHM"7-T<G5C="!A9&1R
+M97-S7W-P86-E("IM87!P:6YG(#T@:6YO9&4M/FE?;6%P<&EN9SL*( EL;V9F
+M7W0@;&5N+"!V;6%?;&5N.PH@"6EN="!R970["B *0$ @+3<Y+#<@*S(W-2PQ
+M,"! 0"!S=&%T:6,@:6YT(&AU9V5T;&)F<U]F:6QE7VUM87 H<W1R=6-T(&9I
+M"B ):68@*"$H=FUA+3YV;5]F;&%G<R F(%9-7U=2251%*2 F)B!L96X@/B!I
+M;F]D92T^:5]S:7IE*0H@"0EG;W1O(&]U=#L*( HM"6EF("AI;F]D92T^:5]S
+M:7IE(#P@;&5N*0HK"7)E=" ](&AU9V5T;&)?86-C=%]C;VUM:70H:6YO9&4L
+M(%9-04-#5%!'*'9M82T^=FU?<&=O9F8I+ HK"0E634%#0U101RAV;6$M/G9M
+M7W!G;V9F("L@*'9M85]L96X@/CX@4$%'15]32$E&5"DI*3L**PHK"6EF("AR
+M970@/CT@," F)B!I;F]D92T^:5]S:7IE(#P@;&5N*0H@"0EI;F]D92T^:5]S
+M:7IE(#T@;&5N.PH@;W5T.@H@"75P*"9I;F]D92T^:5]S96TI.PI 0" M,3DT
+M+#<@*S,Y,RPV($! ('9O:60@=')U;F-A=&5?:'5G97!A9V5S*'-T<G5C="!A
+M9&1R97-S7W,*( D)"2LK;F5X=#L*( D)"71R=6YC871E7VAU9V5?<&%G92AP
+M86=E*3L*( D)"75N;&]C:U]P86=E*'!A9V4I.PHM"0D):'5G971L8E]P=71?
+M<75O=&$H;6%P<&EN9RD["B )"7T*( D):'5G95]P86=E=F5C7W)E;&5A<V4H
+M)G!V96,I.PH@"7T*0$ @+3(Q-"PV("LT,3(L-R! 0"!S=&%T:6,@=F]I9"!H
+M=6=E=&QB9G-?9&5L971E7VEN;V1E*'-T<G5C"B *( EI9B H:6YO9&4M/FE?
+M9&%T82YN<G!A9V5S*0H@"0ET<G5N8V%T95]H=6=E<&%G97,H)FEN;V1E+3YI
+M7V1A=&$L(# I.PHK"6AU9V5T;&)?86-C=%]R96QE87-E*&EN;V1E+" P*3L*
+M( H@"7-E8W5R:71Y7VEN;V1E7V1E;&5T92AI;F]D92D["B *0$ @+3(U-BPV
+M("LT-34L-R! 0"!O=71?=')U;F-A=&4Z"B )<W!I;E]U;FQO8VLH)FEN;V1E
+M7VQO8VLI.PH@"6EF("AI;F]D92T^:5]D871A+FYR<&%G97,I"B )"71R=6YC
+M871E7VAU9V5P86=E<R@F:6YO9&4M/FE?9&%T82P@,"D["BL):'5G971L8E]A
+M8V-T7W)E;&5A<V4H:6YO9&4L(# I.PH@"B ):68@*'-B:6YF;RT^9G)E95]I
+M;F]D97,@/CT@,"D@>PH@"0ES<&EN7VQO8VLH)G-B:6YF;RT^<W1A=%]L;V-K
+M*3L*0$ @+3,R-BPV("LU,C8L-R! 0"!S=&%T:6,@:6YT(&AU9V5T;&)?=FUT
+M<G5N8V%T92AS=')U8W0@:6YO"B )"6AU9V5T;&)?=FUT<G5N8V%T95]L:7-T
+M*"9M87!P:6YG+3YI7VUM87 L('!G;V9F*3L*( ES<&EN7W5N;&]C:R@F;6%P
+M<&EN9RT^:5]M;6%P7VQO8VLI.PH@"71R=6YC871E7VAU9V5P86=E<RAM87!P
+M:6YG+"!O9F9S970I.PHK"6AU9V5T;&)?86-C=%]R96QE87-E*&EN;V1E+"!6
+M34%#0U0H;V9F<V5T*2D["B )<F5T=7)N(# ["B!]"B *0$ @+3,X,"PV("LU
+M.#$L-R! 0"!S=&%T:6,@<W1R=6-T(&EN;V1E("IH=6=E=&QB9G-?9V5T7VEN
+M;V1E"B )"6EN;V1E+3YI7V)L;V-K<R ](# ["B )"6EN;V1E+3YI7VUA<'!I
+M;F<M/F%?;W!S(#T@)FAU9V5T;&)F<U]A;W!S.PH@"0EI;F]D92T^:5]M87!P
+M:6YG+3YB86-K:6YG7V1E=E]I;F9O(#TF:'5G971L8F9S7V)A8VMI;F=?9&5V
+M7VEN9F\["BL)"4E.251?3$E35%](14%$*"9I;F]D92T^:5]M87!P:6YG+3YP
+M<FEV871E7VQI<W0I.PH@"0EI;F]D92T^:5]A=&EM92 ](&EN;V1E+3YI7VUT
+M:6UE(#T@:6YO9&4M/FE?8W1I;64@/2!#55)214Y47U1)344["B )"6EN9F\@
+M/2!(54=%5$Q"1E-?22AI;F]D92D["B )"6UP;VQ?<VAA<F5D7W!O;&EC>5]I
+M;FET*"9I;F9O+3YP;VQI8WDI.PI 0" M-C<P+#$U("LX-S(L,34@0$ @;W5T
+M7V9R964Z"B )<F5T=7)N("U%3D]-14T["B!]"B *+6EN="!H=6=E=&QB7V=E
+M=%]Q=6]T82AS=')U8W0@861D<F5S<U]S<&%C92 J;6%P<&EN9RD**VEN="!H
+M=6=E=&QB7V=E=%]Q=6]T82AS=')U8W0@861D<F5S<U]S<&%C92 J;6%P<&EN
+M9RP@:6YT(&)L;V-K<RD*('L*( EI;G0@<F5T(#T@,#L*( ES=')U8W0@:'5G
+M971L8F9S7W-B7VEN9F\@*G-B:6YF;R ]($A51T543$)&4U]30BAM87!P:6YG
+M+3YH;W-T+3YI7W-B*3L*( H@"6EF("AS8FEN9F\M/F9R965?8FQO8VMS(#X@
+M+3$I('L*( D)<W!I;E]L;V-K*"9S8FEN9F\M/G-T871?;&]C:RD["BT)"6EF
+M("AS8FEN9F\M/F9R965?8FQO8VMS(#X@,"D*+0D)"7-B:6YF;RT^9G)E95]B
+M;&]C:W,M+3L**PD):68@*'-B:6YF;RT^9G)E95]B;&]C:W,@/CT@8FQO8VMS
+M*0HK"0D)<V)I;F9O+3YF<F5E7V)L;V-K<R M/2!B;&]C:W,["B )"65L<V4*
+M( D)"7)E=" ]("U%3D]-14T["B )"7-P:6Y?=6YL;V-K*"9S8FEN9F\M/G-T
+M871?;&]C:RD["D! ("TV.#<L,3,@*S@X.2PQ,R! 0"!I;G0@:'5G971L8E]G
+M971?<75O=&$H<W1R=6-T(&%D9')E<W-?<W!A"B )<F5T=7)N(')E=#L*('T*
+M( HM=F]I9"!H=6=E=&QB7W!U=%]Q=6]T82AS=')U8W0@861D<F5S<U]S<&%C
+M92 J;6%P<&EN9RD**W9O:60@:'5G971L8E]P=71?<75O=&$H<W1R=6-T(&%D
+M9')E<W-?<W!A8V4@*FUA<'!I;F<L(&EN="!B;&]C:W,I"B!["B )<W1R=6-T
+M(&AU9V5T;&)F<U]S8E]I;F9O("IS8FEN9F\@/2!(54=%5$Q"1E-?4T(H;6%P
+M<&EN9RT^:&]S="T^:5]S8BD["B *( EI9B H<V)I;F9O+3YF<F5E7V)L;V-K
+M<R ^("TQ*2!["B )"7-P:6Y?;&]C:R@F<V)I;F9O+3YS=&%T7VQO8VLI.PHM
+M"0ES8FEN9F\M/F9R965?8FQO8VMS*RL["BL)"7-B:6YF;RT^9G)E95]B;&]C
+M:W,@*ST@8FQO8VMS.PH@"0ES<&EN7W5N;&]C:R@F<V)I;F9O+3YS=&%T7VQO
+M8VLI.PH@"7T*('T*0$ @+3<T-BPY("LY-#@L-B! 0"!S=')U8W0@9FEL92 J
+M:'5G971L8E]Z97)O7W-E='5P*'-I>F5?="!S"B ):68@*"%C86Y?9&]?:'5G
+M971L8E]S:&TH*2D*( D)<F5T=7)N($524E]05%(H+45015)-*3L*( HM"6EF
+M("@A:7-?:'5G97!A9V5?;65M7V5N;W5G:"AS:7IE*2D*+0D)<F5T=7)N($52
+M4E]05%(H+45.3TU%32D["BT*( EI9B H(75S97)?<VAM7VQO8VLH<VEZ92P@
+M8W5R<F5N="T^=7-E<BDI"B )"7)E='5R;B!%4E)?4%12*"U%3D]-14TI.PH@
+M"D! ("TW.# L-B K.3<Y+#$T($! ('-T<G5C="!F:6QE("IH=6=E=&QB7WIE
+M<F]?<V5T=7 H<VEZ95]T(',*( EF:6QE+3YF7VUA<'!I;F<@/2!I;F]D92T^
+M:5]M87!P:6YG.PH@"69I;&4M/F9?;W @/2 F:'5G971L8F9S7V9I;&5?;W!E
+M<F%T:6]N<SL*( EF:6QE+3YF7VUO9&4@/2!&34]$15]74DE412!\($9-3T1%
+M7U)%040["BL**PDO*B!!8V-O=6YT(&9O<B!T:&4@;65M;W)Y('5S86=E(&9O
+M<B!T:&ES('-E9VUE;G0@870@8W)E871E('1I;64N"BL)("H@5&AI<R!M86EN
+M=&%I;G,@=&AE(&-O;6UI="!O;B!S:&UG970H*2!S96UA;G1I8W,@;V8@;F]R
+M;6%L"BL)("H@<VAA<F5D(&UE;6]R>2!S96=M96YT<RX@*B\**PEE<G)O<B ]
+M(&AU9V5T;&)?86-C=%]C;VUM:70H:6YO9&4L(# L(%9-04-#5"AS:7IE*2D[
+M"BL):68@*&5R<F]R(#P@,"D**PD)9V]T;R!O=71?9FEL93L**PH@"7)E='5R
+M;B!F:6QE.PH@"B!O=71?9FEL93H*9&EF9B M3G5R<"!L:6YU>"TR+C8N-R]F
+M<R]P<F]C+W!R;V-?;6ES8RYC(&QI;G5X+3(N-BXW+FAU9V5T;&(O9G,O<')O
+M8R]P<F]C7VUI<V,N8PHM+2T@;&EN=7@M,BXV+C<O9G,O<')O8R]P<F]C7VUI
+M<V,N8PDR,# T+3 X+3 U(# V.C$R.C,S+C P,# P,# P," M,#<P, HK*RL@
+M;&EN=7@M,BXV+C<N:'5G971L8B]F<R]P<F]C+W!R;V-?;6ES8RYC"3(P,#0M
+M,#@M,#4@,#8Z,3,Z-#(N,# P,# P,# P("TP-S P"D! ("TR,C<L-B K,C(W
+M+#<@0$ @<W1A=&EC(&EN="!M96UI;F9O7W)E861?<')O8RAC:&%R("IP86=E
+M+ H@"0EV;6DN;&%R9V5S=%]C:'5N:PH@"0DI.PH@"BL)"6QE;B K/2!H=6=E
+M=&QB9G-?<F5P;W)T7VUE;6EN9F\H<&%G92 K(&QE;BD["B )"6QE;B K/2!H
+M=6=E=&QB7W)E<&]R=%]M96UI;F9O*'!A9V4@*R!L96XI.PH@"B )<F5T=7)N
+M('!R;V-?8V%L8U]M971R:6-S*'!A9V4L('-T87)T+"!O9F8L(&-O=6YT+"!E
+M;V8L(&QE;BD["F1I9F8@+4YU<G @;&EN=7@M,BXV+C<O:6YC;'5D92]L:6YU
+M>"]H=6=E=&QB+F@@;&EN=7@M,BXV+C<N:'5G971L8B]I;F-L=61E+VQI;G5X
+M+VAU9V5T;&(N: HM+2T@;&EN=7@M,BXV+C<O:6YC;'5D92]L:6YU>"]H=6=E
+M=&QB+F@),C P-"TP."TP-2 P-CHQ,CHU,RXP,# P,# P,# @+3 W,# **RLK
+M(&QI;G5X+3(N-BXW+FAU9V5T;&(O:6YC;'5D92]L:6YU>"]H=6=E=&QB+F@)
+M,C P-"TP."TP-2 P-CHQ,SHT,BXP,# P,# P,# @+3 W,# *0$ @+3$R,BPX
+M("LQ,C(L."! 0"!S=&%T:6,@:6YL:6YE('-T<G5C="!H=6=E=&QB9G-?<V)?
+M:6YF;R J"B!E>'1E<FX@<W1R=6-T(&9I;&5?;W!E<F%T:6]N<R!H=6=E=&QB
+M9G-?9FEL95]O<&5R871I;VYS.PH@97AT97)N('-T<G5C="!V;5]O<&5R871I
+M;VYS7W-T<G5C="!H=6=E=&QB7W9M7V]P<SL*('-T<G5C="!F:6QE("IH=6=E
+M=&QB7WIE<F]?<V5T=7 H<VEZ95]T*3L*+6EN="!H=6=E=&QB7V=E=%]Q=6]T
+M82AS=')U8W0@861D<F5S<U]S<&%C92 J;6%P<&EN9RD["BUV;VED(&AU9V5T
+M;&)?<'5T7W%U;W1A*'-T<G5C="!A9&1R97-S7W-P86-E("IM87!P:6YG*3L*
+M*VEN="!H=6=E=&QB7V=E=%]Q=6]T82AS=')U8W0@861D<F5S<U]S<&%C92 J
+M;6%P<&EN9RP@:6YT(&)L;V-K<RD["BMV;VED(&AU9V5T;&)?<'5T7W%U;W1A
+M*'-T<G5C="!A9&1R97-S7W-P86-E("IM87!P:6YG+"!I;G0@8FQO8VMS*3L*
+M( H@<W1A=&EC(&EN;&EN92!I;G0@:7-?9FEL95]H=6=E<&%G97,H<W1R=6-T
+M(&9I;&4@*F9I;&4I"B!["D! ("TQ,S0L,3$@*S$S-"PQ-"! 0"!S=&%T:6,@
+M:6YL:6YE('9O:60@<V5T7V9I;&5?:'5G97!A9V5S*'-T"B!["B )9FEL92T^
+M9E]O<" ]("9H=6=E=&QB9G-?9FEL95]O<&5R871I;VYS.PH@?0HK:6YT(&AU
+M9V5T;&)F<U]R97!O<G1?;65M:6YF;RAC:&%R("HI.PHK"B C96QS92 O*B A
+M0T].1DE'7TA51T543$)&4R J+PH@"B C9&5F:6YE(&ES7V9I;&5?:'5G97!A
+M9V5S*&9I;&4I"0DP"B C9&5F:6YE('-E=%]F:6QE7VAU9V5P86=E<RAF:6QE
+M*0E"54<H*0H@(V1E9FEN92!H=6=E=&QB7WIE<F]?<V5T=7 H<VEZ92D)15)2
+M7U!44B@M14Y/4UE3*0HK(V1E9FEN92!H=6=E=&QB9G-?<F5P;W)T7VUE;6EN
+M9F\H8G5F*0DP"B *("-E;F1I9B O*B A0T].1DE'7TA51T543$)&4R J+PH@
+!"@``
+`
+end
 

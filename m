@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279321AbRKIFPr>; Fri, 9 Nov 2001 00:15:47 -0500
+	id <S279305AbRKIFXs>; Fri, 9 Nov 2001 00:23:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279303AbRKIFPj>; Fri, 9 Nov 2001 00:15:39 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:29961 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S279321AbRKIFP2>;
-	Fri, 9 Nov 2001 00:15:28 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200111090515.fA95F3g167348@saturn.cs.uml.edu>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-To: linux-kernel@alex.org.uk
-Date: Fri, 9 Nov 2001 00:15:03 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-        viro@math.psu.edu (Alexander Viro), jfbeam@bluetopia.net (Ricky Beam),
-        roy@karlsbakk.net (Roy Sigurd Karlsbakk),
-        linux-kernel@vger.kernel.org (Linux Kernel Mail List)
-In-Reply-To: <964381385.1005245622@[195.224.237.69]> from "Alex Bligh - linux-kernel" at Nov 08, 2001 06:53:43 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S279307AbRKIFXi>; Fri, 9 Nov 2001 00:23:38 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26100
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S279305AbRKIFXe>; Fri, 9 Nov 2001 00:23:34 -0500
+Date: Thu, 8 Nov 2001 21:23:28 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Modutils can't handle long kernel names
+Message-ID: <20011108212328.B514@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011108204210.A514@mikef-linux.matchmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011108204210.A514@mikef-linux.matchmail.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Bligh - linux writes:
-> [Albert Cahalan]
+On Thu, Nov 08, 2001 at 08:42:10PM -0800, Mike Fedyk wrote:
+> Hello,
+> 
+> I've gotten into the habbit of adding the names of the patches I add to my
+> kernel to the extraversion string in the top level Makefile in my kernels.
+> 
+> Here's my latest example:
+> VERSION = 2
+> PATCHLEVEL = 4
+> SUBLEVEL = 15
+> EXTRAVERSION=-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+ext3-mem_acct+elevator
+> 
+> Unfortunately, with this long kernel version number, modutils (I've noticed
+> depmod and modutils so far...) choke on it.
+> 
+> depmod:
+> depmod: Can't open /lib/modules/2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001/modules.dep for writing
+> 
+> uname -r:
+> 2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001
+> 
+> uname -a:
+> Linux mikef-linux.matchmail.com 2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001 #1 SMP Thu Nov 8 20:18:04 PST 2001 i686 unknown
+> 
 
->> Design the kernel to make doing this difficult.
->> Define some offsets as follows:
->> 
->> # define FOO_PID 0
->> # define FOO_PPID 1
->> 
->> Now, how is anyone going to create "an extra inserted DWORD"
->> between those? They'd need to renumber FOO_PPID and any other
->> values that come after it.
->
-> For instance, take the /proc/mounts type example, where
-> each row is a sequence of binary values. Someone decides
-> to add another column, which assuming it is a DWORD^W__u64,
-> does exactly this, inserts a DWORD^W__u64 between the
-> end of one record and the start of the next as far a
-> poorly written parser is concerned.
+Oh, /proc/version looks good:
+Linux version 2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+ext3-mem_acct+elevator (root@mikef-linux.matchmail.com) (gcc version 2.95.4 20011006 (Debian prerelease)) #1 SMP Thu Nov 8 20:18:04 PST 2001
 
-That would be a botched design to begin with.
-
-Each row becomes a separate binary file. They are distinct
-records anyway. Splitting by column would be a poor choice.
-
-> The brokenness is not due to the distinction between ASCII
-> and binary. The brokenness is due the ill-defined nature
-> of the format, and poor change control.
-
-ASCII encourages ill-defined formats and poor change control.
-People make assumptions about what is valid.
+Mike

@@ -1,84 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264638AbUEJLVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264637AbUEJLVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264638AbUEJLVo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 07:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264637AbUEJLVo
+	id S264637AbUEJLVu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 07:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbUEJLVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 07:21:44 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:14480 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S264638AbUEJLUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 07:20:02 -0400
-Date: Mon, 10 May 2004 12:18:45 +0100
-From: Dave Jones <davej@redhat.com>
-To: Dominik Karall <dominik.karall@gmx.net>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-mm1
-Message-ID: <20040510111845.GB21671@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Dominik Karall <dominik.karall@gmx.net>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20040510024506.1a9023b6.akpm@osdl.org> <200405101252.33205.dominik.karall@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405101252.33205.dominik.karall@gmx.net>
-User-Agent: Mutt/1.4.1i
+	Mon, 10 May 2004 07:21:50 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:26270 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S264639AbUEJLV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 07:21:28 -0400
+Date: Mon, 10 May 2004 20:20:36 +0900
+From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Subject: Re: [Lhns-devel] Re: [ANNOUNCE] [PATCH] Node Hotplug Support
+In-reply-to: <20040510.111240.84363848.t-kochi@bq.jp.nec.com>
+To: Takayoshi Kochi <t-kochi@bq.jp.nec.com>
+Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net,
+       lhns-devel@lists.sourceforge.net
+Message-id: <20040510202036.64794519.tokunaga.keiich@jp.fujitsu.com>
+Organization: FUJITSU LIMITED
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20040508003904.63395ca7.tokunaga.keiich@jp.fujitsu.com>
+ <1083944945.23559.1.camel@nighthawk>
+ <20040510104725.7c9231ee.tokunaga.keiich@jp.fujitsu.com>
+ <20040510.111240.84363848.t-kochi@bq.jp.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 12:52:33PM +0200, Dominik Karall wrote:
- > 
- >   CC      arch/i386/kernel/cpu/cpufreq/p4-clockmod.o
- > arch/i386/kernel/cpu/cpufreq/p4-clockmod.c: In Funktion >>cpufreq_p4_get<<:
- > arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:283: error: `sibling' undeclared 
- > (first use in this function)
- > arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:283: error: (Each undeclared 
- > identifier is reported only once
- > arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:283: error: for each function it 
- > appears in.)
- > make[4]: *** [arch/i386/kernel/cpu/cpufreq/p4-clockmod.o] Fehler 1
+On Mon, 10 May 2004 11:12:40 +0900 (JST)
+Takayoshi Kochi <t-kochi@bq.jp.nec.com> wrote:
 
-Oops.
+> From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+> Subject: [Lhns-devel] Re: [ANNOUNCE] [PATCH] Node Hotplug Support
+> Date: Mon, 10 May 2004 10:47:25 +0900
+> 
+> > > How does this interoperate with the current NUMA topology already in
+> > > sysfs today?  I don't see any references at all to the current code.  
+> > 
+> > There is no NUMA support in the current code yet.  I'll post a
+> > rough patch to show my idea soon.  I'm thinking to regard a
+> > container device that has PXM as a NUMA node so far.
+> 
+> I've not looking closely into the code, but why do you use "PNP0A05"
+> for container device?
+> "PNP0A05" is defined as "Generic ISA devie" in the ACPI spec.
+> 
+> I think "module device (ACPI0004)"  sounds more suitable for the
+> purpose, though I don't know whether your hardware will support it
+> or not.
 
-		Dave
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/05/10 12:17:30+01:00 davej@redhat.com 
-#   [CPUFREQ] Compilation fix.
-# 
-# arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
-#   2004/05/10 12:17:25+01:00 davej@redhat.com +3 -2
-#   [CPUFREQ] Compilation fix.
-# 
-diff -Nru a/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c b/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
---- a/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	Mon May 10 12:18:08 2004
-+++ b/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	Mon May 10 12:18:08 2004
-@@ -74,7 +74,7 @@
- 	hyperthreading = ((cpu_has_ht) && (smp_num_siblings == 2));
- 	if (hyperthreading) {
- 		sibling = cpu_sibling_map[cpu];
--                cpu_set(sibling, affected_cpu_map);
-+		cpu_set(sibling, affected_cpu_map);
- 	}
- #endif
- 	set_cpus_allowed(current, affected_cpu_map);
-@@ -283,12 +283,13 @@
- #ifdef CONFIG_X86_HT
- 	hyperthreading = ((cpu_has_ht) && (smp_num_siblings == 2));
- 	if (hyperthreading) {
-+		int sibling;
- 		sibling = cpu_sibling_map[cpu];
- 		cpu_set(sibling, affected_cpu_map);
- 	}
- #endif
- 	set_cpus_allowed(current, affected_cpu_map);
--        BUG_ON(!cpu_isset(smp_processor_id(), affected_cpu_map));
-+	BUG_ON(!cpu_isset(smp_processor_id(), affected_cpu_map));
+Yes.  ACPI0004 could be used as well.  Actually, PNP0A05 is
+redefined as "Generic Container Device" in ACPI spec2.0c.
+According to that, both PNP0A05 and ACPI0004 behave
+almost the same way.  PNP0A05 also sounds nice for me:)
  
- 	rdmsr(MSR_IA32_THERM_CONTROL, l, h);
- 
+> Also, assuming devices that have _PXM are nodes sounds a bit too
+> aggressive for me.  For example, something like below is possible.
+> 
+> Device(\_SB) {
+>   Processor(CPU0...) {
+>      Name(_PXM, 0)
+>   }
+>   Processor(CPU1...) {
+>      Name(_PXM, 1)
+>   }
+> 
+>   Device(PCI0) {
+>      Name(_PXM, 0)
+>   }
+>   Device(PCI1) {
+>      Name(_PXM,1)
+>   }
+> }
+> 
+> (I don't know if such an implementation exists, but from the spec,
+> it is possible)
+> In this case, OS has to group devices by same number.
+> Please don't assume specific ACPI AML implementatin as a generic
+> rule.
+
+If ACPI ASL is written that way, LHNS cannot do anything since
+there is no container device (this is not ACPI term here) in the
+system.  LHNS's target is a container *device* (again, not ACPI
+term:) and hotplugs it physically (of course, the device needs to
+be hotpluggable).  So, LHNS can handle a NUMA node if all
+CPUs and memory of the node are on a container device. I know
+that it's a big restriction :(
+
+Thanks,
+kei

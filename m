@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261218AbTCGDLG>; Thu, 6 Mar 2003 22:11:06 -0500
+	id <S261318AbTCGDXM>; Thu, 6 Mar 2003 22:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261318AbTCGDLG>; Thu, 6 Mar 2003 22:11:06 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:31457 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S261218AbTCGDLF>;
-	Thu, 6 Mar 2003 22:11:05 -0500
-Message-Id: <200303070319.h273JWeI012835@eeyore.valparaiso.cl>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@digeo.com>, rml@tech9.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3 
-In-Reply-To: Your message of "Thu, 06 Mar 2003 09:03:03 -0800."
-             <Pine.LNX.4.44.0303060858120.7206-100000@home.transmeta.com> 
-Date: Fri, 07 Mar 2003 00:19:32 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S261335AbTCGDXM>; Thu, 6 Mar 2003 22:23:12 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:39111 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261318AbTCGDXL>; Thu, 6 Mar 2003 22:23:11 -0500
+Date: Thu, 06 Mar 2003 19:33:33 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Steven Cole <elenstev@mesatop.com>, Val Henson <val@nmt.edu>
+cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Those ruddy punctuation fixes
+Message-ID: <300890000.1047008011@[10.10.2.4]>
+In-Reply-To: <1047005054.4114.99.camel@spc1.mesatop.com>
+References: <20030305111015.B8883@flint.arm.linux.org.uk><20030305122008.GA4280@suse.de> <1046920285.3786.68.camel@spc1.mesatop.com> <20030307010422.GI26725@boardwalk> <1047005054.4114.99.camel@spc1.mesatop.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> said:
-> On Thu, 6 Mar 2003, Ingo Molnar wrote:
-> > the whole compilation (gcc tasks) will be rated 'interactive' as well,
-> > because an 'interactive' make process and/or shell process is waiting on
-> > it.
+>> Wait, this sounds like a conversation with the Mafia:
+>> 
+>> "Pay us protection money."
+>> "Why do we need to pay you for protection?"
+>> "So we can protect you from criminals like ourselves."
 > 
-> No. The make that is waiting for it will be woken up _once_ - when the 
-> thing dies. Marking it interactive at that point is absolutely fine.
+> That's a ridiculous comparison and it weakens your argument.  Leaving a
 
-It is woken up each time one Makefile line has been processed, to call the
-next one.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Reductio ad absurdum is often enlightening.
+
+> potential problem in place rather than fixing it as I did would be the
+> passive-aggressive approach, not the other way around.
+
+But that's not exactly what you're doing - you're replacing one 
+(very small) problem with another (very real) problem, the breakage 
+of people's patches. Fixing up patches because of spelling
+errors is a total waste of developer's time.
+
+>> I'd rather solve this problem by making standalone spelling fixes and
+>> other cosmetic changes taboo.  Cosmetic changes combined with actual
+>> useful code changes are fine with me.  If you're risking breaking the
+>> build, there should be some benefit that justifies the risk.
+> 
+> Breaking the build is a low probability (many hundreds of fixes and one 
+> build break AFAIK) and low consequence failure (a build fix of that
+> nature is obvious and quickly and easily done).
+
+Breaking the build is indeed a low probability (assuming you compile
+test your tree). Breaking other people's patches is a high probablility.
+
+M.

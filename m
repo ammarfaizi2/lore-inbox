@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129420AbQJ3SFo>; Mon, 30 Oct 2000 13:05:44 -0500
+	id <S129493AbQJ3SHe>; Mon, 30 Oct 2000 13:07:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129453AbQJ3SFe>; Mon, 30 Oct 2000 13:05:34 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:17159 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129420AbQJ3SF2>; Mon, 30 Oct 2000 13:05:28 -0500
-Message-ID: <39FDB775.45E5653C@timpanogas.org>
-Date: Mon, 30 Oct 2000 11:01:25 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S129516AbQJ3SHY>; Mon, 30 Oct 2000 13:07:24 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:12548 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129478AbQJ3SHM>; Mon, 30 Oct 2000 13:07:12 -0500
+Date: Mon, 30 Oct 2000 13:06:38 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: John Levon <moz@compsoc.man.ac.uk>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kmalloc() allocation.
+In-Reply-To: <39FDA69C.92B090A6@mandrakesoft.com>
+Message-ID: <Pine.LNX.3.95.1001030130325.2540C-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Chris Evans <chris@scary.beasts.org>
-CC: Andrea Arcangeli <andrea@suse.de>, Ingo Molnar <mingo@elte.hu>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <Pine.LNX.4.21.0010301755210.26279-100000@ferret.lmh.ox.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 30 Oct 2000, Jeff Garzik wrote:
 
-
-Chris Evans wrote:
+> "Richard B. Johnson" wrote:
+> > Now, I could set up a linked-list of buffers and use vmalloc()
+> > if the buffers were allocated from non-paged RAM. I don't think
+> > they are. These buffers must be present during an interrupt.
 > 
-> On Mon, 30 Oct 2000, Andrea Arcangeli wrote:
+> Non-paged RAM?  I'm not sure what you mean by that.
 > 
-> > functionality that needs high performance completly in kernel? People
-> > may need to write high performance network code for custom protocols,
-> > this way they will end creating kernel modules with system-crashing
-> > bugs, memory leaks and kernel buffer overflows (chroot+nobody+logging
-> > won't work anymore). (plus they will get into pain while debugging)
+> Both kmalloc and vmalloc allocate pages, but neither will allocate pages
+> that the system will swap out (page out).  [vk]malloc pages are always
+> around during an interrupt.
 > 
-> I'm glad _someone_ is connected to reality with regards the security
-> implications of throwing loads of servers into kernel space.
-> 
+> 	Jeff
 
-If we implement a ring 0 Linux, all of this will remain intact with the
-need to 
-port modules into the kernel at all.  
+Hmm, vmalloc() doesn't seem to have the size limitation. Are you sure
+that it's present during an interrupt? I can't page-fault during the
+interrupt.
 
-Jeff
 
-> Cheers
-> Chris
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

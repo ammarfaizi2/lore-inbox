@@ -1,50 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbUCAU4L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 15:56:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUCAU4L
+	id S261433AbUCAU6F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 15:58:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbUCAU6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 15:56:11 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:11435 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261432AbUCAU4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 15:56:09 -0500
-Date: Mon, 1 Mar 2004 20:54:26 +0000
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, yi.zhu@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [start_kernel] Suggest to move parse_args() before trap_init()
-Message-ID: <20040301205426.GA5862@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	Andrew Morton <akpm@osdl.org>, yi.zhu@intel.com,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0403011721220.2367-100000@mazda.sh.intel.com> <20040301025637.338f41cf.akpm@osdl.org> <p73vfloz45t.fsf@verdi.suse.de>
+	Mon, 1 Mar 2004 15:58:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7126 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261433AbUCAU57 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 15:57:59 -0500
+Date: Mon, 1 Mar 2004 12:57:52 -0800
+From: cliff white <cliffw@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernbench v0.30
+Message-Id: <20040301125752.5ef9041d.cliffw@osdl.org>
+In-Reply-To: <200403011223.31059.kernel@kolivas.org>
+References: <200403011223.31059.kernel@kolivas.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73vfloz45t.fsf@verdi.suse.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 01, 2004 at 09:46:38PM +0100, Andi Kleen wrote:
+On Mon, 1 Mar 2004 12:23:25 +1100
+Con Kolivas <kernel@kolivas.org> wrote:
 
- > > I think the only problem with this is if we get a fault during
- > > parse_args(), the kernel flies off into outer space.  So you lose some
- > > debuggability when using an early console.
- > > 
- > > But 2.4 does trap_init() after parse_args() and nobody has complained, as
- > > did 2.6 until recently.  So the change is probably OK.
- > 
- > The standard way to fix this is to add an explicit check for lapic
- > to the early argument parsing in setup.c (but keep the __setup so that
- > no unknown argument is reported).
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Kernbench v0.30
+> 
+> http://ck.kolivas.org/kernbench/
+> 
+> Changelog:
+> v0.30 Added fast run option which bypasses caching, warmup and tree 
+> 	preparation and drops number of runs to 3. Modified half loads to 
+> 	detect -j2 and change to -j3. Added syncs. Improved warnings and 
+> 	messages. 
+> 
 
-This just got me thinking of a sort-of related problem.
-Some laptops hang when local apic is enabled, and we couldn't
-blacklist them in 2.4 due to us not doing the dmi scan early enough.
+STP version updated also, thanks
+cliffw
+> 
+> What is this?
+> 
+> This is a cpu throughput benchmark originally devised and used by Martin J.
+> Bligh. It is designed to compare kernels on the same machine, or to compare
+> hardware. To compare hardware you need to be running the same architecture
+> machines (eg i386) and run kernbench on the same kernel source tree.
+> 
+> It runs a kernel at various numbers of concurrent jobs: 1/2 number of cpus, 
+> optimal (default is 4xnumber of cpus) and maximal job count. Optionally it can
+> also run single threaded. It then prints out a number of useful statistics
+> for the average of each group of runs.
+> 
+> You need at least 2Gb of ram for this to be a true throughput benchmark or 
+> else you will get swapstorms.
+> 
+> Ideally it should be run in single user mode on a non-journalled filesystem.
+> To compare results it should always be run in the same kernel tree.
+> 
+> 
+> How do I use it?
+> 
+> You need a kernel tree (any will do) and the applications 'time' and 'awk' 
+> installed. 'time' is different to the builtin time used by BASH and has more
+> features desired for this benchmark.
+>  
+> Simply cd into the kernel tree directory and type
+> 
+> /path/to/kernbench
+> 
+> 
+> Options
+> 
+> kernbench [-n runs] [-o jobs] [-s] [-H] [-O] [-M] [-h] [-v]
+> n : number of times to perform benchmark (default 5)
+> o : number of jobs for optimal run (default 4 * cpu)
+> s : perform single threaded runs (default don't)
+> H : don't perform half load runs (default do)
+> O : don't perform optimal load runs (default do)
+> M : don't perform maximal load runs (default do)
+> f : fast run
+> h : print this help
+> v : print version number
+> 
+> 
+> Con
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.3 (GNU/Linux)
+> 
+> iD8DBQFAQpCPZUg7+tp6mRURAgvfAJ4lyrnuOns0NSvCY9usWnnhiv2ZpQCbBI04
+> zvd+1jYdtTwFatWBUEuoERI=
+> =Eq2l
+> -----END PGP SIGNATURE-----
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Did that get fixed in 2.6 ?
 
-		Dave
+-- 
+The church is near, but the road is icy.
+The bar is far, but i will walk carefully. - Russian proverb

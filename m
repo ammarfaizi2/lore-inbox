@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319005AbSH1Vv3>; Wed, 28 Aug 2002 17:51:29 -0400
+	id <S318999AbSH1Vw7>; Wed, 28 Aug 2002 17:52:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319009AbSH1Vv3>; Wed, 28 Aug 2002 17:51:29 -0400
-Received: from cerberus.stardot-tech.com ([67.105.126.66]:26122 "EHLO
-	cerberus.stardot-tech.com") by vger.kernel.org with ESMTP
-	id <S319005AbSH1Vv1>; Wed, 28 Aug 2002 17:51:27 -0400
-Date: Wed, 28 Aug 2002 14:55:39 -0700 (PDT)
-From: Jim Treadway <jim@stardot-tech.com>
-To: junkio@cox.net
-cc: linux-kernel@vger.kernel.org, <trivial@rustcorp.com.au>
-Subject: Re: [TRIVIAL] strlen("literal string") -> (sizeof("literal string")-1)
-In-Reply-To: <200208282131.g7SLVVGx024191@siamese.dyndns.org>
-Message-ID: <Pine.LNX.4.44.0208281450220.12387-100000@cerberus.stardot-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319013AbSH1Vw7>; Wed, 28 Aug 2002 17:52:59 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:9600 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318999AbSH1Vw6>;
+	Wed, 28 Aug 2002 17:52:58 -0400
+Date: Wed, 28 Aug 2002 12:42:04 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: yodaiken@fsmlabs.com, Mark Hounschell <markh@compro.net>,
+       "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: interrupt latency
+Message-ID: <20020828124204.B39@toy.ucw.cz>
+References: <20020827135400.A31990@hq.fsmlabs.com> <Pine.LNX.3.95.1020827160243.11549A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.3.95.1020827160243.11549A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Aug 27, 2002 at 04:44:34PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Aug 2002 junkio@cox.net wrote:
+Hi!
 
-> Here is a patch that does the same as what Keith Owens did in
-> his patch recently.
+> > On Tue, Aug 27, 2002 at 02:01:43PM -0400, Richard B. Johnson wrote:
+> > > This cannot be. A stock kernel-2.4.18, running a 133 MHz AMD-SC520,
+> > > (like a i586) with a 33 MHz bus, handles interrupts off IRQ7 (the lowest
+> > > priority), from the 'printer port' at well over 75,000 per second without
+> > > skipping a beat or missing an edge. This means that latency is at least
+> > > as good as 1/57,000 sec = 0.013 microseconds.
+> > 
+> > Assuming you mean 75,000 then ... 
+> > Thats 0.013 MILLISECONDS which is 13 microseconds and its not likely.
 > 
->     Message-ID: <fa.iks3ohv.1flge08@ifi.uio.no>
->     From: Keith Owens <kaos@ocs.com.au>
->     Subject: [patch] 2.4.19 Generate better code for nfs_sillyrename
->     Date: Wed, 28 Aug 2002 07:08:17 GMT
+> Yes 13 microseconds.
 > 
->     Using strlen() generates an unnecessary inline function expansion plus
->     dynamic stack adjustment.  For constant strings, strlen() == sizeof()-1
->     and the object code is better.
+> > I bet that your data source drops data or looks at some handshake
+> > pins on the parallel connect.
+> > 
 > 
-> The patch is against 2.4.19.
-> 
-> diff -ru 2.4.19/arch/mips/hp-lj/utils.c 2.4.19-strlen/arch/mips/hp-lj/utils.c
-> --- 2.4.19/arch/mips/hp-lj/utils.c	2002-08-02 10:48:43.000000000 -0700
-> +++ 2.4.19-strlen/arch/mips/hp-lj/utils.c	2002-08-28 01:17:20.000000000 -0700
-> @@ -48,7 +48,7 @@
->  {
->  	char* pos = strstr(cl, "reserved_buffer=");
->   	if (pos) {
-> -		buffer_size = simple_strtol(pos+strlen("reserved_buffer="), 
-> +		buffer_size = simple_strtol(pos+(sizeof("reserved_buffer=")-1), 
->  					    0, 10);
->  		buffer_size <<= 20;
->  		if (buffer_size + MIN_GEN_MEM > base_mem)
+> No. You can easily read into memory 75,000 bytes per second from the
+> parallel port, hell RS-232C will do 22,400++ bytes per second (224,000
+> baud) on a Windows machine, done all the while to feed a PROM burner. I
+> never measured Linux RS-232C, but it's got to be at least as good.
 
-Would redefining strlen() as __strlen() and then using
+There's >16bytes FIFO at the rs-232, and kernel uses flip buffers so
+that it does nlot have to wake userspace each time.
 
-#define strlen(x) (__builtin_constant_p(x) ? (sizeof(x) - 1) : __strlen(x))
-
-work in this situation?
-
-
-Jim
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

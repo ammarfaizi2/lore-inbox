@@ -1,52 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135281AbRDWPLw>; Mon, 23 Apr 2001 11:11:52 -0400
+	id <S135283AbRDWPTx>; Mon, 23 Apr 2001 11:19:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135283AbRDWPLl>; Mon, 23 Apr 2001 11:11:41 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:12181 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S135281AbRDWPLc>; Mon, 23 Apr 2001 11:11:32 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: "David L. Parsley" <parsley@linuxjedi.org>, linux-kernel@vger.kernel.org,
-        viro@math.psu.edu
-Subject: Re: hundreds of mount --bind mountpoints?
-In-Reply-To: <3AE307AD.821AB47C@linuxjedi.org> <m3r8yjrgdc.fsf@linux.local>
-	<20010423151753.C719@nightmaster.csn.tu-chemnitz.de>
-Organisation: SAP LinuxLab
-Date: 23 Apr 2001 16:54:02 +0200
-In-Reply-To: <20010423151753.C719@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <m3d7a3r7jp.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+	id <S135292AbRDWPTo>; Mon, 23 Apr 2001 11:19:44 -0400
+Received: from fe070.worldonline.dk ([212.54.64.208]:26638 "HELO
+	fe070.worldonline.dk") by vger.kernel.org with SMTP
+	id <S135283AbRDWPTh>; Mon, 23 Apr 2001 11:19:37 -0400
+Message-ID: <3AE449A3.3050601@eisenstein.dk>
+Date: Mon, 23 Apr 2001 17:26:27 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-mosix i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en, da
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] pedantic code cleanup - am I wasting my time with this?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Hi people,
 
-On Mon, 23 Apr 2001, Ingo Oeser wrote:
-> On Mon, Apr 23, 2001 at 01:43:27PM +0200, Christoph Rohland wrote:
->> On Sun, 22 Apr 2001, David L. Parsley wrote:
->> > attach packages inside it.  Since symlinks in a tmpfs filesystem
->> > cost 4k each (ouch!), I'm considering using mount --bind for
->> > everything.
->> 
->> What about fixing tmpfs instead?
-> 
-> The question is: How? If you do it like ramfs, you cannot swap
-> these symlinks and this is effectively a mlock(symlink) operation
-> allowed for normal users. -> BAD!
+I'm reading through various pieces of source code to try and get an 
+understanding of how the kernel works (with the hope that I'll 
+eventually be able to contribute something really usefull, but you've 
+got to start somewhere ;)
 
-How about storing it into the inode structure if it fits into the
-fs-private union? If it is too big we allocate the page as we do it
-now. The union has 192 bytes. This should be sufficient for most
-cases.
+While reading through the source I've stumbled across various bits and 
+pieces that are not exactely wrong, but not strictly correct either. I 
+was wondering if I would be wasting my time by cleaning this up or if it 
+would actually be appreciated. One example of these things is the patch 
+below:
 
-Greetings
-		Christoph
+--- linux-2.4.3-vanilla/include/linux/rtnetlink.h       Sun Apr 22 
+02:29:20 2001
++++ linux-2.4.3/include/linux/rtnetlink.h       Mon Apr 23 17:09:02 2001
+@@ -112,7 +112,7 @@
+         RTN_PROHIBIT,           /* Administratively prohibited  */
+         RTN_THROW,              /* Not in this table            */
+         RTN_NAT,                /* Translate this address       */
+-       RTN_XRESOLVE,           /* Use external resolver        */
++       RTN_XRESOLVE            /* Use external resolver        */
+  };
+
+  #define RTN_MAX RTN_XRESOLVE
+@@ -278,7 +278,7 @@
+  #define RTAX_CWND RTAX_CWND
+         RTAX_ADVMSS,
+  #define RTAX_ADVMSS RTAX_ADVMSS
+-       RTAX_REORDERING,
++       RTAX_REORDERING
+  #define RTAX_REORDERING RTAX_REORDERING
+  };
+
+@@ -501,7 +501,7 @@
+         TCA_OPTIONS,
+         TCA_STATS,
+         TCA_XSTATS,
+-       TCA_RATE,
++       TCA_RATE
+  };
+
+  #define TCA_MAX TCA_RATE
+
+
+All the above does is to remove the last comma from 3 enumeration lists. 
+I know that gcc has no problem with that, but to be strictly correct the 
+last entry should not have a trailing comma.
+
+Another example is the following line (1266) from linux/include/net/sock.h
+
+         return (waitall ? len : min(sk->rcvlowat, len)) ? : 1;
+
+To be strictly correct the second expression (between '?' and ':' ) 
+should not be omitted (all you guys already know that ofcourse).
+
+Would patches that clean up stuff like that be appreciated or am I just 
+wasting my time?
+Should I just adopt an 'if gcc -Wall does not complain then it's ok' 
+attitude and leave this stuff alone?
+
+
+Best regards,
+Jesper Juhl - juhl@eisenstein.dk
 
 

@@ -1,85 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVB0P5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVB0P7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVB0P5G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 10:57:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVB0P5F
+	id S261414AbVB0P7M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 10:59:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVB0P5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 10:57:05 -0500
-Received: from ns.suse.de ([195.135.220.2]:19412 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261416AbVB0P4z (ORCPT
+	Sun, 27 Feb 2005 10:57:30 -0500
+Received: from news.suse.de ([195.135.220.2]:22484 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261419AbVB0P4z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 27 Feb 2005 10:56:55 -0500
-Message-Id: <20050227152349.216242000@blunzn.suse.de>
+Message-Id: <20050227152350.480929000@blunzn.suse.de>
 References: <20050227152243.083308000@blunzn.suse.de>
-Date: Sun, 27 Feb 2005 16:22:44 +0100
+Date: Sun, 27 Feb 2005 16:22:47 +0100
 From: Andreas Gruenbacher <agruen@suse.de>
 To: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
        Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: Olaf Kirch <okir@suse.de>, "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
        Andrew Morton <akpm@osdl.org>
-Subject: [patch 01/16] acl kconfig cleanup
-Content-Disposition: inline; filename=acl-kconfig-cleanup.diff
+Subject: [patch 04/16] Add missing -EOPNOTSUPP => NFS3ERR_NOTSUPP mapping in nfsd
+Content-Disposition: inline; filename=nfsacl-add-missing-eopnotsupp-=-nfs3err_notsupp-mapping-in-nfsd.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Original patch from Matt Mackall <mpm@selenic.com>.
+Add the missing NFS3ERR_NOTSUPP error code (defined in NFSv3) to the
+system-to-protocol-error table in nfsd.  The nfsacl extension uses this error
+code.
 
 Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+Signed-off-by: Olaf Kirch <okir@suse.de>
 
-Index: linux-2.6.11-rc5/fs/Kconfig
+Index: linux-2.6.11-rc5/fs/nfsd/nfsproc.c
 ===================================================================
---- linux-2.6.11-rc5.orig/fs/Kconfig
-+++ linux-2.6.11-rc5/fs/Kconfig
-@@ -29,6 +29,7 @@ config EXT2_FS_XATTR
- config EXT2_FS_POSIX_ACL
- 	bool "Ext2 POSIX Access Control Lists"
- 	depends on EXT2_FS_XATTR
-+	select FS_POSIX_ACL
- 	help
- 	  Posix Access Control Lists (ACLs) support permissions for users and
- 	  groups beyond the owner/group/world scheme.
-@@ -97,6 +98,7 @@ config EXT3_FS_XATTR
- config EXT3_FS_POSIX_ACL
- 	bool "Ext3 POSIX Access Control Lists"
- 	depends on EXT3_FS_XATTR
-+	select FS_POSIX_ACL
- 	help
- 	  Posix Access Control Lists (ACLs) support permissions for users and
- 	  groups beyond the owner/group/world scheme.
-@@ -224,6 +226,7 @@ config REISERFS_FS_XATTR
- config REISERFS_FS_POSIX_ACL
- 	bool "ReiserFS POSIX Access Control Lists"
- 	depends on REISERFS_FS_XATTR
-+	select FS_POSIX_ACL
- 	help
- 	  Posix Access Control Lists (ACLs) support permissions for users and
- 	  groups beyond the owner/group/world scheme.
-@@ -257,6 +260,7 @@ config JFS_FS
- config JFS_POSIX_ACL
- 	bool "JFS POSIX Access Control Lists"
- 	depends on JFS_FS
-+	select FS_POSIX_ACL
- 	help
- 	  Posix Access Control Lists (ACLs) support permissions for users and
- 	  groups beyond the owner/group/world scheme.
-@@ -289,8 +293,7 @@ config FS_POSIX_ACL
- # 	Never use this symbol for ifdefs.
- #
- 	bool
--	depends on EXT2_FS_POSIX_ACL || EXT3_FS_POSIX_ACL || JFS_POSIX_ACL || REISERFS_FS_POSIX_ACL || NFSD_V4
--	default y
-+	default n
- 
- config XFS_FS
- 	tristate "XFS filesystem support"
-@@ -1531,6 +1534,7 @@ config NFSD_V4
- 	bool "Provide NFSv4 server support (EXPERIMENTAL)"
- 	depends on NFSD_V3 && EXPERIMENTAL
- 	select NFSD_TCP
-+	select FS_POSIX_ACL
- 	help
- 	  If you would like to include the NFSv4 server as well as the NFSv2
- 	  and NFSv3 servers, say Y here.  This feature is experimental, and
+--- linux-2.6.11-rc5.orig/fs/nfsd/nfsproc.c
++++ linux-2.6.11-rc5/fs/nfsd/nfsproc.c
+@@ -591,6 +591,7 @@ nfserrno (int errno)
+ 		{ nfserr_dropit, -EAGAIN },
+ 		{ nfserr_dropit, -ENOMEM },
+ 		{ nfserr_badname, -ESRCH },
++		{ nfserr_notsupp, -EOPNOTSUPP },
+ 		{ -1, -EIO }
+ 	};
+ 	int	i;
 
 --
 Andreas Gruenbacher <agruen@suse.de>

@@ -1,76 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbUDUOON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbUDUORh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbUDUOON (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 10:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUDUOON
+	id S262951AbUDUORh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 10:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUDUORh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 10:14:13 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:31189 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S262634AbUDUOOH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 10:14:07 -0400
-To: Tuukka Toivonen <tuukkat@ee.oulu.fi>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, arjanv@redhat.com,
-       Andrew Morton <akpm@osdl.org>, b-gruber@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: /dev/psaux-Interface
-References: <Pine.GSO.4.58.0402271451420.11281@stekt37>
-	<Pine.GSO.4.58.0404191124220.21825@stekt37>
-	<20040419015221.07a214b8.akpm@osdl.org>
-	<xb77jwci86o.fsf@savona.informatik.uni-freiburg.de>
-	<1082372020.4691.9.camel@laptop.fenrus.com>
-	<16518.20890.380763.581386@cse.unsw.edu.au>
-	<xb71xmhfu9j.fsf@savona.informatik.uni-freiburg.de>
-	<Pine.GSO.4.58.0404211442170.26430@stekt37>
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 21 Apr 2004 16:14:06 +0200
-In-Reply-To: <Pine.GSO.4.58.0404211442170.26430@stekt37>
-Message-ID: <xb7smexe7v5.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Wed, 21 Apr 2004 10:17:37 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:5504 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262951AbUDUORe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 10:17:34 -0400
+Date: Wed, 21 Apr 2004 10:17:50 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Graham Murray <graham@gmurray.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: vger.kernel.org is listed by spamcop
+In-Reply-To: <m3zn958me4.fsf@home.gmurray.org.uk>
+Message-ID: <Pine.LNX.4.53.0404211002170.1048@chaos>
+References: <200404210722.32253.lkml@kcore.org> <20040421084434.GL1749@mea-ext.zmailer.org>
+ <buoad15hfp2.fsf@mcspd15.ucom.lsi.nec.co.jp> <m3zn958me4.fsf@home.gmurray.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
-Organization: Universitaet Freiburg, Institut fuer Informatik
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Tuukka" == Tuukka Toivonen <tuukkat@ee.oulu.fi> writes:
+On Wed, 21 Apr 2004, Graham Murray wrote:
 
-    Tuukka> We shouldn't want _the_ /dev/psaux, but something similar,
-    Tuukka> possibly better. What I'm after (and probably Sau Dan Lee
-    Tuukka> too) is direct access to at least psaux-port.
+> Miles Bader <miles@lsi.nec.co.jp> writes:
+>
+> > The spamcop report page seems to say that the listings are due to user
+> > reports; could the real problem be clueless users who don't understand
+> > the difference above?
+>
+> They also tell you that you MUST NOT report spam received through a
+> mailing list. Only the mailing list administrators are supposed to
+> report spam sent to a mailing list.
+> -
 
-Right!
+Spam-Cop is another Nazi-like organization that is clue-less.
+For instance, my email address and practically every email address
+in the known universe is routinely stolen by the spammers to do
+their dirty work. In the past month, I've gotten more email from
+the black-listers, telling me that I've been black-listed, than
+SPAM in a year! They just generate FUD.
 
+The company network administrator has been informed many times;
+"YOU HAVE BEEN WARNED!! Lawsuits may follow!" with big threatening
+letters about my machines defecating on the Internet. Yawn.
 
-    Tuukka> My idea is to modify serio to expose all (or at least all
-    Tuukka> unconnected) ports into userspace, where programs can
-    Tuukka> write/read them just like the /dev/psaux before. Then it's
-    Tuukka> just matter of symlinking /dev/psaux into correct device.
+Eventually very machine that routes on the Internet will filter and
+drop any packets that have my email or IP address. They will claim
+that my Linux machines, using pine, are infested with W$WORM-crap. I
+already have worm-mongers trying to sell me anti-virus software, claiming
+that my machine is infecting the universe.
 
-Good suggestion.
+FYI, the open-source SpamCop project was killed. Some other
+organization claimed the name and became just another Net Nazi.
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Actually, I  have a  side issue with  input/i8042 related  things: The
-keyboard on  my laptop worked  slightly different: On 2.4.*,  SysRq is
-activated using a [Fn] key-combo,  which agrees with the keycap labels
-on the  laptop keyboard.   After upgrading to  2.6, that  key-combo no
-longer  works.  Instead,  I must  use Alt-PrintScreen  as the  key for
-SysRq.  (And unfortunately, PrintScreen is a [Fn] combo on the laptop,
-thus requiring press  3 keys at the same time for  SysRq, and a fourth
-key to use  the various SysRq features.  Very  inconvenient.)  Is this
-again due to some dirty translation processes down in the input layer?
-Is  the input  layer always  assuming that  Alt-PrintScreen  == SysRq?
-This is not always true.  Can the input layer be so configured that it
-never tries  to interpret  the scancodes, but  pass them to  the upper
-layers?
-
-
-
--- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
 

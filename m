@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273515AbRI3SLt>; Sun, 30 Sep 2001 14:11:49 -0400
+	id <S273893AbRI3SOT>; Sun, 30 Sep 2001 14:14:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273565AbRI3SLj>; Sun, 30 Sep 2001 14:11:39 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:18442 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S273515AbRI3SL2>;
-	Sun, 30 Sep 2001 14:11:28 -0400
-Date: Sun, 30 Sep 2001 11:16:13 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Dan Kegel <dank@kegel.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tcp_v4_get_port() and ephemeral ports
-In-Reply-To: <3BB75EB4.3268D3FC@kegel.com>
-Message-ID: <Pine.LNX.4.40.0109301114390.7223-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273883AbRI3SOK>; Sun, 30 Sep 2001 14:14:10 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:4612 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S273723AbRI3SNw>;
+	Sun, 30 Sep 2001 14:13:52 -0400
+Date: Thu, 27 Sep 2001 14:27:27 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: John Weber <weber@nyc.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel pcmcia
+Message-ID: <20010927142727.B39@toy.ucw.cz>
+In-Reply-To: <3BAE24F4.4489CC4A@nyc.rr.com> <12891.1001275605@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <12891.1001275605@redhat.com>; from dwmw2@infradead.org on Sun, Sep 23, 2001 at 09:06:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Sep 2001, Dan Kegel wrote:
+Hi!
 
-> I'm doing ftp server benchmarking, doing lots of connect()'s.
-> Since ports aren't supposed to be reused for 2MSL (theoretically 120 seconds),
-> the absolute limit on connections per second is 64K/120 = 500.
-> This actually could pose a problem for me.  (Yeah, 2MSL is
-> set to 30 seconds in linux, so the problem isn't as severe
-> as the standard says, but it's still a problem.)
+> > Is cardmgr absolutely necessary?  I don't use modules, so I don't
+> > really understand what cardmgr does that can't be done by the kernel
+> > at boot. -
+> 
+> Aside from loading modules, it also performs the matching between devices 
+> and drivers - rather than drivers registering a list of the devices they're 
+> capable of driving, as with other bus types, cardmgr is required to 'bind' 
+> devices to drivers.
+> 
+> The whole lot wants rewriting. I've been looking at it but don't have 
+> anything that even compiles. 
 
-net.ipv4.tcp_tw_recycle=1
-net.ipv4.tcp_fin_timeout=8
+Seconded. I need to see cardmgr dead for proper S3/S4 support without hacks.
 
-ONLY FOR TESTING !! :)
-
-
-
-- Davide
-
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

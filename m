@@ -1,34 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280002AbRKRSg0>; Sun, 18 Nov 2001 13:36:26 -0500
+	id <S280016AbRKRSoq>; Sun, 18 Nov 2001 13:44:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280012AbRKRSgP>; Sun, 18 Nov 2001 13:36:15 -0500
-Received: from femail39.sdc1.sfba.home.com ([24.254.60.33]:57298 "EHLO
-	femail39.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S280002AbRKRSgG>; Sun, 18 Nov 2001 13:36:06 -0500
-Subject: Re: Driver callback routine when panic() is called
-From: Georg Nikodym <georgn@somanetworks.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1006008556.1923.20.camel@keller>
-In-Reply-To: <17427.1005997080@ocs3.intra.ocs.com.au> 
-	<1006008556.1923.20.camel@keller>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 18 Nov 2001 13:36:00 -0500
-Message-Id: <1006108560.1923.22.camel@keller>
-Mime-Version: 1.0
+	id <S280029AbRKRSog>; Sun, 18 Nov 2001 13:44:36 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:3807 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S280028AbRKRSo2>; Sun, 18 Nov 2001 13:44:28 -0500
+Date: Sun, 18 Nov 2001 10:44:55 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: <joelja@twin.uoregon.edu>
+To: Paul <krushka@iprimus.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Compact Flash and IDE interface
+In-Reply-To: <01111818410900.02037@paul.home.com.au>
+Message-ID: <Pine.LNX.4.33.0111181039410.11341-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-11-17 at 09:49, Georg Nikodym wrote:
+2MB a second is about right... Flash is slow... I get about that on an 
+older 64MB simple technologies flash card... maybe their doc says 16Mb/s 
+which would be quite accurate...
 
-> Pat O'Rourke also posted a patch[1] that exposes this nicely
-> (panic_notifier_list is currently static in panic.c).
 
-Musta been smoking the good stuff.  panic_notifier_list is not static at
-all and is extern'ed in kernel.h.  Pat's patch just adds a functional
-interface...
+On Sun, 18 Nov 2001, Paul wrote:
 
-Time to get the old eyes checked.
+> Hi
+> 
+> I hope I'm sending this to the right list, sorry if it's not :)
+> 
+> With compact flash cards connected via IDE what is the "normal" expected 
+> transfer rates?  I have a Sandisk (32 and 128MB) and I only get around 
+> 2MB/sec (read test using hdparm) when all the docs from sandisk suggest 
+> around 16MB/sec.  They haven't returned my emails so I suspect their specs 
+> are a little misleading...they quote around 16MB/sec read transfer rates.
+> 
+> What sort of read rates should I be expecting?
+> 
+> Thanks
+> 
+> Paul
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli				       joelja@darkwing.uoregon.edu    
+Academic User Services			     consult@gladstone.uoregon.edu
+     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
+--------------------------------------------------------------------------
+It is clear that the arm of criticism cannot replace the criticism of
+arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
+the right, 1843.
+
 

@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287155AbSABXCY>; Wed, 2 Jan 2002 18:02:24 -0500
+	id <S287160AbSABXC0>; Wed, 2 Jan 2002 18:02:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287160AbSABXCF>; Wed, 2 Jan 2002 18:02:05 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4228
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S287163AbSABXBw>; Wed, 2 Jan 2002 18:01:52 -0500
-Date: Wed, 2 Jan 2002 17:48:24 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Dave Jones <davej@suse.de>
-Cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102174824.A21408@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C338DCC.3020707@free.fr> <Pine.LNX.4.33.0201022349200.427-100000@Appserv.suse.de>
-Mime-Version: 1.0
+	id <S287163AbSABXCG>; Wed, 2 Jan 2002 18:02:06 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8207 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287155AbSABXB5>; Wed, 2 Jan 2002 18:01:57 -0500
+Subject: Re: [PATCH][RFC] AMD Elan patch
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Wed, 2 Jan 2002 23:10:50 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones),
+        robert@schwebel.de (Robert Schwebel),
+        linux-kernel@vger.kernel.org (Linux Kernel List),
+        wingel@hog.ctrl-c.liu.se (Christer Weinigel),
+        jason@mugwump.taiga.com (Jason Sodergren),
+        anders@alarsen.net (Anders Larsen), rkaiser@sysgo.de
+In-Reply-To: <3C338C57.2080902@zytor.com> from "H. Peter Anvin" at Jan 02, 2002 02:40:23 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201022349200.427-100000@Appserv.suse.de>; from davej@suse.de on Wed, Jan 02, 2002 at 11:51:17PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16LuX4-0005wH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@suse.de>:
-> > Just took a quick look at dmidecode.c and auditing this code doesn't
-> > seem out of reach.
-> 
-> Exactly. And 90% of it can be ditched.
+> That's not the problem, really... the problems is that CPUID identifies 
+> the CPU core, and embedded CPU cores tend to be used and reused many 
+> times -- in fact, AMD are quite good at that.
 
-But a setuid program *will not solve my problem*.
-
-The person running the autoconfigurator is not and should not be doing so 
-as root.  Requiring the person to stop and sun sudo just so the 
-autoconfigurator can proceed is exactly the sort of pointless 
-obstacle we should *not* be putting in front of users!
-
-(Telling me to rely on dmidecode already being installed SUID is not
-a good answer either.  No prizes for figuring out why.)
-
-Ay caramba...please guys, try get your heads out of the internals
-and start thinking from the *useability* angle for once!
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-"The power to tax involves the power to destroy;...the power to
-destroy may defeat and render useless the power to create...."
-	-- Chief Justice John Marshall, 1819.
+The 400/410 this isnt a problem for. Its discontinued and the 5x0 detect
+differently (and actually have working serial ports I believe). So its
+an end of life core

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292336AbSCRTRn>; Mon, 18 Mar 2002 14:17:43 -0500
+	id <S292368AbSCRTUm>; Mon, 18 Mar 2002 14:20:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292368AbSCRTRa>; Mon, 18 Mar 2002 14:17:30 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:46769 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292336AbSCRTRF>; Mon, 18 Mar 2002 14:17:05 -0500
-Date: Mon, 18 Mar 2002 11:16:16 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-cc: hannal@us.ibm.com
-Subject: Re: [CFT] delayed allocation and multipage I/O patches for 2.5.6.
-Message-ID: <7820000.1016478976@w-hlinder.des>
-In-Reply-To: <3C8D9999.83F991DB@zip.com.au>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
+	id <S292316AbSCRTUh>; Mon, 18 Mar 2002 14:20:37 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:40068
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S292522AbSCRTTy>; Mon, 18 Mar 2002 14:19:54 -0500
+Date: Mon, 18 Mar 2002 12:19:27 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Jason Li <jli@extremenetworks.com>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: EXPORT_SYMBOL doesn't work
+Message-ID: <20020318191927.GB8155@opus.bloom.county>
+In-Reply-To: <2643.1016433275@kao2.melbourne.sgi.com> <3C963BF2.C9D78479@extremenetworks.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---On Monday, March 11, 2002 22:00:57 -0800 Andrew Morton <akpm@zip.com.au> wrote:
-
->    "help, help - there's no point in just one guy testing this" (thanks Randy). 
-
-	Will you accept the testing of a gal? ;)
+On Mon, Mar 18, 2002 at 11:11:46AM -0800, Jason Li wrote:
+> Keith Owens wrote:
+> > 
+> > On Sun, 17 Mar 2002 22:25:16 -0800,
+> > Jason Li <jli@extremenetworks.com> wrote:
+> > >int (*fdbIoSwitchHook)(
+> > >                           unsigned long arg0,
+> > >                           unsigned long arg1,
+> > >                           unsigned long arg2)=NULL;
+> > >EXPORT_SYMBOL(fdbIoSwitchHook);
+> > >gcc -D__KERNEL__ -I/home/jli/cvs2/exos/linux/include -Wall
+> > >-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> > >-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> > >-march=i686    -c -o br_ioctl.o br_ioctl.c
+> > >br_ioctl.c:26: warning: type defaults to `int' in declaration of
+> > >`EXPORT_SYMBOL'
+> > 
+> > #include <linux/module.h>
+> > 
+> > Also add br_ioctl.o to export-objs in Makefile.
 > 
-> This is an update of the delayed-allocation and multipage pagecache I/O
-> patches.  I'm calling this a beta, because it all works, and I have
-> other stuff to do for a while.
+> Thanks alot. It works.
 > 
+> Now another problem with versioning. It seems even after I have the
+> following in my module c file the symbol generated is not versioned:
 
-	Here are the dbench throughput results on an 8-way SMP with 2GB memory.
-These are run with 64 then 128 clients 15 times each averaged. It looked 
-pretty good.
-	Running with more than 180 clients caused the system to hang, after 
-a reset there was much filesystem corruption. This happened twice. Probably
-related to filling up disk space. There are no ServerRaid drivers for 2.5 yet 
-so the biggest disks on this system are unusable. lockmeter results are forthcoming (day or two). 
+Backup your .config, run 'distclean' or 'mrproper' and try again.
 
-Running dbench on an 8-way SMP 15 times each.
-
-2.5.6 clean
-
-Clients		Avg
-
-64		37.9821
-128		29.8258
-
-2.5.6 with everything.patch
-
-Clients		Avg
-
-64		41.0204
-128		30.6431
-
-Hanna 
-
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

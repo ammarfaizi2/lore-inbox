@@ -1,58 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbTFXTx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 15:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTFXTx3
+	id S262497AbTFXUFF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 16:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbTFXUFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 15:53:29 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:5266 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262202AbTFXTx1 (ORCPT
+	Tue, 24 Jun 2003 16:05:05 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:33184 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262318AbTFXUFC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 15:53:27 -0400
-Message-Id: <200306242006.h5OK6aRY001853@eeyore.valparaiso.cl>
-To: corbet@lwn.net (Jonathan Corbet)
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/3] Allow arbitrary number of init funcs in modules 
-In-Reply-To: Your message of "Mon, 23 Jun 2003 13:11:41 CST."
-             <20030623191141.31814.qmail@eklektix.com> 
-X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
-Date: Tue, 24 Jun 2003 16:06:36 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 24 Jun 2003 16:05:02 -0400
+Date: Tue, 24 Jun 2003 13:12:28 -0700 (PDT)
+Message-Id: <20030624.131228.78737223.davem@redhat.com>
+To: bunk@fs.tum.de
+Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: [2.5 patch] ULL postfixes for tg3.c
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030624174811.GW3710@fs.tum.de>
+References: <20030624174811.GW3710@fs.tum.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-corbet@lwn.net (Jonathan Corbet) said:
-> --- 2.5.73-rr/kernel/module.c	Tue Jun 24 02:58:32 2003
-> +++ 2.5.73/kernel/module.c	Tue Jun 24 03:00:36 2003
-> @@ -617,9 +617,10 @@
->  {
->  	int i, balance = 0;
->  
-> -	for (i = 0; i < num_pairs; i++)
-> +	for (i = 0; i < num_pairs; i++) {
->  		balance += (pairs->init ? 1 : 0) - (pairs->exit ? 1 : 0);
-> -
-> +		pairs++;
-> +	}
 
-Hummm... as you are essentially counting off pairs, isn't there a way of
-detecting end-of-pairs, i.e. along the line (last points to NULL):
-
-        for(pairs = start_of_pairs; *pairs; pairs++)
-             ....
-
-or just:
-
-        for(i = 0; i < num_pairs; i++)
-	       balance += (pairs[i].init ? 1 : 0) - (pairs[i].exit ? 1 : 0);
-
-(as added bonus doesn't screw up variable pairs' value), or even (same as
-yours above but marginally clearer IMEHO):
-
-        for (i = 0; i < num_pairs; i++, pairs++)
-              .....
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+I'll apply this, the INT64_MAX or whatever ideas are just
+stupid.  We're saying what "bits" the device supports when
+it does DMA, so we should pass in a "bit" mask.

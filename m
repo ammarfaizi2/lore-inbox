@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290664AbSBFQp7>; Wed, 6 Feb 2002 11:45:59 -0500
+	id <S290674AbSBFQrT>; Wed, 6 Feb 2002 11:47:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290665AbSBFQpx>; Wed, 6 Feb 2002 11:45:53 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:52953 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S290664AbSBFQpn>;
-	Wed, 6 Feb 2002 11:45:43 -0500
-Date: Wed, 6 Feb 2002 18:45:32 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Kopp, Jeffery" <Jeffery.Kopp@COMPAQ.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Please add me to the kernel change distribution list
-Message-ID: <20020206184532.C20396@mea-ext.zmailer.org>
-In-Reply-To: <46BC296DF8858447B94D8A4A6CE4A4AE10EFB7@cceexc15.americas.cpqcorp.net>
+	id <S290669AbSBFQrK>; Wed, 6 Feb 2002 11:47:10 -0500
+Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:34310 "EHLO
+	mail.communicationsboard.net") by vger.kernel.org with ESMTP
+	id <S290665AbSBFQrA>; Wed, 6 Feb 2002 11:47:00 -0500
+Subject: Toshiba CD-RW/DVD doesn't work after Suspend/Resume
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 06 Feb 2002 11:46:51 -0500
+Message-Id: <1013014015.1396.66.camel@iso-2146-l1.zeusinc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <46BC296DF8858447B94D8A4A6CE4A4AE10EFB7@cceexc15.americas.cpqcorp.net>; from Jeffery.Kopp@COMPAQ.com on Wed, Feb 06, 2002 at 10:29:53AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 06, 2002 at 10:29:53AM -0600, Kopp, Jeffery wrote:
-> Subject: Please add me to the kernel change distribution list 
-> Date:	Wed, 6 Feb 2002 10:29:53 -0600
-> From:	"Kopp, Jeffery" <Jeffery.Kopp@COMPAQ.com>
-> To:	<linux-kernel@vger.kernel.org>
+Hi all,
 
-  Can't.  COMPAQ is one of those companies which have covered their
-incoming email systems with firewalls rejecting connections with IP-
-header option bits that were "reserved, set to zero when sending" for
-first about 20 years, but which now got other specification.
-(The firewall makers made an error and tought it to mean: "reserved,
- must forever be zero".)
+I have been struggling trying to get my Dell C810 to suspend/resume
+properly with APM.  I have almost everything working except for one very
+annoying problem that I'm hoping someone might help me with.  
 
-See:   http://vger.kernel.org/   for pointers to info.
+The machine has a built-in Toshiba CD-RW/DVD drive and after a
+suspend/resume cycle the first access to the drive will lock the machine
+solid.  The hard disk access light stays on solid and I can't get
+anything to respond.  I don't get an oops, I get no response from sysrq,
+my only options is to power down.
 
-You can initiate a connection towards vger, but vger can't initiate
-a connection towards you!
+I originally thought this problem may be caused by the use of the
+ide-scsi module so I disabled that, however the problem remains.  An
+interesting note, if I build support for the cdrom as a module, and
+unload the module before suspending, I can then reload the module after
+a resume and everything seems fine.
 
-I repeat:  At present you CAN NOT receive email from vger.kernel.org.
+I've tried many various kernels from the Redhat supplied 2.4.7 and 2.4.9
+series through many iterations of 2.4.16-18 pre, ac, aa, etc and I can
+reproduce this problem 100% of the time on all of them.  I've never seen
+this on my other laptops so I'm somewhat suspicious of a BIOS bug,
+however, I'm not sure why unloading and reloading the driver would make
+a difference here.
+
+I'm looking for any sugestions or similar experiences.  Thanks in
+advanced for any help on this issue.
+
+Later,
+Tom
 
 
-/Matti Aarnio
+

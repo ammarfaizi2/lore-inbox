@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282967AbRLDJX0>; Tue, 4 Dec 2001 04:23:26 -0500
+	id <S283002AbRLDJYy>; Tue, 4 Dec 2001 04:24:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282961AbRLDJXT>; Tue, 4 Dec 2001 04:23:19 -0500
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:42155 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S282960AbRLDJWw>; Tue, 4 Dec 2001 04:22:52 -0500
-Date: Tue, 4 Dec 2001 09:22:51 +0000 (GMT)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: <nbecker@fred.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: nfs: task can't get a request slot
-In-Reply-To: <x88u1v8jt40.fsf@rpppc1.hns.com>
-Message-ID: <Pine.LNX.4.33.0112040921170.2274-100000@nick.dcs.qmul.ac.uk>
-X-URL: http://www.theBachChoir.org.uk/
+	id <S282961AbRLDJXi>; Tue, 4 Dec 2001 04:23:38 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:1762 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S282960AbRLDJXd>;
+	Tue, 4 Dec 2001 04:23:33 -0500
+Message-ID: <3C0C9590.6060301@stesmi.com>
+Date: Tue, 04 Dec 2001 10:21:20 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Larry McVoy <lm@bitmover.com>
+CC: Stephan von Krawczynski <skraw@ithnet.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+In-Reply-To: <20011202122940.B2622@work.bitmover.com> <200112022252.XAA19497@webserver.ithnet.com> <20011202155440.F2622@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have a look at adglinux1 and see if its NFS server is still alive.
-Your hung processes should "unhang" when rpppc1 can see the server again.
+Larry McVoy wrote:
 
-On Dec 3 nbecker@fred.net wrote:
+>>Please Larry, have a look at the environment: nobody here owns a box  
+>>with 128 CPUs. Most of the people here take care of things they either
+>>- own themselves                                                      
+>>- have their hands own at work                                        
+>>- get paid for                                                        
+>>                                                                      
+>>You will not find _any_ match with 128 CPUs here.                     
+>>
+> 
+> Nor will you find any match with 4 or 8 CPU systems, except in very rare
+> cases.  Yet changes go into the system for 8 way and 16 way performance.
+> That's a mistake.
+> 
+> I'd be ecstatic if the hackers limited themselves to what was commonly 
+> available, that is essentially what I'm arguing for.  
 
-[snip]
->What does this mean?
->
->Dec  3 08:53:54 rpppc1 kernel: nfs: server adglinux1 not responding, still trying
->Dec  3 08:53:54 rpppc1 kernel: nfs: server adglinux1 not responding, still trying
->Dec  3 08:55:09 rpppc1 rpc.mountd: authenticated mount request from 139.85.108.152:890 for /disk1/nbecker (/disk1)
->Dec  3 08:55:43 rpppc1 kernel: nfs: task 3408 can't get a request slot
->Dec  3 08:55:43 rpppc1 kernel: nfs: task 3409 can't get a request slot
-[snip]
+"There are only black cars, we don't make any other color. Noone has 
+ordered a car with a different color cause we don't accept those orders. 
+And since noone orders why add colors? Unnecessary cruft."
+
+In essence, People don't run big boxes due to scalability issues, fixing 
+those might get someone to install a 16-Way.
+
+They sure as hell aren't gonna buy one and then wait around 3 years for 
+Linux to support it.
+
+// Stefan
+
 

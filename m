@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262328AbREUB6g>; Sun, 20 May 2001 21:58:36 -0400
+	id <S262324AbREUB64>; Sun, 20 May 2001 21:58:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262325AbREUB6Q>; Sun, 20 May 2001 21:58:16 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:64987 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S262324AbREUB6N>; Sun, 20 May 2001 21:58:13 -0400
-Message-ID: <3B087525.3C498E9A@uow.edu.au>
-Date: Mon, 21 May 2001 11:53:41 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-ac9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: jacob@chaos2.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 del_timer_sync oops in schedule_timeout
-In-Reply-To: <Pine.LNX.4.21.0105191417490.2956-100000@inbetween.blorf.net> <Pine.LNX.4.33.0105201945370.31113-100000@localhost.localdomain>
+	id <S262330AbREUB6q>; Sun, 20 May 2001 21:58:46 -0400
+Received: from marine.sonic.net ([208.201.224.37]:5492 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S262324AbREUB63>;
+	Sun, 20 May 2001 21:58:29 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Sun, 20 May 2001 18:58:27 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+Message-ID: <20010520185827.B16356@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <d31ypj1r4y.fsf@lxplus015.cern.ch>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> On Sat, 19 May 2001, Jacob Luna Lundberg wrote:
-> 
-> > This is 2.4.4 with the aic7xxx driver version 6.1.13 dropped in.
-> 
-> > Unable to handle kernel paging request at virtual address 78626970
-> 
-> this appears to be some sort of DMA-corruption or other memory scribble
-> problem. hexa 78626970 is ASCII "pibx", which shows in the direction of
-> some sort of disk-related DMA corruption.
+On Mon, May 21, 2001 at 02:29:17AM +0200, Jes Sorensen wrote:
+> distributions). 18 months is more realistic for it to be deployed
+> widely enough.
 
-It could be timer-list corruption.  Someone released some memory
-which had a live timer in it.  The memory got recycled and then
-the timer list traversal fell over it.
+People who are going to be savvy enough to install a development 2.5.*
+kernel that is defining a new configuration utility are going to be savvy
+enough to install python.
 
-There was a convincing report of this a few weeks back on a
-system which didn't have any unusual drivers in it.  It was
-inconclusive.  That system was SMP, so it could have been a
-timer deletion race.
-
-This bug is so damn hard to track down that it may be worth
-putting some special walk-the-timer-lists code inside
-kfree()+SLAB_POISON.
-
--
+mrc
+-- 
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen

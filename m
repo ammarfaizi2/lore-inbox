@@ -1,88 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292385AbSCFAvo>; Tue, 5 Mar 2002 19:51:44 -0500
+	id <S292583AbSCFAyY>; Tue, 5 Mar 2002 19:54:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292576AbSCFAve>; Tue, 5 Mar 2002 19:51:34 -0500
-Received: from bitmover.com ([192.132.92.2]:48606 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S292385AbSCFAvb>;
-	Tue, 5 Mar 2002 19:51:31 -0500
-Date: Tue, 5 Mar 2002 16:51:23 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Troy Benjegerdes <hozer@drgw.net>
-Cc: The Open Source Club at The Ohio State University 
-	<opensource-admin@cis.ohio-state.edu>,
-        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020305165123.V12235@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Troy Benjegerdes <hozer@drgw.net>,
-	The Open Source Club at The Ohio State University <opensource-admin@cis.ohio-state.edu>,
-	linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305163809.D1682@altus.drgw.net>
-Mime-Version: 1.0
+	id <S292593AbSCFAyP>; Tue, 5 Mar 2002 19:54:15 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30731 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292583AbSCFAyA>; Tue, 5 Mar 2002 19:54:00 -0500
+Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the tree
+To: davidsen@tmr.com (Bill Davidsen)
+Date: Wed, 6 Mar 2002 01:05:55 +0000 (GMT)
+Cc: dart@windeath.2y.net (dart), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1020305162547.28458B-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Mar 05, 2002 04:49:04 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020305163809.D1682@altus.drgw.net>; from hozer@drgw.net on Tue, Mar 05, 2002 at 04:38:09PM -0600
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16iPsR-00052J-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 04:38:09PM -0600, Troy Benjegerdes wrote:
-> First, CVS is COMPLETELY inadequate for the kind of distributed, 
-> non-centralized development that goes on for the kernel.
-> 
-> Bitkeeper solves some rather difficult problems that *NOTHING ELSE SOLVES* 
-> right now. This is why I've continued to use it for the last 2 years, even 
-> though I occasionally get annoyed that it's not free software.
-> 
-> Your efforts on this petition would be FAR better spent (and appreciated) 
-> by attempting to mirror several BK kernel trees with Arch or Subversion. 
-> You will soon find out the limitations of both, and maybe even improve 
-> both projects to the point that they will be useable instead of bitkeeper.
-> 
-> Instead of whining about developers using BK, go out and give us an
-> alternative. Maybe then we will listen.
+>   I won't bring it up again, I'd love to think Rik, Alan and Ingo will
+> keep working on performance patches for 2.4, but I wouldn't bet on it.
 
-This is great, I was about to type in what Troy said.  I had the same
-reaction, if CVS/Subversion/Arch were good enough, BitKeeper wouldn't
-exist.  The BitKeeper team is about 75% kernel hackers, not SCM people.
-If CVS had been good enough, we would all be doing Linux clusters of
-some sort, something we hope to get back some day in the distant future.
+I certainly will work on collating them - over time it will get less and
+less of a win. A lot of the now very visible ones are really hard to fix in 2.4 
+and will be 2.5 things (like block). And when you fix block you'll find the
+next one and so on forever
 
-Troy is right, instead of writing petitions, spend your time by providing
-people with options.  Do what he said, mirror the tree into CVS/etc
-and you will very quickly learn why CVS/etc have serious problems.
-By learning about those problems, you'll either develop some insight
-which will aid you in making CVS/etc better, and you'll develop a healthy
-respect for what BitKeeper can do.
+> done in -pre2, might be worth a try. I'm going to build pre2-ac2 and mjc
+> for some laptop benchmarks, I'll turn on ZIP support and try my old unit
+> (the original protocol). I'll try to report back on that in the next day
+> or so.
 
-As for the replacements mentioned, Subversion in particular, the SVN team
-admitted before they started that SVN would certainly not be able to do
-what BK can do anytime soon, in fact, they admitted it was unlikely to
-ever do so.  The reason for that is that they started with a centralized
-design and when you try and distribute that, you learn about the zillions
-of places where you needed to make a different choice.  It's virtually
-impossible to take a centralized SCM system and make it truly distributed
-(a TCP connection back to the one CVS server is *not* distributed).
-
-While you are thinking about replacements, it might help to know the
-magnitude of what you are discussing.  BitKeeper is a non-trivial project,
-it has:
-	* close to 200 commands, with about 800 different options.
-	* 25,000 lines of regressions, running the full suite wraps
-	  16 bit process ids almost twice.
-	* more source code written by the BitMover team than all of
-	  Version 7 Unix, kernel and userland combined.
-	* a dedicated team of full time professional programmers.
-
-More than a year ago, we had some research done to see what it would cost
-to reproduce BitKeeper from scratch.  At that point, it was estimated
-to be about $12,000,000 and at least 3.5 years from the time a good
-team started.
-
-Anyone and everyone is welcome to try and build a better SCM system, just
-don't be naive about what it is you are trying to do.  It's a constant
-source of frustration and amusement that people think this space is easy.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Im running both 2.4.18/19pre2 on laptops. PLIP still doesnt work but at
+least I think I now understand why. If you want to hack on plip ping
+Tim Waugh <twaugh@redhat.com> he's definitely as far from the Al Viro end
+of polite computing as you can get and can probably tell you what bits you
+need to tweak

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbUAMBbW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 20:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUAMBbW
+	id S263015AbUAMBmj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 20:42:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUAMBmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 20:31:22 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:42254 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S262827AbUAMBbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 20:31:21 -0500
-Date: Tue, 13 Jan 2004 09:30:06 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: <raven@wombat.indigo.net.au>
-To: Tim Hockin <thockin@hockin.org>
-cc: Mike Waychison <Michael.Waychison@Sun.COM>,
-       Jim Carter <jimc@math.ucla.edu>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-In-Reply-To: <20040112225023.GA21399@hockin.org>
-Message-ID: <Pine.LNX.4.33.0401130928480.10047-100000@wombat.indigo.net.au>
+	Mon, 12 Jan 2004 20:42:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47307 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263015AbUAMBmi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 20:42:38 -0500
+Date: Mon, 12 Jan 2004 17:16:06 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Bart Oldeman <bartoldeman@users.sourceforge.net>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] 2.6.1 (not 2.4.24!) mremap fixes broke shm alias mappings
+In-Reply-To: <Pine.LNX.4.44.0401130119490.21515-100000@enm-bo-lt.enm.bris.ac.uk>
+Message-ID: <Pine.LNX.4.58.0401121714370.14305@evo.osdl.org>
+References: <Pine.LNX.4.44.0401130119490.21515-100000@enm-bo-lt.enm.bris.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-5.5, required 8, AWL,
-	BAYES_10, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jan 2004, Tim Hockin wrote:
-
-> On Mon, Jan 12, 2004 at 11:26:30AM -0500, Mike Waychison wrote:
-> > /usr   /man1   server:/usr/man1   \
-> >          /man2   server:/usr/man2
-> >
-> > is the same as the two distinct entries:
-> >
-> > /usr/man1   server:/usr/man1
-> > /usr/man2   server:/usr/man2
-> >
-> > Now that I think about it, the discussion in my proposal paper about
-> > multimounts with no root offsets probably isn't required.
->
-> The latter requires /usr/man1 and /usr/man2 to exist.  The former only
-> requires /usr to exist, right?
->
-
-That's one possibility, but man1 and man2 could simply not call filler in
-the readdir call.
-
-Ian
 
 
+On Tue, 13 Jan 2004, Bart Oldeman wrote:
+> 
+> We've already been discussing and playing with a cleaner alternative to
+> mremap that works too (mmap'ing a file on tmpfs, perhaps via
+> shm_open()). It's just that it's difficult to explain to users why DOSEMU
+> worked on 2.6.0 and suddenly stopped working with the same configuration
+> on 2.6.1.
+
+Oh, please keep on using the mremap(ptr, 0, s) thing to create aliases.  
+There's nothing really wrong with it, and as long as we just document it
+in the sources, it shouldn't break again.
+
+> -- the consensus amongst DOSEMU developers seems to be that you should
+> feel free to disallow this funny old_len==0 case in 2.7 if you like.
+
+It's potentially useful, and if we'll have a backwards compatibility issue 
+anyway, there's no reason to remove it.
+
+		Linus

@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbULWJHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbULWJM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbULWJHY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 04:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbULWJHX
+	id S261185AbULWJM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 04:12:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbULWJM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 04:07:23 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:36296 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261182AbULWJHM (ORCPT
+	Thu, 23 Dec 2004 04:12:58 -0500
+Received: from holomorphy.com ([207.189.100.168]:43445 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261185AbULWJM4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 04:07:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=MLs8JRnKTNyysgZyr0e5xtBjOxASwYzg6HqBfQbVEOFMAaWfKVKcHZ4owVDVmzM7aOqL8NjHVHdWTUdcpA8QyENFU3AaJpKhe9o6xiNpXk3+HOsRPQdVbmkx5HzDcRCHeHLN43cnHwHQfIkulEnx2vDQ8UFUkxbzshOoNPUA7fc=
-Message-ID: <ace3f33d041223010752c3ed23@mail.gmail.com>
-Date: Thu, 23 Dec 2004 14:37:10 +0530
-From: srinivas naga vutukuri <srinivas.vutukuri@gmail.com>
-Reply-To: srinivas naga vutukuri <srinivas.vutukuri@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux Wireless Sensor LAN Project.
+	Thu, 23 Dec 2004 04:12:56 -0500
+Date: Thu, 23 Dec 2004 01:12:43 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x BUGs at boot time (APIC related)
+Message-ID: <20041223091243.GA771@holomorphy.com>
+References: <200412221731.20105.vda@port.imtp.ilyichevsk.odessa.ua> <200412231102.10171.vda@port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200412231102.10171.vda@port.imtp.ilyichevsk.odessa.ua>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduction:
-This is a try to make Linux host be able to act as a member of
-802.15.4 wireless sensor network as a full functional device.
+On Wednesday 22 December 2004 17:31, Denis Vlasenko wrote:
+>>         if (!apic_id_registered())
+>>                 BUG();   <=========================
 
-HomePage:
-http://linux-802-15-4.sourceforge.net
+On Thu, Dec 23, 2004 at 11:02:09AM +0000, Denis Vlasenko wrote:
+> Tested with noapic nolapic boot params. Still happens.
+> Call chain is init() -> APIC_init_uniprocessor() ->
+> ->  setup_local_APIC(). I am a bit suspicious why
+> APIC_init_uniprocessor() does not bail out
+> if enable_local_apic<0 (i.e. if I boot with "nolapic"):
+> int __init APIC_init_uniprocessor (void)
+> {
+>         if (enable_local_apic < 0)
+>                 clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
+> 		<===== missing "return -1"?
+> 
+>         if (!smp_found_config && !cpu_has_apic)
+>                 return -1;
+> ...
 
-Interested people can put ideas.
+Sounds pretty serious. What happens if you add the missing return -1?
 
-Regards,
-srinivas.
+-- wli

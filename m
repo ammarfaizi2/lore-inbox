@@ -1,127 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbTGAAZs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 20:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265251AbTGAAZs
+	id S265407AbTGAA05 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 20:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265323AbTGAA05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 20:25:48 -0400
-Received: from holomorphy.com ([66.224.33.161]:51114 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265060AbTGAAZp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 20:25:45 -0400
-Date: Mon, 30 Jun 2003 17:39:58 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.73-mm2
-Message-ID: <20030701003958.GB20413@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030627202130.066c183b.akpm@digeo.com>
+	Mon, 30 Jun 2003 20:26:57 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:54730 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265407AbTGAA0t (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 20:26:49 -0400
+Message-Id: <200307010041.h610f6jn016310@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.73-mm2 - odd audio problem, bad intel8x0/ac97 clocking. 
+In-Reply-To: Your message of "Mon, 30 Jun 2003 17:25:48 PDT."
+             <1057019147.28319.367.camel@w-jstultz2.beaverton.ibm.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200306282131.h5SLVjGk001833@turing-police.cc.vt.edu>
+            <1057019147.28319.367.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030627202130.066c183b.akpm@digeo.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_-343649577P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 30 Jun 2003 20:41:06 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 27, 2003 at 08:21:30PM -0700, Andrew Morton wrote:
-> Just bits and pieces.
+--==_Exmh_-343649577P
+Content-Type: text/plain; charset=us-ascii
 
-It was suggested during my last round of OOM killer fixes that one of
-my patches, which just checked nr_free_buffer_pages() > 0, should also
-consider userspace (i.e. reclaimable at will) memory free.
+On Mon, 30 Jun 2003 17:25:48 PDT, john stultz said:
+> On Sat, 2003-06-28 at 14:31, Valdis.Kletnieks@vt.edu wrote:
+> > 2.5.73-mm1 is fine.
+> > 
+> > This is *not* the "clock runs really really fas"t issue - I left -mm2 runni
+ng overnight and
+> > in some 8 hours the system clock only drifted a few seconds versus wall clo
+ck (and it's
+> > possible it was off a few seconds when it booted, as it didn't get an NTP s
+ync at boot).
+> > 
+> > Audio plays "too fast" - a 4 minute .ogg goes through in about 3:40, soundi
+ng a bit
+> > high-pitched in the process.
+> 
+> > Any ideas?
+> 
+> Hrmmm. Are you seeing something like:
+> 
+> Loosing too many ticks!
+> TSC cannot be used as a timesource. (Are you running with SpeedStep?)
+> Falling back to a sane timesource.
 
-This patch implements that suggestion. Lightly tested, and expected to
-fall within the "relatively trivial" category.
+Nope, it's a pretty clear bug in the Speedstep code leaving loops_per_jiffies bogus.
 
-We're still not out of hot water here yet, since the minimum thresholds
-will still send all processes into perpetual torpor under persistent
-low memory conditions while fooling the OOM heuristics. But this is at
-least better than complete ignorance of ZONE_NORMAL exhaustion.
+I posted a follow-up note explaining in more detail...
 
+--==_Exmh_-343649577P
+Content-Type: application/pgp-signature
 
--- wli
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE/ANihcC3lWbTT17ARAllIAJ0TOe77YE0f6dSOxfY+2EnqBGQYgwCfSSDl
+8BD2V2JElj0q/BaCajgJE2A=
+=uCS2
+-----END PGP SIGNATURE-----
 
-diff -prauN wli-2.5.73-31/include/linux/mm.h wli-2.5.73-32/include/linux/mm.h
---- wli-2.5.73-31/include/linux/mm.h	2003-06-29 01:39:42.000000000 -0700
-+++ wli-2.5.73-32/include/linux/mm.h	2003-06-30 16:42:28.000000000 -0700
-@@ -605,7 +605,8 @@ static inline struct vm_area_struct * fi
- 
- extern struct vm_area_struct *find_extend_vma(struct mm_struct *mm, unsigned long addr);
- 
--extern unsigned int nr_used_zone_pages(void);
-+unsigned int nr_used_low_pages(void);
-+unsigned int nr_used_zone_pages(void);
- 
- extern struct page * vmalloc_to_page(void *addr);
- extern struct page * follow_page(struct mm_struct *mm, unsigned long address,
-diff -prauN wli-2.5.73-31/mm/oom_kill.c wli-2.5.73-32/mm/oom_kill.c
---- wli-2.5.73-31/mm/oom_kill.c	2003-06-22 11:32:55.000000000 -0700
-+++ wli-2.5.73-32/mm/oom_kill.c	2003-06-30 16:46:49.000000000 -0700
-@@ -217,9 +217,9 @@ void out_of_memory(void)
- 	unsigned long now, since;
- 
- 	/*
--	 * Enough swap space left?  Not OOM.
-+	 * Enough swap space and ZONE_NORMAL left?  Not OOM.
- 	 */
--	if (nr_swap_pages > 0)
-+	if (nr_swap_pages > 0 && nr_free_buffer_pages() + nr_used_low_pages() > 0)
- 		return;
- 
- 	spin_lock(&oom_lock);
-diff -prauN wli-2.5.73-31/mm/page_alloc.c wli-2.5.73-32/mm/page_alloc.c
---- wli-2.5.73-31/mm/page_alloc.c	2003-06-23 10:53:46.000000000 -0700
-+++ wli-2.5.73-32/mm/page_alloc.c	2003-06-30 17:06:20.000000000 -0700
-@@ -738,17 +738,6 @@ unsigned int nr_free_pages(void)
- }
- EXPORT_SYMBOL(nr_free_pages);
- 
--unsigned int nr_used_zone_pages(void)
--{
--	unsigned int pages = 0;
--	struct zone *zone;
--
--	for_each_zone(zone)
--		pages += zone->nr_active + zone->nr_inactive;
--
--	return pages;
--}
--
- #ifdef CONFIG_NUMA
- unsigned int nr_free_pages_pgdat(pg_data_t *pgdat)
- {
-@@ -782,6 +771,28 @@ static unsigned int nr_free_zone_pages(i
- 	return sum;
- }
- 
-+static unsigned int __nr_used_zone_pages(int offset)
-+{
-+	struct zone *zone;
-+	unsigned int sum = 0;
-+
-+	for_each_zone(zone)
-+		if (zone - zone->zone_pgdat->node_zones <= offset)
-+			sum += zone->nr_active + zone->nr_inactive;
-+
-+	return sum;
-+}
-+
-+unsigned int nr_used_zone_pages(void)
-+{
-+	return __nr_used_zone_pages(GFP_HIGHUSER & GFP_ZONEMASK);
-+}
-+
-+unsigned int nr_used_low_pages(void)
-+{
-+	return __nr_used_zone_pages(GFP_USER & GFP_ZONEMASK);
-+}
-+
- /*
-  * Amount of free RAM allocatable within ZONE_DMA and ZONE_NORMAL
-  */
+--==_Exmh_-343649577P--

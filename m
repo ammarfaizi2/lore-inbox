@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129116AbRDBNBn>; Mon, 2 Apr 2001 09:01:43 -0400
+	id <S129156AbRDBNEd>; Mon, 2 Apr 2001 09:04:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129166AbRDBNBd>; Mon, 2 Apr 2001 09:01:33 -0400
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:48220 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129116AbRDBNBV>; Mon, 2 Apr 2001 09:01:21 -0400
-Date: Mon, 2 Apr 2001 09:00:25 -0400
-From: Jakub Jelinek <jakub@redhat.com>
+	id <S129166AbRDBNEN>; Mon, 2 Apr 2001 09:04:13 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:60432 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S129156AbRDBNEM>; Mon, 2 Apr 2001 09:04:12 -0400
+Date: Mon, 2 Apr 2001 10:02:31 -0300
+From: Gustavo Niemeyer <niemeyer@conectiva.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: pthreads & fork & execve
-Message-ID: <20010402090025.X1169@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <01033016225700.00409@dennis> <Pine.LNX.4.21.0104021338320.8447-100000@bellatrix.tat.physik.uni-tuebingen.de> <20010402095425.A15554@tux.distro.conectiva>
+Subject: Re: can not compile 2.4.3 on alpha
+Message-ID: <20010402100230.B15554@tux.distro.conectiva>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3AC86511.F3123F6C@lmt.lv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010402095425.A15554@tux.distro.conectiva>; from niemeyer@conectiva.com on Mon, Apr 02, 2001 at 09:54:25AM -0300
+User-Agent: Mutt/1.3.14i
+In-Reply-To: <3AC86511.F3123F6C@lmt.lv>; from andrejs@lmt.lv on Mon, Apr 02, 2001 at 02:40:01PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 02, 2001 at 09:54:25AM -0300, Gustavo Niemeyer wrote:
-> Hi Richard! Hi Dennis!
-> 
-> > I tracked this down to a corrupt jumptable somewhere in the pthreads
-> > part of the libc (didnt have the source handy at that time, though). So
-> > I think this is a libc bug (version does not matter) - I even did a
-> > followup to a similar bug in the libc gnats database (I think I should
-> > have opened a new one, though...). But I failed to construct a "simple"
-> > testcase showing the bug (We use rather large amount of threads and
-> > in one or two doing popen() calls - or handcrafted fork() && execv(),
-> > the SIGSEGV is during fork()).
-> 
-> We're going trough two similar problems here. One is KDE, and the other
-> is Linuxconf. Linuxconf is core dumping on a module when it is linked
-> with pthread and dlopen()'ed with RTLD_GLOBAL. We must reduce one of
-> them to a testcase.
+Hello Andrejs!!
 
-By any chance, are you dlopening a DSO linked against -lpthread from
-program not linked against -lpthread?
+> [linux] make dep;make clean;make boot
+[...]
+> /usr/src/linux-2.4.3/include/asm/pgalloc.h:334: conflicting types for
+> `pte_alloc'
+> /usr/src/linux-2.4.3/include/linux/mm.h:399: previous declaration of
+> `pte_alloc'
+> /usr/src/linux-2.4.3/include/asm/pgalloc.h:352: conflicting types for
+> `pmd_alloc'
+> /usr/src/linux-2.4.3/include/linux/mm.h:412: previous declaration of
+> `pmd_alloc'
+> make: *** [init/main.o] Error 1
+[...]
 
-	Jakub
+This is happening on ia64 as well. The interface seems to have changed
+but some architectures were forgotten.
+
+-- 
+Gustavo Niemeyer
+
+[ 2AAC 7928 0FBF 0299 5EB5  60E2 2253 B29A 6664 3A0C ]

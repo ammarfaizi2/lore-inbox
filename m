@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130462AbRCJO0t>; Sat, 10 Mar 2001 09:26:49 -0500
+	id <S131017AbRCJPZY>; Sat, 10 Mar 2001 10:25:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130467AbRCJO0j>; Sat, 10 Mar 2001 09:26:39 -0500
-Received: from ddsl.net ([202.9.145.10]:14599 "EHLO eth.net")
-	by vger.kernel.org with ESMTP id <S130462AbRCJO0U> convert rfc822-to-8bit;
-	Sat, 10 Mar 2001 09:26:20 -0500
-Message-ID: <001401c0a970$ec3c9b00$1d9509ca@pentiumiii>
-From: "Srinath Ravinathan" <sriguhan@eth.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.4.1 on RHL 6.2
-Date: Sat, 10 Mar 2001 20:16:34 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="x-user-defined"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131018AbRCJPZN>; Sat, 10 Mar 2001 10:25:13 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1796 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131017AbRCJPZJ>;
+	Sat, 10 Mar 2001 10:25:09 -0500
+Message-ID: <20010309124609.B449@bug.ucw.cz>
+Date: Fri, 9 Mar 2001 12:46:09 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Brian Dushaw <dushaw@munk.apl.washington.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel - and regular sync'ing?
+In-Reply-To: <Pine.LNX.4.30.0103071959050.17257-100000@munk.apl.washington.edu> <E14azEv-0002qR-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <E14azEv-0002qR-00@the-village.bc.nu>; from Alan Cox on Thu, Mar 08, 2001 at 12:09:51PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    I'm trying to compile kernel 2.4.1 on RedHat 6.2 (zoot). After the make xconfig and make dep when I give make bzlilo I get the following error message
+Hi!
 
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o 
-scripts/split-include
-scripts/split-include.c
-In file included from /usr/include/errno.h:36,
-                 from scripts/split-include.c:26:
-/usr/include/bits/errno.h:25: linux/errno.h: No such file or directory
-make: *** [scripts/split-include] Error 1
+> > at irregular intervals of 10-30 seconds, most likely calls to sync, so
+> > that the disk never gets to sleep for long.  I've followed advice in the
+> > various HOWTO's, e.g. modifying the line "ud::once:/sbin/update" in
+> > /etc/inittab to only sync once an hour, to no avail.  Watching "top", it
+> 
+> Thats actually I think poor advice - it wont help and its asking to
+> lose data
 
-What should I do?
-Yours ,
-Srinath.R
-
-
+Get noflushd. (It is _also_ asking for data loose, if you write and
+disk is spinned down, it will *not* bother spinning it up; you can
+leave atimes on.)
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

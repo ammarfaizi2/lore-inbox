@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262660AbRFMJfh>; Wed, 13 Jun 2001 05:35:37 -0400
+	id <S262681AbRFMJkr>; Wed, 13 Jun 2001 05:40:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262681AbRFMJfb>; Wed, 13 Jun 2001 05:35:31 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:9476 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262660AbRFMJeo>;
-	Wed, 13 Jun 2001 05:34:44 -0400
-Message-ID: <20010613001019.A23173@bug.ucw.cz>
-Date: Wed, 13 Jun 2001 00:10:19 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: =?iso-8859-1?Q?Mich=E8l_Alexandre_Salim?= <salimma1@yahoo.co.uk>,
-        Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Clock drift on Transmeta Crusoe
-In-Reply-To: <20010611223357.A959@bug.ucw.cz> <20010612210048.20746.qmail@web3505.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: =?iso-8859-1?Q?=3C20010612210048=2E20746=2Eqmail=40web3505=2Email=2Eyaho?=
- =?iso-8859-1?Q?o=2Ecom=3E=3B_from_Mich=E8l_Alexandre_Salim_on_Tue=2C_Jun?=
- =?iso-8859-1?Q?_12=2C_2001_at_10:00:48PM_+0100?=
+	id <S262706AbRFMJkh>; Wed, 13 Jun 2001 05:40:37 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:23309 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S262681AbRFMJk0>;
+	Wed, 13 Jun 2001 05:40:26 -0400
+Date: Wed, 13 Jun 2001 11:40:17 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Ben Greear <greearb@candelatech.com>
+cc: <landley@webofficenow.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Hour long timeout to ssh/telnet/ftp to down host?
+In-Reply-To: <3B26CD5B.47002360@candelatech.com>
+Message-ID: <Pine.LNX.4.33.0106131138390.22415-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Let me guess: vesafb?
-> I am running vesafb, yes...
-> 
-> > If problem goes away when you stop using framebuffer
-> > (i.e. go X), then
-> > it is known. 
-> but the problem happens in X as well :)
 
-So that's different problem.
+On Tue, 12 Jun 2001, Ben Greear wrote:
 
-> > You are lucky. My machine is able to loose 2 minutes
-> > from every 3
-> > minutes.
-> 
-> Indeed :) Thanks, it seems like mine is just a normal
-> drift.
+> Rob Landley wrote:
+> >
+> > I have scripts that ssh into large numbers of boxes, which are sometimes
+> > down.  The timeout for figuring out the box is down is over an hour.  This is
+> > just insane.
+> >
+> > Telnet and ftp behave similarly, or at least tthey lasted the 5 minutes I was
+> > willing to wait, anyway.  Basically anything that calls connect().  If the
+> > box doesn't respond in 15 seconds, I want to give up.
+> >
+> > Is this a problem with the kernel or with glibc?  If it's the kernel, I'd
+> > expect a /proc entry where I can set this, but I can't seem to find one.  Is
+> > there one?  What would be involved in writing one?
+> >
+>
+> You can tune things by setting the tcp-timeout probably..I don't
+> know exactly where to set this..
 
-My 2-minutes-from-3-lost problem is caused by heavy scrolling in
-vesafb. It is known console bug. X can not cause that!
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+/proc/sys/net/ipv4/tcp_fin_timeout
+
+default is 60.
+
+

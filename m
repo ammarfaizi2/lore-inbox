@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289272AbSBXCyn>; Sat, 23 Feb 2002 21:54:43 -0500
+	id <S289255AbSBXC4E>; Sat, 23 Feb 2002 21:56:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289255AbSBXCyX>; Sat, 23 Feb 2002 21:54:23 -0500
-Received: from cs24344-28.austin.rr.com ([24.243.44.28]:57351 "EHLO
-	explorer.dummynet") by vger.kernel.org with ESMTP
-	id <S289239AbSBXCyP>; Sat, 23 Feb 2002 21:54:15 -0500
-Date: Sat, 23 Feb 2002 20:54:11 -0600
-From: Dan Hopper <ku4nf@austin.rr.com>
-To: Greg KH <greg@kroah.com>
-Cc: Patrick Mochel <mochel@osdl.org>,
-        Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
-        lkml <linux-kernel@vger.kernel.org>,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.5.5-pre1 rmmod usb-uhci hangs
-Message-ID: <20020224025411.GA2418@yoda.dummynet>
-Mail-Followup-To: Dan Hopper <ku4nf@austin.rr.com>,
-	Greg KH <greg@kroah.com>, Patrick Mochel <mochel@osdl.org>,
-	Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
-	lkml <linux-kernel@vger.kernel.org>,
-	linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <fa.n7cofbv.1him3j@ifi.uio.no> <fa.dsb79pv.on84ii@ifi.uio.no>
+	id <S289278AbSBXCz6>; Sat, 23 Feb 2002 21:55:58 -0500
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:17283 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S289255AbSBXCzp>; Sat, 23 Feb 2002 21:55:45 -0500
+Date: Sat, 23 Feb 2002 18:55:29 -0800
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] C exceptions in kernel
+Message-ID: <20020224025529.GA4585@gnuppy.monkey.org>
+In-Reply-To: <20020223235051.GA2412@gnuppy.monkey.org> <Pine.LNX.4.44.0202231708080.1035-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <fa.dsb79pv.on84ii@ifi.uio.no>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <Pine.LNX.4.44.0202231708080.1035-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.3.27i
+From: Bill Huey <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> remarked:
-> 
-> On Fri, Feb 15, 2002 at 10:22:05AM -0800, Patrick Mochel wrote:
-> > 
-> > On Fri, 15 Feb 2002, Patrick Mochel wrote:
-> > 
-> > > 
-> > > > no, it doesn't solve the problem. i would like to test it whith 
-> > > > preemtible kernel not set but it doesn't boot.
-> > > 
-> > > While Greg's patch did fix part of the problem, the rest of it was on my 
-> > > end. Could you try this patch, and see if helps?
-> > 
-> > Actually, the patch that I sent is against my current tree, which includes 
-> > some changes that I've already pushed to Linus. If you're using BK, you 
-> > should be able to pull his current tree (if you're into that kinda thing). 
-> > Or, wait until -pre2. Sorry about that.
-> 
-> Your current tree, + this patch, + my patch solves all of the unloading,
-> removing, and loading problems that I had been seeing.
-> 
-> Thanks for finding this.
+On Sat, Feb 23, 2002 at 05:31:33PM -0800, Davide Libenzi wrote:
+> You can't do that w/out an integrated resource allocation/deallocation
+> system. This because real code ends up by allocating resources ( or doing
+> whatever operation that needs an undo ) during its path and if you do not
+> have an automatic resource deallocation you're going to leak resources
+> more than Harleys engine oil. So w/out such system you've to catch
+> exceptions at every level where you actually own resources with the code
+> that is likely->surely to be way worse than the kernel gotos. Where you're
 
-I wonder if anyone might look at doing the same sort of fix to
-the 2.4.18 working tree?  I experience the same sort of behavior
-with usb-uhci on my KT266A board (VT82C586B USB) on 2.4.18-rc1 (and
-previous 2.4.x kernels, too).  I'd do it myself, but the patch from
-Patrick on inode.c makes me too nervous to do it, since I have
-no experience with the filesystem drivers.
+It's a different attitude to doing recoverable systems. I can't fault
+nor praise it because I've never used a system like that.
 
-Thanks,
-Dan Hopper
+> going to save is in cases where your code does not allocate any resource (
+> book's code ) and here you save the cost of multiple unwinding 'return's
+> against a single catch link. So, in case that an exception happen ( very
+
+Right, not many systems inside a kernel are the kind that you need a
+sophisticated resource allocation/deallocation system except for, maybe,
+FSes and possibly long chains of IO operations. I'm not sure what else would
+fit in this category, but it's generally counter to the coding attitude
+in Unix.
+
+The things that exception would work well for seem to typically be modular
+and can function independently from other subsystems in the kernel. Unix, on
+the other hand, is pretty tightly interconnected so each subsystem's state is
+some what dependent on the others, which can be unwieldly or impossible to
+unwind properly.
+
+It's almost the same kind of design style issue as the classic dead lock
+problem. Some OSs provide a facility to detect those circular allocation,
+but others just bail on that heavy weight idea and make it intrinsic to the
+system that dead locks shouldn't exist in the first place. Both solutions have
+their advantages, but Unix prefers the latter and it seems to lead to a
+much snappier system from my intuition of it.
+
+> low probability compared to the common path ) and in case your code
+> underneath the catch point does not own resources, you're going to have a
+> 'little' advantage. What is the cost ? You're going to push onto the
+> common path the exception code by slowing down the CPU's fast path.
+
+Not sure, memory allocators are typically pretty primitive relative to
+modern GCs. I guess you could apply generational techniques to memory
+allocation (stack allocation of objects typical) and have it run pretty
+fast, but certainly not as fast as the typical hotwired C path.
+
+It's not the only resource that might need to be unwound. Like what do you do
+about IO system commits ? I'm not sure here.
+
+Just bored and babbling here. ;-)
+
+bill
+

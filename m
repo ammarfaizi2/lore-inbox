@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129154AbRBFJ1w>; Tue, 6 Feb 2001 04:27:52 -0500
+	id <S129071AbRBFJcM>; Tue, 6 Feb 2001 04:32:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129553AbRBFJ1n>; Tue, 6 Feb 2001 04:27:43 -0500
-Received: from mons.uio.no ([129.240.130.14]:61603 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S129154AbRBFJ1e>;
-	Tue, 6 Feb 2001 04:27:34 -0500
+	id <S129553AbRBFJbx>; Tue, 6 Feb 2001 04:31:53 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:51209 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129071AbRBFJbm>;
+	Tue, 6 Feb 2001 04:31:42 -0500
+Date: Tue, 6 Feb 2001 10:30:58 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Roman Zippel <zippel@fh-brandenburg.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
+        <linux-kernel@vger.kernel.org>,
+        <kiobuf-io-devel@lists.sourceforge.net>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.10.10102051658530.31998-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0102061027390.931-100000@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14975.50036.444871.571598@charged.uio.no>
-Date: Tue, 6 Feb 2001 10:27:16 +0100 (CET)
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Byron Stanoszek <gandalf@winds.org>, linux-kernel@vger.kernel.org
-Subject: Re: NFS stop/start problems (related to datagram shutdown bug?)
-In-Reply-To: <14975.15829.623996.534161@notabene.cse.unsw.edu.au>
-In-Reply-To: <Pine.LNX.4.21.0102051728340.1460-100000@winds.org>
-	<14975.15829.623996.534161@notabene.cse.unsw.edu.au>
-X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Neil Brown <neilb@cse.unsw.edu.au> writes:
 
-     > The attached patch might fix it, so if you are having
-     > reproducable problems, it might be worth applying this patch.
+On Mon, 5 Feb 2001, Linus Torvalds wrote:
 
-     > Trond: any comments?
+> [...] But talk to Davem and ank about why they wanted vectors.
 
+one issue is allocation overhead. The fragment array is a natural and
+constant-size part of an skb, thus we get all the control structures in
+place while allocating a structure that we have to allocate anyway.
 
-     > +
-     > + spin_lock_bh(&serv->sv_lock);
-     >  	if (!--(svsk->sk_inuse) && svsk->sk_dead) {
-     > + spin_unlock_bh(&serv->sv_lock);
-     >  		dprintk("svc: releasing dead socket\n");
-     >  		sock_release(svsk->sk_sock);
-     >  		kfree(svsk);
-     >  	}
-     > + else
-     > + spin_unlock_bh(&serv->sv_lock);
-     >  }
- 
-Looks correct, but there's a similar problem in svc_delete_socket()
-(see the setting of sk_dead, and subsequent test for sk_inuse).
+another issue is that certain cards have (or can have) SG-limits, so we
+have to be prepared to have a 'limited' array of fragments anyway, and
+have to be prepared to split/refragment packets. Whether there is a global
+MAX_SKB_FRAGS limit or not makes no difference.
 
-Cheers,
-  Trond
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,96 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263470AbTJBUec (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 16:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTJBUec
+	id S263475AbTJBUo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 16:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTJBUo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 16:34:32 -0400
-Received: from quake.mweb.co.za ([196.2.45.76]:31159 "EHLO quake.mweb.co.za")
-	by vger.kernel.org with ESMTP id S263470AbTJBUea (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 16:34:30 -0400
-Date: Thu, 2 Oct 2003 22:35:45 +0200
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test6-mm2
-Message-Id: <20031002223545.55611ef6.bonganilinux@mweb.co.za>
-In-Reply-To: <20031002022341.797361bc.akpm@osdl.org>
-References: <20031002022341.797361bc.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.5claws (GTK+ 1.2.10; i586-mandrake-linux-gnu)
+	Thu, 2 Oct 2003 16:44:29 -0400
+Received: from front1.netvisao.pt ([213.228.128.56]:33198 "HELO
+	front1.netvisao.pt") by vger.kernel.org with SMTP id S263475AbTJBUoZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 16:44:25 -0400
+Date: Thu, 2 Oct 2003 21:47:29 +0100
+From: Paulo Andre <fscked@netvisao.pt>
+To: len.brown@intel.com
+Cc: acpi-support@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Broken ACPI in kernels > 2.5.69, blows up upon boot
+Message-Id: <20031002214729.11c85558.fscked@netvisao.pt>
+X-Mailer: Sylpheed version 0.9.5claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="Multipart_Thu__2_Oct_2003_22_35_45_+0200_=.YJ'OLca7lsu)9l"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Multipart_Thu__2_Oct_2003_22_35_45_+0200_=.YJ'OLca7lsu)9l
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Hi Len, list..
 
-On Thu, 02 Oct 2003 02:23:41 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+I've been experiencing a most unfortunate problem using ACPI since
+kernel 2.5.70. I simply cannot boot a kernel with ACPI support, it
+oopses right upon boot when initializing ACPI and that's it. I've
+emailed about this a few months ago, when it was still Andy Grover
+maintaining ACPI and we got to no conclusive answer. I have a hard time
+believing my BIOS is fscked as far as ACPI is concerned considering it
+worked flawlessly in 2.5.69 (the kernel I'm still using..) and before.
 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test6/2.6.0-test6-mm2/
-> 
-> . A large series of VFS patches from Al Viro which replace usage of
->   file->f_dentry->d_inode->i_mapping with the new file->f_mapping.
-> 
->   This is mainly so we can get disk hot removal right.
-> 
-> . More work on the O_DIRECT-vs-buffered data coherency problem.  It's
->   still not quite there.
-> 
+Anyway, this is a Fujitsu Siemens E-7110 laptop and this breaks in every
+kernel starting from 2.5.70 up until 2.6.0-test6 with the latest acpi
+batch applied.
 
--mm1 had a lot of events/0 zombies, and vanilla 2.6.0-test6 does not. I will test -mm2 and let you know how it goes. Alt-SysRq shows this:
+Here's the output from the serial console:
 
-events/0      Z 77361907  1834      3          1836  1831 (L-TLB)
-c46abfc4 00000046 cf901940 77361907 00000058 c5dfa080 00000011 77361907
-       00000058 cf901940 cf901960 00011d32 77361907 00000058 cffeeaf8 00000000
-       c5dfa080 00000000 c0124b60 c5dfa080 00000000 00000000 00000000 c01322f0
-Call Trace:
- [do_exit+560/1040] do_exit+0x230/0x410
- [<c0124b60>] do_exit+0x230/0x410
- [wait_for_helper+0/224] wait_for_helper+0x0/0xe0
- [<c01322f0>] wait_for_helper+0x0/0xe0
- [kernel_thread_helper+11/12] kernel_thread_helper+0xb/0xc
- [<c010ae5f>] kernel_thread_helper+0xb/0xc
+>> cut here
 
-events/0      Z 77F25CBA  1836      3          2189  1834 (L-TLB)
-c46bffc4 00000046 cf901940 77f25cba 00000058 c4691940 00000011 77f25cba
-       00000058 cf901940 cf901960 000108dc 77f25cba 00000058 cffeeaf8 00000000
-       c4691940 00000000 c0124b60 c4691940 00000000 00000000 00000000 c01322f0
-Call Trace:
- [do_exit+560/1040] do_exit+0x230/0x410
- [<c0124b60>] do_exit+0x230/0x410
- [wait_for_helper+0/224] wait_for_helper+0x0/0xe0
- [<c01322f0>] wait_for_helper+0x0/0xe0
- [kernel_thread_helper+11/12] kernel_thread_helper+0xb/0xc
- [<c010ae5f>] kernel_thread_helper+0xb/0xc
+ ACPI: RSDP (v000 FUJ                        ) @ 0x000f62c0
+  ACPI: RSDT (v001 FUJ    RICKWOOD 00265.00000) @ 0x1feeba1f
+  ACPI: FADT (v001 FUJ    RICKWOOD 00265.00000) @ 0x1feefb8c
+  ACPI: DSDT (v001 FUJ    RICKWOOD 00265.00000) @ 0x00000000
+  ACPI: BIOS passes blacklist
+  ACPI: MADT not present
+  Building zonelist for node : 0
+  Kernel command line: BOOT_IMAGE=l260p1 ro root=305
+  console=ttyS0,38400n8 console=tty0 Local APIC disabled by BIOS --
+  reenabling. Found and enabled local APIC!
+  Initializing CPU#0
+  PID hash table entries: 2048 (order 11: 16384 bytes)
+  Detected 930.413 MHz processor.
+  Console: colour VGA+ 80x25
+  Calibrating delay loop... 1839.10 BogoMIPS
+  Memory: 510088k/523776k available (4302k kernel code, 12808k
+  reserved, 1594k data, 244k
+ init, 0k highmem)
+  Security Scaffold v1.0.0 initialized
+  Capability LSM initialized
+  Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+  Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+  Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+  - /dev
+  - /dev/console
+  - /root
+  CPU: L1 I cache: 16K, L1 D cache: 16K
+  CPU: L2 cache: 512K
+  Intel machine check architecture supported.
+  Intel machine check reporting enabled on CPU#0.
+  Enabling fast FPU save and restore... done.
+  Enabling unmasked SIMD FPU exception support... done.
+  Checking 'hlt' instruction... OK.
+  POSIX conformance testing by UNIFIX
+  CPU0: Intel(R) Pentium(R) III Mobile CPU       933MHz stepping 01
+  per-CPU timeslice cutoff: 1462.52 usecs.
+  task migration cache decay timeout: 2 msecs.
+  SMP motherboard not detected.
+  enabled ExtINT on CPU#0
+  ESR value before enabling vector: 00000000
+  ESR value after enabling vector: 00000000
+  Using local APIC timer interrupts.
+  calibrating APIC timer ...
+  ..... CPU clock speed is 235.0889 MHz.
+  ..... host bus clock speed is 132.0844 MHz.
+  Starting migration thread for cpu 0
+  CPUS done 32
+  Initializing RT netlink socket
+  PCI: PCI BIOS revision 2.10 entry at 0xfd97e, last bus=4
+  PCI: Using configuration type 1
+  mtrr: v2.0 (20020519)
+  BIO: pool of 256 setup, 15Kb (60 bytes/bio)
+  biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
+  biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
+  biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
+  biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
+  biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
+  biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
+  ACPI: Subsystem revision 20030619
+  ACPI: Interpreter enabled
+  ACPI: Using PIC for interrupt routing
+  ACPI: PCI Root Bridge [PCI0] (00:00)
+  PCI: Probing PCI hardware (bus 00)
+  Transparent bridge - Intel Corp. 82801BAM/CAM PCI Bri
+  Unable to handle kernel NULL pointer dereference at virtual address
+  00000007
+   printing eip:
+  c02a622c
+  *pde = 00000000
+  Oops: 0000 [#1]
+  CPU:    0
+  EIP:    0060:[<c02a622c]    Not tainted
+  EFLAGS: 00010246
+  EIP is at acpi_ns_map_handle_to_node+0x1a/0x22
+  eax: 00000000   ebx: c167ef40   ecx: dfeddde4   edx: 00000007
+  esi: 00000000   edi: dfeddde4   ebp: dfedddb8   esp: dfedddb8
+  ds: 007b   es: 007b   ss: 0068
+  Process swapper (pid: 1, threadinfo=dfedc000 task=dfedf8c0)
+  Stack: dfedddd0 c02a5c3f 00000007 c167ef40 00000000 c167ef50 dfeddef8
+  c02b0ac0 
+         00000007 dfeddde4 dfeddde4 00000100 dfedddec 00000000 00000000
+         00000000 00000000 00000000 00000000 00000000 00000000 00000000
+         00000000 00000000 
+  Call Trace:
+   [<c02a5c3f] acpi_ns_handle_to_pathname+0x11/0x4a
+   [<c02b0ac0] acpi_pci_bind_root+0xa5/0xd5
+   [<c02afd0d] acpi_pci_root_add+0x177/0x1c9
+   [<c02b190e] acpi_bus_driver_init+0x2d/0x8f
+   [<c02b1c5d] acpi_bus_find_driver+0x86/0xe6
+   [<c02b212c] acpi_bus_add+0x127/0x155
+   [<c02b2254] acpi_bus_scan+0xfa/0x145
+   [<c06dbc38] acpi_scan_init+0x51/0x79
+   [<c06c6a1b] do_initcalls+0x2b/0xa0
+   [<c0137732] init_workqueues+0x12/0x29
+   [<c01050da] init+0x5a/0x1f0
+   [<c0105080] init+0x0/0x1f0
+   [<c01091e9] kernel_thread_helper+0x5/0xc
+  
+  Code: 80 3a aa 0f 44 c2 5d c3 55 89 e5 8b 45 08 5d c3 55 89 e5 ff 
+   <0Kernel panic: Attempted to kill init!
 
-events/0      Z CF386CA1  2189      3          2191  1836 (L-TLB)
-c172ffc4 00000046 c5dfa6b0 cf386ca1 000006f9 c172cce0 00000011 cf386ca1
-       000006f9 c5dfa6b0 c5dfa6d0 0001402b cf386ca1 000006f9 cffeeaf8 00000000
-       c172cce0 00000000 c0124b60 c172cce0 00000000 00000000 00000000 c01322f0
-Call Trace:
- [do_exit+560/1040] do_exit+0x230/0x410
- [<c0124b60>] do_exit+0x230/0x410
- [wait_for_helper+0/224] wait_for_helper+0x0/0xe0
- [<c01322f0>] wait_for_helper+0x0/0xe0
- [kernel_thread_helper+11/12] kernel_thread_helper+0xb/0xc
- [<c010ae5f>] kernel_thread_helper+0xb/0xc
+<< cut here
 
---Multipart_Thu__2_Oct_2003_22_35_45_+0200_=.YJ'OLca7lsu)9l
-Content-Type: application/pgp-signature
+I've tried to look into the code but newbie as I am, no conclusion was
+reached. Is there any idea what may have provoked this sudden break up?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Feel free to ask me for more details if need be.
 
-iD8DBQE/fIwn+pvEqv8+FEMRAvCiAJ0V0D3W4leI/ZrYz4aVDMc0EkJROwCghVAN
-VNoCD90kUHoBN/HWXIoW7/o=
-=NMG7
------END PGP SIGNATURE-----
+Thanks in advance,
 
---Multipart_Thu__2_Oct_2003_22_35_45_+0200_=.YJ'OLca7lsu)9l--
+		Paulo

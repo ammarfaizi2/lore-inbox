@@ -1,671 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267472AbUGWBcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267471AbUGWBlC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267472AbUGWBcy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 21:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267471AbUGWBcy
+	id S267471AbUGWBlC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 21:41:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267473AbUGWBlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 21:32:54 -0400
-Received: from mta8.srv.hcvlny.cv.net ([167.206.5.75]:40167 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S267467AbUGWBby (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 21:31:54 -0400
-Date: Thu, 22 Jul 2004 21:31:52 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-Subject: [PATCH] prelim ACPI support for aic7xxx
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       random1@o-o.yi.org, pavel@ucw.cz
-Message-id: <41006A88.9040700@optonline.net>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_XSFtrgNAB/XXnYCbukZWKg)"
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Thu, 22 Jul 2004 21:41:02 -0400
+Received: from web12826.mail.yahoo.com ([216.136.174.207]:21121 "HELO
+	web12826.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267471AbUGWBkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 21:40:53 -0400
+Message-ID: <20040723014052.69937.qmail@web12826.mail.yahoo.com>
+Date: Thu, 22 Jul 2004 18:40:52 -0700 (PDT)
+From: Shantanu Goel <sgoel01@yahoo.com>
+Subject: [VM PATCH 2.6.8-rc1] Prevent excessive scanning of lower zone
+To: akpm@osdl.org
+Cc: Kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1692732433-1090546852=:67565"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+--0-1692732433-1090546852=:67565
+Content-Type: text/plain; charset=us-ascii
+Content-Id: 
+Content-Disposition: inline
 
---Boundary_(ID_XSFtrgNAB/XXnYCbukZWKg)
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
+Hi Andrew,
+
+I emailed this a few weeks back to the list but it
+seems to have gotten lost...
+
+The default page scanner limits # pages reclaimed to
+SWAP_CLUSTER_MAX in shrink_zone() which causes greater
+stress on the lower zones (DMA in my case) since
+kswapd() is unable to keep up with allocations and
+more memory is allocated from the lower zone.  I
+noticed while running my normal workstation load, the
+kernel was paging more than I expected since amount of
+mapped memory was only about 30% (swappiness = 60).
+
+To demonstrate this, I have attached the difference in
+/proc/vmstat when running kernbench in optimal mode
+(-j16) between stock 2.6.8-rc1 and with the patch
+applied.  The patch modifies kswapd() to keep scanning
+until free_pages is greater than pages_high.  In both
+cases swappiness is 60.  The machine has 2x2.0Ghz
+Xeons with HT enabled and memory manually limited to
+256MB.  Notice that the DMA zone is scanned more than
+4 times more often in the stock kernel and there about
+80000 more pgsteal's from the DMA zone compared to the
+modified kernel.
+
+Also, in try_to_free_pages() I changed it to test
+total_reclaimed instead of sc.nr_reclaimed.  Not sure
+if that's an oversight or something else was intended
+that I've failed to grasp...
 
 
-Hi.
+Thanks,
+Shantanu
 
-This patch (against arjanv's latest kernel, but should apply to 
-2.6.8-rc) is still a little messy and NOT ready to go into the mainline 
-kernel... Luben hasn't seen it yet (Hi Luben!), so the usual disclaimers 
-apply. But it's time to get some more eyes on it. The good news is it 
-works, the bad news is there is no support for error recovery during 
-those few seconds when the bus is setttling and hard disk is powering up 
-after a resume. (Need suggestions on how best to attack that part, I 
-really don't know anything about SCSI...) It works, after a few 
-residuals if your filesystems are mounted read-only, however. If you are 
-mounted read-write then you will get aborted commands, ext3 will 
-complain, and remount your fs read-only until you reboot. To avoid this, 
-remount read-only, suspend/resume, then remount read-write manually 
-after everything starts working.
 
-One other thing that needs outside eyes to look at is the additional 
-call to ahc_pci_config(), from ahc_pci_resume(). It might do some 
-redundant initializations, I'm not really sure what is needed and did 
-not want to disturb the init order for the normal boot sequence, so I 
-just if'd out the stuff that seemed irrelevant.
 
-Nathan
+		
+__________________________________
+Do you Yahoo!?
+Take Yahoo! Mail with you! Get it on your mobile phone.
+http://mobile.yahoo.com/maildemo 
+--0-1692732433-1090546852=:67565
+Content-Type: application/octet-stream; name="kb-2.6.8-rc1"
+Content-Transfer-Encoding: base64
+Content-Description: kb-2.6.8-rc1
+Content-Disposition: attachment; filename="kb-2.6.8-rc1"
 
---Boundary_(ID_XSFtrgNAB/XXnYCbukZWKg)
-Content-type: text/plain; name=aic7xxx_acpi.patch6
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=aic7xxx_acpi.patch6
+NCBjcHVzIGZvdW5kCkNsZWFuaW5nIHNvdXJjZSB0cmVlLi4uCk1ha2luZyBk
+ZWZjb25maWcuLi4KTWFraW5nIGRlcCBpZiBuZWVkZWQuLi4KQ2FjaGluZyBr
+ZXJuZWwgc291cmNlIGluIHJhbS4uLgpIYWxmIGxvYWQgaXMgMiBqb2JzLCBj
+aGFuZ2luZyB0byAzIGFzIGEga2VybmVsIGNvbXBpbGUgd29uJ3QgZ3VhcmFu
+dGVlIDIgam9icwoKUGVyZm9ybWluZyA1IHJ1bnMgb2YKbWFrZSAtaiAxNgoK
+V2FybXVwIG9wdGltYWwgbG9hZCBydW4uLi4KT3B0aW1hbCBsb2FkIC1qMTYg
+cnVuIG51bWJlciAxLi4uCk9wdGltYWwgbG9hZCAtajE2IHJ1biBudW1iZXIg
+Mi4uLgpPcHRpbWFsIGxvYWQgLWoxNiBydW4gbnVtYmVyIDMuLi4KT3B0aW1h
+bCBsb2FkIC1qMTYgcnVuIG51bWJlciA0Li4uCk9wdGltYWwgbG9hZCAtajE2
+IHJ1biBudW1iZXIgNS4uLgoKQXZlcmFnZSBPcHRpbWFsIC1qIDE2IExvYWQg
+UnVuOgpFbGFwc2VkIFRpbWUgMjE2LjgzOApVc2VyIFRpbWUgNjg3LjIyNApT
+eXN0ZW0gVGltZSA2NS4wMjgKUGVyY2VudCBDUFUgMzQ2LjgKQ29udGV4dCBT
+d2l0Y2hlcyA1OTQzNC40ClNsZWVwcyA0OTE0OAoKLS0tLQpwZ2ZhdWx0ICAg
+ICAgICAgICAgICAgICAgICAgICAzMjMxOTQ2OApwZ2ZyZWUgICAgICAgICAg
+ICAgICAgICAgICAgICAyMDYwMjUxNApwZ2FsbG9jX25vcm1hbCAgICAgICAg
+ICAgICAgICAxOTk3ODQxNApwZ3JlZmlsbF9ub3JtYWwgICAgICAgICAgICAg
+ICA1NzIxMjU2CnBncGdvdXQgICAgICAgICAgICAgICAgICAgICAgIDI1Mjc5
+MjgKcGdwZ2luICAgICAgICAgICAgICAgICAgICAgICAgMTc5MzcyOApwZ2Rl
+YWN0aXZhdGUgICAgICAgICAgICAgICAgICAxMzAzMzExCnBncmVmaWxsX2Rt
+YSAgICAgICAgICAgICAgICAgIDc2MjMyOApwZ2FsbG9jX2RtYSAgICAgICAg
+ICAgICAgICAgICA2MjUyNDQKcGdzY2FuX2tzd2FwZF9ub3JtYWwgICAgICAg
+ICAgNTk5NTExCnBnc3RlYWxfbm9ybWFsICAgICAgICAgICAgICAgIDUxMzIx
+OQpwc3dwb3V0ICAgICAgICAgICAgICAgICAgICAgICA1MDkwNDMKcGdyb3Rh
+dGVkICAgICAgICAgICAgICAgICAgICAgNTA1NjczCnBnc2Nhbl9kaXJlY3Rf
+bm9ybWFsICAgICAgICAgIDQ2NDg3MQpwZ2FjdGl2YXRlICAgICAgICAgICAg
+ICAgICAgICA0MTQ5MTcKcGdzY2FuX2tzd2FwZF9kbWEgICAgICAgICAgICAg
+MzczNTYzCmtzd2FwZF9zdGVhbCAgICAgICAgICAgICAgICAgIDM0MjM1Mwpz
+bGFic19zY2FubmVkICAgICAgICAgICAgICAgICAyNjc0MjkKcHN3cGluICAg
+ICAgICAgICAgICAgICAgICAgICAgMjIxOTY3CnBnc2Nhbl9kaXJlY3RfZG1h
+ICAgICAgICAgICAgIDE3MzgwNgpwZ3N0ZWFsX2RtYSAgICAgICAgICAgICAg
+ICAgICAxMjY4MjgKcGdtYWpmYXVsdCAgICAgICAgICAgICAgICAgICAgOTEy
+MDEKYWxsb2NzdGFsbCAgICAgICAgICAgICAgICAgICAgNjQwMgpucl9kaXJ0
+eSAgICAgICAgICAgICAgICAgICAgICA2MzQzCnBhZ2VvdXRydW4gICAgICAg
+ICAgICAgICAgICAgIDIyNjQKa3N3YXBkX2lub2Rlc3RlYWwgICAgICAgICAg
+ICAgMTUxNwpucl9zbGFiICAgICAgICAgICAgICAgICAgICAgICA5MjAKcGdp
+bm9kZXN0ZWFsICAgICAgICAgICAgICAgICAgODQ5Cm5yX3BhZ2VfdGFibGVf
+cGFnZXMgICAgICAgICAgIDMKcGdzdGVhbF9oaWdoICAgICAgICAgICAgICAg
+ICAgMApwZ2FsbG9jX2hpZ2ggICAgICAgICAgICAgICAgICAwCnBnc2Nhbl9r
+c3dhcGRfaGlnaCAgICAgICAgICAgIDAKcGdzY2FuX2RpcmVjdF9oaWdoICAg
+ICAgICAgICAgMApwZ3JlZmlsbF9oaWdoICAgICAgICAgICAgICAgICAwCm5y
+X3Vuc3RhYmxlICAgICAgICAgICAgICAgICAgIDAKbnJfd3JpdGViYWNrICAg
+ICAgICAgICAgICAgICAgMApucl9tYXBwZWQgICAgICAgICAgICAgICAgICAg
+ICAtNTkwMAo=
 
-diff -ur linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic79xx_osm.c linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic79xx_osm.c
---- linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-06-16 01:19:36.000000000 -0400
-+++ linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-07-21 18:30:06.000000000 -0400
-@@ -2591,7 +2591,7 @@
- 	sprintf(current->comm, "ahd_dv_%d", ahd->unit);
- #else
- 	daemonize("ahd_dv_%d", ahd->unit);
--	current->flags |= PF_FREEZE;
-+	current->flags |= PF_NOFREEZE;
- #endif
- 	unlock_kernel();
- 
-diff -ur linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic7xxx_core.c linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic7xxx_core.c
---- linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic7xxx_core.c	2004-06-16 01:19:22.000000000 -0400
-+++ linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic7xxx_core.c	2004-07-22 20:45:10.000000000 -0400
-@@ -605,6 +605,7 @@
- 		printf("SXFRCTL0 == 0x%x\n", ahc_inb(ahc, SXFRCTL0));
- 		printf("SEQCTL == 0x%x\n", ahc_inb(ahc, SEQCTL));
- 		ahc_dump_card_state(ahc);
-+		panic("halting to avoid infinite interrupt loop");
- 		ahc->msgout_buf[0] = MSG_BUS_DEV_RESET;
- 		ahc->msgout_len = 1;
- 		ahc->msgout_index = 0;
-@@ -4046,6 +4047,7 @@
- 
- 	ahc = (struct ahc_softc *)arg;
- 
-+	ahc_intr_enable(ahc, FALSE);
- 	/* This will reset most registers to 0, but not all */
- 	ahc_reset(ahc, /*reinit*/FALSE);
- 	ahc_outb(ahc, SCSISEQ, 0);
-@@ -5163,6 +5165,7 @@
- {
- 
- 	ahc_reset(ahc, /*reinit*/TRUE);
-+	//ahc->bus_chip_init(ahc);
- 	ahc_intr_enable(ahc, TRUE); 
- 	ahc_restart(ahc);
- 	return (0);
-diff -ur linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic7xxx.h linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic7xxx.h
---- linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic7xxx.h	2004-06-16 01:19:29.000000000 -0400
-+++ linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic7xxx.h	2004-07-21 22:42:46.000000000 -0400
-@@ -1109,6 +1109,8 @@
- 
- 	uint16_t	 	  user_discenable;/* Disconnection allowed  */
- 	uint16_t		  user_tagenable;/* Tagged Queuing allowed */
-+
-+	u32                      PciState[64]; /* save PCI state to this area */
- };
- 
- TAILQ_HEAD(ahc_softc_tailq, ahc_softc);
-@@ -1169,7 +1171,7 @@
- /***************************** PCI Front End *********************************/
- struct ahc_pci_identity	*ahc_find_pci_device(ahc_dev_softc_t);
- int			 ahc_pci_config(struct ahc_softc *,
--					struct ahc_pci_identity *);
-+					struct ahc_pci_identity *, int resume);
- int			 ahc_pci_test_register_access(struct ahc_softc *);
- 
- /*************************** EISA/VL Front End ********************************/
-diff -ur linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic7xxx_osm.c linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic7xxx_osm.c
---- linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-07-15 14:23:17.000000000 -0400
-+++ linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-07-22 19:51:25.000000000 -0400
-@@ -2295,7 +2295,7 @@
- 	sprintf(current->comm, "ahc_dv_%d", ahc->unit);
- #else
- 	daemonize("ahc_dv_%d", ahc->unit);
--	current->flags |= PF_FREEZE;
-+	current->flags |= PF_NOFREEZE;
- #endif
- 	unlock_kernel();
- 
-diff -ur linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
---- linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2004-07-15 14:23:17.000000000 -0400
-+++ linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2004-07-21 22:51:01.000000000 -0400
-@@ -54,6 +54,10 @@
- static int	ahc_linux_pci_reserve_mem_region(struct ahc_softc *ahc,
- 						 u_long *bus_addr,
- 						 uint8_t **maddr);
-+#ifdef CONFIG_PM
-+static int	ahc_linux_pci_suspend(struct pci_dev *dev, u32 state);
-+static int	ahc_linux_pci_resume(struct pci_dev *dev);
-+#endif
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
- static void	ahc_linux_pci_dev_remove(struct pci_dev *pdev);
- 
-@@ -76,6 +80,10 @@
- 	.name		= "aic7xxx",
- 	.probe		= ahc_linux_pci_dev_probe,
- 	.remove		= ahc_linux_pci_dev_remove,
-+#ifdef CONFIG_PM
-+	.suspend	= ahc_linux_pci_suspend,
-+	.resume		= ahc_linux_pci_resume,
-+#endif
- 	.id_table	= ahc_linux_pci_id_table
- };
- 
-@@ -174,7 +182,7 @@
- 	}
- #endif
- 	ahc->dev_softc = pci;
--	error = ahc_pci_config(ahc, entry);
-+	error = ahc_pci_config(ahc, entry, /*resume*/FALSE);
- 	if (error != 0) {
- 		ahc_free(ahc);
- 		return (-error);
-@@ -225,6 +233,72 @@
- #endif
- }
- 
-+#ifdef CONFIG_PM
-+int ahc_linux_pci_suspend(struct pci_dev *dev, u32 state)
-+{
-+	int rval;
-+	u32 device_state;
-+	struct ahc_softc *ahc =
-+		ahc_find_softc((struct ahc_softc *)pci_get_drvdata(dev));
-+
-+        switch(state)
-+        {
-+		case PM_SUSPEND_ON:
-+			device_state = 0;
-+			break;
-+		case PM_SUSPEND_STANDBY:
-+		case PM_SUSPEND_MEM:
-+		case PM_SUSPEND_DISK:
-+		case PM_SUSPEND_MAX:
-+                default:
-+			device_state = 3;
-+                        break;
-+        }
-+
-+        printk(KERN_INFO
-+        "aic7xxx: pci-suspend: pdev=0x%p, slot=%s, Entering operating state [D%d]\n",
-+                dev, pci_name(dev), device_state);
-+
-+	rval = ahc->bus_suspend(ahc);
-+	if (rval != 0)
-+		return rval;
-+
-+	ahc_dump_card_state(ahc);
-+
-+	pci_save_state(dev, ahc->PciState);
-+	pci_disable_device(dev);
-+	pci_set_power_state(dev, device_state);
-+	return 0;
-+	/*return -EAGAIN;*/
-+}
-+
-+int ahc_linux_pci_resume(struct pci_dev *dev)
-+{
-+	int rval;
-+	int device_state = dev->current_state;
-+	struct ahc_softc *ahc =
-+		ahc_find_softc((struct ahc_softc *)pci_get_drvdata(dev));
-+
-+        printk(KERN_INFO
-+        "aic7xxx: pci-resume: pdev=0x%p, slot=%s, Previous operating state [D%d]\n",
-+                dev, pci_name(dev), device_state);
-+
-+        pci_set_power_state(dev, AHC_POWER_STATE_D0);
-+        pci_restore_state(dev, ahc->PciState);
-+        pci_enable_device(dev);
-+        pci_set_master(dev);
-+
-+	rval = ahc->bus_resume(ahc);
-+#ifdef AHC_DEBUG
-+	if (ahc_debug & AHC_SHOW_MISC) {
-+		ahc_dump_card_state(ahc);
-+		printk(KERN_DEBUG "look for SCSISEQ=SCSIRSTO, SSTAT1\n");
-+	}
-+#endif
-+	return rval;
-+}
-+#endif /* CONFIG_PM */
-+
- void
- ahc_linux_pci_exit(void)
- {
-diff -ur linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic7xxx_pci.c linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic7xxx_pci.c
---- linux-2.6.7-1.492.backup/drivers/scsi/aic7xxx/aic7xxx_pci.c	2004-06-16 01:18:57.000000000 -0400
-+++ linux-2.6.7-1.492/drivers/scsi/aic7xxx/aic7xxx_pci.c	2004-07-22 20:45:33.000000000 -0400
-@@ -779,7 +779,7 @@
- }
- 
- int
--ahc_pci_config(struct ahc_softc *ahc, struct ahc_pci_identity *entry)
-+ahc_pci_config(struct ahc_softc *ahc, struct ahc_pci_identity *entry, int resume)
- {
- 	u_long	 l;
- 	u_int	 command;
-@@ -792,60 +792,62 @@
- 	uint8_t	 sblkctl;
- 
- 	our_id = 0;
--	error = entry->setup(ahc);
--	if (error != 0)
--		return (error);
--	ahc->chip |= AHC_PCI;
--	ahc->description = entry->name;
--
--	ahc_power_state_change(ahc, AHC_POWER_STATE_D0);
--
--	error = ahc_pci_map_registers(ahc);
--	if (error != 0)
--		return (error);
--
--	/*
--	 * Before we continue probing the card, ensure that
--	 * its interrupts are *disabled*.  We don't want
--	 * a misstep to hang the machine in an interrupt
--	 * storm.
--	 */
--	ahc_intr_enable(ahc, FALSE);
--
--	devconfig = ahc_pci_read_config(ahc->dev_softc, DEVCONFIG, /*bytes*/4);
--
--	/*
--	 * If we need to support high memory, enable dual
--	 * address cycles.  This bit must be set to enable
--	 * high address bit generation even if we are on a
--	 * 64bit bus (PCI64BIT set in devconfig).
--	 */
--	if ((ahc->flags & AHC_39BIT_ADDRESSING) != 0) {
-+	if (!resume) {
-+		error = entry->setup(ahc);
-+		if (error != 0)
-+			return (error);
-+		
-+		ahc->chip |= AHC_PCI;
-+		ahc->description = entry->name;
-+		
-+		ahc_power_state_change(ahc, AHC_POWER_STATE_D0);
-+		
-+		error = ahc_pci_map_registers(ahc);
-+		if (error != 0)
-+			return (error);
-+		
-+		/*
-+		 * Before we continue probing the card, ensure that
-+		 * its interrupts are *disabled*.  We don't want
-+		 * a misstep to hang the machine in an interrupt
-+		 * storm.
-+		 */
-+		ahc_intr_enable(ahc, FALSE);
- 
--		if (bootverbose)
--			printf("%s: Enabling 39Bit Addressing\n",
--			       ahc_name(ahc));
--		devconfig |= DACEN;
--	}
-+		devconfig = ahc_pci_read_config(ahc->dev_softc, DEVCONFIG, /*bytes*/4);
-+		
-+		/*
-+		 * If we need to support high memory, enable dual
-+		 * address cycles.  This bit must be set to enable
-+		 * high address bit generation even if we are on a
-+		 * 64bit bus (PCI64BIT set in devconfig).
-+		 */
-+		if ((ahc->flags & AHC_39BIT_ADDRESSING) != 0) {
-+			
-+			if (bootverbose)
-+				printf("%s: Enabling 39Bit Addressing\n",
-+				       ahc_name(ahc));
-+			devconfig |= DACEN;
-+		}
- 	
--	/* Ensure that pci error generation, a test feature, is disabled. */
--	devconfig |= PCIERRGENDIS;
--
--	ahc_pci_write_config(ahc->dev_softc, DEVCONFIG, devconfig, /*bytes*/4);
--
--	/* Ensure busmastering is enabled */
--	command = ahc_pci_read_config(ahc->dev_softc, PCIR_COMMAND, /*bytes*/2);
--	command |= PCIM_CMD_BUSMASTEREN;
--
--	ahc_pci_write_config(ahc->dev_softc, PCIR_COMMAND, command, /*bytes*/2);
--
--	/* On all PCI adapters, we allow SCB paging */
--	ahc->flags |= AHC_PAGESCBS;
--
--	error = ahc_softc_init(ahc);
--	if (error != 0)
--		return (error);
--
-+		/* Ensure that pci error generation, a test feature, is disabled. */
-+		devconfig |= PCIERRGENDIS;
-+		
-+		ahc_pci_write_config(ahc->dev_softc, DEVCONFIG, devconfig, /*bytes*/4);
-+		
-+		/* Ensure busmastering is enabled */
-+		command = ahc_pci_read_config(ahc->dev_softc, PCIR_COMMAND, /*bytes*/2);
-+		command |= PCIM_CMD_BUSMASTEREN;
-+		
-+		ahc_pci_write_config(ahc->dev_softc, PCIR_COMMAND, command, /*bytes*/2);
-+		
-+		/* On all PCI adapters, we allow SCB paging */
-+		ahc->flags |= AHC_PAGESCBS;
-+		
-+		error = ahc_softc_init(ahc);
-+		if (error != 0)
-+			return (error);
-+	}
- 	/*
- 	 * Disable PCI parity error checking.  Users typically
- 	 * do this to work around broken PCI chipsets that get
-@@ -857,30 +859,32 @@
- 	if ((ahc->flags & AHC_DISABLE_PCI_PERR) != 0)
- 		ahc->seqctl |= FAILDIS;
- 
--	ahc->bus_intr = ahc_pci_intr;
--	ahc->bus_chip_init = ahc_pci_chip_init;
--	ahc->bus_suspend = ahc_pci_suspend;
--	ahc->bus_resume = ahc_pci_resume;
--
--	/* Remeber how the card was setup in case there is no SEEPROM */
--	if ((ahc_inb(ahc, HCNTRL) & POWRDN) == 0) {
--		ahc_pause(ahc);
--		if ((ahc->features & AHC_ULTRA2) != 0)
--			our_id = ahc_inb(ahc, SCSIID_ULTRA2) & OID;
--		else
--			our_id = ahc_inb(ahc, SCSIID) & OID;
--		sxfrctl1 = ahc_inb(ahc, SXFRCTL1) & STPWEN;
--		scsiseq = ahc_inb(ahc, SCSISEQ);
--	} else {
--		sxfrctl1 = STPWEN;
--		our_id = 7;
--		scsiseq = 0;
-+	if (!resume) {
-+		ahc->bus_intr = ahc_pci_intr;
-+		ahc->bus_chip_init = ahc_pci_chip_init;
-+		ahc->bus_suspend = ahc_pci_suspend;
-+		ahc->bus_resume = ahc_pci_resume;
-+
-+		/* Remeber how the card was setup in case there is no SEEPROM */
-+		if ((ahc_inb(ahc, HCNTRL) & POWRDN) == 0) {
-+			ahc_pause(ahc);
-+			if ((ahc->features & AHC_ULTRA2) != 0)
-+				our_id = ahc_inb(ahc, SCSIID_ULTRA2) & OID;
-+			else
-+				our_id = ahc_inb(ahc, SCSIID) & OID;
-+			sxfrctl1 = ahc_inb(ahc, SXFRCTL1) & STPWEN;
-+			scsiseq = ahc_inb(ahc, SCSISEQ);
-+		} else {
-+			sxfrctl1 = STPWEN;
-+			our_id = 7;
-+			scsiseq = 0;
-+		}
-+		
-+		error = ahc_reset(ahc, /*reinit*/FALSE);
-+		if (error != 0)
-+			return (ENXIO);
- 	}
- 
--	error = ahc_reset(ahc, /*reinit*/FALSE);
--	if (error != 0)
--		return (ENXIO);
--
- 	if ((ahc->features & AHC_DT) != 0) {
- 		u_int sfunct;
- 
-@@ -919,30 +923,32 @@
- 
- 	ahc_outb(ahc, DSCOMMAND0, dscommand0);
- 
--	ahc->pci_cachesize =
--	    ahc_pci_read_config(ahc->dev_softc, CSIZE_LATTIME,
--				/*bytes*/1) & CACHESIZE;
--	ahc->pci_cachesize *= 4;
--
--	if ((ahc->bugs & AHC_PCI_2_1_RETRY_BUG) != 0
--	 && ahc->pci_cachesize == 4) {
--
--		ahc_pci_write_config(ahc->dev_softc, CSIZE_LATTIME,
--				     0, /*bytes*/1);
--		ahc->pci_cachesize = 0;
--	}
--
--	/*
--	 * We cannot perform ULTRA speeds without the presense
--	 * of the external precision resistor.
--	 */
--	if ((ahc->features & AHC_ULTRA) != 0) {
--		uint32_t devconfig;
-+	if (!resume) {
-+		ahc->pci_cachesize =
-+			ahc_pci_read_config(ahc->dev_softc, CSIZE_LATTIME,
-+					    /*bytes*/1) & CACHESIZE;
-+		ahc->pci_cachesize *= 4;
-+
-+		if ((ahc->bugs & AHC_PCI_2_1_RETRY_BUG) != 0
-+		    && ahc->pci_cachesize == 4) {
-+			
-+			ahc_pci_write_config(ahc->dev_softc, CSIZE_LATTIME,
-+					     0, /*bytes*/1);
-+			ahc->pci_cachesize = 0;
-+		}
- 
--		devconfig = ahc_pci_read_config(ahc->dev_softc,
--						DEVCONFIG, /*bytes*/4);
--		if ((devconfig & REXTVALID) == 0)
--			ahc->features &= ~AHC_ULTRA;
-+		/*
-+		 * We cannot perform ULTRA speeds without the presense
-+		 * of the external precision resistor.
-+		 */
-+		if ((ahc->features & AHC_ULTRA) != 0) {
-+			uint32_t devconfig;
-+			
-+			devconfig = ahc_pci_read_config(ahc->dev_softc,
-+							DEVCONFIG, /*bytes*/4);
-+			if ((devconfig & REXTVALID) == 0)
-+				ahc->features &= ~AHC_ULTRA;
-+		}
- 	}
- 
- 	/* See if we have a SEEPROM and perform auto-term */
-@@ -960,30 +966,32 @@
- 		ahc_outb(ahc, DSPCISTATUS, DFTHRSH_100);
- 	}
- 
--	if (ahc->flags & AHC_USEDEFAULTS) {
--		/*
--		 * PCI Adapter default setup
--		 * Should only be used if the adapter does not have
--		 * a SEEPROM.
--		 */
--		/* See if someone else set us up already */
--		if ((ahc->flags & AHC_NO_BIOS_INIT) == 0
--		 && scsiseq != 0) {
--			printf("%s: Using left over BIOS settings\n",
--				ahc_name(ahc));
--			ahc->flags &= ~AHC_USEDEFAULTS;
--			ahc->flags |= AHC_BIOS_ENABLED;
--		} else {
-+	if (!resume) {
-+		if (ahc->flags & AHC_USEDEFAULTS) {
- 			/*
--			 * Assume only one connector and always turn
--			 * on termination.
-+			 * PCI Adapter default setup
-+			 * Should only be used if the adapter does not have
-+			 * a SEEPROM.
- 			 */
-- 			our_id = 0x07;
--			sxfrctl1 = STPWEN;
-+			/* See if someone else set us up already */
-+			if ((ahc->flags & AHC_NO_BIOS_INIT) == 0
-+			    && scsiseq != 0) {
-+				printf("%s: Using left over BIOS settings\n",
-+				       ahc_name(ahc));
-+				ahc->flags &= ~AHC_USEDEFAULTS;
-+				ahc->flags |= AHC_BIOS_ENABLED;
-+			} else {
-+				/*
-+				 * Assume only one connector and always turn
-+				 * on termination.
-+				 */
-+				our_id = 0x07;
-+				sxfrctl1 = STPWEN;
-+			}
-+			ahc_outb(ahc, SCSICONF, our_id|ENSPCHK|RESET_SCSI);
-+			
-+			ahc->our_id = our_id;
- 		}
--		ahc_outb(ahc, SCSICONF, our_id|ENSPCHK|RESET_SCSI);
--
--		ahc->our_id = our_id;
- 	}
- 
- 	/*
-@@ -1000,53 +1008,55 @@
- 	if ((sxfrctl1 & STPWEN) != 0)
- 		ahc->flags |= AHC_TERM_ENB_A;
- 
--	/*
--	 * Save chip register configuration data for chip resets
--	 * that occur during runtime and resume events.
--	 */
--	ahc->bus_softc.pci_softc.devconfig =
--	    ahc_pci_read_config(ahc->dev_softc, DEVCONFIG, /*bytes*/4);
--	ahc->bus_softc.pci_softc.command =
--	    ahc_pci_read_config(ahc->dev_softc, PCIR_COMMAND, /*bytes*/1);
--	ahc->bus_softc.pci_softc.csize_lattime =
--	    ahc_pci_read_config(ahc->dev_softc, CSIZE_LATTIME, /*bytes*/1);
--	ahc->bus_softc.pci_softc.dscommand0 = ahc_inb(ahc, DSCOMMAND0);
--	ahc->bus_softc.pci_softc.dspcistatus = ahc_inb(ahc, DSPCISTATUS);
--	if ((ahc->features & AHC_DT) != 0) {
--		u_int sfunct;
-+	if (!resume) {
-+		/*
-+		 * Save chip register configuration data for chip resets
-+		 * that occur during runtime and resume events.
-+		 */
-+		ahc->bus_softc.pci_softc.devconfig =
-+			ahc_pci_read_config(ahc->dev_softc, DEVCONFIG, /*bytes*/4);
-+		ahc->bus_softc.pci_softc.command =
-+			ahc_pci_read_config(ahc->dev_softc, PCIR_COMMAND, /*bytes*/1);
-+		ahc->bus_softc.pci_softc.csize_lattime =
-+			ahc_pci_read_config(ahc->dev_softc, CSIZE_LATTIME, /*bytes*/1);
-+		ahc->bus_softc.pci_softc.dscommand0 = ahc_inb(ahc, DSCOMMAND0);
-+		ahc->bus_softc.pci_softc.dspcistatus = ahc_inb(ahc, DSPCISTATUS);
-+		if ((ahc->features & AHC_DT) != 0) {
-+			u_int sfunct;
-+			
-+			sfunct = ahc_inb(ahc, SFUNCT) & ~ALT_MODE;
-+			ahc_outb(ahc, SFUNCT, sfunct | ALT_MODE);
-+			ahc->bus_softc.pci_softc.optionmode = ahc_inb(ahc, OPTIONMODE);
-+			ahc->bus_softc.pci_softc.targcrccnt = ahc_inw(ahc, TARGCRCCNT);
-+			ahc_outb(ahc, SFUNCT, sfunct);
-+			ahc->bus_softc.pci_softc.crccontrol1 =
-+				ahc_inb(ahc, CRCCONTROL1);
-+		}
-+		if ((ahc->features & AHC_MULTI_FUNC) != 0)
-+			ahc->bus_softc.pci_softc.scbbaddr = ahc_inb(ahc, SCBBADDR);
-+		
-+		if ((ahc->features & AHC_ULTRA2) != 0)
-+			ahc->bus_softc.pci_softc.dff_thrsh = ahc_inb(ahc, DFF_THRSH);
-+		
-+		/* Core initialization */
-+		error = ahc_init(ahc);
-+		if (error != 0)
-+			return (error);
- 
--		sfunct = ahc_inb(ahc, SFUNCT) & ~ALT_MODE;
--		ahc_outb(ahc, SFUNCT, sfunct | ALT_MODE);
--		ahc->bus_softc.pci_softc.optionmode = ahc_inb(ahc, OPTIONMODE);
--		ahc->bus_softc.pci_softc.targcrccnt = ahc_inw(ahc, TARGCRCCNT);
--		ahc_outb(ahc, SFUNCT, sfunct);
--		ahc->bus_softc.pci_softc.crccontrol1 =
--		    ahc_inb(ahc, CRCCONTROL1);
-+		/*
-+		 * Allow interrupts now that we are completely setup.
-+		 */
-+		error = ahc_pci_map_int(ahc);
-+		if (error != 0)
-+			return (error);
-+		
-+		ahc_list_lock(&l);
-+		/*
-+		 * Link this softc in with all other ahc instances.
-+		 */
-+		ahc_softc_insert(ahc);
-+		ahc_list_unlock(&l);
- 	}
--	if ((ahc->features & AHC_MULTI_FUNC) != 0)
--		ahc->bus_softc.pci_softc.scbbaddr = ahc_inb(ahc, SCBBADDR);
--
--	if ((ahc->features & AHC_ULTRA2) != 0)
--		ahc->bus_softc.pci_softc.dff_thrsh = ahc_inb(ahc, DFF_THRSH);
--
--	/* Core initialization */
--	error = ahc_init(ahc);
--	if (error != 0)
--		return (error);
--
--	/*
--	 * Allow interrupts now that we are completely setup.
--	 */
--	error = ahc_pci_map_int(ahc);
--	if (error != 0)
--		return (error);
--
--	ahc_list_lock(&l);
--	/*
--	 * Link this softc in with all other ahc instances.
--	 */
--	ahc_softc_insert(ahc);
--	ahc_list_unlock(&l);
- 	return (0);
- }
- 
-@@ -2090,21 +2100,18 @@
- static int
- ahc_pci_resume(struct ahc_softc *ahc)
- {
--
--	ahc_power_state_change(ahc, AHC_POWER_STATE_D0);
--
- 	/*
- 	 * We assume that the OS has restored our register
- 	 * mappings, etc.  Just update the config space registers
- 	 * that the OS doesn't know about and rely on our chip
- 	 * reset handler to handle the rest.
- 	 */
--	ahc_pci_write_config(ahc->dev_softc, DEVCONFIG, /*bytes*/4,
--			     ahc->bus_softc.pci_softc.devconfig);
--	ahc_pci_write_config(ahc->dev_softc, PCIR_COMMAND, /*bytes*/1,
--			     ahc->bus_softc.pci_softc.command);
--	ahc_pci_write_config(ahc->dev_softc, CSIZE_LATTIME, /*bytes*/1,
--			     ahc->bus_softc.pci_softc.csize_lattime);
-+	ahc_pci_write_config(ahc->dev_softc, DEVCONFIG,
-+			     ahc->bus_softc.pci_softc.devconfig, /*bytes*/4);
-+	ahc_pci_write_config(ahc->dev_softc, PCIR_COMMAND,
-+			     ahc->bus_softc.pci_softc.command, /*bytes*/1);
-+	ahc_pci_write_config(ahc->dev_softc, CSIZE_LATTIME,
-+			     ahc->bus_softc.pci_softc.csize_lattime, /*bytes*/1);
- 	if ((ahc->flags & AHC_HAS_TERM_LOGIC) != 0) {
- 		struct	seeprom_descriptor sd;
- 		u_int	sxfrctl1;
-@@ -2120,6 +2127,7 @@
- 				      &sxfrctl1);
- 		ahc_release_seeprom(&sd);
- 	}
-+	ahc_pci_config(ahc, NULL, /*resume*/TRUE);
- 	return (ahc_resume(ahc));
- }
- 
+--0-1692732433-1090546852=:67565
+Content-Type: application/octet-stream; name="kb-2.6.8-rc1-vmfix"
+Content-Transfer-Encoding: base64
+Content-Description: kb-2.6.8-rc1-vmfix
+Content-Disposition: attachment; filename="kb-2.6.8-rc1-vmfix"
 
---Boundary_(ID_XSFtrgNAB/XXnYCbukZWKg)--
+NCBjcHVzIGZvdW5kCkNsZWFuaW5nIHNvdXJjZSB0cmVlLi4uCk1ha2luZyBk
+ZWZjb25maWcuLi4KTWFraW5nIGRlcCBpZiBuZWVkZWQuLi4KQ2FjaGluZyBr
+ZXJuZWwgc291cmNlIGluIHJhbS4uLgpIYWxmIGxvYWQgaXMgMiBqb2JzLCBj
+aGFuZ2luZyB0byAzIGFzIGEga2VybmVsIGNvbXBpbGUgd29uJ3QgZ3VhcmFu
+dGVlIDIgam9icwoKUGVyZm9ybWluZyA1IHJ1bnMgb2YKbWFrZSAtaiAxNgoK
+V2FybXVwIG9wdGltYWwgbG9hZCBydW4uLi4KT3B0aW1hbCBsb2FkIC1qMTYg
+cnVuIG51bWJlciAxLi4uCk9wdGltYWwgbG9hZCAtajE2IHJ1biBudW1iZXIg
+Mi4uLgpPcHRpbWFsIGxvYWQgLWoxNiBydW4gbnVtYmVyIDMuLi4KT3B0aW1h
+bCBsb2FkIC1qMTYgcnVuIG51bWJlciA0Li4uCk9wdGltYWwgbG9hZCAtajE2
+IHJ1biBudW1iZXIgNS4uLgoKQXZlcmFnZSBPcHRpbWFsIC1qIDE2IExvYWQg
+UnVuOgpFbGFwc2VkIFRpbWUgMjEyLjU2NgpVc2VyIFRpbWUgNjg2LjI4OApT
+eXN0ZW0gVGltZSA2NS4xNDIKUGVyY2VudCBDUFUgMzUzLjIKQ29udGV4dCBT
+d2l0Y2hlcyA2MDg3NgpTbGVlcHMgNDY5MDQuNAoKLS0tLQpwZ2ZhdWx0ICAg
+ICAgICAgICAgICAgICAgICAgICAzMjI2OTc2OQpwZ2ZyZWUgICAgICAgICAg
+ICAgICAgICAgICAgICAyMDU5MDQ2MApwZ2FsbG9jX25vcm1hbCAgICAgICAg
+ICAgICAgICAyMDA1NDEwNQpwZ3JlZmlsbF9ub3JtYWwgICAgICAgICAgICAg
+ICA2MDE5OTk3CnBncGdvdXQgICAgICAgICAgICAgICAgICAgICAgIDIyMzE3
+MjAKcGdwZ2luICAgICAgICAgICAgICAgICAgICAgICAgMTc2NzkwNApwZ2Rl
+YWN0aXZhdGUgICAgICAgICAgICAgICAgICAxMjg2MjU5CnBnc2Nhbl9rc3dh
+cGRfbm9ybWFsICAgICAgICAgIDYzNTg3NwpwZ3NjYW5fZGlyZWN0X25vcm1h
+bCAgICAgICAgICA1OTY0MDkKcGdzdGVhbF9ub3JtYWwgICAgICAgICAgICAg
+ICAgNTkyMTY3CnBnYWxsb2NfZG1hICAgICAgICAgICAgICAgICAgIDUzODEx
+NgpwZ3JlZmlsbF9kbWEgICAgICAgICAgICAgICAgICA1MDI4NjMKcHN3cG91
+dCAgICAgICAgICAgICAgICAgICAgICAgNDM3NDAwCnBncm90YXRlZCAgICAg
+ICAgICAgICAgICAgICAgIDQzNTMyNQpwZ2FjdGl2YXRlICAgICAgICAgICAg
+ICAgICAgICA0MDk0MTcKa3N3YXBkX3N0ZWFsICAgICAgICAgICAgICAgICAg
+MzA2ODYwCnNsYWJzX3NjYW5uZWQgICAgICAgICAgICAgICAgIDI1ODcxMgpw
+c3dwaW4gICAgICAgICAgICAgICAgICAgICAgICAyMjYzOTYKcGdzY2FuX2Rp
+cmVjdF9kbWEgICAgICAgICAgICAgODEzNTEKcGdtYWpmYXVsdCAgICAgICAg
+ICAgICAgICAgICAgNzcyNTkKcGdzdGVhbF9kbWEgICAgICAgICAgICAgICAg
+ICAgNDQyMTcKcGdzY2FuX2tzd2FwZF9kbWEgICAgICAgICAgICAgNDIzNDMK
+YWxsb2NzdGFsbCAgICAgICAgICAgICAgICAgICAgNzU4OQpucl9kaXJ0eSAg
+ICAgICAgICAgICAgICAgICAgICA1Nzc3CnBhZ2VvdXRydW4gICAgICAgICAg
+ICAgICAgICAgIDI2OTIKbnJfc2xhYiAgICAgICAgICAgICAgICAgICAgICAg
+MTA2MAprc3dhcGRfaW5vZGVzdGVhbCAgICAgICAgICAgICAxMDA1CnBnaW5v
+ZGVzdGVhbCAgICAgICAgICAgICAgICAgIDUyMgpucl9wYWdlX3RhYmxlX3Bh
+Z2VzICAgICAgICAgICAzCnBnc3RlYWxfaGlnaCAgICAgICAgICAgICAgICAg
+IDAKcGdhbGxvY19oaWdoICAgICAgICAgICAgICAgICAgMApwZ3NjYW5fa3N3
+YXBkX2hpZ2ggICAgICAgICAgICAwCnBnc2Nhbl9kaXJlY3RfaGlnaCAgICAg
+ICAgICAgIDAKcGdyZWZpbGxfaGlnaCAgICAgICAgICAgICAgICAgMApucl91
+bnN0YWJsZSAgICAgICAgICAgICAgICAgICAwCm5yX3dyaXRlYmFjayAgICAg
+ICAgICAgICAgICAgIDAKbnJfbWFwcGVkICAgICAgICAgICAgICAgICAgICAg
+LTYwNDMK
+
+--0-1692732433-1090546852=:67565
+Content-Type: application/octet-stream; name="vm.patch"
+Content-Transfer-Encoding: base64
+Content-Description: vm.patch
+Content-Disposition: attachment; filename="vm.patch"
+
+LS0tIC5vcmlnL21tL3Ztc2Nhbi5jCTIwMDQtMDctMjIgMjA6MzI6MDEuNjU4
+Njc2NzQ1IC0wNDAwCisrKyAyLjYuOC1yYzEtdm1maXgvbW0vdm1zY2FuLmMJ
+MjAwNC0wNy0xOSAwMDo1MjowMi4wMDAwMDAwMDAgLTA0MDAKQEAgLTc5OCw2
+ICs3OTgsNyBAQAogc3RhdGljIHZvaWQKIHNocmlua196b25lKHN0cnVjdCB6
+b25lICp6b25lLCBzdHJ1Y3Qgc2Nhbl9jb250cm9sICpzYykKIHsKKwlpbnQg
+bnJfcGFnZXM7CiAJdW5zaWduZWQgbG9uZyBucl9hY3RpdmU7CiAJdW5zaWdu
+ZWQgbG9uZyBucl9pbmFjdGl2ZTsKIApAQCAtODE5LDcgKzgyMCw3IEBACiAJ
+ZWxzZQogCQlucl9pbmFjdGl2ZSA9IDA7CiAKLQlzYy0+bnJfdG9fcmVjbGFp
+bSA9IFNXQVBfQ0xVU1RFUl9NQVg7CisJbnJfcGFnZXMgPSBzYy0+bnJfdG9f
+cmVjbGFpbTsKIAogCXdoaWxlIChucl9hY3RpdmUgfHwgbnJfaW5hY3RpdmUp
+IHsKIAkJaWYgKG5yX2FjdGl2ZSkgewpAQCAtODM0LDcgKzgzNSw5IEBACiAJ
+CQkJCSh1bnNpZ25lZCBsb25nKVNXQVBfQ0xVU1RFUl9NQVgpOwogCQkJbnJf
+aW5hY3RpdmUgLT0gc2MtPm5yX3RvX3NjYW47CiAJCQlzaHJpbmtfY2FjaGUo
+em9uZSwgc2MpOwotCQkJaWYgKHNjLT5ucl90b19yZWNsYWltIDw9IDApCisJ
+CQlpZiAobnJfcGFnZXMgPT0gMCAmJiB6b25lLT5mcmVlX3BhZ2VzID4gem9u
+ZS0+cGFnZXNfaGlnaCkKKwkJCQlicmVhazsKKwkJCWlmIChucl9wYWdlcyAm
+JiBzYy0+bnJfdG9fcmVjbGFpbSA8PSAwKQogCQkJCWJyZWFrOwogCQl9CiAJ
+fQpAQCAtODcxLDYgKzg3NCw3IEBACiAJCWlmICh6b25lLT5hbGxfdW5yZWNs
+YWltYWJsZSAmJiBzYy0+cHJpb3JpdHkgIT0gREVGX1BSSU9SSVRZKQogCQkJ
+Y29udGludWU7CS8qIExldCBrc3dhcGQgcG9sbCBpdCAqLwogCisJCXNjLT5u
+cl90b19yZWNsYWltID0gU1dBUF9DTFVTVEVSX01BWDsKIAkJc2hyaW5rX3pv
+bmUoem9uZSwgc2MpOwogCX0KIH0KQEAgLTkxNywxMiArOTIxLDEyIEBACiAJ
+CQlzYy5ucl9yZWNsYWltZWQgKz0gcmVjbGFpbV9zdGF0ZS0+cmVjbGFpbWVk
+X3NsYWI7CiAJCQlyZWNsYWltX3N0YXRlLT5yZWNsYWltZWRfc2xhYiA9IDA7
+CiAJCX0KLQkJaWYgKHNjLm5yX3JlY2xhaW1lZCA+PSBTV0FQX0NMVVNURVJf
+TUFYKSB7CisJCXRvdGFsX3NjYW5uZWQgKz0gc2MubnJfc2Nhbm5lZDsKKwkJ
+dG90YWxfcmVjbGFpbWVkICs9IHNjLm5yX3JlY2xhaW1lZDsKKwkJaWYgKHRv
+dGFsX3JlY2xhaW1lZCA+PSBTV0FQX0NMVVNURVJfTUFYKSB7CiAJCQlyZXQg
+PSAxOwogCQkJZ290byBvdXQ7CiAJCX0KLQkJdG90YWxfc2Nhbm5lZCArPSBz
+Yy5ucl9zY2FubmVkOwotCQl0b3RhbF9yZWNsYWltZWQgKz0gc2MubnJfcmVj
+bGFpbWVkOwogCiAJCS8qCiAJCSAqIFRyeSB0byB3cml0ZSBiYWNrIGFzIG1h
+bnkgcGFnZXMgYXMgd2UganVzdCBzY2FubmVkLiAgVGhpcwpAQCAtMTAzOSw3
+ICsxMDQzLDkgQEAKIAkJCWlmIChucl9wYWdlcyA9PSAwKSB7CS8qIE5vdCBz
+b2Z0d2FyZSBzdXNwZW5kICovCiAJCQkJaWYgKHpvbmUtPmZyZWVfcGFnZXMg
+PD0gem9uZS0+cGFnZXNfaGlnaCkKIAkJCQkJYWxsX3pvbmVzX29rID0gMDsK
+LQkJCX0KKwkJCQlzYy5ucl90b19yZWNsYWltID0gMDsKKwkJCX0gZWxzZQor
+CQkJCXNjLm5yX3RvX3JlY2xhaW0gPSB0b19mcmVlIC0gdG90YWxfcmVjbGFp
+bWVkOwogCQkJem9uZS0+dGVtcF9wcmlvcml0eSA9IHByaW9yaXR5OwogCQkJ
+aWYgKHpvbmUtPnByZXZfcHJpb3JpdHkgPiBwcmlvcml0eSkKIAkJCQl6b25l
+LT5wcmV2X3ByaW9yaXR5ID0gcHJpb3JpdHk7Cg==
+
+--0-1692732433-1090546852=:67565--

@@ -1,78 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316222AbSEQNyq>; Fri, 17 May 2002 09:54:46 -0400
+	id <S316225AbSEQN7z>; Fri, 17 May 2002 09:59:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316223AbSEQNyq>; Fri, 17 May 2002 09:54:46 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4737 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316222AbSEQNyp>; Fri, 17 May 2002 09:54:45 -0400
-Date: Fri, 17 May 2002 09:56:16 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "J.P. Morris" <jpm@it-he.org>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Aralion and IDE blasphemy
-In-Reply-To: <20020517142617.5b73a46d.jpm@it-he.org>
-Message-ID: <Pine.LNX.3.95.1020517093736.4698A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316226AbSEQN7y>; Fri, 17 May 2002 09:59:54 -0400
+Received: from adsl-66-127-87-238.dsl.sntc01.pacbell.net ([66.127.87.238]:5787
+	"HELO Developer.ChaoticDreams.ORG") by vger.kernel.org with SMTP
+	id <S316225AbSEQN7x>; Fri, 17 May 2002 09:59:53 -0400
+Date: Fri, 17 May 2002 06:59:45 -0700
+From: Paul Mundt <lethal@ChaoticDreams.ORG>
+To: Chandrasekhar <chandrasekhar.nagaraj@patni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Port for SH7729
+Message-ID: <20020517065945.A5640@ChaoticDreams.ORG>
+In-Reply-To: <NFBBJJFKOKJEMFAEIPPJIEALCCAA.chandrasekhar.nagaraj@patni.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+Organization: Chaotic Dreams Development Team
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002, J.P. Morris wrote:
 
-> 
-> This is probably approaching blasphemy, but has anyone ever considered
-> an emergency EIDE driver that uses the extended int13h calls?
-> I'm pretty sure there's a protected-mode BIOS interface in modern BIOSes
-> these days, so it shouldn't need to go down to real mode to make the
-> calls.
-> 
-> I have just purchased an IDE RAID controller to add tertiary and
-> quaternary IDE ports to my system for an extra CDROM drive.
-> I thought the days when you couldn't get Linux support for such things
-> were long gone, but sadly no.
-> 
-> The culprit is an ARALION ARS106S chipset card.  Interestingly it works
-> in DOS, and if the hard disks are attached to it, it will even boot
-> up to LILO, but then the kernel dies because it can't find the HDDs.
-> (On their web page message board, some guy asks for the specs but is
->  helpfully pointed to an obsolete binary module for RedHat 7.1.)
-> 
-> If there was Linux support for BIOS-based EIDE controllers, it should
-> in theory work, if slowly.
-> 
-> Alternatively, can anyone suggest a cheap tertiary EIDE card suitable
-> for CDROM or hard disks that Linux can support?
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, May 17, 2002 at 10:24:48AM +0530, Chandrasekhar wrote:
+> We have a SH7729 based system(SH 7729 based hardware of V610/V612
+> Intelligent terminal).I want to know whether the basic CPU porting for the
+> SH7729 processor for Linux has been done.If so can you mention the details
+> of the web site where the patch for this processor is present
+>=20
+You'll want to take a look at the LinuxSH project, located at
+http://www.sf.net/projects/linuxsh (CVS head against 2.5, linux-2_4-branch =
+for
+2.4).
+
+You'll probably also want to subscribe to the linuxsh-dev mailing list, sin=
+ce
+that's more of an appropriate venue for this kind of thing than l-k is.
+
+As for the SH7729, that's just another SH-3 DSP. It's supported in CVS
+already. If you have a custom board using it, the Harp board is another one
+that uses it as well, which should give you a decent starting point for
+bringing it up on your hardware.
+
+Regards,
+
+--=20
+Paul Mundt <lethal@chaoticdreams.org>
 
 
-Just install Linux from a current distribution, i.e., like
-RedHat (not an Add, just came-to mind because I don't know
-how to spell Suse and/or whatever..). The drivers for IDE/EIDE/RAID
-are in their installation kernels. If you are trying to build a kernel
-to support EIDE, the problem is figuring out what questions to answer
-during configuration. The major distributors have already figured that
-out.
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-You can't do 'BIOS-based' stuff in the kernel (although it's been tried
-for what should be simple stuff like APM).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-The BIOS code itself often makes assumptions about the environment
-like it can plug its interrupt vector into the interrupt table and
-enable its ISR.
+iEYEARECAAYFAjzlDNAACgkQYLvqhoOEA4Fw7gCdGkIbmxdkn28klqBkuKuMabca
+AeUAni/HUSVo9DTCu4cg14pJMQJ6JSEK
+=fndT
+-----END PGP SIGNATURE-----
 
-There can't be, as you say, "a protected mode BIOS interface" for
-the same reason nobody does general purpose surgery. Every
-protected-mode system is different.
-
-Also, when LILO boots, if it didn't get past Uncompressing, then
-booting the kernel, it's NOT a lack of hard-disk support. You
-probably have built the kernel for a processor you don't have.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+--RnlQjJ0d97Da+TV1--

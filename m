@@ -1,170 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267286AbTAMLX2>; Mon, 13 Jan 2003 06:23:28 -0500
+	id <S267672AbTAMMAt>; Mon, 13 Jan 2003 07:00:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267354AbTAMLX1>; Mon, 13 Jan 2003 06:23:27 -0500
-Received: from ophelia.ess.nec.de ([193.141.139.8]:25298 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S267286AbTAMLXY> convert rfc822-to-8bit; Mon, 13 Jan 2003 06:23:24 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: NUMA scheduler 2nd approach
-Date: Mon, 13 Jan 2003 12:32:40 +0100
-User-Agent: KMail/1.4.3
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>, Robert Love <rml@tech9.net>,
-       Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-References: <52570000.1042156448@flay> <200301130055.28005.efocht@ess.nec.de> <20030113080207.A9119@infradead.org>
-In-Reply-To: <20030113080207.A9119@infradead.org>
+	id <S267688AbTAMMAt>; Mon, 13 Jan 2003 07:00:49 -0500
+Received: from pat.uio.no ([129.240.130.16]:23507 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S267672AbTAMMAs>;
+	Mon, 13 Jan 2003 07:00:48 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301131232.40600.efocht@ess.nec.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15906.44145.47417.934888@charged.uio.no>
+Date: Mon, 13 Jan 2003 13:09:21 +0100
+To: Paul Jakma <paulj@alphyra.ie>
+Cc: Dax Kelson <Dax.Kelson@gurulabs.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       NFS maillist <nfs@lists.sourceforge.net>
+Subject: Re: [PATCH] Secure user authentication for NFS using RPCSEC_GSS
+ [0/6]
+In-Reply-To: <Pine.LNX.4.44.0301130745510.26185-100000@dunlop.admin.ie.alphyra.com>
+References: <1042437391.1677.8.camel@thud>
+	<Pine.LNX.4.44.0301130745510.26185-100000@dunlop.admin.ie.alphyra.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
+>>>>> " " == Paul Jakma <paulj@alphyra.ie> writes:
 
-thanks for reviewing the code and the helpful comments!
+     > On 12 Jan 2003, Dax Kelson wrote:
+    >> Standard NFS security/authentication sucks rocks. Without this
+    >> NFS home directory servers are just waiting to be ransacked by
+    >> a rouge (or compromised) root user on a client machine.
 
-On Monday 13 January 2003 09:02, Christoph Hellwig wrote:
-> On Mon, Jan 13, 2003 at 12:55:28AM +0100, Erich Focht wrote:
-> > as discussed on the LSE call I played around with a cross-node
-> > balancer approach put on top of the miniature NUMA scheduler. The
-> > patches are attached and it seems to be clear that we can regain the
-> > good performance for hackbench by adding a cross-node balancer.
->
-> The changes look fine to me.  But I think there's some conding style
-> issues that need cleaning up (see below).  Also is there a reason
-> patches 2/3 and 4/5 aren't merged into one patch each?
+     > AIUI, A root user still can. The users krbv5 credentials will
+     > generally have been cached to storage. (though i suppose one
+     > could mount that storage via NFS and use root_squash, but
+     > that's little protection.).
 
-The patches are separated by their functionality. Patch 2 comes from
-Michael Hohnbaum, so I kept that separate for that reason. Right now
-we can exchange the single components but when we decide that they are
-doing the job, I'd also prefer to have just one patch.
+Once the root account has been compromised, it is 'Game Over' no
+matter what you do. Kerberos or no Kerberos, the simplest way to steal
+your identity is simply for the attacker to listen in on your tty
+while you are typing your password.
 
->  /*
-> - * find_busiest_queue - find the busiest runqueue.
-> + * find_busiest_in_mask - find the busiest runqueue among the cpus in
-> cpumask */
-> -static inline runqueue_t *find_busiest_queue(runqueue_t *this_rq, int
-> this_cpu, int idle, int *imbalance) +static inline runqueue_t
-> *find_busiest_in_mask(runqueue_t *this_rq, int this_cpu, int idle, int
-> *imbalance, unsigned long cpumask)
->
->
-> 	find_busiest_queue has just one caller in 2.5.56, I'd suggest just
-> 	changing the prototype and updating that single caller to pass in
-> 	the cpumask opencoded.
+The RPCSEC_GSS security model is not meant to protect you against root
+monitoring. It is meant to prevent some third party (on another
+machine for instance) from spoofing RPC requests in you name (==
+strong authentication), intercepting valid RPC requests and modifying
+the payload (== cryptographic data integrity checking), or listening
+in on the client/server communication (== data privacy).
 
-Having find_busiest_queue() and find_busiest_in_mask() as separate
-function makes it simpler to merge in the cross-node balancer (patch
-3). Otherwise we'd have to add two #ifdef CONFIG_NUMA blocks into
-load_balance() (one for new variable declarations, the other one for
-selecting the target node mask). We might have several calls to
-find_busiest_in_mask() later, if we decide to add multi-level node
-hierarchy support...
-
-
-> 	I don't think you need this spurious whitespace change :)
-
-:-) slipped in somehow.
-
-
-> +#ifdef CONFIG_NUMA
-> +extern void sched_balance_exec(void);
-> +extern void node_nr_running_init(void);
-> +#define nr_running_inc(rq) atomic_inc(rq->node_ptr); \
-> +	rq->nr_running++
-> +#define nr_running_dec(rq) atomic_dec(rq->node_ptr); \
-> +	rq->nr_running--
->
-> 	static inline void nr_running_inc(runqueue_t *rq)
-> 	{
-> 		atomic_inc(rq->node_ptr);
-> 		rq->nr_running++
-> 	}
->
-> 	etc.. would look a bit nicer.
-
-We can change this. Michael, ok with you?
-
-
-> +#if CONFIG_NUMA
-> +static atomic_t node_nr_running[MAX_NUMNODES]
-> ____cacheline_maxaligned_in_smp = {[0 ...MAX_NUMNODES-1] = ATOMIC_INIT(0)};
->
-> 	Maybe wants some linewrapping after 80 chars?
-
-Yes.
-
-
-> +	for (i = 0; i < NR_CPUS; i++) {
-> +		cpu_rq(i)->node_ptr = &node_nr_running[__cpu_to_node(i)];
-> +	}
-> +	return;
-> +}
->
-> 	The braces and the return are superflous.  Also kernel/sched.c (or
-> 	mingo codein general) seems to prefer array + i instead of &array[i]
-> 	(not that I have a general preferences, but you should try to match
-> 	the surrounding code)
-
-Will change the braces and remove the return. I personally find
-&array[i] more readable.
-
-> +static void sched_migrate_task(task_t *p, int dest_cpu)
-> +{
-> +	unsigned long old_mask;
-> +
-> +	old_mask = p->cpus_allowed;
-> +	if (!(old_mask & (1UL << dest_cpu)))
-> +		return;
-> +	/* force the process onto the specified CPU */
-> +	set_cpus_allowed(p, 1UL << dest_cpu);
-> +
-> +	/* restore the cpus allowed mask */
-> +	set_cpus_allowed(p, old_mask);
->
-> 	This double set_cpus_allowed doesn't look nice to me.  I don't
-> 	have a better suggestion of-hand, though :(
-
-This is not that bad. It involves only one single wakeup of the
-migration thread, and that's more important. Doing it another way
-would mean to replicate the set_cpus_allowed() code.
-
-> +#define decl_numa_int(ctr) int ctr
->
-> 	This is ugly as hell.  I'd prefer wasting one int in each runqueue
-> 	or even an ifdef in the struct declaration over this obsfucation
-> 	all the time.
-
-Agreed :-) Just trying to avoid #ifdefs in sched.c as much as
-possible. Somehow had the feeling Linus doesn't like that. On the
-other hand: CONFIG_NUMA is a special case of CONFIG_SMP and nobody has
-anything against CONFIG_SMP in sched.c...
-
-
-> @@ -816,6 +834,16 @@ out:
->  static inline runqueue_t *find_busiest_queue(runqueue_t *this_rq, int
-> this_cpu, int idle, int *imbalance) {
->  	unsigned long cpumask = __node_to_cpu_mask(__cpu_to_node(this_cpu));
-> +#if CONFIG_NUMA
-> +	int node;
-> +#       define INTERNODE_LB 10
->
-> 	This wants to be put to the other magic constants in the scheduler
-> 	and needs an explanation there.
-
-We actually get rid of this in patch #5 (variable internode_lb,
-depending on the load of the current node). But ok, I'll move the
-MIN_INTERNODE_LB and MAX_INTERNODE_LB variables to the magic
-constants. They'll be outside the #ifdef CONFIG_NUMA block...
-
-Thanks,
-
-best regards,
-Erich
-
+Cheers,
+  Trond

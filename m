@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265591AbTGTKiw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 06:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266807AbTGTKiv
+	id S266880AbTGTKkg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 06:40:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266885AbTGTKkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 06:38:51 -0400
-Received: from svr7.m-online.net ([62.245.150.229]:64455 "EHLO
-	svr7.m-online.net") by vger.kernel.org with ESMTP id S265591AbTGTKiv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 06:38:51 -0400
-Date: Sun, 20 Jul 2003 12:55:47 +0200
-From: Florian Huber <florian.huber@mnet-online.de>
+	Sun, 20 Jul 2003 06:40:35 -0400
+Received: from home.wiggy.net ([213.84.101.140]:60346 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S266880AbTGTKka (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 06:40:30 -0400
+Date: Sun, 20 Jul 2003 12:55:29 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6.0-test1-mm2] unable to mount root fs on unknown-block(0,0)
-Message-Id: <20030720125547.11466aa4.florian.huber@mnet-online.de>
-X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+Message-ID: <20030720105529.GC29459@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl> <E18bHfV-0002QE-00@fencepost.gnu.org> <20030122162107.GA26725@mark.mielke.cc> <pan.2003.07.20.02.27.22.526885@terra.com.br> <871xwl7h6j.fsf@deneb.enyo.de> <pan.2003.07.20.08.49.28.615976@terra.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <pan.2003.07.20.08.49.28.615976@terra.com.br>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello ML,
-I can't boot my 2.6.0-test1-mm2 kernel (+GCC 3.3). The kernel panics
-at bootime:
+Previously Leandro Guimarães Faria Corsetti Dutra wrote:
+> 	It won't be the first disagreement.  Debian actually was
+> poised to become *the* GNU distribution until they insisted on
+> carrying non-free software, when that was even more essential.
 
-VFS: Cannot open root device "hda3" or unknow-block(0,0)
-Please append a correct "root=" boot option
-Kernel Panic: VFS: Unable to mount root fs on unknown-block(0,0)
+Please get your facts straight. Debian never insisted on carrying
+non-free software. There was disagreement over references to non-free
+software in Documentation. FSF would not allow documentation to mention
+the OSS drivers for example. 
 
-I do have compiled support for the file system on my root partition
-(xfs). The same configuration worked well with 2.6.0-test1-mm1.
+> Every so often this issue is raised again; presumably they will shed
+> non-free completely once a recent free version of Java 2, SWF player
+> and assorted stuff becomes available.
 
-Perhaps somebody knows how to solve this.
+And perhaps not.
 
-TIA
-	Florian Huber
+Wichert.
+
+-- 
+Wichert Akkerman <wichert@wiggy.net>      It is simple to make things.
+http://www.wiggy.net/                     It is hard to make things simple.
+

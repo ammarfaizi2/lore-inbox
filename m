@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267186AbUHSS3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267232AbUHSSbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267186AbUHSS3J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 14:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267195AbUHSS3J
+	id S267232AbUHSSbN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 14:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267209AbUHSSbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 14:29:09 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:39837 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267186AbUHSS3F (ORCPT
+	Thu, 19 Aug 2004 14:31:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41634 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267214AbUHSSbA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 14:29:05 -0400
-Date: Thu, 19 Aug 2004 11:25:52 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>, davidm@hpl.hp.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernbench on 512p
-Message-ID: <253460000.1092939952@flay>
-In-Reply-To: <200408191237.16959.jbarnes@engr.sgi.com>
-References: <200408191216.33667.jbarnes@engr.sgi.com> <16676.54657.220755.148837@napali.hpl.hp.com> <200408191237.16959.jbarnes@engr.sgi.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 19 Aug 2004 14:31:00 -0400
+Date: Thu, 19 Aug 2004 14:30:47 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@dhcp83-102.boston.redhat.com
+To: jmerkey@comcast.net
+cc: linux-kernel@vger.kernel.org, <jmerkey@drdos.com>
+Subject: Re: kallsyms 2.6.8 address ordering
+In-Reply-To: <081920041810.18883.4124ED110002BABC000049C32200748184970A059D0A0306@comcast.net>
+Message-ID: <Pine.LNX.4.44.0408191429400.13281-100000@dhcp83-102.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thursday, August 19, 2004 12:29 pm, David Mosberger wrote:
->> >>>>> On Thu, 19 Aug 2004 12:16:33 -0400, Jesse Barnes
->> >>>>> <jbarnes@engr.sgi.com> said:
->> 
->>   Jesse> It would be nice if the patch to show which lock is contended
->>   Jesse> got included.
->> 
->> Why not use q-syscollect?  It will show you the caller of
->> ia64_spinlock_contention, which is often just as good (or better ;-).
-> 
-> Because it requires guile and guile SLIB, which I've never been able to setup 
-> properly on a RHEL3 based distro.  Care to rewrite the tools in C or 
-> something? ;)
+On Thu, 19 Aug 2004 jmerkey@comcast.net wrote:
 
-Does lockmeter not work for you? It's sitting in my tree still, and 
-Andrew's last time I looked.
+> kallsyms in 2.6.8 is presenting module symbol tables with out of order
+> addresses in 2.6.X.  This makes maintaining a commercial kernel debugger
+> for Linux 2.6 kernels nighmareish. 
 
-M.
+How hard could it be to sort the table in your debugger ?
+
+> Also, the need to kmalloc name strings (like kdb does) from kallsyms in
+> kdbsupport.c while IN THE DEBUGGER makes it impossible to debug large
+> portions of the kernel code with kdb, so I have rewritten large sections
+> of kallsyms.c to handle all these broken, brain-dead cases in mdb and I
+> am not relying much on kdb hooks anymore.
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Sounds like your commercial debugger might just be violating
+the GPL ;)
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

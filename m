@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316185AbSEOICX>; Wed, 15 May 2002 04:02:23 -0400
+	id <S316189AbSEOIUx>; Wed, 15 May 2002 04:20:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316189AbSEOICX>; Wed, 15 May 2002 04:02:23 -0400
-Received: from a217-118-40-108.bluecom.no ([217.118.40.108]:35604 "EHLO
-	mail.circlestorm.org") by vger.kernel.org with ESMTP
-	id <S316185AbSEOICW>; Wed, 15 May 2002 04:02:22 -0400
-Message-ID: <006601c1fbe6$d47594d0$0d01a8c0@studio2pw0bzm4>
-From: "Dead2" <dead2@circlestorm.org>
-To: "Tigran Aivazian" <tigran@veritas.com>, <syslinux@zytor.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0205141920420.1577-100000@einstein.homenet>
-Subject: Re: Initrd or Cdrom as root
-Date: Wed, 15 May 2002 10:02:15 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S316276AbSEOIUw>; Wed, 15 May 2002 04:20:52 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:19205 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S316189AbSEOIUw>; Wed, 15 May 2002 04:20:52 -0400
+Date: Wed, 15 May 2002 10:20:45 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE *data corruption* VIA VT8367
+Message-ID: <20020515082045.GB4190@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <379487051.20020514195533@anna-strasse.de> <E177lx4-0000e6-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I suspect that whatever is he using for creating the images (what is this
-> "isolinux.cfg"?) has modified the boot command line and that is why it
-> fails. It works fine for me (and worked since the time I wrote it around
-> 2.4.0 or so).
+On Wed, 15 May 2002, Alan Cox wrote:
 
-Your assumption is correct!
+> I have multiple similar reports, and in all cases where people tried, switching
+> to a non via chipset cured it - it might be co-incidence but I have enough
+> reports I suspect its some kind of hardware incompatibility/limit with
+> the VIA and multiple promise ide controllers
 
-It seems that isolinux does not pass the append parameters at all.
-The booting works fine when I made your patch use cdrom as root
-no matter what.
+I did not see corruption on VIA KT133 (VT8363) + Promise PDC20265R in
+non-RAID ("UDMA/100") mode with hda + hde. (No longer using the promise
+because FreeBSD uses to talk Tagged Queueing on those old Promise
+chips).
 
-> This is my isolinux.cfg file:
-> ---
-> DEFAULT zoac
->
-> LABEL zoac
->     KERNEL /boot/bzImage
->     APPEND "enableapic rootcd=1"
-> ---
+So maybe it's the newer chipset or it's rare enough it doesn't bite
+everybody -- or it's infact a Promise incompatibility. (FreeBSD man
+pages report Promise chips before TX2 lock up hard with ATA DMA queued
+commands).
 
--=Dead2=-
-
+-- 
+Matthias Andree

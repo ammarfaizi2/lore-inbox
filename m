@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261508AbSJPWBo>; Wed, 16 Oct 2002 18:01:44 -0400
+	id <S261572AbSJPWI7>; Wed, 16 Oct 2002 18:08:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261511AbSJPWBo>; Wed, 16 Oct 2002 18:01:44 -0400
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:60
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S261508AbSJPWBm>; Wed, 16 Oct 2002 18:01:42 -0400
-Message-ID: <3DADE4C0.9030809@rackable.com>
-Date: Wed, 16 Oct 2002 15:14:24 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
+	id <S261573AbSJPWI7>; Wed, 16 Oct 2002 18:08:59 -0400
+Received: from tailtiu.davidcoulson.net ([194.159.156.4]:25011 "EHLO
+	mail.mx.davidcoulson.net") by vger.kernel.org with ESMTP
+	id <S261572AbSJPWI5>; Wed, 16 Oct 2002 18:08:57 -0400
+Message-ID: <3DADE4DA.9080508@davidcoulson.net>
+Date: Wed, 16 Oct 2002 23:14:50 +0100
+From: David Coulson <david@davidcoulson.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020723
+X-Accept-Language: en-gb
 MIME-Version: 1.0
-To: Mark Mielke <mark@mark.mielke.cc>
-CC: mcuss@cdlsystems.com, jamesclv@us.ibm.com, root@chaos.analogic.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel reports 4 CPUS instead of 2...
-References: <Pine.LNX.3.95.1021016135105.150A-100000@chaos.analogic.com> <200210161228.58897.jamesclv@us.ibm.com> <0d3901c2754c$7bf17060$2c0e10ac@frinkiac7> <3DADD064.8010707@rackable.com> <20021016214455.GA9624@mark.mielke.cc>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org,
+       UML devel <user-mode-linux-devel@lists.sourceforge.net>
+Subject: Re: swap_dup/swap_free errors with 2.4.20-pre10
+References: <Pine.LNX.4.44L.0210161922570.5583-100000@freak.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Oct 2002 22:07:40.0148 (UTC) FILETIME=[71827340:01C27560]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke wrote:
+Hey Marcelo,
 
->On Wed, Oct 16, 2002 at 01:47:32PM -0700, Samuel Flory wrote:
->  
->
->>  Try shutting off hyperthreading in the bios.  Keep in mind 
->>hyperthreading is net loss if you are running a single nonthreaded app. 
->>Also you might want to check if there aren't io speed issues.  
->>    
->>
->
->Is this true? It seems to me that the 'on-demand execution units' would
->simply be devoted to the one task, resulting in zero loss.
->  
->
+> Any news on this one, David?
 
-  In perfect world yes, but in reality there is overhead.  I've tested 
-this on a quad xeon.  A "make bzImage" is a bit faster with 
-hyperthreading off.  Of course a make -j 8 bzImage is faster with 
-hyperthreading on.  I haven't tried this on a dual xeon.  (It could be a 
-scaling issue 4 vs 8 processors.)
+Sorry, I forgot to follow up - I spend most of yesterday morning trying 
+to stabalise the thing and didn't end up posting my results. Basically, 
+my board can only handle 1.5Gb of PC133 properly, even though it will 
+try to use 2Gb if you put that much in it. Interestingly enough, it 
+passed the memtest86 tests I ran on it the other night, so I'm not sure 
+what's going on there. Tyan, the board manufacturer, confirmed that the 
+system is only stable with 1.5Gb of PC133, which is somewhat 
+disappointing, but I guess I'll have to live. Interestingly, it ran fine 
+for about 8hrs before going funny the first time, then it would spit out 
+swap_dup/free errors within 30 to 60mins five times in a row.
 
->I see hyperthreading becoming a problem if two threads are scheduled to
->execute at the same time before the operating system, and if they each
->need access to the same execution units at the same time.
->  
->
-And if both threads need different items in L(whatever) cache it gets 
-even worse.
+I had weird lockups under 2.4.20-pre9, where the system would behave 
+oddly - Most commands would work, but 'ps' simply locked up and I 
+couldn't Ctrl-C out of it. I've moved back to 2.4.19-ck7-rmap, which 
+seems to be stable at the moment, although I may take another look at 
+the 2.4.20-pre10 kernel sometime. As always, I didn't have a keyboard or 
+monitor hooked up to it, so I couldn't do too much with sysrq, but I'll 
+be ready if it does it again.
 
-There are a few good overviews on the subject:
-http://www.intel.com/technology/hyperthread/
-http://arstechnica.com/paedia/h/hyperthreading/hyperthreading-1.html
-http://www.anandtech.com/cpu/showdoc.html?i=1576&p=2
+Any points about the above lock-ups would be useful - Since 'ps' locks 
+and others don't (e.g. 'ls'), I think it's quite a specific issue, 
+although I've so far been unable to track it down.
+
+Thanks,
+David
+
+-- 
+David Coulson                                  http://davidcoulson.net/
+d@vidcoulson.com                       http://journal.davidcoulson.net/
 

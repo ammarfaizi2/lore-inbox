@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263692AbTLOOxf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 09:53:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbTLOOxf
+	id S263763AbTLOO6f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 09:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTLOO6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 09:53:35 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:40907 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263692AbTLOOxe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 09:53:34 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Bob <recbo@nishanet.com>
-Subject: Re: IRQ disabled (SATA) on NForce2 and my theory
-Date: Mon, 15 Dec 2003 15:55:51 +0100
-User-Agent: KMail/1.5.4
-References: <frodoid.frodo.87wu8zzgly.fsf@usenet.frodoid.org> <3FDD4F7C.7090303@nishanet.com>
-In-Reply-To: <3FDD4F7C.7090303@nishanet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	Mon, 15 Dec 2003 09:58:35 -0500
+Received: from zero.aec.at ([193.170.194.10]:37640 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263763AbTLOO6e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 09:58:34 -0500
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI Express support for 2.4 kernel
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 15 Dec 2003 15:58:17 +0100
+In-Reply-To: <12Z5u-1tG-11@gated-at.bofh.it> (Vladimir Kondratiev's message
+ of "Mon, 15 Dec 2003 12:30:17 +0100")
+Message-ID: <m3iskip1py.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <12KJ6-4F2-13@gated-at.bofh.it> <12XQc-7Vs-29@gated-at.bofh.it>
+	<12Z5u-1tG-11@gated-at.bofh.it>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312151555.51845.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 of December 2003 07:06, Bob wrote:
-> sii chips have a long history of needing to
-> hdparm off the unmask interrupt feature.
->
-> I don't know about that chip but for
-> sii680 there is a special option "-p9"
-> for hdparm which is to say pio mode 9
-> is a special instruction in addition to
-> standard hdparm opt "-u0" turning off
-> irq unmask.
+Vladimir Kondratiev <vladimir.kondratiev@intel.com> writes:
+>>
+> I thought this way also. But I found that it is not. You may know
+> several chipsets,
+> and do per-chipset stuff, but there is no generic procedure. At least
+> authors of PCI-E
+> don't know (it is nice to have access to the authors ;-) ).
 
-There is no such thing as 'special option "-p9"' for sii680.
+This sounds like a serious design flaw in PCI-Express. Can you 
+ask them to address this before it is too late? 
 
-> /sbin/hdparm -d1 -c1 -p9 -X70 -u0 -k0 -i $a
-
--X70 is only valid if your device is UDMA133.
-
---bart
-
+-Andi

@@ -1,341 +1,244 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317073AbSFWSjx>; Sun, 23 Jun 2002 14:39:53 -0400
+	id <S317083AbSFWTin>; Sun, 23 Jun 2002 15:38:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317078AbSFWSjw>; Sun, 23 Jun 2002 14:39:52 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:59885 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S317073AbSFWSju>; Sun, 23 Jun 2002 14:39:50 -0400
-Date: Sun, 23 Jun 2002 13:39:51 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
+	id <S317091AbSFWTin>; Sun, 23 Jun 2002 15:38:43 -0400
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:23241 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317083AbSFWTii>; Sun, 23 Jun 2002 15:38:38 -0400
+From: Dirk Schmidt <dreisam-rd@gmx.de>
 To: linux-kernel@vger.kernel.org
-Subject: kbuild fixes and more
-Message-ID: <Pine.LNX.4.44.0206231325280.6241-100000@chaos.physics.uiowa.edu>
+Subject: Kernel Oops
+Date: Sun, 23 Jun 2002 21:39:49 +0200
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_DYB67B5WEQ71PYLPOLMZ"
+Message-Id: <200206232139.50505.dreisam-rd@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I suppose we won't see any official / -dj releases any time soon, since
-everybody is at OLS, so I figured it may make sense to publish my
-current tree, which fixes some outstanding build problems and adds more
-cleanup.
+--------------Boundary-00=_DYB67B5WEQ71PYLPOLMZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Most notably:
+Today I got some kernel oops again.
+The output of ksymoops is attached. I am absolutely not familiar with tracing 
+kernel bugs, so I hope the information below is useful for you. If not, 
+please email me what to do.
 
-make KBUILD_VERBOSE= bzImage
+My system is Debian Woody with the woodie's 2.4.18-k6 kernel as appearing in 
+the log running on an AMD K6-II and 192MB RAM and 2 IDE harddisks.
 
-(or export KBUILD_VERBOSE=0 / setenv KBUILD_VERBOSE 0; make bzImage)
-
-looks certainly improved now.
-
-Fixes include:
-o the defkeymap/loadkeys issue
-o calling host programs for khttpd / soundmodem
-o make net_dev_init() a subsys_initcall, to make sure it's called
-  before any net device registers.
-
-Patch is available from 
-
-http://www.tp1.ruhr-uni-bochum.de/~kai/kbuild/patch-2.5.24-kg1.gz
-
-	or
-
-bk pull http://linux-isdn.bkbits.net/linux-2.5.make
+Best wishes
 
 
-Feedback is very welcome, of course ;)
+Dirk
+--------------Boundary-00=_DYB67B5WEQ71PYLPOLMZ
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="ksymoops.out"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="ksymoops.out"
 
---Kai
+ksymoops 2.4.5 on i586 2.4.18-k6.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.18-k6/ (default)
+     -m /boot/System.map-2.4.18-k6 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (expand_objects): object /lib/modules/2.4.18-k6/kernel/drivers/ide/ide-disk.o for module ide-disk has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18-k6/kernel/drivers/ide/ide-probe-mod.o for module ide-probe-mod has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18-k6/kernel/drivers/ide/ide-mod.o for module ide-mod has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18-k6/kernel/fs/ext2/ext2.o for module ext2 has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18-k6/kernel/fs/ext3/ext3.o for module ext3 has changed since load
+Warning (expand_objects): object /lib/modules/2.4.18-k6/kernel/fs/jbd/jbd.o for module jbd has changed since load
+Jun 23 17:32:22 utopia2 kernel: Unable to handle kernel paging request at virtual address 0000ca48
+Jun 23 17:32:22 utopia2 kernel: c013f005
+Jun 23 17:32:22 utopia2 kernel: *pde = 00000000
+Jun 23 17:32:22 utopia2 kernel: Oops: 0002
+Jun 23 17:32:22 utopia2 kernel: CPU:    0
+Jun 23 17:32:22 utopia2 kernel: EIP:    0010:[get_new_inode+93/360]    Not tainted
+Jun 23 17:32:22 utopia2 kernel: EFLAGS: 00010202
+Jun 23 17:32:22 utopia2 kernel: eax: 0000ca48   ebx: 00000000   ecx: c000c0a0   edx: c283b0e8
+Jun 23 17:32:22 utopia2 kernel: esi: 0000ca40   edi: cbd46918   ebp: cbe6ac00   esp: c6239ed0
+Jun 23 17:32:22 utopia2 kernel: ds: 0018   es: 0018   ss: 0018
+Jun 23 17:32:22 utopia2 kernel: Process xmms (pid: 4003, stackpage=c6239000)
+Jun 23 17:32:22 utopia2 kernel: Stack: 00000000 cbd46918 00007e45 cbe6ac00 c013f286 cbe6ac00 00007e45 cbd46918 
+Jun 23 17:32:22 utopia2 kernel:        00000000 00000000 00007e45 c2362340 c2362340 c1d39660 cc81d0fa cbe6ac00 
+Jun 23 17:32:22 utopia2 kernel:        00007e45 00000000 00000000 fffffff4 c9d14080 c0ac60c0 c0135cb7 c9d14080 
+Jun 23 17:32:22 utopia2 kernel: Call Trace: [iget4+186/204] [nfs:__insmod_nfs_O/lib/modules/2.4.18-k6/kernel/fs/nfs/nfs.o_M3+-790278/96] [real_lookup+83/196] [link_path_walk+1188/1736] [getname+94/156] 
+Jun 23 17:32:22 utopia2 kernel: Code: 89 56 08 c7 40 04 3c dc 1e c0 a3 3c dc 1e c0 8b 07 89 70 04 
+Using defaults from ksymoops -t elf32-i386 -a i386
 
 
-ChangeLog:
+>>eax; 0000ca48 Before first symbol
+>>ecx; c000c0a0 Before first symbol
+>>edx; c283b0e8 <_end+25d175c/c5a3674>
+>>esi; 0000ca40 Before first symbol
+>>edi; cbd46918 <_end+badcf8c/c5a3674>
+>>ebp; cbe6ac00 <_end+bc01274/c5a3674>
+>>esp; c6239ed0 <_end+5fd0544/c5a3674>
 
------------------------------------------------------------------------------
-ChangeSet@1.490.1.62, 2002-06-20 11:57:34-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: Assorted cleanups
-      
-  o Provide $(obj),$(objtree) and friends in the top-level Makefile as well
-    for consistency (Sam Ravnborg)
-  o Make $(call cmd,whatever) consistent with $(call if_changed,whatever),
-    i.e. both will execute $(cmd_whatever)
-  o Add $(echo_target), which will print the current target in a suitable
-    way for the quiet output format (i.e. target name relative to the
-    top-level directory)
-  o Fix the dependencies for host compiled programs to work for files in
-    subdirectories (missed converting them when introducing $(depfile))
-  o Add commands which will be useful when generating boot images.
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   89 56 08                  mov    %edx,0x8(%esi)
+Code;  00000003 Before first symbol
+   3:   c7 40 04 3c dc 1e c0      movl   $0xc01edc3c,0x4(%eax)
+Code;  0000000a Before first symbol
+   a:   a3 3c dc 1e c0            mov    %eax,0xc01edc3c
+Code;  0000000f Before first symbol
+   f:   8b 07                     mov    (%edi),%eax
+Code;  00000011 Before first symbol
+  11:   89 70 04                  mov    %esi,0x4(%eax)
 
- ----------------------------------------------------------------------------
- Makefile   |   13 ++++++++---
- Rules.make |   70 ++++++++++++++++++++++++++++++++++++++++++++-----------------
- 2 files changed, 61 insertions(+), 22 deletions(-)
+Jun 23 18:04:01 utopia2 kernel:  <1>Unable to handle kernel NULL pointer dereference at virtual address 00000004
+Jun 23 18:04:01 utopia2 kernel: c013d97a
+Jun 23 18:04:01 utopia2 kernel: *pde = 00000000
+Jun 23 18:04:01 utopia2 kernel: Oops: 0002
+Jun 23 18:04:01 utopia2 kernel: CPU:    0
+Jun 23 18:04:01 utopia2 kernel: EIP:    0010:[d_instantiate+26/48]    Not tainted
+Jun 23 18:04:01 utopia2 kernel: EFLAGS: 00010286
+Jun 23 18:04:01 utopia2 kernel: eax: 00000000   ebx: c7b22920   ecx: c000c5c0   edx: c7b22950
+Jun 23 18:04:01 utopia2 kernel: esi: c000c5c0   edi: c7b22920   ebp: ffffffe4   esp: cac9ff04
+Jun 23 18:04:01 utopia2 kernel: ds: 0018   es: 0018   ss: 0018
+Jun 23 18:04:01 utopia2 kernel: Process motv (pid: 3834, stackpage=cac9f000)
+Jun 23 18:04:01 utopia2 kernel: Stack: c6ef13e0 c012c189 c7b22920 c000c5c0 cac9ff5c c63dc720 000003ff 0000000c 
+Jun 23 18:04:01 utopia2 kernel:        cac9ff5c 0000000c 00000000 c01584f2 cac9ff5c 0000c000 00000000 cac9ff5c 
+Jun 23 18:04:01 utopia2 kernel:        c01d2d4c 00000000 000003ff 00000000 000003ff 0000c000 56535953 30303030 
+Jun 23 18:04:01 utopia2 kernel: Call Trace: [shmem_file_setup+189/288] [newseg+146/348] [sys_shmget+99/252] [sys_ipc+568/616] [system_call+51/64] 
+Jun 23 18:04:01 utopia2 kernel: Code: 89 50 04 89 43 30 8d 41 10 89 42 04 89 51 10 89 4b 08 5b c3 
 
------------------------------------------------------------------------------
-ChangeSet@1.490.1.63, 2002-06-20 12:07:42-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: Prepare LDFLAGS for general use
-  
-  Some arch Makefiles use LDFLAGS to keep special flags for the final
-  vmlinux link. However, we'd rather use LDFLAGS along the lines of
-  CFLAGS, AFLAGS etc, so get rid of these special cases.
 
- ----------------------------------------------------------------------------
- i386/Makefile   |    3 +--
- parisc/Makefile |    3 +--
- s390/Makefile   |    3 +--
- s390x/Makefile  |    3 +--
- x86_64/Makefile |    3 +--
- 5 files changed, 5 insertions(+), 10 deletions(-)
+>>ebx; c7b22920 <_end+78b8f94/c5a3674>
+>>ecx; c000c5c0 Before first symbol
+>>edx; c7b22950 <_end+78b8fc4/c5a3674>
+>>esi; c000c5c0 Before first symbol
+>>edi; c7b22920 <_end+78b8f94/c5a3674>
+>>ebp; ffffffe4 <END_OF_CODE+336a9081/????>
+>>esp; cac9ff04 <_end+aa36578/c5a3674>
 
------------------------------------------------------------------------------
-ChangeSet@1.490.1.64, 2002-06-20 12:25:11-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: Rename ld flags for vmlinux to LDFLAGS_vmlinux
-  
-  Everywhere else we use CFLAGS_<target> etc to designate special flags
-  for an object, so handle vmlinux the same way.
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   89 50 04                  mov    %edx,0x4(%eax)
+Code;  00000003 Before first symbol
+   3:   89 43 30                  mov    %eax,0x30(%ebx)
+Code;  00000006 Before first symbol
+   6:   8d 41 10                  lea    0x10(%ecx),%eax
+Code;  00000009 Before first symbol
+   9:   89 42 04                  mov    %eax,0x4(%edx)
+Code;  0000000c Before first symbol
+   c:   89 51 10                  mov    %edx,0x10(%ecx)
+Code;  0000000f Before first symbol
+   f:   89 4b 08                  mov    %ecx,0x8(%ebx)
+Code;  00000012 Before first symbol
+  12:   5b                        pop    %ebx
+Code;  00000013 Before first symbol
+  13:   c3                        ret    
 
- ----------------------------------------------------------------------------
- Makefile              |    4 ++--
- arch/alpha/Makefile   |    2 +-
- arch/arm/Makefile     |    2 +-
- arch/cris/Makefile    |    2 +-
- arch/i386/Makefile    |    2 +-
- arch/ia64/Makefile    |    2 +-
- arch/m68k/Makefile    |    4 ++--
- arch/mips/Makefile    |    4 ++--
- arch/mips64/Makefile  |   10 +++++-----
- arch/parisc/Makefile  |    2 +-
- arch/ppc/Makefile     |    2 +-
- arch/ppc64/Makefile   |    2 +-
- arch/s390/Makefile    |    2 +-
- arch/s390x/Makefile   |    2 +-
- arch/sh/Makefile      |    8 ++++----
- arch/sparc/Makefile   |    4 ++--
- arch/sparc64/Makefile |    2 +-
- arch/x86_64/Makefile  |    2 +-
- 18 files changed, 29 insertions(+), 29 deletions(-)
+Jun 23 18:04:01 utopia2 kernel:  <1>Unable to handle kernel paging request at virtual address fffffffc
+Jun 23 18:04:01 utopia2 kernel: c01118d0
+Jun 23 18:04:01 utopia2 kernel: *pde = 00001063
+Jun 23 18:04:01 utopia2 kernel: Oops: 0000
+Jun 23 18:04:01 utopia2 kernel: CPU:    0
+Jun 23 18:04:01 utopia2 kernel: EIP:    0010:[__wake_up+40/144]    Not tainted
+Jun 23 18:04:01 utopia2 kernel: EFLAGS: 00010007
+Jun 23 18:04:01 utopia2 kernel: eax: c000c840   ebx: 00000000   ecx: 00000001   edx: 00000003
+Jun 23 18:04:01 utopia2 kernel: esi: c000c7a0   edi: 00000001   ebp: c93cfed4   esp: c93cfebc
+Jun 23 18:04:01 utopia2 kernel: ds: 0018   es: 0018   ss: 0018
+Jun 23 18:04:01 utopia2 kernel: Process modprobe (pid: 4126, stackpage=c93cf000)
+Jun 23 18:04:01 utopia2 kernel: Stack: 00000000 c000c7a0 cbd5cfe0 c000c840 00000286 00000003 cbe6ac00 c013f0a4 
+Jun 23 18:04:01 utopia2 kernel:        00000000 cbd5cfe0 0004ab0d cbe6ac00 c013f286 cbe6ac00 0004ab0d cbd5cfe0 
+Jun 23 18:04:01 utopia2 kernel:        00000000 00000000 0004ab0d c7b22d20 c7b22d20 cba11cc0 cc81d0fa cbe6ac00 
+Jun 23 18:04:01 utopia2 kernel: Call Trace: [get_new_inode+252/360] [iget4+186/204] [nfs:__insmod_nfs_O/lib/modules/2.4.18-k6/kernel/fs/nfs/nfs.o_M3+-790278/96] [real_lookup+83/196] [link_path_walk+1188/1736] 
+Jun 23 18:04:01 utopia2 kernel: Code: 8b 4b fc 8b 01 85 45 fc 74 4d 31 c0 9c 5e fa c7 01 00 00 00 
 
------------------------------------------------------------------------------
-ChangeSet@1.490.1.65, 2002-06-20 12:50:29-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: Put flags for ld into LDFLAGS
-  
-  Some archs sneaked additional flags for ld into $(LD). This can be done
-  cleaner now, by just using $(LDFLAGS).
 
- ----------------------------------------------------------------------------
- Makefile                                |    2 +-
- Rules.make                              |    4 ++--
- arch/i386/Makefile                      |    2 +-
- arch/i386/boot/Makefile                 |    8 ++++----
- arch/i386/boot/compressed/Makefile      |    6 +++---
- arch/m68k/Makefile                      |    2 +-
- arch/mips/Makefile                      |    2 +-
- arch/mips/philips/nino/ramdisk/Makefile |    2 +-
- arch/mips64/Makefile                    |    2 +-
- arch/s390/Makefile                      |    2 +-
- arch/s390/boot/Makefile                 |    2 +-
- arch/s390x/Makefile                     |    2 +-
- arch/sh/Makefile                        |    1 -
- arch/sh/boot/compressed/Makefile        |    4 ++--
- arch/sparc/Makefile                     |    2 +-
- arch/sparc/boot/Makefile                |    2 +-
- arch/sparc64/Makefile                   |    2 +-
- drivers/message/fusion/Makefile         |    6 ------
- 18 files changed, 23 insertions(+), 30 deletions(-)
+>>eax; c000c840 Before first symbol
+>>esi; c000c7a0 Before first symbol
+>>ebp; c93cfed4 <_end+9166548/c5a3674>
+>>esp; c93cfebc <_end+9166530/c5a3674>
 
------------------------------------------------------------------------------
-ChangeSet@1.490.1.66, 2002-06-20 13:35:15-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: Put flags for objcopy into OBJCOPYFLAGS
-  
-  Again, don't just add flags into $(OBJCOPY), but use the
-  variable $(OBJCOPYFLAGS) instead.
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 4b fc                  mov    0xfffffffc(%ebx),%ecx
+Code;  00000003 Before first symbol
+   3:   8b 01                     mov    (%ecx),%eax
+Code;  00000005 Before first symbol
+   5:   85 45 fc                  test   %eax,0xfffffffc(%ebp)
+Code;  00000008 Before first symbol
+   8:   74 4d                     je     57 <_EIP+0x57> 00000057 Before first symbol
+Code;  0000000a Before first symbol
+   a:   31 c0                     xor    %eax,%eax
+Code;  0000000c Before first symbol
+   c:   9c                        pushf  
+Code;  0000000d Before first symbol
+   d:   5e                        pop    %esi
+Code;  0000000e Before first symbol
+   e:   fa                        cli    
+Code;  0000000f Before first symbol
+   f:   c7 01 00 00 00 00         movl   $0x0,(%ecx)
 
- ----------------------------------------------------------------------------
- arm/Makefile                    |    1 +
- arm/boot/Makefile               |    6 +++---
- arm/boot/compressed/Makefile    |    2 +-
- cris/Makefile                   |    4 ++--
- cris/boot/compressed/Makefile   |    4 ++--
- cris/boot/rescue/Makefile       |    7 ++++---
- i386/Makefile                   |    4 ++--
- i386/boot/Makefile              |    4 ++--
- i386/boot/compressed/Makefile   |    2 +-
- ia64/Makefile                   |    3 ++-
- parisc/Makefile                 |    2 +-
- ppc64/boot/Makefile             |    4 ++--
- s390/Makefile                   |    2 +-
- s390/boot/Makefile              |    6 ++----
- s390x/Makefile                  |    2 +-
- s390x/boot/Makefile             |    6 ++----
- sh/Makefile                     |    2 +-
- sh/boot/Makefile                |    4 ++--
- sh/boot/compressed/Makefile     |    2 +-
- x86_64/Makefile                 |    2 +-
- x86_64/boot/Makefile            |    4 ++--
- x86_64/boot/compressed/Makefile |    2 +-
- 22 files changed, 37 insertions(+), 38 deletions(-)
+Jun 23 18:04:01 utopia2 kernel:  <1>Unable to handle kernel paging request at virtual address 00636d70
+Jun 23 18:04:01 utopia2 kernel: c013d97a
+Jun 23 18:04:01 utopia2 kernel: *pde = 00000000
+Jun 23 18:04:01 utopia2 kernel: Oops: 0002
+Jun 23 18:04:01 utopia2 kernel: CPU:    0
+Jun 23 18:04:01 utopia2 kernel: EIP:    0010:[d_instantiate+26/48]    Not tainted
+Jun 23 18:04:01 utopia2 kernel: EFLAGS: 00010282
+Jun 23 18:04:01 utopia2 kernel: eax: 00636d6c   ebx: c7b225a0   ecx: c000c020   edx: c7b225d0
+Jun 23 18:04:01 utopia2 kernel: esi: c5dc75a0   edi: c6c61f60   ebp: 00000005   esp: c6c61f38
+Jun 23 18:04:01 utopia2 kernel: ds: 0018   es: 0018   ss: 0018
+Jun 23 18:04:01 utopia2 kernel: Process kdeinit (pid: 4125, stackpage=c6c61000)
+Jun 23 18:04:01 utopia2 kernel: Stack: c7b225a0 c01806d7 c7b225a0 c000c020 00000000 00000019 40fe1aa0 bfffe330 
+Jun 23 18:04:01 utopia2 kernel:        3739395b 005d3438 00001000 4070e000 00000000 c0121328 c16152a0 c2138ae0 
+Jun 23 18:04:01 utopia2 kernel:        c6c61f58 00000007 000185c8 c01810e4 c000c140 00000000 c000c140 c0181d31 
+Jun 23 18:04:01 utopia2 kernel: Call Trace: [sock_map_fd+239/356] [do_munmap+556/572] [sys_socket+44/76] [sys_socketcall+97/468] [error_code+52/64] 
+Jun 23 18:04:01 utopia2 kernel: Code: 89 50 04 89 43 30 8d 41 10 89 42 04 89 51 10 89 4b 08 5b c3 
 
------------------------------------------------------------------------------
-ChangeSet@1.490.1.67, 2002-06-20 15:23:45-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: clean up arch/i386/boot, part 1
-  
-  Use the Rules.make provided objcopy command and untangle piggy.o
-  generation.
 
- ----------------------------------------------------------------------------
- Makefile                           |    2 +-
- arch/i386/boot/Makefile            |   26 +++++++++++++++++---------
- arch/i386/boot/compressed/Makefile |   23 ++++++++++++-----------
- 3 files changed, 30 insertions(+), 21 deletions(-)
+>>eax; 00636d6c Before first symbol
+>>ebx; c7b225a0 <_end+78b8c14/c5a3674>
+>>ecx; c000c020 Before first symbol
+>>edx; c7b225d0 <_end+78b8c44/c5a3674>
+>>esi; c5dc75a0 <_end+5b5dc14/c5a3674>
+>>edi; c6c61f60 <_end+69f85d4/c5a3674>
+>>esp; c6c61f38 <_end+69f85ac/c5a3674>
 
------------------------------------------------------------------------------
-ChangeSet@1.490.1.68, 2002-06-20 15:39:35-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: clean up arch/i386/boot, part 2
-  
-  Use standard Rules.make rules for compiling and assembling.
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   89 50 04                  mov    %edx,0x4(%eax)
+Code;  00000003 Before first symbol
+   3:   89 43 30                  mov    %eax,0x30(%ebx)
+Code;  00000006 Before first symbol
+   6:   8d 41 10                  lea    0x10(%ecx),%eax
+Code;  00000009 Before first symbol
+   9:   89 42 04                  mov    %eax,0x4(%edx)
+Code;  0000000c Before first symbol
+   c:   89 51 10                  mov    %edx,0x10(%ecx)
+Code;  0000000f Before first symbol
+   f:   89 4b 08                  mov    %ecx,0x8(%ebx)
+Code;  00000012 Before first symbol
+  12:   5b                        pop    %ebx
+Code;  00000013 Before first symbol
+  13:   c3                        ret    
 
- ----------------------------------------------------------------------------
- Makefile            |   39 +++++++++------------------------------
- compressed/Makefile |   11 ++---------
- 2 files changed, 11 insertions(+), 39 deletions(-)
 
------------------------------------------------------------------------------
-ChangeSet@1.490.1.69, 2002-06-20 15:47:59-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: clean up arch/i386/boot, part 3
-  
-  Unify zImage and bzImage generation.
+7 warnings issued.  Results may not be reliable.
 
- ----------------------------------------------------------------------------
- Makefile            |   32 ++++++++------------------------
- compressed/Makefile |   14 ++------------
- 2 files changed, 10 insertions(+), 36 deletions(-)
-
------------------------------------------------------------------------------
-ChangeSet@1.490.1.70, 2002-06-20 16:11:03-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: clean up arch/i386/boot, part 4
-  
-  Use the provided rule for linking files and final polish.
-  Apart from being internally more logically structured, 
-  "make KBUILD_VERBOSE= bzImage" output looks much improved now as
-  well.
-
- ----------------------------------------------------------------------------
- Makefile               |   25 +++++++++++++++----------
- compressed/Makefile    |   25 ++++++++++---------------
- compressed/vmlinux.scr |    9 +++++++++
- 3 files changed, 34 insertions(+), 25 deletions(-)
-
------------------------------------------------------------------------------
-ChangeSet@1.490.1.71, 2002-06-20 16:29:43-05:00, sam@mars.ravnborg.org
-  kbuild: Add "make help" support
-  
-  Added the new target "help" that list the most common targets
-  Calls down to Documentation/Makefile to list documentation targets.
-  Furthermore calls down to the architecture specific Makefile
-  to list architecture specific targets.
-  So far only i386 is supporting this.
-
- ----------------------------------------------------------------------------
- Documentation/DocBook/Makefile |    4 +++
- Makefile                       |   45 ++++++++++++++++++++++++++++++++++++++++-
- arch/i386/boot/Makefile        |   12 ++++++++++
- 3 files changed, 60 insertions(+), 1 deletion(-)
-
------------------------------------------------------------------------------
-ChangeSet@1.606, 2002-06-23 12:00:50-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: Fix calling of make_times_h and gentbl
-  
-  make did normalize away the "./", so we better put the command
-  explicitly.
-  
-  (Geert Uytterhoeven, Adam Richter and others)
-
- ----------------------------------------------------------------------------
- drivers/net/hamradio/soundmodem/Makefile |    2 +-
- net/khttpd/Makefile                      |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
------------------------------------------------------------------------------
-ChangeSet@1.607, 2002-06-23 12:17:36-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: Provide shipped versions of the keymap files
-  
-  The keyboard maps are generated from appropriate .map files by running
-  loadkeys --mktable. However, there are two reasons to provide shipped
-  versions and use those by default
-  
-  1) Not everybody has loadkeys installed.
-  2) As pointed out by Andries Brouwer, if changes to the tables occur in
-     the kernel tree, that may require a new/recompiled version of loadkeys,
-     so that the version of loadkeys required for the kernel build is
-     often ahead of the installed base.
-  
-  For these reasons, we provide shipped versions of the generated files and
-  use them unless the user explicitly asks for regenerating by uncommenting
-  the appropriate line in the Makefile.
-   
-
- ----------------------------------------------------------------------------
- b/drivers/acorn/char/Makefile                  |   13 +
- b/drivers/acorn/char/defkeymap-acorn.c_shipped |  262 ++++++++++++++++++++++++
- b/drivers/char/Makefile                        |   16 +
- b/drivers/char/defkeymap.c_shipped             |  262 ++++++++++++++++++++++++
- b/drivers/char/qtronixmap.c_shipped            |  265 +++++++++++++++++++++++++
- b/drivers/tc/Makefile                          |   13 +
- b/drivers/tc/lk201-map.c_shipped               |  265 +++++++++++++++++++++++++
- drivers/acorn/char/defkeymap-acorn.c           |  262 ------------------------
- 8 files changed, 1088 insertions(+), 270 deletions(-)
-
------------------------------------------------------------------------------
-ChangeSet@1.608, 2002-06-23 12:30:04-05:00, kai@tp1.ruhr-uni-bochum.de
-  kbuild: Distribute "make clean" knowledge
-  
-  Currently, the top-level Makefile needs to know about all generated
-  files in the sub directories in order to clean them up.
-  
-  This patch adds the variable "clean-files" which can be used in the
-  subdir Makefiles instead, to list files which should be removed by
-  "make clean".
-
- ----------------------------------------------------------------------------
- Makefile                                 |   36 +++----------------------------
- Rules.make                               |   27 +++++++++++++++--------
- drivers/atm/Makefile                     |    5 +++-
- drivers/char/Makefile                    |    1 
- drivers/net/Makefile                     |    3 --
- drivers/net/hamradio/soundmodem/Makefile |    9 ++++++-
- drivers/net/sk98lin/Makefile             |    9 -------
- drivers/net/skfp/Makefile                |    6 -----
- drivers/net/wan/lmc/Makefile             |    4 ---
- drivers/pci/Makefile                     |    2 +
- drivers/scsi/Makefile                    |    5 ++--
- drivers/scsi/aic7xxx/Makefile            |   10 ++++++--
- drivers/scsi/sym53c8xx_2/Makefile        |    3 --
- drivers/video/Makefile                   |    2 +
- drivers/video/matrox/Makefile            |    3 --
- drivers/zorro/Makefile                   |    2 +
- fs/umsdos/Makefile                       |    3 --
- init/Makefile                            |   10 +++++---
- net/802/Makefile                         |    3 ++
- net/khttpd/Makefile                      |    4 ++-
- sound/oss/Makefile                       |    2 +
- 21 files changed, 64 insertions(+), 85 deletions(-)
-
------------------------------------------------------------------------------
-ChangeSet@1.609, 2002-06-23 12:40:50-05:00, kai@tp1.ruhr-uni-bochum.de
-  Make net_dev_init() a subsys_initcall()
-  
-  This does make sure that net_dev_init() has been called before any
-  driver calls register_netdev().
-  
-  Since net_dev_init() calls net_device_init() which in turn will initialize
-  old style built-in network drivers, it is important that the other
-  subsystems, PCI in particular are already initialized at this point.
-  This is currently guaranteed by the link order.
-
- ----------------------------------------------------------------------------
- dev.c |   52 ++++++++++++++++++++++++----------------------------
- 1 files changed, 24 insertions(+), 28 deletions(-)
-
+--------------Boundary-00=_DYB67B5WEQ71PYLPOLMZ--
 

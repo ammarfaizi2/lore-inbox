@@ -1,67 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315352AbSDWVh6>; Tue, 23 Apr 2002 17:37:58 -0400
+	id <S315343AbSDWVnV>; Tue, 23 Apr 2002 17:43:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315343AbSDWVh5>; Tue, 23 Apr 2002 17:37:57 -0400
-Received: from jalon.able.es ([212.97.163.2]:64495 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315352AbSDWVh5>;
-	Tue, 23 Apr 2002 17:37:57 -0400
-Date: Tue, 23 Apr 2002 23:37:50 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
+	id <S315347AbSDWVnU>; Tue, 23 Apr 2002 17:43:20 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:24333 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S315343AbSDWVnT>;
+	Tue, 23 Apr 2002 17:43:19 -0400
+Date: Tue, 23 Apr 2002 23:43:09 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
 To: m.knoblauch@TeraPort.de
-Cc: Stephen Lord <lord@sgi.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: XFS in the main kernel
-Message-ID: <20020423213750.GA1704@werewolf.able.es>
-In-Reply-To: <3CC56355.E5086E46@TeraPort.de> <3CC56FE9.1080303@sgi.com> <3CC581F5.2FBEA0C1@TeraPort.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.4
+In-Reply-To: <3CC56355.E5086E46@TeraPort.de>
+Message-ID: <Pine.LNX.4.44.0204232330430.4925-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2002.04.23 Martin Knoblauch wrote:
->Stephen Lord wrote:
->> 
->> Martin Knoblauch wrote:
->> 
->> >
->> > definitely. Unless XFS is in the mainline kernel (marked as
->> >experimantal if necessary) it will not get good exposure.
->> >
-[...]
+
+On Tue, 23 Apr 2002, Martin Knoblauch wrote:
+
+> > Re: XFS in the main kernel
+> >
+>  definitely. Unless XFS is in the mainline kernel (marked as
+> experimantal if necessary) it will not get good exposure.
+
+XFS needs 2.5, not 2.4, because of a lot of reasons.
+If I do remember well a strong obiection to XFS is that it introduces a
+kernel thread to emulate Irix behavious to talk with pagebuf (a la Irix),
+end to have an interface with VM and Block Device layer.
+
+This forces some vincles.
+
+It is a lot of time that I do not try XFS, so maybe things changed, but
+XFS has has data block of the same size of memory pages (4 or 8 Kb
+depending on architecture), not that I have some remak about that, but I
+use XFS on Irix on an Origin 2000 with a couple of TB disk space, it is
+another thing in front of Linux ports.
+
+On the other side delayed allocation is quite cool ;)
+
 >
-> From a mainline point of view XFS on Linux will only be successfull if
->it is "in the kernel". Fully maintained and "Linus approved". I am not
->sure when SGI started the port (could even go back to the time when I
->worked for them, late 1997). Definitely quite some time. By now it
->should be in the kernel. Maybe marked "experimental". As I see it now
->EXT3, ReiserFS and maybe JFS are just eating the XFS lunch away.
+>  The most important (only) reason I do not use it (and recommend our
+> customers against using it) is that at the moment it is impossible to
+> track both the kernel and XFS at the same time. This is a shame, because
+> I think that for some application XFS is superior to the other
+> alternatives (can be said about the other alternatives to :-).
+
+Every FS has its strenght points and its weackness.
+
+For example on MC^2 I found reiserFS on LVM to have a really good
+interaction with the way MC^2 works, expecially because
+I have a lot of small|medium sized files, I suppose.
+
+I also tied XFS and JFS on MC^2, and maybe with other file size
+and I/O loads they would be better. I just talk for my systems needs.
+
+(all test were with latest 2.4 kernels, a month ago.
+I cannot risk corruption on this
+storage system, so 2.5 is not for me there :( ).
+
 >
-> In any case, the Vanderbilt comment is right on.
+> > That said, it is important to
+> > consider the technical reasons to include XFS in 2.5 or not; if this
+> > inclusion could cause some troubles, if XFS fits the requirements
+> > Linus asks for the inclusion and what impact the inclusion would have on
+> > the kernel (Think to JFS as a good example of an easy inclusion, with low
+> > impact).
+> >
 >
+>  so, what were the main obstacles again? The VFS layer?
+>
+See my previous comments...
 
-If XFS is so good (i do not doubt it), I see some issues (plz correct me
-if I'm wrong...):
 
-- XFS needs substantial changes in the VFS layer to work
-- This changes are good (or make xfs so good)
-- *THE THING* to do is to integrate this changes in mainline tree VFS,
-  so XFS will stop duplicating half the kernel code.
-
-Why those features are not merged ? Incompatibilities ? Licensing ?
-Religious wars about some way of doing things ?
-
-Plz, if SGI splits XFS in small chunks and starts feeding linus with
-changes in the VFS, what will happen ? Why that doesn't happen ?
-
-Just some ideas...
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre7-jam6 #2 SMP mar abr 23 16:56:56 CEST 2002 i686

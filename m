@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265683AbUA0VTr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 16:19:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265684AbUA0VTr
+	id S265663AbUA0VLg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 16:11:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbUA0VLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 16:19:47 -0500
-Received: from mail-in.m-online.net ([62.245.150.237]:8889 "EHLO
-	mail-in.m-online.net") by vger.kernel.org with ESMTP
-	id S265683AbUA0VTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 16:19:46 -0500
-Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
-From: Florian Huber <florian.huber@mnet-online.de>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: JFS-Discussion <jfs-discussion@oss.software.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040127205324.A19913@infradead.org>
-References: <1075230933.11207.84.camel@suprafluid>
-	 <1075231718.21763.28.camel@shaggy.austin.ibm.com>
-	 <1075232395.11203.94.camel@suprafluid>
-	 <1075236185.21763.89.camel@shaggy.austin.ibm.com>
-	 <20040127205324.A19913@infradead.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Hc2vlb5B90ztP4DBv3xV"
-Message-Id: <1075238385.14214.3.camel@suprafluid>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 27 Jan 2004 22:19:45 +0100
+	Tue, 27 Jan 2004 16:11:36 -0500
+Received: from mid-2.inet.it ([213.92.5.19]:61122 "EHLO mid-2.inet.it")
+	by vger.kernel.org with ESMTP id S265267AbUA0VLe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 16:11:34 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: Andi Kleen <ak@muc.de>
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - REALLY SOLVED
+Date: Tue, 27 Jan 2004 22:09:08 +0100
+User-Agent: KMail/1.6
+Cc: Eric <eric@cisu.net>, Andrew Morton <akpm@osdl.org>, stoffel@lucent.com,
+       Valdis.Kletnieks@vt.edu, bunk@fs.tum.de, linux-kernel@vger.kernel.org
+References: <200401232253.08552.eric@cisu.net> <200401270037.43676.eric@cisu.net> <20040127181554.GA41917@colin2.muc.de>
+In-Reply-To: <20040127181554.GA41917@colin2.muc.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401272209.08708.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alle Tuesday 27 January 2004 19:15, Andi Kleen ha scritto:
 
---=-Hc2vlb5B90ztP4DBv3xV
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Ok, found it. This patch should fix it.  The top level asm in process.c
+> assumed that the section was .text, but that is not guaranteed in a
+> funit-at-a-time compiler. It ended up in the setup section and messed up
+> the argument parsing.  This bug could have hit with any compiler,
+> it was just plain luck that it worked with newer gcc 3.3 and 3.4.
 
-On Tue, 2004-01-27 at 21:53, Christoph Hellwig wrote:
-> On Tue, Jan 27, 2004 at 02:43:05PM -0600, Dave Kleikamp wrote:
-> Yes, it does.  But JFS should get the right size from the gendisk anyway.
-> Or did you create the raid with the filesystem already existant?
-Yes, i did so.
+Confirmed here. 2.6.2-rc1-mm3 boots just fine with this patch; without patch 
+it hangs just as described before.
+(-funit-at-a-time enabled, of course).
 
-> While that appears to work for a non-full ext2/ext3 filesystem it's not s=
-omething you
-> should do because it makes the filesystem internal bookkeeping wrong and
-> you'll run into trouble with any filesystem sooner or later.
+Many thanks to all.
 
-So, remove the raid, create a new raid "1" with one partiton and create
-a jfs fs on top of it, copy all files and add the other disk to the
-raid?
-
---=-Hc2vlb5B90ztP4DBv3xV
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAFtXwTrkbHdnVDqIRArJDAJ9gfRaePrzX5ZRolk6ohy6SDB+C/wCeMWke
-VKMpED9929qKOjKosE+SnNA=
-=/OcQ
------END PGP SIGNATURE-----
-
---=-Hc2vlb5B90ztP4DBv3xV--
-
+-- 
+Fabio Coatti       http://www.ferrara.linux.it/members/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.

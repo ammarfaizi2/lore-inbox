@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbUCAXML (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 18:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbUCAXML
+	id S261480AbUCAXSi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 18:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbUCAXSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 18:12:11 -0500
-Received: from fmr09.intel.com ([192.52.57.35]:43709 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S261484AbUCAXMJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 18:12:09 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: PTS test pass results - (CVS pull 2-20-04, Kernel 2.6.1)
-Date: Mon, 1 Mar 2004 15:12:07 -0800
-Message-ID: <0258DE86469E2641A0C1B4C734EB88510197409F@orsmsx407.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PTS test pass results - (CVS pull 2-20-04, Kernel 2.6.1)
-Thread-Index: AcP/4pyP84ZdNxJNSyuBz8BCxG9l/w==
-From: "Selbak, Rolla N" <rolla.n.selbak@intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 01 Mar 2004 23:12:07.0593 (UTC) FILETIME=[9E0E3990:01C3FFE2]
+	Mon, 1 Mar 2004 18:18:35 -0500
+Received: from topaz.cx ([66.220.6.227]:59281 "EHLO mail.topaz.cx")
+	by vger.kernel.org with ESMTP id S261480AbUCAXSd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 18:18:33 -0500
+Date: Mon, 1 Mar 2004 18:18:23 -0500
+From: Chip Salzenberg <chip@pobox.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.3: re-enable UHCI interrupts on APM resume
+Message-ID: <20040301231822.GB14500@perlsupport.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Message-Flag: OUTLOOK ERROR: Message text violates P.A.T.R.I.O.T. act
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Stern wrote the below patch which fixes a lockup problem with USB
+on the ThinkPad A30.  It's small, helpful, and not ThinkPad-specific.
 
-POSIX Test Suite test pass results available for [CVS pull 2-20-04,
-Kernel 2.6.1, libc-2004-02-01 and message queue 
-4.17 patch]. 
+So, although it will already be part of the next USB merge, I wanted
+you to see it.  Maybe you'll find it worth including in 2.6.4.
 
-We are currently in the process of setting up a main test results page,
-but until then, the above results can be found here: 
-http://posixtest.sourceforge.net/testpass/PTS_cvs_2-20-04/pts_kernel-2.6
-.1.htm
+--- 2.6/drivers/usb/host/uhci-hcd.c.orig	Fri Feb 20 15:04:41 2004
++++ 2.6/drivers/usb/host/uhci-hcd.c	Sun Feb 22 15:23:59 2004
+@@ -2471,9 +2471,16 @@
+ 
+ 	pci_set_master(to_pci_dev(uhci_dev(uhci)));
+ 
+-	if (uhci->state == UHCI_SUSPENDED)
++	if (uhci->state == UHCI_SUSPENDED) {
++
++		/*
++		 * Some systems clear the Interrupt Enable register during
++		 * PM suspend/resume, so reinitialize it.
++		 */
++		outw(USBINTR_TIMEOUT | USBINTR_RESUME | USBINTR_IOC |
++				USBINTR_SP, uhci->io_addr + USBINTR);
+ 		uhci->resume_detect = 1;
+-	else {
++	} else {
+ 		reset_hc(uhci);
+ 		start_hc(uhci);
+ 	}
 
-Thanks,
 
-Rolla Selbak
-http://posixtest.sf.net [POSIX Test Suite project]
-
-
-
-* my views are not necessarily my employer's *
+-- 
+Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
+"I wanted to play hopscotch with the impenetrable mystery of existence,
+    but he stepped in a wormhole and had to go in early."  // MST3K

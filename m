@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266408AbSKGF6f>; Thu, 7 Nov 2002 00:58:35 -0500
+	id <S266421AbSKGGNq>; Thu, 7 Nov 2002 01:13:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266410AbSKGF6e>; Thu, 7 Nov 2002 00:58:34 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:61970 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S266408AbSKGF6c>;
-	Thu, 7 Nov 2002 00:58:32 -0500
-Date: Wed, 6 Nov 2002 22:01:02 -0800
-From: Greg KH <greg@kroah.com>
-To: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pnp.h changes - 2.5.46 (4/6)
-Message-ID: <20021107060102.GB26821@kroah.com>
-References: <20021106210639.GO316@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021106210639.GO316@neo.rr.com>
-User-Agent: Mutt/1.4i
+	id <S266452AbSKGGNq>; Thu, 7 Nov 2002 01:13:46 -0500
+Received: from modemcable191.130-200-24.mtl.mc.videotron.ca ([24.200.130.191]:44042
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S266421AbSKGGNp>; Thu, 7 Nov 2002 01:13:45 -0500
+Date: Thu, 7 Nov 2002 01:20:20 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Corey Minyard <cminyard@mvista.com>
+cc: Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>,
+       John Levon <levon@movementarian.org>
+Subject: Re: NMI handling rework
+In-Reply-To: <3DCA0BCC.3080203@mvista.com>
+Message-ID: <Pine.LNX.4.44.0211070103540.27141-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 09:06:39PM +0000, Adam Belay wrote:
->  
-> +static inline void *pnp_get_drvdata (struct pnp_dev *pdev)
-> +{
-> +	return pdev->dev.driver_data;
-> +}
-> +
-> +static inline void pnp_set_drvdata (struct pnp_dev *pdev, void *data)
-> +{
-> +	pdev->dev.driver_data = data;
-> +}
-> +
-> +static inline void *pnp_get_protodata (struct pnp_dev *pdev)
-> +{
-> +	return pdev->protocol_data;
-> +}
-> +
-> +static inline void pnp_set_protodata (struct pnp_dev *pdev, void *data)
-> +{
-> +	pdev->protocol_data = data;
-> +}
+On Thu, 7 Nov 2002, Corey Minyard wrote:
 
-Any reason for not just using dev_get_drvdata() and dev_set_drvdata() in
-the drivers?  Or at the least, use them within these functions, that's
-what they are there for :)
+> Ingo et al...
+> 
+> Since a lot of things have started tying into the NMI handler (oprofile, 
+> nmi watchdog, memory errors, bus error, now the IPMI watchdog), I think 
+> it better to use a request/release mechanism for the NMI handlers. 
+>  Plus, I think the current NMI code is actually not correct, it's 
+> theoretically possible to miss NMIs if two occur at the same time.  So 
 
-thanks,
+How? The NMI interrupt should be internally masked till IRET. I think your 
+code is ok, but i don't see how it takes care of concurrent users such as 
+oprofile and the nmi watchdog, the nmi watchdog already programs its own 
+interrupt interval if its shared, what is the intended base NMI interval? 
+How about handlers requiring a different interrupt interval? I have code 
+which does the following;
 
-greg k-h
+base NMI poll function with time interval T;
+master queue with slots per timeout;
+slots with task queues which are flushed whenever we hit the timeout;
+
+you can therefore add tasks in with specific time intervals which will get 
+triggered. This code currently is only running the nmi watchdog, but i'll 
+be experimenting with various other handlers. I'll post a URL soon.
+
+To support external devices which trigger NMI we can simply check wether 
+we have hit an nmi interval period, if not we run through the NMI handler 
+lists.
+
+	Zwane
+-- 
+function.linuxpower.ca
+

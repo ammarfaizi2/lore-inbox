@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbUKIDln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbUKIDqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbUKIDln (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 22:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbUKIDln
+	id S261200AbUKIDqB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 22:46:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbUKIDqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 22:41:43 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:19612 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261160AbUKIDll
+	Mon, 8 Nov 2004 22:46:01 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:56053 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261200AbUKIDpt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 22:41:41 -0500
-Subject: Re: [PATCH/RFC 1/4]device core changes
-From: Li Shaohua <shaohua.li@intel.com>
-To: Greg KH <greg@kroah.com>
-Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <1099961418.15294.11.camel@sli10-desk.sh.intel.com>
-References: <1099887071.1750.243.camel@sli10-desk.sh.intel.com>
-	 <20041108225810.GB16197@kroah.com>
-	 <1099961418.15294.11.camel@sli10-desk.sh.intel.com>
+	Mon, 8 Nov 2004 22:45:49 -0500
+Subject: Re: [RFC/PATCH 0/4] cpus, nodes, and the device model: dynamic cpu
+	registration
+From: Nathan Lynch <nathanl@austin.ibm.com>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, rusty@rustcorp.com.au,
+       mochel@digitalimplant.org, anton@samba.org
+In-Reply-To: <20041104170902.A8747@unix-os.sc.intel.com>
+References: <20041024094551.28808.28284.87316@biclops>
+	 <20041104170902.A8747@unix-os.sc.intel.com>
 Content-Type: text/plain
-Message-Id: <1099971341.15294.48.camel@sli10-desk.sh.intel.com>
+Date: Mon, 08 Nov 2004 21:45:48 -0600
+Message-Id: <1099971948.8723.51.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 09 Nov 2004 11:35:41 +0800
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-09 at 08:50, Li Shaohua wrote:
-> On Tue, 2004-11-09 at 06:58, Greg KH wrote:
-> > On Mon, Nov 08, 2004 at 12:11:11PM +0800, Li Shaohua wrote:
-> > > Hi,
-> > > This is the device core change required. Add .platform_bind method for
-> > > bus_type, so platform can do addition things when add a new device. A
-> > > case is ACPI, we want to utilize some ACPI methods for physical devices.
-> > > 1. Why doesn't use 'platform_notify'?
-> > > Current device core has a 'platform_notify' mechanism, but it's not
-> > > sufficient for this. Only sepcific bus type know how to parse dev.bus_id
-> > > and know how to encode specific device's address into ACPI _ADR syntax.
+On Thu, 2004-11-04 at 17:09 -0800, Ashok Raj wrote:
+> On Sun, Oct 24, 2004 at 03:42:10AM -0600, Nathan Lynch wrote:
 > > 
-> > I don't see why platform_notify is not sufficient.  This is the exact
-> > reason it was added to the code.
-> As I said in the email, we need know the bus type to decode and encode
-> address. If you use platform_notify, you must do something like this:
-> switch (dev->bus)
-> {
-> case pci_bus_type:
-> bind PCI devices with ACPI devices
-> break;
-> case ide_bus_type:
-> bind IDE devices with ACPI devices
-> break;
-> ....
-> }
-> But note this method requires all bus types are build-in. If a bus type
-> is in a loadable module (such as IDE bus), the method will failed. I
-> searched current tree, only ARM implemented 'platform_notify', but ARM
-> only cares PCI bus, ACPI cares about all bus types.
-> > 
-Oops, it's my bad. we can identify the bus type from bus_type->name, but
-it looks like a little ugly. Why the bus_type hasn't a flag to identify
-which bus it is?
-Anyway, thanks Greg. I will add as you said.
+> > Finally, I've added two new interfaces which wrap all this up --
+> > cpu_add() and cpu_remove().  These carry out the necessary update to
+> > cpu_present_map and take care of the cpu device registration.  These
+> > are meant to be invoked from the platform-specific code which
+> > discovers and removes processors.
+> 
+> I think you want the device registration that create the sysfs file to the 
+> arch code.
 
-Thanks,
-Shaohua
+No, I don't think the arch code should be registering the cpu devices
+(or the node devices).  There is very little that is arch-specific about
+these, and the same code is more or less duplicated between the
+architectures.
+
+>  If you look at the ACPI extensions to support physical cpu hotplug
+> we need to keep track of the acpi->logical association. so all we really need
+> is a bit off the bitmap, but the cpu is not yet ready for operation yet.
+
+I see your point here, though, and I'm slightly embarrassed I forgot
+that ppc64 has similar needs.  What is needed is an arch-specific
+__cpu_add which is called from cpu_add after the new cpu's bit has been
+reserved, and which sets up the architecture's physical<->logical
+associations or whatever.  This follows the convention established in
+the existing cpu code and keeps the manipulation of cpu_present_map in
+one place.
+
+I'll incorporate this in my next attempt.
+
+
+Nathan
 

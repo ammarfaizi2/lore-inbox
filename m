@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262290AbTCHXDe>; Sat, 8 Mar 2003 18:03:34 -0500
+	id <S262284AbTCHW4W>; Sat, 8 Mar 2003 17:56:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262291AbTCHXDe>; Sat, 8 Mar 2003 18:03:34 -0500
-Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:50682 "EHLO
-	www.tnonline.net") by vger.kernel.org with ESMTP id <S262290AbTCHXDe>;
-	Sat, 8 Mar 2003 18:03:34 -0500
-Date: Fri, 8 Mar 2002 00:15:52 +0100
-From: Anders Widman <andewid@tnonline.net>
-X-Mailer: The Bat! (v1.63 Beta/6)
-Reply-To: Anders Widman <andewid@tnonline.net>
-Organization: TNOnline.net
-X-Priority: 3 (Normal)
-Message-ID: <86411265.20020308001552@tnonline.net>
-To: Panagiotis Papadakos <papadako@csd.uoc.gr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Promise TX2-Ultra100 PDC20268 lockups
-In-Reply-To: <Pine.GSO.4.53.0303082338030.4596@oneiro.csd.uch.gr>
-References: <Pine.GSO.4.53.0303082338030.4596@oneiro.csd.uch.gr>
+	id <S262290AbTCHW4W>; Sat, 8 Mar 2003 17:56:22 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:48815 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262284AbTCHW4V>; Sat, 8 Mar 2003 17:56:21 -0500
+Date: Sat, 08 Mar 2003 15:06:55 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <akpm@digeo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] remove compile warning from serial console initcall
+Message-ID: <469810000.1047164815@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have tried 2.4.21-pre5, 2.4.21-pre5-ac1, 2.4.21-pre5-ac2, linux-2.5.64
-> but with all of them I get hard lockups if I have dma enabled.
-> Even if I just play mp3s which do not put the controller in a hard time,
-> after a while my system will lockup. Can anyone help?
+This tiny patch removes the new compiler warning from my build - 
+the new console_initcall mechanism seems to require int from
+console_init ... I made serial8250_console_init look like con_init
 
-Have  the  same  problems.  I  do  not really know what to do about it
-though. :(
-
-
-
---------
-PGP public key: https://tnonline.net/secure/pgp_key.txt
+diff -urpN -X /home/fletch/.diff.exclude 900-mjb2/drivers/serial/8250.c 999-serial_fix/drivers/serial/8250.c
+--- 900-mjb2/drivers/serial/8250.c	Sat Mar  8 12:54:04 2003
++++ 999-serial_fix/drivers/serial/8250.c	Sat Mar  8 14:48:20 2003
+@@ -1982,10 +1982,11 @@ static struct console serial8250_console
+ 	.index		= -1,
+ };
+ 
+-static void __init serial8250_console_init(void)
++static int __init serial8250_console_init(void)
+ {
+ 	serial8250_isa_init_ports();
+ 	register_console(&serial8250_console);
++	return 0;
+ }
+ console_initcall(serial8250_console_init);
+ 
 

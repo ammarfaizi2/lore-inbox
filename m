@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129268AbRB0AEW>; Mon, 26 Feb 2001 19:04:22 -0500
+	id <S129281AbRB0AFW>; Mon, 26 Feb 2001 19:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129281AbRB0AEC>; Mon, 26 Feb 2001 19:04:02 -0500
-Received: from ns.suse.de ([213.95.15.193]:39696 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129268AbRB0AD6>;
-	Mon, 26 Feb 2001 19:03:58 -0500
-Date: Tue, 27 Feb 2001 01:03:36 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: New net features for added performance
-Message-ID: <20010227010336.A25816@gruyere.muc.suse.de>
-In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com> <oupsnl3k5gs.fsf@pigdrop.muc.suse.de> <15002.60239.486243.682681@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15002.60239.486243.682681@pizda.ninka.net>; from davem@redhat.com on Mon, Feb 26, 2001 at 03:48:31PM -0800
+	id <S129282AbRB0AFN>; Mon, 26 Feb 2001 19:05:13 -0500
+Received: from lindy.SoftHome.net ([204.144.232.9]:62475 "HELO
+	lindy.softhome.net") by vger.kernel.org with SMTP
+	id <S129281AbRB0AE5>; Mon, 26 Feb 2001 19:04:57 -0500
+Message-ID: <20010227003431.12104.qmail@lindy.softhome.net>
+To: Jeremy Jackson <jerj@coplanar.net>
+cc: linux-kernel@vger.kernel.org, roger@kea.grace.cri.nz
+Subject: Re: tcp stalls with 2.4 (but not 2.2) 
+Organization: SoftHome
+X-URL: http://www.SoftHome.net/
+In-Reply-To: Your message of "Mon, 26 Feb 2001 11:11:16 EST."
+             <3A9A8023.7542CBF7@coplanar.net> 
+Date: Mon, 26 Feb 2001 17:34:30 -0700
+From: Brian Grossman <brian@SoftHome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 26, 2001 at 03:48:31PM -0800, David S. Miller wrote:
+
+> > I'm seeing stalls sending packets to some clients.  I see this problem
+> > under 2.4 (2.4.1 and 2.4.1ac17) but not under 2.2.17.
 > 
-> Andi Kleen writes:
->  > 4) Better support for aligned RX by only copying the header
+> compiled in ECN support? SYNcookies?  try disabling through /proc
+> tcp or udp? if udp check /proc/net/ipv4/ip_udpdloose or such
+
+CONFIG_INET_ECN is not set in .config.
+CONFIG_SYN_COOKIES is set, but tcp_syncookies but is set to 0.
+
+> > My theory is there is an ICMP black hole between my server and some of its
+> > clients.  Is there a tool to pinpoint that black hole if it exists?
 > 
-> Andi you can make this now:
-> 
-> 1) Add new "post-header data pointer" field in SKB.
+> ping is your friend.  -s lets you set size of packet. (to
+> check for fragmentation) use tcpdump to capture
+> a trace of this or a tcp session.
 
-That would imply to let the drivers parse all headers to figure out the length.
-I think it's better to have a "header base" and "data base" pointer.
-The driver would just copy some standard size that likely contains all of
-the header 
-When you're finished with the header use 
-skb->database+(skb->hdrptr-skb->hdrbase) to get the start of data. 
+> email trace to me private if you want.
 
-Or did I misunderstand you?
+Does ping set the no fragment bit?
 
+Ping -s 1500 to the router immediately before client's known IP address
+works fine.  I'll get the owner of the client to help out later and send
+those results with tcpdump to you privately.
 
-
-> 3) Enforce correct usage of it in all the networking :-)
-
-,) -- the tricky part.
-
-
--Andi
+Brian

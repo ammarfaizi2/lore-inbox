@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131153AbRALOBn>; Fri, 12 Jan 2001 09:01:43 -0500
+	id <S131386AbRALOEY>; Fri, 12 Jan 2001 09:04:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131386AbRALOBd>; Fri, 12 Jan 2001 09:01:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48133 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131153AbRALOBT>;
-	Fri, 12 Jan 2001 09:01:19 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101121134.f0CBYDB04046@flint.arm.linux.org.uk>
-Subject: Re: Cannot compile my kernel due to unpredictible situations:
-To: cyt@liih.org (Yin Tan Cui)
-Date: Fri, 12 Jan 2001 11:34:13 +0000 (GMT)
-Cc: gregg_99@mailcity.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101121039590.1542-100000@flash.liih.org> from "Yin Tan Cui" at Jan 12, 2001 10:45:19 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S131650AbRALOEE>; Fri, 12 Jan 2001 09:04:04 -0500
+Received: from smtp1.libero.it ([193.70.192.51]:8616 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id <S131386AbRALOD5>;
+	Fri, 12 Jan 2001 09:03:57 -0500
+From: Andrea Ferraris <andrea_ferraris@libero.it>
+Reply-To: andrea_ferraris@libero.it
+Date: Fri, 12 Jan 2001 15:00:14 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: dep <dennispowell@earthlink.net>
+In-Reply-To: <Pine.NEB.4.31.0101112024250.9238-100000@neptun.fachschaften.tu-muenchen.de> <01011200182200.00925@af> <01011120083704.00618@depoffice.localdomain>
+In-Reply-To: <01011120083704.00618@depoffice.localdomain>
+Subject: Re: 2.4.0 Keyboard and mouse lock
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01011215001406.00925@af>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are three golden rules of unpacking a kernel tarball:
+Friday 12 January 2001 02:08, you wrote:
+> On Thursday 11 January 2001 06:18 pm, Andrea Ferraris wrote:
+> | I don't know if it's the 2.4.0 I installed since few days, but
+> | before I never seen that on my PC.
+>
+> strangely, same thing with 2.4.0 this afternoon. it was not unlike
+> what we saw in test 12. /var/log/messages sheds no light, and BRB
 
-1. Make sure that you have sufficient free space on the partition before
-   unpacking.
+What's BRB?
 
-   Reason: the kernel source is not small.  Currently the 2.4.0 kernel is
-   around 105MB, but once built it will grow to 125MB or more depending on
-   your configuration.
+> fixed the instant problem. have been running 2.4.0 since it came out,
+> and this was the first appearance of this problem.
 
-2. Make sure that there isn't a pre-existing file or directory called 'linux'
+The only thing that I didn't have before (2.2.17) in my syslog and that I 
+seen in this /var/log/messages is that IRQ 9 is shared by eth realtek 
+controller and the USB uhci one, but I don't know if that could be related
+to lock. 
 
-   Reason: unpacking a new kernel tree over an old kernel tree will give
-   unpredicatable results, and may end up with it failing to build, or
-   failing to unpack if 'linux' is a file.
+Another thing (related, unrelated?) is that sometimes since the install of 
+the new kernel, after leaving the PC in stand by for some hours, when it 
+unsuspends I have some pixels rows at the top of the screen green.
 
-3. Never unpack a kernel tar ball in /usr/src
+Boh?
 
-   Reason: some systems still have symlinks from /usr/include/linux into
-   /usr/src/linux/include/linux.  The headers in /usr/include/linux are
-   supposed to be the ones that your C library was compiled against, not
-   the current kernel you are running.
-
-   Suggestion: create a directory called '/usr/src/v2.4.0' and unpack in
-   there.  If you need any extra patches, or other utilities (eg, modutils)
-   you have a convienient place to keep them for later reference.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+	Regards,
+			Andrea 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

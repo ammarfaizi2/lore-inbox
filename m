@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265305AbUGGStr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265312AbUGGSwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265305AbUGGStr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 14:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbUGGStp
+	id S265312AbUGGSwr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 14:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbUGGSwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 14:49:45 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:6067 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S265305AbUGGSsG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 14:48:06 -0400
-Date: Wed, 7 Jul 2004 14:50:07 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
-To: Michael Clark <michael@metaparadigm.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] Update in-kernel orinoco drivers to upstream current
- CVS
-In-Reply-To: <40EB510F.2040801@metaparadigm.com>
-Message-ID: <Pine.LNX.4.60.0407071359530.3991@marabou.research.att.com>
-References: <20040702222655.GA10333@bougret.hpl.hp.com>
- <20040703010709.A22334@electric-eye.fr.zoreil.com> <20040704021304.GD25992@zax>
- <20040704191732.A20676@electric-eye.fr.zoreil.com>
- <20040706011401.A390@electric-eye.fr.zoreil.com> <40E9E6BC.8020608@pobox.com>
- <20040707005402.A15251@electric-eye.fr.zoreil.com> <40EB510F.2040801@metaparadigm.com>
+	Wed, 7 Jul 2004 14:52:46 -0400
+Received: from mailrelay.nefonline.de ([212.114.153.196]:12218 "EHLO
+	mailrelay1.nefonline.de") by vger.kernel.org with ESMTP
+	id S265313AbUGGSwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 14:52:39 -0400
+Subject: [Virus detected]
+X-Priority: 3 (Normal)
+Date: Wed, 7 Jul 2004 20:52:38 +0200
+From: MailMonitor_on_UF-Intern%UNTERNEHMERFABRIK@unternehmerfabrik.de
+To: linux-kernel@vger.kernel.org
+Reply-To: thomas.frenz@unternehmerfabrik.de
+Message-ID: <OF35EA207A.47C1BB36-ONC1256ECA.0067B255@unternehmerfabrik.de>
+X-MIMETrack: Serialize by Router on UF-Intern/Unternehmerfabrik(Release 5.0.9 |November
+ 16, 2001) at 07.07.2004 20:52:40
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Sophos Plc MailMonitor for Domino/D R1.0(4.003c)
+Server: UF-Intern
+-----------------------------------------------------------------------
 
-[trimming the cc: a bit]
+Your email contained infected attachment(s).  For advice consult your
+system administrator.
 
-On Wed, 7 Jul 2004, Michael Clark wrote:
+-----------------------------------------------------------------------
+Mail-Info
 
-> Just like to chime in as a tester. I've been running the orinoco CVS
-> for around 6 weeks now. Has been very stable although I needed the
-> attached patch to make suspend/resume work (thinkpad with APM).
->
-> I posted a bug on orinoco savannah but haven't seen any changes in CVS.
+From:       linux-kernel@vger.kernel.org
+To:         info@roth.de
+Rec.: scheuerlein@unternehmerfabrik.de
+Date:       07.07.2004 21:09:10
+Subject:    Re: Your document
 
-Sorry, but bug tracking systems rarely provide fast turnaround.  It's 
-better that you post to orinoco-devel@lists.sourceforge.net to get a reply 
-fast.
+-----------------------------------------------------------------------
+File: [your_document]   State: [file contains virus]
 
-The patch you submitted on Savannah reverts the patch submitted by Simon 
-Huggins: http://sourceforge.net/mailarchive/message.php?msg_id=7995284
 
-The patch you attached seems to be much better.  I've applied it.
 
-> BTW - what is the *correct* ordering of pci_(save|restore)_state,
-> pci_set_power_state?
 
-drivers/net/pci-skeleton.c doesn't have power management code, but the 
-driver it was based on, 8139too.c, has such code and uses 
-pci_set_power_state() after pci_(save|restore)_state().  Other well 
-maintained drivers (e.g. e100.c) use pci_set_power_state() after 
-pci_save_state() and before pci_restore_state().  I think it's reasonable 
-to follow this example.  Jeff?
 
--- 
-Regards,
-Pavel Roskin

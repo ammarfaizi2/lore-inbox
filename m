@@ -1,73 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268962AbTGJMQn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 08:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269127AbTGJMQm
+	id S269242AbTGJMWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 08:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269247AbTGJMWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 08:16:42 -0400
-Received: from users.linvision.com ([62.58.92.114]:18349 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id S268962AbTGJMQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 08:16:35 -0400
-Date: Thu, 10 Jul 2003 14:31:12 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Changes to mem.c ... 
-Message-ID: <20030710143112.A16714@bitwizard.nl>
+	Thu, 10 Jul 2003 08:22:16 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:924 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S269244AbTGJMWF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 08:22:05 -0400
+Date: Thu, 10 Jul 2003 14:36:50 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: RFC:  what's in a stable series?
+Message-ID: <20030710123650.GA16681@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <3F0CBC08.1060201@pobox.com> <20030710033409.GA1498@www.13thfloor.at> <1057836155.8005.9.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1057836155.8005.9.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 10, 2003 at 12:22:35PM +0100, Alan Cox wrote:
+> On Iau, 2003-07-10 at 04:34, Herbert Pötzl wrote:
+> > In my opinion (and you requested input *g*), the
+> > kernel userland API can be changed as much as is
+> > required to improve/stabilize/bugfix the kernel,
+> > unless this change breaks something in userland
+> > without an already available update/upgrade/etc ...
+> 
+> In a lot of cases (like O_DIRECT) its cleaner to simply break the API
+> in a way that will spew warnings if people miss changes than mess around
+> with extra methods that instead break drivers that forgot to use C99
+> initializers.
 
-Hi,
+yeah, I obviously forgot to mention this case ;)
+and I agree that sometimes this is the best way
+to do it ... 
 
-I haven't been paying much attention, but someone changed the 
-mmap_kmem function in drivers/char/mem.c (it used to be equivalent
-to mmap_mem). 
+but this is a little bit different because
+a) you do it intentionally
+b) you know how to fix it
 
-I used to be able to use the "chipmunk" tool (www.bitwizard.nl/chipmunk)
-to examine and control memory mapped devices
+> I plan to carry on breaking the kernel internal API when I have to
+> and its easy to fix up the few affected users. I broke all the audio
+> drivers between 2.4.21->22 but that was worth doing for example.
 
-cave chipmunk/chipmunk-1.5# lspci -vs 00:0f.0
-00:0f.0 Communication controller: Specialix Research Ltd. PCI_9050 (rev 01)
-        Subsystem: Unknown device 11cb:0100
-        Flags: medium devsel, IRQ 16
-        Memory at da011000 (32-bit, non-prefetchable)
-        I/O ports at c800
-        Memory at da000000 (32-bit, non-prefetchable)
+keep breaking the kernel internal ... 8-)
 
-cave chipmunk/chipmunk-1.5# setenv HW_BASE 0xda000000
-cave chipmunk/chipmunk-1.5# chipmunk
-Autoloading init.mac.
-This is Chipmunk version 1.4.1 .
-This is THE init file.... running on linux
-making a 1Mb aperture at 0xda000000
+best,
+Herbert
 
->  dump 0
-40196000  00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00    ................
-40196010  00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00    ................
-40196020  00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00    ................
-40196030  00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00    ................
-40196040  00 00 b2 03 e2 28 00 10   2e 0d 0a 72 74 69 6e 67    .....(.....rting
-40196050  20 73 79 73 74 65 6d 20   6c 6f 67 20 64 61 65 6d    .system.log.daem
-40196060  6f 6e 3a 20 73 79 73 6c   6f 67 64 0a 2e 32 37 20    on:.syslogd..27.
-> bye bye.
-cave chipmunk/chipmunk-1.5# 
-
-
-but on 2.4.21: No such luck.... It seems there is a new codepath for 
-mmapping "kmem", which interferes with chipmunk mmapping the memory 
-mapped IO space of the card. 
-
-Why was this added? How does X still work?
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* I didn't say it was your fault. I said I was going to blame it on you. *

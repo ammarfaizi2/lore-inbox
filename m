@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283158AbRLDRkp>; Tue, 4 Dec 2001 12:40:45 -0500
+	id <S281910AbRLDRmP>; Tue, 4 Dec 2001 12:42:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282494AbRLDRjK>; Tue, 4 Dec 2001 12:39:10 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:11278 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S281153AbRLDRhi>; Tue, 4 Dec 2001 12:37:38 -0500
-Message-ID: <3C0D077E.59C194B0@evision-ventures.com>
-Date: Tue, 04 Dec 2001 18:27:26 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@caldera.de>,
-        "Eric S. Raymond" <esr@thyrsus.com>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-In-Reply-To: <E16BJ9v-0002ii-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S280766AbRLDRkr>; Tue, 4 Dec 2001 12:40:47 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:22723 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S283197AbRLDRka>; Tue, 4 Dec 2001 12:40:30 -0500
+Date: Tue, 4 Dec 2001 10:40:26 -0700
+Message-Id: <200112041740.fB4HeQu08196@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.5.1-pre5 AudioCD with cdrom modules
+In-Reply-To: <3C0D087D.573B6174@wanadoo.fr>
+In-Reply-To: <3C0CC182.B65B6A52@wanadoo.fr>
+	<200112041657.fB4GvQV06981@vindaloo.ras.ucalgary.ca>
+	<3C0D087D.573B6174@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Pierre Rousselet writes:
+> Richard Gooch wrote:
+> > 
+> > Pierre Rousselet writes:
+> > > What may cause an AudioCD no being recognized at first attempt but
+> > > only after unloading/reloading the modules ide-cd cdrom ?
+> > >
+> > > I'm testing 2.5.1-pre5 + devfs-patch-v202.
+> > >
+> > > My CRD-8240B is known as /dev/cdroms/cdrom0 in fstab, to mount it
+> > > manually on /cdrom, and in the gnome CD player gtcd preferences panel.
+> > >
+> > > ide-cd and cdrom are loaded at boot time (i don't need that, 2.4.16 does
+> > > it as well). After loging in i can mount /cdrom but if it is an AudioCD
+> > > gtcd tells me 'no disc'.
+> > >
+> > > After rmmod ide-cd cdrom, gtcd finds the AudioCD OK.
+> > >
+> > > This doesn't happen on plain 2.4.16
+> > 
+> > Please try kernel 2.4.17-pre2 + devfs-patch-v199.2. That will help
+> > determine if the problem is devfs-related, or (more likely) due to the
+> > block I/O changes happening in 2.5.
 > 
-> > Creating a dependency on Python? Is a non-issue. Current systems that
-> > are to run 2.5 or 2.6 are bloated beyond belief by glibc already, Python
-> > is nice and it does not create such unmaintainable mess. Whether
-> 
-> Python2 - which means most users dont have it.
+> Excellent, can you hear Diana Krall?
 
-And then you will end with:
+??? You'll have to explain what you mean by this.
 
-python1.4x,
-python2,
-python3 rewrite in python1 and so on and so on.
+> 2.4.17-pre2 + devfs-patch-v199.2 does not have this feature. The
+> AudioCD is identified at the first attempt.
 
-Thanks but NO thanks
+OK, since 2.4.17-pre2 + devfs-patch-v199.2 works fine, it suggests the
+block I/O changes in 2.5. I've Cc'ed Jens, who likes hearing about
+these problems :-)
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

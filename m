@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132508AbRDWWmz>; Mon, 23 Apr 2001 18:42:55 -0400
+	id <S132513AbRDWWoM>; Mon, 23 Apr 2001 18:44:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132502AbRDWWju>; Mon, 23 Apr 2001 18:39:50 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:47120 "EHLO
+	id <S132500AbRDWWn7>; Mon, 23 Apr 2001 18:43:59 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:48656 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S132725AbRDWWjT>; Mon, 23 Apr 2001 18:39:19 -0400
-Date: Mon, 23 Apr 2001 16:32:48 -0600
+	id <S132512AbRDWWnk>; Mon, 23 Apr 2001 18:43:40 -0400
+Date: Mon, 23 Apr 2001 16:37:25 -0600
 From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: filp_open() in 2.2.19 causes memory corruption
-Message-ID: <20010423163248.B1131@vger.timpanogas.org>
-In-Reply-To: <001d01c0cc33$7e62daa0$5517fea9@local> <3942.988063428@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: jmerkey@timpanogas.org
+Subject: NWFS broken on 2.4.3 -- someone removed WRITERAW
+Message-ID: <20010423163725.C1131@vger.timpanogas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3942.988063428@redhat.com>; from dwmw2@infradead.org on Mon, Apr 23, 2001 at 11:03:48PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 11:03:48PM +0100, David Woodhouse wrote:
-> 
-> manfred@colorfullife.com said:
-> > Are you sure the trace is decoded correctly?
-> 
-> > > CPU:    0 
-> > > EIP:    0010:[sys_mremap+31/884]  
-> 
-> Probably not. It looks like it was munged by klogd. Some distributions are 
-> still shipping with klogd configured to destroy the original information on 
-> the way to the log, without even making it do a sanity check that the 
-> System.map it's using actually matches the current kernel.
-> 
-> Jeff, please disable the broken klogd symbol munging and reproduce it,
-> running the oops through ksymoops manually. Ksymoops should have built-in 
-> sanity checks on the System.map it tries to use.
-> 
-> Also, please make sure you report this as a serious bug with the vendor of 
-> whatever distribution you're running on this box.
-> 
 
 
-David,
+Hey guys,
 
-I will comply and repost the oops.
+Whomever removed WRITERAW has broken NWFS.  WRITE requests call
+_refile_buffer() after the I/O request and take my locally created 
+buffer heads and munge them back into the linux buffer cache, causing
+massive memory corruption in the system.  These buffers don't belong 
+in Linus' buffer cache, they are owned by my LRU and ll_rw_block 
+should not be blindly filing them back into the buffer cache.
+
+Please put something back in to allow me to write without the buffer
+heads always getting filed into Linus' buffer cache.  This has 
+broken NWFS on 2.4.3 and above.
+
+As for using Linus' buffer cache, until you put in the ability to 
+create logical block mapping instead of physical, I will not be 
+able to use it.  Hopefully, this will make it in 2.5.  I have some 
+folks trying to use this with 2.4.3 and they are dead in the water
+until this gets addressed.
+
+Thanks
 
 Jeff
-
-> --
-> dwmw2
-> 

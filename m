@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270738AbTGUWDY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 18:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270743AbTGUWDY
+	id S270751AbTGUWFv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 18:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270752AbTGUWFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 18:03:24 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:50850 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S270738AbTGUWDX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 18:03:23 -0400
-Date: Mon, 21 Jul 2003 15:18:18 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Larry McVoy <lm@bitmover.com>, Mike Fedyk <mfedyk@matchmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
-Message-ID: <20030721221818.GB7240@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
-	Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-References: <20030721190226.GA14453@matchmail.com> <20030721194514.GA5803@work.bitmover.com> <20030721212155.GF4677@x30.linuxsymposium.org> <20030721213159.GA7240@work.bitmover.com> <20030721220000.GG4677@x30.linuxsymposium.org>
+	Mon, 21 Jul 2003 18:05:51 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:18190 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S270751AbTGUWFs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 18:05:48 -0400
+Date: Tue, 22 Jul 2003 00:20:49 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1: "make help" is not complete
+Message-ID: <20030721222049.GA2602@mars.ravnborg.org>
+Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0307210827200.5101@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030721220000.GG4677@x30.linuxsymposium.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+In-Reply-To: <Pine.LNX.4.53.0307210827200.5101@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 06:00:00PM -0400, Andrea Arcangeli wrote:
-> since we're talking about bkcvs, I also would have a feature wish for
-> the repository export in rsync.kernel.org: would it be possible to
-> export a sequence number increased once before a transfer
+On Mon, Jul 21, 2003 at 08:29:37AM -0400, Robert P. J. Day wrote:
+> 
+>   just an observation -- "make help" doesn't list all possible
+> make options.  minimally, "make randconfig" is not listed there,
+> although i'm not surprised that this feature is not prominently
+> advertised. :-)
+"make help" is not for the advanced user.
+I deliberately did not include the more exotic targets - and you may
+argue that there is already too many targets listed.
 
-I don't manage the rsync trees, HPA does that.  Peter?
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+I see no reason to include more targets in "make help".
+
+	Sam

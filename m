@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbUEJUb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUEJUic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbUEJUb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 16:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbUEJUb6
+	id S261576AbUEJUic (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 16:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUEJUic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 16:31:58 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:58318 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261568AbUEJUbw (ORCPT
+	Mon, 10 May 2004 16:38:32 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:13509 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261576AbUEJUib (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 16:31:52 -0400
-Message-Id: <200405102031.i4AKVXLg022041@eeyore.valparaiso.cl>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK) 
-In-Reply-To: Your message of "Mon, 10 May 2004 15:49:58 -0400."
-             <c7om3o$akd$1@gatekeeper.tmr.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Mon, 10 May 2004 16:31:33 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 10 May 2004 16:38:31 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [PATCH] hci-usb bugfix
+Date: Mon, 10 May 2004 22:38:11 +0200
+User-Agent: KMail/1.6.2
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Sebastian Schmidt <yath@yath.eu.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0405101211350.669-100000@ida.rowland.org> <200405102115.26504.oliver@neukum.org> <1084217971.9639.55.camel@pegasus>
+In-Reply-To: <1084217971.9639.55.camel@pegasus>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405102238.11876.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> said:
 
-[...]
+> which results in the same as if we set NULL for the private pointer when
+> we claim the second interface. If this really happens then we have more
+> problems in the driver itself, because this case won't be handled in
+> either way. However I don't think that this will happen, because for
 
-> I tried 4k stack, I couldn't measure any improvement in anything (as in 
-> no visible speedup or saving in memory).
+You can trigger it in software through usbfs.
 
-4K stacks lets the kernel create new threads/processes as long as there is
-free memory; with 8K stacks it needs two consecutive free page frames in
-physical memory, when memory is fragmented (and large) they are hard to
-come by...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> Bluetooth devices interface 0 and 1 can be seen as a unit. The only
+> reason that this was split over two interfaces, was that you don't have
+> to stop the bulk transfers when you change the altsetting on the second
+> interface.
+
+Yes, but you should really stop using the second interface _before_
+returning returning from disconnect() for _that_ interface. You will
+operate correctly if the primary interface is disconnected first,
+but you cannot depend on that. If the secondary interface is
+disconnected first, you have a window where you illegally use an
+interface you no longer own.
+
+	Regards
+		Oliver

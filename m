@@ -1,53 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVATE5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVATFBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbVATE5a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 23:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVATE53
+	id S262052AbVATFBi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 00:01:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVATFBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 23:57:29 -0500
-Received: from lakermmtao04.cox.net ([68.230.240.35]:44009 "EHLO
-	lakermmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S261755AbVATE5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 23:57:16 -0500
-In-Reply-To: <ufais5s4sdk.fsf@epithumia.math.uh.edu>
-References: <Pine.LNX.4.30.0501191309500.20626-100000@swamp.bayern.net> <ufad5w07s93.fsf@epithumia.math.uh.edu> <18FE8C24-6A9D-11D9-A93E-000393ACC76E@mac.com> <ufais5s4sdk.fsf@epithumia.math.uh.edu>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <C0DA7983-6A9F-11D9-A93E-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: 3ware driver (3w-xxxx) in 2.6.10: procfs entry
-Date: Wed, 19 Jan 2005 23:57:15 -0500
-To: Jason L Tibbitts III <tibbs@math.uh.edu>
-X-Mailer: Apple Mail (2.619)
+	Thu, 20 Jan 2005 00:01:37 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:34970 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262052AbVATFA6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 00:00:58 -0500
+Date: Thu, 20 Jan 2005 06:00:54 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Edjard Souza Mota <edjard@gmail.com>
+Cc: Bodo Eggert <7eggert@gmx.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Ilias Biris <xyz.biris@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: User space out of memory approach
+In-Reply-To: <4d6522b90501191920410780fe@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0501200437180.6801@be1.lrz>
+References: <fa.lcmt90h.1j1scpn@ifi.uio.no> <fa.ht4gei4.1g5odia@ifi.uio.no>
+  <E1CqDGM-0000wi-00@be1.7eggert.dyndns.org>  <4d6522b905011805154bf27b52@mail.gmail.com>
+  <Pine.LNX.4.58.0501190629490.5090@be1.lrz> <4d6522b90501191920410780fe@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 19, 2005, at 23:49, Jason L Tibbitts III wrote:
-> I'm not sure why you indicate that no in-engineering toolset exists
-> for the 7000 cards.  It works fine on my 7810 and 7500-8 cards, as
-> well as a bunch of 8506-4LP cards and of course the 9500S-4LP cards I
-> have.  I don't think it would work on my 6800 cards, but those are
-> just running JBOD with software RAID so there wouldn't be much point.
+On Thu, 20 Jan 2005, Edjard Souza Mota wrote:
 
-It could be that I just completely missed it, but I went to the 3ware
-site and chose "7000".  There was not a "CLI" item, so I assumed there
-wasn't a specific CLI just for the 7000s.  I later, however, found
-that the 9000 CLIs (Normal and In-Eng) worked fine, so I never looked
-for any others, such as 8000 or 8500 CLIs.  I may have made a mistake,
-but I couldn't find a CLI in the "In Engineering"->"7000" section, and
-I had a working solution, so I didn't try elsewhere.
+> > > > What about creating a linked list of (stackable) algorhithms which can be
+> > > > extended by loading modules and resorted using {proc,sys}fs? It will avoid
+> > > > the extra process, the extra CPU time (and task switches) to frequently
+> > > > update the list and I think it will decrease the typical amount of used
+> > > > memory, too.
+> > >
+> > > Wouldn't this bring the (set of ) ranking algorithm(s) back to the kernel? This
+> > > is exactly what we're trying to avoid.
+> > 
+> > You're trying to avoid it in order to let admins try other ranking
+> > algorhithms (at least that's what I read). The module approach seems to be
+> > flexible enough to do that, and it avoids the mentioned issues. If you
+> > really want a userspace daemon, it can be controled by a module.-)
+> 
+> Yes, your reading is correct, but this choice should take into account
+> the "patterns"
+> of how memory is allocated for user's mostly used applications. Why?
+> The closer the
+> ranking gets to "The Best choice" the longer it will take to invoke
+> oom killer again.
 
-Cheers,
-Kyle Moffett
+ACK.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+> I am wondering how could a module control a user space deamon if it
+> hasn't started
+> yet? I mean, processes at user space are supposed to start only after
+> all modules
+> are loaded (those loadable at boot time). So, this user space deamon
+> would break
+> this standard. But if we manage to have a special module that takes
+> care of loading
+> this stack of  OOM Killer ranking algorithms, then the deamon would
+> not need to break
+> the default order of loading modules.
 
+I don't think there neeeds to be a special order while loading the 
+modules, since each module will provide a defined interface which can be 
+registered in a linked list and sorted on demand. Just init all 
+compiled-in modules and sort using a kernel-parameter (remembering 
+modprobe might be fubar), then modprobe (if compiled-in) all missing 
+decision modules from the list (appending them) and resort again.
 
+If the admin wants to add a module later, he can also change the order
+again, possibly after configuring the module. Disabeling may be either
+done by moving a decision past one without fall-through or by using a
+seperate list.
+
+There will be a need for a controling instance which will build a list of
+candidates and pass it to each decision module in turn untill the victim
+is found. Maybe the list will need a field for a ranking offset and a
+scaling factor if a module is not supposed to do the final decision but to
+modify the ranking for some blessed processes.
+
+> The init could be changed to
+> start the deamon,
+> and then the module would start controlling it. Am I right?
+
+It can, but it should be run from the (possibly autogenerated)  
+initr{d,amfs} if it's used.
+
+> So that's why people is complaining every distro would have to update the init
+> and load this new module. Correct?
+
+ACK. (It's just me - for now)
+
+Upgrading kernels used to be a drop-in replacement, except for ISDN and 
+(for 2.4 -> 2.6) v4l. I like it that way.
+-- 
+Top 100 things you don't want the sysadmin to say:
+66. What do you mean you needed that directory?
+
+Friﬂ, Spammer: nI4m@egiefdjm.info technik@gueb.de order@upstair.com

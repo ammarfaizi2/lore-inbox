@@ -1,35 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVB1Saj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVB1SoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVB1Saj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 13:30:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVB1Saj
+	id S261494AbVB1SoR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 13:44:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVB1SoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 13:30:39 -0500
-Received: from calma.pair.com ([209.68.1.95]:37134 "HELO calma.pair.com")
-	by vger.kernel.org with SMTP id S261668AbVB1Sag (ORCPT
+	Mon, 28 Feb 2005 13:44:17 -0500
+Received: from mail.gondor.com ([212.117.64.182]:33033 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S261494AbVB1SoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 13:30:36 -0500
-Date: Mon, 28 Feb 2005 13:30:36 -0500
-From: "Chad N. Tindel" <chad@tindel.net>
+	Mon, 28 Feb 2005 13:44:14 -0500
+Date: Mon, 28 Feb 2005 19:44:14 +0100
+From: Jan Niehusmann <jan@gondor.com>
 To: linux-kernel@vger.kernel.org
-Subject: Scheduler question in __wake_up_common() - Real Time Apps
-Message-ID: <20050228183036.GA22914@calma.pair.com>
+Subject: key bounce problem with 2.6.11-rc5
+Message-ID: <20050228184414.GA31929@gondor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Request-PGP: http://gondor.com/key.asc
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a question about the implementation in __wake_up_common() that I'm
-hoping someone might know the background on.  This function wakes up
-a specified number of tasks for a wait_queue.  I'm wondering why it doesn't
-wake up the tasks in priority order, so that for things following wake-one 
-semantics high priority tasks get woken up before lower priority tasks.
+Hi,
 
-The only thing I can think of off the top of my head is that it simplifies the 
-O(1) implementation, but I'm wondering if maybe there is something else.
+since I upgraded my ASUS M2400N laptop from 2.6.10 to 2.6.11-rc5, I got
+an annoying key bounce problem. I'm not sure if it's purely a kernel
+problem, because it seems to occur only in xwindows, but booting back to
+2.6.10 made the bouncing disappear, and 2.6.11-rc5 seems to contain
+some changes to the keyboard driver.
 
-Thanks,
+It looks like the sequence of events is the following:
 
-Chad
+Usually, when I press a key, the char shows up on the screen
+immediately. But sometimes, the char does not show up until I press a
+second key, and in that moment, the first char shows up twice, together
+with the second one. (But I may be wrong with that observation, because
+the sequence of events is really fast - it's more like an impression
+than a real observation)
+
+What can I do to help debugging that problem? Are there certain -rc
+versions between 2.6.10 and 2.6.11-rc5 you want me to try out?
+
+Yours,
+Jan
+
+

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264674AbSJOS4I>; Tue, 15 Oct 2002 14:56:08 -0400
+	id <S263291AbSJOSvU>; Tue, 15 Oct 2002 14:51:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264677AbSJOS4I>; Tue, 15 Oct 2002 14:56:08 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:37614 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S264674AbSJOS4F>; Tue, 15 Oct 2002 14:56:05 -0400
-Date: Tue, 15 Oct 2002 15:02:01 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
-       David Miller <davem@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Tweedie <sct@redhat.com>
-Subject: Re: [PATCH] async poll for 2.5
-Message-ID: <20021015150201.K14596@redhat.com>
-References: <3DAC5C11.4060507@watson.ibm.com> <Pine.LNX.4.44.0210151156420.1554-100000@blue1.dev.mcafeelabs.com>
+	id <S264021AbSJOSvU>; Tue, 15 Oct 2002 14:51:20 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:45550 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S263291AbSJOSvS>; Tue, 15 Oct 2002 14:51:18 -0400
+Subject: Re: What kernels 2.4.x 2.5.x compile gcc3.2???
+From: Arjan van de Ven <arjanv@redhat.com>
+To: clemens@dwf.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200210151849.g9FInbur002088@orion.dwf.com>
+References: <200210151849.g9FInbur002088@orion.dwf.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-ce43AdBo2V5/FeNKq8eL"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 15 Oct 2002 20:57:36 +0200
+Message-Id: <1034708268.3408.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210151156420.1554-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Tue, Oct 15, 2002 at 12:00:30PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 12:00:30PM -0700, Davide Libenzi wrote:
-> Something like this might work :
-> 
-> int sys_epoll_create(int maxfds);
-> void sys_epoll_close(int epd);
-> int sys_epoll_wait(int epd, struct pollfd **pevts, int timeout);
-> 
-> where sys_epoll_wait() return the number of events available, 0 for
-> timeout, -1 for error.
 
-There's no reason to make epoll_wait a new syscall -- poll events can 
-easily be returned via the aio_complete mechanism (with the existing 
-aio_poll experiment as a possible means for doing so).
+--=-ce43AdBo2V5/FeNKq8eL
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-		-ben
+On Tue, 2002-10-15 at 20:49, clemens@dwf.com wrote:
+> The subject just about says it.
+> What versions of 2.4.x and 2.5.x compile cleanly with
+> the new gcc 3.2 that is included in most recent releases
+> (in particular RH8.0)
+>=20
+> The 2.4.18-14 kernel sources from RH have LOTS of patches,
+> and they (well the modules) still dont compile with their
+> own config file (sigh).
+
+they do if you remember to use make mrproper when you switch from smp to
+up or back...
+
+
+--=-ce43AdBo2V5/FeNKq8eL
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9rGUgxULwo51rQBIRAltJAJ9Ne108QJU1LTvblMF1IF61lFXnFQCdFPdV
+hQtjxqCZZBUbZtbzHgsDjrI=
+=hLcf
+-----END PGP SIGNATURE-----
+
+--=-ce43AdBo2V5/FeNKq8eL--
+

@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267150AbRGPAhk>; Sun, 15 Jul 2001 20:37:40 -0400
+	id <S267148AbRGPAha>; Sun, 15 Jul 2001 20:37:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267154AbRGPAha>; Sun, 15 Jul 2001 20:37:30 -0400
-Received: from geos.coastside.net ([207.213.212.4]:33694 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S267150AbRGPAhM>; Sun, 15 Jul 2001 20:37:12 -0400
+	id <S267151AbRGPAhU>; Sun, 15 Jul 2001 20:37:20 -0400
+Received: from flodhest.stud.ntnu.no ([129.241.56.24]:45507 "EHLO
+	flodhest.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S267148AbRGPAhE>; Sun, 15 Jul 2001 20:37:04 -0400
+Date: Mon, 16 Jul 2001 02:37:03 +0200
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: tlan@stud.ntnu.no, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make SCSI-system aware of type 12-devices
+Message-ID: <20010716023703.A27290@flodhest.stud.ntnu.no>
+Reply-To: tlan@stud.ntnu.no
+In-Reply-To: <mailman.995240941.28583.linux-kernel2news@redhat.com> <200107160015.f6G0F9W01045@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Message-Id: <p05100322b777ddf1626d@[207.213.214.37]>
-In-Reply-To: <200107152314.f6FNEM904281@rvanmete.iprg.nokia.com>
-In-Reply-To: <200107152314.f6FNEM904281@rvanmete.iprg.nokia.com>
-Date: Sun, 15 Jul 2001 17:37:00 -0700
-To: rdv@cips.nokia.com, "Justin T. Gibbs" <gibbs@scsiguy.com>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [PATCH] 64 bit scsi read/write
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200107160015.f6G0F9W01045@devserv.devel.redhat.com>; from zaitcev@redhat.com on Sun, Jul 15, 2001 at 08:15:09PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 4:14 PM -0700 2001-07-15, Rod Van Meter wrote:
->You can commit an individual write with the FUA (force unit access)
->bit.  The command for this is not WRITE EXTENDED, but WRITE(10) or
->WRITE(12).  I don't think WRITE(6) has room for the bit, and WRITE(6)
->is useless nowadays, anyway.  WRITE EXTENDED lets you write over the
->ECC bits -- it's a raw write to the platter.  Dunno that anyone
->implements it any more.
+Pete Zaitcev:
+> Yeah, however nobody tried to implement SCC command class before.
+> It is much easier for a controller vendor to provide REPORT_LUNS
+> (which is enough to find volumes), and have some out-of-band
+> management interface - front panel, telnet, or a web form.
 
-WRITE EXTENDED is WRITE(10), I believe. The ECC-writing version is 
-WRITE LONG; IBM (at least) implements it.
+This controller has a consolle which you can hook up to, to do management.
 
-At 11:47 AM -0600 2001-07-15, Justin T. Gibbs wrote:
->As the soft reset section also specifies how to deal with initiators
->that are not expecting soft reset semantics, I believe this applies to
->either reset model.
->
->If we look at the section on caching for direct access devices we see,
->"[write-back cached] data may be lost if power to the device is lost or
->a hardware failure occurs".  There is no mention of a bus reset having
->any effect on commands already acked as completed to the intiator.
+> Out of curiousity, what is your hardware?
 
-I'd very much like to think so; thanks for the reference. I'd feel a 
-little more sanguine about the subject if there were some explicit 
-guarantee of the desired behavior, either in the SCSI spec or in an 
-implementer's functional spec. Nonetheless, it's testable behavior, 
-and it's a reasonable inference that drives should behave correctly. 
-Thanks again.
+Compaq StorageWorks (announced vendor is DEC, tho) HSG80.
+
 -- 
-/Jonathan Lundell.
+-Thomas

@@ -1,102 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265941AbUFJEPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266108AbUFJERT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265941AbUFJEPd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 00:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265995AbUFJEPd
+	id S266108AbUFJERT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 00:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266110AbUFJERS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 00:15:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1774 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265941AbUFJEPa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 00:15:30 -0400
-Date: Thu, 10 Jun 2004 05:15:29 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: 2.6.7-rc3 drivers/video/fbmem.c: user/kernel pointer bugs
-Message-ID: <20040610041529.GD12308@parcelfarce.linux.theplanet.co.uk>
-References: <1086821199.32054.111.camel@dooby.cs.berkeley.edu> <20040610012441.GY12308@parcelfarce.linux.theplanet.co.uk> <1086839438.14179.340.camel@dooby.cs.berkeley.edu>
-Mime-Version: 1.0
+	Thu, 10 Jun 2004 00:17:18 -0400
+Received: from web14202.mail.yahoo.com ([216.136.172.144]:21024 "HELO
+	web14202.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266108AbUFJEQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 00:16:41 -0400
+Message-ID: <20040610041641.80112.qmail@web14202.mail.yahoo.com>
+Date: Wed, 9 Jun 2004 21:16:41 -0700 (PDT)
+From: "j.random.programmer" <javadesigner@yahoo.com>
+Subject: Threading behavior in 2.6.5 may be broken ?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1086839438.14179.340.camel@dooby.cs.berkeley.edu>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 09, 2004 at 08:50:33PM -0700, Robert T. Johnson wrote:
-> A similar situation arises in tty code, which passes around a flag
-> "from_user" to indicate whether another pointer is a user pointer or
-> kernel pointer.  See, for example, drivers/char/pty.c:pty_write(). 
-> CQual complains about that, too.  How about sparse?
+Hi all:
 
-Of course - we have the same pointer passed both to memcpy() and
-copy_from_user().  Since they expect different address spaces for
-their arguments, no annotaion will avoid tripping a warning.
+I just installed Fedora Core 2 (2.6.5.x smp 
+kernel) on a Dual 1 Ghz P4 server with about 
+1.5 GB of RAM and about 1.4 GB of swap. 
 
-> static int pty_write(struct tty_struct * tty, int from_user,
-> 		       const unsigned char __user   *ubuf, 
->                        const unsigned char __kernel *kbuf,
->                        int count)
+I am primarily a web/database developer, not 
+a C programmer so I am writing this email from
+an end-user's perspective.
 
-Eeek.  You do realize that it doesn't fix the real problem, don't you?
-Paper over it, but that's it - and we are trading one constraint for
-another ("at most one of those two arguments is non-NULL") and _still_
-have locking implications from hell.
+I have a program that tries to create as many
+threads as possible. This program was written by me 
+for kicks/testing -- just to see what would happen.
+I ssh into the server and run this program as root
+under the sun 1.4.2 JDK.
 
-That warning is actually a sign of real problem - it is not a false
-positive in a sense that tty_driver ->write() is a broken API and
-is ripe with e.g. locking bugs.
+On a 2.4.x kernel, from a Java JVM I could create
+about 900 threads before the JVM crapped out with
+a "cannot create more threads" type of error. Before
+this point, I can create/run - say 700 threads - just
+fine. This is good -- a clean failure at some point
+and good behavior before then.
 
-> The slicker work-around involves passing a function pointer for
-> accessing the buffer, like in the example I gave in the other email. 
-> This works for cqual, but probably wouldn't help sparse.
+On this new kernel, the system gets totally wedged
+when I run the same program and try to create
+10,000 threads. Instead of getting a "cannot
+create more threads" error, I now get an "out of
+memory" error. Then the command line freezes in
+the existing terminal window, ctrl+c does not work
+(no matter how many times it's pressed), I cannot
+launch another ssh session and cannot ssh into the
+server again (although ping still works).
 
-<shrug> just pass opaque data around as unsigned long.  Ugly, but will
-work.  And no, I'm not happy about the idea of doing polymorphic types -
-C is not particulary well suited for that.  It's still papering over
-the problem instead of fixing it.
+To recap:
 
-In case of tty ->write() the real question is different - if you take
-a look at the actual instances of that method, you'll see that they
-have serious code duplication between the kernel/userland cases (not
-a surprise) and the only difference besides the way we copy is in the
-locking done on these paths.
+[2.4.x]
+700 threads --> fine
+10,000 threads --> crap out at 900 something. 
 
-It's actually worth investigating - I'm fairly sure that we'll find
-	a) shitloads of SMP problems on the "kernel" side of things (aka. "we
-don't need no stinkin' locking, memcpy won't block")
-	b) very distinct possibility of making the locking mechanism used
-on "userland" path generic and driven by n_tty.c - along with copying from
-userland to kernel.  Note that n_tty.c is the only caller of ->write() with
-userland pointers; everything else is kernel-only.
+[2.6.5]
+700 threads --> fine
+10,000 threads --> system wedged totally. 
 
-So I suspect that it in the long run the proper fix will be to sanitize
-the locking and move all copy_from_user() to the (only) caller.
+I thought NPTL would create/run threads as if there
+was no tomorrow ? So why do things seem to be worse
+in 2.6.x ?
 
-> > 	FWIW, I think we should reduxe mixing of ioctl and kernel structures.
-> > console_font_op is a particulary obnoxious example, but lots of the stuff
-> > in drivers/video is not much better.
-> 
-> I think the key point is to make pointers either be always user pointers
-> or always kernel pointers.  Their type shouldn't depend on some other
-> flag.
-> 
-> I fear that completely separating ioctl and kernel data structures would
-> result in lots of redundant structure definitions, which will lead to
-> code maintainence problems and their own host of bugs.  Would it be
-> better to just design a bug finding tool that's capable of keeping track
-> of different structure instances separately?
+For right now, I'm going back to slackware with 2.4.x
+but it would be great if someone fixed this problem
+in future 2.6 kernels. [As as aside, I can create
+as many threads as I want, say 20,000, without
+any problems using the same program on my mac-osx
+laptop].
 
-I doubt it.  Most of the ioctl data structures do not survive past the
-decoding; fb layer is ugly that way, but that's a local problem and it
-can be fixed.
+I'd be happy to give a known kernel hackers on this
+list root access to this box for the next few days 
+if anyone is interested in seeing/poking around
+for themselves (email me if so desired).
 
-Keep in mind that anything containing userland pointers needs to be explicitly
-dealt with on 32/64 platforms - otherwise 32bit code won't be able to issue
-that ioctl anyway.
+Best regards,
 
-	Besides, kernel data structures should not be tied by ABI stability
-requirements - and ioctl arguments have to.  Which leads to far worse bug
-potential than explict decoding.
+--j
+javadesigner@yahoo.com
+
+------------- The test program is shown below --------
+
+/** Usage: java MaxThreads number-of-threads */
+public class MaxThreads extends Thread
+{
+static int threadnum = 0;
+public static void main(String args[])
+	{
+	if (args.length != 1) {
+     System.out.println("java MaxThreads
+num_threads");
+     System.exit(1);
+     }
+	int n = Integer.parseInt(args[0]);
+	System.out.println("test " + n + " threads..");
+	for (int i=0 ; i < n; i++) {
+		Thread t = new MaxThreads();
+		t.start();
+		}
+	}
+
+public void run() { 
+	try {
+		currentThread().sleep(5000); //5 sec
+		System.out.println(
+        "Thread:" + threadnum++ + "..done");
+		}
+	catch (Exception e) { e.printStackTrace(); }
+	}
+}           //~class MaxThreads
+--------------------------------------------------
+
+
+
+
+
+
+
+
+
+ 
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Friends.  Fun.  Try the all-new Yahoo! Messenger.
+http://messenger.yahoo.com/ 

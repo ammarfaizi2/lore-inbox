@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268133AbRIDTfa>; Tue, 4 Sep 2001 15:35:30 -0400
+	id <S268286AbRIDTkb>; Tue, 4 Sep 2001 15:40:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268286AbRIDTfU>; Tue, 4 Sep 2001 15:35:20 -0400
-Received: from h157s242a129n47.user.nortelnetworks.com ([47.129.242.157]:36560
-	"EHLO zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S268133AbRIDTfH>; Tue, 4 Sep 2001 15:35:07 -0400
-Message-ID: <3B952CFE.A3B6FF95@nortelnetworks.com>
-Date: Tue, 04 Sep 2001 15:35:26 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-Cc: Fred <fred@arkansaswebs.com>, linux-kernel@vger.kernel.org
-Subject: Re: Should I use Linux to develop driver for specialized ISA card?
-In-Reply-To: <E15eHup-0003ir-00@the-village.bc.nu> <01090410264000.14864@bits.linuxball> <3B950034.17909E5D@nortelnetworks.com> <200109041823.f84INqE13918@maild.telia.com>
+	id <S268342AbRIDTkU>; Tue, 4 Sep 2001 15:40:20 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:25746 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S268286AbRIDTkG>; Tue, 4 Sep 2001 15:40:06 -0400
+Date: Tue, 4 Sep 2001 15:39:59 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: page_launder() on 2.4.9/10 issue
+Message-ID: <20010904153958.A31994@cs.cmu.edu>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010904135427.A30503@cs.cmu.edu> <E15eLGd-0004Gd-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+Content-Disposition: inline
+In-Reply-To: <E15eLGd-0004Gd-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Larsson wrote:
-> 
-> On Tuesday den 4 September 2001 18:24, Christopher Friesen wrote:
-> > Fred wrote:
-> > > I'm  curious, Alan, Why? I'm a hardware developer, and I would have
-> > > assumed that linux would have been ideal for real time / embedded
-> > > projects? (routers / controllers / etc.) Is there, for instance, a reason
-> > > to suspect that linux would not be able to respond to interrupts at say
-> > > 8Khz?
-> > > of course I know nothing of rtlinux so I'll read.
-> >
-> > I'm involved in a project where we are using linux in an embedded
-> > application. We've got a gig of ram, no hard drives, no video, and the only
-> > I/O is serial, ethernet and fiberchannel.
-> >
-> > We have a realtime process that tries to run every 50ms.  We're seeing
-> > actual worst-case scheduling latencies upwards of 300-400ms.
+On Tue, Sep 04, 2001 at 07:49:47PM +0100, Alan Cox wrote:
+> The VM tuning in the -ac tree is a lot more reliable for most loads (its
+> certainly not perfect) and that is because the changes have been done and
+> tested one at a time as they are merged. Real engineering process is the
+> only way to get this sort of thing working well.
 
-> 1) Why shouldn't the low-latency patches work for another architecture?
-> Andrew Morton might be interested to fix other architectures too.
-> (but most patches are not in architecture specific code)
+I grabbed the 2.4.9-ac7 patch and looked at some of the files.
 
-Well, a while back I took a look at the low latency patch and saw a bunch of
-arch-specific files being modified so I assumed that it wouldn't do much on a
-different architecture.  I may have been wrong.  I guess its time for me to do
-some testing.
+Pages allocated with do_anonymous_page are not added to the active list.
+as a result there is no aging information for a page until it is
+unmapped. So we might be unmapping and allocating swap for shared pages
+that another process is using heavily. In which case this page should
+always have a high age in in the active list and won't actually get
+swapped out. So we get both unnecessary minor faults, and the swap space
+will never be reclaimed because we never swap it back in.
 
-Chris
+Also up aging of mapped process pages is still done in try_to_swap_out,
+and all of these pages are still aged down indiscriminately in
+refill_inactive_scan. I don't see how it could age that much
+differently, so I'm assuming all pages in the active list are basically
+at age 0 no matter what aging strategy is picked.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Especially because only down aging is performed periodically by kswapd,
+while the only code that ages process pages up is only called once the
+system hits free or inactive shortage.
+
+There is some places where tests have been added that should never make
+a difference anyways. In reclaim_page and page_launder a page on the
+inactive list is checked for page->age. Because the page is not mapped
+in any VM it is not possibly for age to be non-zero. If the page was
+referenced it would have triggered a minor fault and reactivated the
+page.
+
+I guess it is just more carefully papering over the existing problems.
+
+Jan
+

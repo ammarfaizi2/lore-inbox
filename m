@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266919AbRGTKxa>; Fri, 20 Jul 2001 06:53:30 -0400
+	id <S266921AbRGTLeZ>; Fri, 20 Jul 2001 07:34:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266921AbRGTKxU>; Fri, 20 Jul 2001 06:53:20 -0400
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:4349 "EHLO
-	tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S266919AbRGTKxK>; Fri, 20 Jul 2001 06:53:10 -0400
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: stimits@idcomm.com, "D. Stimits" <stimits@idcomm.com>,
-        kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: bzImage, root device Q
-Date: Fri, 20 Jul 2001 05:46:52 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <3B57E0AB.F5D6B2E2@idcomm.com>
-In-Reply-To: <3B57E0AB.F5D6B2E2@idcomm.com>
+	id <S266930AbRGTLeO>; Fri, 20 Jul 2001 07:34:14 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:53257 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S266921AbRGTLeF>; Fri, 20 Jul 2001 07:34:05 -0400
+Message-ID: <3B581670.548B3693@namesys.com>
+Date: Fri, 20 Jul 2001 15:30:56 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Message-Id: <01072005531200.07975@tabby>
-Content-Transfer-Encoding: 7BIT
+To: trond.myklebust@fys.uio.no
+CC: Chris Mason <mason@suse.com>, Andi Kleen <ak@suse.de>,
+        Craig Soules <soules@happyplace.pdl.cmu.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: NFS Client patch
+In-Reply-To: <177360000.995464676@tiny>
+		<shsg0btnobs.fsf@charged.uio.no>
+		<3B5720B2.A4D97ECF@namesys.com> <15191.61681.847920.761502@charged.uio.no>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Fri, 20 Jul 2001, D. Stimits wrote:
->When booting to a bzImage kernel, bytes 508 and 509 can be used to name
->the minor and major number of the intended root device (although it can
->be overridden with a command line parameter). Other characteristics are
->also available this way, through bytes in the kernel. rdev makes a
->convenient way to hex edit those bytes.
->
->What I'm more curious about is how does the kernel know what filesystem
->_type_ the root is? Are there similar bytes in the bzImage, and can rdev
->change this? And is there a command line syntax to allow specifying
->filesystem type (e.g., something like "vmlinuz root=/dev/scd0,iso9660"
->or "vmlinuz root=/dev/scd0,xfs")? Or is this limited in some way,
->requiring mount on one or a few known filesystem types ("linux native"
->subset comes to mind), followed by a chroot or pivot_root style command
->(which in turn means no direct root mount of some filesystem types)?
+Trond Myklebust wrote:
+> 
+> >>>>> " " == Hans Reiser <reiser@namesys.com> writes:
+> 
+>      > The current code does rely on hidden knowledge of the filesytem
+>      > on the server, and refuses to operate with any FS that does not
+>      > describe a position in a directory as an offset or hash that
+>      > fits into 32 or 64 bits.
+> 
+> I'm not saying that ReiserFS is wrong to question the correctness of
+> this. I'm just saying that NFSv2 and v3 are fixed protocols, and that
+> it's too late to do anything about them. I read Chris mail as a
+> suggestion of creating yet another NQNFS, and this would IMHO be a
+> mistake. Better to concentrate on NFSv4 which is meant to be
+> extendible.
+> 
+>      > But be calm, I am not planning on fixing this myself anytime in
+>      > the next year, we have an ugly and hideous hack deployed in
+>      > ReiserFS that works, for now I am just saying the folks who
+>      > designed NFS did a bad job and resolutely continue doing a bad
+>      > job, and if someone wanted to fix it, they could fix cookies to
+>      > use filenames instead of byte offsets for those filesytems able
+>      > to better use filenames than byte offsets to describe a
+>      > position within a directory, and for those clients and servers
+>      > who are both smart enough to understand filenames instead of
+>      > cookies (able to understand the cookie monster protocol).
+> 
+> This is something which I believe you raised in the NFSv4 group, and
+> which could indeed be a candidate for an NFSv4 extension. After all,
+> this is in essence a recognition of the method most NFS clients
+> implement for recovering from an EBADCOOKIE error. Why was the idea
+> dropped?
 
-Take a look at fs/super.c - function mount_root().
+Lack of desire to do anything, near as I could tell.
 
-It reads the file system superblock (from the major/minor specified root
-device) and determines the filesystem from that. There is a loop that
-cycles through all known (ie built in) file systems until one works.
+> 
+> (Note: As I said, under Linux we're currently hampered when
+> considering the above alternatives by the fact that glibc requires the
+> ability to lseek() on directories. This is a bug that they could
+> easily fix, and it affects not only your suggestion, but also all the
+> other suggestions in which one implements non-permanent cookies)
 
-If none do, then it panics.
+I would be quite happy if you (or anyone) could fix it, sometime in the next 3 years.  
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
-
-Any opinions expressed are solely my own.
+> 
+> Cheers,
+>    Trond

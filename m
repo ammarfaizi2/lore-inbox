@@ -1,83 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261238AbSITH33>; Fri, 20 Sep 2002 03:29:29 -0400
+	id <S261206AbSITH23>; Fri, 20 Sep 2002 03:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261246AbSITH33>; Fri, 20 Sep 2002 03:29:29 -0400
-Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:22815 "EHLO
-	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id <S261238AbSITH31>; Fri, 20 Sep 2002 03:29:27 -0400
-Date: Fri, 20 Sep 2002 09:34:28 +0200 (CEST)
-From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.36 &  AIC-7XXXX
-Message-ID: <Pine.LNX.4.44.0209200910070.17802-100000@oceanic.wsisiz.edu.pl>
+	id <S261238AbSITH23>; Fri, 20 Sep 2002 03:28:29 -0400
+Received: from mta01ps.bigpond.com ([144.135.25.133]:48374 "EHLO
+	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261206AbSITH22>; Fri, 20 Sep 2002 03:28:28 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: compile error in pre7-ac2: usb & input
+Date: Fri, 20 Sep 2002 17:27:10 +1000
+User-Agent: KMail/1.4.5
+Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209191555240.1928-100000@ondatra.tartu-labor> <200209200709.20787.bhards@bigpond.net.au> <20020920090955.B79295@ucw.cz>
+In-Reply-To: <20020920090955.B79295@ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209201727.10324.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-AIC7XXX on kernel 2.5.36 not working. I can't boot system on this kernel.
+On Fri, 20 Sep 2002 17:09, Vojtech Pavlik wrote:
+> On Fri, Sep 20, 2002 at 07:09:20AM +1000, Brad Hards wrote:
+> > On Thu, 19 Sep 2002 23:54, Vojtech Pavlik wrote:
+> > > On Thu, Sep 19, 2002 at 04:04:08PM +0300, Meelis Roos wrote:
+> > > > drivers/usb/usbdrv.o: In function `hidinput_hid_event':
+> > > > drivers/usb/usbdrv.o(.text+0x11573): undefined reference to
+> > > > `input_event' drivers/usb/usbdrv.o(.text+0x115ee): undefined
+> > > > reference to `input_event' drivers/usb/usbdrv.o(.text+0x11600):
+> > > > undefined reference to `input_event'
+> > > > drivers/usb/usbdrv.o(.text+0x11641): undefined reference to
+> > > > `input_event' drivers/usb/usbdrv.o(.text+0x11664): undefined
+> > > > reference to `input_event' drivers/usb/usbdrv.o(.text+0x11682): more
+> > > > undefined references to `input_event' follow drivers/usb/usbdrv.o: In
+> > > > function
+> > > > `hidinput_connect':
+> > > > drivers/usb/usbdrv.o(.text+0x118d4): undefined reference to
+> > > > `input_register_device' drivers/usb/usbdrv.o: In function
+> > > > `hidinput_disconnect':
+> > > > drivers/usb/usbdrv.o(.text+0x118f3): undefined reference to
+> > > > `input_unregister_device'
+> > >
+> > > Well, you enabled HID as built-in and Input as modular. HID needs
+> > > Input.
+> >
+> > Not quite. CONFIG_USB + CONFIG_USB_HIDDEV doesn't need input.
+> > Unfortunately CONFIG_USB_HIDINPUT does, and it is a dep_bool.
+> > The only clean way I can see is to build HID as three seperate modules -
+> > a core, the input interface, and the hiddev interface.  Even that is
+> > pretty ugly.
+>
+> More modules, oh no!
+Hmmm. You could always build part of the input layer into the kernel 
+unconditionally (like the old keyboard handling code?). Not nice on some 
+embedded applications, though you could probably build an "input.o" that is a 
+bit smaller.
+Or a version of the "unconditional build" based on some setup determined after 
+the config step.
+I'm still looking for a better idea - got any?
 
+Brad
 
-[root@xxx ]# lspci  
-00:00.0 Host bridge: Intel Corp. e7500 DRAM Controller (rev 03)
-00:00.1 Class ff00: Intel Corp. e7500 DRAM Controller Error Reporting (rev 
-03)
-00:03.0 PCI bridge: Intel Corp. e7500 HI_C Virtual PCI-to-PCI Bridge (F0) 
-(rev 03)
-00:03.1 Class ff00: Intel Corp. e7500 HI_C Virtual PCI-to-PCI Bridge (F1) 
-(rev 03)
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA PCI Bridge (rev 42)
-00:1f.0 ISA bridge: Intel Corp. 82801CA ISA Bridge (LPC) (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82801CA IDE U100 (rev 02)
-00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus (rev 02)
-01:0c.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-02:1c.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
-02:1d.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
-02:1e.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
-02:1f.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
-03:07.0 Ethernet controller: Intel Corp.: Unknown device 1010 (rev 01)
-03:07.1 Ethernet controller: Intel Corp.: Unknown device 1010 (rev 01)
-04:07.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
-04:07.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-#
-# SCSI device support
-#
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-# CONFIG_SCSI_LOGGING is not set
-[...]
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-
-(dmesg from 2.4.20-pre7)
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
-        <Adaptec aic7899 Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
-
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
-        <Adaptec aic7899 Ultra160 SCSI adapter>
-        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-
-  Vendor: FUJITSU   Model: MAM3367MC         Rev: 0106
-
-
--- 
-*[ £ukasz Tr±biñski ]*
-
+iD8DBQE9is3OW6pHgIdAuOMRAsoRAJ0Y4nY3/Tj/hAkkOvWnkiwFxCAPfgCfR12Z
+CuEpRtDLdkwiW+JK4YT3BIQ=
+=ZUvW
+-----END PGP SIGNATURE-----
 

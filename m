@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129610AbRAJWDo>; Wed, 10 Jan 2001 17:03:44 -0500
+	id <S131022AbRAJWGd>; Wed, 10 Jan 2001 17:06:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131022AbRAJWDe>; Wed, 10 Jan 2001 17:03:34 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:54794 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S129610AbRAJWDa>;
-	Wed, 10 Jan 2001 17:03:30 -0500
-Date: Wed, 10 Jan 2001 23:03:54 +0100 (CET)
-From: <kernel@ddx.a2000.nu>
+	id <S135365AbRAJWGX>; Wed, 10 Jan 2001 17:06:23 -0500
+Received: from 154.145.126.209.cari.net ([209.126.145.154]:56325 "EHLO
+	newportharbornet.com") by vger.kernel.org with ESMTP
+	id <S131022AbRAJWGN>; Wed, 10 Jan 2001 17:06:13 -0500
+Date: Wed, 10 Jan 2001 14:05:41 -0800 (PST)
+From: Bob Lorenzini <hwm@ns.newportharbornet.com>
 To: Hacksaw <hacksaw@hacksaw.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: unexplained high load 
-In-Reply-To: <200101102157.f0ALvCr01485@habitrail.home.fools-errant.com>
-Message-ID: <Pine.LNX.4.30.0101102258290.4377-100000@ddx.a2000.nu>
+cc: kernel@ddx.a2000.nu, linux-kernel@vger.kernel.org
+Subject: Re: unexplained high load
+In-Reply-To: <200101102136.f0ALaEr01228@habitrail.home.fools-errant.com>
+Message-ID: <Pine.LNX.4.21.0101101359450.5885-100000@newportharbornet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
 On Wed, 10 Jan 2001, Hacksaw wrote:
 
-> > .nfs0000000000ca402500000006
-> >
-> > so i think there is some lock from the nfs server or client
-> >
-> > will try to restart nfs client
-> > and see if this fixes it.
-> >
->
-> Most likely you will have to restart the nfs server on the other side as well,
-> but it's worth a try.
-tried it, didn't fix it
-so i'll have to upgrade kernel and reboot
-will do this this weekend, think the box can survive a few days (it has
-112 days uptime now)
+> Ahh, a D state.
+> 
+> D means disk wait, which the only thing that can postpone a -9. Basic, the 
+> process is stuck in a loop inside a routine that needs to be atomic.
+> 
+> You'll have to reboot to clear it. I believe this is a kernel bug. Try going 
+> back to 2.2.14, or maybe up to 2.2.19pre2.
 
->
-> Tripwire watches the checksum of the binaries you deem important, and
-> complains if they change. There are a few things like it.
-ah ok
-have heard about it yeah
+FYI at this moment I have a failing scsi tape format on a machine (2.2.18)
+that has the same symtom (hung in D state, load=1).
 
->
-> See http://freshmeat.net/search/?q=tripwire
->
->
->
+Bob 
+
+
+
+
+
+
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271369AbRHOTOq>; Wed, 15 Aug 2001 15:14:46 -0400
+	id <S271361AbRHOTNg>; Wed, 15 Aug 2001 15:13:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271370AbRHOTOg>; Wed, 15 Aug 2001 15:14:36 -0400
-Received: from ns.suse.de ([213.95.15.193]:3078 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S271367AbRHOTOS>;
-	Wed, 15 Aug 2001 15:14:18 -0400
-Date: Wed, 15 Aug 2001 21:14:29 +0200
-From: Hubert Mantel <mantel@suse.de>
-To: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
-Cc: Kurt Garloff <garloff@suse.de>, linux-lvm@sistina.com,
-        lvm-devel@sistina.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, sistina@sistina.com, mge@sistina.com
-Subject: Re: *** ANNOUNCEMENT *** LVM 1.0 available at www.sistina.com
-Message-ID: <20010815211429.A28868@suse.de>
-In-Reply-To: <20010815175659.A29749@sistina.com> <20010815182548.U3941@gum01m.etpnet.phys.tue.nl> <20010815185005.A32239@sistina.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20010815185005.A32239@sistina.com>; from mauelshagen@sistina.com on Wed, Aug 15, 2001 at 06:50:05PM +0200
-Organization: SuSE Labs, Nuernberg, Germany
-X-Operating-System: SuSE Linux - Kernel 2.4.7-4GB
-X-PGP-Key: 1024D/B0DFF780, 1024R/CB848DFD
+	id <S271367AbRHOTNZ>; Wed, 15 Aug 2001 15:13:25 -0400
+Received: from mail1.panix.com ([166.84.0.212]:8182 "HELO mail1.panix.com")
+	by vger.kernel.org with SMTP id <S271361AbRHOTNJ>;
+	Wed, 15 Aug 2001 15:13:09 -0400
+From: "Roy Murphy" <murphy@panix.com>
+Reply-To: murphy@panix.com
+To: linux-kernel@vger.kernel.org
+Date: Wed, 15 Aug 2001 15:13:23 -0500
+Subject: Re: Are we going too fast?
+X-Mailer: DMailWeb Web to Mail Gateway 2.6k, http://netwinsite.com/top_mail.htm
+Message-id: <3b7ac9d3.69c4.0@panix.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+'Twas brillig when Mike Edwards scrobe:
+>I think that's a bit unfair. Rather, I suspect people see the 
+>word 'stable', and assume, for some unknown reason, that the kernel is >stable.
+*AHEM* 
 
-On Wed, Aug 15, Heinz Mauelshagen wrote:
+Whatever truth value 2.4 has for the variable stable, it can not be stored in
+a boolean type.
 
-> Well, as explained before on the lists we had an algorithm calculating
-> the offset to the first PE in place till 0.9.1 Beta 7.
-> 
-> Therefore, we *need* to run the installed version < LVM 0.9.1 Beta 8 to
-> retrieve that sector offset for all PVs and change the metadata to hold the
-> offset. No known way around this.
-          ^^^^^^^^^^^^^^^^^^^^^^^^
+'Stable' means that the direction of development is intended to reduce the number
+of bugs not add new features unless they can reasonably be shown to not introduce
+major bugs.  That the 2.5 tree has not been opened indicates the recognition
+that additional concentrated work on 2.4 is needed.
 
-You are kidding, aren't you?
+>Seriously, though - even distributions are including 2.4 kernels now. 
+>RedHat, Mandrake, Slackware ... Should the latest versions of these 
+>distributions be considered unstable as well? 
 
-> Heinz    -- The LVM Guy --
-                                                                  -o)
-    Hubert Mantel              Goodbye, dots...                   /\\
-                                                                 _\_v
+Even older releases of distributions are maintained.  Should we ever get to
+kernel 2.2.38, the distribution maintainers should be releasing bugfix patches
+for older distributions with the latest 2.2 kernel.
+
+>Perhaps it needs to be made clear to people that these kernels still 
+>aren't all they could be. 
+
+No kernel is perfect.  The judgement was that it was ready to switch from adding
+features to increasing stability.  Thus it has ever been since my first kernel
+~= 0.95.
+-- 
+Roy Murphy      \ CSpice -- A mailing list for Clergy Spouses
+murphy@panix.com \  http://www.panix.com/~murphy/CSpice.html

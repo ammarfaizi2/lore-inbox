@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263279AbTCZFMo>; Wed, 26 Mar 2003 00:12:44 -0500
+	id <S263257AbTCZFGT>; Wed, 26 Mar 2003 00:06:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264328AbTCZFMo>; Wed, 26 Mar 2003 00:12:44 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:28376 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S263279AbTCZFMn> convert rfc822-to-8bit; Wed, 26 Mar 2003 00:12:43 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780B71703C@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'lkml (linux-kernel@vger.kernel.org)'" 
-	<linux-kernel@vger.kernel.org>
-Subject: How to force another (FIFO) task to yield from inside the kernel?
-Date: Tue, 25 Mar 2003 21:23:53 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S263279AbTCZFGT>; Wed, 26 Mar 2003 00:06:19 -0500
+Received: from [131.215.233.56] ([131.215.233.56]:41226 "EHLO bryanr.org")
+	by vger.kernel.org with ESMTP id <S263257AbTCZFGT>;
+	Wed, 26 Mar 2003 00:06:19 -0500
+Date: Tue, 25 Mar 2003 21:04:49 -0800
+From: Bryan Rittmeyer <bryanr@bryanr.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: [patch] oprofile + ppc750cx perfmon
+Message-ID: <20030326050449.GB32590@bryanr.org>
+References: <20030325050900.GA30294@bryanr.org> <20030325085759.GB30294@bryanr.org> <1048585501.581.16.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1048585501.581.16.camel@zion.wanadoo.fr>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 25, 2003 at 10:45:02AM +0100, Benjamin Herrenschmidt wrote:
+> I also think we could actually be smarter and only
+> soft-disable IRQs with a flag in the descriptor, and hard disable
+> them if and only if they actually occur while disabled.
 
-Hi All
+yup. minimizing open_pic I/O could be a big win. the fact that
+the PIC shows up _way_ ahead of the network driver and stack is
+pretty freakish compared to a profile on x86 using io-apic
+(the legacy x86 pic has similar but less severe issues as open_pic).
 
-I am dealing with this problem and it is time to ask (read the source
-already). I have this in the rtfutex priority inheritance code: when task A
-boosts task B's priority (both FIFO), task B runs with A's priority until B
-decides to stop waiting for A to finish (ie: timeout/signal). 
-
-Then, task A goes through timer.c:process_timeout() [did not verify the
-signal path yet] and gets woken up; however, I need to force B to yield to
-give A a chance to run so it can boost down B to the proper place (doing the
-boost down from process_timeout() is kind of a no-no).
-
-I tried kick_if_running(), resched_task() and friends and they would work
-sometimes, some not [what means it is not the right answer] - so I realized
-I need to ask it to yield more convincently. The question is: how?
-
-yield() does not work, as it assumes that the current task is the one to
-yield. Is the only solution to craft another version of sys_sched_yield() to
-do other tasks?
-
-I am using 2.5.64 (the code is in http://sost.net/pub/linux/rtfutex*). Be
-advised cut 4 has now some changes versus my current WIP; but the structure
-is very similar (timer.c:process_timeout() calls
-rtfutex.c:__rtfutex_yield_boosted() with tries to force task B to yield).
-
-Thanks :)
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
-
+-Bryan

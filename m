@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285915AbRLHLeN>; Sat, 8 Dec 2001 06:34:13 -0500
+	id <S285919AbRLHLlZ>; Sat, 8 Dec 2001 06:41:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285920AbRLHLeE>; Sat, 8 Dec 2001 06:34:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49925 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285915AbRLHLdy>; Sat, 8 Dec 2001 06:33:54 -0500
-Subject: Re: On re-working the major/minor system
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Sat, 8 Dec 2001 11:42:48 +0000 (GMT)
-Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
-In-Reply-To: <3C114CFB.50403@zytor.com> from "H. Peter Anvin" at Dec 07, 2001 03:12:59 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S285921AbRLHLlG>; Sat, 8 Dec 2001 06:41:06 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5532 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S285920AbRLHLlD>;
+	Sat, 8 Dec 2001 06:41:03 -0500
+Date: Sat, 8 Dec 2001 06:40:49 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] fix for idiocy in mount_root cleanups.
+Message-ID: <Pine.GSO.4.21.0112080632020.6180-100000@binet.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16CfsW-0001AL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > That works, and should prevent most major problems.  Hmm.  At
-> > least for cpio there are 6 chars worth of device info in there,
-> > so we coule easily go to 48 bits without RPM problems.  Or redhat
-> > could fix rpm to use tarballs like debs do, and then we could go
+	Grr...  OK, that should be a lesson - never do obvious change
+just before sending a patch.
 
-RPM can't easily use tarballs. Too much of a tar ball isnt rigidly defined so
-you can cryptographically sign it.
+	Change in question was s/do_mount/mount/.  Which is almost
+the same thing, except for one little detail:  mount(2) in case of
+error returns -1 and stores the error in errno.  do_mount(9), OTOH...
 
-> > to 64 bit devices no problem.
-> 
-> The big stubling block seems to be NFSv2.
+IOW, please apply the following and pass me a brown paperbag ;-/
 
-Well 2.5 isnt going to be able to support NFS without a magic daemon
-maintained translation table - so that when the kernel randomly changes the
-major/minor number of an exported file system (eg a USB reconnect or even plain
-boring shutdown/reboot) it can keep consistent file handles.
-
-If you have a file handle table surely you can remap every NFS file handle
-through that down to 32bits. For device files the problem doesn't matter 
-because at the kernel meeting Linus said those were going to change in a way
-that meant devices over NFS are a lost cause and clients would have to use
-devfs
-
-Alan
-
+--- C1-pre7/init/do_mounts.c	Fri Dec  7 20:48:43 2001
++++ linux/init/do_mounts.c	Sat Dec  8 06:29:20 2001
+@@ -351,8 +351,9 @@
+ 		mount("devfs", ".", "devfs", 0, NULL);
+ retry:
+ 	for (p = fs_names; *p; p += strlen(p)+1) {
+-		err = mount(name,"/root",p,root_mountflags,root_mount_data);
+-		switch (err) {
++		errno = 0;
++		mount(name,"/root",p,root_mountflags,root_mount_data);
++		switch (-errno) {
+ 			case 0:
+ 				goto done;
+ 			case -EACCES:
 

@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129732AbQLNHvs>; Thu, 14 Dec 2000 02:51:48 -0500
+	id <S129771AbQLNHxs>; Thu, 14 Dec 2000 02:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129771AbQLNHvj>; Thu, 14 Dec 2000 02:51:39 -0500
-Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:7173 "HELO
-	gateway.intern.kubla.de") by vger.kernel.org with SMTP
-	id <S129732AbQLNHvY>; Thu, 14 Dec 2000 02:51:24 -0500
-Date: Thu, 14 Dec 2000 08:20:50 +0100
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: Petr Konecny <pekon@informatics.muni.cz>
-Cc: jmerkey@vger.timpanogas.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18-25 DELL Laptop Video Problems
-Message-ID: <20001214082050.A21451@uni-mainz.de>
-Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
-	Petr Konecny <pekon@informatics.muni.cz>,
-	jmerkey@vger.timpanogas.org, linux-kernel@vger.kernel.org
-In-Reply-To: <qww1yvbivm0.fsf@decibel.fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <qww1yvbivm0.fsf@decibel.fi.muni.cz>; from pekon@informatics.muni.cz on Thu, Dec 14, 2000 at 03:29:11AM +0100
-X-No-Archive: yes
-Restrict: no-external-archive
+	id <S130870AbQLNHxi>; Thu, 14 Dec 2000 02:53:38 -0500
+Received: from www.wen-online.de ([212.223.88.39]:42506 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129771AbQLNHxV>;
+	Thu, 14 Dec 2000 02:53:21 -0500
+Date: Thu, 14 Dec 2000 08:22:47 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Signal 11 - the continuing saga
+In-Reply-To: <Pine.LNX.4.10.10012131213160.802-100000@penguin.transmeta.com>
+Message-ID: <Pine.Linu.4.10.10012140809180.1309-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2000 at 03:29:11AM +0100, Petr Konecny wrote:
-> >
-> > Look at linux/Dokumentation/fb/modedb.txt.
-> >
-> It's not in my tree (2.2.18), the only documentation I could find was
-> the source code. Anyway, it seems that atyfb gets a precendence over
-> vesafb and screws up the LCD. Right now I use the following kernel params:
-> video=atyfb:off video=vesa:mtrr vga=795
+On Wed, 13 Dec 2000, Linus Torvalds wrote:
 
-My fault: i was looking at a 2.4.0-test* tree... But i think that information
-holds true for 2.2.* as well.
+> On Wed, 13 Dec 2000, Linus Torvalds wrote:
+> > 
+> > Hint: "ptep_mkdirty()".
 
-Dominik Kubla
+<g> rather obvious oopsie.. once spotted.
+
+> In case you wonder why the bug was so insidious, what this caused was two
+> separate problems, both of them able to cause SIGSGV's. 
+> 
+> One: we didn't mark the page table entry dirty like we were supposed to.
+> 
+> Two: by making it writable, we also made the page shared, even if it
+> wasn't supposed to be shared (so when the next process wrote to the page,
+> if the swap page was shared with somebody else, the changes would show up
+> even in the process that _didn't_ write to it).
+> 
+> And "ptep_mkdirty()" is only used by swapoff, so nothing else would show
+> this. Which was why it hadn't been immediately obvious that anything was
+> broken.
+
+The terminal OOM problem is now gone and I haven't seen a SIGSEGV yet
+running virgin source.
+
+	IOU 5 bogo$$
+
+	-Mike
+
+(I still see something with IKD that _could_ be timing related troubles.
+There are a couple of grubby fingerprints I need to wipe off, and some
+churn/burn hours to be sure)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

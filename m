@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269671AbUJAClj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269669AbUJACnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269671AbUJAClj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 22:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269673AbUJAClj
+	id S269669AbUJACnW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 22:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269673AbUJACnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 22:41:39 -0400
-Received: from web41402.mail.yahoo.com ([66.218.93.68]:8865 "HELO
-	web41402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S269671AbUJACli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 22:41:38 -0400
-Message-ID: <20041001024136.96889.qmail@web41402.mail.yahoo.com>
-Date: Thu, 30 Sep 2004 19:41:36 -0700 (PDT)
+	Thu, 30 Sep 2004 22:43:22 -0400
+Received: from web41401.mail.yahoo.com ([66.218.93.67]:24251 "HELO
+	web41401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S269669AbUJACnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 22:43:16 -0400
+Message-ID: <20041001024314.78347.qmail@web41401.mail.yahoo.com>
+Date: Thu, 30 Sep 2004 19:43:14 -0700 (PDT)
 From: cranium2003 <cranium2003@yahoo.com>
 Subject: Plzzz help me
 To: linux-kernel@vger.kernel.org
@@ -31,8 +31,9 @@ regards,
 cranium.
 
 
+	
 		
 __________________________________
 Do you Yahoo!?
-Yahoo! Mail Address AutoComplete - You start. We finish.
+New and Improved Yahoo! Mail - 100MB free storage!
 http://promotions.yahoo.com/new_mail 

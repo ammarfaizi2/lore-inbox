@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266888AbRGYK4y>; Wed, 25 Jul 2001 06:56:54 -0400
+	id <S266911AbRGYLIy>; Wed, 25 Jul 2001 07:08:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266900AbRGYK4e>; Wed, 25 Jul 2001 06:56:34 -0400
-Received: from m7.limsi.fr ([192.44.78.7]:11527 "EHLO m7.limsi.fr")
-	by vger.kernel.org with ESMTP id <S266888AbRGYK4Y>;
-	Wed, 25 Jul 2001 06:56:24 -0400
-Message-ID: <3B5EA77F.5060200@limsi.fr>
-Date: Wed, 25 Jul 2001 13:03:27 +0200
-From: Damien TOURAINE <damien.touraine@limsi.fr>
-Organization: LIMSI-CNRS
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i686; en-US; rv:0.9.1) Gecko/20010607
-X-Accept-Language: fr, en
+	id <S266919AbRGYLIo>; Wed, 25 Jul 2001 07:08:44 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:15364 "EHLO
+	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S266911AbRGYLIe>; Wed, 25 Jul 2001 07:08:34 -0400
+Message-ID: <3B5EA8F8.D8C0EDE7@t-online.de>
+Date: Wed, 25 Jul 2001 13:09:44 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: landley@webofficenow.com
-CC: "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Call to the scheduler...
-In-Reply-To: <Pine.LNX.3.95.1010724134717.32263A-100000@chaos.analogic.com> <01072415121901.00631@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+CC: Nico Schottelius <nicos@pcsystems.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ps2/ new data for mouse protocol (fwd msg attached)
+In-Reply-To: <3B5DB12D.2B9C205E@pcsystems.de> <20010725012334.L23404@arthur.ubicom.tudelft.nl>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Rob Landley wrote:
+Erik Mouw wrote:
+> 
+> On Tue, Jul 24, 2001 at 07:32:29PM +0200, Nico Schottelius wrote:
+> > Have a look into the attached email before reading mine, please.
+> >
+> > Is it possible to find out about what those bytes are ?
+> > And is it possible to intergrate the support for other
+> > 3 bytes into the Linux kernel ?
+> 
+> So they put information about four buttons in six bytes and call that
+> proprietary? ROFL! How hard can it be? I think it will be fairly
+> straight forward to reverse engineer the format, it can't be rocket
+> science.
 
->On Tuesday 24 July 2001 13:54, Richard B. Johnson wrote:
->
->>Try sched_yield(). Accounting may still be messed up so the process
->>may be 'charged' for CPU time that it gave up. Also, usleep(n) works
->>very well with accounting working.
->>
->>This works, does not seem to load the system, but `top` shows
->>99+ CPU time usage:
->>
->>main()
->>{
->>    for(;;) sched_yield();
->>
->>}
->>
->This may not be an accounting problem.  If the system has nothing else to do, 
->it'll just re-schedule your yielding thread.
->
->How much of that 99% cpu usage is user and how much of it is system?  
->Basically what the above does is beat the scheduler to death...
->
-In my case, as the process/thread that call the "sched_yield();" 
-function "actively" waits for another process/thread finish its job, the 
-process won't be the only one in the queue of activ job ...
-Then, it won't use 99% of the time ...
+No need for this, just read the public available documentation !
 
->>This works and `top` shows nothing being used:
->>
->>main()
->>{
->>
->>    for(;;) usleep(1);
->>
->>}
->>
->And here you DO block for a bit without getting called back immediately.
->
-However, I would like to know the scheduler frequency to switch between 
-tasks.
-If it's above 1 us, the usleep don't match my requirements ...
+Proprietary != Secret.
 
-However, thanks for your quick and pertinent answer !
-
-Friendly
-    Damien TOURAINE
-
-
+However, some mouse secrets from various sources I hacked in here: http://home.t-online.de/home/gunther.mayer/gm_psauxprint-0.01.c

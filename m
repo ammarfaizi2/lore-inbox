@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263309AbTCNIVU>; Fri, 14 Mar 2003 03:21:20 -0500
+	id <S263274AbTCNIjS>; Fri, 14 Mar 2003 03:39:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263311AbTCNIVT>; Fri, 14 Mar 2003 03:21:19 -0500
-Received: from [202.109.126.231] ([202.109.126.231]:9661 "HELO
-	www.support-smartpc.com.cn") by vger.kernel.org with SMTP
-	id <S263309AbTCNIVP>; Fri, 14 Mar 2003 03:21:15 -0500
-Message-ID: <3E7192A2.CADEAE6D@mic.com.tw>
-Date: Fri, 14 Mar 2003 16:28:18 +0800
-From: "rain.wang" <rain.wang@mic.com.tw>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: system hang on HDIO_DRIVE_RESET! help!
-References: <3E5CEF17.4C014A4C@mic.com.tw>
-		 <1046288652.9837.18.camel@irongate.swansea.linux.org.uk>
-		 <3E5EEDF9.5906D73E@mic.com.tw>  <3E64A8A5.4EBB5FB3@mic.com.tw>
-		 <1046791639.10857.12.camel@irongate.swansea.linux.org.uk>
-		 <3E683663.EBD184A4@mic.com.tw> <1047041925.20794.19.camel@irongate.swansea.linux.org.uk>
+	id <S263275AbTCNIjS>; Fri, 14 Mar 2003 03:39:18 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:10167 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263274AbTCNIjR>;
+	Fri, 14 Mar 2003 03:39:17 -0500
+Date: Fri, 14 Mar 2003 09:49:53 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: vojtech@suse.cz, linux-kernel@vger.kernel.org, janekh@cvotech.com
+Subject: Re: [PATCH] 2.5.62: /proc/ide/via reads return incomplete data, Bug #374
+Message-ID: <20030314094953.A28232@ucw.cz>
+References: <20030220215519.GA1181@ttnet.net.tr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Mar 2003 08:24:34.0531 (UTC) FILETIME=[24F01330:01C2EA03]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030220215519.GA1181@ttnet.net.tr>; from faikuygur@ttnet.net.tr on Thu, Feb 20, 2003 at 11:55:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Thu, Feb 20, 2003 at 11:55:19PM +0200, Faik Uygur wrote:
+> 
+> This patch fixes the incomplete data return problem of /proc/ide/via and 
+> addresses Bug #374 of Bugzilla.
+> 
+> When the number of consecutive read bytes are smaller than the total data 
+> in via_get_info(), the second read() returns 0.
+> 
+> --- linux-2.5.62-vanilla/drivers/ide/pci/via82cxxx.c    Thu Feb 20 18:51:52 2003
+> +++ linux-2.5.62/drivers/ide/pci/via82cxxx.c    Thu Feb 20 23:09:23 2003
+> @@ -145,6 +145,7 @@
+>                  uen[4], udma[4], umul[4], active8b[4], recover8b[4];
+>         struct pci_dev *dev = bmide_dev;
+>         unsigned int v, u, i;
+> +       int len;
+>         u16 c, w;
+>         u8 t, x;
+>         char *p = buffer;
+> @@ -274,7 +275,10 @@
+>                 speed[i] / 1000, speed[i] / 100 % 10);
+> 
+>         /* hoping it is less than 4K... */
+> -       return p - buffer;
+> +       len = (p - buffer) - offset;
+> +       *addr = buffer + offset;
+> +
+> +       return len > count ? count : len;
+>  }
+> 
+>  #endif /* DISPLAY_VIA_TIMINGS && CONFIG_PROC_FS */
 
-> On Fri, 2003-03-07 at 06:04, rain.wang wrote:
-> > > Once I understand what the problems all are yes. The BUG() is good, it
-> > > confirms that what we are both seeing is the same thing - the reset is
-> > > managing to issue two commands to the controller at the same time.
-> >
-> > Hi,
-> >     thank you, Alan. I tested pre5-ac2 patch and that seems all ok.
->
-> Thanks for the confirmation it is fixed
+Thanks; applied.
 
-Hi Alan,
-    for 2.4.21-pre5-ac2 and -ac3 patch also.
-    there's still problem on reset. when I do 'hdparm -w /dev/hda' once
-after another, all seems ok.  but when I make a shell script and let
-'hdparm -w' run in several times loop, system would always crashed
-at the second time and left oops messages:
-    kernel BUG at ide.c:1700!
-    ...
-so, if any bugs still locking there?
-
-rain.w
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,87 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVCIA4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVCIBAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262233AbVCIA4B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 19:56:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVCIA4B
+	id S261614AbVCIBAY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 20:00:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVCIBAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 19:56:01 -0500
-Received: from fire.osdl.org ([65.172.181.4]:59350 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262218AbVCHX2G (ORCPT
+	Tue, 8 Mar 2005 20:00:24 -0500
+Received: from fire.osdl.org ([65.172.181.4]:4485 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261614AbVCIA46 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 18:28:06 -0500
-Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
-From: Daniel McNeil <daniel@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com>
-References: <1110189607.11938.14.camel@frecb000686>
-	 <20050307223917.1e800784.akpm@osdl.org>  <20050308090946.GA4100@in.ibm.com>
-	 <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
-	 <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com>
-Content-Type: text/plain
-Message-Id: <1110324434.6521.23.camel@ibm-c.pdx.osdl.net>
+	Tue, 8 Mar 2005 19:56:58 -0500
+Date: Tue, 8 Mar 2005 16:53:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm2
+Message-Id: <20050308165345.32c14e3b.akpm@osdl.org>
+In-Reply-To: <20050309001604.GC3146@stusta.de>
+References: <20050308033846.0c4f8245.akpm@osdl.org>
+	<20050309001604.GC3146@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 08 Mar 2005 15:27:14 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-08 at 11:18, Badari Pulavarty wrote:
-> > Andrew, please don't apply the original patch. We shouldn't even attempt
-> > to submit IO beyond the filesize. We should truncate the IO request to
-> > filesize. I will send a patch today to fix this.
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> On Tue, Mar 08, 2005 at 03:38:46AM -0800, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.11-mm1:
+> >...
+> > -fix-buggy-ieee80211_crypt_-selects.patch
 > > 
+> >  Was wrong.
+> >...
 > 
-> Well, spoke too soon. This is an ugly corner case :( But I have
-> a ugly hack to fix it :)
-> 
-> Let me ask you a basic question: Do we support DIO reads on a file
-> which is not blocksize multiple in size ? (say 12K - 10 bytes) ?
+> I'd say my patch was correct.
 
-> What about the ones which are not 4K but 512 byte multiple ? (say 7K) ?
-> 
-> I need answer to those, to figure out how hard I should try to fix this.
-> 
-> Anyway, here is ugly version of the patch - which will limit the IO
-> size to filesize and uses lower blocksizes to read the file (since
-> the filesize is only 3K, it would go down to 512 byte blocksize).
+Uh, OK.  Make that "was subject of interminable bunfight".
 
-Badari,
-
-Just to be clear, are you just asking about what we should support on a
-DIO read that spans EOF?
-
-For DIO reads past EOF the options are:
-
-1. return EINVAL if the DIO goes past EOF.
-
-2. truncate the request to file size (which is what your patch does)
-    and if it works, it works.
-
-3. truncate the request to a size that actually works - like a multiple
-    of 512.
-
-4. Do the full i/o since the user buffer is big enough, truncate the
-    result returned to file size (and clear out the user buffer where it
-    read past EOF).
-
-Number 4 would make it easy on the user-level code, but AIO DIO might be
-a bit tricky and might be a security hole since the data would be dma'ed
-there and then cleared.  I need to look at the code some more.
-
-1 and 2 both seem valid and are better than returning the wrong result.
-
-3 seems like it would confuse applications.
-
-Thoughts?
-
-Daniel 
-
-
-
-
-
+Feel free to resend and I'll keep spamming Jeff with it.

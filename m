@@ -1,74 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318128AbSGRPJt>; Thu, 18 Jul 2002 11:09:49 -0400
+	id <S318121AbSGRPI3>; Thu, 18 Jul 2002 11:08:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318127AbSGRPId>; Thu, 18 Jul 2002 11:08:33 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:17282 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318122AbSGRPI0>; Thu, 18 Jul 2002 11:08:26 -0400
-Date: Thu, 18 Jul 2002 11:13:37 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Patrick J. LoPresti" <patl@curl.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: close return value
-In-Reply-To: <s5gadop9jxq.fsf@egghead.curl.com>
-Message-ID: <Pine.LNX.3.95.1020718104807.19207A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318127AbSGRPI3>; Thu, 18 Jul 2002 11:08:29 -0400
+Received: from crisium.vnl.com ([194.46.8.33]:4109 "EHLO crisium.vnl.com")
+	by vger.kernel.org with ESMTP id <S318121AbSGRPIJ>;
+	Thu, 18 Jul 2002 11:08:09 -0400
+Date: Thu, 18 Jul 2002 16:15:16 +0100
+From: Dale Amon <amon@vnl.com>
+To: Frank Davis <fdavis@si.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.24 : BusLogic cleanup - architecture dependencies
+Message-ID: <20020718151516.GF4358@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>, Frank Davis <fdavis@si.rr.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0207181458140.29194-100000@linux-box.realnet.co.sz> <3D36CC41.8070409@si.rr.com> <20020718142829.GC4358@vnl.com> <3D36D8F1.2040803@si.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D36D8F1.2040803@si.rr.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jul 2002, Patrick J. LoPresti wrote:
+As noted below, Frank Davis suggests I fire this back into the
+list for discussion.
 
-> Pete Zaitcev <zaitcev@redhat.com> writes:
+On Thu, Jul 18, 2002 at 11:04:17AM -0400, Frank Davis wrote:
+> Dale,
+>   Here's what I know....
+> not all architectures define an 'address' variable in the struct 
+> scatterlist, so some archs will compile with no problems, others won't. 
+> If you're using a i386, there isn't an address variable. Here's what I 
+> suggest....email linux-kernel with the problem report for 2.5.26, and 
+> explain what I have stated above. I could have a bunch of #ifdef for 
+> each arch, but thats plain crazy. I'd be interested in what some other 
+> developers suggest. Sorry, I couldn't provide you a patch.
 > 
-> > The problem with errors from close() is that NOTHING SMART can be
-> > done by the application when it receives it.
+> Regards,
+> Frank
 > 
-> This is like saying "nothing smart" can be done when write() returns
-> ENOSPC.  Such statements are either trivially true or blatantly false,
-> depending on what you mean by "smart".
-> 
-> Failures happen.  They can happen on write(), they can happen on
-> close(), and they can happen on any system call for which the API
-> allows it.  There is no difference!  Your application either deals
-> with them and is correct or fails to deal with them and is broken.
-> 
-> If the API allows an error return, you *must* check for it, period.
-[SNIPPED..]
 
-Well no. Many procedures are called for effect. When is the last
-time you checked the return-value of printf() or puts()? If your
-code does this it's wasting CPU cycles.
+==============================================================================
 
-When it is necessary to perform code reviews, because your company
-does FDA or some similar critical software, then you show that
-you know you are ignoring a return value by casting it to void.
-This shows that the writer knew that he or she was deliberately
-ignoring a return-value.
-
-In the specific close(fd) function, my reading of the man page
-on this system says that it can only return an error of EBADF
-on Linux. Which means that if you make Linux-only code, you
-can ignore any error because the fd has become invalid somehow
-and subsequent attempts to close with the same fd will surely
-fail in the exact same way.
-
-But most systems can return -1 and have an error code of EINTR
-(interrupted system call) on any system call. Also, deferred
-writing, such as happens in network file-systems, may not return
-an error during the write. Such systems are supposed to return
-an error during a later call that uses the same file descriptor.
-If that call is a close(), then you may get an error. I don't
-know what you do under those circumstances, but at the very least,
-somebody/something should 'know' that the network write didn't
-go as planned.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+Zwane Mwaikambo wrote:
+>On Thu, 18 Jul 2002, Dale Amon wrote:
+>
+>
+>>On Mon, Jun 24, 2002 at 01:07:18AM -0400, Frank Davis wrote:
+>>
+>>>Hello all,
+>>> The following patch removes some unneccessary (it seems) typedefs, and 
+>>>adds in the pci_set_dma_mask() check mentioned in 
+>>>Documentation/DMA-mapping.txt . Please review.
+>>
+>
+>The driver needs more than just the dma mask set.
+>
+>
+>>Did your Buslogic patch ever get included? I'm still
+>>getting errors compiling 2.5.x as of .26 last night:
+>
+>
+>Probably didn't get in because the driver is still not compliant with the 
+>new kernel requirements for PCI/DMA
+>
+>
+>>BusLogic.c:32: #error Please convert me to Documentation/DMA-mapping.txt
+>>BusLogic.c: In function `BusLogic_DetectHostAdapter':
+>>BusLogic.c:2841: warning: long unsigned int format, BusLogic_IO_Address_T 
+>>arg (arg 2)
+>>BusLogic.c: In function `BusLogic_QueueCommand':
+>>BusLogic.c:3415: structure has no member named `address'
+>
+>
+>That probably wants sg_dma_address()
+>
+>
+>>BusLogic.c: In function `BusLogic_BIOSDiskParameters':
+>>BusLogic.c:4141: warning: implicit declaration of function 
+>>`scsi_bios_ptable'
+>>BusLogic.c:4141: warning: assignment makes pointer from integer without a 
+>>cast
+>>make[2]: *** [BusLogic.o] Error 1

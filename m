@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbUKDRkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbUKDRme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbUKDRkM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 12:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbUKDRkM
+	id S262303AbUKDRme (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 12:42:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbUKDRmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 12:40:12 -0500
-Received: from moutng.kundenserver.de ([212.227.126.190]:15606 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262312AbUKDRji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 12:39:38 -0500
-Date: Thu, 4 Nov 2004 18:39:29 +0100
-From: Sven Schuster <schuster.sven@gmx.de>
-To: foo@porto.bmb.uga.edu
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Bad UDP checksums with 2.6.9
-Message-ID: <20041104173929.GA24782@zion.homelinux.com>
-References: <20041104054838.GC12763@porto.bmb.uga.edu> <20041104062834.GE12763@porto.bmb.uga.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
-Content-Disposition: inline
-In-Reply-To: <20041104062834.GE12763@porto.bmb.uga.edu>
-User-Agent: Mutt/1.5.6i
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:38b5f051b8cd178556c5593940405c4a
+	Thu, 4 Nov 2004 12:42:33 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:32023 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262312AbUKDRk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 12:40:27 -0500
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Germano <germano.barreiro@cyclades.com>, greg@kroah.com,
+       Scott_Kilau@digi.com, linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+References: <1099487348.1428.16.camel@tsthost>
+	<20041104102505.GA8379@logos.cnet> <52fz3po8k2.fsf@topspin.com>
+	<20041104142925.GB9431@logos.cnet>
+From: Roland Dreier <roland@topspin.com>
+Date: Thu, 04 Nov 2004 09:40:21 -0800
+In-Reply-To: <20041104142925.GB9431@logos.cnet> (Marcelo Tosatti's message
+ of "Thu, 4 Nov 2004 12:29:25 -0200")
+Message-ID: <523bzpo6m2.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: patch for sysfs in the cyclades driver
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 04 Nov 2004 17:40:25.0339 (UTC) FILETIME=[5DD544B0:01C4C295]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Marcelo> ------ Greg answer was:
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+    Greg> For a driver only attribute, you want them to show up in the
+    Greg> place for the driver (like under
+    Greg> /sys/bus/pci/driver/MY_FOO_DRIVER/).  To do that use the
+    Greg> DRIVER_ATTR() and the driver_add_file() functions.  For
+    Greg> examples, see the other drivers that use these functions.
 
+I think Greg may have misunderstood the question and told you how to
+expose per-driver attributes.  But I think the attributes you want
+really are per-device and should be attached to the class_device, not
+the driver.
 
-Hi,
-
-On Thu, Nov 04, 2004 at 01:28:34AM -0500, foo@porto.bmb.uga.edu told us:
-> -CONFIG_IP_NF_AMANDA=3Dy
-
-did you see today's postings from Matthias Andree on this topic??
-It turned out that ip_conntrack_amanda changed some packets and
-that's why the UDP checksum was wrong. It seems like ip_conntrack_amanda
-is build into the kernel on one of your machines.
-
-See
-http://marc.theaimsgroup.com/?l=3Dlinux-net&m=3D109957086306388&w=3D2
-http://marc.theaimsgroup.com/?l=3Dlinux-net&m=3D109957086416037&w=3D2
-
-
-Hope this helps
-
-Sven
-
-
---=20
-Linux zion 2.6.9-rc1-mm4 #1 Tue Sep 7 12:57:19 CEST 2004 i686 athlon i386 G=
-NU/Linux
- 18:36:22 up 22:04,  2 users,  load average: 0.12, 0.08, 0.02
-
---XsQoSWH+UP9D9v3l
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBimlRo4FAdB2PneQRAk6XAJ4lkEEAt+H+381JVWWUXSPLrMI3ZQCeJ0uZ
-6KCd/VmqPYTtbpCPur2qGrk=
-=HVNd
------END PGP SIGNATURE-----
-
---XsQoSWH+UP9D9v3l--
+ - Roland

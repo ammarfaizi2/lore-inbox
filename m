@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263313AbSJ2XKv>; Tue, 29 Oct 2002 18:10:51 -0500
+	id <S262484AbSJ2XNy>; Tue, 29 Oct 2002 18:13:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263321AbSJ2XKv>; Tue, 29 Oct 2002 18:10:51 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5134 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263313AbSJ2XKt>;
-	Tue, 29 Oct 2002 18:10:49 -0500
-Date: Tue, 29 Oct 2002 15:14:36 -0800
-From: Greg KH <greg@kroah.com>
-To: christophe varoqui <christophe.varoqui@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC]partitions through device-mapper
-Message-ID: <20021029231436.GB29560@kroah.com>
-References: <Pine.GSO.4.21.0210290916360.9171-100000@weyl.math.psu.edu> <200210291941.10659.christophe.varoqui@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210291941.10659.christophe.varoqui@free.fr>
-User-Agent: Mutt/1.4i
+	id <S262486AbSJ2XNy>; Tue, 29 Oct 2002 18:13:54 -0500
+Received: from patan.Sun.COM ([192.18.98.43]:38397 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S262484AbSJ2XNx>;
+	Tue, 29 Oct 2002 18:13:53 -0500
+Message-ID: <3DBF17AF.8080205@sun.com>
+Date: Tue, 29 Oct 2002 15:20:15 -0800
+From: Tim Hockin <thockin@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK SUMMARY] fix NGROUPS hard limit (resend)
+References: <200210291932.g9TJWiC30564@scl2.sfbay.sun.com> <1035930763.1332.25.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 29, 2002 at 08:41:10PM +0200, christophe varoqui wrote:
-> > a) devmapper is merged, but it sure as hell is not mandatory
-> >
-> let me argue that if I decide to hand my system FS to the device-mapper I 
-> wouldn't want the current partition code to be mandatory either (devil's 
-> advocate speaking)
+Alan Cox wrote:
+> On Tue, 2002-10-29 at 19:32, Timothy Hockin wrote:
 > 
-> > b) relying on the hotplug working right means living dangerously.  Right
-> > now that code is brittle in the best case.
-> >
-> > c) all existing races in overlapping attach/detach (and $DEITY witness,
-> > there's a plenty) immediately become much wider [OK, that's part of
-> > (b), actully]
-> >
-> > IOW, right now the thing is nowhere near being ready for such use.
+>>Linus,
+>>
+>>This patchset removes the hard NGROUPS limit.  It has been in use in a similar
+>>form (but with a sysctl-set limit) on our systems for some time.
+>>
+>>I have a separate patch to convert XFS to the generic qsort(), which I will
+>>bounce to SGI if/when this gets pulled.
 > 
-> point taken.
-> But, the question remains : do we want to get there in the end ?
-> (question from the time-and-effort-worthy? departement)
+> 
+> What is the worst case stack usage of your qsort ?
 
->From what I understand about partitions, yes, I think we eventually do
-want to get there.  
+Unfortunately, I haven't done an analysis of this algorithm, but quick 
+empirical tests for random, reversed, and sorted data show stack usage 
+to be about 50% less than glibc's qsort() for large data sets.  We were 
+using the qsort() as exists in XFS, but when discussing with Cristoph, 
+he asked that we use this qsort() implementation instead.  It seems to 
+perform markedly better for large sets, too.
 
-thanks,
 
-greg k-h
+
+
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Linux Kernel Engineering
+thockin@sun.com
+

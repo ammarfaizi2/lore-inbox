@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135867AbREIGnH>; Wed, 9 May 2001 02:43:07 -0400
+	id <S135886AbREIHBB>; Wed, 9 May 2001 03:01:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135870AbREIGm6>; Wed, 9 May 2001 02:42:58 -0400
-Received: from lilly.ping.de ([62.72.90.2]:65297 "HELO lilly.ping.de")
-	by vger.kernel.org with SMTP id <S135867AbREIGmo>;
-	Wed, 9 May 2001 02:42:44 -0400
-Date: 9 May 2001 08:38:23 +0200
-Message-ID: <20010509063824.1424.qmail@toyland.ping.de>
-From: "Michael Stiller" <michael@toyland.ping.de>
-To: "Chris Mason" <mason@suse.com>
-Cc: "Michael Stiller" <michael@ping.de>, linux-kernel@vger.kernel.org,
-        nfs@lists.sourceforge.net
-X-Mailer: exmh version 2.0.2 2/24/98
-Subject: Re: 2.2.19 + reiserfs 3.5.32 nfsd wait_on_buffer/down_failed 
-In-Reply-To: Your message of "Tue, 08 May 2001 22:22:43 EDT."
-             <1164860000.989374963@tiny> 
-X-Url: http://www.ping.de/~michael
-X-Face: "wBy`XBjk-b]Wks].wV-RmZmir({Qfv85d&!VDrjx+4Ra(/ZyXjaV-x^QXX-Ab5X#3Eap^/
-  W^Zo.K9=py=t6/F&p3cl/.zrgKH)0uxy{#5Y(_dD=ftF*Q}-lp\&Z-563qR3X5qv^o9~iP(pw3_1q
-  !ti@9"V[C?^iW\BVArF#(YjjLJ/[R%Ri*sw
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S135885AbREIHAw>; Wed, 9 May 2001 03:00:52 -0400
+Received: from mons.uio.no ([129.240.130.14]:8654 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S135870AbREIHAg>;
+	Wed, 9 May 2001 03:00:36 -0400
+MIME-Version: 1.0
+Message-ID: <15096.60176.549962.187256@charged.uio.no>
+Date: Wed, 9 May 2001 09:00:32 +0200
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nfs MAP_SHARED corruption fix
+In-Reply-To: <20010509044826.B2506@athlon.random>
+In-Reply-To: <20010508160050.F543@athlon.random>
+	<shs3dafvpcx.fsf@charged.uio.no>
+	<20010509044826.B2506@athlon.random>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > we run a nfs server utilizing 2.2.19 + ReiserFS version 3.5.32 on a
-> > P 3 550 machine. Disk subsystem is a GDT7518RN using 4 UW disks as raid 5
-> > device. After upgrading from 2.2.17 + reiserfs to 2.2.19 we experience
-> > many (very much more than with 2.2.17) problems with our nfs clients
-> > about 12 (linux). Network ist 100Mbit full duplex / switched. 
-> > I do not think this is network related, cause ping -f doesnt show any
-> > packet loss. 
-> > 
-> > During not so heavy IO on the exported fs
-> > one nfsd thread seems to be waiting for the disk:
-> 
-> Are you running any patches to make knfsd deal with the reiserfs iget issues?
+>>>>> " " == Andrea Arcangeli <andrea@suse.de> writes:
 
-No. Just plain 2.2.19 + reiserfs 3.5.32. Should i use any patches ? 
-I just checked ftp.suse.com/pub/people/mason/reiserfs/patches and 
-there are only 2.2.19pre patches. 
+     > On Tue, May 08, 2001 at 05:21:02PM +0200, Trond Myklebust
+     > wrote:
+    >> AFAICs this fix will clearly deadlock...
 
-Does it help to mount the filesystems noatime ?
+     > yeah, it didn't triggered because it probably needs to be the
+     > same page writepaged and in the dirty list at the same time. I
+     > hooked it very deep into the writeback logic to keep it generic
+     > (it wasn't going to add a significant overhead) but it didn't
+     > need to be _that_ deep.
 
-Chris, do you have any idea where the problem may be located ? 
+     > Even worse I think it was partly wrong because it was only in
+     > the close(2) path but not in the fput path that is the one
+     > walked by munmap.
+
+     > This looks better to me, what do you think?
+
+Just 2 comments.
+
+ - You should use nfs_wb_all() here rather than nfs_wb_file() since
+writepage() unfortunately can't initialize the NFS writeback structure
+with the correct vma->vm_file.
+
+ - Are we allowed to protect the filemap_fdatasync() + nfs_wb_all() by
+grabbing the inode->i_sem in nfs_file_close_vma()? If so, this should
+be done as well.
+
+ Otherwise, that patch looked fine to me... I'll test it out...
 
 Cheers,
-
--Michael
-
-
-
--- 
-x(f,s,c)char *s;{return f&1 ? *s ? *s-c ? x(f,++s,c) :7[s]:0:f&2 
-? x(--f,"!/*,xq-ih9]c$=le&M t)r\nm@p31n%ag.8}Sdoy",c):f&4 ? *s ? 
-x(f,s+1,putchar(x(f-2,"^&%!*)",*s))) : 0 : 0;}main(){return x(4,
-"]!x/mhicn$!iihle&!x/mhiM$agimr%p !r@p%he&!x/mhiM !r@p%he",65);}
-
-
+   Trond

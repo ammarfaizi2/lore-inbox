@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbTGAKhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 06:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTGAKhZ
+	id S262023AbTGAKgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 06:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTGAKgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 06:37:25 -0400
-Received: from holomorphy.com ([66.224.33.161]:9902 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262008AbTGAKhV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 06:37:21 -0400
-Date: Tue, 1 Jul 2003 03:51:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.73-mm2
-Message-ID: <20030701105134.GE26348@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030701003958.GB20413@holomorphy.com> <Pine.LNX.4.44.0307011137001.1161-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307011137001.1161-100000@localhost.localdomain>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 1 Jul 2003 06:36:09 -0400
+Received: from ns0.eris.dera.gov.uk ([128.98.1.1]:65099 "HELO
+	ns0.eris.dera.gov.uk") by vger.kernel.org with SMTP id S262011AbTGAKgB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 06:36:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: GSM PCMCIA cards?
+Date: Tue, 1 Jul 2003 11:42:33 +0100
+User-Agent: KMail/1.4.3
+References: <20030701115354.7810e350.skraw@ithnet.com>
+In-Reply-To: <20030701115354.7810e350.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200307011142.33890.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jun 2003, William Lee Irwin III wrote:
->> It was suggested during my last round of OOM killer fixes that one of
->> my patches, which just checked nr_free_buffer_pages() > 0, should also
->> consider userspace (i.e. reclaimable at will) memory free.
-
-On Tue, Jul 01, 2003 at 11:46:34AM +0100, Hugh Dickins wrote:
-> If you pursued it, wouldn't your patch also need to change
-> nr_free_buffer_pages() to do what you think it does, count
-> the free lowmem pages?  It, and nr_free_pagecache_pages(),
-> and nr_free_zone_pages(), are horribly badly named.  They
-> count present_pages-pages_high, they don't count free pages:
-> okay for initialization estimates, useless for anything dynamic.
-> Hugh
-> p.s. any chance of some more imaginative Subject lines :-?
-
-Well, I was mostly looking for getting handed back 0 when lowmem is
-empty; I actually did realize they didn't give entirely accurate counts
-of free lowmem pages.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
--- wli
+> Hello all,
+>
+> does anybody use a GSM PCMCIA card under Linux? What vendor?
+
+Yes, I use an "Option 'Globetrotter' GPRS Data Card" which also does Tri-band 
+GSM.
+I use it with the 'Orange' network in the UK. I understand that Vodafone also 
+rebrand this card.
+
+In GSM mode it works as a regular serial modem (with 2.4.x) and I assume the 
+GPRS part works if you change the number to dial to be the funny #*33 style 
+one.
+
+Mark.
+
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/AWWZBn4EFUVUIO0RAkqyAKDgT5K5OcXpgC0+Jpue+Z9NdAKjEQCePvHr
+YsUwmdFqi3i6Q9RtkDdRqVE=
+=Axco
+-----END PGP SIGNATURE-----
+

@@ -1,195 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVBXMqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbVBXMtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262326AbVBXMqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 07:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbVBXMqQ
+	id S262329AbVBXMtu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 07:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVBXMtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 07:46:16 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29414 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262326AbVBXMpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 07:45:40 -0500
-Message-ID: <421DCC64.1050407@pobox.com>
-Date: Thu, 24 Feb 2005 07:45:24 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Thu, 24 Feb 2005 07:49:50 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:6640 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262329AbVBXMts
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 07:49:48 -0500
+Message-ID: <421DCD44.1020504@tiscali.de>
+Date: Thu, 24 Feb 2005 13:49:08 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [RFT PATCH] PCI MSI support for AHCI SATA driver
-Content-Type: multipart/mixed;
- boundary="------------060706000101000906070100"
+To: Matt Mackall <mpm@selenic.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc5
+References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <20050224062908.GJ3163@waste.org>
+In-Reply-To: <20050224062908.GJ3163@waste.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060706000101000906070100
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Matt Mackall wrote:
 
-Any testers wanna give this a shot?  Testing should be easy:
+>On Wed, Feb 23, 2005 at 08:18:08PM -0800, Linus Torvalds wrote:
+>  
+>
+>>Hey, I hoped -rc4 was the last one, but we had some laptop resource
+>>conflicts, various ppc TLB flush issues, some possible stack overflows in
+>>networking and a number of other details warranting a quick -rc5 before
+>>the final 2.6.11.
+>>
+>>This time it's really supposed to be a quickie, so people who can, please 
+>>check it out, and we'll make the real 2.6.11 asap.
+>>
+>>Mostly pretty small changes (the largest is a new SATA driver that crept
+>>in, our bad). But worth another quick round.
+>>    
+>>
+>
+>Very small.
+>
+>[   ] patch-2.6.11-rc5.bz2               23-Feb-2005 20:20   14   
+>[   ] patch-2.6.11-rc5.bz2.sign          23-Feb-2005 20:20  248   
+>[   ] patch-2.6.11-rc5.gz                23-Feb-2005 20:20   37   
+>[   ] patch-2.6.11-rc5.gz.sign           23-Feb-2005 20:20  248   
+>[   ] patch-2.6.11-rc5.sign              23-Feb-2005 20:20  248   
+>
+>Seems to have passed the gpg signature test on my end.
+>
+>  
+>
+The file seems to be empty.
 
-(a) make sure it still works.
-
-(b) cat /proc/interrupts to make sure that MSI is truly activated.
-
-Patch against 2.6.11-rc5.
-
-
---------------060706000101000906070100
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-diff -Nru a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
---- a/drivers/scsi/ahci.c	2005-02-24 07:00:45 -05:00
-+++ b/drivers/scsi/ahci.c	2005-02-24 07:00:45 -05:00
-@@ -152,6 +152,7 @@
- 
- struct ahci_host_priv {
- 	unsigned long		flags;
-+	unsigned int		have_msi; /* is PCI MSI enabled? */
- 	u32			cap;	/* cache of HOST_CAP register */
- 	u32			port_map; /* cache of HOST_PORTS_IMPL reg */
- };
-@@ -181,6 +182,7 @@
- static u8 ahci_check_status(struct ata_port *ap);
- static u8 ahci_check_err(struct ata_port *ap);
- static inline int ahci_host_intr(struct ata_port *ap, struct ata_queued_cmd *qc);
-+static void ahci_remove_one (struct pci_dev *pdev);
- 
- static Scsi_Host_Template ahci_sht = {
- 	.module			= THIS_MODULE,
-@@ -263,7 +265,7 @@
- 	.name			= DRV_NAME,
- 	.id_table		= ahci_pci_tbl,
- 	.probe			= ahci_init_one,
--	.remove			= ata_pci_remove_one,
-+	.remove			= ahci_remove_one,
- };
- 
- 
-@@ -860,15 +862,19 @@
- }
- 
- /* move to PCI layer, integrate w/ MSI stuff */
--static void pci_enable_intx(struct pci_dev *pdev)
-+static void pci_intx(struct pci_dev *pdev, int enable)
- {
--	u16 pci_command;
-+	u16 pci_command, new;
- 
- 	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
--	if (pci_command & PCI_COMMAND_INTX_DISABLE) {
--		pci_command &= ~PCI_COMMAND_INTX_DISABLE;
-+
-+	if (enable)
-+		new = pci_command & ~PCI_COMMAND_INTX_DISABLE;
-+	else
-+		new = pci_command | PCI_COMMAND_INTX_DISABLE;
-+
-+	if (new != pci_command)
- 		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
--	}
- }
- 
- static void ahci_print_info(struct ata_probe_ent *probe_ent)
-@@ -950,7 +956,7 @@
- 	unsigned long base;
- 	void *mmio_base;
- 	unsigned int board_idx = (unsigned int) ent->driver_data;
--	int pci_dev_busy = 0;
-+	int have_msi, pci_dev_busy = 0;
- 	int rc;
- 
- 	VPRINTK("ENTER\n");
-@@ -968,12 +974,17 @@
- 		goto err_out;
- 	}
- 
--	pci_enable_intx(pdev);
-+	if (pci_enable_msi(pdev) == 0)
-+		have_msi = 1;
-+	else {
-+		pci_intx(pdev, 1);
-+		have_msi = 0;
-+	}
- 
- 	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
- 	if (probe_ent == NULL) {
- 		rc = -ENOMEM;
--		goto err_out_regions;
-+		goto err_out_msi;
- 	}
- 
- 	memset(probe_ent, 0, sizeof(*probe_ent));
-@@ -1006,6 +1017,8 @@
- 	probe_ent->mmio_base = mmio_base;
- 	probe_ent->private_data = hpriv;
- 
-+	hpriv->have_msi = have_msi;
-+
- 	/* initialize adapter */
- 	rc = ahci_host_init(probe_ent);
- 	if (rc)
-@@ -1025,7 +1038,11 @@
- 	iounmap(mmio_base);
- err_out_free_ent:
- 	kfree(probe_ent);
--err_out_regions:
-+err_out_msi:
-+	if (have_msi)
-+		pci_disable_msi(pdev);
-+	else
-+		pci_intx(pdev, 0);
- 	pci_release_regions(pdev);
- err_out:
- 	if (!pci_dev_busy)
-@@ -1033,6 +1050,42 @@
- 	return rc;
- }
- 
-+static void ahci_remove_one (struct pci_dev *pdev)
-+{
-+	struct device *dev = pci_dev_to_dev(pdev);
-+	struct ata_host_set *host_set = dev_get_drvdata(dev);
-+	struct ahci_host_priv *hpriv = host_set->private_data;
-+	struct ata_port *ap;
-+	unsigned int i;
-+	int have_msi;
-+
-+	for (i = 0; i < host_set->n_ports; i++) {
-+		ap = host_set->ports[i];
-+
-+		scsi_remove_host(ap->host);
-+	}
-+
-+	have_msi = hpriv->have_msi;
-+	free_irq(host_set->irq, host_set);
-+	host_set->ops->host_stop(host_set);
-+	iounmap(host_set->mmio_base);
-+
-+	for (i = 0; i < host_set->n_ports; i++) {
-+		ap = host_set->ports[i];
-+
-+		ata_scsi_release(ap->host);
-+		scsi_host_put(ap->host);
-+	}
-+
-+	if (have_msi)
-+		pci_disable_msi(pdev);
-+	else
-+		pci_intx(pdev, 0);
-+	pci_release_regions(pdev);
-+	kfree(host_set);
-+	pci_disable_device(pdev);
-+	dev_set_drvdata(dev, NULL);
-+}
- 
- static int __init ahci_init(void)
- {
-
---------------060706000101000906070100--
+Matthias-Christian Ott

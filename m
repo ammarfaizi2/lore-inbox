@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUHVAQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUHVASS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUHVAQw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 20:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUHVAQw
+	id S264299AbUHVASS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 20:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUHVASS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 20:16:52 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:5760 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262406AbUHVAQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 20:16:50 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P7
-From: Lee Revell <rlrevell@joe-job.com>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <4127E386.5000701@cybsft.com>
-References: <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
-	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
-	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
-	 <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu>
-	 <20040820195540.GA31798@elte.hu>  <20040821140501.GA4189@elte.hu>
-	 <1093125390.817.22.camel@krustophenia.net>  <4127E386.5000701@cybsft.com>
-Content-Type: text/plain
-Message-Id: <1093133810.817.26.camel@krustophenia.net>
+	Sat, 21 Aug 2004 20:18:18 -0400
+Received: from wingding.demon.nl ([82.161.27.36]:129 "EHLO wingding.demon.nl")
+	by vger.kernel.org with ESMTP id S264299AbUHVASD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 20:18:03 -0400
+Date: Sun, 22 Aug 2004 02:18:06 +0200
+From: Rutger Nijlunsing <rutger@nospam.com>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: "David N. Welton" <davidw@dedasys.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Incompatibility List
+Message-ID: <20040822001806.GA10544@nospam.com>
+Reply-To: linux-kernel@tux.tmfweb.nl
+References: <87r7q0th2n.fsf@dedasys.com> <20040821201632.GA7622@digitasaru.net> <20040821202058.GA9218@animx.eu.org> <87ekm0rxw3.fsf@dedasys.com> <20040821220359.GB9492@animx.eu.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 21 Aug 2004 20:16:50 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040821220359.GB9492@animx.eu.org>
+Organization: M38c
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-08-21 at 20:06, K.R. Foley wrote:
-> I just posted a similar trace of ~4141 usec from P6 here:
+On Sat, Aug 21, 2004 at 06:03:59PM -0400, Wakko Warner wrote:
+> > > > >Ideas/comments/suggestions are welcome at this stage.
+> > > > 
+> > > > Sounds interesting; is there a vendor blacklist (i.e. vendors that are
+> > > >   either hostile toward or simply don't care about Linux and their products
+> > > >   just won't ever work with Linux?)
+> > > 
+> > > Broadcom's wireless chips come to mind...
+> > 
+> > Sounds good.  I wouldn't know one if it bit me on the leg, though, can
+> > you point to list archives, a web site, or reassure me that if I
+> > google for it I will get the right information?  I'd like models or a
+> > range of models if possible, and why they don't work, and any notes or
+> > additional information about the situation.
 > 
-> http://www.cybsft.com/testresults/2.6.8.1-P6/latency-trace1.txt
-> 
+> The linksys G cards (pci/cardbus) both use broadcom chips.  Not sure the
+> exact model numbers.  I have 2 at work that are broadcom.
 
-This looks wrong:
+Most routers with 4 ethernet ports for internal network, 1 ethernet
+port for external network and a wireless output which have a lot of
+functionality run Linux with a closed-source wireless driver:
 
-00000003 0.008ms (+0.001ms): dummy_socket_sock_rcv_skb (tcp_v4_rcv)
-00000004 0.008ms (+0.000ms): tcp_v4_do_rcv (tcp_v4_rcv)
-00000004 0.009ms (+0.000ms): tcp_rcv_established (tcp_v4_do_rcv)
-00010004 3.998ms (+3.989ms): do_IRQ (tcp_rcv_established)
-00010005 3.999ms (+0.000ms): mask_and_ack_8259A (do_IRQ)
-00010005 4.001ms (+0.002ms): generic_redirect_hardirq (do_IRQ)
-00010004 4.002ms (+0.000ms): generic_handle_IRQ_event (do_IRQ)
+Linksys WRT54g, ASUS WL-500g/b, and probably more...
 
-Probably a false positive, Ingo would know better.  What kind of stress
-testing were you doing?
-
-Lee
-
+-- 
+Rutger Nijlunsing ---------------------------- rutger ed tux tmfweb nl
+never attribute to a conspiracy which can be explained by incompetence
+----------------------------------------------------------------------

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265248AbTF1OTn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 10:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265251AbTF1OTm
+	id S265226AbTF1OZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 10:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbTF1OZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 10:19:42 -0400
-Received: from holomorphy.com ([66.224.33.161]:17304 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265248AbTF1OTl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 10:19:41 -0400
-Date: Sat, 28 Jun 2003 07:33:43 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Szonyi Calin <sony@etc.utt.ro>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.73-mjb2
-Message-ID: <20030628143343.GX26348@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Szonyi Calin <sony@etc.utt.ro>, linux-kernel@vger.kernel.org
-References: <36540000.1056736708@[10.10.2.4]> <39714.194.138.39.55.1056809147.squirrel@webmail.etc.utt.ro> <43530000.1056809425@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43530000.1056809425@[10.10.2.4]>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sat, 28 Jun 2003 10:25:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62689 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265226AbTF1OZY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 10:25:24 -0400
+Message-ID: <3EFDA8A2.8090008@pobox.com>
+Date: Sat, 28 Jun 2003 10:39:30 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Onur Kucuk <onur@kablonet.com.tr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-ac4 & cm9739 & SATA
+References: <3EFCD206.2020501@kablonet.com.tr> <3EFCF119.7000809@pobox.com> <3EFD7B14.7060307@kablonet.com.tr>
+In-Reply-To: <3EFD7B14.7060307@kablonet.com.tr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, Szonyi Calin <sony@etc.utt.ro> wrote:
->> I tested 2.5.72-mjb2 but it was full of oopses and crashes on my Duron
->> so I thought this patch is only for NUMA stuff.
+Onur Kucuk wrote:
+>  Done, working fine, thank you
+> 
+>  Now I have a shiny new sda instead of the old hde 
 
-On Sat, Jun 28, 2003 at 07:10:26AM -0700, Martin J. Bligh wrote:
-> Nope, it should work with any machine  - you got the oopses?
-> If you have an old distro with glibc < 2.3.1, Bill thinks the upside_down
-> trick doesn't work because of some invalid assumptions glibc is making.
-> If that's the case, could you check that 2.5.73-mjb1 works OK?
-
-If this is causing too much confusion and/or other anguish I can live
-with it getting withdrawn and keep it rolling in the ultra-experimental
-section (-wli).
-
-Alternatively, it should be trivial to convert to a config option that's
-off by default.
+cool!  :)
 
 
--- wli
+>  And just if I can find a way to make the sound work properly
+
+This is i810_audio a.k.a. ICH5 audio, yes?
+
+If so, (a) ALSA works and (b) I hope to have i810_audio fixed in a week 
+or so.
+
+	Jeff
+
+
+

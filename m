@@ -1,77 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbUJXXoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbUJXX5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbUJXXoE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 19:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbUJXXoE
+	id S261626AbUJXX5F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 19:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUJXX5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 19:44:04 -0400
-Received: from smtp07.auna.com ([62.81.186.17]:33993 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id S261621AbUJXXn7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 19:43:59 -0400
-Date: Sun, 24 Oct 2004 23:43:52 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: kbuild dependencies and layout
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Balsa 2.2.5
-Message-Id: <1098661432l.6459l.0l@werewolf.able.es>
+	Sun, 24 Oct 2004 19:57:05 -0400
+Received: from mxsf07.cluster1.charter.net ([209.225.28.207]:10903 "EHLO
+	mxsf07.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261626AbUJXX5D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 19:57:03 -0400
+X-Ironport-AV: i="3.86,95,1096862400"; 
+   d="scan'208"; a="445627068:sNHT12531700"
+Message-ID: <002101c4ba24$fe243030$0200a8c0@haneyhbmu5pv2g>
+From: "Ameer Armaly" <ameer@charter.net>
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Subject: cisco aironet  4800 wireless card not configuring properly
+Date: Sun, 24 Oct 2004 19:55:51 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
-
-I'm trying to make a small modification to the Kconfig files, but I can't
-get the menu layout match what I want.
-
-Say I want this logic:
-
-menu "A support"
-  config A_1
-    tristate "A-1"
-  config A_2
-    tristate "A-2"
-  config A_GENERIC_FEATURE_1
-    bool "AF1"
-    depends on A_1 || A_2
-  config A_GENERIC_FEATURE_2
-    bool "AF2"
-    depends on A_1 || A_2
-endmenu
-
-A_GENERIC_FEATURE_1 is valid for both submodels. Logic is right, but
-gconfig insists on putting AF1 as a subentry of A_2, instead of hanging
-it in the menu. I would like:
-
-  A support
-   \- A-1
-   \- A-2
-   \- AF1 (visible only when A-1 or A-2 are selected)
-   \- AF2 (visible only when A-1 or A-2 are selected)
-
-but I get
-
-  A support
-   \- A-1
-   \- A-2
-      \- AF1 (visible only when A-1 or A-2 are selected)
-      \- AF2 (visible only when A-1 or A-2 are selected)
-
-(ie, both optional features haged on A-2)
-
-What am I doing wrong ? Is there any way to defeat the auto-layout
-based on depedencies of kbuild ?
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-jam1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
-
+Hi all.
+I've got a cisco 4800 aironet card, that is detected successfully by the 
+driver in the kernel.  However, when I configure with ifup, it says that it 
+doesn't
+understand hardware address 801 for wifi0.
+I'm running debian unstable on an athlon 2.07 ghz with 256 mb ram.
+Please cc me directly in all replies.
+---
+Life is either tragedy or comedy.
+ Usually it's your choice. You can whine or you can laugh.
+--Animorphs 
 

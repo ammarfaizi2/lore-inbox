@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266246AbUG0Fel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266273AbUG0Foq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266246AbUG0Fel (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 01:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUG0Fel
+	id S266273AbUG0Foq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 01:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUG0Foq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 01:34:41 -0400
-Received: from main.gmane.org ([80.91.224.249]:1260 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266246AbUG0Fej (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 01:34:39 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joshua Kwan <joshk@triplehelix.org>
-Subject: Wireless devices and route settings
-Date: Mon, 26 Jul 2004 22:34:35 -0700
-Message-ID: <pan.2004.07.27.05.34.35.543474@triplehelix.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-68-126-193-193.dsl.pltn13.pacbell.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+	Tue, 27 Jul 2004 01:44:46 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:53996 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266273AbUG0Foo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 01:44:44 -0400
+Date: Tue, 27 Jul 2004 01:48:13 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@fsmlabs.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Tom L Nguyen <tom.l.nguyen@intel.com>
+Subject: Re: [PATCH] rename CONFIG_PCI_USE_VECTOR to CONFIG_PCI_MSI
+In-Reply-To: <528yd65kj2.fsf@topspin.com>
+Message-ID: <Pine.LNX.4.58.0407270139280.25781@montezuma.fsmlabs.com>
+References: <200407261615.52261.bjorn.helgaas@hp.com> <52llh65r6s.fsf@topspin.com>
+ <200407261734.46494.bjorn.helgaas@hp.com> <528yd65kj2.fsf@topspin.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 26 Jul 2004, Roland Dreier wrote:
 
-So, I have a wireless interface on a 'guest' Linux box (running 2.6.7-rc1,
-not bothered to compile a new kernel yet.) It is a fair distance away from
-the access point and sometimes goes out of range.
+>     Bjorn> This is the bit I really want to get to.  In particular, I
+>     Bjorn> want to support multiple interrupt vector spaces on ia64,
+>     Bjorn> because we're running out of vectors.  I can't do that as
+>     Bjorn> long as MSI mucks around with the arch-specific vector
+>     Bjorn> allocation.  (There's plenty of ia64 code that needs to be
+>     Bjorn> cleaned up, too; it's not just MSI.)
 
-Usually it can go out of range and come back in range without the user
-noticing anything has happened. But once in a while, when the connection
-is especially poor, the interface will go down and lose its default route.
-When it comes back, it retains its IP, but does not keep the default route.
-This makes the internet unusable on this machine until i cycle ifdown/ifup
-which I cannot rely on guests to do.
+Agreed, this was discussed earlier and shouldn't be too hard to work into
+the current MSI code. Something akin to arrays of msi_desc indexed by
+irq handling node depending on the source irq/bus information.
 
-There is no daemon watching the network interfaces at all that might be
-doing this (I'm pretty sure), so I was hoping linux-kernel might know.
+>     Bjorn> I think there needs to be some arch interface to
+>     Bjorn> allocate/deallocate Linux IRQ numbers (not interrupt
+>     Bjorn> vectors).  Then MSI can allocate as many as it needs, and
+>     Bjorn> use yet another arch interface to translate the Linux IRQ
+>     Bjorn> numbers to the appropriate address/data info to program the
+>     Bjorn> device.
+>
+> Sounds good, although I don't know much about the low-level details of
+> interrupt vectors on either i386 or ia64.  Some way of exposing which
+> interrupts are "closest" to which CPUs would be a good thing too.
 
-Here's to a prompt solution..
+We can do this right now using the topology information, it's been done
+before on NUMAQ.
 
--- 
-Joshua Kwan
+> One thing that I would be a little concerned about is making the
+> numbers in /proc/interrupts too divorced from the underlying platform
+> interrupt code -- it seems that ACPI debugging is hard enough as it
+> is.
 
-
+Ok, some of those really are vectors, the thing is, for irqs > 15 (non
+legacy) we pass the real vector around. This is done by setting
+pci_dev->irq the vector assigned to that irq line. It can get quite
+confusing in places so variable naming is indeed important. But in
+general, on i386, all irqs with CONFIG_PCI_MSI are vectors.

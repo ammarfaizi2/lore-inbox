@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290045AbSAWUVO>; Wed, 23 Jan 2002 15:21:14 -0500
+	id <S290033AbSAWUUo>; Wed, 23 Jan 2002 15:20:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290054AbSAWUVF>; Wed, 23 Jan 2002 15:21:05 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:33006 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S290045AbSAWUUz>; Wed, 23 Jan 2002 15:20:55 -0500
-Date: Wed, 23 Jan 2002 20:23:04 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: pte-highmem-5
-In-Reply-To: <E16TQH1-00020K-00@starship.berlin>
-Message-ID: <Pine.LNX.4.21.0201232019320.1914-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290045AbSAWUUa>; Wed, 23 Jan 2002 15:20:30 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:58752 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S290033AbSAWUUN>;
+	Wed, 23 Jan 2002 15:20:13 -0500
+Date: Wed, 23 Jan 2002 12:18:57 -0800 (PST)
+Message-Id: <20020123.121857.18310310.davem@redhat.com>
+To: riel@conectiva.com.br
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH *] rmap VM, version 12
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33L.0201231735540.32617-100000@imladris.surriel.com>
+In-Reply-To: <20020123.112837.112624842.davem@redhat.com>
+	<Pine.LNX.4.33L.0201231735540.32617-100000@imladris.surriel.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, Daniel Phillips wrote:
-> On January 23, 2002 06:38 am, Hugh Dickins wrote:
-> > First half agreed, second half not sure.  Maybe no series at all.
-> > Could it be worked with just the one serie, 
-> 
-> Pardon me, but what is a serie?  It's not an english word:
-> 
->    http://www.m-w.com/dictionary.htm
+   From: Rik van Riel <riel@conectiva.com.br>
+   Date: Wed, 23 Jan 2002 17:36:35 -0200 (BRST)
+   
+   OK, so only the _pgd_ quicklist is questionable and the
+   _pte_ quicklist is fine ?
 
-
-It's a technical term meaning "element of series", recently coined
-by our very own Mr. Andrea Arcangeli, whose "pte-highmem-5 patch"
-will be cited in future editions of the Oxford English Dictionary.
-
-Hugh
-
+That is my understanding.

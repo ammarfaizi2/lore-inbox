@@ -1,161 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319281AbSHVCOA>; Wed, 21 Aug 2002 22:14:00 -0400
+	id <S319271AbSHVAvV>; Wed, 21 Aug 2002 20:51:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319282AbSHVCN7>; Wed, 21 Aug 2002 22:13:59 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6668 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319281AbSHVCN6>;
-	Wed, 21 Aug 2002 22:13:58 -0400
-Message-ID: <3D644C70.6D100EA5@zip.com.au>
-Date: Wed, 21 Aug 2002 19:29:04 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S319273AbSHVAvV>; Wed, 21 Aug 2002 20:51:21 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:37083 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S319271AbSHVAvT>;
+	Wed, 21 Aug 2002 20:51:19 -0400
+Date: Wed, 21 Aug 2002 17:59:31 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: gregkh@us.ibm.com, greg@kroah.com
+cc: linux-kernel@vger.kernel.org, Hanna Linder <hannal@us.ibm.com>
+Subject: Re: PCI Cleanup
+Message-ID: <74760000.1029977971@w-hlinder>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: MM patches against 2.5.31
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've uploaded a rollup of pending fixes and feature work
-against 2.5.31 to
+Here is the first part of the sh port of the pci_ops 
+changes. If anyone can compile this for Sega let me
+know if there are any problems.
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.31/2.5.31-mm1/
+Thanks.
 
-The rolled up patch there is suitable for ongoing testing and
-development.  The individual patches are in the broken-out/
-directory and should all be documented.
+Hanna Linder
+hannal@us.ibm.com
 
+ps -this patches against bk://linuxusb.bkbits.net/pci_hp-2.5
 
-broken-out/linus.patch
-  Incremental BK patch from Linus' tree
+-----
 
-broken-out/page_reserved.patch
-  Test PageReserved in pagevec_release()
+diff -Nru a/arch/sh/kernel/pci-dc.c b/arch/sh/kernel/pci-dc.c
+--- a/arch/sh/kernel/pci-dc.c	Wed Aug 21 17:55:02 2002
++++ b/arch/sh/kernel/pci-dc.c	Wed Aug 21 17:55:02 2002
+@@ -31,76 +31,58 @@
+ 	{0, 0, 0, NULL}
+ };
+ 
+-#define BBA_SELECTED(dev) (dev->bus->number==0 && dev->devfn==0)
++#define BBA_SELECTED(bus,devfn) (bus->number==0 && devfn==0)
+ 
+-static int gapspci_read_config_byte(struct pci_dev *dev, int where,
+-                                    u8 * val)
++static int gapspci_read(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 * val)
+ {
+-	if (BBA_SELECTED(dev))
+-		*val = inb(GAPSPCI_BBA_CONFIG+where);
+-	else
+-                *val = 0xff;
+-
++	switch (size) {
++	case 1:
++		if (BBA_SELECTED(bus, devfn))
++			*val = (u8)inb(GAPSPCI_BBA_CONFIG+where);
++		else
++			*val = (u8)0xff;
++		break;
++	case 2:
++		if (BBA_SELECTED(bus, devfn))
++			*val = (u16)inw(GAPSPCI_BBA_CONFIG+where);
++		else
++			*val = (u16)0xffff;
++		break;
++	case 4:
++		if (BBA_SELECTED(bus, devfn))
++			*val = inl(GAPSPCI_BBA_CONFIG+where);
++		else
++			*val = 0xffffffff;
++		break;
++	}	
+ 	return PCIBIOS_SUCCESSFUL;
+ }
+ 
+-static int gapspci_read_config_word(struct pci_dev *dev, int where,
+-                                    u16 * val)
+-{
+-        if (BBA_SELECTED(dev))
+-		*val = inw(GAPSPCI_BBA_CONFIG+where);
+-	else
+-                *val = 0xffff;
+-
+-        return PCIBIOS_SUCCESSFUL;
+-}
+-
+-static int gapspci_read_config_dword(struct pci_dev *dev, int where,
+-                                     u32 * val)
+-{
+-        if (BBA_SELECTED(dev))
+-		*val = inl(GAPSPCI_BBA_CONFIG+where);
+-	else
+-                *val = 0xffffffff;
+-
+-        return PCIBIOS_SUCCESSFUL;
+-}
+-
+-static int gapspci_write_config_byte(struct pci_dev *dev, int where,
+-                                     u8 val)
+-{
+-        if (BBA_SELECTED(dev))
+-		outb(val, GAPSPCI_BBA_CONFIG+where);
+-
+-        return PCIBIOS_SUCCESSFUL;
+-}
+-
+-
+-static int gapspci_write_config_word(struct pci_dev *dev, int where,
+-                                     u16 val)
+-{
+-        if (BBA_SELECTED(dev))
+-		outw(val, GAPSPCI_BBA_CONFIG+where);
+-
+-        return PCIBIOS_SUCCESSFUL;
+-}
+-
+-static int gapspci_write_config_dword(struct pci_dev *dev, int where,
+-                                      u32 val)
++static int gapspci_write(struct pci_bus *bus, unsigned int devfn,
++				    int where, u32 val)
+ {
+-        if (BBA_SELECTED(dev))
+-		outl(val, GAPSPCI_BBA_CONFIG+where);
+-
+-        return PCIBIOS_SUCCESSFUL;
++	if (BBA_SELECTED(bus, devfn)) {
++		switch (size) {
++	case 1:
++		if (BBA_SELECTED(bus, devfn))
++			outb((u8)val, GAPSPCI_BBA_CONFIG+where);
++		break;
++	case 2:
++		if (BBA_SELECTED(bus, devfn))
++			outw((u16)val, GAPSPCI_BBA_CONFIG+where);
++		break;
++	case 4:
++		if (BBA_SELECTED(bus, devfn))
++			outl(val, GAPSPCI_BBA_CONFIG+where);
++		break;
++		}
++	}
++	return PCIBIOS_SUCCESSFUL;
+ }
+ 
+ static struct pci_ops pci_config_ops = {
+-        gapspci_read_config_byte,
+-        gapspci_read_config_word,
+-        gapspci_read_config_dword,
+-        gapspci_write_config_byte,
+-        gapspci_write_config_word,
+-        gapspci_write_config_dword
++	.read = 	gapspci_read,
++	.write = 	gapspci_write,
+ };
+ 
+ 
+@@ -143,7 +125,7 @@
+ 
+ 	for (ln=bus->devices.next; ln != &bus->devices; ln=ln->next) {
+ 		dev = pci_dev_b(ln);
+-		if (!BBA_SELECTED(dev)) continue;
++		if (!BBA_SELECTED(bus, dev->devfn)) continue;
+ 
+ 		printk("PCI: MMIO fixup to %s\n", dev->name);
+ 		dev->resource[1].start=0x01001700;
 
-broken-out/scsi_hack.patch
-  Fix block-highmem for scsi
-
-broken-out/page_cache_release_lru_fix.patch
-  Fix a race between __page_cache_release() and shrink_cache().
-
-broken-out/page_cache_release_fix.patch
-  Fix __page_cache_release() bugs
-
-broken-out/mvm.patch
-  Fix vmalloc bugs
-
-broken-out/pte-chain-fix.patch
-  Fix a VM lockup on uniprocessors
-
-broken-out/func-fix.patch
-  gcc-2.91.66 does not support __func__
-
-broken-out/ext3-htree.patch
-  Indexed directories for ext3
-
-broken-out/rmap-mapping-BUG.patch
-  Fix a BUG_ON(page->mapping == NULL) in try_to_unmap()
-
-broken-out/misc.patch
-  misc fixlets
-
-broken-out/tlb-speedup.patch
-  Reduce typical global TLB invalidation frequency by 35%
-
-broken-out/buffer-slab-align.patch
-  Don't align the buffer_head slab on hardware cacheline boundaries
-
-broken-out/zone-rename.patch
-  Rename zone_struct->zone, zonelist_struct->zonelist.  Remove zone_t,
-  zonelist_t.
-
-broken-out/per-zone-lru.patch
-  Per-zone page LRUs
-
-broken-out/per-zone-lock.patch
-  Per-zone LRU list locking
-
-broken-out/l1-max-size.patch
-  Infrastructure for determining the maximum L1 cache size which the kernel
-  may have to support.
-
-broken-out/zone-lock-alignment.patch
-  Pad struct zone to ensure that the lru and buddy locks are in separate
-  cachelines.
-
-broken-out/put_page_cleanup.patch
-  Clean up put_page() and page_cache_release().
-
-broken-out/anon-batch-free.patch
-  Batched freeing and de-LRUing of anonymous pages
-
-broken-out/writeback-sync.patch
-  Writeback fixes and tuneups
-
-broken-out/ext3-inode-allocation.patch
-  Fix an ext3 deadlock
-
-broken-out/ext3-o_direct.patch
-  O_DIRECT support for ext3.
-
-broken-out/jfs-bio.patch
-  Convert JFS to use direct-to-BIO I/O
-
-broken-out/discontig-paddr_to_pfn.patch
-  Convert page pointers into pfns for i386 NUMA
-
-broken-out/discontig-setup_arch.patch
-  Rework setup_arch() for i386 NUMA
-
-broken-out/discontig-mem_init.patch
-  Restructure mem_init for i386 NUMA
-
-broken-out/discontig-i386-numa.patch
-  discontigmem support for i386 NUMA
-
-broken-out/cleanup-mem_map-1.patch
-  Clean up lots of open-coded uese of mem_map[].  For ia32 NUMA
-
-broken-out/zone-pages-reporting.patch
-  Fix the boot-time reporting of each zone's available pages
-
-broken-out/enospc-recovery-fix.patch
-  Fix the __block_write_full_page() error path.
-
-broken-out/fix-faults.patch
-  Back out the initial work for atomic copy_*_user()
-
-broken-out/bkl-consolidate.patch
-  Consolidation per-arch lock_kenrel() implementations.
-
-broken-out/might_sleep.patch
-  Infrastructure to detect sleep-inside-spinlock bugs
-
-broken-out/spin-lock-check.patch
-  spinlock/rwlock checking infrastructure
-
-broken-out/atomic-copy_user.patch
-  Support for atomic copy_*_user()
-
-broken-out/kmap_atomic_reads.patch
-  Use kmap_atomic() for generic_file_read()
-
-broken-out/kmap_atomic_writes.patch
-  Use kmap_atomic() for generic_file_write()
-
-broken-out/config-PAGE_OFFSET.patch
-  Configurable kenrel/user memory split
-
-broken-out/throttling-fix.patch
-  Fix throttling of heavy write()rs.
-
-broken-out/dirty-state-accounting.patch
-  Make the global dirty memory accounting more accurate
-
-broken-out/rd-cleanup.patch
-  Cleanup and fix the ramdisk driver (doesn't work right yet)

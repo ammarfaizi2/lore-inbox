@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262451AbSI3Rej>; Mon, 30 Sep 2002 13:34:39 -0400
+	id <S262679AbSI3Rtq>; Mon, 30 Sep 2002 13:49:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262452AbSI3Rej>; Mon, 30 Sep 2002 13:34:39 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:24201 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262451AbSI3Rej>;
-	Mon, 30 Sep 2002 13:34:39 -0400
-Date: Mon, 30 Sep 2002 23:15:37 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] generic work queue handling, workqueue-2.5.39-D6
-Message-ID: <20020930231537.A29582@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <Pine.LNX.4.44.0209301747560.13521-100000@localhost.localdomain>
+	id <S262735AbSI3Rtq>; Mon, 30 Sep 2002 13:49:46 -0400
+Received: from mnh-1-22.mv.com ([207.22.10.54]:62468 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S262679AbSI3Rtq>;
+	Mon, 30 Sep 2002 13:49:46 -0400
+Message-Id: <200209301858.NAA03537@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML highmem support
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0209301747560.13521-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Sep 30, 2002 at 03:58:25PM +0000
+Date: Mon, 30 Sep 2002 13:58:29 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 03:58:25PM +0000, Ingo Molnar wrote:
-> it cannot get any simpler than this. Work-queues are SMP-safe and
-> guarantee serialization of actual work performed.
-> 
+Please pull http://jdike.stearns.org:5000/highmem-2.5
 
-Ingo,
+This adds the UML arch support for highmem.  All changes are in arch code.
 
-Is it possible that queue_task() handlers in earlier driver code may have
-depended on implicit serialization against corresponding timer handlers since
-each of those is run from BHs ? If so, isn't that an issue now with
-no BHs ? Or, is it safe to assume that general smp-safety code in the
-drivers will take care of serialization between timers and work-queues ?
+				Jeff
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+ChangeSet@1.579.13.5, 2002-09-29 22:18:25-04:00, jdike@uml.karaya.com
+  Added CONFIG_HIGHMEM to defconfig.
+
+ChangeSet@1.579.13.4, 2002-09-29 22:02:45-04:00, jdike@uml.karaya.com
+  One last fix to make the non-highmem build work.
+
+ChangeSet@1.579.13.3, 2002-09-28 15:45:58-04:00, jdike@uml.karaya.com
+  Missed a change to fixmap.h in the highmem update.
+
+ChangeSet@1.579.13.2, 2002-09-28 15:31:57-04:00, jdike@uml.karaya.com
+  Fixed highmem support for 2.5.
+
+ChangeSet@1.579.13.1, 2002-09-23 21:43:15-04:00, jdike@uml.karaya.com
+  Added highmem support.
+  The UML initialization code marks memory that doesn't fit in the
+  kernel's address space as highmem, and later sets up the UML data
+  structures for it, and frees that memory to the mm system as highmem.
+

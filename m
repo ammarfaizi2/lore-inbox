@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265142AbTF1KZz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 06:25:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbTF1KZz
+	id S265141AbTF1K1W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 06:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265145AbTF1K1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 06:25:55 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:23982 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S265142AbTF1KZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 06:25:55 -0400
-Message-Id: <5.1.0.14.2.20030628123855.00aefd18@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 28 Jun 2003 12:40:36 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: 2.4.22-pre2 unresolved proc_get_inode
+	Sat, 28 Jun 2003 06:27:22 -0400
+Received: from [217.113.73.39] ([217.113.73.39]:39444 "EHLO
+	entandikwa.ds.co.ug") by vger.kernel.org with ESMTP id S265141AbTF1K0C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 06:26:02 -0400
+Subject: Re: Is their an explanation of various kernel
+	versions/brances/patches/? (-mm, -ck, ..)
+From: "Peter C. Ndikuwera" <pndiku@dsmagic.com>
+To: Orion Poplawski <orion@cora.nwra.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <bdd64m$3dr$1@main.gmane.org>
+References: <bdd64m$3dr$1@main.gmane.org>
+Content-Type: text/plain
+Organization: Digital Solutions Ltd
+Message-Id: <1056796691.2156.6.camel@mufasa.ds.co.ug>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: r2M-AeZbwewCx3RiFnYgj8KCHiXIfBpB+ZYYpQ9SbZ9O1h3409vVrT@t-dialin.net
+X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
+Date: 28 Jun 2003 13:38:11 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.22-pre2; fi
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.22-pre2/kernel/drivers/net/wan/comx.o
-depmod:         proc_get_inode
+http://kernelnewbies.org/faq/index.php3#trees has a few of them
 
-I suppose we let Christoph and Marc fight it out.
+Maybe you could alert the web maintainers to the entries in this thread?
+:-)
 
-Margit
+Peter Ndikuwera
+Digital Solutions
+Uganda
+
+On Thu, 2003-06-26 at 01:02, Orion Poplawski wrote:
+> Seems like everybody and their brother is maintaining a kernel patch set 
+> these days :-).
+> 
+> Is there a page somewhere that explains the goals of each of the various 
+> versions?
+> 
+> Thanks!
+> 
+> - Orion
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

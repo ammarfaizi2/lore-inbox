@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289321AbSBBTAm>; Sat, 2 Feb 2002 14:00:42 -0500
+	id <S292350AbSBBTDm>; Sat, 2 Feb 2002 14:03:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292349AbSBBTAc>; Sat, 2 Feb 2002 14:00:32 -0500
-Received: from mustard.heime.net ([194.234.65.222]:12973 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S289321AbSBBTA1>; Sat, 2 Feb 2002 14:00:27 -0500
-Date: Sat, 2 Feb 2002 20:00:25 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: promise133 controller support in official kernel?
-Message-ID: <Pine.LNX.4.30.0202021959540.11739-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292352AbSBBTDc>; Sat, 2 Feb 2002 14:03:32 -0500
+Received: from quattro-eth.sventech.com ([205.252.89.20]:38916 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S292350AbSBBTDN>; Sat, 2 Feb 2002 14:03:13 -0500
+Date: Sat, 2 Feb 2002 14:03:13 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Pozsar Balazs <pozsy@sch.bme.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: uhci vs. usb-uhci: which is better?
+Message-ID: <20020202140313.P11223@sventech.com>
+In-Reply-To: <Pine.GSO.4.30.0202021933360.2459-100000@balu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.30.0202021933360.2459-100000@balu>; from pozsy@sch.bme.hu on Sat, Feb 02, 2002 at 07:37:24PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+On Sat, Feb 02, 2002, Pozsar Balazs <pozsy@sch.bme.hu> wrote:
+> What is the difference between the usb-uhci and the uhci modules?
+> Are there any cases where only one suitable?
+> 
+> In short: which is 'better'?
 
-when will the promise133 controller be supported in the official kernel?
+The better one is probably the one that works for you.
 
-roy
-
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+JE
 

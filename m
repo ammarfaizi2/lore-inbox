@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319242AbSIFRWf>; Fri, 6 Sep 2002 13:22:35 -0400
+	id <S319269AbSIFRU0>; Fri, 6 Sep 2002 13:20:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319262AbSIFRWf>; Fri, 6 Sep 2002 13:22:35 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:20878 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S319242AbSIFRWe>; Fri, 6 Sep 2002 13:22:34 -0400
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: "David S. Miller" <davem@redhat.com>, hadi@cyberus.ca,
-       tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, Nivedita Singhvi <niv@us.ibm.com>
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000 
-In-reply-to: Your message of Thu, 05 Sep 2002 23:48:42 PDT.
-             <18563262.1031269721@[10.10.2.3]> 
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <12464.1031333164.1@us.ibm.com>
-Date: Fri, 06 Sep 2002 10:26:04 -0700
-Message-Id: <E17nMs2-0003F6-00@w-gerrit2>
+	id <S319270AbSIFRU0>; Fri, 6 Sep 2002 13:20:26 -0400
+Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:6788 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S319269AbSIFRUZ>; Fri, 6 Sep 2002 13:20:25 -0400
+Date: Fri, 6 Sep 2002 18:24:57 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Aaron Lehmann <aaronl@vitelus.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext3 throughput woes on certain (possibly heavily fragmented) files
+Message-ID: <20020906182457.F3029@redhat.com>
+References: <20020903092419.GA5643@vitelus.com> <20020906170614.A7946@redhat.com> <15736.57972.202889.872554@laputa.namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15736.57972.202889.872554@laputa.namesys.com>; from Nikita@Namesys.COM on Fri, Sep 06, 2002 at 09:14:28PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <18563262.1031269721@[10.10.2.3]>, > : "Martin J. Bligh" writes:
-> >    I would think shoving the data down the NIC
-> >    and avoid the fragmentation shouldnt give you that much significant
-> >    CPU savings.
-> > 
-> > It's the DMA bandwidth saved, most of the specweb runs on x86 hardware
-> > is limited by the DMA throughput of the PCI host controller.  In
-> > particular some controllers are limited to smaller DMA bursts to
-> > work around hardware bugs.
-> 
-> I think we're CPU limited (there's no idle time on this machine), 
-> which is odd for an 8 CPU 900MHz P3 Xeon, but still, this is Apache,
-> not Tux. You mentioned CPU load as another advantage of TSO ... 
-> anything we've done to reduce CPU load enables us to run more and 
-> more connections (I think we started at about 260 or something, so 
-> 2900 ain't too bad ;-)).
+Hi,
 
-Troy, is there any chance you could post an oprofile from any sort
-of reasonably conformant run?  I think that might help enlighten
-people a bit as to what we are fighting with.  The last numbers I
-remember seemed to indicate that we were spending about 1.25 CPUs
-in network/e1000 code with 100% CPU utilization and crappy SpecWeb
-throughput.
+On Fri, Sep 06, 2002 at 09:14:28PM +0400, Nikita Danilov wrote:
 
-One of our goals is to actually take the next generation of the most
-common "large system" web server and get it to scale along the lines
-of Tux or some of the other servers which are more common on the
-small machines.  For some reasons, big corporate customers want lots
-of features that are in a web server like apache and would also like
-the performance on their 8-CPU or 16-CPU machine to not suck at the
-same time.  High ideals, I know, wanting all features *and* performance
-from the same tool...  Next thing you know they'll want reliability
-or some such thing.
+> Another possible solution is to try to "defer" allocation. For example,
+> in reiser4 (and XFS, I believe) extents are allocated on the transaction
+> commit and as a result, if file was created by several writes, it will
+> still be allocated as one extent.
 
-gerrit
+Ext2 has a preallocation mechanism so that if you have multiple
+writes, they get dealt with to some extent as a single allocation.
+However, that doesn't work over close(): the preallocated blocks are
+discarded wheneven we close the file.
+
+The problem with mail files, though, is that they tend to grow quite
+slowly, so the writes span very many transactions and we don't have
+that opportunity for coalescing the writes.  Actively defragmenting on
+writes is an alternative in that case.
+
+Cheers,
+ Stephen

@@ -1,89 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262449AbTJFSdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 14:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbTJFSdY
+	id S262291AbTJFTLt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 15:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbTJFTLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 14:33:24 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:8579 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262449AbTJFScH
+	Mon, 6 Oct 2003 15:11:49 -0400
+Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:57065
+	"HELO dag.newtech.fi") by vger.kernel.org with SMTP id S262291AbTJFTLh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 14:32:07 -0400
-Date: Mon, 6 Oct 2003 14:34:57 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Hans-Georg Thien <1682-600@onlinehome.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: getting timestamp of last interrupt?
-In-Reply-To: <3F81B2A3.4040001@onlinehome.de>
-Message-ID: <Pine.LNX.4.53.0310061426080.11197@chaos>
-References: <fa.fj0euih.s2sbop@ifi.uio.no> <fa.fvjdidn.13ni70f@ifi.uio.no>
- <3F7E46AB.3030709@onlinehome.de> <Pine.LNX.4.53.0310060843500.8593@chaos>
- <3F81B2A3.4040001@onlinehome.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Oct 2003 15:11:37 -0400
+Message-ID: <20031006191135.19059.qmail@dag.newtech.fi>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Dag Nygren <dag@newtech.fi>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, dag@newtech.fi
+Subject: Re: Bug in the sg driver 
+In-Reply-To: Message from "Randy.Dunlap" <rddunlap@osdl.org> 
+   of "Mon, 06 Oct 2003 11:52:45 PDT." <20031006115245.17d73f0c.rddunlap@osdl.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 06 Oct 2003 22:11:35 +0300
+From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Oct 2003, Hans-Georg Thien wrote:
 
-> Richard B. Johnson wrote:
-> > On Sat, 4 Oct 2003, Hans-Georg Thien wrote:
-> >
-> >
-> >>> [...]
-> >>>>I am looking for a possibility to read out the last timestamp when an
-> >>>>interrupt has occured.
-> >>>>
-> >>>>e.g.: the user presses a key on the keyboard. Where can I read out the
-> >>>>timestamp of this event?
-> >>>
-> >>>
-> >>>You can get A SIGIO signal for every keyboard, (or other input) event.
-> >>>What you do with it is entirely up to you. Linux/Unix doesn't have
-> >>>"callbacks", instead it has signals. It also has select() and poll(),
-> >>>all useful for handling such events. If you want a time-stamp, you
-> >>>call gettimeofday() in your signal handler.
-> >>>
-> >>
-> >>Thanks a lot Richard,
-> >>
-> >>... but ... can I use signals in kernel mode?
-> >
-> >
-> > Well you talked about the user pressing a key and getting
-> > a time-stamp as a result. If you need time-stamps
-> > inside the kernel, i.e, a module, then you can call
-> > the kernel's do_gettimeofday() function.
-> >
-> Hello Richard, - It seems, that I should be more precise about what I
-> exactly mean...
->
->
-> I'm writing a kernel mode device driver (mouse).
->
-> In that device driver I need the timestamp of the last event for another
-> kernel mode device (keyboard).
->
-> I do not care if that timestamp is in jiffies or in gettimeofday()
-> format or whatever format does exist in the world. I am absolutely sure
-> I can convert it somehow to fit my needs.
->
-> But since it is a kernel mode driver it can not -AFAIK- use the signal()
-> syscall.
->
-> -Hans
+> | > Any details, like kernel version, oops or panic logs, etc.?
+> | 
+> | Kernel version is 2.4.20 (Redhat 9.0 + newest upgrade)
+> | 
+> | The oops and the panic logs were not written down as the major focus
+> | was getting this (production) system up and running, sorry for that
+> 
+> Well, unless someone happens to know something about your exact
+> reported problem....
+> in general, you will get better help/responses the better your
+> problem reports are (IMHO).
 
-Then it gets real simple. Just use jiffies, if you can stand the
-wrap that will occur every (2^32 -1)/HZ seconds ~= 497 days with
-HZ = 100. If not, call sys_gettimeofday(). Also, if your events
-are closer in time than a HZ, then you must get time from
-sys_gettimeofday().
+Perfectly realize that. Found one report of the exact same problem
+on Google. The URL is: 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+http://groups.google.fi/groups?q=hp_ltt+linux&hl=sv&lr=&ie=UTF-8&selm=zDJq.3O5.
+11%40gated-at.bofh.it&rnum=1
 
+The Oops trace for that is:
+kernel BUG in header file at line 162
+kernel BUG at panic.c:141!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[__out_of_line_bug+15/36] Tainted: P
+EFLAGS: 00010086
+eax: 00000026   ebx: f7928a00   ecx: 00000002 edx: 02000000
+esi: c3e8207c   edi: f79ba1f0   ebp: f79ba1d8 esp: f6fabc68
+ds: 0018   es: 0018   ss: 0018
+Process hp_ltt (pid: 590, stackpage=f6fab000)
+Stack: c026fa80 000000a2 c0202f38 000000a2 f7928a00 c3e8207c f79ba1c0 f79ba1d8
+       c02c2934 c0132070 00000000 00000000 ffffffff 00000000 0000000e 00000060
+       00000000 00000002 c0204831 c3e8207c f7928a00 f79ba1c0 0000005a 00000293
+Call Trace:    [mptscsih_AddSGE+200/832] [__alloc_pages+64/352]
+ [mptscsih_qcmd+621/1288]  [scsi_dispatch_cmd+649/904] [scsi_old_done+0/1500]
+ [scsi_request_fn+826/892]  [__scsi_insert_special+110/128]
+ [scsi_insert_special_req+26/32] [scsi_do_req+328/368]
+ [sg_common_write+587/604] [sg_cmd_done_bh+0/912] [sg_new_write+539/576]
+ [sg_ioctl+616/3004] [journal_dirty_metadata+356/396] [__alloc_pages+64/352]
+ [do_wp_page+112/668] [handle_mm_fault+135/184] [do_page_fault+380/1178]
+ [do_page_fault+0/1178] [sys_rt_sigaction+159/324] [sys_ioctl+685/746]
+ [error_code+52/60] [system_call+51/56]
+
+Code: 0f 0b 8d 00 a6 fa 26 c0 eb fe 8d 74 26 00 8d bc 27 00 00 00
+
+-- Dag
 

@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293495AbSB1R1b>; Thu, 28 Feb 2002 12:27:31 -0500
+	id <S293635AbSB1Rcu>; Thu, 28 Feb 2002 12:32:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293525AbSB1RYu>; Thu, 28 Feb 2002 12:24:50 -0500
-Received: from edu.joroinen.fi ([195.156.135.125]:39177 "HELO edu.joroinen.fi")
-	by vger.kernel.org with SMTP id <S293634AbSB1RWl> convert rfc822-to-8bit;
-	Thu, 28 Feb 2002 12:22:41 -0500
-Date: Thu, 28 Feb 2002 19:22:39 +0200 (EET)
-From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
-X-X-Sender: <pk@edu.joroinen.fi>
-To: "David S. Miller" <davem@redhat.com>
-cc: <linux-kernel@vger.kernel.org>, <jgarzik@mandrakesoft.com>,
-        <linux-net@vger.kernel.org>
-Subject: Re: [BETA-0.92] Third test release of Tigon3 driver
-In-Reply-To: <20020227.055102.75257130.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0202281917270.10668-100000@edu.joroinen.fi>
+	id <S293122AbSB1Raa>; Thu, 28 Feb 2002 12:30:30 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:22026
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S293510AbSB1R1c>; Thu, 28 Feb 2002 12:27:32 -0500
+Date: Thu, 28 Feb 2002 09:14:13 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Dave Jones <davej@suse.de>
+cc: Tim Moore <timothymoore@bigfoot.com>, linux-kernel@vger.kernel.org
+Subject: Re: disk transfer speed problem
+In-Reply-To: <20020228125640.A32662@suse.de>
+Message-ID: <Pine.LNX.4.10.10202280910170.24124-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 28 Feb 2002, Dave Jones wrote:
 
-On Wed, 27 Feb 2002, David S. Miller wrote:
+> On Wed, Feb 27, 2002 at 08:51:44PM -0800, Andre Hedrick wrote:
+>  > 
+>  > What is more useful is the cat /proc/ide/ide0/config !!!
+>  > Oh and for those not reading this email, it is a side note on why the ide
+>  > proc-pci interface had best be left alone and in tact. 
+> 
+>  And lspci -xxx is insufficent because?
 
->
-> In the usual place:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/davem/TIGON3/tg3-0.92.patch.gz
->
-> Three changes of note:
->
-> [FEATURE] Yay, real HW acceleration hooks in the 802.1q VLAN layer.
-> 	  Tigon3 takes advantage of it.
-> [BUG FIX] Let tg3_read_partno fail, some boards do not provide the
->           information and it isn't critical to the operation of the
-> 	  driver.
-> [BUG FIX] Minor bug in ETHTOOL_GREGS length handling.
-> [CLEANUP] Use netif_carrier_{ok,on,off}() to keep track of link state.
->
-> If people with real VLANs can try to get the HW acceleration stuff
-> working, I'd really appreciate it.  Especially the person who (GASP)
-> wanted us to put the tasteless NICE stuff into our driver. :-)
->
+You and I know it is the functional equivalent; however, in development of
+driver it is more practical and faster to issue
 
-Heh, I've never looked at the NICE-code.. I just found it working OK for
-me :)
+echo PXX:YY > config
 
-Anyway, I'm going to test this code after a while so I can be sure it
-_should_ work (I have only one production system where I can test this so
-I can't use very buggy drivers in it :)
+setpci XX.YY.Z blah blah ...
 
+So if there is a real issue with its presense, apply a uuid test for
+access.  Everything else has it so this should too.
 
+Cheers,
 
-> Adding support to the Acenic driver should be pretty easy and I'll
-> try to do that before catching some sleep.  Jeff could also probably
-> cook up something quick for the e1000.
->
-
-That would be nice, a common way for hw-vlans is a good thing.
-
-Intel has also their own (kludgy?) way of doing hw-vlans in the current
-driver?
-
-
-- Pasi Kärkkäinen
-
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

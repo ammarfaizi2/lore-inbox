@@ -1,104 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266667AbUGKX0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266671AbUGKXoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266667AbUGKX0O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 19:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266671AbUGKX0O
+	id S266671AbUGKXoY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 19:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUGKXoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 19:26:14 -0400
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:60816 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S266667AbUGKX0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 19:26:08 -0400
-Date: Mon, 12 Jul 2004 00:26:01 +0100
-From: Ian Molton <spyro@f2s.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb@linuxtv.org
-Subject: [DVB] tda1004x frontend regression
-Message-Id: <20040712002601.48427258.spyro@f2s.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
+	Sun, 11 Jul 2004 19:44:24 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:987 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266671AbUGKXoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 19:44:22 -0400
+Date: Mon, 12 Jul 2004 01:44:19 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: A1tmblwd@netscape.net, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] floppy.c: remove superfluous variable initialization
+Message-ID: <20040711234419.GG4701@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Mon__12_Jul_2004_00_26_01_+0100_VQR+WeLAyA7N6c1D"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---Multipart=_Mon__12_Jul_2004_00_26_01_+0100_VQR+WeLAyA7N6c1D
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+One month ago, Kam Leo <A1tmblwd@netscape.net> sent this trivial patch 
+with the following comment:
 
-Hi.
 
-Attached is a diff I've made.
+<--  snip  -->
 
-I tried the 2.6.7-bk20 driver for the tda1004x frontend on my DVB-T card, only to find out that it failed to work, unlike the 2.6.5 driver which appeared to work well.
+Paul Slootman did not remove the superfluous variable 
+initialization which masked the floppy minor bug in 
+drivers/block/floppy.c.  Please add the patch below 
+and close Bug 2770.
 
-I assumed this was due to my firmware being out of date but this was not the case.
+<--  snip  -->
 
-I discovered the problem was related to some additions made to the driver, and commenting them out allowed things to work again. Ther is also a dodgy looking alteration to some pointer (fe->data).
 
-In the course of my fiddling, I added support to the firmware list for the latest (2.17d) firmware.
+Since this is obviously correct, the patch rediffed against 2.6.7-mm7 is 
+below.
 
-all this is in the attached diff, and the driver works in this modified state for me.
 
---Multipart=_Mon__12_Jul_2004_00_26_01_+0100_VQR+WeLAyA7N6c1D
-Content-Type: application/octet-stream;
- name="diff_dvb"
-Content-Disposition: attachment;
- filename="diff_dvb"
-Content-Transfer-Encoding: base64
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
-LS0tIGRyaXZlcnMvbWVkaWEvZHZiL2Zyb250ZW5kcy90ZGExMDA0eC5jLm5ldwkyMDA0LTA3LTEy
-IDAwOjE2OjQxLjAwMDAwMDAwMCArMDEwMAorKysgZHJpdmVycy9tZWRpYS9kdmIvZnJvbnRlbmRz
-L3RkYTEwMDR4LmMJMjAwNC0wNy0xMiAwMDoxMTozNy4wMDAwMDAwMDAgKzAxMDAKQEAgLTE4NCw3
-ICsxODQsOCBAQAogCWludCBmd19vZmZzZXQ7CiAJaW50IGZ3X3NpemU7CiB9Owotc3RhdGljIHN0
-cnVjdCBmd2luZm8gdGRhMTAwNDVoX2Z3aW5mb1tdID0geyB7LmZpbGVfc2l6ZSA9IDI4NjcyMCwu
-Zndfb2Zmc2V0ID0gMHgzNGNjNSwuZndfc2l6ZSA9IDMwNTU1fSB9Oworc3RhdGljIHN0cnVjdCBm
-d2luZm8gdGRhMTAwNDVoX2Z3aW5mb1tdID0geyB7LmZpbGVfc2l6ZSA9IDI4NjcyMCwuZndfb2Zm
-c2V0ID0gMHgzNGNjNSwuZndfc2l6ZSA9IDMwNTU1fSwKKwkJCQkJICAgIHsuZmlsZV9zaXplID0g
-MzAzMTA0LC5md19vZmZzZXQgPSAweDM3ZWY5LC5md19zaXplID0gMzA1NTR9IH07CiBzdGF0aWMg
-aW50IHRkYTEwMDQ1aF9md2luZm9fY291bnQgPSBzaXplb2YodGRhMTAwNDVoX2Z3aW5mbykgLyBz
-aXplb2Yoc3RydWN0IGZ3aW5mbyk7CiAKIHN0YXRpYyBzdHJ1Y3QgZndpbmZvIHRkYTEwMDQ2aF9m
-d2luZm9bXSA9IHsgey5maWxlX3NpemUgPSAyODY3MjAsLmZ3X29mZnNldCA9IDB4M2M0ZjksLmZ3
-X3NpemUgPSAyNDQ3OX0gfTsKQEAgLTEzMDYsNyArMTMwNyw3IEBACiB7CiAJaW50IHN0YXR1cyA9
-IDA7CiAJc3RydWN0IGR2Yl9pMmNfYnVzICppMmMgPSBmZS0+aTJjOwotCXN0cnVjdCB0ZGExMDA0
-eF9zdGF0ZSAqdGRhX3N0YXRlID0gKHN0cnVjdCB0ZGExMDA0eF9zdGF0ZSAqKSBmZS0+ZGF0YTsK
-KwlzdHJ1Y3QgdGRhMTAwNHhfc3RhdGUgKnRkYV9zdGF0ZSA9IChzdHJ1Y3QgdGRhMTAwNHhfc3Rh
-dGUgKikgJihmZS0+ZGF0YSk7CiAKIAlkcHJpbnRrKCIlczogY21kPTB4JXhcbiIsIF9fRlVOQ1RJ
-T05fXywgY21kKTsKIApAQCAtMTM2OCw2ICsxMzY5LDcgQEAKIAkJCXRkYV9zdGF0ZS0+aW5pdGlh
-bGlzZWQgPSAxOwogCQlyZXR1cm4gc3RhdHVzOwogCisjaWYgMAogCWNhc2UgRkVfR0VUX1RVTkVf
-U0VUVElOR1M6CiAJewogCQlzdHJ1Y3QgZHZiX2Zyb250ZW5kX3R1bmVfc2V0dGluZ3MqIGZlc2V0
-dGluZ3MgPSAoc3RydWN0IGR2Yl9mcm9udGVuZF90dW5lX3NldHRpbmdzKikgYXJnOwpAQCAtMTM3
-Niw2ICsxMzc4LDcgQEAKIAkJZmVzZXR0aW5ncy0+bWF4X2RyaWZ0ID0gMTY2NjY3KjI7CiAJCXJl
-dHVybiAwOwogCX0KKyNlbmRpZgogCSAgICAKIAlkZWZhdWx0OgogCQlyZXR1cm4gLUVPUE5PVFNV
-UFA7CkBAIC0xMzkyLDcgKzEzOTUsNyBAQAogICAgICAgICBpbnQgZmVfdHlwZSA9IC0xOwogICAg
-ICAgICBpbnQgdHVuZXJfdHlwZSA9IC0xOwogCXN0cnVjdCB0ZGExMDA0eF9zdGF0ZSB0ZGFfc3Rh
-dGU7Ci0Jc3RydWN0IHRkYTEwMDR4X3N0YXRlKiBwdGRhX3N0YXRlOworLy8Jc3RydWN0IHRkYTEw
-MDR4X3N0YXRlKiBwdGRhX3N0YXRlOwogCXN0cnVjdCBpMmNfbXNnIHR1bmVyX21zZyA9IHsuYWRk
-cj0wLCAuZmxhZ3M9MCwgLmJ1Zj0wLCAubGVuPTAgfTsKICAgICAgICAgc3RhdGljIHU4IHRkMTM0
-NF9pbml0W10gPSB7IDB4MGIsIDB4ZjUsIDB4ODgsIDB4YWIgfTsKICAgICAgICAgc3RhdGljIHU4
-IHRkMTMxNl9pbml0W10gPSB7IDB4MGIsIDB4ZjUsIDB4ODUsIDB4YWIgfTsKQEAgLTE0ODUsMjAg
-KzE0ODgsMjQgQEAKICAgICAgICAgLy8gdXBsb2FkIGZpcm13YXJlCiAgICAgICAgIGlmICgoc3Rh
-dHVzID0gdGRhMTAwNHhfZnd1cGxvYWQoaTJjLCAmdGRhX3N0YXRlKSkgIT0gMCkgcmV0dXJuIHN0
-YXR1czsKIAorI2lmIDAKIAkvLyBjcmVhdGUgdGhlIHJlYWwgc3RhdGUgd2UnbGwgYmUgcGFzc2lu
-ZyBhYm91dAogCWlmICgocHRkYV9zdGF0ZSA9IChzdHJ1Y3QgdGRhMTAwNHhfc3RhdGUqKSBrbWFs
-bG9jKHNpemVvZihzdHJ1Y3QgdGRhMTAwNHhfc3RhdGUpLCBHRlBfS0VSTkVMKSkgPT0gTlVMTCkg
-ewogCQlyZXR1cm4gLUVOT01FTTsKIAl9CiAJbWVtY3B5KHB0ZGFfc3RhdGUsICZ0ZGFfc3RhdGUs
-IHNpemVvZihzdHJ1Y3QgdGRhMTAwNHhfc3RhdGUpKTsKIAkqZGF0YSA9IHB0ZGFfc3RhdGU7Cisj
-ZW5kaWYKIAogCS8vIHJlZ2lzdGVyCiAgICAgICAgIHN3aXRjaCh0ZGFfc3RhdGUuZmVfdHlwZSkg
-ewogICAgICAgICBjYXNlIEZFX1RZUEVfVERBMTAwNDVIOgotCQlyZXR1cm4gZHZiX3JlZ2lzdGVy
-X2Zyb250ZW5kKHRkYTEwMDR4X2lvY3RsLCBpMmMsIHB0ZGFfc3RhdGUsICZ0ZGExMDA0NWhfaW5m
-byk7CisJCXJldHVybiBkdmJfcmVnaXN0ZXJfZnJvbnRlbmQodGRhMTAwNHhfaW9jdGwsIGkyYywg
-KHZvaWQgKikoKigodTMyKikgJnRkYV9zdGF0ZSkpLCAmdGRhMTAwNDVoX2luZm8pOworLy8JCXJl
-dHVybiBkdmJfcmVnaXN0ZXJfZnJvbnRlbmQodGRhMTAwNHhfaW9jdGwsIGkyYywgcHRkYV9zdGF0
-ZSwgJnRkYTEwMDQ1aF9pbmZvKTsKIAogICAgICAgICBjYXNlIEZFX1RZUEVfVERBMTAwNDZIOgot
-CQlyZXR1cm4gZHZiX3JlZ2lzdGVyX2Zyb250ZW5kKHRkYTEwMDR4X2lvY3RsLCBpMmMsIHB0ZGFf
-c3RhdGUsICZ0ZGExMDA0NmhfaW5mbyk7CisJCXJldHVybiBkdmJfcmVnaXN0ZXJfZnJvbnRlbmQo
-dGRhMTAwNHhfaW9jdGwsIGkyYywgKHZvaWQgKikoKigodTMyKikgJnRkYV9zdGF0ZSkpLCAmdGRh
-MTAwNDZoX2luZm8pOworLy8JCXJldHVybiBkdmJfcmVnaXN0ZXJfZnJvbnRlbmQodGRhMTAwNHhf
-aW9jdGwsIGkyYywgcHRkYV9zdGF0ZSwgJnRkYTEwMDQ2aF9pbmZvKTsKICAgICAgICAgfQogCiAg
-ICAgICAgIC8vIHNob3VsZCBub3QgZ2V0IGhlcmUK
+--- linux-2.6.7-mm7-full/drivers/block/floppy.c.old	2004-07-12 01:33:30.000000000 +0200
++++ linux-2.6.7-mm7-full/drivers/block/floppy.c	2004-07-12 01:33:45.000000000 +0200
+@@ -4228,7 +4228,6 @@
+ 	int err, dr;
+ 
+ 	raw_cmd = NULL;
+-	i = 0;
+ 
+ 	for (dr = 0; dr < N_DRIVE; dr++) {
+ 		disks[dr] = alloc_disk(1);
 
---Multipart=_Mon__12_Jul_2004_00_26_01_+0100_VQR+WeLAyA7N6c1D--

@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135181AbREFIMz>; Sun, 6 May 2001 04:12:55 -0400
+	id <S135222AbREFIkk>; Sun, 6 May 2001 04:40:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135186AbREFIMq>; Sun, 6 May 2001 04:12:46 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:37382 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S135181AbREFIMc>;
-	Sun, 6 May 2001 04:12:32 -0400
-Date: Sun, 6 May 2001 10:12:17 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re:  [patch] 2.4 add suffix for uname -r
-Message-ID: <20010506101217.H3988@marowsky-bree.de>
-In-Reply-To: <Pine.LNX.4.33.0105060334390.1549-100000@asdf.capslock.lan> <3437.989135106@ocs3.ocs-net>
+	id <S135217AbREFIka>; Sun, 6 May 2001 04:40:30 -0400
+Received: from ns.suse.de ([213.95.15.193]:29713 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S135216AbREFIkL>;
+	Sun, 6 May 2001 04:40:11 -0400
+Date: Sun, 6 May 2001 10:34:50 +0200
+From: Andi Kleen <ak@suse.de>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: "David S. Miller" <davem@redhat.com>, Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] arp_filter patch for 2.4.4 kernel.
+Message-ID: <20010506103450.A29403@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0105051550000.20277-100000@twinlark.arctic.org> <Pine.LNX.4.33.0105051556280.20277-100000@twinlark.arctic.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.3i
-In-Reply-To: <3437.989135106@ocs3.ocs-net>; from "Keith Owens" on 2001-05-06T17:45:06
-X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0105051556280.20277-100000@twinlark.arctic.org>; from dean-list-linux-kernel@arctic.org on Sat, May 05, 2001 at 03:57:38PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2001-05-06T17:45:06,
-   Keith Owens <kaos@ocs.com.au> said:
+On Sat, May 05, 2001 at 03:57:38PM -0700, dean gaudet wrote:
+> also -- isn't it kind of wrong for arp to respond with addresses from
+> other interfaces?
 
-> You already have a working kernel which you want to rename to use as a
-> backup version.  Changing EXTRAVERSION and recompiling builds a new
-> kernel and adds uncertainty about whether the kernel still works - did
-> you change anything else before recompiling? 
+Usually it makes sense, because it increases your chances of successfull
+communication. IP addresses are owned by the complete host on Linux, not by 
+different interfaces.
 
-You assign a new EXTRAVERSION to the new kernel you are building, and keep the
-old kernel at the old name.
+For some weirder setups (most of them just caused by incorrect routing
+tables, but also a few legimitate ones; including incoming load balancing
+via multipath routes) it causes problems, so arpfilter was invented to 
+sync ARP replies with the routing tables as needed.
 
-Problem solved.
+> 
+> what if ip_forward is 0?  or if there's some other sort of routing policy
+> in effect?
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+ARP filter has nothing to do with forwarding.
 
--- 
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
+There is magic ARP proxying if linux knows the answer to an ARP request
+on a different interface, but it's a completely independent thing.
 
+
+-Andi

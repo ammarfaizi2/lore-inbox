@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbTJWTr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 15:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTJWTr5
+	id S261744AbTJWTyH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 15:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTJWTyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 15:47:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24797 "HELO
+	Thu, 23 Oct 2003 15:54:07 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14301 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261733AbTJWTr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 15:47:56 -0400
-Date: Thu, 23 Oct 2003 21:47:49 +0200
+	id S261744AbTJWTwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 15:52:31 -0400
+Date: Thu, 23 Oct 2003 21:52:24 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: David Brownell <dbrownell@users.sourceforge.net>,
-       Dave Hollis <dhollis@davehollis.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net
-Subject: 2.4.23-pre8: usbnet.c doesn't compile with gcc 2.95
-Message-ID: <20031023194748.GH11807@fs.tum.de>
-References: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
+To: Xose Vazquez Perez <xose@wanadoo.es>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Subject: Re: [patch] 2.4.23-pre8: link error with both megaraid drivers
+Message-ID: <20031023195223.GI11807@fs.tum.de>
+References: <3F97F35D.30101@wanadoo.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
+In-Reply-To: <3F97F35D.30101@wanadoo.es>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the following compile error in 2.4.23-pre8 with gcc 2.95:
+On Thu, Oct 23, 2003 at 05:27:25PM +0200, Xose Vazquez Perez wrote:
+> Adrian Bunk wrote:
+> 
+> > The patch below fixes this issue by disalllowing the static inclusion of
+> > both drivers at the same time.
+> 
+> IMO this patch makes a better job. It only allows one in kernel,
+> and it allows two modules at same time.
+>...
 
-<--  snip  -->
+My patch allows this, too, or what did I miss?
 
-...
-gcc-2.95 -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.23-pre8-full/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6   
--nostdinc -iwithprefix include -DKBUILD_BASENAME=usbnet  -c -o usbnet.o 
-usbnet.c
-usbnet.c:161: warning: `CONFIG_USB_AX8817X' redefined
-/home/bunk/linux/kernel-2.4/linux-2.4.23-pre8-full/include/linux/autoconf.h:2074: 
-warning: this is the location of the previous definition
-usbnet.c: In function `ax8817x_write_cmd_async':
-usbnet.c:496: parse error before `;'
-usbnet.c:501: parse error before `;'
-make[3]: *** [usbnet.o] Error 1
-make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.23-pre8-full/drivers/usb'
+> -thanks-
+> 
+> --- linux/drivers/scsi/Config.in	2003-10-23 16:56:13.000000000 +0200
+> +++ new/drivers/scsi/Config.in	2003-10-23 17:00:51.000000000 +0200
+> @@ -66,8 +66,14 @@
+>  dep_tristate 'AdvanSys SCSI support' CONFIG_SCSI_ADVANSYS $CONFIG_SCSI
+>  dep_tristate 'Always IN2000 SCSI support' CONFIG_SCSI_IN2000 $CONFIG_SCSI
+>  dep_tristate 'AM53/79C974 PCI SCSI support' CONFIG_SCSI_AM53C974 $CONFIG_SCSI $CONFIG_PCI
+> -dep_tristate 'AMI MegaRAID support' CONFIG_SCSI_MEGARAID $CONFIG_SCSI
+> -dep_tristate 'AMI MegaRAID2 support' CONFIG_SCSI_MEGARAID2 $CONFIG_SCSI
+> +
+> +if [ "$CONFIG_SCSI_MEGARAID2" != "y" ]; then
+> +	dep_tristate 'AMI MegaRAID support' CONFIG_SCSI_MEGARAID $CONFIG_SCSI
+> +fi
+> +
+> +if [ "$CONFIG_SCSI_MEGARAID" != "y" ]; then
+> +	dep_tristate 'AMI MegaRAID2 support' CONFIG_SCSI_MEGARAID2 $CONFIG_SCSI
+> +fi
+>  
+>  dep_tristate 'BusLogic SCSI support' CONFIG_SCSI_BUSLOGIC $CONFIG_SCSI
+>  if [ "$CONFIG_SCSI_BUSLOGIC" != "n" ]; then
 
-<--  snip  -->
+The difference between your and my patch is that your patch doesn't 
+allow one in kernel plus the other one modular.
 
 cu
 Adrian

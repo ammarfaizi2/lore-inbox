@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbTDEDsr (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 22:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbTDEDsr (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 22:48:47 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:46683 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S261759AbTDEDsq (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 22:48:46 -0500
-Date: Fri, 4 Apr 2003 22:59:59 -0500 (EST)
-From: Rik van Riel <riel@surriel.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
-       <mingo@elte.hu>, <hugh@veritas.com>, <dmccr@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: objrmap and vmtruncate
-In-Reply-To: <20030405024414.GP16293@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0304042255390.32336-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S261764AbTDED5G (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 22:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTDED5G (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 22:57:06 -0500
+Received: from x101-201-233-dhcp.reshalls.umn.edu ([128.101.201.233]:24735
+	"EHLO minerva") by vger.kernel.org with ESMTP id S261764AbTDED5F (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 22:57:05 -0500
+Date: Fri, 4 Apr 2003 22:08:36 -0600
+From: Matt Reppert <arashi@yomerashi.yi.org>
+To: Richard Henderson <rth@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5.66-bk build failure on LX164
+Message-Id: <20030404220836.2c3f3467.arashi@yomerashi.yi.org>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Apr 2003, Andrea Arcangeli wrote:
+Hi,
 
-> that's wasted memory IMHO, if you need nonlinear, you don't want to
-> waste further metadata, you only want to pin pages in the pagetables,
-> the 'window' over the pagecache (incidentally shm)
+Configured for an EV56 LX164 machine, build fails in kernel/sys.c for me:
 
-Agreed.
+kernel/sys.c:226: conflicting types for `sys_sendmsg'
+include/linux/socket.h:245: previous declaration of `sys_sendmsg'
+kernel/sys.c:227: conflicting types for `sys_recvmsg'
+include/linux/socket.h:246: previous declaration of `sys_recvmsg'
 
-> > > - pte_chain setup and teardown CPU cost.
-> > > 
-> > >   objrmap does not seem to help.  Page clustering might, but is unlikely to
-> > >   be enabled on the machines which actually care about the overhead.
-> > 
-> > eh? Not sure what you mean by that. It helped massively ...
-> > diffprofile from kernbench showed:
-> 
-> Indeed. objrmap is the only way to avoid the big rmap waste. Infact I'm
-> not even convinced about the hybrid approch, rmap should be avoided even
-> for the anon pages. And the swap cpu doesn't matter, as far as we can
-> reach pagteables in linear time that's fine, doesn't matter how many
-> fixed cycles it takes. Only the complexity factor matters, and objrmap
-> takes care of it just fine.
+The sys.c declaration is "cond_syscall (sys_sendmsg)", which expands to
+asmlinkage long sys_sendmsg(void) __attribute__((weak,alias("sys_ni_syscall")));
+using the definition of cond_syscall in include/asm-alpha/unistd.h.
+In socket.h, we have asmlinkage
+"long sys_sendmsg(int fd, struct msghdr *msg, unsigned flags)"
 
-The only issues with objrmap seems to be mremap, which Hugh
-seems to have taken care of, and the case of a large number
-of processes mapping different parts of the same file multiple
-times (1000 processes mapping each 1000 parts of the same file),
-which would grow the complexity of the VMA search from linear
-to quadratical.
-
-That last case is also fixable, though, probably best done using
-k-d trees.
-
-Except for nonlinear VMAs I don't think there are any big obstacles
-left that would keep us from switching to object rmap.
-
-
+Matt

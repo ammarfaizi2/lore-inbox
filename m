@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbTIDRY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 13:24:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbTIDRY0
+	id S265338AbTIDRcu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 13:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265341AbTIDRcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 13:24:26 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:43453 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S265225AbTIDRYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 13:24:23 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Thu, 4 Sep 2003 19:24:21 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
+	Thu, 4 Sep 2003 13:32:50 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:38593 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S265338AbTIDRcr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 13:32:47 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compiling an i386 kernel on AMD Opteron
-Message-Id: <20030904192421.5b176adf.skraw@ithnet.com>
-In-Reply-To: <16215.4277.540644.262286@gargle.gargle.HOWL>
-References: <20030904115209.56e019b1.skraw@ithnet.com>
-	<16215.4277.540644.262286@gargle.gargle.HOWL>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Thu, 4 Sep 2003 10:24:13 -0700 (PDT)
+Subject: Re: serial console on x86
+In-Reply-To: <Pine.LNX.4.53.0309041301060.6201@chaos>
+Message-ID: <Pine.LNX.4.44.0309041023010.18624-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003 12:15:17 +0200
-Mikael Pettersson <mikpe@csd.uu.se> wrote:
+On Thu, 4 Sep 2003, Richard B. Johnson wrote:
 
-> Stephan von Krawczynski writes:
->  > Hello,
->  > 
->  > is it possible to compile a kernel on Opteron for i386 (32-bit) and not 64
->  > bit Opteron with usual make procedures?
->  > 
->  > When I do a simple "make menuconfig" I can only see the Opteron processor
->  > type in "Processor type and features" ...
-> 
-> You need to learn about cross-compilation.
+> On Thu, 4 Sep 2003, David Lang wrote:
+>
+> > I am attempting to install linux (debian 3 based) on some dual athlon
+> > boxes with no video card. The BIOS does include serial console
+> > capabilities
+> >
+> > once the system is installed I have no problem booting from the hard
+> > drive, but when I attempt to boot from a CD to install (ISOLINUX custom
+> > boot disk) I see the lilo prompt, the loading kernel message, the loading
+> > initrd.gz message and then it prints 'Ready.' and reboots the same
+> > bootdisk will work just fine if I install a video card in the machine (and
+> > the same kernel with lilo boots just fine without a video card after it
+> > gets installed)
+> >
+> > any ideas why the kernel may crash before printing any messages in this
+> > situation? I've tried this with 2.4.17 and 2.4.22 with the exact same
+> > results.
+> >
+> > David Lang
+>
+> 	append="console=ttyS0,9600"
+> ... in the lilo configuration works fine in the exact same kernels
+> you cite. However, the CD install does not have the console changed
+> so it will probably not work. The BIOS is never used past the point
+> where the OS is physically loaded so it makes no difference
+> if you have "serial console capabilities" in the BIOS.
 
-Do you really call it cross-compilation if you are working on a 32-bit linux
-(Opteron driven) and try to compile a new kernel for the very same box?
+I have a similar line in the lilo configuration. if there is a video card
+in the system this works and I see the kernel boot over the serial port,
+if there is not a video card it reboots instead of running the kernel.
 
-I guess it should indeed be possible to recognise that at least opterons are
-able to support multiple platforms. That's why I think one should be able to
-select them at menuconfig rather than via make options. Sure this processor is
-somehow unique, on the other hand you are as well able to compile for 386 on a
-P4. I know this is not really comparable but it points roughly in the same
-direction...
+David Lang
 
-Regards,
-Stephan
+> You can readily make an 'init' that opens a serial port if the
+> console failed to open. That's done all the while in embedded
+> systems. You just can't get that off a "distribution disk".
+>
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+>             Note 96.31% of all statistics are fiction.
+>
+>

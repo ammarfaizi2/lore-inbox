@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265259AbSKAA1j>; Thu, 31 Oct 2002 19:27:39 -0500
+	id <S265490AbSKAA0g>; Thu, 31 Oct 2002 19:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265525AbSKAA1j>; Thu, 31 Oct 2002 19:27:39 -0500
-Received: from almesberger.net ([63.105.73.239]:2824 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S265259AbSKAA1h>; Thu, 31 Oct 2002 19:27:37 -0500
-Date: Thu, 31 Oct 2002 21:33:45 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Bernhard Kaindl <bk@suse.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       lkcd-general@lists.sourceforge.net
-Subject: Re: [lkcd-devel] Re: What's left over.
-Message-ID: <20021031213345.D2599@almesberger.net>
-References: <20021031160800.M18072@redhat.com> <Pine.LNX.4.33.0210312221490.6945-100000@wotan.suse.de>
+	id <S265471AbSKAA0g>; Thu, 31 Oct 2002 19:26:36 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:11955 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265459AbSKAA0g>;
+	Thu, 31 Oct 2002 19:26:36 -0500
+Date: Fri, 1 Nov 2002 00:32:38 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, davidel@xmailserver.org,
+       linux-kernel@vger.kernel.org, linux-aio@kvack.org,
+       lse-tech@lists.sourceforge.net, torvalds@transmeta.com, akpm@digeo.com
+Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
+Message-ID: <20021101003238.GA30865@bjl1.asuk.net>
+References: <20021031005259.GA25651@bjl1.asuk.net> <Pine.LNX.4.44.0210301924190.1452-100000@blue1.dev.mcafeelabs.com> <20021031154112.GB27801@bjl1.asuk.net> <1036082758.8575.81.camel@irongate.swansea.linux.org.uk> <20021101090034.42e207e5.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0210312221490.6945-100000@wotan.suse.de>; from bk@suse.de on Thu, Oct 31, 2002 at 11:04:11PM +0100
+In-Reply-To: <20021101090034.42e207e5.rusty@rustcorp.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernhard Kaindl wrote:
-> An analogy to doctors, hospitals and patients:
+Rusty Russell wrote:
+> I think a naive implementation of futex_set_wait would look like:
 
-I have a simpler medical analogy:
+Vaguely.  We are looking for something with the queue-like semantics
+of epoll and rt-signals: persistent (as opposed to one-shot)
+listening, ordered delivery of events, scalable listening to thousands
+at once (without the poll/select O(n) problem).
 
- - in many cases, all you know is that the patient died
-   (e.g. think of a router - it has no console, no user
-   interacting with it, etc.)
- - the Oops tells you the the patient died of a heart failure
-   (NULL pointer dereferenced in this or that function, called
-   from ...)
- - but it's only the autopsy (the crash dump) that reveals that
-   the patient was poisoned, and that this is not a routine
-   case
+> Not sure I get the point about livelock though: deadlock is possible if
+> apps seek multiple locks at once without care, of course.
 
-I view crash dumps as a tool that helps me imagine what the
-machine was doing. Without that, I can learn many interesting
-things about the code, but I won't necessarily find the actual
-bug.
+I'm not sure what Alan meant either.
 
-Examples of non-obvious bugs can be found in the various module
-unload race discussions. There, usually competent people
-suggested incorrect designs, simply because they failed to
-imagine some constellations, and no amount of staring at the
-source could have helped this lack of imagination.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+-- Jamie

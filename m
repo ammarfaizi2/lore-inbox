@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314385AbSDVSMa>; Mon, 22 Apr 2002 14:12:30 -0400
+	id <S314398AbSDVSQg>; Mon, 22 Apr 2002 14:16:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314394AbSDVSM3>; Mon, 22 Apr 2002 14:12:29 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:61799 "EHLO
-	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S314385AbSDVSM2>; Mon, 22 Apr 2002 14:12:28 -0400
-Date: Mon, 22 Apr 2002 19:19:53 +0100
-From: Ian Molton <spyro@armlinux.org>
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Cc: phillips@bonn-fries.net, lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-Id: <20020422191953.034f51d4.spyro@armlinux.org>
-In-Reply-To: <31CB8B22019@vcnet.vc.cvut.cz>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S314405AbSDVSQf>; Mon, 22 Apr 2002 14:16:35 -0400
+Received: from zero.tech9.net ([209.61.188.187]:27913 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S314398AbSDVSQf>;
+	Mon, 22 Apr 2002 14:16:35 -0400
+Subject: Re: 2.5.8: preemption + SMP broken ?
+From: Robert Love <rml@tech9.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: dipankar@in.ibm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020421185705.B155@toy.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 22 Apr 2002 14:16:30 -0400
+Message-Id: <1019499391.934.9.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec Awoke this dragon, who will now respond:
+On Sun, 2002-04-21 at 14:57, Pavel Machek wrote:
 
-> 
->  Why we have kernel tarball at all, then? Just put URLs where you can 
->  download different pieces of kernel, and we are done. You finally
+> Wel, if race is in migration code, you should fix migration, not add
+> preempt_disable(), right? [Or is race preempt-onlly?]
 
-Actually, the kernel tarball is full of crap we dont need.
+I was not sure where the race was - I really did not see a preempt-only
+race there, but I could not pinpoint the cause for an SMP race.  Since
+it was only showing itself as a preempt-related race, I disabled
+preemption.
 
-Sooner or later its going to get too big and be split up into
+Erich Focht later pointed out that interrupts should be disabled in
+migration_init and we sent a patch off to Linus.  I will do some testing
+and see if this fixes it (I suspect it may) and subsequently remove the
+preempt code.
 
-core kernel
-drivers (drivers/net, drivers/video etc.)
-arch specifics
-documentation
+	Robert Love
 
-all for seperate download.

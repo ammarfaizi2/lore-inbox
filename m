@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262901AbVCWUTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbVCWUTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbVCWUTV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 15:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVCWURR
+	id S262896AbVCWUTk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 15:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVCWUTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 15:17:17 -0500
-Received: from smtp-out.tiscali.no ([213.142.64.144]:23570 "EHLO
-	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S262892AbVCWUQD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 15:16:03 -0500
-Subject: Re: forkbombing Linux distributions
-From: Natanael Copa <mlists@tanael.org>
-To: aq <aquynh@gmail.com>
-Cc: Paul Jackson <pj@engr.sgi.com>, Hikaru1@verizon.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <9cde8bff05032310442a4247f2@mail.gmail.com>
-References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
-	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
-	 <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
-	 <9cde8bff050323025663637241@mail.gmail.com> <1111581459.27969.36.camel@nc>
-	 <9cde8bff05032305044f55acf3@mail.gmail.com> <1111586058.27969.72.camel@nc>
-	 <9cde8bff05032309056c9643a7@mail.gmail.com>
-	 <20050323100543.04e582e9.pj@engr.sgi.com>
-	 <9cde8bff05032310442a4247f2@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 23 Mar 2005 21:15:58 +0100
-Message-Id: <1111608959.20101.11.camel@nc>
+	Wed, 23 Mar 2005 15:19:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:20385 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262896AbVCWUTE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 15:19:04 -0500
+Date: Wed, 23 Mar 2005 12:18:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: unable to handle paging request in worker_thread on apm resume
+Message-Id: <20050323121839.18fd0eb1.akpm@osdl.org>
+In-Reply-To: <20050323160652.GB19669@fieldses.org>
+References: <20050322040657.GA28404@fieldses.org>
+	<20050323023344.62ba883b.akpm@osdl.org>
+	<20050323160652.GB19669@fieldses.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-24 at 03:44 +0900, aq wrote:
-> On Wed, 23 Mar 2005 10:05:43 -0800, Paul Jackson <pj@engr.sgi.com> wrote:
-> > > int main() { while(1) { fork(); fork(); exit(); } }
-> > > ...
-> > > the above forkbomb will stop quickly
-> > 
-> > Yep.
-> > 
-> > Try this forkbomb:
-> > 
-> >   int main() { while(1) { if (!fork()) continue; if (!fork()) continue; exit(); } }
-> > 
+"J. Bruce Fields" <bfields@fieldses.org> wrote:
+>
+> > Have you added any code which does schedule_work()?
 > 
-> yep, that is better. but system can still be recovered by killall. 
-> 
-> a little "sleep" will render the system completely useless, like this:
-> 
-> int main() { while(1) { if (!fork()) continue; if (!fork()) continue;
-> sleep(5); exit(0); } }
+>  Hm, I don't think so.  But of course I have some nfsv4 patches, and the
+>  nfsv4 nfsd code does use schedule_delayed_work().  It's possible the
+>  cleanup is wrong, and that bringing nfsd up and down could get nfsv4
+>  into some bad state.  I'll take a look.  Would that explain this?
 
-Interesting.
-
-With the patch I suggested earlier, reducing default max_threads to the
-half in kernel/fork.c, my system survived. (without
-touching /etc/security/limits.conf) Mail notification died because it
-couldn't start any new threads but that was the only thing that
-happened.
-
---
-Natanael Copa
-
+I guess so.  Anything which frees the memory which contains a work_struct
+without having correctly descheduled that work_struct would cause this
+crash.
 

@@ -1,80 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262596AbTJTOl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 10:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbTJTOl3
+	id S262592AbTJTO46 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 10:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTJTO46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 10:41:29 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:21224 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S262596AbTJTOl1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 10:41:27 -0400
-Date: Mon, 20 Oct 2003 23:58:42 +0900 (JST)
-Message-Id: <20031020.235842.126570816.anemo@mba.ocn.ne.jp>
-To: noah@caltech.edu
-Cc: dwmw2@redhat.com, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove needless and non-portable include in mtd
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <Pine.GSO.4.58.0310171454050.13905@blinky>
-References: <Pine.GSO.4.58.0310171454050.13905@blinky>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+	Mon, 20 Oct 2003 10:56:58 -0400
+Received: from svxf1a001p.gps.infracom.it ([217.12.180.1]:20464 "EHLO
+	smtp1.infracom.it") by vger.kernel.org with ESMTP id S262592AbTJTO44
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 10:56:56 -0400
+Date: Mon, 20 Oct 2003 17:00:29 +0200
+From: Antonio Dolcetta <adolcetta@infracom.it>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8-mm1
+Message-Id: <20031020170029.578b1b7a.adolcetta@infracom.it>
+In-Reply-To: <1066656160.4180.3.camel@localhost>
+References: <20031020020558.16d2a776.akpm@osdl.org>
+	<1066656160.4180.3.camel@localhost>
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sun, 19 Oct 2003 21:36:15 -0700 (PDT), "Noah J. Misch" <noah@caltech.edu> said:
+On Mon, 20 Oct 2003 14:22:40 +0100
+Jonathan Brown <jbrown@emergence.uk.net> wrote:
 
-noah> The #include <asm/setup.h> in drivers/mtd/cmdlinepart.c does not
-noah> appear to provide any definition this file uses, and it quickly
-noah> breaks builds on architectures that lack such a header,
-noah> including ia64 and sparc.
+> On Mon, 2003-10-20 at 10:05, Andrew Morton wrote: 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test8/2.6.0-test8-mm1
+> > 
+> > 
+> > . Included a much updated fbdev patch.  Anyone who is using framebuffers,
+> >   please test this.
+> 
+> radeon fb is completely broken. Previously I would get multicoloured
+> garbled text under the penguin over all characters that were visible
+> before radeon fb loaded, but this would scroll away. Now i still get the
+> garbled screen, but every character on the screen has an extra white
+> pixel on producing a grid effect. The kernel then oppses.
+> 
+> This is with a Radeon Mobility M6 LY.
+> 
+>
 
-I have posted a patch including this fix to linux-mtd ML two times
-(two month ago and a week ago).  My patch fixes another problem that
-cmdlinepart.c can not handle zero offset value correctly
-(ex. "mtdparts=id:2M@2M,2M@0").  Please consider applying this fix
-also.  Thank you.
+Working perfectly here with radeon 9000
 
---- mtd-20030811/drivers/mtd/cmdlinepart.c	Fri May 30 07:00:05 2003
-+++ mtd/drivers/mtd/cmdlinepart.c	Tue Aug 12 16:35:43 2003
-@@ -29,7 +29,6 @@
- #include <linux/mtd/mtd.h>
- #include <linux/mtd/partitions.h>
- #include <linux/mtd/compatmac.h>
--#include <asm/setup.h>
- #include <linux/bootmem.h>
- 
- /* error message prefix */
-@@ -45,6 +44,7 @@
- 
- /* special size referring to all the remaining space in a partition */
- #define SIZE_REMAINING 0xffffffff
-+#define OFFSET_CONTINUOUS 0xffffffff
- 
- struct cmdline_mtd_partition {
- 	struct cmdline_mtd_partition *next;
-@@ -77,7 +77,7 @@
- {
- 	struct mtd_partition *parts;
- 	unsigned long size;
--	unsigned long offset = 0;
-+	unsigned long offset = OFFSET_CONTINUOUS;
- 	char *name;
- 	int name_len;
- 	unsigned char *extra_mem;
-@@ -312,7 +312,7 @@
- 		{
- 			for(i = 0, offset = 0; i < part->num_parts; i++)
- 			{
--				if (!part->parts[i].offset)
-+				if (part->parts[i].offset == OFFSET_CONTINUOUS)
- 				  part->parts[i].offset = offset;
- 				else
- 				  offset = part->parts[i].offset;
----
-Atsushi Nemoto
+I start it without passing any option to the kernel and it guesses the
+correct resolution from BIOS (laptop)
+
+radeonfb_pci_register BEGIN
+radeonfb: probed DDR SGRAM 65536k videoram
+radeonfb: Invalid ROM signature 0 should be 0xaa55
+radeonfb: ref_clk=2700, ref_div=67, xclk=16600 defaults
+Starting monitor auto detection...
+Non-DDC laptop panel detected
+radeonfb: Monitor 1 type LCD found
+radeonfb: Monitor 2 type no found
+radeonfb: Asssuming panel size 1400x1050
+radeonfb: ATI Radeon Lf Mobility M9 DDR SGRAM 64 MB
+radeonfb_pci_register END
+
+
+this is actually the first time the radeon framebuffer has worked for me
+that's great!
+
+-- 
+	Antonio Dolcetta

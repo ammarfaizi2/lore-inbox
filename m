@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131122AbRCGRtr>; Wed, 7 Mar 2001 12:49:47 -0500
+	id <S131126AbRCGRw1>; Wed, 7 Mar 2001 12:52:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131125AbRCGRth>; Wed, 7 Mar 2001 12:49:37 -0500
-Received: from balu.sch.bme.hu ([152.66.224.40]:38542 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S131122AbRCGRta>;
-	Wed, 7 Mar 2001 12:49:30 -0500
-Date: Wed, 7 Mar 2001 18:48:53 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: James Stevenson <mistral@stev.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: tts/0: 1 input overrun(s)
-In-Reply-To: <200103062355.f26NtGs01356@stev.org>
-Message-ID: <Pine.GSO.4.30.0103071847250.6179-100000@balu>
+	id <S131131AbRCGRwN>; Wed, 7 Mar 2001 12:52:13 -0500
+Received: from www.wen-online.de ([212.223.88.39]:17423 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131126AbRCGRv7>;
+	Wed, 7 Mar 2001 12:51:59 -0500
+Date: Wed, 7 Mar 2001 18:51:35 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ramdisk (and other) problems with 2.4.2
+In-Reply-To: <Pine.LNX.3.95.1010307121716.1838A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0103071827320.2961-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 Mar 2001, Richard B. Johnson wrote:
 
-On Tue, 6 Mar 2001, James Stevenson wrote:
-> with the serial port it has a buffer when it recives data the
-> serial port buffer will fill up if data is not read quickly enough
-> the buffer will overflow hence the 1 input overrun
+> On Wed, 7 Mar 2001, Mike Galbraith wrote:
 >
-> to fix it your could try to reduce the data rate to the serial port
-> and what type of UART do you have in that port ?
+> > I'd sweat bullets over system integrity if _I_ got this reply ;-)
+> > Something is seriously amiss.
+>
+> Well now the denial phase sets in. This system has run fine for
+> two years. It ran until I tried to use new kernels.
 
-I don't think this should be normal.
-The relevant dmesg part:
-Serial driver version 5.02 (2000-08-09) with MANY_PORTS SHARE_IRQ
-SERIAL_PCI ISAPNP enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
+?? It's not denial Richard.  I showed you your script running here and
+working just fine.  As to your system running fine for two years, all
+I can say is that _every_ system runs fine until it doesn't any more.
 
-I am using 115200.
+There may be a problem elsewhere, but the ramdisk does not display
+the symptom you claimed it would.
 
-Balazs Pozsar.
+> Question. How come you show a lost+found directory in the ramdisk??
+> mke2fs version 1.19 doesn't create one on a ram disk.
 
-> >Hi all,
-> >
-> >I get the following message:
-> > tts/0: 1 input overrun(s)
-> >
-> >each time while downloading pictures from my digital camera via ttyS0,
-> >_and_ switching between an X session and textmode console.
-> >(ie, 1 switch -> 1 error)
-> >
-> >This is with 2.4.1. I don't remember getting these with 2.2
-> >This error also means a transmit error (gphoto reports error and a packet
-> >has to be retransferred.)
-> >
-> >What is this? Why I'm getting it? What should I do? :)
-> >
-> >bye,
-> >Balazs Pozsar.
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
+Well it certainly does create a lost+found here as you can see.  It
+sounds as though you're implying that I dummied up the script output.
+
+> Script started on Wed Mar  7 12:22:20 2001
+> # mke2fs -Fq /dev/ram0 1440
+> mke2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
+> # mount /dev/ram0 /mnt
+> # ls -la /mnt
+> total 0
+> # umount /mnt
+> # exit
+> exit
+>
+> Script done on Wed Mar  7 12:23:21 2001
 >
 >
->
+> Also, check your logs. The errors reported don't go out to stderr.
+> They go to whatever you have set up for kernel errors.
+
+I know what kernel messages are.  There are none.
+
+	-Mike
 

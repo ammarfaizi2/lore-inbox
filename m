@@ -1,63 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbUAXXsi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 18:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbUAXXsi
+	id S263205AbUAXXxq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 18:53:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbUAXXxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 18:48:38 -0500
-Received: from gate.crashing.org ([63.228.1.57]:4062 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263424AbUAXXsg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 18:48:36 -0500
-Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Colin Leroy <colin@colino.net>
-Cc: Hugang <hugang@soulinfo.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       ncunningham@clear.net.nz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
-In-Reply-To: <20040124172800.43495cf3@jack.colino.net>
-References: <20040119105237.62a43f65@localhost>
-	 <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux>
-	 <1074490463.10595.16.camel@gaston> <1074534964.2505.6.camel@laptop-linux>
-	 <1074549790.10595.55.camel@gaston> <20040122211746.3ec1018c@localhost>
-	 <1074841973.974.217.camel@gaston> <20040123183030.02fd16d6@localhost>
-	 <1074912854.834.61.camel@gaston>  <20040124172800.43495cf3@jack.colino.net>
-Content-Type: text/plain
-Message-Id: <1074988008.1262.125.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 25 Jan 2004 10:46:49 +1100
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jan 2004 18:53:46 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:25740 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263205AbUAXXxo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 18:53:44 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 24 Jan 2004 15:53:44 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Felix von Leitner <felix-kernel@fefe.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Request: I/O request recording
+In-Reply-To: <20040124153551.24e74f63.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0401241550350.14163-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-01-25 at 03:28, Colin Leroy wrote:
-> On 24 Jan 2004 at 13h01, Benjamin Herrenschmidt wrote:
+On Sat, 24 Jan 2004, Andrew Morton wrote:
+
+> Felix von Leitner <felix-kernel@fefe.de> wrote:
+> >
+> > I would like to have a user space program that I could run while I cold
+> > start KDE.  The program would then record which I/O pages were read in
+> > which order.  The output of that program could then be used to pre-cache
+> > all those pages, but in an order that reduces disk head movement.
+> > Demand Loading unfortunately produces lots of random page I/O scattered
+> > all over the disk.
 > 
-> Hi, 
+> I wrote a similar thing in September of 2001.  What you do is:
 > 
-> > The patch is against my tree currently, and the arch/ppc/kernel/pmdisk.S file
-> > is appended as-is (not in patch form). 
+> - Reboot the system, wait until everything is steady-state (eg: X has
+>   started, applications are loaded).
 > 
-> Didn't you forget to include include/asm-ppc/suspend.h ? ;-)
+> - Load a kernel module which dumps the current contents of the pagecache
+>   (filename/offset-into-file) into a file.
+> 
+>   (The kernel module writes to modprobe's stdout, so you just do
+> 
+> 	modprobe fboot-dump > /tmp/fboot-dump.out
+> 
+>    I'm very proud of this.)
+> 
+> - Post-process the resulting output into a database which is used on the
+>   next reboot.
+> 
+> - reboot
+> 
+> - This time a userspace application cuts in real early and reads the
+>   database and preloads all the pagecache using "optimal" I/O patterns so
+>   that everything which you will need in the subsequent boot is already in
+>   memory.
+> 
+> 
+> So it's all an attempt to optimise the boot-time I/O patterns.  It was
+> pretty much a waste of time, gaining only 10% or so, from memory.  You
+> could get just as much or more speedup from simply launching all the
+> initscripts in parallel, although this did tend to break stuff.
+> 
+> Anyway, the code's ancient but might provide some ideas:
+> 
+> 	http://www.zip.com.au/~akpm/linux/fboot.tar.gz
 
-Yes, but you could have re-created it easily: 
+Warning. I don't know if they do have a patent for this, but MS does this 
+starting from XP (look inside %WINDIR%\PreFetch). It is both boot and app 
+based.
 
 
-static inline int arch_prepare_suspend(void)
-{
-	return 0;
-}
 
-static inline void save_processor_state(void)
-{
-}
 
-static inline void restore_processor_state(void)
-{
-}
-
+- Davide
 
 

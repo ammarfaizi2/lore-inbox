@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVAMRvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVAMRvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVAMRvO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 12:51:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVAMRtG
+	id S261251AbVAMRvP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVAMRsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 12:49:06 -0500
-Received: from fbxmetz.linbox.com ([81.56.128.63]:9622 "EHLO joebar.metz")
-	by vger.kernel.org with ESMTP id S261265AbVAMRJw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 12:09:52 -0500
-Message-ID: <41E6AB59.4000808@linbox.com>
-Date: Thu, 13 Jan 2005 18:09:45 +0100
-From: Ludovic Drolez <ludovic.drolez@linbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RAIT device driver feasibility
-References: <41E696F4.3070700@linbox.com> <1105630888.4664.54.camel@localhost.localdomain>
-In-Reply-To: <1105630888.4664.54.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jan 2005 12:48:50 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:45779 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261349AbVAMRov
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 12:44:51 -0500
+Date: Thu, 13 Jan 2005 09:44:28 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
+       pbadari@us.ibm.com, markv@us.ibm.com, tytso@us.ibm.com,
+       suparna@in.ibm.com
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+Message-ID: <20050113174428.GD1269@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050107010119.GS1292@us.ibm.com> <20050113025157.GA2849@us.ibm.com> <20050113170712.GA867@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050113170712.GA867@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Iau, 2005-01-13 at 15:42, Ludovic Drolez wrote:
+On Thu, Jan 13, 2005 at 09:07:12AM -0800, Greg KH wrote:
+> On Wed, Jan 12, 2005 at 06:51:57PM -0800, Paul E. McKenney wrote:
+> > 
+> > The current hope is that adding (a) shared and asymmetrically shared
+> > subtrees between namespaces/locations in the same namespace, (b) stackable
+> > LSM modules, and (c) dynamic recursive union mount would enable Linux
+> > to provide this in a technically sound manner.  [But this is not clear
+> > to me yet.]
 > 
->>RAIT already exists in Amanda, in user space, but I'd like to see a generic 
->>kernel RAIT driver which could be used by any backup program.
-> 
-> 
-> Why kernel space - why not a user space shared library you can add to
-> other tape apps?
+> I don't see how (b) has anything to do with this.  Anyone care to
+> explain that?
 
-A shared library which would override read(), write() in the program ? Why not...
+It would allow tracking the processes that are using a given view,
+so that state associated with that view could be cleaned up when the
+last process exits.  One case that motivates this approach:
 
-But do you think you can chain/bounce, ioctl(), read(), writes from a char 
-driver to another ?
+1.	one process creates a view (e.g,. "setview" so that
+	"/vob/foo/bar.c" references version 1.2, just as
+	"/views/v1.2/vob/foo/bar.c" would),
 
-Regards,
+2.	this process forks off several descendants, then exits, and
 
--- 
-Ludovic DROLEZ                              Linbox / Free&ALter Soft
-152 rue de Grigy - Technopole Metz 2000                   57070 METZ
-tel : 03 87 50 87 90                            fax : 03 87 75 19 26
+3.	the descendant processes eventually exit.
+
+The underlying filesystem could use stackable LSM modules to track fork()s
+and exit()s, allowing it to work out when all processes using a given
+view had terminated.
+
+It is quite possible that there is a better way to do this.  Thoughts?
+
+						Thanx, Paul

@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262208AbSL2XYL>; Sun, 29 Dec 2002 18:24:11 -0500
+	id <S262214AbSL2X2p>; Sun, 29 Dec 2002 18:28:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262214AbSL2XYL>; Sun, 29 Dec 2002 18:24:11 -0500
-Received: from mx2out.umbc.edu ([130.85.25.11]:52931 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S262208AbSL2XYK>;
-	Sun, 29 Dec 2002 18:24:10 -0500
-Date: Sun, 29 Dec 2002 18:32:31 -0500 (EST)
-From: Stephen Brown <sbrown7@umbc.edu>
-X-X-Sender: sbrown7@linux3.gl.umbc.edu
-To: linux-kernel@vger.kernel.org
-Subject: Micron Samurai chipset in 2.4.x (ide-pci.c)
-Message-ID: <Pine.LNX.4.44L.01.0212291740470.13872-100000@linux3.gl.umbc.edu>
+	id <S262224AbSL2X2p>; Sun, 29 Dec 2002 18:28:45 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:62861 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262214AbSL2X2o>; Sun, 29 Dec 2002 18:28:44 -0500
+Date: Sun, 29 Dec 2002 14:56:40 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Christoph Hellwig <hch@lst.de>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Bill Irwin <wli@holomorphy.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove CONFIG_X86_NUMA
+Message-ID: <78170000.1041202589@titus>
+In-Reply-To: <20021229234051.A12535@lst.de>
+References: <200212292239.gBTMdPJ12407@localhost.localdomain>
+ <20021229234051.A12535@lst.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Avmilter-Status: Skipped (size)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-	I recently put together a system based on an off-cast mobo from
-a Micron Powerdigm XSU -- dual PII-266 and not much else.  Problem was
-that most of the stock distros failed to boot the system at install.  To
-make a long story short, the Samurai chipset's IDE controller is not
-connected, and there is an Intel PIIX4 to handle the IDE chains --
-unfortunately, both are seen by the PCI probing, and the kernel hangs
-trying to figure out how to handle the Samurai piece.  I was able to get
-the system to boot by unsetting CONFIG_BLOCK_DEV_IDEPCI, but that seemed
-Draconian.  I am now happily running having changed line 290 in
-linux/drivers/ide/ide-pci.c (kernel 2.4.20) from:
-#define INIT_SAMURAI    NULL
-to:
-#define INIT_SAMURAI    IDE_IGNORE
+>> > It's only used to hide two entries in arch/i386/Kconfig.
+>>
+>> The patch looks good.  If it's OK to get rid of X86_NUMA, could you also
+>> move  X86_NUMAQ under the subarch menu?
+>
+> I already wondered about that, but AFAIK a kernel with X86_NUMAQ set
+> still boots on a PeeCee, so it's really an option, not a choice.
 
-	When I checked the changelogs for 2.4.21-pre2, I saw comments
-that the pci subsystem had been reworked, so I tried that patch to no
-avail -- kernel still hangs trying to probe the disconnected IDE
-controller.  However, my workaround is no longer valid, since ide-pci.c
-has been removed from the tree, and I haven't had the time yet to find
-where that functionality now resides (it did seem weird finding all
-those #defines in a .c instead of a .h).
+Nope, it won't boot on a PC - you're probably thinking of Summit,
+which should. I think Bill had a patch to move NUMA-Q already ...
+want to publish that one?
 
-	If anyone wants more info, I can post output from a serial
-console during the unsuccessful boots, and try other investigations as
-needed (at least until class starts again at the end of January).  I'm
-not subscribed to this list (but will be checking the public archives
-frequently) so send mail directly or cc:
-
-Steve Brown
-sbrown7@umbc.edu
-
+M.
 

@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273894AbRIXMzh>; Mon, 24 Sep 2001 08:55:37 -0400
+	id <S273895AbRIXM7h>; Mon, 24 Sep 2001 08:59:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273895AbRIXMz0>; Mon, 24 Sep 2001 08:55:26 -0400
-Received: from compsciinn-gw.customer.ALTER.NET ([157.130.84.134]:16001 "EHLO
-	picard.csihq.com") by vger.kernel.org with ESMTP id <S273894AbRIXMzM>;
-	Mon, 24 Sep 2001 08:55:12 -0400
-Message-ID: <02aa01c144f8$14a461e0$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <andrewm@uow.edu.au>
-Subject: 2.4.10 and ext3
-Date: Mon, 24 Sep 2001 08:54:42 -0400
+	id <S273896AbRIXM7Z>; Mon, 24 Sep 2001 08:59:25 -0400
+Received: from mout03.kundenserver.de ([195.20.224.218]:40566 "EHLO
+	mout03.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S273895AbRIXM7V> convert rfc822-to-8bit; Mon, 24 Sep 2001 08:59:21 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: __alloc_pages: 0-order allocation failed
+Date: Mon, 24 Sep 2001 14:58:28 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20010924040208.A624@localhost.localdomain>
+In-Reply-To: <20010924040208.A624@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15lVKr-0005cC-00@mrvdom00.schlund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Status report...
-Upgraded from 2.4.8 to 2.4.10 (with new 2.4.10 patch).
-This is on a dual PIII/1Ghz FibreChannel 2G RAM
+> I just installed 2.4.10, and...
+> __alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
 
-Single-threaded Seq Read improves a LOT (doubles+)
-Multi-threaded Seq Read improved a bit
-Seq Write improves a LOT
-Rand Write decreases a bit
-All are using less CPU time.
+I saw the same message when running this c++ programm.
 
-Here's 2.4.8
-Linux yeti 2.4.8 #2 SMP Fri Aug 17 05:50:03 EDT 2001 i686 unknown
-Done 9/5/01
-root@yeti:/usr5# tiobench.pl --size 4000
-Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/secd . -T
+int main (int argc, char * argv[]) {
+char * test;
+while (1)
+test=new char[1024];
+}
 
-         File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
-  Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
-------- ------ ------- --- ----------- ----------- ----------- -----------
-   .     4000   4096    1  39.83 30.8% 0.572 0.87% 21.83 55.8% 1.226 0.70%
-   .     4000   4096    2  21.30 21.2% 0.711 1.52% 9.695 70.0% 1.274 1.05%
-   .     4000   4096    4  18.86 19.6% 0.844 1.92% 9.568 70.1% 1.228 1.62%
-   .     4000   4096    8  17.38 18.7% 0.983 2.12% 5.995 98.7% 1.255 1.54%
+My dmesg:
 
-Here's 2.4.10
-tiobench.pl --size 4000
-Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/secd . -T
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c01219e7
+VM: killing process a.out
 
-         File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
-  Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
-------- ------ ------- --- ----------- ----------- ----------- -----------
-   .     4000   4096    1  85.57 46.9% 0.689 0.83% 26.02 28.7% 0.993 0.57%
-   .     4000   4096    2  28.08 16.4% 0.805 1.36% 25.71 36.4% 1.062 0.57%
-   .     4000   4096    4  22.50 13.5% 0.927 1.76% 16.69 26.3% 1.097 0.72%
-   .     4000   4096    8  20.37 12.6% 1.062 2.00% 13.01 21.5% 1.114 0.85%
-
-
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
+I have 512 MB RAM and no swap.
+Actually the system slowed down a lot but worked fine again after the kill.
+And a flood ping from another PC had no lost packages. 
 

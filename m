@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266214AbUHXRk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266825AbUHXRmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266214AbUHXRk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 13:40:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266677AbUHXRk3
+	id S266825AbUHXRmD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 13:42:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUHXRmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 13:40:29 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:24047 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S266214AbUHXRk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 13:40:28 -0400
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Terence Ripperda <tripperda@nvidia.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Michael Geithe <warpy@gmx.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mastergoon@gmail.com
-Subject: Re: 2.6.8.1-mm2 (nvidia breakage)
-X-Message-Flag: Warning: May contain useful information
-References: <20040819092654.27bb9adf.akpm@osdl.org>
-	<200408230930.18659.bjorn.helgaas@hp.com>
-	<20040823190131.GC1303@hygelac>
-	<200408240926.42665.bjorn.helgaas@hp.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 24 Aug 2004 10:36:14 -0700
-In-Reply-To: <200408240926.42665.bjorn.helgaas@hp.com> (Bjorn Helgaas's
- message of "Tue, 24 Aug 2004 09:26:42 -0600")
-Message-ID: <52vff8phf5.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Tue, 24 Aug 2004 13:42:02 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:58538 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S266825AbUHXRlS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 13:41:18 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 24 Aug 2004 17:36:14.0873 (UTC) FILETIME=[DACD3090:01C48A00]
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] [broken?] Add MSI support to e1000
+Date: Tue, 24 Aug 2004 10:40:43 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024061F9C76@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] [broken?] Add MSI support to e1000
+Thread-Index: AcSJmei8aTMh6M0tTHWipRsxPgc0PwAZzf8w
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Andi Kleen" <ak@muc.de>
+Cc: "Roland Dreier" <roland@topspin.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 24 Aug 2004 17:40:44.0444 (UTC) FILETIME=[7B7A75C0:01C48A01]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bjorn> To be pedantically clear about this, looking at
-    Bjorn> pci_dev->irq before calling pci_enable_device() is
-    Bjorn> *guaranteed* to fail, regardless of what the BIOS does.  So
-    Bjorn> nvidia users will have to use "pci=routeirq" until there's
-    Bjorn> a new version of the nvidia driver.
+On Monday, August 23, 2004  Andi Kleen wrote:
+>I guess it's an x86-64 specific issue? Did you test that recently?
 
-Terence, correct me if I'm wrong, but the change to add
-pci_enable_device() goes in the part of the nvidia driver that has
-source available.  So users can apply this patch themselves even
-without another Nvidia release.
+I just tested an x86-64 MSI support in 2.6.8.1 kernel. It works fine.
 
- - Roland
+Thanks,
+Long

@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261455AbTCYFnx>; Tue, 25 Mar 2003 00:43:53 -0500
+	id <S261464AbTCYGPE>; Tue, 25 Mar 2003 01:15:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261461AbTCYFnw>; Tue, 25 Mar 2003 00:43:52 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:3250 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S261455AbTCYFnw>; Tue, 25 Mar 2003 00:43:52 -0500
-Date: Tue, 25 Mar 2003 16:56:13 +1100
-From: CaT <cat@zip.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.66
-Message-ID: <20030325055613.GB464@zip.com.au>
-References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com> <20030325012252.7aafee8c.us15@os.inf.tu-dresden.de> <20030325003048.GC10505@kroah.com> <20030325041802.GA535@zip.com.au> <20030325043454.GJ11874@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030325043454.GJ11874@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	id <S261470AbTCYGPE>; Tue, 25 Mar 2003 01:15:04 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:45549 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261464AbTCYGPD>;
+	Tue, 25 Mar 2003 01:15:03 -0500
+Date: Tue, 25 Mar 2003 07:25:45 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] trivial task_prio() fix
+In-Reply-To: <1048558471.1486.171.camel@phantasy.awol.org>
+Message-ID: <Pine.LNX.4.44.0303250722330.19394-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 08:34:54PM -0800, Greg KH wrote:
-> Do you have the patches I just sent out a few hours ago?
 
-I hadn't applied those (only the ones for 2.5.65-bk?) but I have now
-and currently my cpu temp is a pleasant 37 degrees (I think... I have
-no idea what temp1 and temp2 really mean :)
+On 24 Mar 2003, Robert Love wrote:
 
-> You will need the last one, I've attached it here.  Let me know if it
-> fixes this or not.
+>  int task_prio(task_t *p)
+>  {
+> -	return p->prio - MAX_USER_RT_PRIO;
+> +	return p->prio - MAX_RT_PRIO;
+>  }
 
-I grabbed the entire patchset you posted for 2.5.66 and applied. Booted
-without oops. Me happy. :)
+looks good to me.
 
-Thanks.
+	Ingo
 
--- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to
-kill my dad."
-        - George W. Bush Jr, Leader of the United States Regime
-          September 26, 2002 (from a political fundraiser in Houston, Texas)

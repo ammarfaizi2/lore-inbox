@@ -1,59 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261757AbTCaSMo>; Mon, 31 Mar 2003 13:12:44 -0500
+	id <S261749AbTCaSPm>; Mon, 31 Mar 2003 13:15:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261759AbTCaSMn>; Mon, 31 Mar 2003 13:12:43 -0500
-Received: from gromit.aerasec.de ([195.226.187.57]:61584 "EHLO
-	smtp2.aerasec.de") by vger.kernel.org with ESMTP id <S261757AbTCaSMl>;
-	Mon, 31 Mar 2003 13:12:41 -0500
-X-AV-Checked: Mon Mar 31 20:24:02 2003 smtp2.aerasec.de
-Date: Mon, 31 Mar 2003 20:23:58 +0200
-From: Peter Bieringer <pb@bieringer.de>
-To: usagi-users@linux-ipv6.org, netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, ds6-devel@deepspace6.net
-Subject: Re: (usagi-users 02296) IPv6 duplicate address bugfix
-Message-ID: <9360000.1049135038@worker.muc.bieringer.de>
-In-Reply-To: <20030330122705.GA18283@ferrara.linux.it>
-References: <20030330122705.GA18283@ferrara.linux.it>
-X-Mailer: Mulberry/3.0.3 (Linux/x86)
-X-URL: http://www.bieringer.de/pb/
-X-OS: Linux
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261759AbTCaSPm>; Mon, 31 Mar 2003 13:15:42 -0500
+Received: from pointblue.com.pl ([62.89.73.6]:35340 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id <S261749AbTCaSPk>;
+	Mon, 31 Mar 2003 13:15:40 -0500
+Subject: attempt to free, allready freed memory .. rfc
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: K4 Labs
+Message-Id: <1049134044.945.35.camel@gregs>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 31 Mar 2003 19:07:25 +0100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello !
+As allways, i have a problem. Thus i want ask you for comment.
 
-just my 2 cents, I already saw, that newest USAGI snapshot include a fix.
+Today i had a strange problem with my customers program. It is very
+fresh soft, and they are still strugling with it (developing i meant :-)
+). But they were stucked on very strange problem. 
 
+[explanation of problem in program- ommited]
 
+Problem it self.
 
---On Sunday, March 30, 2003 02:27:05 PM +0200 Simone Piunno
-<pioppo@ferrara.linux.it> wrote:
+this code will be an example.
 
-> When adding an IPv6 address to a given interface, I'm allowed to
-> add that address multiple time, e.g.:
+struct doom{
+        int data1;
+        int data2;
+        void *mydata;
+};
 
-...
+doom doomed;
 
-I didn't dig into any patch and also not into related drafts/RFCs, but one
-scenario should be catched I think - or to be discussed:
+void dosomething_with_data(doom *d)
+{       
+//      .... doing some fancy operations
+//      then..
+        if (d->mydata)
+        {
+                free(d->mydata);
+                d->mydata=NULL;
+        }
+}
 
-Scenario:
+void main()
+{
+        int i,j;
+        void *t;
 
-Address was already added by autoconfiguration on receiving advertisement
-(limited lifetime). Now the same address would be added manually (unlimited
-lifetime).
+        // this program is just not doing anything important :-)
+        
+        t=doomed.mydata=malloc(somenumberofbytes);
+        if (t==NULL){
+                return;
+        }
+        
+        dosomething_with_data(&doomed); 
 
-What (should) happen?
+// plenty of lines and finally ........
+        if (doomed.mydata)
+        {
+                free(doomed.mydata);
+                doomed.mydata=NULL;
+        }
 
-Mho: manual add is allowed, both addresses need to be listed.
+// now i will get strange behavior in other structures
+// seems like it is a memory leak.....
+ 
+}
 
-        Peter
+well, finding this error in somebody software was not easy. 
+Finaly i tested simmilar behavior on windows, and... it was not better.
+But under compilation with m$ comiler in debug mode gived me assert on
+first attempt to free allready freed memory. 
+Is this behavior system has to take ? (i mean segfault)
+which options for gcc i have to use to get assertion in case of such
+error (i guess malloc seats in glibc, thus debug version of this liblary
+might have this). But i am not sure. Waiting for comments. 
+  
+
 -- 
-Dr. Peter Bieringer                     http://www.bieringer.de/pb/
-GPG/PGP Key 0x958F422D               mailto: pb at bieringer dot de 
-Deep Space 6 Co-Founder and Core Member  http://www.deepspace6.net/
+Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+K4 Labs
+

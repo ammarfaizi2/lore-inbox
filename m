@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbTEGJs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 05:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263038AbTEGJs4
+	id S263038AbTEGJzN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 05:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263047AbTEGJzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 05:48:56 -0400
-Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:37034 "EHLO
-	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S263037AbTEGJsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 05:48:55 -0400
-Date: Wed, 7 May 2003 12:01:06 +0200
-From: Guido Guenther <agx@sigxcpu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Keeping the overview
-Message-ID: <20030507100105.GB13672@bogon.ms20.nix>
-References: <20030421141643.GA1054@neon.pearbough.net> <20030421142805.GU19139@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
-Content-Disposition: inline
-In-Reply-To: <20030421142805.GU19139@lug-owl.de>
-User-Agent: Mutt/1.5.3i
+	Wed, 7 May 2003 05:55:13 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:29968 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263038AbTEGJzL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 05:55:11 -0400
+Message-ID: <3EB8DBA0.7020305@aitel.hist.no>
+Date: Wed, 07 May 2003 12:10:40 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
+References: <20030506232326.7e7237ac.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.5.69-mm1 is fine, 2.5.69-mm2 panics after a while even under very
+light load.
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Machine: 2.4GHz Pentium IV UP,
+network card: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
+video: ATI Technologies Inc Radeon RV100 QY [Radeon 7000/VE]
 
-On Mon, Apr 21, 2003 at 04:28:05PM +0200, Jan-Benedict Glaw wrote:
-> ctags may help, as well as LXR (to grovide a hint for non-expert
-> googlers: http://lxr.linux.no/ ).
-cscope comes to mind too - especially since vim knows about it.
- -- Guido
+Kernel config details:
+UP, no module support, devfs, preempt, console on radeonfb
 
---cNdxnHkX5QqsyA0e
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I got the OOPS this way:
+boot normally (with X and network), switch to console
+and log in, play nethack on the console until it oopses.
+It will oops while in X too, but then there's nothing
+visible to write down.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+This is what I managed to write down. The first part scrolled
+off screen with no scrollback - and no logfiles due to the
+"not syncing" part:
 
-iD8DBQE+uNlhn88szT8+ZCYRAuFNAJ9c5BkSmIxYLyiiSGD2ulRVLJF7LACggtk+
-CEdo9PiA5m9Dk1b5di2oxuc=
-=4rKx
------END PGP SIGNATURE-----
+<lost information>
+ip_local_deliver
+ip_local_deliver _finish
+ip_recv_finish
+ip_recv_finish
+nf_hook_slow
+ip_rcv_finish
+ip_rcv
+ip_rcv_finish
+netif_receive_sub
+process_backlog
+net_rx_action
+do_softirq
+do_IRQ
+default_idle
+default_idle
+common_interrupt
+default_idle
+default_idle
+default_idle
+cpu_idle
+rest_init
+start_kernel
+unknown_bootoption
+<0>Kernel panic: Fatal exception in interrupt
+in interrupt handler - not syncing
 
---cNdxnHkX5QqsyA0e--
+Helge Hafting
+
+

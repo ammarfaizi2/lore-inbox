@@ -1,72 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUC3Voi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 16:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUC3Voi
+	id S261375AbUC3VsN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 16:48:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbUC3VsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 16:44:38 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:21382 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S261347AbUC3Vo0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 16:44:26 -0500
-Date: Tue, 30 Mar 2004 23:44:22 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Hans-Peter Jansen <hpj@urpla.net>, linux-kernel@vger.kernel.org
-Subject: Re: VMware-workstation-4.5.1 on linux-2.6.4-x86_64 host fai
-Message-ID: <20040330214422.GH22319@vana.vc.cvut.cz>
-References: <19772436779@vcnet.vc.cvut.cz> <200403241955.38489.hpj@urpla.net> <20040330123331.GB461@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040330123331.GB461@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 30 Mar 2004 16:48:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50818 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261375AbUC3VsC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 16:48:02 -0500
+Message-ID: <4069EB03.9000202@pobox.com>
+Date: Tue, 30 Mar 2004 16:47:47 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
+       dm-devel@redhat.com
+Subject: Re: "Enhanced" MD code avaible for review
+References: <760890000.1079727553@aslan.btc.adaptec.com> <200403261315.20213.kevcorry@us.ibm.com> <1644340000.1080333901@aslan.btc.adaptec.com> <200403270939.29164.kevcorry@us.ibm.com> <842610000.1080666235@aslan.btc.adaptec.com> <4069AB1B.90108@pobox.com> <854630000.1080668158@aslan.btc.adaptec.com> <4069B289.9030807@pobox.com> <866290000.1080669880@aslan.btc.adaptec.com>
+In-Reply-To: <866290000.1080669880@aslan.btc.adaptec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 02:33:31PM +0200, Pavel Machek wrote:
-> Hi!
+Justin T. Gibbs wrote:
+>>>That's unfortunate for those using ATA.  A command submitted from userland
+>>
+>>Required, since one cannot know the data phase of vendor-specific commands.
 > 
-> > Hmm, it's a SuSE issue then, nice to know (and easily fixable ;-).
-> > 
-> > > On 2.6.x kernels additionally (problem you are hitting now)
-> > > SIO*BRIDGE ioctls were moved from "compatible" to "not so
-> > > compatible" group. If you'll just mark them as "compatible", it
-> > > will work sufficiently well to get networking in VMware.
-> > 
-> > I found it. Fixed it with this patch:
-> > 
-> > --- include/linux/compat_ioctl.h~	2004-03-12 18:37:26.000000000 +0100
-> > +++ include/linux/compat_ioctl.h	2004-03-24 12:34:30.000000000 +0100
-> > @@ -247,10 +247,10 @@
-> >  COMPATIBLE_IOCTL(SIOCSIFENCAP)
-> >  COMPATIBLE_IOCTL(SIOCGIFENCAP)
-> >  COMPATIBLE_IOCTL(SIOCSIFNAME)
-> > -/* FIXME: not compatible
-> > +/* FIXME: not compatible */
-> >  COMPATIBLE_IOCTL(SIOCSIFBR)
-> >  COMPATIBLE_IOCTL(SIOCGIFBR)
-> > -*/
-> > +/* reactivated for vmware */
-> >  COMPATIBLE_IOCTL(SIOCSARP)
-> >  COMPATIBLE_IOCTL(SIOCGARP)
-> >  COMPATIBLE_IOCTL(SIOCDARP)
 > 
-> Marking ioctl compatible when it is not is pretty nasty, right? What
-> about writing conversion functions?
+> So you are saying that this presents an unrecoverable situation?
 
-Well, main problem is that VMware uses SIOCSIFBR and SIOCGIFBR with completely
-different semantic than everybody else, and for VMware identical translation
-is correct for SIOCSIFBR. SIOCGIFBR (for which identical translation is
-not correct) does not appear to be used at all.
+No, I'm saying that the data phase need not have a bunch of in-kernel 
+checks, it should be generated correctly from the source.
 
-I'll fill bugreport with VMware. For existing systems correct solution is:
-(1a) Mark SIOCSIFBR as COMPATIBLE_IOCTL.
-(1b) No change is needed for SIOCGIFBR.
-(2) Your bridge control tools must be 64bit app. As they'll not run when built
-    as 32bit app anyway, no big damage is caused here...
 
-							Best regards,
-								Petr Vandrovec
+>>Particularly, checking whether the kernel is doing something wrong, or wrong,
+>>just wastes cycles.  That's not a scalable way to code...  if every driver
+>>and Linux subsystem did that, things would be unbearable slow.
+> 
+> 
+> Hmm.  I've never had someone tell me that my SCSI drivers are slow.
+
+This would be noticed in the CPU utilization area.  Your drivers are 
+probably a long way from being CPU-bound.
+
+
+> I don't think that your statement is true in the general case.  My
+> belief is that validation should occur where it is cheap and efficient
+> to do so.  More expensive checks should be pushed into diagnostic code
+> that is disabled by default, but the code *should be there*.  In any event,
+> for RAID meta-data, we're talking about code that is *not* in the common
+> or time critical path of the kernel.  A few dozen lines of validation code
+> there has almost no impact on the size of the kernel and yields huge
+> benefits for debugging and maintaining the code.  This is even more
+> the case in Linux the end user is often your test lab.
+
+It doesn't scale terribly well, because the checks themselves become a 
+source of bugs.
+
+	Jeff
+
+
 
 

@@ -1,135 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318131AbSGMJJB>; Sat, 13 Jul 2002 05:09:01 -0400
+	id <S318130AbSGMJES>; Sat, 13 Jul 2002 05:04:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318132AbSGMJI7>; Sat, 13 Jul 2002 05:08:59 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:37590 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S318131AbSGMJI4>;
-	Sat, 13 Jul 2002 05:08:56 -0400
-Date: Sat, 13 Jul 2002 05:11:46 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Paul Menage <pmenage@ensim.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Rearranging struct dentry for cache affinity
-In-Reply-To: <E17T7BT-0006zT-00@pmenage-dt.ensim.com>
-Message-ID: <Pine.GSO.4.21.0207130455530.13648-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318131AbSGMJER>; Sat, 13 Jul 2002 05:04:17 -0400
+Received: from surf.viawest.net ([216.87.64.26]:65164 "EHLO surf.viawest.net")
+	by vger.kernel.org with ESMTP id <S318130AbSGMJEP>;
+	Sat, 13 Jul 2002 05:04:15 -0400
+Date: Sat, 13 Jul 2002 02:07:02 -0700
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: Ed Sweetman <safemode@speakeasy.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbd not functioning in 2.5.25-dj2
+Message-ID: <20020713090702.GA1094@wizard.com>
+References: <1026545050.1203.116.camel@psuedomode> <20020713073717.GA9203@wizard.com> <1026547292.1224.132.camel@psuedomode> <1026549957.1224.136.camel@psuedomode>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1026549957.1224.136.camel@psuedomode>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux/2.5.25 (i686)
+X-uptime: 1:50am  up 14 min,  2 users,  load average: 0.15, 0.10, 0.08
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 13, 2002 at 04:45:56AM -0400, Ed Sweetman wrote:
+> Nope, failure.  I'm not getting any reaction from the kernel at all
+> about the keyboard.  I'm including my config 
+> 
+> 
 
+        You have network support compiled in. Are you able to get into the box 
+remotely (ssh, telnet, etc)? If so, get onto the box, and mail me the output 
+of `cat /proc/interrupts. I'd like to confirm something that's on my end as 
+well. my guess is that  IRQ 1 is not listed. Another thing I should mention: 
+I'm encountering this problem with 2.5.25, though I reported this in the 
+2.5.20-dj tree. Vanilla 2.5.25 still has the legacy API there, so I'm able to 
+fall back on that. I haven't run a -dj kernel since 2.5.20-dj3. 
 
-On Fri, 12 Jul 2002, Paul Menage wrote:
+> CONFIG_INPUT=y
+> #
+> # Userland interfaces
+> #
+> CONFIG_INPUT_KEYBDEV=y
+> CONFIG_INPUT_MOUSEDEV=y
+> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+> CONFIG_INPUT_EVDEV=y
+> # CONFIG_INPUT_EVBUG is not set
+> 
+> CONFIG_SERIO=y
+> # CONFIG_SERIO_I8042 is not set
 
-> -	tmp = d_alloc(NULL, &(const struct qstr) {"",0,0});
-> +	tmp = d_alloc(NULL, &(const struct qstr) { });
+        IIRC, CONFIG_SERIO_I8042 must be set for you to have a keyboard 
+present. This is the chipset that the keyboard and mouse use. This has to be 
+set to y.
 
-Ugh.  That changes behaviour and I'm less than sure that it's correct.
->  	if (!tmp)
->  		return NULL;
->  
-> @@ -883,7 +883,10 @@
->  			if (memcmp(dentry->d_name.name, str, len))
->  				continue;
->  		}
-> -		dentry->d_vfs_flags |= DCACHE_REFERENCED;
-> +#ifdef CONFIG_SMP
-> +		if(!(dentry->d_vfs_flags & DCACHE_REFERENCED))
-> +#endif
-> +			dentry->d_vfs_flags |= DCACHE_REFERENCED;
->  		return dentry;
+> CONFIG_I8042_REG_BASE=60
+> CONFIG_I8042_KBD_IRQ=1
+> CONFIG_I8042_AUX_IRQ=12
 
-Absolutely no way.  If anything, lose that CONFIG_SMP - it's too fscking
-ugly.  But I suspect that moving that line to final dput() (see previous
-posting) would work better.
+        Rest looks fine. give that a go, and see what you get.
 
- diff -X /mnt/elbrus/home/pmenage/dontdiff -Naur linux-2.5.25/kernel/futex.c linux-2.5.25-dentry/kernel/futex.c
-> --- linux-2.5.25/kernel/futex.c	Wed Jun 26 01:07:20 2002
-> +++ linux-2.5.25-dentry/kernel/futex.c	Fri Jul 12 13:01:34 2002
-[snip]
-
-Eeek....
-
-futex.c is seriously b0rken.
-
-diff -urN C25/kernel/futex.c C25-current/kernel/futex.c
---- C25/kernel/futex.c	Thu Jun 20 20:28:00 2002
-+++ C25-current/kernel/futex.c	Sat Jul 13 05:07:24 2002
-@@ -48,7 +48,7 @@
- extern void send_sigio(struct fown_struct *fown, int fd, int band);
- 
- /* Everyone needs a dentry and inode */
--static struct dentry *futex_dentry;
-+static struct vfsmount *futex_mnt;
- 
- /* We use this instead of a normal wait_queue_t, so we can wake only
-    the relevent ones (hashed queues may be shared) */
-@@ -272,7 +272,8 @@
- 		return -ENFILE;
- 	}
- 	filp->f_op = &futex_fops;
--	filp->f_dentry = dget(futex_dentry);
-+	filp->f_vfsmnt = mntget(futex_mnt);
-+	filp->f_dentry = dget(futex_mnt->mnt_root);
- 
- 	if (signal) {
- 		filp->f_owner.pid = current->pid;
-@@ -348,46 +349,16 @@
- 	return ret;
- }
- 
--/* FIXME: Oh yeah, makes sense to write a filesystem... */
--static struct super_operations futexfs_ops = { statfs: simple_statfs };
--
--/* Don't check error returns: we're dead if they happen */
--static int futexfs_fill_super(struct super_block *sb, void *data, int silent)
--{
--	struct inode *root;
--
--	sb->s_blocksize = 1024;
--	sb->s_blocksize_bits = 10;
--	sb->s_magic = 0xBAD1DEA;
--	sb->s_op = &futexfs_ops;
--
--	root = new_inode(sb);
--	root->i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
--	root->i_uid = root->i_gid = 0;
--	root->i_atime = root->i_mtime = root->i_ctime = CURRENT_TIME;
--
--	sb->s_root = d_alloc(NULL, &(const struct qstr) { "futex", 5, 0 });
--	sb->s_root->d_sb = sb;
--	sb->s_root->d_parent = sb->s_root;
--	d_instantiate(sb->s_root, root);
--
--	/* We never let this drop to zero. */
--	futex_dentry = dget(sb->s_root);
--
--	return 0;
--}
--
- static struct super_block *
- futexfs_get_sb(struct file_system_type *fs_type,
- 	       int flags, char *dev_name, void *data)
- {
--	return get_sb_nodev(fs_type, flags, data, futexfs_fill_super);
-+	return get_sb_pseudo(fs_type, "futex", NULL, 0xBAD1DEA);
- }
- 
- static struct file_system_type futex_fs_type = {
- 	name:		"futexfs",
- 	get_sb:		futexfs_get_sb,
--	kill_sb:	kill_anon_super,
- };
- 
- static int __init init(void)
-@@ -395,7 +366,7 @@
- 	unsigned int i;
- 
- 	register_filesystem(&futex_fs_type);
--	kern_mount(&futex_fs_type);
-+	futex_mnt = kern_mount(&futex_fs_type);
- 
- 	for (i = 0; i < ARRAY_SIZE(futex_queues); i++)
- 		INIT_LIST_HEAD(&futex_queues[i]);
+                                                        BL.
+-- 
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
 

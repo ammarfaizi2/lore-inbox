@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317586AbSGOSjM>; Mon, 15 Jul 2002 14:39:12 -0400
+	id <S317589AbSGOSoX>; Mon, 15 Jul 2002 14:44:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317589AbSGOSjL>; Mon, 15 Jul 2002 14:39:11 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:20255 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317586AbSGOSjI> convert rfc822-to-8bit; Mon, 15 Jul 2002 14:39:08 -0400
-Date: Mon, 15 Jul 2002 12:41:57 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Dagfinn Ilmari =?iso-8859-1?q?Manns=E5ker?= <ilmari@ping.uio.no>
-cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Killing/removing defunct processes?
-In-Reply-To: <d8jadotqftg.fsf@wirth.ping.uio.no>
-Message-ID: <Pine.LNX.4.44.0207151241350.3452-100000@hawkeye.luckynet.adm>
-X-Location: Canberra; Australia
+	id <S317592AbSGOSoV>; Mon, 15 Jul 2002 14:44:21 -0400
+Received: from esteel10.client.dti.net ([209.73.14.10]:3967 "EHLO
+	shookay.newview.com") by vger.kernel.org with ESMTP
+	id <S317589AbSGOSoQ>; Mon, 15 Jul 2002 14:44:16 -0400
+To: sam@vilain.net (Sam Vilain)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+References: <1026490866.5316.41.camel@thud> <E17U9x9-0001Dc-00@hofmann>
+From: Mathieu Chouquet-Stringer <mathieu@newview.com>
+Date: 15 Jul 2002 14:47:04 -0400
+In-Reply-To: <E17U9x9-0001Dc-00@hofmann>
+Message-ID: <xltlm8c6d7b.fsf@shookay.newview.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+sam@vilain.net (Sam Vilain) writes:
+>   - there is a `dump' command (but it's useless, because it hangs when you
+>     run it on mounted filesystems - come on, who REALLY unmounts their
+>     filesystems for a nightly dump?  You need a 3 way mirror to do it
+>     while guaranteeing filesystem availability...)
 
-On 15 Jul 2002, Dagfinn Ilmari Mannsåker wrote:
-> You want both these options when mounting. It might be possible to do a
-> "mount -o remount,intr /hung/nfs/mount" and then kill, but I'm not sure.
+According to everybody, dump is deprecated (and it shouldn't work reliably
+with 2.4, in two words: "forget it")...
 
-This should only make mount hang in D state, too.
-
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
+    It is exactly because a man cannot do a thing that he is a
+                      proper judge of it.
+                      -- Oscar Wilde

@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUGZCVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264815AbUGZCWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbUGZCVE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 22:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265148AbUGZCVE
+	id S264815AbUGZCWq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 22:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264853AbUGZCWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 22:21:04 -0400
-Received: from lakermmtao01.cox.net ([68.230.240.38]:4569 "EHLO
-	lakermmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S264833AbUGZCUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 22:20:51 -0400
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Transfer-Encoding: 7bit
-Message-Id: <65EFF013-DEAA-11D8-9612-000393ACC76E@mac.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: lkml List <linux-kernel@vger.kernel.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Preliminary Linux Key Infrastructure 0.01-alpha1
-Date: Sun, 25 Jul 2004 22:20:44 -0400
-X-Mailer: Apple Mail (2.618)
+	Sun, 25 Jul 2004 22:22:45 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:4806 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S264815AbUGZCWd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 22:22:33 -0400
+Date: Sun, 25 Jul 2004 21:22:02 -0500
+From: Dimitri Sivanich <sivanich@sgi.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Anton Blanchard <anton@samba.org>, Andi Kleen <ak@suse.de>,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] consolidate sched domains
+Message-ID: <20040726022202.GA21602@sgi.com>
+References: <41008386.9060009@yahoo.com.au> <20040723153022.GA16563@sgi.com> <200407231450.47070.suresh.b.siddha@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407231450.47070.suresh.b.siddha@intel.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Preliminary Linux Key Infrastructure 0.01-alpha1:
+On Fri, Jul 23, 2004 at 02:50:46PM -0700, Siddha, Suresh B wrote:
+> On Friday 23 July 2004 08:30, Dimitri Sivanich wrote:
+> > Do other architectures need to define their own cpu_sibling_maps, or am I
+> > missing something that would define that for IA64 and others?
+> 
+> Nick means, all the architectures which use CONFIG_SCHED_SMT needs to define 
+> cpu_sibling_map.
+> 
+> Nick, aren't you missing the attached fix in your patch?
+> 
+> thanks,
+> suresh
 
-I'm writing a key/keyring infrastructure for the Linux kernel. I've got 
-some of the
-basic infrastructure done, and I'd like any comments on it that you may 
-have.
+Ok, but cpu_to_phys_group() does a lookup in cpu_sibling map:
+__init static int cpu_to_phys_group(int cpu)
+{
+        return first_cpu(cpu_sibling_map[cpu]);
+}
 
-Please note that as yet none of this has been even compile tested, it 
-has
-errors galore, and is still very incomplete.  I have only worked on the 
-in-kernel
-parts of the infrastructure, user-space interfaces and keyctl are on my 
-TODO
-list. :-D
+and is called from outside of a CONFIG_SCHED_SMT ifdef here:
+                sd = &per_cpu(phys_domains, i);
+==>             group = cpu_to_phys_group(i);
+                *sd = SD_CPU_INIT;
+                sd->span = nodemask;
+                sd->parent = p;
+                sd->groups = &sched_group_phys[group];
 
-See below for my current status:
-
-That said, here's a link:
-http://www.tjhsst.edu/~kmoffett/lki.tar.bz2
-
-Completed:
-	lki_key_t & methods
-		A simple key, with a description and a BLOB
-	lki_keytype_t & methods
-		A module-registered key type description including callbacks
-	lki_key_hash_{add,remove,search}
-		Lookup up keys by number
-
-In Progress:
-	lki_keyring_blob_t & methods
-		A special-case of a key. Just needs add and remove key methods
-	permissions model
-		On hold while I learn more about POSIX ACLs and stuff
-	lki_key_handle_t
-		This is my next task, it is barely started
-
-TODO:
-	keyctl:
-		The syscall that makes it all possible
-	keyfs:
-		keys by number: On hold while I learn more about filesystems :-D
-	libinuxkeys:
-		A user-space library linked using "gcc -linuxkeys" :-D
-
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+#ifdef CONFIG_SCHED_SMT
+                p = sd;
+                sd = &per_cpu(cpu_domains, i);
+..
 

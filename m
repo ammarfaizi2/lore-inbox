@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268125AbUHFKrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265764AbUHFLEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268125AbUHFKrS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 06:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268127AbUHFKrS
+	id S265764AbUHFLEL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 07:04:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUHFLEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 06:47:18 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55825 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268125AbUHFKrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 06:47:12 -0400
-Date: Fri, 6 Aug 2004 11:47:08 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adam Belay <ambx1@neo.rr.com>, linux@dominikbrodowski.de, akpm@osdl.org,
-       rml@ximian.com, linux-kernel@vger.kernel.org,
-       linux-pcmcia@lists.infradead.org
-Subject: Re: [PATCH] pcmcia driver model support [1/5]
-Message-ID: <20040806114708.B13653@flint.arm.linux.org.uk>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, linux@dominikbrodowski.de,
-	akpm@osdl.org, rml@ximian.com, linux-kernel@vger.kernel.org,
-	linux-pcmcia@lists.infradead.org
-References: <20040805222026.GA11641@neo.rr.com>
+	Fri, 6 Aug 2004 07:04:11 -0400
+Received: from colin2.muc.de ([193.149.48.15]:61445 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S265764AbUHFLEJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 07:04:09 -0400
+Date: 6 Aug 2004 13:04:08 +0200
+Date: Fri, 6 Aug 2004 13:04:08 +0200
+From: Andi Kleen <ak@muc.de>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: davem@redhat.com, jgarzik@pobox.com, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: block layer sg, bsg
+Message-ID: <20040806110408.GA52468@muc.de>
+References: <20040804232116.GA30152@muc.de> <20040804.165113.06226042.yoshfuji@linux-ipv6.org> <20040805114917.GC31944@muc.de> <20040805.204637.107575718.yoshfuji@linux-ipv6.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040805222026.GA11641@neo.rr.com>; from ambx1@neo.rr.com on Thu, Aug 05, 2004 at 10:20:26PM +0000
+In-Reply-To: <20040805.204637.107575718.yoshfuji@linux-ipv6.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 10:20:26PM +0000, Adam Belay wrote:
-> This patch set is an updated version from the last and is against
-> 2.6.8-rc3.  It includes suggestions from Dominik and an independent
-> pcmcia bugfix.  I would appreciate any comments.
+> I'd suggest changing XFRM_MSG_xxx things to 64bit-aware structures,
+> whose layouts do not change between 64bit mode and 32bit mode.
+> Of course, they will come with backward compatibility stuff.
+> If you don't mind this, I'd like to take care of this.
 
-I'm overall _NOT_ happy with the growing number of people trying to
-"fix" PCMCIA to do what they want it to do.
+If you could take care of it it would be great. 
+Althought I'm not sure how to do it without breaking backwards
+compatibility.
 
-I've recently had davem screaming and shouting his head off at me
-while I was at OLS claiming that PCMCIA network drivers _MUST_ be
-user unloadable at any time, irrespective of the requirements of
-the PCMCIA layer.
-
-It's _VERY_ easy to fuck up the PCMCIA code - we've fucked it up
-several times already and the only way to detect these fuckups is
-to change things _SLOWLY_ and let a full release cycle pass by
-between changes.  Yes, it means that PCMCIA changes take _MONTHS_
-but that's reality.
-
-So please slow down.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-Andi

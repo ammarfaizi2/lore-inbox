@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129186AbQKPFGH>; Thu, 16 Nov 2000 00:06:07 -0500
+	id <S129187AbQKPFSW>; Thu, 16 Nov 2000 00:18:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129380AbQKPFF5>; Thu, 16 Nov 2000 00:05:57 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:16675 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129186AbQKPFFp>; Thu, 16 Nov 2000 00:05:45 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: jamagallon@able.es
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: net mods installed under misc in 2.2.18-pre21 
-In-Reply-To: Your message of "Wed, 15 Nov 2000 11:52:50 BST."
-             <20001115115250.A1231@werewolf.able.es> 
+	id <S129522AbQKPFSN>; Thu, 16 Nov 2000 00:18:13 -0500
+Received: from vega.services.brown.edu ([128.148.19.202]:25817 "EHLO
+	vega.brown.edu") by vger.kernel.org with ESMTP id <S129187AbQKPFSE>;
+	Thu, 16 Nov 2000 00:18:04 -0500
+Message-Id: <4.3.2.7.2.20001115234630.00b1e850@postoffice.brown.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Wed, 15 Nov 2000 23:51:02 -0500
+To: linux-kernel@vger.kernel.org
+From: David Feuer <David_Feuer@brown.edu>
+Subject: Re: 2.4. continues after Aieee...
+In-Reply-To: <200011151630.RAA04141@cave.bitwizard.nl>
+In-Reply-To: <5.0.0.25.0.20001115111100.03572eb0@mail.etinc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 16 Nov 2000 15:35:34 +1100
-Message-ID: <7677.974349334@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2000 11:52:50 +0100, 
-"J . A . Magallon" <jamagallon@able.es> wrote:
->I have noticed that some kernel modules are installed under
->/lib/modules/XXX/misc,
->instead of /net. I have been checking the drivers/net/Makefile (little knowledge
+At 05:30 PM 11/15/2000 +0100, Rogier Wolff wrote:
 
-Known problem.  Fixed with a new make modules_install algorithm in 2.4
-kernels.  Back porting that change to 2.2 would force all 2.2 users to
-upgrade to modutils 2.3.  AC does not want forced user space upgrades
-in the stable kernel (and I agree).  So you are stuck with the broken
-modutles install.
+> > network card driver) and leave the system running make linux unusable in
+> > unattended environments as the machine is functionally dead.
+>
+>Which doesn't help in this case, as your network card COULD be dead,
+>while the system simply hasn't crashed....
+
+Yeah, but it doesn't matter.  The system is no more useful running with a 
+network card than it is rebooting itself.  Just make sure that it doesn't 
+reboot itself more than N times in M hours, and you'll be fine...   The 
+network admin needs to be paged in any case. The network card COULD be 
+dead, in which case the administrator needs to replace it.  Otherwise, a 
+reboot could solve the problem.
+
+--
+This message has been brought to you by the letter alpha and the number pi.
+Open Source: Think locally, act globally.
+David Feuer
+David_Feuer@brown.edu
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

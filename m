@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVBADhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVBADlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVBADhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 22:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVBADeU
+	id S261531AbVBADlb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 22:41:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVBADcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 22:34:20 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:30091 "EHLO
+	Mon, 31 Jan 2005 22:32:52 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:28811 "EHLO
 	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261528AbVBADae (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 22:30:34 -0500
-Message-ID: <1107228519.41fef7678e901@webmail.grupopie.com>
-Date: Tue,  1 Feb 2005 03:28:39 +0000
+	id S261524AbVBADaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 22:30:30 -0500
+Message-ID: <1107228514.41fef7623df85@webmail.grupopie.com>
+Date: Tue,  1 Feb 2005 03:28:34 +0000
 From: "" <pmarques@grupopie.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: "" <linux-kernel@vger.kernel.org>, "" <linux-net@vger.kernel.org>
-Subject: [PATCH 2.6] 6/7 replace net_sysctl_strdup by kstrdup
+Cc: "" <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6] 5/7 use kstrdup library function in net/sunrpc/svcauth_unix.c
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="-MOQ1107228519642d90996170cada1401fe29fd423b47"
+Content-Type: multipart/mixed; boundary="-MOQ11072285143080850994ae54ac67dac6025de02460"
 User-Agent: Internet Messaging Program (IMP) 3.2.2
 X-Originating-IP: 82.154.143.60
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,13 +24,14 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 This message is in MIME format.
 
----MOQ1107228519642d90996170cada1401fe29fd423b47
+---MOQ11072285143080850994ae54ac67dac6025de02460
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
 
 
-This patch removes a strdup implmentation in the networking layer
-(net_sysctl_strdup), and updates it to use the kstrdup library function.
+This patch removes a private strdup in net/sunrpc/svcauth_unix.c, and upd=
+ates it
+to use the kstrdup library function.
 
 Signed-off-by: Paulo Marques <pmarques@grupopie.com>
 
@@ -41,70 +42,25 @@ All that is necessary for the triumph of evil is that good men do nothing=
 .
 Edmund Burke (1729 - 1797)
 
----MOQ1107228519642d90996170cada1401fe29fd423b47
-Content-Type: text/x-diff; name="patch6"
+---MOQ11072285143080850994ae54ac67dac6025de02460
+Content-Type: text/x-diff; name="patch5"
 Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="patch6"
+Content-Disposition: attachment; filename="patch5"
 
-ZGlmZiAtdXByTiAtWCBkb250ZGlmZiB2YW5pbGxhLTIuNi4xMS1yYzItYms5L2luY2x1ZGUvbGlu
-dXgvbmV0ZGV2aWNlLmggbGludXgtMi42LjExLXJjMi1iazkvaW5jbHVkZS9saW51eC9uZXRkZXZp
-Y2UuaAotLS0gdmFuaWxsYS0yLjYuMTEtcmMyLWJrOS9pbmNsdWRlL2xpbnV4L25ldGRldmljZS5o
-CTIwMDUtMDEtMzEgMjA6MDU6MzcuMDAwMDAwMDAwICswMDAwCisrKyBsaW51eC0yLjYuMTEtcmMy
-LWJrOS9pbmNsdWRlL2xpbnV4L25ldGRldmljZS5oCTIwMDUtMDEtMzEgMjM6NTI6MDQuMDAwMDAw
-MDAwICswMDAwCkBAIC05MjksMTAgKzkyOSw2IEBAIGV4dGVybiBpbnQgc2tiX2NoZWNrc3VtX2hl
-bHAoc3RydWN0IHNrX2IKIGV4dGVybiB2b2lkCQluZXRfZW5hYmxlX3RpbWVzdGFtcCh2b2lkKTsK
-IGV4dGVybiB2b2lkCQluZXRfZGlzYWJsZV90aW1lc3RhbXAodm9pZCk7CiAKLSNpZmRlZiBDT05G
-SUdfU1lTQ1RMCi1leHRlcm4gY2hhciAqbmV0X3N5c2N0bF9zdHJkdXAoY29uc3QgY2hhciAqcyk7
-Ci0jZW5kaWYKLQogI2VuZGlmIC8qIF9fS0VSTkVMX18gKi8KIAogI2VuZGlmCS8qIF9MSU5VWF9E
-RVZfSCAqLwpkaWZmIC11cHJOIC1YIGRvbnRkaWZmIHZhbmlsbGEtMi42LjExLXJjMi1iazkvbmV0
-L2NvcmUvc3lzY3RsX25ldF9jb3JlLmMgbGludXgtMi42LjExLXJjMi1iazkvbmV0L2NvcmUvc3lz
-Y3RsX25ldF9jb3JlLmMKLS0tIHZhbmlsbGEtMi42LjExLXJjMi1iazkvbmV0L2NvcmUvc3lzY3Rs
-X25ldF9jb3JlLmMJMjAwNC0xMi0yNCAyMTozNDozMS4wMDAwMDAwMDAgKzAwMDAKKysrIGxpbnV4
-LTIuNi4xMS1yYzItYms5L25ldC9jb3JlL3N5c2N0bF9uZXRfY29yZS5jCTIwMDUtMDEtMzEgMjM6
-NTM6MDUuMDAwMDAwMDAwICswMDAwCkBAIC0zNSwxOSArMzUsNiBAQCBleHRlcm4gaW50IHN5c2N0
-bF9zb21heGNvbm47CiBleHRlcm4gY2hhciBzeXNjdGxfZGl2ZXJ0X3ZlcnNpb25bXTsKICNlbmRp
-ZiAvKiBDT05GSUdfTkVUX0RJVkVSVCAqLwogCi0vKgotICogVGhpcyBzdHJkdXAoKSBpcyB1c2Vk
-IGZvciBjcmVhdGluZyBjb3BpZXMgb2YgbmV0d29yayAKLSAqIGRldmljZSBuYW1lcyB0byBiZSBo
-YW5kZWQgb3ZlciB0byBzeXNjdGwuCi0gKi8KLSAKLWNoYXIgKm5ldF9zeXNjdGxfc3RyZHVwKGNv
-bnN0IGNoYXIgKnMpCi17Ci0JY2hhciAqcnYgPSBrbWFsbG9jKHN0cmxlbihzKSsxLCBHRlBfS0VS
-TkVMKTsKLQlpZiAocnYpCi0JCXN0cmNweShydiwgcyk7Ci0JcmV0dXJuIHJ2OwotfQotCiBjdGxf
-dGFibGUgY29yZV90YWJsZVtdID0gewogI2lmZGVmIENPTkZJR19ORVQKIAl7CkBAIC0xNzcsNiAr
-MTY0LDQgQEAgY3RsX3RhYmxlIGNvcmVfdGFibGVbXSA9IHsKIAl7IC5jdGxfbmFtZSA9IDAgfQog
-fTsKIAotRVhQT1JUX1NZTUJPTChuZXRfc3lzY3RsX3N0cmR1cCk7Ci0KICNlbmRpZgpkaWZmIC11
-cHJOIC1YIGRvbnRkaWZmIHZhbmlsbGEtMi42LjExLXJjMi1iazkvbmV0L2lwdjQvZGV2aW5ldC5j
-IGxpbnV4LTIuNi4xMS1yYzItYms5L25ldC9pcHY0L2RldmluZXQuYwotLS0gdmFuaWxsYS0yLjYu
-MTEtcmMyLWJrOS9uZXQvaXB2NC9kZXZpbmV0LmMJMjAwNS0wMS0zMSAyMDowNTozNC4wMDAwMDAw
-MDAgKzAwMDAKKysrIGxpbnV4LTIuNi4xMS1yYzItYms5L25ldC9pcHY0L2RldmluZXQuYwkyMDA1
-LTAxLTMxIDIzOjU4OjM1LjAwMDAwMDAwMCArMDAwMApAQCAtMTQzOCw3ICsxNDM4LDcgQEAgc3Rh
-dGljIHZvaWQgZGV2aW5ldF9zeXNjdGxfcmVnaXN0ZXIoc3RydQogCSAqIGJ5IHN5c2N0bCBhbmQg
-d2Ugd291bGRuJ3Qgd2FudCBhbnlvbmUgdG8gY2hhbmdlIGl0IHVuZGVyIG91ciBmZWV0CiAJICog
-KHNlZSBTSU9DU0lGTkFNRSkuCiAJICovCQotCWRldl9uYW1lID0gbmV0X3N5c2N0bF9zdHJkdXAo
-ZGV2X25hbWUpOworCWRldl9uYW1lID0ga3N0cmR1cChkZXZfbmFtZSwgR0ZQX0tFUk5FTCk7CiAJ
-aWYgKCFkZXZfbmFtZSkKIAkgICAgZ290byBmcmVlOwogCmRpZmYgLXVwck4gLVggZG9udGRpZmYg
-dmFuaWxsYS0yLjYuMTEtcmMyLWJrOS9uZXQvaXB2Ni9hZGRyY29uZi5jIGxpbnV4LTIuNi4xMS1y
-YzItYms5L25ldC9pcHY2L2FkZHJjb25mLmMKLS0tIHZhbmlsbGEtMi42LjExLXJjMi1iazkvbmV0
-L2lwdjYvYWRkcmNvbmYuYwkyMDA1LTAxLTMxIDIwOjA1OjM0LjAwMDAwMDAwMCArMDAwMAorKysg
-bGludXgtMi42LjExLXJjMi1iazkvbmV0L2lwdjYvYWRkcmNvbmYuYwkyMDA1LTAxLTMxIDIzOjU4
-OjU2LjAwMDAwMDAwMCArMDAwMApAQCAtNTcsNiArNTcsNyBAQAogI2VuZGlmCiAjaW5jbHVkZSA8
-bGludXgvZGVsYXkuaD4KICNpbmNsdWRlIDxsaW51eC9ub3RpZmllci5oPgorI2luY2x1ZGUgPGxp
-bnV4L3N0cmluZy5oPgoKICNpbmNsdWRlIDxuZXQvc29jay5oPgogI2luY2x1ZGUgPG5ldC9zbm1w
-Lmg+CkBAIC0zMzYxLDcgKzMzNjIsNyBAQCBzdGF0aWMgdm9pZCBhZGRyY29uZl9zeXNjdGxfcmVn
-aXN0ZXIoc3RyCiAJICogYnkgc3lzY3RsIGFuZCB3ZSB3b3VsZG4ndCB3YW50IGFueW9uZSB0byBj
-aGFuZ2UgaXQgdW5kZXIgb3VyIGZlZXQKIAkgKiAoc2VlIFNJT0NTSUZOQU1FKS4KIAkgKi8JCi0J
-ZGV2X25hbWUgPSBuZXRfc3lzY3RsX3N0cmR1cChkZXZfbmFtZSk7CisJZGV2X25hbWUgPSBrc3Ry
-ZHVwKGRldl9uYW1lLCBHRlBfS0VSTkVMKTsKIAlpZiAoIWRldl9uYW1lKQogCSAgICBnb3RvIGZy
-ZWU7CgpkaWZmIC11cHJOIC1YIGRvbnRkaWZmIHZhbmlsbGEtMi42LjExLXJjMi1iazkvbmV0L2Nv
-cmUvbmVpZ2hib3VyLmMgbGludXgtMi42LjExLXJjMi1iazkvbmV0L2NvcmUvbmVpZ2hib3VyLmMK
-LS0tIHZhbmlsbGEtMi42LjExLXJjMi1iazkvbmV0L2NvcmUvbmVpZ2hib3VyLmMJMjAwNS0wMS0z
-MSAyMDowNTozNy4wMDAwMDAwMDAgKzAwMDAKKysrIGxpbnV4LTIuNi4xMS1yYzItYms5L25ldC9j
-b3JlL25laWdoYm91ci5jCTIwMDUtMDItMDEgMDI6MDk6MjYuOTc1NjM4NjA0ICswMDAwCkBAIC0z
-Miw2ICszMiw3IEBACiAjaW5jbHVkZSA8bmV0L3NvY2suaD4KICNpbmNsdWRlIDxsaW51eC9ydG5l
-dGxpbmsuaD4KICNpbmNsdWRlIDxsaW51eC9yYW5kb20uaD4KKyNpbmNsdWRlIDxsaW51eC9zdHJp
-bmcuaD4KCiAjZGVmaW5lIE5FSUdIX0RFQlVHIDEKCkBAIC0yMjM5LDcgKzIyNDAsNyBAQCBpbnQg
-bmVpZ2hfc3lzY3RsX3JlZ2lzdGVyKHN0cnVjdCBuZXRfZGV2CiAJCXQtPm5laWdoX3ZhcnNbMTVd
-LmRhdGEgPSAoaW50ICopKHAgKyAxKSArIDM7CiAJfQoKLQlkZXZfbmFtZSA9IG5ldF9zeXNjdGxf
-c3RyZHVwKGRldl9uYW1lX3NvdXJjZSk7CisJZGV2X25hbWUgPSBrc3RyZHVwKGRldl9uYW1lX3Nv
-dXJjZSwgR0ZQX0tFUk5FTCk7CiAJaWYgKCFkZXZfbmFtZSkgewogCQllcnIgPSAtRU5PQlVGUzsK
-IAkJZ290byBmcmVlOwo=
+LS0tIHZhbmlsbGEtMi42LjExLXJjMi1iazkvbmV0L3N1bnJwYy9zdmNhdXRoX3VuaXguYwkyMDA1
+LTAxLTMxIDIwOjA1OjM0LjAwMDAwMDAwMCArMDAwMAorKysgbGludXgtMi42LjExLXJjMi1iazkv
+bmV0L3N1bnJwYy9zdmNhdXRoX3VuaXguYwkyMDA1LTAxLTMxIDIwOjM2OjI4LjUzNjQwMDc5MSAr
+MDAwMApAQCAtOCw2ICs4LDcgQEAKICNpbmNsdWRlIDxsaW51eC9lcnIuaD4KICNpbmNsdWRlIDxs
+aW51eC9zZXFfZmlsZS5oPgogI2luY2x1ZGUgPGxpbnV4L2hhc2guaD4KKyNpbmNsdWRlIDxsaW51
+eC9zdHJpbmcuaD4KIAogI2RlZmluZSBSUENEQkdfRkFDSUxJVFkJUlBDREJHX0FVVEgKIApAQCAt
+MjAsMTQgKzIxLDYgQEAKICAqLwogCiAKLXN0YXRpYyBjaGFyICpzdHJkdXAoY2hhciAqcykKLXsK
+LQljaGFyICpydiA9IGttYWxsb2Moc3RybGVuKHMpKzEsIEdGUF9LRVJORUwpOwotCWlmIChydikK
+LQkJc3RyY3B5KHJ2LCBzKTsKLQlyZXR1cm4gcnY7Ci19Ci0KIHN0cnVjdCB1bml4X2RvbWFpbiB7
+CiAJc3RydWN0IGF1dGhfZG9tYWluCWg7CiAJaW50CWFkZHJfY2hhbmdlczsKQEAgLTU1LDcgKzQ4
+LDcgQEAgc3RydWN0IGF1dGhfZG9tYWluICp1bml4X2RvbWFpbl9maW5kKGNoYQogCWlmIChuZXcg
+PT0gTlVMTCkKIAkJcmV0dXJuIE5VTEw7CiAJY2FjaGVfaW5pdCgmbmV3LT5oLmgpOwotCW5ldy0+
+aC5uYW1lID0gc3RyZHVwKG5hbWUpOworCW5ldy0+aC5uYW1lID0ga3N0cmR1cChuYW1lLCBHRlBf
+S0VSTkVMKTsKIAluZXctPmguZmxhdm91ciA9IFJQQ19BVVRIX1VOSVg7CiAJbmV3LT5hZGRyX2No
+YW5nZXMgPSAwOwogCW5ldy0+aC5oLmV4cGlyeV90aW1lID0gTkVWRVI7Cg==
 
----MOQ1107228519642d90996170cada1401fe29fd423b47--
+---MOQ11072285143080850994ae54ac67dac6025de02460--

@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVCVAbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVCVASv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbVCVAbW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 19:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVCVAaU
+	id S261959AbVCVASv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 19:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVCVASI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 19:30:20 -0500
-Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:55484 "EHLO
-	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262169AbVCVA11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 19:27:27 -0500
+	Mon, 21 Mar 2005 19:18:08 -0500
+Received: from pop2.alphalink.com.au ([202.161.124.206]:35673 "EHLO
+	pop2.alphalink.com.au") by vger.kernel.org with ESMTP
+	id S262163AbVCVAO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 19:14:26 -0500
+From: "Takis Diakoumis" <takisd@alphalink.com.au>
+Reply-to: takisd@alphalink.com.au
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Tue, 22 Mar 2005 11:14:15 +1100
+Subject: Re: 2.6.11 AC patch CD/DVD issues
+X-Mailer: DMailWeb Web to Mail Gateway 2.8e, http://netwinsite.com/top_mail.htm
+Message-id: <423f6357.2ce4.0@alphalink.com.au>
+X-User-Info: 61.29.12.236
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16959.26301.299807.585891@wombat.chubb.wattle.id.au>
-Date: Tue, 22 Mar 2005 11:28:45 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: jniehof@bu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LBD/filesystems over 2TB: is it safe?
-In-Reply-To: <37550.128.197.73.126.1111445738.squirrel@128.197.73.126>
-References: <37550.128.197.73.126.1111445738.squirrel@128.197.73.126>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "jniehof" == jniehof  <jniehof@bu.edu> writes:
+thanks for responding.
 
-jniehof> Someone posted to the LBD list last December regarding some
-jniehof> supposedly horrible bugs in large filesystems:
-jniehof> https://www.gelato.unsw.edu.au/archives/lbd/2004-December/000075.html
-jniehof> https://www.gelato.unsw.edu.au/archives/lbd/2004-December/000074.html
+>> other ata controllers which then report errors as they can't be unloaded
+>> - though i read somewhere on this list that this was by design???).
+>
+>IDE is designed to be compiled in. There is a lot to do to fix that. -ac
+>has hackish unload support in test but the right solution is refcounting
+>and driver model based and is in Bartlomiej's dev tree.
 
-The changes in those emails are irrelevant --- they fail to take into
-account the properties of the filesystems that they modify, that mean
-that the 32-bit quantities being shifted will not overflow.
+should i compile all 'offending' modules into the kernel?
 
-They're typically of the form:
--       iblock = index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
-+	iblock = (sector_t) index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
- 
-Now, on a 32-bit processor with 4k pages, PAGE_CACHE_SHIFT is 12, and
-i_blkbits is also 12 if you're using 4k blocks (which you have to to
-get a large filesystem).  So this does nothing and is safe.  The
-on-disk format for ext[23] uses 32-bit block numbers, so your maximum
-filesystem size is 16TB, and your maximum value of iblock is 2^32-1.
+>> all cd ripping/reading tools for audio/multimedia cds report unable to
+>> initialize /dev/cdrom (a link to cdrom device).
+>
+>Are you sure it points to the right device. I've seen similar reports
+>where
+>/dev/cdrom ended up pointing at the hard disk when the it8212 is added.
+>Seems
+>some distributions get confused when an IDE controller decides it wants
+>to be first.
 
-Please do benchmark XFS and ext3 on your system before choosing.  Our
-tests (to be published in Linux.Conf.Au next month) show that XFS is
-significantly faster for some workloads.
-Also its scalability to very large filesystems is much more mature than ext3.
+sorry, i should have been clearer. i am actually changing the link
+depending on whether the it8212 controller is enabled in the bios. if
+enabled, cdrom is /dev/hdh (dvd is /dev/hdg). if not enabled, cdrom/dvd is
+/dev/hdc and hdd. the links are correct, and like i mentioned in the
+initial post, i can mount data cds/dvds with no issues whether the
+controller is enabled or not. it almost sounds like it thinks the cd and
+dvd drives are hard drives and treating them as such. is there perhaps some
+additional parameter that should be passed to the kernel on boot, perhaps
+with ide-cdrom or similar??
 
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+thanks again for responding.
+Takis

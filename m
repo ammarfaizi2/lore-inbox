@@ -1,73 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264373AbUGMICL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUGMIEC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264373AbUGMICL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 04:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbUGMICL
+	id S264503AbUGMIEC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 04:04:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264550AbUGMIEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 04:02:11 -0400
-Received: from a4.complang.tuwien.ac.at ([128.130.173.65]:7875 "EHLO
-	a4.complang.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S264373AbUGMICE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 04:02:04 -0400
-X-mailer: xrn 9.03-beta-14
-From: anton@mips.complang.tuwien.ac.at (Anton Ertl)
-Subject: Re: XFS: how to NOT null files on fsck?
-To: linux-kernel@vger.kernel.org
-X-Newsgroups: linux.kernel
-In-reply-to: <2hgxc-5x9-9@gated-at.bofh.it>
-References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <200407102143.49838.jk-lkml@sci.fi> <20040710184601.GB5014@taniwha.stupidest.org> <200407101555.27278.norberto+linux-kernel@bensa.ath.cx> <20040710191914.GA5471@taniwha.stupidest.org> <2hgxc-5x9-9@gated-at.bofh.it>
-Cc: Chris Wedgwood <cw@f00f.org>, Jan Knutar <jk-lkml@sci.fi>,
-       L A Walsh <lkml@tlinx.org>
-Date: Tue, 13 Jul 2004 07:25:29 GMT
-Message-ID: <2004Jul13.092529@mips.complang.tuwien.ac.at>
+	Tue, 13 Jul 2004 04:04:02 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:60391 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S264503AbUGMIDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 04:03:39 -0400
+Subject: Re: Preempt Threshold Measurements
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Con Kolivas <kernel@kolivas.org>, devenyga@mcmaster.ca, ck@vds.kolivas.org,
+       linux-kernel@vger.kernel.org, wli@holomorphy.com
+In-Reply-To: <20040712231406.427caa2a.akpm@osdl.org>
+References: <200407121943.25196.devenyga@mcmaster.ca>
+	 <20040713024051.GQ21066@holomorphy.com>
+	 <200407122248.50377.devenyga@mcmaster.ca>
+	 <cone.1089687290.911943.12958.502@pc.kolivas.org>
+	 <20040712210107.1945ac34.akpm@osdl.org>
+	 <cone.1089697919.186986.12958.502@pc.kolivas.org>
+	 <20040712231406.427caa2a.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1089705827.20381.19.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 13 Jul 2004 04:03:47 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood <cw@f00f.org> writes:
->XFS does *not* zero files, it simply returns zeros for unwritten
->extents.  If you open an existing file and scribble all over it, you
->might see the old data during a crash, or the new data if it was
->flushed.  You shouldn't see zero's though.
->
->What does happen though, is that dotfiles are truncated and rewritten,
->if the data blocks aren't flushed you will get zeros back because the
->extents were unwritten.  This is really the only sensible thing to do
->given the circumstances.
->
->My guess is that with other fs' (when journaling metadata only) the
->blocks allocated for the newly written data are *usually* the same as
->the recently freed blocks from the truncate so things appear to work
->but in reality it's probably mostly luck.
+On Tue, 2004-07-13 at 02:14, Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
+> >
+> > Andrew Morton writes:
+> > 
+> > > Con Kolivas <kernel@kolivas.org> wrote:
+> > >> Certainly the do_munmap and exit_mmap seem to be repeat offenders on my 
+> > >> machine too (more the latter in my case).
+> > >> 
+> > > 
+> > > This is a false positive.  Nothing is setting need_resched(), so
+> > > unmap_vmas() doesn't bother dropping the lock.
+> > 
+> > Ok well excluding do_munmap and exit_mmap the ones that have shown up 
+> > (some more frequently than others) are: 
+> > 
+> > 6ms at ksoftirqd+0x6b
+> 
+> Dunno.  There's an unresolved RCU dentry reaping problem, but that's
+> unlikely to occur within ksoftirqd context.
+> 
+> > 2ms at sys_ioctl+0x47
+> 
+> uses lock_kernel() at the top level.  Need to know the call trace to work
+> out who the offender is.  rtc-debug+amlat will tell you that, because it
+> catches the CPU hog while it's being hoggy, rather than after it has
+> finished.
+> 
+> > 2ms at b44_open
+> 
+> Lots of udelays() inside spin_lock_irq().  This is a "don't do that", I
+> suspect.
+> 
+> > 6ms at fget+0x28
+> 
+> Would need to see the amlat trace.
+> 
+> > 2ms at write_ordered_buffers+0x37
+> 
+> reiserfs
+> 
+> > 4ms at blkdev_put+0x48
+> 
+> This can run under one of two depths of lock_kernel.  filemap_fdatawrite()
+> and filemap_fdatawait() both do cond_resched(), so this is odd.
+> 
 
-A secure FS must ensure that other people's deleted data does not end
-up in the file.  AFAIK FSs don't record owners for free blocks, so
-they can only ensure this by zeroing the blocks.  So I doubt that you
-will see any different behaviour from an FS that keeps only meta-data
-consistent and writes meta-data before data.
+Reiserfs uses lock_kernel heavily, could this be related?
 
->Some applications just need to be fixed.
+./include/linux/reiserfs_fs.h:/* Right now we are still falling back to (un)lock_kernel, but eventually that
+./include/linux/reiserfs_fs.h:#define reiserfs_write_lock( sb ) lock_kernel()
+./include/linux/reiserfs_fs.h:#define reiserfs_write_unlock( sb ) unlock_kernel()
 
-It's too hard to fix the applications, since there is no easy way to
-test that they are really fixed.  Also, the number of applications is
-much higher than the number of file systems.
+Lee
 
-The way to go is to fix the file system (well, often it means a new
-FS).
-
-The file system should provide something that I call in-order
-semantics, i.e., that the disk state always represents an existing
-(possibly old) logical state of the FS, not some state that never
-existed, or some existing state with missing data.
-
-My favourite approach to achieve these semantics is based on
-log-structured file systems (see
-<http://www.complang.tuwien.ac.at/anton/lfs/> for some ideas and also
-a longer description of in-order semantics), but there are also other
-approaches: I believe that Soft Updates, when implemented correctly,
-provide in-order semantics, and Reiser4 may provide them, too.
-
-- anton
--- 
-M. Anton Ertl                    Some things have to be seen to be believed
-anton@mips.complang.tuwien.ac.at Most things have to be believed to be seen
-http://www.complang.tuwien.ac.at/anton/home.html

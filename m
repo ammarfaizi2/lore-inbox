@@ -1,91 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVDDSY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVDDS17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVDDSY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 14:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVDDSY7
+	id S261316AbVDDS17 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 14:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVDDS17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 14:24:59 -0400
-Received: from smtp10.wanadoo.fr ([193.252.22.21]:34516 "EHLO
-	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S261236AbVDDSY4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 14:24:56 -0400
-X-ME-UUID: 20050404182454571.8B6462800151@mwinf1008.wanadoo.fr
-Date: Mon, 4 Apr 2005 20:21:44 +0200
-To: Greg KH <greg@kroah.com>
-Cc: Sven Luther <sven.luther@wanadoo.fr>, Michael Poole <mdpoole@troilus.org>,
-       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050404182144.GB31055@pegasos>
-References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com>
+	Mon, 4 Apr 2005 14:27:59 -0400
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:10368 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S261316AbVDDS1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 14:27:50 -0400
+Date: Mon, 4 Apr 2005 11:27:49 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: mmap() and ioctl()
+Message-ID: <20050404182749.GA6464@one-eyed-alien.net>
+Mail-Followup-To: Kernel Developer List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
 Content-Disposition: inline
-In-Reply-To: <20050404175130.GA11257@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2005 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 10:51:30AM -0700, Greg KH wrote:
-> On Mon, Apr 04, 2005 at 04:16:47PM +0200, Sven Luther wrote:
-> > This is just the followup on said discussion, involving the larger LKML
-> > audience, in order to get this fixed for good. As said, it is just a mere
-> > technicality to get out of the muddy situation, all the people having
-> > contributed source-less firmware blobs, need to give us (us being debian, but
-> > also all the linux kernel community) either the source if they persist in
-> > distributing the code under the GPL, or a clear distribution licence for these
-> > firmware blobs, and clearly identificate them as not covered by the GPL that
-> > the file they come in is.
-> 
-> What if we don't want to do so?
 
-You mean, you as copyright holder are not willing to mark the firmware blobs
-as not covered by the GPL, then it is simple, the firmware blob in question is
-covered by the GPL, and since it lacks source, the whole lot is
-non-distributable, and any contributor to the linux kernel can sue
-ftp.kernel.org or whoever else is distributing the kernel code. I don't know
-if users are able to sue you under the GPL for failing to provide the source
-code though.
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Seriously, it is just a couple of lines of comments on top of the file, who in
-his right mind would object to fixing this issue ? 
+This probably is a silly question, but....
 
-> I know I personally posted a solution for this _5_ years ago in debian-legal,
-> and have yet to receive a patch...
+Is is possible to open a file, mmap() it into memory, then pass the address
+of that map via an ioctl() call to the kernel, which will copy_from_user()
+that data?
 
-Well, maybe, but *I* was not there 5 years ago, indeed i believe i didn't even
-was remotely connected to the kernel folks inside debian back then, nor even
-heard of debian-legal, so i would much like to hear of your proposal, care to
-give me a hint about the name of the thread it was in or something ? 
+Yeah, that's an odd concept, I know... I could always malloc() some
+memory, read the file in, and then ioctl() it.  But, if I could get away
+with a direct mmap(), that would be much better for me.
 
-> > Discussing legal issues is all cool and nice for those that appreciates such
-> > sport, but it doesn't really make sense if it is not applied to acts later on.
-> 
-> Then let's see some acts.  We (lkml) are not the ones with the percieved
-> problem, or the ones discussing it.
+Matt
 
-Well, it is currently a violation of the GPL to distribute those firmware
-blobs without clearly saying that they are not covered by the GPL. What is the
-harm that comes by doing that ? All the other dubious points have been set
-aside by the discussion on the thread you probably didn't read. 
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-Right now, the licencing information is only present in the toplevel COPYRIGHT
-file, which is mostly the GPL (excluding user programs :), and since things
-like tg3.c which contain such non-free firmware blobs don't say anything else
-about the copyright of them, they de-facto fall under the toplevel COPYRIGHT,
-including their firmware blobs which lack sources.
+I say, what are all those naked people doing?
+					-- Big client to Stef
+User Friendly, 12/14/1997
 
-All i am asking is that *the copyright holders* of said firmware blobs put a
-little comment on top of the files in question saying, all this driver is
-GPLed, except the firmware blobs, and we give redistribution rights to said
-firmware blobs.
+--TB36FDmn/VVEgNH/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-The mention of acts was for the folk at debian-legal who like speaking a lot
-in circle and not bring anything forward, which your mention of patches above
-confirms :)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Friendly,
+iD8DBQFCUYclIjReC7bSPZARAu4rAJ4mz9HCgM/Tq8adYfN5ZfwF2RR8BACfTtp7
+3jWB16hAdntWzLc2SFxx2D4=
+=6UkS
+-----END PGP SIGNATURE-----
 
-Sven Luther
-
+--TB36FDmn/VVEgNH/--

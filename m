@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265241AbUFHQ0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265248AbUFHQcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265241AbUFHQ0N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 12:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUFHQ0N
+	id S265248AbUFHQcG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 12:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUFHQcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 12:26:13 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:59281 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265241AbUFHQ0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 12:26:12 -0400
-Date: Tue, 8 Jun 2004 17:25:42 +0100
-From: Dave Jones <davej@redhat.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: intel-agp: skip non-AGP devices
-Message-ID: <20040608162542.GH3642@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Matt Domsch <Matt_Domsch@dell.com>,
-	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-References: <20040601160457.GA11437@lists.us.dell.com> <20040601162058.GA20983@infradead.org> <20040601163100.GC1265@redhat.com> <20040608160027.GA13214@lists.us.dell.com> <20040608161745.GA13973@lists.us.dell.com>
+	Tue, 8 Jun 2004 12:32:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42932 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265248AbUFHQcC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 12:32:02 -0400
+Date: Tue, 8 Jun 2004 09:31:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       David Howells <dhowells@redhat.com>
+Subject: Re: downgrade_write replacement in remap_file_pages
+Message-Id: <20040608093111.01a910e9.akpm@osdl.org>
+In-Reply-To: <20040608154438.GK18083@dualathlon.random>
+References: <20040608154438.GK18083@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040608161745.GA13973@lists.us.dell.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 08, 2004 at 11:17:45AM -0500, Matt Domsch wrote:
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> Apparently downgrade_write deadlocks the kernel in the mmap_sem
+> under load. I suspect some rwsem bug. Anyways it's matter of time before
+> in my tree I replace the rwsem implementation with my spinlock based
+> common code implementation again that I can understand trivially (unlike
+> the current code). I don't mind a microoptimization when the code is so
+> complicated, so I don't mind too much to fix whatever current bug in
+> downgrade_write.
 
- > agpgart-bk and -mm didn't add proper PCI ID lists to sworks-agp.c (yet
- > I assume).  Patch below does the same for this as I submitted for
- > Intel previously.  It only prints a warning now if the device is AGP
- > capable but unrecognized.
+I must say I agree with the sentiments - the current implementation doesn't
+have a very attractive complexity/benefit ratio.  But I wrote a
+spinlock-based version three years ago too, so I'm biased ;) Certainly it
+is bog-simple and fixes up the overflow-at-32768-waiters bug.
 
-Cool, thanks Matt. I'll look over the other drivers to double check.
+I think a spinlock-based implementation would be OK if it was x86-specific,
+because x86 spin_unlock is cheap.  But some architectures do atomic ops in
+spin_unlock and won't like it.  Plus those architectures which can
+implement atomic_add_return() can implement nice versions of rwsems such as
+the ppc64 code.  Although ppc64 still seems to have an overflow bug.
 
-		Dave
+So ho-hum.  As a first step, David, could you please take a look into
+what's up with downgrade_write()?
 
-
+(Then again, we need to have a serious think about the overflow bug.  It's
+fatal.  Should we fix it?  If so, the current rwsem implementation is
+probably unsalvageable).

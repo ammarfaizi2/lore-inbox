@@ -1,45 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbULOG17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbULOGjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261905AbULOG17 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 01:27:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbULOG17
+	id S261906AbULOGjp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 01:39:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbULOGjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 01:27:59 -0500
-Received: from [194.90.79.130] ([194.90.79.130]:37137 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S261905AbULOG16 (ORCPT
+	Wed, 15 Dec 2004 01:39:45 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:28051 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261906AbULOGjl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 01:27:58 -0500
-Message-ID: <41BFD966.4010303@argo.co.il>
-Date: Wed, 15 Dec 2004 08:27:50 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@suse.de>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
-References: <41BA698E.8000603@mvista.com> <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com> <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com> <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com> <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random> <41BC1BF9.70701@colorfullife.com> <20041212121546.GM16322@dualathlon.random> <1103060437.14699.27.camel@krustophenia.net> <20041214222307.GB22043@elte.hu>
-In-Reply-To: <20041214222307.GB22043@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Dec 2004 06:27:56.0821 (UTC) FILETIME=[372DC450:01C4E26F]
+	Wed, 15 Dec 2004 01:39:41 -0500
+Date: Wed, 15 Dec 2004 07:36:28 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Time sliced cfq with basic io priorities
+Message-ID: <20041215063628.GL3157@suse.de>
+References: <20041213125046.GG3033@suse.de> <20041213130926.GH3033@suse.de> <20041213175721.GA2721@suse.de> <20041214133725.GG3157@suse.de> <20041214213155.GA2057@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041214213155.GA2057@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+On Tue, Dec 14 2004, Paul E. McKenney wrote:
+> On Tue, Dec 14, 2004 at 02:37:25PM +0100, Jens Axboe wrote:
+> > Hi,
+> > 
+> > Version -12 has been uploaded. Changes:
+> > 
+> > - Small optimization to choose next request logic
+> > 
+> > - An idle queue that exited would waste time for the next process
+> > 
+> > - Request allocation changes. Should get a smooth stream for writes now,
+> >   not as bursty as before. Also simplified the may_queue/check_waiters
+> >   logic, rely more on the regular block rq allocation congestion and
+> >   don't waste sys time doing multiple wakeups.
+> > 
+> > - Fix compilation on x86_64
+> > 
+> > No io priority specific fixes, the above are all to improve the cfq time
+> > slicing.
+> > 
+> > For 2.6.10-rc3-mm1:
+> > 
+> > http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3-mm1/cfq-time-slices-12-2.6.10-rc3-mm1.gz
+> > 
+> > For 2.6-BK:
+> > 
+> > http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3/cfq-time-slices-12.gz
+> 
+> OK...  I confess, I am confused...
+> 
+> I see the comment stating that only one thread updates, hence no need
+> for locking.  But I can't find the readers!  There is a section of
+> code under rcu_read_lock(), but this same function updates the list
+> as well.  If there really is only one updater, then the rcu_read_lock()
+> is not needed, because rcu_read_lock() is only required to protect against
+> concurrent deletion.
+> 
+> Either way, in cfq_exit_io_context(), the list_for_each_safe_rcu() should
+> be able to be simply list_for_each_safe(), since this is apparently the
+> sole updater thread, so no concurrent updates are possible.
+> 
+> If only one task is referencing the list at all, no need for RCU or for
+> any other synchronization mechanism.  If multiple threads are referencing
+> the list, I cannot find any pure readers.  If multiple threads are updating
+> the list, I don't see how they are excluding each other.
+> 
+> Any enlightenment available?  I most definitely need a clue here...
 
->+	if (__kernel_text_address(regs->eip) && *(char *)regs->eip == 0xf4)
->  
->
-shouldn't that cast be (unsigned char *), otherwise the test will always 
-fail?
+No, you are about right :-)
+
+The RCU stuff can go again, because I moved everything to happen under
+the same task. The section under rcu_read_lock() is the reader, it just
+later on moved the hot entry to the front as well which does indeed mean
+it's buggy if there were concurrent updaters. So that's why it's in a
+state of being a little messy right now.
+
+A note on the list itself - a task has a cfq_io_context per queue it's
+doing io against and it needs to be looked up when we this process
+queues io. The task sets this up itself on first io and tears this down
+on exit. So only the task itself ever updates or searches this list.
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+Jens Axboe
 

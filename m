@@ -1,49 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261383AbSJEXDu>; Sat, 5 Oct 2002 19:03:50 -0400
+	id <S261375AbSJEXAy>; Sat, 5 Oct 2002 19:00:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262793AbSJEXDt>; Sat, 5 Oct 2002 19:03:49 -0400
-Received: from uucp.gnuu.de ([151.189.0.84]:17171 "EHLO uucp.gnuu.de")
-	by vger.kernel.org with ESMTP id <S261383AbSJEXDs>;
-	Sat, 5 Oct 2002 19:03:48 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40 - no keyboard
-References: <F134x4FR0rmTIVvLVKi0000fe8b@hotmail.com>
-	<1033857702.742.4389.camel@phantasy>
-From: krause@sdbk.de (Sebastian D.B. Krause)
-Date: Sun, 06 Oct 2002 01:08:29 +0200
-In-Reply-To: <1033857702.742.4389.camel@phantasy> (Robert Love's message of
- "Sun, 06 Oct 2002 00:50:06 +0200")
-Message-ID: <8765wg32mq.fsf@sdbk.de>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
+	id <S262793AbSJEXAy>; Sat, 5 Oct 2002 19:00:54 -0400
+Received: from 25th.com ([12.109.132.50]:19979 "HELO 25th.com")
+	by vger.kernel.org with SMTP id <S261375AbSJEXAx>;
+	Sat, 5 Oct 2002 19:00:53 -0400
+Message-ID: <3D9F7169.8020008@dodinc.com>
+Date: Sat, 05 Oct 2002 19:10:33 -0400
+From: "Lawrence A. Wimble" <law@dodinc.com>
+Reply-To: law@dodinc.com
+Organization: Design On Demand, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Bizarre network issue
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> wrote:
-> On Sat, 2002-10-05 at 18:37, sean darcy wrote:
->> I've built 2.5.40 on a rh8.0 athlon box.  It boots up OK, but NO keyboard.
->> 
->> It's  a vanilla MS natural keyboard with a small DIN PS/2 connector - not 
->> USB. Works fine with 2.4.19 - even prior 2.5.x's.
->> 
->> I noticed that xconfig  Input device support grays out 
->> CONFIG_KEYBOARD_ATKBD. As a test, I hand edited .config. Still didn't work.
->
-> You need to enable serio first.  Something like this:
->
-> 	CONFIG_SERIO=y
-> 	CONFIG_SERIO_I8042=y
-> 	CONFIG_KEYBOARD_ATKBD=y
->
-> should work.
 
-I had the same problem (no keyboard, but I had this problem with all
-prior 2.5.x) as Sean, although I had the correct configuration as
-you show above. It seems that this problem has something to do with
-devfs, because everything worked (even X11, which didn't run, too)
-well after I disabled it.
+Greetings.....
 
-Sebastian
+I am working on a driver for generic serial-based radios (e.g, Coyote 
+Datacomm
+DR-915 and Microhard MHX-910, etc..), that basically allows the radio to 
+be used
+as a network interface, much in the spirit of STRIP.  Kernel is 2.4.8 
+(mandrake 8.1).
+
+Given that the radios pose an "unknown", I have gone to a NULL-modem cable
+
+until this issue is resolved.  Here's what *is* working across my interface:
+
+
+1. ARP ... tcpdump shows both the request AND reply.
+2. PING ... Getting approx 120ms round trip with the MHX-910s (23ms null 
+modem)
+3. UDP ... Works perfectly with netcat in both directions.
+
+Here's what *is not* working:
+
+4. TCP .... tcpdump shows the SYN packet, but no SYN/ACK ever appears
+5. ICMP 3/3 ... If I try a UDP session when there's no-body "listening" 
+on that
+    remote port, no "Port Unreachable" message is ever sent back to the 
+sending host.
+
+The fact that items 1 though 3 work, indicate that 4 and 5 should work 
+as well,
+but they don't.  I have added a debug statement to my driver's 
+"hard_start_xmit"
+routine to write to syslog when it's called.  The kernel does not even 
+appear to
+be calling the routine to respond to TCP SYN's or UDP packets headed for
+an unreachable port.
+
+The worst part of this is that TCP was working fine across this 
+interface about
+a month ago.  When I went to pick up where I left off from is when this 
+behavior
+started to exhibit itself.  Any ideas?
+
+Please CC me personally on responses as I am not subscribed to the list.
+
+TIA,
+Larry
+
+-- 
+Lawrence A. Wimble                          414 NE 3rd Street; Suite B
+Chief Software Engineer                     Crystal River, FL 34429
+Design On Demand, Inc.                      Phone 352-563-1225 x112
+law@dodinc.com                              Fax 352-563-2098
+
+
+

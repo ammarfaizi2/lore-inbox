@@ -1,44 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264186AbTFBVq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 17:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTFBVq7
+	id S264069AbTFBVnF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 17:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbTFBVnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 17:46:59 -0400
-Received: from pat.uio.no ([129.240.130.16]:41391 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264186AbTFBVq6 (ORCPT
+	Mon, 2 Jun 2003 17:43:05 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:56844 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S264069AbTFBVnE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 17:46:58 -0400
-MIME-Version: 1.0
+	Mon, 2 Jun 2003 17:43:04 -0400
+Date: Mon, 2 Jun 2003 23:56:29 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Anders Gustafsson <andersg@0x63.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH] Support for mach-xbox
+Message-ID: <20030602215629.GA11407@mars.ravnborg.org>
+Mail-Followup-To: Anders Gustafsson <andersg@0x63.nu>,
+	linux-kernel@vger.kernel.org
+References: <20030602202714.GD18786@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16091.51200.292233.374385@charged.uio.no>
-Date: Mon, 2 Jun 2003 23:56:16 +0200
-To: Ion Badulescu <ionut@badula.org>
-Cc: "Vivek Goyal" <vivek.goyal@wipro.com>, <indou.takao@jp.fujitsu.com>,
-       <ezk@cs.sunysb.edu>, <viro@math.psu.edu>, <davem@redhat.com>,
-       <nfs@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] Disabling Symbolic Link Content Caching in NFS Client
-In-Reply-To: <200306022037.h52KbNVh012849@buggy.badula.org>
-References: <2BB7146B38D9CA40B215AB3DAAE24C080BA4F3@blr-m2-msg.wipro.com>
-	<200306022037.h52KbNVh012849@buggy.badula.org>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: Please contact postmaster@uio.no for more information
-X-UiO-MailScanner: Found to be clean
+Content-Disposition: inline
+In-Reply-To: <20030602202714.GD18786@h55p111.delphi.afb.lu.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Ion Badulescu <ionut@badula.org> writes:
+On Mon, Jun 02, 2003 at 10:27:14PM +0200, Anders Gustafsson wrote:
+> Hi,
+> 
+> Attached is a patch that adds a new subachitecture for the xbox gaming
+> system. All it does outside the subarchitecture is adding posibility to
+> blacklist pci-devices through an mach-hook.
 
-     > Replacing a couple of time_after() calls with time_after_eq()
-     > calls fixes the issue, at least for hlfsd.
+A few comments.
 
-BTW: the above does not suffice to eliminate all races. Two processes
-owned by different users may still end up waiting on the same call to
-nfs_symlink_filler() no matter how often you choose to update the
-metadata.
+	Sam
 
-Cheers,
- Trond
+> diff -Nru a/arch/i386/boot/compressed/Makefile b/arch/i386/boot/compressed/Makefile
+> --- a/arch/i386/boot/compressed/Makefile	Mon Jun  2 19:23:26 2003
+> +++ b/arch/i386/boot/compressed/Makefile	Mon Jun  2 19:23:26 2003
+> @@ -5,6 +5,9 @@
+>  #
+>  
+>  targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
+> +ifeq ($(CONFIG_X86_XBOX),y)
+> +CFLAGS_misc.o   := -O0
+> +endif
+Add a comment why this special case is needed.
+
+> diff -Nru a/arch/i386/mach-xbox/Makefile b/arch/i386/mach-xbox/Makefile
+> --- /dev/null	Wed Dec 31 16:00:00 1969
+> +++ b/arch/i386/mach-xbox/Makefile	Mon Jun  2 19:23:26 2003
+> @@ -0,0 +1,7 @@
+> +#
+> +# Makefile for the linux kernel.
+> +#
+> +
+> +EXTRA_CFLAGS	+= -I../kernel
+Above line is not needed. Kill it.
+
+> +static void xbox_pic_cmd(u8 command){
+> +	outw_p(((XBOX_PIC_ADDRESS) << 1),XBOX_SMB_HOST_ADDRESS);
+> +        outb_p(SMC_CMD_POWER, XBOX_SMB_HOST_COMMAND);
+> +        outw_p(command, XBOX_SMB_HOST_DATA);
+> +        outw_p(inw(XBOX_SMB_IO_BASE),XBOX_SMB_IO_BASE);
+> +        outb_p(0x0a,XBOX_SMB_GLOBAL_ENABLE);
+> +}
+Follow coding style. See Documentation/CodingStyle
+- Braces on one line
+- Indent with tabs
+

@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130470AbRCDKmV>; Sun, 4 Mar 2001 05:42:21 -0500
+	id <S130472AbRCDK6O>; Sun, 4 Mar 2001 05:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130471AbRCDKmL>; Sun, 4 Mar 2001 05:42:11 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:18134 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130470AbRCDKmE>; Sun, 4 Mar 2001 05:42:04 -0500
-Message-ID: <3AA21C04.D651DB87@uow.edu.au>
-Date: Sun, 04 Mar 2001 21:42:12 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+	id <S130475AbRCDK6F>; Sun, 4 Mar 2001 05:58:05 -0500
+Received: from colorfullife.com ([216.156.138.34]:62983 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130472AbRCDK5u>;
+	Sun, 4 Mar 2001 05:57:50 -0500
+Message-ID: <3AA21FA5.BA370402@colorfullife.com>
+Date: Sun, 04 Mar 2001 11:57:41 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-CC: linux-fbdev-devel@sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-        lad <linux-audio-dev@ginette.musique.umontreal.ca>,
-        James Simmons <jsimmons@linux-fbdev.org>,
-        Brad Douglas <brad@neruo.com>
+To: andrewm@uow.edu.au
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [prepatches] removal of console_lock
-In-Reply-To: <3AA1EF6C.A9C7613E@uow.edu.au> <3AA21866.62907063@wanadoo.fr>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Rousselet wrote:
-> 
-> Andrew Morton wrote:
-> 
-> > This patch fixes it.  Interrupts are enabled across all console operations.
-> >
-> > It's still somewhat a work-in-progress.
-> 
-> The patch applies OK against 2.4.3-pre1
-> At the end of make bzImage I got
-> kerne/kernel.o(.text+0xcd00): undefined reference to 'in_interrupt'
+> - Major revamp of printk(). The approach taken in printk() is to try 
+>   to acquire the (new) console_sem. If we succeed, the output is 
+>   placed into the log buffer and is printed to the consoles. If we fail 
+>   to acquire the semaphore we just buffer the output in the log buffer 
+>   and the current holder of the console_sem will do the printing for us 
+>   prior to releasing console_sem. 
 
-Thanks.  Add a
+Is down_trylock reliable under load?
 
-#include <linux/interrupt.h>
+I remember 2 or 3 bug reports than disappeared after down_trylock was
+removed.
+The last one was this week.
 
-to kernel/pm.c
+http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg31919.html
+
+--
+	Manfred

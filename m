@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272573AbTHFVbu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 17:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272071AbTHFV3j
+	id S272570AbTHFVof (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 17:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272578AbTHFVof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 17:29:39 -0400
-Received: from [81.193.98.149] ([81.193.98.149]:21890 "HELO
-	puma-vgertech.no-ip.com") by vger.kernel.org with SMTP
-	id S271751AbTHFV31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 17:29:27 -0400
-Message-ID: <3F3173D5.8000705@toxyn.org>
-Date: Wed, 06 Aug 2003 22:32:05 +0100
-From: RaTao <ratao@toxyn.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en-us, pt
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.0-test2-mm4 O_DIRECT
-References: <3F30CFC1.1090205@toxyn.org> <20030806121759.50a48626.akpm@osdl.org>
-In-Reply-To: <20030806121759.50a48626.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Aug 2003 17:44:35 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:12425 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S272570AbTHFVob (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 17:44:31 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 6 Aug 2003 23:44:21 +0200 (MEST)
+Message-Id: <UTC200308062144.h76LiLm16781.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, jgarzik@pobox.com
+Subject: Re: Add identify decoding 4/4
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I know full well _why_ the big function is in the header;
+> that doesn't address my point:  we don't need to be putting
+> big functions in header files.  That's why libraries were invented
 
-Hi!
+Well. I chose the most elegant solution I saw.
 
-I've correct my (don't know how) misspelled subject :)
+If you see a better solution, I would like to see it.
+Note that local symbols in several files determine
+whether this function should be compiled or not.
 
-Andrew Morton wrote:
+Also, consider the following.
+This file *is* a library. It contains a hundred
+(in the version you saw half a dozen) one-line
+static inline functions. That is the real library.
+It describes all identify stuff.
+And there is a single large function used for debugging,
+invisible unless a debugging symbol is defined.
 
-[..snip..]
-> 
-> 
-> It works OK here.
-> 
-> 
->>- vmstat doesn't show bi/bo for O_DIRECT's disk access.
-> 
-> 
-> It does here.
-> 
+I cannot see anything wrong with that.
+You are very narrow minded if you are blinded by the
+fact that the name ends in an h.
 
-Maybe goofed somewhere. I can't test it again today, I'll do it tomorrow.
-
-
-> 
-> I'd be suspecting your test app: is it checking the return value of all
-> syscalls?
-
-I'll double check.
-Thanks,
-
-Ratao
-
-
-
+Andries

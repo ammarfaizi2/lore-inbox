@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUDERCT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 13:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUDERCS
+	id S261815AbUDERD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 13:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbUDERD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 13:02:18 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:21741 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263001AbUDERCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 13:02:14 -0400
-Message-Id: <200404051701.i35H1LF26985@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Ray Bryant'" <raybry@sgi.com>
-Cc: "'Andy Whitcroft'" <apw@shadowen.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <anton@samba.org>, <sds@epoch.ncsc.mil>,
-       <ak@suse.de>, <lse-tech@lists.sourceforge.net>,
-       <linux-ia64@vger.kernel.org>
-Subject: RE: [Lse-tech] RE: [PATCH] HUGETLB memory commitment
-Date: Mon, 5 Apr 2004 10:01:21 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQbKdbZIxWn2EmCSVWnXfzvVQEtdQABLDow
-In-Reply-To: <40717AA8.9050900@sgi.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Mon, 5 Apr 2004 13:03:28 -0400
+Received: from ce.fis.unam.mx ([132.248.33.1]:42112 "EHLO ce.fis.unam.mx")
+	by vger.kernel.org with ESMTP id S261815AbUDERDY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 13:03:24 -0400
+From: Max Valdez <maxvalde@fis.unam.mx>
+Organization: CCF
+To: Marco Roeland <marco.roeland@xs4all.nl>
+Subject: Re: kernel BUG at page_alloc.c:98 -- compiling with distcc
+Date: Mon, 5 Apr 2004 12:03:09 -0500
+User-Agent: KMail/1.6.51
+Cc: Marco Fais <marco.fais@abbeynet.it>, linux-kernel@vger.kernel.org
+References: <406D3E8F.20902@abbeynet.it> <6.0.0.22.2.20040402163334.02abe7d8@pop.localnet> <20040402150535.GA13340@localhost>
+In-Reply-To: <20040402150535.GA13340@localhost>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404051203.09954.maxvalde@fis.unam.mx>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> Ray Bryant wrote on Mon, April 05, 2004 8:27 AM
-> Chen, Kenneth W wrote:
->
-> >
-> > A simple counter won't work for different file offset mapping.  It has to
-> > be some sort of per-inode, per-block reservation tracking.  I think we are
-> > steering in the right direction though.
-> >
-> >
->
-> OK, pardon my question about test code, that is trivial enough I guess.
->
-> Anyway, the only way I can see to make this work with non-zero offset is to
-> hang a list of segment descriptors (offset and size) for each reserved segment
-> off of the inode.  Then when a new mapping comes in, we search the segment
-> list to see if the new offset and size overlaps with any of the existing
-> reserved segments.  If it doesn't, then we make a new reservation (and request
-> file system quota) for the current size, and add the current request to the
-> reserved segment list.  If it does, and it fits entirely in a previously
-> reserved segement, then no change to reservation/quota needs to be made.  If
-> it only partially fits, then we need to make a new reservation/quota request
-> for the number of new huge pages required and update the overlapping segment's
-> length to reflect the new reservation.
->
-> Then in truncate_hugepages() we can search the segment list again, discarding
-> full or partial segments that occur either entirely or partially beyond
-> "lstart", as appropropriate and doing hugetlb_unreserve() and
-> hugetlbfs_put_quota() for the appropriate number of pages.
->
-> This will be quite a bit of code and complexity.  Do we still think this is
-> all worth it to follow Andrew's suggestion of no API changes for "allocate on
-> fault" hugetlbpages?  It would be a lot cleaner just to return SIGBUS if we
-> run out of hugepages and be done with it, in spite of the API change.
->
-> Is there a simpler way to do the correct reservation?  (One could allocate the
-> pages at mmap() time, resurrecting hugetlb_prefault(), but zero the pages at
-> fault time, this would solve the original problem we ran into at SGI, but
-> would not solve Andi's requirement to postpone allocation so NUMA API's can
-> control placement.)
+I Sent an email a couple os weeks ago about the same issue.
 
-I actually started coding yesterday.  It doesn't look too bad (I think).  I will
-post it once I finished it up later today or tomorrow.
+But it wasnt so documented and organized.
 
-There are still some oddity in lifetime of the huge page reservation, but that
-can be discussed once everyone sees the code.
+I can say that the card and hardware are inocents, maybe the driver, the 
+"remote" machines that hang are using the latest fedore stable kernel.
 
-- Ken
+I would need really good pointing to the procedure to debug the problem, I'm 
+not expert in anything about kernel.
 
+I think it's a problem in the network handling because it happens on different 
+kernels, in different hardware. And it happens from a couple of months ago 
+(we got a new faster network "arquitecture") and the problems seems to be 
+triggered by fast transport of file over NTF, and distcc. I remember having a 
+crash using scp too for some iso files.
 
+If needed I can help track this problem, but I need some hints on the 
+procedure
+
+Max
+
+-- 
+Linux garaged 2.6.5-rc2-mm3 #1 Fri Mar 26 11:07:16 CST 2004 i686 Intel(R) 
+Pentium(R) 4 CPU 2.80GHz GenuineIntel GNU/Linux
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GS/S d- s: a-29 C++(+++) ULAHI+++ P+ L++>+++ E--- W++ N* o-- K- w++++ O- M-- 
+V-- PS+ PE Y-- PGP++ t- 5- X+ R tv++ b+ DI+++ D- G++ e++ h+ r+ z**
+------END GEEK CODE BLOCK------
+gpg-key: http://garaged.homeip.net/gpg-key.txt

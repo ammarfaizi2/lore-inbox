@@ -1,95 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUG2RDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267470AbUG2RHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265222AbUG2RDp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 13:03:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUG2Q7G
+	id S267470AbUG2RHt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 13:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUG2RGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 12:59:06 -0400
-Received: from styx.suse.cz ([82.119.242.94]:64663 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S265222AbUG2Q6L convert rfc822-to-8bit
+	Thu, 29 Jul 2004 13:06:51 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:19938 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S264299AbUG2RFB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 12:58:11 -0400
-To: torvalds@osdl.org, vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] rearrange code in sunzilog to prevent deadlock
-X-Mailer: gregkh_patchbomb_levon_offspring
+	Thu, 29 Jul 2004 13:05:01 -0400
+Date: Thu, 29 Jul 2004 10:02:42 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Christoph Hellwig <hch@infradead.org>,
+       Jesse Barnes <jbarnes@sgi.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       LSE Tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask() to pcibus_to_node()
+Message-ID: <20040729100235.A11986@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <1090887007.16676.18.camel@arrakis> <200407270822.43870.jbarnes@engr.sgi.com> <1090953179.18747.19.camel@arrakis> <200407271140.29818.jbarnes@engr.sgi.com> <1091059607.19459.69.camel@arrakis>
 Mime-Version: 1.0
-Date: Thu, 29 Jul 2004 18:59:59 +0200
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10911203991808@twilight.ucw.cz>
-In-Reply-To: <10911203991518@twilight.ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1091059607.19459.69.camel@arrakis>; from colpatch@us.ibm.com on Wed, Jul 28, 2004 at 05:06:48PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
+On Wed, Jul 28, 2004 at 05:06:48PM -0700, Matthew Dobson wrote:
+> 
+> thought.  It's pretty trivial to add a nodemask_t to the struct pci_bus,
+> and even initialize it to a reasonable value (ie: NODE_MASK_ALL) since
+> there's the convenient pci_alloc_bus() function in drivers/pci/probe.c. 
+> The problem is where to put hooks for individual arches to put the
+> *real* nodemask in this field...  My only thought right now is to create
+> a per-arch callback function, arch_get_pcibus_nodemask() or something,
+> and use the value it returns to populate pci_bus->nodemask.  We would
+> have to call this function anywhere a struct pci_bus is allocated, and
+> probably pass along the PCI bus number so the arch could determine which
+> nodes it belongs to.  Would that work for everyone that cares?  We could
 
-===================================================================
+With PCI root/p2p bridge hotplug, the code dealing with the
+hotplug (e.g. ACPI hotplug code) will have this information, not 
+arch specific code. How about having the PCI subsystem export
+an interface to set the nodemask, and have the arch or hotplug
+code call it to change the defaults? That way, pci_alloc_bus()
+simply sets the default and does not perform any callback.
+Does that work for everyone?
 
-ChangeSet@1.1807.3.3, 2004-07-19 22:35:13-05:00, dtor_core@ameritech.net
-  Input: rearrange code in sunzilog so it registers its serio ports
-         only after hardware was fully initialized and with interrupts
-         tuned back on, otherwise it deadlocks.
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
-
- sunzilog.c |   18 +++++++++++++-----
- 1 files changed, 13 insertions(+), 5 deletions(-)
-
-===================================================================
-
-diff -Nru a/drivers/serial/sunzilog.c b/drivers/serial/sunzilog.c
---- a/drivers/serial/sunzilog.c	Thu Jul 29 18:52:03 2004
-+++ b/drivers/serial/sunzilog.c	Thu Jul 29 18:52:03 2004
-@@ -1529,7 +1529,6 @@
- static void __init sunzilog_init_kbdms(struct uart_sunzilog_port *up, int channel)
- {
- 	int baud, brg;
--	struct serio *serio;
- 
- 	if (channel == KEYBOARD_LINE) {
- 		up->flags |= SUNZILOG_FLAG_CONS_KEYB;
-@@ -1546,8 +1545,15 @@
- 	up->curregs[R15] = BRKIE;
- 	brg = BPS_TO_BRG(baud, ZS_CLOCK / ZS_CLOCK_DIVISOR);
- 	sunzilog_convert_to_zs(up, up->cflag, 0, brg);
-+	sunzilog_set_mctrl(&up->port, TIOCM_DTR | TIOCM_RTS);
-+	__sunzilog_startup(up);
-+}
- 
- #ifdef CONFIG_SERIO
-+static void __init sunzilog_register_serio(struct uart_sunzilog_port *up, int channel)
-+{
-+	struct serio *serio;
-+
- 	up->serio = serio = kmalloc(sizeof(struct serio), GFP_KERNEL);
- 	if (serio) {
- 
-@@ -1576,11 +1582,8 @@
- 		printk(KERN_WARNING "zs%d: not enough memory for serio port\n",
- 			channel);
- 	}
--#endif
--
--	sunzilog_set_mctrl(&up->port, TIOCM_DTR | TIOCM_RTS);
--	__sunzilog_startup(up);
- }
-+#endif
- 
- static void __init sunzilog_init_hw(void)
- {
-@@ -1624,6 +1627,11 @@
- 		}
- 
- 		spin_unlock_irqrestore(&up->port.lock, flags);
-+
-+#ifdef CONFIG_SERIO
-+		if (i == KEYBOARD_LINE || i == MOUSE_LINE)
-+			sunzilog_register_serio(up, i);
-+#endif
- 	}
- }
- 
+Rajesh
 

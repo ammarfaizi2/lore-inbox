@@ -1,47 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313577AbSDPE1s>; Tue, 16 Apr 2002 00:27:48 -0400
+	id <S313595AbSDPEn2>; Tue, 16 Apr 2002 00:43:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313595AbSDPE1s>; Tue, 16 Apr 2002 00:27:48 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:47368 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S313577AbSDPE1r>;
-	Tue, 16 Apr 2002 00:27:47 -0400
-Date: Tue, 16 Apr 2002 01:27:26 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-In-Reply-To: <20020416013016.GA23513@matchmail.com>
-Message-ID: <Pine.LNX.4.44L.0204160126510.1960-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313596AbSDPEn2>; Tue, 16 Apr 2002 00:43:28 -0400
+Received: from kknd.mweb.co.za ([196.2.45.79]:42700 "EHLO kknd.mweb.co.za")
+	by vger.kernel.org with ESMTP id <S313595AbSDPEn1>;
+	Tue, 16 Apr 2002 00:43:27 -0400
+Subject: Re: [Patch] Compilation error on 2.5.8
+From: Bongani <bonganilinux@mweb.co.za>
+To: Robert Love <rml@tech9.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1018913070.3399.37.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 16 Apr 2002 06:57:15 +0200
+Message-Id: <1018933094.2688.443.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 02:44:58AM +0200, Andrea Arcangeli wrote:
-> On Mon, Apr 15, 2002 at 04:20:58PM -0700, William Lee Irwin III wrote:
-> > I won't scream too loud, but I think it's pretty much done right as is.
->
-> Regardless if that's the cleaner implementation or not, I don't see much
-> the point of merging those cleanups in 2.4 right now: it won't make any
-> functional difference to users and it's only a self contained code
-> cleanup, while other patches that make a runtime difference aren't
-> merged yet.
+On Tue, 2002-04-16 at 01:24, Robert Love wrote:
+> On Mon, 2002-04-15 at 19:34, Bongani wrote:
+> 
+> > Does this also look cleaner ?
+> 
+> > -static inline void setup_per_cpu_areas(void)
+> > -{
+> > -}
+> > +
+> > +#define setup_per_cpu_areas()  do { } while(0)
+> > +
+> 
+> Personally yes, but others would disagree.
+> 
+> In fact, if we use a define setup_per_cpu_areas can not be used outside
+> of this compilation unit.  Right now this looks to be the case, but if
+> something other than init/main.c wanted to use setup_per_cpu_areas we
+> would need to make the code an actual function or put the define in a
+> header file.
+> 
+> Since either case should optimize away, maybe we should make it a static
+> inline in both cases, since that is the authors original preference ...
+> 
+> 	Robert Love
+> 
 
-Sorry to say it, but if you want patches to be merged, why
-don't you submit them ?
+Ok, so this patch should be fine then
 
-regards,
+--- init/main.c Tue Apr 16 06:52:20 2002
++++ init/main.c_new     Tue Apr 16 06:55:17 2002
+@@ -272,6 +272,10 @@
+ #define smp_init()     do { } while (0)
+ #endif
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
++static inline void setup_per_cpu_areas(void)
++{
++}
++
+ #else
 
-http://www.surriel.com/		http://distro.conectiva.com/
+ #ifdef __GENERIC_PER_CPU
+@@ -297,9 +301,11 @@
+        }
+ }
+ #else
++
+ static inline void setup_per_cpu_areas(void)
+ {
+ }
++
+ #endif /* !__GENERIC_PER_CPU */
+
+ /* Called by boot processor to activate the rest. */
+
+
+
 

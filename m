@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290355AbSAPEsK>; Tue, 15 Jan 2002 23:48:10 -0500
+	id <S290356AbSAPFAB>; Wed, 16 Jan 2002 00:00:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290359AbSAPEsA>; Tue, 15 Jan 2002 23:48:00 -0500
-Received: from gear.torque.net ([204.138.244.1]:27410 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S290358AbSAPEr4>;
-	Tue, 15 Jan 2002 23:47:56 -0500
-Message-ID: <3C4505C4.37EBD193@torque.net>
-Date: Tue, 15 Jan 2002 23:47:00 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.3-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S290357AbSAPE7x>; Tue, 15 Jan 2002 23:59:53 -0500
+Received: from windlord.Stanford.EDU ([171.64.13.23]:38070 "HELO
+	windlord.stanford.edu") by vger.kernel.org with SMTP
+	id <S290356AbSAPE7j>; Tue, 15 Jan 2002 23:59:39 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5 and ppa.c
+Subject: Re: [PATCH] Re: 2.5.3-pre1 compile error
+In-Reply-To: <fa.oa9ld7v.gk65b0@ifi.uio.no> <fa.g97h3fv.968725@ifi.uio.no>
+In-Reply-To: <fa.g97h3fv.968725@ifi.uio.no> (dmeyer@dmeyer.net's message of
+ "Wed, 16 Jan 2002 02:11:58 GMT")
+From: Russ Allbery <rra@stanford.edu>
+Organization: The Eyrie
+Date: Tue, 15 Jan 2002 20:59:32 -0800
+Message-ID: <ylu1tm99hn.fsf@windlord.stanford.edu>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
+ sparc-sun-solaris2.6)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Weber <weber@nyc.rr.com> wrote:
+dmeyer <dmeyer@dmeyer.net> writes:
+> In article <20020116015513.L32088@suse.de> you write:
 
-> This is one of those drivers still broken due to 
-> the BIO changes (it still calls io_request_lock()).
->
-> Unfortunately, I only know enough to
-> s/io_request_lock/host->host_lock/g.
-> 
-> I am afraid this requires a little more than this.
+>>  I'm sure I read somewhere that gcc is clever enough to know when it
+>>  hits a #include, it checks for a symbol equal to a mangled version of
+>>  the filename before including it.  (Ie, doing this transparently).
 
-John,
-The ppa_detect() must _not_ take the host_lock semaphore
-as it is already taken by the mid level before it calls
-ppa_detect(). [This will cause a lock up on an SMP
-machine.]
+>>  Then again, I may have imagined it all.
 
-The ppa_interrupt() should take the host_lock semaphore
-before it calls scsi_done() (which calls up the scsi
-driver stack).
+No, you read that gcc notices when the entirety of a source file is
+wrapped in an #ifdef guard and won't re-read that file when it's included
+again if the symbol is defined.
 
-The imm driver has been built by the same firm (Tim Waugh?)
-and it looks correctly patched.
+> In answer to Linus' question...yes, in a large system redundent include
+> guards can make a real difference, particularly for headers which get
+> included by other headers regularly.
 
-Doug Gilbert
--
-To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yes, but you don't need to put them around the #include.  Just make sure
+there is nothing but comments outside the multiple inclusion guards in the
+header files and any competent compiler will do the right thing.
+
+-- 
+Russ Allbery (rra@stanford.edu)             <http://www.eyrie.org/~eagle/>

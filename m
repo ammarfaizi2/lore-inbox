@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUGaUQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUGaUX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbUGaUQF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 16:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUGaUQF
+	id S261711AbUGaUX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 16:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUGaUX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 16:16:05 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:62386 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261610AbUGaUQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 16:16:02 -0400
-Subject: Re: PATCH: VLAN support for 3c59x/3c90x
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Willy Tarreau <willy@w.ods.org>, Matti Aarnio <matti.aarnio@zmailer.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
-       alan@redhat.com, jgarzik@redhat.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <410BD525.3010102@candelatech.com>
-References: <20040730121004.GA21305@alpha.home.local>
-	 <E1BqkzY-0003mK-00@gondolin.me.apana.org.au>
-	 <20040731083308.GA24496@alpha.home.local> <410B67B1.4080906@pobox.com>
-	 <20040731101152.GG1545@alpha.home.local>
-	 <20040731141222.GJ2429@mea-ext.zmailer.org>
-	 <410BD0E3.2090302@candelatech.com>
-	 <20040731170551.GA27559@alpha.home.local>
-	 <410BD525.3010102@candelatech.com>
-Content-Type: text/plain
-Message-Id: <1091304989.1677.329.camel@mindpipe>
+	Sat, 31 Jul 2004 16:23:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33975 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261711AbUGaUXZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 16:23:25 -0400
+Date: Sat, 31 Jul 2004 13:21:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: 2.6.8-rc2-mm1
+Message-Id: <20040731132153.0763ce8f.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0407311609090.4095@montezuma.fsmlabs.com>
+References: <20040728020444.4dca7e23.akpm@osdl.org>
+	<Pine.LNX.4.58.0407311230330.4095@montezuma.fsmlabs.com>
+	<20040731114714.37359c2d.akpm@osdl.org>
+	<Pine.LNX.4.58.0407311519490.4095@montezuma.fsmlabs.com>
+	<Pine.LNX.4.58.0407311609090.4095@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 31 Jul 2004 16:16:29 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-31 at 13:21, Ben Greear wrote:
-> Willy Tarreau wrote:
-> > I've seen several drivers which silently add 4 bytes to the hardware
-> > config when CONFIG_VLAN is set. I find it better than fooling the IP
-> > stack into using 1504 bytes, which is a disaster on UDP !
-> 
-> It would be a disaster with any IP protocol, not just UDP.
+Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+>
+> Oh bugger, spoke too soon, it took a bit longer this time.
 
-UDP is prone to *much* weirded behavior than TCP in the face of things
-like this.  I once had an NFS server and client using UDP.  A had its
-block size set to 8K, B to 32K.  For some reason the mount succeeded
-with these options, but when you copied a file from A to B (like, oh,
-say, /etc/passwd), it "worked", but the file was truncated to 8K!  The
-only indication that anything was wrong (other than hundreds of users
-unable to log in) was a mild warning in the logs.
+Sorry.  Try this one instead.
 
-I am not sure what would have happened with a TCP mount, but not that!
-
-Lee
+--- 25/fs/jbd/checkpoint.c~journal_clean_checkpoint_list-latency-fix-fix	2004-07-31 11:43:39.320530424 -0700
++++ 25-akpm/fs/jbd/checkpoint.c	2004-07-31 13:20:22.562303576 -0700
+@@ -497,8 +497,8 @@ int __journal_clean_checkpoint_list(jour
+ 		 * We don't test cond_resched() here because another CPU could
+ 		 * be waiting on j_list_lock() while holding a different lock.
+ 		 */
+-		if ((ret & 127) == 127) {
+-			spin_unlock(&journal->j_list_lock);
++		transaction = journal->j_checkpoint_transactions
++		if (transaction && (ret & 127) == 127) {
+ 			/*
+ 			 * We need to schedule away.  Rotate both this
+ 			 * transaction's buffer list and the checkpoint list to
+@@ -508,10 +508,9 @@ int __journal_clean_checkpoint_list(jour
+ 			if (jh)
+ 				transaction->t_checkpoint_list = jh->b_cpnext;
+ 
+-			transaction = journal->j_checkpoint_transactions;
+-			if (transaction)
+-				journal->j_checkpoint_transactions =
++			journal->j_checkpoint_transactions =
+ 					transaction->t_cpnext;
++			spin_unlock(&journal->j_list_lock);
+ 			return ret;
+ 		}
+ #endif
+_
 

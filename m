@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270089AbRHGFzG>; Tue, 7 Aug 2001 01:55:06 -0400
+	id <S270090AbRHGF6R>; Tue, 7 Aug 2001 01:58:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270088AbRHGFy4>; Tue, 7 Aug 2001 01:54:56 -0400
-Received: from 054.002.dsl.pth.iprimus.net.au ([210.50.29.54]:32269 "EHLO
-	mail.opensystems.net.au") by vger.kernel.org with ESMTP
-	id <S270087AbRHGFyn>; Tue, 7 Aug 2001 01:54:43 -0400
-From: "Peter Robinson" <peterr@opensystems.net.au>
-To: <mattwu@acersoftech.com.cn>, <linux-kernel@vger.kernel.org>
-Subject: ALi 5451 Audio Core (trident driver)
-Date: Tue, 7 Aug 2001 13:53:45 +0800
-Message-ID: <000a01c11f05$52b78160$0b01a8c0@pbr>
+	id <S270091AbRHGF6G>; Tue, 7 Aug 2001 01:58:06 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:22033 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S270090AbRHGF5x>; Tue, 7 Aug 2001 01:57:53 -0400
+From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
+Message-Id: <200108062346.BAA09011@kufel.dom>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+To: kufel!MemAlpha.CX!rhw@green.mif.pg.gda.pl (Riley Williams)
+Date: Tue, 7 Aug 2001 01:46:25 +0200 (CEST)
+Cc: kufel!alumni.brown.edu!Thomas.Duffy.99@green.mif.pg.gda.pl (Thomas
+	Duffy),
+        kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl (Linux Kernel)
+In-Reply-To: <Pine.LNX.4.33.0108062304060.2845-200000@infradead.org> from "Riley Williams" at sie 06, 2001 11:56:07 
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt, All,
+>  >> One of my systems has SIX ethernet cards, these being three ISA
+>  >> and two PCI NE2000 clones and a DEC Tulip. Here's the relevant
+>  >> section of modules.conf on the system in question:
+> 
+>  >>  Q> alias eth0 ne
+>  >>  Q> options eth0 io=0x340
+>  >>  Q> alias eth1 ne
+>  >>  Q> options eth1 io=0x320
+>  >>  Q> alias eth2 ne
+>  >>  Q> options eth2 io=0x2c0
+>  >>  Q> alias eth3 ne2k-pci
+>  >>  Q> alias eth4 ne2k-pci
+>  >>  Q> alias eth5 tulip
+> 
+> 
+> However, if the cards are controlled by different drivers, you can
+> influence the order they are detected in by your choice of entries in
+> modules.conf - in the example above, the ISA cards are always eth0,
+                                                         ^^^^^^
+> eth1 and eth2, the NE2k-pci cards are always eth3 and eth4, and the
+> tulip card is always eth5, simply because that's what the said file
+> says.
 
-The updates that went into 2.4.7 broke the trident sound driver on my
-notebook (Acer Travelmate 524TXV) with the ALi 5451 Audio core. It loads all
-right and doesn't complain but when I play an mp3 nothing happens. If I back
-the kernel back to 2.4.6 it works fine, if I go to 2.4.8pre4 same problems,
-if I run 2.4.7 / 2.4.8pre4 with the trident.c trident.h from the 2.4.6
-kernel it works fine. I noticed that the new version of the driver changes
-some power management stuff and I don't know whether this has anything to do
-with the way my power management is configured but it doesn't appear to. I'm
-currently running 2.4.8pre4 with the 2.4.6 driver as mentioned above and
-works fine but I just thought I'd pass this one. Please feel free to email
-me any patches for testing.
+Not always. You are wrong here, I'm afraid:
 
-Regards
-Peter
+Lets assume that eth0-eth3 are not initialized at boot time and your init
+scripts attempt to initialize eth4 ...
+
+To avoid such problems one probably should add a lot of pre-install parameters
+in modules.conf.
+
+Andrzej
 

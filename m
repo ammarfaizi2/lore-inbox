@@ -1,68 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264208AbTEOTmh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 15:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264207AbTEOTmh
+	id S264198AbTEOTkw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 15:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264204AbTEOTkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 15:42:37 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:55461 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S264206AbTEOTm2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 15:42:28 -0400
-Date: Thu, 15 May 2003 12:55:16 -0700
+	Thu, 15 May 2003 15:40:52 -0400
+Received: from garnet.acns.fsu.edu ([146.201.2.25]:55683 "EHLO
+	garnet.acns.fsu.edu") by vger.kernel.org with ESMTP id S264198AbTEOTkt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 15:40:49 -0400
+Message-ID: <3EC3F02E.1010604@cox.net>
+Date: Thu, 15 May 2003 15:53:18 -0400
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Greg KH <greg@kroah.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: airo and firmware upload (was Re: 2.6 must-fix list, v3)
-Message-ID: <20030515195516.GA18244@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20030514211222.GA10453@bougret.hpl.hp.com> <3EC2BDEC.6020401@pobox.com> <20030514233235.GA11581@bougret.hpl.hp.com> <20030515071317.GB6497@kroah.com> <20030515172446.GD17496@bougret.hpl.hp.com> <20030515174648.GA9549@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030515174648.GA9549@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: USB not accepting addresses in bk9
+References: <3EC310C3.9060606@cox.net> <20030515070800.GA6497@kroah.com>
+In-Reply-To: <20030515070800.GA6497@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 10:46:48AM -0700, Greg KH wrote:
-> On Thu, May 15, 2003 at 10:24:46AM -0700, Jean Tourrilhes wrote:
-> > 	Manuel Estrada sent me a proposal for that.
+Greg KH wrote:
+> On Thu, May 15, 2003 at 12:00:03AM -0400, David van Hoose wrote:
 > 
-> I provided some feedback to him that I think will make his proposal work
-> for almost everyone.  Hopefully he has the time to implement it :)
+>>Sometime between 2.5.69-bk4 and 2.5.69-bk8, something with related to 
+>>the USB was messed up. I get the below lines in my dmesg.
+>>hub 2-0:0: new USB device on port 1, assigned address 2
+>>usb 2-1: USB device not accepting new address=2 (error=-110)
+>>hub 2-0:0: new USB device on port 1, assigned address 3
+>>usb 2-1: USB device not accepting new address=3 (error=-110)
+>>
+>>The first device is my Logitech Cordless Optical Trackball.
+>>The second device is my TI USB Graphlink.
+>>
+>>The Trackball still works. Not sure about the graphlink as I don't have 
+>>the software installed yet. :-/
 > 
-> thanks,
+> How can the device work if the USB bus rejected it?  Also, does
+> /proc/interrupts increment for the USB controller when you plug a device
+> in?
+
+No idea. It seems to increment the usb line in /proc/interrupts.
+I've attached a dmesg with verbose debugging. Unplugged and plugged back 
+in my USB devices twice to add to some extra info that may be helpful 
+for debugging. The trackball works every time though so it isn't a 
+blocking problem for me.
+
+>>I used the same config for bk4 as I did for bk8. It've attached my 
+>>config for bk9 since it is the same anyway.
 > 
-> greg k-h
+> Care to do a binary search of bk4 to bk8 to try to find the problem?
+> Should only take you 2 reboots at most :)
 
-	I read that thread and I don't agree with some of your
-unrealistic requirements.
-	As long as kernel 2.6.X is not standard in most major
-distributions (including Debian), whatever scheme we decide on must be
-easy to implement on 2.4.X. Let be realistic : all of us still
-continue to update 2.4.X on a regular basis. Those 3 drivers are ready
-today (one of them has been waiting on this issue for already 6
-months), and I want them in 2.4.X not long after they go in 2.5.X.
-	Therefore, unless you plan to port sysfs to 2.4.X real soon,
-the scheme can't depend exclusively on sysfs. I would even say,
-because sysfs change on a weekly basis, it might even be wise to take
-a two phase approach, with sysfs used only in the second phase and
-based on the feedback and the results from the first phase (I
-personally don't believe we will get it perfect at the first try). The
-hotplug facility is flexible enough to migrate to sysfs smoothly.
-	I'm pragmatic : I prefer to have something imperfect now
-rather than something perfect later. I think Manuel's solution is a
-good stepping stone to where we want to go. If you make it too
-difficult, this will never happen (and each driver will use a
-proprietary solution or be kept in a black hole).
+What do you want me to do? I don't know if I have the skills yet to code 
+for the kernel, so the least I can do is test it. :-)
 
-	So, my question for you is :
-	o how do you plan to make it work with 2.4.X.
+Thanks,
+David
 
-	Have fun...
-
-	Jean

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279704AbRJYER0>; Thu, 25 Oct 2001 00:17:26 -0400
+	id <S279703AbRJYEVn>; Thu, 25 Oct 2001 00:21:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279706AbRJYERD>; Thu, 25 Oct 2001 00:17:03 -0400
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:30980 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S279704AbRJYEQ6>; Thu, 25 Oct 2001 00:16:58 -0400
-Message-ID: <3BD791C6.70200@ndsu.nodak.edu>
-Date: Wed, 24 Oct 2001 23:15:02 -0500
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011018
-X-Accept-Language: en-us
+	id <S279708AbRJYEV2>; Thu, 25 Oct 2001 00:21:28 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51976 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279705AbRJYEVJ>; Thu, 25 Oct 2001 00:21:09 -0400
+Date: Wed, 24 Oct 2001 21:19:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Zlatko Calusic <zlatko.calusic@iskon.hr>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
+In-Reply-To: <dnlmi0pnue.fsf@magla.zg.iskon.hr>
+Message-ID: <Pine.LNX.4.33.0110242117150.9147-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Dan Maas <dmaas@dcine.com>, jamagallon@able.es
-Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
-In-Reply-To: <fa.fm7f5dv.1cn8eg6@ifi.uio.no> <fa.hbvlhav.v369au@ifi.uio.no> <023001c15cf4$4fd5ecc0$1a01a8c0@allyourbase>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Maas wrote:
 
->>As I see it, that is exactly what should not be done. Lets suppose you are
->>running 2.4.12. You want to upgrade. So you unpack 2.4.13 and build it.
->>If you go now to build nVidia drivers, with the shipped Makefile they
->>still build and install against 2.4.12.
->>
-> 
-> You don't have to reboot into the new kernel, just do as the README says:
-> 
->     If you want to build NVdriver for a system other than the compiling
->     system, then you'll need to run the make as:
-> 
->         $ make SYSINCLUDE=/src/kern/my-smp-kernel/include
-> 
->     to generate an NVdriver that will work on the kernel whose include
->     files are in /src/kern/my-smp-kernel/include.  This kernel must
->     have been completely configured (make menuconfig dep).
-> 
-> So you still only need to reboot once when upgrading your kernel.
-> 
-> The only thing I find annoying is that the kernel's 'make modules_install'
-> wipes out /lib/modules/<version>, so when I'm in the compile/debug cycle on
-> my own driver I have to keep reinstalling NVdriver.
-> 
-> Regards,
-> Dan
+On 25 Oct 2001, Zlatko Calusic wrote:
+>
+> Sure. Output of 'vmstat 1' follows:
+>
+>  1  0  0      0 254552   5120 183476   0   0    12    24  178   438 2  37  60
+>  0  1  0      0 137296   5232 297760   0   0     4  5284  195   440 3  43  54
+>  1  0  0      0 126520   5244 308260   0   0     0 10588  215   230 0   3  96
+>  0  2  0      0 117488   5252 317064   0   0     0  8796  176   139 1   3  96
+>  0  2  0      0 107556   5264 326744   0   0     0  9704  174    78 0   3  97
 
+This does not look like a VM issue at all - at this point you're already
+getting only 10MB/s, yet the VM isn't even involved (there's definitely no
+VM pressure here).
 
-Thanks for the info. I hadn't looked at the makefile myself, but now 
-that you mention it do remember the SYSINCLUDE directive from before.
+> Notice how there's planty of RAM. I'm writing sequentially to a file
+> on the ext2 filesystem. The disk I'm writing on is a 7200rpm IDE,
+> capable of ~ 22 MB/s and I'm still getting only ~ 9 MB/s. Weird!
 
-For me personally, I've always booted in runlevel 3, so it's no problem 
-for me to recompile NVdriver after the reboot. To each his own I guess.
+Are you sure you haven't lost some DMA setting or something?
 
-Regards,
-Reid
+		Linus
 

@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130380AbQLKUqY>; Mon, 11 Dec 2000 15:46:24 -0500
+	id <S130307AbQLKUqy>; Mon, 11 Dec 2000 15:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129716AbQLKUqP>; Mon, 11 Dec 2000 15:46:15 -0500
-Received: from smtp1.free.fr ([212.27.32.5]:49158 "EHLO smtp1.free.fr")
-	by vger.kernel.org with ESMTP id <S130307AbQLKUp4>;
-	Mon, 11 Dec 2000 15:45:56 -0500
-To: alan@lxorguk.ukuu.org.uk
-Subject: 2.2.18 + megaraid : success
-Message-ID: <976565724.3a3535dca05ac@imp.free.fr>
-Date: Mon, 11 Dec 2000 21:15:24 +0100 (MET)
-From: Willy Tarreau <wtarreau@free.fr>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 212.27.43.185
+	id <S129716AbQLKUqs>; Mon, 11 Dec 2000 15:46:48 -0500
+Received: from d14144.upc-d.chello.nl ([213.46.14.144]:51079 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S130307AbQLKUqX>;
+	Mon, 11 Dec 2000 15:46:23 -0500
+Message-Id: <m145ZMP-000OWyC@amadeus.home.nl>
+Date: Mon, 11 Dec 2000 21:15:45 +0100 (CET)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <Pine.LNX.4.21.0012111636040.4808-100000@duckman.distro.conectiva> <E145Xy6-0008HA-00@the-village.bc.nu>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+In article <E145Xy6-0008HA-00@the-village.bc.nu> you wrote:
+>> Doing a 'make bzImage' is NOT VM-intensive. Using this as a test
+>> for the VM doesn't make any sense since it doesn't really excercise
+>> the VM in any way...
 
-I've compiled a plain 2.2.18 kernel for the HP NetServer this afternoon,
-and guess what ? (ok, I know that you guessed) : the netraid card now works
-correctly.
+> Its an interesting demo that 2.4 has some performance problems since 2.2
+> is slower than 2.0 although nowdays not much.
 
-BTW, I noticed that the firmware and bios versions are improperly displayed
-(only garbage). According to the code, that's because the identification
-method differs between HP and others, so the HP method is disabled for now.
-but this one will be wrong too because the major number is taken from
-productInfo->FwVer[1]>>8 (which is an u8), instead of >>4.
+Seems to depend on the hardware used. On my test box, 2.4 is faster by
+0.3s....
 
-I hope that tomorrow I will have a bit of time to try to clarify this and make
-it display the right version, and properly identify an HP (fwver[0] seems not
-to be used on them).
+Greetings,
+    Arjan van de Ven
 
-Cheers,
-Willy
+Machine:
+AMD Duron 700Mhz with 128Mb of 133Mhz Ram
+2 IBM 15Gb ATA100 disks in RAID0 raid
+
+tested kernels:
+2.2.18 + raid patch + latest IDE patch
+2.4.0-test12pre7
+
+compiling 2.2.18 with gcc 2.95.2
+
+				1st run		2nd		3rd
+kernel 2.2.18/raid/ide		3:28.909	3:28.819	3:28.840
+kernel 2.4.0test12pre7		3:28:520	3:28.534	3:28.546
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

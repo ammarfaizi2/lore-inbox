@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289230AbSAGPhK>; Mon, 7 Jan 2002 10:37:10 -0500
+	id <S289225AbSAGPmu>; Mon, 7 Jan 2002 10:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289225AbSAGPhA>; Mon, 7 Jan 2002 10:37:00 -0500
-Received: from gw.chygwyn.com ([62.172.158.50]:9230 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S289230AbSAGPgo>;
-	Mon, 7 Jan 2002 10:36:44 -0500
-From: Steven Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200201071538.PAA28211@gw.chygwyn.com>
-Subject: Re: nbd request too big
-To: robalomarquesl@yahoo.com (=?iso-8859-1?q?Luc=20Robalo=20Marques?=)
-Date: Mon, 7 Jan 2002 15:38:29 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020107152423.78321.qmail@web14906.mail.yahoo.com> from "=?iso-8859-1?q?Luc=20Robalo=20Marques?=" at Jan 07, 2002 04:24:23 PM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S289231AbSAGPmk>; Mon, 7 Jan 2002 10:42:40 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:49301 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S289225AbSAGPma>;
+	Mon, 7 Jan 2002 10:42:30 -0500
+Date: Mon, 7 Jan 2002 16:41:37 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: Jaroslav Kysela <perex@suse.cz>, sound-hackers@zabbo.net,
+        linux-sound@vger.rutgers.edu, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: ALSA patch for 2.5.2pre9 kernel
+Message-ID: <20020107164136.I5235@khan.acc.umu.se>
+In-Reply-To: <Pine.LNX.4.31.0201061814580.545-100000@pnote.perex-int.cz> <200201071432.g07EWI802933@ns.caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <200201071432.g07EWI802933@ns.caldera.de>; from hch@ns.caldera.de on Mon, Jan 07, 2002 at 03:32:18PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I presume you are using Pavel's server from his web page ? You need to increase
-the buffer size that the server uses. This happens as a result of the change
-a little while ago of nbd to use the elevator to merge requests at the nbd
-client end. If memory serves the maximum size of request is sizeof(header) +
-128 * block_size, so you need to alter the server to use that size.
-
-You'll find the buffer size in the main loop of the mainloop() function
-char buf[20480]; needs increasing (to (131072 + 28) for 1k blocks for example)
-and also you'll need to increase the value here (to 131072 in this example):
-
-                if (len > 10240)
-                        err("Request too big!");
-
-Then it should work fine.
-
-Steve.
-
+On Mon, Jan 07, 2002 at 03:32:18PM +0100, Christoph Hellwig wrote:
+> In article <Pine.LNX.4.31.0201061814580.545-100000@pnote.perex-int.cz> you wrote:
+> > The latest patch is alsa-2002-01-06-1-linux-2.5.2pre9.patch.gz and
+> > contains:
 > 
-> hi,
+> > * moved linux/drivers/sound directory to linux/sound/oss
+> > * moved sound core files to linux/sound
+> > * integrated ALSA kernel code
+> >   - linux/include/sound - sound header files
+> >   - linux/sound/core	- midlevel (no hw dependent) code
+> >   - linux/sound/drivers - generic drivers (no arch dependent)
+> >   - linux/sound/i2c     - reduced I2C core and drivers
+> >   - linux/sound/isa	- ISA sound hardware drivers
+> >   - linux/sound/pci	- PCI sound hardware drivers
+> >   - linux/sound/ppc	- PowerPC sound hardware drivers
+> >   - linux/sound/synth	- generic synthesizer support code
 > 
-> i would like to setup a nbd but when I try to mke2fs
-> the device on the client side, the connection hangs
-> and /log/messages contains a entry for mthe server
-> telling that the request was too big.
-> Any idea what caused it.
+> > We appreciate any comments regarding directory structure
 > 
-> Thanks you
-> 
-> Luc robalo Marques
-> 
-> ___________________________________________________________
-> Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-> Yahoo! Courrier : http://courrier.yahoo.fr
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> linux/sound is silly.  It's drivers so put it under linux/drivers/sound.
+> Everything else seems to be sane to me.
 
+One question: What happens with hardware both available in both isa & pci
+versions (or any other combination that doesn't fit into this
+sorting?!)
+
+
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

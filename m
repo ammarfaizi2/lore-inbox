@@ -1,64 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129795AbRB0TsV>; Tue, 27 Feb 2001 14:48:21 -0500
+	id <S129808AbRB0Ttl>; Tue, 27 Feb 2001 14:49:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129797AbRB0TsL>; Tue, 27 Feb 2001 14:48:11 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:16132 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129795AbRB0TsA>;
-	Tue, 27 Feb 2001 14:48:00 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102271941.WAA21025@ms2.inr.ac.ru>
-Subject: Re: possible bug x86 2.4.2 SMP in IP receive stack
-To: feldy@myri.COM (Bob Felderman)
-Date: Tue, 27 Feb 2001 22:41:10 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200102232259.OAA20943@frisbee.myri.com> from "Bob Felderman" at Feb 24, 1 02:15:01 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S129799AbRB0TtX>; Tue, 27 Feb 2001 14:49:23 -0500
+Received: from ns.arraycomm.com ([199.74.167.5]:47614 "HELO
+	bastion.arraycomm.com") by vger.kernel.org with SMTP
+	id <S129798AbRB0TtH> convert rfc822-to-8bit; Tue, 27 Feb 2001 14:49:07 -0500
+Message-Id: <5.0.2.1.2.20010227114430.026f9008@pop.arraycomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Tue, 27 Feb 2001 11:47:11 -0800
+To: "Daniela Engert" <dani@ngrt.de>,
+        "Jason Rappleye" <rappleye@cse.Buffalo.EDU>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Jasmeet Sidhu <jsidhu@arraycomm.com>
+Subject: Re: timeout waiting for DMA
+Cc: "jonesm@ccr.buffalo.edu" <jonesm@ccr.buffalo.edu>
+In-Reply-To: <20010227063147.3F8674F06@mail.medav.de>
+In-Reply-To: <Pine.GSO.4.21.0102261526330.15135-100000@pollux.cse.Buffalo.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Iv'e seen this on a system with 36" IDE ata/100 cables.  I have the same 
+exact system using 24" IDE ultra ata/100 cables and I get no such 
+errors.  These two systems are exactly the same and are using the same 
+drivers, same hardware.
+The only difference is the type of cable used.  Could this be due to bad 
+cables as well?  (I know tha CRC errors are caused by bad cables, but this 
+is the only difference in the two boxes that I have).
 
-> Feb 23 12:42:30 rcc2 kernel: Warning: kfree_skb passed an skb still on a list (from c01f58dc).
+Keep the cables as short as possible, 18" is supposed to be the limit.
 
-BTW, that's didactic example of bug which results in similar behaviour.
+And please post again if you successfully troubleshoot this problem.
 
-Alexey
+Jasmeet.
+
+At 07:35 AM 2/27/2001 +0100, Daniela Engert wrote:
+>Hi Jason!
+>
+>On Mon, 26 Feb 2001 15:41:04 -0500 (EST), Jason Rappleye wrote:
+>
+> >I'm running kernel 2.4.2 on an SGI 1100 (dual PIIIs) with a Serverworks
+> >III LE based motherboard. The disk is a Seagate ST330630A. The disk has
+> >DMA enabled at boot time :
+>
+> >hda: ST330630A, ATA DISK drive
+> >hda: 59777640 sectors (30606 MB) w/2048KiB Cache, CHS=3720/255/63, UDMA(33)
+>
+> >but after a while (eg partway through running bonnie with a 1GB file) I
+> >get the following errors:
+>
+> >Feb 24 22:51:02 nash2 kernel: hda: timeout waiting for DMA
+> >Feb 24 22:51:02 nash2 kernel: ide_dmaproc: chipset supported 
+> ide_dma_timeout
+> >func only: 14
+> >Feb 24 22:51:02 nash2 kernel: hda: irq timeout: status=0x58 { DriveReady
+> >SeekComplete DataRequest }
+> ><repeats a few times>
+> >Feb 24 22:51:32 nash2 kernel: hda: DMA disabled
+>
+> >I can reenable DMA without any problems, but after some additional disk
+> >activity (eg running bonnie again), the error occurs again.
+>
+> >Additional information on my hardware is given below. Any suggestions on
+> >how this can be resolved?
+>
+>Reduce the IDE channel speed to UltraDMA mode 1 or less.
+>
+>Ciao,
+>   Dani
+>
+>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>Daniela Engert, systems engineer at MEDAV GmbH
+>Gräfenberger Str. 34, 91080 Uttenreuth, Germany
+>Phone ++49-9131-583-348, Fax ++49-9131-583-11
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 
-> From: andrewm@uow.EDU.AU (Andrew Morton)
-> Subject: Re: Failed assertion
-> Date: 27 Feb 2001 04:15:01 +0300
-> 
-> "David S. Miller" wrote:
-> > 
-> > Ralf Baechle writes:
-> >  > No backtrace, the machine did continue as you'd suspect after a print.
-> >  > The machine is a dual CPU Origin 200 with an IOC3 NIC.
-> > 
-> > What is your current kernel based upon, some older 2.4.x or
-> > even 2.3.x variant?  Or is it sync'd to current?
-> 
-> Could this be a driver problem?  This code:
-> 
->             netif_rx(skb);
-> 
->             ip->rx_skbs[rx_entry] = NULL;   /* Poison  */
-> 
->             new_skb = ioc3_alloc_skb(RX_BUF_ALLOC_SIZE, GFP_ATOMIC);
->             if (!new_skb) {
->                 /* Ouch, drop packet and just recycle packet
->                    to keep the ring filled.  */
->                 ip->stats.rx_dropped++;
->                 new_skb = skb;
->                 goto next;
->             }
-> 
-> looks scary.  We've passed an skb to the network stack,
-> but we can continue to make it available to the device
-> driver at the same time.
-> 
-> I'd suggest a printk() in there, plus perhaps do the
-> alloc_skb _before_ the netif_rx().  Don't pass the skb
-> to the stack if it is to be recycled.
+- - -
+Jasmeet Sidhu
+Unix Systems Administrator
+ArrayComm, Inc.
+jsidhu@arraycomm.com
+www.arraycomm.com
+
+

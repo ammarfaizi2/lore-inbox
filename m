@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262945AbUKXXmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262952AbUKXXgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbUKXXmm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 18:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbUKXXhV
+	id S262952AbUKXXgi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 18:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbUKXXfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 18:37:21 -0500
-Received: from 80-218-63-145.dclient.hispeed.ch ([80.218.63.145]:8454 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S262945AbUKXX1E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 18:27:04 -0500
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Reply-To: daniel.ritz@gmx.ch
-To: Greg KH <greg@kroah.com>
-Subject: [PATCH 2.6] touchkitusb: module_param to swap axes
-Date: Wed, 24 Nov 2004 22:28:53 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Wed, 24 Nov 2004 18:35:08 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:3010 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262890AbUKXXTO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 18:19:14 -0500
+Date: Wed, 24 Nov 2004 22:18:00 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: "Christopher S. Aker" <caker@theshore.net>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.10-rc2-bk7 - kernel BUG at fs/sysfs/file.c:87!
+Message-ID: <20041124211800.GQ13847@suse.de>
+References: <002c01c4d25b$3e8b9b10$0201a8c0@hawk> <20041124204138.GA2543@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411242228.53446.daniel.ritz@gmx.ch>
+In-Reply-To: <20041124204138.GA2543@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-add a module parameter to swap the axes. many displays need this...
+On Wed, Nov 24 2004, Maneesh Soni wrote:
+> On Wed, Nov 24, 2004 at 07:26:43PM +0000, Christopher S. Aker wrote:
+> > Doing "cat /sys/block/sda/queue/iosched/show_status" produces the following BUG:
+> > 
+> > ------------[ cut here ]------------
+> > kernel BUG at fs/sysfs/file.c:87!
+> 
+> I think you are using cfq io scheduler. show_status is from cfq_ioched. Looks 
+> like return value freom cfq_status_show() is going beyond one page. 
+> read/write buffer for sysfs text attribute files is limited to one page. 
 
---- 1.2/drivers/usb/input/touchkitusb.c	2004-09-18 10:07:25 +02:00
-+++ edited/drivers/usb/input/touchkitusb.c	2004-11-24 18:57:59 +01:00
-@@ -59,6 +59,10 @@
- #define DRIVER_AUTHOR			"Daniel Ritz <daniel.ritz@gmx.ch>"
- #define DRIVER_DESC			"eGalax TouchKit USB HID Touchscreen Driver"
- 
-+static int swap_xy;
-+module_param(swap_xy, bool, 0);
-+MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
-+
- struct touchkit_usb {
- 	unsigned char *data;
- 	dma_addr_t data_dma;
-@@ -80,6 +84,7 @@
- {
- 	struct touchkit_usb *touchkit = urb->context;
- 	int retval;
-+	int x, y;
- 
- 	switch (urb->status) {
- 	case 0:
-@@ -103,13 +108,19 @@
- 		goto exit;
- 	}
- 
-+	if (swap_xy) {
-+		y = TOUCHKIT_GET_X(touchkit->data);
-+		x = TOUCHKIT_GET_Y(touchkit->data);
-+	} else {
-+		x = TOUCHKIT_GET_X(touchkit->data);
-+		y = TOUCHKIT_GET_Y(touchkit->data);
-+	}
-+
- 	input_regs(&touchkit->input, regs);
- 	input_report_key(&touchkit->input, BTN_TOUCH,
- 	                 TOUCHKIT_GET_TOUCHED(touchkit->data));
--	input_report_abs(&touchkit->input, ABS_X,
--	                 TOUCHKIT_GET_X(touchkit->data));
--	input_report_abs(&touchkit->input, ABS_Y,
--	                 TOUCHKIT_GET_Y(touchkit->data));
-+	input_report_abs(&touchkit->input, ABS_X, x);
-+	input_report_abs(&touchkit->input, ABS_Y, y);
- 	input_sync(&touchkit->input);
- 
- exit:
+Yeah, with many processes that is easy to hit. I dunno how to fix it
+yet, is it possible to combine sysfs with the seq stuff? The file should
+just be deleted, though.
+
+-- 
+Jens Axboe
 

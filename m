@@ -1,52 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270270AbUJUAQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270505AbUJUAdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270270AbUJUAQb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 20:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270505AbUJUAHw
+	id S270505AbUJUAdW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 20:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270452AbUJUAaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 20:07:52 -0400
-Received: from li-22.members.linode.com ([64.5.53.22]:61196 "EHLO
-	www.cryptography.com") by vger.kernel.org with ESMTP
-	id S269175AbUJUAEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 20:04:08 -0400
-Message-ID: <4176FCB8.3060103@root.org>
-Date: Wed, 20 Oct 2004 17:03:04 -0700
-From: Nate Lawson <nate@root.org>
-User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Machines self-power-up with 2.6.9-rc3 (evo N620c, ASUS,
- ...)
-References: <20041020191531.GC21315@elf.ucw.cz> <1098311478.4989.100.camel@desktop.cunninghams> <20041020225639.GD29863@elf.ucw.cz>
-In-Reply-To: <20041020225639.GD29863@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 20 Oct 2004 20:30:03 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:8581 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S270513AbUJUAZu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 20:25:50 -0400
+Subject: Re: process start time set wrongly at boot for kernel 2.6.9
+From: john stultz <johnstul@us.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Jerome Borsboom <j.borsboom@erasmusmc.nl>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4176FA29.2030208@mvista.com>
+References: <Pine.LNX.4.61.0410192015420.6471@knorkaan.xs4all.nl>
+	 <1098216701.20778.78.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.53.0410200233280.9510@gockel.physik3.uni-rostock.de>
+	 <1098233967.20778.93.camel@cog.beaverton.ibm.com>
+	 <41767B60.4050409@mvista.com>
+	 <1098294178.20778.117.camel@cog.beaverton.ibm.com>
+	 <4176FA29.2030208@mvista.com>
+Content-Type: text/plain
+Message-Id: <1098318323.20778.199.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 20 Oct 2004 17:25:24 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
->>>I'm seeing bad problem with N620c notebook (and have reports of more
->>>machines behaving like this, for example ASUS L8400C.) If I shutdown
->>>machine with lid closed, opening lid will power the machine up. Ouch.
->>>2.6.7 behaves okay.
->>
->>:> Some people would love to have the machine power up when they open
->>the lid! Wish my XE3 would do that!
+On Wed, 2004-10-20 at 16:52, George Anzinger wrote:
+> john stultz wrote:
+> > On Wed, 2004-10-20 at 07:51, George Anzinger wrote:
+> > 
+> >>john stultz wrote:
+> >>
+> >>>I've begun to agree with you about this issue. It seems that until we
+> >>>can catch every use of jiffies for time, doing one by one is going to
+> >>>cause consistency problems.  So I'd support the full backout of the
+> >>>do_posix_clock_monotonic_gettime changes to the proc interface. 
+> >>>
+> >>>George, would you protest this?
+> >>
+> >>It seems to me that if we do that we will stop making any changes at all.  I.e. 
+> >>we will not see the rest of the "jiffies for time" code, as it will not "hurt" 
+> >>any more.
+> > 
+> > 
+> > Sorry, not sure I followed that. Could you explain further?
+> 
+> If we rip out the code folks will stop sending in bug reports on it.  Simple as 
+> that.
 
-This problem sounds like a wake GPE is enabled for the lid switch and 
-that it has a _PRW that indicates it can wake the system from S5.  If 
-this is the case, just disabled the GPE.
+So you feel that we're moving in the right direction, its just that its
+going to take a few passes before everything smooths out? Thus its just
+a continuation of the effort?
 
-> :-). Well for some other people it powers up when they unplug AC
-> power, and *that* is nasty. I'd like my machine to stay powered down
-> when I tell it so.
+Tim? Is this OK with you, or you feel the immediate inconsistencies  and
+bug reports aren't worth the effort?
 
-This is likely a similar GPE problem.  The GPE for the EC fires even in 
-S5.  I think the EC GPE should be disabled in the suspend method.
 
--- 
-Nate
+> > So rather then every tick incrementing jiffies, instead jiffies is set
+> > equal to (monotonic_clock()*HZ)/NSEC_PER_SEC. 
+> 
+> As mention by me (a long time ago), this assumes you have a better source for 
+> the clock than the interrupt.  I would argue that on the x86 (which I admit is 
+> really deficient) the best long term clock is, in fact, the PIT interrupt.  The 
+> _best_ clock on the x86, IMHO, is one that used the PIT interrupt as the gold 
+> standard.  Then one smooths this to eliminate interrupt latency issues and lost 
+> ticks using the TSC.   The pm_timer is as good as the PIT but suffers from 
+> access time issues.
+
+Well, assuming the PIT is programmed to a value it can actually run at
+accurately, you might be right. 
+
+The only problem is I've started to arrive at the notion of
+interpolation between multiple problematic timesources is just a rats
+nest. When you can't trust timer interrupts to arrive and you can't
+trust the TSC to run at the right frequency, there's no way to figure
+out who's right.  We already have the lost-tick compensation code, but
+we still get time inconsistencies. Now maybe I'm just too dim witted to
+make it work, but the more I look at it, the more corner cases appear
+and the uglier the code gets. 
+
+I say pick a timesource you can trust on your machine and stick to it.
+NTP is there to correct for drift, so just use it.
+
+-john
+
+
+

@@ -1,63 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278214AbRKKKtZ>; Sun, 11 Nov 2001 05:49:25 -0500
+	id <S278381AbRKKK7G>; Sun, 11 Nov 2001 05:59:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278297AbRKKKtP>; Sun, 11 Nov 2001 05:49:15 -0500
-Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:38017 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S278214AbRKKKs6>;
-	Sun, 11 Nov 2001 05:48:58 -0500
-Date: Sun, 11 Nov 2001 02:48:55 -0800
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: Writing over NFS causes lots of paging
-Message-ID: <20011111024855.A5893@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S278396AbRKKK64>; Sun, 11 Nov 2001 05:58:56 -0500
+Received: from www.wen-online.de ([212.223.88.39]:30739 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S278381AbRKKK6l>;
+	Sun, 11 Nov 2001 05:58:41 -0500
+Date: Sun, 11 Nov 2001 11:58:30 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT] final cur of tr based current for -ac8
+In-Reply-To: <20011110173331.F17437@redhat.com>
+Message-ID: <Pine.LNX.4.33.0111111119270.305-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like when writing large amounts of data to NFS where the remote
-end is slower than the local end the local end appears to start swapping
-out a lot I'm guessing this is because it can read much faster than it
-can write.
+On Sat, 10 Nov 2001, Benjamin LaHaise wrote:
 
-Also, I see NFS timeouts and thus "I/O error" messages fom cp when it is
-mounted with the "soft" option, even with high timeouts.  "hard" works
-fine, but I didn't want to use it for this mount.
+> +static unsigned get_TR(void)
+> +{
+> +	unsigned tr;
+> +	/* The PAIN!  The HORROR!
+> +	 * Technically this is wrong, wrong, wrong, but
+> +	 * gas doesn't know about strl.  *sigh*  Please
+> +	 * flog them with a wet noodle repeatedly.  -ben
+> +	 */
+> +	__asm__ __volatile__("str %w0" : "=r" (tr));
+> +	return tr;
+> +}
 
-For example:
+The below seems to make flogging noises, but is likely too soggy.
 
-procs                   memory   swap         io     system      cpu
-r b w   swpd  free buff  cache si   so   bi   bo   in    cs us sy id
-0 0 0  70316  4128  608 141744  0    0 4172    0 3065  4214  1 12 87
-0 0 0  70316  3156  620 142704  0   92 3896   92 2904  4028  1 11 88
-0 1 0  70316  4208  672 141604  0   40 2912   40 3248  4715  2 12 86
-1 0 0  70316  3228  724 142528  0  296 3284  296 2904  4682  5 17 79
-0 1 0  70700  4048  720 141948  0  124 3744  124 2987  4109  1 14 85
-1 1 0  70700  3752  724 142376  0  116 4136  116 2927  3985  1 16 83
-1 0 0  70956  3816  712 142384  0  180 3964  180 2724  3801  1 15 84
-0 0 0  70956  3968  720 142308  0    0 3908    0 3045  4277  2 13 84
-0 1 0  71724  3336  724 142984  0  580 3796  580 2837  4985  9 21 69
-0 0 0  71724  3924  736 144116  0  588 3776  588 2860  3950  1 14 85
-0 1 0  72236  3120  752 146132  0  556 3380  556 2731  3983  1  9 89
-0 0 0  73260  3212  752 146140  0 2496 3468 2496 2516  3637  1 14 85
-0 0 0  73900  3476  744 145868  0  640 3900  640 2776  3888  0 13 87
-0 0 0  74156  3192  736 146212  0  540 4150  540 2916  4010  1 15 83
+	-Mike
 
-The copy is still running and almost everything is swapped out now
-(140 MB).  When the copy started, there was about 30 MB of swap.
+diff -urN binutils-2.11.2/include/opcode/i386.h binutils-2.11.2.twiddle/include/opcode/i386.h
+--- binutils-2.11.2/include/opcode/i386.h	Sat May 12 12:09:19 2001
++++ binutils-2.11.2.noodle/include/opcode/i386.h	Sun Nov 11 09:46:13 2001
+@@ -555,7 +555,8 @@
+ {"sidt",   1, 0x0f01, 1, Cpu286, wlq_Suf|Modrm,		{ WordMem, 0, 0} },
+ {"sldt",   1, 0x0f00, 0, Cpu286, wlq_Suf|Modrm,		{ WordReg|WordMem, 0, 0} },
+ {"smsw",   1, 0x0f01, 4, Cpu286, wlq_Suf|Modrm,		{ WordReg|WordMem, 0, 0} },
+-{"str",	   1, 0x0f00, 1, Cpu286, w_Suf|Modrm|IgnoreSize,{ Reg16|ShortMem, 0, 0} },
++{"str",    1, 0x0f00, 1, Cpu286, w_Suf|Modrm|IgnoreSize,{ Reg16|ShortMem, 0, 0} },
++{"str",	  1, 0x0f00, 1, Cpu386, wlq_Suf|Modrm,    { WordReg|WordMem, 0, 0} },
 
-NFS client (reading from disk and writing through NFS): 2.4.15pre1
-NFS server (writing to disk from NFS): 2.4.15pre2
-NFSv3 and knfsd used.
+ {"verr",   1, 0x0f00, 4, Cpu286, w_Suf|Modrm|IgnoreSize,{ Reg16|ShortMem, 0, 0} },
+ {"verw",   1, 0x0f00, 5, Cpu286, w_Suf|Modrm|IgnoreSize,{ Reg16|ShortMem, 0, 0} },
+diff -urN binutils-2.11.2/opcodes/i386-dis.c binutils-2.11.2.twiddle/opcodes/i386-dis.c
+--- binutils-2.11.2/opcodes/i386-dis.c	Mon Jun 11 12:05:17 2001
++++ binutils-2.11.2.noodle/opcodes/i386-dis.c	Sun Nov 11 08:56:45 2001
+@@ -2466,7 +2466,7 @@
+   /* GRP6 */
+   {
+     { "sldt",	Ew, XX, XX },
+-    { "str",	Ew, XX, XX },
++    { "strQ",	Ev, XX, XX },
+     { "lldt",	Ew, XX, XX },
+     { "ltr",	Ew, XX, XX },
+     { "verr",	Ew, XX, XX },
 
-Is there something different with the VM here?  Should I try 2.4.15pre2
-on the NFS client?
+-----------------------------------------------------------------------
+static unsigned get_TR(int tryit)
+{
+       unsigned tr;
+       if (tryit)
+       	__asm__ __volatile__("strl %0" : "=r" (tr));
+       else
+       	__asm__ __volatile__("str %w0" : "=r" (tr));
+       return tr;
+}
 
-Simon-
+08048400 <get_TR>:
+ 8048400:	55                   	push   %ebp
+ 8048401:	89 e5                	mov    %esp,%ebp
+ 8048403:	83 7d 08 00          	cmpl   $0x0,0x8(%ebp)
+ 8048407:	74 07                	je     8048410 <get_TR+0x10>
+ 8048409:	0f 00 c8             	str    %eax
+ 804840c:	eb 06                	jmp    8048414 <get_TR+0x14>
+ 804840e:	89 f6                	mov    %esi,%esi
+ 8048410:	66 0f 00 c8          	str    %ax
+ 8048414:	89 ec                	mov    %ebp,%esp
+ 8048416:	5d                   	pop    %ebp
+ 8048417:	c3                   	ret
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]

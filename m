@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVCIOi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVCIOlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVCIOi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 09:38:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVCIOi4
+	id S261677AbVCIOlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 09:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVCIOlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 09:38:56 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:46224 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S261648AbVCIOiu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 09:38:50 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CC1B@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'Adrian Bunk'" <bunk@stusta.de>
-Cc: "'Arjan van de Ven'" <arjan@infradead.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-Subject: RE: [ANNOUNCE][PATCH 2.6.11 1/3] megaraid_sas: Announcing new mod
-	 ule  for LSI Logic's SAS based MegaRAID controllers
-Date: Wed, 9 Mar 2005 09:30:22 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Wed, 9 Mar 2005 09:41:15 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:25066 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S261677AbVCIOk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 09:40:58 -0500
+To: Moritz Muehlenhoff <jmm@inutil.org>, linux-kernel@vger.kernel.org
+Subject: Re: Average power consumption in S3?
+In-Reply-To: <20050309142612.GA6049@informatik.uni-bremen.de>
+References: <20050309142612.GA6049@informatik.uni-bremen.de>
+Date: Wed, 9 Mar 2005 14:40:50 +0000
+Message-Id: <E1D92Mk-0006HD-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >
->> >>  source "drivers/scsi/megaraid/Kconfig.megaraid"
->> >> +source "drivers/scsi/megaraid/Kconfig.megaraid_sas"
->> >>  
->> >
->> >why a fully separate file and not add your ONE config option to
->> >Kconfig.megaraid instead ??
->> >
->> 
->> Arjan, I didn't want to needlessly couple megaraid and megaraid_sas.
->> Since they are in the same directory, I couldn't avoid having single
->> Makefile. I thought at least these two should be separate to 
->be consistent
->> with their independent nature.
->> 
->> If this is not a good enough reason, I will merge these two files.
->
->Please merge them.
->
->Whether they are in the same Kconfig file or not does not in any way 
->imply any relation between them.
->
->E.g. drivers/scsi/Kconfig contains many drivers that are not 
->in any way 
->coupled to each other.
->
+Moritz Muehlenhoff <jmm@inutil.org> wrote:
 
-Understood. I will merge them.
+> I'm using an IBM Thinkpad X31. With stock 2.6.11 and the additional
+> radeontool to power-off the backlight in suspend, S3 works very well
+> and reliable. During S3 I've measured a power consumption of 1400
+> to 1500 mWh (using 512 megabytes of RAM). Is there still room for
+> optimization? What's the typical amount of energy required for suspend-
+> to-ram? From friends using iBooks with MacOS X I've heard that they
+> left the notebook in suspend when leaving for a week and could still
+> use it after return.
 
->
->BTW: Why does the text say "(New Driver)"?
->
+Radeons don't actually power down in D3 unless some registers are set,
+and even then the kernel doesn't currently have any code that would put
+the Radeon in D3. If you're willing to test something, could you try the
+code at
 
-I thought I saw some new modules being labeled as such. I will remove
-it in the next update if it not correct.
+http://www.srcf.ucam.org/~mjg59/radeon/
 
->-- 
->
->       "Is there not promise of rain?" Ling Tan asked suddenly out
->        of the darkness. There had been need of rain for many days.
->       "Only a promise," Lao Er said.
->                                       Pearl S. Buck - Dragon Seed
->
-There is a 30% chance of rain here today.
+and do
 
-Thanks,
-Sreenivas
-LSI Logic Corporation
+radeontool power off
+
+immediately before putting the machine into suspend? Make sure that you
+do this from something other than X.
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

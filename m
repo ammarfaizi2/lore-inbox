@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268702AbTHOQlu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 12:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270014AbTHOQfP
+	id S270014AbTHOQlv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267952AbTHOQfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:35:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4254 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269144AbTHOQcN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:32:13 -0400
-Date: Fri, 15 Aug 2003 09:30:05 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>, Greg KH <greg@kroah.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] call drv->shutdown at rmmod
-In-Reply-To: <1060937467.13316.39.camel@gaston>
-Message-ID: <Pine.LNX.4.33.0308150929300.974-100000@localhost.localdomain>
+	Fri, 15 Aug 2003 12:35:06 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:36293
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S270022AbTHOQds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 12:33:48 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Timothy Miller <miller@techsource.com>
+Subject: Re: [PATCH] O12.2int for interactivity
+Date: Sat, 16 Aug 2003 02:40:07 +1000
+User-Agent: KMail/1.5.3
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <200308141746.53346.kernel@kolivas.org> <3F3BEB0C.9090608@techsource.com>
+In-Reply-To: <3F3BEB0C.9090608@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308160240.07605.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Aug 2003 06:03, Timothy Miller wrote:
+> Con Kolivas wrote:
+> > Thus tasks that never sleep are always below the interactive delta
+> > so each time they use up their timeslice they go onto the expired array.
+> > Tasks with enough bonus points can go back onto the active array if they
+> > haven't used up those bonus points.
+>
+> How does a bonus point translate to a priority level?  How many bonus
+> points can you collect?
 
-> There is a problem of semantics here. Is shutdown() supposed to shutdown
-> the hardware device (ie. low power) or just the driver ? If yes, then
-> it's duplicate of the PM callbacks. My understanding of the shutdown()
-> callback is that it was more than "stop driver activity, put device into
-> idle state" to prepare for a shutdown/reboot (though we do also sleep
-> IDE drives in this case, but this is because of that nasty cache flush
-> issue).
+That depends entirely on the algorithm used, and that's where my patches 
+differ from the main kernel tree. In the main kernel tree, you need to 
+accumulate about one second worth of sleep before being elevated one priority 
+(woefully long), and use up one second before dropping. Mine is non linear so 
+it's not a simple relationship.
 
-You have it right - ->shutdown() is only supposed to queisce the device. 
-
-
-	Pat
+Con
 

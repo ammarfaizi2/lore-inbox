@@ -1,81 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262589AbSJHBrn>; Mon, 7 Oct 2002 21:47:43 -0400
+	id <S262614AbSJHBsh>; Mon, 7 Oct 2002 21:48:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262592AbSJHBrn>; Mon, 7 Oct 2002 21:47:43 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:63497
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262589AbSJHBrm>; Mon, 7 Oct 2002 21:47:42 -0400
-Subject: [PATCH] preempt_count overflow with brlocks
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Oct 2002 21:53:15 -0400
-Message-Id: <1034041998.30670.280.camel@phantasy>
+	id <S262616AbSJHBsh>; Mon, 7 Oct 2002 21:48:37 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:38670 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S262614AbSJHBs0>; Mon, 7 Oct 2002 21:48:26 -0400
+Date: Tue, 8 Oct 2002 02:53:59 +0100
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Cc: kai@tp1.ruhr-uni-bochum.de
+Subject: Re: vpath broken in 2.5.41
+Message-ID: <20021008015359.GA38838@compsoc.man.ac.uk>
+References: <20021007232852.GA35308@compsoc.man.ac.uk> <Pine.LNX.4.44.0210072037520.32256-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210072037520.32256-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *17yjZP-0008rb-00*R5Hw8cGjctI* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Mon, Oct 07, 2002 at 08:39:46PM -0500, Kai Germaschewski wrote:
 
-Now that brlocks loop over NR_CPUS, on SMP every brlock/brunlock results
-in the acquire/release of 32 locks.  This incs/decs the preempt_count by
-32.
+> > How now can I build the oprofile.o target from two directories ?
+> 
+> I see in the patch you mailed later that you got it figured out already, 
+> using a relative path.
+> And yeah, it's not particularly beautiful. But I do not see any nice and 
+> easy way, either.
 
-Since we only have 7 bits now for actually storing the lock depth, we
-cannot nest but 3 locks deep.  I doubt we ever acquire three brlocks
-concurrently, but it is still a concern.
+OK. If you say that the vpath support is troublesome, I will believe
+you :)
 
-Attached patch disables/enables preemption explicitly once and only once
-for each lock/unlock.  This is also an optimization as it removes 31
-incs, decs, and conditionals. :)
+> What would help a lot, of course, would be to split this 
+> into two modules, one generic one, one arch-specific one. Have you 
+> considered doing that?
 
-Problem reported by Andrew Morton.
+I think I said to you before that implementing a runtime solution to a
+build time problem is a little bizarre IMHO. I would *much* rather have
+4 lines of slightly icky Makefile than complicate *any* runtime code.
 
-Patch is against 2.5.41, please apply.
+I suppose it would not be much more complicated than a request_module()
+inside oprofile_init(), but it's still more code for next-to-zero
+benefit ...
 
-	Robert Love
-
-diff -urN linux-2.5.41/lib/brlock.c linux/lib/brlock.c
---- linux-2.5.41/lib/brlock.c	2002-10-07 14:24:45.000000000 -0400
-+++ linux/lib/brlock.c	2002-10-07 21:38:02.000000000 -0400
-@@ -24,8 +24,9 @@
- {
- 	int i;
- 
-+	preempt_disable();
- 	for (i = 0; i < NR_CPUS; i++)
--		write_lock(&__brlock_array[i][idx]);
-+		_raw_write_lock(&__brlock_array[i][idx]);
- }
- 
- void __br_write_unlock (enum brlock_indices idx)
-@@ -33,7 +34,8 @@
- 	int i;
- 
- 	for (i = 0; i < NR_CPUS; i++)
--		write_unlock(&__brlock_array[i][idx]);
-+		_raw_write_unlock(&__brlock_array[i][idx]);
-+	preempt_enable();
- }
- 
- #else /* ! __BRLOCK_USE_ATOMICS */
-@@ -48,11 +50,12 @@
- {
- 	int i;
- 
-+	preempt_disable();
- again:
--	spin_lock(&__br_write_locks[idx].lock);
-+	_raw_spin_lock(&__br_write_locks[idx].lock);
- 	for (i = 0; i < NR_CPUS; i++)
- 		if (__brlock_array[i][idx] != 0) {
--			spin_unlock(&__br_write_locks[idx].lock);
-+			_raw_spin_unlock(&__br_write_locks[idx].lock);
- 			barrier();
- 			cpu_relax();
- 			goto again;
-
+regards
+john
+-- 
+"I will eat a rubber tire to the music of The Flight of the Bumblebee"

@@ -1,63 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312930AbSCZDde>; Mon, 25 Mar 2002 22:33:34 -0500
+	id <S312935AbSCZDx6>; Mon, 25 Mar 2002 22:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312933AbSCZDdY>; Mon, 25 Mar 2002 22:33:24 -0500
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:33548 "EHLO
-	rtr.ca") by vger.kernel.org with ESMTP id <S312930AbSCZDdK>;
-	Mon, 25 Mar 2002 22:33:10 -0500
-Message-ID: <3C9FEBB6.1C8B471F@pobox.com>
-Date: Mon, 25 Mar 2002 22:32:06 -0500
-From: Mark Lord <mlord@pobox.com>
-Organization: Real-Time Remedies Inc.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre9 i686)
-X-Accept-Language: en
+	id <S312936AbSCZDxt>; Mon, 25 Mar 2002 22:53:49 -0500
+Received: from mx7.sac.fedex.com ([199.81.194.38]:29963 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S312935AbSCZDxk>; Mon, 25 Mar 2002 22:53:40 -0500
+Date: Tue, 26 Mar 2002 11:50:56 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: jchua@silk.corp.fedex.com
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Jeff Chua <jeffchua@silk.corp.fedex.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Jeff Chua <jchua@fedex.com>
+Subject: Re: [PATCH] 2.4.19-pre4 ide-probe
+In-Reply-To: <Pine.LNX.4.10.10203221447260.11833-200000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.42.0203261149510.15967-100000@silk.corp.fedex.com>
 MIME-Version: 1.0
-To: John Summerfield <summer@os2.ami.com.au>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, andre@linux-ide.org,
-        linux-kernel@vger.kernel.org, summer@numbat.Os2.Ami.Com.Au
-Subject: Re: IDE and hot-swap disk caddies
-In-Reply-To: <200203252316.g2PNGD011116@numbat.Os2.Ami.Com.Au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/26/2002
+ 11:53:32 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/26/2002
+ 11:53:35 AM,
+	Serialize complete at 03/26/2002 11:53:35 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, what you tried at first is very close,
-and could be made to work for you with some debugging.
+On Fri, 22 Mar 2002, Andre Hedrick wrote:
 
-But ideally, I think the driver should just rescan the interface
-anytime a raw drive (minor number == 0) access is performed..
-More or less.  With a bit of debounce logic.
+> This is the bases of the codes origin.
 
-Cheers
--- 
-Mark Lord
-Real-Time Remedies Inc.
-mlord@pobox.com
+So, should it be removed then? If not, how can you get rid of the
+ide_xlate_1024 unknown symbol?
+
+Jeff.
 
 
-John Summerfield wrote:
-> 
-> > > The device is hot-swap capable and has a switch (others have a key)
-> > > that locks the drive in and powers it up; in the other position the
-> > > drive is powered down and can be removed.
+
+>
+> Comments?
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+> On Thu, 21 Mar 2002, Jeff Chua wrote:
+>
 > >
-> > Linux doesn't support IDE hot swap at the drive level. Its basically
-> > waiting people to want it enough to either fund it or go write the code
+> > Marcelo, Andre,
 > >
-> 
-> What needs to be done? How extensive is the surgery needed?
-> 
-> --
-> Cheers
-> John Summerfield
-> 
-> Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
-> 
-> Note: mail delivered to me is deemed to be intended for me, for my
-> disposition.
-> 
-> ==============================
-> If you don't like being told you're wrong,
->         be right!
+> > Someone apparently added the "hook", but it was never used in the kernel,
+> >
+> > What is ide_xlate_1024 referring to?
+> >
+> > Jeff
+> >
+> > ---------- Forwarded message ----------
+> > Date: Thu, 14 Mar 2002 11:22:27 +0800 (SGT)
+> > From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+> > To: Linux Kernel <linux-kernel@vger.kernel.org>,
+> >      Marcelo Tosatti <marcelo@conectiva.com.br>
+> > Cc: Jeff Chua <jchua@fedex.com>
+> > Subject: [PATCH] 2.4.19-pre3 ide_xlate_1024_hook ???
+> >
+> >
+> > It seems that the "ide_xlate_1024_hook" is redundant in
+> > ./drivers/ide/ide-probe.c
+> >
+> > It's not used anywhere by the kernel, and it caused "depmod" to fail
+> > with unknown ide_xlate_1024_hook symbol.
+> >
+> >
+> > Jeff
+> >
+> > Patch ...
+> >
+> > --- ./drivers/ide/ide-probe.c.org       Thu Mar 14 11:01:20 2002
+> > +++ ./drivers/ide/ide-probe.c   Thu Mar 14 11:03:16 2002
+> > @@ -987,7 +987,6 @@
+> >  }
+> >
+> >  #ifdef MODULE
+> > -extern int (*ide_xlate_1024_hook)(kdev_t, int, int, const char *);
+> >
+> >  int init_module (void)
+> >  {
+> > @@ -997,14 +996,12 @@
+> >                 ide_unregister(index);
+> >         ideprobe_init();
+> >         create_proc_ide_interfaces();
+> > -       ide_xlate_1024_hook = ide_xlate_1024;
+> >         return 0;
+> >  }
+> >
+> >  void cleanup_module (void)
+> >  {
+> >         ide_probe = NULL;
+> > -       ide_xlate_1024_hook = 0;
+> >  }
+> >  MODULE_LICENSE("GPL");
+> >  #endif /* MODULE */
+> >
+> >
+> >
+>
+

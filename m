@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUIXCJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266753AbUIXCJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266741AbUIXCJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	id S266753AbUIXCJ6 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 23 Sep 2004 22:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUIWUkn
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266741AbUIWUk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 16:40:43 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:32150 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S266705AbUIWUZN
+	Thu, 23 Sep 2004 16:40:28 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:51613 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S266578AbUIWUZP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:25:13 -0400
-Subject: [patch 07/26]  char/generic_serial: 	replace schedule_timeout() with msleep_interruptible()
+	Thu, 23 Sep 2004 16:25:15 -0400
+Subject: [patch 08/26]  char/ip2main: replace 	schedule_timeout() with msleep_interruptible()
 To: akpm@digeo.com
 Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
 From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 22:25:12 +0200
-Message-ID: <E1CAa9R-00080U-6o@sputnik>
+Date: Thu, 23 Sep 2004 22:25:15 +0200
+Message-ID: <E1CAa9U-000837-56@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -31,38 +31,20 @@ Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 ---
 
- linux-2.6.9-rc2-bk7-max/drivers/char/generic_serial.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ linux-2.6.9-rc2-bk7-max/drivers/char/ip2main.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
-diff -puN drivers/char/generic_serial.c~msleep_interruptible-drivers_char_generic_serial drivers/char/generic_serial.c
---- linux-2.6.9-rc2-bk7/drivers/char/generic_serial.c~msleep_interruptible-drivers_char_generic_serial	2004-09-21 21:08:06.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/char/generic_serial.c	2004-09-21 21:08:06.000000000 +0200
-@@ -26,6 +26,7 @@
- #include <linux/mm.h>
- #include <linux/generic_serial.h>
- #include <linux/interrupt.h>
-+#include <linux/delay.h>
- #include <asm/semaphore.h>
- #include <asm/uaccess.h>
+diff -puN drivers/char/ip2main.c~msleep_interruptible-drivers_char_ip2main drivers/char/ip2main.c
+--- linux-2.6.9-rc2-bk7/drivers/char/ip2main.c~msleep_interruptible-drivers_char_ip2main	2004-09-21 21:08:08.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/char/ip2main.c	2004-09-21 21:08:08.000000000 +0200
+@@ -1632,8 +1632,7 @@ ip2_close( PTTY tty, struct file *pFile 
  
-@@ -399,8 +400,7 @@ static int gs_wait_tx_flushed (void * pt
- 		gs_dprintk (GS_DEBUG_FLUSH, "Expect to finish in %d jiffies "
- 			    "(%d chars).\n", jiffies_to_transmit, charsleft); 
- 
--		set_current_state (TASK_INTERRUPTIBLE);
--		schedule_timeout(jiffies_to_transmit);
-+		msleep_interruptible(jiffies_to_msecs(jiffies_to_transmit));
- 		if (signal_pending (current)) {
- 			gs_dprintk (GS_DEBUG_FLUSH, "Signal pending. Bombing out: "); 
- 			rv = -EINTR;
-@@ -771,8 +771,7 @@ void gs_close(struct tty_struct * tty, s
- 
- 	if (port->blocked_open) {
- 		if (port->close_delay) {
--			set_current_state (TASK_INTERRUPTIBLE);
--			schedule_timeout(port->close_delay);
-+			msleep_interruptible(jiffies_to_msecs(port->close_delay));
+ 	if (pCh->wopen) {
+ 		if (pCh->ClosingDelay) {
+-			current->state = TASK_INTERRUPTIBLE;
+-			schedule_timeout(pCh->ClosingDelay);
++			msleep_interruptible(jiffies_to_msecs(pCh->ClosingDelay));
  		}
- 		wake_up_interruptible(&port->open_wait);
+ 		wake_up_interruptible(&pCh->open_wait);
  	}
 _

@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbUJZQ52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbUJZQ7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbUJZQ52 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 12:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbUJZQ52
+	id S261338AbUJZQ7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 12:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbUJZQ7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 12:57:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35986 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261337AbUJZQ50
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 12:57:26 -0400
-Message-ID: <417E81E4.4020309@pobox.com>
-Date: Tue, 26 Oct 2004 12:57:08 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Tue, 26 Oct 2004 12:59:16 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:37164 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S261338AbUJZQ7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 12:59:13 -0400
+X-BrightmailFiltered: true
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'John Richard Moser'" <nigelenki@comcast.net>
+Cc: =?gb2312?B?J0VzcGVuIEZqZWxsduZyIE9sc2VuJw==?= <espenfjo@gmail.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: My thoughts on the "new development model"
+Date: Tue, 26 Oct 2004 09:58:41 -0700
+Organization: Cisco Systems
+Message-ID: <014d01c4bb7d$0baba180$ca41cb3f@amer.cisco.com>
 MIME-Version: 1.0
-To: Jesper Juhl <juhl-lkml@dif.dk>
-CC: Timothy Miller <miller@techsource.com>, pbecke <pbecke@javagear.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <6.1.2.0.1.20041026082223.0231edd8@mail.javagear.com> <417E70D2.2010302@techsource.com> <Pine.LNX.4.61.0410261827430.3252@dragon.hygekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.61.0410261827430.3252@dragon.hygekrogen.localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="gb2312"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <417E7EE6.50900@comcast.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> I'd say a card with open source drivers and access to detailed
-> documentation from a company that's willing to work with the Open Source
-> Software community is a very big first step, and a massive improvement on
-> the current state of affairs. If we could just get that as a start, then I
-> for one would be thrilled.
+The fact is, these days nobody wants to be a stable-release maintainer
+anymore. It's boring.
 
+I don't agree that the new development is "better" in the sense of keeping
+stability and quality, but I can't blame Andrew for that. Let people do
+whatever they like to do, and they'll do a better job.
 
-Well, as Alan mentioned, there are already five 3D chipsets out there 
-with docs going to anyone who is serious about implementing a 3D driver 
-for that particular piece of hardware.  You need more than just 
-available docs and hardware.
+So unless someone steps up and does it, there is no point in arguing. Of
+course, s/he won't be an "official maintainer" as endorsed/appointed by
+Linus like previous releases, but that might be better as it's more like
+"people choose XXX" instead of "Linus forces XXX onto people"? :)
 
-You need...
-
-* engineering resources to implement a complicated driver (3D h/w 
-drivers are complex beasts)
-
-* a compelling design and/or [low] cost
-
-* to avoid the problem where the h/w changes so often, the open source 
-driver maintainers simply cannot keep up.
-
-	Jeff
-
+Hua
 

@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318017AbSHaVUf>; Sat, 31 Aug 2002 17:20:35 -0400
+	id <S318031AbSHaVW6>; Sat, 31 Aug 2002 17:22:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318018AbSHaVUf>; Sat, 31 Aug 2002 17:20:35 -0400
-Received: from dsl-213-023-043-117.arcor-ip.net ([213.23.43.117]:49386 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318017AbSHaVUe>;
-	Sat, 31 Aug 2002 17:20:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [RFC] [PATCH] Include LRU in page count
-Date: Sat, 31 Aug 2002 23:05:02 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-References: <3D644C70.6D100EA5@zip.com.au> <E17lEDR-0004Qq-00@starship> <3D712682.66E2D3B2@zip.com.au>
-In-Reply-To: <3D712682.66E2D3B2@zip.com.au>
+	id <S318032AbSHaVW5>; Sat, 31 Aug 2002 17:22:57 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:26877 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318031AbSHaVW5>; Sat, 31 Aug 2002 17:22:57 -0400
+Date: Sat, 31 Aug 2002 23:27:17 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alex Pelts <alexp@itvd.sel.sony.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mtdblock with gcc 2.95.4 patch
+In-Reply-To: <3D62C6DD.9000306@itvd.sel.sony.com>
+Message-ID: <Pine.NEB.4.44.0208312323450.147-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17lFQV-0004RO-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 31 August 2002 22:26, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> > Manfred suggested an approach to de-racing this race using
-> > atomic_dec_and_lock, which needs to be compared to the current approach.
-> 
-> Could simplify things, but not all architectures have an optimised
-> version.  So ia64, mips, parisc and s390 would end up taking
-> the lru lock on every page_cache_release.
+On Tue, 20 Aug 2002, Alex Pelts wrote:
 
-As far as implementing it goes, some instances of page_cache_release are
-already under the lru lock and would need an alternative, non-locking
-version.
+> Hi,
 
-The current patch seems satisfactory performance-wise and if it's
-also raceless as it's supposed to be, it gives us something that works,
-and we can evaluate alternatives at our leisure.  Right now I'm afraid
-we have something that just works most of the time.
+Hi Alex,
 
-I think we're getting to the point where this needs to get some heavy
-beating up, to see what happens.
+> After installing new debian stable with gcc 2.95.4, kernel 2.4.17
+> stopped linking. The error is "undefined reference to local symbols...".
+>...
+> something tricky about __exit macro and 2.95.4 compiler.
+> For people getting error:
+> drivers/mtd/mtdlink.o(.text.lock+0x26c): undefined reference to `local
+> symbols in discarded section .text.exit'
+
+this is a known issue with recent binutils - and it's considered to be a
+bug in the kernel.
+
+> here is the patch that seems to fix it.
+
+I do currently not understand why your patch should fix it. Could you send
+me the .config you used to reproduce the problem in 2.4.19?
+
+> Thanks,
+> Alex
+>...
+
+TIA
+Adrian
 
 -- 
-Daniel
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+

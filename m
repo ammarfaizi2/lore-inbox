@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271106AbTHGXIE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 19:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271107AbTHGXIE
+	id S271055AbTHGXM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 19:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271103AbTHGXM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 19:08:04 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:57302 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S271106AbTHGXH5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 19:07:57 -0400
-content-class: urn:content-classes:message
+	Thu, 7 Aug 2003 19:12:59 -0400
+Received: from [203.51.27.20] ([203.51.27.20]:18418 "EHLO e4.eyal.emu.id.au")
+	by vger.kernel.org with ESMTP id S271055AbTHGXM5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 19:12:57 -0400
+Message-ID: <3F32DCE9.74E61CF9@eyal.emu.id.au>
+Date: Fri, 08 Aug 2003 09:12:41 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22-rc1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: Updated MSI Patches
-Date: Thu, 7 Aug 2003 16:07:53 -0700
-Message-ID: <7F740D512C7C1046AB53446D3720017304AE7D@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Updated MSI Patches
-Thread-Index: AcNdNYrkDmckcZyTTaCpF1SdIrRz0wAAfbpA
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>,
-       "long" <tlnguyen@snoqualmie.dp.intel.com>
-Cc: <linux-kernel@vger.kernel.org>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>,
-       <greg@kroah.com>
-X-OriginalArrivalTime: 07 Aug 2003 23:07:54.0441 (UTC) FILETIME=[BBA80B90:01C35D38]
+To: Chris Rankin <rankincj@yahoo.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Loading Pentium III microcode under Linux - catch 22!
+References: <20030807143831.73389.qmail@web40603.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Seems like a lot of this file could go into a new file,
-> drivers/pci/msi.c.  We'll want to share as much code as possible
-across
-> all Linux architectures.
-Agree. 
+Chris Rankin wrote:
+> 
+>  --- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > As far as I am aware none of the microcode updates
+> > even apply to 933Mhz era PIII, just the ones the
+> > BIOS ships with by default nowdays. Also the kind of
+> > stuff the errata fix are obscure ultra-weird corner
+> > cases people just don't hit.
+> 
+> Lucky me, eh?
+> 
+> My CPUs *do* take microcode, and they are 933 MHz...
+> ;-). I upgraded from a pair of 733 MHz CPUs bought in
 
-At the same time, Long, you need to provide more info so that more
-people can play with MSI. 
+Some random ideas:
+	- reinstall the slower, stable CPUs and burn the BIOS
+		If you are a linux hacker then you kept these
+		"just in case".. or else
+	- get a loaner CPU and use it to burn the BIOS
+		If you are a linux hacker then you have no
+		life and no friends to get a loaner from but
+		you do have a roomfull of computer parts...
+		otherwise
+	- install only one CPU, it may be more stable
+	- run your CPU slower than spec, it may be more stable
+		most microcode bugs are not timining sensitive
+		but it is worth a try
 
-Jun
+Good luck.
 
-> -----Original Message-----
-> From: Jeff Garzik [mailto:jgarzik@pobox.com]
-> Sent: Thursday, August 07, 2003 3:45 PM
-> To: long
-> Cc: linux-kernel@vger.kernel.org; Nakajima, Jun; Nguyen, Tom L;
-> greg@kroah.com
-> Subject: Re: Updated MSI Patches
-> 
-> long wrote:
-> 
-> 
-> > diff -X excludes -urN linux-2.6.0-test2-create-
-> vectorbase/arch/i386/kernel/pci_msi.c linux-2.6.0-test2-create-
-> msi/arch/i386/kernel/pci_msi.c
-> > --- linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/pci_msi.c
-> 	1969-12-31 19:00:00.000000000 -0500
-> > +++ linux-2.6.0-test2-create-msi/arch/i386/kernel/pci_msi.c	2003-08-
-> 06 09:47:02.000000000 -0400
-> 
-> Seems like a lot of this file could go into a new file,
-> drivers/pci/msi.c.  We'll want to share as much code as possible
-across
-> all Linux architectures.
-> 
-> 	Jeff
-> 
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

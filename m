@@ -1,48 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264683AbUEXUaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264686AbUEXUce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264683AbUEXUaV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 16:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264686AbUEXUaV
+	id S264686AbUEXUce (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 16:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbUEXUce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 16:30:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31915 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264683AbUEXU3L (ORCPT
+	Mon, 24 May 2004 16:32:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57273 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264688AbUEXUcB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 16:29:11 -0400
-Date: Mon, 24 May 2004 13:29:10 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: shanthi kiran pendyala <skiranp@cisco.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mmap problem (VM_DENYWRITE)
-Message-ID: <20040524132910.K22989@build.pdx.osdl.net>
-References: <20040519062044.15651.qmail@web90107.mail.scd.yahoo.com> <000a01c441bf$ccb83600$322147ab@amer.cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <000a01c441bf$ccb83600$322147ab@amer.cisco.com>; from skiranp@cisco.com on Mon, May 24, 2004 at 11:49:10AM -0700
+	Mon, 24 May 2004 16:32:01 -0400
+Date: Mon, 24 May 2004 13:31:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFD] Explicitly documenting patch submission
+In-Reply-To: <m3fz9pd2dw.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.58.0405241326400.32189@ppc970.osdl.org>
+References: <1YUY7-6fF-11@gated-at.bofh.it> <m3fz9pd2dw.fsf@averell.firstfloor.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* shanthi kiran pendyala (skiranp@cisco.com) wrote:
-> The complete prot flag is (VM_READ | VM_WRITE | VM_EXEC | VM_GROWSUP |
-> VM_DENYWRITE)
-[snip]
-> Output after running test program
-> =================================
->  building page tables for va 0x2aac5000 phy 0x10940000 
->  vsize 0x20000 psize 0x20000 prot 0xa07
+
+
+On Mon, 24 May 2004, Andi Kleen wrote:
+>
+> Linus Torvalds <torvalds@osdl.org> writes:
 > 
-[snip]
+> > Hola!
+> >
+> > This is a request for discussion..
+> 
+> What's not completely clear to me is how the Signed-off-by
+> header is related to this:
+> 
+> > 	Developer's Certificate of Origin 1.0
+> [...]
+> 
+> I assume you're not expecting that people actually print out and sign
+> this and send it somewhere?
 
->     printk("<1> vsize 0x%lx psize 0x%lx prot 0x%lx\n",
->            vsize, psize, vma->vm_page_prot.pgprot);
+No. 
 
-I believe you've drawn the wrong conclusion.  This contains page
-protection bits relevant for the page tables.  You've decoded
-vm_page_prot as if it were vm_flags.
+> You're just asking that they read it and confirm to the maintainer
+> that they did, right?
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Right. We'd add it to the Documentation directory, and add pointers to it 
+to anything that mentions the "Signed-off-by:" thing (eg things like 
+SubmittingPatches). All just to make sure that people are aware of what it 
+means to say "Signed-off-by:"
+
+> That sounds quite involved to me. I bet in some companies this 
+> Certificate would first be sent to the legal department for approval,
+> delaying the patch for a long time
+
+Having worked at a company like that, I can say that that is true pretty 
+much regardless of what the patch submission is (it's about a million 
+times _worse_ if you have something like the FSF copyright assignment 
+thing, but it's certainly true even for random open source things that 
+don't have the physical paperwork and copyright assignment).
+
+> e.g. normally the maintainer would just answer "ok, looks good,
+> applied". Now they would need to ask "ok, did you write this. if not
+> through which hands did it pass"? and wait for a reply and then only
+> add the patch when you know whom to put into all these Signed-off-by
+> lines.
+
+No. The point is that a maintainer does NOT need to do this, exactly 
+because we'd try to educate people to have the "Signed-off-by:" line pass 
+with the patch from the very beginning.
+
+> This is not unrealistic, For example for patches that are "official
+> projects" by someone it often happens that not the actual submitter
+> sends the patch, but his manager (often not even cc'ing the original
+> developer). In some cases companies even go through huge efforts to
+> keep the original developers secret (I won't give names here, but it
+> happens).
+
+Absolutely. And the whole sign-off procedure is _designed_ for this. 
+
+The person who signs off on a patch does not need to be the author: in 
+fact at a company that has "release people", it's not _supposed_ to be the 
+author, it's supposed to be the company release person (although the 
+original author may well have signed off on it internally - but that's not 
+somethign that an external maintainer would know about or even care 
+about).
+
+			Linus

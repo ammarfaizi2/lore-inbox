@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUD1Isu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264693AbUD1Irm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264702AbUD1Isu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 04:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264703AbUD1Isu
+	id S264693AbUD1Irm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 04:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264697AbUD1Irm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 04:48:50 -0400
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:30216 "EHLO
-	ford.pronto.tv") by vger.kernel.org with ESMTP id S264702AbUD1Iso convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 04:48:44 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.6-rc3
-References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Date: Wed, 28 Apr 2004 10:48:36 +0200
-In-Reply-To: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org> (Linus
- Torvalds's message of "Tue, 27 Apr 2004 19:03:35 -0700 (PDT)")
-Message-ID: <yw1x1xm8o5cr.fsf@kth.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Wed, 28 Apr 2004 04:47:42 -0400
+Received: from math.ut.ee ([193.40.5.125]:4547 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S264693AbUD1Irl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 04:47:41 -0400
+Date: Wed, 28 Apr 2004 11:42:54 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: New ide-proc warning from min/max changes
+Message-ID: <Pine.GSO.4.44.0404281137480.24906-100000@math.ut.ee>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+This is 2.6.6-rc3 on a sparc64. This warning has appeared with the
+IDE min/max changes:
 
-> s390, cifs, ntfs, ppc, ppc64, cpufreq upates. Oh, and DVB and USB.
->
-> I'm hoping to do a final 2.6.6 later this week, so I'm hoping as many 
-> people as possible will test this.
+  CC      drivers/ide/ide-proc.o
+drivers/ide/ide-proc.c: In function `proc_ide_write_settings':
+drivers/ide/ide-proc.c:511: warning: comparison of distinct pointer types lacks a cast
 
-I can't see that
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108308929211499&w=2 or
-an equivalent fix has been included yet.  It would be nice to have it
-fixed before the next release.
+The line in question is
+len = min(p - start, MAX_LEN);
+where p and start are pointers of type "const char *" and MAX_LEN is
+#define MAX_LEN 30
 
 -- 
-Måns Rullgård
-mru@kth.se
+Meelis Roos (mroos@linux.ee)
+
+

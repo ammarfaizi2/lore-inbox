@@ -1,99 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267746AbUIFMlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267889AbUIFMoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267746AbUIFMlM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 08:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267889AbUIFMlM
+	id S267889AbUIFMoE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 08:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267920AbUIFMoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 08:41:12 -0400
-Received: from mail.renesas.com ([202.234.163.13]:32700 "EHLO
-	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S267746AbUIFMlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 08:41:04 -0400
-Date: Mon, 06 Sep 2004 21:40:51 +0900 (JST)
-Message-Id: <20040906.214051.336469534.takata.hirokazu@renesas.com>
-To: akpm@osdl.org, hch@infradead.org
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.9-rc1-mm3] [m32r] Modify sys_ipc() to remove useless
- iBCS2 support code
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20040903105423.A3179@infradead.org>
-References: <20040903014811.6247d47d.akpm@osdl.org>
-	<20040903105423.A3179@infradead.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+	Mon, 6 Sep 2004 08:44:04 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:41164 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S267889AbUIFMn6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 08:43:58 -0400
+Date: Mon, 6 Sep 2004 14:43:57 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Frank van Maarseveen <frankvm@xs4all.nl>
+Cc: Tonnerre <tonnerre@thundrix.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+Message-ID: <20040906124357.GB27133@MAIL.13thfloor.at>
+Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
+	Tonnerre <tonnerre@thundrix.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Jamie Lokier <jamie@shareable.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Adrian Bunk <bunk@fs.tum.de>, Hans Reiser <reiser@namesys.com>,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alexander Lyamin aka FLX <flx@namesys.com>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus> <20040906075603.GB28697@thundrix.ch> <20040906080845.GA31483@janus>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040906080845.GA31483@janus>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-
-From: Christoph Hellwig <hch@infradead.org>
-Date: Fri, 3 Sep 2004 10:54:23 +0100
-> On Fri, Sep 03, 2004 at 01:48:11AM -0700, Andrew Morton wrote:
+On Mon, Sep 06, 2004 at 10:08:45AM +0200, Frank van Maarseveen wrote:
+> On Mon, Sep 06, 2004 at 09:56:03AM +0200, Tonnerre wrote:
 > > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm3/
-> > 
-> > - Added the m32r architecture.  Haven't looked at it yet.
+> > $ cat fs_header owner_root flags_with_suid evil_program > evil.iso
+> > $ ls -l evil.iso/evil_program
 > 
-> More comments.
-Thank you for your sending comments.
+> It should of course be equivalent to a user mount: nodev nosuid etc.
 
->  - please don't implement ancient backward-compat syscalls in a new
->    port (that's why we made those conditional on __ARCH_WANT_* in unistd.h,
->    but see also old_ in your arch code and the totally useless iBCS2
->    hack in the sysv ipc code)
->  - your probably want to run all this code through sparse and fix warnings
-> 
+hmm, sounds reasonable, but what if root accesses it?
+(or somebody with the 'right' capability)
 
-The useless iBCS2 supporting code is removed.
+ - it might be strange if even root is not able to
+   open device nodes or execute files from an archive
 
-However, according to old_ syscalls, I would like to keep backward-
-compatibility for a while, due to some old deb packages and 
-executables for m32r.  
-I'm struggling to rebuild and replace old packages to new ones.
-http://debian.linux-m32r.org/
+ - it might lead to interesting situations if the
+   archive is opened by root, but accessed by an user
+   (thinking of caches and such)
+  
+best,
+Herbert
 
-
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
-
- sys_m32r.c |   25 ++++++++++---------------
- 1 files changed, 10 insertions(+), 15 deletions(-)
-
-
---- linux-2.6.9-rc1-mm3.orig/arch/m32r/kernel/sys_m32r.c	2004-09-03 20:46:13.000000000 +0900
-+++ linux-2.6.9-rc1-mm3/arch/m32r/kernel/sys_m32r.c	2004-09-06 18:48:33.000000000 +0900
-@@ -227,21 +227,16 @@ asmlinkage int sys_ipc(uint call, int fi
- 	case MSGCTL:
- 		return sys_msgctl (first, second,
- 				   (struct msqid_ds __user *) ptr);
--	case SHMAT:
--		switch (version) {
--		default: {
--			ulong raddr;
--			ret = do_shmat (first, (char __user *) ptr,
--					 second, &raddr);
--			if (ret)
--				return ret;
--			return put_user (raddr, (ulong __user *) third);
--		}
--		case 1:	/* iBCS2 emulator entry point */
--			if (!segment_eq(get_fs(), get_ds()))
--				return -EINVAL;
--			return do_shmat (first, (char __user *) ptr,
--					  second, (ulong *) third);
-+	case SHMAT: {
-+		ulong raddr;
-+
-+		if ((ret = verify_area(VERIFY_WRITE, (ulong __user *) third, 
-+				      sizeof(ulong))))
-+			return ret;
-+		ret = do_shmat (first, (char __user *) ptr, second, &raddr);
-+		if (ret)
-+			return ret;
-+		return put_user (raddr, (ulong __user *) third);
- 		}
- 	case SHMDT:
- 		return sys_shmdt ((char __user *)ptr);
-
-
+> -- 
+> Frank
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

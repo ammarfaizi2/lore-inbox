@@ -1,48 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281647AbRKZMlj>; Mon, 26 Nov 2001 07:41:39 -0500
+	id <S281660AbRKZMzl>; Mon, 26 Nov 2001 07:55:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281650AbRKZMl3>; Mon, 26 Nov 2001 07:41:29 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:37906 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S281647AbRKZMlU>; Mon, 26 Nov 2001 07:41:20 -0500
-Message-Id: <200111261241.fAQCfAH3028926@pincoya.inf.utfsm.cl>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1] 
-In-Reply-To: Message from Linus Torvalds <torvalds@transmeta.com> 
-   of "Sun, 25 Nov 2001 19:58:41 -0800." <Pine.LNX.4.33.0111251946400.9764-100000@penguin.transmeta.com> 
-Date: Mon, 26 Nov 2001 09:41:10 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S281657AbRKZMzb>; Mon, 26 Nov 2001 07:55:31 -0500
+Received: from vti01.vertis.nl ([145.66.4.26]:32014 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S281659AbRKZMzP>;
+	Mon, 26 Nov 2001 07:55:15 -0500
+Date: Mon, 26 Nov 2001 13:54:25 +0100
+From: Rolf Fokkens <fokkensr@linux06.vertis.nl>
+Message-Id: <200111261254.NAA13631@linux06.vertis.nl>
+To: linux-kernel@vger.kernel.org
+Subject: oops on 2.4.15-pre8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> said:
+[fokkensr@iasdev fokkensr]$ ksymoops -k ksyms-2.4.15-pre8 -o /lib/modules/2.4.15-pre8-fks/ -m /boot/System.map-2.4.15-pre8-fks oops-2.4.15-pre8.txt
 
-[...]
+ksymoops 0.7c on i686 2.4.8-clk.  Options used
+     -V (default)
+     -k ksyms-2.4.15-pre8 (specified)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.15-pre8-fks/ (specified)
+     -m /boot/System.map-2.4.15-pre8-fks (specified)
 
-> The _real_ solution is to make fewer fundamental changes between stable
-> kernels, and that's a real solution that I expect to become more and more
-> realistic as the kernel stabilizes. I already expect 2.5 to have a _lot_
-> less fundamental changes than the 2.3.x tree ever had - the SMP
-> scaliability efforts and page-cachification between 2.2.x and 2.4.x is
-> really quite a big change.
+Error (expand_objects): cannot stat(/lib/cpqarray.o) for cpqarray
+ksymoops: No such file or directory
+Error (expand_objects): cannot stat(/lib/aic7xxx.o) for aic7xxx
+ksymoops: No such file or directory
+/usr/bin/find: /lib/modules/2.4.15-pre8-fks/build/include/sound/isapnp.h: No such file or directory
+Error (pclose_local): find_objects pclose failed 0x100
+Warning (compare_ksyms_lsmod): module e1000 is in lsmod but not in ksyms, probably no symbols exported
+Error (compare_ksyms_lsmod): module nfsd is in ksyms but not in lsmod
+Error (compare_ksyms_lsmod): module lockd is in ksyms but not in lsmod
+Error (compare_ksyms_lsmod): module sunrpc is in ksyms but not in lsmod
+Warning (map_ksym_to_module): cannot match loaded module cpqarray to a unique module object.  Trace may not be reliable.
+Oops:   0000
+CPU:    0
+EIP:    0010:[<c02000c5>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 000005dc ebx: edbea7e8 ecx: edca8800 edx: 00000000
+esi: ee91c0ac edi: 00000000 ebp: ec6147a4 esp: f0d4bd84
+ds: 0010 es: 0018 ss: 0018
+Stack: 00000001 f0d4a000 00000003 00000000 edca8800 c01f043d edbea7e8 ec2468ac
+       ed63c6d4 f77f0084 ee2468c0 f0d4bdc4 c034fed8 c01fef56 00000002 00000003
+       edbea7e8 00000000 edca8800 c0200024 00000045 ec63c6d4 f77f0084 ee2468c0
+Call Trace: <c01f043d> <c01fef56> <c0200024> <c01163cc> <c0215589>
+            <c020f648> <c020fc02> <c0130521> <c02106df> <c0205a2b> <c0222edc>
+            <c0222f16> <c01e056d> <c0222edc> <c01e078b> <c014329e> <c01076a3>
+Code: 8a 87 4c 03 00 00 3c 02 74 0a 3c 01 75 0b f6 45 20 04 75 05
 
-As a (mostly) bystander to kernel development here in lkml I see that there
-are largeish areas in the kernel where ancient legacy, old, and new
-mechanisms coexist. How about going _just_ for a big spring cleanup (Yep,
-it _is_ spring around here ;-) (including kbuild, CML2, cutting everything
-over to tasklets, getting rid of legacy timers, go after the results of the
-Stanford checker, make the kernel-janitors work overtime, ...), going for
-2.6 in a short(ish) time, and leave 2.7 for really new stuff? It should be
-easier to do new development on a more uniform base (besides, having to
-remember several ways to do things and the ugliness of it all does detract
-from the fun of kernel development, which is the central objective AFAIU).
-It should also naturally cut down the time between new stable releases.
-Just too bad Halloween is now past, the moaning here would have added to
-the spirit ;-)
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+>>EIP; c02000c5 <ip_queue_xmit2+a1/22c>   <=====
+Trace; c01f043d <nf_hook_slow+19d/21c>
+Trace; c01fef56 <ip_queue_xmit+28e/300>
+Trace; c0200024 <ip_queue_xmit2+0/22c>
+Trace; c01163cc <schedule+500/8d0>
+Trace; c0215589 <tcp_v4_send_check+6d/ac>
+Trace; c020f648 <tcp_cwnd_restart+18/a4>
+Trace; c020fc02 <tcp_transmit_skb+52e/5ec>
+Trace; c0130521 <__lock_page+91/9c>
+Trace; c02106df <tcp_write_xmit+18f/2dc>
+Trace; c0205a2b <tcp_sendmsg+fd7/1370>
+Trace; c0222edc <inet_sendmsg+0/40>
+Trace; c0222f16 <inet_sendmsg+3a/40>
+Trace; c01e056d <sock_sendmsg+81/a4>
+Trace; c0222edc <inet_sendmsg+0/40>
+Trace; c01e078b <sock_write+a3/ac>
+Trace; c014329e <sys_write+8e/c4>
+Trace; c01076a3 <system_call+2f/34>
+
+Code;  c02000c5 <ip_queue_xmit2+a1/22c>
+00000000 <_EIP>:
+Code;  c02000c5 <ip_queue_xmit2+a1/22c>   <=====
+   0:   8a 87 4c 03 00 00         mov    0x34c(%edi),%al   <=====
+Code;  c02000cb <ip_queue_xmit2+a7/22c>
+   6:   3c 02                     cmp    $0x2,%al
+Code;  c02000cd <ip_queue_xmit2+a9/22c>
+   8:   74 0a                     je     14 <_EIP+0x14> c02000d9 <ip_queue_xmit2+b5/22c>
+Code;  c02000cf <ip_queue_xmit2+ab/22c>
+   a:   3c 01                     cmp    $0x1,%al
+Code;  c02000d1 <ip_queue_xmit2+ad/22c>
+   c:   75 0b                     jne    19 <_EIP+0x19> c02000de <ip_queue_xmit2+ba/22c>
+Code;  c02000d3 <ip_queue_xmit2+af/22c>
+   e:   f6 45 20 04               testb  $0x4,0x20(%ebp)
+Code;  c02000d7 <ip_queue_xmit2+b3/22c>
+  12:   75 05                     jne    19 <_EIP+0x19> c02000de <ip_queue_xmit2+ba/22c>
+
+
+2 warnings and 6 errors issued.  Results may not be reliable.
+
+[fokkensr@iasdev fokkensr]$ rpm -q -i kernel-2.4.15-pre8-freeswan-1.91-1fks-7redhat
+Name        : kernel-2.4.15-pre8-freeswan-1.91  Relocations: (not relocateable)
+Version     : 1fks                              Vendor: (none)
+Release     : 7redhat                       Build Date: Wed 21 Nov 2001 02:39:43 PM CET
+Install date: Wed 21 Nov 2001 03:07:58 PM CET      Build Host: iasdev
+Group       : System Environment/Kernel     Source RPM: kernel-2.4.15-pre8-freeswan-1.91-1fks-7redhat.src.rpm
+Size        : 26095803                         License: GPL
+URL         : http://www.kernel.org/
+Summary     : A kernel with FreeS/WAN included
+Description :
+Linux kernel 2.4.15-pre8
+* FreeS/WAN 1.91
+* X.509 Certificate Support 0.8.5
+* 3Dfx module
+* Alsa 0.5.12
+* QLogic Fibre Channel Driver for QLA2x00 4.25
+* VLAN packet size support for 3c59x NICs
+* HZ is 2048 instead of 100
+* iptables 1.2.4
+* lm_sensors 2.6.1
+* Intel e1000 3.1.23
+and more in the future.
+

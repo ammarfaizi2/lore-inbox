@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTJIDZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 23:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbTJIDZQ
+	id S261882AbTJID1c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 23:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTJID1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 23:25:16 -0400
-Received: from brain.sedal.usyd.edu.au ([129.78.24.68]:43692 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S261825AbTJIDZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 23:25:12 -0400
-Message-Id: <5.1.1.5.2.20031009131835.028b0f78@brain.sedal.usyd.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Thu, 09 Oct 2003 13:26:39 +1000
-To: linux-kernel@vger.kernel.org
-From: herft <herft@sedal.usyd.edu.au>
-Subject: C API for CPU Usage for particular User Login
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 8 Oct 2003 23:27:32 -0400
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:38055 "EHLO
+	office.lsg.internal") by vger.kernel.org with ESMTP id S261882AbTJID1b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 23:27:31 -0400
+Message-ID: <3F84D5A0.5050709@backtobasicsmgmt.com>
+Date: Wed, 08 Oct 2003 20:27:28 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>, Sam Ravnborg <sam@ravnborg.org>
+Subject: 2.6.0-test7 "make oldconfig" breaks with O=...
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friends,
+Unpacked a complete fresh source tree (from -test1 patched up to 
+-test7), then did
 
-I want to read CPU Usage like top command.
+make O=../linux-foo oldconfig
 
-What I want is read CPU usage for particular user log in.
+where ../linux-foo is an object-only tree previously successfully used 
+with -test6.
 
-Say x,y and z are logged in and they are running separate applications.
+This is what I got back for my efforts :-)
 
-What I want is to get the CPU usage of each user separately.
+----
 
-It would be somewhat like top command, but then top gives CPU usage of the 
-machine as a total.
-
-Can anyone help me with giving me any clue about C apis in Linux.
-
-Or if I can get the source code of top command.
-
-Thanks
-Sena Seneviratne
-
-Computer Engineering Lab
-Sydney University
+make[2]: `scripts/fixdep' is up to date.
+   HOSTCC  -fPIC scripts/kconfig/zconf.tab.o
+gcc: /storage/work/linux-2.6/scripts/kconfig/zconf.tab.c: No such file 
+or directory
+gcc: No input files
+make[2]: *** [scripts/kconfig/zconf.tab.o] Error 1
+make[1]: *** [oldconfig] Error 2
+make: *** [oldconfig] Error 2
 

@@ -1,57 +1,215 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265101AbTLCTMu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 14:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265108AbTLCTMu
+	id S265128AbTLCTEv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 14:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265130AbTLCTEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 14:12:50 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55562 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265101AbTLCTMt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 14:12:49 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: XFS for 2.4
-Date: 3 Dec 2003 19:01:39 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bqlbuj$j03$1@gatekeeper.tmr.com>
-References: <20031202002347.GD621@frodo> <Pine.LNX.4.44.0312020919410.13692-100000@logos.cnet>
-X-Trace: gatekeeper.tmr.com 1070478099 19459 192.168.12.62 (3 Dec 2003 19:01:39 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 3 Dec 2003 14:04:50 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:3226 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265128AbTLCTEo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 14:04:44 -0500
+Date: Wed, 3 Dec 2003 20:04:40 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: David Hinds <dhinds@sonic.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Worst recursion in the kernel
+Message-ID: <20031203190440.GA15857@wohnheim.fh-wedel.de>
+References: <20031203143122.GA6470@wohnheim.fh-wedel.de> <20031203100709.B6625@sonic.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031203100709.B6625@sonic.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0312020919410.13692-100000@logos.cnet>,
-Marcelo Tosatti  <marcelo.tosatti@cyclades.com> wrote:
+On Wed, 3 December 2003 10:07:09 -0800, David Hinds wrote:
+> On Wed, Dec 03, 2003 at 03:31:22PM +0100, Jörn Engel wrote:
+> > 
+> > WARNING: recursion detected:
+> >       20  read_cis_cache
+> >       36  pcmcia_get_tuple_data
+> >      308  read_tuple
+> >      448  pcmcia_validate_cis
+> >       12  readable
+> >       24  cis_readable
+> >       28  do_mem_probe
+> >       24  inv_probe
+> >       16  validate_mem
+> >       32  set_cis_map
+> >       28  read_cis_mem
+> >      284  verify_cis_cache
+> > 
+> > Explanation:
+> > verify_cis_cache calls read_cis_mem, which calls set_cis_map, which
+> > call ..., which calls read_cis_cache, which finally calls
+> > verify_cis_cache again.
+> 
+> Err... no it doesn't.  verify_cis_cache() is called from exactly one
+> place which is not in the list of functions here.  I do not understand
+> how this recursion checking is being done but there's something weird
+> going on.  set_cis_map() does not call any function on this list.  I
+> think set_cis_map() should be setup_cis_mem().
 
-| A development tree is much different from a stable tree. You cant just
-| simply backport generic VFS changes just because everybody agreed with
-| them on the development tree.
-| 
-| My whole point is "2.6 is almost out of the door and its so much better".  
-| Its much faster, much cleaner. 
+You are right, verify_cis_cache() does not belong into the list.
+Gotta see where that bug comes from.  set_cis_map() is correct,
+though.  It does call validate_mem(), at least in my copy of
+2.6.0-test11:
 
-Yes, a development tree is much different than a stable tree, and even
-though the number has gone to 2.6, it's very much a development tree, in
-that it's still being used by the same people, and probably not getting
-a lot of new testing. Stability is unlikely to be production quality
-until fixes go in for problems in mass testing, which won't happen until
-it shows up in a vendor release, which won't happen until the vendors
-test and clean up what they find... In other words, I don't expect it to
-be "really stable" for six months at least, maybe a year.
+static unsigned char *
+set_cis_map(struct pcmcia_socket *s, unsigned int card_offset, unsigned int flags)
+{
+    pccard_mem_map *mem = &s->cis_mem;
+    if (!(s->features & SS_CAP_STATIC_MAP) &&
+	mem->sys_start == 0) {
+	validate_mem(s);
+	...
 
-As for "much faster," let's say that I don't see that on any apples to
-apples benchmark. If you measure new threading against 2.4 threading
-there is a significant gain, but for anything else the gains just don't
-seem to warrant a "much" and there are some regressions shown in other
-people's data.
+You can have the current code if you are really interested.  It takes
+the call graph as generated by smatch and follows all function calls.
+If it ever revisits a function that was already on the path, it prints
+out a warning like above.
 
-I think 2.6 has new features, it is more scalable, but other than
-threads I don't see any huge performance gains.
+> > Most likely this recursion will never occur, as one of those calls can
+> > depends on circumstances that prohibit recursion, but semantic
+> > checking is a bitch for software and in this case even for humans.
+> > Put another way: THERE IS NO WAY TO MAKE SURE THIS WORKS.
+> 
+> Isn't that a bit strong a statement?
+
+Maybe, but my preference for simple code is just as strong.  "NO WAY"
+may not be quite right, but it is very close from my experience.
+Enough complexity and my little brain will be unable to expand any
+program.  Almost enough complexity and working with the code takes an
+awful amount of time because mistakes are so much more likely.
+
+Simple code is good.
+
+But your opinion may differ and you are ultimately the maintainer, so
+feel free to ignore me.  It least I would like people to think twice
+before creating such a construct and then think again after having
+done so.
+
+> The semantics of the code goes like this.  read_cis_mem() checks to
+> see if something has been done.  If it hasn't been done, it leads to
+> validate_mem() which first does that thing, and then does some stuff
+> that leads to read_cis_mem() being called again.  When read_cis_mem()
+> is reentered, it is guaranteed that the condition for recursion does
+> not exist.
+> 
+> Is that so complex as to be incomprehensible by a mere human?  To
+> remove the apparent recursion seems to me to require duplicating a
+> fairly long code path, which is why I did it this way in the first
+> place.  The stack usage of this code path is definitely something that
+> should be (and can be easily) fixed.
+
+I have no better alternative availlable right now, but there must be
+another way.  Maybe something like this:
+
+read_cis_mem() {
+	if (__read_cis_mem() != -EAGAIN)
+		return;
+	validate_mem();
+	__read_cis_mem();
+}
+
+__read_cis_mem() now contains the previous functionality of
+read_cis_mem() and returns -EGAIN instead of calling validate_mem()
+directly.
+
+
+Not sure about you, but it would make my program much happier.  If you
+look at the relevant part of the call graph (below), you will notice
+that inv_probe() alone is already recursive.  Having multiple
+recursions to worry about in the same function is where the problem
+stops being difficult and becomes impossible.
+
+Jörn
+
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+To recognize individual spam features you have to try to get into the
+mind of the spammer, and frankly I want to spend as little time inside
+the minds of spammers as possible.
+-- Paul Graham
+
+NAME:	read_tuple
+SCOPE:	g
+SIZE:	308
+CALLS:	pcmcia_get_first_tuple
+CALLS:	pcmcia_get_tuple_data
+CALLS:	pcmcia_parse_tuple
+NAME:	pcmcia_get_tuple_data
+SCOPE:	g
+SIZE:	36
+CALLS:	read_cis_cache
+NAME:	read_cis_cache
+SCOPE:	l
+SIZE:	20
+CALLS:	__builtin_constant_p
+CALLS:	__constant_c_and_count_memset
+CALLS:	__constant_c_memset
+CALLS:	__constant_memcpy
+CALLS:	__memcpy
+CALLS:	kmalloc
+CALLS:	list_add
+CALLS:	prefetch
+CALLS:	read_cb_mem
+CALLS:	read_cis_mem
+NAME:	read_cis_mem
+SCOPE:	g
+SIZE:	28
+CALLS:	__builtin_constant_p
+CALLS:	__constant_c_and_count_memset
+CALLS:	__constant_c_memset
+CALLS:	set_cis_map
+NAME:	set_cis_map
+SCOPE:	l
+SIZE:	32
+CALLS:	find_mem_region
+CALLS:	ioremap
+CALLS:	iounmap
+CALLS:	printk
+CALLS:	validate_mem
+NAME:	validate_mem
+SCOPE:	g
+SIZE:	16
+CALLS:	do_mem_probe
+CALLS:	down
+CALLS:	inv_probe
+CALLS:	printk
+CALLS:	sub_interval
+CALLS:	up
+NAME:	inv_probe
+SCOPE:	l
+SIZE:	24
+CALLS:	do_mem_probe
+CALLS:	inv_probe
+CALLS:	sub_interval
+NAME:	do_mem_probe
+SCOPE:	l
+SIZE:	28
+CALLS:	checksum_match
+CALLS:	cis_readable
+CALLS:	printk
+CALLS:	sub_interval
+NAME:	cis_readable
+SCOPE:	l
+SIZE:	24
+CALLS:	__request_region
+CALLS:	readable
+CALLS:	release_resource
+NAME:	readable
+SCOPE:	l
+SIZE:	12
+CALLS:	destroy_cis_cache
+CALLS:	ioremap
+CALLS:	iounmap
+CALLS:	pcmcia_validate_cis
+NAME:	pcmcia_validate_cis
+SCOPE:	g
+SIZE:	448
+CALLS:	pcmcia_get_first_tuple
+CALLS:	pcmcia_get_next_tuple
+CALLS:	read_tuple

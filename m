@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263442AbTIHSUs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 14:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTIHSUs
+	id S263478AbTIHSsW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 14:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263482AbTIHSsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 14:20:48 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:45455 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263442AbTIHSUp
+	Mon, 8 Sep 2003 14:48:21 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1152 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263478AbTIHSsU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 14:20:45 -0400
-Date: Mon, 8 Sep 2003 19:20:21 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Hugh Dickins <hugh@veritas.com>,
-       Ulrich Drepper <drepper@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Make futex waiters take an mm or inode reference
-Message-ID: <20030908182021.GD27097@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 8 Sep 2003 14:48:20 -0400
+Date: Mon, 8 Sep 2003 14:48:10 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Pavel Machek <pavel@suse.cz>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Some read-errors on floppys not reported on 2.4.22
+In-Reply-To: <20030904171758.GR1358@openzaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.53.0309081442580.194@chaos>
+References: <Pine.LNX.4.53.0308291207430.25423@chaos> <20030904171758.GR1358@openzaurus.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> But why not solve the problem by just holding an mm reference, too?
+On Thu, 4 Sep 2003, Pavel Machek wrote:
 
-Rusty also wrote:
-> Why not make the code a *whole* lot more readable (and only marginally
-> slower, if at all) by doing it in two passes: pull them off onto a
-> (on-stack) list in one pass, then requeue them all in another.
+> Hi!
+>
+> > Success, even where there are lots of CRC errors that
+> > prematurely terminate the read:
+>
+> Can you find out if it works in 2.4.21?
+> --
+> 				Pavel
 
-This patch makes each futex waiter hold a reference to the mm or inode
-that a futex is keyed on.
+Okay. It works on 2.4.21, the code is identical to 2.4.20 which also
+works. On 2.4.22, bad CRC errors which terminate the read, don't
+always result in a bad return code. Some just return 0, which
+is treated like EOF in user-mode code. Application software
+has to add a call to fstat() to see if the bytes read were equal
+to the file size as a work-around. This step should not be required.
 
-This is very important, because otherwise a malicious or erroneous
-program can use FUTEX_FD to create futexes on mms or inodes which are
-recycled, and steal wakeups from other, unrelated programs.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-It isn't entirely trivial, because we can't call mmdrop() or iput()
-while holding the spinlock, I think.  (Does someone know to the
-contrary?)  Rusty, you will be glad to see that I have reimplemented
-futex_requeue() exactly as you suggest: in two passes.
 
-Ulrich will be glad to hear tst-cond2 runs just fine :)
-
-Linus, please apply unless there are objections.
-
-Thanks,
--- Jamie

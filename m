@@ -1,54 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287342AbSAGXOF>; Mon, 7 Jan 2002 18:14:05 -0500
+	id <S287359AbSAGXPe>; Mon, 7 Jan 2002 18:15:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287351AbSAGXOA>; Mon, 7 Jan 2002 18:14:00 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:33555 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287342AbSAGXNd>;
-	Mon, 7 Jan 2002 18:13:33 -0500
-Date: Mon, 7 Jan 2002 21:13:04 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] improving oom detection in rmap10c.
-In-Reply-To: <20020107230138.BBE15AE10@oscar.casa.dyndns.org>
-Message-ID: <Pine.LNX.4.33L.0201072112000.872-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287355AbSAGXP0>; Mon, 7 Jan 2002 18:15:26 -0500
+Received: from nile.gnat.com ([205.232.38.5]:53962 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S287359AbSAGXPQ>;
+	Mon, 7 Jan 2002 18:15:16 -0500
+From: dewar@gnat.com
+To: jtv@xs4all.nl, tim.mcdaniel@tuxia.com, tim@hollebeek.com
+Subject: RE: [PATCH] C undefined behavior fix
+Cc: Dautrevaux@microprocess.com, dewar@gnat.com, gcc@gcc.gnu.org,
+        linux-kernel@vger.kernel.org, paulus@samba.org,
+        trini@kernel.crashing.org, velco@fadata.bg
+Message-Id: <20020107231515.1D9A1F28F1@nile.gnat.com>
+Date: Mon,  7 Jan 2002 18:15:15 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jan 2002, Ed Tomlinson wrote:
-> Rik van Riel wrote:
-> > On Sun, 6 Jan 2002, Ed Tomlinson wrote:
-> >
-> >> This patch should prevent oom situations where the vm does not see
-> >> pages released from the slab caches.
-> >
-> >> Comments?
-> >
-> > I have a feeling the OOM detection in rmap10c isn't working
-> > out because of another issue ... I think it has something to
->
-> I did not think this would solve all the OOM problems.  I do
-> think it will improve the situation in some instances.
+<<In the above case it is unlikely that folding would present a problem,
+but volatile was created because hardware, or even seemingly unrelated
+software, can modify even the most unlikely memory locations.   If you
+want to break device drivers, go ahead and optimize your compiler. =20
+>>
 
-It certainly seems to work here, I'm including your patch
-into rmap-11 ;)
-
-> Hope your audit discloses other problems.
-
-I haven't found any yet, the code seems ok even after
-staring at it for an hour or so.
-
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+No, I think that is the wrong domain of discourse here. We are not talking
+about compilers being friendly, but rather correct. Most cetainly volatile
+in Ada would not permit this optimzation (i.e. it would not be an optimization
+it would be a miscompilation), and I certainly thought that in this respect
+C was identical to Ada in semantics of volatile.

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263324AbUC3ANp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 19:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263317AbUC3ANp
+	id S263036AbUC3ARN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 19:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263307AbUC3ARN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 19:13:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:48291 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263324AbUC3ANj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 19:13:39 -0500
-Date: Mon, 29 Mar 2004 16:15:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Siseci" <siseci@postmark.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x mount /dev/ram0 problem.
-Message-Id: <20040329161548.05a36a18.akpm@osdl.org>
-In-Reply-To: <BMEEKPMJDEAFABBKPBBNMELBCBAA.siseci@postmark.net>
-References: <BMEEKPMJDEAFABBKPBBNMELBCBAA.siseci@postmark.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 29 Mar 2004 19:17:13 -0500
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:43150 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263036AbUC3ARF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 19:17:05 -0500
+Message-ID: <4068BC7D.2020805@yahoo.com.au>
+Date: Tue, 30 Mar 2004 10:17:01 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arvind Autar <Autar022@planet.nl>
+CC: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Jason Cox <jpcox@iastate.edu>
+Subject: Re: nicksched v30
+References: <4048204E.8000807@cyberone.com.au> <4063EAF7.8090405@gmx.de> <1080598780.5933.8.camel@debian>
+In-Reply-To: <1080598780.5933.8.camel@debian>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Siseci" <siseci@postmark.net> wrote:
->
-> root@fen:~# umount /mnt
-> root@fen:~# mount /dev/ram0 /mnt
-> root@fen:~# ls -al /mnt
-> total 17
-> drwxr-xr-x   3 root     root         1024 Mar 29 20:28 ./
-> drwxr-xr-x  22 root     root         4096 Dec 16 02:28 ../
-> drwxr-xr-x   2 root     root        12288 Mar 29 20:28 lost+found/
+Arvind Autar wrote:
+> On Fri, 2004-03-26 at 09:33, Prakash K. Cheemplavam wrote:
 > 
-> My test file does not appear on /mnt.
-> This was working with 2.4 kernels
-> i think the problem is related with 2.6 kernels
-> What is the problem?
+>>could do be so nice and do a rediff against current mm kernel? As this 
+> 
+> 
+> I have done a rediff of it:
+> http://www.liquidweb.nl/~arvind/patches/v30.tgz.
+> 
+> The integrity isn't as good as the npiggin's one probably. 
+> 
 
-It's a 2.6 bug which I haven't fixed yet.
+Sorry, please reach me at this address from now on. Thank you.
+I'll be doing another nicksched update after sched-domains
+gets into better shape.

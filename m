@@ -1,58 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbVCOAIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbVCOANa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262140AbVCOAIq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 19:08:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVCOAH3
+	id S262144AbVCOANa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 19:13:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVCOAMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 19:07:29 -0500
-Received: from fire.osdl.org ([65.172.181.4]:53725 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262140AbVCOAHK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 19:07:10 -0500
-Date: Mon, 14 Mar 2005 16:00:41 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: ak@suse.de, akpm <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] x86-64: add memcpy/memset prototypes
-Message-Id: <20050314160041.4522bb3a.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Mar 2005 19:12:42 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:43725 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262144AbVCOAIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 19:08:49 -0500
+Date: Mon, 14 Mar 2005 16:07:31 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, linux@dominikbrodowski.de,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max <masbock@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
+In-Reply-To: <1110590655.30498.327.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0503141602460.15032@schroedinger.engr.sgi.com>
+References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(resend)
 
-Put function prototypes for memset() and memcpy() ahead of where
-there are used, to kill sparse warnings:
 
-arch/x86_64/boot/compressed/../../../../lib/inflate.c:317:3: warning: undefined identifier 'memset'
-arch/x86_64/boot/compressed/../../../../lib/inflate.c:601:11: warning: undefined identifier 'memcpy'
-arch/x86_64/boot/compressed/misc.c:151:2: warning: undefined identifier 'memcpy'
-arch/x86_64/boot/compressed/../../../../lib/inflate.c:317:3: warning: call with no type!
-arch/x86_64/boot/compressed/../../../../lib/inflate.c:601:17: warning: call with no type!
-arch/x86_64/boot/compressed/misc.c:151:9: warning: call with no type!
+On Fri, 11 Mar 2005, john stultz wrote:
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+> +/* get_lowres_timestamp():
+> + *	Returns a low res timestamp.
+> + *	(ie: the value of system_time as  calculated at
+> + *	the last invocation of timeofday_periodic_hook() )
+> + */
+> +nsec_t get_lowres_timestamp(void)
+> +{
+> +	nsec_t ret;
+> +	unsigned long seq;
+> +	do {
+> +		seq = read_seqbegin(&system_time_lock);
+> +
+> +		/* quickly grab system_time*/
+> +		ret = system_time;
+> +
+> +	} while (read_seqretry(&system_time_lock, seq));
+> +
+> +	return ret;
+> +}
 
-diffstat:=
- arch/x86_64/boot/compressed/misc.c |    3 +++
- 1 files changed, 3 insertions(+)
+On 64 bit platforms this could simply be a macro accessing "system time".
 
-diff -Naurp ./arch/x86_64/boot/compressed/misc.c~misc_includes ./arch/x86_64/boot/compressed/misc.c
---- ./arch/x86_64/boot/compressed/misc.c~misc_includes	2004-12-24 13:34:32.000000000 -0800
-+++ ./arch/x86_64/boot/compressed/misc.c	2005-02-16 10:37:48.988294016 -0800
-@@ -92,6 +92,9 @@ static unsigned long output_ptr = 0;
- static void *malloc(int size);
- static void free(void *where);
-  
-+void* memset(void* s, int c, unsigned n);
-+void* memcpy(void* dest, const void* src, unsigned n);
-+
- static void putstr(const char *);
-   
- extern int end;
+> +/* do_gettimeofday():
+> + *	Returns the time of day
+> + */
+> +void do_gettimeofday(struct timeval *tv)
+> +{
+> +	nsec_t wall, sys;
+> +	unsigned long seq;
+> +
+> +	/* atomically read wall and sys time */
+> +	do {
+> +		seq = read_seqbegin(&system_time_lock);
+> +
+> +		wall = wall_time_offset;
+> +		sys = __monotonic_clock();
+> +
+> +	} while (read_seqretry(&system_time_lock, seq));
+> +
+> +	/* add them and convert to timeval */
+> +	*tv = ns2timeval(wall+sys);
+> +}
+> +EXPORT_SYMBOL(do_gettimeofday);
 
----
+Good.
+

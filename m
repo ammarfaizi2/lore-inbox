@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317571AbSGTXWq>; Sat, 20 Jul 2002 19:22:46 -0400
+	id <S317566AbSGTXVk>; Sat, 20 Jul 2002 19:21:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317576AbSGTXWq>; Sat, 20 Jul 2002 19:22:46 -0400
-Received: from hoochie.linux-support.net ([216.207.245.2]:4785 "EHLO
-	hoochie.linux-support.net") by vger.kernel.org with ESMTP
-	id <S317571AbSGTXWp>; Sat, 20 Jul 2002 19:22:45 -0400
-Date: Sat, 20 Jul 2002 18:25:49 -0500 (CDT)
-From: Mark Spencer <markster@linux-support.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Zaptel Pseudo TDM Bus
-Message-ID: <Pine.LNX.4.33.0207201814170.25617-100000@hoochie.linux-support.net>
+	id <S317568AbSGTXVk>; Sat, 20 Jul 2002 19:21:40 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40464 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317566AbSGTXVj>; Sat, 20 Jul 2002 19:21:39 -0400
+Date: Sat, 20 Jul 2002 16:25:21 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Love <rml@tech9.net>
+cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>,
+       <riel@conectiva.com.br>, <wli@holomorphy.com>
+Subject: Re: [PATCH] generalized spin_lock_bit
+In-Reply-To: <1027200016.1086.800.camel@sinai>
+Message-ID: <Pine.LNX.4.44.0207201622350.1814-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Enthusiasts:
 
-	Over the past year, Linux Support Services, Inc.  and Zapata
-Telephony, Inc. have been working together on building the "Zaptel" pseudo
-TDM bus architecture, and having at least 7 supported boards in a variety
-of roles (T1, E1, multi-port T1, E1, FXS and FXO with USB, PCI, ISA, and
-Ethernet interfaces), we are now interesting in getting comments on the
-driver architecture and moving towards integration into the 2.5 kernel.
 
-	The Zaptel telephony infrastructure differs substantially from the
-existing Linux telephony structure, because it's designed to produce a
-framework for creating a "pseudo TDM" bus inside the kernel, allowing
-features like conferencing, DAXing, bridging, echo cancellation, HDLC
-packetization, and other resources typically done in hardware to be
-replaced by software, by simulating a TDM bus in the Linux kernel (thanks
-to its remarkably thin interrupt latency).
+On 20 Jul 2002, Robert Love wrote:
+>
+> My assumption was similar - that the bit locking may be inefficient on
+> other architectures - so I put the spin_lock_bit code in per-arch
+> headers.
 
-	The driver framework (and associated user-space library) currently
-handles a variety of interfaces (including T1, E1, PRI, FXS, FXO, E&M,
-Feature Group D) and features (DTMF detection, echo cancellation,
-conferencing, digital gain adjustment, HDLC data modes via SyncPPP, frame
-relay, ISDN RAS, etc etc).  Drivers for new hardware are very simple to
-add, and channels from one driver can be bridged to those of another
-driver, even if their timings are not synchronized.
+Well, but you also passed it an unsigned long, and the bit number.
 
-	The primary application we use on this interface (although
-certainly not the only one) is the Asterisk Open Source PBX
-(http://www.asterisk.org) which permits you to build a full featured PBX
-(Private Branch eXchange) or IVR (Interactive Voice Response) server with
-a Linux box.  Using the zaptel infrastructure, Asterisk provides the
-ability to deploy phone service with all your expected call features etc.
+Which at least to me implies that they have to set that bit.
 
-	For more information, go to http://www.linux-support.net, or
-http://www.asterisk.org.
+Which is totally unnecessary, if they _instead_ decide to set something
+else altogether.
 
-	I am very interested in seeking comments both on our driver
-framework, and on how to go about submitting this for kernel inclusion if
-appropriate.
+For example, the implementation on pte_chain_lock(page) might be something
+like this instead:
 
-Mark
+	static void pte_chain_lock(struct page *page)
+	{
+		unsigned long hash = hash(page) & PTE_CHAIN_MASK;
+		spin_lock(pte_chain[hash]);
+	}
+
+	static void pte_chain_unlock(struct page *page)
+	{
+		unsigned long hash = hash(page) & PTE_CHAIN_MASK;
+		spin_unlock(pte_chain[hash]);
+	}
+
+> In other words, I assumed we may need to make some changes but to
+> bit-locking in general and not rip out the whole design.
+
+bit-locking in general doesn't work. Some architectures can sanely only
+lock a byte (or even just a word).
+
+		Linus
 

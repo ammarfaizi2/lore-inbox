@@ -1,70 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129710AbRAPUKi>; Tue, 16 Jan 2001 15:10:38 -0500
+	id <S129532AbRAPULI>; Tue, 16 Jan 2001 15:11:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129593AbRAPUK3>; Tue, 16 Jan 2001 15:10:29 -0500
-Received: from sisley.ri.silicomp.fr ([62.160.165.44]:58127 "EHLO
-	sisley.ri.silicomp.fr") by vger.kernel.org with ESMTP
-	id <S129532AbRAPUKS>; Tue, 16 Jan 2001 15:10:18 -0500
-Date: Tue, 16 Jan 2001 21:09:57 +0100 (CET)
-From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-To: <mingo@redhat.com>, <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-cc: Eric Paire <paire@ri.silicomp.fr>,
-        Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-Subject: [BUG] Panic in smp_call_function_interrupt
-Message-ID: <Pine.LNX.4.31.0101161858340.23569-100000@sisley.ri.silicomp.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129593AbRAPULB>; Tue, 16 Jan 2001 15:11:01 -0500
+Received: from mail.valinux.com ([198.186.202.175]:59396 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129532AbRAPUKi>;
+	Tue, 16 Jan 2001 15:10:38 -0500
+To: andrea@suse.de
+CC: linux-kernel@vger.kernel.org, alan@redhat.com, aviro@redhat.com
+In-Reply-To: <20010116203334.C19265@athlon.random> (message from Andrea
+	Arcangeli on Tue, 16 Jan 2001 20:33:34 +0100)
+Subject: Re: Locking problem in 2.2.18/19-pre7? (fs/inode.c and fs/dcache.c)
+From: tytso@valinux.com
+Phone: (781) 391-3464
+In-Reply-To: <E14IbPR-0007Ye-00@beefcake.hdqt.valinux.com> <20010116203334.C19265@athlon.random>
+Message-Id: <E14IcR5-0008HB-00@beefcake.hdqt.valinux.com>
+Date: Tue, 16 Jan 2001 12:10:31 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+   Date: Tue, 16 Jan 2001 20:33:34 +0100
+   From: Andrea Arcangeli <andrea@suse.de>
 
-When I discovered the nice "smp affinity" feature, I gave it a try on our
-old SMP testbed (quad P100 with 2 Adaptec AIC-7870 SCSI adapters).  And by
-chance, I discovered that the following command causes an oops (after a
-couple of seconds), even without any kind of smp affinity :
+   > Of course, this is utterly unsafe on an SMP machines, since access to
+   > the "block" variable isn't protected at all.  So the first question is
 
-[root@picasso /]# dd if=/dev/sda of=/dev/null
+   Wrong, it's obviously protected by the inode_lock. And even if it wasn't
+   protected by the inode_lock in 2.2.x inode.c and dcache.c runs globally
+   serialized by the BKL (but it is obviously protected regardless of the BKL).
 
-Fortunately I had kdb and the console on a serial line :
+Yes, you're quite right.  The fact that you have to have inode_lock
+before you call try_to_free inodes would would protect the "block"
+variable.
 
-<some random characters>
-Entering kdb (current=0xc116e000, pid 0) on processor 3 Panic: Oops
-due to panic @ 0x0
-eax = 0xc1145e64 ebx = 0xc012a0ff ecx = 0x00000000 edx = 0x00000000
-esi = 0xc116e000 edi = 0xc116e000 esp = 0xc116ff5c eip = 0x00000000
-ebp = 0xc116ff68 xss = 0x00000018 xcs = 0x00000010 eflags = 0x00010002
-xds = 0x00000018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xc116ff28
-[3]kdb> bt
-    EBP       EIP         Function(args)
-0xc116ff68 0x00000000 <unknown> (0x0)
-                               kernel <unknown> 0x0 0x0 0x0
-           0xc0110545 smp_call_function_interrupt+0x25 (0xc01071d0, 0x0,
-0xc116e000, 0xc116e000, 0xc116e000)
-                               kernel .text 0xc0100000 0xc0110520
-0xc0110560
-0xc116ffa4 0xc01fa92d call_call_function_interrupt+0x5
-                               kernel .rodata 0xc01f7ae0 0xc01fa928
-0xc01fa940
-           0xc0107265 cpu_idle+0x35
-                               kernel .text 0xc0100000 0xc0107230
-0xc0107278
+   > 	static struct semaphore block = MUTEX;
+   > 	if (down_trylock(&block)) {
+   > 		spin_unlock(&inode_lock);
+   > 		down(&block);
+   > 		spin_lock(&inode_lock);
+   > 	}
 
-This is a 2.4.0 (release) with kdb 1.7 for 2.4.0. I tried the same on a
-similar machine with 2 CPUs and without kdb, it gave the same result. A
-2.4.0 without SMP support on these machines has no problem.
+   The above is overkill (there's no need to use further atomic API,
+   when we can rely on the inode_lock for the locking. It's overcomplex
+   and slower. 
 
-Can anyone reproduce this ? Or maybe it has already been fixed ?
+Actually, looking at the fast path of down_trylock compared to huge mess
+of code that's currently there, I actually suspect that using
+down_trylock() would actually be faster, since in the fast path case
+there would only two assembly language instructions, whereas the code
+that's currently there is (a) much more complicated, and thus harder to
+understand, and (b) is many more instructions to execute.  
 
+Sometimes the simplest approach is the best.....
 
-Regards,
+   > (with the appropriate unlocking code at the end of the function).
+   > 
+   > Next question.... why was this there in the first place?  After all,
 
--- 
-Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
-mailto:saffroy@ri.silicomp.fr
+   To fix the "inode-max limit reached" faliures that you could reproduce on
+   earlier 2.2.x. (the freed inodes was re-used before the task that freed them
+   had a chance to allocate them for itself)
 
+Ah, OK.  Well, we're currently tracking down a slow inode leak which is
+only happening on SMP machines, especially our mailhubs.  It's gradual,
+but if you don't reboot the machine before you run out of inodes, it
+will print the "inode-max limit reach" message, and then shortly after
+that lock up the entire machine locks up until someone can come in and
+hit the Big Red Button.  Monitoring the machine before it locks up, we
+noted that the number of inodes in use was continually climbing until
+the machine died.  (Yeah, we could put a reboot command into crontab,
+but you should only need to do hacks like that on Windows NT machines.
+:-)
+
+We're running a reasonably recent 2.2 kernel on our machines, and the
+problem is only showing up on SMP machines, so there's *some* kind of
+SMP race hiding in the 2.2 inode code....
+
+						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

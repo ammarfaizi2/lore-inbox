@@ -1,59 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129991AbRBSDkm>; Sun, 18 Feb 2001 22:40:42 -0500
+	id <S130325AbRBSEL4>; Sun, 18 Feb 2001 23:11:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130325AbRBSDkd>; Sun, 18 Feb 2001 22:40:33 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:9480 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129991AbRBSDkT>; Sun, 18 Feb 2001 22:40:19 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: dek_ml@konerding.com
-Date: Mon, 19 Feb 2001 14:40:00 +1100 (EST)
+	id <S130684AbRBSELq>; Sun, 18 Feb 2001 23:11:46 -0500
+Received: from rhinocomputing.com ([161.58.241.147]:30478 "EHLO
+	rhinocomputing.com") by vger.kernel.org with ESMTP
+	id <S130442AbRBSELd>; Sun, 18 Feb 2001 23:11:33 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14992.38288.497367.324493@notabene.cse.unsw.edu.au>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-        nfs@lists.sourceforge.net
-Subject: Re: problems with reiserfs + nfs using 2.4.2-pre4 
-In-Reply-To: message from dek_ml@konerding.com on Sunday February 18
-In-Reply-To: <14992.27362.114723.93990@notabene.cse.unsw.edu.au>
-	<200102190256.f1J2uIs23040@konerding.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-ID: <14992.40178.870916.407096@rhino.thrillseeker.net>
+Date: Sun, 18 Feb 2001 23:11:30 -0500
+From: Billy Harvey <Billy.Harvey@thrillseeker.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: ip_conntrack error under 2.4.1-ac18
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday February 18, dek_ml@konerding.com wrote:
-> 
-> OK, I grabbed these patches and applied them against 2.4.2-pre4 and
-> recompiled, rebooted.  I am now able to use reiserfs with NFS,
-> basic operations appear to work as expected but I haven't done large amounts
-> of file IO or lots of concurrent requests.  
-> 
-> What is the plan with regards to these patches, or ones like it, making it into
-> the distribution? 
+I'm getting multiple messages like:
 
-The changes to knfsd are fairly big and mean that every filesystem
-type that is to be exported needs to explicitly provide support for
-knfsd.
+Feb 18 23:05:50 rhino kernel: ip_conntrack: maximum limit of 8184 entries exceeded
+Feb 18 23:05:52 rhino last message repeated 2 times
 
-I have almost completed doing this for
-  ext2fs reiserfs isofs ufs efs
+while running nessus, with 100 simultaneous connections set, against a
+company machine.  This is the first time I've observed this error.
 
-which were the only ones that were mentioned when I asked "what
-filesystem types do you want to export" on the nfs list.
-The isofs stuff needs more work to be *right*, but it should be at
-least as good as the current code provides. (i.e. it works as long as
-things don't get flushed out of the dentry cache).
-
-The reiserfs bit needs work to get generation number checking done.
-This is being worked on by  Danilov Nikita.
-
-I hope to put out a patch set for testing in a day or so and possibly
-suggest it to Alan for his -ac series.  I don't see it going into
-2.4.2, but 2.4.3 might be possible if Linus agrees.
-
-NeilBrown
+Billy

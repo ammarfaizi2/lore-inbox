@@ -1,82 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264226AbTGBRvy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 13:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTGBRvy
+	id S264266AbTGBRyD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 13:54:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTGBRyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 13:51:54 -0400
-Received: from rj.sgi.com ([192.82.208.96]:55497 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S264226AbTGBRvw (ORCPT
+	Wed, 2 Jul 2003 13:54:03 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:43408 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264256AbTGBRxz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 13:51:52 -0400
-Message-ID: <3F031F0F.4020600@sgi.com>
-Date: Wed, 02 Jul 2003 13:06:07 -0500
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Wed, 2 Jul 2003 13:53:55 -0400
+Date: Wed, 02 Jul 2003 10:52:42 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@redhat.com>
+Subject: Re: What to expect with the 2.6 VM
+Message-ID: <528080000.1057168362@flay>
+In-Reply-To: <20030702174700.GJ23578@dualathlon.random>
+References: <Pine.LNX.4.53.0307010238210.22576@skynet> <20030701022516.GL3040@dualathlon.random> <Pine.LNX.4.53.0307021641560.11264@skynet> <20030702171159.GG23578@dualathlon.random> <461030000.1057165809@flay> <20030702174700.GJ23578@dualathlon.random>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, Andi Kleen <ak@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PROBLEM: Bug in __pollwait() can cause select() and poll() to
- hang in 2.4.22-pre2 -- second try
-References: <20030701051719.B2B702C090@lists.samba.org>
-In-Reply-To: <20030701051719.B2B702C090@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+--On Wednesday, July 02, 2003 19:47:00 +0200 Andrea Arcangeli <andrea@suse.de> wrote:
 
-> Um, Ray?  2.4's yield also does:
+> On Wed, Jul 02, 2003 at 10:10:09AM -0700, Martin J. Bligh wrote:
+>> Maybe I'm just taking this out of context, and it's twisting my brain,
+>> but as far as I know, the nonlinear vma's *are* backed by pte_chains.
+>> That was the whole problem with objrmap having to do conversions, etc.
+>> 
+>> Am I just confused for some reason? I was pretty sure that was right ...
 > 
-> 	void yield(void)
-> 	{
-> 		set_current_state(TASK_RUNNING);
-> 		sys_sched_yield();
-> 		schedule();
-> 	}
+> you're right:
 > 
-> So how did the below patch make any difference?
+> int install_page(struct mm_struct *mm, struct vm_area_struct *vma,
+> 		unsigned long addr, struct page *page, pgprot_t prot)
+> [..]
+> 	flush_icache_page(vma, page);
+> 	set_pte(pte, mk_pte(page, prot));
+> 	pte_chain = page_add_rmap(page, pte, pte_chain);
+> 	pte_unmap(pte);
+> [..]
 > 
-> Now thoroughly confused,
-> Rusty.
-> 
-> --- linux-2.4.22-pre2.orig/mm/page_alloc.c      Thu Nov 28 17:53:15 2002
-> +++ linux-2.4.22-pre2/mm/page_alloc.c   Fri Jun 27 13:47:49 2003
-> @@ -418,6 +418,7 @@
->                  return NULL;
-> 
->          /* Yield for kswapd, and try again */
-> +        set_current_state(TASK_RUNNING);
->          yield();
->          goto rebalance;
->   }
-> 
-> --
->   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-> 
+> (this make me understand better some of the arguments in the previous
+> emails too ;)
 
-Duh.  My fault.  I didn't see this in 2.4.22-pre2.  Some checking shows 
-that it is also in 2.4.20.  How this didn't get into our SGI 2.4.20 tree 
-is beyond me (this where we originally found this problem).  So there is 
-no problem in 2.4.22-pre2.
+OK, nice to know I haven't totally lost it ;-)
+ 
+> So ether we declare 32bit archs obsolete in production with 2.6, or we
+> drop rmap behind remap_file_pages.
 
-Rusty -- thanks for your perseverence on this.
+Indeed - if we could memlock it, it'd be OK to drop that stuff. Would
+make everything a lot simpler.
 
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-Jun 23-Jul 18 I will be at: 970-513-4743
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+M.
 

@@ -1,70 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318240AbSIKAaJ>; Tue, 10 Sep 2002 20:30:09 -0400
+	id <S318246AbSIKAdU>; Tue, 10 Sep 2002 20:33:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318243AbSIKAaJ>; Tue, 10 Sep 2002 20:30:09 -0400
-Received: from dsl-213-023-020-046.arcor-ip.net ([213.23.20.46]:38108 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318240AbSIKAaF>;
-	Tue, 10 Sep 2002 20:30:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-Date: Wed, 11 Sep 2002 02:27:30 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Chuck Lever <cel@citi.umich.edu>, Rik van Riel <riel@conectiva.com.br>,
-       trond.myklebust@fys.uio.no,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.BSO.4.33.0209101412300.5368-100000@citi.umich.edu> <E17orzf-0007Gn-00@starship> <3D7E8936.9882E929@digeo.com>
-In-Reply-To: <3D7E8936.9882E929@digeo.com>
+	id <S318248AbSIKAdT>; Tue, 10 Sep 2002 20:33:19 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:3129 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S318246AbSIKAdP>;
+	Tue, 10 Sep 2002 20:33:15 -0400
+From: <Hell.Surfers@cwctv.net>
+To: peter@chubb.wattle.id.au, jdk@kingsmeadefarm.com, jalvo@mbay.net,
+       linux-kernel@vger.kernel.org
+Date: Wed, 11 Sep 2002 01:35:49 +0100
+Subject: RE:Re: XFS?
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ovLv-0007JB-00@starship>
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1031704549012"
+Message-ID: <08a0c4034000b92DTVMAIL7@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 September 2002 02:07, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> > 
-> > ...
-> > Andrew, did I miss something, or does the current code really ignore
-> > the pte dirty bits?
-> 
-> Sure.  pte_dirty -> PageDirty propagation happens in page reclaim,
-> and in msync.
-> 
-> We _could_ walk the pte chain in writeback.  But that would involve
-> visiting every page in the mapping, basically.  That could hurt.
 
-I wasn't suggesting that, I was confirming you're not going looking at
-the ptes somewhere I didn't notice.
+--1031704549012
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> But if a page is already dirty, and we're going to write it anyway,
-> it makes tons of sense to run around and clean all the ptes which
-> point at it.
+Why won't  this topic die?
 
-Really.  Since that is what the PG_dirty bit is supposed to be telling us.
+Cheers, Dean McEwan. Currently hacking KGI, which I don't understand, oh and ask me about OpenModemTalk...
 
-> It especially makes sense for fielmap_sync() to do that. (quickly
-> edits the todo file).
->
-> I'm not sure that MAP_SHARED is a good way of performing file writing,
-> really.
+On 	Wed, 11 Sep 2002 10:31:07 +1000 	Peter Chubb <peter@chubb.wattle.id.au> wrote:
 
-It sure isn't just now, and it's likely to remain that way for quite some 
-time.
+--1031704549012
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> And not many things seem to use it for that. It's more there
-> as a way for unrelated processes to find a chunk of common memory via
-> the usual namespace.  Not sure about that, but I am sure that it's a
-> damn pest.
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Wed, 11 Sep 2002 01:30:33 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S318230AbSIKA01>; Tue, 10 Sep 2002 20:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S318234AbSIKA01>; Tue, 10 Sep 2002 20:26:27 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:54005 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S318230AbSIKA00>; Tue, 10 Sep 2002 20:26:26 -0400
+Received: from peterc by mail.chubb.wattle.id.au with local (Exim 3.36 #1 (Debian))
+	id 17ovPP-00032c-00; Wed, 11 Sep 2002 10:31:07 +1000
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15742.36555.430376.240952@wombat.chubb.wattle.id.au>
+Date: Wed, 11 Sep 2002 10:31:07 +1000
+To: Joe Kellner <jdk@kingsmeadefarm.com>
+Cc: John Alvord <jalvo@mbay.net>, linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+In-Reply-To: <1059487013@toto.iv>
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-One day, in a perfect world, you will dirty a mmap, fsync it, and the data  
-will appear in the blink of an eye, somewhere else.  Till then it would be 
-nice just to get mmaps of NFS files doing something reasonable.  We do get 
-around to walking the ptes at file close I believe.  Is that not driven by 
-zap_page_range, which moves any orphaned pte dirty bits down into the struct 
-page?
 
--- 
-Daniel
+>>>>> "Joe" == Joe Kellner <jdk@kingsmeadefarm.com> writes:
+>> So does Redhat/Suse/??? ship XFS yet?
+>> 
+>> john
+>> 
+
+Joe> Mandrake has had XFS support in the default boot kernel since
+Joe> 8.0. AFAIK, Suse and Slackware also have XFS capable kernels now
+Joe> too.
+
+
+FWIW so does debian.
+
+--
+Dr Peter Chubb				    peterc@gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories, all almost the same.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1031704549012--
+
+

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268102AbUIGO0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268095AbUIGOZB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268102AbUIGO0u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 10:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268108AbUIGO0u
+	id S268095AbUIGOZB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 10:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268102AbUIGOZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:26:50 -0400
-Received: from ms003msg.fastwebnet.it ([213.140.2.42]:45456 "EHLO
-	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S268102AbUIGO0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:26:46 -0400
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Joris Neujens <joris@discosmash.com>
-Subject: Re: Possible network issue in 2.6.8.1
-Date: Tue, 7 Sep 2004 16:29:27 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0409071544570.6867@asus.discosmash.com>
-In-Reply-To: <Pine.LNX.4.58.0409071544570.6867@asus.discosmash.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 7 Sep 2004 10:25:00 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:62558 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S268095AbUIGOY5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 10:24:57 -0400
+Subject: Re: 2.6.9-rc1-mm4
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Terje Kvernes <terjekv@math.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <wxxoekil26x.fsf@nommo.uio.no>
+References: <20040907020831.62390588.akpm@osdl.org>
+	 <wxxoekil26x.fsf@nommo.uio.no>
+Content-Type: text/plain
+Date: Tue, 07 Sep 2004 16:24:56 +0200
+Message-Id: <1094567096.11870.0.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.93 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409071629.27814.ornati@fastwebnet.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 September 2004 15:55, Joris Neujens wrote:
-> Hello,
-> 
-> We've got a weird problem at our university network.  Since we upgraded to
-> kernel 2.6.8 our download rate never gets higher than 10kB/sec.  Upload
-> remains at original rate.  This problem does not occur with previous
-> kernels (works fine again after downgrading to 2.6.7, without changing
-> anything at the kernel config).
-> 
-> There are no speed issues when transfering on the LAN, only when
-> downloading something from the internet
-> 
-> We have ruled out the following:
-> Network source is slow (we were testing with the same FTP server all the
-> time, from which we normally download at 10MB/sec)
-> We tested with 3 different systems and network cards, and they all have
-> the same problem, and only with kernel 2.6.8
-> 
-> any thoughts?
+if you feel like it, you are welcome to make the patch, atleast for me,
+then ill test it :D
 
-http://lwn.net/Articles/92727/
+On Tue, 2004-09-07 at 13:59 +0200, Terje Kvernes wrote:
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm4/
+> > 
+> > - Added Dave Howells' mysterious CacheFS.
+> > - Various new fixes, cleanups and bugs, as usual.
+> 
+>   the sk98lin driver in the kernel is getting to be rather old, and
+>   doesn't support things like the Marvel 88E8053 found on Asus P5AD2
+>   Deluxe motherboards.  the installation tool from SysKonnect comes
+>   with a patch generator, which makes everything nice and tidy, but
+>   the patch is huge against any current kernel.  against 2.6.9-rc1-mm4
+>   we're looking at just over a megabyte.
+> 
+>   I have however tested the driver against a few chipsets with 2.6.7
+>   and 2.6.9-rc1-mm4, and it seems to work for me[tm].  I can happily
+>   produce the patch for either of these kernels if need be.
+> 
+>   oh, and the version of the driver I've tested, version 7.07, finally
+>   works with tools like pcimodules.
+>  
+> 
 
--- 
-	Paolo Ornati
-	Gentoo Linux (kernel 2.6.8-gentoo-r3)

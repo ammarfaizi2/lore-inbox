@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbUKHUwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbUKHUwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbUKHUwc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 15:52:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbUKHUvO
+	id S261222AbUKHUwd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 15:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUKHUvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 15:51:14 -0500
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:37900 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S261221AbUKHUuk convert rfc822-to-8bit (ORCPT
+	Mon, 8 Nov 2004 15:51:22 -0500
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:41868 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S261217AbUKHUuy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 15:50:40 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 8 Nov 2004 15:50:54 -0500
+X-OB-Received: from unknown (205.158.62.49)
+  by wfilter.us4.outblaze.com; 8 Nov 2004 20:50:40 -0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: SCHED_RR and kernel threads
-Date: Mon, 8 Nov 2004 12:50:37 -0800
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B002A7F0CE@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: SCHED_RR and kernel threads
-thread-index: AcTF0bc08eaHc3fvSzq0CPrcc4168QAAiQRg
-From: "Stephen Warren" <SWarren@nvidia.com>
-To: "Con Kolivas" <kernel@kolivas.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Nov 2004 20:50:38.0983 (UTC) FILETIME=[9A8C2170:01C4C5D4]
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "dan carpenter" <error27@email.com>
+To: "Andreas Dilger" <adilger@clusterfs.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Mon, 08 Nov 2004 15:50:39 -0500
+Subject: Re: ext2/3 issue 2.6 vs 2.4 kernels
+X-Originating-Ip: 67.112.215.16
+X-Originating-Server: ws1-1.us4.outblaze.com
+Message-Id: <20041108205039.CFE634BE64@ws1-1.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Con Kolivas [mailto:kernel@kolivas.org] 
-> Stephen Warren wrote:
-> > It appears that during times of high application CPU usage, some
-> > *kernel* threads don't get to run.
-> > ...
-> > This appears to be due to the fact that the kernel threads are all
-> > SCHED_OTHER, so our SCHED_RR user-space application trumps them!
 > 
-> Don't run your userspace at SCHED_RR? The kernel threads are 
-> SCHED_NORMAL precisely for the reason that you wont get real time 
-> performance if the kernel threads rear their ugly heads, 
-> albeit rarely.
+> Do you use EAs and SELinux security extensions under 2.6?  This can
+> make symlinks appear to be "slow" symlinks because of the added EA
+> block, and that will cause them to point into nothingness under 2.4.
+> 
+> Cheers, Andreas
 
-We have actually set the kernel threads to priority SCHED_RR 50, and
-most user-space threads to SCHED_RR priority 50. Some critical
-user-space threads are above priority 50.
+Yes.  You are correct.  That's what's happenning.
 
-Won't this allow the kernel and user space threads to co-operate nicely
-all the time?
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=137068
 
-What is it specifically that will make kernel SCHED_RR threads cause
-non-real-time operation? If it's just a bunch of corner cases or odd
-conditions, we may be in an environment we can control so that doesn't
-happen...
+John Reiser sent me the bugzilla link in an email.
 
-I guess we could have most threads stay at SCHED_NORMAL, and just make
-the few critical threads SCHED_RR, but I'm getting a lot of push-back on
-this, since it makes our thread API a lot more complex.
+regards,
+dan carpenter
+
 
 -- 
-Stephen Warren, Software Engineer, NVIDIA, Fort Collins, CO
-swarren@nvidia.com        http://www.nvidia.com/
-swarren@wwwdotorg.org     http://www.wwwdotorg.org/pgp.html
+___________________________________________________________
+Sign-up for Ads Free at Mail.com
+http://promo.mail.com/adsfreejump.htm
+

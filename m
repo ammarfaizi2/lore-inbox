@@ -1,43 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268968AbUIMVYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268971AbUIMVX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268968AbUIMVYI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 17:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268966AbUIMVYI
+	id S268971AbUIMVX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 17:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268968AbUIMVX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 17:24:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30632 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268972AbUIMVXw (ORCPT
+	Mon, 13 Sep 2004 17:23:58 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41859 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268966AbUIMVXj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 17:23:52 -0400
-Date: Mon, 13 Sep 2004 14:23:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christian Borntraeger <linux-kernel@borntraeger.net>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
-Subject: Re: Linux 2.6.9-rc2 : oops
-In-Reply-To: <200409132315.36577.linux-kernel@borntraeger.net>
-Message-ID: <Pine.LNX.4.58.0409131422530.2378@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
- <200409132203.08286.linux-kernel@borntraeger.net>
- <Pine.LNX.4.58.0409131318320.2378@ppc970.osdl.org>
- <200409132315.36577.linux-kernel@borntraeger.net>
+	Mon, 13 Sep 2004 17:23:39 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix sysrq handling bug in sn_console.c
+Date: Mon, 13 Sep 2004 14:23:33 -0700
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_V/gRBaGQvv/BCwo"
+Message-Id: <200409131423.33665.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_V/gRBaGQvv/BCwo
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+Fix a stupid bug in the sysrq handling in sn_console.c.  Instead of eating all 
+characters in the sysrq string (preventing them from getting to the tty 
+layer), only eat those following 'ESC' since that's a pretty important 
+character for various things.  Please apply before 2.6.9 is released as the 
+console is very unfriendly to use without it.
 
-On Mon, 13 Sep 2004, Christian Borntraeger wrote:
-> 
-> reversing "[PATCH] Fix leaks in ISOFS."
-> http://linux.bkbits.net:8080/linux-2.6/cset%40413792bdlE_TiqzIHELio3xcG68QeQ
-> helps. Seems we need a fix for the fix. 
-
-Andrew posted one already, which looks "obviously correct". Can you undo 
-your revert, and try that one? I've already applied it to BK, so if you're 
-on BK you can just pull from the current repo's.
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
 
 Thanks,
+Jesse
 
-		Linus
+--Boundary-00=_V/gRBaGQvv/BCwo
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="sn-console-esc-fix-2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="sn-console-esc-fix-2.patch"
+
+--- linux-2.5-stock/drivers/serial/sn_console.c	2004-09-10 15:06:37.000000000 -0700
++++ linux-2.6.9-rc1-mm5/drivers/serial/sn_console.c	2004-09-13 14:08:03.000000000 -0700
+@@ -596,10 +596,15 @@
+                                 sysrq_requested = jiffies;
+                                 sysrq_serial_ptr = sysrq_serial_str;
+                         }
+-			continue; /* ignore the whole sysrq string */
++			/*
++			 * ignore the whole sysrq string except for the
++			 * leading escape
++			 */
++			if (ch != '\e')
++				continue;
+                 }
+                 else
+-                        sysrq_serial_ptr = sysrq_serial_str;
++			sysrq_serial_ptr = sysrq_serial_str;
+ #endif /* CONFIG_MAGIC_SYSRQ */
+ 
+ 		/* record the character to pass up to the tty layer */
+@@ -611,8 +616,6 @@
+ 			if (tty->flip.count == TTY_FLIPBUF_SIZE)
+ 				break;
+ 		}
+-		else {
+-		}
+ 		port->sc_port.icount.rx++;
+ 	}
+ 
+
+--Boundary-00=_V/gRBaGQvv/BCwo--

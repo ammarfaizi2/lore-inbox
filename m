@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbTI3UJH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 16:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbTI3UIy
+	id S261695AbTI3UCS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 16:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTI3UCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 16:08:54 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43783 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261711AbTI3UIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 16:08:50 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
-Date: 30 Sep 2003 13:08:21 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <blcnrl$otr$1@cesium.transmeta.com>
-References: <20030930073814.GA26649@mail.jlokier.co.uk.suse.lists.linux.kernel> <20030930165450.GF28876@mail.shareable.org.suse.lists.linux.kernel> <20030930172618.GE5507@redhat.com.suse.lists.linux.kernel> <p73pthiyu0e.fsf@oldwotan.suse.de>
+	Tue, 30 Sep 2003 16:02:18 -0400
+Received: from pop.gmx.de ([213.165.64.20]:5063 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261695AbTI3UCO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 16:02:14 -0400
+X-Authenticated: #18658533
+Date: Tue, 30 Sep 2003 21:53:14 +0200
+From: Nikola Knezevic <nikkne@gmx.ch>
+X-Mailer: The Bat! (v1.62r) Personal
+Reply-To: Nikola Knezevic <nikkne@gmx.ch>
+Organization: necto
+X-Priority: 3 (Normal)
+Message-ID: <1211381655.20030930215314@gmx.ch>
+To: Takashi Iwai <tiwai@suse.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: ALSA requests module to early, before / is mounted
+In-Reply-To: <s5hpthjboey.wl@alsa2.suse.de>
+References: <1409343736.20030926151652@gmx.ch> <s5hhe2z7jst.wl@alsa2.suse.de>
+ <14910696880.20030926220441@gmx.ch> <s5hpthjboey.wl@alsa2.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <p73pthiyu0e.fsf@oldwotan.suse.de>
-By author:    Andi Kleen <ak@suse.de>
-In newsgroup: linux.dev.kernel
-> 
-> I implemented it for long mode on x86-64.
-> 
-> It has to be done before the vesafb is initialized too, otherwise
-> you cannot see the error message.
-> 
-> You could copy the code from arch/x86_64/boot/setup.S 
-> (starting with /* check for long mode. */) and change it to
-> check for the CPUID bits you want. x86-64 checks a basic collection
-> that has been determined to be the base set of x86-64 supporting CPUs.
-> But it could be less or more.
-> 
+Kad bi 17:32:53, Takashi rece:
+>> But I build one. modprobe snd-emu10k1 loads it.
+TI> did you put this module into initrd?
+TI> otherwise there is NO way to load the MODULE at that time (before
+TI> mounting the root).
 
-Do it in boot/setup.S so that you can still issue a message via the
-BIOS.  However, don't forget you might need bug fixes/workarounds like
-the P6 SEP in there, too.  From that perspective it would be nice to
-have something that can be written in C.  Recent binutils actually
-allow gcc-generated .s-files to be assembled for a 16-bit environment
-(with lots of overrides.)
+Here is some oddity. I've compiled all sound stuff into kernel. I've
+also have devfs enabled, and I've put in /etc/modules.conf [1]:
+alias snd-card-0 snd-emu10k1
+alias sound-slot-0 snd-card-0
 
-	-hpa
+And here is what dmesg says with 2.6.0-test6 [2]:
+Advanced Linux Sound Architecture Driver Version 0.9.7 (Thu Sep 25 19:16:36 2003 UTC).
+request_module: failed /sbin/modprobe -- snd-card-0. error = -16
+ALSA device list:
+  #0: Sound Blaster Live! (rev.7) at 0xd800, irq 10
+
+Hah???
+
+[1]: devfsd reads /etc/modules.conf, but module-init-tools use
+modprobe.conf. Should't this be changed?
+[2]: I haven't tried that with test5, but I suppose the same thing would
+happen.
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+ .            `\!,        
+ .            <. .>    
+ [=======oOo==( ^ )==oOo========[ indy@hemo.net ]=======]      
+ |---      _    -            --- [    member of    ]--- |        
+ [========( )======_==============[ .counter attack. ]==]           
+ .         ()     ( )
+ .                ()
+

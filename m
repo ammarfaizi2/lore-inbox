@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267621AbTAXJ4X>; Fri, 24 Jan 2003 04:56:23 -0500
+	id <S267622AbTAXKOT>; Fri, 24 Jan 2003 05:14:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267622AbTAXJ4X>; Fri, 24 Jan 2003 04:56:23 -0500
-Received: from pluvier.ens-lyon.fr ([140.77.167.5]:35978 "EHLO
-	mailhost.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id <S267621AbTAXJ4W>; Fri, 24 Jan 2003 04:56:22 -0500
-Date: Fri, 24 Jan 2003 11:05:30 +0100
-From: Brice Goglin <bgoglin@ens-lyon.fr>
-To: davem@redhat.com
+	id <S267623AbTAXKOT>; Fri, 24 Jan 2003 05:14:19 -0500
+Received: from mail.bmlv.gv.at ([193.171.152.37]:14737 "HELO mail.bmlv.gv.at")
+	by vger.kernel.org with SMTP id <S267622AbTAXKOS> convert rfc822-to-8bit;
+	Fri, 24 Jan 2003 05:14:18 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: "Ph. Marek" <philipp.marek@bmlv.gv.at>
+To: mm@caldera.de
+Subject: [PATCH] bug in linux-2.5.59/sound/oss/maestro.c
+Date: Fri, 24 Jan 2003 11:23:56 +0100
+User-Agent: KMail/1.4.3
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: AH transformation broken since 2.5.56
-Message-ID: <20030124100530.GA32263@ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301241123.56982.philipp.marek@bmlv.gv.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: David S. Miller (davem@redhat.com)
-> Date: Thu Jan 23 2003 - 21:21:14 EST
->
->   From: Brice Goglin <bgoglin@ens-lyon.fr>
->   Date: Wed, 22 Jan 2003 14:31:07 +0100
-> 
->   Support for IPsec AH in net/ipv4/ah.c is broken since 2.5.56
->
->   (still broken in 2.5.59).
->   I tried with CONFIG_INET_AH=y and m, I got the same error :
->
-> You have to enable CONFIG_CRYPTO_HMAC if you want to enable
-> CONFIG_INET_AH
+diff -u linux-2.5.59.orig/sound/oss/maestro.c linux-2.5.59/sound/oss/maestro.c
+--- linux-2.5.59.orig/sound/oss/maestro.c       Fri Jan 17 03:22:41 2003
++++ linux-2.5.59/sound/oss/maestro.c    Fri Jan 24 11:22:20 2003
+@@ -668,6 +668,7 @@
+                if (mixer == SOUND_MIXER_IGAIN) {
+                        right = (right * 100) / mh->scale;
+                        left = (left * 100) / mh->scale;
++               }
+                else {
+                        right = 100 - ((right * 100) / mh->scale);
+                        left = 100 - ((left * 100) / mh->scale);
 
-Ok, thanks.
-I just saw that net/ipv4/Kconfig make CONFIG_INET_AH depend on
-CONFIG_CRYPTO_HMAC.
 
-My problem was based on the fact that you can disable
-CONFIG_CRYPTO_HMAC by disabling CONFIG_CRYPTO. But this will not
-disable CONFIG_INET_AH.
 
-Shouldn't there be a fix in dependencies between CONFIG_CRYPTO
-and CONFIG_CRYPTO_HMAC, or between CONFIG_INET_AH and
-CONFIG_CRYPTO ?
-
-Regards
-
-Brice Goglin
-============
-Ph.D Student
-Laboratoire de l'Informatique du Parallélisme
-ENS Lyon
-France

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287109AbSAZVnj>; Sat, 26 Jan 2002 16:43:39 -0500
+	id <S287106AbSAZVrt>; Sat, 26 Jan 2002 16:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287106AbSAZVn3>; Sat, 26 Jan 2002 16:43:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:272 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287109AbSAZVnN>; Sat, 26 Jan 2002 16:43:13 -0500
-Date: Sat, 26 Jan 2002 13:42:52 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Eriksson <nitrax@giron.wox.org>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
-In-Reply-To: <012d01c1a687$faa11120$0201a8c0@HOMER>
-Message-ID: <Pine.LNX.4.33.0201261339220.17628-100000@penguin.transmeta.com>
+	id <S287111AbSAZVrj>; Sat, 26 Jan 2002 16:47:39 -0500
+Received: from gadolinium.btinternet.com ([194.73.73.111]:51339 "EHLO
+	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S287106AbSAZVrZ>; Sat, 26 Jan 2002 16:47:25 -0500
+From: "Chris Mason" <chris@bash.sh>
+To: <linux-kernel@vger.kernel.org>
+Subject: SPARCstation 5 (sun4m) and 2.4.17
+Date: Sat, 26 Jan 2002 21:48:07 -0000
+Message-ID: <000401c1a6b3$24bac020$0100a8c0@krad>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Sat, 26 Jan 2002, Martin Eriksson wrote:
->
-> Hmm.. I tried to compile the kernel with -Os (gcc 2.96-98) and I just got a
-> ~1% smaller vmlinux and a ~3% smaller bzImage.
+I know I have seen this discussed before on various mailing lists, but
+it was generally regarding the 2.4.0-test kernels.  I am attempting to
+use 2.4.17 on a SPARCstation 5 (sun4m) with 192MB of RAM.
 
-Note that while "-Os" exists and is documented, as far as I know gcc
-doesn't actually do much with it. It really acts mostly as a "disable
-certain optimizations" than anything else.
+On attempting to boot the kernel I get the following message;
 
-In the 3.0.x tree, it seems to change some of the weights of some
-instructions, and it might make more of a difference there. But at the
-same time it is quite telling that "-Os" doesn't even change any of the
-alignments etc - because gcc developers do not seem to really support it
-as a real option. It's an after-thought, not a big performance push.
+SILO boot:
+PROMLIB: obio_ranges 1
+bootmem_init: Scan sp_banks,
+init_bootmem(spfn[41ad],bpfn[4a1d],mlpfn[c000])
 
-		Linus
+It then pauses for a period of about 3 mins then I get the following (as
+expected),
+
+Watchdog Reset, Rebooting.
+Resetting ...
+
+I have attempted to pass it mem=16M as some earlier posts suggested to
+do on 2.4.0-test kernels with no luck.  On enable PROM_DEBUG_CONSOLE in
+/usr/src/linux/arch/sparc/kernel/setup.c I see that the kernel does
+oops, however as the screen moves up very quickly I cannot read what it
+is saying.
+
+Thanks in advance,
+Chris
 

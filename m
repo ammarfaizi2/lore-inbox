@@ -1,43 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbUJaFIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbUJaFpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbUJaFIh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 01:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUJaFIh
+	id S261505AbUJaFpf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 01:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbUJaFpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 01:08:37 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:17066 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261503AbUJaFIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 01:08:36 -0400
-Subject: Re: PCI->APIC IRQ transform -> 267 ?
-From: Len Brown <len.brown@intel.com>
-To: Robert Clark <lkml@ratty.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1098958286.6342.63.camel@localhost>
-References: <1098958286.6342.63.camel@localhost>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1099199311.18178.4.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 31 Oct 2004 01:08:31 -0400
+	Sun, 31 Oct 2004 01:45:35 -0400
+Received: from [66.181.242.184] ([66.181.242.184]:30153 "EHLO nulldomain.net")
+	by vger.kernel.org with ESMTP id S261505AbUJaFpd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 01:45:33 -0400
+Message-ID: <41847BF6.6060802@leosandbox.org>
+Date: Sat, 30 Oct 2004 22:45:26 -0700
+From: Leo Przybylski <leo@leosandbox.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20030924 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: USB Woes
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-28 at 06:11, Robert Clark wrote:
-> I'm getting this with 2.4.27 (SMP):
-> 
-> PCI: Using IRQ router PIIX [8086/25a1] at 00:1f.0
-...
-> PCI->APIC IRQ transform: (B3,I4,P0) -> 267
+Hello,
 
-this is from pcibios_fixup_irqs() which is called only when ACPI is
-disabled.  Let me know if you still have trouble with a kernel built
-with CONFIG_ACPI=y.  Also, it would be good to know if other versions of
-the kernel are known to work, or if they all fail on this box.
+Is this the right list to post about kernel USB drivers? I'm having 
+trouble with usb devices showing up when I run lsusb, even usb-storage 
+devices.
 
-thanks,
--Len
-
+Leo
 

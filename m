@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264210AbTDPC3J (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 22:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264212AbTDPC3J 
+	id S263477AbTDPCtD (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 22:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264212AbTDPCtD 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 22:29:09 -0400
-Received: from holomorphy.com ([66.224.33.161]:31880 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264210AbTDPC3I 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 22:29:08 -0400
-Date: Tue, 15 Apr 2003 19:40:36 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.67-mm3
-Message-ID: <20030416024036.GK706@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030414015313.4f6333ad.akpm@digeo.com> <20030416022154.GF12487@holomorphy.com>
+	Tue, 15 Apr 2003 22:49:03 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:25826 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S263477AbTDPCtC (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 22:49:02 -0400
+Date: Tue, 15 Apr 2003 23:00:54 -0400
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: torvalds@transmeta.com
+Subject: Re: [Bug 583] New: Enabling Coda with Devfs causes Kernel Panic
+Message-ID: <20030416030054.GA19950@delft.aura.cs.cmu.edu>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
+	torvalds@transmeta.com
+References: <18760000.1050377643@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030416022154.GF12487@holomorphy.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+In-Reply-To: <18760000.1050377643@[10.10.2.4]>
+User-Agent: Mutt/1.5.3i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15, 2003 at 07:21:54PM -0700, William Lee Irwin III wrote:
-> follow_hugetlb_page() behaved improperly if its starting address was
-> not hugepage-aligned. It looked a bit unclean too, so I rewrote it.
-> This fixes a bug, and more importantly, makes the thing readable by
-> something other than a compiler (e.g. programmers).
+On Mon, Apr 14, 2003 at 08:34:03PM -0700, Martin J. Bligh wrote:
+> http://bugme.osdl.org/show_bug.cgi?id=583
+> [<c01a4a62>] devfs_mk_dir+0x22/0xd0 
+> [<c01360d1>] kmalloc+0x81/0x99 
+> [<c0150e47>] register_chrdev_region+0x17/0x120 
 
-And this one fixes an overflow when there is more than 4GB of hugetlb:
+Part of the backtrace doesn't make much sense, but the problem is caused
+by the devfs_mk_dir simplification that went in a couple of weeks ago.
 
+Jan
 
-diff -urpN htlb-2.5.67-bk6-1/arch/i386/mm/hugetlbpage.c htlb-2.5.67-bk6-2/arch/i386/mm/hugetlbpage.c
---- htlb-2.5.67-bk6-1/arch/i386/mm/hugetlbpage.c	2003-04-15 18:58:07.000000000 -0700
-+++ htlb-2.5.67-bk6-2/arch/i386/mm/hugetlbpage.c	2003-04-15 19:25:30.000000000 -0700
-@@ -482,9 +482,7 @@ int hugetlb_report_meminfo(char *buf)
- 
- int is_hugepage_mem_enough(size_t size)
- {
--	if (size > (htlbpagemem << HPAGE_SHIFT))
--		return 0;
--	return 1;
-+	return (size + ~HPAGE_MASK)/HPAGE_SIZE <= htlbpagemem;
- }
- 
- /*
+--- linux-2.5.67/fs/coda/psdev.c.orig	2002-12-17 21:09:56.000000000 -0500
++++ linux-2.5.67/fs/coda/psdev.c	2003-04-15 23:05:04.000000000 -0400
+@@ -371,7 +371,7 @@
+ 		     CODA_PSDEV_MAJOR);
+               return -EIO;
+ 	}
+-	devfs_mk_dir (NULL, "coda", NULL);
++	devfs_mk_dir ("coda");
+ 	for (i = 0; i < MAX_CODADEVS; i++) {
+ 		char name[16];
+ 		sprintf(name, "coda/%d", i);
+

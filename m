@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUGSQNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUGSQjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265287AbUGSQNP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 12:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265291AbUGSQNP
+	id S264984AbUGSQjA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 12:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUGSQjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 12:13:15 -0400
-Received: from msgdirector1.onetel.net.uk ([212.67.96.148]:27727 "EHLO
-	msgdirector1.onetel.net.uk") by vger.kernel.org with ESMTP
-	id S265287AbUGSQNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 12:13:13 -0400
-From: Chris Lingard <chris@ukpost.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: PATCH Trivial fix for xconfig
-Date: Mon, 19 Jul 2004 17:13:03 +0100
-User-Agent: KMail/1.6.2
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200407191451.55828.chris@ukpost.com> <Pine.LNX.4.58.0407191607060.20634@scrub.home>
-In-Reply-To: <Pine.LNX.4.58.0407191607060.20634@scrub.home>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407191713.03670.chris@ukpost.com>
+	Mon, 19 Jul 2004 12:39:00 -0400
+Received: from bay19-f31.bay19.hotmail.com ([64.4.53.81]:30738 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264984AbUGSQi7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 12:38:59 -0400
+X-Originating-IP: [216.150.62.136]
+X-Originating-Email: [monetic@hotmail.com]
+From: "Lucas Jackson" <monetic@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6 pagesize, block size limits?
+Date: Mon, 19 Jul 2004 10:38:58 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY19-F31m7yvgffuVF00053e0d@hotmail.com>
+X-OriginalArrivalTime: 19 Jul 2004 16:38:58.0376 (UTC) FILETIME=[E39E5C80:01C46DAE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 July 2004 15:09, Roman Zippel wrote:
-> Hi,
->
-> On Mon, 19 Jul 2004, Chris Lingard wrote:
-> > When qt is installed in /usr, then there is no need to set and
-> > export QTDIR; but make xconfig expects this.
->
-> What distribution are you using? This would mean all qt header files are
-> directly in /usr/include.
 
-Thank you for your prompt reply.
+I'm planning on upgrading a RH AS3 2.4.21 kernel to 2.6.7 on an AMD Opteron 
+box (2 CPU), for use with oracle 10g.
+I know 2.4 had a pagesize of something like 4k (?)..i'm wondering how this 
+changes in 2.6 on a 64-bit box? I'm wanting to use XFS with 16kb stripes 
+(direct and async io, if possible), and am hoping i won't hit some kind of 
+kernel limit that's gonna bottleneck that for me.
+I don't plan on using a raw device either.
 
-RedHat or Linux from Scratch.  Used to install qt in /opt/qt-version
-but now put qt, KDE, kitchen sink in /usr.  So all the headers do
-go in /usr/include :-)
+Thanx,
 
-> You just broke xconfig for Debian and RH systems.
+-Tony
 
-My RedHat system has QTDIR=/usr/lib/qt-3.1 in the environment,
-(this was set up by the distro, and is not a hack by me).
-
-Sorry I do not know about Debian.
-
-My Linux from Scratch system never has QTDIR set because everything
-is in /usr.
-
-Chris Lingard
-
+_________________________________________________________________
+Is your PC infected? Get a FREE online computer virus scan from McAfee® 
+Security. http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
 

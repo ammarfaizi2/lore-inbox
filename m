@@ -1,101 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbUCDNTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 08:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbUCDNTZ
+	id S261886AbUCDNV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 08:21:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbUCDNV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 08:19:25 -0500
-Received: from mail3a.westend.com ([212.117.79.77]:31447 "EHLO
-	mail3a1.westend.com") by vger.kernel.org with ESMTP id S261883AbUCDNTS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 08:19:18 -0500
-Date: Thu, 4 Mar 2004 14:19:15 +0100
-From: Christian Hammers <ch@westend.com>
-To: linux-kernel@vger.kernel.org
-Subject: Server suddenly freezes but awakes upon SysRq!?
-Message-ID: <20040304131915.GA15713@westend.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 4 Mar 2004 08:21:29 -0500
+Received: from pxy1allmi.all.mi.charter.com ([24.247.15.38]:14464 "EHLO
+	proxy1.gha.chartermi.net") by vger.kernel.org with ESMTP
+	id S261886AbUCDNVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 08:21:22 -0500
+Message-ID: <40472D4A.9000607@quark.didntduck.org>
+Date: Thu, 04 Mar 2004 08:21:14 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Igor Yu. Zhbanov" <bsg@uniyar.ac.ru>
+CC: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: __buggy_fxsr_alignment() not found.
+References: <Pine.GSO.3.96.SK.1040304140003.4028A-100000@univ.uniyar.ac.ru>
+In-Reply-To: <Pine.GSO.3.96.SK.1040304140003.4028A-100000@univ.uniyar.ac.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Charter-MailScanner-Information: 
+X-Charter-MailScanner: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Igor Yu. Zhbanov wrote:
+> On Mon, 1 Mar 2004, Randy.Dunlap wrote:
+> 
+> 
+>>On Sun, 29 Feb 2004 20:02:12 +0300 (MSK) Igor Yu. Zhbanov wrote:
+>>
+>>| Hello!
+>>| My system is:
+>>| AMD K6-II 450
+>>| Linux-2.4.24
+>>| glibc-2.2.5
+>>| 
+>>| I cannot compile 2.4.24 kernel because linker says:
+>>| init/main.o: In function `check_fpu':
+>>| init/main.o(.text.init+0x53): undefined reference to `__buggy_fxsr_alignment'
+>>| 
+>>| It's prototype is in inculude/asm-i386/bugs.h:
+>>| -----
+>>| /* Enable FXSR and company _before_ testing for FP problems. */
+>>|         /*
+>>|          * Verify that the FXSAVE/FXRSTOR data will be 16-byte aligned.
+>>|          */
+>>|         if (offsetof(struct task_struct, thread.i387.fxsave) & 15) {
+>>|               extern void __buggy_fxsr_alignment(void);
+>>|               __buggy_fxsr_alignment();
+>>| -----
+>>| But there is no realisation of this function in source files.
+>>| When I comment the lines above, everything works.
+>>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>This function is not supposed to be defined anywhere.
+>>It is there to indicate a build error and to keep the kernel
+>>build from completing successfully.
+>>
+>>For some reason, with your config (and CPU arch.) and compiler,
+>>the 'fxsave' field is not on a 16-byte alignment.  Have you applied
+>>any patches to 2.4.24?  What version of gcc are you using (gcc -v)?
+>>
+> 
+> 
+> My compiler is pgcc-2.95.3 (gcc optimized for Pentium).
+> And I use security patch from OpenWall.
+> Here is my config file:
 
-We have some problems with a server that started to suddenly freeze
-every now and then which means that it does react to ping and tcp
-connects but does not allow a login nor returns the shell or does syslog
-write anything to disc or network.
+Get a newer compiler.  It's either not getting the alignment of 
+thread.i387.fxsave right or not optimizing the test away properly.
 
-Funnily it always immediately awakes when we presses 'AltGr+SysGr+h'
-although a login on the console did not work before.
-
-What could be the cause of this "sleep" mode if a sysrq ends it?
-We noticed that at least 1-2 freezes occured right after accessing the
-external usb2.0 backup harddrive.
-
-The server is a dual-p3 with a 3ware ide-scsi RAID and very low load as
-postfix+apache server.
-
-bye,
-
--christian-
-
-Some bits of the configuration:
-
-...
-CONFIG_MPENTIUMIII=y
-...
-CONFIG_HIGHMEM4G=y
-# CONFIG_HIGHMEM64G is not set
-CONFIG_HIGHMEM=y
-CONFIG_HIGHIO=y
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-CONFIG_SMP=y
-CONFIG_NR_CPUS=32
-# CONFIG_X86_NUMA is not set
-# CONFIG_X86_TSC_DISABLE is not set
-CONFIG_X86_TSC=y
-CONFIG_HAVE_DEC_LOCK=y
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_ISA=y
-CONFIG_PCI_NAMES=y
-# CONFIG_EISA is not set
-# CONFIG_MCA is not set
-CONFIG_HOTPLUG=y
-...
-# CONFIG_ACPI is not set
-CONFIG_ACPI_BOOT=y
-...
-CONFIG_PNP=y
-CONFIG_ISAPNP=m
-...
-CONFIG_DEBUG_STACKOVERFLOW=y
-# CONFIG_DEBUG_HIGHMEM is not set
-# CONFIG_DEBUG_SLAB is not set
-# CONFIG_DEBUG_IOVIRT is not set
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_FRAME_POINTER is not set
-CONFIG_LOG_BUF_SHIFT=0
-
--- 
-Christian Hammers             WESTEND GmbH  |  Internet-Business-Provider
-Technik                       CISCO Systems Partner - Authorized Reseller
-                              Lütticher Straße 10      Tel 0241/701333-11
-ch@westend.com                D-52064 Aachen              Fax 0241/911879
-
+--
+				Brian Gerst

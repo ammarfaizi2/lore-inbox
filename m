@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVDEHZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVDEHdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVDEHZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 03:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVDEHW4
+	id S261608AbVDEHdb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 03:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVDEH3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 03:22:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:5852 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261592AbVDEHV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 03:21:28 -0400
-Date: Tue, 5 Apr 2005 08:21:04 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Matthew Wilcox <matthew@wil.cx>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: iomapping a big endian area
-Message-ID: <20050405072104.GA26208@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Matthew Wilcox <matthew@wil.cx>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1112475134.5786.29.camel@mulgrave> <20050403013757.GB24234@parcelfarce.linux.theplanet.co.uk> <1112649465.5813.106.camel@mulgrave>
+	Tue, 5 Apr 2005 03:29:46 -0400
+Received: from dea.vocord.ru ([217.67.177.50]:48589 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261620AbVDEH25 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 03:28:57 -0400
+Subject: Re: Netlink Connector / CBUS
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       "David S. Miller" <davem@davemloft.net>,
+       James Morris <jmorris@redhat.com>, rml@novell.com,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Xine.LNX.4.44.0504050108260.9383-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0504050108260.9383-100000@thoron.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sXlTmFdVb1kJKT8aZHNH"
+Organization: MIPT
+Date: Tue, 05 Apr 2005 11:34:40 +0400
+Message-Id: <1112686480.28858.17.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112649465.5813.106.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Tue, 05 Apr 2005 11:27:54 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 04:17:45PM -0500, James Bottomley wrote:
-> OK, I sent the patch off to Andrew.  To complete the original problem,
-> the attached is the patch that uses it in the parisc lasi driver
-> (although, actually, it sets up 53c700 to work everywhere including BE
-> on a LE system).
-> 
-> I changed some of the flags around to reflect the fact that we now have
-> generic BE support in the driver (rather than the more limited
-> force_le_on_be flag).
 
-What I really don't like is that you still need ifdefs and wrappers to
-support BE and LE wired chips in the same driver.  Shouldn't you set the
-BE or LE flag at iomap() time and always use the same accessors?
+--=-sXlTmFdVb1kJKT8aZHNH
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2005-04-05 at 01:10 -0400, Herbert Xu wrote:
+>On Tue, Apr 05, 2005 at 11:03:16AM +0400, Evgeniy Polyakov wrote:
+>>=20
+>> I received comments and feature requests from Herbert Xu and Jamal Hadi
+>> Salim,
+>> almost all were successfully resolved.
+>
+>Please do not construe my involvement in these threads as endorsement
+>for this system.
+
+Sure.
+I remember you are against it :).
+
+>In fact to this day I still don't understand what problems this thing is
+>meant to solve.
+
+Hmm, what else can I add to my words?
+May be checking the size of the code needed to broadcast kobject changes
+in kobject_uevent.c for example...
+Netlink socket allocation + skb handling against call to cn_netlink_send().
+
+>--=20
+>Visit Openswan at http://www.openswan.org/
+>Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+>Home Page: http://gondor.apana.org.au/~herbert/
+>PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-sXlTmFdVb1kJKT8aZHNH
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCUj+QIKTPhE+8wY0RAtcKAJ91ZXvgUr1gGOjGWtnLZRc6iQYeCwCfWLe/
+hMplKPbqSYSR1MIMr/E38+E=
+=Xfba
+-----END PGP SIGNATURE-----
+
+--=-sXlTmFdVb1kJKT8aZHNH--
 

@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbULBOUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbULBO11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbULBOUs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 09:20:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbULBOUs
+	id S261627AbULBO11 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 09:27:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbULBO11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 09:20:48 -0500
-Received: from dialup-4.246.93.254.Dial1.SanJose1.Level3.net ([4.246.93.254]:8065
-	"EHLO nofear.bounceme.net") by vger.kernel.org with ESMTP
-	id S261631AbULBOUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 09:20:41 -0500
-Message-ID: <41AF24F4.5040800@syphir.sytes.net>
-Date: Thu, 02 Dec 2004 06:21:40 -0800
-From: "C.Y.M" <syphir@syphir.sytes.net>
-Reply-To: syphir@syphir.sytes.net
-Organization: CooLNeT
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Thu, 2 Dec 2004 09:27:27 -0500
+Received: from lucidpixels.com ([66.45.37.187]:11206 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S261627AbULBO1V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 09:27:21 -0500
+Date: Thu, 2 Dec 2004 09:27:20 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.6.9 undecoded slave problem, fixed in 2.6.10-rc2-bk8!
+Message-ID: <Pine.LNX.4.61.0412020925040.25494@p500>
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: bt8xx cleanup 
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since you just applied those other cleanups from 2.6.10-rc2-bk15, here 
-is one more you might want to add.  Thanks.
+I have fixed this issue but I just wanted to let others that have this 
+issue know that 2.6.10-rc2-bk8 has fixed the issue.
 
-diff -Nru a/drivers/media/dvb/bt8xx/bt878.h 
-b/drivers/media/dvb/bt8xx/bt878.h
---- a/drivers/media/dvb/bt8xx/bt878.h   2004-10-20 08:19:52 -07:00
-+++ b/drivers/media/dvb/bt8xx/bt878.h   2004-11-19 05:52:47 -08:00
-@@ -102,7 +102,7 @@
-         unsigned char revision;
-         unsigned int irq;
-         unsigned long bt878_adr;
--       unsigned char *bt878_mem; /* function 1 */
-+       volatile void __iomem *bt878_mem; /* function 1 */
+-------------------------------------------------------------------------
 
-         volatile u32 finished_block;
-         volatile u32 last_block;
-@@ -129,17 +129,17 @@
-  void bt878_stop(struct bt878 *bt);
+Problem: Only one of my CDROM's is recognized when both drives are 
+attached to the 1 IDE bus of a PROMISE 20269 controller.  When I have them 
+attached to the motherboard (Intel 440BX), I do not have this problem.
 
-  #if defined(__powerpc__)       /* big-endian */
--extern __inline__ void io_st_le32(volatile unsigned *addr, unsigned val)
-+extern __inline__ void io_st_le32(volatile unsigned __iomem *addr, 
-unsigned val)
-  {
-         __asm__ __volatile__("stwbrx %1,0,%2":"=m"(*addr):"r"(val),
-                              "r"(addr));
-         __asm__ __volatile__("eieio":::"memory");
-  }
+>From dmesg:
 
--#define bmtwrite(dat,adr)  io_st_le32((unsigned *)(adr),(dat))
--#define bmtread(adr)       ld_le32((unsigned *)(adr))
-+#define bmtwrite(dat,adr)  io_st_le32((adr),(dat))
-+#define bmtread(adr)       ld_le32((adr))
-  #else
--#define bmtwrite(dat,adr)  writel((dat), (char *) (adr))
-+#define bmtwrite(dat,adr)  writel((dat), (adr))
-  #define bmtread(adr)       readl(adr)
-  #endif
+hde: SAMSUNG SC-140B, ATAPI CD/DVD-ROM drive
+hdf: SAMSUNG SC-140B, ATAPI CD/DVD-ROM drive
+ide-probe: ignoring undecoded slave
+
+In: http://www.uwsg.iu.edu/hypermail/linux/kernel/0410.3/1288.html
+
+There is a message that states:
+
+<bzolnier@trik.(none)> (04/10/26 1.2191)
+[ide] ide-probe: undecoded slave fixup
+
+Undecoded slave fixup is a oneliner patch to ide-probe to
+recognize both of my Maxtor drives that appear to have the same
+serial number, D3000000.
+
+Another thread:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0409.2/1665.html
+
+The interesting part of all of this is that this only occurs when I have 
+the two cdroms on a promise controller, on the same IDE channel, normally 
+I have them both on the motherboard as master and slave.  I wanted to make 
+sure the card worked however, so switched the connection over to the 
+promise board and then I am getting the same error as the guy above, 
+except in my case it is with two identical CDROMS and not hard drives.
+
+The problem occurs with 2.6.9.
+
+-------------------------------------------------------------------------
+
+Update: With 2.6.10-rc2-bk8, it has fixed the problem!
+
+hde: SAMSUNG SC-140B, ATAPI CD/DVD-ROM drive
+hdf: SAMSUNG SC-140B, ATAPI CD/DVD-ROM drive
+ide2 at 0xd8f8-0xd8ff,0xd8f2 on irq 11
+hde: ATAPI 40X CD-ROM drive, 128kB Cache
+Uniform CD-ROM driver Revision: 3.20
+hdf: ATAPI 40X CD-ROM drive, 128kB Cache
+Probing IDE interface ide3...
+
+root@p500b:~# mount /dev/hde /mnt/cd1
+mount: block device /dev/hde is write-protected, mounting read-only
+root@p500b:~# mount /dev/hdf /mnt/cd2
+mount: block device /dev/hdf is write-protected, mounting read-only
+root@p500b:~#
+

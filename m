@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129454AbRBBPvD>; Fri, 2 Feb 2001 10:51:03 -0500
+	id <S129790AbRBBPye>; Fri, 2 Feb 2001 10:54:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129790AbRBBPux>; Fri, 2 Feb 2001 10:50:53 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:54278 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129454AbRBBPun>; Fri, 2 Feb 2001 10:50:43 -0500
-Subject: RAMFS
+	id <S129816AbRBBPyX>; Fri, 2 Feb 2001 10:54:23 -0500
+Received: from cloudburst.umist.ac.uk ([130.88.119.66]:35602 "EHLO
+	cloudburst.umist.ac.uk") by vger.kernel.org with ESMTP
+	id <S129790AbRBBPyM>; Fri, 2 Feb 2001 10:54:12 -0500
+From: T.Stewart@student.umist.ac.uk
 To: linux-kernel@vger.kernel.org
-Date: Fri, 2 Feb 2001 15:51:53 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL1]
+Date: Fri, 2 Feb 2001 15:55:31 -0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14OiV8-0006hH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: DFE-530TX with no mac address
+Message-ID: <3A7AD873.821.F1A284@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Random quick poking
+hi,
+I have a D-Link DFE-530TX Rev A, PCI ethernet card, but it refuses 
+to work.
 
-Does this fix the ramfs problem in -ac ?
+I have looked at http://www.scyld.com/network/index.html#pci 
+which sugests using the via-rhine driver.
 
+I did this and compiled it into the kernel. It detects it at boot (via-
+rhine v1.08-LK1.1.6 8/9/2000 Donald Becker) but says the 
+hardware address (mac address?) is 00-00-00-00-00-00.
 
---- fs/ramfs/inode.c~	Wed Jan 31 22:02:16 2001
-+++ fs/ramfs/inode.c	Fri Feb  2 14:51:47 2001
-@@ -174,7 +174,6 @@
- 		inode->i_blocks += IBLOCKS_PER_PAGE;
- 		rsb->free_pages--;
- 		SetPageDirty(page);
--		UnlockPage(page);
- 	} else {
- 		ClearPageUptodate(page);
- 		ret = 0;
-@@ -264,6 +263,7 @@
- 
- 	if (! ramfs_alloc_page(inode, page))
- 		return -ENOSPC;
-+	UnlockPage(page);
- 	return 0;
- }
- 
+The card is not a DF-530TX or a DFE-530TX+ AFAIK.
+
+www.d-link.com don't do linux drivers or say anything about linux.
+
+The card works perfect with d-link drivers in win98 and w2k.
+
+Whats the differance between via-rhine in 2.2.18 and 2.4.1?
+
+Can any one help?
+
+Thanks for reading
+
+tom
+(can u cc replys to me)
+
+Some more info:-
+pci device 00:0a.0
+io=0xD400
+irq=9
+
+linux-2.4.1
+glibc-2.2.1
+gcc-2.95.3
+
+ps I have tryed to exaust all prosabilitys before posting here, and I 
+am sorry if this is stupid, its my first post to linux-kernel!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

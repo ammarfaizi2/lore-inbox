@@ -1,72 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267258AbUHZAbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267250AbUHZAcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267258AbUHZAbp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 20:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267231AbUHZA3p
+	id S267250AbUHZAcU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 20:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267234AbUHZAcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 20:29:45 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:36796 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S266917AbUHZA1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 20:27:55 -0400
-Message-ID: <412D2E7B.7000202@grupopie.com>
-Date: Thu, 26 Aug 2004 01:27:39 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org, bcasavan@sgi.com
-Subject: Re: [PATCH] kallsyms data size reduction / lookup speedup
-References: <1093406686.412c0fde79d4f@webmail.grupopie.com> <20040825205113.GA7258@mars.ravnborg.org>
-In-Reply-To: <20040825205113.GA7258@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.32; host: bipbip)
+	Wed, 25 Aug 2004 20:32:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6294 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266917AbUHZAa4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 20:30:56 -0400
+Date: Thu, 26 Aug 2004 01:30:55 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040826001152.GB23423@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Wed, Aug 25, 2004 at 05:04:46AM +0100, pmarques@grupopie.com wrote:
+On Thu, Aug 26, 2004 at 01:11:52AM +0100, Jamie Lokier wrote:
+> Is this a problem if we treat entering a file-as-directory as crossing
+> a mount point (i.e. like auto-mounting)?
+
+Yes - mountpoints can't be e.g. unlinked.  Moreover, having directory
+mounted on non-directory is also an interesting situation.
+
+> Simply doing a path walk would lock the file and then cross the mount
+> point to a directory.
+
+*Ugh*
+
+What would happen if you open that directory or chdir there?  If it's
+"underlying file stays locked" - we are in even more obvious deadlocks.
+
+> A way to ensure that preserves the lock order is to require that the
+> metadata is in a different filesystem to its file (i.e. not crossing a
+> bind mount to the same filesystem).
 > 
->>This patch is an improvement over my first kallsyms speedup patch posted about 2
->>weeks ago.
-> 
-> 
-> My origianl comment still hold.
-> Decoupling the compression and decompression part is not good.
-> Better keep them close to each other.
+> That has the side effect of preventing hard links between metadata
+> files and non-metadata, which in my opinion is fine.
 
-In this case the decompression step is so simple that I don't think this 
-is really a problem.
-At least the source code is close to each other.
+We don't actually need a different fs - different vfsmount will do just fine.
 
-> Why not put all symbols in an __init section, compress them during kernel boot
-> and then the original section get discarded.
+> The strict order is ensured by preventing bind mounts which create a
+> path cycle containing a file->metadata edge.  One way to ensure that
+> is to prevent mounts on the metadata filesystems, but the rule doesn't
+> have to be that strict.  This condition only needs to be checked in
+> the mount() syscall.
 
-In that case we should definitely change the algorithm as the 
-compression step is quite hard. It was designed to run only at compile 
-time, so code size / speed trade-offs would all tend to increase the 
-code size, and even as it is it would slow down the boot sequence.
+You really don't want to lock mountpoint on path lookup, so I don't see
+how that would be relevant - it's a hell to clean up, for one thing
+(I've crossed ten mountpoints on the way, when do I unlock them and
+how do I prevent deadlocks from that?)  Besides, different namespaces
+can have completely different mount trees, so tracking down all that
+stuff would be hell in its own right.
 
-Anyway, even if the code and data is discarded as they would be in an 
-__init section, the compression code would still be in the kernel image. 
-This can reduce the areas of application of this code (boot from a 
-floppy, embedded systems, etc.)
-
-It _seems_ silly to have code in there that works over the same data 
-every time it boots and produces the exact same result. I must say 
-however that I realize that I'm a newcomer and I might not be seeing the 
-hole picture. So, if it is the general consensus that this is the way to 
-go, then fine by me :)
-
-> After a quick browse of the code.
-> - Use spaces around '=' etc.
-
-I'm really sorry about this. I've tried to not let these escape, but 
-some of them (many of them, in fact) did. I promise I'll be more 
-thorough next time.
-
--- 
-Paulo Marques - www.grupopie.com
+The main issue I see with all schemes in that direction (and something
+like that could be made workable) is the semantics of unlink() on
+mountpoints.  *Especially* with users being able to see attributes of
+files they do not own (e.g. reiser4 mode/uid/gid stuff).  Ability to
+pin down any damn file on the system and make it impossible to replace
+is not something you want to give to any user.

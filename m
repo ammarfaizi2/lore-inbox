@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263676AbUDWA43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263364AbUDWBA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263676AbUDWA43 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 20:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUDWA43
+	id S263364AbUDWBA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 21:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUDWBA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 20:56:29 -0400
-Received: from gprs214-221.eurotel.cz ([160.218.214.221]:19584 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263676AbUDWA40 (ORCPT
+	Thu, 22 Apr 2004 21:00:27 -0400
+Received: from gate.crashing.org ([63.228.1.57]:36030 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263364AbUDWBA0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 20:56:26 -0400
-Date: Fri, 23 Apr 2004 02:56:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SOFTWARE_SUSPEND as a module
-Message-ID: <20040423005617.GA414@elf.ucw.cz>
-References: <20040422120417.GA2835@gondor.apana.org.au>
+	Thu, 22 Apr 2004 21:00:26 -0400
+Subject: Re: New Radeonfb (2.6.5) driver does not play nice with X (4.3.0)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Lamanna <jamesl@appliedminds.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4087EB5A.7040404@appliedminds.com>
+References: <4087EB5A.7040404@appliedminds.com>
+Content-Type: text/plain
+Message-Id: <1082681913.2056.143.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040422120417.GA2835@gondor.apana.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 23 Apr 2004 10:58:34 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2004-04-23 at 01:57, James Lamanna wrote:
+> I'm having some serious issues with the "new" radeonfb driver.
+> The system boots up fine, but as soon as I start X windows,
+> I cannot switch to a virtual console.
+> 
+> If I do, the screen goes black with what looks like lines of really
+> tiny, squashed text? maybe, and the system totally hangs.
+> No keyboard input, can't ssh in, totally dead.
 
-> This is a quick hack to modularise SOFTWARE_SUSPEND.  I've successfully
-> suspended to/resumed from LVM using this.
+It works with XFree driver, but there are problems with ATI binary
+one. Difficult to say what's up at this point precisely as I don't
+have an x86 setup to reproduce the problem.
 
-Uh, oh.
+Ben.
 
-I can't see actual code changes because you do lots of renames... Is
-there way to keep them down?
 
-What is the point of this? Do you want launch resume after you
-prepared for it in userland? In such case you need to add
-freeze_processes() to resume path.
-
-[And please inline your patches. l-k policy says so and my mail filter
-learned that attachment == virus. (At 500 viruses a day, its
-unfortunately close to right).
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272320AbTHIKkR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 06:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272321AbTHIKkR
+	id S272321AbTHIKlM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 06:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272328AbTHIKlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 06:40:17 -0400
-Received: from divine.city.tvnet.hu ([195.38.100.154]:64276 "EHLO
-	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id S272320AbTHIKkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 06:40:13 -0400
-Date: Sat, 9 Aug 2003 11:18:03 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Andrew Morton <akpm@osdl.org>, Grant Miner <mine0057@mrs.umn.edu>,
-       <linux-kernel@vger.kernel.org>, <reiserfs-list@namesys.com>
-Subject: Re: Filesystem Tests
-In-Reply-To: <20030809093337.GA28566@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.30.0308091028150.19108-100000@divine.city.tvnet.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Aug 2003 06:41:12 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:62478 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S272321AbTHIKk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 06:40:27 -0400
+Date: Sat, 9 Aug 2003 12:40:24 +0200
+To: gaxt <gaxt@rogers.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3 cannot mount root fs
+Message-ID: <20030809104024.GA12316@gamma.logic.tuwien.ac.at>
+References: <3F34D0EA.8040006@rogers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3F34D0EA.8040006@rogers.com>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sam, 09 Aug 2003, gaxt wrote:
+> Try changing in your bootloader root=/dev/hdb1 to root=341
 
-On Sat, 9 Aug 2003, Jamie Lokier wrote:
-> reiser4 is using approximately twice the CPU percentage, but completes
-> in approximately half the time, therefore it uses about the same
-> amount of CPU time at the others.
->
-> Therefore on a loaded system, with a load carefully chosen to make the
-> test CPU bound rather than I/O bound, one could expect reiser4 to
-> complete in approximately the same time as the others, _not_ slowest.
+tried it already with 
+	root=0341
+and 
+	root=341
+on the lilo prompt. No change.
 
-Depends how you define approximation, margins. I dropped them and
-calculated reiser4 needs the most CPU time. Hans wrote it's worked on.
+(Beside the kernel telling me:
+	VFS: Cannot mount root fs "341" or "hdb1"
 
-However guessing performance on a whatever carefully chosen loaded system
-from results on an unloaded system is exactly that, guess, not fact.
+Best wishes
 
-> That's why it's misleading to draw conclusions from the CPU percentage alone.
+Norbert
 
-I've never wrote I made my guesses from the CPU percentage alone, you
-explained correctly why. I encourage you too to calculate yourself how
-much more CPU time reiser4 needs.
-
-	Szaka
-
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+BENBURB
+The sort of man who becomes a returning officer.
+			--- Douglas Adams, The Meaning of Liff

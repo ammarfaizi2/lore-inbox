@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbTDRRxi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 13:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTDRRxi
+	id S263178AbTDRR6c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 13:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTDRR6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 13:53:38 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:25057 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263173AbTDRRxh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 13:53:37 -0400
-Date: Fri, 18 Apr 2003 11:06:30 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@transmeta.com>, sfr@canb.auug.org.au,
-       rusty@rustcorp.com.au
-Cc: Andries.Brouwer@cwi.nl, akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct loop_info64
-Message-ID: <20030418180630.GA7247@kroah.com>
-References: <20030418165506.GA6834@kroah.com> <Pine.LNX.4.44.0304181050430.2950-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Apr 2003 13:58:32 -0400
+Received: from paiol.terra.com.br ([200.176.3.18]:10732 "EHLO
+	paiol.terra.com.br") by vger.kernel.org with ESMTP id S263178AbTDRR6b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 13:58:31 -0400
+From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
+Organization: Ozzmosis Corp.
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Subject: Re: [patch] VMnet/VMware workstation 4.0
+Date: Fri, 18 Apr 2003 15:10:36 -0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <D79F957BFD@vcnet.vc.cvut.cz>
+In-Reply-To: <D79F957BFD@vcnet.vc.cvut.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304181050430.2950-100000@home.transmeta.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200304181510.36372.lucasvr@gobolinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 18, 2003 at 10:55:21AM -0700, Linus Torvalds wrote:
-> 
-> But we really should have a __ptr64 type too. There's just no sane way to
-> tell gcc about it without requireing casts, which is inconvenient (which
-> means that right now it you just have to use __u64 for pointers if you
-> want to be able to share the structure across 32/64-bit architectures).
+Yes, there are distributions and a lot of "end-users" around using devfs. 
+About 2.2.x: I think only putting #ifdef CONFIG_DEVFS_FS before defining the 
+'static devfs_handle_t devfs_handle' can fix the problem. Can you test that?
 
-I think that's what Stephan and Rusty tried to do with the
-kernel_ulong_t typedef in include/linux/mod_devicetable.h.
+The patches I sent are also available on 
+http://cscience.org/~lucasvr/patches/vmnet-only-3.2.patch and 
+http://cscience.org/~lucasvr/patches/vmnet-only-4.0.patch .
 
-Maybe that typedef could be changed into the __ptr64 type?  Stephan?
+Lucas
 
-thanks,
 
-greg k-h
+On Thursday 17 April 2003 15:12, Petr Vandrovec wrote:
+> On 17 Apr 03 at 13:48, Lucas Correia Villa Real wrote:
+> > Is there a "correct" place at vmware.com to send these patches? I tryied
+> > sending it to feature-request@vmware.com, but I got no response from
+> > them.
+> >
+> > Anyway, below follows the patch providing support to devfs on the vmnet
+> > driver for vmware workstation 4.0.
+>
+> You can send them to me if you do not trust feature-request...
+>
+> Proble with your patch is that it does not look like that it will
+> build on 2.2.x without complaints, but I can fix that. More important
+> question to me is: do people really use devfs?
+>
+> And if change will not make into next WS release, I can always distribute
+> it from my site.
+>                                                 Petr Vandrovec
+

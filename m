@@ -1,93 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266838AbUHJDU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUHJDdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266838AbUHJDU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 23:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267415AbUHJDU0
+	id S266864AbUHJDdH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 23:33:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266824AbUHJDdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 23:20:26 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:34020 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266838AbUHJDUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 23:20:22 -0400
-Message-ID: <41183EFA.5090600@comcast.net>
-Date: Mon, 09 Aug 2004 23:20:26 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Locking scheme to block less
-References: <Pine.LNX.4.44.0408092133390.25913-100000@dhcp83-102.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0408092133390.25913-100000@dhcp83-102.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 9 Aug 2004 23:33:07 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:59027 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266864AbUHJDdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 23:33:02 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Albert Cahalan <albert@users.sf.net>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
+       schilling@fokus.fraunhofer.de, axboe@suse.de
+In-Reply-To: <cone.1092092365.461905.29067.502@pc.kolivas.org>
+References: <1092082920.5761.266.camel@cube>
+	 <cone.1092092365.461905.29067.502@pc.kolivas.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092099669.5759.283.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 Aug 2004 21:01:09 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-08-09 at 18:59, Con Kolivas wrote:
+> Albert Cahalan writes:
+> 
+> 
+> > Joerg:
+> >    "WARNING: Cannot do mlockall(2).\n"
+> >    "WARNING: This causes a high risk for buffer underruns.\n"
+> > Fixed:
+> >    "Warning: You don't have permission to lock memory.\n"
+> >    "         If the computer is not idle, the CD may be ruined.\n"
+> > 
+> > Joerg:
+> >    "WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS)\n"
+> >    "WARNING: This causes a high risk for buffer underruns.\n"
+> > Fixed:
+> >    "Warning: You don't have permission to hog the CPU.\n"
+> >    "         If the computer is not idle, the CD may be ruined.\n"
+> 
+> Huh? That can't be right. Every cd burner this side of the 21st century has 
+> buffer underrun protection.
 
+I'm pretty sure my FireWire CD-RW/CD-R is from
+another century. Not that it's unusual in 2004.
 
-Rik van Riel wrote:
-> On Mon, 9 Aug 2004, John Richard Moser wrote:
-> 
-> 
->>Currently, the kernel uses only spin_locks,
-> 
-> 
-> Oh ?   Haven't you seen the read/write locks in
-> include/linux/spinlock.h or the lockless synchronisation
-> provided by include/linux/rcu.h ?
-> 
+> I've burnt cds _while_ capturing and encoding 
+> video using truckloads of cpu and I/O without superuser privileges, had all 
+> the cdrecord warnings and didn't have a buffer underrun.
 
-No, last I looked was in 2.4, and it was a passing glance long ago.
+That's cool. My hardware won't come close to that.
+Burning a coaster costs money.
 
-> 
->>If the kernel provided a read-write locking semaphore,
-> 
-> 
-> Funny, it does.  You're not looking at a 2.0 kernel, are
-> you?
-> 
-> 
->>spin_read_to_write_lock(spin_rwlock_t *lock);
->
+Let me put it this way: $$ $ $$$ $$ $ $$$ $$ $
 
-[Reinsert->]
-This is a read lock that will become a write lock.  It allows other read 
-locks; but blocks write locks and other read_to_write locks.  It is 
-blocked by write locks [and other read_to_write locks](sorry).
-> 
->>A read_to_write lock will block two such operations from occuring 
->>concurrently, while still allowing read only operations AND still being 
->>blocked when switched to write mode by both read and write operations.
-> 
-> 
-> In fact, two threads trying to upgrade their read lock to a
-> write lock simultaneously will block EACH OTHER, FOREVER.
-> 
+The warning, if re-worded, will save people from
+frustration and wasted money.
 
-What no, read that.  It blocks write locks and other read_to_write 
-locks.  It should have the above ammendment that it blocks other 
-read_to_write locks from beginning, although it is mentioned that this 
-DOES block its own kind.  I guess I need to repete myself sometimes.
+> Last time I gave 
+> superuser privilege to cdrecord it locked my machine - clearly it wasn't 
+> rt_task safe.
 
-The point is to prevent operations that find an index on a linked list 
-to insert/remove at from altering while something could be reading. 
-Concurrent read locks can both find nearby indicies, then race for a 
-write lock, leaving the first to clobber the second.
+So, you've been working on the scheduler anyway...
+An option to reserve some portion of CPU time for
+emergency use (say, 5% after 1 second has passed)
+would let somebody get out of this situation.
 
-With this type of semaphore (am I using this word correctly?), any 
-number of readlocks can exist concurrently with exactly one 
-read_write_lock, but will block that read_write_lock from transforming 
-to write mode.  Similarly, only one read_write_lock can actually be 
-unblocked at any one time, to prevent these races.
+Reporting and/or fixing the cdrecord bug is nice too.
 
-> Sounds like an exceedingly bad idea to me ;)
-> 
-
-I've seen bad things.
-
--- 
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
 

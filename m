@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTJNUbN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 16:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbTJNUbM
+	id S262098AbTJNU1G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 16:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTJNU1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 16:31:12 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:8832 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S262610AbTJNUbM (ORCPT
+	Tue, 14 Oct 2003 16:27:06 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:32385 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S262098AbTJNU1E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 16:31:12 -0400
-Date: Tue, 14 Oct 2003 22:31:09 +0200
-From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: Vortex full-duplex doesn't work?
-Message-ID: <20031014223109.A7167@beton.cybernet.src>
+	Tue, 14 Oct 2003 16:27:04 -0400
+Subject: Re: mouse driver bug in 2.6.0-test7?
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: 4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031014201354.GA10458@ucw.cz>
+References: <3F8C3A99.6020106@opensound.com>
+	 <1066159113.12171.4.camel@tux.rsn.bth.se> <20031014193847.GA9112@ucw.cz>
+	 <3F8C56B3.1080504@opensound.com>  <20031014201354.GA10458@ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y81dh/QtIJz25Pyp1UHc"
+Message-Id: <1066163220.12165.11.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Orientation: Gay
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 14 Oct 2003 22:27:01 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-I have collected from tidbits of information that
-ether=0,0,0x201,0,eth0 should set my 3c900 card to full duplex AUI.
+--=-y81dh/QtIJz25Pyp1UHc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I have tried this, then ifconfig eth0 up and then
-vortex-diag -vv and it still reports MAC Settings: half-duplex
+On Tue, 2003-10-14 at 22:13, Vojtech Pavlik wrote:
 
-When I rewrite all occurences of full_duplex in 3c59x.c for hard-coded
-"1", then I get MAC Settings: full-duplex
+> > I'd recommend that you make the sample rate a module config option so t=
+hat
+> > users may be able to tweak this for their systems.
+>=20
+> It already is. Only the code to make it a kernel command line parameter
+> (when psmouse is compiled into the kernel) is missing.
 
-How do I set up this driver to force full-duplex AUI for 3c900 network
-card without using modules and without patching 3c59x.c?
+If you fix that I'd be happy and I'll stop sending that patch over and
+over again... :)
 
-Cl<
+--=20
+/Martin
+
+--=-y81dh/QtIJz25Pyp1UHc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/jFwUWm2vlfa207ERAj+KAJ0VQ4Eh/Zhes2eM6RbqmcU8XcvvMwCfZ46y
+OiKVBo/0yrA2zFJN3K/V1jo=
+=vD6d
+-----END PGP SIGNATURE-----
+
+--=-y81dh/QtIJz25Pyp1UHc--

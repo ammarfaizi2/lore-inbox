@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129833AbRBGHrV>; Wed, 7 Feb 2001 02:47:21 -0500
+	id <S129834AbRBGHsB>; Wed, 7 Feb 2001 02:48:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129834AbRBGHrL>; Wed, 7 Feb 2001 02:47:11 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:5892 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129833AbRBGHq7>; Wed, 7 Feb 2001 02:46:59 -0500
+	id <S129885AbRBGHrv>; Wed, 7 Feb 2001 02:47:51 -0500
+Received: from blackhole.adamant.net ([212.26.128.69]:16921 "EHLO
+	blackhole.adamant.net") by vger.kernel.org with ESMTP
+	id <S129834AbRBGHre>; Wed, 7 Feb 2001 02:47:34 -0500
+Date: Wed, 7 Feb 2001 09:47:25 +0200
+From: Alexander Trotsai <mage@adamant.net>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.4 kernel & gcc code generation: a bug?
-Date: 6 Feb 2001 23:46:28 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <95qugk$brs$1@cesium.transmeta.com>
-In-Reply-To: <3A8108F8.2476.21D0F5@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Subject: Massive speed slowdown with any kernel after 2.4.1
+Message-ID: <20010207094725.D12250@blackhole.adamant.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+Organization: Adamant ISP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3A8108F8.2476.21D0F5@localhost>
-By author:    "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-In newsgroup: linux.dev.kernel
-> 
-> You'll notice that %edx is not pushed at the start of the function. 
-> Unless the caller saves that, edx will be spilled. Depending on the 
-> level of optimization this can be bad. Am I wrong?
-> 
+Hello all
 
-Yes.  %eax, %edx and %ecx are defined as caller-saved registers.  Each
-function is free to clobber them at will.
+I have PIII/128Mb/IDE uDMA 66 PC
+I try 2.4.1ac1, ac2 and 2.4.2pre1
+And all this kernel after message "Freeing unused kernel memmory" highly slowing
+Even cursor (I have framebuffer) blink slowly
+But (via vmstat) no processor used, no disk operation.
+I try to compile both gcc from redhat and kgcc and have no difference
+But with the same config 2.4.0ac10 work Ok.
 
-Now, if you saw the same for %ebx, %ebp, %esi or %edi, that would be
-bad.
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+____________________________________________________________________
+Info&Contacts -- RIPE: MAGE-RIPE, InterNic: AT2963, ICQ: 18035130
+PGP: ftp://blackhole.adamant.net/pgp/mykey.pgp.asc
+Trouble of the day: excessive collisions & not enough packet ambulances
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

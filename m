@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbUKJAHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbUKJAK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbUKJAHg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 19:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbUKJAHg
+	id S261802AbUKJAK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 19:10:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbUKJAK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 19:07:36 -0500
-Received: from chello062179026180.chello.pl ([62.179.26.180]:10972 "EHLO
-	pioneer.space.nemesis.pl") by vger.kernel.org with ESMTP
-	id S261794AbUKJAHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 19:07:14 -0500
-Date: Wed, 10 Nov 2004 01:08:04 +0100 (CET)
-From: Tomasz Rola <rtomek@cis.com.pl>
-To: Alistair John Strachan <alistair@devzero.co.uk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel or failing harddisc?
-In-Reply-To: <200411091350.15626.alistair@devzero.co.uk>
-Message-ID: <Pine.LNX.3.96.1041110010428.3390H-100000@pioneer.space.nemesis.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Nov 2004 19:10:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:16335 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261809AbUKJAKB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 19:10:01 -0500
+Date: Tue, 9 Nov 2004 16:08:11 -0800
+From: Greg KH <greg@kroah.com>
+To: dtor_core@ameritech.net
+Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       Kay Sievers <kay.sievers@vrfy.org>, tokunaga.keiich@jp.fujitsu.com,
+       motoyuki@soft.fujitsu.com, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, rml@novell.com,
+       linux-kernel@vger.kernel.org, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
+Message-ID: <20041110000811.GA8543@kroah.com>
+References: <20041105001328.3ba97e08.akpm@osdl.org> <20041105164523.GC1295@stusta.de> <20041105180513.GA32007@kroah.com> <20041105201012.GA24063@vrfy.org> <20041105204209.GA1204@kroah.com> <20041105211848.A21098@unix-os.sc.intel.com> <20041109225502.GC7618@kroah.com> <d120d5000411091548584bf8c5@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000411091548584bf8c5@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Tue, 9 Nov 2004, Alistair John Strachan wrote:
-
-> On Tuesday 09 Nov 2004 11:07, Alan Cox wrote:
-> [snip]
-> >
-> > It could be anything. An interrupt went walkies which could easily be
-> > the driver, thermals, cabling, phase of the moon, drive,... If those are
-> > the only logged lines then the drive hasn't reported any problems back.
-> >
-> > Failed maxtors normally make it very clear they died - both in smart
-> > data (usually) and by spewing drive level errors.
-> >
-> > Alan
+On Tue, Nov 09, 2004 at 06:48:17PM -0500, Dmitry Torokhov wrote:
+> On Tue, 9 Nov 2004 14:55:02 -0800, Greg KH <greg@kroah.com> wrote:
+> > On Fri, Nov 05, 2004 at 09:18:48PM -0800, Keshavamurthy Anil S wrote:
+> > > Also, since you have brought this, I have one another question to you.
+> > > Now in the new kernel, I see whenever anybody calls sysdev_register(kobj),
+> > > an "ADD" notification is sent. why is this? I would like to call
+> > > kobject_hotplug(kobj, ADD) later.
+> > 
+> > This happens when kobject_add() is called.  You shouldn't ever need to
+> > call kobject_hotplug() for an add event yourself.
+> > 
 > 
-> Thanks Alan, I'll look into it. Since I've not received any SMART warnings, 
-> I'll just assume the drive is fine and it's something else.
+> This is not always the case. One might want to postpone ADD event
+> until all summpelental object attributes are created. This way userspace
+> is presented with object in consistent state.
 
-Maybe motherboard? I had once a chipset (an older one, via mvp3 I
-believe), that gave me strange errors until I disabled DMA with hdparm.
-Besides this, open your case and check cables. Who knows, maybe this will
-cure your system.
+No, that's a mess.  Let userspace wait for those attributes to show up
+if they need to.  That's what the "wait_for_sysfs" program bundled with
+udev is for.
 
-bye
-T.
+thanks,
 
-- --
-** A C programmer asked whether computer had Buddha's nature.      **
-** As the answer, master did "rm -rif" on the programmer's home    **
-** directory. And then the C programmer became enlightened...      **
-**                                                                 **
-** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
-
-
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 5.0i for non-commercial use
-Charset: noconv
-
-iQA/AwUBQZFb6xETUsyL9vbiEQIAXQCdH7Ka3RvrNtdhZzkygO2cAtCAr8AAni9j
-8UV4fhpY7rOypeaHQ6G4/RIw
-=tYlO
------END PGP SIGNATURE-----
-
-
+greg k-h

@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292410AbSBPQXQ>; Sat, 16 Feb 2002 11:23:16 -0500
+	id <S292417AbSBPQZg>; Sat, 16 Feb 2002 11:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292408AbSBPQXL>; Sat, 16 Feb 2002 11:23:11 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:35336
-	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S292405AbSBPQWm>; Sat, 16 Feb 2002 11:22:42 -0500
-Date: Sat, 16 Feb 2002 10:56:08 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Rob Landley <landley@trommello.org>, Dave Jones <davej@suse.de>,
-        Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+	id <S292415AbSBPQZS>; Sat, 16 Feb 2002 11:25:18 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7942 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292414AbSBPQZE>; Sat, 16 Feb 2002 11:25:04 -0500
 Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020216105608.B31986@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Rob Landley <landley@trommello.org>, Dave Jones <davej@suse.de>,
-	Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020216085706.H23546@thyrsus.com> <20020216013538.A23546@thyrsus.com> <20020215135557.B10961@thyrsus.com> <20020215224916.L27880@suse.de> <20020215170459.A15406@thyrsus.com> <20020215232517.FXLQ71.femail38.sdc1.sfba.home.com@there> <20020216013538.A23546@thyrsus.com> <22614.1013851279@redhat.com> <20020216085706.H23546@thyrsus.com> <30686.1013871095@redhat.com>
-Mime-Version: 1.0
+To: esr@thyrsus.com
+Date: Sat, 16 Feb 2002 16:38:53 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones),
+        rml@tech9.net (Robert Love),
+        arjan@pc1-camc5-0-cust78.cam.cable.ntl.com (Arjan van de Ven),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020216105425.A31986@thyrsus.com> from "Eric S. Raymond" at Feb 16, 2002 10:54:25 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <30686.1013871095@redhat.com>; from dwmw2@infradead.org on Sat, Feb 16, 2002 at 02:51:35PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16c7rR-0006Z5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org>:
-> A good way to kill this myth, if myth it is, would be to set up a test 
-> suite, as I suggested before. You already have a 'randomconfig' for CML2, I 
-> believe? I think there's also one for CML1.
+> Jeff and Alan have put their finger neatly on one of the key bits CML2
+> can do that CML1 cannot -- express cross-directory dependencies in
+> such a way that the configurator can force side effects in both
+> directions.  This is, in fact, the very rock on which my original
+> attempt to save CML1 foundered after six weeks of effort.
 
-There is no randomconfig for CML2.
- 
-> Repeatedly make a random config (for a random architecture), with either
-> CML1 or CML2. Make oldconfig with the other CML, then with the first again.
-> If there are any differences between the original randomconfig output and
-> the output after the two 'oldconfig' stages, you've hit something that may
-> be a problem. 
-> 
-> Every time you hit such a difference, either fix it or document it and 
-> justify it. Ensure that the list of such justifications required is small, 
-> in order to improve the chance of CML2 being accepted. 
+You can force a side effect in both directions. The language provides the
+information to do that, the current -toolset- can't handle this.
 
-This cycle is what I've been going through with a lot of my beta testers.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+At any point you ask a question you can "wind back" and compute the set
+of changes that are needed and re-ask only the needed questions.

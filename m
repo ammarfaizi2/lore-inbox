@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266126AbUAGO06 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 09:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUAGO05
+	id S266198AbUAGOTy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 09:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUAGOTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 09:26:57 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:59653 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266126AbUAGO0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 09:26:55 -0500
-Date: Wed, 7 Jan 2004 14:26:52 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] allow SGI IOC4 chipset support
-Message-ID: <20040107142652.A29251@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jes Sorensen <jes@wildopensource.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20040106010924.GA21747@sgi.com> <20040106102538.A14492@infradead.org> <yq04qv8ypkp.fsf@wildopensource.com> <20040107112648.A27801@infradead.org> <yq0znczyhux.fsf@wildopensource.com>
+	Wed, 7 Jan 2004 09:19:54 -0500
+Received: from trinity.webmaking.ms ([213.131.251.60]:24782 "HELO
+	trinity.webmaking.ms") by vger.kernel.org with SMTP id S266198AbUAGOTw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 09:19:52 -0500
+Date: Wed, 7 Jan 2004 15:19:48 +0100
+From: Thomas Fischbach <webmaster@kennygno.net>
+To: linux-kernel@vger.kernel.org
+Subject: can't mount encrypted dvd with 2.6.0
+Message-Id: <20040107151948.4376d881@kyp.intra>
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <yq0znczyhux.fsf@wildopensource.com>; from jes@wildopensource.com on Wed, Jan 07, 2004 at 09:05:10AM -0500
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__7_Jan_2004_15_19_48_+0100_UU_WVzZfteNnYfSx"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 09:05:10AM -0500, Jes Sorensen wrote:
-> Christoph> That's stupid.  You should just not be allowed to compile
-> Christoph> the driver if it can work anywork.
-> 
-> I don't know if it's actually possible to use the card in a non-SN2,
-> not that I think anyone would want to. But if you prefer, just make
-> the equivalent change to the Kconfig file and remove the weak
-> reference.
+--Signature=_Wed__7_Jan_2004_15_19_48_+0100_UU_WVzZfteNnYfSx
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-It might be possible to use an IOC4 card in other hardware, but not
-with this driver, as it relies on Xbridge/PIC to do byteswapping for
-it - a functionality common PCI bridges don't provide and that Linux
-doesn't have a generic API for.
+Hi,
 
+if I create an encrypted iso image:
+dd if=/dev/zero of=/files/image.iso bs=512 count=$((1024*4400))
+losetup -e aes -k 256 /dev/loop1 /files/image.iso
+mkisofs -r -o /dev/loop1 /files/stuff/*
+losetup -d /dev/loop1 
+
+I can mount the file:
+mount /files/image.iso /mnt/cd -t iso9660 \
+-o loop=/dev/loop1,encryption=aes,keybits=256
+
+but when I burned the iso and tried to mount, it failed with:
+mount: wrong fs type ...
+
+and the logs says:
+hdc: cdrom_read_intr: data underrun (2 blocks)
+end_request: I/O error, dev hdc, sector 64
+isofs_fill_super: bread failed, dev=loop0, iso_blknum=16, block=32
+
+under 2.4.22 it works fine.
+Hope someone can help.
+
+Thanks,
+Thomas
+
+-- 
+Thomas Fischbach
+http://www.kennygno.net
+webmaster@kennygno.net
+
+--Signature=_Wed__7_Jan_2004_15_19_48_+0100_UU_WVzZfteNnYfSx
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQE//BWEhty018ANwB4RAqbXAJ9qkmHhf18jcEyWS50Tls3Z5lR9/gCePi2G
+7N2+AScX45pxWJlouVL8+AQ=
+=I4ry
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__7_Jan_2004_15_19_48_+0100_UU_WVzZfteNnYfSx--

@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbUK3Tz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbUK3T7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbUK3Tz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 14:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUK3TxA
+	id S262304AbUK3T7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 14:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262300AbUK3T4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 14:53:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7892 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262288AbUK3TrA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 14:47:00 -0500
-Date: Tue, 30 Nov 2004 11:46:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm4
-Message-Id: <20041130114633.22eee22d.akpm@osdl.org>
-In-Reply-To: <1101836642.25617.63.camel@localhost.localdomain>
-References: <20041130095045.090de5ea.akpm@osdl.org>
-	<1101837994.2640.67.camel@laptop.fenrus.org>
-	<20041130102105.21750596.akpm@osdl.org>
-	<1101839110.2640.69.camel@laptop.fenrus.org>
-	<20041130103218.513b8ce0.akpm@osdl.org>
-	<1101836642.25617.63.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 30 Nov 2004 14:56:37 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:16030 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262301AbUK3Txy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 14:53:54 -0500
+Subject: Re: Walking all the physical memory in an x86 system
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0411301832510.11795@yvahk01.tjqt.qr>
+References: <C863B68032DED14E8EBA9F71EB8FE4C2057CA977@azsmsx406>
+	 <Pine.LNX.4.53.0411301711140.25731@yvahk01.tjqt.qr>
+	 <41ACADD3.2030206@draigBrady.com>
+	 <Pine.LNX.4.53.0411301832510.11795@yvahk01.tjqt.qr>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1101840619.25609.107.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 30 Nov 2004 18:50:20 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> On Maw, 2004-11-30 at 18:32, Andrew Morton wrote:
-> > "This helps mainly graphic drivers who really need a lot of memory below
-> > the 4GB area.  Previous they could only use IOMMU+16MB GFP_DMA, which was
-> > not enough memory."
-> > 
-> > >  Is there code using the zone GFP mask yet ??
-> > 
-> > Nope.
-> 
-> You mean its a private hook for a proprietary graphics driver, which
-> because it is that can't use it anyway ?
+On Maw, 2004-11-30 at 17:34, Jan Engelhardt wrote:
+> 	unsigned short p;
+> 	fd = open("/dev/mem", O_RDONLY | O_BINARY);
+> 	lseek(fd, 0x400, SEEK_SET);
+> 	read(fd, &p, 2);
 
-I wasn't aware that this is what I meant.  I dunno what graphics drivers
-Andi needs it for, and he is away for a couple of weeks.  It's an
-experimental patch, in there for testing.
-
-> That sounds dubious to me as policy has always been to avoid such hooks.
-
-I don't know why you're assuming that it is "such a hook".  Sticking
-"gfp_dma32" into google indicates that the applications are quite
-different.
+You want ports for that not mem, has always been the case since back
+before Linux existed.
 

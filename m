@@ -1,39 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137215AbREKTCi>; Fri, 11 May 2001 15:02:38 -0400
+	id <S137214AbREKTFS>; Fri, 11 May 2001 15:05:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137213AbREKTC3>; Fri, 11 May 2001 15:02:29 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47372 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S137215AbREKTAt>; Fri, 11 May 2001 15:00:49 -0400
-Subject: Re: Linux 2.4.4-ac7
-To: Wayne.Brown@altec.com
-Date: Fri, 11 May 2001 19:52:18 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+	id <S143368AbREKTFI>; Fri, 11 May 2001 15:05:08 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:36621 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S137216AbREKTEk>; Fri, 11 May 2001 15:04:40 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
         marpet@buy.pl (Marek P=?iso-8859-2?Q?=EAtlicki?=),
         linux-kernel@vger.kernel.org
-In-Reply-To: <86256A49.0067820E.00@smtpnotes.altec.com> from "Wayne.Brown@altec.com" at May 11, 2001 01:50:59 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14yI1S-0001W2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <86256A49.0068AF0B.00@smtpnotes.altec.com>
+Date: Fri, 11 May 2001 14:03:50 -0500
+Subject: Re: Linux 2.4.4-ac7
+Mime-Version: 1.0
+Content-type: multipart/mixed; 
+	Boundary="0__=2nujhCGTPeUzauQvLdXiU0I879Ys5p29NhmFVZWIUUYZWbHeltp4LEpv"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I always make mrproper after applying your patches, and I still got exactly the
-> same problem with nfs that Marek found.  There were no errors or warnings during
+--0__=2nujhCGTPeUzauQvLdXiU0I879Ys5p29NhmFVZWIUUYZWbHeltp4LEpv
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+
+My modules/filemap.ver has the same in it as yours.
+
+Wayne
+
+
+
+
+Alan Cox <alan@lxorguk.ukuu.org.uk> on 05/11/2001 01:52:18 PM
+
+To:   Wayne Brown/Corporate/Altec@Altec
+cc:   alan@lxorguk.ukuu.org.uk (Alan Cox), marpet@buy.pl (Marek P
+--0__=2nujhCGTPeUzauQvLdXiU0I879Ys5p29NhmFVZWIUUYZWbHeltp4LEpv
+Content-type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-transfer-encoding: quoted-printable
+
+
+=EAtlicki),
+      linux-kernel@vger.kernel.org
+
+Subject:  Re: Linux 2.4.4-ac7
+
+
+=
+
+--0__=2nujhCGTPeUzauQvLdXiU0I879Ys5p29NhmFVZWIUUYZWbHeltp4LEpv
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+> I always make mrproper after applying your patches, and I still got exactly
+the
+> same problem with nfs that Marek found.  There were no errors or warnings
+during
 > the compile of the objects in the fs/nfs directory or the linking of nfs.o.
-> 
+>
 Curious : my build has
 
-#define __ver_filemap_fdatasync	f18ce7a1
-#define filemap_fdatasync	_set_ver(filemap_fdatasync)
-#define __ver_filemap_fdatawait	d4250148
-#define filemap_fdatawait	_set_ver(filemap_fdatawait)
+#define __ver_filemap_fdatasync    f18ce7a1
+#define filemap_fdatasync     _set_ver(filemap_fdatasync)
+#define __ver_filemap_fdatawait    d4250148
+#define filemap_fdatawait     _set_ver(filemap_fdatawait)
 
 in modules/filemap.ver
 
 I'll have a look
+
+
+
+
+--0__=2nujhCGTPeUzauQvLdXiU0I879Ys5p29NhmFVZWIUUYZWbHeltp4LEpv--
 

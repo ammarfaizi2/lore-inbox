@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267323AbSKPSMs>; Sat, 16 Nov 2002 13:12:48 -0500
+	id <S267327AbSKPSQn>; Sat, 16 Nov 2002 13:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267326AbSKPSMr>; Sat, 16 Nov 2002 13:12:47 -0500
-Received: from waste.org ([209.173.204.2]:48877 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S267323AbSKPSMr>;
-	Sat, 16 Nov 2002 13:12:47 -0500
-Date: Sat, 16 Nov 2002 12:18:32 -0600
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@digeo.com>, Stelian Pop <stelian.pop@fr.alcove.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: lan based kgdb
-Message-ID: <20021116181832.GG19061@waste.org>
-References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay> <ar3op8$f20$1@penguin.transmeta.com> <20021115222430.GA1877@tahoe.alcove-fr> <3DD57A5F.87119CB4@digeo.com> <1037414103.21922.12.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037414103.21922.12.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+	id <S267328AbSKPSQn>; Sat, 16 Nov 2002 13:16:43 -0500
+Received: from pop015pub.verizon.net ([206.46.170.172]:48884 "EHLO
+	pop015.verizon.net") by vger.kernel.org with ESMTP
+	id <S267327AbSKPSQl>; Sat, 16 Nov 2002 13:16:41 -0500
+Date: Sat, 16 Nov 2002 13:22:51 -0500
+From: Akira Tsukamoto <at541@columbia.edu>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [CFT][PATCH]  2.5.47 Athlon/Druon, much faster copy_user function
+Cc: linux-kernel@vger.kernel.org, Hirokazu Takahashi <taka@valinux.co.jp>,
+       Andrew Morton <akpm@digeo.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <20021116115652.A26519@wotan.suse.de>
+References: <20021115235234.8DE4.AT541@columbia.edu> <20021116115652.A26519@wotan.suse.de>
+Message-Id: <20021116131403.9FB5.AT541@columbia.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.05.06
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop015.verizon.net from [138.89.33.207] at Sat, 16 Nov 2002 12:23:31 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 16, 2002 at 02:35:03AM +0000, Alan Cox wrote:
+On Sat, 16 Nov 2002 11:56:52 +0100
+Andi Kleen <ak@suse.de> mentioned:
 > 
-> netdump has polled eepro100 handlers that will plug nicely into this. Of
-> course you still want a protocol on top of it, but there are some tiny
-> tcp implementations that are GPL (eg the Linux 8086 TCP by Harry K)
+> You don't seem to save/restore the FPU state, so it will be likely 
+> corrupted after your copy runs.
 
-TCP is complete overkill. You don't want to run a debugging protocol
-over a WAN in any case. Let's assume LAN, 1ms or less round-trip,
-let's assume polling ACKs per packet so we don't have to keep a
-window, UDP with hand-specified src/dst/gateway/MACs/ports.
+This is the main question for me that I was wondering for all week. 
+My first version was using fsave and frstore, so 
+just changing three lines will accomplish this.
+Is it all I need?  Any thing elase needed to consider using fpu register?
+> 
+> Also I'm pretty sure that using movntq (= forcing destination out of 
+> cache) is not a good strategy for generic copy_from_user(). It may 
+> be a win for the copies in write ( user space -> page cache ),
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+Yes, that why I included postfetch in the code because movntq does not leave 
+them in the L2 cache.
+Anygood idea to 
+> but 
+> will hurt for all the ioctls and other things that actually need the
+> data in cache afterwards. I am afraid it is not enough to do micro benchmarks
+> here.
+
+check above?
+
+> 
+> 
+> -Andi
+
+
+

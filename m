@@ -1,58 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130195AbRAQSCT>; Wed, 17 Jan 2001 13:02:19 -0500
+	id <S133039AbRAQSDt>; Wed, 17 Jan 2001 13:03:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131455AbRAQSCA>; Wed, 17 Jan 2001 13:02:00 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:61198 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130195AbRAQSBz>;
-	Wed, 17 Jan 2001 13:01:55 -0500
-Date: Wed, 17 Jan 2001 19:01:26 +0100
-From: Andi Kleen <ak@suse.de>
-To: Tony Gale <gale@syntax.dera.gov.uk>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-        Jussi Hamalainen <count@theblah.org>
-Subject: Re: IP defrag (was RE: ipchains blocking port 65535)
-Message-ID: <20010117190126.B2859@gruyere.muc.suse.de>
-In-Reply-To: <20010117183547.A2528@gruyere.muc.suse.de> <XFMail.20010117174430.gale@syntax.dera.gov.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <XFMail.20010117174430.gale@syntax.dera.gov.uk>; from gale@syntax.dera.gov.uk on Wed, Jan 17, 2001 at 05:44:30PM -0000
+	id <S133015AbRAQSD3>; Wed, 17 Jan 2001 13:03:29 -0500
+Received: from wpk-smtp-relay2.cwci.net ([195.44.63.19]:15130 "EHLO
+	wpk-smtp-relay.cwci.net") by vger.kernel.org with ESMTP
+	id <S132955AbRAQSDQ>; Wed, 17 Jan 2001 13:03:16 -0500
+Date: Wed, 17 Jan 2001 00:37:49 +0000 (UTC)
+From: Mo McKinlay <mmckinlay@gnu.org>
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        "James H. Cloos Jr." <cloos@jhcloos.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: named streams, extended attributes, and posix
+In-Reply-To: <20010116182806.B6364@cadcamlab.org>
+Message-ID: <Pine.LNX.4.30.0101170035340.364-100000@nvws005.nv.london>
+Organization: inter/open Labs
+X-URL: http://www.interopen.org/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17, 2001 at 05:44:30PM -0000, Tony Gale wrote:
-> 
-> On 17-Jan-2001 Andi Kleen wrote:
-> > 
-> > Connection tracking always defrags as needed.
-> > masquerading/NAT/iptables 
-> > with connection tracking uses that.
-> > 
-> > This means that if any of these are enabled and your machine acts
-> > as a 
-> > router lots of CPU could get burned in defragmentation, and packets
-> > will not forwarded until all fragments arrived.
-> 
-> Hmm... ok, what if I'm on a single nic system using ipchains on the
-> input and want to always defrag before they hit the ipchains
-> filter, what settings would I need? No masq., no NAT. (bearing in
-> mind that ipchains differentiates between SYN+frag and noSYN+frag.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You probably need to just load ip_conntrack_standalone and make sure it runs.
-It has a higher priority than ipchains in the prerouting chain and should just defragment 
-things. 
+Yesterday, Peter Samuelson (peter@cadcamlab.org) wrote:
 
-Better would it be to just write a small netfilter module with a higher
-priority than ipchains that always defrags. 
+  >
+  > [Michael Rothwell]
+  > > It seems that if you move a file with a colon -- "file:colon" -- in
+  > > the name from Ext2 to "StreamFS," you would end up with a file named
+  > > "file" with a stream named "colon". When copying back, you would get
+  > > "file:colon" back.
+  >
+  > What if you copy both 'filename' and 'filename:ext' onto the same fs?
+  > Do they get combined into one file?  That to me violates principle of
+  > least surprise.  The fs should just mangle filenames it doesn't agree
+  > with, like the existing legacy filesystems already do.
 
-Actually I thought I've once seen such a beast, but it doesn't seem to
-be included in the main kernel now that I look for it.  It's all only a few 
-lines of code anyways.
+  > Any semantics by which 'filename:stream' and 'filename' refer to the
+  > same file would be b0rken.  If instead you use 'filename/stream'
+  > syntax, at least that is an illegal filename on *all* Linux
+  > filesystems, so this particular point of confusion does not come up.
+
+Urgh.
+
+We went through this last time around. What happens to directories  with
+streams? If they are also dirname/stream, what happens when you have  a
+file called 'stream' within 'dirname'?
+
+Also, it makes it appear that files with streams are directories, which
+they are not, so applying the directory accessor to them violates the
+principle of least suprise and is misleading. Apply a new accessor (which
+the colon would be great for, as it is already used for this purpose --
+apart from the  fact that POSIX already allows applications to use it in
+filenames).
+
+- -- 
+Mo McKinlay
+mmckinlay@gnu.org
+- -------------------------------------------------------------------------
+GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
 
 
--Andi
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjpk6V8ACgkQRcGgB3aidfkLgACfZZ1+5klZUB/NKTDK9PoRlV2H
+ddcAoKBJSYA5/02Y8+dV9zyZHi5hUCeK
+=ptqG
+-----END PGP SIGNATURE-----
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

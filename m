@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265018AbTFLVxt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 17:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265023AbTFLVxt
+	id S265022AbTFLVvF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 17:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265023AbTFLVvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 17:53:49 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:44738 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265018AbTFLVxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 17:53:47 -0400
-Date: Thu, 12 Jun 2003 15:03:35 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Greg KH <greg@kroah.com>
-Cc: sdake@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-Message-Id: <20030612150335.6710a94f.akpm@digeo.com>
-In-Reply-To: <20030612214753.GA1087@kroah.com>
-References: <3EE8D038.7090600@mvista.com>
-	<20030612214753.GA1087@kroah.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Jun 2003 22:07:32.0810 (UTC) FILETIME=[05DD02A0:01C3312F]
+	Thu, 12 Jun 2003 17:51:04 -0400
+Received: from imf.math.ku.dk ([130.225.103.32]:5793 "EHLO imf.math.ku.dk")
+	by vger.kernel.org with ESMTP id S265022AbTFLVvB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 17:51:01 -0400
+Date: Fri, 13 Jun 2003 00:01:35 +0200 (CEST)
+From: Peter Berg Larsen <pebl@math.ku.dk>
+To: Peter Osterlund <petero2@telia.com>
+Cc: CaT <cat@zip.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+In-Reply-To: <m27k7rnmwm.fsf@telia.com>
+Message-ID: <Pine.LNX.4.40.0306122321010.10788-100000@shannon.math.ku.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> > 3) /sbin/hotplug events can occur out of order, eg: remove event occurs, 
-> > /sbin/hotplug sleeps waiting for something, insert event occurs and 
-> > completes immediately.  Then the remove event completes, after the 
-> > insert, resulting in out-of-order completion and a broken /dev.  I have 
-> > seen this several times with udev.
-> 
-> I responded:
-> 	Yes this happens.  I have a fix for this for udev itself.  No
-> 	kernel changes are needed.  I'll show it at OLS in July if you
-> 	want to see it :)
 
-This is a significantly crappy aspect of the /sbin/hotplug callout.  I'd be
-very interested in reading an outline of how you propose fixing it, without
-waiting until OLS, thanks.
+> > On Wed, Jun 11, 2003 at 10:48:14PM -0400, Joseph Fannin wrote:
+> > > > Here is a new patch that sends ABS_ events to user space. I haven't
+> > > > modified the XFree86 driver to handle this format yet, but I used
+> > > > /dev/input/event* to verify that the driver generates correct data.
+
+> > CaT <cat@zip.com.au> writes:
+> > Aaaand... will I be able to transparently use my ps2 mouse and touchpad
+> > without having to worry about what's plugged in at any one time?
+
+The short answer is no, if you still have the gateway laptop.
+
+
+On 12 Jun 2003, Peter Osterlund wrote:
+> It works on my computer at least. When loading the psmouse module I
+> get this:
+
+>         input: PS/2 Logitech Mouse on isa0060/serio2
+>         input: Synaptics Synaptics TouchPad on isa0060/serio4
+
+It works for you because it (your laptop) has active multiplexing. Without
+active multiplexing I see no way of demultiplexing different mouse
+protocols in mousedev.
+
+A guestdevice behind the touchpad also needs demultiplexing even with
+activ multiplexing. This could be done in the synaptics driver but as the
+guestdevice can be any device, the synaptics driver needs to know every
+mouse protocol there is to demultiplex it. The synaptics driver sent does
+not demultiplex a guestdevice.
+
+
+Peter
+
 

@@ -1,153 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263511AbTDYJCh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 05:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263518AbTDYJCg
+	id S263173AbTDYJYP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 05:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263521AbTDYJYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 05:02:36 -0400
-Received: from mta01.telering.at ([212.95.31.38]:37827 "EHLO smtp.telering.at")
-	by vger.kernel.org with ESMTP id S263511AbTDYJCe (ORCPT
+	Fri, 25 Apr 2003 05:24:15 -0400
+Received: from [212.50.18.217] ([212.50.18.217]:520 "EHLO gw.zaxl.net")
+	by vger.kernel.org with ESMTP id S263173AbTDYJYO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 05:02:34 -0400
-Date: Fri, 25 Apr 2003 10:17:57 +0200
-From: Bernhard Kaindl <kaindl@telering.at>
-X-X-Sender: bkaindl@hase.a11.local
-To: linux-kernel@vger.kernel.org
-Subject: [2.4] more side effects of the kmod/ptrace secfix
-Message-ID: <Pine.LNX.4.53.0304251016090.2049@hase.a11.local>
+	Fri, 25 Apr 2003 05:24:14 -0400
+Message-ID: <3EA90176.2080304@ssi.bg>
+Date: Fri, 25 Apr 2003 12:35:50 +0300
+From: Alexander Atanasov <alex@ssi.bg>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en, bg
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/PATCH] IDE Power Management try 1
+References: <1051189194.13267.23.camel@gaston>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   another side effect is caused by the patch Alan posted is fixed by
-the patch to use task_dumpable in ptrace_check_attach:
+		Hello,
 
->   mb();
-> - if (!is_dumpable(child))
-> + if (!child->task_dumpable)
->  		return -EPERM;
+Benjamin Herrenschmidt wrote:
 
-There is a system call called prctl() which can be used set mm->dumpable
-of the current task to 0 using the flag PR_SET_DUMPABLE and the arg 0.
 
-Together with the use of is_dumpable() in ptrace_check_attach(), this
-can lead to hanging processes in stopped state and not even root can
-trace a process which has called prtcl(PR_SET_DUMPABLE, 0).
+> The point is to pipe the power management requests through the request
+> queue for proper locking. Since those requests involve several
+> operations that have to be tied together with the queue beeing locked
+> for further 'user' requests, they are implemented as a state machine
+> with specific callbacks in the subdrivers
+> 
+[cut]
+> 
+> One thing that should probably be cleaned up is the difference between
+> the suspend and the resume request. I didn't want to implement 2
+> different request bits to avoid using too much of that bit-space, and
+> because most of the core handling is the same. So right now, I carry in
+> the special structure attached to the request, 2 fields. An int
+> indicating if we are doing a suspend or a resume op, and an int that is
+> the actual state machine step.
 
-This is the scenario where it happens:
+ > ===== include/linux/blkdev.h 1.100 vs edited =====
+ > --- 1.100/include/linux/blkdev.h	Sun Apr 20 18:20:10 2003
+ > +++ edited/include/linux/blkdev.h	Thu Apr 24 14:30:50 2003
+ > @@ -116,6 +116,7 @@
+ >  	__REQ_DRIVE_CMD,
+ >  	__REQ_DRIVE_TASK,
+ >  	__REQ_DRIVE_TASKFILE,
+ > +	__REQ_POWER_MANAGEMENT,
+ >  	__REQ_NR_BITS,	/* stops here */
+ >  };
 
-Task A                              Task B
 
-sys_ptrace(PTRACE_ATTACH, Task B)
-				    prctl(PR_SET_DUMPABLE, 0)
-sys_ptrace(any action) = -EPERM     Now, Task B is out of control from
-				    Task A, but is kept in trace mode.
-				    It is left in stopped state if the
-				    mode was single stepping or
-				    stop on system call.
+		What about this - add __REQ_DRIVE_INTERNAL, and carry args in 
+rq->cmd[16] [0] = PM, [1] = SUSPEND/RESUME, [2]= STATE ? IDE can use it 
+for power managment, error handling (do not do it from interrupt 
+context, but queue it), may be more. This way it would really makes 
+things a bit better with the complicated IDE locking. SCSI and probably 
+other block devices can benefit from this internal requests too, so the 
+bit is not wasted.
 
-An other side effect is that prctl(PR_SET_DUMPABLE, 1) is ignored
-by Alan's patch. Like RH people, I initiallly thought this is neccesary
-but after more close auditing, I think the change which does this
-is not neccesary.
 
-It is debatable if prctl(PR_SET_DUMPABLE, 1) should be honored or not,
-but it would be nice to have for certain debug scearios where you would
-like to be able to get a core file dumped by the kernel of off-site
-analysis if the process to be debugged is a setuid program.
+--
+have fun,
+alex
 
-Below some documentation about ptrace functions with regard to the kmod fix:
-
-==================================
-ptrace_check_attach Documentation:
-==================================
-
-After the initial ptrace_attach to mark an other task traced by the current
-task, each ptrace system call consults ptrace_check_attach() to check if
-the task which is calling it is properly attached to the pid he wants to
-trace with this call of sys_ptrace():
-
-sys_trace looks up the task_struct for the pid and passes this task_struct
-as struct task_struct *child to ptrace_check_attach():
-
-int ptrace_check_attach(struct task_struct *child, int kill)
-{
-	// Check if child has the trace flag set and abort if not:
-        if (!(child->ptrace & PT_PTRACED))
-                return -ESRCH;
-
-	// Check if current is the tracer of child and abort if not:
-        if (child->p_pptr != current)
-                return -ESRCH;
-
-I've added the comments inline, they are not found in the real code.
-
-This means:
-
-ptrace_check_attach() never returns true if the tracer is not
-attached to the "child" task, which causes sys_ptrace() to reject
-the desire with -EPERM.
-
-It is just there to verify the tracer attach status, nothing more.
-
-======================================
-Minimum ptrace security Documentation:
-======================================
-
-All other security permission checks are done in:
-
-- ptrace_attach() -> which does the checks *before* attaching to a task
-- kernel_thread() -> which does the check to reject the creation of
-                     a privileged task if the thread forker is traced
-- exec()          -> which ignores suid/sgid if the process is traced.
-
-The checks in detail(only a little detail, not much and assuming the
-tracer is not root):
-
-- ptrace_attach():
-  with kernel_lock() and task_lock() hold:
-  - checks if pid is not a kernel thread like kmod
-    (indicated by task->task_dumpable == 1)
-  - checks if pid was not created with suid/sguid bits honored
-    (indicated by task->mm->dumpable == 1)
-  - indicates that pid is being traced
-    (executes: task->ptrace |= PT_PTRACE)
-
-- kernel_tread():
-  with task_lock() hold:
-  - checks if task is not being traced (aborts if it is traced)
-    (indicated by task->ptrace == 0)
-  - indicates that the new task is a kernel thread
-    (executes: task->task_dumpable = 0)
-
-- exec()
-  with kernel_lock() hold:
-  - checks if task is not being traced (ignores suid/sgid if it is traced)
-    (indicated by task->ptrace == 0)
-
-This means:
-
-- No process with setuid honored
-     can be traced by a task which does not have CAP_SYS_PTRACE.
-- No task created by kernel_thread()
-     can be traced by a task which does not have CAP_SYS_PTRACE.
-
-In addition:
-
-- ptrace_check_attach() is completely unrelated to these checks because
-  privilege extension thru kernel_thread and setuid is ignored if the
-  task is traced.
-
-- To trace, a tracer must call ptrace_attach, which is rejects the
-  attach if pid is a suid-honored program or a kernel thread.
-
-- ptrace_check_attach's duty is to only check if ptrace_attach() has
-  acknowleged the attach and that's all it has to check.
-
-That's the explanation why ptrace_check_attach as in vanilla 2.4.19/20
-is just right and no change is needed there in order to fix kmod.
-
-At least this is my conclusion.
-Bernhard

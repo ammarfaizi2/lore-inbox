@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281552AbRLKQF0>; Tue, 11 Dec 2001 11:05:26 -0500
+	id <S281692AbRLKQGQ>; Tue, 11 Dec 2001 11:06:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281691AbRLKQFQ>; Tue, 11 Dec 2001 11:05:16 -0500
-Received: from arsenal.visi.net ([206.246.194.60]:52610 "EHLO visi.net")
-	by vger.kernel.org with ESMTP id <S281552AbRLKQFL>;
-	Tue, 11 Dec 2001 11:05:11 -0500
-Date: Tue, 11 Dec 2001 11:05:07 -0500
-From: Ben Collins <bcollins@debian.org>
-To: "H . J . Lu" <hjl@lucon.org>
-Cc: Linux 1394 <linux1394-devel@lists.sourceforge.net>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Slow Disk I/O with QPS M3 80GB HD
-Message-ID: <20011211110507.H22537@visi.net>
-In-Reply-To: <20011210203452.A3250@lucon.org> <20011210235708.A17743@lucon.org>
+	id <S281726AbRLKQGI>; Tue, 11 Dec 2001 11:06:08 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:56334 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S281692AbRLKQF6>;
+	Tue, 11 Dec 2001 11:05:58 -0500
+Date: Tue, 11 Dec 2001 17:05:43 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Paul Larson <plars@austin.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Scsi problems in 2.5.1-pre9
+Message-ID: <20011211160543.GZ13498@suse.de>
+In-Reply-To: <1008065277.25964.5.camel@plars.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011210235708.A17743@lucon.org>
-User-Agent: Mutt/1.3.23i
+In-Reply-To: <1008065277.25964.5.camel@plars.austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 10, 2001 at 11:57:08PM -0800, H . J . Lu wrote:
-> On Mon, Dec 10, 2001 at 08:34:52PM -0800, H . J . Lu wrote:
-> > I have a very strange problem. The disk I/O of my QPS M3 80GB HD is
-> > very slow under 2.4.10 and above. I got like 1.77 MB/s from hdparm.
-> > But under 2.4.9, I got 14 MB/s on the same hardware. A 30GB HD has
-> > consistent I/O performance under 2.4.9 and above on the same bus. Has
-> > anyone else seen this? Does anyone have a large (>= 80GB) 1394 HD?
-> > 
+On Tue, Dec 11 2001, Paul Larson wrote:
+> My hardware is a dual proc PII-300.  I was running LTP runalltests.sh
+> and it was on one of the growfiles tests when this problem occurred. 
+> The test hung, and I couldn't telnet into the machine or login to it,
+> but I could switch between VC's.  On the console, I had screenfulls of
+> errors like this:
 > 
-> I did a binary search. 2.4.10-pre10 is the last good kernel. I got
+> Incorrect number of segments after building list
+> counted 11, received 7
+> req nr_sec 1024, cur_nr_sec 8
+> Incorrect number of segments after building list
+> counted 14, received 10
+> req nr_sec 1024, cur_nr_sec 8
+> Incorrect number of segments after building list
+> counted 13, received 11
+> req nr_sec 584, cur_nr_sec 8
+> Incorrect number of segments after building list
+> counted 2, received 1
+> req nr_sec 16, cur_nr_sec 8
+> Incorrect number of segments after building list
+> counted 2, received 1
+> req nr_sec 16, cur_nr_sec 8
+> (scsi0:A:5:0): Locking max tag count at 64
 > 
-> # hdparm -t /dev/sda
-> 
-> /dev/sda:
->  Timing buffered disk reads:  64 MB in  4.40 seconds = 14.55 MB/sec
+> After doing a hard reboot ext2 made me do a manual fsck, but it seems ok
+> now.  I was not able to produce this error in 2.5.1-pre8.
 
-Have you checked the way that your ohci and sbp2 devices are detected
-under each case? Most notably the max packet size.
-
-Ben
+Please don't tell me what hardware you have :-)
 
 -- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/                   Ben Collins    --    Debian GNU/Linux                  \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'
+Jens Axboe
+

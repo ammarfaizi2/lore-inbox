@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316860AbSE3UQ7>; Thu, 30 May 2002 16:16:59 -0400
+	id <S316759AbSE3UoH>; Thu, 30 May 2002 16:44:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316861AbSE3UQ6>; Thu, 30 May 2002 16:16:58 -0400
-Received: from schwerin.p4.net ([195.98.200.5]:62070 "EHLO schwerin.p4.net")
-	by vger.kernel.org with ESMTP id <S316860AbSE3UQ5>;
-	Thu, 30 May 2002 16:16:57 -0400
-Message-ID: <3CF6895A.2050801@p4all.de>
-Date: Thu, 30 May 2002 22:19:38 +0200
-From: Michael Dunsky <michael.dunsky@p4all.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: de, en
-MIME-Version: 1.0
+	id <S316773AbSE3UoG>; Thu, 30 May 2002 16:44:06 -0400
+Received: from web13808.mail.yahoo.com ([216.136.175.18]:22289 "HELO
+	web13808.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S316759AbSE3UoG>; Thu, 30 May 2002 16:44:06 -0400
+Message-ID: <20020530204406.55023.qmail@web13808.mail.yahoo.com>
+Date: Thu, 30 May 2002 13:44:06 -0700 (PDT)
+From: William Chow <lilbilchow@yahoo.com>
+Subject: is pci_alloc_consistent() really consistent on a pentium?
 To: linux-kernel@vger.kernel.org
-CC: Peter Chubb <peter@chubb.wattle.id.au>, Russel King <rmk@arm.linux.org.uk>
-Subject: Re: Strange code in ide_cdrom_register
-In-Reply-To: <15605.34861.599803.405864@wombat.chubb.wattle.id.au>	<3CF5D424.2060500@p4all.de> <15605.60268.673419.701625@wombat.chubb.wattle.id.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+If IA32 builds use the i386 version of
+pci_alloc_consistent(), how is the memory provided by
+this function really write-thru (on a pentium) since
+it appears to only set up the default mapping
+(PCD/PWT==0)? In contrast, pgprot_noncached() and
+pci_mmap_page_range() explicitly set these bits on a
+pentium (i.e. when boot_cpu_data.x86 > 3). Or am I
+missing something?
 
-Peter Chubb wrote:
-....
-  > The cast is *wrong*, and potentially dangerous.
-  >
-  > I'll submit a patch....
+Please CC me on the response.
 
-OK. Maybe my problem is this
-(in thinking - last night was definetly too short...):
+- William Chow
 
----------- from ide-cd.c ------------------
-static int ide_cdrom_register (ide_drive_t *drive, int nslots)
-{
-     struct cdrom_info *info = drive->driver_data;
-     struct cdrom_device_info *devinfo = &info->devinfo;
-     ...
-     *(int *)&devinfo->speed = CDROM_STATE_FLAGS (drive)->current_speed;
-     *(int *)&devinfo->capacity = nslots;
-
----------- from ide-cd.c ------------------
-
-As you can see there are several stages of pointers:
-Parameter "drive" is pointer to the original var,
-"info" is a pointer to "drive->driver_data",
-"devinfo" is a pointer to the address of "info->devinfo".
-
-So we put a value into a mem-address referenced by several pointers -
-but whats the type of that address? The other values are (nearly all)
-just simply ints or pointers. Just putting a byte-value into a field
-defined as int would probably be wrong.
-
-But, Russel, you're right:
-If we had to cast we would do it with the source.
-This _is_ strange code *scratch head*  :-/
-
-ciao
-
-Michael
-
-
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com

@@ -1,79 +1,202 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVASEiB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVASElW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbVASEiB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 23:38:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVASEhg
+	id S261567AbVASElW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 23:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVASElW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 23:37:36 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:62675 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261569AbVASEhJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 23:37:09 -0500
-Message-ID: <41EDE3F8.3080605@comcast.net>
-Date: Tue, 18 Jan 2005 23:37:12 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Passive-aggressive scheduling to enhance responsiveness?
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jan 2005 23:41:22 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:65295 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261567AbVASEkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 23:40:49 -0500
+Date: Wed, 19 Jan 2005 05:40:47 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: perex@suse.cz, ambx1@neo.rr.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] misc ISAPNP cleanups
+Message-ID: <20050119044047.GK1841@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This patch removes some completely unused code and makes some needlessly 
+global code static in drivers/pnp/isapnp/core.c .
 
-I was looking at what happens to responsiveness when CPU  usagee goes up
-and I had an idea about CPU and IO scheduling.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Tasks can be grouped by user and nice (and by scheduler type but let's
-leave SCHED_RR and friends out of this).  Let's say that user X
-shouldn't choke user Y, and that nice 19 shouldn't choke nice 18.  So
-obviously we make sure to balance CPU between X and Y, and make sure 18
-gets CPU when it needs it even if 19 needs it; but 19 STILL gets at
-least SOME CPU to avoid choking.
+---
 
-Next we have prioritizing.  I dunno how it works, so I'll  ignore it for
-this discussion.
+diffstat output:
+ drivers/pnp/isapnp/core.c |   47 ++++++++------------------------------
+ include/linux/isapnp.h    |   20 ----------------
+ 2 files changed, 11 insertions(+), 56 deletions(-)
 
-I'm not sure how scheduling works, but I'm thinking that because high
-CPU tasks are causing jerkiness here, maybe it's not balanced?  I dunno,
-you tell me.  The below is probably me being dumb, but at least I'm
-putting the idea out there.
+This patch was already sent on:
+- 13 Nov 2004
 
-First, balance out CPU between users.  If X and Y are using 100% of the
-CPU collectively, nobody else using any, user X gets 50% of the CPU;
-user Y gets 50% of the CPU.  If X is using 20% and Y wants 70% (leaving
-10%), that's fine; the CPU is balanced fairly.
+--- linux-2.6.10-rc1-mm5-full/include/linux/isapnp.h.old	2004-11-13 03:28:53.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/include/linux/isapnp.h	2004-11-13 03:34:16.000000000 +0100
+@@ -100,16 +100,7 @@
+ int isapnp_cfg_begin(int csn, int device);
+ int isapnp_cfg_end(void);
+ unsigned char isapnp_read_byte(unsigned char idx);
+-unsigned short isapnp_read_word(unsigned char idx);
+-unsigned int isapnp_read_dword(unsigned char idx);
+ void isapnp_write_byte(unsigned char idx, unsigned char val);
+-void isapnp_write_word(unsigned char idx, unsigned short val);
+-void isapnp_write_dword(unsigned char idx, unsigned int val);
+-void isapnp_wake(unsigned char csn);
+-void isapnp_device(unsigned char device);
+-void isapnp_activate(unsigned char device);
+-void isapnp_deactivate(unsigned char device);
+-void *isapnp_alloc(long size);
+ 
+ #ifdef CONFIG_PROC_FS
+ int isapnp_proc_init(void);
+@@ -119,9 +110,6 @@
+ static inline int isapnp_proc_done(void) { return 0; }
+ #endif
+ 
+-/* init/main.c */
+-int isapnp_init(void);
+-
+ /* compat */
+ struct pnp_card *pnp_find_card(unsigned short vendor,
+ 			       unsigned short device,
+@@ -138,15 +126,7 @@
+ static inline int isapnp_cfg_begin(int csn, int device) { return -ENODEV; }
+ static inline int isapnp_cfg_end(void) { return -ENODEV; }
+ static inline unsigned char isapnp_read_byte(unsigned char idx) { return 0xff; }
+-static inline unsigned short isapnp_read_word(unsigned char idx) { return 0xffff; }
+-static inline unsigned int isapnp_read_dword(unsigned char idx) { return 0xffffffff; }
+ static inline void isapnp_write_byte(unsigned char idx, unsigned char val) { ; }
+-static inline void isapnp_write_word(unsigned char idx, unsigned short val) { ; }
+-static inline void isapnp_write_dword(unsigned char idx, unsigned int val) { ; }
+-static inline void isapnp_wake(unsigned char csn) { ; }
+-static inline void isapnp_device(unsigned char device) { ; }
+-static inline void isapnp_activate(unsigned char device) { ; }
+-static inline void isapnp_deactivate(unsigned char device) { ; }
+ 
+ static inline struct pnp_card *pnp_find_card(unsigned short vendor,
+ 					     unsigned short device,
+--- linux-2.6.10-rc1-mm5-full/drivers/pnp/isapnp/core.c.old	2004-11-13 03:29:38.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/pnp/isapnp/core.c	2004-11-13 03:34:26.000000000 +0100
+@@ -52,9 +52,9 @@
+ #endif
+ 
+ int isapnp_disable;			/* Disable ISA PnP */
+-int isapnp_rdp;				/* Read Data Port */
+-int isapnp_reset = 1;			/* reset all PnP cards (deactivate) */
+-int isapnp_verbose = 1;			/* verbose mode */
++static int isapnp_rdp;			/* Read Data Port */
++static int isapnp_reset = 1;		/* reset all PnP cards (deactivate) */
++static int isapnp_verbose = 1;		/* verbose mode */
+ 
+ MODULE_AUTHOR("Jaroslav Kysela <perex@suse.cz>");
+ MODULE_DESCRIPTION("Generic ISA Plug & Play support");
+@@ -121,7 +121,7 @@
+ 	return read_data();
+ }
+ 
+-unsigned short isapnp_read_word(unsigned char idx)
++static unsigned short isapnp_read_word(unsigned char idx)
+ {
+ 	unsigned short val;
+ 
+@@ -130,38 +130,19 @@
+ 	return val;
+ }
+ 
+-unsigned int isapnp_read_dword(unsigned char idx)
+-{
+-	unsigned int val;
+-
+-	val = isapnp_read_byte(idx);
+-	val = (val << 8) + isapnp_read_byte(idx+1);
+-	val = (val << 8) + isapnp_read_byte(idx+2);
+-	val = (val << 8) + isapnp_read_byte(idx+3);
+-	return val;
+-}
+-
+ void isapnp_write_byte(unsigned char idx, unsigned char val)
+ {
+ 	write_address(idx);
+ 	write_data(val);
+ }
+ 
+-void isapnp_write_word(unsigned char idx, unsigned short val)
++static void isapnp_write_word(unsigned char idx, unsigned short val)
+ {
+ 	isapnp_write_byte(idx, val >> 8);
+ 	isapnp_write_byte(idx+1, val);
+ }
+ 
+-void isapnp_write_dword(unsigned char idx, unsigned int val)
+-{
+-	isapnp_write_byte(idx, val >> 24);
+-	isapnp_write_byte(idx+1, val >> 16);
+-	isapnp_write_byte(idx+2, val >> 8);
+-	isapnp_write_byte(idx+3, val);
+-}
+-
+-void *isapnp_alloc(long size)
++static void *isapnp_alloc(long size)
+ {
+ 	void *result;
+ 
+@@ -196,24 +177,24 @@
+ 	isapnp_write_byte(0x02, 0x02);
+ }
+ 
+-void isapnp_wake(unsigned char csn)
++static void isapnp_wake(unsigned char csn)
+ {
+ 	isapnp_write_byte(0x03, csn);
+ }
+ 
+-void isapnp_device(unsigned char logdev)
++static void isapnp_device(unsigned char logdev)
+ {
+ 	isapnp_write_byte(0x07, logdev);
+ }
+ 
+-void isapnp_activate(unsigned char logdev)
++static void isapnp_activate(unsigned char logdev)
+ {
+ 	isapnp_device(logdev);
+ 	isapnp_write_byte(ISAPNP_CFG_ACTIVATE, 1);
+ 	udelay(250);
+ }
+ 
+-void isapnp_deactivate(unsigned char logdev)
++static void isapnp_deactivate(unsigned char logdev)
+ {
+ 	isapnp_device(logdev);
+ 	isapnp_write_byte(ISAPNP_CFG_ACTIVATE, 0);
+@@ -972,13 +953,7 @@
+ EXPORT_SYMBOL(isapnp_cfg_begin);
+ EXPORT_SYMBOL(isapnp_cfg_end);
+ EXPORT_SYMBOL(isapnp_read_byte);
+-EXPORT_SYMBOL(isapnp_read_word);
+-EXPORT_SYMBOL(isapnp_read_dword);
+ EXPORT_SYMBOL(isapnp_write_byte);
+-EXPORT_SYMBOL(isapnp_write_word);
+-EXPORT_SYMBOL(isapnp_write_dword);
+-EXPORT_SYMBOL(isapnp_wake);
+-EXPORT_SYMBOL(isapnp_device);
+ 
+ static int isapnp_read_resources(struct pnp_dev *dev, struct pnp_resource_table *res)
+ {
+@@ -1070,7 +1045,7 @@
+ 	.disable = isapnp_disable_resources,
+ };
+ 
+-int __init isapnp_init(void)
++static int __init isapnp_init(void)
+ {
+ 	int cards;
+ 	struct pnp_card *card;
 
-Now do CPU balancing between nice levels.  a lower nice can have more
-CPU than a higher one when 100% CPU is in use, but not to the point that
-it chokes out all CPU.
-
-Inside a single nice level, there's multiple tasks.  Here's where it
-gets hairy.  If a task seems to have things to do, and it's not used as
-much CPU as another task in this nice level for a specific interval
-(500mS?), it gets automatic priority and gets CPU first for a timeslice.
- This way CPU is balanced inside the same nice level, by always making
-sure that low-CPU tasks are given the most priority in their own nice
-level.  High CPU tasks get their work done when what's probably
-interactive has finished what it wants to do.
-
-I dunno.  I don't know how it works, I just know I see jerks and fizzles
-sometimes.
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB7eP4hDd4aOud5P8RAp+hAJwOPvUwfcFUFQZyXYECmu2UsYI5HQCfT0ud
-Eh9LsBVwycvIxZhq26E5ZVQ=
-=LV4d
------END PGP SIGNATURE-----

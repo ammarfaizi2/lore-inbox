@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278269AbRKHUw0>; Thu, 8 Nov 2001 15:52:26 -0500
+	id <S278313AbRKHUx4>; Thu, 8 Nov 2001 15:53:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278286AbRKHUwJ>; Thu, 8 Nov 2001 15:52:09 -0500
-Received: from web12202.mail.yahoo.com ([216.136.173.86]:1545 "HELO
-	web12202.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S278269AbRKHUvp>; Thu, 8 Nov 2001 15:51:45 -0500
-Message-ID: <20011108205144.60063.qmail@web12202.mail.yahoo.com>
-Date: Thu, 8 Nov 2001 12:51:44 -0800 (PST)
-From: Amit Kulkarni <amitncsu@yahoo.com>
-Subject: __VERSIONED_SYMBOL and related EXPORT_SYMBOL error
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S278309AbRKHUxj>; Thu, 8 Nov 2001 15:53:39 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:56839 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S278313AbRKHUxZ>; Thu, 8 Nov 2001 15:53:25 -0500
+Date: Thu, 8 Nov 2001 21:53:19 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        VLAN Mailing List <vlan@Scry.WANfear.com>
+Subject: Re: [PATCH] 802.1q-support for 3c59x.c
+Message-ID: <20011108215319.G9684@devcon.net>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	VLAN Mailing List <vlan@Scry.WANfear.com>
+In-Reply-To: <20011107165318.A15577@devcon.net> <3BE95B6E.E4EB1B86@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BE95B6E.E4EB1B86@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Nov 07, 2001 at 11:03:58AM -0500
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello everybody,
+On Wed, Nov 07, 2001 at 11:03:58AM -0500, Jeff Garzik wrote:
+> > 
+> > +/* The Ethernet Type used for 802.1q tagged frames */
+> > +#define VLAN_ETHER_TYPE 0x8100
+> This needs to be ETH_P_8021Q from if_ether.h.
 
-when i do a ksyms -a | grep skb_dump  (this symbol i
-have added )
- i see 
-some_addr  __VERSIONED_SYMBOL(skb_dump)
-I think this is the reason it gives unresolved symbol
-when I try to load a module that calls the function
+OK. An updated patch will follow in a few days, as Alan requested not
+sending new patches for some days.
 
->From a reply by Keith to a mail on the list earlier I
-gather that this is coaused because the dev.c where
-this symbol is  defined is implicitly included via
+> Have you tested this?
 
-obj-$(CONFIG_NET) += dev.o dev_mcast.o 
+Sure. I'm actually using it in production, and other people also
+reported that it works well without any problems.
 
-There was no followup on what needs to be done  on
-that thread .
-I guess the sender was an intelligent person   :(
-Can Somebody please tell me  what I need to do to
-resolve this. I am trying to export a  few other
-symbols but  they do not even get added to /proc/ksyms
+> I should think you would need a dev->change_mtu
+> also.
 
+No. The whole point of the patch is that you /don't/ have to change
+the MTU on the physical interface for VLAN support.
 
+Though with the registers I figured from the specs it will be only a
+matter of a few lines to add a dev->change_mtu to the driver. I can
+add it to the patch if someone wants it.
 
-please advise 
+Another question, how do you feel about the #ifdefs in the patch? As
+said before, always enabling will not pose any performance penalties
+to those not using VLAN tagging, so I could equally well just remove
+them if noone objects.
 
-Regards,
-amit
- 
-
-__________________________________________________
-Do You Yahoo!?
-Find a job, post your resume.
-http://careers.yahoo.com
+Andreas
+-- 
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

@@ -1,47 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272523AbRH3WQH>; Thu, 30 Aug 2001 18:16:07 -0400
+	id <S272524AbRH3WSH>; Thu, 30 Aug 2001 18:18:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272524AbRH3WP6>; Thu, 30 Aug 2001 18:15:58 -0400
-Received: from archive.osdlab.org ([65.201.151.11]:37768 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S272523AbRH3WPp>;
-	Thu, 30 Aug 2001 18:15:45 -0400
-Message-ID: <3B8EB99F.3DA5F005@osdlab.org>
-Date: Thu, 30 Aug 2001 15:09:35 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
+	id <S272526AbRH3WRv>; Thu, 30 Aug 2001 18:17:51 -0400
+Received: from glucose.pas.idealab.com ([64.208.8.249]:31180 "HELO idealab.com")
+	by vger.kernel.org with SMTP id <S272524AbRH3WRm>;
+	Thu, 30 Aug 2001 18:17:42 -0400
+Date: Thu, 30 Aug 2001 15:17:55 -0700 (PDT)
+From: David Moore <david@startbox.com>
+To: Jim Roland <jroland@roland.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Hang in yenta socket driver in 2.4.x w/ PCI->PCMCIA adapter
+In-Reply-To: <3B8EAD25.20004@roland.net>
+Message-ID: <Pine.LNX.4.30L2.0108301514560.24229-100000@luca.pas.lab>
 MIME-Version: 1.0
-To: Matthew Fredrickson <matt@fredricknet.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IBM, are you there?
-In-Reply-To: <20010830165735.A2498@frednet.dyndns.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Fredrickson wrote:
-> 
-> Is there anybody here from IBM that might be able to get in contact with
-> me?  I need to ask some questions concerning getting some hardware
-> documentation on the IBM Net Camera (produced by xirlink).  I've tried to
-> get a hold of someone there that might be able to get me some
-> documentation but all the seem to think I need is windows API docs
-> *shrug*.  Here's a good chance for you guys to help linux without having
-> to spend a billion dollars, lol :-D .  No offense intended of course.
-> Just trying to write a driver for this webcam that I bought, thought it
-> might be a bit easier to ask rather than trying to hack this out on my
-> own.  Mostly what I'm concerned about is control documentation and the
-> data compression format of the data coming from the camera.
 
-Matthew-
+The lock-up occurs even if there is no PC card in the slot.  In its most
+verbose mode, lspci reports no other PCI device using IRQ5, so I'm fairly
+confident it's not an IRQ problem.  I'm further convinced of this because
+the PCMCIA slot works perfectly if I hack cardmgr to ignore socket 0
+(which has no physical slot attached) and only initialize socket 1 (which
+is the one card slot on the PCI card).
 
-Another option is asking on the linux-usb-devel mailing list
-to see if anyone is already working on this (like Dmitri).
+Regards,
 
-See www.linux-usb.org for mailing list info and present
-IBM webcam support.
+David
 
-~Randy
+On Thu, 30 Aug 2001, Jim Roland wrote:
+
+> Does it work (not lock-up) with your PC card removed?  Have you verified
+> (beyond a shadow of a doubt) that nothing else is using IRQ5?
+>
+> David Moore wrote:
+>
+> >Hi, I'm using kernel 2.4.9, but have observed this problem with all 2.4.x
+> >kernels I've tried.  I have a PCI card with a single PCMCIA slot in it.
+> >It's has a TI Cardbus controller which is detected successfully and
+> >assigned IRQs without trouble.  I have also used it successfully with the
+> >pcmcia-cs modules and PCMCIA support not enabled in the main kernel
+> >sources.
+> >
+> >I get the following messages upon loading the pcmcia_core, yenta_socket,
+> >and ds modules:
+> >
+> >PCI: Enabling device 01:09.1 (0000 -> 0002)
+> >PCI: Enabling device 01:09.0 (0000 -> 0002)
+> >Yenta IRQ list 0000, PCI irq5
+> >Socket status: 30000010
+> >Yenta IRQ list 0000, PCI irq5
+> >Socket status: 30000006
+> >cs: socket c79bb800 timed out during reset.  Try increasing setup_delay.
+> >
+> >Then, immediately after I start the cardmgr daemon, the system hangs
+> >solidly (cannot switch consoles or scroll up).  Upon closer inspection,
+> >socket 0 is not attached to a physical PCMCIA slot, and is the one timing
+> >out above.  Socket 1 is the only real slot.  As a workaround, I modified
+> >cardmgr so that it only initializes socket 1, and avoids socket 0
+> >completely.  When I do this, everything works perfectly and I can use
+> >cards in the socket.  (It should be noted that the hang occurs even
+> >without any cards in the socket).  Also, I doubt this is an IRQ problem
+> >because irq 5 (assigned above) is not used by another device as reported
+> >by lspci.
+> >
+> >Since the pcmcia-cs modules work (even with kernel 2.4.x) I know that it's
+> >theoretically possible to have socket 0 fail gracefully rather than hang
+> >the system when it's initialized, even though it doesn't really exist.
+> >
+> >Any ideas how to fix this?
+> >
+> >I have attached the output when debugging is enabled in yenta_socket (this
+> >is with cardmgr loading the modules itself):
+> >
+> >cb_readl: c88c6740 0008 30001818
+> >exca_readb: c88c6740 0001 4c
+> >exca_readb: c88c6740 0003 50
+> >^-- these three lines repeat for a while....
+> >cb_readl: c88c6740 0008 30001818
+> >exca_readb: c88c6740 0001 4c
+> >exca_readb: c88c6740 0003 50
+> >cs: socket c79a3800 timed out during reset.  Try increasing setup_delay.
+> >cb_readl: c88c67c8 0008 30000086
+> >exca_readb: c88c67c8 0001 00
+> >exca_readb: c88c67c8 0003 50
+> >exca_writeb: c88c6740 0040 a0
+> >exca_writew: c88c6740 0010 0000
+> >exca_writew: c88c6740 0012 8000
+> >exca_writew: c88c6740 0014 4000
+> >exca_writeb: c88c6740 0006 01 <------------------- hangs here
+> >
+> >The last few lines look like they are from the mem_map function, but I'm
+> >not sure if the hang occurs immediately at this point, or is caused by
+> >code somewhere else.
+> >
+> >Thanks for the help.
+> >
+> >Best Regards,
+> >
+> >David Moore
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+>
+>
+

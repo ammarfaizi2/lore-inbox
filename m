@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbULIKoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbULIKxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbULIKoT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 05:44:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbULIKoS
+	id S261503AbULIKxR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 05:53:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbULIKxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 05:44:18 -0500
-Received: from sandesha.sasken.com ([164.164.56.19]:62442 "EHLO
-	mail3.sasken.com") by vger.kernel.org with ESMTP id S261501AbULIKoH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 05:44:07 -0500
-From: "Cletus" <acletus@sasken.com>
-Subject: Linux-based Live CDs
-Date: Thu, 9 Dec 2004 16:00:39 +0530
-Message-ID: <cp99gf$hm3$1@ncc-z.sasken.com>
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-To: linux-kernel@vger.kernel.org
-X-News-Gateway: ncc-z.sasken.com
-X-imss-version: 2.012
-X-imss-result: Passed
-X-imss-scores: Clean:0.60918 C:20 M:2 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
+	Thu, 9 Dec 2004 05:53:17 -0500
+Received: from gprs215-175.eurotel.cz ([160.218.215.175]:61824 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261503AbULIKxO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 05:53:14 -0500
+Date: Thu, 9 Dec 2004 11:53:02 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: IDE: strange WAIT_READY dependency on APM
+Message-ID: <20041209105302.GA1131@elf.ucw.cz>
+References: <20041209034438.GF22324@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041209034438.GF22324@stusta.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Here is an URL, which has list of Linux based live operating systems (OS
-botable from CD).
+> IDE contains the following strange code:
+> 
+> <--  snip  -->
+> 
+> #if defined(CONFIG_APM) || defined(CONFIG_APM_MODULE)
+> #define WAIT_READY      (5*HZ)          /* 5sec - some laptops are very slow */
+> #else
+> #define WAIT_READY      (HZ/10)         /* 100msec - should be instantaneous */
+> #endif /* CONFIG_APM || CONFIG_APM_MODULE */
+> 
+> <--  snip  -->
+> 
+> On the one hand APM isn't enabled on all laptops.
+> On the other hand, this also affects regular PCs with APM support (or 
+> using a distribution kernel with APM support).
+> 
+> The time for the !APM case was already increased from 30msec in 2.4 .
+> Isn't there a timeout that is suitable for all cases?
 
-http://www.frozentech.com/content/livecd.php?showonly=&sort=Purpose
+We should probably always make it the "big" timeout. Or put there
+HZ/10, and see who screams :-).
 
-
-
-"SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY Mercer Survey 2004"
-
-
-                           SASKEN BUSINESS DISCLAIMER
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

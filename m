@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262558AbVAESsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262554AbVAESvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262558AbVAESsk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 13:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbVAESsk
+	id S262554AbVAESvr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 13:51:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbVAESvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 13:48:40 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:44690 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262554AbVAESsh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 13:48:37 -0500
-Date: Wed, 5 Jan 2005 19:44:45 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10 TCP troubles
-Message-ID: <20050105184445.GA8996@electric-eye.fr.zoreil.com>
-References: <0508ECY12@server5.heliogroup.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0508ECY12@server5.heliogroup.fr>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Wed, 5 Jan 2005 13:51:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63465 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262554AbVAESvp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 13:51:45 -0500
+Date: Wed, 5 Jan 2005 13:50:51 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
+In-Reply-To: <20050105180651.GD4597@dualathlon.random>
+Message-ID: <Pine.LNX.4.61.0501051350150.22969@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.61.0501031224400.25392@chimarrao.boston.redhat.com>
+ <20050105020859.3192a298.akpm@osdl.org> <20050105180651.GD4597@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubert Tonneau <hubert.tonneau@fullpliant.org> :
-[...]
-> The problem seems to me to be related to the way the TCP layer is handling small
-> troubles (probably lost packets on the Mac side because the Linux machine is
-> gigabit connected to the switch, with flow control enabled, and the Mac is
-> 100 Mbps connected, full duplex, but without flow control).
+On Wed, 5 Jan 2005, Andrea Arcangeli wrote:
 
-tcpdump should enlighten it.
+> Another unrelated problem I have in this same area and that can explain
+> VM troubles at least theoretically, is that blk_congestion_wait is
+> broken by design. First we cannot wait on random I/O not related to
+> write back. Second blk_congestion_wait gets trivially fooled by
+> direct-io for example. Plus the timeout may cause it to return too early
+> with slow blkdev.
 
---
-Ueimor
+Or the IO that just finished, finished for pages in
+another memory zone, or pages we won't scan again in
+our current go-around through the VM...
+
+> blk_congestion_wait is a fundamental piece to get oom detection right
+> during writeback and unfortunately it's fundamentally fragile in 2.6
+> (this as usual wasn't the case in 2.4).
+
+Indeed ;(
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,91 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264954AbTBJQeH>; Mon, 10 Feb 2003 11:34:07 -0500
+	id <S264986AbTBJQib>; Mon, 10 Feb 2003 11:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264986AbTBJQeG>; Mon, 10 Feb 2003 11:34:06 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:28855 "EHLO
-	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S264954AbTBJQeF>; Mon, 10 Feb 2003 11:34:05 -0500
-Message-ID: <3E47D6C6.90901@blue-labs.org>
-Date: Mon, 10 Feb 2003 11:43:50 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030209
-X-Accept-Language: en-us, en
+	id <S265008AbTBJQib>; Mon, 10 Feb 2003 11:38:31 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:55468 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id <S264986AbTBJQi3>;
+	Mon, 10 Feb 2003 11:38:29 -0500
+Message-Id: <200302101655.LAA08303@moss-shockers.ncsc.mil>
+Date: Mon, 10 Feb 2003 11:55:41 -0500 (EST)
+From: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Reply-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+To: hch@infradead.org
+Cc: greg@kroah.com, torvalds@transmeta.com, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: remove_wait_queue, scheduling while atomic OOPS, 2.5.59
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/plain; charset=us-ascii
+Content-MD5: FAy9NoRr1oaMeH55MrcR1Q==
+X-Mailer: dtmail 1.2.0 CDE Version 1.2 SunOS 5.6 sun4u sparc 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This machine doesn't seem to like 2.5.59...
 
-Unable to handle kernel paging request at virtual address a6bb009c
- printing eip:
-c011f1b7
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0060:[<c011f1b7>]    Not tainted
-EFLAGS: 00013002
-EIP is at remove_wait_queue+0x17/0x30
-eax: e6632000   ebx: 00003292   ecx: a6bb009c   edx: e6bb809c
-esi: d0298008   edi: d0298000   ebp: 00100000   esp: e6633f04
-ds: 007b   es: 007b   ss: 0068
-Process X (pid: 1372, threadinfo=e6632000 task=e6739340)
-Stack: d0298008 c0164f84 00000000 dc89abc4 00000015 c016529b e6633f3c 
-00000000
-       e6632000 00000304 e6632000 0000a40f 00000001 00000000 c0164fb0 
-d0298000
-       00000000 fffffff4 00000020 00000000 e7bf384c bffff398 c01656b6 
-00000015
-Call Trace:
- [<c0164f84>] poll_freewait+0x24/0x50
- [<c016529b>] do_select+0x13b/0x240
- [<c0164fb0>] __pollwait+0x0/0xd0
- [<c01656b6>] sys_select+0x2e6/0x4e0
- [<c010955f>] syscall_call+0x7/0xb
+Christoph Hellwig wrote:
+> Well, selinux is still far from a mergeable shape and even needed additional
+> patches to the LSM tree last time I checked.  This think of submitting hooks
+> for code that obviously isn't even intende to be merged in mainline is what
+> I really dislike, and it's the root for many problems with LSM.
 
-Code: 89 11 53 9d ff 48 10 8b 40 08 83 e0 08 75 02 5b c3 5b e9 62
- <6>note: X[1372] exited with preempt_count 1
-mtrr: MTRR 3 not used
-mtrr: MTRR 3 not used
-bad: scheduling while atomic!
-Call Trace:
- [<c011db21>] schedule+0x2f1/0x300
- [<c011de0f>] wait_for_completion+0x8f/0xe0
- [<c011db90>] default_wake_function+0x0/0x40
- [<c011db90>] default_wake_function+0x0/0x40
- [<c0357fb9>] hcd_unlink_urb+0x1b9/0x2a0
- [<c0373d50>] hid_irq_in+0x0/0xa0
- [<c0358842>] usb_unlink_urb+0x32/0x40
- [<c03841ec>] input_close_device+0x2c/0x30
- [<c0385902>] mousedev_release+0x62/0x120
- [<c0154090>] __fput+0xe0/0xf0
- [<c0152364>] filp_close+0x74/0xa0
- [<c012285c>] put_files_struct+0x5c/0xd0
- [<c0122f50>] do_exit+0x130/0x2d0
- [<c0109c75>] die+0x85/0x90
- [<c011c3da>] do_page_fault+0x14a/0x45c
- [<c0456aa8>] __kfree_skb+0xa8/0x140
- [<c04c68cf>] unix_stream_recvmsg+0xff/0x360
- [<c013bee1>] buffered_rmqueue+0xb1/0x150
- [<c0107a00>] __switch_to+0x100/0x150
- [<c011d9bf>] schedule+0x18f/0x300
- [<c011c290>] do_page_fault+0x0/0x45c
- [<c0109709>] error_code+0x2d/0x38
- [<c011f1b7>] remove_wait_queue+0x17/0x30
- [<c0164f84>] poll_freewait+0x24/0x50
- [<c016529b>] do_select+0x13b/0x240
- [<c0164fb0>] __pollwait+0x0/0xd0
- [<c01656b6>] sys_select+0x2e6/0x4e0
- [<c010955f>] syscall_call+0x7/0xb
+It is true that SELinux is not yet in mergeable shape, but we do intend
+to address those issues.  With regard to additional patches, SELinux
+has at times diverged slightly from the main LSM patch, but we do feed
+back changes.  At present, the only significant change in the
+additional patch has to do with early initialization of SELinux so that
+we can properly set up the security state of kernel objects when they
+are created rather than needing to retroactively set up the state of
+objects created before module initialization.  That issue has come up
+in general for security modules on the LSM list, and we would need to
+submit a general solution for it along with the submission of SELinux
+for mainline.  Hence, you are correct that there is work to be done
+before SELinux can be merged, but you are wrong to assume that we do
+not intend to do that work or to submit SELinux.
 
--- 
-I may have the information you need and I may choose only HTML.  It's up to you. Disclaimer: I am not responsible for any email that you send me nor am I bound to any obligation to deal with any received email in any given fashion.  If you send me spam or a virus, I may in whole or part send you 50,000 return copies of it. I may also publically announce any and all emails and post them to message boards, news sites, and even parody sites.  I may also mark them up, cut and paste, print, and staple them to telephone poles for the enjoyment of people without internet access.  This is not a confidential medium and your assumption that your email can or will be handled confidentially is akin to baring your backside, burying your head in the ground, and thinking nobody can see you butt nekkid and in plain view for miles away.  Don't be a cluebert, buy one from K-mart today.
+> There has been a history in Linux to only implement what actually needed
+> now instead of "clever" overdesigns that intend to look into the future,
+> LSM is a gross voilation of that principle.  Just look at the modules in
+> the LSM source tree:  the only full featured security policy in addition
+> to the traditional Linux model is LSM, all the other stuff is just some
+> additionl checks here and there.
 
-When it absolutely, positively, has to be destroyed overnight.
-                           AIR FORCE
+I assume that you mean "SELinux" above.  It is true that SELinux is the
+dominant user of the LSM hooks at present.  We would have been happy to
+submit SELinux as a direct kernel patch rather than adding a further
+level of indirection via LSM, but that wasn't the guidance we were
+given.
 
+> I'm very serious about submitting a patch to Linus to remove all hooks not
+> used by any intree module once 2.6.0-test.
+
+Any idea on how much time that gives us (to rework SELinux and submit
+it)?  Some of the necessary changes are simply engineering issues, but
+others require further dialogue, e.g. getting the API into an
+acceptable form, revisiting the approaches used to label and control
+access to pseudo filesystems.
+
+> Life would be a lot simpler if you got the core flask engine in a mergeable
+> shapre earlier and we could have merged the hooks for actually using it
+> incrementally during 2.5, discussing the pros and contras for each hook
+> given an actual example - but the current way of adding extremly generic
+> hooks (despite the naming they are in no ways tied to enforcing security
+> models at all) without showing and discussing the code behind them simply
+> makes that impossible.
+
+We would have preferred this route as well, but again it wasn't the
+guidance that we were given.  We were told to work on something
+LSM-like, then told to wait to initially submit it until after certain
+other changes went into 2.5.
+
+> So yes, my suggestion is to backout the whole LSM mess for 2.6, merge
+> a sample policy core (i.e. a cleaned up flask/selinux) in 2.7.<early> and
+> then add one hook after another and discussing the architecture openly
+> where it belongs (here on lkml!).
+
+Leaving 2.6 with no infrastructure for access control extensions at all?
+Is this really preferable to keeping LSM in 2.5/2.6, and then migrating
+to a more directly integrated architecture in 2.7?
+ 
+--
+Stephen Smalley, NSA
+sds@epoch.ncsc.mil
 

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311701AbSEEMrQ>; Sun, 5 May 2002 08:47:16 -0400
+	id <S311180AbSEEMxw>; Sun, 5 May 2002 08:53:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311829AbSEEMrP>; Sun, 5 May 2002 08:47:15 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:53515 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S311701AbSEEMrO>; Sun, 5 May 2002 08:47:14 -0400
-Date: Sun, 5 May 2002 14:47:04 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "J.P. Morris" <jpm@it-he.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.x keyboard oddities
-Message-ID: <20020505124704.GC4990@louise.pinerecords.com>
-In-Reply-To: <20020504234908.39e71442.jpm@it-he.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 13 days, 2:27)
+	id <S311841AbSEEMxv>; Sun, 5 May 2002 08:53:51 -0400
+Received: from anvers-smtp.planetinternet.be ([195.95.30.152]:38158 "EHLO
+	yoda.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S311180AbSEEMxv>; Sun, 5 May 2002 08:53:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ken Van Eyndonck <Ken.vaneyndonck@planetinternet.be>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: apm dell I8K 2.4.18
+Date: Sun, 5 May 2002 14:53:12 +0200
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020505125344.01C4E36BA0@yoda.planetinternet.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [J.P. Morris <jpm@it-he.org>]
-> The other day I finally got a 2.5 kernel (2.5.13) to compile and boot.
-> One of the major stumbling (crashing) blocks seems to be DEVFS, so I
-> simply disabled it and booted the kernel.
-> 
-> The system appears to have come up completely now, except for the
-> keyboard which is totally frozen throughout the entire boot process.
-> 
-> I don't have another PC but I might try and get my Psion Series 5
-> to act as a VT100 terminal and go in through serial.
-> 
-> The keyboard is a bog-standard AT 102 keyboard, attached through a
-> AT/PS2 converter to an ABIT KT133 ATX motherboard.. no USB stuff.
-> Keyboard is turned on in the input devices option in kernel config.
-> But it's utterly dead: even ALT-SYSRQ-B.  Is this normal?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-1) Try booting with 'acpi=off'. It's broken for a number of systems
-(does precisely what you've described) and no official update is
-available as of yet. Alternatively, you can try to apply the most
-recent ACPI patch from [1].
+hi
 
-2) Make sure you've enabled core input support and userland keyboard
-interface (CONFIG_INPUT, CONFIG_INPUT_KEYBDEV).
+i'm fairly new to linux but i'm eager to learn.
+i'm running suse 7.3 on a dell inspiron 8000.
+i used to run suse 7.1 (2.2.??) and the apm worked "fine" as far as i could 
+tell
+now i cant suspend or un/plug the ac power while linux is running.
+i've made several attemps by compiling new kernels. But nothing worked.
+i've looked in the archive of this list and found several mails that handeld 
+or discribed several problems i had but appearently didn't offer a straight 
+up way the get rid of the problem.
 
-T.
+plz
+help
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8
 
-
-[1] http://www.sourceforge.net/projects/acpi/
+iQA/AwUBPNUrPHbvQ8h/YgNnEQJDvACgixvyTcqwcwp/aB05EGkgciIeLHUAoJKo
+ehsUEvmQKP4hK03YpbSH0lIi
+=3XIj
+-----END PGP SIGNATURE-----

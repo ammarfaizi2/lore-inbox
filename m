@@ -1,127 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270714AbTGUVB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270715AbTGUVB7
+	id S270720AbTGUVEd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270722AbTGUVEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:01:59 -0400
-Received: from law11-oe69.law11.hotmail.com ([64.4.16.204]:55300 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S270714AbTGUVB5
+	Mon, 21 Jul 2003 17:04:33 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:43280 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S270720AbTGUVEb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 17:01:57 -0400
-X-Originating-IP: [165.98.111.210]
-X-Originating-Email: [bmeneses_beltran@hotmail.com]
-From: "Viaris" <bmeneses_beltran@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with kernel 2.5.75 (Urgent)
-Date: Mon, 21 Jul 2003 15:16:57 -0600
+	Mon, 21 Jul 2003 17:04:31 -0400
+Date: Mon, 21 Jul 2003 17:19:30 -0400 (EDT)
+From: root <root@oddball.prodigy.com>
+Reply-To: Bill Davidsen <davidsen@tmr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test1-wli-1 compile fail
+Message-ID: <Pine.LNX.4.44.0307211717270.23650-101000@oddball.prodigy.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <Law11-OE69Tet4T2BiK000100b6@hotmail.com>
-X-OriginalArrivalTime: 21 Jul 2003 21:16:59.0663 (UTC) FILETIME=[6C13C1F0:01C34FCD]
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1653083592-1058822370=:23650"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-My problem was resuelt (I installed  module inits again), now I can see all
-modules loaded, but I have problems, when I want to see my backup, I can't ,
-I execute tar tvf /dev/st0 and the follwing message appear:
+--8323328-1653083592-1058822370=:23650
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-tar: /dev/st0: Cannot open: No such device
-tar: Error is not recoverable: exiting now
+Error:
 
-I believe that my server not know this device, but I i execute lsmod the
-driver of my SCSI card is loaded:
+fs/namei.c: In function `path_lookup':
+fs/namei.c:868: parse error before `*'
+fs/namei.c:873: `dirs' undeclared (first use in this function)
+fs/namei.c:873: (Each undeclared identifier is reported only once
+fs/namei.c:873: for each function it appears in.)
+fs/namei.c:873: `fs' undeclared (first use in this function)
+fs/namei.c:890: `task' undeclared (first use in this function)
+make[1]: *** [fs/namei.o] Error 1
+make: *** [fs] Error 2
 
-scsi_mod              115892  2 dc395x,ide_scsi
+gzipped and comment-stripped config attached. And I had such hopes...
 
-I need to know that others test i can do it.
+--8323328-1653083592-1058822370=:23650
+Content-Type: APPLICATION/x-gzip; name="config.gz"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0307211719300.23650@oddball.prodigy.com>
+Content-Description: 
+Content-Disposition: attachment; filename="config.gz"
 
-Thanks, You are very kind.
-
------ Original Message -----
-From: "Viaris" <bmeneses_beltran@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Monday, July 21, 2003 11:25 AM
-Subject: Re: Problems with kernel 2.5.75 (Urgent)
-
-
-> Hi, I compiled version module-init-tools-0.9.12, I installed this in
-> /usr/local/sbin and /usr/local/sbin, but I copied manaully (depmod
-> generate-modprobe.conf  insmod  insmod.static  modinfo  modprobe  rmmod
-> lsmod) in the directory /sbin, compiled again my kernel and copy bzImage
-in
-> /boot I did the image wuth mkinitrd and copy my System.map in /boot ,mynew
-> kernel boot Ok and load my network card, but no load others modules.
->
-> Maybe my is that I did copy of files of module-init manaully, how can I do
-> it to update automatically?
->
-> Thanks,
->
->
->
-> ----- Original Message -----
-> From: "Luciano Miguel Ferreira Rocha" <luciano@lsd.di.uminho.pt>
-> To: "Viaris" <bmeneses_beltran@hotmail.com>
-> Cc: <linux-kernel@vger.kernel.org>
-> Sent: Monday, July 21, 2003 11:06 AM
-> Subject: Re: Problems with kernel 2.5.75 (Urgent)
->
->
-> >
-> > Hi,
-> >
-> > Module loading has changed in 2.5.x. Do you have module-init-tools
-> installed?
-> >
-> > You may get it at
-> http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
-> >
-> > Regards,
-> > Luciano Rocha
-> >
-> > On Mon, Jul 21, 2003 at 10:43:25AM -0600, Viaris wrote:
-> > > Hi all,
-> > >
-> > > I compiled kernel version 2.5.75, before I had kernel 2.4.20, the
-> problem is
-> > > that I need to enable SCSI DC395x, but when I execute lsmod I not
-found
-> > > neither modules loaded, only appear:
-> > > Module                  Size  Used by
-> > >
-> > > If I mount manually a module (insmod
-> > > /lib/modules/2.5.75/kernel/drivers/scsi/dc395x.ko) the following
-message
-> > > appear: Error inserting
-> > > '/lib/modules/2.5.75/kernel/drivers/scsi/dc395x.ko': -1 Unknown symbol
-> in
-> > > module, I have my modules.conf in the directory /lib/modules/2.5.75/
-but
-> > > this kernel no load automatically the modules.
-> > >
-> > > I need to load this module because Ineed to use the tape backup, I
-have
-> a
-> > > backu that I need urgent.
-> > >
-> > > How can I do it?
-> > >
-> > > Thanks,
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe
-linux-kernel"
-> in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
+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
+--8323328-1653083592-1058822370=:23650--

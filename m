@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267430AbTBDTeZ>; Tue, 4 Feb 2003 14:34:25 -0500
+	id <S267437AbTBDTct>; Tue, 4 Feb 2003 14:32:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267434AbTBDTeZ>; Tue, 4 Feb 2003 14:34:25 -0500
-Received: from netrealtor.ca ([216.209.85.42]:13316 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S267430AbTBDTeY>;
-	Tue, 4 Feb 2003 14:34:24 -0500
-Date: Tue, 4 Feb 2003 14:52:04 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Fiona Sou-Yee Wong <wongfs@cs.ucdavis.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: disabling nagle
-Message-ID: <20030204195204.GA1626@mark.mielke.cc>
-References: <Pine.LNX.4.44.0302041138070.2629-100000@pc6.cs.ucdavis.edu>
-Mime-Version: 1.0
+	id <S267436AbTBDTct>; Tue, 4 Feb 2003 14:32:49 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:11785 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267437AbTBDTcs>;
+	Tue, 4 Feb 2003 14:32:48 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302041940.h14JebCX002683@darkstar.example.net>
+Subject: Re: PnP model
+To: andrew.grover@intel.com (Grover, Andrew)
+Date: Tue, 4 Feb 2003 19:40:37 +0000 (GMT)
+Cc: ambx1@neo.rr.com, perex@perex.cz, linux-kernel@vger.kernel.org,
+       greg@kroah.com, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A152@orsmsx401.jf.intel.com> from "Grover, Andrew" at Feb 04, 2003 11:25:42 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302041138070.2629-100000@pc6.cs.ucdavis.edu>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 11:39:16AM -0800, Fiona Sou-Yee Wong wrote:
-> I have kernel version 2.4.18 and I was looking for a patch to have the 
-> option to disable NAGLE's algorithm.
-> Is there a patch available for kernels 2.4 and greater and if not, what 
-> other options do I have?
+> > In many cases, Auto configuration can be better then manual 
+> > configuration.
+> > 1.) The auto configuration engine in my patch is able to 
+> > resolve almost any
+> > resource conflict and provides the greatest chance for all 
+> > devices to have
+> > resources allocated.
+> > 2.) Certainly some driver developers would like to manually 
+> > set resources
+> > but many may prefer the option to auto config.
+> 
+> I think the people who want to manually configure their device's
+> resources need to step up and justify why this is really necessary.
 
-Don't patch the kernel for something like this.
+Prototyping an embedded system, maybe, where you have devices in the
+test box that won't be in the production machine.  You would want them
+to use resources other than those that you want the hardware which
+will be present to use.
 
-Use setsockopt(TCP_NODELAY) on the TCP/IP socket file descriptors of
-your choice.
+> If someone is manually configuring something, that means the automatic
+> config *failed*.
 
-Read "man tcp".
+Not necessarily.
 
-mark
+> Why did it fail? It should never fail. Manual config is only giving
+> the user to opportunity to get something wrong.
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+Agreed, auto configuration should never fail, but that doesn't mean
+that you shouldn't have manual configuration as an option.
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+John.

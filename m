@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278391AbRJZL3D>; Fri, 26 Oct 2001 07:29:03 -0400
+	id <S278437AbRJZLzj>; Fri, 26 Oct 2001 07:55:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278403AbRJZL2y>; Fri, 26 Oct 2001 07:28:54 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26961 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278391AbRJZL2i>; Fri, 26 Oct 2001 07:28:38 -0400
-Date: Fri, 26 Oct 2001 13:29:08 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Chris Ahna <christopher.j.ahna@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Avoid a race in complete_change_console()
-Message-ID: <20011026132908.C30905@athlon.random>
-In-Reply-To: <20011025210744.A17499@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011025210744.A17499@intel.com>; from christopher.j.ahna@intel.com on Thu, Oct 25, 2001 at 09:07:44PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S278449AbRJZLz3>; Fri, 26 Oct 2001 07:55:29 -0400
+Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:59625 "EHLO
+	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
+	id <S278447AbRJZLzT> convert rfc822-to-8bit; Fri, 26 Oct 2001 07:55:19 -0400
+Date: Fri, 26 Oct 2001 07:58:48 -0400 (EDT)
+From: volodya@mindspring.com
+Reply-To: volodya@mindspring.com
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Nate Dannenberg <natedac@kscable.com>, livid-gatos@linuxvideo.org,
+        video4linux-list@redhat.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [livid-gatos] [RFC] alternative kernel multimedia API
+In-Reply-To: <1004092530.10130.145.camel@nomade>
+Message-ID: <Pine.LNX.4.20.0110260757190.10883-100000@node2.localnet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 25, 2001 at 09:07:44PM -0700, Chris Ahna wrote:
-> Can someone familiar with this code comment on the correctness of this
-> patch?  The patch is against vanilla 2.4.13.  Thanks,
 
-I'm not very familiar with it, but it seems sane fix. Only detail is
-that the vc_mode can only be KD_TEXT after the reset_vc but the
-additional check doesn't hurt and it makes it indipendent by the
-reset_vc details.
 
-Andrea
+On 26 Oct 2001, Xavier Bestel wrote:
+
+> le ven 26-10-2001 à 01:14, volodya@mindspring.com a écrit :
+> 
+> > >  05,HUE=7\n
+> > >  07,some unrelated command
+> > > +05\n				# The HUE command was successful
+> > > :07,reply to unrelated command
+> > > :05,HUE=6\n			# Driver reported the HUE parameter as
+> 
+> I would prefer a proc-like interface to devices, e.g.:
+> 
+> /dev/video0/hue
+> /dev/video0/saturation
+> ...
+> 
+> more unix-like, no parsing involved.
+
+This would be a problem as an application would need to open many files in
+order to operate such interface. Additionally, you underestimate the
+number of files needed. We'll need hue_range, hue_label, hue_comment and
+something else..
+
+Parsing is not that hard I believe.
+
+                        Vladimir Dergachev
+
+> 
+> 	Xav
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263436AbTJ0SCn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 13:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263439AbTJ0SCm
+	id S263454AbTJ0STj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 13:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTJ0STj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 13:02:42 -0500
-Received: from SteeleMR-loadb-NAT-49.caltech.edu ([131.215.49.69]:3713 "EHLO
-	water-ox.its.caltech.edu") by vger.kernel.org with ESMTP
-	id S263436AbTJ0SCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 13:02:41 -0500
-Date: Mon, 27 Oct 2003 10:02:37 -0800 (PST)
-From: "Noah J. Misch" <noah@caltech.edu>
-X-X-Sender: noah@blinky
-To: Alex Williamson <alex.williamson@hp.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net, shaohua.li@intel.com,
-       len.brown@intel.com, jon@nanocrew.net
-Subject: Re: [BUG] test9 ACPI bad: scheduling while atomic!
-In-Reply-To: <1067273229.7497.30.camel@patsy.fc.hp.com>
-Message-ID: <Pine.GSO.4.58.0310270929010.14546@blinky>
-References: <Pine.GSO.4.58.0310262327040.19469@clyde> <1067273229.7497.30.camel@patsy.fc.hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 27 Oct 2003 13:19:39 -0500
+Received: from havoc.gtf.org ([63.247.75.124]:3513 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S263454AbTJ0STG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 13:19:06 -0500
+Date: Mon, 27 Oct 2003 13:17:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Bob Johnson <livewire@gentoo.org>
+Cc: Shaun Savage <savages@savages.net>, linux-kernel@vger.kernel.org,
+       edt@aei.ca, nuno.silva@vgertech.com
+Subject: Re: kernel 2.6t9 SATA slower than 2.4.20
+Message-ID: <20031027181738.GB5335@gtf.org>
+References: <3F9D402F.9050509@savages.net> <200310271308.53135.livewire@gentoo.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310271308.53135.livewire@gentoo.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Oct 2003, Alex Williamson wrote:
+On Mon, Oct 27, 2003 at 01:08:46PM -0500, Bob Johnson wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> The Sata driver worked well on my siimage, but lost around 30%-40% performance
+> according to tiobench.
 
-> > This was obvious on my system because it has no ECDT table, and as such
-> > acpi_ec_gpe_query was _always_ running in interrupt context, whereas with an
-> > ECDT it would only do so for a brief time during boot, and the problem would be
-> > much more subtle.  That's probably why nobody noticed this in earlier tests.
-> >
->
->   I don't have an ECDT either.  Is it possible that the setting of
-> ec_device_init = 1 is simply misplaced?
+This is to be expected -- I use a "sledgehammer fix" for the Maxtor and
+Seagate errata -- each transfer is limited to 15 sectors.
 
-It is misplaced.  If revision 1.26 of ec.c were otherwise sound, I would place
-ec_device_init = 1 right before the call to acpi_install_gpe_handler in
-acpi_ec_start.  Anywhere outside that if and between where _add removes the
-handlers and _start installs them would work.  This would fix your crash, but
-it's not the right fix.
+When I get a chance to clean up the SiI driver, the performance will
+indeed increase by a large amount.
 
-> I can see why we wouldn't want to call acpi_os_queue_for_execution() early in
-> bootup, but there ought to be a fixed point after which it's ok, regardless of
-> whether the system has the ECDT table.
+For now, for Silicon Image, I recommend using the
+drivers/ide/pci/siimage.c -- assuming it works for you, of course.
 
-I don't think early calls to schedule_work (via acpi_os_queue_for_execution) are
-a problem.  The call to init_workqueues is just before do_initcalls in
-do_basic_setup, so it happens earlier than all this stuff.
+The libata Silicon Image driver is marked with CONFIG_BROKEN because it
+is fairly easy to lock it up (I need ack some more interrupts).
 
-The more general problem is that acpi_ec_gpe_query cannot run in an interrupt
-handler as written.  It used to always run from a queue.  We can either fix it
-so it can run from an interrupt handler or change it back to never doing so.  I
-favor the latter, especially because I don't see how the recent change fixed the
-problem T40 users were experiencing.
+	Jeff
 
-> Would it be sufficient to set ec_device_init to 1 at the beginning of
-> acpi_ec_add(), with no dependency on the ECDT table?
 
-That particular placement looks racy.  I would do it after removing the
-handlers, as explained above.
-
-Thanks,
-Noah
 

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264950AbSL0NSZ>; Fri, 27 Dec 2002 08:18:25 -0500
+	id <S262937AbSL0NRf>; Fri, 27 Dec 2002 08:17:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264945AbSL0NSY>; Fri, 27 Dec 2002 08:18:24 -0500
-Received: from mk-smarthost-2.mail.uk.tiscali.com ([212.74.114.38]:14859 "EHLO
-	mk-smarthost-2.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id <S264938AbSL0NSR> convert rfc822-to-8bit; Fri, 27 Dec 2002 08:18:17 -0500
-Message-ID: <4117-2200212527132622466@OpusOne>
-To: "takeoff" <Notams@Beam.Screaming.Net>
-From: "flight@beam.screaming.net" <Notams@beam.screaming.net>
-Subject: The FlightTimes
-Date: Fri, 27 Dec 2002 13:26:22 -00
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S264931AbSL0NRf>; Fri, 27 Dec 2002 08:17:35 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:6916 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262937AbSL0NRe>;
+	Fri, 27 Dec 2002 08:17:34 -0500
+Date: Fri, 27 Dec 2002 14:24:20 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Anomalous Force <anomalous_force@yahoo.com>
+Cc: wa@almesberger.net, ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: holy grail
+Message-ID: <20021227132419.GA404@elf.ucw.cz>
+References: <20021227010338.A1406@almesberger.net> <20021227072142.26177.qmail@web13208.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021227072142.26177.qmail@web13208.mail.yahoo.com>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Please pardon my intrusion.
+Hi!
 
-Could it be possible that you have an interest in aviation? I am writing to you to offer you a subscription to 
+> > Your best bet would be to use a system that already implements some
+> > form of checkpointing or process migration, and use this to
+> > preserve user space state across kexec reboots. openMosix may be
+> 
+> [snip]
+> 
+> preserving user state would not be so much the problem as would
+> the various internal kernel data structures (vm stuff, dcache, etc.)
 
-The FlightTimes
-
-An email based newspaper. It is read around the world by the aviation industry obtained by invitation only.
-
-It is for Free..
-
-My simple question.....  My I send you a free sample?
-
-You will not be bothered again; I will only contact you if you answer to this email. Thank you for your time.
-
-James van Etten, editor  The FlightTimes
-London, UK  +44 207 603 5340
-
-flight@beam.screaming.net
-
-
-Finally you can check out all the above and have an instant look at an older issue of my papers on our website; your sample however will be the latest issue.
-
-Http://myweb.tiscali.co.uk/londonmorningpaper
-
-
-
-
-Scratch with the chickens or fly with the eagles
-
-A Publication by The London Morning Paper Group
-166 Blythe Road
-West Kensington - London - W14 0HD
-United Kingdom
-
+Actually, you want to kill vm structures, dcache etc. You only want
+userspace-visible state to be carried forward to minimize possibility
+of bringing bugs to new kernel.
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

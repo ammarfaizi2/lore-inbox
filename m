@@ -1,44 +1,262 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267371AbSLLAYO>; Wed, 11 Dec 2002 19:24:14 -0500
+	id <S267379AbSLLAbX>; Wed, 11 Dec 2002 19:31:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267375AbSLLAYO>; Wed, 11 Dec 2002 19:24:14 -0500
-Received: from [209.223.116.56] ([209.223.116.56]:2693 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267371AbSLLAYN> convert rfc822-to-8bit; Wed, 11 Dec 2002 19:24:13 -0500
-From: "Steven Roussey" <sroussey@network54.com>
-To: <akpm@digeo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Strange load spikes on 2.4.19 kernel
-Date: Wed, 11 Dec 2002 16:31:39 -0800
-Message-ID: <001f01c2a175$d9764e90$026fa8c0@wehohome>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <3DF7D4A9.C93316D8@digeo.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S267383AbSLLAbX>; Wed, 11 Dec 2002 19:31:23 -0500
+Received: from dp.samba.org ([66.70.73.150]:18891 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267379AbSLLAaK>;
+	Wed, 11 Dec 2002 19:30:10 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Kees Bakker <kees.bakker@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.51 modprobe bttv hangs 
+In-reply-to: Your message of "Wed, 11 Dec 2002 21:57:28 BST."
+             <15863.42680.271592.252350@iris.hendrikweg.doorn> 
+Date: Thu, 12 Dec 2002 11:37:33 +1100
+Message-Id: <20021212003758.246FD2C0BD@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looks like all your apache instances woke up and started doing something.
-> What makes you think it's a kernel or ext3 thing?
+In message <15863.42680.271592.252350@iris.hendrikweg.doorn> you write:
+> With 2.5.50 and 2.5.51 I get a hanging modprobe if I try to load
+> bttv. I get all the normal messages from the modules, bt878 and
+> others, while it loads the modules. But then it hangs. Unfortunately I
+> haven't got much else to show you. The program does not want to terminate
+> with ^C. And also an lsmod while this happens is also going to hang.
+> 
+> I'm using module-init-tools-0.9.3. What do I do to get more debug output? 
 
-Google. ;) My search led to this particular thread, but I could not find a
-final determination. I did just get a message from Rob saying that his
-problem was a simultaneous wakeup as well:
+Hi Kees,
 
-http://groups.google.com/groups?q=strange+load+spikes+solved&hl=en&lr=&ie=UT
-F-8&oe=UTF-8&selm=06fa01c294cc%24bcf46e10%241900a8c0%40lifebook&rnum=1
+	Thanks for the report.  Looks like bttv does a request module
+from its init function.  Please try the following fix and report back.
 
-I'll move this to an apache list. Thank you for your time. I know it is
-limited.
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Sincerely,
-Steven Roussey
-http://Network54.com/ 
+Name: Module init reentry fix
+Author: Rusty Russell
+Status: Tested on 2.5.51
 
+D: This changes the code to drop the module_mutex() before calling the
+D: module's init function, so module init functions can call
+D: request_module().  This was trivial before someone broke the module
+D: code to start non-live.  Now it requires us to keep info on the
+D: exact module state.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27854-linux-2.5.51/include/linux/module.h .27854-linux-2.5.51.updated/include/linux/module.h
+--- .27854-linux-2.5.51/include/linux/module.h	2002-12-10 15:56:53.000000000 +1100
++++ .27854-linux-2.5.51.updated/include/linux/module.h	2002-12-12 11:31:28.000000000 +1100
+@@ -116,10 +116,16 @@ struct module_ref
+ 	atomic_t count;
+ } ____cacheline_aligned;
+ 
++enum module_state
++{
++	MODULE_STATE_LIVE,
++	MODULE_STATE_COMING,
++	MODULE_STATE_GOING,
++};
++
+ struct module
+ {
+-	/* Am I live (yet)? */
+-	int live;
++	enum module_state state;
+ 
+ 	/* Member of list of modules */
+ 	struct list_head list;
+@@ -177,6 +183,14 @@ struct module
+ 	char args[0];
+ };
+ 
++/* FIXME: It'd be nice to isolate modules during init, too, so they
++   aren't used before they (may) fail.  But presently too much code
++   (IDE & SCSI) require entry into the module during init.*/
++static inline int module_is_live(struct module *mod)
++{
++	return mod->state != MODULE_STATE_GOING;
++}
++
+ #ifdef CONFIG_MODULE_UNLOAD
+ 
+ void __symbol_put(const char *symbol);
+@@ -195,7 +209,7 @@ static inline int try_module_get(struct 
+ 
+ 	if (module) {
+ 		unsigned int cpu = get_cpu();
+-		if (likely(module->live))
++		if (likely(module_is_live(module)))
+ 			local_inc(&module->ref[cpu].count);
+ 		else
+ 			ret = 0;
+@@ -210,7 +224,7 @@ static inline void module_put(struct mod
+ 		unsigned int cpu = get_cpu();
+ 		local_dec(&module->ref[cpu].count);
+ 		/* Maybe they're waiting for us to drop reference? */
+-		if (unlikely(!module->live))
++		if (unlikely(!module_is_live(module)))
+ 			wake_up_process(module->waiter);
+ 		put_cpu();
+ 	}
+@@ -219,7 +233,7 @@ static inline void module_put(struct mod
+ #else /*!CONFIG_MODULE_UNLOAD*/
+ static inline int try_module_get(struct module *module)
+ {
+-	return !module || module->live;
++	return !module || module_is_live(module);
+ }
+ static inline void module_put(struct module *module)
+ {
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27854-linux-2.5.51/kernel/module.c .27854-linux-2.5.51.updated/kernel/module.c
+--- .27854-linux-2.5.51/kernel/module.c	2002-12-10 15:56:54.000000000 +1100
++++ .27854-linux-2.5.51.updated/kernel/module.c	2002-12-12 11:31:28.000000000 +1100
+@@ -44,6 +44,14 @@
+ static DECLARE_MUTEX(module_mutex);
+ LIST_HEAD(modules); /* FIXME: Accessed w/o lock on oops by some archs */
+ 
++/* We require a truly strong try_module_get() */
++static inline int strong_try_module_get(struct module *mod)
++{
++	if (mod && mod->state == MODULE_STATE_COMING)
++		return 0;
++	return try_module_get(mod);
++}
++
+ /* Convenient structure for holding init and core sizes */
+ struct sizes
+ {
+@@ -378,7 +386,7 @@ sys_delete_module(const char *name_user,
+ 	}
+ 
+ 	/* Already dying? */
+-	if (!mod->live) {
++	if (mod->state == MODULE_STATE_GOING) {
+ 		/* FIXME: if (force), slam module count and wake up
+                    waiter --RR */
+ 		DEBUGP("%s already dying\n", mod->name);
+@@ -386,6 +394,16 @@ sys_delete_module(const char *name_user,
+ 		goto out;
+ 	}
+ 
++	/* Coming up?  Allow force on stuck modules. */
++	if (mod->state == MODULE_STATE_COMING) {
++		forced = try_force(flags);
++		if (!forced) {
++			/* This module can't be removed */
++			ret = -EBUSY;
++			goto out;
++		}
++	}
++
+ 	if (!mod->exit || mod->unsafe) {
+ 		forced = try_force(flags);
+ 		if (!forced) {
+@@ -407,7 +425,7 @@ sys_delete_module(const char *name_user,
+ 			ret = -EWOULDBLOCK;
+ 	} else {
+ 		mod->waiter = current;
+-		mod->live = 0;
++		mod->state = MODULE_STATE_GOING;
+ 	}
+ 	restart_refcounts();
+ 
+@@ -507,7 +525,7 @@ static inline void module_unload_free(st
+ 
+ static inline int use_module(struct module *a, struct module *b)
+ {
+-	return try_module_get(b);
++	return strong_try_module_get(b);
+ }
+ 
+ static inline void module_unload_init(struct module *mod)
+@@ -578,7 +596,7 @@ void *__symbol_get(const char *symbol)
+ 
+ 	spin_lock_irqsave(&modlist_lock, flags);
+ 	value = __find_symbol(symbol, &ksg);
+-	if (value && !try_module_get(ksg->owner))
++	if (value && !strong_try_module_get(ksg->owner))
+ 		value = 0;
+ 	spin_unlock_irqrestore(&modlist_lock, flags);
+ 
+@@ -935,12 +953,8 @@ static struct module *load_module(void *
+ 		goto free_mod;
+ 	}
+ 
+-	/* Initialize the lists, since they will be list_del'd if init fails */
+-	INIT_LIST_HEAD(&mod->extable.list);
+-	INIT_LIST_HEAD(&mod->list);
+-	INIT_LIST_HEAD(&mod->symbols.list);
+ 	mod->symbols.owner = mod;
+-	mod->live = 0;
++	mod->state = MODULE_STATE_COMING;
+ 	module_unload_init(mod);
+ 
+ 	/* How much space will we need?  (Common area in first) */
+@@ -1097,51 +1111,40 @@ sys_init_module(void *umod,
+ 	flush_icache_range((unsigned long)mod->module_core,
+ 			   (unsigned long)mod->module_core + mod->core_size);
+ 
+-	/* Now sew it into exception list (just in case...). */
++	/* Now sew it into the lists.  They won't access us, since
++           strong_try_module_get() will fail. */
+ 	spin_lock_irq(&modlist_lock);
+ 	list_add(&mod->extable.list, &extables);
++	list_add_tail(&mod->symbols.list, &symbols);
+ 	spin_unlock_irq(&modlist_lock);
++	list_add(&mod->list, &modules);
++
++	/* Drop lock so they can recurse */
++	up(&module_mutex);
+ 
+-	/* Note, setting the mod->live to 1 here is safe because we haven't
+-	 * linked the module into the system's kernel symbol table yet,
+-	 * which means that the only way any other kernel code can call
+-	 * into this module right now is if this module hands out entry
+-	 * pointers to the other code.  We assume that no module hands out
+-	 * entry pointers to the rest of the kernel unless it is ready to
+-	 * have them used.
+-	 */
+-	mod->live = 1;
+ 	/* Start the module */
+ 	ret = mod->init ? mod->init() : 0;
+ 	if (ret < 0) {
+ 		/* Init routine failed: abort.  Try to protect us from
+                    buggy refcounters. */
++		mod->state = MODULE_STATE_GOING;
+ 		synchronize_kernel();
+-		if (mod->unsafe) {
++		if (mod->unsafe)
+ 			printk(KERN_ERR "%s: module is now stuck!\n",
+ 			       mod->name);
+-			/* Mark it "live" so that they can force
+-			   deletion later, and we don't keep getting
+-			   woken on every decrement. */
+-		} else {
+-			mod->live = 0;
++		else {
++			down(&module_mutex);
+ 			free_module(mod);
++			up(&module_mutex);
+ 		}
+-		up(&module_mutex);
+ 		return ret;
+ 	}
+ 
+ 	/* Now it's a first class citizen! */
+-	spin_lock_irq(&modlist_lock);
+-	list_add_tail(&mod->symbols.list, &symbols);
+-	spin_unlock_irq(&modlist_lock);
+-	list_add(&mod->list, &modules);
+-
++	mod->state = MODULE_STATE_LIVE;
+ 	module_free(mod, mod->module_init);
+ 	mod->module_init = NULL;
+ 
+-	/* All ok! */
+-	up(&module_mutex);
+ 	return 0;
+ }
+ 

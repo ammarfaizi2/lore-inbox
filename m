@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285323AbRLNLGj>; Fri, 14 Dec 2001 06:06:39 -0500
+	id <S285329AbRLNLQJ>; Fri, 14 Dec 2001 06:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285326AbRLNLG3>; Fri, 14 Dec 2001 06:06:29 -0500
-Received: from mail4.messagelabs.com ([212.125.75.12]:29964 "HELO
-	mail4.messagelabs.com") by vger.kernel.org with SMTP
-	id <S285323AbRLNLGJ>; Fri, 14 Dec 2001 06:06:09 -0500
-X-VirusChecked: Checked
-Date: Fri, 14 Dec 2001 11:03:12 +0000 (GMT)
-From: Catalin Marinas <c_marinas@yahoo.com>
-X-X-Sender: marinasc@stargate.simoco.com
-To: Thomas Capricelli <orzel@kde.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Mounting a in-ROM filesystem efficiently
-In-Reply-To: <20011213163912.5741223CCD@persephone.dmz.logatique.fr>
-Message-ID: <Pine.LNX.4.43.0112141101560.31707-100000@stargate.simoco.com>
+	id <S285330AbRLNLP7>; Fri, 14 Dec 2001 06:15:59 -0500
+Received: from natwar.webmailer.de ([192.67.198.70]:52964 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S285329AbRLNLPt>; Fri, 14 Dec 2001 06:15:49 -0500
+Message-ID: <3C19DEAF.4080703@korseby.net>
+Date: Fri, 14 Dec 2001 12:12:47 +0100
+From: Kristian Peters <kristian.peters@korseby.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011209
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff <piercejhsd009@earthlink.net>
+CC: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cdrecord reports size vs. capabilities error....
+In-Reply-To: <3C1880F4.8CE5AC8F@earthlink.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Dec 2001, Thomas Capricelli wrote:
+Jeff wrote:
 
-> I'm astonished. Is there some embedded-specific mailing list I'm not aware of?
+> cdrecord: Warning: controller returns wrong size for CD capabilities
+> page.
+>         0,0,0     0) 'E-IDE   ' 'CD-ROM 50X      ' '50  ' Removable
+> CD-ROM
 
-Try comp.os.linux.embedded
+Correct me if I'm wrong, but that looks like cdrecord doesn't recognize your 
+cd-rom correctly. Do you have added that drive also to your lilo.conf ?
 
--- 
-Catalin
+Normally it would be enough to load the modules without any specific parameters.
 
+Could you post your dmesg-output + lilo.conf parameters if possible ?
 
-_____________________________________________________________________
-This message has been checked for all known viruses by the 
-MessageLabs Virus Scanning Service. For further information visit
-http://www.messagelabs.com/stats.asp
+*Kristian
 

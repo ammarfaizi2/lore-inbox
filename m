@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUC1CrS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 21:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUC1CrS
+	id S262003AbUC1C6u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 21:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUC1C6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 21:47:18 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:40870 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261987AbUC1CrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 21:47:16 -0500
-Date: Sat, 27 Mar 2004 18:47:12 -0800
-To: David Brownell <david-b@pacbell.net>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Robert Schwebel <robert@schwebel.de>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [ANNOUNCE] RNDIS Gadget Driver
-Message-ID: <20040328024712.GA30855@reid.corvallis.or.us>
-Mail-Followup-To: David Brownell <david-b@pacbell.net>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Robert Schwebel <robert@schwebel.de>,
-	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20040325221145.GJ10711@pengutronix.de> <40636295.7000008@pacbell.net> <1080297466.29835.144.camel@hades.cambridge.redhat.com> <40644FCA.8000206@pacbell.net> <20040326232328.GA29771@reid.corvallis.or.us> <4065B39A.2040003@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 27 Mar 2004 21:58:49 -0500
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:26755 "EHLO
+	albatross.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S262003AbUC1C6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 21:58:48 -0500
+From: Eric <eric@cisu.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x strangeness with large buffer usage via network transfer/disk and SEGV processes
+Date: Sat, 27 Mar 2004 20:58:13 -0600
+User-Agent: KMail/1.6.1
+References: <000001c41450$4c6c1f30$030aa8c0@PANIC>
+In-Reply-To: <000001c41450$4c6c1f30$030aa8c0@PANIC>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <4065B39A.2040003@pacbell.net>
-User-Agent: Mutt/1.4i
-From: don_reid@comcast.net (don)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403272058.13729.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 27, 2004 at 09:02:18AM -0800, David Brownell wrote:
-> >>There's a file system protocol used by many digital still cameras,
-> >>which isn't actually camera-specific.  Not MSFT-specific either.
-> >>...
-> >
-> >A host driver "USB PTP Storage" would be really nice too.  First
-> >as a generic camera interface, second to access a gadget with the
-> >PTP interface.
-> >
-> >(Please embarrass me by saying there already is one, I'll be so happy
-> >I won't care :-) ).
-> 
-> There isn't one.  There are two.  No need to be embarrassed ... ;)
-> 
-> They're both user-mode drivers.  "gPhoto2", and "jPhoto".  The
-> author of jPhoto (moi) hasn't had time to update that code in
-> ages.
+On Saturday 27 March 2004 5:07 pm, Shawn Starr wrote:
+> I don't get something maybe someone can explain why this is happening:
+>
+> 1) When using a large amount of buffers via sending say a 800MB file from
+> one PC to another, the Linux system will segfault processes but not preform
+> an OOM. Even though the system itself has not touched swap memory. Why is
+> the kernel killing/or why are the processes dying with Segfault?
+>
+> I see this happening when I extract a Linux source tarball and have certain
+> processes running, while tar extracts the process will just receive a
+> segmentation fault w/o core.
+>
+> When using a virtual OS emulator, the emulator will just die.
+>
+> I don't remember this behaviour in 2.4 at all and I don't think this is
+> correct. I have PREEMPT enabled as well.
+>
+> Is this a problem or is this correct behavour?
+>
+Crashes a correct behavior?
+ You must  be used to windows where crashes are sometimes the correct behavior 
+hehe.
 
-These are applications, not file system interfaces like USB Mass Storage.
-I want to mount the camera or gadget file system and access it from any
-program, not run a separate app to fetch files like Mass Stor. mounts
-a memory device.
+Sorry, I had to say it. 
+Otherwise I don't have a serious answer to your problem ;)
 
-Why create a dedicated app like a camera interface instead of using your
-favorite image browser on some files?
+> Thanks
+>
+> Shawn S.
 
--- 
-Don Reid
+-------------------------
+Eric Bambach
+Eric at cisu dot net
+-------------------------

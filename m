@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261496AbTCJWLQ>; Mon, 10 Mar 2003 17:11:16 -0500
+	id <S261530AbTCJWM4>; Mon, 10 Mar 2003 17:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261504AbTCJWLP>; Mon, 10 Mar 2003 17:11:15 -0500
-Received: from B57c2.pppool.de ([213.7.87.194]:41196 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S261496AbTCJWLN>; Mon, 10 Mar 2003 17:11:13 -0500
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-From: Daniel Egger <degger@fhm.edu>
-To: Hans-Peter Jansen <hpj@urpla.net>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <200303102133.25790.hpj@urpla.net>
-References: <Pine.LNX.4.44.0303072121180.5042-100000@serv>
-	 <m1adg4kbjn.fsf@frodo.biederman.org> <1047219550.4102.6.camel@sonja>
-	 <200303102133.25790.hpj@urpla.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wLJ48bSqAE8V6gyKJ6By"
-Organization: 
-Message-Id: <1047333777.28220.79.camel@sonja>
+	id <S261658AbTCJWM4>; Mon, 10 Mar 2003 17:12:56 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:4868 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261530AbTCJWMl>;
+	Mon, 10 Mar 2003 17:12:41 -0500
+Date: Mon, 10 Mar 2003 14:12:48 -0800
+From: Greg KH <greg@kroah.com>
+To: Albert Cranford <ac9410@attbi.com>
+Cc: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] driver core support for i2c bus and drivers
+Message-ID: <20030310221248.GD13145@kroah.com>
+References: <20030310072337.GJ6512@kroah.com> <3E6D0D25.26B5584F@attbi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 10 Mar 2003 23:02:57 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E6D0D25.26B5584F@attbi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 10, 2003 at 05:09:41PM -0500, Albert Cranford wrote:
+> I like.  The proc/bus directory was geting cluttered.
 
---=-wLJ48bSqAE8V6gyKJ6By
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Heh, that's an understatement :)
 
-Am Mon, 2003-03-10 um 21.33 schrieb Hans-Peter Jansen:
+> I think the driver model would be a good for i2c/sensors.
 
-> The biggest bootimage I'm using here is (SuSE 8.2b3 Inst. Kernel+initrd):
-> -r--r--r--    1 nobody   nogroup   6009856 Mar  6 10:07 bootimage-ziggy
-> created with mknbi-linux V1.2, so this isn't really the problem.
-> I'm also using ~4MB sized dos boot images (PQMagic, BIOS updates) without
-> problems. Don't try this with floppies...
+It seems to fit quite nicely, and should clean up a lot of the sysctl
+madness that you have been forced to live with for 2.0, 2.2, and 2.4.
 
-> Etherboot is simply pure fun and saved my life a couple of timesm ;-)
+> Do you have any input for isa already in your bag of
+> goodies?
 
-Hrm, as it turned out I had my scripts pointing to the netboot version
-of mknbi (I remember vaguely having troubles with the etherboot version
-back when I started netbooting) which seems to be somewhat limited.
+Yes, the i2c-isa driver should add itself to the sys/devices/legacy
+tree, I just hadn't added that patch yet, still bickering with Pat about
+the interface to register devices there :)
 
-A short test with the 1.2 version of the etherboot mknbi-linux worked as
-expected, YAY! Now back to the try to boot a working 2.5 kernel. :)
+thanks,
 
-Thanks for your help!
-
---=20
-Servus,
-       Daniel
-
---=-wLJ48bSqAE8V6gyKJ6By
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+bQuQchlzsq9KoIYRAvhwAKCTMbyLM/gNB84W1oXHYqx9DD94PACfS6+U
-eBKW7k7YSC16sJt9+fksxPI=
-=kEqY
------END PGP SIGNATURE-----
-
---=-wLJ48bSqAE8V6gyKJ6By--
-
+greg k-h

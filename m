@@ -1,82 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVBUMfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVBUMib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVBUMfL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 07:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVBUMfL
+	id S261961AbVBUMib (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 07:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVBUMib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 07:35:11 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:32008 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S261959AbVBUMfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 07:35:02 -0500
-Date: Mon, 21 Feb 2005 20:34:25 +0800 (WST)
-From: raven@themaw.net
-To: Valdis.Kletnieks@vt.edu
-cc: "Steinar H. Gunderson" <sgunderson@bigfoot.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       autofs mailing list <autofs@linux.kernel.org>
-Subject: Re: [autofs] automount does not close file descriptors at start 
-In-Reply-To: <200502210527.j1L5RX44032376@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.61.0502212013230.8143@donald.themaw.net>
-References: <20050216125350.GA6031@uio.no>           
- <Pine.LNX.4.58.0502211244540.9892@wombat.indigo.net.au>
- <200502210527.j1L5RX44032376@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-100.6, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
-	RCVD_IN_ORBS, RCVD_IN_OSIRUSOFT_COM, REFERENCES, REPLY_WITH_QUOTES,
-	USER_AGENT_PINE, USER_IN_WHITELIST)
+	Mon, 21 Feb 2005 07:38:31 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:17855 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261961AbVBUMiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 07:38:13 -0500
+Date: Mon, 21 Feb 2005 13:38:11 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: checkstack.pl <large_number>
+Message-ID: <20050221123811.GA13273@wohnheim.fh-wedel.de>
+References: <42163E2D.8050106@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42163E2D.8050106@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Feb 2005 Valdis.Kletnieks@vt.edu wrote:
+On Fri, 18 February 2005 11:12:45 -0800, Randy.Dunlap wrote:
+> 
+> In checkstack.pl, do you recall the reason for this code snippet:
+> 
+> 		if ($size > 0x80000000) {
+> 			$size = - $size;
+> 			$size += 0x80000000;
+> 			$size += 0x80000000;
+> 		}
+> 
+> There is one (unusual:) case where it fails.  Is it needed?
 
-> On Mon, 21 Feb 2005 12:57:22 +0800, Ian Kent said:
->
->> This is the first time I've heard this and the first time I wrote a Unix
->> daemon was fifteen years ago.
->>
->> As far as I'm concerned redirecting stdin, stdout and stderr to the null
->> device, then closing it and setting the process to a be the group leader
->> (as autofs does) should be all that's needed to daemonize a process.
->>
->> So are we saying that we don't trust the kernel to reliably duplicate the
->> state of file handles when we fork?
->
-> No, you have it 180 degrees off. ;)
+Something like this is needed, also for unusual cases.  gcc sometimes
+decides to switch "sub 16" with "add -16".  Later, when the stack
+frame is popped back, the exchange goes vice versa.
 
-Perhaps the sentence above should start "So you are saying that ...".
+Without this code, you'd see a few cases of nearly 4GiB.
 
-I'm arguing that I should'nt have to perform a loop closing file 
-descriptors I haven't opened.
+> For arch/i386/kernel/efi_stub.S, checkstack reports:
+> 
+> 0xc0116f5d efi_call_phys:				1073741824
+> which is 0x4000_0000 (_ added for readability only), however the
+> actual change in %esp there is __PAGE_OFFSET (0xc000_0000 on ia32),
+> 
+> so if I alter the "if" test above to check for > 0xf000_0000,
+> checkstack reports the correct value:
+> 0xc0116f5d efi_call_phys:				3221225472
+> which is 0xc000_0000.
+> 
+> 
+> from objdump of efi_stub.o:
+>    5:	81 ea 00 00 00 c0    	sub    $0xc0000000,%edx
+> 
+> or I can just ignore it, like I've been doing for awhile...
 
->
-> We *do* trust the kernel to reliably duplicate the state of file handles.
+Changing 0x8000_0000 to 0xf000_0000 would work for the add case as
+well.  Sounds like a sane change.
 
-This confirms above.
+Checkstack could also do the ignoring for you, maybe like this:
+	if ($size > 0xf0000000) {
+		$size = - $size;
+		$size += 0x80000000;
+		$size += 0x80000000;
+	}
+	if ($size > 0x10000000) {
+		$size = 0;
+	}
 
-> So if we're about to do the whole double-fork thing and all that, we want to
-> loop around and close all the file descriptors we don't want leaking to
-> the double-forked daemon.  Yes, we do something reasonable with fd 0,1,2 -
-> but we probably also want to do something with that unclosed fd 3 that's still
-> open on /etc/mydaemon.cf, and any other file descriptors we've left dangling
-> in the breeze after initialization.
+Jörn
 
-Now this is a good point.
-
-I don`t do a double fork in autofs (inherited code), although, long ago I 
-did.
-
-Do we really need to do a double fork to disassociate from the controlling 
-terminal or is a single fork and close etc. enough?
-
-I notice that "setsid()" should do this but I've not seen it bofore.
-Is that sufficient to do the job instead of the double fork?
-
-And it looks like the automount process I just started still has a tty, 
-grumble ....
-
-Ian
-
+-- 
+Ninety percent of everything is crap.
+-- Sturgeon's Law

@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265205AbSLBVRV>; Mon, 2 Dec 2002 16:17:21 -0500
+	id <S265246AbSLBVSg>; Mon, 2 Dec 2002 16:18:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265242AbSLBVRU>; Mon, 2 Dec 2002 16:17:20 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:128 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S265205AbSLBVRE>; Mon, 2 Dec 2002 16:17:04 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: "'Richard Henderson'" <rth@twiddle.net>,
-       "'Bjoern Brauel'" <bjb@gentoo.org>
-Cc: <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: RE: patch: linux-2.4.20 alpha broken cia(rev1) fix
-Date: Mon, 2 Dec 2002 22:23:56 +0100
-Message-ID: <003b01c29a49$1f7e3490$3640a8c0@boemboem>
+	id <S265243AbSLBVSg>; Mon, 2 Dec 2002 16:18:36 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:8708 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265246AbSLBVRm>; Mon, 2 Dec 2002 16:17:42 -0500
+Date: Mon, 2 Dec 2002 16:23:43 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Ian Morgan <imorgan@webcon.net>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Asus P4PE onboard AD1980 sound?
+In-Reply-To: <r1_Pine.LNX.4.50.0211262214550.16919-100000@light.webcon.net>
+Message-ID: <Pine.LNX.3.96.1021202162225.1236C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20021201233309.A32203@twiddle.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The attached patch fixes the initialization for CIA revision 1 chips
-> that can be found on most Alcor machines. As it is impossible to boot
-> such a box together with the Qlogic ISP SCSI controller without this
-> patch I believe it is important to include it in the official kernel.
+On Wed, 27 Nov 2002, Ian Morgan wrote:
 
-RH> Try this version instead.  Control structures should not be
-RH> replicated in different functions like that.  It's a sure
-RH> recipie for one of them getting out of sync.
+> Analog Devices 1980, onboard Asus P4PE (845PE/ICH4).
+> 
+> I've tried a number of patches based on my google-based research (2.5.x ALSA
+> patches and the like), but no matter what I do, I can't get any sound out of
+> this thing. Yes, I've tried the obvious things (headphones). Everything
+> about it _appears_ to work (from the application POV), just no sound.
+> 
+> I have tried kernel 2.4.19 - 2.4.20-rc2-ac3. Anybody know how to get this
+> thing working?
 
-I had problems compiling that one:
+Did you get a fix? I just dropped another sound card in mine, I didn't
+have time to fight and I did have a few extra cards sitting on a shelf.
 
-make[1]: Leaving directory `/data/src/linux-2.4.20/Documentation/DocBook'
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o
-scripts/split-include scripts/split-include.c
-make: *** No rule to make target `include/linux/autoconf.h', needed by
-`include/config/MARKER'.  Stop.
-
-which I find rather strange.
-make dep ; make clean ; make boot modules modules_install
-should take care of those dependencies, doesn't it?
-<...>
-Hmmm, for some reason include/linux/autoconf.h doesn't exist at all.
-<...>
-Oh, I see: I had to run make menuconfig & save the config for that.
-That's odd. I just copied my old config to .config, thought that
-would do the trick!
-
-
-Folkert van Heusden
-http://www.vanheusden.com/Linux/kernel_patches.php3
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

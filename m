@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267362AbUHRR26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267389AbUHRRzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267362AbUHRR26 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 13:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUHRR26
+	id S267389AbUHRRzj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 13:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267395AbUHRRzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 13:28:58 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:1419 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S267362AbUHRR24 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 13:28:56 -0400
-Date: Wed, 18 Aug 2004 19:28:55 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bind Mount Extensions 0.05
-Message-ID: <20040818172855.GC14628@MAIL.13thfloor.at>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040818125104.GA12286@MAIL.13thfloor.at>
+	Wed, 18 Aug 2004 13:55:39 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:9344 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267389AbUHRRzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 13:55:32 -0400
+Subject: RE: Serial Driver for PPP - that runs in Half Duplex Mode
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "vanitha@agilis.st.com.sg" <vanitha@agilis.st.com.sg>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <01C48517.98874380.vanitha@agilis.st.com.sg>
+References: <01C48517.98874380.vanitha@agilis.st.com.sg>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092847985.26056.8.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040818125104.GA12286@MAIL.13thfloor.at>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 18 Aug 2004 17:53:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 02:51:04PM +0200, Herbert Poetzl wrote:
-> 
-> Greetings!
-> 
-> The following patch extends the 'noatime', 'nodiratime' and
-> last but not least the 'ro' (read only) mount option to the
-> vfs --bind mounts, allowing them to behave like any other
-> mount, by honoring those mount flags (which are silently
-> ignored by the current implementation in 2.4.x and 2.6.x)
-> 
-> I don't want to pollute your mailbox with useless patches,
-> so for those who are interested in this stuff, get them
-> here (for 2.4.27 and 2.6.8.1)
+On Mer, 2004-08-18 at 12:36, Vanitha Ramaswami wrote:
+> Hello,
+>     Thanks for your mail. Can you let me know what are the other protocols that performs better than PPP ?
 
-patch for 2.6.8.1 is broken, but it will be updated soon
-please don't use it for now ...
+That will depend upon your link quality. If you drop a lot of frames
+then a link layer reliable protocol or FEC based protocol will do
+better. We used AX.25 (LAP-B with addressing). On radios that do their
+own reliability/error handling IP is often just fine (as with 802.11)
 
-TIA,
-Herbert
-
->   http://www.13thfloor.at/patches/
-> 
-> many thanks to Willy Tarreau for spotting the bug in the
-> previous bme0.04 for linux 2.4.x.
-> 
-> enjoy,
-> Herbert
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

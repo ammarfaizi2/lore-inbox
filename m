@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbUCaR6M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 12:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbUCaR6M
+	id S261852AbUCaSAd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 13:00:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUCaSAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 12:58:12 -0500
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:5291 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S262008AbUCaR6J convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 12:58:09 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Greg Kroah-Hartman <greg@kroah.com>
-Subject: Re: [PATCH] s390 (8/10): zfcp fixes
-Date: Wed, 31 Mar 2004 19:57:18 +0200
-X-Mailer: KMail [version 1.4]
-Cc: schwidefsky@de.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
+	Wed, 31 Mar 2004 13:00:32 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:52231 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261852AbUCaSAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 13:00:31 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc3-mm2
+Date: Wed, 31 Mar 2004 20:00:19 +0200
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>
+References: <20040331014351.1ec6f861.akpm@osdl.org> <200403311937.41510@WOLK>
+In-Reply-To: <200403311937.41510@WOLK>
+X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403311957.18451.heiko.carstens@de.ibm.com>
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403312000.19963@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Wednesday 31 March 2004 19:37, Marc-Christian Petersen wrote:
 
->> I'll ask because the zfcp patches are still pending and I want to get this
->> issue resolved before the next try to get them integrated.
->I think you need to talk to the scsi people, as kfree() should _never_
->need to be set as the release function. There's something just wrong
->with the design if that is necessary.
+Hi again,
 
-Actually this issue is not SCSI related, but a generic problem that one
-can run into when fiddling around with modules / module unloading.
+> > cfq-4.patch
+> >   CFQ io scheduler
+> >   CFQ fixes
+> is there any reason why I see /sys/block/hda/queue/iosched/ beeing empty? I
+> thought every I/O scheduler would put in there some tunables or at least
+> some info's what defaults are used. Or did I miss something completely and
+> now I am totally wrong?
 
-This was already discussed elsewhere. Please have a look here:
+maybe it's not clear enough: I talk about CFQ as quoted above.
 
-http://lwn.net/Articles/67421/
-(paragraph "Module unloading in a reference counted world")
-
-and here for the whole thread:
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0401.2/1832.html
-(just saw that you participated there :)
-
-I would be more than happy to have a nice release function for the zfcp
-generated objects, but I don't think this is currently possible without
-having the potential problem to run into an Oops after module unloading.
-
-Heiko
-
+ciao, Marc

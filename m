@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274908AbTHPTZg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 15:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274909AbTHPTZg
+	id S274909AbTHPUBE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 16:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274916AbTHPUBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 15:25:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60859 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S274908AbTHPTZf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 15:25:35 -0400
-Date: Sat, 16 Aug 2003 12:26:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Marco d'Itri" <md@Linux.IT>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: an oops in 2.6-test2 (oops)
-Message-Id: <20030816122640.69650c65.akpm@osdl.org>
-In-Reply-To: <20030816112719.GA1073@wonderland.linux.it>
-References: <20030816112719.GA1073@wonderland.linux.it>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 16 Aug 2003 16:01:04 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34318 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S274909AbTHPUBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 16:01:01 -0400
+Date: Sat, 16 Aug 2003 21:00:51 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: Bogus serial port ttyS02
+Message-ID: <20030816210051.A9479@flint.arm.linux.org.uk>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+References: <Pine.GSO.4.21.0308132305210.11378-100000@vervain.sonytel.be> <Pine.GSO.4.21.0308161722030.12665-100000@vervain.sonytel.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0308161722030.12665-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Sat, Aug 16, 2003 at 05:23:20PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Marco d'Itri" <md@Linux.IT> wrote:
->
-> I've got another one yesterday:
+On Sat, Aug 16, 2003 at 05:23:20PM +0200, Geert Uytterhoeven wrote:
+> This patch kills a warning if DEBUG_AUTOCONF is enabled:
 > 
-> ...
+> --- linux-ppc-2.6.0-test3/drivers/serial/8250.c	Mon Aug 11 02:20:41 2003
+> +++ linux-longtrail-2.6.0-test3/drivers/serial/8250.c	Wed Aug 13 22:31:07 2003
+> @@ -557,7 +557,7 @@
+>  	if (!up->port.iobase && !up->port.mapbase && !up->port.membase)
+>  		return;
+>  
+> -	DEBUG_AUTOCONF("ttyS%d: autoconf (0x%04x, 0x%08lx): ",
+> +	DEBUG_AUTOCONF("ttyS%d: autoconf (0x%04x, %p): ",
+>  			up->port.line, up->port.iobase, up->port.membase);
+>  
+>  	/*
+> This patch removes the ASYNC_SKIP_TEST flag on PPC:
 > 
-> Aug 16 07:26:51 wonderland kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> ...
-> Code;  c015c80a <find_inode_fast+1a/60>   <=====
->    0:   0f 18 02                  prefetchnta (%edx)   <=====
+> --- linux-ppc-2.6.0-test3/include/asm-ppc/pc_serial.h	Mon Aug 11 02:21:00 2003
+> +++ linux-longtrail-2.6.0-test3/include/asm-ppc/pc_serial.h	Wed Aug 13 23:01:50 2003
+> @@ -28,10 +28,10 @@
+>  
+>  /* Standard COM flags (except for COM4, because of the 8514 problem) */
+>  #ifdef CONFIG_SERIAL_DETECT_IRQ
+> -#define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST | ASYNC_AUTO_IRQ)
+> +#define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_AUTO_IRQ)
+>  #define STD_COM4_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_AUTO_IRQ)
+>  #else
+> -#define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST)
+> +#define STD_COM_FLAGS (ASYNC_BOOT_AUTOCONF)
+>  #define STD_COM4_FLAGS ASYNC_BOOT_AUTOCONF
+>  #endif
+>  
+> OK to apply?
 
-And you'll continue to get them until someone does something about it. 
-Discussion seemed to die off on this problem.
+Both look fine to me.
 
-Until it is sorted, something like this is needed.
-
-
-diff -puN include/asm-i386/processor.h~disble-athlon-prefetch include/asm-i386/processor.h
---- 25/include/asm-i386/processor.h~disble-athlon-prefetch	2003-08-16 12:22:32.000000000 -0700
-+++ 25-akpm/include/asm-i386/processor.h	2003-08-16 12:23:29.000000000 -0700
-@@ -568,6 +568,8 @@ static inline void rep_nop(void)
- #define ARCH_HAS_PREFETCH
- extern inline void prefetch(const void *x)
- {
-+	if (current_cpu_data.x86_vendor == X86_VENDOR_AMD)
-+		return;
- 	alternative_input(ASM_NOP4,
- 			  "prefetchnta (%1)",
- 			  X86_FEATURE_XMM,
-
-_
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,98 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268665AbRGZTv5>; Thu, 26 Jul 2001 15:51:57 -0400
+	id <S268667AbRGZTzR>; Thu, 26 Jul 2001 15:55:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268667AbRGZTvs>; Thu, 26 Jul 2001 15:51:48 -0400
-Received: from postfix2-1.free.fr ([213.228.0.9]:54022 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S268665AbRGZTvf> convert rfc822-to-8bit; Thu, 26 Jul 2001 15:51:35 -0400
-Date: Thu, 26 Jul 2001 21:49:04 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: richard offer <offer@sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: unitialized variable in 2.4.7 (sym53c8xx, dmi_scan)
-In-Reply-To: <E15PW9s-0002hY-00@the-village.bc.nu>
-Message-ID: <20010726213543.W1488-100000@gerard>
+	id <S268666AbRGZTzH>; Thu, 26 Jul 2001 15:55:07 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:59529 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S268667AbRGZTyw>;
+	Thu, 26 Jul 2001 15:54:52 -0400
+Date: Thu, 26 Jul 2001 20:54:48 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Dawson Engler <engler@csl.Stanford.EDU>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Evan Parker <nave@stanford.edu>, linux-kernel@vger.kernel.org,
+        mc@CS.Stanford.EDU,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [CHECKER] repetitive/contradictory comparison bugs for 2.4.7
+Message-ID: <602725597.996180886@[169.254.62.211]>
+In-Reply-To: <200107260113.SAA11847@csl.Stanford.EDU>
+In-Reply-To: <200107260113.SAA11847@csl.Stanford.EDU>
+X-Mailer: Mulberry/2.1.0b1 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
 
-On Wed, 25 Jul 2001, Alan Cox wrote:
+>> > other 10 are questionable.  Those 10 are all simple variations on the
+>> > following code:
+>> >
+>> > Start --->
+>> > 	if (!tmp_buf) {
+>> > 		page = get_free_page(GFP_KERNEL);
+>> >
+>> > Error --->
+>> > 		if (tmp_buf)
+>> > 			free_page(page);
+>> > 		else
+>> > 			tmp_buf = (unsigned char *) page;
+>> > 	}
+>>
+>> That one is not a bug. The serial drivers do this to handle a race.
+>> Really it should be
 
-> >  static __init int disable_ide_dma(struct dmi_blacklist *d)
-> >  {
-> >  #ifdef CONFIG_BLK_DEV_IDE
-> > @@ -169,6 +170,7 @@
-> >  #endif
-> >         return 0;
-> >  }
-> > +#endif
->
-> This just makes it harder to finish the merges
->
-> > makes that automatic.
-> > ===== drivers/scsi/sym53c8xx.c 1.6 vs edited =====
-> > --- 1.6/drivers/scsi/sym53c8xx.c        Thu Jul  5 04:28:16 2001
-> > +++ edited/drivers/scsi/sym53c8xx.c     Wed Jul 25 13:37:10 2001
-> > @@ -6991,7 +6991,7 @@
-> >
-> >  static void ncr_soft_reset(ncb_p np)
-> >  {
-> > -       u_char istat;
-> > +       u_char istat=0;
-> >         int i;
-> >
-> >         if (!(np->features & FE_ISTAT1) || !(INB (nc_istat1) & SRUN))
->
-> And this means when we get a real bug with istat not being assigned it
-> wont be seen.
+May be I'm being dumb here, and without wishing to open the 'volatile'
+can of worms elsewhere, but:
 
-This will not happen (istat will never be used unitialised).
-The compiler has enough information to know about this at compile time as
-the full code below demonstrates clearly:
+   static char * tmp_buf;
 
---
-
-static void ncr_soft_reset(ncb_p np)
-{
-	u_char istat;
-	int i;
-
-	if (!(np->features & FE_ISTAT1) || !(INB (nc_istat1) & SRUN))
-		goto do_chip_reset;
-
-	OUTB (nc_istat, CABRT);
-	for (i = 100000 ; i ; --i) {
-		istat = INB (nc_istat);
-		if (istat & SIP) {
-			INW (nc_sist);
-		}
-		else if (istat & DIP) {
-			if (INB (nc_dstat) & ABRT);
-				break;
-		}
-		UDELAY(5);
-	}
-	OUTB (nc_istat, 0);
-	if (!i)
-		printk("%s: unable to abort current chip operation, "
-		       "ISTAT=0x%02x.\n", ncr_name(np), istat);
-do_chip_reset:
-	ncr_chip_reset(np);
-}
+How will this be guaranteed to help handle a race, when gcc is
+likely either to have tmp_buf in a register (not declared
+volatile), or perhaps even optimize out the second reference.
+Seems to me (and I may well be wrong), either there is a
+race thread (tmp_buf being assigned between the first
+test and grabbing the page), in which case as tmp_buf may
+be in a register, it doesn't avoid the race (and potentially
+stomps on the existing buffer), or there is not a race, in
+which case the second check is unnecessary. IE the checker
+found a real bug.
 
 --
-
-IMO, the problem should be reported to the compiler maintainers. By
-assigning some fake definitions to FE_ISTAT1, SRUN, INB(), etc...,
-the code above should help them fix the compiler paranoia disease.
-Changing the driver code looks like an odd idea.
-
-  Gérard.
-
+Alex Bligh

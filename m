@@ -1,88 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266479AbUH0Q2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266531AbUH0Q1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266479AbUH0Q2i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 12:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbUH0Q2i
+	id S266531AbUH0Q1t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 12:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266479AbUH0Q1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 12:28:38 -0400
-Received: from mail.kroah.org ([69.55.234.183]:51905 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266523AbUH0Q0u (ORCPT
+	Fri, 27 Aug 2004 12:27:48 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:15370 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S266519AbUH0Q0Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 12:26:50 -0400
-Date: Fri, 27 Aug 2004 09:26:13 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Summarizing the PWC driver questions/answers
-Message-ID: <20040827162613.GB32244@kroah.com>
+	Fri, 27 Aug 2004 12:26:25 -0400
+Message-Id: <6.1.2.0.2.20040827171755.01c1f328@inet.uni2.dk>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.2.0
+Date: Fri, 27 Aug 2004 18:26:14 +0200
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Kenneth Lavrsen <kenneth@lavrsen.dk>
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, I've gotten a lot of emails about this topic, so I'll just answer
-them all here in public, and point people at them when they ask them
-again:
 
-First off, here's Nemosoft's big post about the driver, please read that
-first, and the responses to that thread:
-http://thread.gmane.org/gmane.linux.usb.devel/26310
+ >
+ > Indeed, it's a real shame.
+ > Everybody should never forget, as history tells, that extremist positions
+ > quickly lead to destruction.
+ > I hope that open source movement will never become fundamentalism.
+ >
 
-And here's Linus's response after I removed the driver, when Nemosoft
-asked me to:
-http://thread.gmane.org/gmane.linux.kernel/229968
+My name is Kenneth Lavrsen. I maintain the open source project Motion.
+Probably half of the users of Motion - and there are 1000s of them will 
+soon realise that next time they download a Kernel their camera will no 
+longer work.
 
-Oh, and there's now a lwn.net thread too:
-http://lwn.net/Articles/99615/
+I wonder if the people that decided to take out the pwc driver from the 
+Kernel considered anyone else than themselves?
 
-Ok, on to the questions:
+When Greg decided to remove the hook that enabled the use of pwcx HE 
+decided to remove the driver. In practical the pwc driver is worthless 
+without pwc. Completely worthless. The tiny picture size supported without 
+pwcx is not worth anything. pwc goes hand in hand with pwcx. This is a 
+fact. When you decide to remove the possibility to use pwcx you cripple pwc 
+so that it is useless.
+Greg decided that for fanatic and extremist reasons the 10000s - maybe 
+100000s - of people that have invested in a Webcamera like a Logitech or 
+Philips can throw away their camera if they want to keep their Linux 
+systems up to date in future.
+I personally have 8 such cameras worth a fortune in working action and as a 
+Linux user I am so disappointed and angry with the way that the maintainers 
+(or is it in reality a single individual with too much power?) are 
+threating me and the many other Linux users.
 
-Q: Why did you remove the hook from the pwc driver?
-A: It was there for the explicit purpose to support a binary only
-   module.  That goes against the kernel's documented procedures, so I
-   had to take it out.
+And what about Nemosoft. Ideally it is pretty wrong of him to pull off the 
+driver from his site. That makes things even worse.
+And his threads and ultimatum was not very nice either.But when you go back 
+and search for the mailing that has taken place between a few kernel 
+maintainers (lately Greg) it is easy to understand why Nemosoft is angry 
+and feel hurt and badly treated.
+It is easy to see that the whole thing turned into a personal conflict 
+between Nemosoft and Greg.
+And the way I read it - Nemosoft has been treated in an unfair and arrogant 
+way. Nemosoft is not a machine. He is a human and react as a human after 
+having been stepped on for a long time. It seems that a few fundamentalists 
+have picked on Nemosoft in their private war against anything closed 
+sourced. For a single individual working on a driver for no personal gain - 
+for no pay - - this is more than you can expect anyone to accept.
+There has been problems with the driver in connection with kernel 2.6. Some 
+were real problems where a proper member of an open source community should 
+help and assist in finding the solution instead of just arrogantly marking 
+code bad.
 
-Q: That hook had been in there for years!  Why did you suddenly decide
-   to remove it now?
-A: I was really not aware of the hook, and the fact that it was only
-   good for a binary module to use.  I'm sorry, I should have realized
-   this years ago, but I didn't.  Recently someone pointed this hook out
-   to me, and the fact that it really didn't belong in there due to the
-   kernel's policy of such hooks.  So, once I became aware of it, I had
-   no choice but to remove it.
+And now the latest step of modifying the code so that it is useless like 
+removing the hook for pwcx. I have been using pwc/pwcx for years now and 
+the driver has been working well. Better than so many other USB based 
+devices I have tried and rejected.
+The binary pwcx module has been accepted for years. And now fanatism has 
+taken over and suddenly the pwcx module is no longer pure. And it does not 
+seem like Greg spent even one second thinking about the 10000s of people 
+that have invested in the quite expensive (but much better than anything 
+else) Logitech and Philips cameras - knowing that it was supported by 
+Linux. He just destroyed the driver without a wink.
+Did he think: "To hell with all the Linux users with a USB camera - I don't 
+care about other people - I care only about my own principles"?
 
-Q: Why did you delete the whole pwc driver from the tree?
-A: That is what the original author (Nemosoft) wanted to happen.  It was
-   his request, and I honored it.  Go ask him why he wanted it out if
-   you are upset about this, I merely accepted his decision as he was
-   the current maintainer and author of the code.
+Kernel developers sits with the power to reject incoming patches. Such 
+priviledge should be handled with respect. Not only to the individual 
+contributors - but also to the millions of Linux users that depends on 
+their behavour. What I have seen is in my eyes abuse of this power.
+I would never remove a feature from Motion without a proper debate with my 
+users. Being a maintainer of an OSS project is a priviledge - not a right.
 
-Q: But you took away my freedom!  Isn't Linux about freedom?
-A: Again, it was Nemosoft's decision.  The kernel also has to abide by
-   it's documented procedures, so that is why the hook had to go.
-   Remember, the original driver was released under the GPL, so you are
-   free to take that code and maintain it if you so desire.  I'd gladly
-   support someone taking the GPL code and agreeing to maintain it, and
-   resubmitting it for inclusion in the main kernel tree.  That's the
-   freedom that Linux provides, no closed source OS would allow you to
-   do that, if a company pulled support for a product (which happens all
-   the time.)
+I sincerely hope that Nemosoft will return and that he will be better 
+received when he does.
 
-Q: You jerk, I had invested lots of money in this camera, you are
-   costing me money by ripping it out.  You should be ashamed of
-   yourself!
-A: See the above question about freedom.  If it means that much to you,
-   then offer to maintain the code, it's that simple.
+And to all those kernel developers on this list. Remember that there are 
+millions of Linux users now. And if you start removing support of people 
+already purchased hardware for whatever religious reason - you will 
+eventually kill Linux - because then you force people back to Windows.
 
-Q: You are keeping companies from wanting to write binary drivers for
-   Linux.
-A: Duh!  What do you think all of the kernel developers have been
-   stating for years, in public.  Binary drivers only take from Linux,
-   they do not give back anything.  See Andrew Morton's OLS 2004 keynote
-   address for more information and background on this topic.
+Right now I have a hard time finding the motivation to continue spending 
+10-20 hours per week maintaining the Motion project because of this. I am 
+really angry and disappointed. This is not what I had expected from a 
+community that that has been so great.
 
-Q: You are a fundamentalist turd / jerk / pompous ass /
-   GNU-freebeer-biased-idiot-fundamentalist fucktard / ignorant slut!
-A: I've been called worse by better people, get over yourself.
+Kenneth
+
+
+-- 
+Kenneth Lavrsen,
+Glostrup, Denmark
+kenneth@lavrsen.dk
+Home Page - http://www.lavrsen.dk 
+
 

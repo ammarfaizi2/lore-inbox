@@ -1,77 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129428AbQLLXyx>; Tue, 12 Dec 2000 18:54:53 -0500
+	id <S129552AbQLLX40>; Tue, 12 Dec 2000 18:56:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130407AbQLLXyn>; Tue, 12 Dec 2000 18:54:43 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:7435 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S129428AbQLLXyc>; Tue, 12 Dec 2000 18:54:32 -0500
-Date: Tue, 12 Dec 2000 15:24:01 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Miles Lane <miles@megapathdsl.net>
-cc: "Mohammad A. Haque" <mhaque@haque.net>, Greg KH <greg@wirex.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: how to capture long oops w/o having second machine
-In-Reply-To: <3A368FE2.1050205@megapathdsl.net>
-Message-ID: <Pine.LNX.4.30.0012121522430.21906-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S129590AbQLLX4Q>; Tue, 12 Dec 2000 18:56:16 -0500
+Received: from melvin.eunet.fi ([193.66.1.146]:31179 "EHLO melvin.eunet.fi")
+	by vger.kernel.org with ESMTP id <S129552AbQLLX4C>;
+	Tue, 12 Dec 2000 18:56:02 -0500
+Message-ID: <3A36B3E5.CF9FC31D@jlaako.pp.fi>
+Date: Wed, 13 Dec 2000 01:25:25 +0200
+From: Jussi Laako <jussi@jlaako.pp.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marc Mutz <Marc@Mutz.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM problem (2.4.0-test11)
+In-Reply-To: <3A36A163.3F01277D@jlaako.pp.fi> <3A36ADB8.3CE36940@Mutz.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i've always been curious why none of the crash dump patches are default.
-an oops dumper alone would seem to be most useful.  (i know anything more
-would be unacceptable 'cause linus isn't into debuggers ;)
+Marc Mutz wrote:
+> 
+> Just to not miss the obvious: You know about ulimit(3)?
 
--dean
+Yes, but it doesn't stop deadlocks caused by kernel's VM system going
+wild... I think that no matter what user process does, root should be always
+able to stop it. User process should never be able to render whole system
+unusable.
 
-On Tue, 12 Dec 2000, Miles Lane wrote:
+Hard memory limit per process doesn't stop this from happening, because it
+depends overall system memory usage and allocation rate. It's completely
+different if memory usage goes from 200 MB to 512 MB in 1 usec or 1 week.
 
->
-> Try reading:
->
-> 	http://www.linuxhq.com/kernel/v2.3/doc/oops-tracing.txt.html
->
-> It mentions:
->
->      Patch the kernel with one of the crash dump patches.  These save
->      data to a floppy disk or video rom or a swap partition.  None of
->      these are standard kernel patches so you have to find and apply
->      them yourself.  Search kernel archives for kmsgdump, lkcd and
->      oops+smram.
->
-> I don't know if the "dump to floppy" patch is maintained for the
-> 2.4.0 series.
->
-> 	Miles
->
-> Mohammad A. Haque wrote:
->
-> > Nope, this didn't fly. Would have been neat if it did work. Maybe it can
-> > be made to work for future use?
-> >
-> > On Tue, 12 Dec 2000, Greg KH wrote:
-> >
-> >
-> >> I don't know if /dev/ttyUSBX would work, but I think it would.  People
-> >> have successfully run consoles through the usb-serial drivers, but I'm
-> >> not sure if the oops main console requires something different (like
-> >> registering itself actually as a console?)
-> >>
-> >> And then there's the nice problem of the fact that if the oops comes
-> >> from the USB code, you will not see it come out the usb-serial driver :)
-> >>
-> >> Let me know if you try this, and have any success (or find that it
-> >> doesn't work.)
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
+ - Jussi Laako
 
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

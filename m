@@ -1,54 +1,162 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136157AbRARWwm>; Thu, 18 Jan 2001 17:52:42 -0500
+	id <S136190AbRARXUI>; Thu, 18 Jan 2001 18:20:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136176AbRARWwW>; Thu, 18 Jan 2001 17:52:22 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:29863 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S136175AbRARWwS>; Thu, 18 Jan 2001 17:52:18 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Thu, 18 Jan 2001 15:52:01 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1pre8 slowdown on dbench tests
+	id <S136197AbRARXT6>; Thu, 18 Jan 2001 18:19:58 -0500
+Received: from mail09.voicenet.com ([207.103.0.35]:22970 "HELO
+	mail09.voicenet.com") by vger.kernel.org with SMTP
+	id <S136190AbRARXTj>; Thu, 18 Jan 2001 18:19:39 -0500
+Message-ID: <3A677A03.9030900@voicefx.com>
+Date: Thu, 18 Jan 2001 18:19:31 -0500
+From: "John O'Donnell" <johnod@voicefx.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20010115
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01011815520101.01097@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 7BIT
+To: Antony Suter <antony@mira.net>, linux-kernel@vger.kernel.org
+Subject: Re: [off topic] Re: .br blacklisted ?
+In-Reply-To: <Pine.LNX.4.31.0101171635401.5464-100000@localhost.localdomain> <3A6553C8.5030408@voicefx.com> <20010117090610.A21493@grobbebol.xs4all.nl> <3A65F297.8090103@voicefx.com> <3A671625.3D3950CD@mira.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Marcelo Tosatti wrote:
-> On my dbench runs I've noted a slowdown between pre4 and pre8 with 48
-> threads. (128MB, 2 CPU's machine)
+Antony Suter wrote:
 
-I ran dbench 48 four times in succession for 2.4.0 and 2.4.1-pre8.
-The change in performance appears to be not significant.
+> John O'Donnell wrote:
+> 
+>> Roeland Th. Jansen wrote:
+>> 
+>>> On Wed, Jan 17, 2001 at 03:11:52AM -0500, John O'Donnell wrote:
+>>> 
+>>> 
+>>>> Please tell me I just didn't just see this message??!?!?!?!
+>>>> Please??!?!?!?  What are you doing?
+>>>> I mean no one person here any disrespect - please do the same.
+>>> 
+>>> you just got paid for what you did I guess. if you block a whole TLD,
+>>> you should oversee the consequences as well.
+>> 
+>> I dislike SPAM more than these games.
+>> Eh - "You take the consequences" - Oh well...
+>> Apologies Rik - I admire your toughness.  :-)
+>> Johnny O
+> 
+> 
+> I dont believe this. JohnO, you're a sysadmin and you blacklist the .com
+> domain of an entire country just because you dont like some spam? You
+> didn't checkout out any better ways of doing it?
 
-This was performed with a Dell 420 dual P-III (733 MHz), with a ST317221A, 
-ATA DISK drive and ReiserFS 3.6.25. 
+Maybe you don't understand.  We only have 18 employees!
+I am the ONLY person active on the net thru this connection.
+I stated this in a prior message.
+Yes that is how I do it.  As a matter of fact I just got another
+piece of spam that was probably relayed thru a .br domain today
+because I took it out of my blacklist.
 
-Each test was done under the same conditions, running KDE 2.0, one xterm, 
-right after booting.  
+That didnt take much time, eh?
 
-2.4.0:
-Average    9.07868 MB/sec
+Return-Path: <lwfvo@msn.com>
+Received: from one. (one.ufsc.br [150.162.1.1]) by linsrv.voicefx.com 
+(8.10.0/8.10.0) with SMTP id f0I8D8R16642 for <johnod@voicefx.com>; Thu, 18 Jan 
+2001 03:13:08 -0500
+Received: from gnadz.msn.com by one. (SMI-8.6/SMI-SVR4) id GAA10455; Thu, 18 Jan 2001
+                 06:08:20 -0200
+            Date:
+                 Thu, 18 Jan 2001 06:08:20 -0200
+           From:
+                 lwfvo@msn.com
+    Message-ID:
+                 <200101180808.GAA10455@one.>
+              To:
+                 np1n@hotmail.com
+       Reply-To:
+                 m0012@consultant.com
+         Subject:
+                 Merchant Accounts [p7o2a]
+  Content-Type:
+                 text/plain; charset=us-ascii
 
-Throughput 9.03546 MB/sec (NB=11.2943 MB/sec  90.3546 MBit/sec)
-Throughput 8.99614 MB/sec (NB=11.2452 MB/sec  89.9614 MBit/sec)
-Throughput 8.87756 MB/sec (NB=11.097 MB/sec  88.7756 MBit/sec)
-Throughput 9.40556 MB/sec (NB=11.7569 MB/sec  94.0556 MBit/sec)
 
-2.4.1-pre8:
-Average    9.25707 MB/sec
 
-Throughput 8.93444 MB/sec (NB=11.1681 MB/sec  89.3444 MBit/sec)
-Throughput 9.43609 MB/sec (NB=11.7951 MB/sec  94.3609 MBit/sec)
-Throughput 9.5075 MB/sec (NB=11.8844 MB/sec  95.075 MBit/sec)
-Throughput 9.15026 MB/sec (NB=11.4378 MB/sec  91.5026 MBit/sec)
 
-Steven
+
+  Is your business online?
+
+  Do you have a great service or product?
+
+  Is your business as successful as you want it to be?
+
+  Reply with your
+  Name:
+  & Phone Number:
+                   And we can help
+
+   I work in the merchant sales dept. for one of the
+  largest Merchant Account providers on the Internet.
+
+   We provide your business with several different
+  options, all built to suit your needs.
+
+   We offer the best Web Malls, with user friendly
+  web page builders, Online Shopping Carts, and
+  you can accept All Major Credit Cards.
+
+   What ever your needs, we have what you are looking for
+
+    You are 99% guaranteed to get a Merchant Account
+
+   Simply reply to this email with:
+
+   Your Name:
+   Phone NUmber:
+
+   And I or one of my partners will help you find the
+   account thats right for you.
+
+   While there are other companies that offer you special
+   rates, or low prices. We offer the same super low rates
+   all the time, with no set up fee's, and low transaction fee's
+   you won't find a better price.
+
+   Unlike our competition who only offer service for the US.
+
+   Our Services are available in the United States and Canada.
+
+   Again, just reply to this email with
+
+   Your Name:
+   Phone Number:
+
+   And you will start to make the sales faster, get your product
+  to your customers when they want it, no more waiting for checks
+  to clear, or money transfer hassles.
+
+   Sell your products to your customers and get the money on the
+  same day.
+
+   Thank you, and have a nice day.
+
+   George Dratin
+
+  To be removed from this email, please reply with the word remove
+  in the subject line, you will be removed. Please note it may take
+  up to 48 hours to be removed.  Thanks
+
+
+
+-- 
+<SomeLamer> what's the difference between chattr and chmod?
+<SomeGuru> SomeLamer: man chattr > 1; man chmod > 2; diff -u 1 2 | less
+	-- Seen on #linux on irc
+=== Never ask a geek why, just nod your head and slowly back away.===
++==============================+====================================+
+| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
+| Voice FX Corporation (a subsidiary of Student Advantage)          |
+| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
+| Suite 610                    |           www.voicefx.com          |
+| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
++==============================+====================================+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

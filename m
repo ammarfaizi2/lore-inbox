@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbTGBW5p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 18:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265476AbTGBW4B
+	id S265515AbTGBW7u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 18:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265454AbTGBW6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 18:56:01 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:8446 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265453AbTGBWyX (ORCPT
+	Wed, 2 Jul 2003 18:58:04 -0400
+Received: from holomorphy.com ([66.224.33.161]:22970 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S265529AbTGBW5M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 18:54:23 -0400
-Date: Wed, 02 Jul 2003 15:57:13 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Yet another SDET hang (73-mm3) ... yawn
-Message-ID: <575880000.1057186633@flay>
-In-Reply-To: <20030702155330.7d879299.akpm@digeo.com>
-References: <570860000.1057184743@flay> <20030702155330.7d879299.akpm@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 2 Jul 2003 18:57:12 -0400
+Date: Wed, 2 Jul 2003 16:11:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What to expect with the 2.6 VM
+Message-ID: <20030702231122.GI26348@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
+	Linux Memory Management List <linux-mm@kvack.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0307010238210.22576@skynet> <20030701022516.GL3040@dualathlon.random> <Pine.LNX.4.53.0307021641560.11264@skynet> <20030702171159.GG23578@dualathlon.random> <461030000.1057165809@flay> <20030702174700.GJ23578@dualathlon.random> <20030702214032.GH20413@holomorphy.com> <20030702220246.GS23578@dualathlon.random> <20030702221551.GH26348@holomorphy.com> <20030702222641.GU23578@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030702222641.GU23578@dualathlon.random>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Wednesday, July 02, 2003 15:53:30 -0700 Andrew Morton <akpm@digeo.com> wrote:
+On Wed, Jul 02, 2003 at 03:15:51PM -0700, William Lee Irwin III wrote:
+>> What complexity? Just unmap it if you can't allocate a pte_chain and
+>> park it on the LRU.
 
-> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
->> 
->> 2.5.73-mm3 + feral + highpte (ext2)
->> 
->> Seems to be all wedged up on io_schedule. Not sure if it was
->> highpte that caused this or not, but I'd done one run on ext2
->> and one on ext3 without it, and they worked fine.
-> 
-> highpte, or highpmd?
-> 
-> I assume the latter.  But either way, it would be an odd correlation.
+On Thu, Jul 03, 2003 at 12:26:41AM +0200, Andrea Arcangeli wrote:
+> the complexity in munlock to rebuild what you destroyed in mlock, that's
+> linear at best (and for anonymous mappings there's no objrmap, plus
+> objrmap isn't even linear but quadratic in its scan [hence the problem
+> with it], though in practice it would be normally faster than the linear
+> of the page scanning ;)
 
-The former, I think. I turned on "3rd level pagetables in high memory". Presumably that's still just highpte.
+Computational complexity; okay.
 
-larry:~/linux/2.5.73-mm3# grep HIGH .config
-# CONFIG_NOHIGHMEM is not set
-# CONFIG_HIGHMEM4G is not set
-CONFIG_HIGHMEM64G=y
-CONFIG_HIGHMEM=y
-CONFIG_HIGHPTE=y
-# CONFIG_DEBUG_HIGHMEM is not set
+It's not quadratic; at each munlock(), it's not necessary to do
+anything more than:
 
-But yes, it's probably coincidence.
+for each page this mlock()'er (not _all_ mlock()'ers) maps of this thing
+	grab some pagewise lock
+	if pte_chain allocation succeeded
+		add pte_chain
+	else
+		/* you'll need to put anon pages in swapcache in mlock() */
+		unmap the page
+	decrement lockcount
+	if lockcount vanished
+	park it on the LRU
+	drop the pagewise lock
 
-> It looks more like the block layer or device driver blew a fuse.  The usual
-> deal: make it repeatable, then try `elevator=deadline', then try a
-> different driver..
+Individual mappers whose mappings are not mlock()'d add pte_chains when
+faulting the things in just like before.
 
-Yeah, I'll beat her some more later.
 
-> Oh, and write OpenSDET while you're at it.  grr.
-
-Use reaim7. But maybe I should write open-16-way-hardware with a
-subtext of race-conditions-we-find? ;-)
-
-M.
-
+-- wli

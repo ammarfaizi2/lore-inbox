@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282358AbRKXD5B>; Fri, 23 Nov 2001 22:57:01 -0500
+	id <S282360AbRKXEAL>; Fri, 23 Nov 2001 23:00:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282360AbRKXD4w>; Fri, 23 Nov 2001 22:56:52 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:51464 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S282358AbRKXD4r>;
-	Fri, 23 Nov 2001 22:56:47 -0500
-Message-ID: <3BFF19B0.F8D56E74@osdl.org>
-Date: Fri, 23 Nov 2001 19:53:20 -0800
+	id <S282361AbRKXEAB>; Fri, 23 Nov 2001 23:00:01 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:54280 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S282360AbRKXD7x>;
+	Fri, 23 Nov 2001 22:59:53 -0500
+Message-ID: <3BFF1AAB.273A2BB@osdl.org>
+Date: Fri, 23 Nov 2001 19:57:31 -0800
 From: "Randy.Dunlap" <rddunlap@osdl.org>
 Organization: OSDL
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Disabling FPU, MMX, SSE units?
-In-Reply-To: <Pine.GSO.3.96.1011122120030.29116A-100000@delta.ds2.pg.gda.pl>
+To: admin@nextframe.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove last references to linux/malloc.h
+In-Reply-To: <20011122145527.A117@sexything> <27400.1006437269@redhat.com> <20011122150738.D117@sexything>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" wrote:
+Morten Helgesen wrote:
 > 
-> On Wed, 21 Nov 2001, Pavel Machek wrote:
+> Hey David.
 > 
-> > Is there way not to let linux use FPU, MMX, SSE and similar fancy
-> > units? I have athlon processor, but would like to turn FPU (and
-> > similar fancy stuff) off...
+> I see your point - but someone has obiously decided to switch from malloc.h to slab.h, and I do not
+> see the point in having three references to malloc.h when malloc.h only prints a warning and then includes
+> slab.h
 > 
->  You may use "no387" to disable FPU and MMX (they are controlled by a
-> single bit in cr0).  No idea about SSE.
+> == Morten
+> 
+> On Thu, Nov 22, 2001 at 01:54:29PM +0000, David Woodhouse wrote:
+> >
+> >
+> > admin@nextframe.net said:
+> > >  Ok people - stop submitting patches which include malloc.h. Include
+> > > slab.h instead. :)
+> >
+> > Bah. I was sort of hoping we'd come to our collective senses and switch
+> > them all back.
+> >
+> > What does malloc.h do? Stuff to do with memory allocation, one presumes.
+> > What does slab.h do? Some random implementation detail that people have no
+> > business knowing about.
 
-Looks to me like another candidate for the setup/bugs/cpuid
-processor-type splitting/cleanup that DaveJ et al have mentioned
-[for 2.5 ?].
+Too bad someone decided to change.  I agree with David.
 
-include/asm-i386/bugs.h is the only header file in linux/ that
-contains^W hides __setup() parameters, and that's bad IMO.
+malloc.h is just too plain obvious, I suppose.
+slab.h is only an implementation detail.
 
 ~Randy

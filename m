@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbUKRL2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbUKRLbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbUKRL2a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 06:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbUKRL2a
+	id S262732AbUKRLbo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 06:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbUKRLbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 06:28:30 -0500
-Received: from 66.80-203-204.nextgentel.com ([80.203.204.66]:59013 "EHLO
-	66.80-203-204.nextgentel.com") by vger.kernel.org with ESMTP
-	id S261767AbUKRL2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 06:28:25 -0500
-Message-ID: <419C8756.3080709@nidelven-it.no>
-Date: Thu, 18 Nov 2004 12:28:22 +0100
-From: "Morten W. Petersen" <morten@nidelven-it.no>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Fixing page allocation failure
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigDD6FE60C9047DA2137797A85"
+	Thu, 18 Nov 2004 06:31:42 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54250 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262732AbUKRLbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 06:31:34 -0500
+Date: Thu, 18 Nov 2004 12:31:34 +0100
+From: Jan Kara <jack@suse.cz>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH] Minor fix of inequalities in the quota code
+Message-ID: <20041118113134.GA2767@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigDD6FE60C9047DA2137797A85
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi all,
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I have a server that a couple of times each day squirts out messages 
-about page allocation failures (python: page allocation failure. 
-order:3, mode:0x20).  What's the reason for this, and could it affect 
-the stability of the box?
+  Hello!
 
-The server that squirts these messages just crashed, for no apparent 
-reason, so that's why I'm wondering.  It's a UML box.  Also, I'm 
-wondering, are there any howto's for tweaking /proc settings so that the 
-machine becomes more stable?  Are there any settings for increasing the 
-verbosity of the kernel log so that the reason for a server crashing is 
-easier to find?
+  Attached is a patch which changes inequalities checking whether user got
+below the softlimit to match the ones deciding whether he exceeded them.
+IMO it makes more sence if the inequalities match.. The patch is against
+2.6.10-rc2-mm1 but should apply well against any recent kernel. Please
+apply.
 
-Thanks in advance, and please CC me any replies :)
+								Honza
 
-Regards,
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
 
-Morten
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="quota-new-2.6.10-rc2-mm1-1-eqfix.diff"
 
---------------enigDD6FE60C9047DA2137797A85
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Change inequalities for deciding when a user has cleaned up enough space
+to be below softlimit to match the ones for deciding when the softlimit
+has been exceeded.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 
-iD8DBQFBnIdWbYZVKBu9STYRAlJfAKDWy11LH3C1lNxEBy2dO6KdKgOMxACfeq3D
-eooHbKRRS05Bh3xQsizxkC4=
-=dG4O
------END PGP SIGNATURE-----
+diff -rupNX /home/jack/.kerndiffexclude linux-2.6.10-rc2-mm1/fs/dquot.c linux-2.6.10-rc2-mm1-1-eqfix/fs/dquot.c
+--- linux-2.6.10-rc2-mm1/fs/dquot.c	2004-11-16 16:39:07.000000000 +0100
++++ linux-2.6.10-rc2-mm1-1-eqfix/fs/dquot.c	2004-11-16 16:46:54.000000000 +0100
+@@ -758,7 +758,7 @@ static inline void dquot_decr_inodes(str
+ 		dquot->dq_dqb.dqb_curinodes -= number;
+ 	else
+ 		dquot->dq_dqb.dqb_curinodes = 0;
+-	if (dquot->dq_dqb.dqb_curinodes < dquot->dq_dqb.dqb_isoftlimit)
++	if (dquot->dq_dqb.dqb_curinodes <= dquot->dq_dqb.dqb_isoftlimit)
+ 		dquot->dq_dqb.dqb_itime = (time_t) 0;
+ 	clear_bit(DQ_INODES_B, &dquot->dq_flags);
+ }
+@@ -769,7 +769,7 @@ static inline void dquot_decr_space(stru
+ 		dquot->dq_dqb.dqb_curspace -= number;
+ 	else
+ 		dquot->dq_dqb.dqb_curspace = 0;
+-	if (toqb(dquot->dq_dqb.dqb_curspace) < dquot->dq_dqb.dqb_bsoftlimit)
++	if (toqb(dquot->dq_dqb.dqb_curspace) <= dquot->dq_dqb.dqb_bsoftlimit)
+ 		dquot->dq_dqb.dqb_btime = (time_t) 0;
+ 	clear_bit(DQ_BLKS_B, &dquot->dq_flags);
+ }
 
---------------enigDD6FE60C9047DA2137797A85--
+--ReaqsoxgOBHFXBhH--

@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVAWKTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVAWKW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVAWKTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 05:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVAWKSo
+	id S261276AbVAWKW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 05:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVAWKWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 05:18:44 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58887 "HELO
+	Sun, 23 Jan 2005 05:22:02 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:64263 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261275AbVAWKQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 05:16:41 -0500
-Date: Sun, 23 Jan 2005 11:16:40 +0100
+	id S261276AbVAWKRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 05:17:34 -0500
+Date: Sun, 23 Jan 2005 11:17:28 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: "Michael A. Halcrow" <mike@halcrow.us>, Serge Hallyn <hallyn@cs.wm.edu>,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] security/seclvl.c: make some code static
-Message-ID: <20050123101640.GG3212@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove bouncing email address of Thomas Hood
+Message-ID: <20050123101728.GK3212@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,45 +22,60 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+This patch removes the bouncing email address of Thomas Hood (I haven't 
+found any more recent email address).
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- security/seclvl.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ arch/i386/kernel/apm.c     |    4 ++--
+ drivers/pnp/pnpbios/core.c |    2 +-
+ drivers/pnp/pnpbios/proc.c |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
 This patch was already sent on:
 - 28 Nov 2004
 
---- linux-2.6.10-rc2-mm3-full/security/seclvl.c.old	2004-11-28 03:32:23.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-full/security/seclvl.c	2004-11-28 03:34:28.000000000 +0100
-@@ -170,7 +170,7 @@
- /**
-  * Callback function pointers for show and store
-  */
--struct sysfs_ops seclvlfs_sysfs_ops = {
-+static struct sysfs_ops seclvlfs_sysfs_ops = {
- 	.show = seclvl_attr_show,
- 	.store = seclvl_attr_store,
- };
-@@ -275,7 +275,7 @@
- }
- 
- /* Generate sysfs_attr_seclvl */
--struct seclvl_attribute sysfs_attr_seclvl =
-+static struct seclvl_attribute sysfs_attr_seclvl =
- __ATTR(seclvl, (S_IFREG | S_IRUGO | S_IWUSR), seclvl_read_file,
-        seclvl_write_file);
- 
-@@ -386,7 +386,7 @@
- }
- 
- /* Generate sysfs_attr_passwd */
--struct seclvl_attribute sysfs_attr_passwd =
-+static struct seclvl_attribute sysfs_attr_passwd =
- __ATTR(passwd, (S_IFREG | S_IRUGO | S_IWUSR), seclvl_read_passwd,
-        seclvl_write_passwd);
- 
+--- linux-2.6.10-rc2-mm3-full/drivers/pnp/pnpbios/core.c.old	2004-11-28 23:33:19.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/drivers/pnp/pnpbios/core.c	2004-11-28 23:33:29.000000000 +0100
+@@ -12,7 +12,7 @@
+  * Minor reorganizations by David Hinds <dahinds@users.sourceforge.net>
+  * Further modifications (C) 2001, 2002 by:
+  *   Alan Cox <alan@redhat.com>
+- *   Thomas Hood <jdthood@mail.com>
++ *   Thomas Hood
+  *   Brian Gerst <bgerst@didntduck.org>
+  *
+  * Ported to the PnP Layer and several additional improvements (C) 2002
+--- linux-2.6.10-rc2-mm3-full/drivers/pnp/pnpbios/proc.c.old	2004-11-28 23:33:38.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/drivers/pnp/pnpbios/proc.c	2004-11-28 23:33:44.000000000 +0100
+@@ -2,7 +2,7 @@
+  * /proc/bus/pnp interface for Plug and Play devices
+  *
+  * Written by David Hinds, dahinds@users.sourceforge.net
+- * Modified by Thomas Hood, jdthood@mail.com
++ * Modified by Thomas Hood
+  *
+  * The .../devices and .../<node> and .../boot/<node> files are
+  * utilized by the lspnp and setpnp utilities, supplied with the
+--- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/apm.c.old	2004-11-28 23:33:52.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/apm.c	2004-11-28 23:34:07.000000000 +0100
+@@ -166,14 +166,14 @@
+  *         If an APM idle fails log it and idle sensibly
+  *   1.15: Don't queue events to clients who open the device O_WRONLY.
+  *         Don't expect replies from clients who open the device O_RDONLY.
+- *         (Idea from Thomas Hood <jdthood@mail.com>)
++ *         (Idea from Thomas Hood)
+  *         Minor waitqueue cleanups. (John Fremlin <chief@bandits.org>)
+  *   1.16: Fix idle calling. (Andreas Steinmetz <ast@domdv.de> et al.)
+  *         Notify listeners of standby or suspend events before notifying
+  *         drivers. Return EBUSY to ioctl() if suspend is rejected.
+  *         (Russell King <rmk@arm.linux.org.uk> and Thomas Hood)
+  *         Ignore first resume after we generate our own resume event
+- *         after a suspend (Thomas Hood <jdthood@mail.com>)
++ *         after a suspend (Thomas Hood)
+  *         Daemonize now gets rid of our controlling terminal (sfr).
+  *         CONFIG_APM_CPU_IDLE now just affects the default value of
+  *         idle_threshold (sfr).
 

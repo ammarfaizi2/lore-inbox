@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289817AbSAKBHU>; Thu, 10 Jan 2002 20:07:20 -0500
+	id <S289820AbSAKBIo>; Thu, 10 Jan 2002 20:08:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289818AbSAKBHK>; Thu, 10 Jan 2002 20:07:10 -0500
-Received: from adsl-63-192-223-74.dsl.snfc21.pacbell.net ([63.192.223.74]:51504
-	"EHLO gateway.berkeley.innomedia.com") by vger.kernel.org with ESMTP
-	id <S289817AbSAKBGx>; Thu, 10 Jan 2002 20:06:53 -0500
-Message-ID: <3C3E3AAB.749B1D51@berkeley.innomedia.com>
-Date: Thu, 10 Jan 2002 17:06:51 -0800
-From: Christopher James <cjames@berkeley.innomedia.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test1-rtl i686)
-X-Accept-Language: en
+	id <S289819AbSAKBIa>; Thu, 10 Jan 2002 20:08:30 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:64389 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S289818AbSAKBIP>; Thu, 10 Jan 2002 20:08:15 -0500
+Message-ID: <015701c19a3c$8f2b7630$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Ronald Wahl" <Ronald.Wahl@informatik.tu-chemnitz.de>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16Opxl-00066O-00@the-village.bc.nu>
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+Date: Fri, 11 Jan 2002 02:09:03 +0100
 MIME-Version: 1.0
-To: Chris Wright <chris@wirex.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Multicast fails when interface changed
-In-Reply-To: <3C3C8D4D.621A4696@berkeley.innomedia.com> <20020109131013.C24733@figure1.int.wirex.com>
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by mangalore.zipworld.com.au id MAA18137
 
-Chris Wright wrote:
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Ronald Wahl" <Ronald.Wahl@informatik.tu-chemnitz.de>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>; <linux-kernel@vger.kernel.org>
+Sent: Friday, January 11, 2002 1:54 AM
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
 
-> * Christopher James (cjames@berkeley.innomedia.com) wrote:
-> > We are running an application that uses multicasting
-> > on Linux kernel 2.2.19. The application is
-> > connected to two network interfaces for redundancy
-> > purposes - only one interface is active at a time.
-> > When the application starts up on the first interface,
-> > the application can send and receive multicast messages.
-> > We then use ifconfig to bring down the first interface,
-> > and use ifconfig to bring up the second interface. The application
-> > works with the exception that it cannot receive multicast
-> > packets (it can still send multicast packets).
->
-> does your app use INADDR_ANY for imr_interface when you join the
-> multicast group?
->
-> -chris
 
-the app (vocal 1.2) does not use INADDR_ANY for imr_interface when
-joining the multicast group
+<snip>
+> It can be easily caught. Thats what rpm is for. If it let you install that
+> package on a box that can run it without using --force type options its
+> a bug.
 
--Christopher
-ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i
+Just curious; is RPM a "standard" for most linux distros now? I have always
+been running RedHat so I wouldn't know.
+
+Maybe Ronald should start a new kernel tree with patches for goofy admins ;D
+

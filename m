@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264656AbUE2SXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265260AbUE2SZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264656AbUE2SXk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 14:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264663AbUE2SXk
+	id S265260AbUE2SZH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 14:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265403AbUE2SZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 14:23:40 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:51076 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264656AbUE2SXj (ORCPT
+	Sat, 29 May 2004 14:25:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:27806 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265260AbUE2SYw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 14:23:39 -0400
-Date: Sat, 29 May 2004 20:23:57 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Fw: Re: keyboard problem with 2.6.6
-Message-ID: <20040529182357.GA25315@ucw.cz>
-References: <20040528154307.142b7abf.akpm@osdl.org> <MPG.1b22c626ab9fcdc79896a5@news.gmane.org> <20040529154443.GA15651@ucw.cz> <200405291218.30617.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405291218.30617.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+	Sat, 29 May 2004 14:24:52 -0400
+Date: Sat, 29 May 2004 11:23:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Netdev <netdev@oss.sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [PATCH] remove net driver ugliness that sparse complains about
+In-Reply-To: <40B8D2F8.6090905@pobox.com>
+Message-ID: <Pine.LNX.4.58.0405291117511.1648@ppc970.osdl.org>
+References: <40B8D2F8.6090905@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29, 2004 at 12:18:30PM -0500, Dmitry Torokhov wrote:
 
-> > Module (or kernel cmdline) parameters are not a good way to go, because
-> > they cannot be changed at runtime. For mouse models, sysfs will be used
-> > (when I get to implementing sysfs support for serio and input layers),
-> > and most keyboards don't need any special options, except for scrolling
-> > keyboards - setkeycode is enough to teach the driver about the special
-> > scancodes.
-> > 
+
+On Sat, 29 May 2004, Jeff Garzik wrote:
 > 
-> I have a patch that sysfsifies all serio drivers but not serio ports yet...
-> I wanted to get everything in shape before showing it, but if you are
-> interested I can rediff against the current.
+> I'm a bit curious why sparse complained about taking the _address_ of 
+> pointer
 
-Show it. ;)
+It may not complain any more. Al sent me about 20 different test-cases for
+things that sparse did wrong, and I've fixed most of them. As of
+yesterday, most sparse warnings really _are_ valid (yeah, I'm sure there
+are some broken cases still, but if so, now they are in a clear minority).
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Note that that doesn't mean that they are all easy to fix. Some code tends
+to re-use the same structure for sometimes holding kernel pointers, and
+sometimes holding user pointers.
+
+Since the whole point of sparse is to have _static_ typechecking, such
+code will never be sparse-clean, and either we have to ignore it, or we
+should split up the use into two different kinds of structures (with the
+same members apart from the address space) and explicitly convert between
+the two.  I'd obviously prefer that approach, but it might be a fair
+amount of work (most of it should be really trivial, though, and I suspect
+it would clarify pointer usage a lot to know when a "struct msghdr" points
+to user space, and when it points to kernel space. Or whatever - maybe 
+that was a bad example).
+
+		Linus

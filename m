@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312331AbSDCTHo>; Wed, 3 Apr 2002 14:07:44 -0500
+	id <S312332AbSDCTJo>; Wed, 3 Apr 2002 14:09:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312332AbSDCTHe>; Wed, 3 Apr 2002 14:07:34 -0500
-Received: from dark.pcgames.pl ([195.205.62.2]:31381 "EHLO dark.pcgames.pl")
-	by vger.kernel.org with ESMTP id <S312331AbSDCTHX>;
-	Wed, 3 Apr 2002 14:07:23 -0500
-Date: Wed, 3 Apr 2002 21:11:09 +0200 (CEST)
-From: Krzysztof Oledzki <ole@ans.pl>
-X-X-Sender: <ole@dark.pcgames.pl>
-To: <linux-kernel@vger.kernel.org>
-cc: <alan@lxorguk.ukuu.org.uk>, <marcelo@conectiva.com.br>, <davej@suse.de>
-Message-ID: <Pine.LNX.4.33.0204032104300.27291-100000@dark.pcgames.pl>
+	id <S312335AbSDCTJe>; Wed, 3 Apr 2002 14:09:34 -0500
+Received: from www.stpibonline.soft.net ([164.164.128.17]:4335 "EHLO
+	cyclops.soft.net") by vger.kernel.org with ESMTP id <S312332AbSDCTJY>;
+	Wed, 3 Apr 2002 14:09:24 -0500
+Message-ID: <91A7E7FABAF3D511824900B0D0F95D10136FD5@BHISHMA>
+From: Abdij Bhat <Abdij.Bhat@kshema.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'linux-mips-kernel@lists.sourceforge.net'" 
+	<linux-mips-kernel@lists.sourceforge.net>
+Cc: Abdij Bhat <Abdij.Bhat@kshema.com>
+Subject: error compiling kernel for mips
+Date: Thu, 4 Apr 2002 00:35:26 +0530 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
+ When i try compiling the Kernel for mips i get errors. The kernel is 2.4.17
+downloaded from www.kernel.org. I have the mips developments environment
+set. I have (hopefully) the right headers and have modified the makefile to
+get the headers from those include directories.
+ My main problem is changing the architecture from arch686 ( mine ) to mips.
+How to i do this? What do i need to do inorder for the make to get the right
+architecture? Or is there some other problem too?
 
-Is there any reason why, after panic, 2.4.x kernels no longer response
-for keyboard command like Shift-PgUp, Shift-PgDn or Ctrl+Alt+Del?
+ Here is the error listing
 
-It is not possible to check why kernel is not able to find
-init or mount root partition. Console scrolling with Shift-PgUp
-is disabled! For example, it is very easy to forget to enable
-"Boot off-board chipsets first support" for IDE.
+mipsel-linux-gcc -D__KERNEL__ -I/usr/tools/mipsel-linux/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe  -march=i686   -c -o init/main.o
+init/main.c
+cc1: bad value (i686) for -march= switch
+Assembler messages:
+Fatal error: invalid architecture -march=i686
+make: *** [init/main.o] Error 2
 
-Of course, one can say: "Use Serial Console!". Yes, this is true,
-but I need null-modem, another computer and time for making new
-kernel. Whit Shift-PgUp 5 seconds is too much and no other hardware
-is required :))
-
-And there is one more problem. When kernel is enabled to
-automatically start Software RAID there is no way to
-stop this RAID. Like I said - Ctrl+Alt+Del no longer works, so
-next time all RAID arrays need to be synced. Ahhh!
-
-So, is it possible to bring back Linux 2.2.x behavior? Please?
-
-Best regards,
-
-
-				Krzysztof Oledzki
+Thanks and Regards,
+Abdij
 

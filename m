@@ -1,89 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135543AbRAYSEl>; Thu, 25 Jan 2001 13:04:41 -0500
+	id <S132699AbRAYSGV>; Thu, 25 Jan 2001 13:06:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135590AbRAYSEV>; Thu, 25 Jan 2001 13:04:21 -0500
-Received: from office.globe.cz ([212.27.204.26]:59661 "HELO gw.office.globe.cz")
-	by vger.kernel.org with SMTP id <S135585AbRAYSEP>;
-	Thu, 25 Jan 2001 13:04:15 -0500
-Received: from ondrej.office.globe.cz (10.1.2.22)
-  by vger.kernel.org with SMTP; 25 Jan 2001 18:04:01 -0000
+	id <S132985AbRAYSGB>; Thu, 25 Jan 2001 13:06:01 -0500
+Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:48140 "EHLO
+	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
+	id <S132699AbRAYSF7>; Thu, 25 Jan 2001 13:05:59 -0500
+Date: Thu, 25 Jan 2001 18:05:55 +0000 (GMT)
+From: Tim Fletcher <tim@parrswood.manchester.sch.uk>
 To: Chris Mason <mason@suse.com>
-Cc: linux-kernel@vger.kernel.org
+cc: Ondrej Sury <ondrej@globe.cz>, <linux-kernel@vger.kernel.org>
 Subject: Re: 2.4.1-pre10 slowdown at boot.
 In-Reply-To: <20130000.980445836@tiny>
-From: Ondrej Sury <ondrej@globe.cz>
-Date: 25 Jan 2001 19:03:56 +0100
-In-Reply-To: <20130000.980445836@tiny>
-Message-ID: <874ryny0dv.fsf@ondrej.office.globe.cz>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+Message-ID: <Pine.LNX.4.30.0101251801480.2090-100000@pine.parrswood.manchester.sch.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: quoted-printable
-
-Chris Mason <mason@suse.com> writes:
-
-> On Thursday, January 25, 2001 06:51:33 PM +0100 Ondrej Sury
-> <ondrej@globe.cz> wrote:
->=20
-> > Chris Mason <mason@suse.com> writes:
-> >> > reiserfs: checking transaction log (device 03:04) ...
-> >> > Warning, log replay starting on readonly filesystem
-> >> >=20
-> >>=20
-> >> Here, reiserfs is telling you that it has started replaying transactio=
-ns
-> >> in the log.  You should also have a reiserfs message telling you how m=
-any
-> >> transactions it replayed, and how long it took.  Do you have that
-> >> message?
-> >=20
-> > Nope.  I rebooted with Alt-SysRQ+B after some while (aprox more than 30
-> > sec, normally reiserfs replay is taking ~5 sec (pre9)).  I wasn't so
-> > patient.  I could test it before I'll go from work to home.
-> >=20
->=20
-> Ok, depending on the metadata load before the crash, replay can take 30
-> seconds or more.  You usually have to try to generate that many metadata
-> changes, something like creating 100,000 tiny files or directories.
-> Compiling with CONFIG_REISERFS_CHECK turned on will give you more details
-> about the log replay.
-
-There wasn't crash.  Same log replay after I rebooted with -pre9 took 5
-seconds.
-
 > Or, perhaps DMA is now off on your IDE drive, making everything slower.
 
-via 82Cxxx is supported chipset, but I could check that.
+Are you using a VIA ide chipset? because a much slower version of the
+driver has been put in recently
 
-Strange is that overall slowdown of kernel, Alt-SysRQ functions are too
-slow for kernel to be in normal state.
+-- 
+   Tim Fletcher - Network manager   .~.
+                                    /V\      L   I   N   U   X
+     nightshade@solanum.net        // \\  >Don't fear the penguin<
+tim@parrswood.manchester.sch.uk   /(   )\
+ irc: Night-Shade on quakenet      ^^-^^
 
-=2D-=20
-Ond=F8ej Sur=FD <ondrej@globe.cz>         Globe Internet s.r.o. http://glob=
-e.cz/
-Tel: +420235365000   Fax: +420235365009         Pl=E1ni=E8kova 1, 162 00 Pr=
-aha 6
-Mob: +420605204544   ICQ: 24944126             Mapa: http://globe.namape.cz/
-GPG fingerprint:          CC91 8F02 8CDE 911A 933F  AE52 F4E6 6A7C C20D F273
---=-=-=
-Content-Type: application/pgp-signature
+An NT server can be run by an idiot, and usually is.
 
------BEGIN PGP MESSAGE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.5 and Gnu Privacy Guard <http://www.gnupg.org/>
-
-iEYEARECAAYFAjpwao0ACgkQ9OZqfMIN8nN7mgCcDSfPxNnbmbtD+TyYHMbKr+vf
-TnkAmwfavxKRPrsPwhS0jDTuYqK5iHcL
-=NhJo
------END PGP MESSAGE-----
---=-=-=--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263766AbTETMye (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 08:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbTETMye
+	id S263549AbTETNbI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 09:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbTETNbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 08:54:34 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:41912
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263766AbTETMyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 08:54:33 -0400
-Subject: Re: Machin dependent serial port patches
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jcwren@jcwren.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200305192056.00610.jcwren@jcwren.com>
-References: <200305192056.00610.jcwren@jcwren.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1053432549.30546.5.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 20 May 2003 09:31:08 -0400
+Received: from mail6.bluewin.ch ([195.186.4.229]:58602 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S263549AbTETNbI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 09:31:08 -0400
+Date: Tue, 20 May 2003 15:44:00 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Pawan Deepika <pawan_deepika@yahoo.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux 2.4.18] via-rhine.c
+Message-ID: <20030520134400.GB25041@k3.hellgate.ch>
+Mail-Followup-To: Pawan Deepika <pawan_deepika@yahoo.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030519194317.20999.qmail@web41606.mail.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 20 May 2003 13:09:11 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030519194317.20999.qmail@web41606.mail.yahoo.com>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.68 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-05-20 at 01:56, J.C. Wren wrote:
-> 	One of the things I noticed in the port of 2.5.69 to the 386EX embedded 
-> system is that serial.h appears to not be a mach-xxx positionable file.  The 
-> 386EX board uses standard 8250 type serial ports, but at 3.6864Mhz instad of 
-> 1.8432Mhz.  There appears to be no way to build a patch set without modifying 
-> include/i386/serial.h.  Would this not be better places in mach-defaults?  
-> I'm trying very hard to modify as few files as possible when building these 
-> patch sets.
+You should ask this kind of questions on the kernelnewbies list.
 
-Making asm-i386/serial.h include a mach- file sounds the right thing to
-do. mach- for x86 is pretty new so a lot of stuff that maybe should be
-in it, hasnt migrated yet.
+On Mon, 19 May 2003 12:43:17 -0700, Pawan Deepika wrote:
+> through the source code in via-rhine.c. What I
+> understand till now is that in Memory-mapped devices,
+> I/O operation is performed using
+> read(b/w/l)/write(b/w/l) functions while in IO mapped
+> devices it is done using in/out(b/w/l). Am I right?
 
-The counter argument however is that you should be able to use setserial
-to adjust the baud base so you dont need to change anything 8)
+What you do with inb etc. is called PIO (Programmed I/O).
 
+> But in via-rhine.c I notice use of inb and outb even
+> in memory mapped case(code is shown below)
+> 
+> ------------------------------------------------------
+> #ifdef USE_MEM
+> 530 static void __devinit enable_mmio(long ioaddr, int
+> chip_id)
+> 531 {
+
+It does exactly what the function name says: it uses PIO to flip a bit in
+some register to enable MMIO, which is just a different (and better) way to
+transfer the data.
+
+Roger

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261585AbTCGOL1>; Fri, 7 Mar 2003 09:11:27 -0500
+	id <S261602AbTCGOUo>; Fri, 7 Mar 2003 09:20:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261592AbTCGOL1>; Fri, 7 Mar 2003 09:11:27 -0500
-Received: from main.gmane.org ([80.91.224.249]:63158 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S261585AbTCGOL0>;
-	Fri, 7 Mar 2003 09:11:26 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Chmouel Boudjnah <chmouel@chmouel.com>
-Subject: Re: Mandrake/AMD x L-2.5.xx
-Date: Fri, 07 Mar 2003 15:07:10 +0100
-Message-ID: <m38yvr6zjl.fsf@travel.mandrakesoft.com>
-References: <200303070752.31261.gilsonr@cityisp.net> <20030307142518.GA18138@suse.de>
+	id <S261601AbTCGOUo>; Fri, 7 Mar 2003 09:20:44 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33808 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261597AbTCGOUn>; Fri, 7 Mar 2003 09:20:43 -0500
+Date: Fri, 7 Mar 2003 14:31:14 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: SANTHOSH K <santhoshk@nestec.net>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: cardbus driver
+Message-ID: <20030307143114.G17492@flint.arm.linux.org.uk>
+Mail-Followup-To: SANTHOSH K <santhoshk@nestec.net>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+References: <F6E1228667B6D411BAAA00306E00F2A5153AB2@pdc2.nestec.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@main.gmane.org
-Cc: Dave Jones <davej@codemonkey.org.uk>
-User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2.93
- (i386-mandrake-linux-gnu)
-Cancel-Lock: sha1:k5D8jnJ9lKbD8/y0VqXDEu5iPY4=
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <F6E1228667B6D411BAAA00306E00F2A5153AB2@pdc2.nestec.net>; from santhoshk@nestec.net on Fri, Mar 07, 2003 at 07:08:29PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@codemonkey.org.uk> writes:
+On Fri, Mar 07, 2003 at 07:08:29PM +0530, SANTHOSH K wrote:
+> What change need to be done to give support for a pccard driver to a cardbus
+> driver?
 
-> I doubt Mandrake ships the module-init-tools that the new style module
-> loader needs (only Debian currently does afaik). I suggest reading
-> http://www.codemonkey.org.uk/post-halloween-2.5.txt
+Electrically, they're different interfaces.  If the controller hardware
+you're using doesn't support cardbus cards, no amount of software will
+make them work.
 
-yes we do. module-init-tools package.
+Could you give some details about the hardware and the driver?
 
 -- 
-http://www.chmouel.com/
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

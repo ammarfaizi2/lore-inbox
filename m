@@ -1,40 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312470AbSCYRup>; Mon, 25 Mar 2002 12:50:45 -0500
+	id <S312455AbSCYSCf>; Mon, 25 Mar 2002 13:02:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312476AbSCYRuf>; Mon, 25 Mar 2002 12:50:35 -0500
-Received: from f242.law7.hotmail.com ([216.33.237.242]:24847 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S312470AbSCYRua>;
-	Mon, 25 Mar 2002 12:50:30 -0500
-X-Originating-IP: [192.6.114.30]
-From: "Gabriel Sechan" <gsechan@hotmail.com>
-To: kplug-list@kernel-panic.org, kplug-newbie@kernel-panic.org,
-        kplug-lpsg@kernel-panic.org, linux-kernel@vger.kernel.org
-Subject: Re: SSSCA Hits the Senate
-Date: Mon, 25 Mar 2002 11:50:24 -0600
+	id <S312476AbSCYSC0>; Mon, 25 Mar 2002 13:02:26 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:38414 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S312455AbSCYSCP>;
+	Mon, 25 Mar 2002 13:02:15 -0500
+Date: Mon, 25 Mar 2002 10:01:33 -0800
+From: Greg KH <greg@kroah.com>
+To: Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>,
+        christophe =?iso-8859-1?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 3c59x and resume
+Message-ID: <20020325180133.GB28629@kroah.com>
+In-Reply-To: <20020323161647.GA11471@ufies.org> <3C9CCBEB.D39465A6@zip.com.au> <1016914030.949.20.camel@phantasy> <20020323224433.GB11471@ufies.org> <20020324080729.GD16785@kroah.com> <20020324142545.GC20703@ufies.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F242mn8wt6zY2rnMwa10000687f@hotmail.com>
-X-OriginalArrivalTime: 25 Mar 2002 17:50:24.0953 (UTC) FILETIME=[8ABBDA90:01C1D425]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 25 Feb 2002 15:20:35 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Mar 24, 2002 at 09:25:45AM -0500, christophe barbé wrote:
+> On Sun, Mar 24, 2002 at 12:07:29AM -0800, Greg KH wrote:
+> > On Sat, Mar 23, 2002 at 05:44:33PM -0500, christophe barbé wrote:
+> > > With the 'everything is module' and 'everything is hotplug' approach in
+> > > mind (which is a appealing way and IMHO this is the way we are going),
+> > > I see two part for this problem:
+> > > 
+> > > . Persistence after plug out/plug in 
+> > > 
+> > > . Persistence after suspend/resume
+> > > 
+> > > The first one is a userland problem. The card identification could be
+> > > based on the MAC address (for NICs at least, in the case of cardbus the
+> > > bus position has no real signification). This should then be the
+> > > responsibility of the userspace tool (hotplug) to indicate the correct
+> > > option for this card. The problem is when the module is already loaded,
+> > > the userspace tool has no way to indicate this option.
+> > 
+> > Untrue.  See
+> > 	http://www.kroah.com/linux/hotplug/ols_2001_hotplug_talk/html/mgp00014.html
+> > for a 6 line version of /sbin/hotplug that always assigns the same
+> > "ethX" value to the same MAC address.  I think the patch to nameif has
+> > gone in to support this, but I'm not sure.
+> 
+> Untrue what ? The persistence after plug out/in ?
 
->On Monday 25 March 2002 17:22, Jesse Pollard wrote:
-> > Has there been anything that says the copy protection code can't be 
->source?
-> > If it were included in the source, along with all the other code, would
-> > that be recognized as "protected"?
->
->Worst thing happens if somebody gets a patent for the copy protection 
->schemes...
->
-Didn't Slashdot report MS patenting the DRMOS (digital rights management 
-operating system) about 2 months ago?
+No, the sentence, "The problem is when the module is already loaded..."
+/sbin/hotplug gets called when the network device is started up, it
+doesn't only get called before the module is loaded.
 
-Gabe Sechan
+> The problem here is not to give the same interface to a given NIC. The
+> problem is to give the same options to a given NIC. But a solution can
+> simply be to set the option from hotplug using the proc interface. The
+> 3c59x doesn't support that for wol but that can be changed.
 
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
+Understood.
 
+> > And why is there a limitation of only 8 devices?  Why not do what all
+> > USB drivers do, and just create the structure that you need to use at
+> > probe() time, and destroy it at remove() time?
+> 
+> This is an implementation issue which is not really important. It comes
+> from Donald Becker. Your dynamic structure doesn't solve the problem
+> 'which options for which cards', does it ? 
+
+No, but it solves the problem, "only 8 devices max", and "what to do
+when a card is removed and then plugged back in."  Both seems like good
+things to fix in the driver :)
+
+thanks,
+
+greg k-h

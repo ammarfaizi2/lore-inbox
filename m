@@ -1,143 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261526AbSIXBux>; Mon, 23 Sep 2002 21:50:53 -0400
+	id <S261524AbSIXBtz>; Mon, 23 Sep 2002 21:49:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261528AbSIXBux>; Mon, 23 Sep 2002 21:50:53 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:10436 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261526AbSIXBuu>;
-	Mon, 23 Sep 2002 21:50:50 -0400
-Message-ID: <3D8FC5D8.7988EA62@us.ibm.com>
-Date: Mon, 23 Sep 2002 18:54:32 -0700
-From: Larry Kessler <kessler@us.ibm.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
+	id <S261526AbSIXBtz>; Mon, 23 Sep 2002 21:49:55 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:41625 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S261524AbSIXBtx>;
+	Mon, 23 Sep 2002 21:49:53 -0400
+Message-ID: <1032832499.3d8fc5f3a1444@kolivas.net>
+Date: Tue, 24 Sep 2002 11:54:59 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: jw schultz <jw@pegasys.ws>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: [BENCHMARK] Statistical representation of IO load results with contest
+References: <1032830639.3d8fbeafe0368@kolivas.net> <20020924013711.GE15156@pegasys.ws>
+In-Reply-To: <20020924013711.GE15156@pegasys.ws>
 MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       cgl_discussion mailing list <cgl_discussion@osdl.org>,
-       evlog mailing list <evlog-developers@lists.sourceforge.net>,
-       "ipslinux (Keith Mitchell)" <ipslinux@us.ibm.com>,
-       Linus Torvalds <torvalds@home.transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       James Keniston <kenistoj@us.ibm.com>,
-       Mike Sullivan <sullivam@us.ibm.com>, Hien Nguyen <hien@us.ibm.com>
-Subject: [PATCH-RFC] 2 of 4 - New problem logging macros, KBUILD_MODNAME
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting jw schultz <jw@pegasys.ws>:
 
-Please see the [PATCH-RFC] README 1ST file.
+> On Tue, Sep 24, 2002 at 11:23:59AM +1000, Con Kolivas wrote:
+> > Since your lkml message implies you missed this follow up message I've
+> forwarded
+> > it to you.
+> > 
+> 
+> The missed followup is probably due to propigation delays.
+
+no problem
+
+> I still think a relative performance number would be more
+> generally useful and applying that to the confidence
+> interval would make instantly clear whether something really
+> was an improvement or not (crossing 1.0).
+
+That is actually the way I want to represent the numbers! The problem has been
+the numbers and format have been changing as the benchmark has progressed,
+making parsing the information useless until it reached a stable set (that and
+bash is integer only). If you look at the OSDL www.osdl.org you'll see version
+0.34 of contest is now included in the benchmarks and reports exactly that
+thing: a ratio. I did not want it included on osdl till it was complete, and
+thought that v0.34 would keep results static from then on. Unfortunately that's
+not yet true.
+
+> Sorry if i seem to be carping on getting relative numbers.
+> It is just that your benchmark seems to be actually
+> reporting someting of general interest and i'm sick of
+> seeing benchmark results that are big blocks of numbers that
+> require in-depth analisys to have any meaning.
+
+Agree with you on that I can.
+
+> I can see the contest benchmark being usefull for those of
+> us who aren't statisticians or tweaking some tiny pocket of
+> code.  I suspect it would be good for such uses as
+> evaluating what effects might occur from adding memory or
+> whether to add more CPUs or replace them with faster ones.
+> In other words, not only does contest look usefull for
+> kernel tweaking but also for real-world scalability
+> anticipation.
+
+I actually have reservations about using contest for this purpose as the
+hardware configuration makes the tests run differently. Comparing numbers in
+this setting is likely to lead to wrong conclusions. For example if you go from
+256Mb to 512Mb ram, noload and process load results will be fine, but the
+mem_load and IO_load modules will then try to access more memory during memory
+loading and write larger files during IO loading. There are other problems with
+other hardware changes that I wont go into. Each load has to be tailored to be a
+true load for that hardware to maximise the sensitivity of kernel comparisons.
+Hence comparisons between hardware will not work. 
+
+If you think there is a workaround for this I'd love to hear it, but I don't
+want it to interfere with the usefulness of the test as it currently stands. It
+can't be both a hardware and kernel comparison benchmark in it's current guise.
+
+I appreciate your feedback
+
+Regards,
+Con.
+
+> > ----- Forwarded message from Con Kolivas <conman@kolivas.net> -----
+> >     Date: Tue, 24 Sep 2002 09:26:38 +1000
+> >     From: Con Kolivas <conman@kolivas.net>
+> > Reply-To: Con Kolivas <conman@kolivas.net>
+> >  Subject: [BENCHMARK] Statistical representation of IO load results with
+> contest
+> >       To: linux-kernel@vger.kernel.org
+> > 
+> > Thank you all who responded with suggestions on how to get useful data out
+> of
+> > the IO load module from contest. These are _new_ results with a
+> > sync,swapoff,swapon before conducting just the IO load. I have digested all
+> your
+> > suggestions and come up with the following:
+> > 
+> > n=5 for number of samples
+> > 
+> > Kernel          Mean    CI(95%)
+> > 2.5.38          411     344-477
+> > 2.5.39-gcc32    371     224-519
+> > 2.5.38-mm2      95      84-105
+> > 
+> > 
+> > The mean is a simple average of the results, and the CI(95%) are the 95%
+> > confidence intervals the mean lies between those numbers. These numbers
+> seem to
+> > be the most useful for comparison.
+> > 
+> > Comparing 2.5.38(gcc2.95.3) with 2.5.38(gcc3.2) there is NO significant
+> > difference (p 0.56)
+> > 
+> > Comparing 2.5.38 with 2.5.38-mm2 there is a significant diffence
+> (p<0.001)
+> > 
+> > After playing with all these it appears I should do the following to
+> contest:
+> > 
+> > Add sync,swapoff,swapon before each load
+> > Perform noload and process_load twice to ensure no abnormal results
+> > Perform mem_load 3 times
+> > Perform IO_fullmem 5 times (and rename it just IO_load)
+> > Drop IO_halfmem (adds no more useful information and just adds time).
+> > Do a statistical analysis like the above when posting information.
+> > 
+> > Comments?
+> > 
+> > Con
 
 
-Name: KBUILD_MODNAME define for build system
-Author: Kai Germaschewski
-Status: Experimental
-
-D: This patch adds a -DKBUILD_MODNAME to the kernel compile, which
-D: contains the base of the module name which is being built.
-D: 
-D: - Some sreorganization of the c_flags since they're needed for
-D:   generating modversions (.ver) and compiling
-D: - Use the right KBUILD_MODNAME also when the user just wants a .i/.s/.lst 
-D:   file for debugging and also when generating modversions
-D: - It looks like with your current approach you can't have a ',' or '-' in
-D:   KBUILD_MODNAME - however, that means that KBUILD_MODNAME is not quite
-D:   right for passing module parameters for built-in modules on the command
-D:   line, it would be confusing to pass parameters for ide-cd as 
-D:   ide_cd.foo=whatever. So that part could use a little more thought.
-D: - If you think your module_names trick makes a noticable difference, feel
-D:   free to re-add it.
-D: - It's possible that objects are linked into more than one module - I 
-D:   suppose this shouldn't be a problem, since these objects hopefully
-D:   don't have a module_init() nor do they export symbols. Not sure if your
-D:   patch did handle this.
-D: 
-D: --Kai
-
-===== Rules.make 1.68 vs edited =====
---- 1.68/Rules.make	Mon Jul 29 14:55:41 2002
-+++ edited/Rules.make	Tue Jul 30 21:27:46 2002
-@@ -95,11 +95,15 @@
- multi-used-y := $(filter-out $(list-multi),$(__multi-used-y))
- multi-used-m := $(filter-out $(list-multi),$(__multi-used-m))
- 
-+multi-used   := $(multi-used-y) $(multi-used-m)
-+
- # Build list of the parts of our composite objects, our composite
- # objects depend on those (obviously)
- multi-objs-y := $(foreach m, $(multi-used-y), $($(m:.o=-objs)))
- multi-objs-m := $(foreach m, $(multi-used-m), $($(m:.o=-objs)))
- 
-+multi-objs   := $(multi-objs-y) $(multi-objs-m)
-+
- # $(subdir-obj-y) is the list of objects in $(obj-y) which do not live
- # in the local directory
- subdir-obj-y := $(foreach o,$(obj-y),$(if $(filter-out $(o),$(notdir $(o))),$(o)))
-@@ -115,6 +119,23 @@
- # contain a comma
- depfile = $(subst $(comma),_,$(@D)/.$(@F).d)
- 
-+# These flags are needed for modversions and compiling, so we define them here
-+# already
-+# $(modname_flags) #defines KBUILD_MODNAME as the name of the module it will 
-+# end up in (or would, if it gets compiled in)
-+# Note: It's possible that one object gets potentially linked into more
-+#       than one module. In that case KBUILD_MODNAME will be set to foo_bar,
-+#       where foo and bar are the name of the modules.
-+basename_flags = -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F)))
-+modname_flags  = -DKBUILD_MODNAME=$(subst $(comma),_,$(subst -,_,$(modname)))
-+c_flags        = -Wp,-MD,$(depfile) $(CFLAGS) $(NOSTDINC_FLAGS) \
-+	         $(modkern_cflags) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o) \
-+	         $(basename_flags) $(modname_flags) $(export_flags) 
-+
-+# Finds the multi-part object the current object will be linked into
-+modname-multi = $(subst $(space),_,$(strip $(foreach m,$(multi-used),\
-+		$(if $(filter $(*F).o,$($(m:.o=-objs))),$(m:.o=)))))
-+
- # We're called for one of three purposes:
- # o fastdep: build module version files (.ver) for $(export-objs) in
- #   the current directory
-@@ -164,11 +185,10 @@
- $(addprefix $(MODVERDIR)/,$(real-objs-y:.o=.ver)): modkern_cflags := $(CFLAGS_KERNEL)
- $(addprefix $(MODVERDIR)/,$(real-objs-m:.o=.ver)): modkern_cflags := $(CFLAGS_MODULE)
- $(addprefix $(MODVERDIR)/,$(export-objs:.o=.ver)): export_flags   := -D__GENKSYMS__
-+# Default for not multi-part modules
-+modname = $(*F)
- 
--c_flags = -Wp,-MD,$(depfile) $(CFLAGS) $(NOSTDINC_FLAGS) \
--	  $(modkern_cflags) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o) \
--	  -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) \
--	  $(export_flags) 
-+$(addprefix $(MODVERDIR)/,$(multi-objs:.o=.ver)) : modname = $(modname-multi)
- 
- # Our objects only depend on modversions.h, not on the individual .ver
- # files (fix-dep filters them), so touch modversions.h if any of the .ver
-@@ -259,6 +279,7 @@
- 
- $(real-objs-m)        : modkern_cflags := $(CFLAGS_MODULE)
- $(real-objs-m:.o=.i)  : modkern_cflags := $(CFLAGS_MODULE)
-+$(real-objs-m:.o=.s)  : modkern_cflags := $(CFLAGS_MODULE)
- $(real-objs-m:.o=.lst): modkern_cflags := $(CFLAGS_MODULE)
- 
- $(export-objs)        : export_flags   := $(EXPORT_FLAGS)
-@@ -266,10 +287,13 @@
- $(export-objs:.o=.s)  : export_flags   := $(EXPORT_FLAGS)
- $(export-objs:.o=.lst): export_flags   := $(EXPORT_FLAGS)
- 
--c_flags = -Wp,-MD,$(depfile) $(CFLAGS) $(NOSTDINC_FLAGS) \
--	  $(modkern_cflags) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o) \
--	  -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) \
--	  $(export_flags) 
-+# Default for not multi-part modules
-+modname = $(*F)
-+
-+$(multi-objs)         : modname = $(modname-multi)
-+$(multi-objs:.o=.i)   : modname = $(modname-multi)
-+$(multi-objs:.o=.s)   : modname = $(modname-multi)
-+$(multi-objs:.o=.lst) : modname = $(modname-multi)
- 
- quiet_cmd_cc_s_c = CC     $(echo_target)
- cmd_cc_s_c       = $(CC) $(c_flags) -S -o $@ $<

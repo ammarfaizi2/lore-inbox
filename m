@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265467AbRF1BFF>; Wed, 27 Jun 2001 21:05:05 -0400
+	id <S265469AbRF1BGf>; Wed, 27 Jun 2001 21:06:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265468AbRF1BE4>; Wed, 27 Jun 2001 21:04:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:33172 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265467AbRF1BEq>;
-	Wed, 27 Jun 2001 21:04:46 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15162.33445.396761.71174@pizda.ninka.net>
-Date: Wed, 27 Jun 2001 18:04:37 -0700 (PDT)
-To: anton@samba.org
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, tom_gall@vnet.ibm.com,
+	id <S265470AbRF1BG0>; Wed, 27 Jun 2001 21:06:26 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:27578 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S265469AbRF1BFQ>;
+	Wed, 27 Jun 2001 21:05:16 -0400
+Date: Thu, 28 Jun 2001 03:05:03 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106280105.DAA331227.aeb@vlet.cwi.nl>
+To: alan@lxorguk.ukuu.org.uk, andre@aslab.com
+Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
+Cc: Gunther.Mayer@t-online.de, dhinds@zen.stanford.edu,
         linux-kernel@vger.kernel.org
-Subject: Re: RFC: Changes for PCI
-In-Reply-To: <20010628091704.B23627@krispykreme>
-In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com>
-	<3B3A5B00.9FF387C9@mandrakesoft.com>
-	<20010628091704.B23627@krispykreme>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    From: Andre Hedrick <andre@aslab.com>
 
-anton@samba.org writes:
- > > Why not use sysdata like the other arches?
- > > 
- > > Changing the meaning of dev->bus->number globally seems pointless.  If
- > > you are going to do that, just do it the right way and introduce another
- > > struct member, pci_domain or somesuch.
- > 
- > Thats 2.5 material. For 2.4 we should do as davem suggested and make
- > the bus number unique. I do this by just adding 256 to each overlapping
- > host bridge.
+    You know yourself first and all the screwed up ATAPI products that are
+    still using SFF-8020 that has been obsoleted before I start maintaining
+    the subsystem three plus years ago. 
 
-Looks, ppc64 is really still experimental right?  Which means it is
-2.5.x material, and 2.5.x has been quoted as being a week or two away.
+Hi Andre -
 
-So we can solve this problem for real, with system bus domains, and
-get ppc64 working all within the framework of 2.5.x which is just
-around the corner.
+Why precisely is complying to SFF-8020 broken?
+That was the standard. The standard that Microsoft required.
+Other people made a different standard, and claimed that theirs
+was better or more official or whatever, but reality is that
+the products were not manufactured following this so-called
+better standard.
+You are a good disciple of Hale, but it is no use ignoring the
+fact that a very large number of devices was made following SFF-8020.
+These devices are not necessarily screwed, they tend to work fine,
+although both ATA and ATAPI devices have their quirks.
 
-For now, I am rather sure your systems for testing have < 256 physical
-PCI busses and you can for 2.4.x use the remapping scheme sparc64 uses.
+SFF-8020, later INF-8020, became part of ATA/ATAPI-4 (1998).
+The T13 people that merged SFF-8020 and produced ATA/ATAPI-4
+changed a few details about how a master is supposed to react
+when a nonexistent slave is selected. Nobody really noticed,
+and ATA/ATAPI-5 still had the same requirements. But then long
+discussions about this difference caused ATA/ATAPI-6 to go back
+to the original SFF-8020 requirements. Do you disagree with this
+description of history? If you agree then it is not SFF-8020
+but ATA/ATAPI-4 and ATA/ATAPI-5 that today must be considered broken
+in this respect. I am referring to Section 9.16.1 of these standards.
 
-Later,
-David S. Miller
-davem@redhat.com
+Maybe there are other things in SFF-8020 that you consider broken?
+
+Andries
+
+

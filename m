@@ -1,118 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265684AbUG2Ups@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265772AbUG2UpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265684AbUG2Ups (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 16:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUG2UnX
+	id S265772AbUG2UpO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 16:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265684AbUG2Uns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 16:43:23 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:52888 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265256AbUG2Uj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 16:39:57 -0400
-Date: Thu, 29 Jul 2004 21:04:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Per kthread freezer flags
-Message-ID: <20040729190438.GA468@openzaurus.ucw.cz>
-References: <1090999301.8316.12.camel@laptop.cunninghams>
+	Thu, 29 Jul 2004 16:43:48 -0400
+Received: from outmx003.isp.belgacom.be ([195.238.2.100]:2496 "EHLO
+	outmx003.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S265281AbUG2UlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 16:41:18 -0400
+Subject: Re: [PATCHSET 2.6.7-rc2-ff3] Kernel webconfig
+From: FabF <fabian.frederick@skynet.be>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040729131330.13accb5a.rddunlap@osdl.org>
+References: <1089211577.3692.46.camel@localhost.localdomain>
+	 <20040728095256.57aeed52.rddunlap@osdl.org>
+	 <1091049074.7462.1.camel@localhost.localdomain>
+	 <20040729100225.0e0b9aef.rddunlap@osdl.org>
+	 <1091123009.2334.13.camel@localhost.localdomain>
+	 <20040729131330.13accb5a.rddunlap@osdl.org>
+Content-Type: text/plain
+Message-Id: <1091133670.2334.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1090999301.8316.12.camel@laptop.cunninghams>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 29 Jul 2004 22:41:10 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 2004-07-29 at 22:13, Randy.Dunlap wrote:
+> On Thu, 29 Jul 2004 19:43:30 +0200 FabF wrote:
+> 
+> | Randy,
+> | 
+> | You're absolutely right ! I forgot to talk about that mandatory point :
+> | 
+> | Here's httpd.conf additions :
+> | 
+> | ScriptAlias /cgi-bin/ "/usr/src/linux-2.6.7-rc2-ff1/"
+> | 
+> | <Directory "/usr/src/linux-2.6.7-rc2-ff1/">
+> |     AllowOverride None
+> |     Options None
+> |     Order allow,deny
+> |     Allow from all
+> | </Directory>
+> | 
+> | i.e. http://localhost/cgi-bin/wconf is mapped to wconf binary which is
+> | generated in linux tree root.
+> | 
+> | Note that we could work another way around e.g. 
+> | 	-Have CGI in apache original cgi-bin path
+> | 	-Place some conf file with kernel tree.
+> | ... That said, it's only in proto state :)
+> 
+> Hi again,
+> 
+> I still can't get it (the web server) to work, and I've spent
+> too much time on it already, so I'll have to drop it for now.
+> I think it's a neat idea, though.
+You might want to look at apache log see if it's not access
+relevant.wwwrun has to be linux-tree authoritative (eg brutal -R 777)
 
-> At the moment, all kthreads have PF_NOFREEZE set, meaning that they're
-> not refrigerated during a suspend. This isn't right for some threads.
+Regards,
+FabF
 
-Looks good, but see comments below.
-
-
-
-> --- linux-2.6.8-rc1-mm1/drivers/block/pktcdvd.c	2004-07-28 16:37:46.000000000 +1000
-> +++ linux-2.6.8-rc1-mm1-kthread_refrigerator/drivers/block/pktcdvd.c	2004-07-28 16:59:22.000000000 +1000
-> @@ -2372,7 +2372,7 @@
->  
->  	pkt_init_queue(pd);
->  
-> -	pd->cdrw.thread = kthread_run(kcdrwd, pd, "%s", pd->name);
-> +	pd->cdrw.thread = kthread_run(kcdrwd, pd, "%s", 0, pd->name);
->  	if (IS_ERR(pd->cdrw.thread)) {
->  		printk("pktcdvd: can't start kernel thread\n");
->  		ret = -ENOMEM;
-
-What if someone does swapon /dev/pktdvd0?
-
-
-> +++ linux-2.6.8-rc1-mm1-kthread_refrigerator/drivers/md/dm-raid1.c	2004-07-28 16:48:44.000000000 +1000
-> @@ -1238,7 +1238,7 @@
->  	if (r)
->  		return r;
->  
-> -	_kmirrord_wq = create_workqueue("kmirrord");
-> +	_kmirrord_wq = create_workqueue("kmirrord", PF_NOFREEZE);
->  	if (!_kmirrord_wq) {
->  		DMERR("couldn't start kmirrord");
->  		dm_dirty_log_exit();
-
-
-I'm not 100% certain what kmirrord does, but we certainly do not
-want raid array to be reconstructed while suspending.
-
-
-
-linux-2.6.8-rc1-mm1-kthread_refrigerator/fs/aio.c
-> --- linux-2.6.8-rc1-mm1/fs/aio.c	2004-07-28 16:36:03.000000000 +1000
-> +++ linux-2.6.8-rc1-mm1-kthread_refrigerator/fs/aio.c	2004-07-28 16:43:48.000000000 +1000
-> @@ -69,7 +69,7 @@
->  	kioctx_cachep = kmem_cache_create("kioctx", sizeof(struct kioctx),
->  				0, SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
->  
-> -	aio_wq = create_workqueue("aio");
-> +	aio_wq = create_workqueue("aio", PF_NOFREEZE);
->  
->  	pr_debug("aio_setup: sizeof(struct page) = %d\n", (int)sizeof(struct page));
->  
-
-Are you sure? Unless swsusp itself uses aio, we want this to freeze.
-
-
-linux-2.6.8-rc1-mm1-kthread_refrigerator/kernel/sched.c	2004-07-28 16:43:48.000000000 +1000
-> @@ -3550,7 +3550,8 @@
->  
->  	switch (action) {
->  	case CPU_UP_PREPARE:
-> -		p = kthread_create(migration_thread, hcpu, "migration/%d",cpu);
-> +		p = kthread_create(migration_thread, hcpu, 0,
-> +				"migration/%d",cpu);
->  		if (IS_ERR(p))
->  			return NOTIFY_BAD;
->  		p->flags |= PF_NOFREEZE;
-
-Ugh, creating thread normally only to add PF_NOFREEZE 2 lines later
-looks bad.
-
-> +++ linux-2.6.8-rc1-mm1-kthread_refrigerator/kernel/softirq.c	2004-07-28 16:43:48.000000000 +1000
-> @@ -425,7 +425,7 @@
->  	case CPU_UP_PREPARE:
->  		BUG_ON(per_cpu(tasklet_vec, hotcpu).list);
->  		BUG_ON(per_cpu(tasklet_hi_vec, hotcpu).list);
-> -		p = kthread_create(ksoftirqd, hcpu, "ksoftirqd/%d", hotcpu);
-> +		p = kthread_create(ksoftirqd, hcpu, 0, "ksoftirqd/%d", hotcpu);
->  		if (IS_ERR(p)) {
->  			printk("ksoftirqd for %i failed\n", hotcpu);
->  			return NOTIFY_BAD;
-
-I guess softinterrupts may be neccessary for suspend... Random drivers may use
-them, right?
-
-
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+> 
+> Later,
+> --
+> ~Randy
+> 
 

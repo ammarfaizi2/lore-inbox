@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUITLrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266311AbUITLrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266295AbUITLrB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 07:47:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUITLrB
+	id S266311AbUITLrt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 07:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266316AbUITLrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 07:47:01 -0400
-Received: from holomorphy.com ([207.189.100.168]:37309 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266295AbUITLqz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 07:46:55 -0400
-Date: Mon, 20 Sep 2004 04:46:16 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Kirill Korotaev <dev@sw.ru>
+	Mon, 20 Sep 2004 07:47:49 -0400
+Received: from tentacle.s2s.msu.ru ([193.232.119.109]:56195 "EHLO
+	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
+	id S266311AbUITLrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 07:47:42 -0400
+Date: Mon, 20 Sep 2004 15:47:41 +0400
+From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Q] why switch_exec_pids() changes thread group leader pid?
-Message-ID: <20040920114616.GT9106@holomorphy.com>
-References: <414EBF2B.5090909@sw.ru>
+Subject: Re: 2.6.9-rc2 hangs in posix_locks_deadlock
+Message-ID: <20040920114741.GA3989@tentacle.sectorb.msk.ru>
+References: <20040919160342.GA26409@tentacle.sectorb.msk.ru> <20040919200527.GA7184@tentacle.sectorb.msk.ru> <1095625531.7860.59.camel@lade.trondhjem.org> <20040919203619.GA8618@tentacle.sectorb.msk.ru> <1095634303.7860.122.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <414EBF2B.5090909@sw.ru>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <1095634303.7860.122.camel@lade.trondhjem.org>
+X-Organization: Moscow State Univ., Dept. of Mechanics and Mathematics
+X-Operating-System: Linux 2.6.9-rc2-mm1
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 20, 2004 at 03:29:47PM +0400, Kirill Korotaev wrote:
-> I've been looking through switch_exec_pids() function and found that it 
-> changes thread group leader PID/TGID. Is it really a good idea to change 
->  pid of the process during it's lifetime? I could understand if it was 
-> happenning in the context of that process, but pid changes everytime a 
-> thread calls do_execve().
-> As far as I can see, leader doesn't have to do any of detach_pid()'s. 
-> Instead thread should change it's PID/TGID.
+On Sun, Sep 19, 2004 at 03:51:43PM -0700, Trond Myklebust wrote:
+> Hmm...  It appears that it is indeed possible for both leases and flocks
+> to be on the global "blocked_list", so the appended check is *not*
+> redundant.
+> Since flocks in particular do not initialize fl_owner, I suspect that
+> you might be seeing wierd loops that were previously being avoided due
+> to the ->fl_pid checks...
+> 
+> Cheers,
+>  Trond
+> 
 
-It's only done when a thread that is not a thread group leader
-execve()'s. This is actually pretty rare and confined to threaded
-applications, so it should be almost never called.
+> [PATCH] fix posix_locks_deadlock().
 
+2.6.9-rc2-mm1 with this patch seems to be doing fine, thanks
 
--- wli
+> 
+~
+:wq
+                                        With best regards, 
+                                           Vladimir Savkin. 
+

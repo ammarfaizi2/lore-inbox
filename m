@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268026AbTAIWIf>; Thu, 9 Jan 2003 17:08:35 -0500
+	id <S268033AbTAIWKS>; Thu, 9 Jan 2003 17:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268028AbTAIWIf>; Thu, 9 Jan 2003 17:08:35 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:59278
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268026AbTAIWIe>; Thu, 9 Jan 2003 17:08:34 -0500
-Subject: Re: [Linux-fbdev-devel] Re: rotation.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       Sven Luther <luther@dpt-info.u-strasbg.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0301091956140.5660-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0301091956140.5660-100000@phoenix.infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042153388.28469.17.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 09 Jan 2003 23:03:08 +0000
+	id <S268032AbTAIWKO>; Thu, 9 Jan 2003 17:10:14 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:9201 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S268031AbTAIWI5>; Thu, 9 Jan 2003 17:08:57 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A847137F49@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Pavel Machek <pavel@ucw.cz>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: RE: acpi_button misses some static's
+Date: Thu, 9 Jan 2003 14:10:02 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-01-09 at 19:59, James Simmons wrote:
-> > > So, we also support fbcon for not left to righ locales ?
-> > This looks like a high-level thing to me.
-> > Ideally something like ansi escape sequences to switch between
-> > left-to-right, right-to-left, and up-to-down advancing of
-> > the cursor.  Then the same multilingual apps will work with
-> > fbdev, xterm, and other terminals and emulators that
-> > implement those operations.
-> 
-> Yeap. Such things are supported on the console level. ISO6429 support.
+Already applied to my local tree, will be in the next ACPI patch, which
+should be very soon.
 
-Note btw that the support ends rather abruptly on the console input side.
-There is no support for 3 or 4 byte utf8 input sequences and the delete
-key code in the kernel has no understanding of or support for UTF8
-deletion behaviour
+> From: Pavel Machek [mailto:pavel@ucw.cz] 
+> This adds them, please apply.
 
+Thanks -- Regards -- Andy

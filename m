@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318361AbSHZWIF>; Mon, 26 Aug 2002 18:08:05 -0400
+	id <S318324AbSHZWEJ>; Mon, 26 Aug 2002 18:04:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318365AbSHZWIE>; Mon, 26 Aug 2002 18:08:04 -0400
-Received: from tomts25.bellnexxia.net ([209.226.175.188]:57538 "EHLO
-	tomts25-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S318361AbSHZWIE>; Mon, 26 Aug 2002 18:08:04 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: MM patches against 2.5.31
-Date: Mon, 26 Aug 2002 18:09:45 -0400
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@zip.com.au>,
-       Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
-       Daniel Phillips <phillips@arcor.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200208261809.45568.tomlins@cam.org>
+	id <S318325AbSHZWEJ>; Mon, 26 Aug 2002 18:04:09 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:56023 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S318324AbSHZWEI>; Mon, 26 Aug 2002 18:04:08 -0400
+Date: Mon, 26 Aug 2002 23:07:45 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Gregoire Favre <greg@ulima.unil.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Interdiff of AC series?
+Message-ID: <20020826220745.GQ959@redhat.com>
+References: <20020826123340.GD25765@ulima.unil.ch> <20020826132511.GA11762@neon.hh59.org> <20020826201142.GA4183@ulima.unil.ch>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lG9v85r552aFjg4G"
+Content-Disposition: inline
+In-Reply-To: <20020826201142.GA4183@ulima.unil.ch>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This seems to have been missed: 
 
-Linus Torvalds wrote:
+--lG9v85r552aFjg4G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> In article <3D6989F7.9ED1948A@zip.com.au>,
-> Andrew Morton  <akpm@zip.com.au> wrote:
->>
->>What I'm inclined to do there is to change __page_cache_release()
->>to not attempt to free the page at all.  Just let it sit on the
->>LRU until page reclaim encounters it.  With the anon-free-via-pagevec
->>patch, very, very, very few pages actually get their final release in
->>__page_cache_release() - zero on uniprocessor, I expect.
-> 
-> If you do this, then I would personally suggest a conceptually different
-> approach: make the LRU list count towards the page count.  That will
-> _automatically_ result in what you describe - if a page is on the LRU
-> list, then "freeing" it will always just decrement the count, and the
-> _real_ free comes from walking the LRU list and considering count==1 to
-> be trivially freeable.
-> 
-> That way you don't have to have separate functions for releasing
-> different kinds of pages (we've seen how nasty that was from a
-> maintainance standpoint already with the "put_page vs
-> page_cache_release" thing).
-> 
-> Ehh? 
+On Mon, Aug 26, 2002 at 10:11:42PM +0200, Gregoire Favre wrote:
 
-If every structure locks before removing its reference (ie before testing and/or
-removing a lru reference we take zone->lru_lock, for slabs take cachep->spinlock
-etc)  Its a bit of an audit task to make sure the various locks are taken (and
-documented) though.
+> On Mon, Aug 26, 2002 at 03:25:11PM +0200, axel@hh59.org wrote:
+>=20
+> > No. Unfortunately not but you can easily create one yourself using=20
+> > interdiff from GNU diffutils.
+>=20
+> ;-)
+> I know how to make interdiff, what I would like is to fetch less bits
+> with my modem connection...
 
-By leting the actual free be lazy as Linus suggests things should simplify nicely.
+You know that interdiff only needs the two patches, and not the entire
+trees?
 
-comments,
-Ed Tomlinson
+Tim.
+*/
+
+--lG9v85r552aFjg4G
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9aqavyaXy9qA00+cRAqg6AJ9YVXAgVu+TafwwHpL1mhafaq34+ACfYdwV
+n76W94fbKFXtmVekuClE6As=
+=94ZE
+-----END PGP SIGNATURE-----
+
+--lG9v85r552aFjg4G--

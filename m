@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272201AbRIKAA4>; Mon, 10 Sep 2001 20:00:56 -0400
+	id <S272218AbRIKAF4>; Mon, 10 Sep 2001 20:05:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272199AbRIKAAq>; Mon, 10 Sep 2001 20:00:46 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:34054 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S272198AbRIKAAd>;
-	Mon, 10 Sep 2001 20:00:33 -0400
-Message-ID: <XFMail.20010911020024.ast@domdv.de>
-X-Mailer: XFMail 1.4.6-3 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S272209AbRIKAFq>; Mon, 10 Sep 2001 20:05:46 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:35089 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S272213AbRIKAFd>; Mon, 10 Sep 2001 20:05:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: linux-2.4.10-pre5
+Date: Tue, 11 Sep 2001 01:20:50 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Andreas Dilger <adilger@turbolabs.com>, Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0109101439261.1034-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0109101439261.1034-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-In-Reply-To: <200109102346.f8ANkAY23472@aslan.scsiguy.com>
-Date: Tue, 11 Sep 2001 02:00:24 +0200 (CEST)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
-Cc: (Frank Schneider) <SPATZ1@t-online.de>
-Cc: <SPATZ1@t-online.de (Frank Schneider)>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010911000547Z16588-26185+142@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On September 11, 2001 12:15 am, Linus Torvalds wrote:
+> However, physical read-ahead really isn't the answer here. I bet you could
+> cut your time down with it, agreed. But you'd hurt a lot of other loads,
+> and it really depends on nice layout on disk. Plus you wouldn't even know
+> where to put the data you read-ahead: you only have the physical address,
+> not the logical address, and the page-cache is purely logically indexed..
 
-On 10-Sep-2001 Justin T. Gibbs wrote:
->>> MD (line 3475 of drivers/md/md.c) uses 0 too.  Change it to INT_MAX
->>> and MD will always get shutdown prior to any child devices it might
->>
->>I don't believe INT_MAX to be a good idea. What happens if anything else
->>needs
->>to shutdown prior to md (think of tux, knfsd)?
-> 
-> Your examples are processes (albeit in the kernel) which should have
-> received a signal long before the notifier chain is called.
-> 
+You leave it in the buffer cache and the page cache checks for it there 
+before deciding it has to hit the disk.
 
-Granted. I could, however, imagine a fs to require a reboot notifier and that
-would need definitely be processed before md.
+For coherency, getblk has to check for the block in the page cache.  We can 
+this implement using the buffer hash chain links, currently unused for page 
+cache buffers.
 
->>As a suggestion it would be a
->>good idea if someone with a broader overview would define some reboot
->>priorities in include/linux/notifier.h.
-> 
-> And expand the codes that are used for the notifier.  The current set
-> of codes are not well defined and most drivers treat all of them the
-> same.
-> 
-
-Just posted sort of this request to the list.
-
-> --
-> Justin
-> 
-
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+--
+Daniel

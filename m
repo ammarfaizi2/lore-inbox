@@ -1,70 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbTD2MWS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 08:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbTD2MWS
+	id S261855AbTD2M0R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 08:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbTD2M0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 08:22:18 -0400
-Received: from moutng.kundenserver.de ([212.227.126.185]:42728 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261845AbTD2MWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 08:22:16 -0400
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= <linux@borntraeger.net>
-To: acme@conectiva.com.br
-Subject: [BUG 2.5.67 (and probably earlier)] /proc/dev/net doesnt show all net devices
-Date: Tue, 29 Apr 2003 14:34:18 +0200
-User-Agent: KMail/1.5.1
+	Tue, 29 Apr 2003 08:26:16 -0400
+Received: from mux2.uit.no ([129.242.5.252]:32010 "EHLO mux2.uit.no")
+	by vger.kernel.org with ESMTP id S261968AbTD2MZa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 08:25:30 -0400
+Date: Tue, 29 Apr 2003 14:37:47 +0200
+From: Tobias Brox <tobias@stud.cs.uit.no>
+To: Hans-Peter Jansen <hpj@urpla.net>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: Re: PROBLEM: nfsroot.c + ipconfig.c (2.4.20)
+Message-ID: <20030429143747.A21551@stud.cs.uit.no>
+Reply-To: tobias@stud.cs.uit.no
+References: <200304231510.h3NFAh430564@lgserv3.stud.cs.uit.no> <shs8yu1uqak.fsf@charged.uio.no> <20030426123356.C12540@stud.cs.uit.no> <200304291428.03465.hpj@urpla.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304291434.18272.linux@borntraeger.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200304291428.03465.hpj@urpla.net>; from hpj@urpla.net on Tue, Apr 29, 2003 at 02:28:03PM +0200
+Organization: =?iso-8859-1?Q?University_of_Troms=F8?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary: /proc/net/devices doesnt show all devices using cat. With dd all are 
-available.
+[Hans-Peter Jansen - Tue at 02:28:03PM +0200]
+> No problem here with 2.4.20, 2.5.any not yet tested. I'm doing diskless 
+> since ages, but my setup seems to vary from yours. In short, I'm using 
+> etherboot, tftp and mknbi. E.g.:
+> 
+> mknbi-linux $kernelimg $ramdisk --rootdir="/netboot/%s,v3" --ip=rom \ 
+> --append="$append"
 
-I tested a kernels prior to 
-http://linus.bkbits.net:8080/linux-2.5/cset@1.797.156.3
-and it doesnt seem to have this problem.
+One more question; do you mount other nfs-partitions after booting?
 
-If I do a 
-& cat /proc/net/dev
-Inter-|   Receive                                                |  Transmit
- face |bytes    packets errs drop fifo frame compressed multicast|bytes    
-packets errs drop fifo colls carrier compressed
-    lo:     784      10    0    0    0     0          0         0      784      
-dummy0:       0       0    0    0    0     0          0         0        0       
- tunl0:       0       0    0    0    0     0          0         0        0       
-  gre0:       0       0    0    0    0     0          0         0        0       
-  sit0:       0       0    0    0    0     0          0         0        0       
-  eth0: 1078024   19131    0    0    0     0          0         0  5696472   
-  eth1:536253967 10078459    0    0    0     0          0         0 3372254868 
+I should probably try to play a bit more around with nfsroot.  As for
+now, I skipped it completely, and chose to rely on initrd instead.  I
+get grub to download a (quite big) initrd from the server, and then
+it's passed to the kernel as the root system.  After booting, I can
+put up network and mount partitions through nfs.
 
-I get net devices till eth1, but eth2 and hsi0 are available nevertheless.
-but if I do a 
-
-& dd if=/proc/net/dev bs=4096
-Inter-|   Receive                                                |  Transmit
- face |bytes    packets errs drop fifo frame compressed multicast|bytes    
-packets errs drop fifo colls carrier compressed
-    lo:    1036      13    0    0    0     0          0         0     1036      
-dummy0:       0       0    0    0    0     0          0         0        0       
- tunl0:       0       0    0    0    0     0          0         0        0       
-  gre0:       0       0    0    0    0     0          0         0        0       
-  sit0:       0       0    0    0    0     0          0         0        0       
-  eth0: 1182386   18424    0    0    0     0          0         0 11838659   
-  eth1:30499791987 20594094    0    0    0     0          0         0 
-  eth2:184353121774 125264473    0    0    0     0          0         0 
-  hsi0:123569282529 3827611    0    0    0     0          0         0 
-0+1 records in
-0+1 records out
-
-All net devices are shown.
-
-cheers
-
-Christian
+-- 
+Check our new Mobster game at http://hstudd.cs.uit.no/mobster/
+(web game, updates every 4th hour, no payment, no commercials)

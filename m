@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262889AbUCPAJM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 19:09:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUCPAJI
+	id S262976AbUCPAJA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 19:09:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUCPAIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 19:09:08 -0500
-Received: from mail.kroah.org ([65.200.24.183]:13999 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262889AbUCPACL convert rfc822-to-8bit
+	Mon, 15 Mar 2004 19:08:14 -0500
+Received: from mail.kroah.org ([65.200.24.183]:13487 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262888AbUCPACK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:02:11 -0500
+	Mon, 15 Mar 2004 19:02:10 -0500
 Subject: Re: [PATCH] i2c driver fixes for 2.6.4
-In-Reply-To: <10793913932181@kroah.com>
+In-Reply-To: <10793913953583@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 15 Mar 2004 14:56:33 -0800
-Message-Id: <10793913932514@kroah.com>
+Date: Mon, 15 Mar 2004 14:56:35 -0800
+Message-Id: <10793913953926@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,242 +22,402 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1608.74.4, 2004/03/09 14:59:03-08:00, mhoffman@lightlink.com
+ChangeSet 1.1608.74.17, 2004/03/15 13:09:45-08:00, aurelien@aurel32.net
 
-[PATCH] I2C: sysfs interface update for w83627hf
+[PATCH] I2C: New chip driver: ds1621
 
-This patch updates the sysfs names of the w83627hf driver
-to match the new standard.  The patch applies on top of
-one recently applied to your tree [1].  I have tested it
-using a w83627thf & the latest lm_sensors CVS.  Please apply.
+The following patch against kernel 2.6.4-mm1 adds the ds1621 driver (an
+I2C sensor). I have ported it from the 2.4 version.
 
-[1] http://archives.andrew.net.au/lm-sensors/msg06746.html
-
-
- drivers/i2c/chips/w83627hf.c |   60 +++++++++++++++++++++----------------------
- 1 files changed, 30 insertions(+), 30 deletions(-)
+It has been reviewed by Jean Delvare, partly on IRC, and it is
+"compliant" with Mark Hoffman's refactoring.
 
 
-diff -Nru a/drivers/i2c/chips/w83627hf.c b/drivers/i2c/chips/w83627hf.c
---- a/drivers/i2c/chips/w83627hf.c	Mon Mar 15 14:35:00 2004
-+++ b/drivers/i2c/chips/w83627hf.c	Mon Mar 15 14:35:00 2004
-@@ -294,10 +294,10 @@
- 	u8 fan_min[3];		/* Register value */
- 	u8 temp;
- 	u8 temp_max;		/* Register value */
--	u8 temp_hyst;		/* Register value */
-+	u8 temp_max_hyst;	/* Register value */
- 	u16 temp_add[2];	/* Register value */
- 	u16 temp_max_add[2];	/* Register value */
--	u16 temp_hyst_add[2];	/* Register value */
-+	u16 temp_max_hyst_add[2]; /* Register value */
- 	u8 fan_div[3];		/* Register encoding, shifted right */
- 	u8 vid;			/* Register encoding, combined */
- 	u32 alarms;		/* Register encoding, combined */
-@@ -373,7 +373,7 @@
- { \
-         return show_in(dev, buf, 0x##offset); \
- } \
--static DEVICE_ATTR(in_input##offset, S_IRUGO, show_regs_in_##offset, NULL)
-+static DEVICE_ATTR(in##offset##_input, S_IRUGO, show_regs_in_##offset, NULL)
+ drivers/i2c/chips/Kconfig  |   11 +
+ drivers/i2c/chips/Makefile |    1 
+ drivers/i2c/chips/ds1621.c |  345 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 357 insertions(+)
+
+
+diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+--- a/drivers/i2c/chips/Kconfig	Mon Mar 15 14:33:54 2004
++++ b/drivers/i2c/chips/Kconfig	Mon Mar 15 14:33:54 2004
+@@ -33,6 +33,17 @@
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called asb100.
  
- #define sysfs_in_reg_offset(reg, offset) \
- static ssize_t show_regs_in_##reg##offset (struct device *dev, char *buf) \
-@@ -386,7 +386,7 @@
- { \
- 	return store_in_##reg (dev, buf, count, 0x##offset); \
- } \
--static DEVICE_ATTR(in_##reg##offset, S_IRUGO| S_IWUSR, \
-+static DEVICE_ATTR(in##offset##_##reg, S_IRUGO| S_IWUSR, \
- 		  show_regs_in_##reg##offset, store_regs_in_##reg##offset)
++config SENSORS_DS1621
++      	tristate "Dallas Semiconductor DS1621 and DS1625"
++	depends on I2C && EXPERIMENTAL
++	select I2C_SENSOR
++	help
++	  If you say yes here you get support for Dallas Semiconductor
++	  DS1621 and DS1625 sensor chips. 
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called ds1621.
++
+ config SENSORS_FSCHER
+ 	tristate "FSC Hermes"
+ 	depends on I2C && EXPERIMENTAL
+diff -Nru a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
+--- a/drivers/i2c/chips/Makefile	Mon Mar 15 14:33:54 2004
++++ b/drivers/i2c/chips/Makefile	Mon Mar 15 14:33:54 2004
+@@ -8,6 +8,7 @@
+ obj-$(CONFIG_SENSORS_W83781D)	+= w83781d.o
  
- #define sysfs_in_offsets(offset) \
-@@ -406,9 +406,9 @@
- 
- #define device_create_file_in(client, offset) \
- do { \
--device_create_file(&client->dev, &dev_attr_in_input##offset); \
--device_create_file(&client->dev, &dev_attr_in_min##offset); \
--device_create_file(&client->dev, &dev_attr_in_max##offset); \
-+device_create_file(&client->dev, &dev_attr_in##offset##_input); \
-+device_create_file(&client->dev, &dev_attr_in##offset##_min); \
-+device_create_file(&client->dev, &dev_attr_in##offset##_max); \
- } while (0)
- 
- #define show_fan_reg(reg) \
-@@ -447,7 +447,7 @@
- { \
- 	return show_fan(dev, buf, 0x##offset); \
- } \
--static DEVICE_ATTR(fan_input##offset, S_IRUGO, show_regs_fan_##offset, NULL)
-+static DEVICE_ATTR(fan##offset##_input, S_IRUGO, show_regs_fan_##offset, NULL)
- 
- #define sysfs_fan_min_offset(offset) \
- static ssize_t show_regs_fan_min##offset (struct device *dev, char *buf) \
-@@ -459,7 +459,7 @@
- { \
- 	return store_fan_min(dev, buf, count, 0x##offset); \
- } \
--static DEVICE_ATTR(fan_min##offset, S_IRUGO | S_IWUSR, \
-+static DEVICE_ATTR(fan##offset##_min, S_IRUGO | S_IWUSR, \
- 		  show_regs_fan_min##offset, store_regs_fan_min##offset)
- 
- sysfs_fan_offset(1)
-@@ -471,8 +471,8 @@
- 
- #define device_create_file_fan(client, offset) \
- do { \
--device_create_file(&client->dev, &dev_attr_fan_input##offset); \
--device_create_file(&client->dev, &dev_attr_fan_min##offset); \
-+device_create_file(&client->dev, &dev_attr_fan##offset##_input); \
-+device_create_file(&client->dev, &dev_attr_fan##offset##_min); \
- } while (0)
- 
- #define show_temp_reg(reg) \
-@@ -492,7 +492,7 @@
- }
- show_temp_reg(temp)
- show_temp_reg(temp_max)
--show_temp_reg(temp_hyst)
-+show_temp_reg(temp_max_hyst)
- 
- #define store_temp_reg(REG, reg) \
- static ssize_t \
-@@ -517,7 +517,7 @@
- 	return count; \
- }
- store_temp_reg(OVER, max)
--store_temp_reg(HYST, hyst)
-+store_temp_reg(HYST, max_hyst)
- 
- #define sysfs_temp_offset(offset) \
- static ssize_t \
-@@ -525,7 +525,7 @@
- { \
- 	return show_temp(dev, buf, 0x##offset); \
- } \
--static DEVICE_ATTR(temp_input##offset, S_IRUGO, show_regs_temp_##offset, NULL)
-+static DEVICE_ATTR(temp##offset##_input, S_IRUGO, show_regs_temp_##offset, NULL)
- 
- #define sysfs_temp_reg_offset(reg, offset) \
- static ssize_t show_regs_temp_##reg##offset (struct device *dev, char *buf) \
-@@ -538,13 +538,13 @@
- { \
- 	return store_temp_##reg (dev, buf, count, 0x##offset); \
- } \
--static DEVICE_ATTR(temp_##reg##offset, S_IRUGO| S_IWUSR, \
-+static DEVICE_ATTR(temp##offset##_##reg, S_IRUGO| S_IWUSR, \
- 		  show_regs_temp_##reg##offset, store_regs_temp_##reg##offset)
- 
- #define sysfs_temp_offsets(offset) \
- sysfs_temp_offset(offset) \
- sysfs_temp_reg_offset(max, offset) \
--sysfs_temp_reg_offset(hyst, offset)
-+sysfs_temp_reg_offset(max_hyst, offset)
- 
- sysfs_temp_offsets(1)
- sysfs_temp_offsets(2)
-@@ -552,9 +552,9 @@
- 
- #define device_create_file_temp(client, offset) \
- do { \
--device_create_file(&client->dev, &dev_attr_temp_input##offset); \
--device_create_file(&client->dev, &dev_attr_temp_max##offset); \
--device_create_file(&client->dev, &dev_attr_temp_hyst##offset); \
-+device_create_file(&client->dev, &dev_attr_temp##offset##_input); \
-+device_create_file(&client->dev, &dev_attr_temp##offset##_max); \
-+device_create_file(&client->dev, &dev_attr_temp##offset##_max_hyst); \
- } while (0)
- 
- static ssize_t
-@@ -567,9 +567,9 @@
- 
- 	return sprintf(buf, "%ld\n", (long) vid_from_reg(data->vid, data->vrm));
- }
--static DEVICE_ATTR(vid, S_IRUGO, show_vid_reg, NULL)
-+static DEVICE_ATTR(in0_ref, S_IRUGO, show_vid_reg, NULL)
- #define device_create_file_vid(client) \
--device_create_file(&client->dev, &dev_attr_vid)
-+device_create_file(&client->dev, &dev_attr_in0_ref)
- 
- static ssize_t
- show_vrm_reg(struct device *dev, char *buf)
-@@ -734,7 +734,7 @@
- { \
- 	return store_fan_div_reg(dev, buf, count, offset); \
- } \
--static DEVICE_ATTR(fan_div##offset, S_IRUGO | S_IWUSR, \
-+static DEVICE_ATTR(fan##offset##_div, S_IRUGO | S_IWUSR, \
- 		  show_regs_fan_div_##offset, store_regs_fan_div_##offset)
- 
- sysfs_fan_div(1)
-@@ -743,7 +743,7 @@
- 
- #define device_create_file_fan_div(client, offset) \
- do { \
--device_create_file(&client->dev, &dev_attr_fan_div##offset); \
-+device_create_file(&client->dev, &dev_attr_fan##offset##_div); \
- } while (0)
- 
- static ssize_t
-@@ -794,7 +794,7 @@
- { \
- 	return store_pwm_reg(dev, buf, count, offset); \
- } \
--static DEVICE_ATTR(pwm##offset, S_IRUGO | S_IWUSR, \
-+static DEVICE_ATTR(fan##offset##_pwm, S_IRUGO | S_IWUSR, \
- 		  show_regs_pwm_##offset, store_regs_pwm_##offset)
- 
- sysfs_pwm(1)
-@@ -803,7 +803,7 @@
- 
- #define device_create_file_pwm(client, offset) \
- do { \
--device_create_file(&client->dev, &dev_attr_pwm##offset); \
-+device_create_file(&client->dev, &dev_attr_fan##offset##_pwm); \
- } while (0)
- 
- static ssize_t
-@@ -871,7 +871,7 @@
- { \
-     return store_sensor_reg(dev, buf, count, offset); \
- } \
--static DEVICE_ATTR(sensor##offset, S_IRUGO | S_IWUSR, \
-+static DEVICE_ATTR(temp##offset##_type, S_IRUGO | S_IWUSR, \
- 		  show_regs_sensor_##offset, store_regs_sensor_##offset)
- 
- sysfs_sensor(1)
-@@ -880,7 +880,7 @@
- 
- #define device_create_file_sensor(client, offset) \
- do { \
--device_create_file(&client->dev, &dev_attr_sensor##offset); \
-+device_create_file(&client->dev, &dev_attr_temp##offset##_type); \
- } while (0)
- 
- 
-@@ -1319,20 +1319,20 @@
- 		data->temp = w83627hf_read_value(client, W83781D_REG_TEMP(1));
- 		data->temp_max =
- 		    w83627hf_read_value(client, W83781D_REG_TEMP_OVER(1));
--		data->temp_hyst =
-+		data->temp_max_hyst =
- 		    w83627hf_read_value(client, W83781D_REG_TEMP_HYST(1));
- 		data->temp_add[0] =
- 		    w83627hf_read_value(client, W83781D_REG_TEMP(2));
- 		data->temp_max_add[0] =
- 		    w83627hf_read_value(client, W83781D_REG_TEMP_OVER(2));
--		data->temp_hyst_add[0] =
-+		data->temp_max_hyst_add[0] =
- 		    w83627hf_read_value(client, W83781D_REG_TEMP_HYST(2));
- 		if (data->type != w83697hf) {
- 			data->temp_add[1] =
- 			  w83627hf_read_value(client, W83781D_REG_TEMP(3));
- 			data->temp_max_add[1] =
- 			  w83627hf_read_value(client, W83781D_REG_TEMP_OVER(3));
--			data->temp_hyst_add[1] =
-+			data->temp_max_hyst_add[1] =
- 			  w83627hf_read_value(client, W83781D_REG_TEMP_HYST(3));
- 		}
- 
+ obj-$(CONFIG_SENSORS_ADM1021)	+= adm1021.o
++obj-$(CONFIG_SENSORS_DS1621)	+= ds1621.o
+ obj-$(CONFIG_SENSORS_EEPROM)	+= eeprom.o
+ obj-$(CONFIG_SENSORS_FSCHER)	+= fscher.o
+ obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
+diff -Nru a/drivers/i2c/chips/ds1621.c b/drivers/i2c/chips/ds1621.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/i2c/chips/ds1621.c	Mon Mar 15 14:33:54 2004
+@@ -0,0 +1,345 @@
++/*
++    ds1621.c - Part of lm_sensors, Linux kernel modules for hardware
++             monitoring
++    Christian W. Zuckschwerdt  <zany@triq.net>  2000-11-23
++    based on lm75.c by Frodo Looijaard <frodol@dds.nl>
++    Ported to Linux 2.6 by Aurelien Jarno <aurelien@aurel32.net> with 
++    the help of Jean Delvare <khali@linux-fr.org>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/i2c-sensor.h>
++#include "lm75.h"
++
++/* Addresses to scan */
++static unsigned short normal_i2c[] = { I2C_CLIENT_END };
++static unsigned short normal_i2c_range[] = { 0x48, 0x4f, I2C_CLIENT_END };
++static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
++static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
++
++/* Insmod parameters */
++SENSORS_INSMOD_1(ds1621);
++static int polarity = -1;
++MODULE_PARM(polarity, "i");
++MODULE_PARM_DESC(polarity, "Output's polarity: 0 = active high, 1 = active low");
++
++/* Many DS1621 constants specified below */
++/* Config register used for detection         */
++/*  7    6    5    4    3    2    1    0      */
++/* |Done|THF |TLF |NVB | 1  | 0  |POL |1SHOT| */
++#define DS1621_REG_CONFIG_MASK		0x0C
++#define DS1621_REG_CONFIG_VAL		0x08
++#define DS1621_REG_CONFIG_POLARITY	0x02
++#define DS1621_REG_CONFIG_1SHOT		0x01
++#define DS1621_REG_CONFIG_DONE		0x80
++
++/* The DS1621 registers */
++#define DS1621_REG_TEMP			0xAA /* word, RO */
++#define DS1621_REG_TEMP_MIN		0xA1 /* word, RW */
++#define DS1621_REG_TEMP_MAX		0xA2 /* word, RW */
++#define DS1621_REG_CONF			0xAC /* byte, RW */
++#define DS1621_COM_START		0xEE /* no data */
++
++/* The DS1621 configuration register */
++#define DS1621_ALARM_TEMP_HIGH		0x40
++#define DS1621_ALARM_TEMP_LOW		0x20
++
++/* Conversions. Rounding and limit checking is only done on the TO_REG
++   variants. Note that you should be a bit careful with which arguments
++   these macros are called: arguments may be evaluated more than once.
++   Fixing this is just not worth it. */
++#define ALARMS_FROM_REG(val) ((val) & \
++                              (DS1621_ALARM_TEMP_HIGH | DS1621_ALARM_TEMP_LOW))
++
++/* Each client has this additional data */
++struct ds1621_data {
++	struct semaphore update_lock;
++	char valid;			/* !=0 if following fields are valid */
++	unsigned long last_updated;	/* In jiffies */
++
++	u16 temp, temp_min, temp_max;	/* Register values, word */
++	u8 conf;			/* Register encoding, combined */
++};
++
++static int ds1621_attach_adapter(struct i2c_adapter *adapter);
++static int ds1621_detect(struct i2c_adapter *adapter, int address,
++			 int kind);
++static void ds1621_init_client(struct i2c_client *client);
++static int ds1621_detach_client(struct i2c_client *client);
++static struct ds1621_data *ds1621_update_client(struct device *dev);
++
++/* This is the driver that will be inserted */
++static struct i2c_driver ds1621_driver = {
++	.owner		= THIS_MODULE,
++	.name		= "ds1621",
++	.id		= I2C_DRIVERID_DS1621,
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= ds1621_attach_adapter,
++	.detach_client	= ds1621_detach_client,
++};
++
++static int ds1621_id = 0;
++
++static u16 swap_bytes(u16 val)
++{
++	return (val >> 8) | (val << 8);
++}
++
++/* All registers are word-sized, except for the configuration register.
++   DS1621 uses a high-byte first convention, which is exactly opposite to
++   the usual practice. */
++static int ds1621_read_value(struct i2c_client *client, u8 reg)
++{
++	if (reg == DS1621_REG_CONF)
++		return i2c_smbus_read_byte_data(client, reg);
++	else
++		return swap_bytes(i2c_smbus_read_word_data(client, reg));
++}
++
++/* All registers are word-sized, except for the configuration register.
++   DS1621 uses a high-byte first convention, which is exactly opposite to
++   the usual practice. */
++static int ds1621_write_value(struct i2c_client *client, u8 reg, u16 value)
++{
++	if (reg == DS1621_REG_CONF)
++		return i2c_smbus_write_byte_data(client, reg, value);
++	else
++		return i2c_smbus_write_word_data(client, reg,
++						 swap_bytes(value));
++}
++
++static void ds1621_init_client(struct i2c_client *client)
++{
++	int reg = ds1621_read_value(client, DS1621_REG_CONF);
++	/* switch to continous conversion mode */
++	reg &= ~ DS1621_REG_CONFIG_1SHOT;
++
++	/* setup output polarity */
++	if (polarity == 0)
++		reg &= ~DS1621_REG_CONFIG_POLARITY;
++	else if (polarity == 1)
++		reg |= DS1621_REG_CONFIG_POLARITY;
++	
++	ds1621_write_value(client, DS1621_REG_CONF, reg);
++	
++	/* start conversion */
++	i2c_smbus_write_byte(client, DS1621_COM_START);
++}
++
++#define show(value)							\
++static ssize_t show_##value(struct device *dev, char *buf)		\
++{									\
++	struct ds1621_data *data = ds1621_update_client(dev);		\
++	return sprintf(buf, "%d\n", LM75_TEMP_FROM_REG(data->value));	\
++}
++
++show(temp);
++show(temp_min);
++show(temp_max);
++
++#define set_temp(suffix, value, reg)					\
++static ssize_t set_temp_##suffix(struct device *dev, const char *buf,	\
++				 size_t count)				\
++{									\
++	struct i2c_client *client = to_i2c_client(dev);			\
++	struct ds1621_data *data = ds1621_update_client(dev);		\
++	data->value = LM75_TEMP_TO_REG(simple_strtoul(buf, NULL, 10));	\
++	ds1621_write_value(client, reg, data->value);			\
++	return count;							\
++}
++
++set_temp(min, temp_min, DS1621_REG_TEMP_MIN);
++set_temp(max, temp_max, DS1621_REG_TEMP_MAX);
++
++static ssize_t show_alarms(struct device *dev, char *buf)
++{
++	struct ds1621_data *data = ds1621_update_client(dev);
++	return sprintf(buf, "%d\n", ALARMS_FROM_REG(data->conf));
++}
++
++static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
++static DEVICE_ATTR(temp1_input, S_IRUGO , show_temp, NULL);
++static DEVICE_ATTR(temp1_min, S_IWUSR | S_IRUGO , show_temp_min, set_temp_min);
++static DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO, show_temp_max, set_temp_max);
++
++
++static int ds1621_attach_adapter(struct i2c_adapter *adapter)
++{
++	return i2c_detect(adapter, &addr_data, ds1621_detect);
++}
++
++/* This function is called by i2c_detect */
++int ds1621_detect(struct i2c_adapter *adapter, int address,
++                  int kind)
++{
++	int conf, temp;
++	struct i2c_client *new_client;
++	struct ds1621_data *data;
++	int err = 0;
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA 
++				     | I2C_FUNC_SMBUS_WORD_DATA 
++				     | I2C_FUNC_SMBUS_WRITE_BYTE))
++		goto exit;
++
++	/* OK. For now, we presume we have a valid client. We now create the
++	   client structure, even though we cannot fill it completely yet.
++	   But it allows us to access ds1621_{read,write}_value. */
++	if (!(new_client = kmalloc(sizeof(struct i2c_client) +
++				   sizeof(struct ds1621_data),
++				   GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto exit;
++	}
++	memset(new_client, 0, sizeof(struct i2c_client) +
++	       sizeof(struct ds1621_data));
++	
++	data = (struct ds1621_data *) (new_client + 1);
++	i2c_set_clientdata(new_client, data);
++	new_client->addr = address;
++	new_client->adapter = adapter;
++	new_client->driver = &ds1621_driver;
++	new_client->flags = 0;
++
++
++	/* Now, we do the remaining detection. It is lousy. */
++	if (kind < 0) {
++		conf = ds1621_read_value(new_client, DS1621_REG_CONF);
++		if ((conf & DS1621_REG_CONFIG_MASK) != DS1621_REG_CONFIG_VAL)
++			goto exit_free;
++		temp = ds1621_read_value(new_client, DS1621_REG_TEMP);
++		if (temp & 0x007f)
++			goto exit_free;
++		temp = ds1621_read_value(new_client, DS1621_REG_TEMP_MIN);
++		if (temp & 0x007f)
++			goto exit_free;
++		temp = ds1621_read_value(new_client, DS1621_REG_TEMP_MAX);
++		if (temp & 0x007f)
++			goto exit_free;
++	}
++
++	/* Determine the chip type - only one kind supported! */
++	if (kind <= 0)
++		kind = ds1621;
++
++	/* Fill in remaining client fields and put it into the global list */
++	strlcpy(new_client->name, "ds1621", I2C_NAME_SIZE);
++
++	new_client->id = ds1621_id++;
++	data->valid = 0;
++	init_MUTEX(&data->update_lock);
++
++	/* Tell the I2C layer a new client has arrived */
++	if ((err = i2c_attach_client(new_client)))
++		goto exit_free;
++
++	/* Initialize the DS1621 chip */
++	ds1621_init_client(new_client);
++
++	/* Register sysfs hooks */
++	device_create_file(&new_client->dev, &dev_attr_alarms);
++	device_create_file(&new_client->dev, &dev_attr_temp1_input);
++	device_create_file(&new_client->dev, &dev_attr_temp1_min);
++	device_create_file(&new_client->dev, &dev_attr_temp1_max);
++	
++	return 0;
++
++/* OK, this is not exactly good programming practice, usually. But it is
++   very code-efficient in this case. */
++      exit_free:
++	kfree(new_client);
++      exit:
++	return err;
++}
++
++static int ds1621_detach_client(struct i2c_client *client)
++{
++	int err;
++
++	if ((err = i2c_detach_client(client))) {
++		dev_err(&client->dev,
++		        "ds1621.o: Client deregistration failed, client not detached.\n");
++		return err;
++	}
++
++	kfree(client);
++
++	return 0;
++}
++
++
++static struct ds1621_data *ds1621_update_client(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ds1621_data *data = i2c_get_clientdata(client);
++	u8 new_conf;
++
++	down(&data->update_lock);
++
++	if ((jiffies - data->last_updated > HZ + HZ / 2) ||
++	    (jiffies < data->last_updated) || !data->valid) {
++
++		dev_dbg(&client->dev, "Starting ds1621 update\n");
++
++		data->conf = ds1621_read_value(client, DS1621_REG_CONF);
++
++		data->temp = ds1621_read_value(client, DS1621_REG_TEMP);
++		
++		data->temp_min = ds1621_read_value(client,
++		                                    DS1621_REG_TEMP_MIN);
++		data->temp_max = ds1621_read_value(client,
++						    DS1621_REG_TEMP_MAX);
++
++		/* reset alarms if neccessary */
++		new_conf = data->conf;
++		if (data->temp < data->temp_min)
++			new_conf &= ~DS1621_ALARM_TEMP_LOW;
++		if (data->temp > data->temp_max)
++			new_conf &= ~DS1621_ALARM_TEMP_HIGH;
++		if (data->conf != new_conf)
++			ds1621_write_value(client, DS1621_REG_CONF,
++					   new_conf);
++
++		data->last_updated = jiffies;
++		data->valid = 1;
++	}
++
++	up(&data->update_lock);
++
++	return data;
++}
++
++static int __init ds1621_init(void)
++{
++	return i2c_add_driver(&ds1621_driver);
++}
++
++static void __exit ds1621_exit(void)
++{
++	i2c_del_driver(&ds1621_driver);
++}
++
++
++MODULE_AUTHOR("Christian W. Zuckschwerdt <zany@triq.net>");
++MODULE_DESCRIPTION("DS1621 driver");
++MODULE_LICENSE("GPL");
++
++module_init(ds1621_init);
++module_exit(ds1621_exit);
 

@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272386AbVBERKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265799AbVBER31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272386AbVBERKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 12:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272525AbVBERKP
+	id S265799AbVBER31 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 12:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265913AbVBER30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 12:10:15 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:43972 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S272386AbVBERKH
+	Sat, 5 Feb 2005 12:29:26 -0500
+Received: from rost.dti.supsi.ch ([193.5.152.238]:19850 "EHLO
+	rost.dti.supsi.ch") by vger.kernel.org with ESMTP id S265290AbVBER3T
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 12:10:07 -0500
-Message-ID: <4204FDEA.3090306@drzeus.cx>
-Date: Sat, 05 Feb 2005 18:10:02 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Sat, 5 Feb 2005 12:29:19 -0500
+Date: Sat, 5 Feb 2005 18:29:17 +0100 (CET)
+From: Marco Rogantini <marco.rogantini@supsi.ch>
+X-X-Sender: rogantin@rost.dti.supsi.ch
+To: linux-kernel@vger.kernel.org
+Subject: rtl8139 (8139too) net problem in linux 2.6.10
+Message-ID: <Pine.LNX.4.62.0502051818370.4821@rost.dti.supsi.ch>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Strange device init
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having problem with a card reader on a laptop (Acer Aspire 1501). 
-The device doesn't get its resources configured properly.
+Hello all,
 
-The reader is connected to the LPC bus so there is no standardised way 
-to configure the device. On other laptops the configuration is done via 
-ACPI (_STA & co. in the DSDT). On this laptop these functions don't do a 
-damn thing.
-In Windows this device gets configured through some other means. It's 
-not in the driver (I've disected it to confirm this). But under Linux 
-the device is left unconfigured.
+I have a problem with my RTL-8139C based CardBus network interface.
+I'm using the 8139too driver of linux-2.6.10.
 
-So my question is if anyone has any ideas on how this device gets 
-configured by Windows and possibly how we can get this to work on Linux.
+When outgoing traffic becomes high it is interrupted for several
+seconds and i get this:
 
-The reason this is an issue is that one cannot detect all the quirks of 
-the hardware so a PNP solution is prefered. In those cases the 
-manufacturer has chosen resources that work ok.
+sort kernel: NETDEV WATCHDOG: eth1: transmit timed out
+sort kernel: eth1: Transmit timeout, status 0d 0000 c07f media 00.
+sort kernel: eth1: Tx queue start entry 8588  dirty entry 8584.
+sort kernel: eth1:  Tx descriptor 0 is 00120386. (queue head)
+sort kernel: eth1:  Tx descriptor 1 is 0012003c.
+sort kernel: eth1:  Tx descriptor 2 is 00120056.
+sort kernel: eth1:  Tx descriptor 3 is 0012003c.
+sort kernel: eth1: link up, 100Mbps, full-duplex, lpa 0x41E1
 
-For some context: I am the maintainer of the driver for this hardware. I 
-have a laptop where the DSDT properly sets up the hardware. The Acer 
-belongs to some of my users but they are not familiar with the kernel so 
-I'm trying to fix this for them.
+after some seconds the network traffic resumes but almost
+immediately after I get an other 'transmit timed out' and so on...
 
-Rgds
-Pierre
+Output of 'rtl8139-diag -af' is
+rtl8139-diag.c:v2.11 4/22/2003 Donald Becker (becker@scyld.com)
+  http://www.scyld.com/diag/index.html
+Index #1: Found a RealTek RTL8139 adapter at 0x4000.
+RealTek chip registers at 0x4000
+  0x000: 354f3000 00007fda 80000000 40800000 0008a062 0008a03c 0008a03c 
+0008a062
+  0x020: 1f3dc000 1f3dc600 1f3dcc00 1f3dd200 1ec70000 0d0a0000 00640054 
+0000c07f
+  0x040: 74000680 0000f7ce 33c2d3de 00000000 000d1000 00000000 0089cd00 
+00100000
+  0x060: 1100f00f 01e1782d 000141e1 00000000 00000004 000417c8 b0f243b9 
+8a36df43.
+Realtek station address 00:30:4f:35:da:7f, chip type 'rtl8139C'.
+   Receiver configuration: Normal unicast and hashed multicast
+      Rx FIFO threshold 2048 bytes, maximum burst 2048 bytes, 32KB ring
+   Transmitter enabled with NONSTANDARD! settings, maximum burst 1024 
+bytes.
+     Tx entry #0 status 0008a062 complete, 98 bytes.
+     Tx entry #1 status 0008a03c complete, 60 bytes.
+     Tx entry #2 status 0008a03c complete, 60 bytes.
+     Tx entry #3 status 0008a062 complete, 98 bytes.
+   Flow control: Tx disabled  Rx disabled.
+   The chip configuration is 0x10 0x0d, MII half-duplex mode.
+   No interrupt sources are pending.
+
+
+Can anybody please help me ?
+
+Many thanks,
+
+         -marco
 

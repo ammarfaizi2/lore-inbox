@@ -1,92 +1,220 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268243AbUHQNV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268231AbUHQNWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268243AbUHQNV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 09:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268237AbUHQNUs
+	id S268231AbUHQNWi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 09:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268230AbUHQNWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 09:20:48 -0400
-Received: from main.gmane.org ([80.91.224.249]:50318 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268231AbUHQNUI (ORCPT
+	Tue, 17 Aug 2004 09:22:38 -0400
+Received: from vsmtp12.tin.it ([212.216.176.206]:44250 "EHLO vsmtp12.tin.it")
+	by vger.kernel.org with ESMTP id S268239AbUHQNVI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 09:20:08 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Henning Rohde <Rohde.Henning@gmx.net>
-Subject: 2.6: no input on audigy using snd_emu10k1
-Date: Tue, 17 Aug 2004 14:20:49 +0200
-Message-ID: <2083534.LoThlOV4Wx@rohde-29233.user.cis.dfn.de>
+	Tue, 17 Aug 2004 09:21:08 -0400
+Subject: Re: 2.6.8.1-mm1
+From: Frediano Ziglio <freddyz77@tin.it>
+To: Christoph Hellwig <hch@infradead.org>, petero2@telia.com, axboe@suse.de,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040816224749.A15510@infradead.org>
+References: <20040816143710.1cd0bd2c.akpm@osdl.org>
+	 <20040816224749.A15510@infradead.org>
+Content-Type: text/plain
+Message-Id: <1092748824.4253.10.camel@freddy>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="nextPart1709464.2tiJmRuEGA"
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: p508852ab.dip0.t-ipconnect.de
-User-Agent: KNode/0.7.7
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 17 Aug 2004 15:20:24 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1709464.2tiJmRuEGA
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8Bit
+Il lun, 2004-08-16 alle 23:47, Christoph Hellwig ha scritto:
+> On Mon, Aug 16, 2004 at 02:37:10PM -0700, Andrew Morton wrote:
+> > - The packet-writing patches should be ready to go, but I haven't even
+> >   looked at them yet, and am not sure that anyone else has reviewed the code.
+> 
+> It's still messing with the elevator setting directly which is a no-go.
+> That's not the packet-writing drivers fault but needs solving first.
+> 
 
-Hi Everybody,
+I tried 2.6.8.1-mm1 ASAP and DVD+/-RW works very well.
+I even used two drives together (a CD writer and a DVD writer).
 
-since quite a while no I'm unable to use any input-channels on my SB Audigy.
+Compiling kernel (using 2.6.8.1 + Petero Patch, cd not used) I got this
+error using mkinitrd
 
-Alsamixer shows any channel I'm used to see, but I'm unable to toggle the
-Capture facility on any channel I consider to be input.
-On kmixer it's the same, there's not even one channel on the tab
-"Eingang" (aka Input).
+Unable to handle kernel NULL pointer dereference at virtual address
+00000050
+ printing eip:
+e0abd8a6
+*pde = 00000000
+Oops: 0000 [#1]
+Modules linked in: loop ext3 jbd nls_iso8859_1 nls_cp437 vfat fat floppy
+ipv6 parport_pc lp parport autofs4 sunrpc
+forcedeth 3c59x ipt_REJECT ipt_state ip_conntrack iptable_filter
+ip_tables dm_mod usblp ohci_hcd ehci_hcd button battery asus_acpi ac
+reiserfs aic7xxx sd_mod scsi_mod
+CPU:    0
+EIP:    0060:[<e0abd8a6>]    Not tainted
+EFLAGS: 00010286   (2.6.8)
+EIP is at lo_open+0x6/0x30 [loop]
+eax: 00000000   ebx: dc8eec00   ecx: e0abd8a0   edx: deef3560
+esi: dff5ea00   edi: dff5ea00   ebp: e0abec00   esp: d00abf10
+ds: 007b   es: 007b   ss: 0068
+Process nash (pid: 4595, threadinfo=d00aa000 task=deea37b0)
+Stack: c0156119 c0155cff c0155c10 dff5ea0c deef3560 00000000 deef3560
+c9595a0c
+       dff5ea00 d535fbcc c01563f5 deef3560 c9595a0c dff63f20 c014e6c6
+ffffffe9
+       d00abf68 00000000 d1056000 d00aa000 c014e5bc d00abf68 d535fbcc
+dff63f20
+Call Trace:
+ [<c0156119>] do_open+0xe9/0x300
+ [<c0155cff>] bdget+0xdf/0xf0
+ [<c0155c10>] bdev_set+0x0/0x10
+ [<c01563f5>] blkdev_open+0x25/0x60
+ [<c014e6c6>] dentry_open+0x106/0x1a0
+ [<c014e5bc>] filp_open+0x4c/0x50
+ [<c014e788>] get_unused_fd+0x28/0xb0
+ [<c014e8ad>] sys_open+0x4d/0xa0
+ [<c0105d29>] sysenter_past_esp+0x52/0x71
+Code: 8b 40 50 8b 40 38 8d 88 08 01 00 00 ff 88 08 01 00 00 0f 88
 
-# modinfo snd_emu10k1 | grep vermagic
-vermagic:       2.6.8-gentoo preempt K7 REGPARM 4KSTACKS gcc-3.3
+I got some error using cdrwtool (it seems to send an ABORT, perhaps
+cause it expect that recorder write at 12x ?? I have a 2x CD
+rewriter...). I don't know it this information it's useful
 
-# lspci -v -d 1102:0004
-0000:00:0d.0 Multimedia audio controller: Creative Labs SB Audigy (rev 03)
-        Subsystem: Creative Labs SB0090 Audigy Player/OEM
-        Flags: bus master, medium devsel, latency 64, IRQ 193
-        I/O ports at cc00
-        Capabilities: [dc] Power Management version 2
+scsi0:0:5:0: Attempting to queue an ABORT message
+CDB: 0x25 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+scsi0: At time of recovery, card was not paused
+>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+scsi0: Dumping Card State in Message-in phase, at SEQADDR 0x43
+Card was paused
+ACCUM = 0x0, SINDEX = 0x3, DINDEX = 0x8c, ARG_2 = 0x0
+HCNT = 0x0 SCBPTR = 0x0
+SCSISIGI[0x0] ERROR[0x0] SCSIBUSL[0x0] LASTPHASE[0xe0]
+SCSISEQ[0x12] SBLKCTL[0x2] SCSIRATE[0x0] SEQCTL[0x10]
+SEQ_FLAGS[0x0] SSTAT0[0x5] SSTAT1[0xa] SSTAT2[0x0]
+SSTAT3[0x0] SIMODE0[0x0] SIMODE1[0xa4] SXFRCTL0[0x80]
+DFCNTRL[0x0] DFSTATUS[0x29]
+STACK: 0x0 0x150 0xf3 0xed
+SCB count = 4
+Kernel NEXTQSCB = 3
+Card NEXTQSCB = 2
+QINFIFO entries: 2
+Waiting Queue entries:
+Disconnected Queue entries:
+QOUTFIFO entries:
+Sequencer Free SCB List: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+Sequencer SCB Info:
+  0 SCB_CONTROL[0xc0] SCB_SCSIID[0x57] SCB_LUN[0x0] SCB_TAG[0xff]
+  1 SCB_CONTROL[0x88] SCB_SCSIID[0x37] SCB_LUN[0x0] SCB_TAG[0xff]
+  2 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  3 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  4 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  5 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  6 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  7 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  8 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  9 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 10 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+Pending list:
+  2 SCB_CONTROL[0x40] SCB_SCSIID[0x57] SCB_LUN[0x0]
+Kernel Free SCB list: 1 0
+Untagged Q(5): 2
+DevQ(0:3:0): 0 waiting
+DevQ(0:5:0): 0 waiting
 
+<<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+scsi0:0:5:0: Cmd aborted from QINFIFO
+aic7xxx_abort returns 0x2002
 
-Are any mor information needed?
+Trying to mount an iso cd with packet writing I got some warnings
+(system continue to be stable)
 
-Thanks very much in advance,
+cdrom: This disc doesn't have any tracks I recognize!
+cdrom: This disc doesn't have any tracks I recognize!
+cdrom: This disc doesn't have any tracks I recognize!
+cdrom: This disc doesn't have any tracks I recognize!
+cdrom: This disc doesn't have any tracks I recognize!
+Device not ready.  Make sure there is a disc in the drive.
+Device not ready.  Make sure there is a disc in the drive.
+cdrom: This disc doesn't have any tracks I recognize!
+pktcdvd: writer pktcdvd0 mapped to sr1
+scsi0: ERROR on channel 0, id 5, lun 0, CDB: Read (10) 00 00 00 00 20 00
+00 20 00
+Info fld=0x20 (nonstd), Current sr1: sense key Medium Error
+Additional sense: No seek complete
+end_request: I/O error, dev sr1, sector 128
+Buffer I/O error on device pktcdvd0, logical block 16
+scsi0: ERROR on channel 0, id 5, lun 0, CDB: Read (10) 00 00 00 00 22 00
+00 1e 00
+Info fld=0x22 (nonstd), Current sr1: sense key Medium Error
+Additional sense: No seek complete
+end_request: I/O error, dev sr1, sector 136
+Buffer I/O error on device pktcdvd0, logical block 17
+SCSI error : <0 0 5 0> return code = 0x8000002
+Info fld=0x0, Current sr1: sense key Aborted Command
+end_request: I/O error, dev sr1, sector 144
+Buffer I/O error on device pktcdvd0, logical block 18
+scsi0: ERROR on channel 0, id 5, lun 0, CDB: Read (10) 00 00 00 00 26 00
+00 1a 00
+Info fld=0x26 (nonstd), Current sr1: sense key Medium Error
+Additional sense: No seek complete
+end_request: I/O error, dev sr1, sector 152
+Buffer I/O error on device pktcdvd0, logical block 19
+SCSI error : <0 0 5 0> return code = 0x8000002
+Info fld=0x0, Current sr1: sense key Aborted Command
+end_request: I/O error, dev sr1, sector 160
+Buffer I/O error on device pktcdvd0, logical block 20
+scsi0: ERROR on channel 0, id 5, lun 0, CDB: Read (10) 00 00 00 00 20 00
+00 02 00
+Info fld=0x20 (nonstd), Current sr1: sense key Medium Error
+Additional sense: No seek complete
+end_request: I/O error, dev sr1, sector 128
+Buffer I/O error on device pktcdvd0, logical block 16
+scsi0: ERROR on channel 0, id 5, lun 0, CDB: Read (10) 00 00 00 00 2a 00
+00 16 00
+Info fld=0x2a (nonstd), Current sr1: sense key Medium Error
+Additional sense: No seek complete
+end_request: I/O error, dev sr1, sector 168
+Buffer I/O error on device pktcdvd0, logical block 21
+scsi0: ERROR on channel 0, id 5, lun 0, CDB: Read (10) 00 00 00 00 2c 00
+00 14 00
+Info fld=0x2c (nonstd), Current sr1: sense key Medium Error
+Additional sense: No seek complete
+end_request: I/O error, dev sr1, sector 176
+Buffer I/O error on device pktcdvd0, logical block 22
+scsi0: ERROR on channel 0, id 5, lun 0, CDB: Read (10) 00 00 00 00 2e 00
+00 12 00
+Info fld=0x2e (nonstd), Current sr1: sense key Medium Error
+Additional sense: No seek complete
+end_request: I/O error, dev sr1, sector 184
+Buffer I/O error on device pktcdvd0, logical block 23
+...
+scsi0: ERROR on channel 0, id 5, lun 0, CDB: Read (10) 00 00 00 00 3c 00
+00 04 00
+Info fld=0x3c (nonstd), Current sr1: sense key Medium Error
+Additional sense: No seek complete
+end_request: I/O error, dev sr1, sector 240
+Buffer I/O error on device pktcdvd0, logical block 30
+scsi0: ERROR on channel 0, id 5, lun 0, CDB: Read (10) 00 00 00 00 3e 00
+00 02 00
+Info fld=0x3e (nonstd), Current sr1: sense key Medium Error
+Additional sense: No seek complete
+end_request: I/O error, dev sr1, sector 248
+Buffer I/O error on device pktcdvd0, logical block 31
+pktcdvd: inserted media is CD-RW
+pktcdvd: Fixed packets, 32 blocks, Mode-2 disc
+pktcdvd: Max. media speed: 2
+pktcdvd: write speed 2
+pktcdvd: 549888kB available on disc
+FAT: bogus number of reserved sectors
+VFS: Can't find a valid FAT filesystem on dev pktcdvd0.
 
-        Henning Rohde
---nextPart1709464.2tiJmRuEGA
-Content-Type: application/x-gzip; name="amixer -c 1 contents.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="amixer -c 1 contents.gz"
+freddy77
 
-H4sICFfwIUEAA2FtaXhlciAtYyAxIGNvbnRlbnRzAM2YXW/aMBSG7/kVvuumBS0fwNpN0QQhTFSk
-oIKm3rrBUIvEjhK7wL9fykcb0AmhgVi7yJ3Jc97z8R4TJkM6tc1bjc6wT2yv/+Q+agyHxL7xcCJI
-jEYBXj9jf4H+8kCG5KaG0C8k1hGx+w8T9096HPs+SRI7Xtbrde0VB5IktqmFlNm6FuKVbei6lr4q
-svX0tz/R7oSu6TW2pTcB+oQzghzORMwDVEcdnCQl0I0C8o9i8nhJhf+SYXeGw4HbfoDZWQ5nGmd7
-UquYNInJc1AmwQUqLQA9cjzkEFa+wEZxgXd4Iwffi1PlCtqrkcMf9NzKtZs57LGMYy7ZVIF8aLje
-QqieDA3Xpu9wJGRMKjQUKO0KU25CE6do2kyo3VW0OmRwnkyoryDh4PrasCvvNQPSPaCMmArY0Gxv
-2QpsFRqyN/gH+1Or0zhcnXsKNEqHlNIKLeO0QGiSnO515UEVzDIqEwdtZS8dmA7niUBfvpn6tPP1
-Im13OYTqW9PQc9CVT6QF7rwXfuWpsCDDO8KUtnm4c/Zk+DqBxhHBi+x6u4ZKyFohVvmN1jy1SaEu
-asuVCmOHZmeDVuDrUG+l7Ov6Xo7A6o3PgFy97zp3zVs0jAT1caCgvtBWOwpCwTUVKsJRFI94WbLw
-uX+FjeYJ7jurS2ZYBiIre3OiuMl+v9/MoAHO42iUTclq86bSPGinFvDMS3jQDayAZ13Aa0Lef8zz
-cLLIL1q9GAKZPggprNgZMGhdn4Lll+sMGGSsp2D5tSqGgSbOcMDnyKMrBQ4HZTYTgIJLYAsy2bac
-0vkabSP53qVzKlKXG0oRSYHu04AuWmsGNJE7ZHqrrz7rkAN98BV8bIL6zl0JEqcJR+0wCuiMkvii
-JJuQSFUfE639Thk53l5e7wm9cpq+F4WH5ndKW6txvB9ns/OfTx7/v5/aP+pSZSuFGAAA
---nextPart1709464.2tiJmRuEGA
-Content-Type: application/x-gzip; name="proc_asound_card1_emu10k1.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="proc_asound_card1_emu10k1.gz"
-
-H4sICMTxIUEAA3Byb2NfYXNvdW5kX2NhcmQxX2VtdTEwazEA7ZZdb9owFIbv/SvO5SYx1XGgtJMQ
-YglsaKVFsE3TUC9S4kBEsCPHbst+/ZwPSrCXTmK72AXc8b7nHB8/J7Y8nHx18GcHIS8QIVi/9zBQ
-YbzaoTGTVLAggS+zwQTePHERZm+1jZ8JxhgNn5tsjNAwiuhSwpyyEGZcyZitytI93IIPPacFXo+0
-wO+5eRupVIKGMPoOd0qmSmZ5LILqH2AMi6k3gRsayfuD7BBYTMb+GGb0kYqHe4QGSXJcpNzQHyth
-p5Rn8Wp9pJNSnyshuNJbMfNcw7cKtKsWzcTOvnUz4bKs6NEcft3oVp2PhnX1Chb9fr+uXJuKgy3F
-sRQT5cFxK8dbc6GyutO2qnQs5dJSupai9zDwvQIRXIDnz+400YupPx5ZE78uQwtqZqyJkuC8c0+H
-/eB8C9/ikHKzINEkaq5VQmP5fSfEfXGsJIsLsbgQiwuxuBBrtsSarWvN1t3PFlXt7b8LNBU8olkW
-8/zMTnhIq9POOLrlsjj0HPxABoeLQFseT3eiwH18R+xohobbdB1kcQaGxzij6GUFw8T6vEu64mIH
-Xj0kvzgcgj5SRkUgdZcwl4FUWWVy3USsO0dzrsSSwiTINmbddcAYTeBWbR+oODiJHh2aB9s0oTDT
-ax+lta/0XfbpJ/ISvtzAYLlUIljuDr6j7TTdmjidM85/iZNcuGegfwfU898dLsNGmDmWJpq5dwrO
-biNL9xWW3eh0lk6nEaa2mlA6nVc4KrZh/Intv8sbHUXDWjKPIlRUNJy9N8xkvNV+CPXlq9dQudEE
-UiVSntHzkP7HIeXvAO0UL4GTq/wCTAtDqFwLAAA=
---nextPart1709464.2tiJmRuEGA--
 

@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262952AbSJFWw7>; Sun, 6 Oct 2002 18:52:59 -0400
+	id <S262944AbSJFWoF>; Sun, 6 Oct 2002 18:44:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262958AbSJFWw7>; Sun, 6 Oct 2002 18:52:59 -0400
-Received: from dsl-213-023-022-009.arcor-ip.net ([213.23.22.9]:27557 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S262952AbSJFWwM>;
-	Sun, 6 Oct 2002 18:52:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Jeff Dike <jdike@karaya.com>
-Subject: Re: New BK License Problem?
-Date: Mon, 7 Oct 2002 00:57:42 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <200210062354.SAA04224@ccure.karaya.com>
-In-Reply-To: <200210062354.SAA04224@ccure.karaya.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17yKLH-0002HD-00@starship>
+	id <S262945AbSJFWoF>; Sun, 6 Oct 2002 18:44:05 -0400
+Received: from nl-ams-slo-l4-02-pip-8.chellonetwork.com ([213.46.243.28]:37216
+	"EHLO amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S262944AbSJFWoD>; Sun, 6 Oct 2002 18:44:03 -0400
+Subject: sleeping function called from illegal context (asm/semaphore.h)
+From: Harm Verhagen <h.verhagen@chello.nl>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-4) 
+Date: 07 Oct 2002 00:49:07 +0200
+Message-Id: <1033944547.2476.15.camel@pchome>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 October 2002 01:54, Jeff Dike wrote:
-> phillips@arcor.de said:
-> > Linus has indeed shown respect, but you have not, quite the contrary. 
-> 
-> Don't you have anything better to do than to take useless, content-free
-> potshots at things you don't like?
+Hi folks,
 
-The issue of respect is far from content-free.
+Booting into 2.5.40 (upto changeset 1.754) I found this in my logs:
 
--- 
-Daniel
+
+
+Debug: sleeping function called from illegal context at
+include/asm/semaphore.h:119
+Call Trace:
+ [<c01149e2>] E __might_sleep_Rd533bec7+0x52/0x2d3ad8
+ [<c02b9765>] E usb_hub_tt_clear_buffer_Rbe74a884+0xf45/0xffffe690
+ [<c02b9a00>] E usb_hub_tt_clear_buffer_Rbe74a884+0x11e0/0xffffe690
+ [<c02b9a35>] E usb_hub_tt_clear_buffer_Rbe74a884+0x1215/0xffffe690
+ [<c02b9a00>] E usb_hub_tt_clear_buffer_Rbe74a884+0x11e0/0xffffe690
+ [<c01137b0>] E default_wake_function_Rfe478e92+0x0/0xa0
+ [<c01054d9>] E enable_hlt_R9c7077bd+0x1c9/0x16960
+
+I hope this is usefull info...
+
+please CC me if you have questions as I'm not subscribed.
+
+Kind regards,
+Harm Verhagen
+
+

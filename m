@@ -1,101 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266014AbUGIXGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266016AbUGIXL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266014AbUGIXGx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 19:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUGIXGx
+	id S266016AbUGIXL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 19:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUGIXL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 19:06:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37315 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266014AbUGIXGu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 19:06:50 -0400
-Subject: Re: [LTP] Re: Recent changes in LTP test results
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Bryce Harrington <bryce@osdl.org>, wli@holomorphy.com,
-       ltp-list@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "testdev@osdl.org" <testdev@osdl.org>, Mark Haverkamp <markh@osdl.org>
-In-Reply-To: <20040707230715.7a25c95c.akpm@osdl.org>
-References: <20040706191009.279aed14.akpm@osdl.org>
-	 <Pine.LNX.4.33.0407071334460.22452-100000@osdlab.pdx.osdl.net>
-	 <20040707230715.7a25c95c.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1089416583.2265.47.camel@ibm-c.pdx.osdl.net>
+	Fri, 9 Jul 2004 19:11:26 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:52111 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S266016AbUGIXLV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 19:11:21 -0400
+Message-ID: <c26fd82804070916115a1e238b@mail.gmail.com>
+Date: Fri, 9 Jul 2004 16:11:12 -0700
+From: Qiuyu Zhang <qiuyu.zhang@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: strange about copy_from_user
+In-Reply-To: <Pine.LNX.4.53.0407091752360.2731@chaos>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 09 Jul 2004 16:43:04 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+References: <c26fd828040709143843b3143f@mail.gmail.com> <Pine.LNX.4.53.0407091752360.2731@chaos>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-07 at 23:07, Andrew Morton wrote:
-> Bryce Harrington <bryce@osdl.org> wrote:
-> >
-> > I have retested with ltp-full-20040603.  This version of LTP hangs on
-> >  our system but fortunately completes most of the tests before doing so.
-> >  It indicates that it still encounters the same errors, e.g.:
-> > 
-> >  access03       1   FAIL : access((char *)-1,R_OK) failed with errno 2 : No such file or directory but expected 14 (EFAULT)
-> >  access03       2   FAIL : access((char *)-1,W_OK) failed with errno 2 : No such file or directory but expected 14 (EFAULT)
-> 
-> Nope, sorry, still cannot reproduce it - you'll need to debug it at your end.
+Thx, 
 
+I can describe what I do and my code simply.
 
-Andrew,
+I am try to do a module driver. So far  I can insmod the module and
+config ip address etc.  There is a existed queue in user space which
+is alloc by a user application. When I send a ping packet by the
+device I create, it will call dev->hard_start_xmit. In this function I
+need put the data into user space queue. Similarly, I also need read
+the data from queue when user put a data into queue. That's what I
+want to do.
 
-Mark and I are able to reproduce this with the simple
-program below.  The mmap() PROT_NONE is not giving a EFAULT
-on read.  The test was mmap a PROT_NONE address and passing
-that into the access() syscall and then looking for a
-EFAULT.  Instead it was getting ENOENT.  We found that
-by backing out the nx-update.patch from -mm1 patches
-the problem went away.
-
-The /proc/pid/maps looked like this:
-
-without nx-update patch:
-40017000-40018000 ---p 40017000 00:00 0
-=====
-with -mm1:
-40017000-40018000 --xp 40017000 00:00 0
-
-So it looks like the page being executable allows read
-access.
-
-Not sure why you do not see this on your machine.  This
-fails on my 2-proc xeon box (and all the STP machines).
-
-I can send more info if you need it.
-
-Daniel (and Mark)
-
-#include <unistd.h>
-#include <errno.h>
-#include <sys/mman.h>
-
-
-main()
+Code description:
+struct Queue
 {
-	char *p0 = 0;
-	char *p1 = (char *)-1;
-	char *p2;
-	int err;
+      int read;
+      int write;
+      int length;
+      char *data;
+};
 
-	p2 = mmap(0, 4096, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
 
-	errno = 0;
-	err = access(p0, R_OK);
-	printf("access 0 ptr %p return code %d errno %d\n", p0, err, errno);
-	perror("access result:");
-	errno = 0;
-	err = access(p1, R_OK);
-	printf("access 1 ptr %p return code %d errno %d\n", p1, err, errno);
-	perror("access result:");
-	errno = 0;
-	err = access(p2, R_OK);
-	printf("access 2 ptr %p return code %d errno %d\n", p2, err, errno);
-	perror("access result:");
+At first, the module driver is inserted into kernel  by calling
+insmod. And then user space application call a function to tell
+(register) module driver what is the pointer of the queue. The
+function be called by user application is as following
+
+int regQ2kernel( char *devname , char *queue){
+     struct ifrequ ifr;
+      int sockfd;
+      if((sockfd =  socket(AF_INET,SOCK_DGRAM,0))<0）{
+             ....
+     } 
+      strncpy(ifr.ifr_name, devname, sizeof(ifr.ifr_name));
+      ifr.ifr_data = pQueue;
+      if((ret= ioctl(sockfd, SIOREGIFFLAGS, (int)&ifr))<0}{
+
+      }
+
+      close(sockfd);
+       return 1;
+}
+
+When the user application call the above function, the module driver
+in kernel can get the pointer of queue. And then I just store the
+pointer of queue.
+
+After I configure IP address and startup the module driver, I send a
+ping packet to the device. The packet arrived to the device correctly,
+then I need copy the data to queue in user space.
+
+Here, I have questions. 
+
+1) when I got the pointer of queue, can I access the item in the
+struct directly such as read, write etc?  I try to do it. Sometimes it
+will crash  OS.
+
+2) Due to the above reason, I want to copy the struct of queue to
+kernel space and then access the item of the Queue. But I cannot get
+the correct content .
+
+static int usbModem_dev_xmit(struct sk_buff *skb, struct net_device *dev){
+
+     struct Queue *p =  (struct Queue *)dev->priv;
+     struct Queue kQueue;
+     copy_from_user(&kQueue, *p, sizeof(struct Queue));
+      ......
+     // here , the data of kQueue is not the data in Queue in user
+space, I don't know why.
+
 }
 
 
+The strange thing is that when I use copy_from_user at ioctl function,
+everything is correct. How could figure it out?
+
+So far the quesiton is clear ?
+
+Thanks again.
+
+
+
+
+
+On Fri, 9 Jul 2004 17:57:57 -0400 (EDT), Richard B. Johnson
+<root@chaos.analogic.com> wrote:
+> 
+> 
+> On Fri, 9 Jul 2004, Qiuyu Zhang wrote:
+> 
+> > Hi all,
+> > I am working on writing a module driver.
+> >
+> > I am trying to use API copy_from_user to copy a bunch of memory from
+> > user space to kernel space. I write a ioctl function to register the
+> > pointer of the memory to kernel. And in the ioctl function I can use
+> > copy_from_user to get the correct data, but the strange thing is that
+> > when I use copy_from_user in other kernel function such as
+> > dev_hard_xmit function , I cannot
+> > get the correct result. I don't konw what the reason is . Thx.
+> > -
+> 
+> Without looking at the code it's hard to figure out what you
+> may be doing. However, copy_from_user() and copy_to_user() may
+> not ever be executed with a spin-lock held. Generally, if
+> you need to put user data into kernel "things", you need
+> to buffer it, i.e., copy_from_user() into a kmalloc(ed) buffer,
+> then work with it in kernel space.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+>             Note 96.31% of all statistics are fiction.
+> 
+>

@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263640AbUFFNs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263645AbUFFNs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263640AbUFFNs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 09:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbUFFNs4
+	id S263645AbUFFNs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 09:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUFFNs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 09:48:56 -0400
-Received: from havoc.eusc.inter.net ([213.73.101.6]:48979 "EHLO
-	havoc.eusc.inter.net") by vger.kernel.org with ESMTP
-	id S263640AbUFFNsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 09:48:55 -0400
-Message-ID: <40C32298.7000305@scienion.de>
-Date: Sun, 06 Jun 2004 15:56:40 +0200
-From: Sebastian Kloska <kloska@scienion.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Sun, 6 Jun 2004 09:48:59 -0400
+Received: from mailfe01.swip.net ([212.247.154.1]:2488 "EHLO mailfe01.swip.net")
+	by vger.kernel.org with ESMTP id S263645AbUFFNs6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 09:48:58 -0400
+X-T2-Posting-ID: /sknEDxqgNYILdIqM8RWvsxa4S0yaaQlkxq/GXpTp0w=
+From: jjluza <jjluza@yahoo.fr>
+Reply-To: jjluza@yahoo.fr
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc1 breaks forcedeth
+Date: Sun, 6 Jun 2004 15:49:07 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Michael Clark <michael@metaparadigm.com>, hugh@veritas.com,
-       Matt_Domsch@dell.com, linux-kernel@vger.kernel.org
-Subject: Re: APM realy sucks on 2.6.x
-References: <Pine.LNX.4.44.0406050038120.2163-100000@localhost.localdomain>	<40C2004A.8050706@scienion.de>	<40C28F9C.9050004@metaparadigm.com> <20040605212508.2f30eb59.akpm@osdl.org>
-In-Reply-To: <20040605212508.2f30eb59.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406061549.07414.jjluza@yahoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Same problem here.
+I use forcedeth too, and it doesn't work.
+But like Vincent van de Camp said, I think the problem comes from ehci instead 
+of forcedeth, and since they share the same irq, forcedeth is affected too.
+You can see my report on bugzilla here :
+http://bugzilla.kernel.org/show_bug.cgi?id=2799
 
->Michael Clark <michael@metaparadigm.com> wrote:
->  
->
->>One possibility is code sections incorrectly marked as discardable.
->>    
->>
->
->`make buildcheck' will locate these.
->  
->
- Hmmm .. ? Couldn't find any buildcheck: target in the Makefiles
-
+If I can give more information, let me know (cc me, I'm not subscribed to this 
+mailing list)

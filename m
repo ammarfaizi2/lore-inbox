@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312991AbSDEUMy>; Fri, 5 Apr 2002 15:12:54 -0500
+	id <S313604AbSDEVSJ>; Fri, 5 Apr 2002 16:18:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313317AbSDEUMo>; Fri, 5 Apr 2002 15:12:44 -0500
-Received: from arsenal.visi.net ([206.246.194.60]:8912 "EHLO visi.net")
-	by vger.kernel.org with ESMTP id <S312991AbSDEUMd>;
-	Fri, 5 Apr 2002 15:12:33 -0500
-Date: Fri, 5 Apr 2002 15:10:58 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: andreas.bombe@munich.netsurf.de, linux1394-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove BKL from ieee1394_core release function
-Message-ID: <20020405201058.GP29054@blimpo.internal.net>
-In-Reply-To: <3CADF6E0.6060402@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S313606AbSDEVR7>; Fri, 5 Apr 2002 16:17:59 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:11392 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S313604AbSDEVRs>; Fri, 5 Apr 2002 16:17:48 -0500
+Date: Fri, 5 Apr 2002 16:18:50 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: halfdead <halfdead@daphnes.ro>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: weird IDT issue
+In-Reply-To: <Pine.LNX.4.33.0204052332440.19204-100000@daphnes.ro>
+Message-ID: <Pine.LNX.3.95.1020405161422.1512A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 05, 2002 at 11:11:28AM -0800, Dave Hansen wrote:
-> I produced a similar patch for 2.5 which I discussed on the ieee1394 
-> mailing list a few weeks ago.  We decided that this was a safe and 
-> BKL-free approach.  Here is a patch to do the same thing for 2.4.19-pre6.
+On Fri, 5 Apr 2002, halfdead wrote:
 
-Just let me put this into the linux1394 repo, and I'll forward the patch
-to Marcello and Linus. Keeps me from having to track 3 sets of changes.
+> first of all, i get the correct idt base. the problem is i cannot
+> dereference it, to get the interrupt entry i`m interrested in. second, i
+> have tried to get the right segment by pushl %ss / popl %ds . it has the
+> same behaviour. i would apreciate if you`d be more clear .. thanks in
+> advance for your help.
+> 
+> - halfdead
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://linux1394.sourceforge.net/
-Subversion - http://subversion.tigris.org/
+Well no. All addresses in the kernel are virtual addresses. You got
+a number, which seemed like the correct place, but that number does
+not represent the virtual address at which it can be accessed. For
+starters, take that number and OR in PAGE_OFFSET. This is a way of
+cheating, it is not the correct way, but you can then dereference
+the resulting pointer (for experimental use only, standard disclaimers
+apply).
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

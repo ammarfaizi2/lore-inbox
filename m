@@ -1,48 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317461AbSFCTUq>; Mon, 3 Jun 2002 15:20:46 -0400
+	id <S315431AbSFCTWp>; Mon, 3 Jun 2002 15:22:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSFCTUp>; Mon, 3 Jun 2002 15:20:45 -0400
-Received: from [213.187.195.158] ([213.187.195.158]:10491 "EHLO
-	kokeicha.ingate.se") by vger.kernel.org with ESMTP
-	id <S315429AbSFCTUo>; Mon, 3 Jun 2002 15:20:44 -0400
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Loosing packets with Dlink DFE-580TX and SMC 9462TX
-In-Reply-To: <ved6vepylg.fsf@inigo.ingate.se>
-	<20020603142424.A29676@redhat.com>
-From: Marcus Sundberg <marcus@ingate.com>
-Date: 03 Jun 2002 21:20:34 +0200
-Message-ID: <vewutgw4n1.fsf@inigo.ingate.se>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317460AbSFCTWp>; Mon, 3 Jun 2002 15:22:45 -0400
+Received: from mx1.afara.com ([63.113.218.20]:29011 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S315431AbSFCTWn>;
+	Mon, 3 Jun 2002 15:22:43 -0400
+Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, release 3.0 is
+	available
+From: Thomas Duffy <tduffy@directvinternet.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <27953.1023071705@kao2.melbourne.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 03 Jun 2002 12:22:18 -0700
+Message-Id: <1023132138.25501.6.camel@tduffy-lnx.afara.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 03 Jun 2002 19:22:35.0254 (UTC) FILETIME=[03F75160:01C20B34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise <bcrl@redhat.com> writes:
+On Sun, 2002-06-02 at 19:35, Keith Owens wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Content-Type: text/plain; charset=us-ascii
+> 
+> Release 3.0 of kernel build for kernel 2.5 (kbuild 2.5) is available.
+> http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
+> release 3.0.
+> 
+> kbuild-2.5-core-15
+>   Changes from core-14.
+> 
+>     Replace mdbm with kbuild specific database engine to increase
+>     performance.
+> 
+>     Remove CML2 support, Dominik Brodowski, Keith Owens.
+> 
+>     Remove the restriction on symlinked sources and targets.  Aegis
+>     users should be able to use kbuild 2.5 now.
 
-> What version of ns83820.c are you using?  Version 0.17 of ns83820.c 
-> made significant improvements under load.  Other possibilities include 
-> cabling problems (watch the kernel logs for changes in link state).  
-> Try to find out where the packets are getting dropped by looking 
-> through /proc/net/snmp and other statistics counters in the kernel.
+I get this error now on sparc64:
 
-0.17, but some more testing showed that the ns83820 actually works
-just fine during this test when using just crossover cables and
-running at gigabit speed. The original testing was done using
-100Mbit hubs, so my guess would be that the 83820 chips (and/or
-driver) doesn't handle collisions too well (which I don't have a
-problem with, as afaik GE is always switched).
+tduffy@curie:/build2/tduffy/linux_kbuild$ make -f Makefile-2.5 oldconfig
+Using ARCH='sparc64' AS='as' LD='ld' CC='sparc64-linux-gcc' CPP='sparc64-linux-gcc -E' AR='ar' HOSTAS='as' HOSTLD='gcc' HOSTCC='gcc' HOSTAR='ar'
+Generating global Makefile
+  phase 1 (find all inputs)
+make: *** [phase1] Error 139
 
-However the DFE-580TX problems remain regardless of using a hubbed
-or switched network.
+tduffy@curie:/build2/tduffy/linux_kbuild$ make -f Makefile-2.5 oldconfig
+Using ARCH='sparc64' AS='as' LD='ld' CC='sparc64-linux-gcc' CPP='sparc64-linux-gcc -E' AR='ar' HOSTAS='as' HOSTLD='gcc' HOSTCC='gcc' HOSTAR='ar'
+Generating global Makefile
+  phase 1 (find all inputs)
+pp_makefile1: Attempt to fetch invalid key s(0x73)-9473
+make: *** [phase1] Error 134
 
-(As booth eepro100 and tulip-based cards works fine with the hubs
-I'm quite certain there's nothing wrong with them.)
+more verbose (PP_MAKEFILE1_FLAGS=-v) output:
 
-//Marcud
--- 
----------------------------------------+--------------------------
-  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
- Firewall Developer, Ingate Systems AB |  http://www.ingate.com/
+...
+Generating global Makefile
+  phase 1 (find all inputs)
+pp_makefile1 verbose 1
+    scan_trees   0 /build2/tduffy/linux_kbuild/
+make: *** [phase1] Error 139
+
+
+-tduffy
+

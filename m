@@ -1,20 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129696AbRCFXgJ>; Tue, 6 Mar 2001 18:36:09 -0500
+	id <S129664AbRCFXgJ>; Tue, 6 Mar 2001 18:36:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129664AbRCFXgA>; Tue, 6 Mar 2001 18:36:00 -0500
-Received: from adsl-63-199-104-197.dsl.lsan03.pacbell.net ([63.199.104.197]:8196
-	"HELO ns1.theoesters.com") by vger.kernel.org with SMTP
-	id <S129679AbRCFXfu>; Tue, 6 Mar 2001 18:35:50 -0500
-Date: Tue, 06 Mar 2001 15:35:29 Pacific Standard Time -0800
-X-Mailer: SendMail DLL V1.1
-To: linux-kernel@vger.kernel.org ()
-From: kernel@theoesters.com (Phil Oester)
-Subject: Error compiling aic7xxx driver on 2.4.2-ac13
-Message-Id: <20010306233554Z129679-407+2021@vger.kernel.org>
+	id <S129694AbRCFXf7>; Tue, 6 Mar 2001 18:35:59 -0500
+Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.42.218.237]:18163 "EHLO
+	scotch.homeip.net") by vger.kernel.org with ESMTP
+	id <S129664AbRCFXfr>; Tue, 6 Mar 2001 18:35:47 -0500
+Date: Tue, 6 Mar 2001 18:43:38 -0500 (EST)
+From: God <atm@pinky.penguinpowered.com>
+To: scott1021@mediaone.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2-ac12
+In-Reply-To: <Pine.LNX.4.32.0103060713400.3095-100000@nic-31-c31-100.mn.mediaone.net>
+Message-ID: <Pine.LNX.4.21.0103061842290.878-100000@scotch.homeip.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-anyone else get the following:
+On Tue, 6 Mar 2001, Scott M. Hoffman wrote:
 
-make[5]: Entering directory `
+> On Tue, 6 Mar 2001, God wrote:
+> 
+> > # iostat
+> > Linux 2.4.2 (scotch)    03/06/2001
+
+> 
+>  I have not had problems with 2.4.2, just tried 2.4.2-ac12.  About the IDE
+> stage it just reboots.
+
+Same chipset/mb? 
+
+>  As for your iostat output, which version do you have?  The stock one with
+> RH7 needs to be upgraded to work with 2.4 kernels.  I'm using 3.3.5 now,
+> which seems to work.
+
+
+Version of?
+
+

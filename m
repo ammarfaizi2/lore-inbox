@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268427AbTBNNFt>; Fri, 14 Feb 2003 08:05:49 -0500
+	id <S268450AbTBNN05>; Fri, 14 Feb 2003 08:26:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268422AbTBNNFe>; Fri, 14 Feb 2003 08:05:34 -0500
-Received: from AGrenoble-101-1-3-110.abo.wanadoo.fr ([193.253.251.110]:41156
-	"EHLO awak") by vger.kernel.org with ESMTP id <S268414AbTBNNFR>;
-	Fri, 14 Feb 2003 08:05:17 -0500
-Subject: Re: openbkweb-0.0
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Robert Love <rml@tech9.net>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Larry McVoy <lm@work.bitmover.com>,
-       Rik van Riel <riel@imladris.surriel.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Andrea Arcangeli <andrea@e-mind.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1045171099.9045.16.camel@phantasy>
-References: <20030206021029.GW19678@dualathlon.random>
-	 <20030213024751.GA14016@bjl1.jlokier.co.uk>
-	 <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com>
-	 <20030213161337.GA9654@work.bitmover.com>
-	 <20030213211127.GG20159@fs.tum.de>  <1045171099.9045.16.camel@phantasy>
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: 
-Message-Id: <1045227563.13507.12.camel@bip.localdomain.fake>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 14 Feb 2003 13:59:23 +0100
-Content-Transfer-Encoding: 8bit
+	id <S268448AbTBNN04>; Fri, 14 Feb 2003 08:26:56 -0500
+Received: from mail.dsa-ac.de ([62.112.80.99]:64781 "HELO k2.dsa-ac.de")
+	by vger.kernel.org with SMTP id <S268450AbTBNN0v>;
+	Fri, 14 Feb 2003 08:26:51 -0500
+Date: Fri, 14 Feb 2003 14:36:39 +0100 (CET)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.60 "Badness in kobject_register at lib/kobject.c:152"
+In-Reply-To: <1045068254.2166.21.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0302141431430.1173-100000@pcgl.dsa-ac.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 13/02/2003 à 22:18, Robert Love a écrit :
-> On Thu, 2003-02-13 at 16:11, Adrian Bunk wrote:
-> 
-> > If a clause in a license forbids a licensee to use or decompile the
-> > program to gather the information needed for independendly developed
-> > programs to interoperate with this program current German copyright law
-> > says that this clause is void in Germany.  :-)
-> 
-> In which case you would have no right to use the program, not unlimited
-> right. :)
-> 
-> But if this is true, I guess this raises a concern for German hackers
-> (or perhaps everyone in the EU?).
+> > Can
+> > this errors be disk-specific? (it's a SiliconTech disk, reported as
+> > Hitachi) I can try some others, e.g. SunDisk.
+>
+> I would be interested to see how they compare
 
-At least in France, it just means this particular clause is void. This
-doesn't prevent you (err .. me) from using it.
+Ok, finally I was able to do a comparison. SanDisk does look a bit better:
 
-	Xav
+> > hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+> > hda: task_no_data_intr: error=0x04 { DriveStatusError }
+>
+> This is it rejecting a command at start up, thats ok. I do need to
+> quieten these further yet.
+
+And they still appear with SanDisk.
+
+> > hda: 31488 sectors (16 MB) w/1KiB Cache, CHS=246/4/32, BUG <=============
+>
+> Curious. I'll tae a look
+
+And this one too.
+
+> > then, on mounting root again
+> > hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+> > hda: task_no_data_intr: error=0x04 { DriveStatusError }
+> > hda: Write Cache FAILED Flushing!
+>
+> For some reason we decided the drive support cache flush. However it
+> apparently doesnt
+
+The last of the above errors does not appear on SanDisk - it supports
+cache flush?
+
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany
 

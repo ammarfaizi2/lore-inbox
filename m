@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261690AbTCZNhZ>; Wed, 26 Mar 2003 08:37:25 -0500
+	id <S261694AbTCZNrJ>; Wed, 26 Mar 2003 08:47:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261692AbTCZNhZ>; Wed, 26 Mar 2003 08:37:25 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:62482 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S261690AbTCZNhY>;
-	Wed, 26 Mar 2003 08:37:24 -0500
-Date: Wed, 26 Mar 2003 14:48:34 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: erik@hensema.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LVM/Device mapper breaks with -mm (was: Re: 2.5.66-mm1)
-Message-ID: <20030326134834.GA11173@win.tue.nl>
-References: <20030326013839.0c470ebb.akpm@digeo.com> <slrnb8373s.19a.usenet@bender.home.hensema.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <slrnb8373s.19a.usenet@bender.home.hensema.net>
-User-Agent: Mutt/1.3.25i
+	id <S261695AbTCZNrJ>; Wed, 26 Mar 2003 08:47:09 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60571 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261694AbTCZNrJ>;
+	Wed, 26 Mar 2003 08:47:09 -0500
+Message-ID: <3E81B212.40101@pobox.com>
+Date: Wed, 26 Mar 2003 08:58:42 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@pyxtechnologies.com>
+CC: Matt Mackall <mpm@selenic.com>, ptb@it.uc3m.es,
+       Justin Cormack <justin@street-vision.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ENBD for 2.5.64
+References: <Pine.LNX.4.10.10303252222060.25072-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10303252222060.25072-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 12:26:37PM +0000, Erik Hensema wrote:
-> Andrew Morton (akpm@digeo.com) wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.66/2.5.66-mm1/
+Andre Hedrick wrote:
+> We have almost finalized our initiator to be submitted under OSL/GPL.
+> This will be a full RFC ERL=2 w/ Sync-n-Steering.
 
-> LVM or device mapper seems to be broken in -mm. I've only tried the
-> following kernels so far:
-> 2.5.64 - works
-> 2.5.65-mm2 - doesn't work
-> 2.5.66 - works
-> 2.5.66-mm1 - doesn't work
 
-Probably you are hit by
+That's pretty good news.
 
-  dev_t-32-bit.patch
-    [for playing only] change type of dev_t
+Also, I tangent and mention that I have been won over WRT OSL:  with its 
+more tight "lawyerspeak" and mutual patent defense clauses, I consider 
+OSL to be a "better GPL" license.
 
-This is hidden somewhat in the 100+ patches in -mm,
-but the kernel is not quite ready yet - that is
-why this is labeled "not to be applied, for
-playing only". Mostly things work, but some stuff
-related to lvm, md, dm, nfs, loop will break
-because ioctls use structs with a dev_t field.
+I would in fact love to see the Linux kernel relicensed under OSL.  I 
+think that would close some "holes" that exist with the GPL, and give us 
+a better legal standing.  But relicensing the kernel would be huge 
+political undertaking, and I sure as hell don't have the energy, even if 
+it possible.  No idea if Linus, Alan, Andrew, or any of the other major 
+contributors would go for it, either.
 
-You can revert this single patch and probably all will be fine.
-More interesting would be to apply
+	Jeff, the radical
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103956089203199&w=3
-
-if possible, and see whether that helps.
-You can see some earlier discussion today under a subject
-containing the word dm_ioctl.
-
-Andries
 

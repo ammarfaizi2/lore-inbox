@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUIDWDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUIDWGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUIDWDy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 18:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUIDWDy
+	id S263117AbUIDWGM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 18:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUIDWGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 18:03:54 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:6101 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263100AbUIDWDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 18:03:53 -0400
-Subject: Re: [RFC/patch] macro_removal_agp_mtrr.diff
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: gene.heskett@verizon.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@linux.ie>, Arjan van de Ven <arjanv@redhat.com>,
-       webmaster@x.org
-In-Reply-To: <1094315580.10555.23.camel@localhost.localdomain>
-References: <Pine.LNX.4.58.0409041053450.25475@skynet>
-	 <20040904103711.GD5313@devserv.devel.redhat.com>
-	 <Pine.LNX.4.58.0409041418450.25475@skynet>
-	 <200409041147.35522.gene.heskett@verizon.net>
-	 <1094315580.10555.23.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1094335441.6575.429.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 04 Sep 2004 18:04:01 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Sep 2004 18:06:12 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:42471 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S263117AbUIDWGG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 18:06:06 -0400
+Date: Sat, 4 Sep 2004 23:06:05 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       Keith Whitwell <keith@tungstengraphics.com>,
+       Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: New proposed DRM interface design
+In-Reply-To: <1094333738.6575.393.camel@krustophenia.net>
+Message-ID: <Pine.LNX.4.58.0409042304200.24528@skynet>
+References: <20040904004424.93643.qmail@web14921.mail.yahoo.com> 
+ <Pine.LNX.4.58.0409040145240.25475@skynet>  <20040904102914.B13149@infradead.org>
+  <41398EBD.2040900@tungstengraphics.com>  <20040904104834.B13362@infradead.org>
+  <413997A7.9060406@tungstengraphics.com>  <20040904112535.A13750@infradead.org>
+  <4139995E.5030505@tungstengraphics.com>  <20040904120352.B14037@infradead.org>
+  <Pine.LNX.4.58.0409041207060.25475@skynet>  <20040904114243.GC2785@redhat.com>
+ <1094333738.6575.393.camel@krustophenia.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-04 at 12:33, Alan Cox wrote:
-> On Sad, 2004-09-04 at 16:47, Gene Heskett wrote:
-> > Unforch, it appears not to be available as a tarball, or group of 
-> > tarballs stuffed in a "grab all these" directory.  While I probably
-> 
-> Look harder. Its a single tarball.
-> 
+>
+> How about getting the VIA DRI module into the kernel?
 
-Gene has a point, the x.org page is pretty bad.  The download link is
-buried, you have to scroll past the organizational stuff to even see it,
-which makes the user think they missed it because they (correctly)
-expected it to be at the top.
+As soon as it is secure it goes in, the VIA DRI developers are working on
+it at the moment, and it should be suitable for merging soon...
 
-Lee
+we also have out of kernel DRM drivers for mach64 and savage that would
+pose security issues if shipped, so we can't develop them in-kernel....
+(another reason for the CVS tree)...
+
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

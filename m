@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267204AbTAFVdr>; Mon, 6 Jan 2003 16:33:47 -0500
+	id <S267176AbTAFV2f>; Mon, 6 Jan 2003 16:28:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267208AbTAFVdr>; Mon, 6 Jan 2003 16:33:47 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:62981 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267204AbTAFVdq>;
-	Mon, 6 Jan 2003 16:33:46 -0500
-Date: Mon, 6 Jan 2003 13:42:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Louis Garcia <louisg00@bellsouth.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: status on the new driver model?
-Message-ID: <20030106214220.GA22207@kroah.com>
-References: <1041888351.12319.15.camel@tiger>
-Mime-Version: 1.0
+	id <S267178AbTAFV2f>; Mon, 6 Jan 2003 16:28:35 -0500
+Received: from packet.digeo.com ([12.110.80.53]:53480 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267176AbTAFV23>;
+	Mon, 6 Jan 2003 16:28:29 -0500
+Message-ID: <3E19F667.30043A97@digeo.com>
+Date: Mon, 06 Jan 2003 13:34:31 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dominik Brodowski <linux@brodo.de>
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       cpufreq@www.linux.org.uk
+Subject: Re: [PATCH 2.5.54] cpufreq: update timer notifier
+References: <20030106135521.GC1307@brodo.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1041888351.12319.15.camel@tiger>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Jan 2003 21:34:31.0942 (UTC) FILETIME=[6651CA60:01C2B5CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 04:25:51PM -0500, Louis Garcia wrote:
-> What is the status of the new driver model?
+Dominik Brodowski wrote:
+> 
+> +#else
+> +#define adjust_jiffies(...)
+> +#endif
 
-It's currently working, mount sysfs and take a look.
+This will fail to compile on gcc-2.91.66.  It's OK on 2.95.3.
 
-> Are the driver being ported over in a timely fashion?
+sparc64 requires a compiler of similar vintage (2.92.11), so
+I am trying to keep 2.91.66-on-x86 limping along so that breakage
+can be detected more easily.
 
-Yes.
+Please use
 
-> Is this process going to be complete before the code freeze/2.6?
+	#define adjust_jiffies(x...) do {} while (0)
 
-Depends, are you willing to help out?  :)
-
-> I've heard the PCI bus and drivers are not yet converted to strut
-> devices?
-
-Not true at all, have you even looked at the current 2.5 code?
-
-> Oh, is the old LDM or what ever is was being riped out or left for
-> compatibility?
-
-What "old LDM"?
-
-Again, you can find all the answers to your questions by actually
-looking at the code.
-
-thanks,
-
-greg k-h
+here.   Or an empty inline, which tends to be nicer, because you
+still get argument type checking.

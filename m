@@ -1,355 +1,336 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270519AbTGNDp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 23:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270524AbTGNDp7
+	id S270517AbTGNDo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 23:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270518AbTGNDo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 23:45:59 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:46271 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S270519AbTGNDpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 23:45:10 -0400
-Subject: [PATCH] /proc/bus/pci* changes
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: akpm@digeo.com, torvalds@osdl.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058154708.747.1391.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 13 Jul 2003 23:51:48 -0400
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Jul 2003 23:44:28 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:12500 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270517AbTGNDoV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 23:44:21 -0400
+Date: Sun, 13 Jul 2003 20:59:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux v2.6.0-test1
+Message-ID: <Pine.LNX.4.44.0307132055080.2096-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The existing /proc/bus/pci/*/* files are a
-hack involving ioctl and out-of-bounds mmap.
-The following patch starts a transition to
-something sane while keeping compatibility.
 
-Typical user-space drivers for polled devices
-should be easy to port to the new interface.
-The X server will need some per-arch enhancements
-to handle write-combining (non-x86 lack MTRRs)
-and the use of multiple VGA-style devices.
+Ok,
+ the naming should be familiar - it's the same deal as with 2.4.0.
 
-In the new interface, pci/00/00.0 is a symbolic
-link to a ../../pci*/bus0/dev0/fn0/config-space
-file, where the '*' is typically 0. (PCI domain)
-Simple and direct per-resource mmap() is provided,
-via pci0/bus0/dev0/fn0/bar0 and so on.
+One difference is that while 2.4.0 took about 7 months from the pre1 to 
+the final release, I hope (and believe) that we have fewer issues facing 
+us in the current 2.6.0. But very obviously there are going to be a
+few test-releases before the real thing.
 
+The point of the test versions is to make more people realize that they
+need testing and get some straggling developers realizing that it's too
+late to worry about the next big feature. I'm hoping that Linux vendors
+will start offering the test kernels as installation alternatives, and
+do things like make upgrade internal machines, so that when the real
+2.6.0 does happen, we're all set.
 
-diff -Naurd old/drivers/pci/proc.c new/drivers/pci/proc.c
---- old/drivers/pci/proc.c	2003-07-13 23:10:29.000000000 -0400
-+++ new/drivers/pci/proc.c	2003-07-13 23:09:06.000000000 -0400
-@@ -199,6 +199,14 @@
- 	int write_combine;
- };
- 
-+
-+/*
-+ * 2001-05-20 Alexander Viro "BTW, -pre4 got new bunch of ioctls. On
-procfs, no less."
-+ * 2001-05-20 Linus Torvalds "This particular braindamage is not too
-late to fix.."
-+ * 2003-06-30 Matthew Wilcox "The current fugly ioctl really has to
-go."
-+ *
-+ * Damn, this lives in 2.6.xx, but at least a new interface is in
-place.
-+ */
- static int proc_bus_pci_ioctl(struct inode *inode, struct file *file,
-unsigned int cmd, unsigned long arg)
- {
- 	const struct proc_dir_entry *dp = PDE(inode);
-@@ -240,6 +248,7 @@
- }
- 
- #ifdef HAVE_PCI_MMAP
-+/* old interface */
- static int proc_bus_pci_mmap(struct file *file, struct vm_area_struct
-*vma)
- {
- 	struct inode *inode = file->f_dentry->d_inode;
-@@ -379,43 +388,215 @@
- 
- struct proc_dir_entry *proc_bus_pci_dir;
- 
-+
-+#ifdef HAVE_PCI_MMAP
-+
-+struct pci_bar_private {
-+	struct pci_dev *pdev;
-+	int bar;
-+};
-+
-+
-+/* For now, a wrapper. Next fixes: do a proper per-arch version of
-this, plus mmap flags. */
-+static int pci_bar_mmap_page_range(struct pci_dev *pdev, struct
-vm_area_struct *vma, int bar)
-+{
-+	enum pci_mmap_state type;  /* which PCI address space, MMIO or IO
-ports? */
-+	unsigned busaddr;
-+	unsigned npages;
-+	int ret;
-+	
-+	type = pci_resource_flags(pdev,bar) & IORESOURCE_MEM ? pci_mmap_mem :
-pci_mmap_io;
-+
-+	/* check size limit */
-+	npages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+	if(npages + vma->vm_pgoff > pci_resource_len(pdev,bar) >> PAGE_SHIFT)
-+		return -EINVAL;
-+
-+	/* Eeew. Make the old per-arch interface happy. */
-+	/* Too bad  "busaddr = pci_resource_start(pdev,bar)"  only works on
-i386 */
-+	pci_read_config_dword(pdev, PCI_BASE_ADDRESS_0 + bar * 4, &busaddr);
-+	vma->vm_pgoff += busaddr >> PAGE_SHIFT;
-+
-+	/* vma ought to choose: uncache, write-combine, write-back... */
-+	ret = pci_mmap_page_range(pdev, vma, type, 0);
-+	if (ret<0)
-+		return ret;
-+	return 0;
-+}
-+
-+
-+static int proc_pci_bar_mmap(struct file *file, struct vm_area_struct
-*vma)
-+{
-+	struct inode *inode = file->f_dentry->d_inode;
-+	const struct proc_dir_entry *dp = PDE(inode);
-+	struct pci_bar_private *private = dp->data;
-+
-+	int ret;
-+
-+	if (!capable(CAP_SYS_RAWIO))
-+		return -EPERM;
-+
-+	ret = pci_bar_mmap_page_range(private->pdev, vma, private->bar);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int proc_pci_bar_open(struct inode *inode, struct file *file)
-+{
-+	return 0;
-+}
-+
-+static int proc_pci_bar_release(struct inode *inode, struct file *file)
-+{
-+	kfree(file->private_data);
-+	file->private_data = NULL;
-+
-+	return 0;
-+}
-+#endif /* HAVE_PCI_MMAP */
-+
-+static struct file_operations proc_pci_bar_operations = {
-+#ifdef HAVE_PCI_MMAP
-+	.open		= proc_pci_bar_open,
-+	.release	= proc_pci_bar_release,
-+	.mmap		= proc_pci_bar_mmap,
-+#ifdef HAVE_ARCH_PCI_GET_UNMAPPED_AREA
-+	.get_unmapped_area = get_pci_unmapped_area,
-+#endif /* HAVE_ARCH_PCI_GET_UNMAPPED_AREA */
-+#endif /* HAVE_PCI_MMAP */
-+};
-+
-+/* TODO: per-arch way to hang a proc_dir_entry off of a pci domain */
-+#ifdef CONFIG_PCI_DOMAINS
-+static struct proc_dir_entry *procdom[0x10000];
-+#else
-+static struct proc_dir_entry *procdom[1];
-+#endif
-+
- int pci_proc_attach_device(struct pci_dev *dev)
- {
- 	struct pci_bus *bus = dev->bus;
- 	struct proc_dir_entry *de, *e;
- 	char name[16];
-+	char target[48];  /* sized for
-../../pci65535/bus255/dev31/fn7/config-space */
-+	int i;
- 
- 	if (!proc_initialized)
- 		return -EACCES;
- 
--	if (!(de = bus->procdir)) {
--		if (pci_name_bus(name, bus))
--			return -EEXIST;
--		de = bus->procdir = proc_mkdir(name, proc_bus_pci_dir);
-+	/* Create new-style /proc/bus/pci65535/bus255/dev31/fn7/config-space &
-friends. */
-+	if (!(de = bus->procbus)) {
-+		if (!( de = procdom[pci_domain_nr(bus)] )) {
-+			sprintf(name, "pci%u", pci_domain_nr(bus));
-+			de = procdom[pci_domain_nr(bus)] = proc_mkdir(name, proc_bus);
-+			if (!de)
-+				return -ENOMEM;
-+		}
-+		sprintf(name, "bus%u", bus->number);
-+		de = bus->procbus = proc_mkdir(name, de);
- 		if (!de)
- 			return -ENOMEM;
- 	}
--	sprintf(name, "%02x.%x", PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
--	e = dev->procent = create_proc_entry(name, S_IFREG | S_IRUGO |
-S_IWUSR, de);
-+
-+	if (!( de = bus->procdevs[PCI_SLOT(dev->devfn)] )) {
-+		sprintf(name, "dev%u", PCI_SLOT(dev->devfn));
-+		de = bus->procdevs[PCI_SLOT(dev->devfn)] = proc_mkdir(name,
-bus->procbus);
-+		if (!de)
-+			return -ENOMEM;
-+	}
-+
-+	sprintf(name, "fn%u", PCI_FUNC(dev->devfn));
-+	de = dev->procfn = proc_mkdir(name, de);
-+	if (!de)
-+		return -ENOMEM;
-+
-+	e = dev->proccfg = create_proc_entry("config-space", S_IFREG | S_IRUGO
-| S_IWUSR, de);
- 	if (!e)
- 		return -ENOMEM;
- 	e->proc_fops = &proc_bus_pci_operations;
- 	e->data = dev;
- 	e->size = PCI_CFG_SPACE_SIZE;
- 
-+	/* one entry per resource */
-+	for (i = 0; i < DEVICE_COUNT_RESOURCE && pci_resource_start(dev,i);
-i++) {
-+		struct pci_bar_private *private;
-+		private = kmalloc(sizeof(*private), GFP_KERNEL);
-+		if (!private)
-+			return -ENOMEM;
-+		private->pdev = dev;
-+		private->bar = i;
-+		sprintf(name, "bar%u", i);
-+		e = dev->procbar[i] = create_proc_entry(name, S_IFREG | S_IRUGO |
-S_IWUSR, dev->procfn);
-+		if (!e)
-+			return -ENOMEM;
-+		e->proc_fops = &proc_pci_bar_operations;
-+		e->data = private;
-+		e->size = pci_resource_len(dev,i);
-+	}
-+
-+	/* Create old-style /proc/bus/pci/ff/1f.7 entry as a symlink. */
-+	if (!(de = bus->procdir)) {
-+		if (pci_name_bus(name, bus))
-+			return -EEXIST;     /* fail if name taken by some other PCI domain
-*/
-+		de = bus->procdir = proc_mkdir(name, proc_bus_pci_dir);
-+		if (!de)
-+			return -ENOMEM;
-+	}
-+	sprintf(name, "%02x.%x", PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
-+	sprintf(target, "../../pci%d/bus%d/dev%d/fn%d/config-space",
-pci_domain_nr(bus), bus->number, PCI_SLOT(dev->devfn),
-PCI_FUNC(dev->devfn));
-+	dev->procent = proc_symlink(name, de, target);
-+	if (!dev->procent)
-+		return -ENOMEM;
-+
- 	return 0;
- }
- 
- int pci_proc_detach_device(struct pci_dev *dev)
- {
- 	struct proc_dir_entry *e;
-+	int i;
- 
-+	/* old-style */
- 	if ((e = dev->procent)) {
- 		if (atomic_read(&e->count))
- 			return -EBUSY;
- 		remove_proc_entry(e->name, dev->bus->procdir);
- 		dev->procent = NULL;
- 	}
-+	/* the config-space file */
-+	if ((e = dev->proccfg)) {
-+		if (atomic_read(&e->count))
-+			return -EBUSY;
-+		remove_proc_entry(e->name, dev->procfn);
-+		dev->proccfg = NULL;
-+	}
-+	/* one entry per resource */
-+	for (i = 0; i < DEVICE_COUNT_RESOURCE && pci_resource_start(dev,i);
-i++) {
-+		e = dev->procbar[i];
-+		if(!e)
-+			continue;
-+		if(atomic_read(&e->count))
-+			return -EBUSY;
-+		remove_proc_entry(e->name, dev->procfn);
-+		dev->procbar[i] = NULL;
-+	}
-+	/* the per-fn directory */
-+	if ((e = dev->procfn)) {
-+		if (atomic_read(&e->count))
-+			return -EBUSY;
-+		kfree(e->data);
-+		remove_proc_entry(e->name, dev->bus->procdevs[PCI_SLOT(dev->devfn)]);
-+		dev->procfn = NULL;
-+	}
-+	/* the per-dev directory */
-+	if ((e = dev->bus->procdevs[PCI_SLOT(dev->devfn)])) {
-+		if (atomic_read(&e->count))
-+			return -EBUSY;
-+		remove_proc_entry(e->name, dev->bus->procbus);
-+		dev->bus->procdevs[PCI_SLOT(dev->devfn)] = NULL;
-+	}
- 	return 0;
- }
- 
-@@ -441,6 +622,9 @@
- 	struct proc_dir_entry *de = bus->procdir;
- 	if (de)
- 		remove_proc_entry(de->name, proc_bus_pci_dir);
-+	de = bus->procbus;
-+	if (de)
-+		remove_proc_entry(de->name, procdom[pci_domain_nr(bus)]);
- 	return 0;
- }
- 
-diff -Naurd old/include/linux/pci.h new/include/linux/pci.h
---- old/include/linux/pci.h	2003-07-13 23:09:45.000000000 -0400
-+++ new/include/linux/pci.h	2003-07-13 23:09:17.000000000 -0400
-@@ -371,7 +371,10 @@
- 	struct pci_bus	*subordinate;	/* bus this device bridges to */
- 
- 	void		*sysdata;	/* hook for sys-specific extension */
--	struct proc_dir_entry *procent;	/* device entry in /proc/bus/pci */
-+	struct proc_dir_entry *procent;	/* in /proc/bus/pci (old-style) */
-+	struct proc_dir_entry *procfn;	/* in /proc/bus/pci* (new-style) */
-+	struct proc_dir_entry *proccfg;	/* config-space (new-style) */
-+	struct proc_dir_entry *procbar[DEVICE_COUNT_RESOURCE];	/* per-bar
-entries */
- 
- 	unsigned int	devfn;		/* encoded device & function index */
- 	unsigned short	vendor;
-@@ -454,7 +457,9 @@
- 
- 	struct pci_ops	*ops;		/* configuration access functions */
- 	void		*sysdata;	/* hook for sys-specific extension */
--	struct proc_dir_entry *procdir;	/* directory entry in /proc/bus/pci */
-+	struct proc_dir_entry *procdir;	/* old-style /proc/bus/pci entry */
-+	struct proc_dir_entry *procbus;	/* new-style /proc/bus/pci* entry */
-+	struct proc_dir_entry *procdevs[32];	/* new-style /proc/bus/pci*
-per-slot */
- 
- 	unsigned char	number;		/* bus number */
- 	unsigned char	primary;	/* number of primary bridge */
+		Linus
 
+---
+
+Summary of changes from v2.5.75 to v2.6.0-test1
+============================================
+
+<jcchen:icplus.com.tw>:
+  o [netdrvr sundance] increase eeprom read timeout
+
+<taowenhwa:intel.com>:
+  o [e100] cu_start: timeout waiting for cu
+  o [e100] misc
+
+Alan Cox:
+  o genrtc sets owner fields so
+  o Remove bogus printk in microcode.c
+  o clean up floppy98 a bit
+  o dtlk comment fix
+  o isurf compile fix
+  o axnet can unload with timers live
+  o ibmtr can unload with timers live
+  o fix up nmclan locking and hang on eject at wrong moment
+  o fix further timer in pcmcia stuff
+  o Fix remaining g_NCR5380 use of check_region
+  o not sure what the author was on
+  o AC97 updates from 2.4
+  o Add the au1000 driver
+  o demo plugin for switching ad1980 ports Dell style
+  o Fix security leaks in btaudio
+  o Add the ALI5455 driver from 2.4
+  o fix security leaks in cmpci
+  o Update cs46xx in 2.5 to the newer 2.4 release
+  o fix the security leak in dmasound
+  o Switch the SB Live! to the new ac97 api
+  o fix security leaks and a crash in es1370
+  o bring es1371 in line with 2.4
+  o fix security leak and crash in esssolo
+  o Add Forte Media OSS driver
+  o update ITE audio
+  o update the i810 audio driver
+  o switch maestro3 to new ac97
+  o fix security leak in maestro.c
+  o fix security leak in msnd_pinnacle.c
+  o Add swarm driver for broadcom boards
+  o update nec driver to new ac97
+  o update trident driver for new ac97 etc
+  o fix wrong printk in nm256 audio
+  o update via audio driver, make it work on esd add new chips
+  o more wrong strlcpy's
+  o update ymfpci for new ac97
+  o Merge AD1889 driver from 2.4
+
+Alan Stern:
+  o USB: Small correction to usb-skeleton.c
+  o USB: Updates for unusual_devs.h
+
+Andi Kleen:
+  o Deprecate numerical sysctl
+  o x86-64 fixes for 2.5.75
+
+Andrew Morton:
+  o fix return of compat_sys_sched_getaffinity
+  o remove proc_mknod()
+  o reiserfs dirty memory accounting fix
+  o fix reiserfs for 64bit arches
+  o wall_to_monotonic initialization fixes for
+  o i_size atomic access: infrastructure
+  o i_size atomic access
+  o kmap() -> kmap_atomic() in fs/exec.c
+  o make CONFIG_KALLSYMS default to "on"
+  o misc fixes
+  o Set umask correctly for nfsd kernel threads
+  o Bug fix in AIO initialization
+  o Fix race condition between aio_complete and
+  o separate locking for vfsmounts
+  o fix for CPU scheduler load distribution
+  o NBD: cosmetic cleanups
+  o nbd: enhanced diagnostics support
+  o nbd: remove unneeded blksize_bits field
+  o nbd: initialise the embedded kobject
+  o nbd: cleanup PARANOIA usage & code
+  o NBD documentation update
+  o nbd: remove unneeded nbd_open/nbd_release and refcnt
+  o nbd: make nbd and block layer agree about device and
+  o JBD: checkpointing optimisations
+  o JBD: transaction buffer accounting fix
+  o ext3: sync_fs() fix
+  o oom killer fixes
+  o yenta-socket initialisation fix
+  o Fix yenta-socket oops
+  o devfs oops fix
+  o devfs deadlock fix
+  o epoll-per-fd fix
+
+Andries E. Brouwer:
+  o cryptoloop
+
+Bernardo Innocenti:
+  o asm-generic/div64.h breakage
+
+Brian Gerst:
+  o c99 initializers for init/version.c
+
+Daniel Ritz:
+  o more net driver timer fixes
+  o net/pcmcia fix fast_poll timers (HZ > 100)
+
+Dave Jones:
+  o [AGPGART] Remove unneeded assignment
+  o [AGPGART] Use defines for register bits in AMD K8 GART driver
+  o [AGPGART] K8 GART driver doesn't need masks
+  o [AGPGART] Ignore multiple K8 GARTS on UP
+  o [AGPGART] Optimise PCI searching in K8 GART driver
+  o [AGPGART] K8 Device 0x1103 is always at PCI_FUNC 3
+  o [AGPGART] K8 North bridge bus position is no longer relevant
+  o [AGPGART] HP AGP update
+  o [AGPGART] Sort SiS device IDs
+  o [AGPGART] SiS 746 support This (and a few other SiS chipsets) are
+    AGP 3 compliant. AFAIK, none of these have been tested in AGP3
+    mode, but they should work just fine in AGP2.x mode at least.
+  o [AGPGART] SiS 648 support
+  o [AGPGART] Make frontend sparse clean
+
+David Brownell:
+  o USB: usb_get_string(), don't use bogus ids
+  o USB: usbnet, don't NET_XMIT_DROP
+
+David S. Miller:
+  o [SPARC]: SEMTIMEDOP for both Sparc ports
+  o [SPARC64]: Port over IPC msg{snd,rcv} compat32 fixes from ia64
+  o [TCP]: When in SYN-SENT, initialize metrics after move to
+    established state
+  o [NET]: Ok, sunhme is VLAN challenged after all
+  o [IPV6]: Build and send redirect packet using "buff" not "skb",
+    fixes OOPS
+  o [IPV6]: Fix dst reference counting in ndisc_send_redirect()
+  o [NET,COMPAT]: Delete bogus icmpv6 filter translation code
+  o [IPV6]: Fix leaks of ndisc DST entries
+  o [SPARC64]: Ditch local KALLSYMS from Kconfig, update defconfig
+  o [SPARC64]: Implement force_successful_syscall()
+  o [SPARC64]: Use mm->free_area_cache
+  o [IPV4]: Do not redefine config macros in net/ip_vs.h
+  o [IPV4]: Always use Jenkins hash in ipvs conn table, use
+    get_random_bytes() to init key
+  o [IPV4]: Kill slow timers from IPVS, they are superfluous and
+    inefficient these days
+
+David Stevens:
+  o [IPV4]: Do not sent IGMP leave messages unless IFF_UP
+
+Dominik Brodowski:
+  o [PCMCIA] don't hide calls to socket drivers
+  o [PCMCIA] rename ss_entry to ops
+
+François Romieu:
+  o Fix AD1889 driver 2.4 merge
+  o Fix error path in AD1889 driver
+
+Greg Kroah-Hartman:
+  o USB: fix up my USB Bluetooth entry to help prevent confusion in the
+    future
+  o USB: remove pointless warning about using usbdevfs
+
+Herbert Xu:
+  o [IPSEC]: Missing reqid check in xfrm_state_ok
+
+Hideaki Yoshifuji:
+  o [IPV6]: Fix offset of payload with extension header
+
+Ian Abbott:
+  o USB: ftdi_sio update
+
+James Morris:
+  o [NETLINK]: Just drop packets for kernel netlink socket with no
+    data_ready handler
+
+Jean Tourrilhes:
+  o [IrDA] include cleanup
+  o [IrDA] struct check
+  o [IrDA] irtty leaks
+  o [IrDA] irnet cast
+  o [IrDA] IrCOMM devfs
+  o [IrDA] setup dma fix
+  o [IrDA] irda-usb endian
+  o [IrDA] nsc 39x support
+
+Jeff Garzik:
+  o [netdrvr tg3] more ULL suffixes to make gcc 3.3 happy
+  o [netdrvr] fix compiler warnings in 3c359, proteon, skisa tokenring
+    drivers.
+  o [netdrvr wavelan] remove check_region usage
+  o [netdrvr atmel_cs] kill compiler warning (jumping to "empty" label)
+
+Jens Axboe:
+  o disk stats accounting fix
+  o Fix IDE-CD command failure re-play
+  o fs accounting, part 2
+
+Kay Sievers:
+  o usblp: usb_buffer_free() not called Here is the blind flight :-)
+    === drivers/usb/class/usblp.c usblp->dev was set to NULL to
+    indicate a device disconnect but we need this value for
+    usb_buffer_free() when device is still opened and cleanup is
+    delayed until usblp_release().
+
+Linus Torvalds:
+  o Avoid mmap() overflow case if TASK_SIZE is the full range of an
+    "unsigned long" (sparc64).
+  o Merge comment updates from DRI CVS tree
+  o Update i810 DRI driver from CVS to add page flipping
+  o Update r128 driver from DRI CVS: add support for ycbcr textures
+  o Update radeon driver from DRI CVS: add more commands
+  o Merge from DRI CVS tree: avoid zero DRI "handles"
+  o Merge with DRI CVS tree - which added a reminder to the DRI people
+    not to remove the HAVE_KERNEL_CTX_SWITCH support that the sparc
+    drivers require.
+  o Fix signedness tests in vsnprintf by making it explicit
+  o Mark Bartlomiej as the IDE maintainer, about 3 months late ;)
+  o Disable TI cardbus PCI IRQ routing code that was forward-ported
+    from 2.4-ac - it seems to cause hangs for people.
+
+Matthew Dharm:
+  o USB: fix usb-storage initializers
+  o USB: fix datafab and freecom to use I/O buffer
+
+Matthew Wilcox:
+  o parisc updates
+  o Makefile update for parisc
+  o eisa Kconfig update for parisc
+  o Add two sysctls for PA-RISC
+  o Remove warning from binfmt_elf.c for upwards growing stack
+  o gsc-ps2 update
+
+Miles Bader:
+  o Use <asm-generic/statsfs.h> on v850
+  o More irqreturn_t changes for v850
+  o show_stack changes for v850
+
+Nivedita Singhvi:
+  o [NET]: Fix typo in net-sysfs.c copyright
+
+Pete Zaitcev:
+  o [SPARC]: Clean secondary System.map
+  o [SPARC]: defconfig for willy's scsi
+  o [SPARC]: hch's cond_syscall() for PCI syscalls, Alpha/PPC/etc. can
+    use this too
+  o [SPARC]: Redo show_stack()
+  o [SPARC]: Trap table alignment for Hyperspace (Keith Weselowsky)
+
+Petr Sebor:
+  o via-agp.c - agp_try_unsupported typo
+
+Petr Vandrovec:
+  o new sysctl checking accesses userspace directly
+
+Ralf Bächle:
+  o mkiss
+
+Richard Henderson:
+  o [ALPHA] Add tgkill syscall
+  o [ALPHA] Set correct CLOCK_TICK_RATE for the RTC
+  o [ALPHA] Remove SBUS & MCA from alpha Kconfig
+
+Robert Zwerus:
+  o Documentation/CodingStyle spelling fixes
+
+Russell King:
+  o [PCMCIA] Prevent PCMCIA oops during socket driver initialisation
+  o [PCMCIA] Fix hangs when PCMCIA modules loaded
+
+Samuel Thibault:
+  o [2.5] maestro volume tuning
+
+Stephen Hemminger:
+  o convert plip to alloc_netdev
+  o [netdrvr dgrs] convert to using alloc_etherdev
+
+Steve French:
+  o NTLMv2 password support and NTLMSSP signing part 1
+  o ntlmssp signing
+  o More NTLMv2
+  o Open / Create lookup intents part one
+  o Add mknod support
+  o fix cifs distributed caching - send oplock release immediately
+    after flush of writebehind data on oplock break from server
+
+Thomas Graf:
+  o [NET]: Return EDESTADDRREQ as appropriate in sendmsg
+    implementations
+
+Ulrich Drepper:
+  o Re: utimes/futimes/lutimes syscalls
+
+Wensong Zhang:
+  o [NET]: Merge in IPVS layer
 
 

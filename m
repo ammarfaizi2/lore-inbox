@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278385AbRJWXiS>; Tue, 23 Oct 2001 19:38:18 -0400
+	id <S278396AbRJWXmI>; Tue, 23 Oct 2001 19:42:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278387AbRJWXiI>; Tue, 23 Oct 2001 19:38:08 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:32274 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S278385AbRJWXiA>;
-	Tue, 23 Oct 2001 19:38:00 -0400
-Message-ID: <3BD5FF73.167A969C@lexus.com>
-Date: Tue, 23 Oct 2001 16:38:27 -0700
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre6 i686)
-X-Accept-Language: en
+	id <S278391AbRJWXlt>; Tue, 23 Oct 2001 19:41:49 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:27143 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S278389AbRJWXlp>;
+	Tue, 23 Oct 2001 19:41:45 -0400
+Date: Tue, 23 Oct 2001 21:42:07 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: safemode <safemode@speakeasy.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: time tells all about kernel VM's
+In-Reply-To: <20011023030353Z279218-17408+3723@vger.kernel.org>
+Message-ID: <Pine.LNX.4.33L.0110232141080.3690-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: John Gluck <jgluckca@home.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: OT: Problem compiling read_cdda-2.05
-In-Reply-To: <3BD5FD1E.D4EB7649@home.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Gluck wrote:
+On Mon, 22 Oct 2001, safemode wrote:
 
-> Hi
->
-> Sorry for posting this here. I tried e-mailing the authir but the mail
-> got bounced.
->
-> I am trying to get this to compile.
-> I get the following errors:
->
-> In file included from read_cdda.c:71:
-> read_cdda.h:45: sys/cdio.h: No such file or directory
-> In file included from read_cdda.c:71:
-> read_cdda.h:50: sys/scsi/impl/uscsi.h: No such file or directory
+> First the kernel created about 600MB of buffer in addition to the
+> application specified 128MB of buffer i had it using (e2defrag -p
+> 16384).  This brought the system to a crawl.
 
-Do you have kernel headers installed?
+Now that I think about it, and read the last message you wrote
+in the thread ... do you have some vmstat output during this
+time ?
 
-cu
+Do you know if e2defrag somehow locks buffers into RAM ?
 
-jjs
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
 
+http://www.surriel.com/		http://distro.conectiva.com/
 

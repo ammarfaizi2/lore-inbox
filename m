@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313019AbSDOTYW>; Mon, 15 Apr 2002 15:24:22 -0400
+	id <S313041AbSDOTZl>; Mon, 15 Apr 2002 15:25:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313041AbSDOTYV>; Mon, 15 Apr 2002 15:24:21 -0400
-Received: from cliff.mcs.anl.gov ([140.221.9.17]:57217 "EHLO mcs.anl.gov")
-	by vger.kernel.org with ESMTP id <S313019AbSDOTYV>;
-	Mon, 15 Apr 2002 15:24:21 -0400
-To: tomas szepe <kala@pinerecords.com>
-Cc: James Simmons <jsimmons@transvirtual.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.7 keyboard problem
-In-Reply-To: <Pine.LNX.4.44.0204152105220.27809-100000@louise.pinerecords.com>
-From: "Narayan Desai" <desai@mcs.anl.gov>
-Date: Mon, 15 Apr 2002 14:24:06 -0500
-Message-ID: <yrxg01wlq95.fsf@catbert.mcs.anl.gov>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.1 (Cuyahoga Valley,
- i386-mandrake-linux)
+	id <S313172AbSDOTZk>; Mon, 15 Apr 2002 15:25:40 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26129 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313041AbSDOTZj>; Mon, 15 Apr 2002 15:25:39 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: link() security
+Date: 15 Apr 2002 12:25:27 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a9f9f7$cng$1@cesium.transmeta.com>
+In-Reply-To: <20020411192122.F5777@pizzashack.org> <s5gpu11rpgx.fsf@egghead.curl.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am experiencing a similar problem, though my keyboard works, but no
-mouse is detected. I have built a 2.5.7-dj4 kernel with the supplied
-config on an IBM thinkpad 600E (ps2 mouse, etc)
- -nld
+Followup to:  <s5gpu11rpgx.fsf@egghead.curl.com>
+By author:    "Patrick J. LoPresti" <patl@curl.com>
+In newsgroup: linux.dev.kernel
+> Actually, that is a horrible policy from a security perspective.  The
+> shared mail spool itself is a poor design and always has been.
+> 
+> A better design is to use a separate spool directory for each user
+> (/var/spool/mail/user/ or ~user/mail/ or somesuch), and only allow
+> that user to access it at all.  This solves *all* of the security
+> problems you mention:
+> 
+>    *) It avoids attacks based on race conditions, because you cannot
+>       create files in somebody else's spool.
+> 
+>    *) Admins can manage space with quotas or partitions just like they
+>       do for user home directories (i.e., it is a solved problem).
+> 
+>    *) You cannot link() to somebody else's spool file because you
+>       cannot even read the directory in which it resides.
+> 
+> The solution to a fundamentally broken spool design is to fix that
+> design, not to patch the kernel in nonstandard ways to plug just one
+> of its multiple flaws.
 
->>>>> "tomas" == tomas szepe <kala@pinerecords.com> writes:
+Not to mention the fact that the single file mailbox design is itself
+flawed.  Mailboxes are fundamentally directories, which news server
+authors quickly realized.
 
->> > an excerpt from the 2.5.8 .config in question: .  .
->> > CONFIG_INPUT=y CONFIG_INPUT_KEYBDEV=y CONFIG_INPUT_MOUSEDEV=y .
->> > .  CONFIG_SERIO=y CONFIG_SERIO_SERPORT=y
->>
->> Wrong config for DJ tree. Here is what you need for PS/2 input
->> keyboard support.
->>
->> CONFIG_SERIO=y CONFIG_SERIO_I8042=y CONFIG_I8042_REG_BASE=60
->> CONFIG_I8042_KBD_IRQ=1 CONFIG_I8042_AUX_IRQ=12
->>
->> Also don't forget
->>
->> CONFIG_INPUT_KEYBOARD=y CONFIG_KEYBOARD_ATKBD=y
->>
->> CONFIG_INPUT_MOUSE=y CONFIG_MOUSE_PS2=y
-
-
-tomas> Yes, I'm aware, maybe I should have included the -dj .config as
-tomas> well.  Same results I'm afraid.
-
-tomas> T.
-
-tomas> - To unsubscribe from this list: send the line "unsubscribe
-tomas> linux-kernel" in the body of a message to
-tomas> majordomo@vger.kernel.org More majordomo info at
-tomas> http://vger.kernel.org/majordomo-info.html Please read the FAQ
-tomas> at http://www.tux.org/lkml/
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

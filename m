@@ -1,55 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274403AbRITK0Y>; Thu, 20 Sep 2001 06:26:24 -0400
+	id <S274404AbRITKYV>; Thu, 20 Sep 2001 06:24:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274407AbRITK0O>; Thu, 20 Sep 2001 06:26:14 -0400
-Received: from prfdec.natur.cuni.cz ([195.113.56.1]:9232 "EHLO
-	prfdec.natur.cuni.cz") by vger.kernel.org with ESMTP
-	id <S274403AbRITK0B> convert rfc822-to-8bit; Thu, 20 Sep 2001 06:26:01 -0400
-X-Envelope-From: mmokrejs
-Posted-Date: Thu, 20 Sep 2001 12:26:19 +0200 (MET DST)
-Date: Thu, 20 Sep 2001 12:26:18 +0200 (MET DST)
-From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-To: "Magnus Naeslund(f)" <mag@fbab.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Cannot compile 2.4.10pre12aa1 with 2.95.2 on Debian
-In-Reply-To: <05ab01c141bc$6c5a9f60$020a0a0a@totalmef>
-Message-ID: <Pine.OSF.4.21.0109201223000.24552-100000@prfdec.natur.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S274403AbRITKYM>; Thu, 20 Sep 2001 06:24:12 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:61848 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S274402AbRITKX5>; Thu, 20 Sep 2001 06:23:57 -0400
+Date: Thu, 20 Sep 2001 11:24:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] Make kernel build numbers work again (was: Re: Cannot compile 2.4.10pre12aa1 with 2.95.2 on Debian)
+Message-ID: <20010920112419.F1577@flint.arm.linux.org.uk>
+In-Reply-To: <20010919193128.A8650@cm.nu> <Pine.OSF.4.21.0109201149110.3983-100000@prfdec.natur.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.OSF.4.21.0109201149110.3983-100000@prfdec.natur.cuni.cz>; from mmokrejs@natur.cuni.cz on Thu, Sep 20, 2001 at 11:57:02AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Sep 2001, Magnus Naeslund(f) wrote:
+On Thu, Sep 20, 2001 at 11:57:02AM +0200, Martin MOKREJ© wrote:
+> . scripts/mkversion > .version
 
-> From: "Martin MOKREJ©" <mmokrejs@natur.cuni.cz>
-> 
-> There are two defines for that FPU thing around line 421 in sched.c, take
-> one away (i deleted the 1<<6 one).
+People,
 
-I've just compiled and am going to reboot, one more note:
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.10-pre12/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o pci-pc.o pci-pc.c
-{standard input}: Assembler messages:
-{standard input}:1116: Warning: indirect lcall without `*'
-{standard input}:1201: Warning: indirect lcall without `*'
-{standard input}:1288: Warning: indirect lcall without `*'
-{standard input}:1370: Warning: indirect lcall without `*'
-{standard input}:1381: Warning: indirect lcall without `*'
-{standard input}:1392: Warning: indirect lcall without `*'
-{standard input}:1479: Warning: indirect lcall without `*'
-{standard input}:1491: Warning: indirect lcall without `*'
-{standard input}:1503: Warning: indirect lcall without `*'
-{standard input}:1990: Warning: indirect lcall without `*'
-{standard input}:2083: Warning: indirect lcall without `*'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.10-pre12/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o pci-irq.o pci-irq.c
+As I'm sure you're all aware, being experts in userland programming, that
+the above obviously cannot work and is totally bogus.
 
--- 
-Martin Mokrejs - PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
-MIPS / Institute for Bioinformatics <http://mips.gsf.de>
-GSF - National Research Center for Environment and Health
-Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+The mkversion script contains:
 
+if [ ! -f .version ]
+then
+    echo 1
+else
+    expr 0`cat .version` + 1
+fi
+
+but wait!  As far as the script is concerned, .version will always exist
+because its created before the script is run (the open occurs, the file is
+truncated, and passed to the script as STDOUT).
+
+This has a nice effect - the build number of the kernel is now fixed at '1'.
+So, why don't we get rid of the above crap and just do "echo 1 > .version"
+and be done with it? ;)
+
+Alternatively, the following patch fixes things such that we can read the
+original .version file within the script, if it existed prior to invocation,
+and produce the correct build number.
+
+Note that as illustrated by the previous poster, -linus now has the problem,
+and -ac also has the same.  The following patch was generated against
+2.4.9-ac10, but should apply to both trees without problem.
+
+--- ref/Makefile	Wed Sep 19 14:00:24 2001
++++ linux/Makefile	Thu Sep 20 11:19:43 2001
+@@ -234,7 +234,7 @@
+ 	drivers/sound/pndsperm.c \
+ 	drivers/sound/pndspini.c \
+ 	drivers/atm/fore200e_*_fw.c drivers/atm/.fore200e_*.fw \
+-	.version .config* config.in config.old \
++	.version* .config* config.in config.old \
+ 	scripts/tkparse scripts/kconfig.tk scripts/kconfig.tmp \
+ 	scripts/lxdialog/*.o scripts/lxdialog/lxdialog \
+ 	.menuconfig.log \
+@@ -306,7 +306,8 @@
+ $(TOPDIR)/include/linux/compile.h: include/linux/compile.h
+ 
+ newversion:
+-	. scripts/mkversion > .version
++	. scripts/mkversion > .version.tmp
++	@mv -f .version.tmp .version
+ 
+ include/linux/compile.h: $(CONFIGURATION) include/linux/version.h newversion
+ 	@echo -n \#define UTS_VERSION \"\#`cat .version` > .ver
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

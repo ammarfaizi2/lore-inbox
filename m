@@ -1,73 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263013AbVAFVSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbVAFVQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263013AbVAFVSU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 16:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262997AbVAFVQn
+	id S263015AbVAFVQS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 16:16:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263013AbVAFVO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 16:16:43 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:14815 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S262969AbVAFVOv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 16:14:51 -0500
-Subject: Swapoff inifinite loops on 2.6.10-bk (was: .6.10-bk8 swapoff after
-	resume)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050106134714.GB24188@mail.muni.cz>
-References: <20050106134714.GB24188@mail.muni.cz>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-W3ld2RuFlYkzEnmPdEmL"
-Date: Thu, 06 Jan 2005 22:14:45 +0100
-Message-Id: <1105046085.1087.29.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Thu, 6 Jan 2005 16:14:27 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:61119 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262997AbVAFVJb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 16:09:31 -0500
+Message-ID: <41DDA8E1.8080406@tmr.com>
+Date: Thu, 06 Jan 2005 16:08:49 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: rol@as2917.net
+CC: "'Willy Tarreau'" <willy@w.ods.org>, "'Theodore Ts'o'" <tytso@mit.edu>,
+       "'Horst von Brand'" <vonbrand@inf.utfsm.cl>,
+       "'Thomas Graf'" <tgraf@suug.ch>, "'Adrian Bunk'" <bunk@stusta.de>,
+       "'Diego Calleja'" <diegocg@teleline.es>, wli@holomorphy.com,
+       aebr@win.tue.nl, solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+References: <20050104214324.GG22075@alpha.home.local> <200501061808.j06I84104393@tag.witbe.net>
+In-Reply-To: <200501061808.j06I84104393@tag.witbe.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-W3ld2RuFlYkzEnmPdEmL
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2005-01-06 at 14:47 +0100, Lukas Hejtmanek wrote:
+Paul Rolland wrote:
 > Hello,
+> 
+> 
+>>>In practice, that's all the -rc releases are these days 
+>>
+>>anyway (there
+>>
+>>>are times when a 2.6.x-rcy release is more stable than 2.6.z).  The
+>>>problem is that since the -rc releases are called what they are
+>>>called, they don't get enough testing.
+>>
+>>Perfectly true. I would add that with -rc releases, people 
+>>only upgrade when
+>>we tell them that they can, while with more frequent 
+>>releases, they upgrade
+>>when they *need* to, and can try several versions if the 
+>>first one they pick
+>>does not work.
+>>
+> 
+> 
+> I'd like to add some personal view : After 2.4.x, we have had a fork and
+> 2.5.x was born, clearly identified as a development tree, so no stability
+> guaranteed... Then one day came 2.6.0, and so on...
+> I'm sorry, but I still cannot consider 2.6.x being any stable the way 2.4.x
+> is today.
+> 
+> Theodore wrote :
+> 
+>>that at least 1 in 3 releases will turn out to be stable enough for
+>>most purposes.  But we won't know until after 2 or 3 days which
+>>releases will be the good ones.
+> 
+> 
+> I mostly agree. When a new 2.4.x comes out, I have a confident feeling
+> about it, and there is no reason for me to wait 2 or 3 days to know if 
+> it's stable or not. It's part of a stable branch, and there are no
+> major changes in it.
+> 2.6.x, I still consider as a development branch. OK, people changed the
+> numbering from 2.5.x to 2.6.x, but the number of changes still going on
+> didn't really change. Just have a look at the numbers : patches are even
+> bigger now that we are in a "stable" branch (4Mo average for 2.6 patch, 
+> gzip when we had a 1Mo average for 2.5 !)
 
-Hi
+I think you are quoting MB/release where MB/month would be much closer. 
+Part of the "new development model" is that Linus only releases a new 
+version the Thursday after the racoons tip over his garbage can.
 
-> I've tried 2.6.10-bk8 suspend/resume. After resume I usually do swapoff -=
-a to
-> load all the pages from swap to memory. Unfortunately with the latest ver=
-sion
-> swapoff does not work. It seems to cycle in an endless loop reading data =
-from=20
-> disk.
-
-I second that, after resume my machine does exactly the same.
-It swaps in most of the data, but it leaves ~1700kB on the swapdevice
-that it doesn't manage to swap in, and apparently reads this over and
-over again.
-
-But it probably doesn't have anything to do with swsusp, I can reproduce
-it without ever having suspended, just fill up the memory so the machine
-swaps and then the same thing happens.
-
-Apparently kernels from -bk in late december works fine, so it's a
-recent introduction.
-Needs investigating.
-
---=20
-/Martin
-
---=-W3ld2RuFlYkzEnmPdEmL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBB3apFWm2vlfa207ERAqJzAKCCpV1yYAPcnQpbnJhfu7oET3tBDgCfTEJF
-629cfSCMKcbm3TuOXdcK1s0=
-=orwo
------END PGP SIGNATURE-----
-
---=-W3ld2RuFlYkzEnmPdEmL--
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

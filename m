@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263435AbTKFS5F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 13:57:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTKFS5F
+	id S263135AbTKFSvS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 13:51:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbTKFSvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 13:57:05 -0500
-Received: from hermes.py.intel.com ([146.152.216.3]:28347 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S263435AbTKFS5B convert rfc822-to-8bit
+	Thu, 6 Nov 2003 13:51:18 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:31242 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263135AbTKFSvQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 13:57:01 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [DMESG] cpumask_t in action
-Date: Thu, 6 Nov 2003 10:56:55 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0F3751@scsmsx401.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [DMESG] cpumask_t in action
-Thread-Index: AcOkiHtkVK5RV3lEQ+eWuGHZhyK51gADlWdQ
-From: "Luck, Tony" <tony.luck@intel.com>
-To: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
-       "Jesse Barnes" <jbarnes@sgi.com>
-Cc: "Matthew Wilcox" <willy@debian.org>
-X-OriginalArrivalTime: 06 Nov 2003 18:56:56.0492 (UTC) FILETIME=[C0029EC0:01C3A497]
+	Thu, 6 Nov 2003 13:51:16 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Date: 6 Nov 2003 18:40:49 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <boe4jh$ett$1@gatekeeper.tmr.com>
+References: <200310292230.12304.chris@cvine.freeserve.co.uk> <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com> <20031031112615.GA10530@k3.hellgate.ch> <200310310755.36224.edt@aei.ca>
+X-Trace: gatekeeper.tmr.com 1068144049 15293 192.168.12.62 (6 Nov 2003 18:40:49 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That'd cut us down to:
-> 
-> > CPU 3: 61 virtual and 50 physical address bits
-> > CPU 3: nasid 2, slice 2, cnode 1
-> > CPU 3: base freq=200.000MHz, ITC ratio=15/2, ITC freq=1500.000MHz+/--1ppm
-> > Calibrating delay loop... 2241.08 BogoMIPS
-> > CPU3: CPU has booted.
-> > Starting migration thread for cpu 3
+In article <200310310755.36224.edt@aei.ca>, Ed Tomlinson  <edt@aei.ca> wrote:
 
-Perhaps we could drop printing the number of virtual/physical address
-bits, and the frequency&ratio information (or maybe just print if they
-are different from the boot cpu ... which would most likely surprise
-the kernel in bad ways, and thus be worthy of printing).  That would
-cut another two lines for all bar one cpu.
+| With 2.6 its possible to tell the kernel how much to swap.  Con's patch
+| tries to keep applications in memory.  You can also play with 
+| /proc/sys/vm/swappiness which is what Con's patch tries to replace.
 
--Tony
+I added Nick's sched and io patches to Con's patch on test9, and it
+looked stable under load. But I'm (mostly) on vacation this week, so it
+isn't being tested any more. My responsiveness test didn't show it to be
+as good as 2.4, unfortunately.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263991AbUDFUU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 16:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263992AbUDFUU6
+	id S263990AbUDFUXj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 16:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263992AbUDFUXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 16:20:58 -0400
-Received: from mail.daybyday.de ([213.191.85.38]:1779 "EHLO data.daybyday.de")
-	by vger.kernel.org with ESMTP id S263991AbUDFUU4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 16:20:56 -0400
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Transfer-Encoding: 7bit
-Message-Id: <3B75AEAB-8807-11D8-A1B6-000393C43976@postmail.ch>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Tue, 6 Apr 2004 16:23:39 -0400
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:23307 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263990AbUDFUXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 16:23:38 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
 To: linux-kernel@vger.kernel.org
-From: Stefan Wanner <stefan.wanner@postmail.ch>
-Subject: 2.6.5-rc3: Parse error in traps.c on Alpha
-Date: Tue, 6 Apr 2004 22:16:05 +0200
-X-Mailer: Apple Mail (2.613)
+Subject: Re: [PATCH] reiserfs v3 fixes and features
+Date: Tue, 6 Apr 2004 22:14:40 +0200
+User-Agent: KMail/1.6.1
+Cc: Chris Mason <mason@suse.com>, akpm@osdl.org
+References: <1081274618.30828.30.camel@watt.suse.com>
+In-Reply-To: <1081274618.30828.30.camel@watt.suse.com>
+X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404062214.40259@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I still have this problem in 2.6.5
+On Tuesday 06 April 2004 20:03, Chris Mason wrote:
 
-> From: Stefan Wanner <stefan.wanner@postmail.ch>
-> Date: 3. April 2004 10:53:11 GMT+02:00
-> To: linux-alpha@vger.kernel.org, rth@kanga.twiddle.home
-> Subject: 2.6.5-rc3: traps.c does not compile anymore
->
-> Hello
->
-> Upgrading from 2.6.4 to 2.6.5-rc3, arch/alpha/kernel/traps.c does not 
-> compile anymore. What's wrong?
->
-> alpha:~/src/linux-2.6.5-rc3# make
-> make[1]: `arch/alpha/kernel/asm-offsets.s' is up to date.
->   CHK     include/asm-alpha/asm_offsets.h
->   CHK     include/linux/compile.h
->   CC      arch/alpha/kernel/traps.o
-> arch/alpha/kernel/traps.c: In function `opDEC_check':
-> arch/alpha/kernel/traps.c:55: parse error before `['
-> make[1]: *** [arch/alpha/kernel/traps.o] Error 1
-> make: *** [arch/alpha/kernel] Error 2
-> alpha:~/src/linux-2.6.5-rc3#
->
->
->
-> Regards
-> Stefan
->
->
->
-> alpha:~# gcc -v
-> Reading specs from /usr/lib/gcc-lib/alpha-linux/2.95.4/specs
-> gcc version 2.95.4 20011002 (Debian prerelease)
-> alpha:~# ld -v
-> GNU ld version 2.14.90.0.7 20031029 Debian GNU/Linux
->
+Hi Chris,
+
+> If anyone is interested in experimenting with the block allocator stuff,
+> please let me know.
+
+I am :)
+
+ciao, Marc
 

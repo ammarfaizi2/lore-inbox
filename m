@@ -1,57 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270913AbVBEVYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263465AbVBEV3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270913AbVBEVYe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 16:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270119AbVBEVYe
+	id S263465AbVBEV3c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 16:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271316AbVBEV3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 16:24:34 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:3089 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S270913AbVBEVYX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 16:24:23 -0500
-To: Marco Rogantini <marco.rogantini@supsi.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rtl8139 (8139too) net problem in linux 2.6.10
-References: <Pine.LNX.4.62.0502051818370.4821@rost.dti.supsi.ch>
-	<87wttmg77p.fsf@devron.myhome.or.jp>
-	<Pine.LNX.4.62.0502052052560.6832@rost.dti.supsi.ch>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 06 Feb 2005 06:24:13 +0900
-In-Reply-To: <Pine.LNX.4.62.0502052052560.6832@rost.dti.supsi.ch> (Marco
- Rogantini's message of "Sat, 5 Feb 2005 21:03:56 +0100 (CET)")
-Message-ID: <87y8e266pu.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
+	Sat, 5 Feb 2005 16:29:32 -0500
+Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:25017 "EHLO
+	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
+	id S263465AbVBEV2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 16:28:53 -0500
+Message-ID: <313680C9A886D511A06000204840E1CF0A6475F6@whq-msgusr-02.pit.comms.marconi.com>
+From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: question re usage of  interruptible_sleep_on( ) function call  in
+	 cpm_iic_tryaddress( ) function (in i2c-algo-8xx.c)
+Date: Sat, 5 Feb 2005 16:28:49 -0500 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Rogantini <marco.rogantini@supsi.ch> writes:
-
-> I'm using a TI-PCI4510 on a Dell Inspiron 8500.
-> Kernel is linux-2.6.11-rc3 and your patch is already included there.
->
-> I tried to load the module with 'disable_clkrun' option but nothing has
-> changed... :-(
-
-Umm... Bit strange...
-
-I couldn't find the PCI4510 in yenta_table. Did you add the PCI4510 to
-yenta_table? Could you send "lspci -n" (what vendor-id and device-id)?
-
-> dmesg extract:
->
-> Linux Kernel Card Services
->    options:  [pci] [cardbus] [pm]
-> PCI: Enabling device 0000:02:01.0 (0000 -> 0002)
-> ACPI: PCI interrupt 0000:02:01.0[A] -> GSI 11 (level, low) -> IRQ 11
-> Yenta: CardBus bridge found at 0000:02:01.0 [1028:013e]
-> Yenta: ISA IRQ mask 0x04d8, PCI irq 11
-> Socket status: 30000020
-
-The disable_clkrun code didn't run. If it was running, you should see
-the following message.
-
-"Yenta: Disabling CLKRUN feature"
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+> Hello,
+>  
+> I have MPC880 microprocessor based board with single 24C02 I2C EEPROM,
+> connected to the I2C bus.
+> 
+Yes, it is embedded, yes it is not INTEL arch ... but PLEASE - READ ON ! ;-)
+>  
+> Currently booting of the board hangs in the I2C driver after invocation of
+> interruptible_sleep_on( )
+>  function call  in cpm_iic_tryaddress( ) function (in i2c-algo-8xx.c
+> file).
+> 
+> Is it appropriate to use the interruptible_sleep_on( ) function at the
+> kernel booting stage ?
+>  (I personally do not think so - since such usage prevents further kernel
+> booting - as observed).
+> What should be done in this code to avoid sleeping  forever - how to put
+> time out on this sleep ?
+> 
+> I presume that the usage of the interruptible_sleep_on( ) function would
+> be appropriate if the 
+> I2C would be configured as a module (after the kernel booting is
+> completed) ?
+> Follow up question:  is it really expected to do I2C initialization ONLY
+> as a module after the kernel booting ?
+> (is it documented anyplace ?) 
+> 
+> The (end of) log buffer shows following:
+> ....
+> <6>i2c /dev entries driver.
+> <7>device class 'i2c-dev': registering.
+> <7>bus i2c:add driver dev_driver.
+> <7>i2c-core: driver dev_driver registered
+> <6>i2c-rpx: i2c MPC8xx driver.
+> <7>DEV: registering device: ID ='i2c-0'.
+> <7>CLASS: registering class device: ID= 'i2c-0'.
+> <7>i2c_adapter i2c-0:Registered as minor 0.
+> <7>CLASS:registering class device: ID = 'i2c-0'
+> <7>i2c_adapter i2c-0: registered as adapter #0.
+> <4>cpm_iic_init() - iip=fa203c80.
+> <4>cpm_iic_init[132] Install ISR for IRQ 16.
+> <6>CPM interrupt c0105d90 replacing c01f7a8c.
+> <3>request_irq() returned -22  for CPM vector 32.
+> <6> i2c-algo-8xx.o: scanning bus m8xx........
+> <4>cpm_iic_tryaddress(cpm=c019b9f8,addr=0).
+> <4>iip fa203c80, dp_addr 0x800.
+> <4>iic_tbase 2048, r_tbase 2048
+> <4>about to sleep
+> .ABOVE LINE IS THE LAST ENTRY IN THE LOG BUFFER - THE BOOT HANGS
+> THEREAFTER ... 
+> 
+> Here is the fragment of the cpm_iic_tryaddress( ) function in
+> i2c-algo-8xx.c,
+> where the problem takes place:
+> .... 
+> //      save_flags(flags); cli();
+>         i2c->i2c_i2cer = 0xff;
+>         i2c->i2c_i2cmr = 0x13;  /* Enable some interupts */
+>         i2c->i2c_i2mod = 1;     /* Enable */
+>         i2c->i2c_i2com = 0x81;  /* Start master */
+> //      restore_flags(flags);
+> 
+>         if (cpm_debug > 1) printk("about to sleep\n");
+> 
+>         /* wait for IIC transfer */
+> interruptible_sleep_on(&iic_wait);
+> if (signal_pending(current))
+>         return -EIO;
+> 
+> if (cpm_debug > 1) printk("back from sleep\n");
+> 
+> if (tbdf->cbd_sc & BD_SC_NAK) {
+>         if (cpm_debug > 1) printk("IIC try; no ack\n");
+>         return 0;
+> }
+> 
+> if (tbdf->cbd_sc & BD_SC_READY) {
+>         printk("IIC try; complete but tbuf ready\n");
+> }
+> 
+> return 1;
+> 
+> ........
+> Thanks,
+> Best Regards,
+> Alex 
+> 
+> 

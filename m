@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262798AbUJ1Fys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbUJ1FwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262798AbUJ1Fys (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 01:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbUJ1Fyq
+	id S262790AbUJ1FwU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 01:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbUJ1FwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 01:54:46 -0400
-Received: from twinlark.arctic.org ([168.75.98.6]:11142 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S262787AbUJ1FyK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 01:54:10 -0400
-Date: Wed, 27 Oct 2004 22:54:07 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: James Cloos <cloos@jhcloos.com>, linux-kernel@vger.kernel.org,
-       david@gibson.dropbear.id.au
-Subject: Re: MAP_SHARED bizarrely slow
-In-Reply-To: <20041027010659.15ec7e90.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0410272146210.4453@twinlark.arctic.org>
-References: <20041027064527.GJ1676@zax> <m3u0sgiq0b.fsf@lugabout.cloos.reno.nv.us>
- <20041027010659.15ec7e90.akpm@osdl.org>
+	Thu, 28 Oct 2004 01:52:19 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:16396 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262790AbUJ1FvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 01:51:17 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: Intel also needs convincing on firmware licensing.
+Date: Thu, 28 Oct 2004 08:50:50 +0300
+User-Agent: KMail/1.5.4
+Cc: Han Boetes <han@mijncomputer.nl>
+References: <20041028022532.GX26130@boetes.org> <200410272346.12283.gene.heskett@verizon.net>
+In-Reply-To: <200410272346.12283.gene.heskett@verizon.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410280850.51033.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Andrew Morton wrote:
-
-> I get the exact opposite, on a P4:
+On Thursday 28 October 2004 06:46, Gene Heskett wrote:
+> On Wednesday 27 October 2004 22:25, Han Boetes wrote:
+> >Hi,
+> >
+> >The people from the OpenBSD project are currently lobbying to get
+> > the firmware for Intel wireless chipsets under a license suitable
+> > for Open Source.
+> >
+> >Since this will not only benefit BSD but also the Linux Project (and
+> >even Intel) I would like to mention the URL here for people who want
+> > to help writing to Intel.
+> >
+> >  http://undeadly.org/cgi?action=article&sid=20041027193425
+> >
+> Please be aware that for the so-called "software radios" 
+> chips/chipsets, the FCC, and other similar regulating bodies in other 
+> countries has made access to the data quite restrictive in an attempt 
+> to keep the less ruly among us from putting them on frequencies they 
+> aren't authorized to use, or to set the power levels above whats 
+> allowed.  These restrictions can vary from governing body to 
+> governing body so the software is generally supplied according to 
+> where the chipset is being shipped.  The potential for mischief, and 
+> legal/monetary reprecussions is sufficiently great that I have 
+> serious doubts that Intel will budge from their current position 
+> unless we can prove, beyond any doubt, that the regulatory 
+> limitations imposed will not be violated.
 > 
-> vmm:/home/akpm/maptest> time ./mm-sharemmap 
-> ./mm-sharemmap  10.81s user 0.05s system 100% cpu 10.855 total
-> vmm:/home/akpm/maptest> time ./mm-sharemmap
-> ./mm-sharemmap  11.04s user 0.05s system 100% cpu 11.086 total
-> vmm:/home/akpm/maptest> time ./mm-privmmap 
-> ./mm-privmmap  26.91s user 0.02s system 100% cpu 26.903 total
-> vmm:/home/akpm/maptest> time ./mm-privmmap
-> ./mm-privmmap  26.89s user 0.02s system 100% cpu 26.894 total
-> vmm:/home/akpm/maptest> uname -a
-> Linux vmm 2.6.10-rc1-mm1 #14 SMP Tue Oct 26 23:23:23 PDT 2004 i686 i686 i386 GNU/Linux
-> 
-> It's all user time so I can think of no reason apart from physical page
-> allocation order causing additional TLB reloads in one case.  One is using
-> anonymous pages and the other is using shmem-backed pages, although I can't
-> think why that would make a difference.
+> Since open source, where anyone who can read the code can see exactly 
+> what the limits are, and 'adjust to suit', virtually guarantees 
+> miss-use, sooner if not later, for no other reason than its human 
+> nature to experiment, Intel/moto/etc therefore has very good reasons 
+> to treat its chip<->software interface as highly secret & 
+> proprietary.
 
-you're experiencing the wonder of the L1 data cache on the P4 ... based on 
-its behaviour i'm pretty sure that early in the pipeline they use the 
-virtual address to match a virtual tag and procede with that data as if 
-it's correct.  not until the TLB lookup and physical tag check many cycles 
-later does it realise that it's done something wrong and pull kill / flush 
-pipelines.
+However, disassemblers do exist. Hiding secrets in binary .o
+files is silly.
+--
+vda
 
-when you set up a virtual alias, like you have with the shared zero page, 
-it becomes very confused.
-
-in fact if you do something as simple as a 4 element pointer-chase where 
-the cache lines for elt 0 and 2 alias, and cache lines for 1 and 3 alias 
-then you can watch some p4 take up to 3000 cycles per reference.
-
--dean

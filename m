@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbTKFI1X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 03:27:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263426AbTKFI1X
+	id S263453AbTKFI3P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 03:29:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263456AbTKFI3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 03:27:23 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:1475 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263424AbTKFI1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 03:27:21 -0500
-Subject: Re: Re:No backlight control on PowerBook G4
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Daniel Egger <degger@tarantel.rz.fh-muenchen.de>
-Cc: Daniel Egger <degger@fhm.edu>, Dustin Lang <dalang@cs.ubc.ca>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031106090132.B18367@tarantel.rz.fh-muenchen.de>
-References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
-	 <1067820334.692.38.camel@gaston> <1067878624.7695.15.camel@sonja>
-	 <1067896476.692.36.camel@gaston> <1067976347.945.4.camel@sonja>
-	 <1068078504.692.175.camel@gaston>
-	 <20031106090132.B18367@tarantel.rz.fh-muenchen.de>
-Content-Type: text/plain
-Message-Id: <1068107179.692.200.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 06 Nov 2003 19:26:19 +1100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+	Thu, 6 Nov 2003 03:29:14 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:54941 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S263453AbTKFI3E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 03:29:04 -0500
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Jamie Wellnitz <Jamie.Wellnitz@emulex.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: virt_to_page/pci_map_page vs. pci_map_single
+References: <1067885332.2076.13.camel@mulgrave>
+	<yq0znfcjwh1.fsf@trained-monkey.org>
+	<1067964220.1792.106.camel@mulgrave>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: 06 Nov 2003 03:28:54 -0500
+In-Reply-To: <1067964220.1792.106.camel@mulgrave>
+Message-ID: <yq0islxx5mh.fsf@trained-monkey.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-11-06 at 19:01, Daniel Egger wrote:
+>>>>> "James" == James Bottomley <James.Bottomley@steeleye.com> writes:
 
-> This is probably it. The raw image is just a bit over 4 megs. Is there a
-> chance that this will change upstream? Also a warning would be nice while
-> creating the kernel as I'm probably not the only one experiencing this.
+James> On Tue, 2003-11-04 at 03:48, Jes Sorensen wrote:
+>> The question is whether that should be allowed in the first
+>> place. Some IOMMU's will have to map it page-by-page
+>> anyway. However if it is to remain a valid use then I don't see why
+>> pci_map_page() shouldn't be able to handle it under the same
+>> conditions by passing it a size > PAGE_SIZE.
 
-Ethan doesn't want that change upstream for 1.x, at least not until
-it has been mode widely tested. The 1.x yaboot code base isn't something
-I'd call "solid", so... :)
+James> I really don't see what's to be gained by doing this.  map_page
+James> is for mapping one page or a fragment of it.  It's designed for
+James> small zero copy stuff, like networking.  To get it to map more
+James> than one page, really we should pass in an array of struct
+James> pages.
 
-> Size problem? At least it's not triggered by the yaboot limitation because
-> the image is similar in size to zImage.chrp which would be around 1.8 megs.
+I am totally in favor of that. I think it's a really bad idea on
+relying on the pci_map infrstructure to do the page chopping for
+multi-page mappings since the IOMMUs will normally have to chop it up
+anyway. The driver authors needs to be aware of this.
 
-No, different issues, but I expect a 1.8 Mb vmlinux.elf-pmac to work,
-though it's possible that the wrapper in linus tree is bogus (I though
-I sent him fixes... it's beeing difficult to merge anything in 2.6 at
-this point).
+The above was more meant as an example of how pci_map_page() can be
+hacked to do the same thing as pci_map_single if we really wanted to
+rely on that behavior.
 
-For PowerMac in general, you'd rather use my tree, at least until maybe
-around 2.6.1, and even then... Especially for such very new machine for
-which the proper support is only getting in now.
-
-Ben.
-
-
+Cheers,
+Jes

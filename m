@@ -1,59 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266955AbTAKA64>; Fri, 10 Jan 2003 19:58:56 -0500
+	id <S266876AbTAKA6w>; Fri, 10 Jan 2003 19:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266971AbTAKA64>; Fri, 10 Jan 2003 19:58:56 -0500
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:32265 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266955AbTAKA6x>; Fri, 10 Jan 2003 19:58:53 -0500
-From: "Ole J. Hagen" <olehag_2001@yahoo.no>
-To: "Grover, Andrew" <andrew.grover@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.5.55 failed to boot with ACPI support
-Date: Sat, 11 Jan 2003 02:07:38 +0000
-User-Agent: KMail/1.5
-References: <F760B14C9561B941B89469F59BA3A847137F5F@orsmsx401.jf.intel.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A847137F5F@orsmsx401.jf.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S266955AbTAKA6w>; Fri, 10 Jan 2003 19:58:52 -0500
+Received: from [194.164.127.3] ([194.164.127.3]:41819 "EHLO smtp2.sandvika.net")
+	by vger.kernel.org with ESMTP id <S266876AbTAKA6t>;
+	Fri, 10 Jan 2003 19:58:49 -0500
+Date: Sat, 11 Jan 2003 01:10:30 +0000
+From: Luke Kenneth Casson Leighton <lkcl@samba-tng.org>
+To: linux-kernel@vger.kernel.org
+Subject: new linux site: message inviting participation by top linux advocates
+Message-ID: <20030111011030.GL2610@samba-tng.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200301110207.38667.olehag_2001@yahoo.no>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+introduction
+------------
 
-The kernel won't boot up.
-The screen turns black after I choose kernel-2.5.55 with acpi-support, and 
-then it reboots. 
+a new linux project is soon to be announced and as part of the
+preparation for its launch, this is an invitation for the top
+linux and open source people to participate.
 
-Where can I find the debug-information of the kernel? Is it /var/log/debug.x?
-Cheers, 
+once announced, the project will be open to everyone, world-wide,
+to the benefit of linux and open source, and the advance
+participation of a few key people will help enormously to pave
+the way.
 
-Ole 
+
+this message is therefore intended to reach, in what i believe
+to be an appropriate way (all things considered), the top linux
+developers and the most active and recognised open source
+advocates.
 
 
-On Friday 10 January 2003 21:10, Grover, Andrew wrote:
-> > From: Ole J. Hagen [mailto:olehag_2001@yahoo.no]
-> > I just wanted to inform that kernel-2.5.55 failes to boot
-> > when ACPI support is
-> > compiled in the kernel.
-> >
-> > I have following configuration; Dell Optiplex GX-240, Pentium
-> > 4 (1.5 GHz), ATI
-> > RAGE 128.
->
-> How exactly does it fail?
->
-> -- Andy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+for those people who believe that this approach is inappropriate,
+i can only apologise in advance: please simply hit delete, now:
+(hit it _really_ hard - get it out your system, that's right :),
+and save everyone some further bandwidth.
 
-______________________________________________________
-Få den nye Yahoo! Messenger på http://no.messenger.yahoo.com/
-Nye ikoner og bakgrunner, webkamera med superkvalitet og dobbelt så morsom
+
+
+please contact me direct
+------------------------
+
+if you are one of the ten or so people that have received an
+email directly from me recently, and you read this first,
+i would greatly appreciate you taking the time to locate my
+message to you, or to email me at cb1.com for more information,
+if that is more appropriate.
+
+
+advice sought on reaching the top linus and OS community leaders
+----------------------------------------------------------------
+
+if you know of any more appropriate forums, or any more
+appropriate methods by which the top linux developers and
+advocates and the pioneers of open source may be contacted
+
+	... bearing in mind that they are incredibly busy and
+	receive hundreds of email messages per day...
+
+i would love to hear from you (at my cb1.com address).
+
+
+please help me contact the linux and OS community leaders
+---------------------------------------------------------
+
+if you are personally in touch with, on a regular basis,
+one of the recognised leaders of the linux and open source
+communities, then i would greatly appreciate it if you could
+draw their attention to this message and also ask them to
+contact me at my cb1.com email address.
+
+if you are NOT in touch with, on a regular and day-to-day basis,
+the recognised leaders of the linux and open source communities,
+please do NOT spam their inboxes irresponsibly with "oh, there's
+this guy who posted on the linux mailing lists who wanted to get
+in touch with you" style messages, you will only alienate them.
+
+IF IN DOUBT SPAM ME, NOT THEM.
+
+
+nominations
+-----------
+
+if you believe that someone, anywhere in the world, is a
+recognised leader in the open source community and is
+actively involved in promoting open source and linux,
+then please email me with:
+
+- their name
+
+- their email address and web site, and best contact method.
+
+- whether you are willing to help assist in contacting them
+  (you know them personally)
+
+- references to some appropriate URLs that describe what they
+  have achieved.
+
+
+
+to everyone with the patience and time to read this far:
+
+many, many thanks.
+
+if you love linux and believe in open source,
+i believe that you will love the new project
+when it is announced and ready to launch.
+
+l.
+
+--
+"jai guru dev"

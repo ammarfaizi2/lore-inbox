@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265149AbUFHDbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264821AbUFHEQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265149AbUFHDbR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 23:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbUFHDbR
+	id S264821AbUFHEQP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 00:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264822AbUFHEQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 23:31:17 -0400
-Received: from bhhdoa.org.au ([216.17.101.199]:41480 "EHLO bhhdoa.org.au")
-	by vger.kernel.org with ESMTP id S265149AbUFHDbP (ORCPT
+	Tue, 8 Jun 2004 00:16:15 -0400
+Received: from smtp2.cwidc.net ([154.33.63.112]:45699 "EHLO smtp2.cwidc.net")
+	by vger.kernel.org with ESMTP id S264821AbUFHEQN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 23:31:15 -0400
-Message-ID: <1086656871.40c511673eca5@vds.kolivas.org>
-Date: Tue,  8 Jun 2004 11:07:51 +1000
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Phy Prabab <phyprabab@yahoo.com>,
-       linux-kernel@vger.kernel.org, zwane@linuxpower.ca, wli@holomorphy.com
-Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
-References: <200406080712.44759.kernel@kolivas.org> <20040607214034.27475.qmail@web51807.mail.yahoo.com> <20040607195011.34f8e84e.akpm@osdl.org> <40C52CFF.4080207@yahoo.com.au>
-In-Reply-To: <40C52CFF.4080207@yahoo.com.au>
+	Tue, 8 Jun 2004 00:16:13 -0400
+Message-ID: <40C53D80.2080603@tequila.co.jp>
+Date: Tue, 08 Jun 2004 13:16:00 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\ Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APM realy sucks on 2.6.x
+References: <40C0E91D.9070900@scienion.de> <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de> <20040607140511.GA1467@elf.ucw.cz> <40C47B94.6040408@scienion.de> <20040607144841.GD1467@elf.ucw.cz>
+In-Reply-To: <20040607144841.GD1467@elf.ucw.cz>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Nick Piggin <nickpiggin@yahoo.com.au>:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Andrew Morton wrote:
-> 
-> > At a guess I'd say either a) you're hitting some path in the kernel which
-> > is going for a giant and bogus romp through memory, trashing CPU caches or
-> > b) your workload really dislikes run-child-first-after-fork or c) the page
-> > allocator is serving up pages which your access pattern dislikes or d)
-> > something else.
-> > 
-> 
-> e) it's the staircase scheduler patch?
-> 
+Pavel Machek wrote:
 
-Phy Prabab wrote:
->Could anyone suggest a way to understand why the
->difference between the 2.6 kernels and the 2.4
->kernels
+| PCMCIA... well, that's another obsolete technology. Too bad.
 
-I guess Phy better tell us if it's unique to staircase; and if so there's
-clearly a bug unique to it.
+PCMCIA is obsolete? Did I miss something, or was this a joke?
 
-Con
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.co.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAxT2AjBz/yQjBxz8RAlP7AJwPKwcRGUXXPUmecVAPQIYqX6LHuACgspJF
+VnS33PaDIFjNS29dPPOrakg=
+=GIid
+-----END PGP SIGNATURE-----

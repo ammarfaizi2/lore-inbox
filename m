@@ -1,104 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUGHM7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUGHM7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUGHM7M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 08:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUGHM7M
+	id S262279AbUGHM7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 08:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUGHM7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 08:59:12 -0400
-Received: from smtp2gate.fmi.fi ([193.166.223.32]:50921 "EHLO smtp2gate.fmi.fi")
-	by vger.kernel.org with ESMTP id S263733AbUGHM6S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 08:58:18 -0400
-Message-Id: <200407081257.i68Cvm0U020579@leija.fmi.fi>
-Subject: Re: [OT] NULL versus 0 (Re: [PATCH] Use NULL instead of integer 0 in
- security/selinux/)
-In-Reply-To: <200407081442.25752.mbuesch@freenet.de>
-To: Michael Buesch <mbuesch@freenet.de>
-Date: Thu, 8 Jul 2004 15:57:48 +0300 (EEST)
-From: Kari Hurtta <hurtta+zz1@leija.mh.fmi.fi>
-CC: Kari Hurtta <hurtta+zz1@leija.mh.fmi.fi>,
-       Martin Zwickel <martin.zwickel@technotrend.de>, root@chaos.analogic.com,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       Chris Wright <chrisw@osdl.org>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
-       mika@osdl.org
-X-Mailer: ELM [version 2.4ME+ PL117a (25)]
+	Thu, 8 Jul 2004 08:59:25 -0400
+Received: from av3-2-sn4.m-sp.skanova.net ([81.228.10.113]:43170 "EHLO
+	av3-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S262279AbUGHM7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 08:59:19 -0400
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Can't make use of swap memory in 2.6.7-bk19
+References: <m2brir9t6d.fsf@telia.com> <40ECADF8.7010207@yahoo.com.au>
+	<20040708023001.GN21066@holomorphy.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 08 Jul 2004 14:59:11 +0200
+In-Reply-To: <20040708023001.GN21066@holomorphy.com>
+Message-ID: <m2briq7izk.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=ISO-8859-1
-X-Spam-Flag: NO
-X-Spam-Flag: NO
-X-Filter: smtp2gate: 3 received headers rewritten with id 20040708/20307/01
-X-Filter: smtp2gate: ID 20306/01, 1 parts scanned for known viruses
-X-Filter: torvi: ID 22103/01, 1 parts scanned for known viruses
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--- Start of PGP signed section.
-> That's all OK, fine and correct, but
-> #define NULL 0
-> would work for both, C and C++ as far as I can see.
-> Am I missing some special case?
+William Lee Irwin III <wli@holomorphy.com> writes:
 
-As far I know it does not work on C when it is
-used as  argument of function and function
-have not prototype or function's prototype have ...
-
-In that case compiler do not know that pointer
-is required instead of integer. 
-
-However this is just "as far I know", now I have not
-in hand reference (or I did not found good quotation.)
-
-/ Kari Hurtta
-
+> Peter Osterlund wrote:
+> >> I created a test program that allocates a 300MB buffer and writes to
+> >> all bytes sequentially. On my computer, which has 256MB RAM and 512MB
+> >> swap, the program gets OOM killed after dirtying about 140-180MB, and
+> >> the kernel reports:
 > 
-> Quoting Kari Hurtta <hurtta+zz1@leija.mh.fmi.fi>:
-> > -- Start of PGP signed section.
-> > > Quoting Martin Zwickel <martin.zwickel@technotrend.de>:
-> > > > include/linux/stddef.h:
-> > > >
-> > > > #undef NULL
-> > > > #if defined(__cplusplus)
-> > > > #define NULL 0
-> > > > #else
-> > > > #define NULL ((void *)0)
-> > > > #endif
-> > >
-> > > Yes, I never understood the reason for this ugly
-> > > #if defined(__cplusplus) here.
-> > > It works, but is IMHO unneccessary.
-> > >
-> >
-> > (This is is off topic, because kernel is not C++, but C).
-> >
-> > Some quotations from  Bjarne Stroustrup: The C++ Programming Language
-> > (Third Edition),
-> >
-> >    p. 843:    Note that a pointer to function or a pointer to member
-> >               cannot be implicity converted to a void *.
-> >
-> >    p. 844:    A constant expression (§C.5) that evaluates to 0 can
-> >               be implicitly converted to any pointer or pointer
-> >               to member type (§5.1.1.).
-> >
-> >
-> >    p. 88:     In C, it has been popular to define a macro NULL to
-> >               represent the zero pointer. Because of C++'s tighter
-> >               type checking, the use of plain 0, rather than any
-> >               suggested NULL macro, leads to fewer problems. If you
-> >               feel you must define NULL, use
-> >
-> >                   const int NULL = 0;
-> >
-> > (typos mine.)
-> >
-> > / Kari Hurtta
-> >
-> >
+> On Thu, Jul 08, 2004 at 12:14:16PM +1000, Nick Piggin wrote:
+> > Someone hand me a paper bag... Peter, can you give this patch a try?
 > 
-> --
-> Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-> 
-> 
--- End of PGP signed section, PGP failed!
+> Heh, one goes in while I'm not looking, and look what happens.
+
+Actually, the failure is caused by this change:
+
+http://linux.bkbits.net:8080/linux-2.5/cset@40db004cKFYB35xMHcRXNijl81BLag?nav=index.html|ChangeSet@-3w
+
+It only fails when /proc/sys/vm/laptop_mode is 1.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

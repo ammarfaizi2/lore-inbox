@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbUKCXzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbUKCX7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbUKCXzx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 18:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbUKCXyK
+	id S261556AbUKCX7n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 18:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbUKCX4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 18:54:10 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:2189 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261990AbUKCXsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 18:48:15 -0500
-Subject: Re: problems with ACPI on 2.4.28-rc1
-From: Len Brown <len.brown@intel.com>
-To: mike.miller@hp.com, mikem@beardog.cca.cpqcorp.net
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20041103223308.GA3588@beardog.cca.cpqcorp.net>
-References: <20041103223308.GA3588@beardog.cca.cpqcorp.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1099525664.13840.363.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 03 Nov 2004 18:47:44 -0500
+	Wed, 3 Nov 2004 18:56:23 -0500
+Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:5055 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S261999AbUKCXxB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 18:53:01 -0500
+From: Russell Miller <rmiller@duskglow.com>
+To: Mathieu Segaud <matt@minas-morgul.org>
+Subject: Re: is killing zombies possible w/o a reboot?
+Date: Wed, 3 Nov 2004 18:56:30 -0500
+User-Agent: KMail/1.7
+Cc: Doug McNaught <doug@mcnaught.org>, Jim Nelson <james4765@verizon.net>,
+       DervishD <lkml@dervishd.net>, Gene Heskett <gene.heskett@verizon.net>,
+       linux-kernel@vger.kernel.org,
+       =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+References: <200411030751.39578.gene.heskett@verizon.net> <200411031733.30469.rmiller@duskglow.com> <877jp2sdfd.fsf@barad-dur.crans.org>
+In-Reply-To: <877jp2sdfd.fsf@barad-dur.crans.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411031756.30112.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-03 at 17:33, mike.miller@hp.com wrote:
-> Hello,
-> Can anyone assist with this problem? I'm seeing a hang very early in
-> boot under both 2.4.27 & 2.4.28-rc1.
-> When the kernel begins to execute the system hangs with ERROR: Invalid
-> Checksum. This seems to be ACPI related. The HW is HP DL360G4. Any
-> help is appreciated. Here is the console output:
-> 
+On Wednesday 03 November 2004 17:47, Mathieu Segaud wrote:
 
-> Linux version 2.4.27 (root@orange-rh3u4) (gcc version 3.2.3 20030502
-> (Red Hat Linux 3.2.3-46)) #1 SMP Wed Nov 3 14:40:24 CST 2004
+> this is because nfs related syscalls are not interruptible by default.
+> you can make them interruptible by mounting your nfs's with the 'intr'
+> option.
 
-> ACPI: RSDP (v002 HP                                        ) @
-> 0x00000000000f4f20
->   >>> ERROR: Invalid checksum
-> Intel MultiProcessor Specification v1.4
->     Virtual Wire compatibility mode.
-> OEM ID: HP       Product ID: PROLIANT     APIC at: 0xFEE00000
+That doesn't appear to work, then.  Because we do mount them with the intr 
+option, and the behavior doesn't seem to be any different.
 
-try booting with acpi=off (disabling ACPI in the kernel in 2.4 will not
-really address this one b/c CONFIG_ACPI_BOOT will still be enabled
-since you've got CONFIG_SMP)
+--Russell
 
-Also, try installing the latest BIOS.
+-- 
 
--len
-
-
+Russell Miller - rmiller@duskglow.com - Le Mars, IA
+Duskglow Consulting - Helping companies just like you to succeed for ~ 10 yrs.
+http://www.duskglow.com - 712-546-5886

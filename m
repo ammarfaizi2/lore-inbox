@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265509AbUF2G6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265668AbUF2HBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265509AbUF2G6d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 02:58:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265516AbUF2G6d
+	id S265668AbUF2HBR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 03:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbUF2HBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 02:58:33 -0400
-Received: from [201.3.22.83] ([201.3.22.83]:34794 "HELO stc3")
-	by vger.kernel.org with SMTP id S265509AbUF2G62 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 02:58:28 -0400
-From: "marianagata2001" <marianagata2001@yahoo.com.br>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Dayane
-Date: Tue, 29 Jun 04 01:05:59 Hora oficial do Brasil
+	Tue, 29 Jun 2004 03:01:17 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:32729 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265672AbUF2HA4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 03:00:56 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 29 Jun 2004 00:00:50 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Roland McGrath <roland@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       mingo@redhat.com, cagney@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC PATCH] x86 single-step (TF) vs system calls & traps
+In-Reply-To: <200406290437.i5T4bYPI022901@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0406282146470.24039@bigblue.dev.mdolabs.com>
+References: <200406290437.i5T4bYPI022901@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary= "----=_NextPart_000_0048_8E43CD21.B624D1C7"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000 
-Message-Id: <S265509AbUF2G62/20040629065828Z+848@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_0048_8E43CD21.B624D1C7
-Content-Type: text/plain
-Content-Transfer-Encoding: base64
+On Mon, 28 Jun 2004, Roland McGrath wrote:
 
-PGh0bWw+DQoNCjxoZWFkPg0KPG1ldGEgaHR0cC1lcXVpdj0iQ29udGVudC1MYW5ndWFnZSIg
-Y29udGVudD0icHQtYnIiPg0KPG1ldGEgbmFtZT0iR0VORVJBVE9SIiBjb250ZW50PSJNaWNy
-b3NvZnQgRnJvbnRQYWdlIDUuMCI+DQo8bWV0YSBuYW1lPSJQcm9nSWQiIGNvbnRlbnQ9IkZy
-b250UGFnZS5FZGl0b3IuRG9jdW1lbnQiPg0KPG1ldGEgaHR0cC1lcXVpdj0iQ29udGVudC1U
-eXBlIiBjb250ZW50PSJ0ZXh0L2h0bWw7IGNoYXJzZXQ9d2luZG93cy0xMjUyIj4NCjx0aXRs
-ZT5EZXNlamEgYXVtZW50YXIgbyB0YW1hbmhvIGRvIHDqbmlzPC90aXRsZT4NCjwvaGVhZD4N
-Cg0KPGJvZHkgYmdjb2xvcj0iI0ZGRkZGRiI+DQo8dGFibGUgaGVpZ2h0PSI3MyIgY2VsbFNw
-YWNpbmc9IjAiIGNlbGxQYWRkaW5nPSIwIiB3aWR0aD0iNjY0IiBib3JkZXI9IjAiIHZhbGln
-bj0idG9wIj4NCiAgPHRyPg0KICAgIDx0ZCBjbGFzcz0idGNnYWwiIHdpZHRoPSI2NjQiIGJn
-Q29sb3I9IiMwMEZGMDAiIGhlaWdodD0iMjUiPjxmb250IHNpemU9IjUiPg0KICAgIFNBSUJB
-IENPTU8gQVVNRU5UQVIgTyBTRVUgUMpOSVMgREUgMiBhIDcgY20gRU0gMiBNRVNFUyBDT00g
-RVhFUkPNQ0lPUyANCiAgICBBQlNPTFVUQU1FTlRFIE5BVFVSQUlTIFAvIE1BSU9SRVMgSU5G
-T1JNQcfVRTwvZm9udD48Zm9udCBzaXplPSI2IiBjb2xvcj0iI0ZGMDAwMCI+DQogICAgPGEg
-dGFyZ2V0PSJfYmxhbmsiIGhyZWY9Imh0dHA6Ly93d3cubGluZGFzczI1OC5kYWhvcmEubmV0
-Ij5DTElRVUUgDQogICAgICBKwTwvYT48L2ZvbnQ+IA0KICAgIDxwPiZuYnNwOzwvcD4NCiAg
-ICA8cD4mbmJzcDs8L3A+DQogICAgPHA+PGEgaHJlZj0iaHR0cDovL3NtLmJhbm5lci1saW5r
-LmNvbS5ici9TaXRlTWV0ZXIuaHRtIiB0YXJnZXQ9Il90b3AiPg0KICAgIDxpbWcgaGVpZ2h0
-PSIzMSIgYWx0PSJTaXRlTWV0ZXIgYnkgQmFubmVyLUxpbmshIiBzcmM9Imh0dHA6Ly9zbS5i
-YW5uZXItbGluay5jb20uYnIvU00uYXNwP2Jhbm5lcl9pZD04MzIwNSIgd2lkdGg9Ijg4IiBi
-b3JkZXI9IjAiPjwvYT48L3RkPg0KICA8L3RyPg0KPC90YWJsZT4NCjwvYm9keT4NCg0KPC9o
-dG1sPiAgICA=
-------=_NextPart_000_0048_8E43CD21.B624D1C7--
+> > Davide's patch (which has been in -mm for 6-7 weeks) doesn't add
+> > fastpath overhead.
+> 
+> I am also dubious about exactly what it does.  That patch seems a bizarre
+> obfuscation of the code to me.  TIF_SINGLESTEP is really there to handle
+> the lazy TF clearing for sysenter entry, and that's all.  I don't think
+> that patch handles user-mode setting TF properly, unusual though that case
+> is.  How does that patch interact with PT_TRACESYSGOOD?  It appears to me
+> that PTRACE_SINGLESTEP will now generate a syscall trap instead of a
+> single-step trap, which is an undesireable change in behavior I would say.
+> 
+> I don't really care about user-mode setting of TF before executing int
+> $0x80.  If poeple have programs that use TF in user mode, they have never
+> complained about the issue before.  For PTRACE_SINGLESTEP, Davide's
+> approach of setting the kernel-work flag directly when PTRACE_SINGLESTEP
+> sets TF in the user flags word is the obvious way to avoid the test in the
+> fast path.  I am inclined to combine that approeach with what my patch
+> does, i.e. just take out the system call fast-path test and set
+> TIF_SINGLESTEP_TRAP in PTRACE_SINGLESTEP.  I think the way Davide's patch
+> uses TIF_SINGLESTEP is pretty questionable.
+
+Roland, I don't think (pretty sure actually ;) we can handle the case 
+where TF is set from userspace and, at the same time, the user uses 
+PTRACE_SINGLESTEP. The ptrace infrastructure uses the hw TF flag to work. 
+The PTRACE_SINGLESTEP gives you the SYSGOOD behaviour, if you set it. And 
+sends a SIGTRAP notification to the ptrace'ing parent process.
+
+
+- Davide
+

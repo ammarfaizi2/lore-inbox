@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266794AbSLPQQG>; Mon, 16 Dec 2002 11:16:06 -0500
+	id <S266796AbSLPQcp>; Mon, 16 Dec 2002 11:32:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266796AbSLPQQG>; Mon, 16 Dec 2002 11:16:06 -0500
-Received: from rivmkt61.wintek.com ([206.230.0.61]:128 "EHLO comcast.net")
-	by vger.kernel.org with ESMTP id <S266794AbSLPQQF>;
-	Mon, 16 Dec 2002 11:16:05 -0500
-Date: Mon, 16 Dec 2002 11:19:00 +0000 (UTC)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Gregoire Favre <greg@ulima.unil.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.52 and modules (lots of unresolved symbols)?
-In-Reply-To: <20021216094514.GA735@ulima.unil.ch>
-Message-ID: <Pine.LNX.4.50L0.0212161114360.1154-100000@dust.ebiz-gw.wintek.com>
-References: <20021216094514.GA735@ulima.unil.ch>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266797AbSLPQcp>; Mon, 16 Dec 2002 11:32:45 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:4359 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S266796AbSLPQco>; Mon, 16 Dec 2002 11:32:44 -0500
+Date: Mon, 16 Dec 2002 11:40:32 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.52
+Message-ID: <20021216164032.GU504@hopper.phunnypharm.org>
+References: <Pine.LNX.4.44.0212151930120.12906-100000@penguin.transmeta.com> <20021216102639.A27589@infradead.org> <20021216151639.GQ504@hopper.phunnypharm.org> <20021216163631.A5342@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021216163631.A5342@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Dec 2002, Gregoire Favre wrote:
-
-> Hello,
+> > Trying to track two seperate source tree's isn't as easy as you might think.
 > 
-> I have just patched 2.5.51, and not done the make clean && make mrproper
-> before doing a make menuconfig && make dep && make bzImage && make
-> modules...
+> In fact it's not difficult at all with a proper SCM, a bit of care and the
+> right attitude.  I merge the changes from XFS (and about half a donzend
+> XFS-related repositories inside SGI that all need proper merging / keeping
+> in sync) to Linus all the time.  And by keeping the changesets (or atomic
+> commits in SVN terminlogoy) as one patch each, hand-editing as needed when
+> merge conflicts arrive that works very well, even if I had been away and
+> the changes for four weeks need merging or as now we're five patchlevels
+> away from Linus tree (at 2.5.47).  I've not lost a single upstream change
+> with that merge policy yet.
 > 
-> Will that change anything to make clean/mrproper here?
+> And no, that's no BK advertisment, SGI uses a RCS-based SCM internally and
+> I use unfied diffs to get it into a staging repository for Linus to pull.
 
-I would give 'make clean' a try.
- 
-> I have module-init-tools-0.9.3 compiled and installed on my system.
-
-I got the same thing (a shitload of depmod unresolved symbols messages) 
-when i first tried compiling 2.5.52.  It stopped when I reinstalled 
-module-init-tools, and built and the kernel again after a 'make clean'.
+When someone pays me to work fulltime on Linux1394, I'll give it that
+much time. Until then I have to make due with what time I have. If I
+miss things because people would rather send patches to Linus than me,
+it isn't my fault, but I'll do my best to fix it up.
 
 -- 
-Alex Goddard
-agoddard@purdue.edu
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

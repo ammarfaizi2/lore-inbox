@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbTILU6j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 16:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbTILU6j
+	id S261874AbTILVAh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 17:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTILVAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 16:58:39 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:50696 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S261892AbTILU6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 16:58:37 -0400
-Message-ID: <3F62335B.9050202@techsource.com>
-Date: Fri, 12 Sep 2003 16:58:03 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Fri, 12 Sep 2003 17:00:37 -0400
+Received: from smtp2.globo.com ([200.208.9.169]:61652 "EHLO mail.globo.com")
+	by vger.kernel.org with ESMTP id S261874AbTILVAf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 17:00:35 -0400
+From: Marcelo Penna Guerra <eu@marcelopenna.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SII SATA request size limit
+Date: Fri, 12 Sep 2003 18:00:24 -0300
+User-Agent: KMail/1.5.9
 MIME-Version: 1.0
-To: David Schwartz <davids@webmaster.com>
-CC: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-References: <MDEHLPKNGKAHNMBLJOLKAEIKGHAA.davids@webmaster.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200309121800.34765.eu@marcelopenna.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Alan Cox escreveu:
 
-David Schwartz wrote:
+> It will depend what disks you have.
+A friend from a forum found out this on NetBSD:
 
-> 	However, some people seem to be arguing that the GPL_ONLY symbols are in
-> fact a license enforcement technique. If that's true, then when they
-> distribute their code, they are putting additional restrictions not in the
-> GPL on it. That is a GPL violation.
+/* 
+     * Rev. <= 0x01 of the 3112 have a bug that can cause data 
+     * corruption if DMA transfers cross an 8K boundary.  This is 
+     * apparently hard to tickle, but we'll go ahead and play it 
+     * safe. 
+     */ 
+    if (PCI_REVISION(pa->pa_class) <= 0x01) { 
+       sc->sc_dma_maxsegsz = 8192; 
+       sc->sc_dma_boundary = 8192; 
+    }
 
-Agreed.  GPL_ONLY is not a license restriction.  It is a technical issue.
+It seems to be a bug only in the first revisions of the chip. Can anyone 
+confirm this? My chip is revision 2 and it doesn't have this bug.
 
-Binary-only modules are inherently untrustworthy (no open code review) 
-and undebuggable.  It is therefore of technical merit to restrict both 
-what they can access in the kernel (GPL_ONLY) and limit how much kernel 
-developers should have to tolerate when they're involved.
+> You can up it again at runtime.
 
-But beyond this, there are some social issues.  If someone finds a way 
-to work around this mechanism, they are breaking things to everyone 
-else's detriment.  For a commercial entity to violate the GPL_ONLY 
-barrier is an insult to kernel developers AND to their customers who 
-will have trouble getting problems solved.
+How do I set the rqsize on 2.6.x?
 
-So, if a company works around GPL_ONLY, are they violating the GPL 
-license?  Probably not.  Does that make it OKAY?  Probably not.
+Marcelo Penna Guerra
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-This is like finding a way to give a user space program access to kernel 
-resources.  There are barriers put in place for a REASON because people 
-make mistakes when they write software.  If no one did, we wouldn't have 
-any need for memory protection, would we.
-
-
+iD8DBQE/YjPvD/U0kdg4PFoRAusNAKDiLWwPFAmmCH9L4AwhpKIkh5zkzQCeJ8JT
+YRgXP0NIoM8hcWH8RvzwYr0=
+=Z6aZ
+-----END PGP SIGNATURE-----

@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264672AbSJ3ITD>; Wed, 30 Oct 2002 03:19:03 -0500
+	id <S264619AbSJ3IZK>; Wed, 30 Oct 2002 03:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264677AbSJ3ITD>; Wed, 30 Oct 2002 03:19:03 -0500
-Received: from bohnice.netroute.lam.cz ([212.71.169.62]:58619 "EHLO
-	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
-	id <S264672AbSJ3ITB>; Wed, 30 Oct 2002 03:19:01 -0500
-Date: Wed, 30 Oct 2002 09:23:45 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: "Kenneth M. Howlett" <av556@detroit.freenet.org>
-Cc: linux-kernel@vger.kernel.org, mnalis-umsdos@voyager.hr,
-       chaffee@cs.berkeley.edu, bsg@uniyar.ac.ru
-Subject: Re: PROBLEM: dos filesystem timestamps and daylight savings time
-Message-ID: <20021030082345.GB13337@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	"Kenneth M. Howlett" <av556@detroit.freenet.org>,
-	linux-kernel@vger.kernel.org, mnalis-umsdos@voyager.hr,
-	chaffee@cs.berkeley.edu, bsg@uniyar.ac.ru
-References: <200210300108.UAA17536@detroit.freenet.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210300108.UAA17536@detroit.freenet.org>
-User-Agent: Mutt/1.4i
+	id <S264621AbSJ3IZK>; Wed, 30 Oct 2002 03:25:10 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:55822 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S264619AbSJ3IZJ>; Wed, 30 Oct 2002 03:25:09 -0500
+Message-ID: <3DBF98A7.8060906@namesys.com>
+Date: Wed, 30 Oct 2002 11:30:31 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       Oleg Drokin <green@namesys.com>, Nikita Danilov <Nikita@Namesys.COM>
+Subject: We need help benchmarking and debugging reiser4
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 29, 2002 at 08:08:20PM -0500, Kenneth M. Howlett wrote:
-> A few days ago, daylight savings time ended, and now
-> ls --full-time says the timestamps of all the files on
-> my dos partition have increased by one hour.
-> 
-> For example, ls --full-time says the timestamp of command.com is:
-> last week: Tue Apr 07 06:00:00 1992
-> this week: Tue Apr 07 07:00:00 1992
-> 
-> I think the timestamps of a dos filesystem are stored in local
-> time. So the dos filesystem driver needs to convert the local
-> time to unix standard time, and then ls converts back to local
-> time, and displays the timestamp in local time.
-> 
-> I think that the problem is that the dos filesystem driver's
-> local time to unix standard time algorithm is compensating for
-> whether or not daylight savings time is in effect NOW. It should
-> be compensating for whether or not daylight savings time was in
-> effect at the time of the timestamp.
-> 
-> The time conversion algorithm is function date_dos2unix in file
-> /usr/src/linux-2.4.19/fs/fat/misc.c. Is there a way to use
-> tz_minuteswest from the the time of the timestamp instead of the
-> current tz_minuteswest?
-> 
-> Or before returning the number of seconds, function date_dos2unix
-> could determine if daylight savings time is in effect now, and if
-> daylight savings time was in effect at the time of the timestamp.
-> These determinations could return 0 or 1. Then subtract the two
-> determinations, which will give us -1, 0, or 1. Multiply by 3600
-> and add to the number of seconds.
-> 
-> Function fat_date_unix2dos in file
-> /usr/src/linux-2.4.19/fs/fat/misc.c should have a similar fix.
-> 
-> ls appears to convert unix standard time to local time correctly,
-> adjusting for whether or not daylight savings time was in effect
-> at the time being converted. Maybe we should look at the source
-> for ls, to see how ls converts time.
+Can some of you help us by doing such things as replicating our 
+benchmarks, and helping us debug it as we enter the last stretch before 
+Halloween?
 
-Yes. But it needs the /usr/share/zoneinfo/`cat /etc/timezone` file for this.
-That file contains a record of when daylight saving time was in effect
-for that country. It's handling is in standart C library. But kernel
-does not use C library and does not load files. Thus it does not know,
-weather DST was in effect at some time...
+Nikita and Oleg will describe the details of what to do to replicate the 
+benchmarks, please be sure to use reiser4 readdir order for writes to 
+reiser4 (that means don't use tarballs made from ext2 (Remember that 
+writes determine subsequent read performance.)), and to use the latest 
+hard drives and fast processors with udma 5 turned on.  We are quite 
+sensitive to transfer speed since we do a good job of avoiding seeks.  
+We are sensitive to readdir order because we sort directory entries 
+(which is necessary for having efficient large directory lookups).   In 
+reiser4.1 we will ship a repacker, and then it won't matter what order 
+you do writes in so long as the repacker gets a chance to run at night.  
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+-- 
+Hans
+
+

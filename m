@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280716AbRKGAVe>; Tue, 6 Nov 2001 19:21:34 -0500
+	id <S280713AbRKGAXp>; Tue, 6 Nov 2001 19:23:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280713AbRKGAVO>; Tue, 6 Nov 2001 19:21:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45583 "EHLO
+	id <S280709AbRKGAX3>; Tue, 6 Nov 2001 19:23:29 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47375 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280709AbRKGAVD>; Tue, 6 Nov 2001 19:21:03 -0500
-Subject: Re: Using %cr2 to reference "current"
-To: dalecki@evision.ag
-Date: Wed, 7 Nov 2001 00:27:59 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <3BE883BF.1025EC08@evision-ventures.com> from "Martin Dalecki" at Nov 07, 2001 01:43:43 AM
+	id <S280713AbRKGAWQ>; Tue, 6 Nov 2001 19:22:16 -0500
+Subject: Re: Linux kernel 2.4 and TCP terminations per second.
+To: david.lang@digitalinsight.com (David Lang)
+Date: Wed, 7 Nov 2001 00:29:23 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), imran.badr@cavium.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.40.0111061555210.24952-100000@dlang.diginsite.com> from "David Lang" at Nov 06, 2001 03:56:55 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E161GZT-0002Ln-00@the-village.bc.nu>
+Message-Id: <E161Gap-0002MD-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please count the removal of the *very* sparse read_ahead array as
-> well (patch went to this list a long time ago) in.
-> It doesn't cost anything and saves some few pages depending on the
-> number of drivers you have loaded... (Well in comparision to the above
-> that's nit picking, but...) 
+> from a recent test I just was running with apache on a 1.2GHZ athlon 512MB
+> ram it looks like it will do ~1800 connections/sec.
+> 
+> just to put the numbers below in perspective :-)
 
-Sounds quite believable. Several of the hashes are oversize too it seems
-
-> And then there is the overloaded struct inde. It would be worth
-> quite a bit of memmory to not overlay the private,filesystem 
-> specific parts but to attach them by a pointer instead, in esp.
-
-Thats what -ac has started doing. Al Viro has done the worst case ones
-so far.
-
-Alan
+I was doing 2000 a second on a P2/233 just to keep the perspective. I've
+not yet hacked thttpd to try Linus new readahead syscall

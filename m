@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbTJUMRP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 08:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTJUMRP
+	id S263078AbTJUMQv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 08:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbTJUMQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 08:17:15 -0400
-Received: from smtp1.att.ne.jp ([165.76.15.137]:62643 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S263085AbTJUMRK (ORCPT
+	Tue, 21 Oct 2003 08:16:51 -0400
+Received: from [212.239.225.50] ([212.239.225.50]:12416 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S263078AbTJUMQu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 08:17:10 -0400
-Message-ID: <131e01c397cd$082ea3b0$24ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: RH7.3 can't compile 2.6.0-test8
-Date: Tue, 21 Oct 2003 21:14:55 +0900
+	Tue, 21 Oct 2003 08:16:50 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: mru@kth.se (=?iso-8859-1?q?M=E5ns?= =?iso-8859-1?q?=20Rullg=E5rd?=),
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test8] Difference between Software Suspend and Suspend-to-disk?
+Date: Tue, 21 Oct 2003 14:16:41 +0200
+User-Agent: KMail/1.5.4
+References: <200310211315.58585.lkml@kcore.org> <20031021113444.GC9887@louise.pinerecords.com> <yw1xy8veddj7.fsf@kth.se>
+In-Reply-To: <yw1xy8veddj7.fsf@kth.se>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200310211416.45202.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Roeland wrote:
-> On Monday October 20th 2003 at 16:01 Christian Kujau wrote:
-> > Norman Diamond schrieb:
-> > [...]
-> > > [ndiamond@c1pc40 linux-2.6.0-test8]$ gcc -v
-> > > Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-> > > gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)
-> > > [ndiamond@c1pc40 linux-2.6.0-test8]$ rpm -qa binutils
-> > > binutils-2.11.93.0.2-11
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Tuesday 21 October 2003 13:40, Måns Rullgård wrote:
+> Tomas Szepe <szepe@pinerecords.com> writes:
+> >> Software Suspend (EXPERIMENTAL)
+> >> Suspend-to-Disk Support
 > >
-> > did you try with a gcc 3.x too? perhaps it's (only) a compiler issue...
+> > They're competing implementations of the same mechanism.
 >
-> No, you just need to upgrade binutils to version 2.12 or higher, as
-> mentioned in Documentation/Changes. The gcc version is fine.
+> And neither one works reliably, I might add.  They both appear to save
+> the current state to disk, but no matter what I try, I can't make it
+> resume properly.
 
-I disagree with both of you.
+Well, I could suspend/resume correctly first time I tried (runlevel 2 and 
+disabling nearly everything to minimize loss of data on crash).
 
-I downloaded binutils, I think 2.14.96.0 or thereabouts (I'm away from the
-machine now).  It rejected rpm -U because it depends on a version of
-glibc-devel which is newer than RH 7.3's version of glibc-devel.  I didn't
-examine yet whether it is possible to upgrade glibc-devel without upgrading
-gcc, and didn't download any version of those yet in order to try binutils
-again.
+The second test in X resulted in a 'double fault'...
 
-The Readme for 2.6.0-test6 still said that gcc 2.95 is required (I confess
-to not reading Readme for test8 yet.)   I reported a compilation problem in
-test6 using gcc 3.2.something in SuSE on a different machine, and it seems
-believable that gcc 2.95 is still required.  As mentioned at the beginning
-of this thread, I understand that Red Hat's gcc 2.96 is nonstandard.  If I
-make any changes to binutils and glibc-devel and gcc, surely it should be to
-install gcc 2.95 and related packages which would be compatible with that
-version.  It should not be to install gcc 3.anything, or glibc-devel or
-binutils that depend on it.
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/lSOrUQQOfidJUwQRAsV8AJ0WGVwtPCvoRU+nYzp+1rEPGjHrDwCffiZz
+wEG77k6o4VjLOb3dMvyLopg=
+=uta/
+-----END PGP SIGNATURE-----
 

@@ -1,36 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbVCCKjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVCCKpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262512AbVCCKjx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 05:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbVCCKjw
+	id S261580AbVCCKpU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 05:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVCCKpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 05:39:52 -0500
-Received: from smartmx-04.inode.at ([213.229.60.36]:32207 "EHLO
-	smartmx-04.inode.at") by vger.kernel.org with ESMTP id S262512AbVCCKiv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 05:38:51 -0500
-Subject: Re: RFD: Kernel release numbering
-From: Bernhard Schauer <linux-kernel-list@acousta.at>
-Reply-To: schauer@acousta.at
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Thu, 03 Mar 2005 11:38:58 +0100
-Message-Id: <1109846338.6053.11.camel@FC3-bernhard-1.acousta.local>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Mar 2005 05:45:03 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:17588 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261560AbVCCKng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 05:43:36 -0500
+Date: Thu, 3 Mar 2005 11:43:25 +0100
+Message-Id: <200503031043.j23AhPCt020795@faui31y.informatik.uni-erlangen.de>
+From: Martin Waitz <tali@admingilde.org>
+To: tali@admingilde.org
+Cc: linux-kernel@vger.kernel.org
+References: <20050303102852.GG8617@admingilde.org>
+Subject: [PATCH 16/16] [DocBook] escape declaration_purpose
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As far as I understand the numbering scheme, the 2.5 kernel leads to 2.6
-series. 
-Why not just reactivate the 2.5 kernel (Starting with i.e. 2.5.112 which
-will lead to 2.6.12)?
-There will be no change visible to end-users and developers - IMO - are
-more flexible in any case. 
-
-(I know I totally ignore some basic thoughts with that "idea".)
+[DocBook] escape declaration_purpose
+Signed-off-by: Martin Waitz <tali@admingilde.org>
 
 
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.2040  -> 1.2041 
+#	  scripts/kernel-doc	1.27    -> 1.28   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 05/03/03	tali@admingilde.org	1.2041
+# [DocBook] escape declaration_purpose
+# 
+# Signed-off-by: Martin Waitz <tali@admingilde.org>
+# --------------------------------------------
+#
+diff -Nru a/scripts/kernel-doc b/scripts/kernel-doc
+--- a/scripts/kernel-doc	Thu Mar  3 11:43:30 2005
++++ b/scripts/kernel-doc	Thu Mar  3 11:43:30 2005
+@@ -1673,7 +1673,7 @@
+ 
+ 		$state = 2;
+ 		if (/-(.*)/) {
+-		    $declaration_purpose = $1;
++		    $declaration_purpose = xml_escape($1);
+ 		} else {
+ 		    $declaration_purpose = "";
+ 		}

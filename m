@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVCFUGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVCFUI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVCFUGk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 15:06:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVCFUGk
+	id S261487AbVCFUI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 15:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVCFUI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 15:06:40 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:47541 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261485AbVCFUGh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 15:06:37 -0500
-Date: Sun, 6 Mar 2005 21:06:36 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Unsupported PM cap regs version 1
-Message-ID: <20050306200636.GA5340@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Lee Revell <rlrevell@joe-job.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1110053135.12513.7.camel@mindpipe>
+	Sun, 6 Mar 2005 15:08:57 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:54707 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261487AbVCFUID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 15:08:03 -0500
+Date: Sun, 6 Mar 2005 15:10:50 -0500
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Andres Salomon <dilinger@voxel.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
+Message-ID: <20050306151050.A29509@mail.kroptech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1110053135.12513.7.camel@mindpipe>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <pan.2005.03.06.17.10.41.114607@voxel.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 05, 2005 at 03:05:35PM -0500, Lee Revell wrote:
-> Every time I load the driver for my SBLive Platinum I get this log
-> message:
+Andres Salomon <dilinger@voxel.net> wrote:
+> On Sat, 05 Mar 2005 11:43:05 +0100, Andries Brouwer wrote:
+> > On Fri, Mar 04, 2005 at 02:21:46PM -0800, Greg KH wrote:
+> >>  - It must fix a real bug that bothers people (not a, "This could be a
+> >>    problem..." type thing.)
+>
+> An obvious fix is an obvious fix.  It shouldn't matter whether people have
+> triggered a bug or not; why discriminate?
+
+Because the sucker tree is purposely driven by real bug reports, not by
+developers who happen across a theoretical problem while traversing the
+code. If users aren't hitting it today, the fix can wait for 2.6.n+1.
+
+> >>  - It must fix a problem that causes a build error (but not for things
+> >>    marked CONFIG_BROKEN), an oops, a hang, or a real security issue.
+> >>  - No "theoretical race condition" issues, unless an explanation of how
+> >>    the race can be exploited.
+>
+> I disagree w/ this; if it's an obvious fix, there should be no need for
+> this.  Either it's a race that is clearly incorrect (after tracing through
+> the relevant code), or it's not.
+
+The sucker tree is not a dumping ground for every fix under the sun
+(even obvious ones). It's for solving problems hit by real users, right
+now.
+
+> >>  - It can not contain any "trivial" fixes in it (spelling changes,
+> >>    whitespace cleanups, etc.)
 > 
-> PCI: 0000:00:0f.0 has unsupported PM cap regs version (1)
+> This and the "it must fix a problem" are basically saying the same
+> thing.
 
-PM cap regs version 1 is handled in 2.6.11 yet again, the message should be
-gone for this case by now.
+No. There's an important distinction and the key word is "contain". This
+rule specifically forbids patches that do fix a real problem but _also_
+contain unrelated trivial changes. See "setup_per_zone_lowmem_reserve()
+oops fix" for an example of a patch that could theoretically be rejected 
+due to this rule.
 
-> even though CONFIG_PM is not set.
+--Adam
 
-PM caps are needed to activate devices, even if CONFIG_PM is not set.
-
-	Dominik

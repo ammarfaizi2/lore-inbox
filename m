@@ -1,141 +1,210 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbUCCAKU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 19:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbUCCAKT
+	id S261806AbUCCAQh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 19:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbUCCAQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 19:10:19 -0500
-Received: from mail.kroah.org ([65.200.24.183]:50062 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261794AbUCCAJ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 19:09:59 -0500
-Date: Tue, 2 Mar 2004 16:09:57 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] udev 021 release
-Message-ID: <20040303000957.GA11755@kroah.com>
+	Tue, 2 Mar 2004 19:16:37 -0500
+Received: from bay14-f17.bay14.hotmail.com ([64.4.49.17]:3847 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261806AbUCCAQX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 19:16:23 -0500
+X-Originating-IP: [24.136.227.168]
+X-Originating-Email: [filamoon2@hotmail.com]
+From: "johnny zhao" <filamoon2@hotmail.com>
+To: mblack@csi-inc.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udp packet loss even with large socket buffer
+Date: Tue, 02 Mar 2004 19:16:22 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY14-F17ddMfz4yhKU00038111@hotmail.com>
+X-OriginalArrivalTime: 03 Mar 2004 00:16:22.0285 (UTC) FILETIME=[C20B4BD0:01C400B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've released the 021 version of udev.  It can be found at:
- 	kernel.org/pub/linux/utils/kernel/hotplug/udev-021.tar.gz
+Thanks for you reply. Unfortunately, it doesn't help :-(
 
-(Yes, there was no 020 release announcement, that tarball had a number
-of build issues that prevented rpms from being generated, hence the need
-for a 021 release.  A certain new Ximian/SuSE/Novell employee owes me
-some beer now that he broke the build and I had to fix it...)
+I have uploaded libosip and you can find it here:
+http://www.ee.duke.edu/~zw8/msn_linux/libosip-0.9.7.tar.gz
 
-rpms built against Red Hat FC2-test1 are available at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-021-1.i386.rpm
-with the source rpm at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-021-1.src.rpm
+I would appreciate it if you would look into this problem.
 
-udev allows users to have a dynamic /dev and provides the ability to
-have persistent device names.  It uses sysfs and /sbin/hotplug and runs
-entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
-enabled to run.  Please see the udev FAQ for any questions about it:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
+Moreover, I'm sure that the usleep() calls in the source tree are not 
+actually executed. All these files are not compiled and linked, except 
+mediastreamer/msv4l.c, whose usleep calls will not be executed unless it 
+fails to open the webcam.
 
-For any udev vs devfs questions anyone might have, please see:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
+Thank you!
 
+>From: "Mike Black" <mblack@csi-inc.com>
+>To: "Charlie (Zhanglei) Wang" <filamoon2@hotmail.com>
+>Subject: Re: udp packet loss even with large socket buffer
+>Date: Tue, 2 Mar 2004 09:29:21 -0500
+>
+>I was going to try and duplicate your problem but I can't find the source 
+>for libosip (gnu has taken it down from their ftp site).
+>However, if your packets are blasting across < 1 ms between than you might 
+>need to bump your receive queue like this:
+>Default is 300:
+>sysctl net.core.netdev_max_backlog
+>net.core.netdev_max_backlog = 300
+>sysctl -w net.core.netdev_max_backlog=2000
+>net.core.netdev_max_backlog = 2000
+>Ref: http://datatag.web.cern.ch/datatag/howto/tcp.html
+>
+>Perhaps your processing is taking long enough that the traffic queue is 
+>building up.
+>One thing is your usleep and nanosleep I think will be a minimum of 2ms 
+>because of timer limitations.
+>#include <stdio.h>
+>#include <time.h>
+>#include <unistd.h>
+>
+>main()
+>{
+>    time_t mytime=time(NULL);
+>    struct timespec t1,t2;
+>    int i=0;
+>    while(mytime == time(NULL));
+>    mytime = time(NULL);
+>    while(mytime == time(NULL)) {
+>        t1.tv_sec=0;
+>        t1.tv_nsec=100000;
+>        nanosleep(&t1,&t2);
+>        i++;
+>    }
+>    printf("i=%d\n",i);
+>}
+>
+>You'll find this program spits out approximately "i=500" no matter how 
+>small you make tv_nsec.
+>You should also get rid of the usleep()'s in your code.  It's been 
+>superceded by nanosleep and could be screwing things up too.
+>                usleep(20000);
+>./console/sipomatic.c
+>                    usleep(pts - now);
+>./ffmpeg-0.4.8/ffmpeg.c
+>            usleep(100);
+>            usleep(100);
+>            usleep(100);
+>            usleep(100);
+>            usleep(100);
+>            usleep(10);
+>./ffmpeg-0.4.8/libavformat/grab.c
+>        }else usleep(20000);
+>        }else usleep(20000);
+>        }else usleep(20000);
+>./mediastreamer/msv4l.c
+>        //  usleep(80);
+>./oRTP/src/rtpsession.c
+>
+>
+>----- Original Message -----
+>From: "Charlie (Zhanglei) Wang" <filamoon2@hotmail.com>
+>To: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>; 
+><linux-kernel@vger.kernel.org>
+>Sent: Monday, March 01, 2004 9:12 PM
+>Subject: Re: udp packet loss even with large socket buffer
+>
+>
+> > hi,
+> >
+> > Thanks for your reply. If you want to exactly reproduce my problem, 
+>please
+> > use the following
+> > commands to download my codes from cvs:
+> >
+> > cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/gaim-vv login
+> > cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/gaim-vv co
+> > linphone
+> >
+> > Simply hit enter when prompted for passwd.
+> > (1) Please download and install libosip before compiling.
+> > (2) Before ./configure, please run command 'rm -Rf ffmpeg; ln -s
+> > ffmpeg-0.4.8 ffmpeg'.
+> > (3) After 'make' and 'make install', use 'linphonec' to run the program.
+> > (4) Under linphonec, use the following commands to communicate with 
+>windows
+> > messenger:
+> >    r www-db.research.bell-labs.com
+> >    c <sip:username_of_windows_messenger@www-db.research.bell-labs.com>
+> >
+> > www-db.research.bell-labs.com is a public sip server.
+> >
+> > Under Windows Messenger (which runs only under WinXP), use SIP login
+> > method. Sign-in name should be
+> > username_of_windows_messenger@www-db.research.bell-labs.com
+> >
+> > Please note that Windows Messenger is different from MSN Messenger.
+> >
+> > I know it's kind of complicated... :( Thank you in advance!
+> > PS: My Linux box and Windows XP box run in the same LAN.
+> >
+> > Johnny
+> >
+> > ----- Original Message -----
+> > From: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
+> > To: "johnny zhao" <filamoon2@hotmail.com>; 
+><linux-kernel@vger.kernel.org>
+> > Sent: Saturday, February 28, 2004 4:22 PM
+> > Subject: Re: udp packet loss even with large socket buffer
+> >
+> >
+> > > On Saturday 28 February 2004 03:09, johnny zhao wrote:
+> > > > Hi,
+> > > >
+> > > > I have a problem when trying to receive udp packets containing video
+> > data
+> > > > sent by Microsoft Windows Messenger. Here is a detailed description:
+> > > >
+> > > > Linux box:
+> > > >     Linux-2.4.21-0.13mdksmp, P4 2.6G HT
+> > > > socket mode:
+> > > >     blocked mode
+> > > > code used:
+> > > >     while ( recvfrom(...) )
+> > > > socket buffer size:
+> > > >     8388608, set by using sysctl -w net.core.rmem_default and 
+>rmem_max
+> > > >
+> > > > I used ethereal(using libpcap) to monitor the network traffic. All 
+>the
+> > > > packets were transferred and captured by libpcap. But my program
+> > constantly
+> > > > suffers from packet loss. According to ethereal, the average time
+> > interval
+> > > > between 2 packets  is 70-80ms, and the minimum interval can go down 
+>to
+> > > > ~1ms. Each packet is smaller than 1500 bytes (ethernet MTU).
+> > > >
+> > > > Can anybody help me? I googled and found a similar case that had 
+>been
+> > > > solved by increasing the socket buffer size. But it doesn't work for 
+>me.
+> > I
+> > > > think 8M is a crazily large size :(
+> > >
+> > > Post a small program demonstrating your problem.
+> > > (I'd test udp receive with netcat too)
+> > > --
+> > > vda
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
+>in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
 
-I think udev is pretty much mature now.  The TODO list is pretty much
-empty, and I've integrated in all of the assorted patches that the
-different distros were using.  If there's anything missing from udev, or
-any patches that I've missed, please let me and the people at the
-linux-hotplug-devel mailing list know about it.
-
-
-Major changes from the 019 version:
-	- new variable $local for the udev.permission file allows
-	  permissions to be set for the currently logged in user.
-	- new binary, udevstart, to help out people with distros that
-	  needed the udev_start program to have a few /dev entries be
-	  created before it could run.
-	- new udevinfo functionality (can handle the symlinks correctly
-	  now.)
-	- number of other small fixes.
-
-Thanks to everyone who has send me patches for this release, a full list
-of everyone, and their changes is below.
-
-udev development is done in a BitKeeper repository located at:
-	bk://linuxusb.bkbits.net/udev
-
-Daily snapshots of udev from the BitKeeper tree can be found at:
-	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
-If anyone ever wants a tarball of the current bk tree, just email me.
-
-thanks,
-
-greg k-h
-
-
-Summary of changes from v020 to v021
-============================================
-
-Kay Sievers:
-  o install udevinfo in /usr/bin
-  o blacklist pcmcia_socket
-
-Greg Kroah-Hartman:
-  o fix udev.spec to find udevinfo now that it has moved to /usr/bin
-  o Fix another problem with Makefile installing initscript
-  o fix the Makefile to install the init script into the proper directory
-  o make spec file turn off selinux support by default
-  o 020 release TAG: v020
-
-
-Summary of changes from v019 to v020
-============================================
-
-<christophe.varoqui:free.fr>:
-  o multipath update
-
-Kay Sievers:
-  o man page udevstart
-  o cleanup udevstart
-  o bugfix for local user
-  o unlink bugfix
-  o TODO update
-  o clarify udevinfo device walk
-  o udevinfo symlink reverse query
-  o fix stroul endptr use
-  o add $local user spport for permissions
-  o udev - man page update
-  o udev - fix debug info for multiple rule file config
-  o udev - kill udevd on install
-  o udev - activate formt length attribute
-  o udev - safer sprintf() use
-
-<md:linux.it>:
-  o no error on enoent
-  o escape dashes in man pages
-  o remove usage of expr in ide-devfs.sh
-
-<rml:ximian.com>:
-  o automatically install correct initscript
-  o update documetation for $local
-
-Andrey Borzenkov:
-  o Add symlink only rules support
-
-Greg Kroah-Hartman:
-  o update the TODO list as we already have a devfs config file
-  o make start_udev use udevstart binary
-  o install udevstart
-  o Remove Debian permission files as the Debian maintainer doesn't seem to want to share :(
-  o update the Gentoo rules files
-  o Add Red Hat rules and permissions files
-  o add udevstart to the ignore list
-  o add udevstart program based on a old patch from Harald Hoyer <harald@redhat.com>
-  o unlink the file before we try to create it
-  o Merge greg@bucket:/home/greg/src/udev into kroah.com:/home/greg/src/udev
-  o 019_bk mark
-  o 018 release TAG: v019
+_________________________________________________________________
+Fast. Reliable. Get MSN 9 Dial-up - 3 months for the price of 1! 
+(Limited-time Offer) http://click.atdmt.com/AVE/go/onm00200361ave/direct/01/
 

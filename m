@@ -1,29 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVAEIh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVAEImW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbVAEIh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 03:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVAEIh5
+	id S262295AbVAEImW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 03:42:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVAEImW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 03:37:57 -0500
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:48081 "HELO
-	server5.heliogroup.fr") by vger.kernel.org with SMTP
-	id S262294AbVAEIhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 03:37:45 -0500
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.10 TCP troubles
-Date: Wed, 05 Jan 2005 08:13:17 GMT
-Message-ID: <05081I514@server5.heliogroup.fr>
-X-Mailer: Pliant 93
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 5 Jan 2005 03:42:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:16530 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262295AbVAEImR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 03:42:17 -0500
+Date: Wed, 5 Jan 2005 00:42:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-Id: <20050105004202.3de71167.akpm@osdl.org>
+In-Reply-To: <crd864$bkp$1@sea.gmane.org>
+References: <20050102221534.GG4183@stusta.de>
+	<41D87A64.1070207@tmr.com>
+	<20050103003011.GP29332@holomorphy.com>
+	<20050103004551.GK4183@stusta.de>
+	<20050103011935.GQ29332@holomorphy.com>
+	<20050103053304.GA7048@alpha.home.local>
+	<20050103123325.GV29332@holomorphy.com>
+	<20050103213845.GA18010@alpha.home.local>
+	<crd864$bkp$1@sea.gmane.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the senario:
-the Linux machine is writting through libsmbclient
-to an OSX machine running Samba
+"Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
+>
+> With linux-2.4, I could click on such folder and the
+>  list of messages sorted by subject will appear in KMail almost instantly.
+>  With linux-2.6, this process takes much longer.
 
-Switching the Linux machine from 2.6.8 to 2.6.10 made the network speed
-drop drastically: 20 seconds with 2.6.8, 800 seconds with 2.6.10
+There was a bug in kmail which caused this.  It must have been a quite old
+version.  It can be worked around by mounting the reiserfs3 filessytem with
+the "nolargeio=1" mount option.  Or by upgrading kmail.
 

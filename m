@@ -1,224 +1,103 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315147AbSD2McH>; Mon, 29 Apr 2002 08:32:07 -0400
+	id <S315146AbSD2MdY>; Mon, 29 Apr 2002 08:33:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315148AbSD2McG>; Mon, 29 Apr 2002 08:32:06 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:64129 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S315147AbSD2McE>; Mon, 29 Apr 2002 08:32:04 -0400
-Date: Mon, 29 Apr 2002 08:33:45 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Kerl, John" <John.Kerl@Avnet.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: FPU, i386
-In-Reply-To: <C08678384BE7D311B4D70004ACA371050B7633F3@amer22.avnet.com>
-Message-ID: <Pine.LNX.3.95.1020429081543.10997A-100000@chaos.analogic.com>
+	id <S315149AbSD2MdX>; Mon, 29 Apr 2002 08:33:23 -0400
+Received: from krynn.axis.se ([193.13.178.10]:51851 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S315146AbSD2MdV>;
+	Mon, 29 Apr 2002 08:33:21 -0400
+Date: Mon, 29 Apr 2002 14:29:33 +0200 (CEST)
+From: Johan Adolfsson <johan.adolfsson@axis.com>
+X-X-Sender: <johana@ado-2.axis.se>
+To: <quinlan@transmeta.com>, <marcelo@conectiva.com.br>,
+        <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>, <johan.adolfsson@axis.com>
+Subject: [PATCH] cramfs 5/6 - metafiles.txt
+Message-ID: <Pine.LNX.4.33.0204291419570.25892-200000@ado-2.axis.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="218762247-651825825-1020083373=:25892"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Apr 2002, Kerl, John wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> There is an error here which shouldn't be propagated:
-> 
-> 	if (fabs(a-b) < 1.0e-38)
-> 		...
+--218762247-651825825-1020083373=:25892
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-It is not an error at all.
+5. linux/Documentation/filesystems/metafiles.txt added that describes the
+   metafile format used in mkcramfs.
 
-> 
-> "Machine epsilon" for doubles (namely, the difference between 1.0 and
-> the next largest number) is on the order of 2e-16.  This is a rough
-> estimate of the granularity of round-off error; and in fact 1.0 / 0.2
-> and 5.0 can't possibly be as close as 1.0e-38, unless they're exactly
-> equal.
+The file is simply attached, not a real patch, hope that is ok.
+It's intended to go into linux/Documentation/filesystems/ , but
+since mkcramfs no longer is in the kernel, perhaps
+that isn't the correct place for it anymore.
+Perhaps simply add it to the cramfs tools (or both..)?
 
-
-This is  not correct. The FPU in (even) the i486 stores 'tiny' (defined in
-the Intel book) in extended real format. Quantities as small as +/- 3.37
-* 10 -4932 are represented internally. Any comparison of real numbers is
-(or certainly should be) done internally. The hard-coded example of
-1.0e-38 is well within the dynamic range of both the FPU and the double
-fabs().
-
-As explained on page 16-3 of the Intel 486 Programmer's Reference
-Manual, the FPU tries to prevent denormalization. Denormalization
-produces either a denormal or a zero. Even single precision
-denormals all have exponents of -46 or more negative, also well
-within the -38 cited.
-
-> 
-> There are four epsilon-ish things to be aware of:
-> 
-> *	Difference between 0.0 and next float  above: ~= 1.4e-45
-> *	Difference between 0.0 and next double above: ~= 4.9e-324
-> *	Difference between 1.0 and next float  above: ~= 1.2e-7
-> *	Difference between 1.0 and next double above: ~= 2.2e-16
-> 
-> The first two are more useful for things like detecting underflow; the
-> last two (some numerical folks suggest using their square roots) are
-> more useful for implementing an "approximately equals".
-> 
+/Johan
 
 
-I agree with your explainations on everything following:
+--218762247-651825825-1020083373=:25892
+Content-Type: TEXT/plain; name="metafiles.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0204291429330.25892@ado-2.axis.se>
+Content-Description: metafiles.txt
+Content-Disposition: attachment; filename="metafiles.txt"
 
-
-
-> ----------------------------------------------------------------
-> 
-> The poster was incorrect in expecting 1.0 / 0.2 to be exactly equal to
-> anything, as was explained to him.  But the problem doesn't have to do
-> with whether a number is transcendental, or irrational, or rational:
-> the number must be rational *and* must have a mantissa whose
-> denominator is a power of two *and* that power of two must be less than
-> or equal to 23 (for single) or 52 (for double).  And of course 1/5 is
-> 2^-3 * 8/5, of which the mantissa has denominator 5, which isn't a power
-> of two.
-> 
-> So we all should know not to expect floating-point numbers to be
-> exactly equal to anything; that's been established.  However, another
-> more basic question was not answered; curiosity (if nothing else)
-> demands an answer.  Namely, it's OK to say we can't expect 1.0/0.2 ==
-> 5.0.  But why is the result of (what is apparently) the same
-> computation *sometimes* the same, and *sometimes* different? That's the
-> question.
-> 
-> And I think it's fair for the poster to want to know why.
-> 
-> If you disassemble the sample program, you'll see that without
-> optimization, 1.0 is divided by 0.2 at *run* time, and compared with
-> 5.0; with optimization, the division is done, and the "<" and
-> "==" comparisons are done, at *compile* time.  OK, but: If we're not
-> cross-compiling (most people don't), then the compiler creating a.out
-> is running on perhaps the same box as a.out is!  Why does gcc, folding
-> the constant in the optimized a.out, get a different answer for 1.0/0.2
-> than the unoptimized a.out gets for 1.0/0.2?
-> 
-> Not only that, without optimization:
-> 
-> 	if (1/h < 5.0)
-> 		...
-> 
-> gives a different answer inside a.out than
-> 
-> 	x = 1/h;
-> 	if (x < 5.0)
-> 		...
-> 
-> The key is that Pentiums (Pentia?) have 80-bit floating-point numbers
-> in the FPU.  Without optimization, at compile time, gcc represents 5.0
-> as 0x4014000000000000.  0.2 is 0x3fc999999999999a.  These are both
-> 64-bit doubles -- 1 sign bit, 11 exponent bits, & 52 explicit mantissa
-> bits (and 1 implicit leading mantissa bit, not stored in memory.)
-> 
-> In the case "if (1/h < 5.0)", at run time, 1.0 is loaded into the FPU
-> using fld1; then "fdivl {address of 0.2 in memory}".  The result is the
-> *80-bit* number 0x40019ffffffffffffd80.  The 64-bit number 5.0
-> (0x4014000000000000) is loaded into the FPU to become the 80-bit number
-> 0x4001a000000000000000.  Then, these two 80-bit numbers are compared in
-> the FPU; they're of course not the same.
-> 
-> What's different in the case "x = 1/h; if (x < 5.0) ..." is that both
-> 80-bit numbers are stored from the FPU to memory as 64-bit (rounding
-> off the mantissa bits which differ), at which point they're both
-> 0x4014000000000000, then loaded *back* into the FPU where they're
-> both 0x4001a000000000000000.
-> 
-> This isn't an FPU bug, by any stretch of the imagination, nor is it a
-> compiler bug.  But it's a subtle difference between the Pentium's FPU
-> and other FPUs, of which it may occasionally be useful to be aware.
-> 
-> 
-> 
-> 
-> -----Original Message-----
-> From: Richard B. Johnson [mailto:root@chaos.analogic.com]
-> Sent: Thursday, April 25, 2002 7:23 AM
-> To: rpm
-> Cc: Jesse Pollard; Nikita@Namesys.COM; Andrey Ulanov;
-> linux-kernel@vger.kernel.org
-> Subject: Re: FPU, i386
-> 
-> 
-> On Thu, 25 Apr 2002, rpm wrote:
-> 
-> > On Wednesday 17 April 2002 08:10 pm, Jesse Pollard wrote:
-> > > ---------  Received message begins Here  ---------
-> > >
-> > 
-> > > if (int(1/h * 100) == int(5.0 * 100))
-> > >
-> > > will give a "proper" result within two decimal places. This is still
-> > > limited since there are irrational numbers within that range that COULD
-> > > still come out with a wrong answer, but is much less likely to occur.
-> > >
-> > > Exact match of floating point is not possible - 1/h is eleveated to a
-> > > float.
-> > >
-> > > If your 1/h was actually num/h, and num computed by summing .01 100
-> times
-> > > I suspect the result would also be "wrong".
-> > >
-> > 
-> > why is exact match of floating point not possible ?
-> 
-> Because many (read most) numbers are not exactly representable
-> in floating-point. The purpose of floating-point it to represent
-> real numbers with a large dynamic range. The trade-off is that
-> few such internal representations are exact.
-> 
-> As a simple example, 0.33333333333.....  can't be represented exactly
-> even with paper-and-pencil. However, as the ratio of two integers
-> it can be represented exactly, i.e., 1/3 . Both 1 and 3 must
-> be integers to represent this ratio exactly.
-> 
-> All real numbers (except trancendentials) can represented exactly
-> as the ratio of two integers but floating-point uses only one
-> value, not two integers, to represent the value. So, an exact
-> representation of a real number, when using a single variable
-> in a general-purpose way, is, for all practical purposes, not
-> possible. Instead, we get very close.
-> 
-> When it comes to '==' close is not equal. There are macros in
-> <math.h> that can be used for most floating-point logic. You
-> should check them out. If we wanted to check for '==' we really
-> need to do something like this:
-> 
->     double a, b;
->     some_loop() {
->        if(fabs(a-b) < 1.0e-38)
->            break;
->      }
-> Where we get the absolute value of the difference between two
-> FP variables and compare against some very small number.
-> 
-> To use the math macros, the comparison should be something like:
-> 
->         if (isless(fabs(a-b), 1.0e-38))
->              break;
-> 
-> 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-> 
->                  Windows-2000/Professional isn't.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+TWV0YWZpbGVzDQo9PT09PT09PT0NCg0KTWV0YWZpbGVzIGFyZSB1c2VkIHRv
+IGxldCBhIGZpbGVzeXN0ZW0gYnVpbGRlciwgc3VjaCBhcyBta2NyYW1mcyBh
+bmQNCm1rZnMuamZmczIsIGlnbm9yZSBmaWxlcyBhbmQgY2hhbmdlIGF0dHJp
+YnV0ZXMgb2YgZmlsZXMgd2hpbGUgYnVpbGRpbmcNCnRoZSBmaWxlc3lzdGVt
+Lg0KDQpUaGlzIGRvY3VtZW50IGJyaWVmbHkgZGVzY3JpYmVzIGhvdyBBeGlz
+IENvbW11bmljYXRpb25zIGFyZSB1c2luZyBtZXRhZmlsZXMNCndpdGggbWtj
+cmFtZnMgYW1kIG1rZnMuamZmczIgYW5kIGlzIGFsc28gYSBwcm9wb3NhbCBv
+ZiBhIG1ldGFmaWxlIHN0YW5kYXJkDQpmb3IgZmlsZXN5c3RlbSBidWlsZGVy
+cy4NCg0KDQoNCk1ldGFmaWxlIEZvcm1hdA0KPT09PT09PT09PT09PT09DQoN
+CkFuIGluc3RydWN0aW9uIGlzIGEgbGluZSBpbiBhIG1ldGFmaWxlIHRlbGxp
+bmcgdGhlIGZpbGVzeXN0ZW0gYnVpbGRlciBpZg0KYW55dGhpbmcgc3BlY2lh
+bCBzaG91bGQgYmUgZG9uZSB3aXRoIGEgZmlsZSBvciBkaXJlY3RvcnkgYmVm
+b3JlIHdyaXRpbmcgaXQgdG8NCnRoZSBmaWxlc3lzdGVtLiBUaGUgZm9sbG93
+aW5nIGluc3RydWN0aW9ucyBzaG91bGQgYmUgcmVjb2duaXplZCBieSB0aGUN
+CmZpbGVzeXN0ZW0gYnVpbGRlcjoNCg0KDQpJZ25vcmUNCi0tLS0tLQ0KU3lu
+dGF4OiAiSWdub3JlOiBGSUxFIg0KDQpJZ25vcmVzIGEgZmlsZSBvciBkaXJl
+Y3RvcnkuIEkuZS4gRklMRSBpcyBub3QgaW5jbHVkZWQgaW4gdGhlIGZpbGVz
+eXN0ZW0uDQpUaGUgbWV0YWZpbGVzIHRoZW1zZWx2ZXMgYXJlIGFsd2F5cyBp
+Z25vcmVkIGFuZCBkbyBub3QgaGF2ZSB0byBiZSBtZW50aW9uZWQNCmluIGFu
+eSBtZXRhZmlsZXMuDQoNCg0KSWdub3JlQ29udGVudHMNCi0tLS0tLS0tLS0t
+LS0tDQpTeW50YXg6ICJJZ25vcmVDb250ZW50czogRElSRUNUT1JZIg0KDQpJ
+Z25vcmVzIHRoZSBjb250ZW50cyBvZiBhIGRpcmVjdG9yeS4gSS5lLiBESVJF
+Q1RPUlkgaXMgaW5jbHVkZWQgaW4gdGhlDQpmaWxlc3lzdGVtIGJ1dCBhbGwg
+ZmlsZXMgYW5kIGRpcmVjdG9yaWVzIGluIERJUkVDVE9SWSBhcmUgaWdub3Jl
+ZC4NCg0KDQpJbmNsdWRlDQotLS0tLS0tDQpTeW50YXg6ICJJbmNsdWRlOiBG
+SUxFIg0KDQpJbmNsdWRlcyBhIGZpbGUgb3IgZGlyZWN0b3J5LiBJZiBhbiBJ
+bmNsdWRlIGluc3RydWN0aW9uIGlzIGZvdW5kIGluIGENCm1ldGFmaWxlLCBh
+bGwgZmlsZXMgb3IgZGlyZWN0b3JpZXMgKGluIHRoZSBzYW1lIGRpcmVjdG9y
+eSBhcyB0aGUgbWV0YWZpbGUpDQp0aGF0IGFyZSBub3QgaW5jbHVkZWQgd2ls
+bCBiZSBpZ25vcmVkIChOT1RFISkuDQoNCg0KRGV2aWNlDQotLS0tLS0NClN5
+bnRheDogIkRldmljZTogRklMRSBUWVBFIE1BSk9SIE1JTk9SIg0KDQpDb252
+ZXJ0IGEgcmVndWxhciBmaWxlIHRvIGEgZGV2aWNlIHNwZWNpYWwgZmlsZS4g
+SWYgRklMRSBleGlzdHMgaXQgd2lsbCBiZQ0Kd3JpdHRlbiB0byB0aGUgZmls
+ZXN5c3RlbSBhcyBhIGNoYXJhY3RlciBvciBibG9jayBzcGVjaWFsIGZpbGUg
+d2l0aA0KTUFKT1IgYW5kIE1JTk9SIG51bWJlcnMuIFRZUEUgaXMgJ2InIGZv
+ciBibG9jayBhbmQgJ2MnIGZvciBjaGFyYWN0ZXIgZGV2aWNlLg0KDQpFeGFt
+cGxlOiBUbyBjcmVhdGUgdGhlIGNoYXJhY3RlciBzcGVjaWFsIGZpbGUgL2Rl
+di90dHlTMCB1c2luZyBtZXRhZmlsZXMsDQphZGQgdGhlIGZvbGxvd2luZyBs
+aW5lIHRvIHRoZSBtZXRhZmlsZSBpbiB0aGUgL2RldiBkaXJlY3Rvcnk6DQoN
+CkRldmljZTogdHR5UzAgYyA0IDY0DQoNCg0KVXNlcklkDQotLS0tLS0NClN5
+bnRheDogIlVzZXJJZDogRklMRSBVSUQiDQoNCkNoYW5nZSBmaWxlIG93bmVy
+LiBUaGUgb3duZXIgb2YgRklMRSB3aWxsIGJlIFVJRC4NCg0KDQpEZWZhdWx0
+VXNlcklkDQotLS0tLS0tLS0tLS0tDQpTeW50YXg6ICJEZWZhdWx0VXNlcklk
+OiBVSUQiDQoNCkNoYW5nZSBmaWxlIG93bmVyIHJlY3Vyc2l2ZWx5LiBBbGwg
+ZmlsZXMgYW5kIGRpcmVjdG9yaWVzIGluIHRoaXMgZGlyZWN0b3J5DQp3aWxs
+IGJlIG93bmVkIGJ5IFVJRCB1bmxlc3Mgb3ZlcnJpZGRlbiB3aXRoIHRoZSBV
+c2VySWQgaW5zdHJ1Y3Rpb24uDQoNCg0KR3JvdXBJZA0KLS0tLS0tLQ0KU3lu
+dGF4OiAiR3JvdXBJZDogRklMRSBHSUQiDQoNCkNoYW5nZSBncm91cCBvd25l
+cnNoaXAgb24gYSBmaWxlIG9yIGRpcmVjdG9yeS4gVGhlIGdyb3VwIG1lbWJl
+cnNoaXAgb2YgRklMRQ0Kd2lsbCBiZSBHSUQuDQoNCg0KRGVmYXVsdEdyb3Vw
+SWQNCi0tLS0tLS0tLS0tLS0tDQpTeW50YXg6ICJEZWZhdWx0R3JvdXBJZDog
+VUlEIg0KDQpDaGFuZ2UgZ3J1b3Agb3duZXJzaGlwIHJlY3Vyc2l2ZWx5LiBU
+aGUgZ3JvdXAgbWVtYmVyc2hpcCBvZiBhbGwgZmlsZXMgYW5kDQpkaXJlY3Rv
+cmllcyBpbiB0aGlzIGRpcmVjdG9yeSB3aWxsIGJlIEdJRCB1bmxlc3Mgb3Zl
+cnJpZGRlbiB3aXRoIHRoZSBHcm91cElkDQppbnN0cnVjdGlvbi4NCg==
+--218762247-651825825-1020083373=:25892--

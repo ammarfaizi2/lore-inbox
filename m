@@ -1,64 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281862AbRKSA5V>; Sun, 18 Nov 2001 19:57:21 -0500
+	id <S281863AbRKSBBX>; Sun, 18 Nov 2001 20:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281867AbRKSA5L>; Sun, 18 Nov 2001 19:57:11 -0500
-Received: from smtp01.iprimus.net.au ([203.134.64.99]:18442 "EHLO
-	smtp01.iprimus.net.au") by vger.kernel.org with ESMTP
-	id <S281862AbRKSA4v>; Sun, 18 Nov 2001 19:56:51 -0500
+	id <S281865AbRKSBBN>; Sun, 18 Nov 2001 20:01:13 -0500
+Received: from mailgate.indstate.edu ([139.102.15.118]:35463 "EHLO
+	mailgate.indstate.edu") by vger.kernel.org with ESMTP
+	id <S281863AbRKSBBB>; Sun, 18 Nov 2001 20:01:01 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Paul <krushka@iprimus.com.au>
-Reply-To: krushka@iprimus.com.au
-To: linux-kernel@vger.kernel.org
-Subject: Re: Compact Flash and IDE interface
-Date: Mon, 19 Nov 2001 11:02:50 +1000
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.33.0111181039410.11341-100000@twin.uoregon.edu>
-In-Reply-To: <Pine.LNX.4.33.0111181039410.11341-100000@twin.uoregon.edu>
+From: Rich Baum <baumr1@coral.indstate.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] fix compile warnings in 2.4.15pre6
+Date: Sun, 18 Nov 2001 20:02:47 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Message-Id: <01111911025000.08520@paul.home.com.au>
 Content-Transfer-Encoding: 7BIT
-X-OriginalArrivalTime: 19 Nov 2001 00:56:38.0337 (UTC) FILETIME=[0B325310:01C17095]
+Message-ID: <D4EAEC1917@coral.indstate.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After doubting my memory I jumped over to 
-http://www.sandisk.com/oem/cf-spec.htm to check out the specs again.  Sure 
-enough they state:
+The following patch fixes some compile warnings in 2..4.15pre6.  The warnings 
+are for using labels at the end of compound statements and for tokens at the 
+end of #undef statements.  Please consider applying this patch to 2.4.15 
+final.
 
-Data Transfer Rate to/from Flash 20.0 MB/sec burst 
-Data Transfer Rate to/from Host 16.0 MB/sec burst
+Thanks, 
+Rich
 
-I have designed my own compact flash to IDE converter from schematics 
-supplied by sandisk.  Perhaps the continuous data transfer rate is only 
-around 2MB/sec...They fail to mention that so it's probably the case :)
 
-Thanks for your replies, Paul.
-
-On Mon, 19 Nov 2001 04:44, Joel Jaeggli wrote:
-> 2MB a second is about right... Flash is slow... I get about that on an
-> older 64MB simple technologies flash card... maybe their doc says 16Mb/s
-> which would be quite accurate...
->
-> On Sun, 18 Nov 2001, Paul wrote:
-> > Hi
-> >
-> > I hope I'm sending this to the right list, sorry if it's not :)
-> >
-> > With compact flash cards connected via IDE what is the "normal" expected
-> > transfer rates?  I have a Sandisk (32 and 128MB) and I only get around
-> > 2MB/sec (read test using hdparm) when all the docs from sandisk suggest
-> > around 16MB/sec.  They haven't returned my emails so I suspect their
-> > specs are a little misleading...they quote around 16MB/sec read transfer
-> > rates.
-> >
-> > What sort of read rates should I be expecting?
-> >
-> > Thanks
-> >
-> > Paul
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+diff -urN linux/drivers/atm/firestream.c linux-rb/drivers/atm/firestream.c
+--- linux/drivers/atm/firestream.c	Sun Nov 18 15:07:44 2001
++++ linux-rb/drivers/atm/firestream.c	Sun Nov 18 19:42:53 2001
+@@ -758,6 +758,7 @@
+ 			kfree (td);
+ 			break;
+ 		default:
++			break;
+ 			/* Here we get the tx purge inhibit command ... */
+ 			/* Action, I believe, is "don't do anything". -- REW */
+ 		}
+diff -urN linux/drivers/media/video/meye.c linux-rb/drivers/media/video/meye.c
+--- linux/drivers/media/video/meye.c	Thu Oct 25 15:53:47 2001
++++ linux-rb/drivers/media/video/meye.c	Sun Nov 18 19:17:56 2001
+@@ -903,6 +903,7 @@
+ 		mchip_free_frame();
+ 	}
+ out:
++	return;
+ }
+ 
+ /****************************************************************************
+/
+diff -urN linux/drivers/media/video/zr36067.c 
+linux-rb/drivers/media/video/zr36067.c
+--- linux/drivers/media/video/zr36067.c	Sun Nov 18 15:07:46 2001
++++ linux-rb/drivers/media/video/zr36067.c	Sun Nov 18 19:43:39 2001
+@@ -1418,6 +1418,7 @@
+ 		post_office_write(zr, 3, 0, 0);
+ 		udelay(2);
+ 	default:
++		break;
+ 	}
+ 	return 0;
+ }
+diff -urN linux/drivers/scsi/cpqfcTSworker.c 
+linux-rb/drivers/scsi/cpqfcTSworker.c
+--- linux/drivers/scsi/cpqfcTSworker.c	Thu Oct 25 15:53:50 2001
++++ linux-rb/drivers/scsi/cpqfcTSworker.c	Sun Nov 18 19:21:00 2001
+@@ -2912,6 +2912,7 @@
+   }
+ 
+ Done:  
++  	return;
+ }
+ 
+ static void 
+@@ -3029,7 +3030,7 @@
+ 
+ 
+ Done:
+-
++	return;
+ }
+ 
+ 
+diff -urN linux/drivers/scsi/sym53c8xx_2/sym_hipd.c 
+linux-rb/drivers/scsi/sym53c8xx_2/sym_hipd.c
+--- linux/drivers/scsi/sym53c8xx_2/sym_hipd.c	Sun Nov 18 15:07:50 2001
++++ linux-rb/drivers/scsi/sym53c8xx_2/sym_hipd.c	Sun Nov 18 19:19:07 2001
+@@ -4691,6 +4691,7 @@
+ 	OUTL_DSP (SCRIPTA_BA (np, clrack));
+ 	return;
+ out_stuck:
++	return;
+ }
+ 
+ /*
+@@ -5226,6 +5227,7 @@
+ 
+ 	return;
+ fail:
++	return;
+ }
+ 
+ /*
+diff -urN linux/drivers/scsi/sym53c8xx_2/sym_nvram.c 
+linux-rb/drivers/scsi/sym53c8xx_2/sym_nvram.c
+--- linux/drivers/scsi/sym53c8xx_2/sym_nvram.c	Sun Nov 18 15:07:50 2001
++++ linux-rb/drivers/scsi/sym53c8xx_2/sym_nvram.c	Sun Nov 18 19:19:38 2001
+@@ -505,10 +505,10 @@
+ 	return retv;
+ }
+ 
+-#undef SET_BIT 0
+-#undef CLR_BIT 1
+-#undef SET_CLK 2
+-#undef CLR_CLK 3
++#undef SET_BIT /* 0 */
++#undef CLR_BIT /* 1 */
++#undef SET_CLK /* 2 */
++#undef CLR_CLK /* 3 */
+ 
+ /*
+  *  Try reading Symbios NVRAM.
+diff -urN linux/fs/ntfs/fs.c linux-rb/fs/ntfs/fs.c
+--- linux/fs/ntfs/fs.c	Thu Oct 25 02:02:26 2001
++++ linux-rb/fs/ntfs/fs.c	Sun Nov 18 19:21:50 2001
+@@ -852,7 +852,7 @@
+ 		}
+ 		break;
+ 	default:
+-		/* Nothing. Just clear the inode and exit. */
++		break;	/* Nothing. Just clear the inode and exit. */
+ 	}
+ 	ntfs_clear_inode(&inode->u.ntfs_i);
+ unl_out:
+diff -urN linux/net/802/cl2llc.c linux-rb/net/802/cl2llc.c
+--- linux/net/802/cl2llc.c	Sun Nov 18 15:34:16 2001
++++ linux-rb/net/802/cl2llc.c	Sun Nov 18 19:22:38 2001
+@@ -97,6 +97,7 @@
+ 					llc_interpret_pseudo_code(lp, REJECT1, skb, NO_FRAME);
+ 				break;
+ 			default:
++				break;
+ 		}
+ 		if(lp->llc_callbacks)
+ 		{
+@@ -498,6 +499,7 @@
+ 					lp->f_flag = fr->i_hdr.i_pflag;
+ 				break;
+ 			default:
++				break;
+ 		}
+ 		pc++;	
+ 	}

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261792AbTCQP6s>; Mon, 17 Mar 2003 10:58:48 -0500
+	id <S261784AbTCQPuz>; Mon, 17 Mar 2003 10:50:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261794AbTCQP6s>; Mon, 17 Mar 2003 10:58:48 -0500
-Received: from asmtp1.prserv.net ([32.97.166.51]:5114 "EHLO prserv.net")
-	by vger.kernel.org with ESMTP id <S261792AbTCQP6r>;
-	Mon, 17 Mar 2003 10:58:47 -0500
-Message-Id: <5.1.0.14.0.20030317110757.00b08f00@pop.business.earthlink.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 17 Mar 2003 11:09:35 -0500
-To: Duncan Sands <baldrick@wanadoo.fr>, Karl Vogel <karl.vogel@seagha.com>,
-       linux-kernel@vger.kernel.org
-From: Jim Peterson <jpeterson@annapmicro.com>
-Subject: Re: v2.5.32 - v2.5.64+ Locks at Boot with Athlon Machine
-In-Reply-To: <200303151445.57486.baldrick@wanadoo.fr>
-References: <E18tnzg-0007Zf-00@relay-1.seagha.com>
- <5.1.0.14.0.20030312104635.022b1178@shrek>
- <E18tnzg-0007Zf-00@relay-1.seagha.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S261786AbTCQPuz>; Mon, 17 Mar 2003 10:50:55 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:39080 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id <S261784AbTCQPuy>; Mon, 17 Mar 2003 10:50:54 -0500
+Date: Mon, 17 Mar 2003 11:01:31 -0500 (EST)
+From: Rik van Riel <riel@surriel.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Paul Albrecht <palbrecht@uswest.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 vm, program load, page faulting, ...
+In-Reply-To: <20030317151004.GR20188@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0303171100300.2571-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:45 PM 3/15/2003 +0100, Duncan Sands wrote:
->Did you turn on console support in your .config?
->        CONFIG_VT=y
->        CONFIG_VT_CONSOLE=y
->You will need to compile input support into the kernel (i.e. not as a module):
->        CONFIG_INPUT=y
->I hope this helps,
+On Mon, 17 Mar 2003, William Lee Irwin III wrote:
+> On Sat, 15 Mar 2003, Paul Albrecht wrote:
+> >> ... Why does the kernel page fault on text pages, present in the page
+> >> cache, when a program starts? Couldn't the pte's for text present in the
+> >> page cache be resolved when they're mapped to memory?
+> 
+> SVR4 did and saw an improvement wrt. page fault rate, according to
+> Vahalia.
 
-Drat!
+An improvement in the _page fault rate_, well DUH.
 
-  This was indeed the problem.  I'm not sure how my .config file lost that setting.
-  Anyhow, I'm now happily running 2.5.64.  Sorry for the trouble.
+> I'd like to see whether this is useful for Linux.
 
-Thank you,
---Jim
+The question is, does it result in an improvement in the
+run speed of processes...
+
+cheers,
+
+Rik
 

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269238AbRHYWII>; Sat, 25 Aug 2001 18:08:08 -0400
+	id <S269515AbRHYWUy>; Sat, 25 Aug 2001 18:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269250AbRHYWH6>; Sat, 25 Aug 2001 18:07:58 -0400
-Received: from mx5.port.ru ([194.67.57.15]:14341 "EHLO mx5.port.ru")
-	by vger.kernel.org with ESMTP id <S269238AbRHYWHo>;
-	Sat, 25 Aug 2001 18:07:44 -0400
+	id <S269543AbRHYWUo>; Sat, 25 Aug 2001 18:20:44 -0400
+Received: from mx3.port.ru ([194.67.57.13]:60686 "EHLO mx3.port.ru")
+	by vger.kernel.org with ESMTP id <S269515AbRHYWU2>;
+	Sat, 25 Aug 2001 18:20:28 -0400
 From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
 Subject: unrelated 2.4.x (x=0-9) sound
 Mime-Version: 1.0
 X-Mailer: mPOP Web-Mail 2.19
 X-Originating-IP: [195.34.27.212]
-Date: Sat, 25 Aug 2001 22:07:59 +0000 (GMT)
+Date: Sat, 25 Aug 2001 22:20:43 +0000 (GMT)
 Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E15alax-000ACG-00@f8.mail.ru>
+Message-Id: <E15alnH-000AZt-00@f8.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 2.      Chipsets that don't give the ISA bus any useful share of bandwidth
+>         during AGP or PCI traffic
+    i.e. you mean that PCI-ISA bridge doesnt provide enough
+  realtimeness to fill internal sb buffer?
 
-     oh hell... 
-     Sorry, writing in parallel in two different
-  threads really hurts...
-     should forward this to [OT] Howl of soul...
+     yes it sounds like that, because i can hardly
+  realize their existence at 11025... (but i suppose
+  if they were, i hardly would be able to hear them...)
 
+     i have the next "but": isn`t internal sb buffer
+  enough large to flatten these io peaks?
 
-> > >      i feel like the media isn`t downgrading because
-> > >  the badblocks _arent_ physical: low-level drive
-> > >  reformat doesnt show anything.
+     even more: sound click even when i strike the key once, with 100% probability.
 
-> > the low-level format merely remaps bad blocks to spare ones.
-> > eventually, you'll run out of spare blocks, and then...
->     no no no - when ibm DFT (drive fitness test)
->   runs on physical bblks i _hear_ this! (and also
-   it tells me).
+     ofcourse this is maybe because mc sends alot of data
+  over the bus in the response to the keypress.
+  
+     it also explains why less clicks only after
+  first-after-consoleswitch-keypress.
 
-[ship]
-
-
+     but next why: why "find /" does not achieve
+  same effect? the datastream is _way_ larger!
 
 ---
 

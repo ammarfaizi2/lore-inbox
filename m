@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbUKQDcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbUKQDhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbUKQDcS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 22:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbUKQDcS
+	id S262191AbUKQDhg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 22:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUKQDhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 22:32:18 -0500
-Received: from pool-151-203-245-3.bos.east.verizon.net ([151.203.245.3]:13828
-	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S262189AbUKQDcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 22:32:05 -0500
-Message-Id: <200411170545.iAH5jQm7007146@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: user-mode-linux-devel@lists.sourceforge.net,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Another bug report for UML in latest Linux 2.6-BK repository. 
-In-Reply-To: Your message of "Tue, 16 Nov 2004 13:41:11 GMT."
-             <1100612471.24599.42.camel@imp.csi.cam.ac.uk> 
-References: <1100612471.24599.42.camel@imp.csi.cam.ac.uk> 
+	Tue, 16 Nov 2004 22:37:36 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:30643 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S262191AbUKQDhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 22:37:31 -0500
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: Timothy Miller <miller@techsource.com>
+Date: Wed, 17 Nov 2004 14:37:22 +1100
+Cc: Darren Williams <dsw@gelato.unsw.edu.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel Corp. 82801BA/BAM not supported by ALSA?
+Message-ID: <20041117033722.GB4069@cse.unsw.EDU.AU>
+Mail-Followup-To: Timothy Miller <miller@techsource.com>,
+	Darren Williams <dsw@gelato.unsw.edu.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <419914F9.7050509@techsource.com> <20041115234623.GA19452@cse.unsw.EDU.AU> <419A7927.6090608@techsource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 17 Nov 2004 00:45:26 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+In-Reply-To: <419A7927.6090608@techsource.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-aia21@cam.ac.uk said:
-> If I enable HIGHMEM in my .config (see my previous bug report for my
-> .config and just change HIGHMEM to enabled) compilation fails: 
+Hi Timothy
 
-The patch below fixes it.
+On Tue, 16 Nov 2004, Timothy Miller wrote:
 
-				Jeff
+> 
+> Alright, thanks for the suggestions [snipped].  I managed to get a 
+> number of the sound-related things to work.  Unfortunately, it still 
+> doesn't work 100%.
+> 
+> Now, KDE sounds seem to work, for instance, the bell sound in konsole 
+> when you try to backspace too many times.  However, that sound comes out 
+> noisy, raspy, and the wrong pitch.
+> 
+> I tried using 'aplay' with some wav files.  When I just do 'aplay 
+> <filename>', I get silence.  When I do 'strace aplay <filename>', I get 
+> lots of noise and output like this:
+> 
+> 
+I would suggest you try the alsa mail lists now to
+see if they have any more suggestions.
+http://www.alsa-project.org/mailing-lists.php
 
-Index: 2.6.9/arch/um/Kconfig
-===================================================================
---- 2.6.9.orig/arch/um/Kconfig	2004-11-16 21:25:38.000000000 -0500
-+++ 2.6.9/arch/um/Kconfig	2004-11-16 21:44:53.000000000 -0500
-@@ -224,7 +224,15 @@
- 
- config HIGHMEM
- 	bool "Highmem support"
--	depends on BROKEN
-+	default n
-+	help
-+	This enables UML's highmem support.  This allows UML to have
-+	more physical memory than it can map into its virtual address
-+	space.  In tt mode, or with CONFIG_MODE_TT enabled, the limit is a
-+	bit less than 512M.  With CONFIG_MODE_TT disabled and
-+	CONFIG_LOAD_LOW and CONFIG_STATIC_LINK enabled, the limit is
-+	around 2.75G.
-+	Enabling this option slows down UML, signficantly in skas mode.
- 
- config KERNEL_STACK_ORDER
- 	int "Kernel stack size order"
-Index: 2.6.9/arch/um/kernel/mem.c
-===================================================================
---- 2.6.9.orig/arch/um/kernel/mem.c	2004-11-16 21:54:53.000000000 -0500
-+++ 2.6.9/arch/um/kernel/mem.c	2004-11-16 21:55:45.000000000 -0500
-@@ -68,7 +68,7 @@
- 
- 	max_low_pfn = (high_physmem - uml_physmem) >> PAGE_SHIFT;
- #ifdef CONFIG_HIGHMEM
--	highmem_start_page = phys_page(__pa(high_physmem));
-+	highmem_start_page = pfn_to_page(phys_to_pfn(__pa(high_physmem)));
- #endif
- 
-         /* clear the zero-page */
-@@ -140,7 +140,7 @@
- pgprot_t kmap_prot;
- 
- #define kmap_get_fixmap_pte(vaddr)					\
--	pte_offset_kernel(pmd_offset(pml4_pgd_offset(pml4_offset_k(vaddr),
-+	pte_offset_kernel(pmd_offset(pml4_pgd_offset(pml4_offset_k(vaddr), \
- 						     vaddr), (vaddr)), (vaddr))
- 
- void __init kmap_init(void)
+Could be a driver problem.
 
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------

@@ -1,14 +1,15 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S289953AbSA3QSh>; Wed, 30 Jan 2002 11:18:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S289926AbSA3QQQ>; Wed, 30 Jan 2002 11:16:16 -0500
-Received: from [216.247.238.190] ([216.247.238.190]:40205 "HELO pakistanmail.com") by vger.kernel.org with SMTP id <S289923AbSA3QPv>; Wed, 30 Jan 2002 11:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S289959AbSA3QTX>; Wed, 30 Jan 2002 11:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S289937AbSA3QSv>; Wed, 30 Jan 2002 11:18:51 -0500
+Received: from [216.247.238.190] ([216.247.238.190]:46605 "HELO pakistanmail.com") by vger.kernel.org with SMTP id <S289471AbSA3QQv>; Wed, 30 Jan 2002 11:16:51 -0500
 From: grumph@pakistanmail.com
 Reply-to: grumph@pakistanmail.com
 To: linux-kernel@vger.kernel.org
 Cc: torvalds@transmeta.com, hpa@zytor.com
-Date: Wed, 30 Jan 2002 18:09:22 +0100
+X-CC-Sender: grumph@pakistanmail.com
+Date: Wed, 30 Jan 2002 18:14:45 +0100
 Subject: Re: Wanted: Volunteer to code a Patchbot
-Message-id: <3c580b77.3eb5.0@pakistanmail.com>
+Message-id: <3c580bdd.3f8a.0@pakistanmail.com>
 X-User-Info: 217.70.229.45
 MIME-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -16,7 +17,6 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did some thinking just before this thread surfaced.
 
 What can a patchbot be trusted to do properly?  (see below)
 ---------------------------------------------------
@@ -60,7 +60,6 @@ What can a patchbot be trusted to do properly?
 - inform sender that patch was automatically rejected because it:
 	- does not apply to latest tree
 	- is too big/touches too many files
-	- does not compile (hardware reqs.? OSD labs?)
 	- does not contain aforementioned rationale
 	- isn't formatted according to CodingStyle (Does current code?)
 - inform sender that patch did not end up in next snap of tree, 
@@ -74,11 +73,16 @@ What can a patchbot be trusted to do properly?
   The sender should maintain his own patch.
 - inform the sender how to kill a patch-id from being processed	
 - automatically kill patch-ids from being processed if sender does not 
-  respond within <time>
+  respond within <time> after response from bot.
+- automatically kill patch-ids from being processed if patch gets applied in
+
+  next snapshot
 - killfile abusers (needs policy)
-- publish patches on kernel.org and linux-kernel as they come in.
+- publish patches on kernel.org and linux-kernel as they pass initial
+  filtering
 ----------------------------------------------------------
 
+Questions:
 Will Linus immediately killfile mail sent from this bot?
 Will hpa host it at kernel.org?
 Will someone write the code if it gets thumbs up from linus/hpa?

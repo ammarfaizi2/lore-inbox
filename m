@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265155AbRFUTfV>; Thu, 21 Jun 2001 15:35:21 -0400
+	id <S265159AbRFUTjL>; Thu, 21 Jun 2001 15:39:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265156AbRFUTfL>; Thu, 21 Jun 2001 15:35:11 -0400
-Received: from geos.coastside.net ([207.213.212.4]:34757 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S265155AbRFUTex>; Thu, 21 Jun 2001 15:34:53 -0400
+	id <S265160AbRFUTjB>; Thu, 21 Jun 2001 15:39:01 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:23651
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S265159AbRFUTis>; Thu, 21 Jun 2001 15:38:48 -0400
+Date: Thu, 21 Jun 2001 21:38:38 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Jeremy Sanders <jss@ast.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rsync hangs on RedHat 2.4.2 or stock 2.4.4
+Message-ID: <20010621213838.B838@jaquet.dk>
+In-Reply-To: <Pine.LNX.4.33.0106121417130.10732-100000@xpc1.ast.cam.ac.uk> <Pine.LNX.4.33.0106191040230.9988-100000@xpc1.ast.cam.ac.uk>
 Mime-Version: 1.0
-Message-Id: <p05100327b757fc43c456@[207.213.214.37]>
-In-Reply-To: <E15D9mV-0001wf-00@the-village.bc.nu>
-In-Reply-To: <E15D9mV-0001wf-00@the-village.bc.nu>
-Date: Thu, 21 Jun 2001 12:34:21 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, wweng@kencast.com (Wei Weng)
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: Controversy over dynamic linking -- how to end the panic
-Cc: ttabi@interactivesi.com (Timur Tabi), linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0106191040230.9988-100000@xpc1.ast.cam.ac.uk>; from jss@ast.cam.ac.uk on Tue, Jun 19, 2001 at 10:41:51AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 8:06 PM +0100 2001-06-21, Alan Cox wrote:
->  > > the stdio.h, I'd tell him to go screw himself.
->>  What is the difference between including kernel header file and
->>  including GPLed header file?
->
->There are real differences between programs and interface definitions. At this
->point you get into law and the like and its probably best you read up on it
->from a reputable source not l/k
+On Tue, Jun 19, 2001 at 10:41:51AM +0100, Jeremy Sanders wrote:
+> I've found a patch which fixes the hanging problem, so I guess it's not
+> linux-kernel which is at fault. Get it from Wayne Davison at:
+ 
+Works for me too. 
 
-Though header files don't fall clearly on the interface-definition 
-side of the line. ctype.h, for example, in userland, or any other 
-header with #defined or inline code.
+
 -- 
-/Jonathan Lundell.
+        Rasmus(rasmus@jaquet.dk)
+
+"Men kick friendship around like a football, but it doesn't seem to
+ crack. Women treat it like glass and it goes to pieces."
+  -- Anne Spencer Morrow Lindbergh

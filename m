@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266306AbRGJNih>; Tue, 10 Jul 2001 09:38:37 -0400
+	id <S265149AbRGJNl5>; Tue, 10 Jul 2001 09:41:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266326AbRGJNiR>; Tue, 10 Jul 2001 09:38:17 -0400
-Received: from weta.f00f.org ([203.167.249.89]:37762 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S266325AbRGJNiM>;
-	Tue, 10 Jul 2001 09:38:12 -0400
-Date: Wed, 11 Jul 2001 01:38:05 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Craig Soules <soules@happyplace.pdl.cmu.edu>, jrs@world.std.com,
+	id <S266181AbRGJNlr>; Tue, 10 Jul 2001 09:41:47 -0400
+Received: from ns.suse.de ([213.95.15.193]:50185 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S265149AbRGJNlo>;
+	Tue, 10 Jul 2001 09:41:44 -0400
+Date: Tue, 10 Jul 2001 15:41:35 +0200
+From: Andi Kleen <ak@suse.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Andi Kleen <ak@suse.de>, Craig Soules <soules@happyplace.pdl.cmu.edu>,
         linux-kernel@vger.kernel.org
 Subject: Re: NFS Client patch
-Message-ID: <20010711013805.C31799@weta.f00f.org>
-In-Reply-To: <15178.3722.86802.671534@charged.uio.no> <Pine.LNX.3.96L.1010709175623.16113S-100000@happyplace.pdl.cmu.edu> <15178.47928.328862.678031@charged.uio.no>
+Message-ID: <20010710154135.A4603@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.3.96L.1010709131315.16113O-200000@happyplace.pdl.cmu.edu.suse.lists.linux.kernel> <oupbsmueyv8.fsf@pigdrop.muc.suse.de> <20010711013311.B31799@weta.f00f.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15178.47928.328862.678031@charged.uio.no>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010711013311.B31799@weta.f00f.org>; from cw@f00f.org on Wed, Jul 11, 2001 at 01:33:11AM +1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 10, 2001 at 10:22:16AM +0200, Trond Myklebust wrote:
+On Wed, Jul 11, 2001 at 01:33:11AM +1200, Chris Wedgwood wrote:
+> On Mon, Jul 09, 2001 at 08:33:31PM +0200, Andi Kleen wrote:
+> 
+>     Actually all the file systems who do that on Linux (JFS, XFS,
+>     reiserfs) have fixed the issue properly server side, by adding a
+>     layer that generates stable cookies. You should too.
+> 
+> I've always thought that was a stupid fix. Why not have the clients be
+> smarted and make them responsible for getting a new cookie if the old
+> one is hosed?
 
-    Imagine if somebody gives you a 1Gb directory. Would it or would
-    it not piss you off if your file pointer got reset to 0 every time
-    somebody created a file?
-    
-    The current semantics are scalable. Anything which resets the file
-    pointer upon change of a file/directory/whatever isn't...
+Because to get that new cookie you would need another cookie; otherwise
+you could violate the readdir guarantee that it'll never return files
+twice.
 
-Anyone using a 1GB directory deserves for it not to scale.  I think
-this is a very poor example.
+> For linux, with the dcache, I'm not even sure that this would be all
+> the hard. Persumable Solaris could (does?) do the same?
 
-No that I disagree with you, the largest directories I have on my
-system here are 2.6MB (freedb, lots of hashed flat-files in one
-directory), here I do agree that you should not have to reset the
-counter everytime.
+dcache is not populated on readdir for good reasons (it would 
+require reading the inodes and tie a of lot of memory) and you would need
+to lock all the dcache entries belong to a directory while a nfs readdir;
+tieing up even more memory. Also a readdir() is not bounded in time.
+
+BTW; the cookie issue is not an NFS only problem. It occurs on local
+IO as well. Just consider rm -rf - reading directories and in parallel
+deleting them (the original poster's file system would have surely
+gotten that wrong). Another tricky case is telldir().  
 
 
-
-
-
-  --cw
+-Andi

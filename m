@@ -1,41 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317587AbSFRUAu>; Tue, 18 Jun 2002 16:00:50 -0400
+	id <S317589AbSFRUE6>; Tue, 18 Jun 2002 16:04:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317588AbSFRUAt>; Tue, 18 Jun 2002 16:00:49 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:45856 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S317587AbSFRUAs>; Tue, 18 Jun 2002 16:00:48 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken 
-In-reply-to: Your message of "Tue, 18 Jun 2002 11:56:20 MST."
-             <Pine.LNX.4.44.0206181155280.4552-100000@home.transmeta.com> 
-Date: Wed, 19 Jun 2002 06:05:03 +1000
-Message-Id: <E17KPDr-0003Pa-00@wagner.rustcorp.com.au>
+	id <S317590AbSFRUE5>; Tue, 18 Jun 2002 16:04:57 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:27656 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S317589AbSFRUE4>;
+	Tue, 18 Jun 2002 16:04:56 -0400
+Date: Tue, 18 Jun 2002 22:09:10 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>, "Adam J. Richter" <adam@yggdrasil.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Various kbuild problems in 2.5.22
+Message-ID: <20020618220910.A3001@mars.ravnborg.org>
+References: <20020618211639.A2659@mars.ravnborg.org> <Pine.LNX.4.44.0206181417230.5695-100000@chaos.physics.uiowa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0206181417230.5695-100000@chaos.physics.uiowa.edu>; from kai@tp1.ruhr-uni-bochum.de on Tue, Jun 18, 2002 at 02:28:02PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0206181155280.4552-100000@home.transmeta.com> you wri
-te:
-> 
-> 
-> On Wed, 19 Jun 2002, Rusty Russell wrote:
-> >
-> > You could do a loop here, but the real problem is the broken userspace
-> > interface.  Can you fix this so it takes a single CPU number please?
-> 
-> NO.
-> 
-> Rusty, people want to do "node-affine" stuff, which absolutely requires
-> you to be able to give CPU "collections". Single CPU's need not apply.
+On Tue, Jun 18, 2002 at 02:28:02PM -0500, Kai Germaschewski wrote:
 
-NO.  They want to be node-affine.  They don't want to specify what
-CPUs they attach to.
+> Nitpick: 
+> [kai@chaos linux-2.5.make]$ make bzImage && ls bzImage
+> [..]
+> ls: bzImage: No such file or directory
+> 
+> So you that bzImage isn't a real target (arch/i386/boot/bzImage would be).
+Which actually annoy me a lot!
+Maybe that just me, but I cannot see why I have to go down deep
+in the architecture specific directory to locate the kernel.
+But I have no brilliant idea how to solve it right away.
 
-Understand?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> make,
+> make all     -> compile vmlinux + modules as a general default,
+>                 on i386 build bzImage + modules.
+> 	        (other archs can change the behavior as they wish)
+I would like an easy way to do a full build, including supporting stuff
+such as documentation. Think about doing regression on new kernels?
+
+Today you have to specify a lot of different targets to accomplish
+this - something that many people simply do not do.
+Make it easy, and people will do it - and see more errors fixed earlier.
+
+allyes, allmodules, allno were introduced for regression purpose.
+And make all gives me the association that ALL is build, not only
+the core kernel. Therefore I object against the make all semantic
+that you suggest.
+Better reserve that to a full build.
+
+Furthermore I would advocate for a new target [yes one more!].
+
+"make help"
+make help shall generate a short list of available targets, something like:
+
+<<<<<<<<<<<<
+>make help
+Configuration related targets:
+  oldconfig	- bla bla
+  menuconfig	- bla bla
+  config	- bla bla
+  configallyes  - ....
+  configallno	- ....
+Other generic targets:
+  vmlinux	- The generic binary kernel
+* modules	- Build all modules
+# pdfdocs	- documentation
+  all		- Build all targets marked with * and #
+Architecture specific targets for current architecture (I386)
+* bzImage	- Default compressed kernel (arch/i386/boot/bzImage)
+  zImage	- Another target (arch/i386/boot/zImage)
+
+Executing "make" or "make kernel" builds targets marked with '*'
+<<<<<<<<<<
+
+The architecture specific stuff should obviously be located in the
+corresponding architecture specific makefiles and triggered by archhelp.
+
+Comments?
+I would be happy to do a patch if people support this.
+
+	Sam

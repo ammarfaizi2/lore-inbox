@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbTEANWs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 09:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbTEANWs
+	id S261254AbTEANfE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 09:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbTEANfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 09:22:48 -0400
-Received: from [193.89.230.30] ([193.89.230.30]:60633 "EHLO
-	roadrunner.hulpsystems.net") by vger.kernel.org with ESMTP
-	id S261253AbTEANWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 09:22:47 -0400
-Message-ID: <1051796106.3eb1228a4abb1@roadrunner.hulpsystems.net>
-Date: Thu,  1 May 2003 15:35:06 +0200
-From: Martin List-Petersen <martin@list-petersen.dk>
-To: bas.mevissen@hetnet.nl
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, pizza@shaftnet.org
-Subject: RE: Broadcom BCM4306/BCM2050  support
+	Thu, 1 May 2003 09:35:04 -0400
+Received: from webmail28.rediffmail.com ([203.199.83.38]:46224 "HELO
+	rediffmail.com") by vger.kernel.org with SMTP id S261254AbTEANfD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 09:35:03 -0400
+Date: 1 May 2003 13:47:16 -0000
+Message-ID: <20030501134716.2011.qmail@webmail28.rediffmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2-cvs
+From: "anil  vijarnia" <linux_ker@rediffmail.com>
+Reply-To: "anil  vijarnia" <linux_ker@rediffmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: export mem
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> (..) And as Alan and myself have been
->> talking to upper management entities at various wireless card
->> companies we know the real reason has to do with making regulation
->> agencies happy.  They do have drivers, and they do want to publish
->> them and yes they recognize that this will expose a lot of their
->> IP and they accept that.
->
-> OK. So at least they are open to it. Maybe they should drop a binary
-somewhere
-> to get a start. It's not what you want in the long term, but I think good 
-> enough for now. Then we should work something out for the frequency settings.
+hi everybody!
+    i want to export mem. of a process to another machine in my 
+local network.means that a part of add space of process will map 
+to another machine in lan. is it possible ? where di i get help 
+for this?
 
-I totally agree on this. A binary driver could better than nothing at this
-point. Another thing that wonders me, is why companies like Broadcom, if they
-are so open to releasing the drivers at some point, where they can make the
-regulation agencies somewhat happy, are so ignorant then. I've heard of serveral
-people, that tried to get a statement on the possibilty for Linux drivers from
-then and the return is nothing. I've actually tried myself. No response at all.
-
-Regards,
-Martin List-Petersen
-martin at list-petersen dot dk
---
-knowledge, n.:
-	Things you believe.
+regards
+anil
 
 

@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVBQXjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVBQXn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVBQXjq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 18:39:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVBQXhI
+	id S261253AbVBQXn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 18:43:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVBQXld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 18:37:08 -0500
-Received: from fire.osdl.org ([65.172.181.4]:24486 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261218AbVBQXgT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 18:36:19 -0500
-Date: Thu, 17 Feb 2005 15:41:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] add umask parameter to procfs
-Message-Id: <20050217154119.1f237921.akpm@osdl.org>
-In-Reply-To: <20050217212859.GA24403@lsrfire.ath.cx>
-References: <20050217212859.GA24403@lsrfire.ath.cx>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 17 Feb 2005 18:41:33 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:10636 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261218AbVBQXlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 18:41:16 -0500
+Date: Thu, 17 Feb 2005 15:40:54 -0800
+From: Greg KH <gregkh@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, ncunningham@cyclades.com,
+       bernard@blackham.com.au, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fix u32 vs. pm_message_t in USB [was Re: PATCH: Address lots of pending pm_message_t changes]
+Message-ID: <20050217234054.GD22369@suse.de>
+References: <1108359808.12611.37.camel@desktop.cunningham.myip.net.au> <20050214213400.GF12235@elf.ucw.cz> <20050214134658.324076c9.akpm@osdl.org> <20050215003935.GB5415@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050215003935.GB5415@elf.ucw.cz>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Scharfe <rene.scharfe@lsrfire.ath.cx> wrote:
->
-> Add proc.umask kernel parameter.  It can be used to restrict permissions
-> on the numerical directories in the root of a proc filesystem, i.e. the
-> directories containing process specific information.
+On Tue, Feb 15, 2005 at 01:39:35AM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> E.g. add proc.umask=077 to your kernel command line and all users except
-> root can only see their own process details (like command line
-> parameters) with ps or top.  It can be useful to add a bit of privacy to
-> multi-user servers.
-> 
-> The patch has been inspired by a similar feature in GrSecurity.
-> 
-> It could have also been implemented as a mount option to procfs, but at
-> a higher cost and no apparent benefit -- changes to this umask are not
-> supposed to happen very often.  Actually, the previous incarnation of
-> this patch was implemented as a half-assed mount option, but I didn't
-> know then how easy it is to add a kernel parameter.
+> This fixes (part of) u32 vs. pm_message_t confusion in USB. It should
+> cause no code changes. Please apply,
 
-The feature seems fairly obscure, although very simple.  Is anyone actually
-likely to use this?
+Large portions of this patch are already in my tree (and hence the -mm
+tree.)  Care to rediff against the latest -mm and resend the patch?
 
->  
-> +static umode_t umask = 0;
+thanks,
 
-a) I think the above should be called proc_umask.
-
-b) You shouldn't initialise it.
-
-c) When adding a kernel parameter you should update
-   Documentation/kernel-parameters.txt
+greg k-h

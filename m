@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261401AbSKGQMX>; Thu, 7 Nov 2002 11:12:23 -0500
+	id <S261406AbSKGQbJ>; Thu, 7 Nov 2002 11:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261400AbSKGQMW>; Thu, 7 Nov 2002 11:12:22 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:41459 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S261401AbSKGQMV>; Thu, 7 Nov 2002 11:12:21 -0500
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20021107161517.GA6704@atrey.karlin.mff.cuni.cz> 
-References: <20021107161517.GA6704@atrey.karlin.mff.cuni.cz>  <1036340733.29642.41.camel@irongate.swansea.linux.org.uk> <200211022006.gA2K6XW08545@devserv.devel.redhat.com> <20021103145735.14872@smtp.wanadoo.fr> <2117.1036674362@passion.cambridge.redhat.com> 
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, benh@kernel.crashing.org,
-       Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: don't eat ide disks 
+	id <S261423AbSKGQbJ>; Thu, 7 Nov 2002 11:31:09 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:4005 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id <S261406AbSKGQbI>;
+	Thu, 7 Nov 2002 11:31:08 -0500
+Subject: SMP, ACPI and USB
+From: Stian Jordet <liste@jordet.nu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 07 Nov 2002 17:38:11 +0100
+Message-Id: <1036687091.1127.5.camel@chevrolet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 07 Nov 2002 16:18:54 +0000
-Message-ID: <20003.1036685934@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, 
 
-pavel@ucw.cz said:
->  ACPI wants to enter S4 when user asks it to, and swsusp is the way to
-> do it. When machine overheats, ACPI wants to enter S4 too.
+I posted this to acpi-devel as well yesterday, but I guess there are
+more people to understand the problem here :) (Or so I hope)
 
-> Of course there should be generic way (and it is, sys_reboot) to enter
-> S4 without asking acpi. echo 4 > /proc/acpi/sleep is just easier for
-> most people.
+I have an ASUS CUV266-DLS motherboard with two P3 1ghz cpu's. I have
+never managed to get USB to work on this motherboard (nor did I on my
+old Rioworks SDVIA smp-board, they both just said something like "device
+not accepting address"). But I never had any use of usb, since my only
+usb device was a Logitech Cordless Desktop, which have adapters for the
+PS/2 ports. But I'm now going to buy a scanner, and thus I need to get
+usb working. 
 
-Why /proc/acpi/sleep ?
+That was not easy! I found in the faq at http://www.linux-usb.org that
+there are problems with smp machines. That I should try to set MPS to
+1.1 instead of 1.4, that some motherboards might need a "noapic" boot
+option and that ACPI sometimes confuses this.
 
-Other PM implementations gave us /proc/sys/pm/suspend -- why doesn't ACPI 
-use that?
+I have a 2.4.20-rc1 kernel with the latest acpi-patch. I do need the
+acpi-patch for two reasons. I'm not able to boot the pc without the acpi
+patch if the secondary ide-channel is activated. And I need it to be
+able to turn of the computer.
 
-The stuff in /proc/acpi should be ACPI-specific. Anything _generic_ like 
-battery info, sleep states, etc. should have a generic interface which can 
-be used by any implementation. 
+I tried the noapic boot option, which absolutely not worked. I got lots
+and lots of cpu-errors, or something, and then it hung. Then I tried
+MPS1.1 (What's the benefit with 1.4? I know that with 1.4 it uses irq's
+above 15, but...) Still no luck. then boot option acpi=off did it. Now
+my USB works quite flawlessly.
 
---
-dwmw2
+But I would very, very much like to be able to use ACPI, so I can get to
+turn of my computer, without pushing the power-button for four seconds.
+Am I the only one using usb on smp-machines, or are my two motherboards
+just about the only ones incompatible?
+
+Sorry for this long post.
+
+Best regards,
+Stian Jordet
 
 

@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264144AbTFKFQm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 01:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTFKFQm
+	id S264146AbTFKF2N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 01:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTFKF2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 01:16:42 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44041 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264144AbTFKFQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 01:16:41 -0400
-Date: Tue, 10 Jun 2003 22:30:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Frank Cusack <fcusack@fcusack.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       <marcelo@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number
- mismatch)
-In-Reply-To: <20030611005425.GA6754@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0306102226300.17133-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 11 Jun 2003 01:28:13 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:37530 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S264146AbTFKF2M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 01:28:12 -0400
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "jairam nair" <jairamnair@rediffmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem while Crosscompiling Ksymoops 
+In-reply-to: Your message of "10 Jun 2003 10:32:40 GMT."
+             <20030610103240.3422.qmail@webmail26.rediffmail.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 11 Jun 2003 15:41:29 +1000
+Message-ID: <12589.1055310089@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10 Jun 2003 10:32:40 -0000, 
+"jairam nair" <jairamnair@rediffmail.com> wrote:
+>  Hi,
+>    I am trying to cross compile ksymoops-2.4.9 for Strong ARM. 
+>But i
+>am getting a segmentation Fault. The error messages is as below.
+>arm-linux-gcc io.o ksyms.o ksymoops.o map.o misc.o object.o 
+>oops.o
+>re.o symbol.o -Dlinux -Wall -Wno-conversion -Waggregate-return
+>-Wstrict-prototypes -Wmissing-prototypes
+>-DINSTALL_PREFIX="\"/skiff/local\"" -DCROSS="\"arm-linux-\""
+>-DDEF_KSYMS=\"/proc/ksyms\" -DDEF_LSMOD=\"/proc/modules\"
+>-DDEF_OBJECTS=\"/lib/modules/*r/\"
+>-DDEF_MAP=\"/usr/src/linux/System.map\" -DDEF_ARCH=\"arm\"
+>-I/skiff/local/include -L/skiff/local/lib -arm-linux-ld,-Bstatic 
+>-lbfd
+>-liberty -arm-linux-ld,-Bdynamic -o ksymoops
+>collect2: ld terminated with signal 11 [Segmentation fault], 
+>core dumped
 
-On Wed, 11 Jun 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
-> Two different dentries for the same file is obviously not a problem...
+The command line for the final link is wrong.  It should contain
 
-It _is_ a problem. It does the wrong thing on any subsequent directory
-operation (move or unlink). 
+ -Wl,-Bstatic -lbfd -liberty -Wl,-Bdynamic -o ksymoops
 
-Multiple aliased dentries have never been ok, unless the filesystem 
-explicitly handles them and invalidates them (ie ntfs/fat kind of things).
+You replaced '-Wl' with '-arm-linux-ld', ld did not understand that and
+got a segmentation fault trying to handle the unknown parameter.
+Correct your command line, and log a problem against binutils that it
+cannot cope with unexpected options.
 
-		Linus
+>    Can anybody tell me what should be given for DEF_MAP, since in 
+>the
+>target machine there is no System.map file.
+
+Without a system map, you are not going to get much of a decode.  But
+if that is what you want, add 'DEFMAP=' to the make command line.
 

@@ -1,39 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279934AbRKXTjv>; Sat, 24 Nov 2001 14:39:51 -0500
+	id <S279418AbRKXTkb>; Sat, 24 Nov 2001 14:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279617AbRKXTje>; Sat, 24 Nov 2001 14:39:34 -0500
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:62085 "EHLO
-	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S279418AbRKXTjP>; Sat, 24 Nov 2001 14:39:15 -0500
+	id <S279617AbRKXTkX>; Sat, 24 Nov 2001 14:40:23 -0500
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:1040 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S279418AbRKXTjp>; Sat, 24 Nov 2001 14:39:45 -0500
+Date: Sat, 24 Nov 2001 14:39:44 -0500 (EST)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
 To: linux-kernel@vger.kernel.org
 Subject: Re: Disk hardware caching, performance, and journalling
-In-Reply-To: <3BFFE8A2.1010708@rueb.com> <3BFFF021.D963B467@zip.com.au>
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 24 Nov 2001 20:39:12 +0100
-In-Reply-To: <3BFFF021.D963B467@zip.com.au> (Andrew Morton's message of "Sat, 24 Nov 2001 11:08:17 -0800")
-Message-ID: <tgoflsez6n.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+In-Reply-To: <3BFFE8A2.1010708@rueb.com>
+Message-ID: <Pine.LNX.4.10.10111241402420.3696-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
+> So what are the implications here for journalling?  Do I have to turn 
+> off caching and suffer a huge performance hit?
 
-> In theory, yes.  In my opinion, no.  For ext3, at least.  Caching
-> isn't bad per-se.  It's reordering which can break the journalling
-> constraints.  But given that the journal is, we hope, a strictly
-> ascending and (we really hope) contiguous chunk of blocks, it's
-> quite unlikely that the disk will decide to write them in an
-> unexpected order.  This is especially true if the journal was
-> created when the disk was relatively unfragmented.
+why does everyone get freaked out about disk caches?  afaikt, 
+there's only an O(50ms) window at each catastrophic power failure:
+trivial for any reasonable rate of failures...
 
-When the journal resides on multiple disks or disks different from the
-actual data (think LVM or RAID), all bets are off.  You need
-synchronous write operations in these cases, I think.
-
--- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

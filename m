@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbULPXqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbULPXwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262204AbULPXqt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 18:46:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbULPXpE
+	id S262031AbULPXwV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 18:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbULPXwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 18:45:04 -0500
-Received: from out014pub.verizon.net ([206.46.170.46]:52692 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S262196AbULPXnr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 18:43:47 -0500
-Message-ID: <41C21DC7.4070007@verizon.net>
-Date: Thu, 16 Dec 2004 18:44:07 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] computone: remove unnecessary files from drivers/char/ip2
-References: <20041216225431.4074.80006.90928@localhost.localdomain> <20041216231007.GW12937@stusta.de>
-In-Reply-To: <20041216231007.GW12937@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [209.158.220.243] at Thu, 16 Dec 2004 17:43:45 -0600
+	Thu, 16 Dec 2004 18:52:21 -0500
+Received: from mail.kroah.org ([69.55.234.183]:9434 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262031AbULPXwO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 18:52:14 -0500
+Date: Thu, 16 Dec 2004 15:51:47 -0800
+From: Greg KH <greg@kroah.com>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: Pete Zaitcev <zaitcev@redhat.com>,
+       Mike Waychison <Michael.Waychison@Sun.COM>,
+       linux-kernel@vger.kernel.org
+Subject: Re: debugfs in the namespace
+Message-ID: <20041216235147.GC11330@kroah.com>
+References: <20041216110002.3e0ddf52@lembas.zaitcev.lan> <20041216190835.GE5654@kroah.com> <41C20356.4010900@sun.com> <20041216221843.GA10172@kroah.com> <20041216144531.3a8d988c@lembas.zaitcev.lan> <20041216225323.GA10616@kroah.com> <Pine.LNX.4.60.0412170033160.25628@alpha.polcom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0412170033160.25628@alpha.polcom.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Thu, Dec 16, 2004 at 04:54:10PM -0600, james4765@verizon.net wrote:
+On Fri, Dec 17, 2004 at 12:39:00AM +0100, Grzegorz Kulewski wrote:
+> On Thu, 16 Dec 2004, Greg KH wrote:
 > 
+> >On Thu, Dec 16, 2004 at 02:45:31PM -0800, Pete Zaitcev wrote:
+> >>On Thu, 16 Dec 2004 14:18:43 -0800, Greg KH <greg@kroah.com> wrote:
+> >>
+> >>>Hm, what about /.debug ?  That's a compromise that I can live with (even
+> >>>less key strokes to get to...)
+> >>
+> >>No way, Jan is out of his mind, adding obfuscations like that. Anything
+> >>but that. I didn't even bother to reply, because it never occurred to me
+> >>that you'd fall for something so retarded.
+> >
+> >Bah, fine :)
+> >
+> >>Otherwise, /dbg sounds good.
+> >
+> >Ok, I can live with that.
 > 
->>Let me try that one again - this time with the right file (oops :)
->>
->>Remove a makefile and three programs from drivers/char/ip2 - they should not be in the kernel.
->>...
+> I agree that anything like /.* is broken and strange... But this is only 
+> my little opinion. :-)
 > 
-> 
-> Why did I think I've seen such a patch before?  ;-)
-> 
-> I sent the same patch some time ago and it's already in -mm.
-> 
-> You better send patches against -mm which is already over 17 MB away 
-> from -rc3.
-> 
-> cu
-> Adrian
-> 
+> But why creating dir in /proc - like /proc/debug is bad? Its advantages:
+> - it does not pollute namespace,
+> - it can be created by kernel at startup even on systems where debugfs 
+> will not be used (why not?),
+> - /proc is mounted in all configurations and often it is the first thing 
+> that startscripts do,
+> - if somebody really needs to debug proc using debugfs he can always mount 
+> it as /debug temporaily.
 
-Okay.  I thought I'd remembered seeing that patch a while ago, but couldn't be 
-sure.  Guess it's time to go to the bleeding edge - start working off of -mm.
+Disadvantage:
+ - it puts a non-process type thing into /proc which is what I am
+   specifically trying to get away from doing.
 
-Thanks,
+Only process related things _should_ be in /proc.  Now if I can ever
+fully achieve that goal in my lifetime is something that is left to be
+seen...
 
-Jim
+thanks,
+
+greg k-h

@@ -1,123 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270029AbUJTLvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270055AbUJTMJC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270029AbUJTLvx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 07:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270032AbUJTLtK
+	id S270055AbUJTMJC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 08:09:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270276AbUJTMHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 07:49:10 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:30882 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S269975AbUJTLqY (ORCPT
+	Wed, 20 Oct 2004 08:07:13 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:16059 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S270077AbUJTMD2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 07:46:24 -0400
-Message-Id: <200410200115.i9K1F1BH019179@laptop11.inf.utfsm.cl>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-cc: Dax Kelson <dax@gurulabs.com>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout 
-In-Reply-To: Message from "Jeff V. Merkey" <jmerkey@drdos.com> 
-   of "Tue, 19 Oct 2004 14:09:28 MDT." <41757478.4090402@drdos.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 19 Oct 2004 22:15:01 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Wed, 20 Oct 2004 08:03:28 -0400
+Date: Wed, 20 Oct 2004 14:04:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041020120434.GA6297@elte.hu>
+References: <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <4176403B.5@stud.feec.vutbr.cz> <20041020105630.GB2614@elte.hu> <417645A4.7000802@stud.feec.vutbr.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417645A4.7000802@stud.feec.vutbr.cz>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeff V. Merkey" <jmerkey@drdos.com> said:
-> Dax Kelson wrote:
-> >>JFS, XFS, All SMP support in Linux, and RCU.
 
-> And Numa also.
+* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
 
-> >This isn't SCO code. This goes back to SCO's claims of "control rights"
-> >over any source code that has been in the same room as UNIX code.
+> Ingo Molnar wrote:
+> >* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
+> >>I'm getting these BUGs when I use netconsole with Real-Time Preemption
+> >>(but netconsole works):
 > >
-> >These "control rights" depend on SCOs interpretation of what a 
-> >derivative work is. This is a contractual dispute, an attempt of SCO to
-> >reframe what a derivative work is and a big up hill battle for SCO as
-> >virtually all the parties of original contracts have in their
-> >declarations not supported SCO claims of "control rights".
 > >
-> >Stephen D. Vuksanovich, Scott Nelson, Richard A. McDonough III, Robert
-> >C. Swanson, Ira Kistenberg, David Frasure, and Geoffrey D. Green.
+> >you are getting them because interrupts get disabled somewhere in the
+> >path. Do your changes perhaps introduce a local_irq_save() or
+> >local_irq_disable()?
 > >
-> >Four of them are (or were at relevant time periods) AT&T employees.
-> >
-> >See: http://www.groklaw.net/article.php?story=20041007032319488
-> >
-> >Besides the declarations, there is other items that don't back SCO
-> >"control rights" claims such as the $echo newletter, and amendment X to
-> >the contract.
+> 
+> I'm attaching my sk98lin patch. It uses disable_irq(). It's inspired
+> by 8139too.
 
-> No.  They seem to have some factual concrete evidence IP covered under
-> Employee agreements was used and subsequently converted into Linux,
+disable_irq() should work fine though. (it doesnt disable local
+interrupts, it only disables that particular irq line.) So something
+else disabled interrupts - ah, netconsole.c itself. Does the patch below
+fix things up for you?
 
-If they have this, why don't they show the evidence? It has been more than
-a year and a half, and no shred of anything even remotely resembling
-evidence has shown up. To me, this says clearly that there is none (I for
-one would not go around spending a few millions of dollars a month just for
-fun, if I could stop the bleeding by just showing what I will have to show
-anyway later on).
+	Ingo
 
->                                                                     and
-> they are very confident of this.
-
-That is for sure. But they have nothing more than that confidence.
-
->                                   From a cursory viewpoint, it looks
-> valid.
-
-Look closer.
-
->         I think they have a case (having been sued and nailed for the
-> same type of thing by Novell).  It's better to remove these code areas
-> and make the vendors maintain them as separate patches not in the tree,
-> like what happened to intermezzo.
-
-That is complete madness.
-
->                                    It's low impact for Linux and the
-> other vendors.
-
-Right. SMP, NUMA, filesystems are "low impact".
-
-> XFS, JFS and NUMA are easy ones.
-
-If you don't use them, that is.
-
-> RCU and NUMA are not.  Hey, Novell just handed over their patent
-> portfolio to Linux, use their patents for SMP and RCU.  These areas are
-> not trivial to dump out of the kernel.  If Linux did dump the infringing
-> FS's, it would be a good faith effort to limit SCO's claims.
-
-Linux (Linus et al) has done more than a good-faith effort to remove any
-infringing code: They have repeatedly asked for details on what is
-illegally in the kernel (and why), to remove it ASAP. No answer worthy of
-that name. Likewise, the kernel code has been compared to SysV and other
-variants (by people with access to the relevant sources), and nothing fishy
-has shown up to here AFAIK.
-
-> SMP and RCU look a little tougher to defend.  I remember a Brainshare
-> session at SLC where the unixware guys were disclosing this stuff in
-> public sessions.  Perhaps Novell could go back and publish those
-> Brainshare slides on their website.  So much for claiming SMP and RCU are
-> not in the public domain.
-
-AFAIU, RCU is patented (now IBM holds it). It is certainly not in the
-public domain.
-
-> Dump the FS's and NUMA guys.  Then you are nearly there for being 
-> squeaky clean.
-
-Better just dump it all. Or start off a *BSD variant, where there is _no_
-SCOX complications, and no need to shell out a few hundred millions to get
-the relevant rights (yes, that is what they are worth; the 50K offer is
-completely ridiculous). Note that just a few people declining your offer
-makes it moot, and I know for a fact that many here on LKML will pass such
-an offer.
-
-Why don't you go trolling elsewhere?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+--- linux/drivers/net/netconsole.c.orig
++++ linux/drivers/net/netconsole.c
+@@ -73,7 +73,9 @@ static void write_msg(struct console *co
+ 	if (!np.dev)
+ 		return;
+ 
++#ifndef CONFIG_PREEMPT_REALTIME
+ 	local_irq_save(flags);
++#endif
+ 
+ 	for(left = len; left; ) {
+ 		frag = min(left, MAX_PRINT_CHUNK);
+@@ -82,7 +84,9 @@ static void write_msg(struct console *co
+ 		left -= frag;
+ 	}
+ 
++#ifndef CONFIG_PREEMPT_REALTIME
+ 	local_irq_restore(flags);
++#endif
+ }
+ 
+ static struct console netconsole = {

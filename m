@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288830AbSBVAVB>; Thu, 21 Feb 2002 19:21:01 -0500
+	id <S286895AbSBVAu0>; Thu, 21 Feb 2002 19:50:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288834AbSBVAUl>; Thu, 21 Feb 2002 19:20:41 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:21253 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S288830AbSBVAUh>; Thu, 21 Feb 2002 19:20:37 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 21 Feb 2002 16:22:48 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [patch] /dev/epoll for 2.4.17 && 2.5.5 ...
-Message-ID: <Pine.LNX.4.44.0202211616230.938-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288919AbSBVAuQ>; Thu, 21 Feb 2002 19:50:16 -0500
+Received: from jalon.able.es ([212.97.163.2]:45515 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S286895AbSBVAuL>;
+	Thu, 21 Feb 2002 19:50:11 -0500
+Date: Fri, 22 Feb 2002 01:50:03 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: rwhron@earthlink.net
+Subject: [PATCHSET] Linux 2.4.18-rc3-jam1
+Message-ID: <20020222015003.A1641@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Changes :
+I have updatd my pathset with latest bits for 2.4.18-rc3.
 
-*) ported to 2.4.17 && 2.5.5
+Main contents:
 
-*) timeout in ms ( thx to Per Bergqvist )
+- vm-25, vm_io-2
+- sched-O1-K3, sched-balance-fixes
+- lowlatency-mini, read-latency-2
+- aic-6.2.5, ide-20020215
 
-*) implemeted poll() on /dev/epoll fd ( thx to Per Bergqvist )
+Extras:
+- ide-cd-dma
+- some minor bits-optimizations for SMP from -aa
+- irqrate-A1, intr-seq-file
+- i2c+sensors 2.6.2 CVS
+- bproc-3.1.7
 
-*) EP_ISPOLLED now like DP_ISPOLLED
+You can get it at
 
-*) used wait_queue_active() instead of ->sleepers ( thx to Niel Lehman )
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.18-rc3-jam1/
 
+Try and enjoy...(at least my box is running fine).
 
-
-Files :
-
-http://www.xmailserver.org/linux-patches/nio-improve.html
-http://www.xmailserver.org/linux-patches/ep_patch-2.4.17-0.28.diff
-http://www.xmailserver.org/linux-patches/ep_patch-2.5.5-0.28.diff
-
-
-
-
-- Davide
-
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-rc3-jam1 #1 SMP Fri Feb 22 01:11:56 CET 2002 i686

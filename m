@@ -1,92 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbTE2Hbc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 03:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbTE2Hbc
+	id S261969AbTE2Hap (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 03:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTE2Hap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 03:31:32 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:43648
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261985AbTE2Hb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 03:31:29 -0400
-Date: Thu, 29 May 2003 03:32:15 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: pee@erkkila.org, Helge Hafting <helgehaf@aitel.hist.no>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@digeo.com>, "" <linux-kernel@vger.kernel.org>,
-       "" <linux-mm@kvack.org>
-Subject: Re: 2.5.70-mm1 bootcrash, possibly RAID-1
-In-Reply-To: <Pine.LNX.4.50.0305290313030.940-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0305290331330.940-100000@montezuma.mastecende.com>
-References: <20030408042239.053e1d23.akpm@digeo.com> <3ED49A14.2020704@aitel.hist.no>
- <20030528111345.GU8978@holomorphy.com> <3ED49EB8.1080506@aitel.hist.no>
- <20030528113544.GV8978@holomorphy.com> <20030528225913.GA1103@hh.idb.hist.no>
- <3ED54685.5020706@erkkila.org> <16085.23940.164807.702704@notabene.cse.unsw.edu.au>
- <Pine.LNX.4.50.0305290313030.940-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 May 2003 03:30:45 -0400
+Received: from granite.he.net ([216.218.226.66]:7175 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S261969AbTE2Han (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 03:30:43 -0400
+Date: Thu, 29 May 2003 00:30:16 -0700
+From: Greg KH <greg@kroah.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [RFT/C 2.5.70] Input class hook up to driver model/sysfs
+Message-ID: <20030529073016.GC5603@kroah.com>
+References: <175110000.1054083891@w-hlinder>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <175110000.1054083891@w-hlinder>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How does the following patch look for the double free.
+On Tue, May 27, 2003 at 06:04:51PM -0700, Hanna Linder wrote:
+> 
+> root@w-hlinder2 root]# tree /sys/class/input
+> /sys/class/input
+> |-- mouse0
+> |   `-- dev
+> `-- mouse1
+>     `-- dev
 
-On Thu, 29 May 2003, Zwane Mwaikambo wrote:
+What happened to /sys/class/input/mice?  It should be present too.
 
-> slab error in cache_free_debugcheck(): cache `size-32': double free, or memory before object was overwritten
-> Call Trace:
->  [<c0148da3>] kfree+0xf3/0x2e0
->  [<c0366a64>] raid0_run+0x234/0x250
->  [<c0366a64>] raid0_run+0x234/0x250
->  [<c012529a>] printk+0x1ca/0x280
->  [<c0371fa4>] do_md_run+0x2f4/0x560
->  [<c0371fbb>] do_md_run+0x30b/0x560
->  [<c012529a>] printk+0x1ca/0x280
->  [<c03724f2>] autorun_array+0x82/0xa0
->  [<c012529a>] printk+0x1ca/0x280
->  [<c03726ff>] autorun_devices+0x1ef/0x230
->  [<c0375569>] autostart_arrays+0x29/0xba
->  [<c036f8f6>] mddev_put+0x16/0xb0
->  [<c0250728>] capable+0x18/0x40
->  [<c03737de>] md_ioctl+0x56e/0x5a0
->  [<c0169759>] blkdev_open+0x29/0x30
->  [<c015f0dc>] dentry_open+0x14c/0x230
->  [<c0148c2a>] kmem_cache_free+0x1ca/0x250
->  [<c02a2f0b>] blkdev_ioctl+0x8b/0x3b1
->  [<c01747d6>] sys_ioctl+0x156/0x310
->  [<c056f6b7>] md_run_setup+0x57/0x80
->  [<c056ef28>] prepare_namespace+0x8/0xa0
->  [<c01050fb>] init+0x5b/0x210
->  [<c01050a0>] init+0x0/0x210
->  [<c01070e5>] kernel_thread_helper+0x5/0x10
+Looks good, Al's point about not just calling kfree() on the kobject is
+correct, but you copied my tty code which has the same bug :)
 
-Index: linux-2.5/drivers/md/raid0.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/md/raid0.c,v
-retrieving revision 1.31
-diff -u -p -B -r1.31 raid0.c
---- linux-2.5/drivers/md/raid0.c	27 May 2003 04:06:15 -0000	1.31
-+++ linux-2.5/drivers/md/raid0.c	29 May 2003 06:35:17 -0000
-@@ -85,10 +85,8 @@ static int create_strip_zones (mddev_t *
- 	conf->devlist = kmalloc(sizeof(mdk_rdev_t*)*
- 				conf->nr_strip_zones*mddev->raid_disks,
- 				GFP_KERNEL);
--	if (!conf->devlist) {
--		kfree(conf);
-+	if (!conf->devlist)
- 		return 1;
--	}
- 
- 	memset(conf->strip_zone, 0,sizeof(struct strip_zone)*
- 				   conf->nr_strip_zones);
-@@ -194,7 +192,6 @@ static int create_strip_zones (mddev_t *
- 	return 0;
-  abort:
- 	kfree(conf->devlist);
--	kfree(conf->strip_zone);
- 	return 1;
- }
- 
--- 
-function.linuxpower.ca
+Another minor comment:
+> -	devfs_remove("input/event%d", evdev->minor);
+> +	input_unregister_class_dev("input/event%d", evdev->minor);
+>  	evdev_table[evdev->minor] = NULL;
+>  	kfree(evdev);
+>  }
+> @@ -94,8 +94,10 @@ static int evdev_release(struct inode * 
+>  	if (!--list->evdev->open) {
+>  		if (list->evdev->exist)
+>  			input_close_device(&list->evdev->handle);
+> -		else
+> +		else{
+> +			input_unregister_class_dev("input/event%d", list->evdev->minor);
+>  			evdev_free(list->evdev);
+> +		}
+>  	}
+>  
+>  	kfree(list);
+> @@ -374,6 +376,12 @@ static struct file_operations evdev_fops
+>  	.flush =	evdev_flush
+>  };
+>  
+> +static struct input_class_interface intf = {
+> +	.name = 	"input/event%d",
+> +	.mode = 	S_IFCHR | S_IRUGO | S_IWUSR,
+> +	.minor_base = 	EVDEV_MINOR_BASE,
+> +};
+> +
+>  static struct input_handle *evdev_connect(struct input_handler *handler, struct input_dev *dev, struct input_device_id *id)
+>  {
+>  	struct evdev *evdev;
+> @@ -402,8 +410,8 @@ static struct input_handle *evdev_connec
+>  
+>  	evdev_table[minor] = evdev;
+>  
+> -	devfs_mk_cdev(MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor),
+> -			S_IFCHR|S_IRUGO|S_IWUSR, "input/event%d", minor);
+> +	intf.minor = minor;
+> +	input_register_class_dev(dev, &intf);
+>  
+>  	return &evdev->handle;
+>  }
+> @@ -417,8 +425,10 @@ static void evdev_disconnect(struct inpu
+>  	if (evdev->open) {
+>  		input_close_device(handle);
+>  		wake_up_interruptible(&evdev->wait);
+> -	} else
+> +	} else {
+> +		input_unregister_class_dev("input/event%d", evdev->minor);
+>  		evdev_free(evdev);
+> +	}
+>  }
+
+You use "input/event%d" 4 times in the above code.  Any way of just
+passing the struct input_class_interface into
+input_unregister_class_dev() so that you don't have to specify the name
+more than once anywhere?
+
+thanks,
+
+greg k-h

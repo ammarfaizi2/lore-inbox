@@ -1,112 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268449AbUH3CeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268446AbUH3CpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268449AbUH3CeU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 22:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268446AbUH3CeU
+	id S268446AbUH3CpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 22:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUH3CpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 22:34:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56297 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267664AbUH3CeN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 22:34:13 -0400
-Date: Sun, 29 Aug 2004 19:31:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Hans Reiser <reiser@namesys.com>, flx@msu.ru, Paul Jackson <pj@sgi.com>,
-       riel@redhat.com, ninja@slaphack.com, diegocg@teleline.es,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       jra@samba.org, hch@lst.de,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <1093830135.8099.181.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.58.0408291919450.2295@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
-  <412F7D63.4000109@namesys.com> <20040827230857.69340aec.pj@sgi.com> 
- <20040829150231.GE9471@alias> <4132205A.9080505@namesys.com> 
- <20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk> 
- <20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk> 
- <41323751.5000607@namesys.com>  <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
-  <Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org> 
- <1093821430.8099.49.camel@lade.trondhjem.org>  <Pine.LNX.4.58.0408291641070.2295@ppc970.osdl.org>
- <1093830135.8099.181.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 Aug 2004 22:45:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61331 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268446AbUH3CpT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 22:45:19 -0400
+Date: Sun, 29 Aug 2004 22:07:12 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Neil Horman <nhorman@redhat.com>
+Cc: Marc =?iso-8859-1?Q?Str=E4mke?= <marcstraemke.work@gmx.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problem accessing Sandisk CompactFlash Cards (Connected to the IDE bus)
+Message-ID: <20040830010712.GC12313@logos.cnet>
+References: <cgs2c1$ccg$1@sea.gmane.org> <4131DC5D.8060408@redhat.com> <cgsuq2$7cb$1@sea.gmane.org> <41326FE1.2050508@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <41326FE1.2050508@redhat.com>
+User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 29 Aug 2004, Trond Myklebust wrote:
+On Sun, Aug 29, 2004 at 08:08:01PM -0400, Neil Horman wrote:
+> Marc Strämke wrote:
 > 
-> Well, yes there has to be a distinction between a true bind mount which
-> actually covers the file or directory, and something like the stream
-> "bind mount" which doesn't.
+> >Neil Horman wrote:
+> >
+> >>Its been awhile, but the last time that I looked at the relevant 
+> >>code, there was a table of drive vendor/device strings that were used 
+> >>to identify CFA devices and differentiate them from regular ide 
+> >>devices.  If this particular device isn't a match in that table, it 
+> >>would be mis-identified, and that could be leading to your above 
+> >>problem.
+> >>Neil
+> >>
+> >
+> >Thx for the suggestion. The only table i could find is in 
+> >drive_is_flashcard, which is only checked if drive->removable is set, 
+> >which is not the case with the newer card (but is with the old one).
+> >Another thing which is weird is that the old card returns an 
+> >id->config value of 0x848a which according to manuals from SanDisk is 
+> >for a Compactflash card NOT running in True Ide mode, but instead in 
+> >memory mapped IO mode (iam no expert for Compactflash, so i dont even 
+> >know the exact difference), but as far as i can tell are both cards 
+> >wired by the IDE adapter so that they should run in True IDE mode, and 
+> >if i understand the Compactflash specification correctly, this is the 
+> >only mode of operation which is electrically compatible with the 
+> >IDE/ATA bus, isnt it?
+> >I tried forcing both the drive->removable and drive->is_flash flags to 
+> >the true, my dmesg output then shows me the card as a CFA DISK drive, 
+> >but i still get the same errors when reading or writing from/to the 
+> >device.
+> >
+> >TIA for any further hints,
+> >Marc
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe 
+> >linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> The stream "bind mount" is just there to allow you to root the
-> attributes in a single tree. It can be made functionally entirely
-> equivalent to the openat(), but uses pathname semantics (e.g., "//") to
-> denote the attribute fork instead of an extra function call.
+> What kernel are you looking at?  I'm looking at 2.4.21, and it seems to 
+> get checked more-or-less universally.  Also, I noticed this:
+> || !strncmp(id->model, "SunDisk SDCFB", 13)    /* SunDisk */
+> I've not heard of SunDisk.  SunDisk->SanDisk == Typo?
+> Are you using a SanDisk CFA card?  Could this perhaps be part of your issue?
 
-Using '//' would be nice, but would break real apps. If I remember
-correctly, POSIX specifies that '//' can be special at the _beginning_ of
-a path, but in the middle, it has to act like a single '/'.
+Indeed this is a typo but has been fixed on 2.4.26:
 
-And that's not just theory - it's quite common for programs to just 
-concatenate a directory name (which may or may not end with a slash) with 
-another path-name that starts with a slash. So you _will_ see existing 
-scripts and programs using things like "/usr/include//sys/type.h", and 
-they'd break if "//" would switch from "regular namespace" to "attribute 
-namespace".
+        if (drive->removable && id != NULL) {
+                if (id->config == 0x848a) return 1;     /* CompactFlash */
+                if (!strncmp(id->model, "KODAK ATA_FLASH", 15)  /* Kodak */
+                 || !strncmp(id->model, "Hitachi CV", 10)       /* Hitachi */
+                 || !strncmp(id->model, "SunDisk SDCFB", 13)    /* old SanDisk */
+                 || !strncmp(id->model, "SanDisk SDCFB", 13)    /* SanDisk */
+                 || !strncmp(id->model, "HAGIWARA HPC", 12)     /* Hagiwara */
+                 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)  /* Lexar */
+                 || !strncmp(id->model, "ATA_FLASH", 9))        /* Simple Tech */
+                {
 
-So I don't see any way to extend pathname semantics to distinguish between 
-"directory contents" and "directory attribute stream". 
+I haven't got much of a clue about IDE, but I can see the newer card supports
+DMA, and the older doesnt, but you are probably not using DMA on that? whats
+the output of "hdparm /dev/hda".
 
-> > It's easy enough to do the graph detection at the VFS layer, exactly 
-> > because of the density of the dentry graph. 
-> 
-> Don't you end up having to lock the entire paths b/c/d and a/e/f in
-> order to prevent "ln a b/c/d/a; ln b a/e/f/b"?
+Also can you show us dmesg from both old and new cards.
 
-That's not the problem - since it's in memory, we can just get the dcache 
-lock, and do it locked for t least local filesystems.
-
-However, being prodded by Andries, I think I'm wrong _anyway_. Since the
-dcache is only "dense" down one path to the root, and doesn't contain all
-the alternate ways of getting to a particular directory, I came to the
-conclusion that the VFS layer can't actually do cyclic detection after
-all...
-
-So together with the fact that nobody really _wants_ hardlinks to 
-directories, I think the right answer is "no". It's not a problem as long 
-as the attributes streams are always tied to the file/directory they are 
-attributes of - then the "directory link" is really just a file link, and 
-can't cause any cycles.
-
-> >  - how to actually test this out in practice (ie getting reiser4 to do the
-> >    proper thing wrt the VFS layer, but preferably _also_ having another
-> >    filesystem like NFSv4 or cifs that actually uses this and shows what
-> >    the problems are).
-> 
-> As I said, NFSv4 can be made ready pretty quickly: Bruce is already
-> finishing up the xattr implementation.
-
-Do we have any servers that implement it? I think NFSv4 might be a good 
-test-case if so.
-
-> >  - whether it makes any sense at all unless we also make at least a few 
-> >    other filesystems support it, so that people start using it as an 
-> >    "expected feature" rather than a "works only on a couple of machines".
-> 
-> NTFS? ;-)
-
-Hey, I see the smiley, but I'd still like to point out that not many 
-people use it under Linux, and while I think writing to it might be stable 
-these days, I don't believe named streams are necessarily going to 
-materialize all that quickly..
-
-		Linus

@@ -1,64 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265054AbTF1DPe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 23:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbTF1DPe
+	id S265059AbTF1Dtx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 23:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbTF1Dtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 23:15:34 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:37124 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S265054AbTF1DP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 23:15:26 -0400
-Subject: [PATCH] fix for kallsyms module symbol resolution problem
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Rusty Russell <rusty@rustcorp.com.au>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-ab34TEoF3ZQXz+GH7/JD"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 27 Jun 2003 22:26:27 -0500
-Message-Id: <1056770789.1825.200.camel@mulgrave>
-Mime-Version: 1.0
+	Fri, 27 Jun 2003 23:49:53 -0400
+Received: from filesrv1.system-techniques.com ([199.33.245.55]:38292 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id S265059AbTF1Dtv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 23:49:51 -0400
+Date: Sat, 28 Jun 2003 00:04:05 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+In-Reply-To: <20030628031920.GF18676@work.bitmover.com>
+Message-ID: <Pine.LNX.4.56.0306272352480.19613@filesrv1.baby-dragons.com>
+References: <20030627145727.GB18676@work.bitmover.com>
+ <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net>
+ <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk>
+ <20030627235150.GA21243@work.bitmover.com> <20030627165519.A1887@beaverton.ibm.com>
+ <20030628001625.GC18676@work.bitmover.com> <20030627205140.F29149@newbox.localdomain>
+ <20030628031920.GF18676@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hello Larry ,  Foooeeyyyyy !  It was not the SCSI drives that
+	failed you from what you had posted .  It was the drivers which
+	were puking (afaict) .  I'll admit that tape backup of heavily
+	changing data is a test in futility .  But I'll NOT fail in making
+	my backups ,  ever !-) .  Twyl ,  JimL
 
---=-ab34TEoF3ZQXz+GH7/JD
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+ # dmesg | grep -B2 -A5 -i adaptec
+Loading Adaptec I2O RAID: Version 2.4 Build 5
+Detecting Adaptec I2O RAID controllers...
+Adaptec I2O RAID controller 0 at faa48000 size=100000 irq=26
+dpti: If you have a lot of devices this could take a few minutes.
+dpti0: Reading the hardware resource table.
+TID 008  Vendor: ADAPTEC      Device: AIC-7899     Rev: 00000001
+TID 525  Vendor: ADAPTEC      Device: RAID-5       Rev: 380E
+scsi2 : Vendor: Adaptec  Model: 2110S            FW:380E
+  Vendor: ADAPTEC   Model: RAID-5            Rev: 380E
+  Type:   Direct-Access                      ANSI SCSI revision: 02
 
-In lots of KALLSYMS symbol resolution in modules, I've noticed the
-appearance of symbols with no names:
+ # dmesg | grep sdd
+SCSI device sdd: 177827840 512-byte hdwr sectors (91048 MB)
 
-Jun 27 20:55:26 raven kernel:  [<10131440>] schedule_timeout+0x78/0xdc
-Jun 27 20:55:26 raven kernel:  [<000f8240>] +0x4e0/0x598 [sunrpc]
-Jun 27 20:55:26 raven kernel:  [<0014504c>] +0x150/0x43c [nfsd]
-Jun 27 20:55:26 raven kernel:  [<10109c5c>] ret_from_kernel_thread+0x1c/0x24
+ # df /home/archive /home/jiml
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdd1             57422288  24301792  30156504  45% /home/archive
+/dev/sdd2             28703752  19319748   7902412  71% /home/jiml
+                                --------
+                                43621540
 
-The problem seems to be that get_ksymbol doesn't eliminate empty symbol
-names when it does resolution.  The attached patch should fix this.
+ root@filesrv1:~ # tapeinfo -f /dev/sg3
+Product Type: Tape Drive
+Vendor ID: 'COMPAQ  '
+Product ID: 'TSL-9000        '
+Revision: '2.06'
 
-James
 
+On Fri, 27 Jun 2003, Larry McVoy wrote:
+> On Fri, Jun 27, 2003 at 08:51:40PM -0400, Scott McDermott wrote:
+> > Larry McVoy on Fri 27/06 17:16 -0700:
+> > > I don't know if you all realize this but at one point we
+> > > had corrupted data in several repositories and the backups
+> > > were also shot.
+> >
+> > ever hear of tapes?
+>
+> bkbits is 45GB of data and growing.  Tapes are completely impractical,
+> that's why we have hot spares.
+>
+> > how about SCSI?
+>
+> The raid system that failed is SCSI.
+>
 
---=-ab34TEoF3ZQXz+GH7/JD
-Content-Disposition: attachment; filename=tmp.diff
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=tmp.diff; charset=ISO-8859-1
-
-=3D=3D=3D=3D=3D kernel/module.c 1.87 vs edited =3D=3D=3D=3D=3D
---- 1.87/kernel/module.c	Sat Jun 14 11:16:06 2003
-+++ edited/kernel/module.c	Fri Jun 27 22:10:58 2003
-@@ -1760,7 +1760,8 @@
- 			continue;
-=20
- 		if (mod->symtab[i].st_value <=3D addr
--		    && mod->symtab[i].st_value > mod->symtab[best].st_value)
-+		    && mod->symtab[i].st_value > mod->symtab[best].st_value
-+		    && *(mod->strtab + mod->symtab[i].st_name) !=3D '\0')
- 			best =3D i;
- 		if (mod->symtab[i].st_value > addr
- 		    && mod->symtab[i].st_value < nextval)
-
---=-ab34TEoF3ZQXz+GH7/JD--
-
+-- 
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263870AbTH1KIx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 06:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbTH1KIV
+	id S263933AbTH1KSX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 06:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbTH1KQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 06:08:21 -0400
-Received: from dyn-ctb-210-9-243-35.webone.com.au ([210.9.243.35]:50950 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S263885AbTH1KGF
+	Thu, 28 Aug 2003 06:16:26 -0400
+Received: from h-66-167-79-230.SNVACAID.covad.net ([66.167.79.230]:645 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S263908AbTH1KQR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 06:06:05 -0400
-Message-ID: <3F4DD3F1.3020409@cyberone.com.au>
-Date: Thu, 28 Aug 2003 20:05:37 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Samium Gromoff <deepfire@ibe.miee.ru>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Nick's scheduler policy v8
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Aug 2003 06:16:17 -0400
+Date: Thu, 28 Aug 2003 03:16:20 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200308281016.h7SAGKi24571@freya.yggdrasil.com>
+To: ttsig@tuxyturvy.com
+Subject: Re: Poor IPSec performance with 2.6 kernels
+Cc: jmorris@intercode.com.au, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samium Gromoff wrote:
-
->>It seems to be better than v7 here without X being reniced,
->>however renicing X to say -10 always seems to help.
->>
+At 2003-08-28 2:56:37, James Morris wrote:
+>On 27 Aug 2003, Tom Sightler wrote:
 >
->	On my box renicing X to -10 causes xmms to skip when i switch
-> to a next page full of text in xpdf.
-> This is about mainline, not sure about your patch.
+>> My Internet connection is a DSL circuit that typically delivers about
+>> 150KB/s.  When I connect with SuperFreeS/WAN my VPN throughput is quite
+>> good, averaging about 125KB/s (this seems about reasonable with
+>> overhead) but when making the identical connection with racoon and the
+>> 2.6 kernel I can only achieve 50KB/s.  I've been unable to come up with
+>> any reason why this would be the case.
+>> 
+>> Any hints would be appreciated.
 >
-> And yes, my box is p3-500.
->
->	So i generally don`t think it`s wise to renice X to -10.
->
+>I think SFS uses assembly crypto algorithms where possible, which would 
+>account for roughly 2x performance increase.
 
-Well I won't say it won't happen with my patch, but nice is a lot
-nicer. Give it a try.
+	I believe that assembly AES processes about 50MB/second on a
+1GHz machine, but Tom is talking about the difference between 125kB/sec.
+and 50kB/sec.  The C versus assembly issue is not on the scale that
+Tom is asking about.
 
-No, it wouldn't be wise to renice X to -10 if it caused it to
-starve xmms. I don't think that will happen in my version, so I
-think it is reasonable to renice X if you know it will have to
-do more work than other tasks and yet should still be scheduled
-quickly for good interactivity...
+	Tom, although I'm not sure that I'll immediately have the time
+to dig into your problem, I think it would increase the likelihood of
+someone tracking it down if you could answer the following questions.
 
+	In which direction did you take these benchmarks, inbound to the
+Linux box, outbound from the Linux box, or both?  If both, is
+there a difference between inbound and outbound performance?  What
+private key algorithm are you configuring (aes, des, serpent)?  How
+is your DSL connected (via ethernet, via USB, such as with SpeedStream)?
+What kind of CPU are you using (probably doesn't matter, even if you're
+using a 16MHz 386, but it would help in reproducing your problem to
+know what the benchmarks should look like on a different system).
 
-
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

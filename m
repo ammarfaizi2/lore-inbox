@@ -1,33 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265567AbTAOA6u>; Tue, 14 Jan 2003 19:58:50 -0500
+	id <S265637AbTAOBFf>; Tue, 14 Jan 2003 20:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265568AbTAOA6u>; Tue, 14 Jan 2003 19:58:50 -0500
-Received: from are.twiddle.net ([64.81.246.98]:43400 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S265567AbTAOA6u>;
-	Tue, 14 Jan 2003 19:58:50 -0500
-Date: Tue, 14 Jan 2003 17:07:41 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [MODULES] fix weak symbol handling
-Message-ID: <20030114170741.A5751@twiddle.net>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-References: <20030113110036.A873@twiddle.net> <20030114035737.07C672C2BD@lists.samba.org>
+	id <S265643AbTAOBFf>; Tue, 14 Jan 2003 20:05:35 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:40201 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265637AbTAOBFc>;
+	Tue, 14 Jan 2003 20:05:32 -0500
+Date: Tue, 14 Jan 2003 17:14:10 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] TTY changes for 2.5.58
+Message-ID: <20030115011409.GB18283@kroah.com>
+References: <20030115011312.GA18283@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030114035737.07C672C2BD@lists.samba.org>; from rusty@rustcorp.com.au on Tue, Jan 14, 2003 at 02:57:11PM +1100
+In-Reply-To: <20030115011312.GA18283@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 14, 2003 at 02:57:11PM +1100, Rusty Russell wrote:
-> I don't understand this.  For a weak symbol, st_shndx won't be
-> SHN_UNDEF.
+ChangeSet 1.1025, 2003/01/14 16:51:58-08:00, greg@kroah.com
 
-For an *undefined* weak symbol it certainly will.
+TTY: add module reference counting for tty drivers.
+
+Note, there are still races with unloading modules, this patch
+does not fix that...
 
 
-r~
+diff -Nru a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+--- a/drivers/char/tty_io.c	Tue Jan 14 17:07:05 2003
++++ b/drivers/char/tty_io.c	Tue Jan 14 17:07:05 2003
+@@ -833,6 +833,11 @@
+ 	 * and locked termios may be retained.)
+ 	 */
+ 
++	if (!try_module_get(driver->owner)) {
++		retval = -ENODEV;
++		goto end_init;
++	}
++
+ 	o_tty = NULL;
+ 	tp = o_tp = NULL;
+ 	ltp = o_ltp = NULL;
+@@ -991,6 +996,7 @@
+ 	free_tty_struct(tty);
+ 
+ fail_no_mem:
++	module_put(driver->owner);
+ 	retval = -ENOMEM;
+ 	goto end_init;
+ 
+@@ -1033,6 +1039,7 @@
+ 	tty->magic = 0;
+ 	(*tty->driver.refcount)--;
+ 	list_del(&tty->tty_files);
++	module_put(tty->driver.owner);
+ 	free_tty_struct(tty);
+ }
+ 
+diff -Nru a/include/linux/tty_driver.h b/include/linux/tty_driver.h
+--- a/include/linux/tty_driver.h	Tue Jan 14 17:07:05 2003
++++ b/include/linux/tty_driver.h	Tue Jan 14 17:07:05 2003
+@@ -120,6 +120,7 @@
+ 
+ struct tty_driver {
+ 	int	magic;		/* magic number for this structure */
++	struct module	*owner;
+ 	const char	*driver_name;
+ 	const char	*name;
+ 	int	name_base;	/* offset of printed name */

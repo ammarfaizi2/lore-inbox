@@ -1,112 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVCZLe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVCZLgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbVCZLe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 06:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVCZLe4
+	id S262039AbVCZLgA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 06:36:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVCZLgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 06:34:56 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:9224 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262035AbVCZLeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 06:34:36 -0500
-Date: Sat, 26 Mar 2005 12:34:26 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, davej@redhat.com
-Subject: Re: Linux 2.4.30-rc2
-Message-ID: <20050326113426.GO30052@alpha.home.local>
-References: <20050326004631.GC17637@logos.cnet>
+	Sat, 26 Mar 2005 06:36:00 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13833 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262039AbVCZLfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 06:35:44 -0500
+Date: Sat, 26 Mar 2005 11:35:30 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org, davem@davemloft.net,
+       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
+Message-ID: <20050326113530.A12809@flint.arm.linux.org.uk>
+Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
+	Hugh Dickins <hugh@veritas.com>, akpm@osdl.org, davem@davemloft.net,
+	tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <20050325212234.F12715@flint.arm.linux.org.uk> <4244C3B7.4020409@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050326004631.GC17637@logos.cnet>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4244C3B7.4020409@yahoo.com.au>; from nickpiggin@yahoo.com.au on Sat, Mar 26, 2005 at 01:06:47PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+On Sat, Mar 26, 2005 at 01:06:47PM +1100, Nick Piggin wrote:
+> The reject should be confined to include/asm-ia64, so it will still
+> work for you.
 
-just another one and that's all. Zachary Amsden found an unconditional
-write to a debug register in the signal delivery path which is only
-needed when we use a breakpoint. This is a very expensive operation on
-x86, and doing it conditionnaly enhanced signal delivery speed by 33%
-for him.
+I guess I should've tried a little harder last night then.  Sorry.
 
-His patch got merged in 2.6.10, and I've merged it a month ago in my
-local tree. Could we get it in 2.4.30, please ?
+> But I've put a clean rollup of all Hugh's patches here in case you'd
+> like to try it.
+> 
+> http://www.kerneltrap.org/~npiggin/freepgt-2.6.12-rc1.patch
 
-Thanks in advance,
-Willy
+This works fine on ARM with high vectors.  With low vectors (located in
+the 1st page of virtual memory space) I get:
 
---
+kernel BUG at mm/mmap.c:1934!
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+pgd = c1e88000
+[00000000] *pgd=c1e86031, *pte=c04440cf, *ppte=c044400e
+Internal error: Oops: c1e8981f [#1]
+Modules linked in:
+CPU: 0
+PC is at __bug+0x40/0x54
+LR is at 0x1
+pc : [<c0223870>]    lr : [<00000001>]    Not tainted
+sp : c1e7bd18  ip : 60000093  fp : c1e7bd28
+r10: c1f4b040  r9 : 00000006  r8 : c1f02ca0
+r7 : 00000000  r6 : 00000000  r5 : c015b8c0  r4 : 00000000
+r3 : 00000000  r2 : 00000000  r1 : 00000d4e  r0 : 00000001
+Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  Segment user
+Control: C1E8917F  Table: C1E8917F  DAC: 00000015
+Process init (pid: 235, stack limit = 0xc1e7a194)
+Stack: (0xc1e7bd18 to 0xc1e7c000)
+...
+Backtrace:
+[<c0223830>] (__bug+0x0/0x54) from [<c02691d8>] (exit_mmap+0x154/0x168)
+ r4 = C1E7BD3C
+[<c0269084>] (exit_mmap+0x0/0x168) from [<c02358c8>] (mmput+0x40/0xc0)
+ r7 = C015B8C0  r6 = C015B8C0  r5 = 00000000  r4 = C015B8C0
+[<c0235888>] (mmput+0x0/0xc0) from [<c027ecec>] (exec_mmap+0xec/0x134)
+ r4 = C015B6A0
+[<c027ec00>] (exec_mmap+0x0/0x134) from [<c027f234>] (flush_old_exec+0x4c8/0x6e4)
+ r7 = C012B940  r6 = C1E7A000  r5 = C0498A00  r4 = 00000000
+[<c027ed6c>] (flush_old_exec+0x0/0x6e4) from [<c029d53c>] (load_elf_binary+0x5c0/0xdc0)
+[<c029cf7c>] (load_elf_binary+0x0/0xdc0) from [<c027f6e0>] (search_binary_handler+0xa0/0x244)
+[<c027f640>] (search_binary_handler+0x0/0x244) from [<c029c4e8>] (load_script+0x224/0x22c)
+[<c029c2c4>] (load_script+0x0/0x22c) from [<c027f6e0>] (search_binary_handler+0xa0/0x244)
+ r6 = C1E7A000  r5 = C015E400  r4 = C03EC2B4
+[<c027f640>] (search_binary_handler+0x0/0x244) from [<c027f9b8>] (do_execve+0x134/0x1f8)
+[<c027f884>] (do_execve+0x0/0x1f8) from [<c02223f8>] (sys_execve+0x3c/0x5c)
+[<c02223bc>] (sys_execve+0x0/0x5c) from [<c021dca0>] (ret_fast_syscall+0x0/0x2c)
+ r7 = 0000000B  r6 = BED6AA74  r5 = BED6AB00  r4 = 0200F008
+Code: 1b0051b8 e59f0014 eb0051b6 e3a03000 (e5833000)
 
-I noticed an unneeded write to dr7 in the signal handling path for x86.  
-We only need to write to dr7 if there is a breakpoint to re-enable, and 
-MOVDR is a serializing instruction, which is expensive.  Getting rid of 
-it gets a 33% faster signal delivery path (at least on Xeon - I didn't 
-test other CPUs, so your gain may vary).
+In this case, we have a page which must be kept mapped at virtual address
+0, which means the first entry in the L1 page table must always exist.
+However, user threads start from 0x8000, which is also mapped via the
+first entry in the L1 page table.
 
-Cheers,
+At a guess, I'd imagine that we're freeing the first L1 page table entry,
+thereby causing mm->nr_ptes to become -1.
 
-Zachary Amsden
-zach@vmware.com
+I'll do some debugging and try to work out if that (or exactly what's)
+going on.
 
---------------070400020104010700090602
-Content-Type: text/plain;
- name="README.i386-fast-signal"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="README.i386-fast-signal"
-
-Optimize away the unconditional write to debug registers on signal delivery
-path.  This is already done on x86_64.  Measured delta TSC for three paths
-on a 2.4GHz Xeon.
-
-1) With unconditional write to dr7 :  800-1000 cycles
-2) With conditional write to dr7   :  84-112 cycles
-3) With unlikely write to dr7      :  84 cycles
-
-Performance test using divzero microbenchmark (3 million divide by zeros):
-
-With unconditional write: 
-   7.445 real / 6.136 system
-   7.529 real / 6.482 system
-   7.541 real / 5.974 system
-   7.546 real / 6.217 system
-   7.445 real / 6.167 system
-
-With unlikely write:
-   5.779 real / 4.518 system
-   5.783 real / 4.591 system
-   5.552 real / 4.569 system
-   5.790 real / 4.528 system
-   5.554 real / 4.382 system
-
-That's about a 33% speedup - more than I expected; apparently getting rid
-of the serializing instruction makes the do_signal path much faster.
-
-Zachary Amsden (zach@vmware.com)
-
---------------070400020104010700090602
-Content-Type: text/plain;
- name="i386-fast-signal.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i386-fast-signal.patch"
-
-[hand-edited line numbers to match 2.4]
---- linux-2.6.10-rc1/arch/i386/kernel/signal.c	2004-10-25 11:15:43.000000000 -0700
-+++ linux-2.6.10-rc1-nsz/arch/i386/kernel/signal.c	2004-10-26 14:30:54.000000000 -0700
-@@ -600,7 +600,9 @@
- 		 * have been cleared if the watchpoint triggered
- 		 * inside the kernel.
- 		 */
--		__asm__("movl %0,%%db7"	: : "r" (current->thread.debugreg[7]));
-+		if (unlikely(current->thread.debugreg[7])) {
-+			__asm__("movl %0,%%db7"	: : "r" (current->thread.debugreg[7]));
-+		}
- 
- 		/* Whee!  Actually deliver the signal.  */
- 		handle_signal(signr, &info, &ka, oldset, regs);
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbTGVNTX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 09:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269409AbTGVNTX
+	id S269409AbTGVNTe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 09:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270179AbTGVNTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 09:19:23 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:41483 "EHLO
+	Tue, 22 Jul 2003 09:19:34 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:42251 "EHLO
 	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262385AbTGVNTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 09:19:22 -0400
+	id S269409AbTGVNTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 09:19:33 -0400
 From: Marc-Christian Petersen <m.c.p@wolk-project.de>
 Organization: Working Overloaded Linux Kernel
-To: Andrea Arcangeli <andrea@suse.de>
+To: Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>
 Subject: Re: 2.4.22pre6aa1
-Date: Tue, 22 Jul 2003 15:34:16 +0200
+Date: Tue, 22 Jul 2003 14:28:03 +0200
 User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org, Chris Mason <mason@suse.com>
-References: <20030717102857.GA1855@dualathlon.random> <200307180024.17523.m.c.p@wolk-project.de> <20030717225002.GY1855@dualathlon.random>
-In-Reply-To: <20030717225002.GY1855@dualathlon.random>
+Cc: linux-kernel@vger.kernel.org
+References: <20030717102857.GA1855@dualathlon.random> <20030717225002.GY1855@dualathlon.random> <1058488216.4016.338.camel@tiny.suse.com>
+In-Reply-To: <1058488216.4016.338.camel@tiny.suse.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200307221427.01519.m.c.p@wolk-project.de>
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307221428.03791.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 July 2003 00:50, Andrea Arcangeli wrote:
+On Friday 18 July 2003 02:30, Chris Mason wrote:
 
-Hi Andrea,
+Hi Chris,
 
-> Can you try to change include/linux/blkdev.h like this:
-> -#define MAX_QUEUE_SECTORS (4 << (20 - 9)) /* 4 mbytes when full sized */
-> +#define MAX_QUEUE_SECTORS (16 << (20 - 9)) /* 4 mbytes when full sized */
-> This will raise the queue from 4 to 16M. That is the first(/only) thing
-> that can explain a drop in performnace while doing contigous I/O.
-> However I didn't expect it to make a difference, or at least not so
-> relevant.
-> If this doesn't help at all, it might not be an elevator/blkdev thing.
-> At least on my machines the contigous I/O still at the same speed.
-well, it doesn't help at all. I/O gets more worse with that change. (8mb/s 
-less). How can this happen? *wondering*
-
-> You also where the only one reporting a loss of performance with
-> elevator-lowlatency, it could be still the same problem that you've
-> seen at that time.
-The only one? Surely not. Also Con tested your elevator-lowlatency and we both 
-saw performance degration :)
-
-> can you try with data=writeback (or ext2) or hdparm -W1 and see if you
-> can still see the same delta between the two kernels? (careful with -W1
-> as it invalidates journaling)
-Yes, I'll do it later this day.
-
-Sorry for my late reply. I've been very busy.
+> > If this doesn't help at all, it might not be an elevator/blkdev thing.
+> > At least on my machines the contigous I/O still at the same speed.
+> Especially with just one writer, you really shouldn't be able to see a
+> difference in pre6.  Did you measure this change on both pre6 and
+> pre6aa1.  Your message indicated that but I wanted to double check to
+> make sure.
+Yes, I measured it with pre6 and pre6aa1. There is no noticable difference.
 
 ciao, Marc
 

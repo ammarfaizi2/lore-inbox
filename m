@@ -1,126 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVBICLs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbVBICQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbVBICLs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 21:11:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVBICLr
+	id S261747AbVBICQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 21:16:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVBICQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 21:11:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:54712 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261745AbVBICK3 (ORCPT
+	Tue, 8 Feb 2005 21:16:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26812 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261747AbVBICQT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 21:10:29 -0500
-Date: Tue, 8 Feb 2005 18:10:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-       Daniel Jacobowitz <dan@debian.org>
-Subject: Re: 2.6.11-rc3: Kylix application no longer works?
-Message-Id: <20050208181018.5592beab.akpm@osdl.org>
-In-Reply-To: <20050208111625.0bb1896d@dxpl.pdx.osdl.net>
-References: <20050207221107.GA1369@elf.ucw.cz>
-	<20050207145100.6208b8b9.akpm@osdl.org>
-	<20050208175106.GA1091@elf.ucw.cz>
-	<20050208111625.0bb1896d@dxpl.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Feb 2005 21:16:19 -0500
+Date: Tue, 8 Feb 2005 18:16:15 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Richard Henderson <rth@twiddle.net>
+cc: Ingo Molnar <mingo@elte.hu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: out-of-line x86 "put_user()" implementation
+In-Reply-To: <20050209012741.GB13802@twiddle.net>
+Message-ID: <Pine.LNX.4.58.0502081808410.2165@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0502062212450.2165@ppc970.osdl.org>
+ <20050207114415.GA22948@elte.hu> <Pine.LNX.4.58.0502071717310.2165@ppc970.osdl.org>
+ <20050209012741.GB13802@twiddle.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger <shemminger@osdl.org> wrote:
+
+
+On Tue, 8 Feb 2005, Richard Henderson wrote:
 >
-> On Tue, 8 Feb 2005 18:51:06 +0100
-> Pavel Machek <pavel@ucw.cz> wrote:
+> On Mon, Feb 07, 2005 at 05:20:06PM -0800, Linus Torvalds wrote:
+> > +#define __put_user_8(x, ptr) __asm__ __volatile__("call __put_user_8":"=A" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
 > 
-> > Hi!
-> > 
-> > > I wonder if reverting the patch will restore the old behaviour?
-> > 
-> > This seems to be minimal fix to get Kylix application back to the
-> > working state... Maybe it is good idea for 2.6.11?
-> > 
-> > Signed-off-by: Pavel Machek <pavel@suse.cz>
-> > 								Pavel
-> > 
-> > --- clean/fs/binfmt_elf.c	2005-02-03 22:27:19.000000000 +0100
-> > +++ linux/fs/binfmt_elf.c	2005-02-08 18:46:38.000000000 +0100
-> > @@ -803,11 +803,8 @@
-> >  				nbyte = ELF_MIN_ALIGN - nbyte;
-> >  				if (nbyte > elf_brk - elf_bss)
-> >  					nbyte = elf_brk - elf_bss;
-> > -				if (clear_user((void __user *) elf_bss + load_bias, nbyte)) {
-> > -					retval = -EFAULT;
-> > -					send_sig(SIGKILL, current, 0);
-> > -					goto out_free_dentry;
-> > -				}
-> > +				if (clear_user((void __user *) elf_bss + load_bias, nbyte))
-> > +					printk(KERN_ERR "Error clearing BSS, wrong ELF executable? (Kylix?!)\n");
+> This is not constrained enough.  The compiler could choose to put the
+> return value in edx.  You want
 > 
-> do once or rate limit rather than log spamming.
+>   __asm__ __volatile__("call __put_user_8":"=a" (__ret_pu)
+> 			: "A" ((typeof(*(ptr)))(x)), "c" (ptr))
 
-We could just remove the printk and stick a comment over it.  If the
-application later tries to access the not-there pages then it'll just
-fault.
+Hmm.. I always thought "A" was the _pairing_ of %eax/%edx, not "eax or
+edx"?
 
-However I worry if there is some way in which we can leave unzeroed memory
-accessible to the application, although it's hard to see how that could
-happen.
+IOW, as far as I know, I'm telling the compiler that the asm is writing a
+64-bit value into %eax:%edx, and that that __ret_pu gets that 64-bit value 
+assigned to it (and truncated, at that point). No?
 
-Daniel, Pavel cruelly chopped you off the Cc when replying.  What's your
-diagnosis on the below?
+Note that he code that actually writes to the register is the assembly 
+code, and that one always writes to %eax. So the compiler doesn't get to 
+"put the return value" anywhere. It gets told where it is.
 
+I'd happily use your version, but I thought that some versions of gcc
+require that input output registers cannot overlap, and would refuse to do 
+that thing? But if you tell me differently..
 
-
-Begin forwarded message:
-
-Date: Tue, 8 Feb 2005 23:27:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc3: Kylix application no longer works?
-
-
-Hi!
-
-> > > I wonder if reverting the patch will restore the old behaviour?
-> > 
-> > This seems to be minimal fix to get Kylix application back to the
-> > working state... Maybe it is good idea for 2.6.11?
-> 
-> Why does clearing the BSS fail?  Are the program headers bogus?
-> (readelf -l).
-
-No idea, probably yes. Here's readelf -l result:
-
-								Pavel
-
-Elf file type is EXEC (Executable file)
-Entry point 0x80614b4
-There are 5 program headers, starting at offset 52
-
-Program Headers:
-  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
-  PHDR           0x000034 0x08048034 0x08048034 0x000a0 0x000a0 R E 0x4
-  INTERP         0x0000d4 0x080480d4 0x080480d4 0x00013 0x00013 R   0x1
-      [Requesting program interpreter: /lib/ld-linux.so.2]
-  LOAD           0x000000 0x08048000 0x08048000 0xb7354 0x1b7354 R E 0x1000
-  LOAD           0x0b7354 0x08200354 0x08200354 0x1e3e4 0x1f648 RW  0x1000
-  DYNAMIC        0x0d56a0 0x0821e6a0 0x0821e6a0 0x00098 0x00098 RW  0x4
-
- Section to Segment mapping:
-  Segment Sections...
-   00     
-   01     .interp 
-   02     .interp .dynsym .dynstr .hash .rel.plt .plt .text borland.ressym borland.resstr borland.reshash borland.resdata borland.resspare 
-   03     .data .rodata .got .dynamic .bss 
-   04     .dynamic 
-
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+			Linus

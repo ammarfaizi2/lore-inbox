@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbTJNSlo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 14:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbTJNSlo
+	id S262925AbTJNSog (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 14:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbTJNSnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 14:41:44 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:55466 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262898AbTJNSlm
+	Tue, 14 Oct 2003 14:43:19 -0400
+Received: from sea2-dav13.sea2.hotmail.com ([207.68.164.117]:4615 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262909AbTJNSmd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 14:41:42 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 14 Oct 2003 11:37:37 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Chris Lattner <sabre@nondot.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [x86] Access off the bottom of stack causes a segfault?
-In-Reply-To: <Pine.LNX.4.44.0310141320020.3869-100000@nondot.org>
-Message-ID: <Pine.LNX.4.56.0310141136080.2098@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.44.0310141320020.3869-100000@nondot.org>
+	Tue, 14 Oct 2003 14:42:33 -0400
+X-Originating-IP: [12.145.34.101]
+X-Originating-Email: [san_madhav@hotmail.com]
+From: "sankar" <san_madhav@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Question on atomic_inc/dec
+Date: Tue, 14 Oct 2003 11:38:15 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <Sea2-DAV139jKikEe6Q00002ae5@hotmail.com>
+X-OriginalArrivalTime: 14 Oct 2003 18:42:33.0085 (UTC) FILETIME=[EDE0EAD0:01C39282]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Oct 2003, Chris Lattner wrote:
+Hi,
+I have a question concerning the macro atomic_inc on REDHAT 9.0. I had used
+atomic_inc on REDHAT 7.2 earlier. I installed redhat 9.0 and tried to run my
+old code on this. I got the error saying atomic_inc not declared.
 
->
-> My compiler is generating accesses off the bottom of the stack (address
-> below %esp).  Is there some funny kernel interaction that I should be
-> aware of with this?  I'm periodically getting segfaults.
->
-> Example:
->
-> int main() {
->    int test[4000];
-> ...
->    return 0;
-> }
->
-> Generated code:
->         .intel_syntax
-> ...
-> main:
->         mov DWORD PTR [%ESP - 16004], %EBP    # Save EBP to stack
-                         ^^^^^^^^^^^^
+I tried to search the header file in which this is defined but with failure.
 
-Yes, this is the problem (even Windows does that IIRC).
+If any of u guys know about this problem pls help me ...
 
-
-
-- Davide
-
+thx in advance
+Sankarshana M

@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272904AbTG3OdS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272905AbTG3OdR
+	id S272929AbTG3O0l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:26:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272914AbTG3OXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:33:17 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:52354 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S272904AbTG3OdP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:33:15 -0400
-Date: Wed, 30 Jul 2003 11:28:46 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ROOT NFS fixes ...
-In-Reply-To: <Pine.LNX.4.55L.0307301107080.29393@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.55L.0307301128200.29648@freak.distro.conectiva>
-References: <20030729211521.GA19594@www.13thfloor.at>
- <Pine.LNX.4.55L.0307301057030.29278@freak.distro.conectiva>
- <20030730140739.GA24587@www.13thfloor.at> <Pine.LNX.4.55L.0307301107080.29393@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 30 Jul 2003 10:23:19 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:38663 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S272894AbTG3OVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:21:17 -0400
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Andi Kleen <ak@suse.de>, davem@redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
+       suparna@in.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       alex_williamson@hp.com, bjorn_helgaas@hp.com
+In-Reply-To: <20030730044256.GA1974@dsl2.external.hp.com>
+References: <20030708213427.39de0195.ak@suse.de>
+	<20030708.150433.104048841.davem@redhat.com>
+	<20030708222545.GC6787@dsl2.external.hp.com>
+	<20030708.152314.115928676.davem@redhat.com>
+	<20030723114006.GA28688@dsl2.external.hp.com>
+	<20030728131513.5d4b1bd3.ak@suse.de> 
+	<20030730044256.GA1974@dsl2.external.hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 30 Jul 2003 09:20:52 -0500
+Message-Id: <1059574857.1849.7.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-07-29 at 23:42, Grant Grundler wrote:
+> On Mon, Jul 28, 2003 at 01:15:13PM +0200, Andi Kleen wrote:
+> > Run it with 100-500 users (reaim -f workfile... -s 100 -e 500 -i 100) 
+> 
+> jejb was wondering if 4k pages would cause different behaviors becuase
+> of file system vs page size (4k vs 16k).  ia64 uses 16k by default.
+> I've rebuilt the kernel with 4k page size and VMERGE != 0.
+> The substantially worse performance feels like a rat hole because
+> of 4x pressure on CPU TLB.
 
+OK, I admit it, it was a rat hole.  Provided reaim uses large files, we
+should only get block<->page fragmentation at the edges, and obviously,
+reaim has to use large files otherwise it's not testing the virtual
+merging properly...
 
-On Wed, 30 Jul 2003, Marcelo Tosatti wrote:
+James
 
->
-> On Wed, 30 Jul 2003, Herbert Pötzl wrote:
->
-> > On Wed, Jul 30, 2003 at 10:57:52AM -0300, Marcelo Tosatti wrote:
-> > >
-> > >
-> > > On Tue, 29 Jul 2003, Herbert Pötzl wrote:
-> > >
-> > > >
-> > > > Hi Marcelo!
-> > > >
-> > > > just verified that the NFS root bug-fix was not
-> > > > included in 2.4.22-pre9, unfortunately I have
-> > > > to ask you again, why you do not want to fix
-> > > > this issue in 2.4.22 ...
-> > > >
-> > > > I do not understand why Trond obviously is
-> > > > ignoring my mails, regarding this particular
-> > > > issue, maybe he is just too busy to look at
-> > > > four twoline changes, and more, I do not
-> > > > understand why this isn't accepted into the
-> > > > marcelo kernel tree, as it obviously fixes a
-> > > > misbehaviour?
-> > > >
-> > > > please explain!
-> > > >
-> > > > It is okay for me, if your argumentation goes
-> > > > like "I don't like you, that's reason enough
-> > > > for me to not include your patches ...", but I
-> > > > would like to know ...
-> > >
-> > > I do not consider the patch critical enough.
-> > >
-> > > Get it in 2.5 first, then come back :)
-> >
-> > I hope this is a joke, and you are still reading
-> > your mail ...
->
-> No, this is not a joke, at all.
->
-> Let me repeat: I (and Trond) do not consider this patch critical.
-
-Ok, I'm wrong. I just read Trond's mail saying the patch is OK.
-
-I'll apply it to -pre10.
 

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUGGQpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265225AbUGGQqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265222AbUGGQpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 12:45:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbUGGQpQ
+	id S265225AbUGGQqt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 12:46:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUGGQqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 12:45:16 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:13302 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265222AbUGGQpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 12:45:11 -0400
-Message-ID: <40EC2898.1090306@comcast.net>
-Date: Wed, 07 Jul 2004 12:45:12 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
-X-Accept-Language: en-us, en
+	Wed, 7 Jul 2004 12:46:49 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:4926 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265225AbUGGQqm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 12:46:42 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.7-mm6
+Date: Wed, 7 Jul 2004 09:44:54 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <20040705023120.34f7772b.akpm@osdl.org>
+In-Reply-To: <20040705023120.34f7772b.akpm@osdl.org>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck kernel mailing list <ck@vds.kolivas.org>
-Subject: Re: 2.6.7-ck5
-References: <40EC13C5.2000101@kolivas.org>
-In-Reply-To: <40EC13C5.2000101@kolivas.org>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407070944.54281.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday, July 5, 2004 2:31 am, Andrew Morton wrote:
+> altix-serial-driver-2.patch
+>   Altix serial driver updates
+>   altix-serial-driver-fix
 
-I'm on gentoo here, and just copied the ck2 ebuild to ck5, and it missed
-on a patch called ck-sources-2.6.IPTables-RDoS.  Any idea what this is,
-and is it already in?
+Now that John has accepted the LANANA device number request, can you please 
+merge this into the BK tree?  It fixes the panics we were seeing with the 
+8250 driver and also includes early printk support, which is really nice for 
+debugging early boot problems (and, as luck would have it, the ia64 tree has 
+one at the moment).
 
-Con, I have no idea where it came from, but could mail it to you (I
-won't post it to the list because it's not mine and I have issues about
-doing such things) if you want.  I'm not sure if it applied to ck3; it
-may have not existed at the time.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA7CiWhDd4aOud5P8RAsxMAJ4+Jfx/l4m7LUxoKZa/io1FF2S+kQCghf5v
-SN/TVYqZa756rnUtNsVBI+4=
-=qwGv
------END PGP SIGNATURE-----
+Thanks,
+Jesse

@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317320AbSGIG5b>; Tue, 9 Jul 2002 02:57:31 -0400
+	id <S317324AbSGIG6V>; Tue, 9 Jul 2002 02:58:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317324AbSGIG5a>; Tue, 9 Jul 2002 02:57:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56844 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317320AbSGIG53>;
-	Tue, 9 Jul 2002 02:57:29 -0400
-Message-ID: <3D2A8B81.42042058@zip.com.au>
-Date: Tue, 09 Jul 2002 00:06:41 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
+	id <S317326AbSGIG6U>; Tue, 9 Jul 2002 02:58:20 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:41878 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317324AbSGIG6S>; Tue, 9 Jul 2002 02:58:18 -0400
+Message-ID: <001101c22712$f51d54f0$0700a8c0@ibammer>
+From: IB-Ammer@t-online.de (=?iso-8859-1?Q?Dr._Markus_Ammer=2C_Ingenieurb=FCro_Ammer?=)
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel op-locks not in alpha-kernel ?
+Date: Tue, 9 Jul 2002 08:36:25 +0200
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: readprofile from 2.5.25 web server benchmark
-References: <3D2A8152.7040200@us.ibm.com> <3D2A863D.DC0AF866@zip.com.au> <3D2A8779.9070104@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> 
-> ...
-> > I'd be interested in the effect of the latter.  It's very 2.4-able.
-> 
-> Do you mean 2.5-able?
-> http://www.google.com/search?hl=en&ie=UTF-8&oe=UTF-8&q=smptimers+2.5
-> 
-> I found a couple of 2.5.*teen patches, but they're miles away from
-> applying cleanly.  Work for tomorrow, sigh...
-> 
+Hello,
 
-Nah.  I mean this technological gem:
+following has been posted to samba mailing list, but Gerald Carter
+<jerry@samba.org>  answered:
+
+> You'll probably have to bring this up with the linux-kernel mailing list.
+> Not sure who is maintaining that code in the kernel now.
 
 
---- 2.5.25/kernel/timer.c~timer-speedup	Tue Jul  9 00:04:33 2002
-+++ 2.5.25-akpm/kernel/timer.c	Tue Jul  9 00:06:09 2002
-@@ -211,6 +211,9 @@ int mod_timer(struct timer_list *timer, 
- 	int ret;
- 	unsigned long flags;
- 
-+	if (timer_pending(timer) && timer->expires == expires)
-+		return 1;
-+
- 	spin_lock_irqsave(&timerlist_lock, flags);
- 	timer->expires = expires;
- 	ret = detach_timer(timer);
+I have a Compaq Alpha server with Linux 2.4.18 and samba 2.2.4 and
+NT-clients.
 
--
+Problem: After accessing a file from a NT-client this file cannot be
+accessed on the Linux side for a while.
+
+Example:
+Creating the file on the server (via telnet session):
+     echo test >file
+
+accessing the file from the NT-client (gives "test"):
+     TYPE file
+
+try to access it on the server (via telnet session):
+     cat test
+ cat: file: Invalid argument
+
+After waiting approx. 40 sec. it succeeds.
+
+
+This problem does not occur with "kernel oplocks=no" in /etc/smb.conf, but
+file contents are not consistent then.
+
+The same configuration on an Intel server (2.4.16, samba 2.2.3a) works.
+
+
+Markus.
+(Please send CC to me.)
+
+

@@ -1,108 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263859AbUDFO6w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 10:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263856AbUDFO5f
+	id S263852AbUDFO7u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 10:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbUDFO7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 10:57:35 -0400
-Received: from gemini.rz.uni-ulm.de ([134.60.246.16]:57587 "EHLO
-	mail.rz.uni-ulm.de") by vger.kernel.org with ESMTP id S263852AbUDFOzm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 10:55:42 -0400
-Date: Tue, 6 Apr 2004 16:47:09 +0200
-From: Juergen Salk <juergen.salk@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Strip whitespace from EXTRAVERSION?
-Message-ID: <20040406144709.GC16564@oest181.str.klinik.uni-ulm.de>
+	Tue, 6 Apr 2004 10:59:04 -0400
+Received: from fed1rmmtao10.west.cox.net ([68.230.241.29]:15820 "EHLO
+	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S263861AbUDFO5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 10:57:43 -0400
+Date: Tue, 6 Apr 2004 07:57:41 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Stelian Pop <stelian@popies.net>, kgdb-bugreport@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Amit S. Kale" <amitkale@emsyssoft.com>, ganzinger@mvista.com
+Subject: Re: [Kgdb-bugreport] [KGDB] Make kgdb get in sync with it's I/O drivers for the breakpoint
+Message-ID: <20040406145741.GX31152@smtp.west.cox.net>
+References: <20040405233058.GV31152@smtp.west.cox.net> <20040406145102.GQ2718@deep-space-9.dsnet>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-DCC-RollaNet-Metrics: gemini 1004; Body=1 Fuz1=1 Fuz2=1
+In-Reply-To: <20040406145102.GQ2718@deep-space-9.dsnet>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 06, 2004 at 04:51:02PM +0200, Stelian Pop wrote:
+> On Mon, Apr 05, 2004 at 04:30:58PM -0700, Tom Rini wrote:
+> 
+> > Hello.  The following interdiff, vs current kgdb-2 CVS makes kgdb core
+> > and I/O drivers get in sync in order to cause a breakpoint.  This kills
+> > off the init/main.c change, and makes way for doing things much earlier,
+> > if other support exists. 
+> 
+> And it works perfectly for me too (with the pcmcia net card, debug
+> started by sysrq+g).
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Great!
 
-Hi,
+> 
+> There are however a couple of cleanups and a compile fix attached.
 
-I am wondering if it makes sense to strip whitespace
-characters from $(EXTRAVERSION) if they exist.
+Whoops, thanks.
 
-Especially trailing whitespace can easily be introduced
-(and overlooked) by mistake by someone who edits
-this value in the Makefile.
+> > What would be left, tangentally, is some sort
+> > of queue to register with, so we can handle the case of KGDBOE on a
+> > pcmcia card.  George? Amit? Comments ?
+> 
+> Maybe this could be done in a more kgdb-independent way in the
+> netpoll layer. There is already some code there who waits for
+> the carrier on a net card. Maybe this could be extended to also
+> wait for the network card to appear...
 
-This is not only a show stopper when it comes to
-=BBmake modules_install=AB but it may also cause data
-loss under certain circumstances. E.g. if you
-maintain an - admittedly non-standard - directory
-tree named /kernel on your system, this tree will be
-deleted when you invoke =BBmake modules_install=AB with
-trailing whitespace in $(EXTRAVERSION) (and thus
-in $(MODLIB) as well):
+I was thinking about that as well.  But what I'm guessing happens now is
+that netpoll_setup(&np) fails causing us init_kgdboe to fail.  If we're
+going to queue up the signal and wait for an eth0, what would it return
+to let us known it'll be ready 'someday' ?
 
-=2EPHONY: modules_install
-modules_install: _modinst_ $(patsubst %, _modinst_%, $(SUBDIRS))
-_modinst_post
-
-=2EPHONY: _modinst_
-_modinst_:
-    @rm -rf $(MODLIB)/kernel
-    @rm -f $(MODLIB)/build
-    @mkdir -p $(MODLIB)/kernel
-    @ln -s $(TOPDIR) $(MODLIB)/build
-
-Similar arguments may hold true for other macros
-as well (like $(VERSION), $(PATCHLEVEL) etc.), but
-these are much less likely touched by an ordinary
-user who just wants to recompile his kernel.
-
-After all, this is not a big issue, but I would like to
-know what others think about it.
-
-Just in case, there is a trivial one-liner against
-2.4.25 below to remove whitespace from $(EXTRAVERSION) before it
-is used elsewhere. Note that there is a space and a tab
-inside the sed braces.
-
-(One could also think about proper quoting to allow whitespace
-in $(EXTRAVERSION), but I'm not so sure if whitespace makes
-much sense in it, anyway.)
-
-Regards - Juergen Salk
-
-
---- Makefile-orig       Tue Apr  6 14:13:06 2004
-+++ Makefile    Tue Apr  6 14:45:29 2004
-@@ -3,6 +3,7 @@
- SUBLEVEL =3D 25
- EXTRAVERSION =3D
-
-+EXTRAVERSION:=3D$(shell echo $(EXTRAVERSION) | sed -e 's/[ 	]//g')
- KERNELRELEASE=3D$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
-
- ARCH :=3D $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/=
-arm.*/arm/ -e s/sa110/arm/)
-
---=20
-GPG A997BA7A | 87FC DA31 5F00 C885 0DC3  E28F BD0D 4B33 A997 BA7A
-
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAcsLtvQ1LM6mXunoRAkqsAJ49MJPYdx1UGrgQCF15zACFqUHutQCeIcm1
-DjWY7Y6JTCcjIBaREuB7CI0=
-=Y/92
------END PGP SIGNATURE-----
-
---Dxnq1zWXvFF0Q93v--
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

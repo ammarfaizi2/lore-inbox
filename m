@@ -1,85 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268118AbRG3VT5>; Mon, 30 Jul 2001 17:19:57 -0400
+	id <S268296AbRG3VZ5>; Mon, 30 Jul 2001 17:25:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268138AbRG3VTs>; Mon, 30 Jul 2001 17:19:48 -0400
-Received: from athena.intergrafix.net ([206.245.154.69]:34772 "HELO
-	athena.intergrafix.net") by vger.kernel.org with SMTP
-	id <S268118AbRG3VTj>; Mon, 30 Jul 2001 17:19:39 -0400
-Date: Mon, 30 Jul 2001 17:19:47 -0400 (EDT)
-From: Admin Mailing Lists <mlist@intergrafix.net>
-To: Per Jessen <per@computer.org>
-Cc: Ignacio Vazquez-Abrams <ignacio@openservices.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Test mail
-In-Reply-To: <3B5D8A0A00250551@mta2n.bluewin.ch> (added by postmaster@bluewin.ch)
-Message-ID: <Pine.LNX.4.10.10107301713530.28265-100000@athena.intergrafix.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268233AbRG3VZr>; Mon, 30 Jul 2001 17:25:47 -0400
+Received: from [64.7.140.42] ([64.7.140.42]:14784 "EHLO inet.connecttech.com")
+	by vger.kernel.org with ESMTP id <S268055AbRG3VZ2>;
+	Mon, 30 Jul 2001 17:25:28 -0400
+Message-ID: <060201c1193e$bbc1edc0$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "Thomas Hood" <jdthoodREMOVETHIS@yahoo.co.uk>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B65CDC8.7ECE387A@yahoo.co.uk>
+Subject: Re: "serial" does not show up in /proc/interrupts
+Date: Mon, 30 Jul 2001 17:29:37 -0400
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+From: "Thomas Hood" <jdthoodREMOVETHIS@yahoo.co.uk>
+> I am not using /dev/ttyS0 at the moment, so IRQ4 isn't listed
+> as used.  I assume that's normal.  But I do have /dev/ttyS1
 
-4 words.. mail server virus scanner.
+That is normal. serial.c unregisters the irq if it's no longer
+needed.
 
-btw, does anyone know of (and please reply off-list as this is way OT)
-any virus scanners for unix-type MTAs that keep an updated virii db
-on-server via automatic remote updates from virus centers like symantec
-(or anywhere else that would have an updated list of virii to plug into
-the local db)?
+> open; it uses IRQ3.  But note that the name of the serial
+> driver is not printed in the list.  Why not?
+>
+>   3:       1979          XT-PIC
 
--Tony
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-Anthony J. Biacco                       Network Administrator/Engineer
-thelittleprince@asteroid-b612.org       Intergrafix Internet Services
+If you have it open, it should appear.
 
-    "Dream as if you'll live forever, live as if you'll die today"
-http://www.asteroid-b612.org                http://www.intergrafix.net
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+> Fishy!
 
-On Mon, 30 Jul 2001, Per Jessen wrote:
+Indeed.
 
-> >On Mon, 30 Jul 2001 13:38:02 -0400 (EDT), Ignacio Vazquez-Abrams wrote:
-> >
-> >On Mon, 30 Jul 2001, Albert D. Cahalan wrote:
-> >
-> >> Banning Outlook isn't so bad. Assuming you are stuck with Windows,
-> >> you still have many choices. Netscape/Mozilla and Eudora would be
-> >> the obvious choices. I think you can get pine. Emacs has been
-> >> ported to Windows, so you have the rmail/gnus stuff. Surely you
-> >> can tolerate at least one of these many choices.
-> >
-> >The problem is that in plenty of large companies not only are you stuck with
-> >Windows, but you're also stuck with either Outlook or Notes because of
-> >corporate decisions (i.e., Exchange or Domino). Trust me; been there, done
-> >that.
-> 
-> And me. And in reality there is nothing really wrong with that. The world
-> isn't black and white - it's not Windows or Linux either. For a corporation
-> of eg. 20.000 Windows desktops, you need a lot of convincing to switch the desktop
-> to Linux. Even if one of your core products is Linux based. 
-> The fact is that your corporate desktop has little or nothing to do with your 
-> products. Get it ? If that WERE the case, a lot of the corporations still 
-> writing and shipping OS/390 software would have a serious problem. 
-> (been there and done that too)
-> 
-> So, please, don't blame Outlook in this context - it IS a user problem - Outlook
-> is just a *relatively* innocent mail-client. 
-> 
-> 
-> 
-> regards,
-> Per Jessen, Zurich
-> 
-> Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
-> (borrowed from zinc.anode@enidan.com)
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+..Stu
+
 

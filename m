@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261910AbTCLTGS>; Wed, 12 Mar 2003 14:06:18 -0500
+	id <S261916AbTCLTIv>; Wed, 12 Mar 2003 14:08:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261911AbTCLTGS>; Wed, 12 Mar 2003 14:06:18 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42757 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261910AbTCLTGQ>; Wed, 12 Mar 2003 14:06:16 -0500
-Date: Wed, 12 Mar 2003 11:14:52 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: John Bradford <john@grabjohn.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bio too big device
-In-Reply-To: <200303121905.h2CJ5449001606@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.44.0303121111440.15738-100000@home.transmeta.com>
+	id <S261920AbTCLTIv>; Wed, 12 Mar 2003 14:08:51 -0500
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:52904 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S261916AbTCLTIt>; Wed, 12 Mar 2003 14:08:49 -0500
+Message-ID: <20030312191916.20499.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
+To: jjs@tmsusa.com, linux-kernel@vger.kernel.org
+Date: Wed, 12 Mar 2003 20:19:16 +0100
+Subject: Re: named vs 2.5.64-mm5
+X-Originating-Ip: 213.4.13.153
+X-Originating-Server: ws5-7.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+----- Original Message ----- 
+From: jjs <jjs@tmsusa.com> 
+Date: 	Wed, 12 Mar 2003 10:29:12 -0800 
+To: linux kernel <linux-kernel@vger.kernel.org> 
+Subject: named vs 2.5.64-mm5 
+ 
+> Greetings - 
+>  
+> 2.5.64-mm4 and -mm5 seem more rugged than previous 
+> kernels, but there are a couple of minor nits - one of them 
+> is the tendency of named (which appears to work reliably 
+> under 2.4) to go catatonic under recent 2.5.6x kernels - 
+>  
+> More verbose kernel logging may shed some light - or is 
+> this just a red herring? I get a tons of these in 2.5.64-mm5: 
+>  
+> <...> 
+> process `named' is using obsolete setsockopt SO_BSDCOMPAT 
+> process `named' is using obsolete setsockopt SO_BSDCOMPAT 
+> process `named' is using obsolete setsockopt SO_BSDCOMPAT 
+> <...> 
+>  
+> Anybody here running a compliant version of named? 
+>  
+> (This is the bind 9.2.1 which ships with Red Hat 8.0) 
+ 
+I would recommend you downloading BIND 9.2.2. It fixes many 
+bugs. Else, try the latest BIND from RedHat's RawHide repository. 
+HTH 
+ 
+   Felipe 
+ 
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
-On Wed, 12 Mar 2003, John Bradford wrote:
-> 
-> Couldn't we have a list of known good drives, though, and enable 256
-> sectors as a special case?
-
-My problem is that I just don't see the point. What's the difference 
-between 256 and 254 sectors? 128kB vs 127kB? 
-
-Also, looking closer, the current limit actually seems to be _controller_
-dependent, not disk-dependent. I don't know how valid that is, but it
-looks reasonable at least in theory - while the IDE controller is mostly a
-passthrough thing, it does end up doing part of the work. So the picture
-look smore complex than just another drive blacklist.
-
-In short, the headaches just aren't worth the 127->128kB gain.
-
-			Linus
-
+Powered by Outblaze

@@ -1,960 +1,583 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262331AbTININp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 04:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbTININp
+	id S262333AbTINIQy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 04:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTINIQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 04:13:45 -0400
-Received: from webmail.netregistry.net ([203.202.16.21]:39827 "EHLO
-	webmail.netregistry.net") by vger.kernel.org with ESMTP
-	id S262331AbTINIMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 04:12:54 -0400
-Message-ID: <1063527169.3f642301c00e7@webmail.netregistry.net>
-Date: Sun, 14 Sep 2003 18:12:49 +1000
-From: Dmitri Katchalov <dmitrik@users.sourceforge.net>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test5 atkbd.c: Unknown key (100% reproduceable)
-References: <1063443074.3f62da82a7e24@webmail.netregistry.net> <20030913220743.B3295@pclin040.win.tue.nl>
-In-Reply-To: <20030913220743.B3295@pclin040.win.tue.nl>
+	Sun, 14 Sep 2003 04:16:54 -0400
+Received: from mail.gmx.de ([213.165.64.20]:38347 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262333AbTINIQe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 04:16:34 -0400
+From: "Sebastian Piecha" <spi@gmxpro.de>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 14 Sep 2003 10:16:38 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 144.132.160.37
+Subject: PROBLEM: oops in 2.4.23pre1, Promise-ide, samba
+Message-ID: <3F644006.22303.31C480A@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andries Brouwer <aebr@win.tue.nl>:
+Hello, 
 
-> On Sat, Sep 13, 2003 at 06:51:14PM +1000, Dmitri Katchalov wrote:
-> 
-> > I'm consistently getting this error:
-> > 
-> > atkbd.c: Unknown key (set 2, scancode 0xab, on isa0060/serio0) pressed.
-> > This happens whenever I type 'f' in "<F7>usbdevfs". 
-> 
-> Question 1: Does the error remain if you switch off preemptive?
+several times I got an OOPS. Here's a description of what has 
+happened. Any  help would be appreciated. Please CC me on all further 
+mail traffic.  
 
-Yes. I also tried nosmp at the lilo prompt but my kernel gets stuck when
-it comes to initialising ide controller (it says "ide2: lost interrupt")
-Not sure if it is a bug or a feature:)
+###############################################################
 
-> Question 2: Can you enable DEBUG in i8042.c, repeat the error
-> and mail me the resulting output?
+1) one line summary:
+When moving data (more than 4GB) from a Windows XP Client to a samba 
+share or checking data stored on the samba share (Powerquest 
+DriveImage images, 56 files, each ~700MB of size, checking with the 
+Powerquest Image Explorer) the kernel panics with an OOPS. Linux  has 
+to be resetted hard. When accessing the data via NFS no OOPS is 
+occurring.
 
-See below. Hope it helps. 
+The error occured on kernel 2.4.20 with samba 2.2.7a and 2.2.8a. Now 
+I tried kernel 2.4.23pre1 with samba 2.2.8a and again the error 
+occurred.
 
-Oh yes, it eats 'f' in "make menuconfig" 3 out of 4 times. 
-The keyboard in question is "StudyMate" keyboard.
-In addition to the usual keys it has left and right windows keys,
-menu key, power, sleep, wake and Fn keys. These extra keys 
-have never worked as far as I remember.
-On the back it says: "Turbo-Track Keyboard" FCC ID: HQK BITS9001
-The keyboard worked just fine in "the other" OS 
+I already posted the kernel 2.4.20 problem. The subjects were 
+"PROBLEM: Powerquest Drive Image let the kernel panic" and "PROBLEM: 
+kernel panic when accessing data via samba".
 
-Regards,
-Dmitri
+###############################################################
 
+2) full description:
 
-Sep 15 01:19:33 box kernel: klogd 1.4.1#10, log source = /proc/kmsg started.
-Sep 15 01:19:33 box kernel: Inspecting /boot/System.map-2.6.0-test5
-Sep 15 01:19:33 box kernel: Loaded 22605 symbols from /boot/System.map-2.6.0-
-test5.
-Sep 15 01:19:33 box kernel: Symbols match kernel version 2.6.0.
-Sep 15 01:19:33 box kernel: No module symbols loaded - kernel modules not 
-enabled. 
-Sep 15 01:19:33 box kernel: Linux version 2.6.0-test5 (root@box) (gcc version 
-2.95.4 20011002 (Debian prerelease)) #7 SMP Mon Sep 15 00:56:00 EST 2003
-Sep 15 01:19:33 box kernel: Video mode to be used for restore is ffff
-Sep 15 01:19:33 box kernel: BIOS-provided physical RAM map:
-Sep 15 01:19:33 box kernel:  BIOS-e820: 0000000000000000 - 000000000009f800 
-(usable)
-Sep 15 01:19:33 box kernel:  BIOS-e820: 000000000009f800 - 00000000000a0000 
-(reserved)
-Sep 15 01:19:33 box kernel:  BIOS-e820: 00000000000f0000 - 0000000000100000 
-(reserved)
-Sep 15 01:19:33 box kernel:  BIOS-e820: 0000000000100000 - 000000003fff0000 
-(usable)
-Sep 15 01:19:33 box kernel:  BIOS-e820: 000000003fff0000 - 000000003fff3000 
-(ACPI NVS)
-Sep 15 01:19:33 box kernel:  BIOS-e820: 000000003fff3000 - 0000000040000000 
-(ACPI data)
-Sep 15 01:19:33 box kernel:  BIOS-e820: 00000000fec00000 - 0000000100000000 
-(reserved)
-Sep 15 01:19:33 box kernel: 127MB HIGHMEM available.
-Sep 15 01:19:33 box kernel: 896MB LOWMEM available.
-Sep 15 01:19:33 box kernel: found SMP MP-table at 000f5cd0
-Sep 15 01:19:33 box kernel: hm, page 000f5000 reserved twice.
-Sep 15 01:19:33 box kernel: hm, page 000f6000 reserved twice.
-Sep 15 01:19:33 box kernel: hm, page 000f0000 reserved twice.
-Sep 15 01:19:33 box kernel: hm, page 000f1000 reserved twice.
-Sep 15 01:19:33 box kernel: On node 0 totalpages: 262128
-Sep 15 01:19:33 box kernel:   DMA zone: 4096 pages, LIFO batch:1
-Sep 15 01:19:33 box kernel:   Normal zone: 225280 pages, LIFO batch:16
-Sep 15 01:19:33 box kernel:   HighMem zone: 32752 pages, LIFO batch:7
-Sep 15 01:19:33 box kernel: DMI 2.2 present.
-Sep 15 01:19:33 box kernel: ACPI: RSDP (v000 
-IntelR                                    ) @ 0x000f7b00
-Sep 15 01:19:33 box kernel: ACPI: RSDT (v001 IntelR AWRDACPI 0x42302e31 AWRD 
-0x00000000) @ 0x3fff3000
-Sep 15 01:19:33 box kernel: ACPI: FADT (v001 IntelR AWRDACPI 0x42302e31 AWRD 
-0x00000000) @ 0x3fff3040
-Sep 15 01:19:33 box kernel: ACPI: MADT (v001 IntelR AWRDACPI 0x42302e31 AWRD 
-0x00000000) @ 0x3fff75c0
-Sep 15 01:19:33 box kernel: ACPI: DSDT (v001 INTELR AWRDACPI 0x00001000 MSFT 
-0x0100000e) @ 0x00000000
-Sep 15 01:19:33 box kernel: ACPI: Local APIC address 0xfee00000
-Sep 15 01:19:33 box kernel: ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
-Sep 15 01:19:33 box kernel: Processor #0 15:2 APIC version 20
-Sep 15 01:19:33 box kernel: ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
-Sep 15 01:19:33 box kernel: Processor #1 15:2 APIC version 20
-Sep 15 01:19:33 box kernel: ACPI: LAPIC_NMI (acpi_id[0x00] polarity[0x1] trigger
-[0x1] lint[0x1])
-Sep 15 01:19:33 box kernel: ACPI: LAPIC_NMI (acpi_id[0x01] polarity[0x1] trigger
-[0x1] lint[0x1])
-Sep 15 01:19:33 box kernel: ACPI: IOAPIC (id[0x02] address[0xfec00000] 
-global_irq_base[0x0])
-Sep 15 01:19:33 box kernel: IOAPIC[0]: Assigned apic_id 2
-Sep 15 01:19:33 box kernel: IOAPIC[0]: apic_id 2, version 32, address 
-0xfec00000, IRQ 0-23
-Sep 15 01:19:33 box kernel: ACPI: INT_SRC_OVR (bus[0] irq[0x0] global_irq[0x2] 
-polarity[0x0] trigger[0x0])
-Sep 15 01:19:33 box kernel: ACPI: INT_SRC_OVR (bus[0] irq[0x9] global_irq[0x9] 
-polarity[0x1] trigger[0x3])
-Sep 15 01:19:33 box kernel: Enabling APIC mode:  Flat.  Using 1 I/O APICs
-Sep 15 01:19:33 box kernel: Using ACPI (MADT) for SMP configuration information
-Sep 15 01:19:33 box kernel: Building zonelist for node : 0
-Sep 15 01:19:33 box kernel: Kernel command line: BOOT_IMAGE=Linux ro root=2103
-Sep 15 01:19:33 box kernel: Initializing CPU#0
-Sep 15 01:19:33 box kernel: PID hash table entries: 4096 (order 12: 32768 bytes)
-Sep 15 01:19:33 box kernel: Detected 2405.928 MHz processor.
-Sep 15 01:19:33 box kernel: Console: colour VGA+ 80x25
-Sep 15 01:19:33 box kernel: Memory: 1033944k/1048512k available (1827k kernel 
-code, 13640k reserved, 920k data, 140k init, 131008k highmem)
-Sep 15 01:19:33 box kernel: Calibrating delay loop... 4751.36 BogoMIPS
-Sep 15 01:19:33 box kernel: Dentry cache hash table entries: 131072 (order: 7, 
-524288 bytes)
-Sep 15 01:19:33 box kernel: Inode-cache hash table entries: 65536 (order: 6, 
-262144 bytes)
-Sep 15 01:19:33 box kernel: Mount-cache hash table entries: 512 (order: 0, 4096 
-bytes)
-Sep 15 01:19:33 box kernel: -> /dev
-Sep 15 01:19:33 box kernel: -> /dev/console
-Sep 15 01:19:33 box kernel: -> /root
-Sep 15 01:19:33 box kernel: CPU:     After generic identify, caps: bfebfbff 
-00000000 00000000 00000000
-Sep 15 01:19:33 box kernel: CPU:     After vendor identify, caps: bfebfbff 
-00000000 00000000 00000000
-Sep 15 01:19:33 box kernel: CPU: Trace cache: 12K uops, L1 D cache: 8K
-Sep 15 01:19:33 box kernel: CPU: L2 cache: 512K
-Sep 15 01:19:33 box kernel: CPU: Physical Processor ID: 0
-Sep 15 01:19:33 box kernel: CPU:     After all inits, caps: bfebfbff 00000000 
-00000000 00000080
-Sep 15 01:19:33 box kernel: Intel machine check architecture supported.
-Sep 15 01:19:33 box kernel: Intel machine check reporting enabled on CPU#0.
-Sep 15 01:19:33 box kernel: CPU#0: Intel P4/Xeon Extended MCE MSRs (12) 
-available
-Sep 15 01:19:33 box kernel: CPU#0: Thermal monitoring enabled
-Sep 15 01:19:33 box kernel: Enabling fast FPU save and restore... done.
-Sep 15 01:19:33 box kernel: Enabling unmasked SIMD FPU exception support... 
-done.
-Sep 15 01:19:33 box kernel: Checking 'hlt' instruction... OK.
-Sep 15 01:19:34 box kernel: POSIX conformance testing by UNIFIX
-Sep 15 01:19:34 box kernel: CPU0: Intel(R) Pentium(R) 4 CPU 2.40GHz stepping 09
-Sep 15 01:19:34 box kernel: per-CPU timeslice cutoff: 1463.08 usecs.
-Sep 15 01:19:34 box kernel: task migration cache decay timeout: 2 msecs.
-Sep 15 01:19:34 box kernel: enabled ExtINT on CPU#0
-Sep 15 01:19:34 box kernel: ESR value before enabling vector: 00000000
-Sep 15 01:19:34 box kernel: ESR value after enabling vector: 00000000
-Sep 15 01:19:34 box kernel: Booting processor 1/1 eip 2000
-Sep 15 01:19:34 box kernel: Initializing CPU#1
-Sep 15 01:19:34 box kernel: masked ExtINT on CPU#1
-Sep 15 01:19:34 box kernel: ESR value before enabling vector: 00000000
-Sep 15 01:19:34 box kernel: ESR value after enabling vector: 00000000
-Sep 15 01:19:34 box kernel: Calibrating delay loop... 4800.51 BogoMIPS
-Sep 15 01:19:34 box kernel: CPU:     After generic identify, caps: bfebfbff 
-00000000 00000000 00000000
-Sep 15 01:19:34 box kernel: CPU:     After vendor identify, caps: bfebfbff 
-00000000 00000000 00000000
-Sep 15 01:19:34 box kernel: CPU: Trace cache: 12K uops, L1 D cache: 8K
-Sep 15 01:19:34 box kernel: CPU: L2 cache: 512K
-Sep 15 01:19:34 box kernel: CPU: Physical Processor ID: 0
-Sep 15 01:19:34 box kernel: CPU:     After all inits, caps: bfebfbff 00000000 
-00000000 00000080
-Sep 15 01:19:34 box kernel: Intel machine check architecture supported.
-Sep 15 01:19:34 box kernel: Intel machine check reporting enabled on CPU#1.
-Sep 15 01:19:34 box kernel: CPU#1: Intel P4/Xeon Extended MCE MSRs (12) 
-available
-Sep 15 01:19:34 box kernel: CPU#1: Thermal monitoring enabled
-Sep 15 01:19:34 box kernel: CPU1: Intel(R) Pentium(R) 4 CPU 2.40GHz stepping 09
-Sep 15 01:19:34 box kernel: Total of 2 processors activated (9551.87 BogoMIPS).
-Sep 15 01:19:34 box kernel: cpu_sibling_map[0] = 1
-Sep 15 01:19:34 box kernel: cpu_sibling_map[1] = 0
-Sep 15 01:19:34 box kernel: ENABLING IO-APIC IRQs
-Sep 15 01:19:34 box kernel: init IO_APIC IRQs
-Sep 15 01:19:34 box kernel:  IO-APIC (apicid-pin) 2-0, 2-16, 2-17, 2-18, 2-19, 
-2-20, 2-21, 2-22, 2-23 not connected.
-Sep 15 01:19:34 box kernel: ..TIMER: vector=0x31 pin1=2 pin2=-1
-Sep 15 01:19:34 box kernel: number of MP IRQ sources: 15.
-Sep 15 01:19:34 box kernel: number of IO-APIC #2 registers: 24.
-Sep 15 01:19:34 box kernel: testing the IO APIC.......................
-Sep 15 01:19:34 box kernel: IO APIC #2......
-Sep 15 01:19:34 box kernel: .... register #00: 02000000
-Sep 15 01:19:34 box kernel: .......    : physical APIC id: 02
-Sep 15 01:19:34 box kernel: .......    : Delivery Type: 0
-Sep 15 01:19:34 box kernel: .......    : LTS          : 0
-Sep 15 01:19:34 box kernel: .... register #01: 00178020
-Sep 15 01:19:34 box kernel: .......     : max redirection entries: 0017
-Sep 15 01:19:34 box kernel: .......     : PRQ implemented: 1
-Sep 15 01:19:34 box kernel: .......     : IO APIC version: 0020
-Sep 15 01:19:34 box kernel: .... IRQ redirection table:
-Sep 15 01:19:34 box kernel:  NR Log Phy Mask Trig IRR Pol Stat Dest Deli 
-Vect:   
-Sep 15 01:19:34 box kernel:  00 000 00  1    0    0   0   0    0    0    00
-Sep 15 01:19:34 box kernel:  01 001 01  0    0    0   0   0    1    1    39
-Sep 15 01:19:34 box kernel:  02 001 01  0    0    0   0   0    1    1    31
-Sep 15 01:19:34 box kernel:  03 001 01  0    0    0   0   0    1    1    41
-Sep 15 01:19:34 box kernel:  04 001 01  0    0    0   0   0    1    1    49
-Sep 15 01:19:34 box kernel:  05 001 01  0    0    0   0   0    1    1    51
-Sep 15 01:19:34 box kernel:  06 001 01  0    0    0   0   0    1    1    59
-Sep 15 01:19:34 box kernel:  07 001 01  0    0    0   0   0    1    1    61
-Sep 15 01:19:34 box kernel:  08 001 01  0    0    0   0   0    1    1    69
-Sep 15 01:19:34 box kernel:  09 001 01  1    1    0   0   0    1    1    71
-Sep 15 01:19:34 box kernel:  0a 001 01  0    0    0   0   0    1    1    79
-Sep 15 01:19:34 box kernel:  0b 001 01  0    0    0   0   0    1    1    81
-Sep 15 01:19:34 box kernel:  0c 001 01  0    0    0   0   0    1    1    89
-Sep 15 01:19:34 box kernel:  0d 001 01  0    0    0   0   0    1    1    91
-Sep 15 01:19:34 box kernel:  0e 001 01  0    0    0   0   0    1    1    99
-Sep 15 01:19:34 box kernel:  0f 001 01  0    0    0   0   0    1    1    A1
-Sep 15 01:19:34 box kernel:  10 000 00  1    0    0   0   0    0    0    00
-Sep 15 01:19:34 box kernel:  11 000 00  1    0    0   0   0    0    0    00
-Sep 15 01:19:34 box kernel:  12 000 00  1    0    0   0   0    0    0    00
-Sep 15 01:19:34 box kernel:  13 000 00  1    0    0   0   0    0    0    00
-Sep 15 01:19:34 box kernel:  14 000 00  1    0    0   0   0    0    0    00
-Sep 15 01:19:34 box kernel:  15 000 00  1    0    0   0   0    0    0    00
-Sep 15 01:19:34 box kernel:  16 000 00  1    0    0   0   0    0    0    00
-Sep 15 01:19:34 box kernel:  17 000 00  1    0    0   0   0    0    0    00
-Sep 15 01:19:34 box kernel: IRQ to pin mappings:
-Sep 15 01:19:34 box kernel: IRQ0 -> 0:2
-Sep 15 01:19:34 box kernel: IRQ1 -> 0:1
-Sep 15 01:19:34 box kernel: IRQ3 -> 0:3
-Sep 15 01:19:34 box kernel: IRQ4 -> 0:4
-Sep 15 01:19:34 box kernel: IRQ5 -> 0:5
-Sep 15 01:19:34 box kernel: IRQ6 -> 0:6
-Sep 15 01:19:34 box kernel: IRQ7 -> 0:7
-Sep 15 01:19:34 box kernel: IRQ8 -> 0:8
-Sep 15 01:19:34 box kernel: IRQ9 -> 0:9
-Sep 15 01:19:34 box kernel: IRQ10 -> 0:10
-Sep 15 01:19:34 box kernel: IRQ11 -> 0:11
-Sep 15 01:19:34 box kernel: IRQ12 -> 0:12
-Sep 15 01:19:34 box kernel: IRQ13 -> 0:13
-Sep 15 01:19:34 box kernel: IRQ14 -> 0:14
-Sep 15 01:19:34 box kernel: IRQ15 -> 0:15
-Sep 15 01:19:34 box kernel: .................................... done.
-Sep 15 01:19:34 box kernel: Using local APIC timer interrupts.
-Sep 15 01:19:34 box kernel: calibrating APIC timer ...
-Sep 15 01:19:34 box kernel: ..... CPU clock speed is 2405.0089 MHz.
-Sep 15 01:19:34 box kernel: ..... host bus clock speed is 200.0423 MHz.
-Sep 15 01:19:34 box kernel: checking TSC synchronization across 2 CPUs: passed.
-Sep 15 01:19:34 box kernel: Starting migration thread for cpu 0
-Sep 15 01:19:34 box kernel: Bringing up 1
-Sep 15 01:19:34 box kernel: CPU 1 IS NOW UP!
-Sep 15 01:19:34 box kernel: Starting migration thread for cpu 1
-Sep 15 01:19:34 box kernel: CPUS done 2
-Sep 15 01:19:34 box kernel: NET: Registered protocol family 16
-Sep 15 01:19:34 box kernel: PCI: PCI BIOS revision 2.10 entry at 0xfbb20, last 
-bus=2
-Sep 15 01:19:34 box kernel: PCI: Using configuration type 1
-Sep 15 01:19:34 box kernel: mtrr: v2.0 (20020519)
-Sep 15 01:19:34 box kernel: ACPI: Subsystem revision 20030813
-Sep 15 01:19:34 box kernel: ACPI: Interpreter enabled
-Sep 15 01:19:34 box kernel: ACPI: Using IOAPIC for interrupt routing
-Sep 15 01:19:34 box kernel: ACPI: PCI Root Bridge [PCI0] (00:00)
-Sep 15 01:19:34 box kernel: PCI: Probing PCI hardware (bus 00)
-Sep 15 01:19:34 box kernel: PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
-Sep 15 01:19:34 box kernel: Transparent bridge - 0000:00:1e.0
-Sep 15 01:19:34 box kernel: ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-Sep 15 01:19:34 box kernel: ACPI: PCI Interrupt Routing Table 
-[\_SB_.PCI0.HUB0._PRT]
-Sep 15 01:19:34 box kernel: ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 7 9 10 
-*11 12 14 15)
-Sep 15 01:19:34 box kernel: ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 7 9 *10 
-11 12 14 15)
-Sep 15 01:19:34 box kernel: ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 *5 7 9 10 
-11 12 14 15)
-Sep 15 01:19:34 box kernel: ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *5 7 9 10 
-11 12 14 15)
-Sep 15 01:19:34 box kernel: ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 7 9 10 
-11 12 14 15, disabled)
-Sep 15 01:19:34 box kernel: ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 7 9 10 
-11 12 14 15, disabled)
-Sep 15 01:19:34 box kernel: ACPI: PCI Interrupt Link [LNK0] (IRQs 3 4 5 7 9 10 
-11 12 14 15, disabled)
-Sep 15 01:19:34 box kernel: ACPI: PCI Interrupt Link [LNK1] (IRQs 3 4 5 7 *9 10 
-11 12 14 15)
-Sep 15 01:19:34 box kernel: ACPI: Power Resource [PFAN] (off)
-Sep 15 01:19:34 box kernel: Linux Plug and Play Support v0.97 (c) Adam Belay
-Sep 15 01:19:34 box kernel: IOAPIC[0]: Set PCI routing entry (2-16 -> 0xa9 -> 
-IRQ 16 Mode:1 Active:1)
-Sep 15 01:19:34 box kernel: 00:00:1f[C] -> 2-16 -> IRQ 16
-Sep 15 01:19:34 box kernel: IOAPIC[0]: Set PCI routing entry (2-18 -> 0xb1 -> 
-IRQ 18 Mode:1 Active:1)
-Sep 15 01:19:34 box kernel: 00:00:1f[A] -> 2-18 -> IRQ 18
-Sep 15 01:19:34 box kernel: IOAPIC[0]: Set PCI routing entry (2-17 -> 0xb9 -> 
-IRQ 17 Mode:1 Active:1)
-Sep 15 01:19:34 box kernel: 00:00:1f[B] -> 2-17 -> IRQ 17
-Sep 15 01:19:34 box kernel: Pin 2-16 already programmed
-Sep 15 01:19:34 box kernel: IOAPIC[0]: Set PCI routing entry (2-19 -> 0xc1 -> 
-IRQ 19 Mode:1 Active:1)
-Sep 15 01:19:34 box kernel: 00:00:1d[B] -> 2-19 -> IRQ 19
-Sep 15 01:19:34 box kernel: Pin 2-18 already programmed
-Sep 15 01:19:34 box kernel: IOAPIC[0]: Set PCI routing entry (2-23 -> 0xc9 -> 
-IRQ 23 Mode:1 Active:1)
-Sep 15 01:19:34 box kernel: 00:00:1d[D] -> 2-23 -> IRQ 23
-Sep 15 01:19:34 box kernel: Pin 2-16 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-17 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-18 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-19 already programmed
-Sep 15 01:19:34 box kernel: IOAPIC[0]: Set PCI routing entry (2-20 -> 0xd1 -> 
-IRQ 20 Mode:1 Active:1)
-Sep 15 01:19:34 box kernel: 00:02:08[A] -> 2-20 -> IRQ 20
-Sep 15 01:19:34 box kernel: IOAPIC[0]: Set PCI routing entry (2-21 -> 0xd9 -> 
-IRQ 21 Mode:1 Active:1)
-Sep 15 01:19:34 box kernel: 00:02:08[B] -> 2-21 -> IRQ 21
-Sep 15 01:19:34 box kernel: IOAPIC[0]: Set PCI routing entry (2-22 -> 0xe1 -> 
-IRQ 22 Mode:1 Active:1)
-Sep 15 01:19:34 box kernel: 00:02:08[C] -> 2-22 -> IRQ 22
-Sep 15 01:19:34 box kernel: Pin 2-23 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-17 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-18 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-19 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-16 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-20 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-21 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-22 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-23 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-21 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-22 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-23 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-20 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-22 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-23 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-20 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-21 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-23 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-20 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-21 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-22 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-18 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-19 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-16 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-17 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-17 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-18 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-19 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-16 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-19 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-16 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-17 already programmed
-Sep 15 01:19:34 box kernel: Pin 2-18 already programmed
-Sep 15 01:19:34 box kernel: PCI: Using ACPI for IRQ routing
-Sep 15 01:19:34 box kernel: PCI: if you experience problems, try using 
-option 'pci=noacpi' or even 'acpi=off'
-Sep 15 01:19:34 box kernel: pty: 256 Unix98 ptys configured
-Sep 15 01:19:34 box kernel: Machine check exception polling timer started.
-Sep 15 01:19:34 box kernel: IA-32 Microcode Update Driver: v1.11 
-<tigran@veritas.com>
-Sep 15 01:19:34 box kernel: Starting balanced_irq
-Sep 15 01:19:34 box kernel: ikconfig 0.6 with /proc/ikconfig
-Sep 15 01:19:34 box kernel: highmem bounce pool size: 64 pages
-Sep 15 01:19:34 box kernel: NTFS driver 2.1.4 [Flags: R/O].
-Sep 15 01:19:34 box kernel: udf: registering filesystem
-Sep 15 01:19:34 box kernel: ACPI: Power Button (FF) [PWRF]
-Sep 15 01:19:34 box kernel: ACPI: Fan [FAN] (off)
-Sep 15 01:19:34 box kernel: ACPI: Processor [CPU0] (supports C1)
-Sep 15 01:19:34 box kernel: ACPI: Processor [CPU1] (supports C1)
-Sep 15 01:19:34 box kernel: ACPI: Thermal Zone [THRM] (41 C)
-Sep 15 01:19:34 box kernel: Serial: 8250/16550 driver $Revision: 1.90 $ IRQ 
-sharing disabled
-Sep 15 01:19:34 box kernel: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-Sep 15 01:19:34 box kernel: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-Sep 15 01:19:34 box kernel: parport0: PC-style at 0x378 (0x778) 
-[PCSPP,TRISTATE,EPP]
-Sep 15 01:19:34 box kernel: parport0: irq 7 detected
-Sep 15 01:19:34 box kernel: parport0: cpp_daisy: aa5500ff(38)
-Sep 15 01:19:34 box kernel: parport0: assign_addrs: aa5500ff(38)
-Sep 15 01:19:34 box kernel: parport0: cpp_daisy: aa5500ff(38)
-Sep 15 01:19:34 box kernel: parport0: assign_addrs: aa5500ff(38)
-Sep 15 01:19:34 box kernel: Using anticipatory scheduling io scheduler
-Sep 15 01:19:34 box kernel: Floppy drive(s): fd0 is 1.44M
-Sep 15 01:19:34 box kernel: FDC 0 is a post-1991 82077
-Sep 15 01:19:34 box kernel: loop: loaded (max 8 devices)
-Sep 15 01:19:34 box kernel: nbd: registered device at major 43
-Sep 15 01:19:34 box kernel: Uniform Multi-Platform E-IDE driver Revision: 
-7.00alpha2
-Sep 15 01:19:34 box kernel: ide: Assuming 33MHz system bus speed for PIO modes; 
-override with idebus=xx
-Sep 15 01:19:34 box kernel: ICH5: IDE controller at PCI slot 0000:00:1f.1
-Sep 15 01:19:34 box kernel: ICH5: chipset revision 2
-Sep 15 01:19:34 box kernel: ICH5: not 100%% native mode: will probe irqs later
-Sep 15 01:19:34 box kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: 
-hda:DMA, hdb:pio
-Sep 15 01:19:34 box kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: 
-hdc:pio, hdd:pio
-Sep 15 01:19:34 box kernel: ICH5-SATA: IDE controller at PCI slot 0000:00:1f.2
-Sep 15 01:19:34 box kernel: ICH5-SATA: chipset revision 2
-Sep 15 01:19:34 box kernel: ICH5-SATA: 100%% native mode on irq 18
-Sep 15 01:19:34 box kernel:     ide2: BM-DMA at 0xd000-0xd007, BIOS settings: 
-hde:DMA, hdf:pio
-Sep 15 01:19:34 box kernel:     ide3: BM-DMA at 0xd008-0xd00f, BIOS settings: 
-hdg:pio, hdh:pio
-Sep 15 01:19:34 box kernel: hde: ST3120026AS, ATA DISK drive
-Sep 15 01:19:34 box kernel: hdf: probing with STATUS(0x00) instead of ALTSTATUS
-(0x50)
-Sep 15 01:19:34 box kernel: hdf: probing with STATUS(0x00) instead of ALTSTATUS
-(0x50)
-Sep 15 01:19:34 box kernel: ide2 at 0xc000-0xc007,0xc402 on irq 18
-Sep 15 01:19:34 box kernel: hde: max request size: 1024KiB
-Sep 15 01:19:34 box kernel: hde: 234441648 sectors (120034 MB) w/8192KiB Cache, 
-CHS=16383/255/63, UDMA(33)
-Sep 15 01:19:34 box kernel:  hde: hde1 hde2 hde3
-Sep 15 01:19:34 box kernel: mice: PS/2 mouse device common for all mice
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 20 -> i8042 (command) 
-[0]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 47 <- i8042 (return) 
-[0]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) 
-[0]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 56 -> i8042 
-(parameter) [0]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) 
-[0]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f0 -> i8042 
-(parameter) [0]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 0f <- i8042 (return) 
-[0]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) 
-[0]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 56 -> i8042 
-(parameter) [0]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: a9 <- i8042 (return) 
-[0]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: a4 -> i8042 
-(parameter) [1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 5b <- i8042 (return) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 5a -> i8042 
-(parameter) [1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: a5 <- i8042 (return) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: a7 -> i8042 (command) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 20 -> i8042 (command) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 76 <- i8042 (return) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: a8 -> i8042 (command) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 20 -> i8042 (command) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 56 <- i8042 (return) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 74 -> i8042 
-(parameter) [1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) 
-[1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 54 -> i8042 
-(parameter) [1]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) 
-[2]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 56 -> i8042 
-(parameter) [2]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[2]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f2 -> i8042 
-(parameter) [2]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [4]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 <- i8042 
-(interrupt, aux, 12) [5]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) 
-[5]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 54 -> i8042 
-(parameter) [5]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) 
-[6]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 56 -> i8042 
-(parameter) [6]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[6]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f2 -> i8042 
-(parameter) [6]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [8]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 <- i8042 
-(interrupt, aux, 12) [10]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[10]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f6 -> i8042 
-(parameter) [10]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [12]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[12]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e8 -> i8042 
-(parameter) [12]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [15]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[15]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 -> i8042 
-(parameter) [15]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [17]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[17]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e8 -> i8042 
-(parameter) [17]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [20]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[20]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 -> i8042 
-(parameter) [20]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [22]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[22]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e8 -> i8042 
-(parameter) [22]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [25]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[25]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 -> i8042 
-(parameter) [25]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [27]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[27]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e8 -> i8042 
-(parameter) [27]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [30]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[30]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 -> i8042 
-(parameter) [30]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [32]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[32]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e9 -> i8042 
-(parameter) [32]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [35]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 <- i8042 
-(interrupt, aux, 12) [36]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 <- i8042 
-(interrupt, aux, 12) [37]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 64 <- i8042 
-(interrupt, aux, 12) [38]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[38]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e8 -> i8042 
-(parameter) [38]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [41]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[41]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 03 -> i8042 
-(parameter) [41]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [43]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[43]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e6 -> i8042 
-(parameter) [43]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [46]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[46]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e6 -> i8042 
-(parameter) [46]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [49]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[49]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e6 -> i8042 
-(parameter) [49]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [51]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[51]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e9 -> i8042 
-(parameter) [51]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [54]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 <- i8042 
-(interrupt, aux, 12) [55]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 03 <- i8042 
-(interrupt, aux, 12) [56]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 64 <- i8042 
-(interrupt, aux, 12) [57]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[57]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e8 -> i8042 
-(parameter) [57]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [60]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[60]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 -> i8042 
-(parameter) [60]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [62]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[62]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e6 -> i8042 
-(parameter) [62]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [65]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[65]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e6 -> i8042 
-(parameter) [65]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [67]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[67]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e6 -> i8042 
-(parameter) [67]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [70]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[70]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e9 -> i8042 
-(parameter) [70]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [72]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 <- i8042 
-(interrupt, aux, 12) [73]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 <- i8042 
-(interrupt, aux, 12) [74]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 64 <- i8042 
-(interrupt, aux, 12) [76]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[76]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f3 -> i8042 
-(parameter) [76]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [78]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[78]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: c8 -> i8042 
-(parameter) [78]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [81]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[81]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f3 -> i8042 
-(parameter) [81]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [83]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[83]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 64 -> i8042 
-(parameter) [83]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [86]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[86]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f3 -> i8042 
-(parameter) [86]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [88]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[88]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 50 -> i8042 
-(parameter) [88]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [91]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[91]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f2 -> i8042 
-(parameter) [91]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [93]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 03 <- i8042 
-(interrupt, aux, 12) [95]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[95]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f3 -> i8042 
-(parameter) [95]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [97]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[97]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: c8 -> i8042 
-(parameter) [97]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [100]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[100]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f3 -> i8042 
-(parameter) [100]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [102]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[102]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: c8 -> i8042 
-(parameter) [102]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [105]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[105]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f3 -> i8042 
-(parameter) [105]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [107]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[107]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 50 -> i8042 
-(parameter) [107]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [110]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[110]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f2 -> i8042 
-(parameter) [110]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [112]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 03 <- i8042 
-(interrupt, aux, 12) [114]
-Sep 15 01:19:34 box kernel: input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[114]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f3 -> i8042 
-(parameter) [114]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [116]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[116]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 64 -> i8042 
-(parameter) [116]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [119]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[119]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f3 -> i8042 
-(parameter) [119]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [121]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[121]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: c8 -> i8042 
-(parameter) [121]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [124]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[124]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e8 -> i8042 
-(parameter) [124]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [126]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[126]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 03 -> i8042 
-(parameter) [126]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [129]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[129]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: e6 -> i8042 
-(parameter) [129]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [131]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[131]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: ea -> i8042 
-(parameter) [131]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [134]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) 
-[134]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f4 -> i8042 
-(parameter) [134]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, aux, 12) [136]
-Sep 15 01:19:34 box kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) 
-[136]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 46 -> i8042 
-(parameter) [136]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) 
-[137]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 47 -> i8042 
-(parameter) [137]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) 
-[137]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, kbd, 1) [140]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: ab <- i8042 
-(interrupt, kbd, 1) [144]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 41 <- i8042 
-(interrupt, kbd, 1) [148]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) 
-[148]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, kbd, 1) [152]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) 
-[152]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, kbd, 1) [155]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f8 -> i8042 (kbd-data) 
-[155]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, kbd, 1) [161]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) 
-[161]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, kbd, 1) [165]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f0 -> i8042 (kbd-data) 
-[165]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, kbd, 1) [169]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 02 -> i8042 (kbd-data) 
-[169]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, kbd, 1) [172]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: f0 -> i8042 (kbd-data) 
-[172]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, kbd, 1) [176]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) 
-[176]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: fa <- i8042 
-(interrupt, kbd, 1) [179]
-Sep 15 01:19:34 box kernel: drivers/input/serio/i8042.c: 41 <- i8042 
-(interrupt, kbd, 1) [180]
-Sep 15 01:19:34 box kernel: input: AT Set 2 keyboard on isa0060/serio0
-Sep 15 01:19:34 box kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
-Sep 15 01:19:34 box kernel: NET: Registered protocol family 2
-Sep 15 01:19:34 box kernel: IP: routing cache hash table of 4096 buckets, 
-64Kbytes
-Sep 15 01:19:34 box kernel: TCP: Hash tables configured (established 131072 
-bind 43690)
-Sep 15 01:19:34 box kernel: NET: Registered protocol family 1
-Sep 15 01:19:34 box kernel: NET: Registered protocol family 17
-Sep 15 01:19:34 box kernel: BIOS EDD facility v0.09 2003-Jan-22, 1 devices found
-Sep 15 01:19:34 box kernel: kjournald starting.  Commit interval 5 seconds
-Sep 15 01:19:34 box kernel: EXT3-fs: mounted filesystem with ordered data mode.
-Sep 15 01:19:34 box kernel: VFS: Mounted root (ext3 filesystem) readonly.
-Sep 15 01:19:34 box kernel: Freeing unused kernel memory: 140k freed
-Sep 15 01:19:34 box kernel: EXT3 FS on hde3, internal journal
-Sep 15 01:19:34 box kernel: rtc: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: rtc: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: usbcore: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: uhci_hcd: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: NTFS volume version 3.1.
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: Microsoft Joliet Level 3
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: RRIP_1991A
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: Microsoft Joliet Level 3
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: RRIP_1991A
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: Microsoft Joliet Level 3
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: RRIP_1991A
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: Microsoft Joliet Level 3
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: RRIP_1991A
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: Microsoft Joliet Level 3
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: RRIP_1991A
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: Microsoft Joliet Level 3
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: RRIP_1991A
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: Microsoft Joliet Level 3
-Sep 15 01:19:34 box kernel: ISO 9660 Extensions: RRIP_1991A
-Sep 15 01:19:34 box kernel: soundcore: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: snd: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: soundcore: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: snd: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: soundcore: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: rtc: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: soundcore: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: snd: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: soundcore: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: snd: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: soundcore: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: snd: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: soundcore: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: snd: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: soundcore: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:19:34 box kernel: snd: version magic '2.6.0-test5 SMP preempt 
-PENTIUM4 gcc-2.95' should be '2.6.0-test5 SMP PENTIUM4 gcc-2.95'
-Sep 15 01:20:47 box kernel: drivers/input/serio/i8042.c: 41 <- i8042 
-(interrupt, kbd, 1) [80466]
-Sep 15 01:20:47 box kernel: drivers/input/serio/i8042.c: c1 <- i8042 
-(interrupt, kbd, 1) [80561]
-Sep 15 01:20:48 box kernel: drivers/input/serio/i8042.c: 16 <- i8042 
-(interrupt, kbd, 1) [81692]
-Sep 15 01:20:48 box kernel: drivers/input/serio/i8042.c: 96 <- i8042 
-(interrupt, kbd, 1) [81772]
-Sep 15 01:20:48 box kernel: drivers/input/serio/i8042.c: 1f <- i8042 
-(interrupt, kbd, 1) [82032]
-Sep 15 01:20:49 box kernel: drivers/input/serio/i8042.c: 9f <- i8042 
-(interrupt, kbd, 1) [82113]
-Sep 15 01:20:49 box kernel: drivers/input/serio/i8042.c: 30 <- i8042 
-(interrupt, kbd, 1) [82347]
-Sep 15 01:20:49 box kernel: drivers/input/serio/i8042.c: b0 <- i8042 
-(interrupt, kbd, 1) [82443]
-Sep 15 01:20:49 box kernel: drivers/input/serio/i8042.c: 20 <- i8042 
-(interrupt, kbd, 1) [82661]
-Sep 15 01:20:49 box kernel: drivers/input/serio/i8042.c: a0 <- i8042 
-(interrupt, kbd, 1) [82757]
-Sep 15 01:20:49 box kernel: drivers/input/serio/i8042.c: 12 <- i8042 
-(interrupt, kbd, 1) [83018]
-Sep 15 01:20:50 box kernel: drivers/input/serio/i8042.c: 92 <- i8042 
-(interrupt, kbd, 1) [83098]
-Sep 15 01:20:50 box kernel: drivers/input/serio/i8042.c: 2f <- i8042 
-(interrupt, kbd, 1) [83304]
-Sep 15 01:20:50 box kernel: drivers/input/serio/i8042.c: af <- i8042 
-(interrupt, kbd, 1) [83385]
-Sep 15 01:20:50 box kernel: drivers/input/serio/i8042.c: 21 <- i8042 
-(interrupt, kbd, 1) [83675]
-Sep 15 01:20:50 box kernel: drivers/input/serio/i8042.c: ab <- i8042 
-(interrupt, kbd, 1) [83737]
-Sep 15 01:20:50 box kernel: atkbd.c: Unknown key (set 2, scancode 0xab, on 
-isa0060/serio0) pressed.
-Sep 15 01:20:51 box kernel: drivers/input/serio/i8042.c: 1f <- i8042 
-(interrupt, kbd, 1) [84426]
-Sep 15 01:20:51 box kernel: drivers/input/serio/i8042.c: 9f <- i8042 
-(interrupt, kbd, 1) [84507]
+I'm using Samba to distribute some shares to Windows clients. One of 
+the shares is an Image-directory where I'm storing PQDI Images of 
+Windows clients. One of the created images is about 40GB of size and 
+is split up to 56  files each of same size. When verifying this image 
+from a Win XP client, PQDI  stops with an error (error 1811, "Could 
+not read from image file") and the Linux kernel panics. Verifying 
+this image from DOS (with MS network client) is done without any 
+error. Also verifying smaller images is done without any error. 
+Verifying this Image via NFS is also done without an error. Another 
+PQDI version (7.0) also reports an error and the Linux Kernel  
+panics. Copying more than 4 GB to the samba share also lets the 
+kernel panic with an OOPS. Copying data locally from the Linux 
+console is done without an error.
+
+In the beginning I thought that the Promise controller is the source 
+of problem, now I'm not sure. Maybe it's samba or the combination of 
+samba and a Promise controller.
+
+The share is lying in a directory on a Reiser filesystem: 
+
+share Images 
+ReiserFS 
+LVM (on /dev/md0 only, 120GB) 
+RAID1 /dev/md0 (120GB) 
+/dev/hda1 + /dev/hde1 (one primary partition of 120GB on each drive)
+/dev/hda + /dev/hde (each 120GB) IDE UDMA133-controller 
+
+As IDE-controller I first used a Promise FastTrak TX2000 (which 
+supports "hardware"-RAID). I tried the binary Promise-driver 
+(1.03.0.1) and the source  code-driver (1.02.0.25), both without 
+success. All time the OOPS occurred.  Then I replaced the controller 
+and both Samsung SP1203N-hard drives (each  120GB) against a Promise 
+UltraTrak 133 TX2 and two Maxtor drives  (6Y120P0, each 1 20GB) and 
+installed a Linux native software-RAID without  any Promise-driver. 
+But again the OOPS occurred. Of course I updated the Promise-firmware 
+to the latest level.  
+
+To eliminate the RAID and LVM-drivers as the source of problem I 
+installed just a Reiser FS on one 120GB-primary partition on one of 
+both Maxtor disks  (after removing the drive from the RAID). But 
+again the Linux kernel panicked. Trying ext3 instead of reiserfs 
+didn't help. As I do not have enough space on my scsi-disks I can't 
+verify this big image from a scsi-disk.
+
+Sometimes the Linux kernel panic occurs immediately some minutes 
+after starting the verify, sometimes it happens after reading half of 
+all image files. Samba doesn't report any error. I also tried a 
+different PCI-slot for the Promise- adapter without any success. Next 
+thing would be to try a different IDE-controller...
+
+###############################################################
+
+3) keywords:
+Suse Linux 8.20, kernel 2.4.23pre1, Promise Ultra 133 TX2, samba 
+2.28a
+
+###############################################################
+
+4) /proc/version:
+Linux version 2.4.23pre1-usbtest (2.4.23pre1@USB-test.suse.de) (gcc 
+version 3.2.2) #1 Wed Aug 27 19:43:12 UTC 2003
+
+###############################################################
+
+5) OOPS-message:
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c0219cd7>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010206
+eax: c40866a0   ebx: 00200000   ecx: c40866a0   edx: 00200000
+esi: cec57360   edi: fffffff9   ebp: 00000046   esp: c0303f2c
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c0303000)
+Stack: cec57360 c0219d6e cec57360 cec57360 cec57360 c0219dab cec57360 
+cec57360
+       c0219efc cec57360 cf49cb20 c021e173 cec57360 00000003 c032c568 
+c0120629
+       c032c568 00000006 0000000e c0303f98 d3e02e40 c010a091 c0106f40 
+c0302000
+Call Trace:    [<c0219d6e>] [<c0219dab>] [<c0219efc>] [<c021e173>] 
+[<c0120629>]
+  [<c010a091>] [<c0106f40>] [<c010c4e8>] [<c0106f40>] [<c0106f64>] 
+[<c0106fd2>]
+  [<c0105000>]
+Code: 8b 1b 8b 42 74 48 74 0a ff 4a 74 0f 94 c0 84 c0 74 07 52 e8
 
 
+>>EIP; c0219cd7 <skb_drop_fraglist+17/40>   <=====
+
+>>eax; c40866a0 <_end+3cf81fc/14e64bbc>
+>>ecx; c40866a0 <_end+3cf81fc/14e64bbc>
+>>esi; cec57360 <_end+e8c8ebc/14e64bbc>
+>>esp; c0303f2c <init_task_union+1f2c/2000>
+
+Trace; c0219d6e <skb_release_data+4e/80>
+Trace; c0219dab <kfree_skbmem+b/70>
+Trace; c0219efc <__kfree_skb+ec/150>
+Trace; c021e173 <net_tx_action+33/a0>
+Trace; c0120629 <do_softirq+99/a0>
+Trace; c010a091 <do_IRQ+a1/b0>
+Trace; c0106f40 <default_idle+0/30>
+Trace; c010c4e8 <call_do_IRQ+5/d>
+Trace; c0106f40 <default_idle+0/30>
+Trace; c0106f64 <default_idle+24/30>
+Trace; c0106fd2 <cpu_idle+42/60>
+Trace; c0105000 <_stext+0/0>
+
+Code;  c0219cd7 <skb_drop_fraglist+17/40>
+00000000 <_EIP>:
+Code;  c0219cd7 <skb_drop_fraglist+17/40>   <=====
+   0:   8b 1b                     mov    (%ebx),%ebx   <=====
+Code;  c0219cd9 <skb_drop_fraglist+19/40>
+   2:   8b 42 74                  mov    0x74(%edx),%eax
+Code;  c0219cdc <skb_drop_fraglist+1c/40>
+   5:   48                        dec    %eax
+Code;  c0219cdd <skb_drop_fraglist+1d/40>
+   6:   74 0a                     je     12 <_EIP+0x12>
+Code;  c0219cdf <skb_drop_fraglist+1f/40>
+   8:   ff 4a 74                  decl   0x74(%edx)
+Code;  c0219ce2 <skb_drop_fraglist+22/40>
+   b:   0f 94 c0                  sete   %al
+Code;  c0219ce5 <skb_drop_fraglist+25/40>
+   e:   84 c0                     test   %al,%al
+Code;  c0219ce7 <skb_drop_fraglist+27/40>
+  10:   74 07                     je     19 <_EIP+0x19>
+Code;  c0219ce9 <skb_drop_fraglist+29/40>
+  12:   52                        push   %edx
+Code;  c0219cea <skb_drop_fraglist+2a/40>
+  13:   e8 00 00 00 00            call   18 <_EIP+0x18>
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
+
+############################################################### 
+
+6) shell script: 
+no way 
+
+############################################################### 
+
+7) environment:
+Dell Optiplex GX1 400MTbr+, Intel II 400 MHz, 320 MB RAM
+Adaptec AHA 2940UW as PCI-adapter with two hard drives (20GB and 4 
+GB, /boot is on the first scsi-drive) and a Plextor CD-writer
+onboard LAN (3com)
+Promise Ultra133 TX2 as PCI-adapter with two Maxtor-drives (each 
+120GB)
+DVD-ROM at the onboard-IDE 
+
+############################################################### 
+
+7.1) ver_linux:
+Linux server01 2.4.23pre1-usbtest #1 Wed Aug 27 19:43:12 UTC 2003 
+i686 unknown unknown GNU/Linux
+ 
+Gnu C                  3.3.1
+Gnu make               3.80
+util-linux             2.11z
+mount                  2.11z
+modutils               2.4.22
+e2fsprogs              1.28
+jfsutils               1.1.1
+Linux C Library        x    1 root     root      1475331 Mar 27 21:39 
+/lib/libc.so.6
+Dynamic linker (ldd)   2.3.2
+Procps                 3.1.6
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               4.5.8
+Modules Loaded         isa-pnp usbserial ipv6 nfsd autofs st sr_mod 
+sg mousedev joydev evdev input usb-uhci usbcore raw1394 ieee1394 
+3c59x ide-cd cdrom lvm-mod raid1 reiserfs aic7xxx
+
+############################################################### 
+
+7.2) cpuinfo:
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 5
+model name	: Pentium II (Deschutes)
+stepping	: 2
+cpu MHz		: 398.780
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat pse36 mmx fxsr
+bogomips	: 796.26
+
+############################################################### 
+
+7.3) modules:
+isa-pnp                30180   0 (unused)
+usbserial              18332   0 (autoclean) (unused)
+ipv6                  161172  -1 (autoclean)
+nfsd                   65808   4 (autoclean)
+autofs                 10100   1 (autoclean)
+st                     27564   0 (autoclean) (unused)
+sr_mod                 14680   0 (autoclean)
+sg                     26540   0 (autoclean)
+mousedev                4084   0 (unused)
+joydev                  5728   0 (unused)
+evdev                   4384   0 (unused)
+input                   3328   0 [mousedev joydev evdev]
+usb-uhci               21772   0 (unused)
+usbcore                57664   1 [usbserial usb-uhci]
+raw1394                17108   0 (unused)
+ieee1394               42660   0 [raw1394]
+3c59x                  26864   1
+ide-cd                 30112   0 (autoclean)
+cdrom                  26560   0 (autoclean) [sr_mod ide-cd]
+lvm-mod                56192   6 (autoclean)
+raid1                  12748   1 (autoclean)
+reiserfs              182992   4
+aic7xxx               139948   5
+
+############################################################### 
+
+7.4) ioports, iomem:
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+02f8-02ff : serial(auto)
+0376-0376 : ide1
+03c0-03df : vesafb
+03f8-03ff : serial(auto)
+0800-083f : Intel Corp. 82371AB/EB/MB PIIX4 ACPI
+0840-085f : Intel Corp. 82371AB/EB/MB PIIX4 ACPI
+0cf8-0cff : PCI conf1
+cc00-cc7f : 3Com Corporation 3c905B 100BaseTX [Cyclone]
+  cc00-cc7f : 00:11.0
+cca0-ccaf : Promise Technology, Inc. 20269
+  cca0-cca7 : ide0
+  cca8-ccaf : ide2
+ccb8-ccbb : Promise Technology, Inc. 20269
+  ccba-ccba : ide2
+ccc0-ccc7 : Promise Technology, Inc. 20269
+  ccc0-ccc7 : ide2
+ccd0-ccd3 : Promise Technology, Inc. 20269
+  ccd2-ccd2 : ide0
+ccd8-ccdf : Promise Technology, Inc. 20269
+  ccd8-ccdf : ide0
+cce0-ccff : Intel Corp. 82371AB/EB/MB PIIX4 USB
+  cce0-ccff : usb-uhci
+d000-dfff : PCI Bus #02
+  d800-d8ff : Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895 (#2)
+  dc00-dcff : Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895
+e000-efff : PCI Bus #01
+  ec00-ecff : ATI Technologies Inc 3D Rage Pro AGP 1X/2X
+ffa0-ffaf : Intel Corp. 82371AB/EB/MB PIIX4 IDE
+  ffa8-ffaf : ide1
+
+00000000-0009ffff : System RAM
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000c8000-000cc7ff : Extension ROM
+000d0000-000d7fff : Extension ROM
+000d8000-000da7ff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-13ffffff : System RAM
+  00100000-002700a5 : Kernel code
+  002700a6-00301703 : Kernel data
+f0000000-f3ffffff : Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host 
+bridge
+f5000000-f5ffffff : PCI Bus #02
+f6000000-f6ffffff : PCI Bus #01
+fa000000-fbffffff : PCI Bus #02
+  faffe000-faffefff : Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895 (#2)
+    faffe000-faffefff : aic7xxx
+  fafff000-faffffff : Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895
+    fafff000-faffffff : aic7xxx
+fc000000-feffffff : PCI Bus #01
+  fcfff000-fcffffff : ATI Technologies Inc 3D Rage Pro AGP 1X/2X
+    fcfff000-fcffffff : atyfb
+  fd000000-fdffffff : ATI Technologies Inc 3D Rage Pro AGP 1X/2X
+    fd000000-fdffffff : atyfb
+ff000000-ff003fff : Promise Technology, Inc. 20269
+ff004000-ff00407f : 3Com Corporation 3c905B 100BaseTX [Cyclone]
+ffe00000-ffffffff : reserved
+
+############################################################### 
+
+7.5) PCI:
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host 
+bridge (rev 03)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 64
+	Region 0: Memory at f0000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: [a0] AGP version 1.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit-
+ FW- AGP3- Rate=x1,x2
+		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- 
+Rate=<none>
+
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP 
+bridge (rev 03) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	I/O behind bridge: 0000e000-0000efff
+	Memory behind bridge: fc000000-feffffff
+	Prefetchable memory behind bridge: f6000000-f6ffffff
+	BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B+
+
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) 
+(prog-if 80 [Master])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Region 4: I/O ports at ffa0 [size=16]
+
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) 
+(prog-if 00 [UHCI])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Interrupt: pin D routed to IRQ 14
+	Region 4: I/O ports at cce0 [size=32]
+
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 9
+
+00:0e.0 Unknown mass storage controller: Promise Technology, Inc. 
+20269 (rev 02) (prog-if 85)
+	Subsystem: Promise Technology, Inc.: Unknown device 4d68
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (1000ns min, 4500ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at ccd8 [size=8]
+	Region 1: I/O ports at ccd0 [size=4]
+	Region 2: I/O ports at ccc0 [size=8]
+	Region 3: I/O ports at ccb8 [size=4]
+	Region 4: I/O ports at cca0 [size=16]
+	Region 5: Memory at ff000000 (32-bit, non-prefetchable) [size=16K]
+	Expansion ROM at f9000000 [disabled] [size=16K]
+	Capabilities: [60] Power Management version 1
+		Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-
+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0f.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 
+03) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 08
+	Bus: primary=00, secondary=02, subordinate=02, sec-latency=64
+	I/O behind bridge: 0000d000-0000dfff
+	Memory behind bridge: fa000000-fbffffff
+	Prefetchable memory behind bridge: 00000000f5000000-00000000f5f00000
+	BridgeCtl: Parity- SERR+ NoISA- VGA- MAbort- >Reset- FastB2B-
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=220mA PME(D0-,D1-,D2-,D3hot-
+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+		Bridge: PM- B3+
+
+00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX 
+[Cyclone] (rev 24)
+	Subsystem: Dell Computer Corporation 3C905B Fast Etherlink XL 10/100
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (2500ns min, 2500ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 14
+	Region 0: I/O ports at cc00 [size=128]
+	Region 1: Memory at ff004000 (32-bit, non-prefetchable) [size=128]
+	Expansion ROM at f9000000 [disabled] [size=128K]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot-
+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro 
+AGP 1X/2X (rev 5c) (prog-if 00 [VGA])
+	Subsystem: Dell Computer Corporation Optiplex GX1 Onboard Display 
+Adapter
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (2000ns min), cache line size 08
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+	Region 1: I/O ports at ec00 [size=256]
+	Region 2: Memory at fcfff000 (32-bit, non-prefetchable) [size=4K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [50] AGP version 1.0
+		Status: RQ=256 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 
+64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- 
+Rate=<none>
+
+02:0a.0 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / 
+AIC-7895 (rev 03)
+	Subsystem: Adaptec AHA-2940U/2940UW Dual
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (2000ns min, 2000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 14
+	Region 0: I/O ports at dc00 [disabled] [size=256]
+	Region 1: Memory at fafff000 (32-bit, non-prefetchable) [size=4K]
+	Expansion ROM at fb000000 [disabled] [size=64K]
+
+02:0a.1 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / 
+AIC-7895 (rev 03)
+	Subsystem: Adaptec AHA-2940U/2940UW Dual
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (2000ns min, 2000ns max), cache line size 08
+	Interrupt: pin B routed to IRQ 10
+	Region 0: I/O ports at d800 [disabled] [size=256]
+	Region 1: Memory at faffe000 (32-bit, non-prefetchable) [size=4K]
+
+############################################################### 
+
+7.6) scsi:
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: IBM      Model: DPSS-318350N     Rev: S96H
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+  Vendor: QUANTUM  Model: VIKING II 4.5WLS Rev: 5520
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 02 Lun: 00
+  Vendor: PLEXTOR  Model: CD-R   PX-W1210S Rev: 1.03
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+
+############################################################### 
+
+7.7) other: 
+/proc/ide:
+ide-cdrom version 4.59-ac1
+ide-floppy version 0.99.newide
+ide-disk version 1.17
+ide-default version 0.9.newide
+
+                                Ultra133 TX2 Chipset.
+
+Controller: 0
+
+                                Intel PIIX4 Ultra 33 Chipset.
+--------------- Primary Channel ---------------- Secondary Channel ---
+----------
+                 enabled                          enabled
+--------------- drive0 --------- drive1 -------- drive0 ---------- 
+drive1 ------
+DMA enabled:    no               no              yes               no 
+
+UDMA enabled:   no               no              yes               no 
+
+UDMA enabled:   X                X               2                 X
+UDMA
+DMA
+PIO
 
 
+/proc/interrupts:
+           CPU0       
+  0:      37461          XT-PIC  timer
+  1:        354          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  8:          2          XT-PIC  rtc
+ 10:         14          XT-PIC  aic7xxx
+ 11:       2334          XT-PIC  ide0, ide2
+ 12:         32          XT-PIC  PS/2 Mouse
+ 14:       8741          XT-PIC  aic7xxx, eth0, usb-uhci
+ 15:         28          XT-PIC  ide1
+NMI:          0 
+LOC:      37308 
+ERR:          0
+MIS:          0
 
+Reiser FS:
+reiserfsck 3.6.4 (2002 www.namesys.com)
+
+Samba:
+Version 2.2.8a-SuSE
+
+###############################################################
+
+
+Mit freundlichen Gruessen/Best regards,
+Sebastian Piecha
+
+EMail: spi@gmxpro.de
 

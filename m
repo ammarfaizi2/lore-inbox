@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbTDVIck (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 04:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbTDVIck
+	id S263021AbTDVIfk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 04:35:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTDVIfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 04:32:40 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:48300 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263020AbTDVIce
-	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Tue, 22 Apr 2003 04:32:34 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Tue, 22 Apr 2003 04:35:40 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:17635 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S263021AbTDVIfi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 04:35:38 -0400
+Message-ID: <3EA50303.30200@free.fr>
+Date: Tue, 22 Apr 2003 10:53:23 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc1 : aic7xxx deadlock on boot on my machine
+References: <3EA4FF4C.2030702@free.fr> <200304221036.19274.m.c.p@wolk-project.de>
+In-Reply-To: <200304221036.19274.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16037.245.828642.171327@laputa.namesys.com>
-Date: Tue, 22 Apr 2003 12:44:37 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Andrew Morton <akpm@digeo.com>
-Cc: Linux-Kernel@Vger.Kernel.ORG, Torvalds@Transmeta.COM
-Subject: Re: [PATCH] (one line): use #ifdef with CONFIG_*
-In-Reply-To: <20030422013519.23754c14.akpm@digeo.com>
-References: <16036.64756.25228.181408@laputa.namesys.com>
-	<20030422013519.23754c14.akpm@digeo.com>
-X-Mailer: VM 7.07 under 21.5  (beta11) "cabbage" XEmacs Lucid
-X-Zippy-Says: Psychoanalysis??  I thought this was a nude rap session!!!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Nikita Danilov <Nikita@Namesys.COM> wrote:
- > >
- > > -#if CONFIG_DEBUG_HIGHMEM
- > > +#ifdef CONFIG_DEBUG_HIGHMEM
- > 
- > mnm:/usr/src/linux-2.5.68> grep -r '#if[        ]*CONFIG' . | wc -l
- >     185
- > 
- > Why fix this one in particular?
+Marc-Christian Petersen wrote:
 
-Err, I just added -Wundef to cc options and it was the only one that has
-shown up. Probably all of them should be corrected at once.
+> I'll _bet_ that the new well good code from Justin won't make it into 2.4 
+> earlier than 2.4.22-pre1.
 
-Nikita.
+I do not really see why because 2.4.20 -> 2.4.21 contains already such a 
+driver change. Note that I mailed alan and justin on pre4-acxx. Justin 
+suggested various fixes that did not resolve the problem and then 
+decided to do a code inspection. Reading the Changelog, indeed the 
+locking startegy has changed compared to the rc1 version. I mailed 
+arcello again on pre7 even providing kdbg backtrace.
+
+Never mind : the report is more informative to others as I already 
+patched my kernel to the last version...
+
+Thanks for responding, and providing integrated patch sets.
+
+Have a good day.
+
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
+

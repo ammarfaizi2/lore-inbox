@@ -1,78 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275504AbRIZTKC>; Wed, 26 Sep 2001 15:10:02 -0400
+	id <S275511AbRIZTNc>; Wed, 26 Sep 2001 15:13:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275508AbRIZTJx>; Wed, 26 Sep 2001 15:09:53 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:59151 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S275504AbRIZTJl>; Wed, 26 Sep 2001 15:09:41 -0400
-Message-ID: <3BB22807.FE63AD89@lexus.com>
-Date: Wed, 26 Sep 2001 12:09:59 -0700
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Steve Pirk <orion@deathcon.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IP aliasing/Virtual IP's in 2.2.19 or 2.4.10
-In-Reply-To: <Pine.LNX.4.21.0109261152370.7017-100000@mail.pirk.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S275510AbRIZTNX>; Wed, 26 Sep 2001 15:13:23 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10001 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275514AbRIZTNJ>; Wed, 26 Sep 2001 15:13:09 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Locking comment on shrink_caches()
+Date: Wed, 26 Sep 2001 19:12:54 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9ot9bm$8gu$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0109261123380.8558-100000@penguin.transmeta.com> <Pine.LNX.4.30.0109262036480.8655-100000@Appserv.suse.de>
+X-Trace: palladium.transmeta.com 1001531590 1896 127.0.0.1 (26 Sep 2001 19:13:10 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 26 Sep 2001 19:13:10 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Pirk wrote:
-
-> This much I have found so far...
-> In /usr/src/linux-2.2.16/.config :
-> CONFIG_IP_MASQUERADE=y
-> CONFIG_IP_MASQUERADE_ICMP=y
-> CONFIG_IP_MASQUERADE_MOD=y
-> CONFIG_IP_MASQUERADE_IPAUTOFW=m
-> CONFIG_IP_MASQUERADE_IPPORTFW=m
-> CONFIG_IP_MASQUERADE_MFW=m
+In article <Pine.LNX.4.30.0109262036480.8655-100000@Appserv.suse.de>,
+Dave Jones  <davej@suse.de> wrote:
+>On Wed, 26 Sep 2001, Linus Torvalds wrote:
 >
-> In /usr/src/linux-2.2.19/.config
-> no CONFIG_IP_MASQUERADE lines at all....
+>> > > cpuid: 72 cycles
+>> > cpuid: 79 cycles
+>> > Only slightly worse, but I'd not expected this.
+>> That difference can easily be explained by the compiler and options.
 >
-> Would it be save to add them to a 2.2.19 or 2.4.10 .config file?
+>Actually repeated runs of the test on that box show it deviating by up
+>to 10 cycles, making it match the results that Alan posted.
+>-O2 made no difference, these deviations still occur. They seem more
+>prominent on the C3 than other boxes I've tried, even with the same
+>compiler toolchain.
 
-bad idea -
+Does the C3 do any kind of frequency shifting?
 
->
-> Is aliasing/masquerading enabled by default in kernel versions
-> above 2.2.19?
+For example, on a transmeta CPU, the TSC will run at a constant
+"nominal" speed (the highest the CPU can go), although the real CPU
+speed will depend on the load of the machine and temperature etc.  So on
+a crusoe CPU you'll see varying speeds (and it depends on the speed
+grade, because that in turn depends on how many longrun steps are being
+actively used). 
 
-I think it's a default feature in 2.4.x since I don't
-see a config file option for it and it works fine on
-all my boxen -
+For example, on a mostly idle machine I get
 
-Let's check the docs:
+	torvalds@kiwi:~ > ./a.out 
+	nothing: 54 cycles
+	locked add: 54 cycles
+	cpuid: 91 cycles
 
-Ah, here it is - and it matches my experience -
+while if I have another window that does an endless loop to keep the CPU
+busy, the _real_ frequency of the CPU scales up, and the machine
+basically becomes faster:
 
-/usr/src/linux/Documentation/networking/alias.txt:
------------------------------------------------------------------------------
-IP-Aliasing:
-============
+	torvalds@kiwi:~ > ./a.out 
+	nothing: 36 cycles
+	locked add: 36 cycles
+	cpuid: 54 cycles
 
-IP-aliases are additional IP-adresses/masks hooked up to a base
-interface by adding a colon and a string when running ifconfig.
-This string is usually numeric, but this is not a must.
+(The reason why the "nothing" TSC read is expensive on crusoe is because
+of the scaling of the TSC - rdtsc literally has to do a floating point
+multiply-add to scale the clock to the right "nominal" frequency.  Of
+course, "expensive" is still a lot less than the inexplicable 80 cycles
+on a P4). 
 
-IP-Aliases are avail if CONFIG_INET (`standard' IPv4 networking)
-is configured in the kernel.
+(That's a 600MHz part going down to to 400MHz in idle, btw)
 
+On a 633MHz part (I don't actually have access to any of the high speed
+grades ;) it ends up being 
 
-o Alias creation.
-  Alias creation is done by 'magic' interface naming: eg. to create a
-  200.1.1.1 alias for eth0 ...
+fast:
+	nothing: 39 cycles
+	locked add: 40 cycles
+	cpuid: 68 cycles
 
-    # ifconfig eth0:0 200.1.1.1  etc,etc....
-                   ~~ -> request alias #0 creation (if not yet exists) for eth0
+slow: 
+	nothing: 82 cycles
+	locked add: 84 cycles
+	cpuid: 122 cycles
 
-    The corresponding route is also set up by this command.
-    Please note: The route always points to the base interface.
+which corresponds to a 633MHz part going down to 300MHz in idle.
 
+And of course, you can get pretty much anything in between, depending on
+what the load is...
 
-
+		Linus

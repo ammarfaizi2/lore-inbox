@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUHUNEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUHUNUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265051AbUHUNEP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 09:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUHUNEO
+	id S265093AbUHUNUq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 09:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUHUNUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 09:04:14 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:46511 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S265051AbUHUNEL (ORCPT
+	Sat, 21 Aug 2004 09:20:46 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:2434 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265093AbUHUNUp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 09:04:11 -0400
-Date: Sat, 21 Aug 2004 15:04:24 +0200
-To: linux-kernel@vger.kernel.org
-Subject: complete freeze of 2.6.8.1 with ntp
-Message-ID: <20040821130423.GA6141@tink>
-Reply-To: emard@softhome.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-From: emard@softhome.net
+	Sat, 21 Aug 2004 09:20:45 -0400
+Date: Sat, 21 Aug 2004 15:20:37 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "'linux-fbdev-devel'" <linux-fbdev-devel@lists.sourceforge.net>
+cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Framebuffer drivers maintainers
+In-Reply-To: <41270AD0.FE6C7970@orpatec.ch>
+Message-ID: <Pine.GSO.4.58.0408211519310.58@waterleaf.sonytel.be>
+References: <41270AD0.FE6C7970@orpatec.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI
+On Sat, 21 Aug 2004, Otto Wyss wrote:
+> I've now updated the framebuffer driver list and hopefully listed each
+> current driver. It may not show the correct name so please suggest corrections.
+>
+> For each driver its maintainer should be listed possibly with its
+> sourceforge.net user account in brackets. I'd like if only current
+> maintainers, who really take care of their drivers, are listed and none
+> who has done so in the past. Please any maintainer post a message to
+> linux-fbdev-devel or tell me where I can retrieve reliable information.
 
-This doesn't exist in 2.6.7 and appears in 2.6.8.1.
-I have debian sarge latest sync.
-I do:
+I maintain amifb. This driver is not in linux-fbdev.sf.net CVS, but in
+Linux/m68k CVS. It works fine in 2.4 and 2.6.
 
-/etc/init.d/ntp restart
-(but ntp is only stopped, not started, it's probably debian's fault)
-(not when network is active I do)
+Gr{oetje,eeting}s,
 
-/etc/init.d/ntp start
-and check ntp status time several times with:
+						Geert
 
-ntpq -c pe
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-I think (can't check) that machine freezes when the ntp has reached
-status of being ready to change kernel's clock synthesizer, 
-the kernel completely halts. No oops, no blinking leds just
-whole machine stops responding.
-
-I tried with and withot HPET, result is the same.
-
-Emard
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

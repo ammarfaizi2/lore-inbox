@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288284AbSAMXXw>; Sun, 13 Jan 2002 18:23:52 -0500
+	id <S288288AbSAMX1C>; Sun, 13 Jan 2002 18:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288288AbSAMXXm>; Sun, 13 Jan 2002 18:23:42 -0500
-Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:41665 "HELO
-	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S288284AbSAMXXb>; Sun, 13 Jan 2002 18:23:31 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Robert Love <rml@tech9.net>
-Subject: Re: [PATCH] update: preemptive kernel for O(1) sched
-Date: Mon, 14 Jan 2002 00:22:18 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020113232339Z288284-13996+5182@vger.kernel.org>
+	id <S288289AbSAMX0w>; Sun, 13 Jan 2002 18:26:52 -0500
+Received: from cj379137-a.indpdnce1.mo.home.com ([24.179.182.153]:19204 "EHLO
+	ns.brink.cx") by vger.kernel.org with ESMTP id <S288288AbSAMX0p>;
+	Sun, 13 Jan 2002 18:26:45 -0500
+From: Andrew Brink <abrink@ns.brink.cx>
+Date: Sun, 13 Jan 2002 17:26:30 -0600
+To: linux-kernel@vger.kernel.org
+Subject: Getting Out of Memory errors at random intervals.
+Message-ID: <20020113232630.GA1149@ns.brink.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert,
+Hi. I've been getting random Out of Memory: Killing Processs pid (name)
+On _two_ different boxes. One is running 2.4.16 while the other 
+is 2.4.17.  Most of the time the process that gets killed is apache
+(these boxen are webservers) but sometimes its mysql, exim, htdig and
+others.
 
-what about lock-break?
-I am running your former one as always with 
-lock-break-rml-2.4.18-pre1-1.patch ...;-)
+These boxes used to be rock stable, and now they get the OOM error at
+random periodic times.
 
-Any success together with AA vm-22?
+Is there anything I can check for, or do to clear this up?
 
-What about latencytest0.42-png for latency testing?
-
-Regards,
-	Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
+Any help would be greatly appreciated.
+Thanks,
+Andrew Brink

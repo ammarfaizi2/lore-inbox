@@ -1,38 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261274AbSJCSpy>; Thu, 3 Oct 2002 14:45:54 -0400
+	id <S261344AbSJCTCb>; Thu, 3 Oct 2002 15:02:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261276AbSJCSpy>; Thu, 3 Oct 2002 14:45:54 -0400
-Received: from r42h20.res.gatech.edu ([128.61.42.20]:896 "EHLO
-	earl.headnut.org") by vger.kernel.org with ESMTP id <S261274AbSJCSpx>;
-	Thu, 3 Oct 2002 14:45:53 -0400
-Date: Thu, 3 Oct 2002 14:50:17 -0400 (EDT)
-From: root <root@earl.headnut.org>
-To: <mec@shout.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: problem with 'make menuconfig'
-Message-ID: <Pine.LNX.4.33.0210031449090.9729-100000@earl.headnut.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261363AbSJCTCb>; Thu, 3 Oct 2002 15:02:31 -0400
+Received: from imail.ricis.com ([64.244.234.16]:51469 "EHLO imail.ricis.com")
+	by vger.kernel.org with ESMTP id <S261344AbSJCTCb>;
+	Thu, 3 Oct 2002 15:02:31 -0400
+Date: Thu, 3 Oct 2002 09:08:12 -0500
+From: Lee Leahu <lee@ricis.com>
+To: linux-kernel@vger.kernel.org
+Subject: XFS and 2.4.19
+Message-Id: <20021003090812.2fa82f74.lee@ricis.com>
+Organization: RICIS, Inc.
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Note: Send abuse reports to abuse@[(Private IP)].
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I started beta testing 2.5.40 today, and when I tried to compile, I got 
-this error message:
-
-
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
-
- Q> ./scripts/Menuconfig: MCmenu74: command not found
-
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
-
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-make: *** [menuconfig] Error 1
-[root@earl linux-2.5]#
-
+What is the recommended way of add XFS filesystem support to the 2.4.19 kernel?

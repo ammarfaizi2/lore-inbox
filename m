@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264753AbSJORKg>; Tue, 15 Oct 2002 13:10:36 -0400
+	id <S264799AbSJORUd>; Tue, 15 Oct 2002 13:20:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264758AbSJORKg>; Tue, 15 Oct 2002 13:10:36 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:42876 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S264753AbSJORK2>; Tue, 15 Oct 2002 13:10:28 -0400
-Date: Tue, 15 Oct 2002 19:16:15 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>
-Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre10-aa1: unresolved symbol in xfs.o
-Message-ID: <20021015171615.GF2546@dualathlon.random>
-References: <20021015172558.A3154@pc9391.uni-regensburg.de> <20021015161908.GC2546@dualathlon.random> <20021015184148.A5026@pc9391.uni-regensburg.de>
+	id <S264801AbSJORUd>; Tue, 15 Oct 2002 13:20:33 -0400
+Received: from medelec.uia.ac.be ([143.169.17.1]:4868 "EHLO medelec.uia.ac.be")
+	by vger.kernel.org with ESMTP id <S264799AbSJORUc>;
+	Tue, 15 Oct 2002 13:20:32 -0400
+Date: Tue, 15 Oct 2002 19:26:15 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Matt Domsch <Matt_Domsch@Dell.com>
+Cc: rob@osinvestor.com, linux-kernel@vger.kernel.org
+Subject: Re: Watchdog drivers
+Message-ID: <20021015192615.A1512@medelec.uia.ac.be>
+References: <20021014184031.A19866@medelec.uia.ac.be> <Pine.LNX.4.44.0210141408400.13924-100000@humbolt.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021015184148.A5026@pc9391.uni-regensburg.de>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210141408400.13924-100000@humbolt.us.dell.com>; from Matt_Domsch@Dell.com on Mon, Oct 14, 2002 at 02:12:07PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 06:41:48PM +0200, Christian Guggenberger wrote:
-> On 15 Oct 2002 18:19:08 Andrea Arcangeli wrote:
-> >On Tue, Oct 15, 2002 at 05:25:58PM +0200, Christian Guggenberger wrote:
-> >> Hi Andrea,
-> >>
-> >> I'm trying to compile 2.4.20-pre10aa1 with xfs enabled as module.
-> >> make modules_install ends up in:
-> >>
-> >> depmod: *** Unresolved symbols in
-> >> /lib/modules/2.4.20-pre10aa1/kernel/fs/xfs/xfs.o
-> >> depmod: 	do_generic_file_write
-> >>
-> >> what to do?
-> >
-> >I logged it so it will be fixed. You can link it into the kernel in the
-> >meantime (select Y instead of M). For some reason bleeding edge gcc from
-> >CVS generates a flood of symbol errors when I run depmod before
-> >rebooting, so I don't easily notice these missing exports anymore (I
-> >should run depmod post reboot to notice them). thanks,
-> 
-> nope, static linking ends up in an error, too.
-> 
-> fs/fs.o: In function `xfs_write':
-> fs/fs.o(.text+0xa1158): undefined reference to `do_generic_file_write'
-> make: *** [vmlinux] Error 1
+Hi Matt,
 
-do_generic_file_write is missing, one patch is probably missing, I will
-fix it in a few days, the last usable xfs was probably in 2.4.20pre5aa1.
+> I think this does it...  Builds right on x86, all the drivers that are in 
+> the tree right now...
 
-Andrea
+Ok, I compared your patches againts mine and they were almost identical. :-)
+After some more coding I have now a first set of patches to get everything
+moved and to add the missing watchdog drivers. Next patches will contain
+updates on the documentation and on each driver seperatly. 
+
+The first patches are:
+Patch 1 : move of existing watchdog drivers in drivers/char/watchdog/
+Patch 2 : remove of 'old' watchdog drivers in drivers/char/
+Patch 3 : cleanup additional spaces in headers + addition of MODULE-info
+Patch 4 : C99 designated initializers for watchdog drivers
+Patch 5 : add extra watchdog drivers
+
+If you want to test them you can get them at the following URL:
+http://medelec.uia.ac.be/linux/watchdog/ .
+
+Greetings,
+Wim.
+

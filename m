@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292407AbSBPQWG>; Sat, 16 Feb 2002 11:22:06 -0500
+	id <S292404AbSBPQWQ>; Sat, 16 Feb 2002 11:22:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292405AbSBPQVr>; Sat, 16 Feb 2002 11:21:47 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:34312
-	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S292404AbSBPQVp>; Sat, 16 Feb 2002 11:21:45 -0500
-Date: Sat, 16 Feb 2002 10:54:25 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@suse.de>, Robert Love <rml@tech9.net>,
-        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020216105425.A31986@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@suse.de>,
-	Robert Love <rml@tech9.net>,
-	Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020215171130.C15406@thyrsus.com> <E16brRz-0004Zj-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16brRz-0004Zj-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 15, 2002 at 11:07:31PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S292405AbSBPQWG>; Sat, 16 Feb 2002 11:22:06 -0500
+Received: from [212.16.7.66] ([212.16.7.66]:48650 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S292404AbSBPQVv>;
+	Sat, 16 Feb 2002 11:21:51 -0500
+Message-ID: <3C6E08FB.7030308@namesys.com>
+Date: Sat, 16 Feb 2002 10:23:39 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Anish Srivastava <anish@bidorbuyindia.com>, linux-kernel@vger.kernel.org,
+        edward@thebsh.namesys.com
+Subject: Re: File BlockSize
+In-Reply-To: <002e01c1b397$1a26d270$3c00a8c0@baazee.com> <20020212075203.GF767@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > The kernel rulebase cannot.  The real issue here is whether the CML1 
-> > language carries sufficient information to support things like 
-> > side-effect deduction.  And the answer is "no".
-> 
-> Thats an opinion not an answer. What doesn't it contain ?
+William Lee Irwin III wrote:
 
-New FAQ entry:
+>On Tue, Feb 12, 2002 at 01:00:07PM +0530, Anish Srivastava wrote:
+>
+>>Hi!!
+>>Is there any way I can have 8K block sizes in ext2, reiserfs or ext3.
+>>I am trying to install Oracle on Linux with 8K DB_Block_size.
+>>But it gives me a Block size mismatch saying that the File BlockSize is only
+>>4K
+>>Maybe, there is a kernel patch available which enables Linux to create 8K
+>>file blocks.
+>>Thanks in anticipation....
+>>
+>
+>Unfortunately filesystem block sizes larger than PAGE_SIZE are unsupported.
+>I wish they were, though.
+>
+>Cheers,
+>Bill
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+I should be more precise, on alpha you can do it with reiserfs.
 
-* Inventing CML2 was unnecessary, since CML1 carries enough information to
-  do consistency checking and side-effect forcing.
+Hans
 
-Jeff Garzik observed:
->I was tempted to introduce a "requires" token to express dependencies
->between subsystems, because I feel they are different from the other
->dependencies present,
 
-Alan followed up with:
->The only interesting case I could find is the negation one - some
->rules are A conflicts with B which makes the UI side much more fun
-
-Jeff and Alan have put their finger neatly on one of the key bits CML2
-can do that CML1 cannot -- express cross-directory dependencies in
-such a way that the configurator can force side effects in both
-directions.  This is, in fact, the very rock on which my original
-attempt to save CML1 foundered after six weeks of effort.
-
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

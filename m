@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319223AbSIFQpL>; Fri, 6 Sep 2002 12:45:11 -0400
+	id <S319263AbSIFQui>; Fri, 6 Sep 2002 12:50:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319229AbSIFQpL>; Fri, 6 Sep 2002 12:45:11 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:48907 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S319223AbSIFQpK>; Fri, 6 Sep 2002 12:45:10 -0400
-Message-ID: <3D78DFC9.26BF8CC5@zip.com.au>
-Date: Fri, 06 Sep 2002 10:03:05 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] iowait stats for 2.5.33
-References: <Pine.LNX.4.44L.0209061332190.1857-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319265AbSIFQui>; Fri, 6 Sep 2002 12:50:38 -0400
+Received: from vulcan.americom.com ([208.187.207.195]:39923 "HELO
+	solo.americom.com") by vger.kernel.org with SMTP id <S319263AbSIFQuh>;
+	Fri, 6 Sep 2002 12:50:37 -0400
+Date: 6 Sep 2002 16:55:16 -0000
+Message-ID: <20020906165516.17282.qmail@solo.americom.com>
+To: linux-kernel@vger.kernel.org
+From: jeff@AmeriCom.com
+Subject: Linux SMP kernel bug with > 512M ram
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> Hi,
-> 
-> the following patch, against 2.5.33-mm4, implements iowait
-> statistics in /proc/stat.
 
-trivial:  I'd be inclined to use:
+I've been having problems with a few of our servers and I can't seem to find this 
+problem mentioned anywhere else. All of the dual processor machines will not operate 
+with greater than 512 megs of ram with the newer SMP kernels (2.4.7-10enterprise #1 
+SMP). Two of the dual P3 1ghz machines crash after a few minutes, when the memory 
+usage gets high enough, I presume. The errors they spit out vary, but its only when 
+I go over 512megs of ram, and only on dual processor machines. I had a slightly 
+different problem when I tried to set it up on a dual p2 266 machine, when I go over 
+512 megs there, the system takes an hour to boot up, and everything crawls from 
+there. I asked a friend of mine to try this newer kernel with his dual processor 
+server, and he says the same thing (when I go over 512, it crashes). Has anybody had 
+this problem? Is there a fix?
 
-void iowait_schedule()
-{
-	atomic_inc(...);
-	schedule();
-	atomic_dec(...);
-}
+Regards,
 
-less trivial: there are times when an io wait is deliberate:
-in the context of balance_dirty_pages(), and (newly) in the
-context of page reclaim when current->backing_dev_info is
-non-zero.
+Jeffrey Moss
+jeff@americom.com
 
-Given that this is a deliberate throttling sleep, perhaps it
-should not be included in the accounting?   That way we only
-account for the accidental, undesirable sleeps, and reads
-and such.
+
+
+
+
+

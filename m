@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269516AbUIZMJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269508AbUIZMSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269516AbUIZMJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 08:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269517AbUIZMJ6
+	id S269508AbUIZMSM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 08:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269517AbUIZMSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 08:09:58 -0400
-Received: from gate.crashing.org ([63.228.1.57]:64389 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S269516AbUIZMJ4 (ORCPT
+	Sun, 26 Sep 2004 08:18:12 -0400
+Received: from verein.lst.de ([213.95.11.210]:34700 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S269508AbUIZMSJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 08:09:56 -0400
-Subject: Re: [PATCH] ppc64: Fix 32 bits conversion of SI_TIMER signals
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040926094044.GB15204@suse.de>
-References: <1096156004.18236.49.camel@gaston>
-	 <20040926094044.GB15204@suse.de>
-Content-Type: text/plain
-Message-Id: <1096200493.18234.307.camel@gaston>
+	Sun, 26 Sep 2004 08:18:09 -0400
+Date: Sun, 26 Sep 2004 14:18:03 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: anton@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] don't build vio.o for pmac-only configs
+Message-ID: <20040926121803.GA2179@lst.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 26 Sep 2004 22:08:13 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-09-26 at 19:40, Olaf Hering wrote:
->  On Sun, Sep 26, Benjamin Herrenschmidt wrote:
-> 
-> > +		err |= __put_user((u32)(u64)s->si_ptr, &d->si_ptr);
-> 
-> That one surely doesnt work. Let me try it again.
-
-Yup, my bad, see my other mail, I sent the wrong patch :(
-
-Ben.
-
-
+--- 1.48/arch/ppc64/kernel/Makefile	2004-09-21 03:17:40 +02:00
++++ edited/arch/ppc64/kernel/Makefile	2004-09-25 12:35:26 +02:00
+@@ -21,7 +21,7 @@
+ 
+ obj-$(CONFIG_PCI)	+= pci.o pci_iommu.o $(pci-obj-y)
+ 
+-obj-$(CONFIG_PPC_ISERIES) += iSeries_irq.o \
++obj-$(CONFIG_PPC_ISERIES) += vio.o iSeries_irq.o \
+ 			     iSeries_VpdInfo.o XmPciLpEvent.o \
+ 			     HvCall.o HvLpConfig.o LparData.o mf_proc.o \
+ 			     iSeries_setup.o ItLpQueue.o hvCall.o \
+@@ -30,7 +30,7 @@
+ 
+ obj-$(CONFIG_PPC_MULTIPLATFORM) += nvram.o open_pic.o i8259.o prom_init.o prom.o
+ 
+-obj-$(CONFIG_PPC_PSERIES) += pSeries_pci.o pSeries_lpar.o pSeries_hvCall.o \
++obj-$(CONFIG_PPC_PSERIES) += vio.o pSeries_pci.o pSeries_lpar.o pSeries_hvCall.o \
+ 			     eeh.o pSeries_nvram.o rtasd.o ras.o \
+ 			     xics.o rtas.o pSeries_setup.o pSeries_iommu.o
+ 

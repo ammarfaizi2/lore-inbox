@@ -1,113 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313896AbSDZL3a>; Fri, 26 Apr 2002 07:29:30 -0400
+	id <S313827AbSDZLhu>; Fri, 26 Apr 2002 07:37:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313862AbSDZL33>; Fri, 26 Apr 2002 07:29:29 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:28700 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S313827AbSDZL3Y>; Fri, 26 Apr 2002 07:29:24 -0400
-Date: Fri, 26 Apr 2002 13:29:36 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19pre7aa2
-Message-ID: <20020426132936.B19278@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S313854AbSDZLht>; Fri, 26 Apr 2002 07:37:49 -0400
+Received: from gra-vd1.iram.es ([150.214.224.250]:24252 "EHLO gra-vd1.iram.es")
+	by vger.kernel.org with ESMTP id <S313827AbSDZLht>;
+	Fri, 26 Apr 2002 07:37:49 -0400
+Message-ID: <3CC93C0A.1030500@iram.es>
+Date: Fri, 26 Apr 2002 13:37:46 +0200
+From: Gabriel Paubert <paubert@iram.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.5) Gecko/20011016
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Mark Zealey <mark@zealos.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Assembly question
+In-Reply-To: <20020425083225.GA30247@webvilag.com> <20020425235240.GA28851@itsolve.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-URL:
+Mark Zealey wrote:
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre7aa2.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre7aa2/
+ > On Thu, Apr 25, 2002 at 10:32:25AM +0200, Szekeres Istvan wrote:
+ >
+ >
+ >> void p_memset_dword( void *d, int b, int l ) { __asm__ ("rep\n\t" 
+"stosl\n\t"
+ >>
 
-Changelog diff between 2.4.19pre7aa1 and 2.4.19pre7aa2:
+ >> : : "D" (d), "a" (b), "c" (l) : "memory","edi", "eax", "ecx"
+ >>
+ >
+ > An input or output operand is implicitly clobbered, so it should be
+      ^^^^^
+I had expected gcc specialists to jump on that one: if you don't
+explicitly tell gcc that an input is clobbered, it may reuse it later if
+it needs the same value. So the clobbers are necessary...
 
-Only in 2.4.19pre7aa2: 00_bh-IPI-1
+Your statement about output operands is also incorrect, since clobbered
+means that the register has an unknown value, which can not be used for
+_anything_, while outputs are results from the statement and they'll
+likely be used later (if none of the outputs is ever used and the asm 
+statement is not marked volatile, gcc will not even bother to emit it).
 
-	Drop the pointless _bh from the IPI-send locking,
-	sending any IPI from a softirq would deadlock
-	regardless of the _bh. Cleanup from Dipankar Sarma.
+	Regards,
+	Gabriel.
 
-Only in 2.4.19pre7aa1: 00_get_pid-no-deadlock-and-boosted-1
-Only in 2.4.19pre7aa2: 00_get_pid-no-deadlock-and-boosted-2
-
-	Ihno Krumreich fixed two bugs in the previous implementation
-	(incorrect calculation of next_unsafe from pid_bitmap and now check
-	retval of get_pid).
-
-	While merging the two fixes, I found a longstanding SMP race that can
-	trigger in 2.2 too, it will lead to a PID collision. So fixed it
-	as well, too bad the semaphore will add some more serialization, but it's
-	the less intrusive fix. Another possibility is to link the task within
-	the ex lastpid_lock, but then some tons of stuff would break for example
-	because we assume a task visible in the tasklist is just set up to
-	receive signals, etc... so this is the obviously safe fix even if
-	it has some scalability drawbacks with simultaneous fork flood from
-	multiple cpus (hopefully not a common case :). The boost remains in
-	the common case thanks to the linear complexity and always using asm
-	bitops to scan the array.
-
-Only in 2.4.19pre7aa1: 00_mmx_xmm-init-1
-Only in 2.4.19pre7aa2: 00_mmx_xmm-init-2
-Only in 2.4.19pre7aa1: 85_x86_64-mmx-xmm-init-1
-Only in 2.4.19pre7aa2: 85_x86_64-mmx-xmm-init-2
-
-	Initialize the fpu with fxrestor when fxsr is enabled and avoid memset
-	in the fast path, should be faster than 2.5.10.
-	While implementing it found another problem with ptrace that is cleanly
-	fixed too.
-
-Only in 2.4.19pre7aa1: 05_vm_17_rest-2
-Only in 2.4.19pre7aa2: 05_vm_17_rest-3
-
-	Two marginal cleanups (no difference in practice).
-
-Only in 2.4.19pre7aa1: 10_numa-sched-17
-Only in 2.4.19pre7aa2: 10_numa-sched-18
-Only in 2.4.19pre7aa1: 90_init-survive-threaded-race-1
-Only in 2.4.19pre7aa2: 90_init-survive-threaded-race-2
-Only in 2.4.19pre7aa1: 82_x86-64-compile-aa-4
-Only in 2.4.19pre7aa2: 82_x86-64-compile-aa-5
-Only in 2.4.19pre7aa1: 87_x86_64-dec_and_lock-1
-Only in 2.4.19pre7aa2: 87_x86_64-dec_and_lock-2
-
-	Rediffed.
-
-Only in 2.4.19pre7aa1: 20_pte-highmem-22
-Only in 2.4.19pre7aa2: 20_pte-highmem-23
-
-	Merged some missing #include. From Hubert.
-
-Only in 2.4.19pre7aa1: 80_x86_64-common-code-2
-Only in 2.4.19pre7aa2: 80_x86_64-common-code-3
-Only in 2.4.19pre7aa1: 81_x86_64-arch-3.gz
-Only in 2.4.19pre7aa2: 81_x86_64-arch-4.gz
-
-	Go in sync with the latest updates in CVS HEAD at cvs.x86-64.org from
-	Andi/SuSE Labs.
-
-Only in 2.4.19pre7aa2: 91_zone_start_pfn-1
-
-	s/paddr/pfn/ original patch from Martin J. Bligh, needed by
-	NUMA-Q to start nodes and in turn zones above 4G. I found
-	a few compilation glitches in some non-x86 arch code this
-	version of the patch should be corrected.
-
-Only in 2.4.19pre7aa2: 92_core-dump-seek-unmapped-1
-
-	Skip over unmapped nonfilebacked pages during core dumping,
-	the caller of get_user_pages is just smart enough to seek when
-	it gets the zero page so that it makes holes as well on disk.
-	All readers should be unaffected by this change: a page in a vma that
-	can be read (VM_MAYREAD|VM_READ depending on force) and that isn't
-	filebacked must always read zero, so passing the zeropage instead of
-	filling the pagetables seems a fine optimization. In particular
-	it avoids some huge I/O load and oom true condition (triggered by
-	pagetable allocations) during core dumping with some stack usage.
-
-Andrea

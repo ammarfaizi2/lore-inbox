@@ -1,34 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316690AbSE3PSB>; Thu, 30 May 2002 11:18:01 -0400
+	id <S316721AbSE3PW6>; Thu, 30 May 2002 11:22:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316695AbSE3PSA>; Thu, 30 May 2002 11:18:00 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:6142 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316690AbSE3PR6>; Thu, 30 May 2002 11:17:58 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <010001c207ec$9b03f7c0$3d01a8c0@pitzeier.priv.at> 
-To: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.5.18 on alpha 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 30 May 2002 16:17:52 +0100
-Message-ID: <3668.1022771872@redhat.com>
+	id <S316728AbSE3PW6>; Thu, 30 May 2002 11:22:58 -0400
+Received: from pl204.dhcp.adsl.tpnet.pl ([217.98.31.204]:1664 "EHLO
+	bzzzt.slackware.pl") by vger.kernel.org with ESMTP
+	id <S316721AbSE3PWz>; Thu, 30 May 2002 11:22:55 -0400
+Date: Thu, 30 May 2002 17:24:39 +0200 (CEST)
+From: Pawel Kot <pkot@linuxnews.pl>
+X-X-Sender: <pkot@bzzzt.slackware.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: [2.4.19-pre9] DMA not available
+Message-ID: <Pine.LNX.4.33.0205301702310.139-100000@bzzzt.slackware.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-o.pitzeier@uptime.at said:
->  Is there really nobody who can help me with this error?
+I can't enable DMA with 2.4.19-pre9 with my Dell laptop:
+root@bzzzt:~# hdparm -d 1 /dev/hda
 
-If you're not capable of reading the list archives, and picking up the
-patches which I believe I recall seeing, then no - I suspect you are indeed
-beyond help.
+/dev/hda:
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ using_dma    =  0 (off)
 
---
-dwmw2
+dmesg shows the following error:
+PIIX4: (ide_setup_pci_device:) Could not enable device.
 
+There were no problems regarding it with 2.4.18 kernel.
+
+Information about the harddisk:
+root@bzzzt:~# hdparm -i /dev/hda
+
+/dev/hda:
+
+ Model=HITACHI_DK23CA-30, FwRev=00H0A0G1, SerialNo=11GMEC
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=36477, SectSize=579, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=58605120
+ IORDY=yes, tPIO={min:400,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
+ AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-5 T13 1321D revision 3:  1 2 3 4 5
+
+Other info (all commands executed on 2.4.19-pre9):
+kernel config:	http://tfuj.pl/info/.config
+lspci -vvv:	http://tfuj.pl/info/lspci
+dmesg:		http://tfuj.pl/info/dmesg
+/proc/pci:	http://tfuj.pl/info/procpci
+
+Any other info needed?
+
+pkot
+-- 
+Pawel Kot <pkot@linuxnews.pl>
+http://www.gnokii.org/ :: http://www.slackware.pl/
+http://kt.linuxnews.pl/ -- Kernel Traffic po polsku
 

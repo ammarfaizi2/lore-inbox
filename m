@@ -1,91 +1,308 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265573AbUABSFR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 13:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265625AbUABSFR
+	id S265546AbUABSBt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 13:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUABSBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 13:05:17 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:57766 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265573AbUABSFH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 13:05:07 -0500
-Date: Fri, 2 Jan 2004 19:04:31 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Libor Vanek <libor@conet.cz>
-Cc: Christoph Hellwig <hch@infradead.org>, Muli Ben-Yehuda <mulix@mulix.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Syscall table AKA hijacking syscalls
-Message-ID: <20040102180431.GB6577@wohnheim.fh-wedel.de>
-References: <3FF56B1C.1040308@conet.cz> <20040102151206.GJ1718@actcom.co.il> <3FF59073.3060305@conet.cz> <20040102160020.A24026@infradead.org> <20040102163552.GD31489@wohnheim.fh-wedel.de> <3FF5A36A.5070501@conet.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 2 Jan 2004 13:01:48 -0500
+Received: from out012pub.verizon.net ([206.46.170.137]:41976 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S265546AbUABSBi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 13:01:38 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None that appears to be detectable by casual observers
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: lm_sensors, again, still, yet
+Date: Fri, 2 Jan 2004 13:01:35 -0500
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3FF5A36A.5070501@conet.cz>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200401021301.35349.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.61.108] at Fri, 2 Jan 2004 12:01:37 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 January 2004 17:59:22 +0100, Libor Vanek wrote:
-> 
-> >My guess is that the filesystem change notification would be a better
-> >solution, either in userspace or in kernelspace, doesn't matter.  But
-> >that is far from finished or even generally accepted.
-> 
-> This is also something (but just a bit) different - I don't need "change 
-> notification" but "pre-change notification" ;)
+Hi;
 
-"Vor dem Spiel ist nach dem Spiel" -- Sepp Herberger
+I have a Biostar M7VIB, 8233, 82c686 etc mobo.
+Running ATM, 2.6.1-rc1-mm1
+I have, from .config
 
-Except for exactly two cases, pre-change and post-change and the same,
-just off-by-one.  So you would need a bootup/mount/whenever special
-case now, is that a big problem?
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+^^^^^^^^^^ this because the smbus emulates it AFAIK
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
 
-> >For the diploma thesis, feel free to use any hack you like, including
-> >hijacking syscalls.  But remember that it is a hack and nothing else,
-> >only helping you to remain on schedule and focus more on the real
-> >subject.  And don't plan on kernel acceptance either, as you will fail
-> >either that or the thesis and I'd choose the thesis.
-> 
-> You're absolutely right but when I'm going to spent several weeks on 
-> something like this I'd like to do something usefull - not something 
-> which will be trashed after exam. So I'm trying to find out some 
-> "politically correct" way.
+CONFIG_X86_PC=y
+CONFIG_MK7=y
+CONFIG_X86_GENERIC=y
 
-Then seperate the two problems.  One is to figure out, what has
-changed and two is to act accordingly.  Two should be pretty
-independent on this threads subject.  If that part is really useful,
-people will help you on problem one.  Postpone. :)
+CONFIG_PREEMPT=y
+CONFIG_X86_TSC=y
+CONFIG_X86_CPUID=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
 
-Something I learned over time is that the first implementation is
-almost always crappy, often even righout wrong.  It has to be, because
-noone really knows all the problems yet and thus can design the Proper
-Solution (tm) yet.  Look at the current devfs vs. udev discussion for
-one example.
+CONFIG_PM=y
 
-Many research people know this and won't give you any source code
-beyond the official paper simply because it is horrible and the don't
-want to wear brown paper-bags.  There is no shame in a horrible first
-try, noone could have done that much better than Richard Gooch back
-then.  Simply because noone could learn from his mistakes yet.
+CONFIG_APM=y
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_APM_REAL_MODE_POWER_OFF=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
 
-Ok, there is shame in a horrible first try, but there shouldn't be,
-really.  The "standing on the shoulders of giants" thing applies, even
-when standing on the shoulders of dwarves, people should be more
-polite. :)
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_1284=y
 
-And even though he won't read this, thank you Richard!  He took the
-unrewarding role and grew bitter, but he did a good thing.
+CONFIG_PNP=y
 
+CONFIG_PNPBIOS=y
 
-Ok, back to your problem.  Seperation is the way to go.  Problem one
-is a hard one and it takes a lot of time to do right.  But hacking it
-up is quite simple, so you can save time with the hack and do it right
-only if your solution to problem two proved good enough.
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
 
-Jörn
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_MAX_SD_DISKS=256
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_ADVANSYS=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=y
+CONFIG_8139_RXBUF_IDX=2
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
+CONFIG_INPUT_EVDEV=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=2
+CONFIG_SERIAL_8250_EXTENDED=y
+CONFIG_SERIAL_8250_SHARE_IRQ=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+
+#
+# I2C support
+#
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+
+#
+# I2C Algorithms
+#
+CONFIG_I2C_ALGOBIT=y
+# CONFIG_I2C_ALGOPCF is not set
+
+#
+# I2C Hardware Bus support
+#
+CONFIG_I2C_VIAPRO=y
+#
+# I2C Hardware Sensors Chip support
+#
+CONFIG_I2C_SENSOR=y
+CONFIG_SENSORS_EEPROM=y
+CONFIG_SENSORS_W83781D=y
+
+CONFIG_IPMI_HANDLER=y
+CONFIG_IPMI_DEVICE_INTERFACE=y
+CONFIG_RTC=y
+
+CONFIG_AGP=y
+CONFIG_AGP_VIA=y
+CONFIG_VIDEO_DEV=y
+CONFIG_VIDEO_BT848=y
+CONFIG_VIDEO_TUNER=y
+CONFIG_VIDEO_BUF=y
+CONFIG_VIDEO_BTCX=y
+
+CONFIG_FB=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_RIVA=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_DEBUG=y
+CONFIG_SND_DEBUG_DETECT=y
+CONFIG_SND_VIRMIDI=y
+CONFIG_SND_VIA82XX=y
+CONFIG_SOUND_PRIME=y
+CONFIG_SOUND_BT878=y
+CONFIG_SOUND_VIA82CXXX=y
+CONFIG_SOUND_OSS=y
+CONFIG_SOUND_TRACEINIT=y
+CONFIG_SOUND_DMAP=y
+CONFIG_SOUND_TVMIXER=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_SERIAL=y
+CONFIG_USB_SERIAL_DEBUG=y
+CONFIG_USB_SERIAL_PL2303=y
+
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_SMB_FS=y
+CONFIG_MSDOS_PARTITION=y
+
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+CONFIG_NLS_CODEPAGE_936=m
+CONFIG_NLS_CODEPAGE_950=m
+CONFIG_NLS_CODEPAGE_932=m
+CONFIG_NLS_CODEPAGE_949=m
+CONFIG_NLS_CODEPAGE_874=m
+CONFIG_NLS_ISO8859_8=m
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_SECURITY=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_CRC32=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y
+
+The question is: Based on the above, what sensors data is available 
+and where is it to be found in /sys?
+
+I have now built the newest gtk+-2.2.5, and the newest gkrellm-2.1.24.  
+Took me 2 days to sort the glib dependency hell to do all that.
+
+But the gkrellm sensors menu's are still ghosted, and it says no 
+sensors detected in that configuration window.  I've hand browsed 
+/sys, and cannot find anything that looks like sensors data there.
+
+ksysguard is also blank, but its only 2.4 aware, so I expected that.
+
+WHat am I yet missing?
 
 -- 
-He who knows others is wise.
-He who knows himself is enlightened.
--- Lao Tsu
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273622AbRJ0R2b>; Sat, 27 Oct 2001 13:28:31 -0400
+	id <S273565AbRJ0ReB>; Sat, 27 Oct 2001 13:34:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273565AbRJ0R2W>; Sat, 27 Oct 2001 13:28:22 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:49330 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S273345AbRJ0R2G>;
-	Sat, 27 Oct 2001 13:28:06 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Johannes Kloos <j.kloos@gmx.net>
-Newsgroups: local.lists.linux-kernel
-Subject: Re: strange hangs with kernel 2.4.12 (and 13)
-Date: Sat, 27 Oct 2001 17:00:17 +0000 (UTC)
-Organization: Pure chaos
-Distribution: local
-Message-ID: <slrn9tlq11.crb.j.kloos@gandalf.yadha.dnsalias.net>
-In-Reply-To: <3BDA8A5E.503EDD28@eunet.at>
-NNTP-Posting-Host: localhost.yadha.dnsalias.net
-X-Trace: gandalf.yadha.dnsalias.net 1004202017 13164 127.0.0.1 (27 Oct 2001 17:00:17 GMT)
-X-Complaints-To: j.kloos@gmx.net
-NNTP-Posting-Date: Sat, 27 Oct 2001 17:00:17 +0000 (UTC)
-User-Agent: slrn/0.9.7.2 (Linux)
+	id <S273796AbRJ0Rdv>; Sat, 27 Oct 2001 13:33:51 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:58382 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S273565AbRJ0Rdk>;
+	Sat, 27 Oct 2001 13:33:40 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200110271726.VAA04919@ms2.inr.ac.ru>
+Subject: Re: issue: deleting one IP alias deletes all
+To: thockin@sun.com (Tim Hockin)
+Date: Sat, 27 Oct 2001 21:26:53 +0400 (MSK DST)
+Cc: david@blue-labs.org, cfriesen@nortelnetworks.com, ja@ssi.bg,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3BD72A8A.F4EB4188@sun.com> from "Tim Hockin" at Oct 24, 1 01:54:34 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Reinelt <reinelt@eunet.at> wrote:
-> Hi there,
-> 
-> I've got some strange problems here, since 2.4.12 (2.4.10 was ok, I
-> never tried .11)
-2.4.10 was the first kernel that broke for me.
+Hello!
 
-> I've got seveal processes hanging in "D" state, especially devfsd. I
-> think something with devfs and/or devfsd is broken here. If I kill
-> devfsd before, the problem does not arise (but I need devfsd :-)
-I've had this problem as well - it seems there's a deadlock in devfs.
-I have sent a mail to Richard Gooch about this some days ago, but he
-hasn't responded yet.
-I will resend my bug report to the list then.
+> It has done this since 2.2.x, when we first filed and fixed this bug.  I've
+> pinged Alexey, and haven't heard back yet.  Maybe you'll have better
+> response time.
 
-> Now, It gets even more strange: The problem does only exist if I
-> deactivate ACPI! I tried with a ACPI enabled kernel with the command
-> line "acpi=off", I tried on a machine which is too old for ACPI, and I
-> even compiled a kernel without ACPI at all. Everywhere the same problem.
-> When I boot with activated ACPI, there's no problem.
-I don't know about this.
+People frequently do not understand that when creating two aliases
+with completely coinciding prefixes, they must do an administrative decision:
+what address they suppose to use as source address when communicating
+to this network. In other words, what address is primary and what addresses
+are just some unused dummies.
 
-> Any hints? If someone could tell me what I should try or which debug
-> info could be useful, please let me know!
-> 
-> TIA, Michael
-> 
+Well, and as soon as admin created configuration with some unused dummies,
+kernel cannot promote slave to state of a citizen with full rights.
 
+So, if you do not want an address was slave, just make it master of itself,
+setting prefix length to 32.
 
--- 
-Johannes Kloos
-"Walk a mile on these paws and call me a liar."
--- Gaspode the wonder dog (Terry Pratchett, Moving Pictures)
+What's about responce time... Well, I bring apologies, seeing you did not
+append the patch to the note, this happened to fit to class of RTFMs
+with answer which can be easily found in dejanews.
+
+Alexey

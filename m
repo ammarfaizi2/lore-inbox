@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUHTRQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268352AbUHTRUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267235AbUHTRQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 13:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267338AbUHTRQZ
+	id S268352AbUHTRUU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 13:20:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268389AbUHTRUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 13:16:25 -0400
-Received: from poros.telenet-ops.be ([195.130.132.44]:61850 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S267235AbUHTRQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 13:16:23 -0400
-Subject: Re: ati_remote for medion
-From: Karel Demeyer <kmdemeye@vub.ac.be>
-To: Tom Felker <tcfelker@mtco.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408191209.26139.tcfelker@mtco.com>
-References: <1092904136.3352.5.camel@kryptonix>
-	 <200408191016.06528.tcfelker@mtco.com> <1092930674.6966.6.camel@kryptonix>
-	 <200408191209.26139.tcfelker@mtco.com>
-Content-Type: text/plain; charset=utf-8
-Date: Fri, 20 Aug 2004 19:16:47 +0200
-Message-Id: <1093022207.2875.5.camel@kryptonix>
+	Fri, 20 Aug 2004 13:20:20 -0400
+Received: from open.hands.com ([195.224.53.39]:27557 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S268352AbUHTRUN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 13:20:13 -0400
+Date: Fri, 20 Aug 2004 18:31:24 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: James Morris <jmorris@redhat.com>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
+Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
+Message-ID: <20040820173124.GA11086@lkcl.net>
+Mail-Followup-To: Kaigai Kohei <kaigai@ak.jp.nec.com>,
+	James Morris <jmorris@redhat.com>,
+	Stephen Smalley <sds@epoch.ncsc.mil>,
+	"SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+	"Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
+References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com> <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Actually, since the codes are different, we don't need separate tables, 
-> because it shouldn't do any harm to have codes for the other remote in the 
-> same table.  The remote sends a code, and we look it up in the table - as 
-> long as there aren't two entries in the table with the same code, there's no 
-> problem.
+On Fri, Aug 20, 2004 at 10:36:03PM +0900, Kaigai Kohei wrote:
+> Hello, everyone.
 > 
-> Anyway, please try the attached file.  I just put your codes on the bottom of 
-> the key table, added your vendor/product ID to the device table, tore out the 
-> check in probe() (as I think the system does this for us), and noted my 
-> changes.
+> Tuesday, August 17, 2004 12:19 AM
+> James Morris wrote:
+> > > Is removing direct reference to AVC-Entry approach acceptable?
+> > > 
+> > > I'll try to consider this issue further.
+> > 
+> > Sure, if you can make it work without problems.
 > 
-> Hopefully the module doesn't freak out when other USB devices are plugged in 
-> after the module is loaded, otherwise I can fix that.  And we still need to 
-> add some comments / help text showing that we support the medion remote, and 
-> maybe put your ascii art in somewhere.
+> The attached patches against to 2.6.8.1 kernel improve the performance
+> and the scalability of SELinux by RCU-approach.
 > 
+> The evaluation results are as follows:
+> <Environment>
+> CPU: Itanium2(1GHz) x 4/8/16/32
+> Memory: enough (no swap)
+> OS: 2.6.8.1 (SELinux disabled by 'selinux=0' boot option)
+>     2.6.8.1 (SELinux enabled)
+>     2.6.8.1 + rwlock patch by KaiGai
+>     2.6.8.1 + RCU patch by KaiGai
 > 
-> > Don't shoot me if I say anything irrevelant, and I'll stay around for
-> > testing and stuff, even my evolution-filters arenot what they should be
-> > - they copy it both in my Inbox and my 'Linux-kernel'-directory :|
-> 
-> That's my fault, I've been CC:ing you, so you get mail from both me and the 
-> list.
+> The test program iterates write() to files on tmpfs 500,000 times in parallel.
+                                                ^^^^^
+ i presume that that is without the xattr patch which adds extended
+ attributes to tmpfs?
 
-Seems that the codes for the numbers are the same which is probvlematic
-for me.  I mapped those keys as the keys in the "numlock-area" of the
-keyboard.  I did it because I have a azerty-keyboard layout (be-latin1),
-if I press the numbers it gives now &,é,",',(,§,... I also mapped the
-numlock-button on the 'rename'-button right under the '7'-button (cfr.
-ASCII-thingie in source).  This way I could them use as numbers and as
-Home,PgUp,PgDn,Arrows... though I mapped those on ther keys too.
+ (see http://hands.com/~lkcl/selinux)
 
-I think it will need 2 different tables thus :|  Maybe some other codes
-are used twice now ... for other keys, I don't know as I didn't test it
-alot and didn't look up in the source.
-
-friendly greeting,
-
-Karel "scapor" Demeyer
+ l.
 

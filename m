@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbUKECn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbUKECqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262573AbUKECn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 21:43:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbUKECn2
+	id S262569AbUKECqj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 21:46:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbUKECqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 21:43:28 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24233 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262573AbUKECnZ
+	Thu, 4 Nov 2004 21:46:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47529 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262569AbUKECqc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 21:43:25 -0500
-Message-ID: <418AE8C0.3040205@pobox.com>
-Date: Thu, 04 Nov 2004 21:43:12 -0500
+	Thu, 4 Nov 2004 21:46:32 -0500
+Message-ID: <418AE97A.9040003@pobox.com>
+Date: Thu, 04 Nov 2004 21:46:18 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] IDE remove some cruft from ide.h
-References: <20041103091101.GC22469@taniwha.stupidest.org>
-In-Reply-To: <20041103091101.GC22469@taniwha.stupidest.org>
+To: David Gibson <david@gibson.dropbear.id.au>
+CC: Andrew Morton <akpm@osdl.org>, jgarzik@mandrakesoft.com,
+       orinoco-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic updates for orinoco driver
+References: <20041103022444.GA14267@zax> <20041103154407.4d9833ca.akpm@osdl.org> <20041104021228.GA3949@zax>
+In-Reply-To: <20041104021228.GA3949@zax>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bart, Chris's two patches are OK with me.  If you agree, then please 
-merge them up into your ide-2.6 queue.
+David Gibson wrote:
+> Ah, looks like Al Viro did the ioread/iowrite conversion while I
+> wasn't looking.  Ok, with that netdev patch I should be able to fix
+> things up (and merge the iowrite conversion back into CVS).
 
-Chris, a useful follow-up patch (if Bart agrees) is a global 
-search-n-replace of WIN_xxx constants with ATA_CMD_xxx constants. 
-Depending on the size of the patch, it might even need to be split up 
-across several patches.
+OK, I guess I will wait for an update.  What should I do with "Another 
+trivial orinoco update", which looks OK to me?
 
 	Jeff
-
 
 

@@ -1,60 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVAGRlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVAGRpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVAGRlL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:41:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVAGRky
+	id S261359AbVAGRpB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:45:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVAGRoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:40:54 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:11535 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261367AbVAGRhP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:37:15 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Lukasz Kosewski <lkosewsk@nit.ca>, Andrew Morton <akpm@osdl.org>
-Subject: Re: SCSI aic7xxx driver: Initialization Failure over a kdump reboot
-Date: Fri, 7 Jan 2005 19:36:25 +0200
-User-Agent: KMail/1.5.4
-Cc: Arjan van de Ven <arjan@infradead.org>, vgoyal@in.ibm.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <1105014959.2688.296.camel@2fwv946.in.ibm.com> <20050106195043.4b77c63e.akpm@osdl.org> <41DE15C7.6030102@nit.ca>
-In-Reply-To: <41DE15C7.6030102@nit.ca>
+	Fri, 7 Jan 2005 12:44:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:47071 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261359AbVAGRnT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 12:43:19 -0500
+Message-ID: <41DEC0BF.4010708@osdl.org>
+Date: Fri, 07 Jan 2005 09:02:55 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501071936.25993.vda@port.imtp.ilyichevsk.odessa.ua>
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, paulmck@us.ibm.com,
+       arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+       greghk@us.ibm.com, Linus Torvalds <torvalds@osdl.org>, linux@brodo.de
+Subject: Re: [PATCH] add feature-removal-schedule.txt documentation
+References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050106152621.395f935e.akpm@osdl.org> <20050106235633.GA10110@kroah.com>
+In-Reply-To: <20050106235633.GA10110@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------080300010808010205030505"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 January 2005 06:53, Lukasz Kosewski wrote:
-> Andrew Morton wrote:
-> >> looks like the following is happening:
-> >> the controller wants to send an irq (probably from previous life)
-> >> then suddenly the driver gets loaded
-> >> * which registers an irq handler
-> >> * which does pci_enable_device()
-> >> and .. the irq goes through. 
-> >> the irq handler just is not yet expecting this irq, so
-> >> returns "uh dunno not mine"
-> >> the kernel then decides to disable the irq on the apic level
-> >> and then the driver DOES need an irq during init
-> >> ... which never happens.
-> >>
-> > 
-> > 
-> > yes, that's exactly what e100 was doing on my laptop last month.  Fixed
-> > that by arranging for the NIC to be reset before the call to
-> > pci_set_master().
+This is a multi-part message in MIME format.
+--------------080300010808010205030505
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Greg KH wrote:
+> On Thu, Jan 06, 2005 at 03:26:21PM -0800, Andrew Morton wrote:
 > 
-> I noticed the exact same thing with a usb-uhci hub on a VIA MicroATX
-> board a month back.  I rewrote the init sequence of the driver so that
-> it resets all of the hubs in the system first, and THEN registers their
-> interrupts.
+>>Which begs the question "how do we ever get rid of these things when we
+>>have no projected date for Linux-2.8"?
+>>
+>>I'd propose:
+>>
+>>a) Create Documentation/feature-removal-schedule.txt which describes
+>>   things which are going away, when, why, who is involved, etc.
+> 
+> Ok, I'll bite, here's a patch that does just that.  Look good?
 
-"Me too".
+Brodo, can you add a little more info to this, please?
 
-prism54 had similar bug long ago.
---
-vda
+---
+Add 2.4.x cpufreq /proc and sysctl interface removal
+to the feature-removal-schedule.
 
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+
+diffstat:=
+  Documentation/feature-removal-schedule.txt |    9 +++++++++
+  1 files changed, 9 insertions(+)
+
+---
+
+--------------080300010808010205030505
+Content-Type: text/x-patch;
+ name="cpufreq_sched.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cpufreq_sched.patch"
+
+
+diff -Naurp ./Documentation/feature-removal-schedule.txt~cpufreq ./Documentation/feature-removal-schedule.txt
+--- ./Documentation/feature-removal-schedule.txt~cpufreq	2005-01-07 08:48:26.568969672 -0800
++++ ./Documentation/feature-removal-schedule.txt	2005-01-07 08:55:50.658457808 -0800
+@@ -15,3 +15,12 @@ Why:	It has been unmaintained for a numb
+ 	against the LSB, and can be replaced by using udev.
+ Who:	Greg Kroah-Hartman <greg@kroah.com>
+ 
++---------------------------
++
++What:	/proc/sys/cpu and the sysctl interface to cpufreq (2.4.x interfaces)
++When:	January 2005
++Files:	drivers/cpufreq/: cpufreq_userspace.c, proc_intf.c
++	function calls throughout the kernel tree
++Why:	Deprecated, has been replaced/superseded by (what?)....
++Who:	Dominik Brodowski <linux@brodo.de>
++
+
+--------------080300010808010205030505--

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131285AbRCHH1N>; Thu, 8 Mar 2001 02:27:13 -0500
+	id <S131288AbRCHHgF>; Thu, 8 Mar 2001 02:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131286AbRCHH1D>; Thu, 8 Mar 2001 02:27:03 -0500
-Received: from pipt.oz.cc.utah.edu ([155.99.2.7]:64665 "EHLO
-	pipt.oz.cc.utah.edu") by vger.kernel.org with ESMTP
-	id <S131285AbRCHH0p>; Thu, 8 Mar 2001 02:26:45 -0500
-Date: Thu, 8 Mar 2001 00:22:37 -0700 (MST)
-From: james rich <james.rich@m.cc.utah.edu>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Questions about Enterprise Storage with Linux
-In-Reply-To: <006301c0a765$3ca118e0$1601a8c0@zeusinc.com>
-Message-ID: <Pine.GSO.4.05.10103080016480.9469-100000@pipt.oz.cc.utah.edu>
+	id <S131289AbRCHHfp>; Thu, 8 Mar 2001 02:35:45 -0500
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:33997 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S131288AbRCHHfd>; Thu, 8 Mar 2001 02:35:33 -0500
+Message-ID: <3AA736A8.19C2C488@redhat.com>
+Date: Thu, 08 Mar 2001 02:37:12 -0500
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac14
+In-Reply-To: <E14an7j-0001rZ-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Mar 2001, Tom Sightler wrote:
+Alan Cox wrote:
+> 2.4.2-ac14
+> o       Updated i810_audio.c                            (Doug Ledford)
 
-> 2.  Does linux have any problems with large (500GB+) NFS exports, how about
-> large files over NFS?
-> 
-> 3.  What filesystem would be best for such large volumes?  We currently use
-> reirserfs on our internal system, but they generally have filesystems in the
-> 18-30GB ranges and we're talking about potentially 10-20x that.  Should we
-> look at JFS/XFS or others?
+I wanted to let people know that there is a lot of new code in this particular
+update that needs testing.  The nice thing is that quake3 should now play with
+this sound driver so the testing can at least be a little bit of fun ;-) 
+Basically, all the stuff that used to work still should, mmap audio should now
+work, and you should not have to specify any ftsodell=1 options to the driver
+any more and it shouldn't sound like Alvin and the Chipmunks when you don't. 
+If anyone finds problems with this driver, please let me know.  I tested what
+I could, but I'm sure there are things I possibly missed.  Oh, one more thing,
+when playing mp3's via xmms and using the oss output module, the number of
+interrupts the system has to service is down by about 100 per second or more,
+so it should be slightly lighter on system CPU time as well.
 
-I think that for filesystems this size you definately want to look at XFS
-of JFS.  Maybe you will decide not to use them - but you should test them.
+-- 
 
-I am currently using XFS and it really works.  It currently has some
-issues when used with raid 1, but it is probably the most suited for what
-you want.  Exporting an XFS volume over NFS is no problem.  You can also
-use xfs_growfs to change the size of your XFS partition.  I haven't had
-any instability during all the time I've used XFS.
-
-James Rich
-james.rich@m.cc.utah.edu
-
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274870AbTHFFNv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 01:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274871AbTHFFNu
+	id S272495AbTHFFHO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 01:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272801AbTHFFHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 01:13:50 -0400
-Received: from [203.53.213.67] ([203.53.213.67]:35338 "EHLO exchange.world.net")
-	by vger.kernel.org with ESMTP id S274870AbTHFFNX (ORCPT
+	Wed, 6 Aug 2003 01:07:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37591 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272495AbTHFFHO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 01:13:23 -0400
-Message-ID: <6416776FCC55D511BC4E0090274EFEF508002521@exchange.world.net>
-From: Steven Micallef <steven.micallef@world.net>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: File descriptors allocated
-Date: Wed, 6 Aug 2003 15:13:17 +1000 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	Wed, 6 Aug 2003 01:07:14 -0400
+Date: Tue, 5 Aug 2003 22:08:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: maneesh@in.ibm.com
+Cc: jeremy@goop.org, dick.streefland@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] autofs4 doesn't expire
+Message-Id: <20030805220848.3ee1111a.akpm@osdl.org>
+In-Reply-To: <20030806050003.GB1298@in.ibm.com>
+References: <4b0c.3f302ca5.93873@altium.nl>
+	<20030805164904.36b5d2cc.akpm@osdl.org>
+	<20030806042853.GA1298@in.ibm.com>
+	<1060144454.18625.5.camel@ixodes.goop.org>
+	<20030806050003.GB1298@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Maneesh Soni <maneesh@in.ibm.com> wrote:
+>
+>  +	if (vfs) {
+>  +		if (is_vfsmnt_tree_busy(vfs))
+>  +			ret--;
+>  +		/* just to reduce ref count taken in lookup_mnt
+>  +	 	 * cannot call mntput() here
+>  +	 	 */
+>  +		atomic_dec(&vfs->mnt_count);
+>  +	}
 
-On the 2.4.20 kernel, looking at /proc/sys/fs/file-nr, as far as I know the
-three values (from left to right) represent file descriptors allocated, file
-descriptors free (from those allocated) and maximum file descriptors
-available.
+Doesn't work, does it?  If someone else does a mntput() just beforehand,
+__mntput() never gets run.
 
-My question is, should the first figure ever decrease? On a fairly loaded
-system, I've seen it go from 400 to 1700+ in a couple of days, and it just
-keeps getting higher and higher. The first value minus the second should
-tell me exactly how many are in use on my system, and this figure remains
-(fairly) consistent, so it's probably no big deal. I just figured that the
-kernel would "de-allocate" FDs after they weren't in use for a period of
-time.
-
-Any ideas?
-
-Thanks,
-
-Steve Micallef

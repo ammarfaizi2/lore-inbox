@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265183AbSJaGLK>; Thu, 31 Oct 2002 01:11:10 -0500
+	id <S265182AbSJaGHr>; Thu, 31 Oct 2002 01:07:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265186AbSJaGLK>; Thu, 31 Oct 2002 01:11:10 -0500
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:21575 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S265183AbSJaGLJ>; Thu, 31 Oct 2002 01:11:09 -0500
-Date: Wed, 30 Oct 2002 22:25:46 -0800 (PST)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: What's left over.
-In-Reply-To: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0210302224180.20210-100000@nakedeye.aparity.com>
+	id <S265183AbSJaGHr>; Thu, 31 Oct 2002 01:07:47 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:10713 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP
+	id <S265182AbSJaGHq>; Thu, 31 Oct 2002 01:07:46 -0500
+Message-ID: <3DC0BBE6.1BEA710E@verizon.net>
+Date: Wed, 30 Oct 2002 21:13:10 -0800
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.44 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+Subject: 2.5.45 net: warning + patch
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out002.verizon.net from [4.64.197.173] at Thu, 31 Oct 2002 00:14:06 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> > Crash Dumping (LKCD)
-> 
-> This is definitely a vendor-driven thing. I don't believe it has any
-> relevance unless vendors actively support it.
+  gcc -Wp,-MD,net/sunrpc/.clnt.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include   
+-DKBUILD_BASENAME=clnt   -c -o net/sunrpc/clnt.o net/sunrpc/clnt.c
+net/ipv4/route.c: In function `ip_rt_init':
+net/ipv4/route.c:2544: warning: implicit declaration of function
+`xfrm_init'
 
-There are people within IBM in Germany, India and England, as well as
-a number of companies (Intel, NEC, Hitachi, Fujitsu), as well as SGI
-that are PAID to support this.  In addition, Global Services at IBM
-uses this as a front-line method for resolving customer problems.
-If you're looking for names of people to sign up to support it
-(both vendors and non-vendors), I can make that list up for you.
+and one patch is:
 
-There are a number of us (developers, support staff, and other
-interested parties) who bend over backwards, day in and day out
-to make sure this stuff works and helps people, even if it isn't
-kernel developers (directly -- indirectly, you get bug reports that
-are sane and useful).
+--- ./include/net/xfrm.h%syntax Wed Oct 30 16:42:22 2002
++++ ./include/net/xfrm.h        Wed Oct 30 20:58:29 2002
+@@ -384,3 +384,4 @@
+ extern int km_query(struct xfrm_state *x);
+ 
+ extern int ah4_init(void);
++extern void xfrm_init(void);
+--- ./net/ipv4/route.c%syntax   Wed Oct 30 16:43:45 2002
++++ ./net/ipv4/route.c  Wed Oct 30 21:08:52 2002
+@@ -94,6 +94,7 @@
+ #include <net/arp.h>
+ #include <net/tcp.h>
+ #include <net/icmp.h>
++#include <net/xfrm.h>
+ #ifdef CONFIG_SYSCTL
+ #include <linux/sysctl.h>
+ #endif
 
-It's not sexy kernel stuff, but it is very important, and if you'd
-like, I can have representatives from at least 10 major corporations
-(Fortune 500 companies) contact you to request that this go in.
 
-We're generating 2.5.45 patches now, and we ask that you include
-the patches when they are posted.
-
-I don't know what else to say except that people really want this
-stuff and all of us in the LKCD community work really hard together
-to make this project useful for everyone.
-
-Please include this in your next snapshot.
-
---Matt
-
-P.S.  Copying some of the users and developers.
-
+~Randy

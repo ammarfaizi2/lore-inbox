@@ -1,81 +1,258 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTEGGr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 02:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbTEGGr0
+	id S262931AbTEGHGo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 03:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbTEGHGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 02:47:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61933 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262930AbTEGGrW (ORCPT
+	Wed, 7 May 2003 03:06:44 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:21923 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262931AbTEGHGj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 02:47:22 -0400
-Date: Tue, 06 May 2003 22:52:23 -0700 (PDT)
-Message-Id: <20030506.225223.116372228.davem@redhat.com>
-To: rusty@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org, acme@conectiva.com.br
-Subject: Re: [2.5.69-mm1] kernel BUG at include/linux/module.h:284! 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030507035148.31D332C117@lists.samba.org>
-References: <1052227331.983.46.camel@rth.ninka.net>
-	<20030507035148.31D332C117@lists.samba.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Wed, 7 May 2003 03:06:39 -0400
+Date: Wed, 7 May 2003 09:18:50 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Ben Collins <bcollins@debian.org>
+Cc: Greg KH <greg@kroah.com>, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCHES] USB input layer improvements
+Message-ID: <20030507091850.A16692@ucw.cz>
+References: <20030506002233.GY679@phunnypharm.org> <20030506234515.GA4117@kroah.com> <20030507013444.GN679@phunnypharm.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030507013444.GN679@phunnypharm.org>; from bcollins@debian.org on Tue, May 06, 2003 at 09:34:44PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Wed, 07 May 2003 13:48:15 +1000
+On Tue, May 06, 2003 at 09:34:44PM -0400, Ben Collins wrote:
 
-   In message <1052227331.983.46.camel@rth.ninka.net> you write:
-   > Arnaldo, ipv6 creates a socket of it's own type during
-   > module init, try_module_get() on the current module fails
-   > during module load... do you see the problem?
-   > 
-   > Rusty, you said you were working on a solution for modules
-   > that call themselves during their own init?
-   
-   In fact, it's backwards.
+> On Tue, May 06, 2003 at 04:45:15PM -0700, Greg KH wrote:
+> > On Mon, May 05, 2003 at 08:22:33PM -0400, Ben Collins wrote:
+> > > 
+> > > Obviously that doesn't work right. I'm not sure what the correct thing
+> > > to do is, so my patch for this is only RFC status. With this patch my
+> > > mouse and keyboard still work, and the joysticks work correctly. Maybe
+> > > the correct thing is to map the physical values read from the device to
+> > > the logical values.
+> > 
+> > Your patch looks sane at first glance, but Vojtech needs to verify that
+> > this is ok before I can apply it.
+> 
+> Well then, here's a 2.5 patch to go along with it. This is just the
+> multi-input part of the patch. I'm going to look at the other range
+> patch in more depth.
+> 
+> This one is a no-brainer really. Vojtech, how about it?
 
-You're, of course, right.  I misread the bug report, and this
-patch below ought to fix it.  It's untested, but I'll do that in
-a bit and push upstream.
+Why do we want a new input device registered for each report? This
+doesn't make much sense to me - there are many devices (tablets, etc),
+which send their information using more than a single report.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1083  -> 1.1084 
-#	  net/ipv4/af_inet.c	1.44    -> 1.45   
-#	 net/ipv6/af_inet6.c	1.33    -> 1.34   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/06	davem@nuts.ninka.net	1.1084
-# [IPV4/IPV6]: Set owner field in family ops.
-# --------------------------------------------
-#
-diff -Nru a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
---- a/net/ipv4/af_inet.c	Tue May  6 23:58:43 2003
-+++ b/net/ipv4/af_inet.c	Tue May  6 23:58:43 2003
-@@ -926,6 +926,7 @@
- struct net_proto_family inet_family_ops = {
- 	.family = PF_INET,
- 	.create = inet_create,
-+	.owner	= THIS_MODULE,
- };
- 
- 
-diff -Nru a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
---- a/net/ipv6/af_inet6.c	Tue May  6 23:58:43 2003
-+++ b/net/ipv6/af_inet6.c	Tue May  6 23:58:43 2003
-@@ -535,6 +535,7 @@
- struct net_proto_family inet6_family_ops = {
- 	.family = PF_INET6,
- 	.create = inet6_create,
-+	.owner	= THIS_MODULE,
- };
- 
- #ifdef MODULE
+> -- 
+> Debian     - http://www.debian.org/
+> Linux 1394 - http://www.linux1394.org/
+> Subversion - http://subversion.tigris.org/
+> Deqo       - http://www.deqo.com/
+
+> Index: drivers/usb/input/hid-input.c
+> ===================================================================
+> RCS file: /home/scm/linux-2.5/drivers/usb/input/hid-input.c,v
+> retrieving revision 1.11
+> diff -u -u -r1.11 hid-input.c
+> --- drivers/usb/input/hid-input.c	17 Mar 2003 18:43:39 -0000	1.11
+> +++ drivers/usb/input/hid-input.c	7 May 2003 01:58:52 -0000
+> @@ -60,9 +60,29 @@
+>  	__s32 y;
+>  }  hid_hat_to_axis[] = {{ 0, 0}, { 0,-1}, { 1,-1}, { 1, 0}, { 1, 1}, { 0, 1}, {-1, 1}, {-1, 0}, {-1,-1}};
+>  
+> -static void hidinput_configure_usage(struct hid_device *device, struct hid_field *field, struct hid_usage *usage)
+> +static struct input_dev *find_input(struct hid_device *hid, struct hid_field *field)
+>  {
+> -	struct input_dev *input = &device->input;
+> +	struct list_head *lh;
+> +	struct hid_input *hidinput;
+> +
+> +	list_for_each (lh, &hid->inputs) {
+> +		int i;
+> +
+> +		hidinput = list_entry(lh, struct hid_input, list);
+> +
+> +		for (i = 0; i < hidinput->maxfield; i++)
+> +			if (hidinput->fields[i] == field)
+> +				return &hidinput->input;
+> +	}
+> +
+> +	return NULL;
+> +}
+> +
+> +static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_field *field,
+> +				     struct hid_usage *usage)
+> +{
+> +	struct input_dev *input = &hidinput->input;
+> +	struct hid_device *device = hidinput->input.private;
+>  	int max;
+>  	int is_abs = 0;
+>  	unsigned long *bit;
+> @@ -387,9 +407,12 @@
+>  
+>  void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value, struct pt_regs *regs)
+>  {
+> -	struct input_dev *input = &hid->input;
+> +	struct input_dev *input = find_input(hid, field);
+>  	int *quirks = &hid->quirks;
+>  
+> +	if (!input)
+> +		return;
+> +
+>  	input_regs(input, regs);
+>  
+>  	if (usage->hat_min != usage->hat_max) {
+> @@ -442,7 +465,13 @@
+>  
+>  void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
+>  {
+> -	input_sync(&hid->input);
+> +	struct list_head *lh;
+> +	struct hid_input *hidinput;
+> +
+> +	list_for_each (lh, &hid->inputs) {
+> +		hidinput = list_entry(lh, struct hid_input, list);
+> +		input_sync(&hidinput->input);
+> +        }
+>  }
+>  
+>  static int hidinput_input_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+> @@ -489,7 +518,7 @@
+>  	struct hid_report_enum *report_enum;
+>  	struct hid_report *report;
+>  	struct list_head *list;
+> -	int i, j, k;
+> +	int i, j;
+>  
+>  	for (i = 0; i < hid->maxcollection; i++)
+>  		if (hid->collection[i].type == HID_COLLECTION_APPLICATION &&
+> @@ -499,37 +528,63 @@
+>  	if (i == hid->maxcollection)
+>  		return -1;
+>  
+> -	hid->input.private = hid;
+> -	hid->input.event = hidinput_input_event;
+> -	hid->input.open = hidinput_open;
+> -	hid->input.close = hidinput_close;
+> -
+> -	hid->input.name = hid->name;
+> -	hid->input.phys = hid->phys;
+> -	hid->input.uniq = hid->uniq;
+> -	hid->input.id.bustype = BUS_USB;
+> -	hid->input.id.vendor = dev->descriptor.idVendor;
+> -	hid->input.id.product = dev->descriptor.idProduct;
+> -	hid->input.id.version = dev->descriptor.bcdDevice;
+> -
+> -	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++) {
+> -		report_enum = hid->report_enum + k;
+> -		list = report_enum->report_list.next;
+> -		while (list != &report_enum->report_list) {
+> -			report = (struct hid_report *) list;
+> -			for (i = 0; i < report->maxfield; i++)
+> -				for (j = 0; j < report->field[i]->maxusage; j++)
+> -					hidinput_configure_usage(hid, report->field[i], report->field[i]->usage + j);
+> -			list = list->next;
+> +	report_enum = hid->report_enum + HID_INPUT_REPORT;
+> +	list = report_enum->report_list.next;
+> +	while (list != &report_enum->report_list) {
+> +		struct hid_input *hidinput;
+> +
+> +		report = (struct hid_report *) list;
+> +
+> +		if (!report->maxfield)
+> +			continue;
+> +
+> +		hidinput = kmalloc(sizeof(*hidinput), GFP_KERNEL);
+> +		if (!hidinput) {
+> +			err("Out of memory during hid input probe");
+> +			return -1;
+>  		}
+> -	}
+>  
+> -	input_register_device(&hid->input);
+> +		memset(hidinput, 0, sizeof(*hidinput));
+> +
+> +		hidinput->input.private = hid;
+> +		hidinput->input.event = hidinput_input_event;
+> +		hidinput->input.open = hidinput_open;
+> +		hidinput->input.close = hidinput_close;
+> +
+> +		hidinput->input.name = hid->name;
+> +		hidinput->input.phys = hid->phys;
+> +		hidinput->input.uniq = hid->uniq;
+> +		hidinput->input.id.bustype = BUS_USB;
+> +		hidinput->input.id.vendor = dev->descriptor.idVendor;
+> +		hidinput->input.id.product = dev->descriptor.idProduct;
+> +		hidinput->input.id.version = dev->descriptor.bcdDevice;
+> +
+> +		hidinput->fields = report->field;
+> +		hidinput->maxfield = report->maxfield;
+> +
+> +		for (i = 0; i < report->maxfield; i++)
+> +			for (j = 0; j < report->field[i]->maxusage; j++)
+> +				hidinput_configure_usage(hidinput, report->field[i],
+> +							 report->field[i]->usage + j);
+> +
+> +		list_add_tail(&hidinput->list, &hid->inputs);
+> +
+> +		input_register_device(&hidinput->input);
+> +
+> +		list = list->next;
+> +	}
+>  
+>  	return 0;
+>  }
+>  
+>  void hidinput_disconnect(struct hid_device *hid)
+>  {
+> -	input_unregister_device(&hid->input);
+> +	struct list_head *lh, *next;
+> +	struct hid_input *hidinput;
+> +
+> +	list_for_each_safe (lh, next, &hid->inputs) {
+> +		hidinput = list_entry(lh, struct hid_input, list);
+> +		input_unregister_device(&hidinput->input);
+> +		list_del(&hidinput->list);
+> +	}
+>  }
+> Index: drivers/usb/input/hid.h
+> ===================================================================
+> RCS file: /home/scm/linux-2.5/drivers/usb/input/hid.h,v
+> retrieving revision 1.11
+> diff -u -u -r1.11 hid.h
+> --- drivers/usb/input/hid.h	17 Mar 2003 18:43:39 -0000	1.11
+> +++ drivers/usb/input/hid.h	7 May 2003 01:58:52 -0000
+> @@ -321,6 +321,13 @@
+>  #define HID_CTRL_RUNNING	1
+>  #define HID_OUT_RUNNING		2
+>  
+> +struct hid_input {
+> +	struct list_head list;
+> +	struct hid_field **fields;
+> +	int maxfield;
+> +	struct input_dev input;
+> +};
+> +
+>  struct hid_device {							/* device report descriptor */
+>  	 __u8 *rdesc;
+>  	unsigned rsize;
+> @@ -360,7 +367,7 @@
+>  	unsigned claimed;						/* Claimed by hidinput, hiddev? */	
+>  	unsigned quirks;						/* Various quirks the device can pull on us */
+>  
+> -	struct input_dev input;						/* The input structure */
+> +	struct list_head inputs;					/* The list of inputs */
+>  	void *hiddev;							/* The hiddev structure */
+>  	int minor;							/* Hiddev minor number */
+>  
+
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265746AbSKFPwi>; Wed, 6 Nov 2002 10:52:38 -0500
+	id <S265725AbSKFPuH>; Wed, 6 Nov 2002 10:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265747AbSKFPwi>; Wed, 6 Nov 2002 10:52:38 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39436 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265746AbSKFPwh>;
-	Wed, 6 Nov 2002 10:52:37 -0500
-Message-ID: <3DC93C34.40201@pobox.com>
-Date: Wed, 06 Nov 2002 10:58:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: xmb <xmb@kick.sytes.net>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: initramfs in 2.5.46 wont compile
-References: <2147483647.1036601487@[192.168.1.2]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S265732AbSKFPuH>; Wed, 6 Nov 2002 10:50:07 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:64152 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265725AbSKFPuG>; Wed, 6 Nov 2002 10:50:06 -0500
+Subject: Re: Voyager subarchitecture for 2.5.46
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0211060729210.2393-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0211060729210.2393-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Nov 2002 16:19:09 +0000
+Message-Id: <1036599549.9803.49.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-xmb wrote:
-> Yo,
-> 
-> was trying to compile 2.5.46 fresh from source on my ppc machine, and 
-> initramfs gives me an err (in make bzImage):
-> 
-> make -f scripts/Makefile.build obj=arch/ppc/kernel 
-> arch/ppc/kernel/asm-offsets.s
+On Wed, 2002-11-06 at 15:45, Linus Torvalds wrote:
+> It's clearly stupid in the long run to depend on the TSC synchronization.
+> We should consider different CPU's to be different clock-domains, and just
+> synchronize them using the primitives we already have (hey, people can use
+> ntp to synchronize over networks quite well, and that's without the kind
+> of synchronization primitives that we have within the same box).
 
+NTP synchronization assumes the clock runs at approximately the same
+speed and that you can 'bend' ticklength to avoid backward steps. Thats
+a really cool idea for the x440 but I wonder how practical it is when we
+have CPU's that keep changing speeds and not always notifying us about
+it either.
 
-
-ppc arch support for initramfs needs to be added...
 

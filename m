@@ -1,79 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317401AbSGXQ70>; Wed, 24 Jul 2002 12:59:26 -0400
+	id <S317415AbSGXRUp>; Wed, 24 Jul 2002 13:20:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317404AbSGXQ70>; Wed, 24 Jul 2002 12:59:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:15770 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S317401AbSGXQ7Z>;
-	Wed, 24 Jul 2002 12:59:25 -0400
-Date: Wed, 24 Jul 2002 19:02:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DAC960 Bitrot
-Message-ID: <20020724170227.GD15201@suse.de>
-References: <Pine.LNX.4.44L.0207101741380.14432-100000@imladris.surriel.com> <E17WlGV-00052g-00@starship> <20020724143931.GG5159@suse.de> <E17XPSR-0007tD-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17XPSR-0007tD-00@starship>
+	id <S317416AbSGXRUp>; Wed, 24 Jul 2002 13:20:45 -0400
+Received: from syndetix.com ([204.134.124.201]:25577 "HELO zianet.com")
+	by vger.kernel.org with SMTP id <S317415AbSGXRUo>;
+	Wed, 24 Jul 2002 13:20:44 -0400
+Message-ID: <3D3EE4B1.3000809@zianet.com>
+Date: Wed, 24 Jul 2002 11:32:33 -0600
+From: kwijibo@zianet.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020723
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3com 3c996b-t support?
+References: <Pine.LNX.4.33.0207241314550.30282-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24 2002, Daniel Phillips wrote:
-> On Wednesday 24 July 2002 16:39, Jens Axboe wrote:
-> > The only changes I did to this driver where trivial conversions in the
-> > 2.5.1-pre days, in fact even before multi-page bio's existed. This,
-> > btw, is also something you should keep an eye out for -- multi-page bio
-> > support is currently broken.
-> 
-> I spotted that.  I changed bio_size (which is gone) to bio_sectors(bio) << 9, 
-> is this correct?
+It is just that I was reading this page where they evaluate
+gigi cards and they used the drivers from 3com.
 
-Probably not. There are all sorts of issues about when to go to the next
-bio (bi_next) and when just to grab the next bvec by increasing bi_idx.
-It can be pretty hairy for a driver to do.
+http://www.cs.uni.edu/~gray/gig-over-copper/
 
-> > I would suggest also moving DAC960 to the
-> > pci dma api (this is a must) and then move it to use the generic block
-> > helpers for mapping requests. That way there isn't a lot of nasty
-> > duplication there as well, plus it will automatically get the multi-page
-> > issues right.
-> 
-> My first concern is to get something working any way I can so that I can 
-> start doing regression testing.  True/false: the bad old way of doing dma 
+The 3com drivers are open-source though, which makes
+me less hesitent.  And the tigon3 drivers lack of documentation
+kind of irks me.  I would however like to stick with a mainstream kernel
+driver cause the support is there if it is needed.  I guess I will give
+both versions a whirl.  From just glancing at the source of both, it seems
+that both versions support jumbo frames which is really what I am after.
 
-I think that's a really bad idea. Yes it's a lot of work to do the pci
-dma conversion (but it's not _hard_), but you'll get the rest for free
-once that is done. Really. If you do it your way, then you'll just fix
-up the old driver only to rewrite the dma handling (and then convert to
-the block helpers) later on. Twice the work. Did I sell the idea or
-what?
+Steve
 
-> will still work, it's just deprecated?  If true, then I should (trivially) 
-> switch back to the old way of doing things, get the rest working, then 
-> convert to the dma api.  Maybe *you* could make all the changes at the same 
-> time and expect to end up with something that works, but I can't.
+Mark Hahn wrote:
 
-See above :)
+>>drivers out and found out which performs better?  Should I
+>>stick with what 3com provides or go with what is in the kernel
+>>if it works?
+>>    
+>>
+>
+>several good kernel hackers maintain, tune and polish the kernel versions.
+>I wouldn't even consider the stuff from the vendor.
+>
+>
+>
+>  
+>
 
-> The alternative is to go back many kernel versions and find the first one  
-> that broke something, but I don't want to do that because too much else was 
-> broken at the time.
 
-Well, you'll go back to 2.5.1-preX and find that the breaking point is
-when the bio stuff got merged. And you'll find that the DAC960 driver is
-about the same as it is now. So that will buy you nothing, I'm afraid.
-
-> > Hmm, is DAC960 using a full major per controller?!
-> 
-> As you saw, it implements the top level block interface instead of being a 
-> scsi device as it should be.  So for disk subsystems we have: 1) IDE 2) SCSI 
-> 3) DAC960.  Eep.  At some point it's all going to be SCSI, right?
-
-Nah not really, at some point it will just be the 'disk' sub system.
-BTW, you also forgot at least cpqarray and cciss :-)
-
--- 
-Jens Axboe
 

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262690AbREaBzH>; Wed, 30 May 2001 21:55:07 -0400
+	id <S262945AbREaBCu>; Wed, 30 May 2001 21:02:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262962AbREaBy5>; Wed, 30 May 2001 21:54:57 -0400
-Received: from elaine5.Stanford.EDU ([171.64.15.70]:56286 "EHLO
-	elaine5.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S262690AbREaByo>; Wed, 30 May 2001 21:54:44 -0400
-Date: Wed, 30 May 2001 18:54:31 -0700 (PDT)
-From: John Martin <suntzu@stanford.edu>
-To: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: [PATCH] mtdram.c
-Message-ID: <Pine.GSO.4.31.0105301851210.21137-100000@elaine5.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262949AbREaBCk>; Wed, 30 May 2001 21:02:40 -0400
+Received: from marine.sonic.net ([208.201.224.37]:2369 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S262945AbREaBCX>;
+	Wed, 30 May 2001 21:02:23 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Wed, 30 May 2001 18:02:07 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to know HZ from userspace?
+Message-ID: <20010530180207.M24802@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p0510031ab73b43e89d24@[10.128.7.49]>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this seemed to be a straight forward null pointer bug.  i just copied the
-error handling code from about 5 lines below what i added in.
-   -john martin
+On Wed, May 30, 2001 at 05:44:39PM -0700, Jonathan Lundell wrote:
+> Lots. Maybe we oughta have /proc/sysconf/... (there's no reason 
+> sysconf() can't be a library reading /proc).
 
+You don't mount proc?
 
---- drivers/mtd/mtdram.c.orig       Fri Feb  9 11:30:23 2001
-+++ drivers/mtd/mtdram.c    Sat May 26 20:52:56 2001
-@@ -115,6 +115,11 @@
-    mtd_info->size = MTDRAM_TOTAL_SIZE;
-    mtd_info->erasesize = MTDRAM_ERASE_SIZE;
-    mtd_info->priv = vmalloc(MTDRAM_TOTAL_SIZE);
-+   if (!mtd_info->priv) {
-+     kfree(mtd_info);
-+     mtd_info = NULL;
-+     return -ENOMEM;
-+   }
-    memset(mtd_info->priv, 0xff, MTDRAM_TOTAL_SIZE);
-
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
-
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

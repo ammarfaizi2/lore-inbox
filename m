@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262420AbSK0MW4>; Wed, 27 Nov 2002 07:22:56 -0500
+	id <S262446AbSK0MTv>; Wed, 27 Nov 2002 07:19:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262425AbSK0MW4>; Wed, 27 Nov 2002 07:22:56 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:63124 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262420AbSK0MW4>; Wed, 27 Nov 2002 07:22:56 -0500
-Subject: Re: [PATCH]  v850 additions to include/linux/elf.h
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Miles Bader <miles@gnu.org>
-Cc: Greg Ungerer <gerg@snapgear.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <buoel97kdx1.fsf@mcspd15.ucom.lsi.nec.co.jp>
-References: <buoel987otw.fsf_-_@mcspd15.ucom.lsi.nec.co.jp>
-	<1038325289.2594.37.camel@irongate.swansea.linux.org.uk> 
-	<buoel97kdx1.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Nov 2002 13:01:35 +0000
-Message-Id: <1038402095.6394.24.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262472AbSK0MTv>; Wed, 27 Nov 2002 07:19:51 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:54227 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262446AbSK0MTu> convert rfc822-to-8bit; Wed, 27 Nov 2002 07:19:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: Joshua Kwan <joshk@mspencer.net>
+Subject: Re: [OOPS] 2.4.20-rc4-ac1 (also occurs 2.4.20-rc2-ac3) in radeon DRI for XFree86
+Date: Wed, 27 Nov 2002 13:26:35 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+References: <200211270939.38410.m.c.p@wolk-project.de> <20021127025752.7c44482b.joshk@mspencer.net>
+In-Reply-To: <20021127025752.7c44482b.joshk@mspencer.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211271326.35003.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-27 at 01:19, Miles Bader wrote:
-> If tidying is needed, then it seems like the best thing would be to move
-> all the arch-specific stuff into the corresponding <asm/elf.h> file for
-> each architecture.  I presume the reason this hasn't been done is simply
-> convention -- userland elf.h files are also giant conglomerations of
-> defines for every supported architecture ...
+On Wednesday 27 November 2002 11:57, Joshua Kwan wrote:
 
-I agree entirely. So lets start with v850 8)
+Hi Joshua,
 
+> Not good! Not good!
+> Booted fine with no oops or DRI init errors while starting X.
+> and the quake3 test, alas:
+
+> - went into 640x480 correctly but would not display the opening movie;
+> - keyboard stopped responding and I had to hard-shutdown.
+> - i was wearing headphones too and I got some big static from my sound card
+> :X
+hmm, I don't have any problems with it. Quake3 works fine, opening Movie 
+works, no lockups with mouse/keyboard or similar.
+
+maybe the radeon code has also another bug, rage128 works.
+
+ciao, Marc

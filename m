@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130470AbQKAMXr>; Wed, 1 Nov 2000 07:23:47 -0500
+	id <S129029AbQKAMok>; Wed, 1 Nov 2000 07:44:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130527AbQKAMXh>; Wed, 1 Nov 2000 07:23:37 -0500
-Received: from smtp-abo-2.wanadoo.fr ([193.252.19.150]:26079 "EHLO
-	amyris.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S130470AbQKAMXa>; Wed, 1 Nov 2000 07:23:30 -0500
-Date: Wed, 1 Nov 2000 13:33:07 +0100
-To: linux-kernel@vger.kernel.org
-Cc: riel@nl.linux.org, andrea@e-mind.com
-Subject: Looking for better 2.2-based VM (do_try_to_free_pages fails, machine hangs)
-Message-ID: <20001101133307.A10265@bylbo.nowhere.earth>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: Yann Dirson <ydirson@altern.org>
+	id <S129055AbQKAMoa>; Wed, 1 Nov 2000 07:44:30 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:30980 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129029AbQKAMo0>; Wed, 1 Nov 2000 07:44:26 -0500
+Date: Wed, 1 Nov 2000 07:44:03 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: mdaljeet@in.ibm.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: system call handling
+In-Reply-To: <CA25698A.00434741.00@d73mta05.au.ibm.com>
+Message-ID: <Pine.LNX.3.95.1001101073637.6028A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 1 Nov 2000 mdaljeet@in.ibm.com wrote:
 
-Using a 2.2.17 kernel I often experience problems where I get messages like
-"VM: do_try_to_free_pages failed for <some process>", and the machine hangs
-until the VM can recover, which sometimes takes too long for me to wait.  I
-suppose that the problem is similar sometimes when I get a frozen system
-under X, but can't see the kernel messages then.
+> Hi,
+> 
+> By looking into the structure of GDT as used by linux kernel(file
+> include/asm/desc.c, kernel ver 2.4), it appears as if linux kernel does not
+> use the "call gate descriptors" for system call handling. Is this correct?
+> 
 
-Yesterday I could reproduce this at will, with a "make -j50" on 2.2.17
-sources (as unpriviledged user).  In less than half an our syslogd stopped
-to log anything (at 00:38), and this morning I could only see those messages
-trying to free pages for (or from ?) wwwoffled.  Last load see by "top" on
-another VC was ~74.
+You could use a call-gate to get from one priv level to another but
+Linux uses a software trap (int 0x80). It provides good locality
+of the kernel entry code which helps keep caches warm. If you used
+call-gates, their entry points would be scattered all over kernel
+space. Further, you'd  have a lot of them (as many as there are
+kernel functions).
 
-Have some work been done for 2.2.18 that could help me ?  Are there some
-2.2-based VM patches that could help (I found the VM-global patch from
-Andrea but have no info about what it is, and could not find 2.2-based
-patches on Rik's pages) ?
+If you designed it with just one call-gate, with one entry point,
+you would have exactly what we have now except you would execute
+a `call	CALL_GATE` instead of `int 0x80`. This turns out to be
+6 of one and 1/2 dozen of another when it comes to performance.
 
-Also I can't be sure for now I don't run into a hw problem...
+Cheers,
+Dick Johnson
 
-I'm willing to investigate, but clearly lack experience in the VM...
+Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
 
-Regards,
--- 
-Yann Dirson    <ydirson@altern.org> |    Why make M$-Bill richer & richer ?
-debian-email:   <dirson@debian.org> |   Support Debian GNU/Linux:
-                                    | Cheaper, more Powerful, more Stable !
-http://ydirson.free.fr/             | Check <http://www.debian.org/>
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

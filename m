@@ -1,71 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262744AbSJCFor>; Thu, 3 Oct 2002 01:44:47 -0400
+	id <S262745AbSJCFpc>; Thu, 3 Oct 2002 01:45:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262745AbSJCFor>; Thu, 3 Oct 2002 01:44:47 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:19406 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S262744AbSJCFoo>; Thu, 3 Oct 2002 01:44:44 -0400
-Message-ID: <3D9BDA8D.5080700@metaparadigm.com>
-Date: Thu, 03 Oct 2002 13:50:05 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S262746AbSJCFpb>; Thu, 3 Oct 2002 01:45:31 -0400
+Received: from mail.ccur.com ([208.248.32.212]:38412 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id <S262745AbSJCFp3>;
+	Thu, 3 Oct 2002 01:45:29 -0400
+Message-ID: <3D9BDAAA.B31E0D48@ccur.com>
+Date: Thu, 03 Oct 2002 01:50:34 -0400
+From: Jim Houston <jim.houston@ccur.com>
+Reply-To: jim.houston@ccur.com
+Organization: Concurrent Computer Corp.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Andreas Dilger <adilger@clusterfs.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Marowsky-Bree <lmb@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-References: <Pine.GSO.4.21.0210021922200.13480-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Jim Houston <jim.houston@attbi.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: O(1) Scheduler (tuning problem/live-lock)
+References: <200209061844.g86IiF701825@linux.local> <20020930161019.GH1235@dualathlon.random> <3D994CD9.3FDFA09F@ccur.com> <20021002064559.GB1158@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/03/02 07:22, Alexander Viro wrote:
-> 
-> On Wed, 2 Oct 2002, Andreas Dilger wrote:
-> 
-> 
->>On Oct 02, 2002  23:46 +0100, Alan Cox wrote:
->>
->>>Absolutely - taking the core EVMS(say the core code and the bits to do
->>>LVM1) and polishing them up to be good clean citizens without code
->>>duplication and other weirdness would be a superb start for EVMS as a
->>>merge candidate. The rest can follow a piece at a time once the core is
->>>right if EVMS is the right path
->>
->>I actually see EVMS as the "VFS for disk devices".  It is a very good
->>way to at allow dynamic disk device allocation, and could relatively
->>easily be modified to use all of the "legacy" disk major devices and
->>export only real partitions (one per minor).
->>
->>You could have thousands of disks and partitions without the current
->>limitations on major/minor device mapping.
->>
->>This was one of the things that Linus was pushing for when 2.5 started.
-> 
-> 
-> ... and you don't need EVMS for that.
+Hi Andrea, Ingo,
 
-But EVMS would be an excellent substitute in the mean time.
+Andrea, I tried your second patch.  Again, it keeps on running even with
+"waitpid06 -c 16 -i 10000".  This is good.  It still has some jerky
+mouse behavior (under this load).  This is on an old slow Pentium Pro
+dual processor.  If I grab a window and move it around for several
+seconds, the screen will freeze for a couple seconds.  I suspect that
+my X server fails the TASK_INTERACTIVE test.
 
-Better to having something excellent now than something perfect but
-too late.
+I have been hacking at sched.c myself trying to avoid the array switch
+entirely.  I'm trying to set up a self-tuning feedback mechanism to
+adjust priorities so everything gets some cpu time without 
+having to do the array switch.  I'm juggling these ideas:
 
-The EVMS guys have done a great job of cleanly integrating with 2.5,
-the single additional interface they needed to add to genhd.c is
-testament to their consideration of these issues.
+	1. Gradually raise the priority of all the processes in
+	   the run queue.  Do this without having to visit all
+	   of the processes.
 
-IBM seem to have done a great job creating the most extensive and
-complete logical volume manager for Linux (including a suite of end
-user tools much more extensive than LVM). They have also shown the
-commitment to keep it current and cleary are way further ahead than
-any other contender. It would be horrible if not getting the nod from
-the right friends deprived users of a *complete* logical volume manager
-in 2.5 anytime soon.
+	2. When a process uses up its time slice, move it to a 
+	   less favorable priority.
 
-Peace, love and Linux ;)
+	3. Tune the sleep_avg.  I like the old decaying average
+	   approach of old unix systems.  The current sleep_avg
+	   goes to saturation too often.  I would like to
+	   be able to tell if a process has been using more than
+	   its share of the cpu time.
 
-~mc
+	4. Make the maximum time slice decrease with more favorable
+	   priorities.  The time slice would depend on the dynamic
+	   priority.
 
+I have code hacked together for first idea but its not useful without
+the rest.
+
+Jim Houston - Concurrent Computer Corp.

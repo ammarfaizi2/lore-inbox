@@ -1,60 +1,241 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265890AbTA2NBQ>; Wed, 29 Jan 2003 08:01:16 -0500
+	id <S265894AbTA2NEr>; Wed, 29 Jan 2003 08:04:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265894AbTA2NBQ>; Wed, 29 Jan 2003 08:01:16 -0500
-Received: from 213-187-164-4.dd.nextgentel.com ([213.187.164.4]:64404 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S265890AbTA2NBP> convert rfc822-to-8bit;
-	Wed, 29 Jan 2003 08:01:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: John Bradford <john@grabjohn.com>, wa1hco@adelphia.net (jeff millar)
-Subject: Scaring the non-geeks (was Bootscreen)
-Date: Wed, 29 Jan 2003 14:09:57 +0100
-User-Agent: KMail/1.4.1
-Cc: Raphael_Schmid@CUBUS.COM, rob@r-morris.co.uk, linux-kernel@vger.kernel.org
-References: <200301281440.h0SEeBS8001126@darkstar.example.net>
-In-Reply-To: <200301281440.h0SEeBS8001126@darkstar.example.net>
+	id <S265895AbTA2NEr>; Wed, 29 Jan 2003 08:04:47 -0500
+Received: from web11503.mail.yahoo.com ([216.136.172.35]:61204 "HELO
+	web11503.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265894AbTA2NEn>; Wed, 29 Jan 2003 08:04:43 -0500
+Message-ID: <20030129131405.10865.qmail@web11503.mail.yahoo.com>
+Date: Wed, 29 Jan 2003 05:14:05 -0800 (PST)
+From: Brian Sullivan <brian_p_sully@yahoo.com>
+Subject: Re: [PATCH] fix current->user->processes leak
+To: Eric Lammerts <eric@lammerts.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030128221346.GA7288@ally.lammerts.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301291409.57213.roy@karlsbakk.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hmmm, I think the traditional text diagnostic messages are best kept
-> as they are, otherwise we'll end up with bug reports like this:
->
-> Date: Jan 28 14:39:29 2006
-> Subject: Kernel 3.6.2 boot failiure
-> To: linux-kernel@vger.kernel.org
->
-> Hi,
->
-> I just upgraded from 3.6.1, which booted fine, to 3.6.2, which stops
-> after Tux has waved twice, and winked his left eye.
+Eric -
 
-The point is that Linux should allow for a user-friendly image (yes! possibly 
-with Tux winking with the eyes or something - in a Mac sorta way). This will 
-allow for higher user-friendlyness, but should be turned off by default. That 
-way, SuSE, RedHat and the rest can turn it on if they want to do support 
-without the verbose messaging. Perhaps do it like 'if splash screen's active, 
-one can disable it by holding SHIFT or something pressed down'.
+Thank you very much for your prompt and helpful
+feedback. Since you gave me a patch I thought you
+might be interested in a few more details of the
+problem. The symptoms I described to you only happen
+on my "server" class machines. On desktop PCs I get a
+far more sinister problem, the kernel panic. I've
+included the messages that go to the main console. Do
+you see anything in the code that could be causing
+this? Or maybe your patch already fixed it?
 
-I don't know about you, but most non-technical people DO NOT LIKE verbose 
-messages they can't understand. My father was scared by the linux bootup when 
-I installed Linux on their PC. I beleive most non-techies like the 'windows 
-is now hopefully starting' screen. It shields the info they don't want.
+Brian
 
-So please - don't scare the 'normal' people with (in their eyes) verbose crap.
 
-roy
+Message from console:
+c012e9db
+*pde = 00000000
+Oops: 0002
+loop sr_mod sb sb_lib vart401 sound soundcore mgq
+agpgart autofs 8139too mii i
+CPU:    0
+EIP: 0010:[<c012e9db>] Not Tainted
+EFLAGS: 00010046
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
+EIP is at kmem_cache_free [kernel] 0x3b
+eax: 00000000  ebx:c1009b10   ecx:06016204  
+edx:00000004
+esi: c11c54b0  edf:0000024e   ebp:00000011  
+esp:c75fa5f64
+ds: 0018   es:0018   cs:0018
+process init(pid:1, stackpage c7fa5000)
+stack: .....<bunch of stuff>
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+Call Trace: [<c011fb3d>]free_uid [kernel] 0x2d
+[<c011a0b5>]release_task [kernel] 0x35
+[<c011af86>]sys_wait4 [kernel] 0x316
+[<c0108923>]system_call [kernel] 0x33
 
+Code: 89 44 8b 18 89 4b 14 8b 53 10 8d 42 ff 89 43 10
+85 c0 75 21
+<0>Kernel panic: Attempted to killl init!
+
+--- Eric Lammerts <eric@lammerts.org> wrote:
+> 
+> On Tue, 28 Jan 2003, Brian Sullivan wrote:
+> > The problem I am experiencing is that after a
+> certain number of mounts I
+> > get the error message "fork: Resource temporarily
+> unavailable" on the
+> > command line.
+> 
+> > After much trouble shooting I realized that number
+> of mounts/umount
+> > sequences I am limited to is the max number of
+> processes for my user id. I
+> > confirmed this by using the "ulimit -u" command to
+> lower my process limit.
+> > It appears the mount command is leaving someting
+> in some sort of process
+> > table in kernel memory (nothing shows in ps or top
+> or in /proc/#### as
+> > being left behind). Has anybody any sort of
+> experience with this at all?
+> > Any suggestions?
+> 
+> It's a kernel bug (and easy to reproduce).
+>          
+> Every time you do a loop mount, a kernel thread is
+> started (those
+> processes are called "loop0", "loop1", etc.). The
+> problem is that when
+> it starts, it's counted as one of your processes *).
+> Then, it's
+> changed to be a root-owned process without
+> correcting that count **).
+> 
+> Patch below fixes the problem. It moves the
+> bookkeeping of changing
+> current->user to a new function switch_uid() (which
+> is now also used
+> by exec_usermodehelper() in kmod.c). The patch is
+> tested.
+> 
+> Eric
+> 
+> *)  "atomic_inc(&p->user->processes);" in do_fork().
+> **) "this_task->user = INIT_USER;" in
+> reparent_to_init().
+> 
+> 
+> --- linux-2.4.21-pre3/include/linux/sched.h.orig
+> 2003-01-28 21:39:29.000000000 +0100
+> +++ linux-2.4.21-pre3/include/linux/sched.h
+> 2003-01-28 22:26:29.000000000 +0100
+> @@ -576,6 +576,7 @@
+>  /* per-UID process charging. */
+>  extern struct user_struct * alloc_uid(uid_t);
+>  extern void free_uid(struct user_struct *);
+> +extern void switch_uid(struct user_struct *);
+>  
+>  #include <asm/current.h>
+>  
+> --- linux-2.4.21-pre3/kernel/sys.c.orig	2003-01-28
+> 21:21:20.000000000 +0100
+> +++ linux-2.4.21-pre3/kernel/sys.c	2003-01-28
+> 22:30:13.000000000 +0100
+> @@ -492,19 +492,12 @@
+>  
+>  static int set_user(uid_t new_ruid, int dumpclear)
+>  {
+> -	struct user_struct *new_user, *old_user;
+> +	struct user_struct *new_user;
+>  
+> -	/* What if a process setreuid()'s and this brings
+> the
+> -	 * new uid over his NPROC rlimit?  We can check
+> this now
+> -	 * cheaply with the new uid cache, so if it
+> matters
+> -	 * we should be checking for it.  -DaveM
+> -	 */
+>  	new_user = alloc_uid(new_ruid);
+>  	if (!new_user)
+>  		return -EAGAIN;
+> -	old_user = current->user;
+> -	atomic_dec(&old_user->processes);
+> -	atomic_inc(&new_user->processes);
+> +	switch_uid(new_user);
+>  
+>  	if(dumpclear)
+>  	{
+> @@ -512,8 +505,6 @@
+>  		wmb();
+>  	}
+>  	current->uid = new_ruid;
+> -	current->user = new_user;
+> -	free_uid(old_user);
+>  	return 0;
+>  }
+>  
+> --- linux-2.4.21-pre3/kernel/sched.c.orig	2003-01-28
+> 21:21:06.000000000 +0100
+> +++ linux-2.4.21-pre3/kernel/sched.c	2003-01-28
+> 22:30:41.000000000 +0100
+> @@ -1274,7 +1274,7 @@
+>  	this_task->cap_permitted = CAP_FULL_SET;
+>  	this_task->keep_capabilities = 0;
+>  	memcpy(this_task->rlim, init_task.rlim,
+> sizeof(*(this_task->rlim)));
+> -	this_task->user = INIT_USER;
+> +	switch_uid(INIT_USER);
+>  
+>  	spin_unlock(&runqueue_lock);
+>  	write_unlock_irq(&tasklist_lock);
+> --- linux-2.4.21-pre3/kernel/kmod.c.orig	2003-01-28
+> 22:29:02.000000000 +0100
+> +++ linux-2.4.21-pre3/kernel/kmod.c	2003-01-28
+> 22:29:36.000000000 +0100
+> @@ -119,15 +119,7 @@
+>  		if (curtask->files->fd[i]) close(i);
+>  	}
+>  
+> -	/* Drop the "current user" thing */
+> -	{
+> -		struct user_struct *user = curtask->user;
+> -		curtask->user = INIT_USER;
+> -		atomic_inc(&INIT_USER->__count);
+> -		atomic_inc(&INIT_USER->processes);
+> -		atomic_dec(&user->processes);
+> -		free_uid(user);
+> -	}
+> +	switch_uid(INIT_USER);
+>  
+>  	/* Give kmod all effective privileges.. */
+>  	curtask->euid = curtask->fsuid = 0;
+> --- linux-2.4.21-pre3/kernel/user.c.orig	2003-01-28
+> 22:23:21.000000000 +0100
+> +++ linux-2.4.21-pre3/kernel/user.c	2003-01-28
+> 22:37:48.000000000 +0100
+> @@ -120,6 +120,23 @@
+>  	return up;
+>  }
+>  
+> +void switch_uid(struct user_struct *new_user)
+> +{
+> +	struct user_struct *old_user;
+> +
+> +	/* What if a process setreuid()'s and this brings
+> the
+> +	 * new uid over his NPROC rlimit?  We can check
+> this now
+> +	 * cheaply with the new uid cache, so if it
+> matters
+> +	 * we should be checking for it.  -DaveM
+> +	 */
+> +	old_user = current->user;
+> +	atomic_inc(&new_user->__count);
+> +	atomic_inc(&new_user->processes);
+> +	atomic_dec(&old_user->processes);
+> +	current->user = new_user;
+> +	free_uid(old_user);
+> +}
+> +
+>  
+>  static int __init uid_cache_init(void)
+>  {
+> 
+> 
+> -- 
+> To UNSUBSCRIBE, email to
+> cdwrite-request@other.debian.org
+> with a subject of "unsubscribe". Trouble? Contact
+> listmaster@other.debian.org
+> 
+
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

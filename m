@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272450AbTHMMVs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 08:21:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272454AbTHMMVs
+	id S275227AbTHMMc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 08:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275230AbTHMMcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 08:21:48 -0400
-Received: from gate.firmix.at ([80.109.18.208]:19122 "EHLO tara.firmix.at")
-	by vger.kernel.org with ESMTP id S272450AbTHMMVr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 08:21:47 -0400
-Subject: Re: vsnprintf patch
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Adrian Reber <adrian@lisas.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030813115212.GA28066@lisas.de>
-References: <20030813115212.GA28066@lisas.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060777304.11598.14.camel@tara.firmix.at>
+	Wed, 13 Aug 2003 08:32:25 -0400
+Received: from baloney.puettmann.net ([194.97.54.34]:33977 "EHLO
+	baloney.puettmann.net") by vger.kernel.org with ESMTP
+	id S275227AbTHMMcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 08:32:16 -0400
+Date: Wed, 13 Aug 2003 14:31:19 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.22 APM problems with IBM Thinkpad's
+Message-ID: <20030813123119.GA25111@puettmann.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 13 Aug 2003 14:21:44 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Ruben Puettmann <ruben@puettmann.net>
+X-Scanner: exiscan *19mumd-0006bB-00*3Ea4xdVyvcY* (Puettmann.NeT, Germany)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mit, 2003-08-13 at 13:52, Adrian Reber wrote:
-> When using the snprintf function from the kernel the length returned is
-> not the length written:
 
-This is how the function is defined:
-http://www.opengroup.org/onlinepubs/007908799/xsh/fprintf.html
+    hy,
 
-	Bernd
+cause many problems with acpi I try to get apm running on my ibm
+thinkpad R40 ( 2722). But with 2.4.22-pre10 and 2.4.22-pre10-ac1.
+
+Problems which happend:
+
+apm -s don't work with radeonfb usb and so on see my mails on lkm the
+last days
+
+If CONFIG_APM_DISPLAY_BLANK is Y the thinkpad freezed on blanking the
+display
+
+If CONFIG_APM_REAL_MODE_POWER_OFF is Y or N te thinkpad never power off
+
+
+        Ruben
+
+
+
+
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+Ruben Puettmann
+ruben@puettmann.net
+http://www.puettmann.net

@@ -1,92 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVCBEBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVCBEzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbVCBEBf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 23:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVCBEB3
+	id S262170AbVCBEzh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 23:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVCBEze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 23:01:29 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:45280 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262164AbVCBDxL (ORCPT
+	Tue, 1 Mar 2005 23:55:34 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48259 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262170AbVCBEz1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 22:53:11 -0500
-Date: Tue, 1 Mar 2005 19:52:23 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Page fault scalability patch V18: No page table lock in do_anonymous_page
-In-Reply-To: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0503011951510.25441@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Mar 2005 23:55:27 -0500
+Date: Tue, 1 Mar 2005 20:50:33 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: guillaume.thouvenin@bull.net, johnpol@2ka.mipt.ru, hadi@cyberus.ca,
+       tgraf@suug.ch, akpm@osdl.org, marcelo.tosatti@cyclades.com,
+       davem@redhat.com, jlan@sgi.com, lse-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       elsa-devel@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+Message-Id: <20050301205033.1140cd5a.pj@sgi.com>
+In-Reply-To: <42247051.7070303@ak.jp.nec.com>
+References: <4221E548.4000008@ak.jp.nec.com>
+	<20050227140355.GA23055@logos.cnet>
+	<42227AEA.6050002@ak.jp.nec.com>
+	<1109575236.8549.14.camel@frecb000711.frec.bull.fr>
+	<20050227233943.6cb89226.akpm@osdl.org>
+	<1109592658.2188.924.camel@jzny.localdomain>
+	<20050228132051.GO31837@postel.suug.ch>
+	<1109598010.2188.994.camel@jzny.localdomain>
+	<20050228135307.GP31837@postel.suug.ch>
+	<1109599803.2188.1014.camel@jzny.localdomain>
+	<20050228142551.GQ31837@postel.suug.ch>
+	<1109604693.1072.8.camel@jzny.localdomain>
+	<20050228191759.6f7b656e@zanzibar.2ka.mipt.ru>
+	<1109665299.8594.55.camel@frecb000711.frec.bull.fr>
+	<42247051.7070303@ak.jp.nec.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do not use the page_table_lock in do_anonymous_page. This will significantly
-increase the parallelism in the page fault handler in SMP systems. The patch
-also modifies the definitions of _mm_counter functions so that rss and anon_rss
-become atomic.
+Just a thought - perhaps you could see if Jay can test the performance
+scaling of these changes on larger systems (8 to 64 CPUs, give or take,
+small for SGI, but big for some vendors.)
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Things like a global lock, for example, might be harmless on smaller
+systems, but hurt big time on bigger systems.  I don't know if you have
+any such constructs ... perhaps this doesn't matter.
 
-Index: linux-2.6.10/mm/memory.c
-===================================================================
---- linux-2.6.10.orig/mm/memory.c	2005-02-24 19:42:21.000000000 -0800
-+++ linux-2.6.10/mm/memory.c	2005-02-24 19:42:25.000000000 -0800
-@@ -1832,12 +1832,12 @@ do_anonymous_page(struct mm_struct *mm,
- 						 vma->vm_page_prot)),
- 			      vma);
+At the very least, we need to know that performance and scaling are not
+significantly impacted, on systems not using accounting, either because
+it is obvious from the code, or because someone has tested it.
 
--	spin_lock(&mm->page_table_lock);
-+	page_table_atomic_start(mm);
+And if performance or scaling was impacted when accounting was enabled,
+then at least we would want to know how much performance was impacted,
+so that users would know what to expect when they use accounting.
 
- 	if (!ptep_cmpxchg(page_table, orig_entry, entry)) {
- 		pte_unmap(page_table);
- 		page_cache_release(page);
--		spin_unlock(&mm->page_table_lock);
-+		page_table_atomic_stop(mm);
- 		inc_page_state(cmpxchg_fail_anon_write);
- 		return VM_FAULT_MINOR;
- 	}
-@@ -1855,7 +1855,7 @@ do_anonymous_page(struct mm_struct *mm,
+> the process-creation/destruction performance on following three environment.
 
- 	update_mmu_cache(vma, addr, entry);
- 	pte_unmap(page_table);
--	spin_unlock(&mm->page_table_lock);
-+	page_table_atomic_stop(mm);
+I think this is a good choice of what to measure, and where.  Thank-you.
 
- 	return VM_FAULT_MINOR;
- }
-Index: linux-2.6.10/include/linux/sched.h
-===================================================================
---- linux-2.6.10.orig/include/linux/sched.h	2005-02-24 19:42:17.000000000 -0800
-+++ linux-2.6.10/include/linux/sched.h	2005-02-24 19:42:25.000000000 -0800
-@@ -203,10 +203,26 @@ arch_get_unmapped_area_topdown(struct fi
- extern void arch_unmap_area(struct vm_area_struct *area);
- extern void arch_unmap_area_topdown(struct vm_area_struct *area);
+> kernel was also locked up after 366th-fork() 
 
-+#ifdef CONFIG_ATOMIC_TABLE_OPS
-+/*
-+ * Atomic page table operations require that the counters are also
-+ * incremented atomically
-+*/
-+#define set_mm_counter(mm, member, value) atomic_set(&(mm)->member, value)
-+#define get_mm_counter(mm, member) ((unsigned long)atomic_read(&(mm)->member))
-+#define update_mm_counter(mm, member, value) atomic_add(value, &(mm)->member)
-+#define MM_COUNTER_T atomic_t
-+
-+#else
-+/*
-+ * No atomic page table operations. Counters are protected by
-+ * the page table lock
-+ */
- #define set_mm_counter(mm, member, value) (mm)->member = (value)
- #define get_mm_counter(mm, member) ((mm)->member)
- #define update_mm_counter(mm, member, value) (mm)->member += (value)
- #define MM_COUNTER_T unsigned long
-+#endif
+I have no idea what this is -- good luck finding it.
 
- struct mm_struct {
- 	struct vm_area_struct * mmap;		/* list of VMAs */
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

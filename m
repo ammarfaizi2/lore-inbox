@@ -1,84 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbUCSUVA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 15:21:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbUCSUU7
+	id S261947AbUCSUWt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 15:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbUCSUWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 15:20:59 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:32908
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S261942AbUCSUUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 15:20:55 -0500
-Message-ID: <405B5613.9080301@redhat.com>
-Date: Fri, 19 Mar 2004 12:20:35 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040317
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Fab Tillier <ftillier@infiniconsys.com>
-CC: "Woodruff, Robert J" <woody@co.intel.com>,
-       "Woodruff, Robert J" <woody@jf.intel.com>, linux-kernel@vger.kernel.org,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-References: <08628CA53C6CBA4ABAFB9E808A5214CB017C1A7A@mercury.infiniconsys.com>
-In-Reply-To: <08628CA53C6CBA4ABAFB9E808A5214CB017C1A7A@mercury.infiniconsys.com>
-X-Enigmail-Version: 0.83.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Fri, 19 Mar 2004 15:22:49 -0500
+Received: from ns.suse.de ([195.135.220.2]:14508 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261947AbUCSUVs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 15:21:48 -0500
+Subject: Re: True  fsync() in Linux (on IDE)
+From: Chris Mason <mason@suse.com>
+To: Peter Zaitsev <peter@mysql.com>
+Cc: Hans Reiser <reiser@namesys.com>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1079724411.2576.178.camel@abyss.local>
+References: <1079572101.2748.711.camel@abyss.local>
+	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
+	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
+	 <1079641026.2447.327.camel@abyss.local>
+	 <1079642001.11057.7.camel@watt.suse.com>
+	 <1079642801.2447.369.camel@abyss.local>
+	 <1079643740.11057.16.camel@watt.suse.com>
+	 <1079644190.2450.405.camel@abyss.local>
+	 <1079644743.11055.26.camel@watt.suse.com>  <405AA9D9.40109@namesys.com>
+	 <1079704347.11057.130.camel@watt.suse.com>
+	 <1079724411.2576.178.camel@abyss.local>
+Content-Type: text/plain
+Message-Id: <1079727833.11062.200.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 19 Mar 2004 15:23:53 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-03-19 at 14:26, Peter Zaitsev wrote:
+> On Fri, 2004-03-19 at 05:52, Chris Mason wrote:
+> 
+> 
+> > I am listening to Peter, Jens and I have spent a significant amount of
+> > time on this code.  We can go back and spend many more hours testing and
+> > debugging the 2.4 changes, or we can go forward with a very nice
+> > solution in 2.6.
+> > 
+> > I'm planning on going forward with 2.6
+> 
+> Chris, Hans
+> 
+> It is great to hear this is going to be fixed in 2.6, however it is
+> quite a pity we have a real mess with this in  2.4 series. 
+> 
+It is indeed.
 
-> For the IBAL stack, there are numerous documents on the Linux InfiniBand
-> Project (http://infiniband.sourceforge.net/) describing most everything from
-> the overall architecture to the APIs.
+> Resuming what I've heard so far it looks like it depends on:
+> 
+> - If it is fsync/O_SYNC or O_DIRECT   (which user would expect to have
+> the same effect in this respect.
+> - It depends on kernel version. Some vendors have some fixes, while
+> others do not have them.
+> - It depends on hardware - if it has write cache on or off 
+> - It depends on type of write (if it changes mata data or not)
+> - Finally it depends on file system and even journal mount options
+> 
+All of the above is correct.
 
-That's not the same, and it incidentally shows a problem in what you do.
+> Just curious does at least Asynchronous IO have the same behavior as
+> standard IO ? 
+> 
 
-First, the working group I refer to is this:
+For the suse patch, yes.  If it triggers a commit, you get a cache
+flush.
 
-  http://www.opengroup.org/icsc/
+> 
+> All of these makes it extremely hard to explain what do users need in
+> order to get durability for their changes, while preserving performance.
+> 
+> Furthermore as it was broken for years I expect we'll have people which
+> developed things with fast fsync() in mind, who would start screaming
+> once we have real fsync() 
+> 
+> (see my mail about Apple actually disabling cache flush on fsync() due
+> to this reason) 
 
-Dave Edmondson from Sun gave a presentation at the Austin group meeting
-(in 2002, not 2001 as I said before) which you can see here:
+These are all difficult issues.  I wish I had easier answers for you,
+hopefully we can get it all nailed down in 2.6 for starters.
 
-  http://www.opengroup.org/austin/docs/austin_105.pdf
-
-
-This is the information I cannot get to.  Now why would I want that
-instead of what you do?
-
-First of all, these are the extensions to the existing interfaces.
-These extensions not only influence existing code, but the extensions
-can also be useful for non-interconnect usage.  That is, if we can adopt
-them if necessary.  Many of the interconnect problems also are present
-in Gig and 10Gig ethernet.  The ICSC refused to give anyone outside
-their group access to the document despite the fact that they want to
-have the extensions added to POSIX.  If we develop separate extensions
-they will collide and/or cause unnecessary duplication of code and effort.
+-chris
 
 
-Now, why is ICSC relevant?  In my opinion, and I'm not really that
-knowledgeable about all these networking issues but I know a thing or
-two about APIs, going down the road with Infiniband specific APIs is
-bad.  Why would we want to have separate APIs for other interconnect
-fibers?  The ICSC, according to my understanding, tries to unify the
-APIs to be usable not only by Infiniband.  This is IMO highly desirable.
-
-You can get a glimpse of what they are doing by looking at the documents
-referenced in
-
-  http://www.opengroup.org/icsc/
-
-But that's all there is.  The socket extension working group
-
-  http://www.opengroup.org/icsc/sockets/
-
-only has some meeting minutes available.
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

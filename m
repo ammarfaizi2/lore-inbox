@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264448AbUEJCEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264450AbUEJCJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264448AbUEJCEM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 22:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbUEJCEM
+	id S264450AbUEJCJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 22:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbUEJCJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 22:04:12 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:51330 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S264448AbUEJCEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 22:04:09 -0400
-Date: Mon, 10 May 2004 11:03:21 +0900
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Subject: Re: [ANNOUNCE] [PATCH] Node Hotplug Support
-In-reply-to: <540080000.1083946609@[10.10.2.4]>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
-       lhns-devel@lists.sourceforge.net
-Message-id: <20040510110321.225a2334.tokunaga.keiich@jp.fujitsu.com>
-Organization: FUJITSU LIMITED
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20040508003904.63395ca7.tokunaga.keiich@jp.fujitsu.com>
- <540080000.1083946609@[10.10.2.4]>
+	Sun, 9 May 2004 22:09:28 -0400
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:50354 "EHLO
+	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S264450AbUEJCJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 22:09:25 -0400
+Date: Sun, 9 May 2004 19:08:41 -0700
+Mime-Version: 1.0 (Apple Message framework v553)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Subject: No idea...
+From: Brandon Lewis <dotsony@earthlink.net>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Message-Id: <F57F09EB-A226-11D8-BDEA-003065D7CDC2@earthlink.net>
+X-Mailer: Apple Mail (2.553)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 May 2004 09:16:51 -0700
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+Hi, I have an Alpha XL 266, running a fairly current unstable release 
+of debian. I recently tried to compile 2.6.5 stable. The machine has an 
+ISA sound card, which has sticker on it which says it's a SoundBlaster 
+AWE32 PnP, though the isapnp tools do not detect any boards at all. I 
+enabled the PNP BIOS options and the damn thing errored out during 
+compile.
 
-> > ACPI is used to do some hardware manipulation.
-> > There is no general purpose interface to get hardware information
-> > and manipulate hardware today, but hardware proprietary interfaces.
-> > ACPI is one of them, and I decided to use it because:
-> > 
-> >   - Its spec is open.
-> >   - I can use it without any hardware special knowledge:)
-> 
-> You can't base platform-independant Linux code on ACPI, when not all
-> NUMA boxes will support it. The fact that your particular box may
-> support it doesn't make it a generally applicable idea ;-)
+all through the compile process I kept seeing shit like
 
-I'm not trying to base everything on ACPI, this happens in the first
-patces though.  I would separate them in the future release.
-(Actually I put comments about it in the first patch:)
+LD      drivers/net/tulip/built-in.o
+   LD      drivers/net/built-in.o
+   CC [M]  drivers/net/pppox.o
+{standard input}: Assembler messages:
+{standard input}:70: Warning: setting incorrect section attributes for 
+.got
+   CC [M]  drivers/net/pppoe.o
+{standard input}: Assembler messages:
+{standard input}:70: Warning: setting incorrect section attributes for 
+.got
+   LD      drivers/parport/built-in.o
+   CC [M]  drivers/parport/share.o
+{standard input}: Assembler messages:
+{standard input}:70: Warning: setting incorrect section attributes for 
+.got
+   CC [M]  drivers/parport/ieee1284.o
+{standard input}: Assembler messages:
+{standard input}:70: Warning: setting incorrect section attributes for 
+.got
+   CC [M]  drivers/parport/ieee1284_ops.o
+{standard input}: Assembler messages:
 
-There will be the dependent and independent codes.  Any platform
-can share the independent code, and dependent code needs to
-be made by each platform.  I think that PCI hotplug takes the same
-way.
 
-Thanks,
-Kei
+no idea what that's about, but I wouldn't have cared if some time later 
+the thing hadn't errored out all together.
+
+   CC      drivers/pnp/pnpbios/core.o
+drivers/pnp/pnpbios/core.c:60:22: asm/desc.h: No such file or directory
+drivers/pnp/pnpbios/core.c: In function `pnpbios_init':
+drivers/pnp/pnpbios/core.c:504: error: `dmi_broken' undeclared (first 
+use in this function)
+drivers/pnp/pnpbios/core.c:504: error: (Each undeclared identifier is 
+reported only once
+drivers/pnp/pnpbios/core.c:504: error: for each function it appears in.)
+drivers/pnp/pnpbios/core.c:504: error: `BROKEN_PNP_BIOS' undeclared 
+(first use in this function)
+make[3]: *** [drivers/pnp/pnpbios/core.o] Error 1
+make[2]: *** [drivers/pnp/pnpbios] Error 2
+make[1]: *** [drivers/pnp] Error 2
+make: *** [drivers] Error 2
+
+don't know wtf this is all about...but i'd sure like to use my sound 
+card at some point...
+

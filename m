@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263201AbTFYBHL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 21:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbTFYBHL
+	id S264085AbTFYBMe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 21:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTFYBKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 21:07:11 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:31651 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263201AbTFYBHJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 21:07:09 -0400
-Date: Tue, 24 Jun 2003 18:21:05 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Robert White <rwhite@casabyte.com>
-Cc: Larry McVoy <lm@bitmover.com>, Werner Almesberger <wa@almesberger.net>,
-       Stephan von Krawczynski <skraw@ithnet.com>, miquels@cistron-office.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030625012105.GA2525@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Robert White <rwhite@casabyte.com>, Larry McVoy <lm@bitmover.com>,
-	Werner Almesberger <wa@almesberger.net>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	miquels@cistron-office.nl, linux-kernel@vger.kernel.org
-References: <20030620152447.GB17563@work.bitmover.com> <PEEPIDHAKMCGHDBJLHKGIEBMDBAA.rwhite@casabyte.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 Jun 2003 21:10:54 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:54184 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263462AbTFYBKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 21:10:41 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [RFC] My research agenda for 2.7
+Date: Wed, 25 Jun 2003 03:25:47 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <200306250111.01498.phillips@arcor.de> <200306250307.18291.phillips@arcor.de> <20030625011031.GP26348@holomorphy.com>
+In-Reply-To: <20030625011031.GP26348@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <PEEPIDHAKMCGHDBJLHKGIEBMDBAA.rwhite@casabyte.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Message-Id: <200306250325.47529.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 24, 2003 at 05:31:06PM -0700, Robert White wrote:
-> [a long message]
+On Wednesday 25 June 2003 03:10, William Lee Irwin III wrote:
+> On Wednesday 25 June 2003 02:47, William Lee Irwin III wrote:
+> >> Per struct address_space? This is an unnecessary limitation.
+>
+> On Wed, Jun 25, 2003 at 03:07:18AM +0200, Daniel Phillips wrote:
+> > It's a sensible limitation, it keeps the radix tree lookup simple.
+>
+> It severely limits its usefulness. Dropping in a more flexible data
+> structure should be fine.
 
-I've taken one pass through your message.  Sounds like you have thought
-about this.  My question for you is have you run a business?  Do you
-have employees?  How many?
+Eventually it could well make sense to do that, e.g., the radix tree 
+eventually ought to evolve into a btree of extents (probably).  But making 
+things so complex in the first version, thus losing much of the incremental 
+development advantage, would not be smart.  With a single size of page per 
+address_space,  changes to the radix tree code are limited to a couple of 
+lines, for example.
 
-I have no idea where on the spectrum you sit but the thought has occurred 
-to me that arguing business models with people who are operating from 
-a 100% theoretical position is likely to not reach any agreement in my
-lifetime.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+But perhaps you'd like to supply some examples where more than one size of 
+page in the same address space really matters?
+
+> On Wednesday 25 June 2003 02:47, William Lee Irwin III wrote:
+> >> This gives me the same data structure proliferation chills as bh's.
+>
+> On Wed, Jun 25, 2003 at 03:07:18AM +0200, Daniel Phillips wrote:
+> > It's not nearly as bad.  There is no distinction between subpage and base
+> > struct page for almost all page operations, e.g., locking, IO, data
+> > access.
+>
+> But those are code sanitation issues. You need to make sure this
+> doesn't explode on PAE.
+
+Indeed, that is important.  Good night, see you tomorrow.
+
+Daniel
+

@@ -1,110 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263176AbUCTABM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 19:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUCTABM
+	id S263152AbUCTAPO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 19:15:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUCTAPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 19:01:12 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:24846 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263176AbUCTABF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 19:01:05 -0500
-Date: Sat, 20 Mar 2004 00:01:03 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Ian Campbell <icampbell@arcom.com>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] PXA255 LCD Driver
-In-Reply-To: <1079607908.2175.67.camel@icampbell-debian>
-Message-ID: <Pine.LNX.4.44.0403192352580.14905-100000@phoenix.infradead.org>
+	Fri, 19 Mar 2004 19:15:14 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59871 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263152AbUCTAPH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 19:15:07 -0500
+Message-ID: <405B8CFD.2030909@pobox.com>
+Date: Fri, 19 Mar 2004 19:14:53 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] barrier patch set
+References: <20040319153554.GC2933@suse.de> <405B2127.8090705@pobox.com> <200403200059.22234.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200403200059.22234.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz wrote:
+> The fact that spec says "supported" not "enabled" in description of word86
+> makes me wonder - can they be disabled? (FLUSH CACHE is mandatory for General
+> feature set and FLUSH CACHE EXT is mandatory if 48-bit LBA is supported)
+
+Yes, that's why there are separate 'supported' and 'enabled' bits for 
+each feature.
+
+Words 82-84 are 'supported' bits.  Words 85-87 are 'enabled' bits. 
+These bits mirror each other, i.e. Word 83 and Word 86 have basically 
+the same bits, except that Word 86 definitions change _slightly_ since 
+the only bits that are relevant are the ones for features that can be 
+disabled/enabled.
+
+You use set-features command to enable and disable these features, and 
+then the result shows up in subsequent identify-device command output.
+
+If the driver is testing for a capability but does not enable it, then 
+always use the 'enabled' set of bits, not the 'supported' set of bits.
 
 
-> I understand what you are saying (I think...), but I'm not sure how it
-> applies to my situation -- my embedded LCD controller has no analogue
-> for much of the stuff in fb_monspecs and has some extra stuff which are
-> not present there.
-
-What is it you need exactly? 
-
-> Essentially the LCD controller<->panel interface has 16 data pins, an
-> output enable, a pixel clock and (HV)sync. 
-
-Is this the case for your setup or is this something true in general.
-I like to add data fields that could be used by everyone.
- 
-> The settings which are of interest on a PXA255 are that aren't present
-> in fb_monspecs, they specify the physical interface between the
-> processor and the panel:
+> Jeff, please note that these bits were introduced by ATA-6 spec
+> and take a look at ATA-5 spec:
 > 
->         active(==TFT) or passive(==STN), 
->                 These are two fundamentally different types of panel. It
->                 impacts when the pixclock ticks (all the time or just
->                 when data is present), and some other timing stuff.
->
->         output enable polarity
->                 panel is enabled on low or high
->         pixel clock polarity
->                 should the panel shift in data on a rising or a falling
->                 edge
-> 	dual or single panel
->                 some STN panels are physically two panels stacked on top
->                 of each other, this impacts the way pixel data is packed
->                 onto the data lines
->         4pix or 8pix STN mono
->                 Monochrome STN panels take either 4 or 8 pixels at a
->                 time.
+> ...
+> FLUSH CACHE
+> General feature set
+> - Mandatory for all devices
+> ...
 > 
-> All of these differ from panel to panel, pretty much at the whim of the
-> manufacturer...
-
-Are these the fields you need in general?
-
-> The other settings I think are already accounted for in the mode db:
->         resolution, bit depth, color/mono/grayscale, pixel clock, h and
->         vsync length, Left-Right-Upper-Lower margins.
-> However -- all these are fixed in hardware for any given panel (although
-> you could emulate different resolutions in s/w I guess).
-
-... snip ...
-
-> I also don't know how applicable all this is to other embedded LCD
-> controllers --- the StrongArm hardware is very close to the PXA
-> hardware, and I think all controllers which are as low level as them
-> will share the same settings (since they are down to the hardware
-> interface). I don't know for sure though.
+> and ATA-4 spec:
 > 
-> My thinking prior to this discussion was to go for a database which maps
-> LCD part # to all the settings above, where each LCD is selectable from
-> Kconfig and a default can be specified (sort of like NLS now). People
-> with a static panel would only build in the one database entry, people
-> like me could build in a selection and choose from the command line etc
-> (with overrides for all the above). 
+> ...
+> FLUSH CACHE
+> General feature set
+> - Optional for all devices
+> ...
+> 
+> IMO to test if FLUSH CACHE works we should just issue it during disk setup
+> and check result.  This way we can use FLUSH CACHE also on < ATA-6 devices
+> (there is a lot of them).
 
-I have thought about it. That is why I toke so long to reply. I think the 
-best approach is that we create a database of struct fb_monspecs for LCD
-panels. In struct fb_monspecs we have the following fields.
+I disagree.  "just issue it" is how those LG cdrom drives got cooked.
 
-manufacturer[4]
-monitor[14]
-serial_no[14]
-ascii[14]	For expansion.
+LG cdrom drives indicated in their identify-packet-device page that 
+flush-cache was not supported...  and then re-used the flush-cache ATA 
+opcode for their vendor-specific download-firmware command.  Combine 
+that with a Linux patch that didn't properly check for flush-cache 
+support.  Result: brick.
 
-We can have it so that we can pass in a monitor string that can be used to 
-select the proper LCD panel in the database. How does that sound?
+All drives that support flush-cache list the relevant bits in 
+identify-device, even on pre-ATA-6 devices.  Whether the feature was 
+optional or mandantory, we can check the feature bits.
 
-
-
-
-
-
-
+	Jeff
 
 
 

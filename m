@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262849AbVBCRup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263657AbVBCR4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262849AbVBCRup (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 12:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbVBCRuc
+	id S263657AbVBCR4A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 12:56:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263652AbVBCRyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 12:50:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5032 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262616AbVBCRlR convert rfc822-to-8bit
+	Thu, 3 Feb 2005 12:54:47 -0500
+Received: from mail.kroah.org ([69.55.234.183]:15272 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262520AbVBCRlX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 12:41:17 -0500
-Cc: aurelien@aurel32.net
-Subject: [PATCH] I2C: Fix DS1621 detection
-In-Reply-To: <20050203173745.GA24076@kroah.com>
+	Thu, 3 Feb 2005 12:41:23 -0500
+Cc: khali@linux-fr.org
+Subject: [PATCH] I2C: Fix i2c-sis5595 pci configuration accesses
+In-Reply-To: <11074523383635@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Thu, 3 Feb 2005 09:38:58 -0800
-Message-Id: <11074523381178@kroah.com>
+Message-Id: <11074523382465@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,61 +24,67 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2041, 2005/02/03 00:28:34-08:00, aurelien@aurel32.net
+ChangeSet 1.2045, 2005/02/03 00:30:21-08:00, khali@linux-fr.org
 
-[PATCH] I2C: Fix DS1621 detection
+[PATCH] I2C: Fix i2c-sis5595 pci configuration accesses
 
-Dallas Semiconductors as recently changed the design of their DS1621
-chips, including the bits that were checked in the kernel driver to
-detect it.
+The i2c-sis5595 bus driver has logic errors on pci configuration
+accesses. It returns an error on success and vice versa. The 2.4 kernel
+version of the driver, as found in the lm_sensors CVS repository, is
+correct, so the problem was introducted when the driver was ported to
+the 2.6 kernel tree  (in 2.6.0-test6). As odd as it sounds, the driver
+has been sitting here broken and unusable for 17 months and nobody ever
+reported, until yesterday.
 
-The patch below fixes the detection by checking an other bit of the
-configuration register instead.
+Credits go to Sebastian Hesselbarth for discovering and analyzing the
+problem.
 
-Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Here is a patch that fixes the problem, succesfully tested by Aurelien
+Jarno and Sebastian Hesselbarth. Please apply.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/chips/ds1621.c |   12 ++++++++----
- 1 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-sis5595.c |   15 ++++++++++-----
+ 1 files changed, 10 insertions(+), 5 deletions(-)
 
 
-diff -Nru a/drivers/i2c/chips/ds1621.c b/drivers/i2c/chips/ds1621.c
---- a/drivers/i2c/chips/ds1621.c	2005-02-03 09:35:23 -08:00
-+++ b/drivers/i2c/chips/ds1621.c	2005-02-03 09:35:23 -08:00
-@@ -42,9 +42,8 @@
- /* Many DS1621 constants specified below */
- /* Config register used for detection         */
- /*  7    6    5    4    3    2    1    0      */
--/* |Done|THF |TLF |NVB | 1  | 0  |POL |1SHOT| */
--#define DS1621_REG_CONFIG_MASK		0x0C
--#define DS1621_REG_CONFIG_VAL		0x08
-+/* |Done|THF |TLF |NVB | X  | X  |POL |1SHOT| */
-+#define DS1621_REG_CONFIG_NVB		0x10
- #define DS1621_REG_CONFIG_POLARITY	0x02
- #define DS1621_REG_CONFIG_1SHOT		0x01
- #define DS1621_REG_CONFIG_DONE		0x80
-@@ -55,6 +54,7 @@
- #define DS1621_REG_TEMP_MAX		0xA2 /* word, RW */
- #define DS1621_REG_CONF			0xAC /* byte, RW */
- #define DS1621_COM_START		0xEE /* no data */
-+#define DS1621_COM_STOP			0x22 /* no data */
+diff -Nru a/drivers/i2c/busses/i2c-sis5595.c b/drivers/i2c/busses/i2c-sis5595.c
+--- a/drivers/i2c/busses/i2c-sis5595.c	2005-02-03 09:34:55 -08:00
++++ b/drivers/i2c/busses/i2c-sis5595.c	2005-02-03 09:34:55 -08:00
+@@ -181,9 +181,11 @@
  
- /* The DS1621 configuration register */
- #define DS1621_ALARM_TEMP_HIGH		0x40
-@@ -212,9 +212,13 @@
+ 	if (force_addr) {
+ 		dev_info(&SIS5595_dev->dev, "forcing ISA address 0x%04X\n", sis5595_base);
+-		if (!pci_write_config_word(SIS5595_dev, ACPI_BASE, sis5595_base))
++		if (pci_write_config_word(SIS5595_dev, ACPI_BASE, sis5595_base)
++		    != PCIBIOS_SUCCESSFUL)
+ 			goto error;
+-		if (!pci_read_config_word(SIS5595_dev, ACPI_BASE, &a))
++		if (pci_read_config_word(SIS5595_dev, ACPI_BASE, &a)
++		    != PCIBIOS_SUCCESSFUL)
+ 			goto error;
+ 		if ((a & ~(SIS5595_EXTENT - 1)) != sis5595_base) {
+ 			/* doesn't work for some chips! */
+@@ -192,13 +194,16 @@
+ 		}
+ 	}
  
- 	/* Now, we do the remaining detection. It is lousy. */
- 	if (kind < 0) {
-+		/* The NVB bit should be low if no EEPROM write has been 
-+		   requested during the latest 10ms, which is highly 
-+		   improbable in our case. */
- 		conf = ds1621_read_value(new_client, DS1621_REG_CONF);
--		if ((conf & DS1621_REG_CONFIG_MASK) != DS1621_REG_CONFIG_VAL)
-+		if (conf & DS1621_REG_CONFIG_NVB)
- 			goto exit_free;
-+		/* The 7 lowest bits of a temperature should always be 0. */
- 		temp = ds1621_read_value(new_client, DS1621_REG_TEMP);
- 		if (temp & 0x007f)
- 			goto exit_free;
+-	if (!pci_read_config_byte(SIS5595_dev, SIS5595_ENABLE_REG, &val))
++	if (pci_read_config_byte(SIS5595_dev, SIS5595_ENABLE_REG, &val)
++	    != PCIBIOS_SUCCESSFUL)
+ 		goto error;
+ 	if ((val & 0x80) == 0) {
+ 		dev_info(&SIS5595_dev->dev, "enabling ACPI\n");
+-		if (!pci_write_config_byte(SIS5595_dev, SIS5595_ENABLE_REG, val | 0x80))
++		if (pci_write_config_byte(SIS5595_dev, SIS5595_ENABLE_REG, val | 0x80)
++		    != PCIBIOS_SUCCESSFUL)
+ 			goto error;
+-		if (!pci_read_config_byte(SIS5595_dev, SIS5595_ENABLE_REG, &val))
++		if (pci_read_config_byte(SIS5595_dev, SIS5595_ENABLE_REG, &val)
++		    != PCIBIOS_SUCCESSFUL)
+ 			goto error;
+ 		if ((val & 0x80) == 0) {
+ 			/* doesn't work for some chips? */
 

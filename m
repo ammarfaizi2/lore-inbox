@@ -1,63 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVCLObV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVCLOg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVCLObV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 09:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVCLObU
+	id S261926AbVCLOg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 09:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVCLOg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 09:31:20 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:37136 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261925AbVCLO2x
+	Sat, 12 Mar 2005 09:36:56 -0500
+Received: from alog0168.analogic.com ([208.224.220.183]:16360 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261926AbVCLOgw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 09:28:53 -0500
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: Andrew Morton <akpm@osdl.org>, chaffee@bmrc.berkeley.edu,
-       <mc@cs.Stanford.EDU>, <linux-kernel@vger.kernel.org>
-Subject: Re: [CHECKER] crash + fsck cause file systems to contain loops
- (msdos and vfat, 2.6.11)
-References: <Pine.GSO.4.44.0503120313140.11724-100000@elaine24.Stanford.EDU>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 12 Mar 2005 23:28:34 +0900
-In-Reply-To: <Pine.GSO.4.44.0503120313140.11724-100000@elaine24.Stanford.EDU> (Junfeng
- Yang's message of "Sat, 12 Mar 2005 03:21:19 -0800 (PST)")
-Message-ID: <87fyz1ey5p.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Sat, 12 Mar 2005 09:36:52 -0500
+Date: Sat, 12 Mar 2005 09:34:49 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Strange Linking Problem
+In-Reply-To: <4232F642.2050704@tiscali.de>
+Message-ID: <Pine.LNX.4.61.0503120929200.7904@chaos.analogic.com>
+References: <4232F642.2050704@tiscali.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junfeng Yang <yjf@stanford.edu> writes:
+On Sat, 12 Mar 2005, Matthias-Christian Ott wrote:
 
->> Linus's current tree includes support for `mount -o sync' on the msdos and
->> vfat filesystems.
+> Hi!
+> I hope I'm right here. I've the following assembler code:
 >
-> Thanks Andrew.  I can just do a bk clone from
-> http://linux.bkbits.net/linux-2.6 to get Linus's current tree, right?
+> SECTION .DATA
+>       hello:     db 'Hello world!',10
+>       helloLen:  equ $-hello
 >
-> The warning reported here doesn't need mount -o sync to trigger though.
-> A simple crash on a default mounted FS can usually cause the FS loop.
+> SECTION .TEXT
+>       GLOBAL main
 >
-> (Also, I realized I made many typos in my report --- this implies I'm
-> tired and should probably get some sleep :)
+> main:
+>
+>
+>
+>       ; Write 'Hello world!' to the screen
+>       mov eax,4            ; 'write' system call
+>       mov ebx,1            ; file descriptor 1 = screen
+>       mov ecx,hello        ; string to write
+>       mov edx,helloLen     ; length of string to write
+>       int 80h              ; call the kernel
+>
+>       ; Terminate program
+>       mov eax,1            ; 'exit' system call
+>       mov ebx,0            ; exit with error code 0
+>       int 80h              ; call the kernel
+>
+>
+> Then I run:
+>
+> nasm -f elf hello.asm
+>
+>
+> I link it with ld and run it:
+>
+> ld -s -o hello hello.o
+> ./hello
+> segmentation fault
+>
+>
+> I link it with the gcc and run it:
+>
+> gcc hello.o -o hello
+> ./hello
+> Hello world!
+>
+>
+> What's wrong with the ld?
+>
 
-Interesting.
+Nothing at all. Where is _start: ?
 
-$ /devel/linux/works/fatfs/fatfstools/dosfstools-2.10/dosfsck/dosfsck -a bug10/crash.img
-dosfsck 2.10, 22 Sep 2003, FAT32, LFN
-/0006
-  Directory does not have any cluster  ("." and "..").
-  Dropping it.
-Reclaimed 3 unused clusters (6144 bytes) in 3 chains.
-Performing changes.
-crash.img: 8 files, 3/8167 clusters
+Remove the 'main' label and substitute _start:
 
-My fixed dosfsck found the above corruption in bug10/crash.img (bug7
-has same corruption). And probably you can see root directory via 0006
-directory, I guess your testing tree didn't have my patches yet (seems
-old behavior).
+It is 'C' convention that programs start with main(). They
+really don't. With the Linux API, they start at _start: and
+do some housekeeping before calling main. That's what the
+crt.o file that the 'C' tool-chain uses, does.
 
-BTW, what mount options did you use?
 
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

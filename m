@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262991AbTC0OsR>; Thu, 27 Mar 2003 09:48:17 -0500
+	id <S262969AbTC0Out>; Thu, 27 Mar 2003 09:50:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262994AbTC0OsR>; Thu, 27 Mar 2003 09:48:17 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:3336 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262991AbTC0OsQ>; Thu, 27 Mar 2003 09:48:16 -0500
-Date: Thu, 27 Mar 2003 09:55:08 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] swap 13/13 may_enter_fs?
-In-Reply-To: <Pine.LNX.4.44.0303261841070.1439-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1030327095113.12939A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262993AbTC0Out>; Thu, 27 Mar 2003 09:50:49 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:61923 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262969AbTC0Ous>;
+	Thu, 27 Mar 2003 09:50:48 -0500
+Date: Thu, 27 Mar 2003 06:59:11 -0800 (PST)
+Message-Id: <20030327.065911.29350824.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: davidel@xmailserver.org, linux-kernel@vger.kernel.org
+Subject: Re: Obsolete messages ...
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1048776371.2606.60.camel@dhcp22.swansea.linux.org.uk>
+References: <Pine.LNX.4.50.0303261857290.970-100000@blue1.dev.mcafeelabs.com>
+	<1048774874.19677.0.camel@rth.ninka.net>
+	<1048776371.2606.60.camel@dhcp22.swansea.linux.org.uk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Mar 2003, Hugh Dickins wrote:
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 27 Mar 2003 14:46:11 +0000
 
-> On Wed, 26 Mar 2003, Bill Davidsen wrote:
-> > 
-> > Unless there's a subtle difference in functionality here that I'm missing,
-> > you are doing the same thing in a larger and slower way, and the logic is
-> > less clear.
-> > 
-> > Is there some benefit I'm missing?
-> 
-> No, it's just that Andrew finds the logic clearer when written out his way.
+   In which case they would benefit from net/shut_up sysctl. In lots of
+   environments they will just be a pain
+   
+Keep in mind we have these kinds of messages in 2.4.x right this
+very moment, and nobody complains about them nor asks for sysctls
+to shut them off.
 
-Looking a code generated from fragments, I don't think gcc shares that
-opinion ;-) Actually I find it more obvious with the ? notation, and it
-prevents someone in the future changing the logic in one line of code when
-it needs to change in both.
+See net/socket.c:sock_create() for example.
 
-Oh well, I expect the ? form to stay, since it uses less cache.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Now, I'll all for netratelimit()'ing the networking ones.

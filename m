@@ -1,91 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311483AbSCVJiE>; Fri, 22 Mar 2002 04:38:04 -0500
+	id <S311471AbSCVJnG>; Fri, 22 Mar 2002 04:43:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311471AbSCVJhp>; Fri, 22 Mar 2002 04:37:45 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9479 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S311466AbSCVJhf>; Fri, 22 Mar 2002 04:37:35 -0500
-Date: Fri, 22 Mar 2002 01:23:40 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-cc: devfs mailing list <devfs@oss.sgi.com>,
-        linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: support for IDE devices in ide-scsi with devfs
-In-Reply-To: <1016736897.3113.5.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.10.10203220122490.9319-100000@master.linux-ide.org>
+	id <S311569AbSCVJm4>; Fri, 22 Mar 2002 04:42:56 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:35752 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S311471AbSCVJmp>; Fri, 22 Mar 2002 04:42:45 -0500
+Date: Fri, 22 Mar 2002 11:33:09 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre3-ac5
+In-Reply-To: <Pine.LNX.4.10.10203220125450.9319-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.44.0203221130320.2084-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Mar 2002, Andre Hedrick wrote:
 
-Thankyou sir I have been working towards that direction, but glad and
-happy you have assisted !
+> I am trying to close all possible points where the double timer could
+> happen.  The object is to isolate it to hardware behavior, and determine
+> what the event sequence is which is committing the sin.
 
-Cheers,
+Out of interest, which other situations have you seen it happen? I'm only 
+aware of the one.
 
-Andre Hedrick
-LAD Storage Consulting Group
+> Once constrained, it goes to a lab where I have access to a 320 channel
+> or 8 x 40 channel POD digital trace/recorder to map the HOST driver
+> against the device(s) response.  This is a major pain in the debugging
+> process but it will close the issue for good.
 
+Bugs, like roaches, have a terrible habit of surviving the worst nuking 
+you can possibly inflict ;)
 
-On 21 Mar 2002, Borsenkow Andrej wrote:
+Goodluck,
+	Zwane
 
-> Currently using ide-scsi with devfs does not allow you to use hdparm
-> interface because no IDE nodes (block devices) are created. The patch
-> adds this.
-> 
-> Related patch for devfsd that creates old compatibility links is going
-> to devfs list. I do not think spcial new compatibility links are needed.
-> 
-> -andrej
-> 
-> --- linux-2.4.18-4mdk/drivers/scsi/ide-scsi.c.orig	Tue Mar  5 06:08:04 2002
-> +++ linux-2.4.18-4mdk/drivers/scsi/ide-scsi.c	Thu Mar 21 21:21:31 2002
-> @@ -95,6 +95,7 @@
->  	unsigned long flags;			/* Status/Action flags */
->  	unsigned long transform;		/* SCSI cmd translation layer */
->  	unsigned long log;			/* log flags */
-> +	devfs_handle_t de;			/* pointer to IDE device */
->  } idescsi_scsi_t;
->  
->  /*
-> @@ -502,6 +503,8 @@
->   */
->  static void idescsi_setup (ide_drive_t *drive, idescsi_scsi_t *scsi, int id)
->  {
-> +	int minor = (drive->select.b.unit) << PARTN_BITS;
-> +
->  	DRIVER(drive)->busy++;
->  	idescsi_drives[id] = drive;
->  	drive->driver_data = scsi;
-> @@ -516,6 +519,10 @@
->  	set_bit(IDESCSI_LOG_CMD, &scsi->log);
->  #endif /* IDESCSI_DEBUG_LOG */
->  	idescsi_add_settings(drive);
-> +	scsi->de = devfs_register(drive->de, "generic", DEVFS_FL_DEFAULT,
-> +				     HWIF(drive)->major, minor,
-> +				     S_IFBLK | S_IRUSR | S_IWUSR,
-> +				     ide_fops, NULL);
->  }
->  
->  static int idescsi_cleanup (ide_drive_t *drive)
-> @@ -524,6 +531,8 @@
->  
->  	if (ide_unregister_subdriver (drive))
->  		return 1;
-> +	if (scsi->de)
-> +		devfs_unregister(scsi->de);
->  	drive->driver_data = NULL;
->  	kfree (scsi);
->  	return 0;
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

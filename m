@@ -1,67 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131419AbRCKNeZ>; Sun, 11 Mar 2001 08:34:25 -0500
+	id <S131430AbRCKN5R>; Sun, 11 Mar 2001 08:57:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131420AbRCKNeQ>; Sun, 11 Mar 2001 08:34:16 -0500
-Received: from d148.as5200.mesatop.com ([208.164.122.148]:35979 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S131419AbRCKNeF>; Sun, 11 Mar 2001 08:34:05 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-Date: Sun, 11 Mar 2001 06:37:10 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: elenstev@mesatop.com, linux-kernel@vger.kernel.org
-To: Jeff Garzik <jgarzik@mandrakesoft.com>, Keith Owens <kaos@ocs.com.au>
-In-Reply-To: <15167.984293552@ocs3.ocs-net> <3AAB245F.A98004D9@mandrakesoft.com>
-In-Reply-To: <3AAB245F.A98004D9@mandrakesoft.com>
-Subject: Re: List of recent (2.4.0 to 2.4.2-ac18) CONFIG options needing Configure.help text.
-MIME-Version: 1.0
-Message-Id: <01031106371001.29664@localhost.localdomain>
-Content-Transfer-Encoding: 8bit
+	id <S131431AbRCKN5H>; Sun, 11 Mar 2001 08:57:07 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:14092 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S131430AbRCKN4x>; Sun, 11 Mar 2001 08:56:53 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Mon, 12 Mar 2001 00:54:48 +1100
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: sys_sched_yield fast path
+Message-ID: <20010312005448.A5439@linuxcare.com>
+In-Reply-To: <oup4rx1tv9m.fsf@pigdrop.muc.suse.de> <XFMail.20010311151257.davidel@xmailserver.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <XFMail.20010311151257.davidel@xmailserver.org>; from davidel@xmailserver.org on Sun, Mar 11, 2001 at 03:12:57PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 March 2001 00:08, Jeff Garzik wrote:
-> Keith Owens wrote:
-> > On Sat, 10 Mar 2001 23:03:19 -0700,
-> >
-> > Steven Cole <elenstev@mesatop.com> wrote:
-> > >With the 2.4.0 kernel, there were 476 CONFIG options which had
-> > >no help entry in Configure.help.  With 2.4.2-ac18, this number is now
-> > > 547, which has been kept this low with 54 options getting
-> > > Configure.help text.
-> >
-> > If any of these CONFIG_ options are always derived (i.e. the user never
-> > sees them on a config menu) then please add the suffix _DERIVED to such
-> > options.  They still need to start with CONFIG_ to suit the kernel
-> > build dependency generator so we cannot change the start of the name.
-> > Appending _DERIVED will make it obvious that the options require no
-> > help text.
->
-> Yow.  That is very cumbersome.  Can't you just keep a list somewhere,
-> instead of making such options longer?
+ 
+> This is the linux thread spinlock acquire :
+> 
+> 
+> static void __pthread_acquire(int * spinlock)
+> {
+>   int cnt = 0;
+>   struct timespec tm;
+> 
+>   while (testandset(spinlock)) {
+>     if (cnt < MAX_SPIN_COUNT) {
+>       sched_yield();
+>       cnt++;
+>     } else {
+>       tm.tv_sec = 0;
+>       tm.tv_nsec = SPIN_SLEEP_DURATION;
+>       nanosleep(&tm, NULL);
+>       cnt = 0;
+>     }
+>   }
+> }
+> 
+> 
+> Yes, it calls sched_yield() but this is not a std wait for mutex but for
+> spinlocks that are hold a very short time.  Real wait are implemented using
+> signals.  More, with the new implementation of sys_sched_yield() the task
+> release all its time quantum so, even in a case where a task repeatedly calls
+> sched_yield() the call rate is not so high if there is at least one process
+> to spin.  And if there isn't one task with goodness() > 0, nobody cares about
+> sched_yield() performance.
 
-BTW, the script I used (originally written by Paul Gortmaker), does pass the
-lines in [C,c]onfig.in through grep -v define_ to catch items which are defined
-with define_bool or define_int.  Here is a short list of new CONFIG_ items which
-got filtered out:
+The problem I found with sched_yield is that things break down with high
+levels of contention. If you have 3 processes and one has a lock then
+the other two can ping pong doing sched_yield() until their priority drops
+below the process with the lock. eg in a run I just did then where 2
+has the lock:
 
-CONFIG_ARCH_S390X
-CONFIG_CRIS_LOW_MAP
-CONFIG_FBCON_STI
-CONFIG_FUSION_BOOT
-CONFIG_IP_NF_NAT_FTP
-CONFIG_MTD_AMDSTD
-CONFIG_PARISC32
-CONFIG_SPARC32
-CONFIG_SPARC64
-CONFIG_TQM8xxL
+1
+0
+1
+0
+1
+0
+1
+0
+1
+0
+1
+0
+1
+0
+1
+0
+1
+0
+2
 
-As far as appending _DERIVED is concerned, I like the idea, but there might be
-quite a time where it was only partially implemented, just confusing things.  Unless
-those CONFIG_XXX_DERIVED items all got renamed at once like the great redo
-300+ Makefiles adventure last fall.
+Perhaps we need something like sched_yield that takes off some of 
+tsk->counter so the task with the spinlock will run earlier.
 
-Steven
+Anton

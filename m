@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317956AbSFSRsT>; Wed, 19 Jun 2002 13:48:19 -0400
+	id <S317962AbSFSRwH>; Wed, 19 Jun 2002 13:52:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317957AbSFSRsS>; Wed, 19 Jun 2002 13:48:18 -0400
-Received: from ns.suse.de ([213.95.15.193]:35082 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317956AbSFSRsQ>;
-	Wed, 19 Jun 2002 13:48:16 -0400
-Date: Wed, 19 Jun 2002 19:48:17 +0200
-From: Dave Jones <davej@suse.de>
-To: Brent Cook <busterb@mail.utexas.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: File permission problem with NFSv3 and 2.5.20-dj4
-Message-ID: <20020619194817.J29373@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Brent Cook <busterb@mail.utexas.edu>, linux-kernel@vger.kernel.org
-References: <20020615142330.C16772@suse.de> <20020619124252.V4360-100000@abbey.hauschen>
-Mime-Version: 1.0
+	id <S317961AbSFSRwG>; Wed, 19 Jun 2002 13:52:06 -0400
+Received: from speech.linux-speakup.org ([129.100.109.30]:31965 "EHLO
+	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
+	id <S317959AbSFSRwE>; Wed, 19 Jun 2002 13:52:04 -0400
+To: linux-kernel@vger.kernel.org
+Subject: another sched.c error with athlon
+From: Kirk Reiser <kirk@braille.uwo.ca>
+Date: 19 Jun 2002 13:52:01 -0400
+In-Reply-To: <20020619124252.V4360-100000@abbey.hauschen>
+Message-ID: <x7hejzyx4u.fsf@speech.braille.uwo.ca>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020619124252.V4360-100000@abbey.hauschen>; from busterb@mail.utexas.edu on Wed, Jun 19, 2002 at 12:45:31PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 19, 2002 at 12:45:31PM -0500, Brent Cook wrote:
+Here's another error I'm getting from sched.c and don't seem to be
+able to find where it should be #define'd.
 
- > You were right. Backing out READDIRPLUS fixes the problem with NFS and
- > files losing the executable bit. I just tried things with 2.5.23-dj1 and
- > all is well.
+  gcc -Wp,-MD,./.sched.o.d -D__KERNEL__
+  -I/usr/src/linux-2.5.23/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
+-malign-functions=4  -nostdinc -iwithprefix include
+-fno-omit-frame-pointer -DKBUILD_BASENAME=sched   -c -o sched.o
+sched.c
+sched.c: In function `sys_sched_setaffinity':
+sched.c:1332: `cpu_online_map' undeclared (first use in this function)
+sched.c:1332: (Each undeclared identifier is reported only once
+sched.c:1332: for each function it appears in.)
+sched.c: In function `sys_sched_getaffinity':
+sched.c:1391: `cpu_online_map' undeclared (first use in this function)
+make[1]: *** [sched.o] Error 1
 
-Excellent, thanks for testing..
 
- > Here are a couple of compile fixes for that kernel though:
+The only reference I can find is in smp.h but don't see it actually
+declared there either only used.  I'm not using smp and have
+CONFIG_smp set to no.
 
-Thanks, added to the pending queue with the others
-
-    Dave
+  Kirk
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+Kirk Reiser				The Computer Braille Facility
+e-mail: kirk@braille.uwo.ca		University of Western Ontario
+phone: (519) 661-3061

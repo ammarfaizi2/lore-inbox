@@ -1,58 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263442AbUC3ISl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 03:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263436AbUC3ISl
+	id S262139AbUC3IVU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 03:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbUC3IUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 03:18:41 -0500
-Received: from [193.141.139.228] ([193.141.139.228]:18059 "EHLO
-	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S263375AbUC3ISi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 03:18:38 -0500
-From: Erich Focht <efocht@hpce.nec.com>
-To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
-Subject: Re: Migrate pages from a ccNUMA node to another
-Date: Tue, 30 Mar 2004 01:16:01 +0200
-User-Agent: KMail/1.5.4
-References: <4063F188.66DB690A@nospam.org>
-In-Reply-To: <4063F188.66DB690A@nospam.org>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+	Tue, 30 Mar 2004 03:20:21 -0500
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:65458 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263204AbUC3ITs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 03:19:48 -0500
+Message-ID: <40692D95.8030605@yahoo.com.au>
+Date: Tue, 30 Mar 2004 18:19:33 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ingo Molnar <mingo@elte.hu>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, Andi Kleen <ak@suse.de>,
+       jun.nakajima@intel.com, ricklind@us.ibm.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
+       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+References: <20040329084531.GB29458@wotan.suse.de> <4068066C.507@yahoo.com.au> <20040329080150.4b8fd8ef.ak@suse.de> <20040329114635.GA30093@elte.hu> <20040329221434.4602e062.ak@suse.de> <4068B692.9020307@yahoo.com.au> <20040330083450.368eafc6.ak@suse.de> <40691BCE.2010302@yahoo.com.au> <205870000.1080630837@[10.10.2.4]> <4069223E.9060609@yahoo.com.au> <20040330080530.GA22195@elte.hu>
+In-Reply-To: <20040330080530.GA22195@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403300116.01877.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Szia Zoltan,
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> 
+>>Maybe balance on clone would be beneficial if we only balance onto
+>>CPUs which are idle or very very imbalanced. Basically, if you are
+>>very sure that it is going to be balanced off anyway, it is probably
+>>better to do it at clone.
+> 
+> 
+> balancing threads/processes is not a problem, as long as it happens
+> within the rules of normal balancing.
+> 
+> ie. 'new context created' (on exec, fork or clone) is just an event that
+> impacts the load scenario, and which might trigger rebalancing.
+> 
+> _if_ the sharing between various contexts is very high and it's actually
+> faster to run them all single-threaded, then the application writer can
+> bind them to one CPU, via the affinity syscalls. But the scheduler
+> cannot know this advance.
+> 
+> so the cleanest assumption, from the POV of the scheduler, is that
+> there's no sharing between contexts. Things become really simple once
+> this assumption is made.
+> 
+> and frankly, it's much easier to argue with application developers whose
+> application scales badly and thus the scheduler over-distributes it,
+> than with application developers who's application scales badly due to
+> the scheduler.
+> 
 
-I like the aproach very much and was hoping that someone will bring
-on-demand page migration to Linux. 
+You're probably mostly right, but I really don't know if I'd
+start with the assumption that threads don't share anything.
+I think they're very likely to share memory and cache.
 
-> - Migrate pages identified by their physical addresses to another NUMA node
-You want this only for your "AI" keeping track of the hw counters in
-the chipset? I hope you can teach it to keep track of the bandwidth of
-all processes on the machine, otherwise it might disturb the processes
-more than it helps them... and waste the machine's bandwidth with
-migrating pages.
+Also, these additional system wide balance points don't come
+for free if you attach them to common operations (as opposed
+to the slow periodic balancing).
 
-> - Migrate pages of a virtual user address range to another NUMA node
-This is good. I'm thinking about the rss/node patches, they would tell
-you when you should think about migrating something for a process. My
-current usage model would be simpler: for a given mm migrate all pages
-currently on node A to node B. But the flexibility of your API will
-certainly not remain unused.
-
-...
-
-> BTW Has someone a machine with a chip set other than i82870 ?
-??? As far as I know SGI, HP, NEC and IBM have all their own NUMA
-chipsets for IA64. Was this the question? Are you looking for hardware
-counters?
-
-Regards,
-Erich
-
-
+find_best_cpu needs to pull down NR_CPUs remote (and probably
+hot&dirty) cachelines, which can get expensive, for an
+operation that you are very likely to be better off *without*
+if your threads do share any memory.

@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129734AbQKERvC>; Sun, 5 Nov 2000 12:51:02 -0500
+	id <S129632AbQKESFe>; Sun, 5 Nov 2000 13:05:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129741AbQKERuw>; Sun, 5 Nov 2000 12:50:52 -0500
-Received: from [212.115.175.146] ([212.115.175.146]:50160 "EHLO
-	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
-	id <S129734AbQKERuq>; Sun, 5 Nov 2000 12:50:46 -0500
-Message-ID: <27525795B28BD311B28D00500481B7601623D7@ftrs1.intranet.FTR.NL>
-From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-To: "'Robert M. Love'" <rml@tech9.net>
+	id <S129696AbQKESFY>; Sun, 5 Nov 2000 13:05:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51473 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129632AbQKESFM>;
+	Sun, 5 Nov 2000 13:05:12 -0500
+Date: Sun, 5 Nov 2000 18:05:07 +0000
+From: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
+To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
 Cc: "'Linux Kernel Development'" <linux-kernel@vger.kernel.org>
-Subject: RE: i82808 hardware hub RNG
-Date: Sun, 5 Nov 2000 18:54:35 +0100 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Subject: Re: i82808 hardware hub RNG
+Message-ID: <20001105180507.Z2272@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <27525795B28BD311B28D00500481B7601623D5@ftrs1.intranet.FTR.NL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <27525795B28BD311B28D00500481B7601623D5@ftrs1.intranet.FTR.NL>; from f.v.heusden@ftr.nl on Sun, Nov 05, 2000 at 06:19:21PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I wrote a daemon that fetches (as root-user) random numbers from the RNG
-in
+On Sun, Nov 05, 2000 at 06:19:21PM +0100, Heusden, Folkert van wrote:
+> I wrote a daemon that fetches (as root-user) random numbers from the RNG in
 > the i82808 (found on 815-chipsets).
 > You can download it from http://www.vanheusden.com/Linux/random.php3 .
-> Currently, I'm trying to rewrite things into a kernel-module so that one
-has
+> Currently, I'm trying to rewrite things into a kernel-module so that one has
 > a standard character device which can deliver random values then.
 > Please give it a try as I do not own a PC with such a motherboard ;-/
-RML> a driver for this already exists in 2.4 and was recently back-ported to
-RML> 2.2. it works on i810, i815, and i820. it features a char device for
-RML> grabbing entropy and a timer device to inject the entropy directly into
-RML> /dev/random.
-RML> Jeff Garzik wrote it.
 
-Excellent!
-Got any URLs?
+So how is this different from drivers/char/i810_rng.c ?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

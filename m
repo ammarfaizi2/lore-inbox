@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbUCKW76 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 17:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbUCKW76
+	id S261819AbUCKXDK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 18:03:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbUCKXDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 17:59:58 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:40332 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261817AbUCKW74
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 17:59:56 -0500
-Message-ID: <4050F0AB.7070909@tmr.com>
-Date: Thu, 11 Mar 2004 18:05:15 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stefan Smietanowski <stesmi@stesmi.com>
-CC: Andreas Schwab <schwab@suse.de>,
-       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: (0 == foo), rather than (foo == 0)
-References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>	<20040310100215.1b707504.rddunlap@osdl.org>	<Pine.LNX.4.53.0403101324120.18709@chaos>	<404F9E28.4040706@aurema.com>	<Pine.LNX.4.58.0403101832580.1045@ppc970.osdl.org>	<404FD81D.3010502@aurema.com>	<Pine.LNX.4.58.0403101917060.1045@ppc970.osdl.org>	<404FEDAC.8090300@stesmi.com> <yw1x7jxrzpbt.fsf@kth.se> <je4qsvs98a.fsf@sykes.suse.de> <4050A506.3000703@stesmi.com>
-In-Reply-To: <4050A506.3000703@stesmi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 11 Mar 2004 18:03:10 -0500
+Received: from mailgate2.Cadence.COM ([158.140.2.31]:14585 "EHLO
+	mailgate2.Cadence.COM") by vger.kernel.org with ESMTP
+	id S261819AbUCKXBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 18:01:47 -0500
+Subject: Re: [linux-lvm] Re: lvm2 performance data with linux-2.6
+From: Chris Croswhite <csc@cadence.com>
+Reply-To: csc@cadence.com
+To: linux-lvm@redhat.com
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040311142515.A27177@osdlab.pdx.osdl.net>
+References: <200403081916.i28JGgE25794@mail.osdl.org>
+	 <4050E453.3010809@tmr.com>  <20040311142515.A27177@osdlab.pdx.osdl.net>
+Content-Type: text/plain
+Organization: Cadence Design Systems, Inc
+Message-Id: <1079046114.3850.349.camel@d158140025182.Cadence.COM>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 11 Mar 2004 15:01:54 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Smietanowski wrote:
+Is this generally available to all?  Where can it be had?
 
->> But this works:  while (a = b, a != 0).
->> (not that it is any better readable :-) ).
+TIA
+
+On Thu, 2004-03-11 at 14:25, Mark Wong wrote:
+> On Thu, Mar 11, 2004 at 05:12:35PM -0500, Bill Davidsen wrote:
+> > markw@osdl.org wrote:
+> > > I've started collecting various data (including oprofile) using our
+> > > DBT-2 (OLTP) workload with lvm2 on linux 2.6.2 and 2.6.3 on ia32 and
+> > > ia64 platforms:
+> > > 	http://developer.osdl.org/markw/lvm2/
+> > > 
+> > > So far I've only varied the stripe width with lvm, from 8 KB to 512 KB,
+> > > for PostgreSQL that is using 8 KB sized blocks with ext2.  It appears
+> > > that a stripe width of 16 KB through 128KB on the ia64 system gives the
+> > > best throughput for the DBT-2 workload on a volume that should be doing
+> > > mostly sequential writes.
+> > > 
+> > > I'm going to run through more tests varying the block size that
+> > > PostgreSQL uses, but I wanted to share what I had so far in case there
+> > > were other suggestions or recommendations.
+> > > 
+> > Here's one thought: look at the i/o rates on individual drives using 
+> > each stripe size. You *might* see that one size does far fewer seeks 
+> > than others, which is a secondary thing to optimize after throughput IMHO.
+> > 
+> > If you don't have a tool for this I can send you the latest diorate 
+> > which does stuff like this, io rate perdrive or per partition, something 
+> > I occasionally find revealing.
 > 
+> Yeah, please do send me a copy.  I'd be interested to see what that might 
+> turn up.  I've just been using iostat -x so far.
 > 
-> My eyes! *Starts clawing them out*
+> Thanks,
+> Mark
+> 
+> _______________________________________________
+> linux-lvm mailing list
+> linux-lvm@redhat.com
+> https://www.redhat.com/mailman/listinfo/linux-lvm
+> read the LVM HOW-TO at http://tldp.org/HOWTO/LVM-HOWTO/
 
-All in what you are used to reading. I grew up with ranges sepcified as 
-something like
-   0 <= x <= 40
-in the spec, and therefore still write it like
-   if (0 <= x && x <= 40)
-because that makes it obvious (to me) that it's a range check.
-
-A case of the language not having a range check operator and various 
-people finding one thing or another readable.
-
--- 
-		-bill

@@ -1,63 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270818AbRH1MYF>; Tue, 28 Aug 2001 08:24:05 -0400
+	id <S270841AbRH1MdG>; Tue, 28 Aug 2001 08:33:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270823AbRH1MX7>; Tue, 28 Aug 2001 08:23:59 -0400
-Received: from mustard.heime.net ([194.234.65.222]:12928 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S270818AbRH1MXq>; Tue, 28 Aug 2001 08:23:46 -0400
-Date: Tue, 28 Aug 2001 14:23:57 +0200 (CEST)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Jannik Rasmussen <jannik@east.no>, <linux-kernel@vger.kernel.org>
-Subject: Re: Error 3c900 driver in 2.2.19?
-In-Reply-To: <3B8AD082.DB477F80@zip.com.au>
-Message-ID: <Pine.LNX.4.30.0108281423220.1851-100000@mustard.heime.net>
+	id <S270825AbRH1Mc4>; Tue, 28 Aug 2001 08:32:56 -0400
+Received: from ns1ca.ubisoft.qc.ca ([205.205.27.131]:17423 "EHLO
+	ns1ca.ubisoft.qc.ca") by vger.kernel.org with ESMTP
+	id <S270841AbRH1Mct>; Tue, 28 Aug 2001 08:32:49 -0400
+Message-ID: <9A1957CB9FC45A4FA6F35961093ABB8404220590@srvmail-mtl.ubisoft.qc.ca>
+From: Patrick Allaire <pallaire@gameloft.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: How to create a patch ?
+Date: Tue, 28 Aug 2001 08:26:52 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But...
 
-I haven't seen the problem before 2.2.19. Going back to 2.2.16 solved it
+Hi, 
 
-On Mon, 27 Aug 2001, Andrew Morton wrote:
+What is the correct way to create a patch for the kernel ? I meen ... what
+option should I pass to diff ?
 
-> Well, it shouldn't hang - it should just fail to do anything for a while
-> and then recover.
->
-> You can reserve more memory for the network driver by altering
-> the contents of /proc/sys/vm/freepages.  Try doubling everything
-> in there.
->
->
->
-> Roy Sigurd Karlsbakk wrote:
-> >
-> > Hi
-> >
-> > I have a 3c900 card in a server, and after upgrading to 2.2.19 it started
-> > hanging every now and then, giving me the error message "kernel: eth0:
-> > memory shortage". The card is this (as reported during boot)
-> >
-> > 3c59x.c:v0.99H 27May00 Donald Becker
-> > http://cesdis.gsfc.nasa.gov/linux/drivers/vortex.html
-> > eth0: 3Com 3c900 Boomerang 10Mbps Combo at 0xa800,  00:a0:24:ef:ef:50, IRQ 5
-> >   8K word-wide RAM 3:5 Rx:Tx split, 10baseT interface.
-> >   Enabling bus-master transmits and whole-frame receives.
-> >
-> > Please cc: to me (roy@karlsbakk.net) and Jannik (jannik@east.no), as we're
-> > not on the list.
-> >
-> > Best regards
-> >
-> > roy
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
+thank you
 
+
+Patrick Allaire
+mailto:pallaire@gameloft.com
+If you can see it, but it's not there, it's virtual. 
+If you can't see it, but it is there, it's hidden. 
+It you can't see it and it isn't there, it's gone.

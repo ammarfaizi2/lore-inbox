@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262741AbUCWR4T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 12:56:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbUCWR4T
+	id S262751AbUCWR5F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 12:57:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbUCWR5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 12:56:19 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13492 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262741AbUCWR4P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 12:56:15 -0500
-Date: Tue, 23 Mar 2004 09:56:14 -0800
-From: cliff white <cliffw@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Fw: Re: parallel make problems (-mm) -now found in 2.6.5-rc1
- also
-Message-Id: <20040323095614.0f426957.cliffw@osdl.org>
-In-Reply-To: <20040323054124.GA2246@mars.ravnborg.org>
-References: <20040312120024.2cef94c8.rddunlap@osdl.org>
-	<20040322131629.52598c2f.cliffw@osdl.org>
-	<20040323054124.GA2246@mars.ravnborg.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 23 Mar 2004 12:57:05 -0500
+Received: from hellhawk.shadowen.org ([212.13.208.175]:25607 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S262751AbUCWR47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 12:56:59 -0500
+Date: Tue, 23 Mar 2004 17:59:20 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, David Woodhouse <dwmw2@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <28313883.1080064760@42.150.104.212.access.eclipse.net.uk>
+In-Reply-To: <20040321235854.H26708@flint.arm.linux.org.uk>
+References: <1079901914.17681.317.camel@imladris.demon.co.uk>
+ <20040321204931.A11519@infradead.org>
+ <1079902670.17681.324.camel@imladris.demon.co.uk>
+ <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org>
+ <20040321222327.D26708@flint.arm.linux.org.uk> <405E1859.5030906@pobox.com>
+ <20040321225117.F26708@flint.arm.linux.org.uk>
+ <Pine.LNX.4.58.0403211504550.1106@ppc970.osdl.org>
+ <405E23A5.7080903@pobox.com>
+ <Pine.LNX.4.58.0403211542051.1106@ppc970.osdl.org>
+ <20040321235854.H26708@flint.arm.linux.org.uk>
+X-Mailer: Mulberry/3.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Mar 2004 06:41:24 +0100
-Sam Ravnborg <sam@ravnborg.org> wrote:
+--On 21 March 2004 23:58 +0000 Russell King <rmk+lkml@arm.linux.org.uk>
+wrote:
 
-> On Mon, Mar 22, 2004 at 01:16:29PM -0800, cliff white wrote:
-> > 
-> > Hi Sam, 
-> > randy dunlap is on vacation this week, 
-> > (and i was last week ) so i am trying to get a resolution to
-> > the parallel make problem.
-> > 
-> > Tested your patch below and it didn't help us. The patch doesn't
-> > apply clean past 2.6.4-mm1.
-> > 
-> > We now see this exact failure against 2.6.5-rc1 for our 8-way machines,
-> > so we have much concern. 
-> > 
-> > Is there another fix around we could try?
+> On Sun, Mar 21, 2004 at 03:51:31PM -0800, Linus Torvalds wrote:
+>> That might be the minimal fix, since it would basically involve:
+>>  - change whatever offensive "virt_to_page()" calls into 
+>>    "dma_map_to_page()".
+>>  - implement "dma_map_to_page()" for all architectures.
+>> 
+>> Would that make people happy?
 > 
-> I've updated the patch since, and it is now in Linus latest - thanks to Andrew.
-> A good sign you do not have the latest version is the fact that you still
-> refer to fixdep in scripts/ (my bad in the frst version).
-> Could you either try with Linus latest, or at least take a verbatim copy
-> of the Makefile from there.
-> 
-> I have reports of succes with make -j10 from others.
-> 
-> If it still fails please mail me the output without and with V=1,
-> then I will dig into it.
+> Unfortunately this doesn't make dwmw2 happy - he claims to have machines
+> which implement dma_alloc_coherent using RAM which doesn't have any
+> struct page associated with it.
 
-Everything's happy on the STP machines. 
-2.6.5-rc2 and 2.6.5-rc2-mm1 compiled just fine on the 8-ways.
-Thanks 
-cliffw
+Would it not be possible to allocate struct page's for these special areas
+of memory?  Worst, worst, worst case could they not represent pages in a
+memory only node in the NUMA sense?  I am sure there is some way they could
+be 'tacked' onto the end of the cmap in reality?
 
-> 
-> 	Sam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
--- 
-The church is near, but the road is icy.
-The bar is far, but i will walk carefully. - Russian proverb
+-apw

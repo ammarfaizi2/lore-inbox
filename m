@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbTIONtS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 09:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbTIONtS
+	id S261359AbTIONxG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 09:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbTIONxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 09:49:18 -0400
-Received: from lightning.hereintown.net ([141.157.132.3]:29326 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id S261355AbTIONsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 09:48:18 -0400
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-From: Chris Meadors <twrchris@hereintown.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3F65B2BD.9000206@cyberone.com.au>
-References: <200309151146.h8FBkXcw001170@81-2-122-30.bradfords.org.uk>
-	 <3F65B2BD.9000206@cyberone.com.au>
-Content-Type: text/plain
-Message-Id: <1063633563.215.16.camel@clubneon.priv.hereintown.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 15 Sep 2003 09:46:04 -0400
+	Mon, 15 Sep 2003 09:53:06 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:1152 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id S261359AbTIONxB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 09:53:01 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19ytiD-0003Re-Ty*onm0/2n.i6Q*
+Message-ID: <16229.50231.715275.197988@laputa.namesys.com>
+Date: Mon, 15 Sep 2003 17:52:55 +0400
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: Oleg Drokin <green@namesys.com>, reiserfs-dev@namesys.com,
+       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: reiser4 snapshot 20030905 [OOPS]
+In-Reply-To: <Pine.LNX.4.51.0309151249310.1934@dns.toxicfilms.tv>
+References: <20030826102233.GA14647@namesys.com>
+	<Pine.LNX.4.51.0309151249310.1934@dns.toxicfilms.tv>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-15 at 08:38, Nick Piggin wrote:
+Maciej Soltysiak writes:
+ > Hi,
+ > 
+ > I compiled the kernel (2.6.0-test5) without key_large support
+ > I attached a disk /dev/hda (I'm booting off /dev/hdb)
+ > 
+ > # mkfs.reiser4 /dev/hda1
+ > Went ok
+ > 
+ > # mount -t reiser4 /dev/hda1 /1
+ > And here's the output. It seems unsupported keys cause null pointer
+ > dereference.
 
-> OK, the reason why I don't like the sound of this is because the size
-> of your option set has now been squared, and its no longer "make these
-> CPUs work".
+This is known problem. Actually, reiser4 mount function cannot handle
+errors very well at the moment.
 
-The way I see the config option working is, having a sub-menu that says
-something like, "Select the CPU the kernel will be run on."  From there
-you can pick one CPU.  This sets the in kernel optimizations for that
-CPU, along with the work arounds (obviously).  It also sets the compiler
-flags for the padding, and "-march=[CPU]".  Then in a sub-menu of this
-menu, there is an "Advanced processor selection".  The help text would
-be something like, "In addition to the primary processor selected above,
-also allow this kernel to be booted on the processors selected below. 
-Selecting this option disables some of the optimizations for the primary
-processor."  Just turning on that option would change the "-march=" to
-"-mcpu=".  Then in the menu one could select from any of the CPUs
-listed.  Each one would enable the work around code to allow the built
-kernel to run correctly on a machine with a different CPU.
+ > 
+ > reiser4[mount(1504)]: get_ready_format40 (fs/reiser4/plugin/disk_format/disk_format40.c:229)[nikita-3228]:
+ > WARNING: Key format mismatch. Only small keys are supported.
+ > Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ >  printing eip:
 
-I see this as sort of like the advanced partition selection, or the
-compiled in fonts.
+[...]
 
-> I can see an argument for cache line size but thats about it. I can't
-> think of my optimisations that should be done on one architecture but
-> not another.
+ >  [<c0109089>] sysenter_past_esp+0x52/0x71
+ > 
 
-Don't forget the compiler optimization flags.  A kernel built with
-"-march" may not run on any other CPUs.
-
--- 
-Chris
-
+Nikita.

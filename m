@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274368AbRIYBgG>; Mon, 24 Sep 2001 21:36:06 -0400
+	id <S274372AbRIYBh4>; Mon, 24 Sep 2001 21:37:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274369AbRIYBf5>; Mon, 24 Sep 2001 21:35:57 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:11012 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S274368AbRIYBfq>;
-	Mon, 24 Sep 2001 21:35:46 -0400
-Date: Mon, 24 Sep 2001 22:35:53 -0300 (BRST)
+	id <S274377AbRIYBhl>; Mon, 24 Sep 2001 21:37:41 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4880 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S274372AbRIYBhZ>; Mon, 24 Sep 2001 21:37:25 -0400
+Date: Mon, 24 Sep 2001 19:03:20 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10 much better than previous 2.4.x :-)
-In-Reply-To: <1001377785.1430.7.camel@gromit.house>
-Message-ID: <Pine.LNX.4.33L.0109242234410.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Olivier Sessink <olivier@lx.student.wau.nl>
+Cc: <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: weird memory related problems, negative memory usage or fake
+ memory usage?
+In-Reply-To: <20010924233139.A14548@fender.fakenet>
+Message-ID: <Pine.LNX.4.33L.0109241900550.1864-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Sep 2001, Michael Rothwell wrote:
+[Andrea, please read this bugreport ...]
 
-> This is mainly a thank you for 2.4.10. It performs much better than
-> 2.4.7 (RedHat version), from which I upgraded. Interactive performance
-> for applications (Gnome, Evolution, Mozilla) is much improved,
+On Mon, 24 Sep 2001, Olivier Sessink wrote:
 
-If you have the time, could you also test 2.4.9-ac15 ?
+> after upgrade from 2.4.10pre8 to 2.4.10 I have weird problems,
+> Xfree sometimes shows up with 99.9% memory in top (on a box with
+> 512 mb), and in ps axl it has 4294989036 in the RSS column. When
+> this happens the box starts to kill some processes, starts
+> heavily swapping (top reports > 400MB in the cache, but the
+> machine is heavily swapping!!!) and is completely unusable.
 
-(The -ac VM has basically branched off at 2.4.7 and has
-evolved quite a bit since ... last week I fixed a stupid
-page aging bug and things should be a lot better than
-before now)
+> Since this makes the machine completely unusable, and since it is not
+> happening on 2.4.10pre8 I guess it is a bug ;-)
 
-regards,
+>   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+>  1262 root       5 -10 50764  -1M  1320 S <   2.7 99.9   0:01 XFree86
+
+
+It seems Andrea wasn't careful with the merge and
+backed out some of the locking wrt mm->rss.
+
+Andrea, you may want to spend some time auditing
+your VM like has been done with the other 2.4 VM.
+
+cheers,
 
 Rik
--- 
-IA64: a worthy successor to i860.
+--
+IA64: a worthy successor to the i860.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+
 

@@ -1,74 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292628AbSCDRnx>; Mon, 4 Mar 2002 12:43:53 -0500
+	id <S292595AbSCDRpv>; Mon, 4 Mar 2002 12:45:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292589AbSCDRl4>; Mon, 4 Mar 2002 12:41:56 -0500
-Received: from mnh-1-24.mv.com ([207.22.10.56]:46597 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S292599AbSCDRlI>;
-	Mon, 4 Mar 2002 12:41:08 -0500
-Message-Id: <200203041742.MAA02717@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages 
-In-Reply-To: Your message of "Mon, 04 Mar 2002 15:09:45 GMT."
-             <E16hu5x-0007zd-00@the-village.bc.nu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 04 Mar 2002 12:42:43 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S292594AbSCDRpn>; Mon, 4 Mar 2002 12:45:43 -0500
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:43141 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S292632AbSCDRpS>;
+	Mon, 4 Mar 2002 12:45:18 -0500
+Message-ID: <3C83B2A6.2010200@candelatech.com>
+Date: Mon, 04 Mar 2002 10:45:10 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Hirling Endre <endre@interware.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: recommended gigabit card for dot1q?
+In-Reply-To: <Pine.LNX.4.44.0203041827430.1157-100000@dusk.interware.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan@lxorguk.ukuu.org.uk said:
-> That is what mmap defines for a file based mapping yes. Thats a case
-> where there isnt much else you can do 
+Check out the VLAN mailing list archives...there have
+been some success stories there with gigabit nics:
 
-Except the whole point of me starting this thread is that there is something
-sane that UML can do *if* it can trap those bus errors in a controlled way.
+http://www.candelatech.com/~greear/vlan.html
 
-If UML can detect pages which tmpfs can't back as they leave the allocator,
-then it can prevent the rest of the UML kernel from getting randomly SIGBUSed
-as it touches those pages.
+Hirling Endre wrote:
 
-To recap in case it got lost in the confusion, I want __alloc_pages to call
-an arch hook before it return memory, turning every instance of
+> Hello,
+> 
+> I have to upgrade one of our linux-based routers to gigabit. What GE
+> card do you recommend for using with dot1q vlans? I tried a D-Link one
+> (DGE550SX, based on a Level1 chip) and an Intel one that works with the
+> e1000 driver, but I couldn't set up vlans properly with either of these.
+> 
+> thanks in advance
+> endre
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-	if (page)
-		return page;
 
-into
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-	if (page)
-		return arch_validate(page);
-
-Unless the arch defines its own arch_validate(), a generic header would
-define it as
-
-	static inline arch_validate(struct page_struct *page){ return page; }
-
-or the equivalent macro.
-
-On the other hand, UML would define it to touch each page in the allocation,
-trapping SIGBUS there.  If any do SIGBUS, then my orginal proposal was to 
-free the block back to the allocator and return NULL.  This would cause a
-flurry of allocation failures to things that weren't willing to sleep, and
-if that causes trouble, then the caller needed fixing anyway.
-
-A more interesting idea is to hang on to the block and maybe unmap it.  
-Umapping would free any backed pages in the block back to tmpfs, giving it 
-(and the other UMLs, if any) some breathing room.  Even if the entire block
-was unbacked, the UML would lose it as being allocatable and would eventually
-be restricted to handing out pages that it had managed to touch before tmpfs
-ran out.
-
-This is way more sane than the current get-a-SIGBUS-someplace-random-and-panic
-situation I have now.
-
-Given that we are talking about tmpfs running out of space, the host still
-has plenty of free memory, and UML kernel stacks can receive the SIGBUS
-(because they've been allocated with this mechanism), is this still 
-objectionable?
-
-				Jeff
 

@@ -1,48 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312235AbSDEHEy>; Fri, 5 Apr 2002 02:04:54 -0500
+	id <S312353AbSDEHaT>; Fri, 5 Apr 2002 02:30:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312332AbSDEHEn>; Fri, 5 Apr 2002 02:04:43 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:41878 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S312235AbSDEHEf>; Fri, 5 Apr 2002 02:04:35 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Date: Fri, 5 Apr 2002 17:07:15 +1000 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15533.19747.471321.592478@notabene.cse.unsw.edu.au>
-Subject: 2.5.7 Rules.make change break nfsd.
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	id <S312350AbSDEHaJ>; Fri, 5 Apr 2002 02:30:09 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:23795 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S312348AbSDEH3w> convert rfc822-to-8bit; Fri, 5 Apr 2002 02:29:52 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <rmk@arm.linux.org.uk>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1025) - Licensed Version
+Date: Thu, 4 Apr 2002 23:29:49 -0800
+In-Reply-To: <20020404134046.H27376@flint.arm.linux.org.uk>
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20020405072951.AAA8697@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-2.5.7 introduces:
+>A GPL library can only be linked with other GPL-compatible code.
 
--------------------------------------------------------------
-#
-# Rule to link composite objects
-#
+	Where in the GPL did you find this provision?!
 
-# for make >= 3.78 the following is cleaner:
-# multi-used := $(foreach m,$(obj-y) $(obj-m), $(if $($(basename $(m))-Objs), $(m)))
-multi-used := $(sort $(foreach m,$(obj-y) $(obj-m),$(patsubst %,$(m),$($(basename $(m))-objs))))
-                                                                      ^^^^^^^^^^^^^^^^^^^^^^^
-ld-multi-used := $(filter-out $(list-multi),$(multi-used))
-ld-multi-objs := $(foreach m, $(ld-multi-used), $($(basename $(m))-objs))
-------------------------------------------------------------
+	DS
 
 
-If the basename of some object is "export" (i.e. export.o), then the
-underlined section referes to "export-objs" which is a macro that
-already has a well defined meaning.
-
-Maybe it should be "-Objs" or "-components" or ...
-
-NeilBrown

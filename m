@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288675AbSA3Gvq>; Wed, 30 Jan 2002 01:51:46 -0500
+	id <S288686AbSA3HAg>; Wed, 30 Jan 2002 02:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288685AbSA3Gvg>; Wed, 30 Jan 2002 01:51:36 -0500
-Received: from pool-151-204-77-12.delv.east.verizon.net ([151.204.77.12]:58376
-	"EHLO trianna.2y.net") by vger.kernel.org with ESMTP
-	id <S288675AbSA3Gv0>; Wed, 30 Jan 2002 01:51:26 -0500
-Date: Wed, 30 Jan 2002 01:50:40 -0500
-From: Malcolm Mallardi <magamo@ranka.2y.net>
-To: linux-kernel@vger.kernel.org
-Subject: Netfilter(MASQ) and PPPoE problem? (2.4.17)
-Message-ID: <20020130015040.A19998@trianna.upcommand.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S288716AbSA3HAR>; Wed, 30 Jan 2002 02:00:17 -0500
+Received: from waste.org ([209.173.204.2]:50322 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S288686AbSA3HAI>;
+	Wed, 30 Jan 2002 02:00:08 -0500
+Date: Wed, 30 Jan 2002 01:00:04 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6 
+In-Reply-To: <E16Vir4-0005rs-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.4.44.0201292328530.25123-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Heyla, folks.  I've got an interesting little report for y'all,
-was hoping to get a bit more insight, 'cause I'm rather stumped on it,
-and can't really make heads or tails of it.  I've got a DSL with PPPoE
-set up on the router (running 2.4.17, with NAT) and seem to be having
-problems getting to web sites from client machines behind the firewall.
+On Wed, 30 Jan 2002, Rusty Russell wrote:
 
-	What makes it so curious is that this happens with only a
-selection of web servers out there, though the number for me seems to be
-growing, unfortunately.
-	When I use Lynx from the router, I can get to any site out
-there on the Internet that I choose.  My fire walling rules are simple:
-Accepts everything incoming, and outgoing, and masquerades anything
-going out from the LAN to the world beyond through the interfaces of
-ppp0 and ppp1 (ppp0 being the PPPoE interface through eth1, ppp1 being
-the 'backup' dial-up service.)
-	The other curious thing is when I route traffic to a troubled
-site through the modem interface (ppp1), I can access things just fine.
+> In message <Pine.LNX.4.44.0201291813110.25443-100000@waste.org> you write:
+>
+> > Nearly as good would be replacing the current logic for figuring out the
+> > current processor id through current with logic to access the per-cpu
+> > data. The primary use of that id is indexing that data anyway.
+>
+> And if you'd been reading this thread, you would have already seen
+> this idea, and if you'd read the x86 code, you'd have realised that
+> the tradeoff is arch-specific.
 
-	After wading through some packet captures targeting this
-problem, I've noticed that when sending a request from one of the
-machines behind the NAT box, the standard handshake is processed, then
-the HTTP get is sent, and the connection is dropped immediately, but
-from the NAT box itself, there's an ACK sent, then the Web server sends
-the information with a HTTP/200 response.
-	
-	I've been trying to puzzle this out for weeks, and due to all
-the mitigating factors, the only theory that I can come up with is a
-possible bug in the interaction between MASQ and PPPoE, as switching to
-the straight PPP account works just fine.
+This 'thread' as you call it began with the message I replied to. Nor can
+I find any other reference to the idea on recent threads relating to
+per_cpu on this list.
+
+Looking closer, I've found an issue with your patch related to the above,
+so I think it bears closer examination. The common case is of course to
+access data for the current CPU, either by dedicated register on non-x86
+as you've mentioned, or a scheme like I proposed, which works out
+something like this:
+
+#define per_cpu_offset(cpu) (current->per_cpu_offset)
+#define smp_processor_id() (per_cpu(current_processor_id,0))
+
+The problem is that either of these schemes don't let you get at the data
+on anything but the current processor, because per_cpu would be per-force
+ignoring its CPU argument to actually take advantage of the convenient
+pointer/register. What is needed is an additional this_cpu interface that
+looks generically something like this:
+
+#define this_cpu(var)
+(*(__typeof__(&var)((void *)&var + per_cpu_offset(smp_processor_id()))))
+
+and on x86 something like this:
+
+#define this_cpu(var)
+(*(__typeof__(&var)((void *)&var + current->per_cpu_offset)))
+#define smp_processor_id() (this_cpu(current_processor_id))
+
+I suspect in practice the lack of a this_cpu style interface would be a
+great nuisance, given that it's _the common case by definition_. Reviewing
+the other arches in the main tree, going through current seems to _always_
+be better than indexing __per_cpu_offset for the common case because all
+arches except SPARC look in current for the processor id and SPARC already
+has a register for current. And there have been various suggestions for
+fitting current into special registers on x86 as well.
+
+(While it's obviously possible to extend the task struct to hold both the
+offset and the processor id, it seems that the main use of the
+smp_processor_id is looking up per-cpu data and that it should largely
+disappear once a per_cpu/this_cpu framework is in use. And updating both
+on moving between processors would then seem pointless.)
 
 --
-Malcolm D. Mallardi - Dark Freak At Large
-"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
-AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
-http://ranka.2y.net:3000/~magamo/index.htm
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

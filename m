@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287596AbSBRVTc>; Mon, 18 Feb 2002 16:19:32 -0500
+	id <S287658AbSBRVYW>; Mon, 18 Feb 2002 16:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287306AbSBRVTN>; Mon, 18 Feb 2002 16:19:13 -0500
-Received: from quechua.inka.de ([212.227.14.2]:13084 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S286590AbSBRVTK>;
-	Mon, 18 Feb 2002 16:19:10 -0500
-From: Bernd Eckenfels <ecki-news2002-02@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ARP timeout value, why 1 minute ?
-In-Reply-To: <E16ckba-0001mi-00@mcclure.tinet.ie>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E16cvBl-0007ul-00@sites.inka.de>
-Date: Mon, 18 Feb 2002 22:19:09 +0100
+	id <S287565AbSBRVYM>; Mon, 18 Feb 2002 16:24:12 -0500
+Received: from adsl-63-200-86-10.dsl.scrm01.pacbell.net ([63.200.86.10]:19664
+	"EHLO frx774.dhs.org") by vger.kernel.org with ESMTP
+	id <S287631AbSBRVX7>; Mon, 18 Feb 2002 16:23:59 -0500
+From: Jesse Wyant <jrwyant@frx774.dhs.org>
+Message-Id: <200202182123.g1ILNGS27486@frx774.dhs.org>
+Subject: Re: 2.5.4 make errorf
+To: lee@imyourhandiman.com (lee johnson)
+Date: Mon, 18 Feb 2002 13:23:16 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org (kernel-list)
+In-Reply-To: <1013744965.21906.8.camel@imyourhandiman> from "lee johnson" at Feb 14, 2002 07:49:24 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E16ckba-0001mi-00@mcclure.tinet.ie> you wrote:
-> and early version of Linux. But from a certain point, Linux(only?) changed from 20 minutes to one minute. This changes the system configuration to shorten the ARP expiration timer to one minute instead of the default 20 minutes. 
 
-> Why was it changed to 1 minute ? 
+> hi..
+> 
+>    anyone actually getting 2.5.4 to make without errors...mine starts
+> and ends fairly abruptly..I thought it was a good idea due to hearing
+> alsa  is in 2.5.5 patch.
+> 
+> thx
+> lee
+> -===   
+> 
+> 
+> -------------------------------
+> In file included from /usr/src/linux-2.5.4/include/asm/thread_info.h:13,
+>                  from
+> /usr/src/linux-2.5.4/include/linux/thread_info.h:10,
+>                  from /usr/src/linux-2.5.4/include/linux/spinlock.h:7,
+>                  from /usr/src/linux-2.5.4/include/linux/mmzone.h:8,
+>                  from /usr/src/linux-2.5.4/include/linux/gfp.h:4,
+>                  from /usr/src/linux-2.5.4/include/linux/slab.h:14,
+>                  from /usr/src/linux-2.5.4/include/linux/proc_fs.h:5,
+>                  from init/main.c:15:
+> /usr/src/linux-2.5.4/include/asm/processor.h: In function
+> `thread_saved_pc':
+> /usr/src/linux-2.5.4/include/asm/processor.h:444: dereferencing pointer
+> to incomplete type
+> /usr/src/linux-2.5.4/include/asm/processor.h:445: warning: control
+> reaches end of non-void function
+> make: *** [init/main.o] Error 1
 
-Thei neighbouring subsystem of Linux 2.4 is a bit more "complex" than a simple
-timeout:
+I saw the same thing.  Poking around in 
+http://www.kernel.org/pub/linux/kernel/v2.5/testing/patch-2.5.5.log,
+I saw an entry where axboe@burns.home.kernel.dk fixed the
+thread_saved_pc function, where this compilation problem was occuring.
 
-/proc/sys/net/ipv4/neigh/default/anycast_delay:100
-/proc/sys/net/ipv4/neigh/default/app_solicit:0
-/proc/sys/net/ipv4/neigh/default/base_reachable_time:30
-/proc/sys/net/ipv4/neigh/default/delay_first_probe_time:5
-/proc/sys/net/ipv4/neigh/default/gc_interval:30
-/proc/sys/net/ipv4/neigh/default/gc_stale_time:60
-/proc/sys/net/ipv4/neigh/default/gc_thresh1:128
-/proc/sys/net/ipv4/neigh/default/gc_thresh2:512
-/proc/sys/net/ipv4/neigh/default/gc_thresh3:1024
-/proc/sys/net/ipv4/neigh/default/locktime:100
-/proc/sys/net/ipv4/neigh/default/mcast_solicit:3
-/proc/sys/net/ipv4/neigh/default/proxy_delay:80
-/proc/sys/net/ipv4/neigh/default/proxy_qlen:64
-/proc/sys/net/ipv4/neigh/default/retrans_time:100
-/proc/sys/net/ipv4/neigh/default/ucast_solicit:3
-/proc/sys/net/ipv4/neigh/default/unres_qlen:3
+I downloaded the 2.5.5-pre1 patch, applied it to 2.5.4, and compiled:
+problem solved.  (Once other thing: ALSA didn't show up in my 'menuconfig'
+display under Sound in 2.5.4, but it did in 2.5.5-pre1.)
 
-It is actually probing hosts on a regularbut random time. Multiple retries are
-done until a neighbour is marked as not reachable.
+-jesse
 
-If the kernel sends any payload packet to a host, a neighbour is in delay
-state, if the delay timer expires, it will suspect that something is not ok.
-It will send an arp request and go into probe state.
 
-This has the advantage, that as long as the system is up and used, the entry
-will never be expired, and as soon as it fails to respond, it will marked dead
-quickly. This will also affect all queued packets and all routes, so it can
-recover from an unreachable router. It is also not spamming the network with
-unneeded unicast or multicast arp requests, because normal payload ip packets
-are accounted.
-
-If you are curious what is going on try "/sbin/ip -s neigh"
-
-The times for an entry show "last used"/"last confirmed"/"last updated"
-
-Greetings
-Bernd
+Jesse Wyant - jrwyant@frx774.dhs.org
+------------------------------------------------------------
+That that is is that that is not is not.
 

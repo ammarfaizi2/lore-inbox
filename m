@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262970AbSJBFJQ>; Wed, 2 Oct 2002 01:09:16 -0400
+	id <S261629AbSJBF3p>; Wed, 2 Oct 2002 01:29:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262971AbSJBFJQ>; Wed, 2 Oct 2002 01:09:16 -0400
-Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:62104
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262970AbSJBFJP>; Wed, 2 Oct 2002 01:09:15 -0400
-Date: Wed, 2 Oct 2002 00:38:12 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5] sctp: possible sleep w/ lock held
-Message-ID: <Pine.LNX.4.44.0210020036320.32388-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262971AbSJBF3p>; Wed, 2 Oct 2002 01:29:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:5866 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261629AbSJBF3o>;
+	Wed, 2 Oct 2002 01:29:44 -0400
+Date: Wed, 2 Oct 2002 07:35:00 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] deadline io scheduler
+Message-ID: <20021002053500.GJ5755@suse.de>
+References: <20020925172024.GH15479@suse.de> <20020930074519.B159@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020930074519.B159@toy.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.5.40/net/sctp/protocol.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.40/net/sctp/protocol.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 protocol.c
---- linux-2.5.40/net/sctp/protocol.c	1 Oct 2002 12:29:11 -0000	1.1.1.1
-+++ linux-2.5.40/net/sctp/protocol.c	2 Oct 2002 03:26:30 -0000
-@@ -119,8 +119,7 @@
- 
- 	for (ifa = in_dev->ifa_list; ifa; ifa = ifa->ifa_next) {
- 		/* Add the address to the local list.  */
--		/* XXX BUG: sleeping allocation with lock held -DaveM */
--		addr = t_new(struct sockaddr_storage_list, GFP_KERNEL);
-+		addr = t_new(struct sockaddr_storage_list, GFP_ATOMIC);
- 		if (addr) {
- 			INIT_LIST_HEAD(&addr->list);
- 			addr->a.v4.sin_family = AF_INET;
-@@ -157,8 +156,7 @@
- 	read_lock_bh(&in6_dev->lock);
- 	for (ifp = in6_dev->addr_list; ifp; ifp = ifp->if_next) {
- 		/* Add the address to the local list.  */
--		/* XXX BUG: sleeping allocation with lock held -DaveM */
--		addr = t_new(struct sockaddr_storage_list, GFP_KERNEL);
-+		addr = t_new(struct sockaddr_storage_list, GFP_ATOMIC);
- 		if (addr) {
- 			addr->a.v6.sin6_family = AF_INET6;
- 			addr->a.v6.sin6_port = 0;
+On Mon, Sep 30 2002, Pavel Machek wrote:
+> Hi!
+> 
+> > Due to recent "problems" (well the vm being just too damn good at keep
+> > disks busy these days), it's become even more apparent that our current
+> > io scheduler just cannot cope with some work loads. Repeated starvartion
+> > of reads is the most important one. The Andrew Morton Interactive
+> > Workload (AMIW) [1] rates the current kernel poorly, on my test machine
+> > it completes in 1-2 minutes depending on your luck. 2.5.38-BK does a lot
+> > better, but mainly because it's being extremely unfair. This deadline io
+> > scheduler finishes the AMIW in anywhere from ~0.5 seconds to ~3-4
+> > seconds, depending on the io load.
+> 
+> would it be possible to make deadlines per-process to introduce ionice?
+> 
+> ionice -n -5 mpg123 foo.mp3
+> ionice make
+
+Yes it would be possible, and at least for reads it doesn't require too
+many changes to the deadline scheduler. There's even someone working on
+it, expect something to play with soon. It bases the io priority on the
+process nice levels.
 
 -- 
-function.linuxpower.ca
+Jens Axboe
 

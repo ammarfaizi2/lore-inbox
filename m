@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUF0MsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbUF0MzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbUF0MsN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 08:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUF0MsN
+	id S262389AbUF0MzN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 08:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUF0MzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 08:48:13 -0400
-Received: from disk.smurf.noris.de ([192.109.102.53]:17559 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S262382AbUF0MsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 08:48:12 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Somebody filtered BK traffic from kernel.bkbits.net
-Date: Sun, 27 Jun 2004 14:45:37 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.06.27.12.45.37.541240@smurf.noris.de>
-NNTP-Posting-Host: kiste.smurf.noris.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Trace: server.smurf.noris.de 1088340337 4354 192.109.102.35 (27 Jun 2004 12:45:37 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Sun, 27 Jun 2004 12:45:37 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Sun, 27 Jun 2004 08:55:13 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:61389 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S262389AbUF0MzH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 08:55:07 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] Staircase scheduler v7.4
+Date: Sun, 27 Jun 2004 14:54:16 +0200
+User-Agent: KMail/1.6.2
+References: <200406251840.46577.mbuesch@freenet.de> <40DEB6CC.4030208@kolivas.org> <40DEB7B1.5010102@kolivas.org>
+In-Reply-To: <40DEB7B1.5010102@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406271454.32356.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pulling from kernel.bkbits.net is currently somewhat impossible:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-$ netstat -t
-tcp     0      1 kiste.smurf.noris:37668 kernel.bkbits.net:14690 SYN_SENT
+On Sunday 27 June 2004 14:04, you wrote:
+> Con Kolivas wrote:
+> > Here is an incremental patch from 2.6.7-staircase7.4 (without any later 
+> > changes) to staircase7.6 which I hope addresses your problem of no 
+> > timeslice tasks. Can you try it please? Sorry about the previous noise.
+> > 
+> > Con
+> > 
+> > P.S.
+> > Those with ck kernels I'm about to post another diff for -ck addressing 
+> > the same thing.
+> 
+> 
+> Eeek that one I posted _was_ the one for ck kernels. This is the one for 
+> vanilla kernels with staircase7.4. Crikey I'm having a blowout here.
 
-Port 80 works fine... so apparently somebody over-tightened some
-firewall's screws.
+No, sorry Con.
+The problem did not go away.
 
--- 
-Matthias Urlichs
+I just verified, that it definately is no issue with -bk7. So
+I patched a clean vanilla 2.6.7 to staircase-7.6.
+
+I just double verified that the patch is applied and the correct
+kernel is loaded.
+
+> Con
+> 
+
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA3sOFFGK1OIvVOP4RAkR1AKC/b04v2I5Dt2aoDRdTCiSwDSx7RQCfYJo2
+EA2yhCP0Jukv9VbeOjaUrvo=
+=WAYD
+-----END PGP SIGNATURE-----

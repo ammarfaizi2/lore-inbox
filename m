@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313593AbSDURWG>; Sun, 21 Apr 2002 13:22:06 -0400
+	id <S313595AbSDURUQ>; Sun, 21 Apr 2002 13:20:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313621AbSDURWF>; Sun, 21 Apr 2002 13:22:05 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:25250 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S313593AbSDURWE>;
-	Sun, 21 Apr 2002 13:22:04 -0400
-Date: Sun, 21 Apr 2002 13:22:03 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: phillips@bonn-fries.net
-Cc: linux-kernel@vger.kernel.org
+	id <S313598AbSDURUP>; Sun, 21 Apr 2002 13:20:15 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:43016 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S313595AbSDURUN>;
+	Sun, 21 Apr 2002 13:20:13 -0400
+Date: Sun, 21 Apr 2002 11:18:57 -0600
+From: yodaiken@fsmlabs.com
+To: Jochen Friedrich <jochen@scram.de>
+Cc: yodaiken@fsmlabs.com, Rik van Riel <riel@conectiva.com.br>,
+        Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
+        Jeff Garzik <garzik@havoc.gtf.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421132203.E4479@havoc.gtf.org>
-In-Reply-To: <20020421101731.D10525@work.bitmover.com>
+Message-ID: <20020421111857.A21339@hq.fsmlabs.com>
+In-Reply-To: <20020421074103.A18227@hq.fsmlabs.com> <Pine.LNX.4.44.0204211846370.18496-100000@alpha.bocc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> On Sunday 21 April 2002 18:57, Jeff Garzik wrote:
-> > On Sat, Apr 20, 2002 at 06:46:11PM +0200, Daniel Phillips wrote:
-> > > Let's pull back a little from the proselytizing, shall we?  I'll modify
-> > > my proposal to 'include just a pointer to the bk documentation in the
-> > > kernel tree itself'.  This should satisfy everybody.
+On Sun, Apr 21, 2002 at 06:50:39PM +0200, Jochen Friedrich wrote:
+> Hi,
+> 
+> > > So you're telling me that what I've been doing over the
+> > > last months really shouldn't have been possible ?
 > > 
-> > No, it doesn't.  It was put into the tree for convenience.
+> > What he is telling you is that people whose business is hidden 
+> > behind corporate firewalls so that they can make money with proprietary
+> > work, find it morally outrageous that other people don't give away all
+> > their work. 
 > 
-> How much less convenient is it to click on a link?  So much harder that it's
-> worth pissing off some key developers?
+> The main reason we use firewalls is to protect the privacy of user data. I 
+> don't think people would be very amused if they find their bank account 
+> numbers posted on the internet ;-)
 
-Linus has already explained why he put it into the kernel sources.
-
-And, who are these key developers you are speaking for?
-
-
-> > It therefore stands to reason that removing it creates inconvenience.
-> > Further, the only reason to remove it is ideology.  i.e. something
-> > other than technical merit.  So your proposal is still a no-go.
-> 
-> According to you, yes.  I'll leave it on the table.
-
-Linus has already explained he isn't applying your patch.
-
-	Jeff
+I don't care what information you keep private. I just find the 
+popular the "your work is free, but of course we are in a company" theory
+of business to be amusing. If you work at a bank, the decision on whether or
+not to purchase a bitkeeper license is a business decision that has nothing
+to do with the ideology of free software - unless you are some new type of
+bank that is in business to do good.
 
 
+
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

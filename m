@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263148AbTCWTO4>; Sun, 23 Mar 2003 14:14:56 -0500
+	id <S263099AbTCWTN7>; Sun, 23 Mar 2003 14:13:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263149AbTCWTO4>; Sun, 23 Mar 2003 14:14:56 -0500
-Received: from mail0.mx.voyager.net ([216.93.66.205]:61200 "EHLO
-	mail0.mx.voyager.net") by vger.kernel.org with ESMTP
-	id <S263148AbTCWTOy>; Sun, 23 Mar 2003 14:14:54 -0500
-Message-ID: <3E7E0A73.3D00B9CB@megsinet.net>
-Date: Sun, 23 Mar 2003 13:26:43 -0600
-From: "M.H.VanLeeuwen" <vanl@megsinet.net>
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.5.65 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: mflt1@micrologica.com.hk, ambx1@neo.rr.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ISAPNP BUG: 2.4.65 ne2000 driver w. isapnp not working
-References: <3E7DE01B.2B6985DF@megsinet.net> <1048443865.10727.36.camel@irongate.swansea.linux.org.uk>
+	id <S263148AbTCWTN7>; Sun, 23 Mar 2003 14:13:59 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34308 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S263099AbTCWTN6>; Sun, 23 Mar 2003 14:13:58 -0500
+Date: Sun, 23 Mar 2003 20:25:03 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, Pavel Machek <pavel@ucw.cz>,
+       szepe@pinerecords.com, arjanv@redhat.com, alan@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ptrace hole / Linux 2.2.25
+Message-ID: <20030323192503.GA14181@atrey.karlin.mff.cuni.cz>
+References: <200303171604.h2HG4Zc30291@devserv.devel.redhat.com> <1047923841.1600.3.camel@laptop.fenrus.com> <20030317182040.GA2145@louise.pinerecords.com> <20030317182709.GA27116@gtf.org> <20030321211708.GC12211@zaurus.ucw.cz> <20030323110052.5267cba8.skraw@ithnet.com> <3E7DB99B.5050509@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3E7DB99B.5050509@pobox.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> On Sun, 2003-03-23 at 16:26, M.H.VanLeeuwen wrote:
-> > NE2k ISAPNP broke around 2.5.64, again.  There are 2 parts to the attached
-> > patch, one to move the NIC initialization earlier in the boot sequence
-> > and the second is a HACK to get ne2k to work when compiled into the
-> > kernel, I've never tried NE2k as a module...
-> >
-> > 1. The level of isapnp_init was moved to after apci.  Since it is now
-> >    after net_dev_init, ISA PNP NICs fail to initialized at boot.
-> >
-> >    This fix allows ISA PNP NIC cards to work during net_dev_init, and still
-> >    leaves isapnp_init after apci_init.
-> 
-> We must initialise ACPI before ISAPnP because we need PCI and ACPI to
-> know what system resources we must not hit. How about moving the
-> net_dev_init to later ?
+Hi Jeff!
 
-Here is the ordering of initcall from System.map file w/ my change.
-I take it that you want isapnp_init after pci*_init also, or is it sufficient
-like it is, after the acpi*_init?
+> I think you misunderstand my point:  there was a patch posted which 
+> fixes the ptrace issue.  If you want to fix your kernel, there are two 
+> options:  either you are capable enough apply that patch yourself, 
+> otherwise get a kernel update from a vendor.
 
-c0410f30 t __initcall_init_bio
-c0410f34 t __initcall_acpi_init
-c0410f38 t __initcall_acpi_ec_init
-c0410f3c t __initcall_acpi_pci_root_init
-c0410f40 t __initcall_acpi_pci_link_init
-c0410f44 t __initcall_acpi_power_init
-c0410f48 t __initcall_acpi_system_init
-c0410f4c t __initcall_acpi_event_init
-c0410f50 t __initcall_acpi_scan_init
-c0410f54 t __initcall_pnp_init
-c0410f58 t __initcall_pnp_system_init
-c0410f5c t __initcall_isapnp_init   <<<<<< patch moved it here <<<
-c0410f60 t __initcall_device_init
-c0410f64 t __initcall_deadline_slab_setup
-c0410f68 t __initcall_pci_acpi_init
-c0410f6c t __initcall_pci_legacy_init
-c0410f70 t __initcall_pcibios_irq_init
-c0410f74 t __initcall_pcibios_init
-c0410f78 t __initcall_net_dev_init
-c0410f7c t __initcall_init_8259A_devicefs
+Sorry, but you seem to forget that a significant amount of people use
+kernel.org kernels, but don't monitor LKML nor are able to choose from
+the various patches floating there the most appropriate fix.
 
-Or is this not the place to see initcall ordering?
+If 2.4.21 were expected in a few days, it would make sense to delay the
+fix, but this doesn't seem to be the case, so I think that a hot-fix
+really should be released quickly (either as 2.4.20.1 or 2.4.21)
 
-Looking into moving net_dev_init to later...
-Martin
+> As for Alan, his task was easier:  Guess how many patches are in 2.2.25? 
+>  One.  ;-)
+
+And why couldn't it be the same for 2.4.21?
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+The better the better, the better the bet.

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129181AbRBHPKA>; Thu, 8 Feb 2001 10:10:00 -0500
+	id <S129051AbRBHPV5>; Thu, 8 Feb 2001 10:21:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130201AbRBHPJu>; Thu, 8 Feb 2001 10:09:50 -0500
-Received: from smtp1.free.fr ([212.27.32.5]:58888 "EHLO smtp1.free.fr")
-	by vger.kernel.org with ESMTP id <S129181AbRBHPJf>;
-	Thu, 8 Feb 2001 10:09:35 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Multiple PPP sessions w/o load balancing, possible ?
-Message-ID: <981644973.3a82b6add1bb1@imp.free.fr>
-Date: Thu, 08 Feb 2001 16:09:33 +0100 (MET)
-From: Bastien Nocera <hadess@hadess.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 194.237.142.100
+	id <S130533AbRBHPVr>; Thu, 8 Feb 2001 10:21:47 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:25354 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S129290AbRBHPVh>;
+	Thu, 8 Feb 2001 10:21:37 -0500
+Date: Thu, 8 Feb 2001 16:20:30 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: ARND BERGMANN <std7652@et.FH-Osnabrueck.DE>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: epic100 in current -ac kernels
+Message-ID: <20010208162030.A9703@se1.cogenit.fr>
+In-Reply-To: <Pine.GSO.4.21.0102081111160.10104-100000@gamma10>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <Pine.GSO.4.21.0102081111160.10104-100000@gamma10>
+X-Organisation: Marie's fan club
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ARND BERGMANN <std7652@et.FH-Osnabrueck.DE> écrit :
+> There seems to be some movement in the driver and the latest one
+> is not working for me (again), so I'm giving a subjective status report
+> for the versions I have tried lately:
+> 
+> Working epic100 drivers:
+>  - 2.4.0
+>  - 2.4.0-ac9
 
-Sorry if my question is out of the scope of lkml. If you know a better place for 
-this, please tell me.
+Could you give a look at ac12 (fine here) ?
 
-The problem is:
-We (me and my work colleagues) need to setup some heavy testing of a 
-telecom network. Right now, we are using a laptop and a mobile phone for each 
-ppp session we want to setup.
 
-The idea was that we could ease the setup of this test by using one laptop, 
-running multiple ppp sessions, using 2 quad serial port pcmcia cards and 
-starting up 9 ppp sessions (2x4 on the serial card + 1 mobo port) each one on 
-one of the 9 phones.
-
-My idea was to have one IP address to contact per interface and add the proper 
-routing so that creating traffic to an IP address would automatically go to one 
-interface. The problem is that we're not able to make any changes to the already 
-in place servers.
-
-So, to make a long story short, we need to simulate 9 laptops+mobile phones with 
-1 laptop, 2 serial cards and 9 phones.
-I'll repeat that to be sure. We know how to setup the cards, the ppp sessions, 
-but not how to create traffic on one specific interface without using load 
-balancing or multiple target IP addresses.
-
-If anybody can help, I'll be grateful (and my boss as well =).
-
-Cheers
-
-/Bastien Nocera
-http://hadess.net
+-- 
+Ueimor <romieu@cogenit.fr>
+Cogenit                                  Tél : +33 (0) 1 40 20 08 43
+53 rue Sainte Anne                       Fax : +33 (0) 1 40 20 08 45
+75002 Paris                              <URL:http://www.cogenit.fr>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

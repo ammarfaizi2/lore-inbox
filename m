@@ -1,100 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbVBBEIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVBBEAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262255AbVBBEIs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 23:08:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbVBBDDC
+	id S262214AbVBBEAc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 23:00:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVBBDDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 22:03:02 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:24556 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262224AbVBBCts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 21:49:48 -0500
-Date: Tue, 1 Feb 2005 18:49:19 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page fault scalability patch V16 [3/4]: Drop page_table_lock in
- handle_mm_fault
-In-Reply-To: <1107308498.5131.28.camel@npiggin-nld.site>
-Message-ID: <Pine.LNX.4.58.0502011843570.6511@schroedinger.engr.sgi.com>
-References: <41E5B7AD.40304@yahoo.com.au>  <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
-  <41E5BC60.3090309@yahoo.com.au>  <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
-  <20050113031807.GA97340@muc.de>  <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
-  <20050113180205.GA17600@muc.de>  <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
-  <20050114043944.GB41559@muc.de>  <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
-  <20050114170140.GB4634@muc.de>  <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
-  <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com> 
- <41FF00CE.8060904@yahoo.com.au>  <Pine.LNX.4.58.0502011047330.3205@schroedinger.engr.sgi.com>
-  <1107304296.5131.13.camel@npiggin-nld.site> 
- <Pine.LNX.4.58.0502011718240.5549@schroedinger.engr.sgi.com>
- <1107308498.5131.28.camel@npiggin-nld.site>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Feb 2005 22:03:41 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:2954 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262231AbVBBCvs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 21:51:48 -0500
+Date: Wed, 2 Feb 2005 11:51:42 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc2 09/29] ide: __ide_do_rw_disk() lba48 dma check fix
+Message-ID: <20050202025142.GJ621@htj.dyndns.org>
+References: <20050202024017.GA621@htj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050202024017.GA621@htj.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005, Nick Piggin wrote:
+> 09_ide_do_rw_disk_lba48_dma_check_fix.patch
+> 
+> 	In __ide_do_rw_disk(), the shifted block, instead of the
+> 	original rq->sector, should be used when checking range for
+> 	lba48 dma.
 
-> Well yeah, but the interesting case is when that isn't a lock ;)
->
-> I'm not saying what you've got is no good. I'm sure it would be fine
-> for testing. And if it happens that we can do the "page_count doesn't
-> mean anything after it has reached zero and been freed. Nor will it
-> necessarily be zero when a new page is allocated" thing without many
-> problems, then this may be a fine way to do it.
->
-> I was just pointing out this could be a problem without putting a
-> lot of thought into it...
 
-Surely we need to do this the right way. Do we really need to
-use page_cache_get()? Is anything relying on page_count == 2 of
-the old_page?
+Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-I mean we could just speculatively copy, risk copying crap and
-discard that later when we find that the pte has changed. This would
-simplify the function:
 
-Index: linux-2.6.10/mm/memory.c
+Index: linux-ide-export/drivers/ide/ide-disk.c
 ===================================================================
---- linux-2.6.10.orig/mm/memory.c	2005-02-01 18:10:46.000000000 -0800
-+++ linux-2.6.10/mm/memory.c	2005-02-01 18:43:08.000000000 -0800
-@@ -1323,9 +1323,6 @@ static int do_wp_page(struct mm_struct *
- 	/*
- 	 * Ok, we need to copy. Oh, well..
- 	 */
--	if (!PageReserved(old_page))
--		page_cache_get(old_page);
--
- 	if (unlikely(anon_vma_prepare(vma)))
- 		goto no_new_page;
- 	if (old_page == ZERO_PAGE(address)) {
-@@ -1336,6 +1333,10 @@ static int do_wp_page(struct mm_struct *
- 		new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
- 		if (!new_page)
- 			goto no_new_page;
-+		/*
-+		 * No page_cache_get so we may copy some crap
-+		 * that is later discarded if the pte has changed
-+		 */
- 		copy_user_highpage(new_page, old_page, address);
+--- linux-ide-export.orig/drivers/ide/ide-disk.c	2005-02-02 10:27:15.819213531 +0900
++++ linux-ide-export/drivers/ide/ide-disk.c	2005-02-02 10:28:03.898413061 +0900
+@@ -132,7 +132,7 @@ ide_startstop_t __ide_do_rw_disk (ide_dr
+ 	nsectors.all		= (u16) rq->nr_sectors;
+ 
+ 	if (hwif->no_lba48_dma && lba48 && dma) {
+-		if (rq->sector + rq->nr_sectors > 1ULL << 28)
++		if (block + rq->nr_sectors > 1ULL << 28)
+ 			dma = 0;
  	}
- 	/*
-@@ -1352,7 +1353,6 @@ static int do_wp_page(struct mm_struct *
- 			acct_update_integrals();
- 			update_mem_hiwater();
- 		} else
--
- 			page_remove_rmap(old_page);
- 		break_cow(vma, new_page, address, page_table);
- 		lru_cache_add_active(new_page);
-@@ -1363,7 +1363,6 @@ static int do_wp_page(struct mm_struct *
- 	}
- 	pte_unmap(page_table);
- 	page_cache_release(new_page);
--	page_cache_release(old_page);
- 	spin_unlock(&mm->page_table_lock);
- 	return VM_FAULT_MINOR;
-
+ 

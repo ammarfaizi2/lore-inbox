@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266457AbUIONx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266391AbUIONnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266457AbUIONx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 09:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266386AbUIONvz
+	id S266391AbUIONnf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 09:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUIONmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 09:51:55 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:59841 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266459AbUIONty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 09:49:54 -0400
-Subject: Re: truncate shows non zero data beyond the end of the inode with
-	MAP_SHARED
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, an.li.wang@intel.com
-In-Reply-To: <20040915122920.GA4454@dualathlon.random>
-References: <20040915122920.GA4454@dualathlon.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095252382.19921.46.camel@localhost.localdomain>
+	Wed, 15 Sep 2004 09:42:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5803 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266357AbUIONkV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 09:40:21 -0400
+Date: Wed, 15 Sep 2004 09:40:09 -0400
+From: Dave Jones <davej@redhat.com>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] tune vmalloc size
+Message-ID: <20040915134008.GA5810@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Joe Korty <joe.korty@ccur.com>, Ingo Molnar <mingo@elte.hu>,
+	Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <20040915125356.GA11250@elte.hu> <20040915132936.GB30233@tsunami.ccur.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 15 Sep 2004 13:46:45 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040915132936.GB30233@tsunami.ccur.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-15 at 13:29, Andrea Arcangeli wrote:
-> I've been told we're not posix compliant the way we handle MAP_SHARED
-> on the last page of the inode. Basically after we map the page into
-> userspace people can make the data beyond the i_size non-zero and we
-> should clear it in the transition from page_mapcount 1 -> 0.  The bug
-> is that if you truncate-extend, the new data will not be guaranteed to
-> be zero.
+On Wed, Sep 15, 2004 at 09:29:36AM -0400, Joe Korty wrote:
+ > On Wed, Sep 15, 2004 at 02:53:56PM +0200, Ingo Molnar wrote:
+ > > 
+ > > there are a few devices that use lots of ioremap space. vmalloc space is
+ > > a showstopper problem for them.
+ > > 
+ > > this patch adds the vmalloc=<size> boot parameter to override
+ > > __VMALLOC_RESERVE. The default is 128mb right now - e.g. vmalloc=256m
+ > > doubles the size.
+ > 
+ > Perhaps this should instead be a configurable.
 
-I've heard this a couple of times but in fact SuS v3 says
+that would make it useless for distribution kernels for eg.
 
---
-If the size of the mapped file changes after the call to mmap() as a
-result of some other operation on the mapped file, the effect of
-references to portions of the mapped region that correspond to added or
-removed portions of the file is unspecified.
---
-
-Note it says "after the call to mmap" not after the file size change.
-
-The guarantees it does make are:
-- After the mmap completes the bytes in the end area after EOF are zero
-- The bytes in question are not written back to the file
-  [although a file size change hits the first quoted rule]
-
-Essentially the rule is "don't extend the file on writes to the gap"
-
-BTW: there is no such thing as a useful SuSv3 implementation of mmap
-because the documentation contains an error which requires every
-reference to the mmapped object cause a bus error 8)
-
-
-
+		Dave

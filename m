@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286898AbRL1N3b>; Fri, 28 Dec 2001 08:29:31 -0500
+	id <S286907AbRL1Nfa>; Fri, 28 Dec 2001 08:35:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286905AbRL1N3L>; Fri, 28 Dec 2001 08:29:11 -0500
-Received: from 217-127-31-201.uc.nombres.ttd.es ([217.127.31.201]:24393 "EHLO
-	optimat.com") by vger.kernel.org with ESMTP id <S286898AbRL1N3G>;
-	Fri, 28 Dec 2001 08:29:06 -0500
-Message-ID: <3C2C72C7.3040909@optimat.com>
-Date: Fri, 28 Dec 2001 14:25:27 +0100
-From: Javier Miguel =?ISO-8859-1?Q?Rodr=EDguez?= 
-	<javier.miguel@optimat.com>
-Organization: Optima Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011012
-X-Accept-Language: es, en-us
-MIME-Version: 1.0
+	id <S286908AbRL1NfV>; Fri, 28 Dec 2001 08:35:21 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:9489 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S286907AbRL1NfL>; Fri, 28 Dec 2001 08:35:11 -0500
+Date: Fri, 28 Dec 2001 14:35:08 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
 To: linux-kernel@vger.kernel.org
-CC: twaugh@redhat.com
-Subject: Compaq Gigabit Ethernet NC6136 (fiber, NOT coper) on linux 2.2.20
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Dec 2001 13:25:22.0017 (UTC) FILETIME=[19E82510:01C18FA3]
+Subject: Re: zImage not supported for 2.2.20?
+Message-ID: <20011228133508.GA12303@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <4.3.2.7.2.20011228101818.00aaa2c0@192.168.124.1> <4.3.2.7.2.20011228101818.00aaa2c0@192.168.124.1> <4.3.2.7.2.20011228124704.00abba70@192.168.124.1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <4.3.2.7.2.20011228124704.00abba70@192.168.124.1>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 28 Dec 2001, Roy Hills wrote:
 
-    Hello
+> Note that I build the kernels on a separate machine, hence the "scp" to
+> copy the kernel & sysmap to the target system.
+> 
+> The old 2.2.17 zImage kernel that runs fine has a filesize of 462060 bytes 
+> and
+> reports 784k kernel code, 412k reserved, 1168k data, 36k init.
+> 
+> The new 2.2.20 zImage kernel that fails has a filesize of 482795 bytes.
+> Actual sizes are not known as the system fails with "out of memory" just
+> after the decompression of the kernel and before any kernel messages get 
+> printed.
 
-    I have a Compaq Proliant DL-380 running kernel 2.2.20+freeswan 1.94
-
-    We need a gigabit ethernet card, and NC6136 works in RedHat 7.1... 
-but NOT in 2.2.20
-
-    Can I "backport" this nic driver to kernel 2.2.20?
-
-    If somebody can help me with this issue... I am newbie in kernel 
-hacking....
-   
-    If somebody could send me a patch....
-
-    Greetings from Seville (Spain)!
-
+Hum, I recall this struck another 2.2.x version already, and the
+workaround was to hack some HASH size in one of the arch/i386/boot/
+files. I don't recall the details, but you can find them in the
+archives.

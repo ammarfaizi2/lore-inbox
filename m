@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318864AbSHEUTw>; Mon, 5 Aug 2002 16:19:52 -0400
+	id <S318918AbSHEUXH>; Mon, 5 Aug 2002 16:23:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318865AbSHEUTw>; Mon, 5 Aug 2002 16:19:52 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29715 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318864AbSHEUTv>; Mon, 5 Aug 2002 16:19:51 -0400
-Date: Mon, 5 Aug 2002 13:23:27 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating usermode
- linux]
-In-Reply-To: <17boD0-1BMTyaC@fmrl08.sul.t-online.com>
-Message-ID: <Pine.LNX.4.44.0208051317480.11693-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318921AbSHEUXH>; Mon, 5 Aug 2002 16:23:07 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:22772 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318918AbSHEUXG>; Mon, 5 Aug 2002 16:23:06 -0400
+Subject: Re: i810 sound broken...
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Juergen Sawinski <juergen.sawinski@mpimf-heidelberg.mpg.de>
+Cc: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1028578861.1894.15.camel@voyager>
+References: <200208051127.g75BRgX27554@eday-fe5.tele2.ee> 
+	<1028552057.18130.6.camel@irongate.swansea.linux.org.uk> 
+	<1028578861.1894.15.camel@voyager>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Aug 2002 22:44:59 +0100
+Message-Id: <1028583899.18156.86.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-08-05 at 21:21, Juergen Sawinski wrote:
+> On my Intel D845GBV board (obviously ICH4) none of 2.4 nor alsa works.
+> It's a production box, so I hestitate to try 2.5.
 
-On Mon, 5 Aug 2002, Oliver Neukum wrote:
-> 
-> > Also, people who play games with FP actually change the FP data on the
-> > stack frame, and depend on signal return to reload it. Admittedly I've
-> > only ever seen this on SIGFPE, but anyway - this is all done with integer
-> > instructions that just touch bitpatterns on the stack.. The kernel can't
-> > catch it sanely.
-> 
-> Could the fp state be put on its own page and the dirty bit
-> evaluated in the decision whether to restore fpu state ?
+2.5 is older audio code than 2.4.19-ac
 
-I'm sure anything is _possible_, but there are a few problems with that 
-approach. In particular, playing VM games tends to be quite expensive on 
-SMP, since you need to make sure that the TLB entry for that page is 
-invalidated on all the other CPU's before you insert the FPU page.
+If your audio isnt working then a good starting point is to grab the
+2.4.19-ac1 i810_audio (you can drop those files into 2.4.19 vanilla
+fine)
 
-Also, you'd need to play games with dirty bit handling, since the page
-_is_ dirty (it contains FP data), so the VM must know to write it out if
-it pages things. That's ok - we have separate per-page and per-TLB-entry 
-dirty bits anyway, but right now the VM layer knows it can move the TLB 
-entry dirty bit into the per-page dirty bit and drop it - which wouldn't 
-be the case if we also have a FPU dirty bit.
+1.	Does the mixer work, can you play a CD, control the volume etc ?
 
-That's fixable - we could just make a "software TLB dirty bit" that it
-updated whenever the hardware TLB dirty bit is cleared and moved into the
-per-page dirty bit.
+If so that means we have an active codec and the AC97 bus is running
 
-But the end result sounds rather complicated, especially since all the
-page table walking necessary for setting this all up is likely to be about 
-as expensive as the thing we're trying to avoid..
+2.	Do you get regular interrupts doing "yes oink >/dev/audio"
 
-Rule of thumb: it almost never pays to be "clever".
+This is a good clue to whether the bus master engine is running. If it
+is we should be getting regular interrupts (and if the audio works a
+nasty squeak)
 
-		Linus
+3.	Does the audio speed test report about 48Khz (expected except on some
+Dell laptops)
 

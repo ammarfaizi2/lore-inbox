@@ -1,70 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279250AbRKFNle>; Tue, 6 Nov 2001 08:41:34 -0500
+	id <S279264AbRKFNoO>; Tue, 6 Nov 2001 08:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279264AbRKFNlZ>; Tue, 6 Nov 2001 08:41:25 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:24080 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S279250AbRKFNlT>; Tue, 6 Nov 2001 08:41:19 -0500
-Date: Tue, 6 Nov 2001 10:22:02 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: out_of_memory() heuristic broken for different mem configurations
-In-Reply-To: <20011106143108.6ef304d5.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.21.0111061015190.9867-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279305AbRKFNoE>; Tue, 6 Nov 2001 08:44:04 -0500
+Received: from unthought.net ([212.97.129.24]:59867 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S279264AbRKFNnz>;
+	Tue, 6 Nov 2001 08:43:55 -0500
+Date: Tue, 6 Nov 2001 14:43:53 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Petr Baudis <pasky@pasky.ji.cz>, linux-kernel@vger.kernel.org,
+        Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
+        Tim Jansen <tim@tjansen.de>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011106144353.B3058@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Alexander Viro <viro@math.psu.edu>, Petr Baudis <pasky@pasky.ji.cz>,
+	linux-kernel@vger.kernel.org,
+	Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
+	Tim Jansen <tim@tjansen.de>
+In-Reply-To: <20011106092133.X11619@pasky.ji.cz> <Pine.GSO.4.21.0111060326100.27713-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0111060326100.27713-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Nov 06, 2001 at 03:34:40AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 6 Nov 2001, Stephan von Krawczynski wrote:
-
-> On Tue, 6 Nov 2001 09:40:51 -0200 (BRST) Marcelo Tosatti
-> <marcelo@conectiva.com.br> wrote:
+On Tue, Nov 06, 2001 at 03:34:40AM -0500, Alexander Viro wrote:
 > 
-> > Well, yes, its seems to be just a wrong magic number for this
-> > setup/workload.
 > 
-> Well, first time I read the code I thought that this will happen. Simply think
-> of a _slow_ system with _lots_ of mem. Chances are high you cannot match the
-> seconds-rule. 
+> On Tue, 6 Nov 2001, Petr Baudis wrote:
 > 
-> > Linus, any suggestion to "fix" that ? 
+> > > As far as I can see, I cannot read /proc/[pid]/* info using sysctl.
+> > That can be added. We just have existing interface, and I don't propose to
+> > stick on its actual state as it isn't convenient, but to extend it to cope our
+> > needs.
 > 
-> How about this really stupid idea: oom means allocs fail, so why not simply
-> count failed 0-order allocs, if one succeeds, reset counter. If a page is freed
-> reset counter. If counter reaches <new magic number> then you're oom. No timing
-> involved, which means you can have as much mem or as slow host as you like.
+> No, that cannot.  Guys, you've been told: it won't happen.  I think that
+> was loud and clear enough.
 
-> It isn't even really interesting, if you have swap or not, because a
-> failed 0-order alloc tells you whatever mem you have, there is surely
-> not much left. 
+Al, sure no half-assed ad-hoc /proc substitute should go in, but there *are*
+*real* problems, and just because you don't see them in your daily life doesn't
+mean they don't exist.
 
-Wrong. If we have swap available, we are able to swapout anonymous data,
-so we are _not_ OOM. This is an important point on this whole OOM killer
-nightmare.
+These real problems could use a real solution.   And *some* of us are at least
+going to *discuss* what such a solution could be.
 
-Keep in mind that we don't want to destroy anonymous data from userspace
-(OOM kill).
+If, or when, we arrive at something where at least some of us agree, then we
+will see if it will be your decision to include it at all.  At this stage in
+the discussion the final (draft) solution may not have anything to do with
+filessytems at all.  We don't know - or at least I don't know.
 
-> I'd try about 100 as magic number.
-
-I think your suggestion will work well in practice (except that we have to
-check the swap).
-
-I'll try that later.
-
-> > /proc tunable (eeek) ? 
 > 
-> NoNoNo, please don't do that!
+> Can it.  Get a dictionary and look up the meaning of "veto".
 
-Note that even if your suggestion works, we may want to make the magic
-value /proc tunable.
+Just because data is in a filesystem doesn't mean it doesn't need structure
+*in* the data too.
 
-The thing is that the point where tasks should be killed is also an admin
-decision, not a complete kernel decision.
+Get over it Al.
 
+> 
+> Oh, and as for "let's extend existing interfaces just because we had flunked
+> 'strings in C'" - if you need Hurd, you know where to find it.
+
+My approach would be more like making another interface that could eventually
+gradually obsolete an older and inadequate one.   I see nothing in /proc that's
+worth extending on, as it stands today.
+
+Clearly you have no comprehension of the problems that people are working on
+solving with the new proc changes (or, rather, ideas for changes).
+
+That's too bad.  It would have been great to have constructive critisism from
+someone with your experience.
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

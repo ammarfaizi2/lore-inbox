@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316994AbSFAImv>; Sat, 1 Jun 2002 04:42:51 -0400
+	id <S316996AbSFAImu>; Sat, 1 Jun 2002 04:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315424AbSFAImM>; Sat, 1 Jun 2002 04:42:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53002 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314433AbSFAIkW>;
-	Sat, 1 Jun 2002 04:40:22 -0400
-Message-ID: <3CF88940.29CFAE0F@zip.com.au>
-Date: Sat, 01 Jun 2002 01:43:44 -0700
+	id <S316994AbSFAImJ>; Sat, 1 Jun 2002 04:42:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52490 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315424AbSFAIkJ>;
+	Sat, 1 Jun 2002 04:40:09 -0400
+Message-ID: <3CF88933.2EC13C8F@zip.com.au>
+Date: Sat, 01 Jun 2002 01:43:31 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 13/16] put in-memory filesystem dirty pages on the correct list
+Subject: [patch 12/16] fix race between writeback and unlink
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,50 +22,42 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Replaces SetPageDirty() with set_page_dirty() in several places related
-to in-memory filesystems.
+Fixes a race between unlink and writeback: on the sys_sync() and
+pdflush paths the caller does not have a reference against the inode.
 
-SetPageDirty() is basically always the wrong thing to do.  Pages should
-be moved to the ->dirty_pages list when dirtied so that writeback can
-see them.
+So run __iget prior to dropping inode_lock.
 
-Without this change, dirty pages against in-memory filesystems would
-churn around on the inactive list all the time, rather than getting
-pushed away onto the active list.  A minor efficiency thing.
+Oleg Drokin reported this and seems to believe that it fixes the
+crashes he was observing.  But I was never able to reproduce them..
 
 
 =====================================
 
---- 2.5.19/mm/shmem.c~shmem	Sat Jun  1 01:18:13 2002
-+++ 2.5.19-akpm/mm/shmem.c	Sat Jun  1 01:18:13 2002
-@@ -854,7 +854,7 @@ shmem_file_write(struct file *file,const
+--- 2.5.19/fs/fs-writeback.c~sync-race	Sat Jun  1 01:18:12 2002
++++ 2.5.19-akpm/fs/fs-writeback.c	Sat Jun  1 01:18:12 2002
+@@ -245,17 +245,19 @@ static void sync_sb_inodes(struct super_
+ 		if ((sync_mode == WB_SYNC_LAST) && (head->prev == head))
+ 			really_sync = 1;
  
- 		flush_dcache_page(page);
- 		if (bytes > 0) {
--			SetPageDirty(page);
-+			set_page_dirty(page);
- 			written += bytes;
- 			count -= bytes;
- 			pos += bytes;
-@@ -1139,7 +1139,7 @@ static int shmem_symlink(struct inode * 
- 		kaddr = kmap(page);
- 		memcpy(kaddr, symname, len);
- 		kunmap(page);
--		SetPageDirty(page);
-+		set_page_dirty(page);
- 		unlock_page(page);
- 		page_cache_release(page);
- 		up(&info->sem);
---- 2.5.19/mm/filemap.c~shmem	Sat Jun  1 01:18:13 2002
-+++ 2.5.19-akpm/mm/filemap.c	Sat Jun  1 01:18:13 2002
-@@ -450,7 +450,7 @@ int fail_writepage(struct page *page)
++		BUG_ON(inode->i_state & I_FREEING);
++		__iget(inode);
+ 		__writeback_single_inode(inode, really_sync, nr_to_write);
+-
+ 		if (sync_mode == WB_SYNC_HOLD) {
+ 			mapping->dirtied_when = jiffies;
+ 			list_del(&inode->i_list);
+ 			list_add(&inode->i_list, &inode->i_sb->s_dirty);
+ 		}
+-
+ 		if (current_is_pdflush())
+ 			writeback_release(bdi);
+-
++		spin_unlock(&inode_lock);
++		iput(inode);
++		spin_lock(&inode_lock);
+ 		if (nr_to_write && *nr_to_write <= 0)
+ 			break;
  	}
- 
- 	/* Set the page dirty again, unlock */
--	SetPageDirty(page);
-+	set_page_dirty(page);
- 	unlock_page(page);
- 	return 0;
- }
+
 
 -

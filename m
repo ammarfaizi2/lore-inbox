@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbTFQJHX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 05:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbTFQJHX
+	id S261292AbTFQJIg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 05:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbTFQJIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 05:07:23 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:52492 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S261245AbTFQJHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 05:07:22 -0400
-Date: Tue, 17 Jun 2003 19:20:58 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Julian Blake Kongslie <jblake@omgwallhack.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IPSEC problems with GRE.
-In-Reply-To: <1055746871.2305.7.camel@festa.omgwallhack.org>
-Message-ID: <Mutt.LNX.4.44.0306171918531.13900-100000@excalibur.intercode.com.au>
+	Tue, 17 Jun 2003 05:08:36 -0400
+Received: from anchor-post-39.mail.demon.net ([194.217.242.80]:50644 "EHLO
+	anchor-post-39.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261292AbTFQJHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 05:07:35 -0400
+Message-ID: <3EEEDD98.8050201@dcrdev.demon.co.uk>
+Date: Tue, 17 Jun 2003 10:21:28 +0100
+From: Dan Creswell <dan@dcrdev.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Multicast "slow" on 2.5.69
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Jun 2003, Julian Blake Kongslie wrote:
+Hi,
 
-> Specifically, attempts to encrypt a GRE or IPIP tunnel with ipsec in
-> transport mode result in one of:
-> 	1) No data sent.
-> 	2) Data sent, ignored by peer.
-> 	3) Kernel panic, with no SysRq.
-> 
-> Numbers 1 and 2 might be configuration problems on my part, but I have
-> other ipsec setups running fine, and can't see anything different for
-> these. Number 3 is a big problem.
-> 
-> This is on 2.5.70. No third-party modules or other tainting. I can
-> provide .configs on request.
-> 
-> I don't have the panic copied down, but I can reproduce it and get a
-> copy if required.
+I have a multicast based application here that, essentially, consists of 
+a server and client.  The client multicasts for the server which 
+responds with a direct tcp connection back to the client (the client 
+embeds it's IP address and port which the server should contact, in the 
+multicast request).
 
-Please post the oops (preferrably to the netdev mailing list).   
+Under 2.4.20 the server and client can be co-located on the same machine 
+or run across the network successfully.
 
-Also, which system panics, and what direction is the traffic when this 
-happens?  (i.e. is it happening during tunnel encapsulation or 
-decapsulation?)
+Under 2.5.69 a co-located client and server are slow to communicate - of 
+the order of several minutes and if the server runs under 2.5.69 with 
+the client on 2.4.20 on different machines, it doesn't seem to work at all.
 
+So, I was wondering if anyone had any thoughts on what I should be 
+looking at/for in this case?
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+Thanks,
+
+Dan.
+
 

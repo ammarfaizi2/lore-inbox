@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbULTCmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbULTCqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbULTCmT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 21:42:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbULTCmT
+	id S261398AbULTCqS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 21:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbULTCqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 21:42:19 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:11728 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261397AbULTCmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 21:42:16 -0500
-Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
-From: Lee Revell <rlrevell@joe-job.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Dan Dennedy <dan@dennedy.org>, Ben Collins <bcollins@debian.org>,
-       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20041220022503.GT21288@stusta.de>
-References: <20041220015320.GO21288@stusta.de>
-	 <1103508610.3724.69.camel@kino.dennedy.org>
-	 <20041220022503.GT21288@stusta.de>
-Content-Type: text/plain
-Date: Sun, 19 Dec 2004 21:42:14 -0500
-Message-Id: <1103510535.1252.18.camel@krustophenia.net>
+	Sun, 19 Dec 2004 21:46:18 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:25673 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261398AbULTCqQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 21:46:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=aLpyOkPZKR/gqescMayN0+ir9mqwNTN6G1fAuLB/TsBOpVbT0ETAIkNGAzOmdWxJlBe+jNwbV10O6elETNg3lNhVweqo6oJBpu2nbhhmiFckummNMyQhufCTwLCPHyo+iwTnFDeVv87Ol3w+b6wAKgkDYj2aPpXyjRq0hUN1uxo=
+Message-ID: <d4757e60041219184662648df@mail.gmail.com>
+Date: Sun, 19 Dec 2004 21:46:15 -0500
+From: Joe <joecool1029@gmail.com>
+Reply-To: Joe <joecool1029@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: 2.6.10-rc3-mm1-V0.7.33-03 and NVidia wierdness, with workaround...
+Cc: Valdis.Kletnieks@vt.edu, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1103473203.4143.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <200412161626.iBGGQ5CI020770@turing-police.cc.vt.edu>
+	 <1103300362.12664.53.camel@localhost.localdomain>
+	 <1103303011.12664.58.camel@localhost.localdomain>
+	 <200412171810.iBHIAQP3026387@turing-police.cc.vt.edu>
+	 <1103313861.12664.71.camel@localhost.localdomain>
+	 <1103320354.3538.11.camel@localhost.localdomain>
+	 <200412172242.iBHMgVav003005@turing-police.cc.vt.edu>
+	 <1103473203.4143.9.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-20 at 03:25 +0100, Adrian Bunk wrote:
-> On Sun, Dec 19, 2004 at 09:10:10PM -0500, Dan Dennedy wrote:
-> > On Mon, 2004-12-20 at 02:53 +0100, Adrian Bunk wrote:
-> > > The patch below removes 41 unneeded EXPORT_SYMBOL's.
-> > 
-> > Unneeded according to whom, just you? These functions are part of an
-> > API. How do I know someone is not using these in a custom ieee1394
-> > kernel module in some industrial or research setting or something new
-> > under development to be contributed to linux1394 project?
+On Sun, 19 Dec 2004 11:20:03 -0500, Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Fri, 2004-12-17 at 17:42 -0500, Valdis.Kletnieks@vt.edu wrote:
 > 
-> If someone uses some of them in code to be contributed to the linux1394 
-> project, re-adding the EXPORT_SYMBOL's in question is trivial.
+> > Most likely, the fact you have SMP/HT and I'm just on a PREEMPT-UP kernel is
+> > what's making the difference.  There's almost certainly a '#ifdef CONFIG_SMP'
+> > involved here somehow....
 > 
-> If someone uses some of them in a custom setting, re-adding them is 
-> trivial, too.
+> Yep! I just compiled my system without SMP and I was able to start up X
+> with NVidia on my HT laptop (with V0.7.33-04).
 > 
-> If the only user of one or more of these EXPORT_SYMBOL's was a non-free 
-> module, it's kernel policy that the EXPORT_SYMBOL's in question have to 
-> be removed.
+> Ingo, do you think this is a bug with NVidia (bad proprietary module) or
+> might be with something in the RT SMP side? I'll look a little more on
+> Monday, but if you know of something, let me know.  I'm curious to why
+> it works fine without RT but will not work with RT (and SMP). I
+> shouldn't say NVidia bug, since it only is a problem with the RT SMP, so
+> I should say incompatibility w.r.t. RT SMP and NVidia.
+> 
+> If you are one of those that don't want anything to do with the NVidia
+> driver, and don't care less if it works or not, let me know that too.
+> That way I won't bother you with this anymore and will only communicate
+> with Valdis :-)
+> 
+> Thanks,
+> 
+> -- Steve
 
-What do you tell a vendor who wants to write a driver for their device?
-"OK, about half the functions you need are in the kernel, the other half
-you have to port from this old kernel because we removed them.  Maybe we
-will put them back if we really like your driver"?
-
-Lee
-
+Nope, I've experianced the same problem without SMP.  It also appears
+to be a bug where if make menuconfig is not run after using an old
+kernel, for some odd reason CONFIG_SPINLOCK_BKL is set to be on. 
+Anyways, I just wanted to reassure you, this is NOT an SMP bug.

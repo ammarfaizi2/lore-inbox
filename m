@@ -1,80 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbUJWOGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbUJWOD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbUJWOGI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 10:06:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbUJWOGI
+	id S261191AbUJWOD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 10:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbUJWOD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 10:06:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6049 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261194AbUJWOF5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 10:05:57 -0400
-Date: Sat, 23 Oct 2004 09:39:38 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.28-rc1
-Message-ID: <20041023113938.GB8206@logos.cnet>
-References: <20041022185953.GA4886@logos.cnet> <1098538220.5960.2.camel@at2.pipehead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098538220.5960.2.camel@at2.pipehead.org>
-User-Agent: Mutt/1.5.5.1i
+	Sat, 23 Oct 2004 10:03:27 -0400
+Received: from relay03.pair.com ([209.68.5.17]:39941 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S261191AbUJWODY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 10:03:24 -0400
+X-pair-Authenticated: 66.190.53.4
+Message-ID: <417A64AB.5010606@cybsft.com>
+Date: Sat, 23 Oct 2004 09:03:23 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
+References: <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <41798BD6.6060207@cybsft.com> <20041023103247.GE30270@elte.hu>
+In-Reply-To: <20041023103247.GE30270@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 23, 2004 at 08:30:20AM -0500, Paul Fulghum wrote:
-> On Fri, 2004-10-22 at 13:59, Marcelo Tosatti wrote:
-> > Here goes the first release candidate of v2.4.28.
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
 > 
-> Any chance of getting this in?
+> 
+>>Oct 22 14:37:14 swdev14 kernel: BUG: sleeping function called from invalid context ksoftirqd/0(3) at kernel/mutex.c:37
+>>Oct 22 14:37:14 swdev14 kernel: in_atomic():1 [00000001], irqs_disabled():0
+>>Oct 22 14:37:14 swdev14 kernel:  [<c011ac3d>] __might_sleep+0xc4/0xd6 (12)
+>>Oct 22 14:37:14 swdev14 kernel:  [<c0132ae8>] _mutex_lock+0x3e/0x63 (36)
+>>Oct 22 14:37:14 swdev14 kernel:  [<e0a8b297>] ipxitf_find_using_phys+0x1e/0x4c [ipx] (28)
+>>Oct 22 14:37:14 swdev14 kernel:  [<e0a8d5a6>] ipx_rcv+0xdc/0x1dd [ipx] (20)
+>>Oct 22 14:37:14 swdev14 kernel:  [<c024050b>] snap_rcv+0x5f/0xe0 (32)
+> 
+> 
+> does the patch below fix these?
+> 
+> 	Ingo
+> 
 
-Oh I missed that, sorry (I've seen it and thought I had
-applied).
+I will try reproducing it here (at home). Otherwise it'll have to wait 
+till Monday.
 
-Well, there it is.
+> --- linux/net/802/psnap.c.orig
+> +++ linux/net/802/psnap.c
+> @@ -55,7 +55,7 @@ static int snap_rcv(struct sk_buff *skb,
+>  		.type = __constant_htons(ETH_P_SNAP),
+>  	};
+>  
+> -	rcu_read_lock();
+> +	rcu_read_lock_spin(&snap_lock);
+>  	proto = find_snap_client(skb->h.raw);
+>  	if (proto) {
+>  		/* Pass the frame on. */
+> @@ -68,7 +68,7 @@ static int snap_rcv(struct sk_buff *skb,
+>  		rc = 1;
+>  	}
+>  
+> -	rcu_read_unlock();
+> +	rcu_read_unlock_spin(&snap_lock);
+>  	return rc;
+>  }
+>  
+> 
 
-> 
-> -- 
-> Paul Fulghum
-> paulkf@microgate.com
-> 
-> >From paulkf@microgate.com Fri Oct  8 13:20:56 2004
-> Subject: [PATCH] serial receive lockup fix
-> From: Paul Fulghum <paulkf@microgate.com>
-> To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-> Cc: linux-kernel <linux-kernel@vger.kernel.org>
-> 
-> Fix lockup caused by serial driver not clearing
-> receive interrupt if flip buffer becomes full.
-> 
-> Signed-off-by: Paul Fulghum <paulkf@microgate.com>
-> 
-> 
-> 
-> --- a/drivers/char/serial.c	2004-09-29 09:08:35.000000000 -0500
-> +++ b/drivers/char/serial.c	2004-09-29 09:09:07.000000000 -0500
-> @@ -573,8 +573,19 @@
->  	do {
->  		if (tty->flip.count >= TTY_FLIPBUF_SIZE) {
->  			tty->flip.tqueue.routine((void *) tty);
-> -			if (tty->flip.count >= TTY_FLIPBUF_SIZE)
-> +			if (tty->flip.count >= TTY_FLIPBUF_SIZE) {
-> +				/* no room in flip buffer, discard rx FIFO contents to clear IRQ
-> +				 * *FIXME* Hardware with auto flow control
-> +				 * would benefit from leaving the data in the FIFO and
-> +				 * disabling the rx IRQ until space becomes available.
-> +				 */
-> +				do {
-> +					serial_inp(info, UART_RX);
-> +					icount->overrun++;
-> +					*status = serial_inp(info, UART_LSR);
-> +				} while ((*status & UART_LSR_DR) && (max_count-- > 0));
->  				return;		// if TTY_DONT_FLIP is set
-> +			}
->  		}
->  		ch = serial_inp(info, UART_RX);
->  		*tty->flip.char_buf_ptr = ch;
-> 
-> 

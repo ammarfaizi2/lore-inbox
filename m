@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262012AbSI3Krf>; Mon, 30 Sep 2002 06:47:35 -0400
+	id <S262014AbSI3K6R>; Mon, 30 Sep 2002 06:58:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262014AbSI3Krf>; Mon, 30 Sep 2002 06:47:35 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23502 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262012AbSI3Kre>; Mon, 30 Sep 2002 06:47:34 -0400
-Date: Mon, 30 Sep 2002 12:52:55 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [-dj patch] fix compilation of eisa.c
-Message-ID: <Pine.NEB.4.44.0209301250130.12605-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S262016AbSI3K6R>; Mon, 30 Sep 2002 06:58:17 -0400
+Received: from c0202001.roe.itnq.net ([217.112.132.110]:4480 "EHLO
+	thinkpad.objectsecurity.cz") by vger.kernel.org with ESMTP
+	id <S262014AbSI3K6Q>; Mon, 30 Sep 2002 06:58:16 -0400
+Date: Mon, 30 Sep 2002 13:03:19 +0200 (CEST)
+From: Karel Gardas <kgardas@objectsecurity.com>
+X-X-Sender: karel@thinkpad.objectsecurity.cz
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] apm resume hangs on IBM T22 with 2.4.19 (harddrive sleeps
+ forever)
+In-Reply-To: <20020925225230.0028639b.sfr@canb.auug.org.au>
+Message-ID: <Pine.LNX.4.43.0209301300200.462-100000@thinkpad.objectsecurity.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+On Wed, 25 Sep 2002, Stephen Rothwell wrote:
 
-eisa.c doesn't compile in 2.5.39-dj2:
+> On Wed, 25 Sep 2002 12:58:11 +0200 (CEST) Karel Gardas <kgardas@objectsecurity.com> wrote:
+> >
+> > I have problem with resume from suspend on IBM T22 with kernel 2.4.19
+> > patched with rmap-14a and usagi-20020916. Actually the problem is that OS
+> > resume well from suspend (it prints some messages to console for example
+> > from FW droping some packets), but harddisc is still sleeping and never
+> > wake up...
+>
+> I have a T22 and run 2.4.20-pre5 and 2.4.19-pre8 with no patches and
+> have no problems resuming from suspend.
 
-<--  snip  -->
+But you don't have clean 2.4.19.
 
-...
-  gcc -Wp,-MD,./.eisa.o.d -D__KERNEL__
--I/home/bunk/linux/kernel-2.5/linux-2.5.39-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
--I/home/bunk/linux/kernel-2.5/linux-2.5.39-full/arch/i386/mach-generic -nostdinc -iwithprefix
-include    -DKBUILD_BASENAME=eisa   -c -o eisa.o eisa.c
-eisa.c:14: parse error before `init_eisa'
-...
-make[1]: *** [eisa.o] Error 1
-make[1]: Leaving directory `/home/bunk/linux/kernel-2.5/linux-2.5.39-full/arch/i386/kernel'
+[...]
 
-<--  snip  -->
+> All I can suggest is that you try 2.4.19 without any patches, then with
+> the rmap patch and then with only the USAGI patch and see if that makes
+> any difference.
 
+I've done it right now and it seems 2.4.19 w/o any patch is broken for me.
+i.e. it behaves the same wrong way and hd is sleeping forevere after apm
+resume...
 
-The fix is simple:
+Anything what should I test now?
 
+Thanks a lot,
 
---- linux-2.5.39-full/arch/i386/kernel/eisa.c.old	2002-09-30 12:44:55.000000000 +0200
-+++ linux-2.5.39-full/arch/i386/kernel/eisa.c	2002-09-30 12:45:48.000000000 +0200
-@@ -6,6 +6,7 @@
-  */
-
- #include <linux/device.h>
-+#include <linux/init.h>
- #include <linux/slab.h>
- #include <asm/io.h>
-
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
-
+Karel
+--
+Karel Gardas                  kgardas@objectsecurity.com
+ObjectSecurity Ltd.           http://www.objectsecurity.com
 

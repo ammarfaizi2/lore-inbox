@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268626AbUHLRa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268628AbUHLRfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268626AbUHLRa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 13:30:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268628AbUHLRa6
+	id S268628AbUHLRfk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 13:35:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268629AbUHLRfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 13:30:58 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20692 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268626AbUHLRay
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 13:30:54 -0400
-Message-ID: <411BA940.5000300@pobox.com>
-Date: Thu, 12 Aug 2004 13:30:40 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+	Thu, 12 Aug 2004 13:35:40 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:673 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S268628AbUHLRfh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 13:35:37 -0400
+Date: Thu, 12 Aug 2004 19:35:32 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux SATA RAID FAQ
-References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net> <1092315392.21994.52.camel@localhost.localdomain> <411BA7A1.403@pobox.com>
-In-Reply-To: <411BA7A1.403@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: SG_IO and security
+Message-ID: <20040812173532.GD5136@suse.de>
+References: <1092313030.21978.34.camel@localhost.localdomain> <Pine.LNX.4.58.0408120929360.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408120943210.1839@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408120943210.1839@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Alan Cox wrote:
-> 
->> end devices (eg aacraid sata boards). There are also some low end
->> devices with part of the raid logic in hardware (some promise) although
->> I don't believe we use that to the full yet.
+On Thu, Aug 12 2004, Linus Torvalds wrote:
 > 
 > 
-> Nope.  My SATA RAID FAQ mentions the Promise "RAID accelerator" stuff. 
-
-Clarification:  "nope" == "nope, we don't use that to the full yet"
-
-
-> The SX4 has an on-board DIMM (128M - 2G), through which all data _must_ 
-> pass.  The data transfer between host and on-board DIMM is a separate 
-> DMA engine and separate interrupt event from the four ATA DMA engines 
-> (one per SATA port).  There are several possibilities that are worth 
-> exploring on this card:
+> On Thu, 12 Aug 2004, Linus Torvalds wrote:
+> > 
+> > Hmm.. This still allows the old "junk" commands (SCSI_IOCTL_SEND_COMMAND).
 > 
-> * Caching
-> * Eliminate PCI bus traffic by sending RAID1/5 writes a _single_ time to 
-> the card, and then multiplex to multiple attached drives from there
-> * Offload RAID5 XOR calculations, which becomes quite useful in 
-> combination with these other features
-> * Execute RAID1/5 resyncs and parity checks completely on the card
+> Btw, I think the _right_ thing to check is the write access of the file 
+> descriptor. If you have write access to a block device, you can delete the 
+> data, so you might as well be able to do the raw commands. And that would 
+> allow things like "disk" groups etc to work and burn CD's.
+> 
+> However, right now we don't even pass down the "struct file" to this 
+> function. We probably should. Anybody willing to go through the callers? 
+> (just a few callers, but things like cdrom_command() doesn't even have the 
+> file, so it has to be recursive).
 
-And one more:  the Promise hardware allows multiple disk transactions to 
-be chained together in a sequence, such that, you only receive an 
-interrupt when the full sequence is complete (or there is an error). 
-You can look at it as either interrupt coalescing, or simply coalescing 
-of multiple low-level disk transactions into a single "RAID transaction."
+Precisely, I guess that's a 2.6.9 job then. CDROM_SEND_PACKET works
+directly on top of SG_IO now, so should just work as long as sg_io() is
+translated.
 
-	Jeff
+I have no problem going over this, if somebody beats me to it, fine.
+I'll be gone on vacation next week.
 
+-- 
+Jens Axboe
 

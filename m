@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269078AbUJKQGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269042AbUJKQGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269078AbUJKQGH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 12:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269065AbUJKQCU
+	id S269042AbUJKQGG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 12:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269078AbUJKQCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 12:02:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:444 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269078AbUJKQBq (ORCPT
+	Mon, 11 Oct 2004 12:02:44 -0400
+Received: from cantor.suse.de ([195.135.220.2]:44990 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269073AbUJKQBG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 12:01:46 -0400
-Date: Mon, 11 Oct 2004 09:01:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, David Brownell <david-b@pacbell.net>
-Subject: Re: Totally broken PCI PM calls
-In-Reply-To: <20041011101824.GC26677@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.58.0410110857180.3897@ppc970.osdl.org>
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
- <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102115410.3897@ppc970.osdl.org>
- <20041011101824.GC26677@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Oct 2004 12:01:06 -0400
+Date: Mon, 11 Oct 2004 18:01:05 +0200
+From: Andi Kleen <ak@suse.de>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc4-mm1
+Message-ID: <20041011160105.GE26350@wotan.suse.de>
+References: <20041011032502.299dc88d.akpm@osdl.org> <Pine.LNX.4.61.0410111844450.2873@musoma.fsmlabs.com> <20041011154934.GD26350@wotan.suse.de> <Pine.LNX.4.61.0410111857260.2869@musoma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0410111857260.2869@musoma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 11 Oct 2004, Pavel Machek wrote:
+On Mon, Oct 11, 2004 at 06:58:01PM +0300, Zwane Mwaikambo wrote:
+> On Mon, 11 Oct 2004, Andi Kleen wrote:
 > 
-> Does sparse now have typechecking on enums?
+> > On Mon, Oct 11, 2004 at 06:47:45PM +0300, Zwane Mwaikambo wrote:
+> > > How about the following?
+> > > 
+> > > remove-lock_section-from-x86_64-spin_lock-asm.patch
+> > >   remove LOCK_SECTION from x86_64 spin_lock asm
+> > > 
+> > > allow-x86_64-to-reenable-interrupts-on-contention.patch
+> > >   Allow x86_64 to reenable interrupts on contention
+> > > 
+> > > The former is a fix.
+> > 
+> > What does it fix? 
+> 
+> Well we don't have lock section anymore since the spinlock text is all in 
+> the out of line functions. So this was really something i missed in my 
+> sweep.
 
-You can mark an enum "bitwise" (by making all of it's values be
-"bitwise"), and it will be considered a type of its own, yes. But then you
-also cannot do arithmetic on it (which _usually_ is what you want, but not
-necessarily always).
+I think the linker handles it anyways, so it's probably not critical
+(without that it would slash'n'burn immediately)
 
-(You'd also need to pass in the "-Wbitwise" flag to sparse, to get the
-checks).
-
-By the time you mark something "bitwise", you don't even need to use an
-enum, btw. You can just do a regular integer typedef and mark the typedef 
-to be "bitwise" - that generates a unique type right there. That's what 
-the endianness checking does.
-
-		Linus
+-Andi

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315487AbSE2UuH>; Wed, 29 May 2002 16:50:07 -0400
+	id <S315480AbSE2U4v>; Wed, 29 May 2002 16:56:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315503AbSE2UuG>; Wed, 29 May 2002 16:50:06 -0400
-Received: from stingr.net ([212.193.32.15]:1459 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id <S315487AbSE2UuF>;
-	Wed, 29 May 2002 16:50:05 -0400
-Date: Thu, 30 May 2002 00:50:05 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.19 - What's up with the kernel build?
-Message-ID: <20020529205005.GN422@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205291519270.9971-100000@chaos.physics.uiowa.edu>
+	id <S315485AbSE2U4u>; Wed, 29 May 2002 16:56:50 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:35844 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S315480AbSE2U4t>; Wed, 29 May 2002 16:56:49 -0400
+Date: Wed, 29 May 2002 22:56:45 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Diego Calleja <DiegoCG@teleline.es>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.18, pdflush 100% cpu utilization
+Message-ID: <20020529205645.GB1397@louise.pinerecords.com>
+In-Reply-To: <20020525212512.7a14d1d9.DiegoCG@teleline.es> <20020526094648.GA15233@louise.pinerecords.com> <20020527090123.A69@toy.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+User-Agent: Mutt/1.3.99i
+X-OS: GNU/Linux 2.4.19-pre9 SMP
+X-Architecture: sparc
+X-Uptime: 49 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to Kai Germaschewski:
-> There is still quite a bit left to do (in particular improving
-> dependency generation and modversions handling), but I think it makes
-> sense to explain what happened so far.
+> > > Kernel Panic: pse required
+> >                 ^^^
+> > 
+> > $ cat /proc/cpuinfo
+> > kala@kirsi:~$ cat /proc/cpuinfo| grep flags
+> > flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+> >                              ^^^
 > 
-> There's also some points (marked with >>>) where I'd like to get
-> feedback on how things should be handled in the future.
+> You wanted to explain third person what PSE is, or you got that panic on machine
+> that does have pse?
 
-May I ask you just one questin?
-Have you read (yet) kbuild25 ?
+I was merely pointing out that swsusp itself reported that PSE was required.
 
-Ahh, no, another one.
-Is this a "signs" of kbuild25 being thrown away like cml2 ?
-If yes, then I am very unhappy person now (c) ac
-
-Played with kbuild25 today I migrated 2.4.19-pre8-ac5-s2 to it. Now make -f
-Makefile-2.5 is a preferred way to make here. New system is much cleaner,
-and don't need that mess of makedep and listmultis. But hey, people you
-should already know that whilst you trying to install a couple of new nails
-to rotten construct to help it stay for another couple of time intervals ...
-
-:(((
-
-
--- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
-  When you're invisible, the only one really watching you is you (my keychain)
+T.

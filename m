@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135978AbRA1Ahd>; Sat, 27 Jan 2001 19:37:33 -0500
+	id <S135680AbRA1AnO>; Sat, 27 Jan 2001 19:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136040AbRA1AhX>; Sat, 27 Jan 2001 19:37:23 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:46761 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S135978AbRA1AhI>; Sat, 27 Jan 2001 19:37:08 -0500
-Message-ID: <3A736B76.214D4193@uow.edu.au>
-Date: Sun, 28 Jan 2001 11:44:38 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+	id <S135889AbRA1AnF>; Sat, 27 Jan 2001 19:43:05 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:61315 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S135680AbRA1Am4>;
+	Sat, 27 Jan 2001 19:42:56 -0500
+Message-ID: <3A736B05.9021CA37@pobox.com>
+Date: Sat, 27 Jan 2001 16:42:45 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Stefani Seibold <stefani@seibold.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: patch for 2.4.0 disable printk
-In-Reply-To: <01012723313500.01190@deepthought.seibold.net>
+To: David Ford <david@linux.com>
+CC: Shawn Starr <Shawn.Starr@Home.com>, Aaron Lehmann <aaronl@vitelus.com>,
+        John Sheahan <john@reptechnic.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: ps hang in 241-pre10
+In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <20010126204324.B10046@vitelus.com> <3A72817E.CFCF0D52@pobox.com> <3A7285D4.9409E63A@linux.com> <3A7295F6.621BBEC4@Home.com> <3A731E65.8BE87D73@pobox.com> <3A7359BB.7BBEE42A@linux.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefani Seibold wrote:
-> 
-> Second, i had change the macro so it calls now a inline funciton
-> printk_inline which always return 0. So it should be now compatibel to the
-> standard printk funciton.
+Sorry, there was no xmms involved here -
 
-A #define is better.
+The behavior occurred while playing unreal tournament.
 
-You see, even if printk is a null inline function,
+But at least the sound card was in use, FWIW -
 
-	printk("foo");
+jjs
 
-will still cause "foo" to appear in your output. Apparently
-very recent versions of gcc have fixed this.
+David Ford wrote:
 
-BTW: Graham Stoney prepared a similar patch for 2.2 last year.
-You may be able to borrow some ideas from that work, and the
-followup discussion.
+> We've narrowed it down to "we're all running xmms" when it happend.
+>
+> -d
+>
+> J Sloan wrote:
+>
+> > Just for the record, the system where I saw the problem
+> > has only ext2 -
+>
+> --
+>   There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+>   The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0004.2/0709.html
-
--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273904AbRIXNaD>; Mon, 24 Sep 2001 09:30:03 -0400
+	id <S273908AbRIXNgM>; Mon, 24 Sep 2001 09:36:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273908AbRIXN3w>; Mon, 24 Sep 2001 09:29:52 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:33802 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273904AbRIXN3k>;
-	Mon, 24 Sep 2001 09:29:40 -0400
-Date: Mon, 24 Sep 2001 10:29:46 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Cc: Andrea Arcangeli <andrea@suse.de>, Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Linux VM design
-In-Reply-To: <6514162334.20010924123631@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.33L.0109241027070.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.33L.0109241027072.19147@imladris.rielhome.conectiva>
+	id <S273909AbRIXNgC>; Mon, 24 Sep 2001 09:36:02 -0400
+Received: from f138.law11.hotmail.com ([64.4.17.138]:21266 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S273908AbRIXNfv>;
+	Mon, 24 Sep 2001 09:35:51 -0400
+X-Originating-IP: [194.6.79.172]
+From: "Rob MacGregor" <rob_macgregor@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.10 and ACPI
+Date: Mon, 24 Sep 2001 13:36:11 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F138NIPukg3nOpj53Xa000046c3@hotmail.com>
+X-OriginalArrivalTime: 24 Sep 2001 13:36:11.0954 (UTC) FILETIME=[E00E6920:01C144FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001, VDA wrote:
+I should mention that I get exactly the same result from 2.4.9.  I hadn't 
+tried ACPI before then.
 
-> I'd like to understand Linux VM but there's not much in
-> Documentation/vm/* on the subject.
+On both my desktop (based on a SuperMicro P6DGU with the Intel 440GX 
+chipset, l) and my laptop (HP Omnibook 450B) when I build in the ACPI system 
+(either as module or into the kernel) the system hangs on boot.  It does 
+this at the point of activating ACPI.  I enabled the debug mode and my 
+laptop dies at:
 
-http://linux-mm.org/ has some stuff and I wrote a freenix
-paper on the subject as well http://www.surriel.com/lectures/.
+ACPI Namespace successfully loaded at root c028a6c0
+ACPI: Core Subsystem version [20010831]
+Executing device _INI methods:.....................
 
-> Since we reached some kind of stability with 2.4, maybe
-> Andrea, Rik and whoever else is considering himself VM geek
-> would tell us not-so-clever lkml readers how VM works and put it in
-> vm-2.4andrea, vm-2.4rik or whatever in Doc/vm/*,
-> I will be unbelievably happy. Matt Dillon's post belongs there too.
+(that's 21 '.'s).
 
-http://linux-mm.org/
+Is there anything else I can do to help track down what's causing this and 
+resolve it?
 
-The only thing missing is an explanation of Andrea's
-VM, but knowing Andrea's enthusiasm at documentation
-I wouldn't really count on that any time soon ;)
+I'm not on the list (though I should start getting the daily digest as of 
+today) so you'll need to CC me if you want me to see anything.
 
-cheers,
+--
+Rob  |  Please ask questions the smart way:
+                http://www.tuxedo.org/~esr/faqs/smart-questions.html
 
-Rik
--- 
-IA64: a worthy successor to i860.
+    Please don't CC me on anything sent to mailing lists or send
+        me email directly unless it's a privacy issue, thanks.
 
-http://www.surriel.com/		http://distro.conectiva.com/
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285618AbSAUPdZ>; Mon, 21 Jan 2002 10:33:25 -0500
+	id <S287145AbSAUPfq>; Mon, 21 Jan 2002 10:35:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287145AbSAUPdP>; Mon, 21 Jan 2002 10:33:15 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61261 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S285618AbSAUPc4>; Mon, 21 Jan 2002 10:32:56 -0500
-To: Hans Reiser <reiser@namesys.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Shawn <spstarr@sh0n.net>,
-        linux-kernel@vger.kernel.org, Josh MacDonald <jmacd@CS.Berkeley.EDU>
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <Pine.LNX.4.33L.0201201924020.32617-100000@imladris.surriel.com>
-	<3C4B3703.6080101@namesys.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Jan 2002 08:29:46 -0700
-In-Reply-To: <3C4B3703.6080101@namesys.com>
-Message-ID: <m1vgdvg1sl.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S287148AbSAUPfg>; Mon, 21 Jan 2002 10:35:36 -0500
+Received: from dsl-213-023-039-080.arcor-ip.net ([213.23.39.80]:3977 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287145AbSAUPfY>;
+	Mon, 21 Jan 2002 10:35:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: yodaiken@fsmlabs.com, george anzinger <george@mvista.com>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Mon, 21 Jan 2002 16:38:59 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: yodaiken@fsmlabs.com, Momchil Velikov <velco@fadata.bg>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
+        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <3C439D02.EBCD78C4@mvista.com> <20020115053901.C32605@hq.fsmlabs.com>
+In-Reply-To: <20020115053901.C32605@hq.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16SgXE-0001i8-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> writes:
+On January 15, 2002 01:39 pm, yodaiken@fsmlabs.com wrote:
+> My reservation about preemption as an implementation technique is that
+> it has costs, which seem to be not easily boundable, but not very 
+> clear benefits.
 
-> >
-> >That is exactly what the VM does.
-> >
-> So basically you continue to believe that one cache manager shall rule them all,
-> 
-> and in the darkness as to their needs, bind them.
+To me the benefit is clear enough: ASAP scheduling of IO threads, a simple 
+heuristic that improves both throughput and latency.
 
-Hans any other case generally sucks, and at best works well until the
-VM changes and then breaks.  The worst VM's I have seen are the home
-spun cache management routines for compressing filesystems.   So
-trying for a generic solution is very good.
-
-I suspect it easier to work out the semantics needed for reiserfs and
-xfs to do delayed writes in the page cache than to work out the
-semantics needed for having to competing VM's...
-
-Eric
-
-
-
-
+--
+Daniel

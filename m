@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135914AbREIIxa>; Wed, 9 May 2001 04:53:30 -0400
+	id <S135925AbREIJKP>; Wed, 9 May 2001 05:10:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135919AbREIIxT>; Wed, 9 May 2001 04:53:19 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41736 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135914AbREIIxL>; Wed, 9 May 2001 04:53:11 -0400
+	id <S135927AbREIJKF>; Wed, 9 May 2001 05:10:05 -0400
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:59908 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S135925AbREIJJ5>;
+	Wed, 9 May 2001 05:09:57 -0400
+Date: Wed, 9 May 2001 11:09:14 +0200 (CEST)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+X-X-Sender: <tori@svea.tellus>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <jwright@penguincomputing.com>, <redhat-devel-list@redhat.com>,
+        <linux-kernel@vger.kernel.org>, Jeremy Hogan <jhogan@redhat.com>,
+        Mike Vaillancourt <mikev@redhat.com>,
+        Philip Pokorny <ppokorny@penguincomputing.com>
 Subject: Re: bug in redhat gcc 2.96
-To: jwright@penguincomputing.com
-Date: Wed, 9 May 2001 09:56:24 +0100 (BST)
-Cc: redhat-devel-list@redhat.com, linux-kernel@vger.kernel.org,
-        jhogan@redhat.com (Jeremy Hogan), mikev@redhat.com (Mike Vaillancourt),
-        ppokorny@penguincomputing.com (Philip Pokorny)
-In-Reply-To: <Pine.LNX.4.33.0105081927320.1798-100000@foo.penguincomputing.com> from "Jim Wright" at May 08, 2001 08:05:06 PM
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <E14xPli-0001qP-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0105091058480.31224-100000@svea.tellus>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14xPli-0001qP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As this is with Red Hat's version of gcc, I'm not sending
-> this to the gcc folks.  RPMs of gcc with this problem
+On Wed, 9 May 2001, Alan Cox wrote:
+> > Any suggestions for a way to cope with this?  We have a
+> > customer who's system fails due to this.
+>
+> You can build 2.4 quite sanely with egcs-1.1.2 (aka kgcc)
 
-(If you have the time check 3.0 CVS doesnt show the same problem, the RH tree
- diverges from it so may well be unique in having the bug but many bugs are
- shared)
+Since there is no kgcc in RH71, will you be releasing an updated gcc
+rpm, or is the best solution to download and compile egcs-1.1.2 from
+source?
 
-> include gcc-2.96-69 and gcc-2.96-81.  This has been logged
-> as http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=39764.
+IMHO, it is best not to revert to an old egcs version, but instead
+continue to find bugs in the upcoming 3.0 release.  I'm assuming that
+your fixes for your gcc-2.96 are propagated to the pre-3.0 branch.
 
-Thanks.
-
-> Any suggestions for a way to cope with this?  We have a
-> customer who's system fails due to this.
-
-You can build 2.4 quite sanely with egcs-1.1.2 (aka kgcc)
+/Tobias
 

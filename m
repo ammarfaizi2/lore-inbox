@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262736AbVAQIQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVAQIT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262736AbVAQIQa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 03:16:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbVAQIPH
+	id S262731AbVAQIT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 03:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbVAQITE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 03:15:07 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:21260 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262730AbVAQIOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 03:14:50 -0500
-Subject: Re: permissions of /proc/tty/driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Thomas Viehmann <tv@beamnet.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050116222658.GA22364@lst.de>
-References: <41E80535.1060309@beamnet.de> <20050116120436.GA13906@lst.de>
-	 <1105908524.12196.13.camel@localhost.localdomain>
-	 <20050116222658.GA22364@lst.de>
-Content-Type: text/plain
-Date: Mon, 17 Jan 2005 09:14:36 +0100
-Message-Id: <1105949676.6304.50.camel@laptopd505.fenrus.org>
+	Mon, 17 Jan 2005 03:19:04 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38157 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262731AbVAQIOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 03:14:52 -0500
+Date: Mon, 17 Jan 2005 09:14:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: michael@mihu.de, kraxel@bytesex.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] saa7146_vv_ksyms.c: remove two unused EXPORT_SYMBOL_GPL's
+Message-ID: <20050117081444.GF4274@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-01-16 at 23:26 +0100, Christoph Hellwig wrote:
-> On Sun, Jan 16, 2005 at 09:11:03PM +0000, Alan Cox wrote:
-> > On Sul, 2005-01-16 at 12:04, Christoph Hellwig wrote:
-> > > > (where /proc/tty/driver/serial is mentioned as leaking sensitive 
-> > > > information), to me the contents of usbserial look innocent enough.
-> > > > Do you have any hints on what might be a good solution?
-> > > 
-> > > The permissions on the directory look indeed too strict to me.  It might
-> > > be better to just use strict permissions on /proc/tty/driver/serial
-> > > indeed.
-> > 
-> > The file containts transmit and receive byte counts, which means you can
-> > both measure intercharacter delay and character count. Thats a big help
-> > to password guessers
-> 
-> I know.  But that doesn't explain why we don't keep strict permissions
-> only on that file but on the directory.
+This patch removes two unused EXPORT_SYMBOL_GPL's.
 
-ls -la on the file gives you the size maybe ?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+---
 
+This patch was already sent on:
+- 19 Dec 2004
+
+--- linux-2.6.10-rc3-mm1-full/drivers/media/common/saa7146_vv_ksyms.c.old	2004-12-18 01:58:03.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/drivers/media/common/saa7146_vv_ksyms.c	2004-12-18 01:58:08.000000000 +0100
+@@ -1,9 +1,6 @@
+ #include <linux/module.h>
+ #include <media/saa7146_vv.h>
+ 
+-EXPORT_SYMBOL_GPL(saa7146_vbi_uops);
+-EXPORT_SYMBOL_GPL(saa7146_video_uops);
+-
+ EXPORT_SYMBOL_GPL(saa7146_start_preview);
+ EXPORT_SYMBOL_GPL(saa7146_stop_preview);
+ 
 

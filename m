@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286190AbRLTH0U>; Thu, 20 Dec 2001 02:26:20 -0500
+	id <S286196AbRLTHhv>; Thu, 20 Dec 2001 02:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286192AbRLTH0J>; Thu, 20 Dec 2001 02:26:09 -0500
-Received: from dsl-213-023-043-155.arcor-ip.net ([213.23.43.155]:55569 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S286190AbRLTH0F>;
-	Thu, 20 Dec 2001 02:26:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "David S. Miller" <davem@redhat.com>, bcrl@redhat.com
-Subject: Re: aio
-Date: Thu, 20 Dec 2001 08:27:45 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: billh@tierra.ucsd.edu, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-aio@kvack.org
-In-Reply-To: <20011219190716.A26007@burn.ucsd.edu> <20011219224717.A3682@redhat.com> <20011219.213910.15269313.davem@redhat.com>
-In-Reply-To: <20011219.213910.15269313.davem@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16GxcH-0001bB-00@starship.berlin>
+	id <S286195AbRLTHha>; Thu, 20 Dec 2001 02:37:30 -0500
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:49414
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S286194AbRLTHhT>; Thu, 20 Dec 2001 02:37:19 -0500
+Message-Id: <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 20 Dec 2001 02:31:44 -0500
+To: "David S. Miller" <davem@redhat.com>, Mika.Liljeberg@welho.com
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
+Cc: kuznet@ms2.inr.ac.ru, Mika.Liljeberg@nokia.com,
+        linux-kernel@vger.kernel.org, sarolaht@cs.helsinki.fi
+In-Reply-To: <20011218.122813.63057831.davem@redhat.com>
+In-Reply-To: <3C1FA558.E889A00D@welho.com>
+ <200112181837.VAA10394@ms2.inr.ac.ru>
+ <3C1FA558.E889A00D@welho.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 20, 2001 06:39 am, David S. Miller wrote:
->    From: Benjamin LaHaise <bcrl@redhat.com>
->    Date: Wed, 19 Dec 2001 22:47:17 -0500
->    An X server that doesn't have to make a syscall to find out that
->    more data has arrived?
-> 
-> Who really needs this kind of performance improvement?  Like anyone
-> really cares if their window gets the keyboard focus or a pixel over a
-> AF_UNIX socket a few nanoseconds faster.  How many people do you think
-> believe they have unacceptable X performance right now and that
-> select()/poll() syscalls overhead is the cause?  Please get real.
+At 12:28 PM 12/18/2001 -0800, David S. Miller wrote:
+>Unaligned kernel loads and stores must be properly handled by the
+>platform code, and on ARM chips where that is possible it is.
 
-I care, I always like faster graphics.
+I don't know what arch you're using, but I work with ARM7TDMI, which has a 
+behavior I believe can be found documented in some obscure .pdf from arm.com:
 
-> People who want graphics performance are not pushing their data
-> through X over a filedescriptor, they are either using direct
-> rendering in the app itself (ala OpenGL) or they are using shared
-> memory for the bulk of the data (ala Xshm or Xv extensions).
+Unaligned accesses wrap.
 
-You're probably overgeneralizing.  Actually, I run games on my server and 
-display the graphics on my laptop.  It works.  I'd be happy if it was faster.
+If you have this:
 
-I don't see right off how AIO would make that happen though.  Ben, could you 
-please enlighten me, what would be the mechanism?  Are other OSes doing X 
-with AIO?
+[mem.] 00 01 02 03  04 05 06 07
+[data] 00 11 22 33  44 55 66 77
+
+in little-endian mode,
+
+*(int*)0x00 == 0x33221100
+*(int*)0x01 == 0x00332211
+*(int*)0x02 == 0x11003322
+*(int*)0x03 == 0x22110033
+*(int*)0x04 == 0x77665544
+
+At least, that's how ARM's docs seem to describe it. I work with this cpu 
+embedded in a microcontroller (AT91M40800), and these values result:
+
+*(int*)0x00 == 0x33221100
+*(int*)0x01 == 0x33221100
+*(int*)0x02 == 0x33221100
+*(int*)0x03 == 0x33221100
+*(int*)0x04 == 0x77665544
+
+An unaligned access to an assembly-declared variable caused me much grief 
+once, overwriting the task scheduler's ready-to-run list under certain 
+conditions...
+
+The moral of the story:
+RISC cpus abhor unaligned accesses.
+
 
 --
-Daniel
+Stevie-O
+
+Real programmers use COPY CON PROGRAM.EXE
 

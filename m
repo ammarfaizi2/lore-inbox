@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318210AbSHNNbM>; Wed, 14 Aug 2002 09:31:12 -0400
+	id <S318231AbSHNNgt>; Wed, 14 Aug 2002 09:36:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318122AbSHNNbM>; Wed, 14 Aug 2002 09:31:12 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:49391 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318210AbSHNNbL>; Wed, 14 Aug 2002 09:31:11 -0400
-Subject: Re: [RFC] timer-changes_A0
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, george anzinger <george@mvista.com>
-In-Reply-To: <1029283137.4692.119.camel@cog>
-References: <1029283137.4692.119.camel@cog>
+	id <S318301AbSHNNgt>; Wed, 14 Aug 2002 09:36:49 -0400
+Received: from richardson.uni2.net ([130.227.52.104]:9361 "EHLO
+	richardson.uni2.net") by vger.kernel.org with ESMTP
+	id <S318231AbSHNNgs>; Wed, 14 Aug 2002 09:36:48 -0400
+Message-ID: <D0B43857843DD41185DE0060979AC20C2FD38F@intermail.pallas.dk>
+From: Agust Karlsson <Gusti@pallas.dk>
+To: "'David Woodhouse'" <dwmw2@infradead.org>,
+       Agust Karlsson <Gusti@pallas.dk>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Semaphore block in fs/super.c mount_root 
+Date: Wed, 14 Aug 2002 15:40:31 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 14 Aug 2002 14:32:54 +0100
-Message-Id: <1029331974.26358.42.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-14 at 00:58, john stultz wrote:
-> where you have clock_tsc.c, clock_pit.c, clock_cyclone.c etc. Each one
-> implementing init_clock_xxxx, mark_timeoffset_xxxx, and
-> do_gettimeoffset_xxxx (possibly probing functions too?).  But for now I
-> just kept it all in time.c 
+Hi David.
+Yes I saw that solution (after I had traced the semaphore :-) ), but as far
+I can see the problem is the missing up_read() not the mtd driver.
 
-Longer term a struct timer_ops would indeed be really clean. Splitting
-it makes sense
+Gusti
 
->  }
->  
-> +enum clock_type {CLOCK_PIT, CLOCK_TSC};
-> +enum clock_type select_clock(void)
-> +{
-> +	if(cpu_has_tsc)
-> +		return CLOCK_TSC;
-> +	return CLOCK_PIT;
-> +}
-
-I put this in setup.c in my case so I could also cover the VISWS more
-nicely, and also because of the 2.5 plans to do a nice architecture
-split
-
-
-Pulling the other code out of the switch into functions is definitely
-good. I'll go apply that bit now
-
+> -----Original Message-----
+> From:	David Woodhouse [SMTP:dwmw2@infradead.org]
+> Sent:	Wednesday, August 14, 2002 3:33 PM
+> To:	Agust Karlsson
+> Cc:	'linux-kernel@vger.kernel.org'
+> Subject:	Re: Semaphore block in fs/super.c mount_root 
+> 
+> 
+> Gusti@pallas.dk said:
+> > I have been trying to get a jffs2 file system to mount as root with
+> > kernel 2.4.18.
+> 
+> http://lists.infradead.org/pipermail/linux-mtd/2002-March/004488.html
+> http://lists.infradead.org/pipermail/linux-mtd/2002-March/004489.html
+> 
+> --
+> dwmw2
+> 

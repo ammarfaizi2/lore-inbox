@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265453AbSIWKt3>; Mon, 23 Sep 2002 06:49:29 -0400
+	id <S265457AbSIWKzv>; Mon, 23 Sep 2002 06:55:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbSIWKt3>; Mon, 23 Sep 2002 06:49:29 -0400
-Received: from line106-15.adsl.actcom.co.il ([192.117.106.15]:33922 "EHLO
-	www.veltzer.org") by vger.kernel.org with ESMTP id <S265453AbSIWKt2>;
-	Mon, 23 Sep 2002 06:49:28 -0400
-Message-Id: <200209231106.g8NB63d10555@www.veltzer.org>
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Veltzer <mark@veltzer.org>
-Organization: Meta Ltd.
-To: Con Kolivas <conman@kolivas.net>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] gcc3.2 v 2.95.3 (contest and linux-2.5.38)
-Date: Mon, 23 Sep 2002 14:06:01 +0300
-X-Mailer: KMail [version 1.3.2]
-References: <1032750261.3d8e84b5486a9@kolivas.net> <1032750631.966.1003.camel@phantasy> <1032751018.3d8e87aa99cc2@kolivas.net>
-In-Reply-To: <1032751018.3d8e87aa99cc2@kolivas.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S265485AbSIWKzv>; Mon, 23 Sep 2002 06:55:51 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:11961 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S265457AbSIWKzu>;
+	Mon, 23 Sep 2002 06:55:50 -0400
+Date: Mon, 23 Sep 2002 13:01:01 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200209231101.NAA14150@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.35+ IDE problems on old pre-PCI HW
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+One of my test boxes has serious problems with the 2.5 IDE
+code since 2.5.35. It's a 486 with a QD6580 VLB dual-channel
+controller card. No PCI in sight :-(
 
-On Monday 23 September 2002 06:16, Con Kolivas wrote:
+2.5.33/.34 worked with CONFIG_BLK_DEV_QD65XX && !CONFIG_PCI,
+and "ide0=qd65xx idebus=33 ide0=autotune ide1=autotune" kernel
+parameters. 2.4 and 2.2 + Andre's IDE patch also work.
 
-> >
-> > Ugh??  Something is _seriously_ messed up here.
->
+2.5.35/.36/.38 all reboot instantly after loading the kernel,
+if I pass "ide0=qd65xx" as a kernel parameter. Martin's 2.5
+IDE code also had this problem. Skipping "ide0=qd65xx" allows
+.35 and .36 to boot.
 
-The most important question to ask here is: What flags did you compile both 
-?!? I wouldn't count on the flags that were designed for gcc 2.95 to be any 
-good for 3.2... Could the original poster comment on this ?
+2.5.38 boots w/o "ide0=qd65xx" but hangs near the end of INIT.
+(With the ide_toggle_bounce() patch applied to prevent an oops.)
 
-Any GCC maintainers on this list to comment ? Is there any set of flags to be 
-passed to gcc 3.2 to replicate 2.95 behaviour ? I wouldn't rule out gcc 3.2 
-having a totaly different set of optimizations geared towards user space C++. 
-Again, any gcc maintainers comments ?!? 
+OTOH, current 2.5 works fine on my PIIX/ICH2 boxes.
 
-Since most of the code in gcc is for C++ most of the changes in gcc should 
-have been geared towards C++ (yes - quite a monstrous language). It seems to 
-me that the changes in C compilation between 2.95 and 3.2 should be minor 
-EXCEPT in terms of C optimization. Can anyone with assembly knowledge take 
-apart two identical drivers and see the better machine code produced by 2.95 
-as compared to 3.2 ? If so - can this be reported to the gcc folk ?
+Below is a patch for a long-standing bug which affects PCI-less
+kernels. The early setup passes a partially uninitialised local
+variable to ide_register_hw(), which copies the uninitialised
+fields. Among other things, this puts garbage in the "chipset"
+field, which can prevent chipset-selection options like
+"ide0=qd65xx" from succeeding.
 
-It seems to me that the difference is so huge that even user space 
-applications could show the difference. I suggest compiling a large C program 
-(emphasis on the C) in user space and doing the comparison... I would guess 
-that this should have been done by the gcc folk but because of the 
-hideousness of the C++ language I would guess that they mostly concentrated 
-on C++ and didn't bother to benchmark regular C optimization. This is quite 
-awful as the bulk of lower level open source code is in C and not C++ so this 
-kind of test has a lot of meaning for any distribution that is going to be 
-based on gcc 3.2...
+/Mikael
 
-If this benchmark turns out to be right then it seems to me that the only 
-conclusion is that the gcc folk let their interest in aesoteric features of 
-C++ (which has about 1/2 a billion of those) override the basic need for 
-strong C optimization. Yes - it now seems that the C++ language (which is 
-quite an abomination in terms of engineering and the KISS principle) is 
-actually hurting open source (which has been my conclusion for quite some 
-time).
-
-Mark
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9jvWZxlxDIcceXTgRAnxpAKDYz61RWvceqD13Z889rwtZLOaomwCggmmj
-ixt6x1e+zXewlrYCCHbiN9Y=
-=snOl
------END PGP SIGNATURE-----
+--- linux-2.5.38/include/asm-i386/ide.h.~1~	Sat Sep 21 15:26:21 2002
++++ linux-2.5.38/include/asm-i386/ide.h	Mon Sep 23 11:41:42 2002
+@@ -70,6 +70,7 @@
+ 	int index;
+ 
+ 	for(index = 0; index < MAX_HWIFS; index++) {
++		memset(&hw, 0, sizeof hw);
+ 		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
+ 		hw.irq = ide_default_irq(ide_default_io_base(index));
+ 		ide_register_hw(&hw, NULL);

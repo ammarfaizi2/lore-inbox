@@ -1,48 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVARVH7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVARVJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbVARVH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 16:07:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVARVHj
+	id S261421AbVARVJz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 16:09:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVARVJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 16:07:39 -0500
-Received: from smtpsig-4.ig.com.br ([200.226.132.141]:59015 "EHLO
-	smtpsig-4.ig.com.br") by vger.kernel.org with ESMTP id S261419AbVARVH2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 16:07:28 -0500
-Message-ID: <41ED7A83.3030104@superig.com.br>
-Date: Tue, 18 Jan 2005 18:07:15 -0300
-From: Luiz Felipe <kfox@superig.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: pt-br
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: A way to help newbies
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jan 2005 16:09:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23732 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261421AbVARVJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 16:09:34 -0500
+Date: Tue, 18 Jan 2005 15:55:51 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.28 Oops in fs/locks.c:time_out_leases()
+Message-ID: <20050118175551.GA28618@logos.cnet>
+References: <20050118123253.GA31499@janus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050118123253.GA31499@janus>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-i'm (trying to be) a beginner kernel developer, and i would to know if 
-there are some exercises/challenges where i must practice what i've 
-readed, if the most experienced developers already done it. I learn 
-better when I practice something. Anyone knows it ?
+On Tue, Jan 18, 2005 at 01:32:53PM +0100, Frank van Maarseveen wrote:
+> got an Oops the same time for 9 days, at the same EIP:
+> 
+> ksymoops 2.4.9 on i686 2.4.28-x97.  Options used
+>      -V (default)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.28-x97/ (default)
+>      -m /boot/System.map-2.4.28-x97 (default)
+> 
+> kernel:  <1>Unable to handle kernel NULL pointer dereference at virtual address 0000003c
+> kernel: c0153cb8
+> kernel: *pde = 00000000
+> kernel: Oops: 0000
+> kernel: CPU:    0
+> kernel: EIP:    0010:[time_out_leases+24/128]    Not tainted
+> kernel: EFLAGS: 00010202
+> kernel: eax: c1b42a14   ebx: 00000010   ecx: 00000000   edx: c349139c
+> kernel: esi: c1b42ad0   edi: c06f6000   ebp: c06f7f0c   esp: c06f7f04
+> kernel: ds: 0018   es: 0018   ss: 0018
+> kernel: Process find (pid: 17476, stackpage=c06f7000)
+> kernel: Stack: c1b42a14 00018801 c06f7f38 c0153d79 c1b42a14 00000000 00000000 c06f7f38 
+> kernel:        00000000 c349139c ffffffff 00018801 c1b42a14 c06f7f64 c014d8c7 c1b42a14 
+> kernel:        00018801 00000000 00000000 00000004 c2f51898 00018800 c160f000 080665cb 
+> kernel: Call Trace:    [__get_lease+89/640] [open_namei+487/1376] [filp_open+47/80] [sys_open+61/160] [system_call+51/64]
+> kernel: Code: f6 43 2c 20 74 23 f6 43 2d 10 74 1d 8b 53 50 85 d2 75 1d 89 
+> Using defaults from ksymoops -t elf32-i386 -a i386
 
-Here in this list, people talk about everything and is a bit complicated 
-for a beginner to get something. I would read about something and after 
-practice that, like on math books.  I think it's not so difficult for an 
-advanced kernel coder to do it, and is a great way to help people to 
-start. So please, can anyone make those questions and put it public ?
+Frank,
 
-See, i'm not wanting tutorials, tips, manuals, docs, etc. I just want to 
-practice, just beginner questions and exercises, separated by topics and 
-levels, something challenging me, but not get a TODO list of many 
-difficult patchs.
+I strongly suspect you are hitting a physical memory problem:
 
-I don't know if that list is the right place to ask about that, but by 
-the description of this list, maybe. Anyway, if is not the right place, 
-sorry for all.
+> Hi Frank,                                                                                                                                                                      
+> Can you please do                                                                                                                                                              
+> gdb vmlinux                                                                                                                                                                    
+> disassemble time_out_leases                                                                                                                                                    
 
-Regards,
-Luiz Felipe
+(gdb) disas time_out_leases
+Dump of assembler code for function time_out_leases:
+0xc0153ca0 <time_out_leases+0>: push   %ebp
+0xc0153ca1 <time_out_leases+1>: mov    %esp,%ebp
+0xc0153ca3 <time_out_leases+3>: push   %esi
+0xc0153ca4 <time_out_leases+4>: push   %ebx
+0xc0153ca5 <time_out_leases+5>: mov    0x8(%ebp),%eax
+0xc0153ca8 <time_out_leases+8>: mov    0xbc(%eax),%ebx
+0xc0153cae <time_out_leases+14>:        lea    0xbc(%eax),%esi
+0xc0153cb4 <time_out_leases+20>:        test   %ebx,%ebx
+0xc0153cb6 <time_out_leases+22>:        je     0xc0153ce1 <time_out_leases+65>
+0xc0153cb8 <time_out_leases+24>:        testb  $0x20,0x2c(%ebx)  <---------- (1)
+0xc0153cbc <time_out_leases+28>:        je     0xc0153ce1 <time_out_leases+65>
+0xc0153cbe <time_out_leases+30>:        testb  $0x10,0x2d(%ebx)	 <---------- (2)
+0xc0153cc2 <time_out_leases+34>:        je     0xc0153ce1 <time_out_leases+65>
+0xc0153cc4 <time_out_leases+36>:        mov    0x50(%ebx),%edx   <---------  (OOPS)
+0xc0153cc7 <time_out_leases+39>:        test   %edx,%edx
 
+The ebx register holds the "struct file_lock *fl" pointer, which is accessed twice
+a few instructions before at (1) and (2).
+
+Suddenly %ebx contains "00000010" (zero with fifth bit flipped) and the kernel crashes.
+
+
+static void time_out_leases(struct inode *inode)
+{
+        struct file_lock **before;
+        struct file_lock *fl;
+
+        before = &inode->i_flock;
+        while ((fl = *before) && (fl->fl_flags & FL_LEASE)
+                        && (fl->fl_type & F_INPROGRESS)) {
+                if ((fl->fl_break_time == 0)
+                                || time_before(jiffies, fl->fl_break_time)) {
+                        before = &fl->fl_next;
+                        continue;
+                }
+
+
+I suggest you to run memtest86 on this box.
+
+
+> 
+> 
+> >>eax; c1b42a14 <_end+164147c/4347ac8>
+> >>edx; c349139c <_end+2f8fe04/4347ac8>
+> >>esi; c1b42ad0 <_end+1641538/4347ac8>
+> >>edi; c06f6000 <_end+1f4a68/4347ac8>
+> >>ebp; c06f7f0c <_end+1f6974/4347ac8>
+> >>esp; c06f7f04 <_end+1f696c/4347ac8>
+> 
+> Code;  00000000 Before first symbol
+> 00000000 <_EIP>:
+> Code;  00000000 Before first symbol
+>    0:   f6 43 2c 20               testb  $0x20,0x2c(%ebx)
+> Code;  00000004 Before first symbol
+>    4:   74 23                     je     29 <_EIP+0x29>
+> Code;  00000006 Before first symbol
+>    6:   f6 43 2d 10               testb  $0x10,0x2d(%ebx)
+> Code;  0000000a Before first symbol
+>    a:   74 1d                     je     29 <_EIP+0x29>
+> Code;  0000000c Before first symbol
+>    c:   8b 53 50                  mov    0x50(%ebx),%edx
+> Code;  0000000f Before first symbol
+>    f:   85 d2                     test   %edx,%edx
+> Code;  00000011 Before first symbol
+>   11:   75 1d                     jne    30 <_EIP+0x30>
+> Code;  00000013 Before first symbol
+>   13:   89 00                     mov    %eax,(%eax)
+> 
+> 
+> Details:
+> -	compiled with gcc version 3.3.4 (Debian 1:3.3.4-3)
+> -	only ext3 and NFSv3 mounts (and automounter). 
+> -	The "find" causing the oops appears to be started from cron.daily
+> 	and only touches local filesystems.
+> -	SMP kernel running on UP (pentium II)

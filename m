@@ -1,94 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbUKPGPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbUKPG0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbUKPGPj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 01:15:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbUKPGPj
+	id S261917AbUKPG0t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 01:26:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbUKPG0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 01:15:39 -0500
-Received: from HELIOUS.MIT.EDU ([18.238.1.151]:26791 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S261906AbUKPGP2 (ORCPT
+	Tue, 16 Nov 2004 01:26:49 -0500
+Received: from HELIOUS.MIT.EDU ([18.238.1.151]:30119 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261917AbUKPG0r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 01:15:28 -0500
-Date: Tue, 16 Nov 2004 01:13:15 -0500
+	Tue, 16 Nov 2004 01:26:47 -0500
+Date: Tue, 16 Nov 2004 01:24:33 -0500
 To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       Tejun Heo <tj@home-tj.org>, Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
-Message-ID: <20041116061315.GG29574@neo.rr.com>
+Cc: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org,
+       matthieu castet <castet.matthieu@free.fr>, bjorn.helgaas@hp.com,
+       vojtech@suse.cz, "Brown, Len" <len.brown@intel.com>, greg@kroah.com
+Subject: Re: [PATCH] PNP support for i8042 driver
+Message-ID: <20041116062433.GH29574@neo.rr.com>
 Mail-Followup-To: ambx1@neo.rr.com,
 	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-	Tejun Heo <tj@home-tj.org>,
-	Patrick Mochel <mochel@digitalimplant.org>
-References: <20041109223729.GB7416@kroah.com> <d120d5000411091536115ac91b@mail.gmail.com> <20041110003323.GA8672@kroah.com> <200411092249.44561.dtor_core@ameritech.net>
+	Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org,
+	matthieu castet <castet.matthieu@free.fr>, bjorn.helgaas@hp.com,
+	vojtech@suse.cz, "Brown, Len" <len.brown@intel.com>, greg@kroah.com
+References: <41960AE9.8090409@free.fr> <200411140148.02811.dtor_core@ameritech.net> <20041116053741.GD29574@neo.rr.com> <200411160106.46673.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411092249.44561.dtor_core@ameritech.net>
+In-Reply-To: <200411160106.46673.dtor_core@ameritech.net>
 User-Agent: Mutt/1.5.6+20040722i
 From: ambx1@neo.rr.com (Adam Belay)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 10:49:43PM -0500, Dmitry Torokhov wrote:
-> On Tuesday 09 November 2004 07:33 pm, Greg KH wrote:
-> > All we have to do is rework that rwsem lock.  It's been staring at us
-> > since the beginning of the driver core work, and we knew it would have
-> > to be fixed eventually.  So might as well do it now.
-> > 
-> ...
-> > 
-> > So, off to rework this mess...
-> > 
+On Tue, Nov 16, 2004 at 01:06:46AM -0500, Dmitry Torokhov wrote:
+> Adam,
 > 
-> Do you have any ideas here? For me it seems that the semaphore has a dual
-> role - protecting bus's lists and ensuring that probe/remove routines are
-> serialized across bus...
+> I agree with your point that every device in the system should have a
+> driver attached. And i8042 does have one bound to it. It is i8042 platform
+> driver that does power management and ensures proper integration into driver
+> model.
 > 
-> In the meantime, can I please have bind_mode patch applied? I believe
-> it is useful regardless of which bind/unbind solution will be adopted
-> and having them will allow me clean up serio bus implementaion quite a
-> bit.
+> There is no need to keep secondary "drivers" around, their sole purpose is
+> to provide information about avalilable resources. It would be ok if the
+> code was shared among several devices on a bus but for most (all?) legacy
+> devices it has to be programmed explicitely and will not be reused.
+
+Platform drivers are secondary drivers.  They're crude hacks used to get a
+minimal device into the driver model.  They're necessary because ISA devices
+cannot be detected like other types of devices.  Why not use a system with
+actual complete bus functionality like ACPI?  If ACPI is available, then there
+should be no need to create a platform device.
+
 > 
-> Pretty please...
+> Also i8042 should not rely on either ACPI or PNP simply because the driver/
+> chip works on boxes other than x86/ia64 so we can't make ACPI or PNP drivers
+> "main" ones. 
+
+No, but they should take priority when they are available.  Don't forget that
+there is also Open Firmware, which has similar functionalility to ACPI if I
+understand correctly.
+
 > 
+> As far as binding/rebinding goes I guess sysdevs and platform devices will
+> just disable this functionality.
 
-I'm not sure what your bind_mode patch includes, but I would like to start a
-general discussion on the bind/unbind issue.
-
-I appreciate the effort, and I agree that this feature is important.  However,
-I would like to discuss a few issues.
-
-1.) I don't think we should merge a patch that supports driver "unbind"
-without also supporting driver "bind".
-
-They're really very interelated, and we don't want to break userspace by
-changing everything around when we discover a cleaner solution.
-
-2.) I don't like having an "unbind" file.
-
-This implies that we will have at least three seperate files controlling
-driver binding when we really need only one or two at the most.  Consider
-"bind", "unbind", and the link to the driver that is bound.
-
-
-An Alternative Solution
-=======================
-
-Why not have a file named "bind".  We can write the name of the driver we want
-bound to the device.  When we want to unbind the driver we could do something
-like this:
-
-# echo "" > bind
-or
-# echo 0 > bind
-
-At least then we only have the link and the "bind" file to worry about.  I've
-also been considering more inventive solutions (like deleting the symlink will
-cause the driver to unbind).  But it could get complex very quickly.  Really,
-we need to discuss this more.
-
-I look forward to any comments.
+Exactly, they have limits because they are not real devices.  ACPI devices are
+real devices.  They have resource management capabilities, power dependencies,
+physical parents, and other features found in buses like PCI.
 
 Thanks,
 Adam

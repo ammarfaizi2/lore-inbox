@@ -1,30 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265830AbSKOFxe>; Fri, 15 Nov 2002 00:53:34 -0500
+	id <S265851AbSKOF6K>; Fri, 15 Nov 2002 00:58:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265844AbSKOFxe>; Fri, 15 Nov 2002 00:53:34 -0500
-Received: from vitelus.com ([64.81.243.207]:15370 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S265830AbSKOFxd>;
-	Fri, 15 Nov 2002 00:53:33 -0500
-Date: Thu, 14 Nov 2002 22:00:17 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Tim Hockin <thockin@sun.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 1/2] Remove NGROUPS hardlimit (resend w/o qsort)
-Message-ID: <20021115060017.GF15812@vitelus.com>
-References: <mailman.1037316781.6599.linux-kernel2news@redhat.com> <200211150006.gAF06JF01621@devserv.devel.redhat.com> <3DD43C65.80103@sun.com> <20021114193156.A2801@devserv.devel.redhat.com> <3DD443EC.2080504@sun.com> <3DD44742.2DFE4407@digeo.com> <3DD44CC0.40805@sun.com> <3DD44E39.4703C2DA@digeo.com>
+	id <S265854AbSKOF6K>; Fri, 15 Nov 2002 00:58:10 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:39352 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265851AbSKOF6J>;
+	Fri, 15 Nov 2002 00:58:09 -0500
+Date: Fri, 15 Nov 2002 11:40:12 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Corey Minyard <cminyard@mvista.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org
+Subject: Re: NMI handling rework for x86
+Message-ID: <20021115114012.A5088@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <3DD47858.3060404@mvista.com> <Pine.LNX.4.44.0211142338230.2750-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DD44E39.4703C2DA@digeo.com>
-User-Agent: Mutt/1.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0211142338230.2750-100000@montezuma.mastecende.com>; from zwane@holomorphy.com on Thu, Nov 14, 2002 at 11:40:04PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 05:30:33PM -0800, Andrew Morton wrote:
-> - add `char groups[16]' to task_struct
-> 
-> - add `struct page *groups_page' to task_struct
+On Thu, Nov 14, 2002 at 11:40:04PM -0500, Zwane Mwaikambo wrote:
+> What interrupt rate have you tested this at? SMP? Adding handlers at 
+> runtime? I'm still skeptical on how RCU protects you, but i'm RCU clueless...
 
-Wouldn't it be better to use a union to save space?
+The RCU part is fairly simple - you want to avoid having to acquire
+a lock for every NMI event to walk the handler so you do it
+lockfree. If a process running in a different CPU tries to
+free an nmi handler, it removes it from the list, issues an
+rcu callback (to be invoked after all CPUs have gone through
+a context switch or executed user-level code ensuring that the
+deleted nmi handler can't be running) and waits for completion of
+the callback. The rcu callback handler wakes it up.
+It is all hidden under list_add_rcu()/list_del_rcu() and __list_for_each_rcu().
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

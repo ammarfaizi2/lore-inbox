@@ -1,75 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbTKCWdS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 17:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbTKCWdS
+	id S261996AbTKCWfb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 17:35:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTKCWfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 17:33:18 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:29938 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261957AbTKCWdQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 17:33:16 -0500
-Subject: [RFC][PATCH] linux-2.4.23-pre9_cyclone-lpj-fix_A0
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: marcelo <marcelo.tosatti@cyclades.com.br>, andrea <andrea@suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1067898667.11436.43.camel@cog.beaverton.ibm.com>
+	Mon, 3 Nov 2003 17:35:31 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:15831 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S261996AbTKCWfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 17:35:21 -0500
+X-Sender-Authentication: net64
+Date: Mon, 3 Nov 2003 23:35:18 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: linux@3ware.com
+Subject: Re: [3ware.com #1741] FW: Bug during media scan, k ernel
+ 2.4.23-pre9
+Message-Id: <20031103233518.3ab90092.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 03 Nov 2003 14:31:07 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo, All,
-	In working to resolve an issue in SLES8 SP3, Andrea caught a bug in the
-cyclone counter's lost-tick compensation code. In the code, we use the
-calibrated loops_per_jiffies to detect the number of ticks that have
-passed, however the lost-ticks code begins running before
-loops_per_jiffies is calculated. This circular dependency that can cause
-loops_per_jiffies to be occasionally mis-calculated.
+On Mon, 3 Nov 2003 14:16:15 -0800
+"Tom Tran via RT" <support-comment@3ware.com> wrote:
 
-The fix drops use of loops_per_jiffies and uses code from 2.5 to do the
-same thing. This patch only affects x440/x445 machines.
+> 
+> > -----Original Message-----
+> > From: Stephan von Krawczynski [mailto:skraw@ithnet.com]
+> > Sent: Monday, November 03, 2003 9:47 AM
+> > To: Linux
+> > Cc: 
+> > Subject: Bug during media scan, kernel 2.4.23-pre9
+> > 
+> > 
+> > Hello,
+> > 
+> > I just encountered a real bad problem with using media scan on 3ware
+> > controllers. I have 3 hds connected and configured a RAID5. I use 
+> media scan
+> > regularly (daily basis). Since two days I see this problem:
+> > 
+> > Nov  3 18:12:11 box 3w-xxxx[2039]: INFORMATION: Verify started on 
+> unit 0 on
+> > controller ID:2. (0x29)
+> > Nov  3 18:19:41 box kernel: 3w-xxxx: scsi2: Unit #0: Command 
+> (f6e5d800)
+> > timed
+> > out, resetting card.
+> > 
+> > After that the box has problems, the controller obviously hangs.
+> > This in itself can be considered a bug, but what is really annoying 
+> is that
+> > one
+> > has no chance finding out _which_ port caused the problem.
+> > So at this point you can play roulette and replace one of the hds 
+> hoping
+> > that
+> > it was indeed the bad one.
+> > 
+> > It would be really a lot better to degrade the unit in this case and 
+> give a
+> > hint which port has problems (command timed out on port ...).
+> > This would:
+> > a) not hang the box
+> > b) give you a chance to replace the hd, as you would expect in RAID5
+> > 
+> > The current situation is absolutely _no good_.
+> > 
+> > Regards,
+> > Stephan
+> 
+> 
+> What motherboard do you have? Does your motherboard
+> bios has an option called "APIC" ? Disable APIC MODE
+> if it is enabled. 
 
-Many thanks for Andrea for catching this. 
-
-Any comments and feedback on the patch is welcome. 
-
-thanks
--john
-
-diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
---- a/arch/i386/kernel/time.c	Mon Nov  3 13:47:16 2003
-+++ b/arch/i386/kernel/time.c	Mon Nov  3 13:47:16 2003
-@@ -279,6 +279,7 @@
- static inline void mark_timeoffset_cyclone(void)
- {
- 	int count;
-+	unsigned long lost;
- 	unsigned long delta = last_cyclone_timer;
- 	spin_lock(&i8253_lock);
- 	/* quickly read the cyclone timer */
-@@ -293,11 +294,12 @@
- 	spin_unlock(&i8253_lock);
+Sorry to say that: this setup works since months. It has already showed
+correct RAID5 "dropouts" (hd failures, replacements etc). My problem is not
+that it does not work or does hang. Sure this is not nice, but the absolute bug
+is really _only_ that there is no information about the _cause_ (port) of the
+failure. This has nothing to do with apic or not, it is a simple lack of
+output information.
  
- 	/*lost tick compensation*/
--	delta = last_cyclone_timer - delta;
--	if(delta > loops_per_jiffy+2000){
--		delta = (delta/loops_per_jiffy)-1;
--		jiffies += delta;
--	}
-+	delta = last_cyclone_timer - delta;	
-+	delta /= (CYCLONE_TIMER_FREQ/1000000);
-+	delta += delay_at_last_interrupt;
-+	lost = delta/(1000000/HZ);
-+	if (lost >= 2)
-+		jiffies += lost-1;
-                
- 	count = ((LATCH-1) - count) * TICK_SIZE;
- 	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
+> If the problems persist, please send us 3dm details,
+> 3dm alarms page, and 3dm error log (download from 
+> 3dm ALARMS).
 
+The problem will persist, because apic doesn't help the driver to show
+output. There is no other useful information in the 3dm logs. In fact the
+problem does not even show up there. Last reports are visible in syslog output
+as stated in the report.
 
+Regards,
+Stephan
+
+PS 3ware: if you send mails for support with questions, please set a
+reply-address that is deliverable...
 

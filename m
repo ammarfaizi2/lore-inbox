@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261337AbTAODCo>; Tue, 14 Jan 2003 22:02:44 -0500
+	id <S261354AbTAODIG>; Tue, 14 Jan 2003 22:08:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261354AbTAODCo>; Tue, 14 Jan 2003 22:02:44 -0500
-Received: from blizzard.bluegravity.com ([64.57.64.28]:42760 "HELO
-	blizzard.bgci.net") by vger.kernel.org with SMTP id <S261337AbTAODCo>;
-	Tue, 14 Jan 2003 22:02:44 -0500
-Message-ID: <3E24D1D5.5090200@ryanflynn.com>
-Date: Tue, 14 Jan 2003 22:13:25 -0500
-From: ryan <ryan@ryanflynn.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
+	id <S261356AbTAODIG>; Tue, 14 Jan 2003 22:08:06 -0500
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:11956 "EHLO
+	mail.kolivas.net") by vger.kernel.org with ESMTP id <S261354AbTAODIG> convert rfc822-to-8bit;
+	Tue, 14 Jan 2003 22:08:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] contest benchmark v0.60
+Date: Wed, 15 Jan 2003 14:16:48 +1100
+User-Agent: KMail/1.4.3
+Cc: Aggelos Economopoulos <aoiko@cc.ece.ntua.gr>,
+       Cliff White <cliffw@osdl.org>
+References: <1042500483.3e234b8335def@kolivas.net>
+In-Reply-To: <1042500483.3e234b8335def@kolivas.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.56 sound/oss/sb_mixer.c bounds check
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301151416.54557.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN a/sound/oss/sb_mixer.c b/sound/oss/sb_mixer.c
---- a/sound/oss/sb_mixer.c      Fri Jan 10 15:11:27 2003
-+++ b/sound/oss/sb_mixer.c      Tue Jan 14 22:06:20 2003
-@@ -333,6 +333,9 @@
-                         break;
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-                 default:
-+                       /* bounds check */
-+                       if (dev >= sizeof(smw_mix_regs))
-+                               return -EINVAL;
-                         reg = smw_mix_regs[dev];
-                         if (reg == 0)
-                                 return -EINVAL;
+Ok some mildly annoying bugs have already shown up in this release.
 
+I've put up a contest-0.61pre on the contest website that addresses the one 
+which ruins the results and has some of the changes going into 0.61
+
+http://contest.kolivas.net
+
+Major problem is that you need to run make oldconfig and make dep manually 
+before running contest successfully the first time. This will be corrected by 
+the time 0.61 comes out (probably by weekend).
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE+JNKiF6dfvkL3i1gRAssdAJ0TRiDhbQUP3lcgTV86/iqS6SfdfgCeNI1d
+t73yXAn48I+8j+w/l2ieDT0=
+=TqgD
+-----END PGP SIGNATURE-----

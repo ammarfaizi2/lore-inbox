@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263771AbTDXRz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 13:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263773AbTDXRz1
+	id S263721AbTDXSEH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 14:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263773AbTDXSEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 13:55:27 -0400
-Received: from 12-207-41-15.client.attbi.com ([12.207.41.15]:40716 "EHLO
-	skarpsey.home.lan") by vger.kernel.org with ESMTP id S263771AbTDXRz1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 13:55:27 -0400
-From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
+	Thu, 24 Apr 2003 14:04:07 -0400
+Received: from eldar.tcsn.co.za ([196.41.199.50]:40712 "EHLO tcsn.co.za")
+	by vger.kernel.org with ESMTP id S263721AbTDXSEE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 14:04:04 -0400
+Date: Thu, 24 Apr 2003 20:05:24 +0200
+From: Henti Smith <bain@tcsn.co.za>
 To: linux-kernel@vger.kernel.org
-Subject: Re: hot-swap ide disk.
-Date: Thu, 24 Apr 2003 13:08:02 -0500
-User-Agent: KMail/1.5.1
-References: <20030424175318.GC15764@an.spylog.com>
-In-Reply-To: <20030424175318.GC15764@an.spylog.com>
-Cc: Andrey Nekrasov <andy@spylog.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+Subject: maximum possible memory limit ..
+Message-Id: <20030424200524.5030a86b.bain@tcsn.co.za>
+Organization: The Computer Smith Networks
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304241308.02784.kelledin+LKML@skarpsey.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 April 2003 12:53 pm, Andrey Nekrasov wrote:
-> Hello.
->
->  There is a way to give command kernel to re-read parameters
-> of the hard disk (mbr/etc)?
->
->  Hard drive IDE, kernel 2.4.20, no modules support.
->
->  May be in /proc/...  ?
+Hi all 
 
-hdparm can unregister and re-register an entire IDE channel, at 
-which point the channel gets re-scanned.  The hdparm source 
-comes with an "idectl" script that makes this easy.
+I had a discussion with somebody watching the whole M$ server launch and mentioned then new systems supports up to a terabyte of ram. 
+I've tried looking for a hint at what the max momery support on linux is and cannot find it anywhere.
 
-Don't know about individual IDE devices, though.  My 
-understanding is, it's all or nothing--IDE registration applies 
-to an entire channel.  Also don't know how well Linux handles 
-serial ATA.
+can somebody here enlighten me on just what the maximum amount of memory linux can deal with ? 
 
--- 
-Kelledin
-"If a server crashes in a server farm and no one pings it, does 
-it still cost four figures to fix?"
-
+Henti 

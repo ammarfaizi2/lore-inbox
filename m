@@ -1,85 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132496AbRDDWSR>; Wed, 4 Apr 2001 18:18:17 -0400
+	id <S132500AbRDDWUh>; Wed, 4 Apr 2001 18:20:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132500AbRDDWR6>; Wed, 4 Apr 2001 18:17:58 -0400
-Received: from monza.monza.org ([209.102.105.34]:33809 "EHLO monza.monza.org")
-	by vger.kernel.org with ESMTP id <S132496AbRDDWRz>;
-	Wed, 4 Apr 2001 18:17:55 -0400
-Date: Wed, 4 Apr 2001 15:16:32 -0700
-From: Tim Wright <timw@splhi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Hubertus Franke <frankeh@us.ibm.com>, Mike Kravetz <mkravetz@sequent.com>,
-        Fabio Riccardi <fabio@chromium.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: a quest for a better scheduler
-Message-ID: <20010404151632.A2144@kochanski>
-Reply-To: timw@splhi.com
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Hubertus Franke <frankeh@us.ibm.com>,
-	Mike Kravetz <mkravetz@sequent.com>,
-	Fabio Riccardi <fabio@chromium.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <OFB30A8B18.2E3AD16C-ON85256A24.004BD696@pok.ibm.com> <Pine.LNX.4.30.0104041518540.5382-100000@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.30.0104041518540.5382-100000@elte.hu>; from mingo@elte.hu on Wed, Apr 04, 2001 at 03:23:34PM +0200
+	id <S132501AbRDDWU1>; Wed, 4 Apr 2001 18:20:27 -0400
+Received: from chambertin.convergence.de ([212.84.236.2]:5641 "EHLO
+	chambertin.convergence.de") by vger.kernel.org with ESMTP
+	id <S132500AbRDDWUQ>; Wed, 4 Apr 2001 18:20:16 -0400
+Date: Thu, 5 Apr 2001 00:19:22 +0200 (CEST)
+From: "Joachim 'roh' Steiger" <roh@convergence.de>
+To: Miles Lane <miles@megapathdsl.net>
+cc: Thomas Dodd <ted@cypress.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
+Subject: Re: Contacts within AMD?  AMD-756 USB host-controller blacklisted
+ due to
+In-Reply-To: <3ACB6DEB.4020709@megapathdsl.net>
+Message-ID: <Pine.LNX.4.21.0104050004060.21943-100000@campari.convergence.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 04, 2001 at 03:23:34PM +0200, Ingo Molnar wrote:
+i would like to help to track down this problem
+i'm using a gigabyte 7IXE revision 1.1
+kernel is 2.4.1
+
+lspci output for usb:
+00:07.4 USB Controller: Advanced Micro Devices [AMD] AMD-756 [Viper] USB
+(rev 06) (prog-i
+f 10 [OHCI])
+        Flags: bus master, medium devsel, latency 16, IRQ 11
+        Memory at efffc000 (32-bit, non-prefetchable) [size=4K]
+
+
+On Wed, 4 Apr 2001, Miles Lane wrote:
+> Thomas Dodd wrote:
 > 
-> On Wed, 4 Apr 2001, Hubertus Franke wrote:
-> 
-> > I understand the dilemma that the Linux scheduler is in, namely
-> > satisfy the low end at all cost. [...]
-> 
-> nope. The goal is to satisfy runnable processes in the range of NR_CPUS.
-> You are playing word games by suggesting that the current behavior prefers
-> 'low end'. 'thousands of runnable processes' is not 'high end' at all,
-> it's 'broken end'. Thousands of runnable processes are the sign of a
-> broken application design, and 'fixing' the scheduler to perform better in
-> that case is just fixing the symptom. [changing the scheduler to perform
-> better in such situations is possible too, but all solutions proposed so
-> far had strings attached.]
-> 
+> > Alan Cox wrote:
+> >
+> >> because we dont know the full scope of the problem yet.
+> > Exactly how many bug reports has this caused?
+> > What kind of problems?
 
+here i only have this kernelmessage floating around in my logfiles about 1
+time the day: 
 
-Ingo, you continue to assert this without giving much evidence to back it up.
-All the world is not a web server. If I'm running a large OLTP database with
-thousands of clients, it's not at all unreasonable to expect periods where
-several hundred (forget the thousands) want to be serviced by the database
-engine. That sounds like hundreds of schedulable entities be they processes
-or threads or whatever. This sort of load is regularly run on machine with
-16-64 CPUs.
+Apr  4 14:47:15 campari kernel: usb-ohci.c: bogus NDP=204 for OHCI 
+usb-00:07.4
+Apr  4 14:47:15 campari kernel: usb-ohci.c: rereads as NDP=4
 
-Now I will admit that it is conceivable that you can design an application that
-finds out how many CPUs are available, creates threads to match that number
-and tries to divvy up the work between them using some combination of polling
-and asynchronous I/O etc. There are, however a number of problems with this
-approach:
-1) It assumes that this is the only workload on the machine. If not it quickly
-becomes sub-optimal due to interactions between the workloads. This is a
-problem that the kernel scheduler does not suffer from.
-2) It requires *every* application designer to design an effective scheduler
-into their application. I would submit that an effective scheduler is better
-situated in the operating system.
-3) It is not a familiar programming paradigm to many Unix/Linux/POSIX
-programmers, so you have a sort of impedance mismatch going on.
+> error."  Most of the time, when the error occurs, it seems
+> pretty benign.  That is, I haven't noticed it crashing USB
+> device connections, causing data corruption or OOPSen.
+> Some folks _have_ reported OOPSen, though, that seemed to
+> be triggered by the erratum #4 hardware bug.  I think I
+> may have had one of these a long time ago.
 
-Since the proposed scheduler changes being talked about here have been shown
-to not hurt the "low end" and to dramatically improve the "high end", I fail
-to understand the hostility to the changes. I can understand that you do not
-feel that this is the correct way to architect an application, but if the
-changes don't hurt you, why sabotage changes that also allow a different
-method to work. There isn't one true way to do anything in computing.
+as you see it's revision 6
+i've had no other problems with usb for now and use this
+ idVendor           0x046d Logitech Inc.
+ idProduct          0xc00c 
+usb-wheelmouse all the time
 
-Tim
+i've never had this kernel or previous kernel (2.4.0test8) oopsen 
+and it runs perfectly stable here
 
+> I believe David has found that there definitely are code
+> paths where this hardware bug can cause failures of various
+> sorts and that's why the AMD-756 has been blacklisted.
+
+since i did'nt cause any troubles here i would not like to have the
+complete AMD-756 blacklisted in the ohci-driver
+eventually only some revisions are that bad
+
+please correct me if i'm wrong i only don't want to blacklist complete
+chipset-series
+
+roh
 -- 
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-Interested in Linux scalability ? Look at http://lse.sourceforge.net/
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
+Joachim 'roh' Steiger                      mailto:roh@convergence.de
+Convergence Integrated Media GmbH          http://www.convergence.de
+Rosenthaler Str. 51                        fon: +49(0)30-72 62 06 77
+10178 Berlin, Germany                      fax: +49(0)30-72 62 06 55
+

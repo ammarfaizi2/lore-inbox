@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316792AbSHOLa5>; Thu, 15 Aug 2002 07:30:57 -0400
+	id <S316775AbSHOL1H>; Thu, 15 Aug 2002 07:27:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316788AbSHOLa5>; Thu, 15 Aug 2002 07:30:57 -0400
-Received: from perfo.perfopol.pl ([213.25.186.10]:34572 "EHLO mail.perfopol.pl")
-	by vger.kernel.org with ESMTP id <S316792AbSHOLa4> convert rfc822-to-8bit;
-	Thu, 15 Aug 2002 07:30:56 -0400
-To: linux-kernel@vger.kernel.org
-Subject: serial console (was Re: [patch] printk from userspace)
-X-Attribution: arekm
-X-URL: http://www.t17.ds.pwr.wroc.pl/~misiek/ipv6/
-Organization: PLD Linux Distribution Team
-From: Arkadiusz Miskiewicz <misiek@pld.ORG.PL>
-Date: 14 Aug 2002 18:12:36 +0200
-In-Reply-To: <ajd2k5$h8l$1@ncc1701.cistron.net>
-Message-ID: <87eld1s9l7.fsf_-_@arm.t19.ds.pwr.wroc.pl>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2.90
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S316786AbSHOL1H>; Thu, 15 Aug 2002 07:27:07 -0400
+Received: from kiruna.synopsys.com ([204.176.20.18]:1950 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S316775AbSHOL1G>; Thu, 15 Aug 2002 07:27:06 -0400
+Date: Thu, 15 Aug 2002 13:30:51 +0200
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] user-vm-unlock-2.5.31-A2
+Message-ID: <20020815113051.GA18146@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+Mail-Followup-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <20020815050343.A27963@kushida.apsleyroad.org> <Pine.LNX.4.44.0208150837510.2197-100000@localhost.localdomain> <20020815113148.A28398@kushida.apsleyroad.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020815113148.A28398@kushida.apsleyroad.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Miquel van Smoorenburg" <miquels@cistron.nl> writes:
+On Thu, Aug 15, 2002 at 11:31:48AM +0100, Jamie Lokier wrote:
+>    - intercept all the system calls that might call mmput(); that is,
+>      exit() and execve()), just so it can move the thread-specific data
+>      (including the stack) onto the "potentially free list".
 
-> I have a bootlogd that does a TIOCCONS on /dev/console, so
-> that it can capture all messages written to /dev/console.
-> 
-> It buffers the messages in-memory, until it is able to open
-> a logfile in /var/log/ at which point it writes the buffered
-> data to the logfile, and starts logging to that file.
-> 
-> The only problem is that TIOCCONS is a redirect, so there's no
-> output to the console anymore. 
-btw. is there any reason to not display initscripts messages
-on all consoles in such setup:
-append="console=tty0 console=ttyS0,57600n8"
-serial=0,57600n8
-?
-
-kernel messages are available on both - tty0 and ttyS0 while
-userspace messages (from initscripts) only on last specified
-- in such case ttyS0. 
-
-> Mike.
-
--- 
-Arkadiusz Mi¶kiewicz   IPv6 ready PLD Linux at http://www.pld.org.pl
-misiek(at)pld.org.pl   AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PWr
+And the reason why i cannot intercept exit() or exec... again somewhere
+in my threaded program is...?

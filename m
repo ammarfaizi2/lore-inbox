@@ -1,79 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316070AbSIDXH1>; Wed, 4 Sep 2002 19:07:27 -0400
+	id <S315942AbSIDXG2>; Wed, 4 Sep 2002 19:06:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316088AbSIDXH0>; Wed, 4 Sep 2002 19:07:26 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:15883 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S316070AbSIDXGp>;
-	Wed, 4 Sep 2002 19:06:45 -0400
-Message-ID: <3D769371.6000009@domdv.de>
-Date: Thu, 05 Sep 2002 01:12:49 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux.nics@intel.com, linux-kernel@vger.kernel.org
-Subject: 2.4.20pre5 e100 build error + trivial fix
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------030701030106080401020601"
+	id <S316070AbSIDXG2>; Wed, 4 Sep 2002 19:06:28 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:29199 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315946AbSIDXGZ>;
+	Wed, 4 Sep 2002 19:06:25 -0400
+Date: Wed, 4 Sep 2002 16:09:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Andries.Brouwer@cwi.nl
+Cc: mdharm-kernel@one-eyed-alien.net, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Feiya 5-in-1 Card Reader
+Message-ID: <20020904230901.GA8574@kroah.com>
+References: <UTC200209042256.g84Mu0w15389.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <UTC200209042256.g84Mu0w15389.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030701030106080401020601
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Sep 05, 2002 at 12:56:00AM +0200, Andries.Brouwer@cwi.nl wrote:
+> >> Matt, is it ok with you for me to add this patch to the tree?
+> 
+> > I'd like to hold off a few more days while I try to find out what the
+> > 'secret sauce' that the other OSes use for a device like this.
+> 
+> Hmm. You do not confuse two situations, do you?
+> In the past few days I made two devices work.
+> 
+> One was a Feiya 5-in-1 CF / SM / SD card reader
+> (Vendor Id: 090c, Product Id: 1132, Revision 1.00).
+> It returned a capacity that is one too large, and becomes
+> very unhappy if one tries to read a sector past the end.
+> So, a flag was needed to tell that the result of READ CAPACITY
+> needs fixing.
 
-Hi,
-the e100 driver in 2.4.20pre5 fails to build due to a static procedure 
-declaration with an unresolved symbol (see below), trivial patch to fix 
-this is attached.
+Seems reasonble, Matt, any objection?
 
-ld -m elf_i386 -T 
-/usr/src/ARCHIVE/kernel-2.4.20pre5/linux/arch/i386/vmlinux.lds -e stext 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
-init/version.o init/do_mounts.o \
-         --start-group \
-         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
-mm/mm.o fs/fs.o ipc/ipc.o \
-          drivers/char/char.o drivers/block/block.o drivers/misc/misc.o 
-drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o 
-drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o \
-         net/network.o \
-          \
-         /usr/src/ARCHIVE/kernel-2.4.20pre5/linux/arch/i386/lib/lib.a 
-/usr/src/ARCHIVE/kernel-2.4.20pre5/linux/lib/lib.a 
-/usr/src/ARCHIVE/kernel-2.4.20pre5/linux/arch/i386/lib/lib.a \
-         --end-group \
-         -o vmlinux
-drivers/net/net.o: In function `e100_diag_config_loopback':
-drivers/net/net.o(.text+0x8a74): undefined reference to 
-`e100_force_speed_duplex'
+> The other was a Travelmate CF / SM / SD card reader
+> (Vendor Id: 3538, Product Id: 0001, Revision 2.05).
+> It became unhappy when MODE_SENSE asked for too much data.
+> A patch on sd.c solved this.
 
--- 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+Linus already added this patch to his tree :)
 
---------------030701030106080401020601
-Content-Type: text/plain;
- name="e100_phy.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="e100_phy.diff"
+thanks,
 
---- drivers/net/e100/e100_phy.c.orig	2002-09-05 00:35:38.000000000 +0200
-+++ drivers/net/e100/e100_phy.c	2002-09-05 01:03:32.000000000 +0200
-@@ -622,7 +622,7 @@
-  * Returns: void
-  *
-  */
--static void
-+void
- e100_force_speed_duplex(struct e100_private *bdp)
- {
- 	u16 control;
-
---------------030701030106080401020601--
-
+greg k-h

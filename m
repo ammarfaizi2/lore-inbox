@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130017AbQLRTR0>; Mon, 18 Dec 2000 14:17:26 -0500
+	id <S129319AbQLRTT4>; Mon, 18 Dec 2000 14:19:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129663AbQLRTRR>; Mon, 18 Dec 2000 14:17:17 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:48774 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S130017AbQLRTRC>; Mon, 18 Dec 2000 14:17:02 -0500
-Date: Mon, 18 Dec 2000 19:44:44 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, mingo@chiara.elte.hu
-Subject: Re: Startup IPI (was: Re: test13-pre3)
-In-Reply-To: <1009FFDF1491@vcnet.vc.cvut.cz>
-Message-ID: <Pine.GSO.3.96.1001218192414.4900A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S129391AbQLRTTq>; Mon, 18 Dec 2000 14:19:46 -0500
+Received: from athena.intergrafix.net ([206.245.154.69]:7686 "HELO
+	athena.intergrafix.net") by vger.kernel.org with SMTP
+	id <S129319AbQLRTTe>; Mon, 18 Dec 2000 14:19:34 -0500
+Date: Mon, 18 Dec 2000 13:49:07 -0500 (EST)
+From: Admin Mailing Lists <mlist@intergrafix.net>
+To: linux-kernel@vger.kernel.org
+Cc: kde-user@lists.netcentral.net
+Subject: system locks HARD on KDE start
+Message-ID: <Pine.LNX.4.10.10012181329080.3422-100000@athena.intergrafix.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Dec 2000, Petr Vandrovec wrote:
 
-> It is possible. But it is hard to track, as it works with serial console,
-> and it is not possible to paint characters to VGA screen, as vgacon uses
-> hardware panning instead of scrolling :-( And if it dies, shift-pageup
-> apparently does not work... And filling whole 32KB with some char
-> does not work, as it changes timing too much...
+Hi,
 
- Just disable the problematic printk()s for making tests (you may just
-undefine APIC_DEBUG in include/asm-i386/apic.h) -- we already know what is
-going to be printed here. ;-)
+I'm trying to get kde2 running and i'm not positive if it's a KDE problem,
+or a kernel thing.
+Whenever I start kde, the kde startup gets so far and the system freezes.
+Sometimes it does it at "Loading the panel" sometimes it'll get to "100%
+KDE is up and running" and do it. When it does it the hard drive light
+stays on. I can't see if the kernel is oopsing because it's stuck in
+graphics mode. Alt-SysRq to sync/unmount disks doesn't seem to work,
+because i reset and all the drives go into fsck.
+I've tried the following combinations:
+kde 2.0 (final and pres)/qt 2.2.1/xfree 3.3.6/kernel 
+2.2.15pre18|2.2.18pre20
+kde 2.0.1/qt 2.2.2/xfree 4.0.1|3.3.6/kernel 2.2.15pre18|2.2.18pre20
+All are compiled from source.
 
-> No, I'll try. It occured with either AGP (Matrox G200/G400/G450) or
-> PCI (S3, CL5434) VGA adapter. I did not tried real ISA VGA...
+X runs fine with just tvm.
+glibc is 2.1.3. gcc is 2.95.2
+I used to run libc5, and kde 2.0 would startup fine, but i had many
+SEGV/ABRTs making it unusable, which is why i upgraded to 2.1.3. libc5 is
+still around just for existing apps.
+Nothing fancy compiled in kernel..no I2C, USB, sound, or power management.
+Running PR440FX mobo with dual ppro 200s, SCSI drives (i've also tried a
+new hard drive), 384MB ram, Diamond Stealth 2000
 
- Oops, I've forgotten there exist non-ISA display adapters. ;-)  Just try
-if accessing one bus or another changes the behaviour. 
+Any help is appreciated,
 
-> Yes. I could understand if I had to place bigger udelay() after INIT IPI,
-> as this can cause some specific PIII initialization and Intel says that
-> there should not be any MESI traffic during this init (at least I understand
+-Tony
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+Anthony J. Biacco                       Network Administrator/Engineer
+thelittleprince@asteroid-b612.org       Intergrafix Internet Services
 
- Hmm, weird -- for integrated APICs an INIT IPI is about the same as
-shutdown apart from the fact an NMI won't wake up a CPU (that might
-actually be the local APIC not passing NMIs to the CPU in this case,
-though). 
+    "Dream as if you'll live forever, live as if you'll die today"
+http://www.asteroid-b612.org                http://www.intergrafix.net
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
 
-> it that way). But after startup IPI it should just start executing code...
-> I tried to put 'wbinvd' here and there, but it did not make any change,
-> only udelay() between startup IPI cmd and first printk() did.
-
- Hmm, a startup IPI is rather fast so the code just after issuing it may
-somehow interact with the application's CPU trampoline.  But try to
-disable CONFIG_X86_GOOD_APIC, yet (you may configure for classic Pentium,
-for example), and see if that changes anything (it shouldn't, but who
-knows...). 
-
-> I have no idea. I know that board has VT82C694X (rev c4) host and PCI bridge,
-
- Just look at the board and search for an I/O APIC chip. ;-) 
-
-> and VT82C686 (rev 22) ISA bridge. I tried to request documentation
-> of 694X from VIA, but I did not heard from them. They have probably
-> some secrets hidden in their hardware...
-
- They wan't to keep the competition from being bug-compatible, it would
-seem...
-
-  Maciej
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVBJTZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVBJT3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVBJTZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 14:25:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVBJTYi
+	id S261365AbVBJT3u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 14:29:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVBJT24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 14:24:38 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:8343 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261365AbVBJTWs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 14:22:48 -0500
-Date: Thu, 10 Feb 2005 20:23:19 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Steve Lee <steve@tuxsoft.com>
-Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050210192319.GA1864@ucw.cz>
-References: <000001c50f8f$7f420420$8119fea9@pluto>
+	Thu, 10 Feb 2005 14:28:56 -0500
+Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:51110 "EHLO
+	gw02.mail.saunalahti.fi") by vger.kernel.org with ESMTP
+	id S261365AbVBJT0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 14:26:00 -0500
+Date: Thu, 10 Feb 2005 21:25:54 +0200
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
+       Jon Smirl <jonsmirl@gmail.com>, ncunningham@linuxmail.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI]   Samsung P35, S3, black screen (radeon))
+Message-ID: <20050210192554.GA15726@sci.fi>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
+	Jon Smirl <jonsmirl@gmail.com>, ncunningham@linuxmail.org,
+	Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+	ACPI List <acpi-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1107695583.14847.167.camel@localhost.localdomain> <420BB267.8060108@tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <000001c50f8f$7f420420$8119fea9@pluto>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <420BB267.8060108@tmr.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 10:42:15AM -0600, Steve Lee wrote:
-
-> Roman, besides BK being closed source, how exactly is it lacking for
-> your needs?  If what it lacks is a good idea and helps many, Larry and
-> crew might be willing to add whatever it is you need.
- 
-A feature I lack is 'floating changesets', that would keep always at the
-top of the history, rediffed, remerged and updated as other changesets
-come in.
-
-I know quilt can do it, but quilt can't do other things I like on bk.
+BTW it seems that old ATI cards use the BIOS to initialize secondary 
+adapters even under Windows.
+See http://www.ati.com/support/infobase/3663.html.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Ville Syrjälä
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/

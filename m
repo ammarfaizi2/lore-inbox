@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261732AbSJ2JVV>; Tue, 29 Oct 2002 04:21:21 -0500
+	id <S261723AbSJ2JTw>; Tue, 29 Oct 2002 04:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261733AbSJ2JVV>; Tue, 29 Oct 2002 04:21:21 -0500
-Received: from hermes.univ-evry.fr ([194.199.90.32]:38829 "EHLO
-	hermes.univ-evry.fr") by vger.kernel.org with ESMTP
-	id <S261732AbSJ2JVU>; Tue, 29 Oct 2002 04:21:20 -0500
-Date: Tue, 29 Oct 2002 10:20:44 +0100 (CET)
-From: Daniel Goujot <Daniel.Goujot@maths.univ-evry.fr>
-To: Nuno Monteiro <nuno@itsari.org>,
-       Stephen Wille Padnos <stephen.willepadnos@verizon.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: rtl8139 : is a development driver (was: Re: No rtl8139 found in
- menuconfig in linux-2.2.22)
-In-Reply-To: <20021028162819.GA9723@hobbes.itsari.int>
-Message-ID: <Pine.LNX.4.33L2.0210291002420.18891-100000@grozny.maths.univ-evry.fr>
+	id <S261724AbSJ2JTw>; Tue, 29 Oct 2002 04:19:52 -0500
+Received: from trappist.elis.rug.ac.be ([157.193.67.1]:48838 "EHLO
+	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
+	id <S261723AbSJ2JTv>; Tue, 29 Oct 2002 04:19:51 -0500
+Date: Tue, 29 Oct 2002 10:26:07 +0100 (CET)
+From: Frank Cornelis <fcorneli@elis.rug.ac.be>
+To: linux-kernel@vger.kernel.org
+cc: Frank.Cornelis@elis.rug.ac.be
+Subject: [PATCH] ptrace on 2.5.44
+Message-ID: <Pine.LNX.4.44.0210291018001.10072-100000@trappist.elis.rug.ac.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Oct 2002, Nuno Monteiro wrote:
+Hi,
 
-> On 28.10.02 16:00 Daniel Goujot wrote:
->
-> > make menuconfig
-> > -- don't find the rtl8139 (I found the tulip network driver, not the
-> > rtl8139 network driver)
->
->
-> You need to say 'Y' in ->
->    -- Code maturity level options
->     -- Prompt for development and/or incomplete code/drivers
->
-> Then you'll have
->     -- Network device support
->      -- Ethernet (10 or 100Mbit)
->       -- RealTek 8129/8139 (not 8019/8029!) support (NEW)
+According to cachetlb.txt the following should be fixed in order to get 
+it right on some architectures.
 
-Thank you. Shame on me, this solution shows up with
-google.fr/search?q=CONFIG_RTL8139 ... (though, can you add in the
-linux-2.2.22/Documentation/Configure.help file that CONFIG_RTL8139 is an
-experimental driver ? Alternatively, does it exist a file containing this
-type of datas (e.g., for CONFIG_RTL8139 : Code maturity level options ->
-Prompt for development + Network device support -> Ethernet (10 or
-100Mbit) -> RealTek 8129/8139).
+Frank.
 
-Thank you for both your helps !
+--- ptrace.c.2.5.44     Wed Oct 30 10:09:42 2002
++++ ptrace.c    Wed Oct 30 10:11:33 2002
+@@ -181,11 +181,11 @@
+                maddr = kmap(page);
+                if (write) {
+                        memcpy(maddr + offset, buf, bytes);
+-                       flush_page_to_ram(page);
++                       flush_dcache_page(page);
+                        flush_icache_user_range(vma, page, addr, bytes);
+                } else {
++                       flush_dcache_page(page);
+                        memcpy(buf, maddr + offset, bytes);
+-                       flush_page_to_ram(page);
+                }
+                kunmap(page);
+                page_cache_release(page);
 
-[end of story: Yesterday, I have compiled tht rtl8139 driver by hacking
-the Makefiles, and I didn't try make xconfig of make config]
-
-	Daniel Goujot
 

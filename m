@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbUDKHrr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 03:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbUDKHrr
+	id S262279AbUDKIFY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 04:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbUDKIFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 03:47:47 -0400
-Received: from server8.totalchoicehosting.com ([216.180.241.250]:42912 "EHLO
-	server8.totalchoicehosting.com") by vger.kernel.org with ESMTP
-	id S262273AbUDKHrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 03:47:46 -0400
-From: Michael Wu <flamingice@sourmilk.net>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] adm8211 driver
-Date: Sun, 11 Apr 2004 03:47:26 -0400
-User-Agent: KMail/1.6.1
-MIME-Version: 1.0
+	Sun, 11 Apr 2004 04:05:23 -0400
+Received: from waste.org ([209.173.204.2]:39846 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262279AbUDKIFQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 04:05:16 -0400
+Date: Sun, 11 Apr 2004 03:05:15 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] ketchup 0.5 (formerly kpatchup)
+Message-ID: <20040411080515.GX6248@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404110347.27632.flamingice@sourmilk.net>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server8.totalchoicehosting.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - sourmilk.net
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a driver for the adm8211 802.11b chipset.
+ketchup is a script that automatically patches between kernel
+versions, downloading and caching patches as needed, and automatically
+determining the latest versions of several trees. Example usage:
 
-http://aluminum.sourmilk.net/adm8211/adm8211-20040411.tar.bz2
+ $ ketchup 2.6-mm
+ 2.6.3-rc1-mm1 -> 2.6.5-mm4
+ Applying 2.6.3-rc1-mm1.bz2 -R
+ Applying patch-2.6.3-rc1.bz2 -R
+ Applying patch-2.6.3.bz2
+ Applying patch-2.6.4.bz2
+ Applying patch-2.6.5.bz2
+ Downloading 2.6.5-mm4.bz2
+ Downloading 2.6.5-mm4.bz2.sign
+ Verifying signature...
+ gpg: Signature made Sat Apr 10 21:55:36 2004 CDT using DSA key ID 517D0F0E
+ gpg: Good signature from "Linux Kernel Archives Verification Key
+ <ftpadmin@kernel.org>"
+ gpg:                 aka "Linux Kernel Archives Verification Key
+ <ftpadmin@kernel.org>"
+ owner.
+ gpg: WARNING: This key is not certified with a trusted signature!
+ gpg:          There is no indication that the signature belongs to the
+ Primary key fingerprint: C75D C40A 11D7 AF88 9981  ED5B C86B A06A 517D 0F0E
+ Applying 2.6.5-mm4.bz2
 
-It's only for 2.6.x kernels, and it's not quite finished yet. It should mostly 
-work for infrastructure and monitor modes, but adhoc and WEP don't work yet. 
-Should work for the average wireless network though.
 
-Thanks to Jouni Malinen for starting this driver, Jerritt Collord for telling 
-me about his driver, and David Young for his netbsd driver I used as a 
-reference.
+New in this version by popular demand:
 
-Please test and see if it works for you.
+- name change kpatchup -> ketchup
+- automatic signature verification
+- works with older versions of Python
 
-I'm not subscribed to this list, so please CC.
+Currently it defaults to trying to use gpg, which means you must have
+gpg installed and the appropriate keys in your keyring. You can
+disable this with the -g or --no-gpg options.
 
-- Michael Wu
+Available at:
+
+http://selenic.com/ketchup/ketchup-0.5
+
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266609AbUBMBKe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 20:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUBMBKe
+	id S266648AbUBMBXc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 20:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266677AbUBMBXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 20:10:34 -0500
-Received: from mailout1.samsung.com ([203.254.224.24]:26300 "EHLO
-	mailout1.samsung.com") by vger.kernel.org with ESMTP
-	id S266609AbUBMBKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 20:10:31 -0500
-Date: Fri, 13 Feb 2004 10:09:44 +0900
-From: "Hyok S. Choi" <hyok.choi@samsung.com>
-Subject: the first port of uClinux/ARM for 2.6 kernel (armnommu architecture)
-To: linux-arm-kernel@lists.arm.linux.org.uk,
-       "'uClinux development list'" <uclinux-dev@uclinux.org>,
-       Linux-Kernel List <linux-kernel@vger.kernel.org>
-Message-id: <009501c3f1ce$13fc88a0$1327dba8@dmsst.net>
-Organization: Samsung Electronics Co.,Ltd.
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	Thu, 12 Feb 2004 20:23:32 -0500
+Received: from mail.shareable.org ([81.29.64.88]:13698 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266648AbUBMBXa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 20:23:30 -0500
+Date: Fri, 13 Feb 2004 01:23:26 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+Message-ID: <20040213012326.GA25499@mail.shareable.org>
+References: <20040209115852.GB877@schottelius.org> <200402121655.39709.robin.rosenberg.lists@dewire.com> <20040213003839.GB24981@mail.shareable.org> <200402130216.53434.robin.rosenberg.lists@dewire.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402130216.53434.robin.rosenberg.lists@dewire.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Robin Rosenberg wrote:
+> Is there a place to store character set information in these file systems?
 
- I'm reporting of the first port of new architecture(armnommu) for 2.6
-kernel is done.
+Please don't confuse character set with character encoding.  The
+problem we are talking about here is about character encoding.
 
- I planning the patch against recent kernel version will be announced in
-this month, after some test and addition of 1~2 more chips. The current
-port include support of only one (Samsung S5C7375 SoC) for test.
+Once upon a time the two were muddled; that's why MIME and HTTP use
+"charset" to mean character encoding.
 
- As you know, the official 2.6 linux kernel merged uClinux, but the
-ARM(w/o mmu) was not included.
+And the answer is: yes, you can store it wherever you want :)
 
- You'll find more detail on http://www.ucdot.org , soon. Any comment is
-welcomed.
+> Some apps simply don't think non-ascii is relevant. Xmms is one, although
+> is doesn't crash at least. My guess was that it was a font problem since it
+> looks like XMMS uses some special fonts.
 
-PS: I worked on toolchain for linux kernel compile, too. it works for
-now, of course.^^  However, there is some toolchain trouble yet for user
-program compile, and think there will, too. Is there anyone who're
-interested on that work?
+It's not a font problem.  XMMS simply displays each byte as a separate
+character because that's what it assumes it should do.  No font will fix that.
 
-<EOT>
-
-CHOI, HYOK-SUNG
-Engineer (Linux System Software)
-S/W Platform Lab, Digital Media R&D Center
-Samsung Electronics Co.,Ltd.
-tel: +82-31-200-8594  fax: +82-31-200-3427
-e-mail: hyok.choi@samsung.com
-
-[compile&run]
-main(a){printf(a,34,a="main(a){printf(a,34,a=%c%s%c,34);}",34);}
-
-
-  
-
+-- Jamie

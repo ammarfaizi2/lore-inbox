@@ -1,85 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269534AbRGaXRR>; Tue, 31 Jul 2001 19:17:17 -0400
+	id <S269533AbRGaXTq>; Tue, 31 Jul 2001 19:19:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269533AbRGaXRA>; Tue, 31 Jul 2001 19:17:00 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:39177 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S269534AbRGaXQn>;
-	Tue, 31 Jul 2001 19:16:43 -0400
-Date: Wed, 1 Aug 2001 00:06:46 +0100 (BST)
+	id <S269535AbRGaXTh>; Tue, 31 Jul 2001 19:19:37 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:40713 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S269533AbRGaXTY>;
+	Tue, 31 Jul 2001 19:19:24 -0400
+Date: Wed, 1 Aug 2001 00:19:28 +0100 (BST)
 From: Riley Williams <rhw@MemAlpha.CX>
 X-X-Sender: <rhw@infradead.org>
-To: Craig Milo Rogers <rogers@ISI.EDU>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OT: Virii on vger.kernel.org lists 
-In-Reply-To: <1661.996618791@ISI.EDU>
-Message-ID: <Pine.LNX.4.33.0107312343080.31582-100000@infradead.org>
+To: William Scott Lockwood III <thatlinuxguy@hotmail.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Virii on vger.kernel.org lists
+In-Reply-To: <OE23osJ3Ih7jtrSByh1000034b5@hotmail.com>
+Message-ID: <Pine.LNX.4.33.0108010007480.31582-100000@infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi Craig.
+Hi William.
 
- >>> Better than that, simply strip all non-text MIME attachments, or
- >>> bounce the messages containing them.  End of story.
+ > As I said in another post on the list,
 
- >> Two problems with that:
- >>
- >> 1. Some virii are text attachments. Your fix doesn't deal with them.
+ > "http://www.mcafeeb2b.com/naicommon/buy-try/try/products-evals.asp
 
- > I'm not aware of the TEXT/PLAIN viruses (ignoring jokes, er,
- > social comments, about the GPL). Could you point me to a sample?
+ > Go there, select your language and LINUX, and you will get a
+ > survey to fill out that then lets you test drive their stuff for
+ > linux."
 
-Are you limiting "text attachments" to TEXT/PLAIN ??? If so, you just
-killed a large number of very useful attachments. Off the top of my
-head...
+I've not seen that post yet, so must apologise for missing it...
 
- 1. Most patches that are attached rather than inline arrive here
-    as TEXT/DIFF so you've just killed a lot of very important
-    attachments.
+ > I don't feel that I am particularly blasé, but I will concede
+ > that you have several good points. My main point was that people
+ > seem to be more interested in the server doing the scanning for
+ > them rather than taking responsibility for their own (lack of)
+ > security. Your view point is just as valid.
 
- 2. Some of Linus Torvalds' emails come with a TEXT/SIGNATURE
-    attachment, so you've just prevented him posting from the
-    computer that does that.
+I've met people like that, and earn quite a reasonable living from
+securing systems for computer novices. In my case, most of my
+customers are elderly people who're interested in tracing their
+ancestry and have been persuaded by the local computer mart that they
+need a computer to do so, and nothing less than the latest all-singing
+all-dancing system will do the job - and oh, Internet connectivity isa
+a must so you'd better sign up to our company ISP for which we get
+£X commission for everybody we sign up. I'm sure you know the type I'm
+talking about...
 
- 3. One of the assignments at University was to email a specific
-    MS-Word document (with an auto-starting macro in it) through a
-    mailer that was specifically set to strip any attachments of the
-    relevant mime types. In a class of 43 students, only two failed
-    that assignment, and between the 41 who succeeded, no less than
-    SEVEN different ways to do so were used, ALL of which used TEXT/
-    mime types for the enclosure - and FIVE of those were new to the
-    lecturer as well. The said lecturer also stated that there were
-    a further NINE ways to do so that none of us had found, but did
-    not go into detail.
+ > And I don't think your experience with McAfee as reported is
+ > typical at all. If it was, I'd still be having problems, and NAI
+ > would be out of business. How long ago was this? What version of
+ > the product? What OS? How did you update? What 14 Virii were you
+ > hit with? Did you contact McAfee for support? I'd be very
+ > interested to get more details about this.
 
-Once you allow TEXT/* to pass, you discover just how many virii will
-get straight past your filter without any problems at all. Basically,
-you get nowhere doing that...
+I contacted McAfee about this straight away. Their response was that
+on average, there's a timelapse of 53 hours from a virii first
+appearing to their having a signature for it, and as there are at
+least 370 new virii produced each day, many with multiple strains, it
+was quite possible for such as I reported to happen.
 
- >> 2. The maintainer of the XXX driver just uploaded a large patch that
- >>    fixes a major bug in their driver to the mailing list, and zip'd
- >>    it up to reduce its size. You just bounced it...
-
- > I recall from past discussions that there's considerable
- > sentiment on l-k that zip'd patches are undesirable. If the
- > patch is inconveniently large, it can be split into several
- > messages, or placed on an FTP server.  Inconvenient for the
- > developer, maybe, but better for the list as a whole.
-
-Personally, my own stance on attachments (zip or otherwise) is that
-they should be below the limit at which my mailhost rejects them. On
-at least one mailhost I know, emails over 25k are killed without
-notice. My own mailhost kills any over 1,536k so that isn't a problem
-for me, but others have much smaller limits.
-
- > Separately, I think we've spent enough time with the off-topic
- > topic. Perhaps we can move the discussion offline?
-
-Other than your comments, it already is offline...
+The timeframe was around October 1999, so was mixed in with the
+intensive Y2K tracing that was going on then, and I don't have details
+of the specific virii any more, so can't advise there...
 
 Best wishes from Riley.
 

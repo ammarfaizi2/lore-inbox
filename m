@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbTFJNZV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 09:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbTFJNZV
+	id S262710AbTFJN3l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 09:29:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTFJN3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 09:25:21 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:46343 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S262687AbTFJNZS (ORCPT
+	Tue, 10 Jun 2003 09:29:41 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:5603 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262710AbTFJN3k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 09:25:18 -0400
-Date: Tue, 10 Jun 2003 15:38:15 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org, willy@w.ods.org, gibbs@scsiguy.com,
-       marcelo@conectiva.com.br, green@namesys.com
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-Message-Id: <20030610153815.57f7a563.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.50.0306100847580.19137-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	<2804790000.1052441142@aslan.scsiguy.com>
-	<20030509120648.1e0af0c8.skraw@ithnet.com>
-	<20030509120659.GA15754@alpha.home.local>
-	<20030509150207.3ff9cd64.skraw@ithnet.com>
-	<20030605181423.GA17277@alpha.home.local>
-	<20030608131901.7cadf9ea.skraw@ithnet.com>
-	<20030608134901.363ebe42.skraw@ithnet.com>
-	<20030609171011.7f940545.skraw@ithnet.com>
-	<Pine.LNX.4.50.0306092135000.19137-100000@montezuma.mastecende.com>
-	<20030610123015.4242716e.skraw@ithnet.com>
-	<Pine.LNX.4.50.0306100847580.19137-100000@montezuma.mastecende.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 10 Jun 2003 09:29:40 -0400
+Message-ID: <3EE5E5AA.6020901@austin.ibm.com>
+Date: Tue, 10 Jun 2003 09:05:30 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.70-mm2 causes performance drop of random read O_DIRECT
+References: <3EE5190D.3070401@austin.ibm.com> <3EE522AA.7020200@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jun 2003 08:51:35 -0400 (EDT)
-Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+Nick Piggin wrote:
 
-> > Can you clarify? Do you mean options "nosmp noapic" or just "noapic" on SMP
-> > kernel?
-> 
-> Kernel built with CONFIG_SMP and booted with 'noapic' kernel parameter
+> Steven Pratt wrote:
+>
+>> Starting in 2.5.70-mm2 and continuing in the mm tree, there is a 
+>> significant degrade in random read for block devices using 
+>> O_DIRECT.   The drop occurs for all block sizes and ranges from 
+>> 30%-40.  CPU usage is also lower although it may already be so low as 
+>> to be irrelavent.
+>
+> Hi Steven, this is quite likely to be an io scheduler problem.
+> Is your test program rawread v2.1.5?
 
-Ok. To speed up the tests I  call it "ok" if there are no verify errors within
-70 GB and "fail" if there are one or more.
-I have tried rc7+aic20030603 SMP with noapic and it is ok.
+This test was actually using 2.1.4, but the only difference in the 2.1.5 
+version is a fix for the test label array for the aio versions of the 
+test.  No functional change, just fixed the outputed test description.
 
-/proc/interrupts:
+> What is the command line you are using to invoke the program? 
 
-           CPU0       CPU1       
-  0:    1061143          0          XT-PIC  timer
-  1:       6582          0          XT-PIC  keyboard
-  2:          0          0          XT-PIC  cascade
-  5:       1229          0          XT-PIC  EMU10K1
-  9:    9269694          0          XT-PIC  aic7xxx, aic7xxx, 3ware Storage Controller, fcpcipnp, eth0, eth1, eth2
- 12:     129555          0          XT-PIC  PS/2 Mouse
- 15:          4          0          XT-PIC  ide1
-NMI:          0          0 
-LOC:    1061054    1061028 
-ERR:          1
-MIS:          0
+rawread -t6 -p8 -m1 -d2 -s4096 -n65536 -l1 -z -x
+
+Which you can find if you follow either results link and look in the 
+benchmark directory where all raw benchmark out put is stored.
+
+Steve
 
 
-Reading around the whole interrupt stuff I came across a very simple idea which
-I am going to test right now. See you in some hours ;-)
 
-Regards,
-Stephan
+
 

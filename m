@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSHIRfH>; Fri, 9 Aug 2002 13:35:07 -0400
+	id <S315257AbSHIRgO>; Fri, 9 Aug 2002 13:36:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315200AbSHIRfH>; Fri, 9 Aug 2002 13:35:07 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:22539 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S315198AbSHIRfH>; Fri, 9 Aug 2002 13:35:07 -0400
-Date: Fri, 9 Aug 2002 18:38:50 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Hans Reiser <reiser@bitshadow.namesys.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [BK] [PATCH] reiserfs changeset 7 of 7 to include into 2.4 tree
-Message-ID: <20020809183850.A17407@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hans Reiser <reiser@bitshadow.namesys.com>,
-	marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-References: <200208091636.g79GadA9007889@bitshadow.namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208091636.g79GadA9007889@bitshadow.namesys.com>; from reiser@bitshadow.namesys.com on Fri, Aug 09, 2002 at 08:36:39PM +0400
+	id <S315260AbSHIRgO>; Fri, 9 Aug 2002 13:36:14 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30481 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S315257AbSHIRgN>; Fri, 9 Aug 2002 13:36:13 -0400
+Date: Fri, 9 Aug 2002 13:32:37 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: Andre Hedrick <andre@linux-ide.org>, Nick Orlov <nick.orlov@mail.ru>,
+       B.Zolnierkiewicz@elka.pw.edu.pl,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Part 2: Re: [PATCH] pdc20265 problem.
+In-Reply-To: <17337971375@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.3.96.1020809132835.23512B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 09, 2002 at 08:36:39PM +0400, Hans Reiser wrote:
-> Hello!
-> 
->    This changeset implements new block allocator for reiserfs and adds one
->    more tail policy. This is a product of continuous NAMESYS research in this
->    area. This piece of code incorporates work by Alexander Zarochencev, 
->    Jeff Mahoney and Oleg Drokin.
+On Thu, 8 Aug 2002, Petr Vandrovec wrote:
+> Maybe you did not notice that Linux can boot of /dev/hde, it does not 
+> have to boot from /dev/hda. Just tell to LILO where /dev/hde lives (and 
+> there are patches for EDD support, but adding two lines into /etc/lilo.conf 
+> is easier than patching support for EDD structure, which is broken in 50% 
+> of BIOSes I know anyway).
 
-Are you sure you want to have a new block allocator in the stable series
-before it has been added to 2.5?
+You can tell LILO anything you want, but the system will "boot off"
+whichever drive the BIOS chooses for reading the MBR. In other words,
+unless you diddle the BIOS settings, the LILO MBR (1st level boot) must go
+on hda, regardless of where the root filesystem lives.
+
+Yes, I know you can install LILO in a partition, but then you have to
+trust whatever MBR the BIOS runs to find it.
+
+This was intended as a clarification of the process, I don't think I am
+disagreeing with what you said.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

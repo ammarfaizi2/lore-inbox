@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262944AbUB0S4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 13:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbUB0S4Z
+	id S261723AbUB0S6E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 13:58:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbUB0S6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 13:56:25 -0500
-Received: from waste.org ([209.173.204.2]:5863 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262944AbUB0S4P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 13:56:15 -0500
-Date: Fri, 27 Feb 2004 12:55:55 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: Why no interrupt priorities?
-Message-ID: <20040227185555.GJ3883@waste.org>
-References: <F760B14C9561B941B89469F59BA3A8470255F02D@orsmsx401.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F760B14C9561B941B89469F59BA3A8470255F02D@orsmsx401.jf.intel.com>
-User-Agent: Mutt/1.3.28i
+	Fri, 27 Feb 2004 13:58:04 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:20101 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261723AbUB0S54
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 13:57:56 -0500
+Message-ID: <403F9332.7040804@namesys.com>
+Date: Fri, 27 Feb 2004 21:57:54 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nikita Danilov <Nikita@Namesys.COM>
+CC: markw@osdl.org, piggin@cyberone.com.au, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: AS performance with reiser4 on 2.6.3
+References: <403EBB87.2070504@namesys.com>	<200402271704.i1RH45E19258@mail.osdl.org> <16447.31708.873806.565855@laputa.namesys.com>
+In-Reply-To: <16447.31708.873806.565855@laputa.namesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 27, 2004 at 09:44:44AM -0800, Grover, Andrew wrote:
-> > From: Helge Hafting [mailto:helgehaf@aitel.hist.no] 
-> > Grover, Andrew wrote:
-> > > Is the assumption that hardirq handlers are superfast also 
-> > the reason
-> > > why Linux calls all handlers on a shared interrupt, even if 
-> > the first
-> > > handler reports it was for its device?
-> > > 
-> > No, it is the other way around.  hardirq handlers have to be superfast
-> > because linux usually _have to_ call all the handlers of a shared irq.
-> > 
-> > The fact that one device did indeed have an interrupt for us 
-> > doesn't mean
-> > that the others didn't.  So all of them have to be checked to be safe.
-> 
-> If a device later in the handler chain is also interrupting, then the
-> interrupt will immediately trigger again. The irq line will remain
-> asserted until nobody is asserting it.
-> 
-> If the LAST guy in the chain is the one with the interrupt, then you
-> basically get today's ISR "call each handler" behavior, but it should be
-> possible to in some cases to get less time spent in do_IRQ.
+Nikita Danilov wrote:
 
-Let's imagine you have n sources simultaneously interrupting on a
-given descriptor. Check the first, it's happening, acknowledge it,
-exit, notice interrupt still asserted, check the first, nope, check
-the second, yep, exit, etc. By the time we've made it to the nth ISR,
-we've banged on the first one n times, the second n-1 times, etc. In
-other words, early chain termination has an O(n^2) worst case.
+>markw@osdl.org writes:
+> > 
+> > Yes, PostgreSQL uses fsync for its database logging.  I can certainly
+> > enable the capture on copy option.  
+>
+>Please don't, it is not stable enough yet.
+>  
+>
+It will be stable enough when we release on Monday though, yes?
+
+> >                                     Does that produce something that I
+> > need to manually capture?
+> > 
+> > Mark
+>
+>Nikita.
+>
+>
+>  
+>
+
 
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Hans
+
+

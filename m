@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268047AbTAIXGZ>; Thu, 9 Jan 2003 18:06:25 -0500
+	id <S268048AbTAIXFC>; Thu, 9 Jan 2003 18:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268050AbTAIXFE>; Thu, 9 Jan 2003 18:05:04 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:64724 "EHLO
+	id <S268050AbTAIXFB>; Thu, 9 Jan 2003 18:05:01 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:63444 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S268049AbTAIXEp>; Thu, 9 Jan 2003 18:04:45 -0500
+	id <S268048AbTAIXEo>; Thu, 9 Jan 2003 18:04:44 -0500
 From: Richard Stallman <rms@gnu.org>
-To: yodaiken@fsmlabs.com
-CC: billh@gnuppy.monkey.org, mark@mark.mielke.cc, lm@bitmover.com,
-       linux-kernel@vger.kernel.org, paul@clubi.ie, riel@conectiva.com.br
-In-reply-to: <20030108082615.A2271@hq.fsmlabs.com> (yodaiken@fsmlabs.com)
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+to: linux-kernel@vger.kernel.org
+In-reply-to: <3E1C3D87.7030605@debian.org> (cate@debian.org)
+Subject: Re: Nvidia and its choice to read the GPL "differently"
 Reply-to: rms@gnu.org
-References: <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8O-0004jy-00@fencepost.gnu.org> <20030108082615.A2271@hq.fsmlabs.com>
-Message-Id: <E18Wlrd-0000Po-00@fencepost.gnu.org>
-Date: Thu, 09 Jan 2003 18:13:29 -0500
+References: <fa.gm4r3cv.1r4avpq@ifi.uio.no> <fa.hq6mucv.l4qg1c@ifi.uio.no> <3E1C3D87.7030605@debian.org>
+Message-Id: <E18Wlrc-0000Ph-00@fencepost.gnu.org>
+Date: Thu, 09 Jan 2003 18:13:28 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Just for the record, "operating system", and "kernel" are used as 
-    synonyms in the research literature.
+Calling the system "Linux" denies the GNU Project credit for the GNU
+operating system.  Most of the people who do that still give us credit
+for the specific programs we developed.  These words
 
-The term "operating system" has been used in both ways for a long
-time.  When people speak about the "Linux operating system," most of
-them mean the larger GNU/Linux system--they are not using "operating
-system" to mean "kernel".
+    GNU is not so important in new system. I take gcc and glibc as to be
+    outside the GNU project.
 
-If you use some other term instead of "operating system" for the
-larger collection of software, it might remove one cause of confusion.
-That won't eliminate the question of what this collection's name
-should properly be, or correct the misinformation about how it was
-developed and by whom.
+take a further step: they deny the GNU Project the credit even for GNU
+programs (he said, earlier, this is on the grounds that companies have
+contributed to them).  That's like denying Linus Torvalds the credit
+for writing the kernel, Linux, because companies have helped that too.
+
+When people become sufficiently attached to a false conclusion, they
+sometimes fabricate ever more extreme falsehoods in order to deny it.
+
+    If you insist with such arguments, you risk that someone will rewrite
+    the basic GNU tools outside the GNU project
+
+Some GNU packages are tools; some are not tools.
+
+People can, of course, write other programs to do the same jobs as GNU
+packages.  They might do this for many reasons.  That message seems to
+suggest that people might do this simply to deny the GNU Project the
+appreciation that we now get for the work we have done.
+
+Has anyone been so completely warped by hatred of GNU?  I don't know,
+but it does not really matter.  The role of GCC in the development and
+popularity of GNU/Linux is a fact of history, and subsequent
+developments cannot change it.
+
+
+
 
 

@@ -1,32 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264853AbSLaXNf>; Tue, 31 Dec 2002 18:13:35 -0500
+	id <S264907AbSLaXJG>; Tue, 31 Dec 2002 18:09:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264857AbSLaXNe>; Tue, 31 Dec 2002 18:13:34 -0500
-Received: from dp.samba.org ([66.70.73.150]:51124 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264853AbSLaXNe>;
-	Tue, 31 Dec 2002 18:13:34 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Marcus Alanen <maalanen@ra.abo.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch, 2.5] opti92x-ad1848 one check_region fixup 
-In-reply-to: Your message of "Mon, 30 Dec 2002 22:28:24 +0200."
-             <Pine.LNX.4.44.0212302222530.30703-100000@tuxedo.abo.fi> 
-Date: Wed, 01 Jan 2003 10:17:59 +1100
-Message-Id: <20021231232200.DDA802C290@lists.samba.org>
+	id <S264908AbSLaXJG>; Tue, 31 Dec 2002 18:09:06 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:47298 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S264907AbSLaXJF>; Tue, 31 Dec 2002 18:09:05 -0500
+Date: Tue, 31 Dec 2002 15:23:43 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH] generic device DMA (dma_pool update)
+To: Andrew Morton <akpm@digeo.com>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org
+Message-id: <3E1226FF.9010407@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200212312202.OAA10841@adam.yggdrasil.com>
+ <3E121D28.47282D77@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0212302222530.30703-100000@tuxedo.abo.fi> you write:
-> Initializes the variables (the chip->xxx stuff) before calling 
-> anything else. snd_legacy_find_free_ioport() uses request_region now, 
-> so remember to release regions in the private freeing routine 
-> snd_card_opti9xx_free().
 
-The patch looks good, but the Trivial Patch Monkey (ook ook!) doesn't
-handle chains of patches which depend on each other 8(
+>>        Such a facility could be layered on top of your interface
+>>perhaps by extending the mempool code to pass an extra parameter
+>>around.  If so, then you should think about arranging your interface
+>>so that it could be driven with as little glue as possible by mempool.
+>>
+> 
+> 
+> What is that parameter?  The size, I assume.   To do that you'd
+> need to create different pools for different allocation sizes.
 
-So I've only grabbed the first one...
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+In the other allocators it'd be the dma_addr_t for the memory
+being returned ...
+
+I don't think the mempool stuff needs that, see the fragments below.
+
+
+> Bear in mind that mempool only makes sense with memory objects
+> which have the special characteristic that "if you wait long enough,
+> someone will free one".  ie: BIOs, nfs requests, etc.   Probably,
+> DMA buffers fit into that picture as well.Inside the USB host controller drivers I think that mostly applies
+to transfer descriptors (tds), which are freed when some other request
+completes.  An 8K buffer takes  1 (ehci), 2 (ohci) or 128 (uhci)
+of those, and as you know scatterlists can queue quite a few pages.
+
+I'd imagine mempool based td allocation might go like this; it should
+be easy enough to slip into most of the HCDs:
+
+	void *mempool_alloc_td (int mem_flags, void *pool)
+	{
+		struct td *td;
+		dma_addr_t dma;
+
+		td = dma_pool_alloc (pool, mem_flags, &dma);
+		if (!td)
+			return td;
+		td->td_dma = dma;	/* feed to the hardware */
+		... plus other init
+		return td;
+	}
+
+	void mempool_free_td (void *_td, void *pool)
+	{
+		struct td *td = _td;
+
+		dma_pool_free (pool, td, td->dma);
+	}
+
+USB device drivers tend to either allocate and reuse one dma buffer
+(kmalloc/kfree usage pattern) or use dma mapping ... so far.
+
+- Dave
+
+

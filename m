@@ -1,54 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281499AbRKZG5b>; Mon, 26 Nov 2001 01:57:31 -0500
+	id <S281487AbRKZHTt>; Mon, 26 Nov 2001 02:19:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281494AbRKZG5V>; Mon, 26 Nov 2001 01:57:21 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:48514 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S281484AbRKZG5O>; Mon, 26 Nov 2001 01:57:14 -0500
-Message-ID: <002101c17647$9d6d34e0$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011125151543.57a1159c.skraw@ithnet.com> <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com> <20011125170701.H238@localhost> <20011125201349.E1706@conectiva.com.br>
-Subject: Re: Linux 2.4.16-pre1
-Date: Mon, 26 Nov 2001 07:57:29 +0100
+	id <S281483AbRKZHTj>; Mon, 26 Nov 2001 02:19:39 -0500
+Received: from mail0.epfl.ch ([128.178.50.57]:60177 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S281492AbRKZHTT>;
+	Mon, 26 Nov 2001 02:19:19 -0500
+Message-ID: <3C01ECF4.3000500@epfl.ch>
+Date: Mon, 26 Nov 2001 08:19:16 +0100
+From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Organization: LTS-DE-EPFL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: marcelo@conectiva.com.br, torvalds <torvalds@transmeta.com>
+Subject: [PATCH] agpgart fixes (Intel chipsets)
+Content-Type: multipart/mixed;
+ boundary="------------080401040009070008050103"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Arnaldo Carvalho de Melo" <acme@conectiva.com.br>
-To: "Linus Torvalds" <torvalds@transmeta.com>;
-<linux-kernel@vger.kernel.org>
-Sent: Sunday, November 25, 2001 11:13 PM
-Subject: Re: Linux 2.4.16-pre1
+This is a multi-part message in MIME format.
+--------------080401040009070008050103
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Hello
 
-> Em Sun, Nov 25, 2001 at 05:07:01PM -0500, Patrick McFarland escreveu:
->
-> > Then quit being maintainer.
->
-> Read the message again, he did that for 2.2 with Alan and now with Marcelo
-> for 2.4.
+Here is a patch that fixes several issues in the agpgart driver :
+- The 'cleanup' function for i820 chipsets was incorrectly set to the 
+generic function (that writes over 16 bits instead of 8)
+- Fix incorrect PCI id for the i860 chipset
+- Add support for the UP version of i820 chipset
+- Config.in update
 
-Yup.. and the 2.5 tree really is a "toy" tree, so if Linus' impatience
-shines through on that one, it's no big deal. I'm looking forward to 2.5, as
-I plan to take a more active role in Linux developement now, and not just
-sitting here reading lkml.
+The patch is against 2.4.15
 
-Btw, anyone having some cool stuff to donate to me? I'll start with a
-Porsche (to _accelerate_ my developement).
+Best regards
+-- 
+Nicolas Aspert      Signal Processing Laboratory (LTS)
+Swiss Federal Institute of Technology (EPFL)
+Office:  ELE 237
+Phone:   +41 - 21 - 693 36 32 (Office) or 46 21 (LTS lab)
+Fax:     +41 - 21 - 693 76 00     Web: http://ltswww.epfl.ch/~aspert
 
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
+--------------080401040009070008050103
+Content-Type: text/plain;
+ name="patch-agp_i8xx-2.4.15_fix_pci_ids"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-agp_i8xx-2.4.15_fix_pci_ids"
 
+diff -Nru linux-2.4.15.clean/drivers/char/Config.in linux-2.4.15.dirty/drivers/char/Config.in
+--- linux-2.4.15.clean/drivers/char/Config.in	Mon Nov 12 18:34:16 2001
++++ linux-2.4.15.dirty/drivers/char/Config.in	Fri Nov 23 15:03:02 2001
+@@ -210,7 +210,7 @@
+ 
+ dep_tristate '/dev/agpgart (AGP Support)' CONFIG_AGP $CONFIG_DRM_AGP
+ if [ "$CONFIG_AGP" != "n" ]; then
+-   bool '  Intel 440LX/BX/GX and I815/I830M/I840/I850 support' CONFIG_AGP_INTEL
++   bool '  Intel 440LX/BX/GX and I815/I820/I830M/I840/I845/I850/I860 support' CONFIG_AGP_INTEL
+    bool '  Intel I810/I815/I830M (on-board) support' CONFIG_AGP_I810
+    bool '  VIA chipset support' CONFIG_AGP_VIA
+    bool '  AMD Irongate, 761, and 762 support' CONFIG_AGP_AMD
+diff -Nru linux-2.4.15.clean/drivers/char/agp/agp.h linux-2.4.15.dirty/drivers/char/agp/agp.h
+--- linux-2.4.15.clean/drivers/char/agp/agp.h	Fri Nov  9 23:01:21 2001
++++ linux-2.4.15.dirty/drivers/char/agp/agp.h	Fri Nov 23 15:03:02 2001
+@@ -179,6 +179,9 @@
+ #ifndef PCI_DEVICE_ID_INTEL_820_0
+ #define PCI_DEVICE_ID_INTEL_820_0       0x2500
+ #endif
++#ifndef PCI_DEVICE_ID_INTEL_820_UP_0
++#define PCI_DEVICE_ID_INTEL_820_UP_0    0x2501
++#endif
+ #ifndef PCI_DEVICE_ID_INTEL_840_0
+ #define PCI_DEVICE_ID_INTEL_840_0		0x1a21
+ #endif
+@@ -189,7 +192,7 @@
+ #define PCI_DEVICE_ID_INTEL_850_0     0x2530
+ #endif
+ #ifndef PCI_DEVICE_ID_INTEL_860_0
+-#define PCI_DEVICE_ID_INTEL_860_0	0x2532
++#define PCI_DEVICE_ID_INTEL_860_0	0x2531
+ #endif
+ #ifndef PCI_DEVICE_ID_INTEL_810_DC100_0
+ #define PCI_DEVICE_ID_INTEL_810_DC100_0 0x7122
+diff -Nru linux-2.4.15.clean/drivers/char/agp/agpgart_be.c linux-2.4.15.dirty/drivers/char/agp/agpgart_be.c
+--- linux-2.4.15.clean/drivers/char/agp/agpgart_be.c	Fri Nov 16 19:11:22 2001
++++ linux-2.4.15.dirty/drivers/char/agp/agpgart_be.c	Fri Nov 23 15:54:31 2001
+@@ -1790,7 +1790,7 @@
+        agp_bridge.needs_scratch_page = FALSE;
+        agp_bridge.configure = intel_820_configure;
+        agp_bridge.fetch_size = intel_8xx_fetch_size;
+-       agp_bridge.cleanup = intel_cleanup;
++       agp_bridge.cleanup = intel_820_cleanup;
+        agp_bridge.tlb_flush = intel_820_tlbflush;
+        agp_bridge.mask_memory = intel_mask_memory;
+        agp_bridge.agp_enable = agp_generic_agp_enable;
+@@ -3550,6 +3550,12 @@
+ 		PCI_VENDOR_ID_INTEL,
+ 		INTEL_I820,
+ 		"Intel",
++		"i820",
++		intel_820_setup },
++	{ PCI_DEVICE_ID_INTEL_820_UP_0,
++		PCI_VENDOR_ID_INTEL,
++		INTEL_I820,
++		"Intel",
+ 		"i820",
+ 		intel_820_setup },
+ 	{ PCI_DEVICE_ID_INTEL_830_M_0,
+
+--------------080401040009070008050103--
 

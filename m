@@ -1,34 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129982AbQLOWZg>; Fri, 15 Dec 2000 17:25:36 -0500
+	id <S130468AbQLOW1p>; Fri, 15 Dec 2000 17:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130468AbQLOWZ0>; Fri, 15 Dec 2000 17:25:26 -0500
-Received: from WARSL401PIP1.highway.telekom.at ([195.3.96.69]:3650 "HELO
-	email01.aon.at") by vger.kernel.org with SMTP id <S129982AbQLOWZV>;
-	Fri, 15 Dec 2000 17:25:21 -0500
-From: Philipp Schmid <ph.schmid@aon.at>
-To: linux-kernel@vger.kernel.org
-Subject: bluetooth and linux
-Date: Fri, 15 Dec 2000 23:53:58 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <20001215222524Z129982-439+4126@vger.kernel.org>
+	id <S130582AbQLOW1f>; Fri, 15 Dec 2000 17:27:35 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:62069 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S130468AbQLOW1Y>; Fri, 15 Dec 2000 17:27:24 -0500
+Date: Fri, 15 Dec 2000 15:56:52 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200012152156.PAA137696@tomcat.admin.navo.hpc.mil>
+To: andrea@suse.de, Ulrich Drepper <drepper@cygnus.com>
+Subject: Re: 2.2.18 signal.h
+Cc: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gnome vs kde2: ja ich verwende kde2 auf debian, na und ?
-MIME-Version: 1.0
-Message-Id: <00121523535800.06182@dagobert>
-Content-Transfer-Encoding: 8bit
+---------  Received message begins Here  ---------
 
-hi,
+> From: Andrea Arcangeli <andrea@suse.de>
+> On Fri, Dec 15, 2000 at 11:18:35AM -0800, Ulrich Drepper wrote:
+> > Andrea Arcangeli <andrea@suse.de> writes:
+> > 
+> > > x()
+> > > {
+> > > 
+> > > 	switch (1) {
+> > > 	case 0:
+> > > 	case 1:
+> > > 	case 2:
+> > > 	case 3:
+> > > 	;
+> > > 	}
+> > > }
+> > > 
+> > > Why am I required to put a `;' only in the last case and not in all
+> > > the previous ones? Or maybe gcc-latest is forgetting to complain about
+> > > the previous ones ;)
+> > 
+> > Your C language knowledge seems to have holes.  It must be possible to
+> > have more than one label for a statement.  Look through the kernel
+> > sources, there are definitely cases where this is needed.
+> 
+> I don't understand what you're talking about. Who ever talked about "more than
+> one label"?
+> 
+> The only issue here is having 1 random label at the end of a compound
+> statement. Nothing else.
 
-i'm going to buy a notebook in the near future, which supports bluetooth.
-so my question is: is anyone working on bluetooth drivers or do i have to 
-forget about it ?
+The label must be on an expression. Until the ";" is present to indicate
+a null expression it is syntacticly incorrect to have
 
-greets philipp
+switch (x) {
+1:
+2: something;
+3:
+}
+
+The "3:" needs an expression to satisfy the syntax of "switch".
+
+> And yes I can see that the whole point of the change is that they want
+> to also forbids this:
+> 
+> x()
+> {
+> 	goto out;
+> out:
+> }
+> 
+> and I dislike not being allowed to do the above as well infact ;).
+
+I think this has the same requirement. A null expression, specified with
+the ";" is a small price to pay for simplifying the error detection.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEAsV>; Thu, 4 Jan 2001 19:48:21 -0500
+	id <S129465AbRAEAvL>; Thu, 4 Jan 2001 19:51:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130195AbRAEAsL>; Thu, 4 Jan 2001 19:48:11 -0500
-Received: from ns1.megapath.net ([216.200.176.4]:27146 "EHLO megapathdsl.net")
-	by vger.kernel.org with ESMTP id <S129387AbRAEAsF>;
-	Thu, 4 Jan 2001 19:48:05 -0500
-Message-ID: <3A551986.3090601@megapathdsl.net>
-Date: Thu, 04 Jan 2001 16:47:02 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12-pre8 i686; en-US; m18) Gecko/20001231
+	id <S130195AbRAEAvB>; Thu, 4 Jan 2001 19:51:01 -0500
+Received: from foobar.napster.com ([64.124.41.10]:15885 "EHLO
+	foobar.napster.com") by vger.kernel.org with ESMTP
+	id <S129465AbRAEAuw>; Thu, 4 Jan 2001 19:50:52 -0500
+Message-ID: <3A551A64.F6DE25BE@napster.com>
+Date: Thu, 04 Jan 2001 16:50:44 -0800
+From: Jordan Mendelson <jordy@napster.com>
+Organization: Napster, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
+To: dep <dennispowell@earthlink.net>
 CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: And oh, btw..
-In-Reply-To: <Pine.LNX.4.10.10101041546120.1153-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <Pine.LNX.4.10.10101041546120.1153-100000@penguin.transmeta.com> <3A551717.6C6A7807@napster.com> <01010419485604.05089@depoffice.localdomain>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a patch against test12 somewhere?  I don't see it.
+dep wrote:
+> 
+> On Thursday 04 January 2001 07:36 pm, Jordan Mendelson wrote:
+> 
+> | Go home, get out the epson salts, fill up the tub with hot water
+> | and just relax.
+> 
+> right after getting the source posted on kernel.org!<g>
 
-Have some happy downtime,
 
-	Miles
+Sigh, try:
+
+http://www.kernel.org/pub/linux/kernel/testing/prerelease-diff
 
 
+Please don't flood kernel.org though... use a mirror.
 
+
+Jordan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbUASHxC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 02:53:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbUASHxC
+	id S264449AbUASH7y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 02:59:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbUASH7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 02:53:02 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:35041 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S264444AbUASHw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 02:52:56 -0500
-Message-ID: <400B8CD4.8000503@labs.fujitsu.com>
-Date: Mon, 19 Jan 2004 16:52:52 +0900
-From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
-Reply-To: tsuchiya@labs.fujitsu.com
-Organization: Fujitsu Labs
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Mon, 19 Jan 2004 02:59:54 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:57527 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S264449AbUASH7x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 02:59:53 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: "Brown, Len" <len.brown@intel.com>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>,
+       "Jesse Barnes" <jbarnes@sgi.com>
+Subject: Re: [patch] 2.6.1-mm3 acpi frees free irq0
+References: <3ACA40606221794F80A5670F0AF15F8401720CEE@PDSMSX403.ccr.corp.intel.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 19 Jan 2004 02:59:46 -0500
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F8401720CEE@PDSMSX403.ccr.corp.intel.com>
+Message-ID: <yq0hdys8j2l.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-References: <4007537F.4070609@labs.fujitsu.com> <1074256175.4006.24.camel@sisko.scot.redhat.com>
-In-Reply-To: <1074256175.4006.24.camel@sisko.scot.redhat.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>>>>> ">" == Yu, Luming <luming.yu@intel.com> writes:
 
-Stephen C. Tweedie wrote:
+>> In this specific case the prom doesn't have it in it's tables, so
+>> not finding it is expected behavior.
 
->OK.  Under exactly what circumstances have you seen this in the past, as
->opposed to the other problem?  I have not been able to reproduce this
->one so far.
->  
->
+>> What's your machine type, and BIOS version?  This specific box
+>> seems to be short of fundamental ACPI power button support.
 
-The combinations of kernel versions and filesystem types are:
-2.4.20-8 ext2
-2.4.20-19.9 ext2, ext3
-2.4.20-24.9 ext2
-2.4.20-28.9 ext2
+Oh it's very short of those features, it really only uses ACPI to
+provide system setup information and thats about it. It's an Altix box
+fwiw.
 
-I do the test with mozilla-1.3.tar.gz and 6 processes in the script,
-it happens with ext2 within a few hours.
-
-I haven't seen the problem on 2.4.20,23 and 24.
-
-So now I am testing followings:
-2.4.24-pre2 ext2 (mozilla-1.3.tar.gz)
-2.4.24 ext2 (nvi-1.79.tar.gz)
-2.4.20 ext3 (mozilla-1.3.tar.gz)
-2.4.23 ext3 (mozilla-1.3.tar.gz)
-2.4.24 ext3 (mozilla-1.3.tar.gz)
-2.4.20-28.9 ext3 (mozilla-1.3.tar.gz)
-
-Other than 2.4.20-28.9, since they have been running for three days,
-they seems nice at this point.
-
-What exactly is the race condition between read_inode() and
-clear_inode() you have
-mentioned?
-
-Thanks,
-Yoshi
--- 
---
-Yoshihiro Tsuchiya
-
-
+Cheers,
+Jes

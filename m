@@ -1,77 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273033AbTHKUzv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 16:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273071AbTHKUzv
+	id S272960AbTHKUvw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 16:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272961AbTHKUvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 16:55:51 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:36502 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S273033AbTHKUzs (ORCPT
+	Mon, 11 Aug 2003 16:51:52 -0400
+Received: from dp.samba.org ([66.70.73.150]:13790 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S272960AbTHKUvu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 16:55:48 -0400
-Message-ID: <F341E03C8ED6D311805E00902761278C0C35E6E0@xfc04.fc.hp.com>
-From: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik.habbinga@hp.com>
-To: "'Francois Romieu'" <romieu@fr.zoreil.com>,
-       "HABBINGA,ERIK (HP-Loveland,ex1)" <erik.habbinga@hp.com>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: RE: [BUG] 2.6.0-test3 and cciss driver (or blk_queue_hardsect_siz
-	e)
-Date: Mon, 11 Aug 2003 16:55:46 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 11 Aug 2003 16:51:50 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: nagendra_tomar@adaptec.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG in fs/proc/generic.c:proc_file_read 
+In-reply-to: Your message of "Thu, 07 Aug 2003 23:59:00 +0530."
+             <Pine.LNX.4.44.0308072346020.3811-100000@localhost.localdomain> 
+Date: Sun, 10 Aug 2003 15:07:42 +1000
+Message-Id: <20030811205149.E1AE92C37D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixed my problem, I now boot without any pesky kernel oopsen.
+In message <Pine.LNX.4.44.0308072346020.3811-100000@localhost.localdomain> you write:
+> In short:
+> The hack used to be able to read proc files larger than 4k, breaks if the 
+> caller does lseek() after read()
 
-Thanks!
-Erik
+Hmm, my more(1) does this too.  What a PITA.  less(1) does not.
 
-> -----Original Message-----
-> From: Francois Romieu [mailto:romieu@fr.zoreil.com]
-> Sent: Monday, August 11, 2003 2:11 PM
-> To: HABBINGA,ERIK (HP-Loveland,ex1)
-> Cc: linux-kernel@vger.kernel.org; axboe@suse.de
-> Subject: Re: [BUG] 2.6.0-test3 and cciss driver (or
-> blk_queue_hardsect_size)
-> 
-> 
-> Greetings,
-> 
-> HABBINGA,ERIK (HP-Loveland,ex1) <erik.habbinga@hp.com> :
-> > I'm wondering if anyone else is having problems with 
-> 2.6.0-test3 and the
-> > cciss driver, or with the function blk_queue_hardsect_size. 
->  I was able to
-> > successfully boot 2.6.0-test2 in previous weeks, but trying 
-> 2.6.0-test3
-> > today gave me:
-> 
-> 
-> Jens, does the following patch make sense ?
-> 
-> hba[i]->queue went from 'struct request_queue queue' to
-> 'struct request_queue *queue' and it now needs to be explicitly set.
-> 
-> 
->  drivers/block/cciss.c |    1 +
->  1 files changed, 1 insertion(+)
-> 
-> diff -puN drivers/block/cciss.c~oops-cciss drivers/block/cciss.c
-> --- linux-2.6.0-test3/drivers/block/cciss.c~oops-cciss	
-> Mon Aug 11 21:53:11 2003
-> +++ linux-2.6.0-test3-fr/drivers/block/cciss.c	Mon Aug 
-> 11 22:00:55 2003
-> @@ -2537,6 +2537,7 @@ err_all:
->  	cciss_procinit(i);
->  
->          q->queuedata = hba[i];
-> +	hba[i]->queue = q;
->  	blk_queue_bounce_limit(q, hba[i]->pdev->dma_mask);
->  
->  	/* This is a hardware imposed limit. */
-> 
-> _
-> 
+I've never noticed it before, though.  I certainly didn't notice it
+when I implemented the hack.
+
+Of course, converting to seq_file is probably the nicest solution
+these days.
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

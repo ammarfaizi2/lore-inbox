@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264853AbUDWPpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264858AbUDWPvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264853AbUDWPpE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 11:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264854AbUDWPou
+	id S264858AbUDWPvV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 11:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264854AbUDWPvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 11:44:50 -0400
-Received: from mail.gmx.net ([213.165.64.20]:39114 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264853AbUDWPoO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 11:44:14 -0400
-Date: Fri, 23 Apr 2004 17:44:13 +0200 (MEST)
-From: Daniel.Kirsten@gmx.net
+	Fri, 23 Apr 2004 11:51:21 -0400
+Received: from p15112047.pureserver.info ([217.160.169.118]:14250 "EHLO
+	mail.wim-media.de") by vger.kernel.org with ESMTP id S264858AbUDWPvU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 11:51:20 -0400
+From: Roessner Christian <info@roessner-net.com>
+Organization: Roessner Network Solutions
 To: linux-kernel@vger.kernel.org
+Subject: Re: APIC probs with kernel 2.6.6-rc1-bk2 and usb, bttv
+Date: Fri, 23 Apr 2004 17:51:26 +0200
+User-Agent: KMail/1.6.2
+References: <200404211926.05479.info@roessner-net.com>
+In-Reply-To: <200404211926.05479.info@roessner-net.com>
 MIME-Version: 1.0
-Subject: xconfig font problems
-X-Priority: 3 (Normal)
-X-Authenticated: #14521599
-Message-ID: <16404.1082735053@www66.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404231751.29673.info@roessner-net.com>
+X-Sagator-Scanner: clamd()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+Hello,
 
-since somewhen in the 2.6.5-rc series, I have some font problems 
-in make xconfig. I just see rectangles instead of letters... 
-However, numbers are displayed correctly.  (I use Fedora.)
+in the meantime I have tested kernel 2.6.6-rc2, but still no luck. I also 
+played around with acpi_irq_nobalance and pci=noacpi, etc. But this does not 
+fix it (Don´t know wht to do with flags, tagged as IA-32, because mine is a 
+AMD64)
 
-Does anyone know a solution.
+Maybe I forget something in my attached logfile: I use a Gigabyte K8N Pro with 
+a NForce3 chipset.
 
-Best regards, Daniel
+Is there someone, who is interested in finding out, what is wrong? I would 
+like to help fixing this, but I only could be a tester.
 
--- 
-"Sie haben neue Mails!" - Die GMX Toolbar informiert Sie beim Surfen!
-Jetzt aktivieren unter http://www.gmx.net/info
+Thanks
 
+Christian

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263012AbTJPPKX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 11:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTJPPKX
+	id S262994AbTJPPRO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 11:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbTJPPRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 11:10:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12958 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263012AbTJPPKU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 11:10:20 -0400
-Message-ID: <3F8EB4CD.8050205@pobox.com>
-Date: Thu, 16 Oct 2003 11:10:05 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+	Thu, 16 Oct 2003 11:17:14 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:60874 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262994AbTJPPRM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 11:17:12 -0400
+Message-ID: <3F8EB59B.2040400@colorfullife.com>
+Date: Thu, 16 Oct 2003 17:13:31 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Eli Billauer <eli_billauer@users.sf.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] frandom - fast random generator module
-References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com> <3F8E8EA8.8030707@users.sf.net>
-In-Reply-To: <3F8E8EA8.8030707@users.sf.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: wli@holomorphy.com, albertogli@telpin.com.ar, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5/6 (and probably 7 too) size-4096 memory leak
+References: <20031016025554.GH4292@telpin.com.ar>	<20031015211918.1a70c4d2.akpm@osdl.org>	<20031016044334.GE4461@holomorphy.com>	<20031015215824.165dc4c7.akpm@osdl.org>	<3F8E2F68.7010007@colorfullife.com> <20031015233102.05eb809b.akpm@osdl.org>
+In-Reply-To: <20031015233102.05eb809b.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eli Billauer wrote:
-> My argument, possibly better formulated, asks the following questions:
-> 
-> (1) How much good will the existence of an standard /dev/frandom device 
-> do? Is it going to be used?
-> (2) How much space will it take up in the kernel tarball?
-> (3) How much disk space will it take after compilation?
-> (4) How much compilation time will it take up?
-> (5) How much effort is it going to be to maintain it?
-[...]
-> I actually agree that the kernel isn't "the right place" for a random 
-> generator. I simply think that having it there is useful, with a very 
-> low cost.
+Andrew Morton wrote:
+
+>Manfred Spraul <manfred@colorfullife.com> wrote:
+>  
+>
+>>I've attached something: with the patch applied, `echo "size-4096 0 0 0" 
+>>  > /proc/slabinfo` dumps all caller addresses.
+>>    
+>>
+>
+>Awesome, thanks.
+>
+>I added some tweaks (why was it returning -EINVAL?).
+>
+>Is there any reason why we shouldn't merge this up?
+>  
+>
+It works only on 32-archs, and I had to disable the double-free 
+detection - the bufctl integers were already in use (the hunk with the 
+#if 0) for that.
 
 
-Add up 1000 low-cost items, and you can run a catalog store...  but not 
-a kernel.
-
-None of those questions 1-5 make much bit of difference:  The key 
-question is "right place", and you just agreed w/ me the kernel isn't :)
-
-	Jeff
+--
+    Manfred
 
 
 

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266991AbSLPSNp>; Mon, 16 Dec 2002 13:13:45 -0500
+	id <S266986AbSLPSV2>; Mon, 16 Dec 2002 13:21:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266996AbSLPSNp>; Mon, 16 Dec 2002 13:13:45 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:44785 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S266991AbSLPSNo>; Mon, 16 Dec 2002 13:13:44 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A5A4@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: RE: [ACPI] Metolious hardware-sensors-using-ACPI specs
-Date: Mon, 16 Dec 2002 10:21:22 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S266987AbSLPSV2>; Mon, 16 Dec 2002 13:21:28 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:55306 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S266986AbSLPSV1>;
+	Mon, 16 Dec 2002 13:21:27 -0500
+Date: Mon, 16 Dec 2002 19:29:19 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to do -nostdinc?
+Message-ID: <20021216182919.GA1607@mars.ravnborg.org>
+Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
+	linux-kernel@vger.kernel.org
+References: <1357.1039954001@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1357.1039954001@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Pavel Machek [mailto:pavel@suse.cz] 
-> Is it goign to be implemented in linux-acpi?
+On Sun, Dec 15, 2002 at 11:06:41PM +1100, Keith Owens wrote:
+> There are two ways of setting the -nostdinc flag in the kernel Makefile :-
 > 
-> I took a look at specs at intel, and it has rather funny legaleese:
+> (1) -nostdinc $(shell $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
+> (2) -nostdinc -iwithprefix include
+> 
+> The first format breaks with non-English locales, however the fix is trivial.
+> 
+> (1a) -nostdinc $(shell LANG=C $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
+> 
+Hi Keith.
 
-Wow, is that still on a website somewhere?
+Based on the comments received, solution (2) seems to be OK.
+Do you agree?
 
-So as you may know from looking at the spec, Metolious was a spec that
-defined a way for platforms to enumerate various motherboard sensors to the
-OS, for manageability purposes.
-
-It never took off, except for a couple companies that used the Windows
-driver for other things because they didn't want to write a driver that
-received ACPI device Notify()s.
-
-The licensing may be weird, but given that there really is no point in
-implementing it on Linux, does that really matter?
-
-Regards -- Andy
+	Sam

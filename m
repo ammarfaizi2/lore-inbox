@@ -1,141 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbUE0MJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbUE0MOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbUE0MJk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 08:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUE0MJk
+	id S261993AbUE0MOt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 08:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUE0MOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 08:09:40 -0400
-Received: from cantor.suse.de ([195.135.220.2]:36818 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261991AbUE0MJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 08:09:36 -0400
-Date: Thu, 27 May 2004 14:06:16 +0200
-From: Olaf Kirch <okir@suse.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux@horizon.com, akpm@osdl.org, kerndev@sc-software.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6 is crashing repeatedly
-Message-ID: <20040527120616.GK12225@suse.de>
-References: <20040520060805.1620.qmail@science.horizon.com> <20040527112508.24292.qmail@science.horizon.com> <16565.53893.357718.79@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="4bRzO86E/ozDv8r1"
-Content-Disposition: inline
-In-Reply-To: <16565.53893.357718.79@cse.unsw.edu.au>
-User-Agent: Mutt/1.4i
+	Thu, 27 May 2004 08:14:48 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:30080 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261993AbUE0MOo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 08:14:44 -0400
+Date: Thu, 27 May 2004 08:13:54 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Zoltan.Menyhart@bull.net
+cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Hot plug vs. reliability
+In-Reply-To: <40B5D68C.466FE969@nospam.org>
+Message-ID: <Pine.LNX.4.53.0405270757250.2487@chaos>
+References: <40B5D68C.466FE969@nospam.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 27 May 2004, Zoltan Menyhart wrote:
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> I've got some questions about how hot plugging can (or cannot)
+> ensure reliability:
+>
+> When we produce machines, we execute tests like burn in, stress,
+> validation, etc. tests. In addition, every time a machine is switched
+> on, a power on self test is executed.
 
-> > This is not true. The dirent offset is a 64bit quantity, so it's quite
-> > possible it will be split across the page boundary. I'm working on a
-> > patch...
+The POST routine only verifies that some hardware "works" at the
+instant it's tested. It has nothing to do with reliability.
 
-Here's a patch that hopefully fixes this problem. Please give it
-a try and let me know.
+> When we hot plug (add, remove, swap) a component that has never been
+> seen, how can we make sure that the modified machine achieves the
+> same MTBF as the original machine had, without passing any of the
+> tests I mentioned above ?
+>
 
-Neil, does this look okay to you?
+If you want a highly-reliable machine of any type, the components
+are normally burned-in to catch "infant mortality" problems. If
+you "hot-plug" a component, that component should have undergone
+the same kind of burn-in if you wish to maintain some degree
+of reliability. Again a POST routine does not assure anything.
+And, in fact, it's just normally initialization. If you look
+at the stupid, ludicrous, "testing" done in the early IBM/PC
+BIOS, you will understand that it was just some junk that
+some committee decided had to be done, like moving values
+around between CPU registers -- If the CPU didn't work, it
+couldn't test itself -- if the CPU did work, it couldn't
+test itself, etc... Just crap.
+
+Now, memory testing has some validity because you generally
+need to access it once to get all the bits into a "known"
+state where the charge-pump (refresh) will keep it. However,
+I doubt that much bad memory has actually been detected during
+POST. It's much later, when programs or the kernel crash,
+that bad memory is detected.
+
+[SNIPPED...]
+
+So your concern that POST hasn't been run when you hot-plug
+a component isn't a problem. You cannot "test-in" reliability.
+You need to design it in, test it to make sure it's been
+built like it was designed, then burn it in to solve the
+infant mortality problem.
 
 Cheers,
-Olaf
--- 
-Olaf Kirch     |  The Hardware Gods hate me.
-okir@suse.de   |
----------------+ 
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=nfsd-encode-dirent3
 
-Index: linux-2.6.5/fs/nfsd/nfs3proc.c
-===================================================================
---- linux-2.6.5.orig/fs/nfsd/nfs3proc.c	2004-05-27 12:22:43.000000000 +0200
-+++ linux-2.6.5/fs/nfsd/nfs3proc.c	2004-05-27 12:34:40.000000000 +0200
-@@ -437,7 +437,6 @@
- 	resp->buflen = count;
- 	resp->common.err = nfs_ok;
- 	resp->buffer = argp->buffer;
--	resp->offset = NULL;
- 	resp->rqstp = rqstp;
- 	nfserr = nfsd_readdir(rqstp, &resp->fh, (loff_t*) &argp->cookie, 
- 					&resp->common, nfs3svc_encode_entry);
-Index: linux-2.6.5/fs/nfsd/nfs3xdr.c
-===================================================================
---- linux-2.6.5.orig/fs/nfsd/nfs3xdr.c	2004-05-27 12:22:43.000000000 +0200
-+++ linux-2.6.5/fs/nfsd/nfs3xdr.c	2004-05-27 12:39:09.000000000 +0200
-@@ -887,8 +887,18 @@
- 	int		elen;		/* estimated entry length in words */
- 	int		num_entry_words = 0;	/* actual number of words */
- 
--	if (cd->offset)
--		xdr_encode_hyper(cd->offset, (u64) offset);
-+	if (cd->offset) {
-+		u64 offset64 = offset;
-+
-+		if (unlikely(cd->offset1)) {
-+			/* we ended up with offset on a page boundary */
-+			*cd->offset = htonl(offset64 >> 32);
-+			*cd->offset1 = htonl(offset64 & 0xffffffff);
-+			cd->offset1 = NULL;
-+		} else {
-+			xdr_encode_hyper(cd->offset, (u64) offset);
-+		}
-+	}
- 
- 	/*
- 	dprintk("encode_entry(%.*s @%ld%s)\n",
-@@ -969,17 +979,32 @@
- 			/* update offset */
- 			cd->offset = cd->buffer + (cd->offset - tmp);
- 		} else {
-+			unsigned int offset_r = (cd->offset - tmp) << 2;
-+
-+			/* update pointer to offset location.
-+			 * This is a 64bit quantity, so we need to
-+			 * deal with 3 cases:
-+			 *  -	entirely in first page
-+			 *  -	entirely in second page
-+			 *  -	4 bytes in each page
-+			 */
-+			if (offset_r + 8 <= len1) {
-+				cd->offset = p + (cd->offset - tmp);
-+			} else if (offset_r >= len1) {
-+				cd->offset -= len1 >> 2;
-+			} else {
-+				/* sitting on the fence */
-+				BUG_ON(offset_r != len1 - 4);
-+				cd->offset = p + (cd->offset - tmp);
-+				cd->offset1 = tmp;
-+			}
-+
- 			len2 = (num_entry_words << 2) - len1;
- 
- 			/* move from temp page to current and next pages */
- 			memmove(p, tmp, len1);
- 			memmove(tmp, (caddr_t)tmp+len1, len2);
- 
--			/* update offset */
--			if (((cd->offset - tmp) << 2) <= len1)
--				cd->offset = p + (cd->offset - tmp);
--			else
--				cd->offset -= len1 >> 2;
- 			p = tmp + (len2 >> 2);
- 		}
- 	}
-Index: linux-2.6.5/include/linux/nfsd/xdr3.h
-===================================================================
---- linux-2.6.5.orig/include/linux/nfsd/xdr3.h	2004-05-27 12:22:43.000000000 +0200
-+++ linux-2.6.5/include/linux/nfsd/xdr3.h	2004-05-27 12:28:20.000000000 +0200
-@@ -183,6 +183,7 @@
- 	u32 *			buffer;
- 	int			buflen;
- 	u32 *			offset;
-+	u32 *			offset1;
- 	struct svc_rqst *	rqstp;
- 
- };
-
---4bRzO86E/ozDv8r1--

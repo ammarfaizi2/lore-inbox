@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261597AbSJFNV3>; Sun, 6 Oct 2002 09:21:29 -0400
+	id <S261607AbSJFN3w>; Sun, 6 Oct 2002 09:29:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261599AbSJFNV3>; Sun, 6 Oct 2002 09:21:29 -0400
-Received: from 62-190-218-58.pdu.pipex.net ([62.190.218.58]:36360 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261597AbSJFNV3>; Sun, 6 Oct 2002 09:21:29 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210061335.g96DZld2002585@darkstar.example.net>
-Subject: Re: Compiling old Linux
-To: jarekp3@wp.pl (Jarek Pelczar)
-Date: Sun, 6 Oct 2002 14:35:47 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <001001c26d3b$67a80d80$c9d84dd5@domq9fpmpjxazs> from "Jarek Pelczar" at Oct 06, 2002 03:22:21 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261611AbSJFN3w>; Sun, 6 Oct 2002 09:29:52 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:16082 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261607AbSJFN3v>;
+	Sun, 6 Oct 2002 09:29:51 -0400
+Date: Sun, 6 Oct 2002 15:46:29 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <20021005112552.A9032@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0210061528560.6780-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi !
+
+On Fri, 4 Oct 2002, Larry McVoy wrote:
+
+> The clause is specifically designed to target those companies which
+> produce or sell commercial SCM systems. [...] The open source developers
+> have nothing to worry about.
+
+and:
+
+On Sat, 5 Oct 2002, Larry McVoy wrote:
+
+> > Larry, I develop for the Subversion project. Does that mean my license
+> > to use bitkeeper is revoked?
 > 
-> Does anybody know how to compile
-> linux 0.12. It crashes in fork when I use GCC 3.1.
+> Yes.  It has been since we shipped that license or when you started
+> working on Subversion, whichever came last.
 
-There is no way it will compile with a modern GCC, you need to use a compiler that was around at the time, (I have no idea what that would be!).
 
-The reason is that both the kernel and GCC have bugs in them, and the kernel is generally coded to work around bugs in the current versions of GCC - so you can't use any compiler to compile any kernel.
+this kind of sudden change in Larry's written opinion within 24 hours is
+that makes this whole issue dangerous. Fact is that Larry is free to
+license his product under fair or unfair terms - it's his. While we
+already gave BK/BM tons of feedback, free beta-testing and free publicity,
+all we have is this volatile promise that the binary bits of BK are going
+to remain licensed - and with every day it will be harder and harder to
+move the repository.
 
-John.
+what happens if Linux merges some sort of kernel based versioned
+filesystem, eg. something similar to what ClearCase does today? Will the
+license suddenly change to 'as long as you do not work on the versioned-FS
+kernel subsystem'? Or isnt this already a violation of the current
+license?
+
+this is why i'd rather want to have an iron-clad legal way out first, and
+not have to rely on nonbinding promises done on public lists. I'm sure
+Larry understands this position, he has exactly the same position when
+trying to protect his business against hordes of freebies.
+
+	Ingo
+

@@ -1,73 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262036AbSKCOve>; Sun, 3 Nov 2002 09:51:34 -0500
+	id <S262065AbSKCOzp>; Sun, 3 Nov 2002 09:55:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262034AbSKCOve>; Sun, 3 Nov 2002 09:51:34 -0500
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:22184 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262036AbSKCOvc>; Sun, 3 Nov 2002 09:51:32 -0500
-From: <benh@kernel.crashing.org>
-To: "Alan Cox" <alan@redhat.com>, "Pavel Machek" <pavel@ucw.cz>
-Cc: <torvalds@transmeta.com>, "kernel list" <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: don't eat ide disks
-Date: Sun, 3 Nov 2002 15:57:34 +0100
-Message-Id: <20021103145735.14872@smtp.wanadoo.fr>
-In-Reply-To: <200211022006.gA2K6XW08545@devserv.devel.redhat.com>
-References: <200211022006.gA2K6XW08545@devserv.devel.redhat.com>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262067AbSKCOzp>; Sun, 3 Nov 2002 09:55:45 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:36799 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262065AbSKCOzm>;
+	Sun, 3 Nov 2002 09:55:42 -0500
+Date: Sun, 3 Nov 2002 16:01:50 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Kronos <kronos@kronoz.cjb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.45] CDRW not working
+Message-ID: <20021103150150.GO3612@suse.de>
+References: <20021102152143.GA515@dreamland.darkstar.net> <20021102152725.GD1922@suse.de> <20021102174727.GA294@dreamland.darkstar.net> <20021102213529.GB3612@suse.de> <20021103145352.GA1083@dreamland.darkstar.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="vEao7xgI/oilGqZ+"
+Content-Disposition: inline
+In-Reply-To: <20021103145352.GA1083@dreamland.darkstar.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Here's patch to prevent random scribling over disks during
->> suspend... In the meantime alan killed (unreferenced at that time)
->> idedisk_suspend() and idedisk_release(), so I have to reintroduce
->> them.
->
->Please fix this at a different level. idedisk is not the place to be
->doing this. If the device layer is doing the right thing then the
->request queue will be idle. 
 
-Hrm... I don't think so Alan. The PM ordering is bus driven,
-so actual bus binding of the disk is it's controller, not
-the request queue which is the functional binding. It's up to
-the disk driver to shut down processing of the request queue.
+--vEao7xgI/oilGqZ+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On the same idea, it's not the network layer that will stop
-sending packets to an eth driver, it's the eth driver that
-gets suspended by it's bus binding (PCI for example) that
-will eventually request the network layer not to send it
-any more packets (netif_stop_queue() typically).
+On Sun, Nov 03 2002, Kronos wrote:
+> Il Sat, Nov 02, 2002 at 10:35:29PM +0100, Jens Axboe ha scritto: 
+> > On Sat, Nov 02 2002, Kronos wrote:
+> > > Il Sat, Nov 02, 2002 at 04:27:25PM +0100, Jens Axboe ha scritto: 
+> > > > > I can't even mount a cd using my CDRW drive (CD-ROM drive is ok).
+> > > > 
+> > > > Does 2.5.42 work?
+> > > 
+> > > I can reproduce it using hdparm -i /dev/hdd:
+> 
+> [cut]
+>  
+> > What is this, 2.5.42 or 2.5.45?
+> 
+> Both.
+> 
+> > Does 2.5.42 work or not? 
+> 
+> If I don't use hdparm 2.5.42 works. On 2.5.45 it's random.
 
-So in our case, what we want is the pci controller driver
-getting the suspend request (and non-PCI IDE controller will
-have to write their own bus binding according to the new model).
+2.5.45 with attached patch, how does that compare?
 
-It will then tell it's own subdevices (disks in this case) to
-suspend (hrm... I don't have the source at hand, I'm away for
-a few days right now, does disks have struct device attached
-as childs of the ATA controller ? they should...). At that
-point, it's up to the _disk_ suspend() function to actually
-request the block layer to stop queue processing, typically
-this can be done by just not eating requests from the queue,
-or better, by (un)plugging the queue on suspend/resume.
-
-Now, there is indeed as subtle race if the disk driver wants
-to queue itself a request to actually send the suspend command
-to the disk. This request has to be the _last_ of the queue.
-That is, the queue must be stopped right after processing this
-request with no room for a new request to be taken in between.
-
-The way I see it is that the queue should be stopped not by
-the suspend function itself, but by the request processing
-function when fetching that STANDBY request from the queue.
-We need special care not to mixup with hdparm originated
-STANDBY though (but do those go through the queue ? I'm not
-sure how far the cleanup went here....)
-
-Ben.
+-- 
+Jens Axboe
 
 
+--vEao7xgI/oilGqZ+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=idecd-cdb-size-3
 
+===== drivers/ide/ide-cd.c 1.27 vs edited =====
+--- 1.27/drivers/ide/ide-cd.c	Fri Oct 18 20:02:55 2002
++++ edited/drivers/ide/ide-cd.c	Sun Nov  3 14:45:32 2002
+@@ -872,15 +872,16 @@
+  * changed 5 parameters to 3 for dvd-ram
+  * struct packet_command *pc; now packet_command_t *pc;
+  */
++#define ATAPI_MIN_CDB_BYTES 12
+ static ide_startstop_t cdrom_transfer_packet_command (ide_drive_t *drive,
+ 					  struct request *rq,
+ 					  ide_handler_t *handler)
+ {
+ 	unsigned char *cmd_buf	= rq->cmd;
+-	int cmd_len		= sizeof(rq->cmd);
+ 	unsigned int timeout	= rq->timeout;
+ 	struct cdrom_info *info = drive->driver_data;
+ 	ide_startstop_t startstop;
++	unsigned int cmd_len;
+ 
+ 	if (CDROM_CONFIG_FLAGS(drive)->drq_interrupt) {
+ 		/* Here we should have been called after receiving an interrupt
+@@ -902,6 +903,11 @@
+ 
+ 	/* Arm the interrupt handler. */
+ 	ide_set_handler(drive, handler, timeout, cdrom_timer_expiry);
++
++	/* cdb length, pad upto the 12th byte if necessary */
++	cmd_len = COMMAND_SIZE(rq->cmd[0]);
++	if (cmd_len < ATAPI_MIN_CDB_BYTES)
++		cmd_len = ATAPI_MIN_CDB_BYTES;
+ 
+ 	/* Send the command to the device. */
+ 	HWIF(drive)->atapi_output_bytes(drive, cmd_buf, cmd_len);
+===== drivers/scsi/scsi.h 1.29 vs edited =====
+--- 1.29/drivers/scsi/scsi.h	Thu Oct 17 23:16:34 2002
++++ edited/drivers/scsi/scsi.h	Sun Nov  3 14:45:10 2002
+@@ -164,8 +164,6 @@
+ #define SCSI_OWNER_BH_HANDLER     0x104
+ #define SCSI_OWNER_NOBODY         0x105
+ 
+-#define COMMAND_SIZE(opcode) scsi_command_size[((opcode) >> 5) & 7]
+-
+ #define IDENTIFY_BASE       0x80
+ #define IDENTIFY(can_disconnect, lun)   (IDENTIFY_BASE |\
+ 		     ((can_disconnect) ?  0x40 : 0) |\
+@@ -415,7 +413,6 @@
+ extern unsigned int scsi_need_isa_buffer;	/* True if some devices need indirection
+ 						   * buffers */
+ extern volatile int in_scan_scsis;
+-extern const unsigned char scsi_command_size[8];
+ 
+ extern struct bus_type scsi_driverfs_bus_type;
+ 
+===== include/scsi/scsi.h 1.5 vs edited =====
+--- 1.5/include/scsi/scsi.h	Mon Jun 10 02:34:54 2002
++++ edited/include/scsi/scsi.h	Sun Nov  3 14:45:09 2002
+@@ -223,4 +223,7 @@
+ /* Used to get the PCI location of a device */
+ #define SCSI_IOCTL_GET_PCI 0x5387
+ 
++extern const unsigned char scsi_command_size[8];
++#define COMMAND_SIZE(opcode) scsi_command_size[((opcode) >> 5) & 7]
++
+ #endif
+
+--vEao7xgI/oilGqZ+--

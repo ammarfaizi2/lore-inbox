@@ -1,41 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316835AbSFQISG>; Mon, 17 Jun 2002 04:18:06 -0400
+	id <S316838AbSFQISD>; Mon, 17 Jun 2002 04:18:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316840AbSFQISF>; Mon, 17 Jun 2002 04:18:05 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:44257 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316835AbSFQISE>; Mon, 17 Jun 2002 04:18:04 -0400
-Date: Mon, 17 Jun 2002 09:50:19 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Robert Love <rml@mvista.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.4.19-pre10-ac2: O(1) scheduler merge, -A3.
-In-Reply-To: <Pine.LNX.4.44.0206170503380.2941-100000@e2>
-Message-ID: <Pine.LNX.4.44.0206170946360.1263-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316840AbSFQISD>; Mon, 17 Jun 2002 04:18:03 -0400
+Received: from isolaweb.it ([213.82.132.2]:28679 "EHLO web.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S316838AbSFQISC>;
+	Mon, 17 Jun 2002 04:18:02 -0400
+Message-Id: <5.1.1.6.0.20020617094803.00a96bd0@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Mon, 17 Jun 2002 10:17:52 +0200
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Re: Developing multi-threading applications
+Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020615123016.M22429@nightmaster.csn.tu-chemnitz.de>
+References: <5.1.1.6.0.20020615104206.05291720@mail.tekno-soft.it>
+ <5.1.1.6.0.20020613171707.03f09720@mail.tekno-soft.it>
+ <20020614205601.AAA9369@shell.webmaster.com@whenever>
+ <5.1.1.6.0.20020615104206.05291720@mail.tekno-soft.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jun 2002, Ingo Molnar wrote:
+At 12.30 15/06/02 +0200, Ingo Oeser wrote:
 
-> i have planned to submit the irqbalance patch for 2.4-ac real soon, which
-> needs this function - current IRQ distribution on P4 SMP boxes is a
-> showstopper.
+>On Sat, Jun 15, 2002 at 11:01:44AM +0200, Roberto Fichera wrote:
+> > >         Even if that's true, and it's often not, how many different 
+> types
+> > > of data
+> > >acquisition can you have? Ten? Twenty? That's a far cry from 300.
+> >
+> > Currently are 190! Always active are ~110! So thinking by separating 
+> I/O from
+> > the computation we double the threads.
+>
+>So basically you are just traversing your data depedency graph
+>wrongly. Do a level order traversion if it is a dependency forest
+>or an breadth first traversion if not.
 
-Can we add a config time option for irqbalance? I consider it extra 
-overhead for setups which can do the interrupt distribution via hardware 
-properly, also irqbalance breaks NUMAQ horribly seeing as it assumes a 
-number of things like addressing modes.
+Ok! I've semplified too much ;-)!
 
-Regards,
-	Zwane Mwaikambo
+>If this node require IO -> schedule the IO and return back to the upper
+>level noticing it, that you like to be woken, if the IO is
+>finished.
+>
+>If this node require Computation -> do it, if this CPU is the one with
+>lowest load, else schedule it for the CPU with lowest load.
 
--- 
-http://function.linuxpower.ca
-		
+How can I do it ? Shouldn't be a kernel problem ? I could collect
+a various patch around that implement a CPU process bind/affinity and
+CPU load balance but how can I determine which CPU have the lowest
+load in a given time ?
 
+>Continue with next node.
+>
+>(load is meant "number of compuations with same metric scheduled
+>on this thread")
+>
+>Use only one thread per CPU. Try to make the IO-Waiting as unique
+>as possible (poll would be perfect).
+
+This could be implemented by the process affinity to bind the
+process to a CPU. But I continue to not hunderstand why
+I must have only one thread per CPU. There is some URL
+where can I see some kernel/sched/vm/I-O/other-think graph about
+this point ?
+
+
+>So this is all doable, once you analyze your data dependency
+>graph properly and make the simulation data driven (which it
+>usally is).
+>
+>Regards
+>
+>Ingo Oeser
+>--
+>Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+
+Roberto Fichera.
 

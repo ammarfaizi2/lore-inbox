@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267491AbTAQLDr>; Fri, 17 Jan 2003 06:03:47 -0500
+	id <S267487AbTAQLCb>; Fri, 17 Jan 2003 06:02:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267490AbTAQLCe>; Fri, 17 Jan 2003 06:02:34 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:62471 "EHLO
+	id <S267490AbTAQLCa>; Fri, 17 Jan 2003 06:02:30 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:61703 "EHLO
 	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S267489AbTAQLCa>; Fri, 17 Jan 2003 06:02:30 -0500
-Date: Fri, 17 Jan 2003 11:50:30 +0100
+	id <S267487AbTAQLC3>; Fri, 17 Jan 2003 06:02:29 -0500
+Date: Fri, 17 Jan 2003 11:55:04 +0100
 From: DervishD <raul@pleyades.net>
-To: Linux Geek <bourne@toughguy.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Tar'ing /proc ???
-Message-ID: <20030117105030.GE47@DervishD>
-References: <3E26BB8D.7070601@ToughGuy.net>
+To: Jakob Oestergaard <jakob@unthought.net>,
+       Miquel van Smoorenburg <miquels@cistron.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: argv0 revisited...
+Message-ID: <20030117105504.GF47@DervishD>
+References: <A46BBDB345A7D5118EC90002A5072C7806CACA88@orsmsx116.jf.intel.com> <20030115191942.GD47@DervishD> <b04dqu$4f5$1@ncc1701.cistron.net> <20030116145908.GF8621@unthought.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <3E26BB8D.7070601@ToughGuy.net>
+In-Reply-To: <20030116145908.GF8621@unthought.net>
 User-Agent: Mutt/1.4i
 Organization: Pleyades
 User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Linux Geek :)
+    Hi Jakob :))
 
-> I have been getting strange errors when i was trying to tar my /proc . 
-> Are there any known issues/problems when we do such a thing ?
+> > I assume that init is passed on the kernel command line like
+> > init=/what/ever, right ?
+> > Why not make that INIT=/what/ever, then make this /sbin/init:
+> Why not make a kernel patch that sets the INIT environment variable for
+> the init process ?
 
-    Yes, the files under the procfs are *not* real files. I don't think
-that taring /proc/kcore is a good idea, for example ;))
-
-> Is it supposed to work at all ?
-
-    Don't think so.
- 
-> There is no reason as to why i am doing this :-) , just wanted to try out.
- 
-    ;))) Do any try you want with linux: if you don't do it as root,
-you won't damage anything :))
+    Doesn't worth it, just for reexec'ing init and be able to mangle
+with argv[0], which isn't a good thing, anyway ;)
 
     Raúl

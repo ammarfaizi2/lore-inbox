@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130946AbRCFFlz>; Tue, 6 Mar 2001 00:41:55 -0500
+	id <S130949AbRCFFph>; Tue, 6 Mar 2001 00:45:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130948AbRCFFlq>; Tue, 6 Mar 2001 00:41:46 -0500
-Received: from mail005.syd.optusnet.com.au ([203.2.75.229]:6805 "EHLO
-	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S130946AbRCFFlf>; Tue, 6 Mar 2001 00:41:35 -0500
-Message-ID: <003901c0a600$1a5d3220$0200a8c0@dingoblue.net.au>
-From: "Adrian Levi" <a_levi@dingoblue.net.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: Possible Bug? 2.2.18
-Date: Tue, 6 Mar 2001 15:41:31 +1000
+	id <S130950AbRCFFp1>; Tue, 6 Mar 2001 00:45:27 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:37649 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130949AbRCFFpS>; Tue, 6 Mar 2001 00:45:18 -0500
+Date: Mon, 5 Mar 2001 21:45:05 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Douglas Gilbert <dougg@torque.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: scsi vs ide performance on fsync's 	
+In-Reply-To: <3AA47557.1DC03D6@torque.net>
+Message-ID: <Pine.LNX.4.10.10103052136580.1011-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-running 2.2.18 on a AMD486DX4 - 120 with 34Mb Ram running RH6.2 I obtained
-these errors while trying to copy files from a burnt CD.
-
-Mar  6 10:13:33 lefty kernel: hdb: command error: status=0x51 { DriveReady
-SeekComplete Error }
-Mar  6 10:13:33 lefty kernel: hdb: command error: error=0x54
-Mar  6 10:13:33 lefty kernel: end_request: I/O error, dev 03:40 (hdb),
-sector 140520
-Mar  6 10:13:33 lefty kernel: ATAPI device hdb:
-Mar  6 10:13:34 lefty kernel:   Error: Illegal request -- (Sense key=0x05)
-Mar  6 10:13:34 lefty kernel:   Illegal mode for this track or incompatible
-medium -- (asc=0x64, ascq=0x00)
-Mar  6 10:40:57 lefty kernel: hdb: command error: status=0x51 { DriveReady
-SeekComplete Error }
-Mar  6 10:40:57 lefty kernel: hdb: command error: error=0x54
-Mar  6 10:40:57 lefty kernel: ATAPI device hdb:
-Mar  6 10:40:57 lefty kernel:   Error: Illegal request -- (Sense key=0x05)
-Mar  6 10:40:57 lefty kernel:   Illegal mode for this track or incompatible
-medium -- (asc=0x64, ascq=0x00)
-
-The system locked hard with the drive light on, not accepting commands via
-telnet. I plugged in a Keyboard and Monitor and line after line of:
-
-hdb: Missed Interupt   (As close as i can get via memory).
-
-Holding Ctrl+Alt+SysRq responded in what looked like the screen switching
-between a login screen and the afformentioned error messages.
-
-Please cc replies to a_levi@dingoblue.net.au
-
-Adrian Levi.
 
 
+On Tue, 6 Mar 2001, Douglas Gilbert wrote:
+> 
+> > On the other hand, it's also entirely possible that IDE is just a lot
+> > better than what the SCSI-bigots tend to claim. It's not all that
+> > surprising, considering that the PC industry has pushed untold billions of
+> > dollars into improving IDE, with SCSI as nary a consideration. The above
+> > may just simply be the Truth, with a capital T.
+> 
+> What exactly do you think fsync() and fdatasync() should
+> do? If they need to wait for dirty buffers to get flushed
+> to the disk oxide then multiple reported IDE results to
+> this thread are defying physics.
+
+Well, it's fairly hard for the kernel to do much about that - it's almost
+certainly just IDE doing write buffering on the disk itself. No OS
+involved.
+
+The kernel VFS and controller layers certainly wait for the disk to tell
+us that the data has been written, there's no question about that. But
+it's also not at all unlikely that the disk itself just lies.
+
+I don't know if there is any way to turn of a write buffer on an IDE disk.
+
+I do remember that there were some reports of filesystem corruption with
+some version of Windows that turned off the machine at shutdown (using
+software power-off as supported by most modern motherboards), and shut
+down so fast that the drives had not actually written out all data.
+Whether the reports were true or not I do not know, but I think we can
+take for granted that write buffers exist.
+
+Now, if you really care about your data integrity with a write-buffering
+disk, I suspect that you'd better have an UPS. At which point write
+buffering is a valid optimization, as long as you trust the harddisk
+itself not to crash even if the OS were to crash.
+
+Of course, whether you should even trust the harddisk is another question.
+
+			Linus
 

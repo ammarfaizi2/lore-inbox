@@ -1,69 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280620AbRKBJYr>; Fri, 2 Nov 2001 04:24:47 -0500
+	id <S280622AbRKBJb2>; Fri, 2 Nov 2001 04:31:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280621AbRKBJYh>; Fri, 2 Nov 2001 04:24:37 -0500
-Received: from hq.alert.sk ([147.175.66.131]:9732 "HELO hq.alert.sk")
-	by vger.kernel.org with SMTP id <S280620AbRKBJYX>;
-	Fri, 2 Nov 2001 04:24:23 -0500
-Date: Fri, 2 Nov 2001 10:24:21 +0100
-From: Robert Varga <nite@hq.alert.sk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: writing a plugin for reiserfs compression
-Message-ID: <20011102102421.A25221@hq.alert.sk>
-In-Reply-To: <3BE1C07D.5080205@antefacto.com> <Pine.LNX.4.30.0111012242060.3245-100000@mustard.heime.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0111012242060.3245-100000@mustard.heime.net>; from roy@karlsbakk.net on Thu, Nov 01, 2001 at 10:43:37PM +0100
+	id <S280623AbRKBJbS>; Fri, 2 Nov 2001 04:31:18 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:1550 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S280622AbRKBJbO>; Fri, 2 Nov 2001 04:31:14 -0500
+Message-ID: <3BE266B4.85E3162@zip.com.au>
+Date: Fri, 02 Nov 2001 01:26:12 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jan Marek <jmarek@jcu.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem in yenta.c, 2nd edition
+In-Reply-To: <20011102093935.H20754@hazard.jcu.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Marek wrote:
+> 
+> Hallo l-k,
+> 
+> the first: I'm very sorry for old post about PCMCIA: function
+> yenta_config_init() is called the first time from yenta_open()
+> and not from yenta_init(), as I think... It was my error...
+> 
+> I explored yenta.c through printk() function and I found the last
+> point, where kernel freeze: This point is here:
+> 
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Presumably the controller is permanently requesting an
+interrupt.  So as soon as you enable the IRQ, you lock
+up, taking infinite interrupts.
 
-On Thu, Nov 01, 2001 at 10:43:37PM +0100, Roy Sigurd Karlsbakk wrote:
-> > Note this transparent ext2 compression patch is only available for 2.2
->=20
-> Would it be hard to port to 2.4?
+It's always seemed a bit fishy how we enable the IRQ before
+initialising the socket controller.
 
-AFAIK kinda yes. It relies on IO going through block buffer cache:
-Buffer cache contains the compressed data, while the page cache has it all =
-decompressed.
-This avoids excessive (de)compression (you need to compress data only when =
-commiting page
-to disk).
+Try moving the block of code which requests the IRQ down
+so that it comes after the call to cardbus_register().
 
-With 2.4 Ext2 moved (almost?) entirely out of buffer cache, you'll need to
-create your own IO buffers. This is the only solution I came up with. Is th=
-ere some
-other approach how to cope with this problem ?
+> --- function yenta_open_bh() from drivers/pcmcia/yenta.c
+> /*
+>  * 'Bottom half' for the yenta_open routine. Allocate the interrupt line
+>  *  and register the socket with the upper layers.
+>  */
+> static void yenta_open_bh(void * data)
+> {
+>         pci_socket_t * socket = (pci_socket_t *) data;
+> 
+>         /* It's OK to overwrite this now */
+>         socket->tq_task.routine = yenta_bh;
+>         printk("yenta_open_bh: socket->tq_task.routine\n");
+>
 
---=20
-Kind regards,
-Robert Varga
----------------------------------------------------------------------------=
----
-n@hq.sk                                          http://hq.sk/~nite/gpgkey.=
-txt
-=20
+>From here
+ 
+>         if (!socket->cb_irq || request_irq(socket->cb_irq, yenta_interrupt, (SA_SHIRQ | SA_INTERRUPT), socket->dev->name, socket)) {
+>                 /* No IRQ or request_irq failed. Poll */
+>                 printk("yenta_open_bh: in the if block\n");
+>                 socket->cb_irq = 0; /* But zero is a valid IRQ number. */
+>                 socket->poll_timer.function = yenta_interrupt_wrapper;
+>                 socket->poll_timer.data = (unsigned long)socket;
+>                 socket->poll_timer.expires = jiffies + HZ;
+>                 printk("yenta_open_bh: before add_timer\n");
+>                 add_timer(&socket->poll_timer);
+>                 printk("yenta_open_bh: add_timer\n");
+>         }
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+to here
+ 
+>         printk("yenta_open_bh: after if(!socket->cb_irq...\n");
+>         /* Figure out what the dang thing can do for the PCMCIA layer... */
+>         yenta_get_socket_capabilities(socket, isa_interrupts);
+>         printk("yenta_open_bh: after yenta_get_socket_capabilities\n");
+>         printk("Socket status: %08x\n", cb_readl(socket, CB_SOCKET_STATE));
+> 
+>         /* Register it with the pcmcia layer.. */
+>         cardbus_register(socket);
+>         printk("yenta_open_bh: cardbus_register()\n");
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+move it down to here.
+ 
+>         MOD_DEC_USE_COUNT;
+> }
 
-iD8DBQE74mZF9aKR2/T45h8RAtS2AKCTvTFTKpGHgcz8Jy/FYGUe8N5rAQCcDO9X
-cSvgFvl9msTtBT/5XfVHriM=
-=3AwM
------END PGP SIGNATURE-----
 
---Nq2Wo0NMKNjxTN9z--
+-

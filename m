@@ -1,57 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVCVE2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbVCVEhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbVCVE2V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 23:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVCVE1c
+	id S262488AbVCVEhM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 23:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbVCVEeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 23:27:32 -0500
-Received: from fire.osdl.org ([65.172.181.4]:40132 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262384AbVCVEVb (ORCPT
+	Mon, 21 Mar 2005 23:34:50 -0500
+Received: from fmr15.intel.com ([192.55.52.69]:12775 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262450AbVCVE3m convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 23:21:31 -0500
-Date: Mon, 21 Mar 2005 20:20:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, cmorgan@alum.wpi.edu,
-       paul@linuxaudiosystems.com, Jamie Lokier <jamie@shareable.org>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Subject: Re: kernel bug: futex_wait hang
-Message-Id: <20050321202051.2796660e.akpm@osdl.org>
-In-Reply-To: <1111463950.3058.20.camel@mindpipe>
-References: <1111463950.3058.20.camel@mindpipe>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Mar 2005 23:29:42 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Distinguish real vs. virtual CPUs?
+Date: Mon, 21 Mar 2005 20:29:30 -0800
+Message-ID: <88056F38E9E48644A0F562A38C64FB600448EE27@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Distinguish real vs. virtual CPUs?
+Thread-Index: AcUujLNdaqo7UK/bSdSGE8YXnX44XgACheKA
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "J.A. Magallon" <jamagallon@able.es>, "Dan Maas" <dmaas@maasdigital.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Mar 2005 04:29:35.0909 (UTC) FILETIME=[C0C65550:01C52E97]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
+ 
+
+>This is 2xXeonHT, is, 4 cpus on 2 packages:
 >
-> Paul Davis and Chris Morgan have been chasing down a problem with
-> xmms_jack and it really looks like this bug, thought to have been fixed
-> in 2.6.10, is the culprit.
-> 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0409.0/2044.html
-> 
-> (for more info google "futex_wait 2.6 hang")
-> 
-> It's simple to reproduce.  Run JACK and launch xmms with the JACK output
-> plugin.  Close XMMS.  The xmms process hangs.  Strace looks like this:
-> 
-> rlrevell@krustophenia:~$ strace -p 7935
-> Process 7935 attached - interrupt to quit
-> futex(0xb5341bf8, FUTEX_WAIT, 7939, NULL
-> 
-> Just like in the above bug report, if xmms is run with
-> LD_ASSUME_KERNEL=2.4.19, it works perfectly.
-> 
-> I have reproduced the bug with 2.6.12-rc1.
-> 
+>cat /proc/cpuinfo:
+>
+>processor	: 0
+>...
+>physical id	: 0
+>siblings	: 2
+>core id		: 0
+>cpu cores	: 1
+>
+>processor	: 1
+>...
+>physical id	: 0
+>siblings	: 2
+>core id		: 0
+>cpu cores	: 1
+>
+>processor	: 2
+>...
+>physical id	: 3
+>siblings	: 2
+>core id		: 3
+>cpu cores	: 1
+>
+>processor	: 3
+>...
+>physical id	: 3
+>siblings	: 2
+>core id		: 3
+>cpu cores	: 1
+>
+>So something like:
+>
+>cat /proc/cpuinfo | grep 'core id' | uniq | wc -l
+>
+>would give you the number of packages or 'real cpus'. Then you have to
+>choose which ones are unrelated. Usually evens are siblings of 
+>odds, but
+>I won't trust on it...
+>
 
-iirc we ended up deciding that the futex problems around that time were due
-to userspace problems (a version of libc).  But then, there's no discussion
-around Seto's patch and it didn't get applied.  So I don't know what
-happened to that work - it's all a bit mysterious.
+Number of unique physical id will tell you the number of physical CPU
+packages in the system.
+Number of unique core id will tell you the total number of CPU cores in
+the system.
+Number of processor will tell you the total number of logical CPUs on
+the system.
 
-Is this a 100% repeatable hang, or is it some occasional race?
+Then to find out the matching pairs, 
+- to pair up all HT siblings on a core: Processors that have same "core
+id" are HT siblings in a core.
+- to pair up all CPUs in a package: Processors that have same "physical
+id" are all the CPUs belonging to the same physical package.
+
+Thanks,
+Venki

@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313060AbSDLAFb>; Thu, 11 Apr 2002 20:05:31 -0400
+	id <S313082AbSDLAJx>; Thu, 11 Apr 2002 20:09:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313080AbSDLAFa>; Thu, 11 Apr 2002 20:05:30 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:56075 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S313060AbSDLAFa>; Thu, 11 Apr 2002 20:05:30 -0400
-Message-ID: <3CB6163B.EAC8F633@zip.com.au>
-Date: Thu, 11 Apr 2002 16:03:23 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S313083AbSDLAJw>; Thu, 11 Apr 2002 20:09:52 -0400
+Received: from relay04.valueweb.net ([216.219.253.238]:21262 "EHLO
+	relay04.valueweb.net") by vger.kernel.org with ESMTP
+	id <S313082AbSDLAJv>; Thu, 11 Apr 2002 20:09:51 -0400
+Message-ID: <3CB61AC7.5AB77189@opersys.com>
+Date: Thu, 11 Apr 2002 19:22:47 -0400
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16-TRACE i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-CC: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [prepatch] address_space-based writeback
-In-Reply-To: <3CB5FFB5.693E7755@zip.com.au> <Pine.SOL.3.96.1020411235415.24708A-100000@virgo.cus.cam.ac.uk>
+To: Torrey Hoffman <thoffman@arnor.net>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: measuring time spent in kernel
+In-Reply-To: <1018569297.15331.4.camel@shire.arnor.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
+
+You may want to try LTT:
+http://www.opersys.com/LTT
+
+It will give this sort of information, among many other things,
+and it doesn't soak up any cycles.
+
+Karim
+
+Torrey Hoffman wrote:
 > 
-> ...
-> It would be great to be able to submit variable size "io entities" even
-> greater than PAGE_CACHE_SIZE (by giving a list of pages, starting offset
-> in first page and total request size for example) and saying write that to
-> the device starting at offset xyz. That would suit ntfs perfectly. (-:
+> "top" and similar tools don't seem to capture the time spent in kernel
+> which isn't on behalf of a user process.
 > 
+> I vaguely remember mention on this list of a tool that soaks up as many
+> cycles as it can get to obtain an accurate measurement of the true
+> system time.
+> 
+> Can some one give me a pointer?  I've had no luck with Google...
+> 
+> thanks,
+> 
+> Torrey Hoffman
+> thoffman@arnor.net
+> torrey.hoffman@myrio.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Yes, I'll be implementing that.  Writeback will hit the filesystem
-via a_ops->writeback_mapping(mapping, nr_pages).  The filesytem
-will then call in to generic_writeback_mapping(), which will walk
-the pages, assemble BIOs and send them off.
-
-The filesystem needs to pass a little state structure into the
-generic writeback function.  An important part of that is a
-semaphore which is held while writeback is locking multiple
-pages.  To avoid ab/ba deadlocks.
-
-The current implementation of this bio-assembler is for no-buffer
-(delalloc) fileystems only.  It need to be enhanced (or forked)
-to also cope with buffer-backed pages. It will need to peek
-inside the buffer-heads to detect clean buffers (maybe.  It
-definitely needs to skip unmapped ones).  When such a buffer
-is encountered the BIO will be sent off and a new one will be started.
-The code for this is going to be quite horrendous.  I suspect
-the comment/code ratio will exceed 1.0, which is a bad sign :)
-
-One thing upon which I am undecided:  for syncalloc filesystems
-like ext2, do we attach buffers at ->readpages() time, or do
-we just leave the page bufferless?
-
-That's a hard call.  It helps the common case, but in the uncommon
-case (we overwrite the file after reading it), we need to run
-get_block again.
-
--
+-- 
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

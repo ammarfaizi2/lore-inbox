@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264118AbTEGWdD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 18:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264138AbTEGWdC
+	id S264138AbTEGWmx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 18:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTEGWmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 18:33:02 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:40232 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264118AbTEGWdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 18:33:02 -0400
-Date: Wed, 7 May 2003 15:41:50 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: WimMark I report for 2.5.69
-Message-Id: <20030507154150.005db55e.akpm@digeo.com>
-In-Reply-To: <20030507175422.GX3989@ca-server1.us.oracle.com>
-References: <20030507175422.GX3989@ca-server1.us.oracle.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	Wed, 7 May 2003 18:42:53 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61956 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264138AbTEGWmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 18:42:52 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] 2.5 ide 48-bit usage
+Date: 7 May 2003 15:55:13 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b9c2sh$ojj$1@cesium.transmeta.com>
+References: <20030507084920.GA823@suse.de> <Pine.LNX.4.44.0305070915470.2726-100000@home.transmeta.com> <20030507164613.GN823@suse.de> <b9bupr$jkm$2@tangens.hometree.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 May 2003 22:45:32.0287 (UTC) FILETIME=[5DAA98F0:01C314EA]
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker <Joel.Becker@oracle.com> wrote:
+Followup to:  <b9bupr$jkm$2@tangens.hometree.net>
+By author:    "Henning P. Schmiedehausen" <hps@intermeta.de>
+In newsgroup: linux.dev.kernel
 >
-> WimMark I report for 2.5.69
+> Jens Axboe <axboe@suse.de> writes:
 > 
-> Runs:  1462.17 1005.78 1995.99
-> ...
-> This benchmark is sensitive to random system events.
+> >I dunno what the purpose of that would be exactly, I guess to cater to
+> >some hardware odditites?
+> 
+> Wild guess: You can use larger transfer sizes with the 48 bit
+> interface, even when adressing the lower 28 bit space?
+> 
+> This might be a win for applications that stream large contigous
+> blocks from/to a HD (Video, Audio...)
+> 
 
-You can say that again.
+Right, Jens basically does something like:
 
-> I run three runs because of this.  If two runs are nearly identical and the
-> remaining run is way off, that run should probably be ignored (it is
-> often a low number, signifying that something on the system impacted
-> the benchmark).
+use_48_bits := (address+length > 2^28) || (length >= 2^16)
 
-Here we have 1.0, 1.5 and 2.0.
-
-We need to understand why there is such variation.  If we can do that,
-then perhaps we can make those 1.0's and 1.5's go away.
-
-Is that a thing you can work on?  One approach would be to vary parameters
-(filesystem type, amount of memory, TCQ lengths, workload, whatever) and
-see which ones the throughput is sensitive to.
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265672AbUFVTio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265108AbUFVTo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265672AbUFVTio (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 15:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbUFVTed
+	id S265108AbUFVTo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 15:44:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265058AbUFVTi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 15:34:33 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:44679 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S265058AbUFVSIO convert rfc822-to-8bit (ORCPT
+	Tue, 22 Jun 2004 15:38:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32178 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265478AbUFVTgt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 14:08:14 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Question on using MSI in PCI driver
-Date: Tue, 22 Jun 2004 11:08:04 -0700
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024057E5196@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Question on using MSI in PCI driver
-Thread-Index: AcRYgZ6cRo+18O9zQz+d5dIANjNmnAAAVBcw
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Roland Dreier" <roland@topspin.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Jun 2004 18:08:05.0633 (UTC) FILETIME=[DDADC710:01C45883]
+	Tue, 22 Jun 2004 15:36:49 -0400
+Date: Tue, 22 Jun 2004 12:35:23 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: herbert@gondor.apana.org.au, kernel@nn7.de, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org, netdev@oss.sgi.com, jgarzik@pobox.com
+Subject: Re: sungem - ifconfig eth0 mtu 1300 -> oops
+Message-Id: <20040622123523.28fca55a.davem@redhat.com>
+In-Reply-To: <40D847E3.2080109@nortelnetworks.com>
+References: <20040621141144.119be627.davem@redhat.com>
+	<40D847E3.2080109@nortelnetworks.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, June 22, 2004 Roland Dreier wrote: 
+On Tue, 22 Jun 2004 10:53:23 -0400
+Chris Friesen <cfriesen@nortelnetworks.com> wrote:
 
->Do you think the msi subsystem should use a different name for the
->MSI-X memory region ("MSI-X iomap Failure" seems very strange to me).
+> Just a quick question.  Does the sungem chip support jumbo frames?
 
-What do you think of "Failure to request the MMIO address space of the
-MSI-X PBA"?
-Or what name do you suggest?
-
-Thanks,
-Long
+Nope, not at all.

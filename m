@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289243AbSBJEJE>; Sat, 9 Feb 2002 23:09:04 -0500
+	id <S289255AbSBJEPF>; Sat, 9 Feb 2002 23:15:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289250AbSBJEIx>; Sat, 9 Feb 2002 23:08:53 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64786 "EHLO
+	id <S289270AbSBJEOx>; Sat, 9 Feb 2002 23:14:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5139 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289243AbSBJEIm>; Sat, 9 Feb 2002 23:08:42 -0500
+	id <S289255AbSBJEOm>; Sat, 9 Feb 2002 23:14:42 -0500
 To: linux-kernel@vger.kernel.org
 From: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: [bk patch] Make cardbus compile in -pre4
-Date: Sun, 10 Feb 2002 04:07:24 +0000 (UTC)
+Date: Sun, 10 Feb 2002 04:13:33 +0000 (UTC)
 Organization: Transmeta Corporation
-Message-ID: <a44rls$7nh$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org> <20020209093520.XVXR9607.femail47.sdc1.sfba.home.com@there> <877kpnt1tr.fsf@fadata.bg> <E16ZZ7M-0007Y7-00@starship.berlin>
-X-Trace: palladium.transmeta.com 1013314105 20251 127.0.0.1 (10 Feb 2002 04:08:25 GMT)
+Message-ID: <a44s1d$7o8$1@penguin.transmeta.com>
+In-Reply-To: <20020209090527.B13735@work.bitmover.com> <20020209134132.J13735@work.bitmover.com> <20020209163603.B9826@lynx.turbolabs.com> <20020209155258.E18734@work.bitmover.com>
+X-Trace: palladium.transmeta.com 1013314474 20477 127.0.0.1 (10 Feb 2002 04:14:34 GMT)
 X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 10 Feb 2002 04:08:25 GMT
+NNTP-Posting-Date: 10 Feb 2002 04:14:34 GMT
 Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
 X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E16ZZ7M-0007Y7-00@starship.berlin>,
-Daniel Phillips  <phillips@bonn-fries.net> wrote:
+In article <20020209155258.E18734@work.bitmover.com>,
+Larry McVoy  <lm@bitmover.com> wrote:
 >
->Complaining and whining are not the same thing.  Some major contributors
->have complained, that's why Linus takes this seriously.
+>This is because the dependencies are incorrect in the makefiles.  If you
+>have correct dependencies in the makefiles, make will do the right thing.
 
-Well, in all honesty, it's not so much that I take it seriously - it's
-not as if the complaints are in any way new (or even more serious than
-before - I think we had a much more serious spat a few years ago).  The
-fact is, people will _always_ complain about the way things are done.
+Modulo bugs.
 
-[ This very _same_ "how to maintain" flameware is not only a regular
-  topic on linux-kernel, it's a regular topic on the BSD lists, on the
-  gcc lists, and probably on every single bigger software project,
-  whether open source or not. Why do you think there are so many
-  different source control packages? ;]
+For some reason, on my work machine, "make" will not correctly check out
+files that are "include"d from the makefile.
 
-But I _have_ promised Larry for the last two years or so to give BK a
-chance (the last time I promised him I'd start using it as of 2.5.0),
-and the discussion to a large degree just made me feel I had a good
-reason to take a week off and try it out. 
+On my home machine, it will.
 
-I doubt bk per se will really change any of the real issues.  It will
-almost certainly make it somewhat easier to merge patches from some
-people, but I also suspect that those are largely the same people that I
-already was pretty good at merging patches from before. 
+The really interesting thing is, they're both make 3.79.1.
 
-The fundamental issue that I think I (or any human, for that matter)
-work best with just a few (on the order of ten) closer contacts, and
-that I want people to "network" more is pretty independent of BK or not.
-
-However, in the long run what BK may do is to make it easier to migrate
-to a "group model", where the traditional "linus tree" doesn't even
-exist any more. I'm not ready to do that yet, but clearly it has to
-happen at _some_ point. Nobody lives forever.
-
-And I do like BK so far.
+Besides, I'd at least personally rather do "bk -r get -q" than have to
+watch those SCCS files and BitKeeper files. That way the filename
+completion works inside the shell too..
 
 			Linus

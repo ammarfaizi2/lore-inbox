@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUJKHTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUJKHZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266175AbUJKHTV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 03:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbUJKHTV
+	id S265222AbUJKHZW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 03:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267451AbUJKHZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 03:19:21 -0400
-Received: from support.codesourcery.com ([65.74.133.10]:50430 "EHLO
-	mail.codesourcery.com") by vger.kernel.org with ESMTP
-	id S267451AbUJKHTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 03:19:15 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: udev: what's up with old /dev ?
-From: Zack Weinberg <zack@codesourcery.com>
-Date: Mon, 11 Oct 2004 00:19:13 -0700
-Message-ID: <878yadwwlq.fsf@codesourcery.com>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 11 Oct 2004 03:25:22 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:50406 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S265222AbUJKHZR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 03:25:17 -0400
+Date: Mon, 11 Oct 2004 09:23:07 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Tejun Heo <tj@home-tj.org>
+Subject: via-velocity heads up (was (Re: Linux 2.6.9-rc4 - pls test (and no more patches))
+Message-ID: <20041011072307.GA18577@electric-eye.fr.zoreil.com>
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> :
+[...]
+> Summary of changes from v2.6.9-rc3 to v2.6.9-rc4
+> ============================================
+[...]
+> Fran?ois Romieu:
+>   o via-velocity: properly manage the count of adapters
+>   o via-velocity: removal of unused velocity_info.xmit_lock
+>   o via-velocity: velocity_give_rx_desc() removal
+>   o via-velocity: received ring wrong index and missing barriers
+>   o via-velocity: early invocation of init_cam_filter()
+>   o via-velocity: removal of incomplete endianness handling
+>   o via-velocity: wrong buffer offset in velocity_init_td_ring()
+>   o via-velocity: comment fixes
 
-Hacksaw writes:
->Zack Weinberg writes:
->>The very first thing init does is open /dev/console, and if it doesn't
->>exist the entire boot hangs.
->
->This raises a question: Would it be a useful thing to make a modified init
->that could run udev before it does anything else?
+The attribution is a bit misleading as Tejun Heo <tj@home-tj.org>
+did the real work (he appears in the logs though).
 
-It wouldn't help.  The opening of /dev/console actually happens inside
-the kernel, near the bottom of init/main.c:
+People should really, really, test this code if they have been
+experiencing issues with the driver lately.
 
-        if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
-                printk("Warning: unable to open an initial console.\n");
+Test reports welcome here or on netdev@oss.sgi.com.
 
-        (void) sys_dup(0);
-        (void) sys_dup(0);
-
-That's not a fatal error, but the userspace startup process does get
-stuck not very long afterward.  (I'm not sure precisely where.  It
-hadn't mounted filesystems read-write yet.)
-
-Control reaches the above code after an initramfs is unpacked, so
-including /dev/console in an initramfs will work.  I do not think it
-will work to invoke udevstart from an initramfs or initrd *without*
-also including a static /dev/console -- I'm pretty darn sure that
-control reaches /init in an initramfs after the above code executes.
-I'm not sure whether control reaches /linuxrc in an initrd before or
-after the above code.
-
-Being inside the kernel at this point, it seems to me there ought to
-be some way to open device <5,1> without going through the filesystem,
-but I could not find one.
-
-[Tangentially, I thought kernel-side syscalls had been stamped out,
-but there's still a __KERNEL_SYSCALLS__ #define at the top of the file
-and a bare execve() in run_init_process()... which does in fact get
-compiled to int $0x80 on my boring old x86...]
-
-zw
+--
+Ueimor

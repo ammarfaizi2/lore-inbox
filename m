@@ -1,102 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265384AbUASRGP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 12:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265392AbUASRGP
+	id S265400AbUASRHB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 12:07:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265431AbUASRHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 12:06:15 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:59782 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265384AbUASRGM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 12:06:12 -0500
-Subject: Re: 2.6.1-mm4: ALSA es1968 DMA alloc problem
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Johannes Stezenbach <js@convergence.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <s5hwu7n6gvz.wl@alsa2.suse.de>
-References: <20040117161013.GA3303@convergence.de>
-	 <s5hwu7n6gvz.wl@alsa2.suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uNU8b89R2iTCeWzhuawm"
-Organization: Red Hat, Inc.
-Message-Id: <1074531954.4443.6.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 19 Jan 2004 18:05:54 +0100
+	Mon, 19 Jan 2004 12:07:00 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:9913 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id S265400AbUASRG6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 12:06:58 -0500
+Message-ID: <400C0EAF.2080507@namesys.com>
+Date: Mon, 19 Jan 2004 20:06:55 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: raymond jennings <highwind747@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA] - run-length compaction of block numbers
+References: <BAY1-F117hxeH6PC8MS00006f92@hotmail.com> <200401161954.i0GJsEgj003906@turing-police.cc.vt.edu> <40084DFB.5040106@namesys.com> <200401162238.i0GMcxT3004785@turing-police.cc.vt.edu>            <400BB549.3040904@namesys.com> <200401191620.i0JGKqKe012285@turing-police.cc.vt.edu>
+In-Reply-To: <200401191620.i0JGKqKe012285@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+So extents were around at the beginning of filesystems, and then 
+forgotten by Unix for a while.... interesting....
 
---=-uNU8b89R2iTCeWzhuawm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 2004-01-19 at 17:29, Takashi Iwai wrote:
-> --- linux/sound/core/memalloc.c	15 Jan 2004 16:17:36 -0000	1.20
-> +++ linux/sound/core/memalloc.c	19 Jan 2004 11:52:21 -0000
-> @@ -841,10 +844,11 @@
->  			continue;
->  		}
->  		=09
-> -		if (pci_set_consistent_dma_mask(pci, dev->dma_mask) < 0) {
-> +		if (pci_set_dma_mask(pci, dev->dma_mask) < 0) {
->  			printk(KERN_ERR "snd-page-alloc: cannot set DMA mask %lx for pci %04x=
-:%04x\n", dev->dma_mask, dev->vendor, dev->device);
->  			continue;
->  		}
-> +		pci_set_consistent_dma_mask(pci, dev->dma_mask);
->  		for (i =3D 0; i < dev->buffers; i++) {
->  			struct snd_mem_list *mem;
->  			mem =3D kmalloc(sizeof(*mem), GFP_KERNEL);
-
-unchecked=20
+-- 
+Hans
 
 
-> --- linux/sound/pci/emu10k1/emu10k1_main.c	2 Jan 2004 13:39:33 -0000	1.27
-> +++ linux/sound/pci/emu10k1/emu10k1_main.c	19 Jan 2004 11:47:55 -0000
-> @@ -599,11 +599,12 @@
->  		return -ENOMEM;
->  	/* set the DMA transfer mask */
->  	emu->dma_mask =3D is_audigy ? AUDIGY_DMA_MASK : EMU10K1_DMA_MASK;
-> -	if (pci_set_consistent_dma_mask(pci, emu->dma_mask) < 0) {
-> +	if (pci_set_dma_mask(pci, emu->dma_mask)) {
->  		snd_printk(KERN_ERR "architecture does not support PCI busmaster DMA w=
-ith mask 0x%lx\n", emu->dma_mask);
->  		snd_magic_kfree(emu);
->  		return -ENXIO;
->  	}
-> +	pci_set_consistent_dma_mask(pci, emu->dma_mask);
->  	emu->card =3D card;
->  	spin_lock_init(&emu->reg_lock);
->  	spin_lock_init(&emu->emu_lock);
-
-unchecked
-> --- linux/sound/pci/trident/trident_main.c	20 Nov 2003 12:03:01 -0000	1.4=
-3
-> +++ linux/sound/pci/trident/trident_main.c	19 Jan 2004 11:48:59 -0000
-> @@ -3952,6 +3952,7 @@
->  		return;
-> =20
->  	pci_enable_device(trident->pci);
-> +	pci_set_dma_mask(trident->pci, 0x3fffffff); /* FIXME: correct? */
->  	pci_set_consistent_dma_mask(trident->pci, 0x3fffffff); /* FIXME: correc=
-t? */
->  	pci_set_master(trident->pci); /* to be sure */
-> =20
-
-unchecked
-
-
---=-uNU8b89R2iTCeWzhuawm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBADA5yxULwo51rQBIRAlL2AJ4q71qJSOuG2cG5T8pEA/QF+LnH5wCfX0HC
-G0tPsOZ61VaDGtMO2+efJC8=
-=VopT
------END PGP SIGNATURE-----
-
---=-uNU8b89R2iTCeWzhuawm--

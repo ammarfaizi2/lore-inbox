@@ -1,102 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265745AbSKAVK7>; Fri, 1 Nov 2002 16:10:59 -0500
+	id <S265747AbSKAVNU>; Fri, 1 Nov 2002 16:13:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265748AbSKAVK7>; Fri, 1 Nov 2002 16:10:59 -0500
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:28157 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S265745AbSKAVK5>;
-	Fri, 1 Nov 2002 16:10:57 -0500
-Date: Fri, 1 Nov 2002 16:17:22 -0500
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Jeff Garzik <jgarzik@pobox.com>
+	id <S265748AbSKAVNT>; Fri, 1 Nov 2002 16:13:19 -0500
+Received: from mamona.cetuc.puc-rio.br ([139.82.74.4]:52365 "EHLO
+	mamona.cetuc.puc-rio.br") by vger.kernel.org with ESMTP
+	id <S265747AbSKAVNT>; Fri, 1 Nov 2002 16:13:19 -0500
+Subject: [PATCH] 2.5.45 [TRIVIAL]: Cosmetic ide-cd error message printk
+	format
+From: Marcelo Roberto Jimenez <mroberto@cetuc.puc-rio.br>
+To: Trivial Patch Monkey <trivial@rustcorp.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: ewrk3 cli/sti removal by VDA
-Message-ID: <20021101211722.GA26253@www.kroptech.com>
-References: <20021019021340.GA8388@www.kroptech.com> <3DB49D81.6000607@pobox.com> <20021022020932.GA13818@www.kroptech.com> <3DB9C970.3010305@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 01 Nov 2002 18:19:34 -0200
+Message-Id: <1036181975.2036.13.camel@genipapo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB9C970.3010305@pobox.com>
-User-Agent: Mutt/1.3.28i
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25, 2002 at 06:45:04PM -0400, Jeff Garzik wrote:
-> Adam Kropelin wrote:
-> >			spin_unlock_irqrestore(&lp->hw_lock, flags);
-> >-			ret = delay;
-> >-			__wait_event_interruptible_timeout(wait, 0, ret);
-> >+			set_current_state(TASK_INTERRUPTIBLE);
-> >+			ret = schedule_timeout(HZ>>2);
-> 
-> close -- if schedule_timeout() returns greater than zero, that number is 
-> the remaining jiffies that schedule_timeout _should_ have slept, but did 
-> not.  Ideally you need to call it in a loop, that decrements a variable 
-> based on schedule_timeout return code.
 
-Try this one on for size...
+This is just part one, once I got the message. Now have I to 
+figure out WHY I got this message :-)
 
---Adam
+Regards,
 
+Marcelo.
 
---- linux-2.5.45-virgin/drivers/net/ewrk3.c	Wed Oct 30 22:55:10 2002
-+++ linux-2.5.45/drivers/net/ewrk3.c	Fri Nov  1 17:15:13 2002
-@@ -1759,23 +1759,18 @@
- 		return 0;
+diff -Nru a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+--- a/drivers/ide/ide-cd.c	Fri Nov  1 18:02:36 2002
++++ b/drivers/ide/ide-cd.c	Fri Nov  1 18:02:36 2002
+@@ -1462,7 +1462,7 @@
+ 	} else {
+ confused:
+ 		printk ("%s: cdrom_pc_intr: The drive "
+-			"appears confused (ireason = 0x%2x)\n",
++			"appears confused (ireason = 0x%02x)\n",
+ 			drive->name, ireason);
+ 		rq->flags |= REQ_FAILED;
  	}
- 
--#ifdef BROKEN
- 	/* Blink LED for identification */
- 	case ETHTOOL_PHYS_ID: {
- 		struct ethtool_value edata;
- 		u_long flags;
--		long delay, ret;
-+		long ret=0;
- 		u_char cr;
- 		int count;
--		wait_queue_head_t wait;
--
--		init_waitqueue_head(&wait);
- 
- 		if (copy_from_user(&edata, useraddr, sizeof(edata)))
- 			return -EFAULT;
- 
- 		/* Toggle LED 4x per second */
--		delay = HZ >> 2;
- 		count = edata.data << 2;
- 
- 		spin_lock_irqsave(&lp->hw_lock, flags);
-@@ -1796,24 +1791,24 @@
- 
- 			/* Wait a little while */
- 			spin_unlock_irqrestore(&lp->hw_lock, flags);
--			ret = delay;
--			__wait_event_interruptible_timeout(wait, 0, ret);
-+			ret = HZ>>2;
-+			while(ret && !signal_pending(current)) {
-+				set_current_state(TASK_INTERRUPTIBLE);
-+				ret = schedule_timeout(ret);
-+			}
- 			spin_lock_irqsave(&lp->hw_lock, flags);
- 
- 			/* Exit if we got a signal */
--			if (ret == -ERESTARTSYS)
--				goto out;
-+			if (ret)
-+				break;
- 		}
- 
--		ret = 0;
--out:
- 		lp->led_mask = CR_LED;
- 		cr = inb(EWRK3_CR);
- 		outb(cr & ~CR_LED, EWRK3_CR);
- 		spin_unlock_irqrestore(&lp->hw_lock, flags);
--		return ret;
-+		return ret ? -ERESTARTSYS : 0;
- 	}
--#endif /* BROKEN */
- 
- 	}
- 
+
+
 

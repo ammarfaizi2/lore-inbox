@@ -1,82 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317457AbSGIXh5>; Tue, 9 Jul 2002 19:37:57 -0400
+	id <S317462AbSGJAw2>; Tue, 9 Jul 2002 20:52:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317458AbSGIXh4>; Tue, 9 Jul 2002 19:37:56 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:51462 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S317457AbSGIXhz>;
-	Tue, 9 Jul 2002 19:37:55 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
+	id <S317463AbSGJAw1>; Tue, 9 Jul 2002 20:52:27 -0400
+Received: from draco.netpower.no ([212.33.133.34]:50955 "EHLO
+	draco.netpower.no") by vger.kernel.org with ESMTP
+	id <S317462AbSGJAw1>; Tue, 9 Jul 2002 20:52:27 -0400
+Date: Wed, 10 Jul 2002 02:53:22 +0200
+From: Erlend Aasland <erlend-a@innova.no>
+To: Jaroslav Kysela <perex@suse.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Announce: kdb v2.2 is available for kernel 2.4.19-rc1 
-Date: Wed, 10 Jul 2002 09:40:28 +1000
-Message-ID: <31535.1026258028@ocs3.intra.ocs.com.au>
+Subject: [PATCH] include/sound/info.h
+Message-ID: <20020710025322.A23535@innova.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Content-Type: text/plain; charset=us-ascii
+snd_info_create_module_entry() is declared with only two arguments when CONFIG_PROC_FS is not defined.
 
-ftp://oss.sgi.com/projects/kdb/download/v2.2/
+This patch should make the kernel compile for people who want sound but not procfs.
 
-  kdb-v2.2-2.4.19-rc1-common-1.bz2
-  kdb-v2.2-2.4.19-rc1-i386-1.bz2
 
-Starting with kdb v2.0 there is a common patch against each kernel which
-contains all the architecture independent code plus separate architecture
-dependent patches.  Apply the common patch for your kernel plus at least
-one architecture dependent patch, the architecture patches activate kdb.
+Erlend Aasland
 
-The naming convention for kdb patches is :-
-
-vx.y    The version of kdb.  x.y is updated as new features are added to kdb.
-- -v.p.s  The kernel version that the patch applies to.  's' may include -pre,
-        -rc or whatever numbering system the kernel keepers have thought up this
-        week.
-- -common The common kdb code.  Everybody needs this.
-- -i386   Architecture dependent code for i386.
-- -ia64   Architecture dependent code for ia64, etc.
-- -n      If there are multiple kdb patches against the same kernel version then
-        the last number is incremented.
-
-To build kdb for your kernel, apply the common kdb patch which is less
-than or equal to the kernel v.p.s, taking the highest value of '-n'
-if there is more than one.  Apply the relevant arch dependent patch
-with the same value of 'vx.y-v.p.s-', taking the highest value of '-n'
-if there is more than one.
-
-For example, to use kdb v2.2 for i386 on kernel 2.4.19-rc1, apply
-  kdb-v2.2-2.4.19-rc1-common-<n>	(use highest value of <n>)
-  kdb-v2.2-2.4.19-rc1-i386-<n>		(use highest value of <n>)
-in that order.
-
-Changelog extracts.
-
-common
-
-2002-07-09 Keith Owens <kaos@sgi.com>
-
-       * Upgrade to 2.4.19-rc1.
-       * Add dmesg command.
-       * Clean up copyrights, Eric Sandeen.
-       * kdb v2.2-2.4.19-rc1-common-1.
-
-i386
-
-2002-07-09 Keith Owens  <kaos@sgi.com>
-
-       * Upgrade to 2.4.19-rc1.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE9K3Rri4UHNye0ZOoRAggaAJ4le5YLWqMju1okBHGZFYlI5CeyvACg6c8x
-EcJU6z5UptMlTt332yZAOlc=
-=Vhs9
------END PGP SIGNATURE-----
-
+diff -urN linux-2.5.25/include/sound/info.h linux-2.5.25-dirty/include/sound/info.h
+--- linux-2.5.25/include/sound/info.h	2002-07-06 01:42:18.000000000 +0200
++++ linux-2.5.25-dirty/include/sound/info.h	2002-07-10 01:56:29.000000000 +0200
+@@ -151,7 +151,7 @@
+ 
+ static inline int snd_info_get_line(snd_info_buffer_t * buffer, char *line, int len) { return 0; }
+ static inline char *snd_info_get_str(char *dest, char *src, int len) { return NULL; }
+-static inline snd_info_entry_t *snd_info_create_module_entry(struct module * module, const char *name) { return NULL; }
++static inline snd_info_entry_t *snd_info_create_module_entry(struct module * module, const char *name, snd_info_entry_t * parent) { return NULL; }
+ static inline snd_info_entry_t *snd_info_create_card_entry(snd_card_t * card, const char *name) { return NULL; }
+ static inline void snd_info_free_entry(snd_info_entry_t * entry) { ; }
+ static inline snd_info_entry_t *snd_info_create_device(const char *name,

@@ -1,44 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272388AbTHEC7V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 22:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272390AbTHEC7V
+	id S272402AbTHEDEn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 23:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272401AbTHEDEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 22:59:21 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:29714 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S272388AbTHEC6s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 22:58:48 -0400
-Date: Tue, 5 Aug 2003 04:58:46 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: i_blksize
-Message-ID: <20030805025846.GA4779@win.tue.nl>
-References: <UTC200308040203.h7423rv14876.aeb@smtp.cwi.nl> <20030803192919.0d7d881c.akpm@osdl.org>
+	Mon, 4 Aug 2003 23:04:42 -0400
+Received: from almesberger.net ([63.105.73.239]:52998 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S272390AbTHEDEi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 23:04:38 -0400
+Date: Tue, 5 Aug 2003 00:04:22 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: "Ihar 'Philips' Filipau" <filia@softhome.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TOE brain dump
+Message-ID: <20030805000422.S5798@almesberger.net>
+References: <20030804223800.P5798@almesberger.net> <Pine.LNX.4.44.0308041841190.7534-100000@dlang.diginsite.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030803192919.0d7d881c.akpm@osdl.org>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <Pine.LNX.4.44.0308041841190.7534-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Mon, Aug 04, 2003 at 06:46:36PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 03, 2003 at 07:29:19PM -0700, Andrew Morton wrote:
+David Lang wrote:
+> exactly, Alan is saying that the hardware optimizations aren't nessasary.
 
-> and inode.i_blksize should probably be removed from the kernel.
+Eventually, you'll want them, and if it's only to lower the
+chip or pin count.
 
-I see that Linus has added a comment and does not want to rename,
-so that settles that half of that letter.
+> putting an Opteron on a NIC card just to match the other processors in
+> your system seems like a huge amount of overkill. you aren't going to have
+> nearly the same access to memory so that processor will be crippled, but
+> stil cost full price
 
-You propose to remove i_blksize.
-Yes, a good plan, half an hour's work.
-It is used in stat only, so we have to produce some value for stat.
-Do you want to replace
-	inode->i_blksize
-by
-	inode->i_sb->s_optimal_io_size
-?
+You might be able to get them for free ;-) Just pick the
+rejects where the FPU or such doesn't quite work. Call it
+amd64sx :-)
 
-Andries
+But even if you get regular CPUs, they're not *that*
+expensive. Particularly not for a first generation design.
 
+> (and then some, remember you have to supply the thing
+> with power and cool it)
+
+Yes, this, chip count, and chip surface are what make me feel
+queasy when thinking of somebody using something as powerful
+as an amd64.
+
+> as long as tools are written that have the same command line semantics the
+> rest of the complexity can be hidden.
+
+You want to be API and probably even ABI-compatible, so that
+user-space demons (routing, management, etc.) work, too.
+
+> and even this isn't strictly
+> nessasary, these are special purpose cards and a special procedure for
+> configuring them isn't unreasonable.
+
+I'd think thrice before buying a card that requires me to
+change my entire network management system - and change it
+again, if I ever decide to switch brands, or if the next
+generation of that special NIC gets a little more special.
+
+> I'm saying treat the one machine with 10 of these specialty NIC's in it as
+> a 11 machine cluster, one machne running your server software and 10
+> others running your networking.
+
+You can probably afford rather fancy TOE hardware for the
+price of ten cluster nodes, a high-speed LAN to connect
+your cluster, and a switch that connects the high-speed
+link to the ten not-quite-so-high-speed links.
+
+Likewise for power, cooling, and space.
+
+And that's still assuming you can actually distribute all
+this.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

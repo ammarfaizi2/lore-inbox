@@ -1,35 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVB1Pni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVB1Pvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbVB1Pni (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 10:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVB1Pni
+	id S261657AbVB1Pvh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 10:51:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVB1Pvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 10:43:38 -0500
-Received: from fire.osdl.org ([65.172.181.4]:65213 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261656AbVB1PnX (ORCPT
+	Mon, 28 Feb 2005 10:51:37 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:43494 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261657AbVB1Pve (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 10:43:23 -0500
-Subject: Re: [PATCH] Fix panic in 2.6 with bounced bio and dm
-From: Mark Haverkamp <markh@osdl.org>
-To: Jens Axboe <axboe@suse.de>
+	Mon, 28 Feb 2005 10:51:34 -0500
+Date: Mon, 28 Feb 2005 16:51:28 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mark Haverkamp <markh@osdl.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        linux-kernel <linux-kernel@vger.kernel.org>, dm-devel@redhat.com
-In-Reply-To: <1109604737.30227.3.camel@markh1.pdx.osdl.net>
-References: <1109351021.5014.10.camel@markh1.pdx.osdl.net>
-	 <20050225161947.5fd6d343.akpm@osdl.org>
-	 <Pine.LNX.4.58.0502251640050.9237@ppc970.osdl.org>
-	 <20050226123934.GA1254@suse.de>
-	 <1109604737.30227.3.camel@markh1.pdx.osdl.net>
-Content-Type: text/plain
-Date: Mon, 28 Feb 2005 07:43:12 -0800
-Message-Id: <1109605392.30227.11.camel@markh1.pdx.osdl.net>
+Subject: Re: [PATCH] Fix panic in 2.6 with bounced bio and dm
+Message-ID: <20050228155127.GI8868@suse.de>
+References: <1109351021.5014.10.camel@markh1.pdx.osdl.net> <20050225161947.5fd6d343.akpm@osdl.org> <Pine.LNX.4.58.0502251640050.9237@ppc970.osdl.org> <20050226123934.GA1254@suse.de> <1109604737.30227.3.camel@markh1.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109604737.30227.3.camel@markh1.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-28 at 07:32 -0800, Mark Haverkamp wrote:
+On Mon, Feb 28 2005, Mark Haverkamp wrote:
 > On Sat, 2005-02-26 at 13:39 +0100, Jens Axboe wrote:
 > > On Fri, Feb 25 2005, Linus Torvalds wrote:
 > > > 
@@ -54,21 +49,24 @@ On Mon, 2005-02-28 at 07:32 -0800, Mark Haverkamp wrote:
 > device are copied and th bi_idx is adjusted to point to the start,
 > leaving some NULL pointers at the start of the bio_vec.
 
-I don't think that I explained that correctly.  The dm code clones the
-bio and sets the bi_idx to point to where the IO should start.  Then
-when __blk_queue_bounce gets called, it only fills in its bio starting
-at bi_idx (it uses bio_for_each_segment) and since it calls bio_alloc
-instead of bio_clone, any pages it doesn't fill in are NULL.  I suppose
-we could call bio_clone instead of bio_alloc in __blk_queue_bounce and
-fill in the whole bio.
+This should fix it.
 
-Mark.
+Signed-off-by: Jens Axboe <axboe@suse.de>
 
-> 
-> Mark,
-> 
-> 
-> > 
+
+===== mm/highmem.c 1.55 vs edited =====
+--- 1.55/mm/highmem.c	2005-01-08 06:44:13 +01:00
++++ edited/mm/highmem.c	2005-02-28 16:50:59 +01:00
+@@ -425,7 +425,7 @@
+ 	 * at least one page was bounced, fill in possible non-highmem
+ 	 * pages
+ 	 */
+-	bio_for_each_segment(from, *bio_orig, i) {
++	__bio_for_each_segment(from, *bio_orig, i) {
+ 		to = bio_iovec_idx(bio, i);
+ 		if (!to->bv_page) {
+ 			to->bv_page = from->bv_page;
+
 -- 
-Mark Haverkamp <markh@osdl.org>
+Jens Axboe
 

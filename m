@@ -1,52 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263794AbSJVQIn>; Tue, 22 Oct 2002 12:08:43 -0400
+	id <S263135AbSJVQJC>; Tue, 22 Oct 2002 12:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263968AbSJVQIn>; Tue, 22 Oct 2002 12:08:43 -0400
-Received: from relay.muni.cz ([147.251.4.35]:16799 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S263794AbSJVQIm>;
-	Tue, 22 Oct 2002 12:08:42 -0400
-Date: Tue, 22 Oct 2002 18:14:26 +0200
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre11 /proc/partitions read
-Message-ID: <20021022181426.P26402@fi.muni.cz>
-References: <20021022161957.N26402@fi.muni.cz> <Pine.LNX.3.95.1021022110331.3644A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1021022110331.3644A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Oct 22, 2002 at 11:10:29AM -0400
-X-Muni-Virus-Test: Clean
+	id <S263366AbSJVQJC>; Tue, 22 Oct 2002 12:09:02 -0400
+Received: from mimas.island.net ([199.60.19.4]:6156 "EHLO mimas.island.net")
+	by vger.kernel.org with ESMTP id <S263135AbSJVQI7>;
+	Tue, 22 Oct 2002 12:08:59 -0400
+Date: Tue, 22 Oct 2002 09:14:55 -0700 (PDT)
+From: andy barlak <andyb@island.net>
+Reply-To: <andyb@island.net>
+To: Patrick Mansfield <patmans@us.ibm.com>
+cc: Mike Anderson <andmike@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] scsi_error device offline fix
+In-Reply-To: <20021022083815.A61@eng2.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.30.0210220905560.20878-100000@tosko.alm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-:
-: > # dd if=/proc/partitions bs=512|wc -l
-: > 1+1 records in
-: > 1+1 records out
-: >      12
-: > 
-: > # dd if=/proc/partitions bs=128k|wc -l
-: > 0+1 records in
-: > 0+1 records out
-: >      32
-: 
-: Well yes, sorta. The proc file-system is a compromise. You can
-: `cat` it and `more` it, but anything that uses `lseek` will
-: fail in strange ways.
 
-	I hope dd(1) does not use lseek() :-) The question is
-whether the application should supply a big enough buffer to read(2)
-or whether it is possible to read(2) in more smaller chunks.
+On Tue, 22 Oct 2002, Patrick Mansfield wrote:
+> Try removing the scsi_load_identifier call in scsi_scan.c and
+> see if you can boot. And/or get sg_utils and on your 2.4 system
+> send a INQUIRY page 0 to the device, and see if that hangs or
+> not, like:
 
--Y.
+
+On this 2.4.19 box with the Buslogic 958, that command hangs:
+# ./sg_inq -e -o=0 /dev/sg1
+EVPD INQUIRY, page code=0x00:
+
+Dmesg reports a growing list of:
+.
+.
+.
+SCSI host 0 abort (pid 41290) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+scsi0: Resetting BusLogic BT-958 due to Target 1
+scsi0: *** BusLogic BT-958 Initialized Successfully ***
+SCSI host 0 abort (pid 41292) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+scsi0: Resetting BusLogic BT-958 due to Target 1
+scsi0: *** BusLogic BT-958 Initialized Successfully ***
+.
+.
+.
+
+
+> On Mon, Oct 21, 2002 at 05:58:04PM -0700, andy barlak wrote:
+> > On Mon, 21 Oct 2002, Patrick Mansfield wrote:
+> > > Can you turn on all scsi logging - with CONFIG_SCSI_LOGGING enabled,
+> > > on your boot command line add a "scsi_logging=1" and send
+> > > the output.
+> > >
+> > > -- Patrick Mansfield
+> >
+> > Sure.  large dmesg buffer required.  This produced a 55k file that
+> > I will pare down to what I consider informative.
+>
+> It looks like the INQUIRY page code 0 is timing out and appears to have
+> hung the bus, as all other commands sent to the bus then timeout.
+>
+> It's surprising that that would hang the bus.
+>
+> That driver really needs at least some basic reset handling.
+>
+> Try removing the scsi_load_identifier call in scsi_scan.c and
+> see if you can boot. And/or get sg_utils and on your 2.4 system
+> send a INQUIRY page 0 to the device, and see if that hangs or
+> not, like:
+>
+> [patman@elm3a50 sg_utils]$ sudo ./sg_inq  -e -o=0 /dev/sg1
+> EVPD INQUIRY, page code=0x00:
+>  Only hex output supported
+>  00     00 00 00 0c 00 03 80 81  c0 c1 c2 c3 c7 c8 d1 d2    ................
+>
+> FYI sg_utils is at:
+>
+> http://www.torque.net/sg/index.html#Utilities:%20sg_utils%20and%20sg3_utils
+> http://www.torque.net/sg/p/sg3_utils-1.01.tgz
+>
+> -- Patrick Mansfield
+>
 
 -- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-|-- If you start doing things because you hate others and want to screw  --|
-|-- them over the end result is bad.   --Linus Torvalds to the BBC News  --|
+
+ Andy Barlak
+

@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273973AbRISAUl>; Tue, 18 Sep 2001 20:20:41 -0400
+	id <S273974AbRISAaN>; Tue, 18 Sep 2001 20:30:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273974AbRISAUW>; Tue, 18 Sep 2001 20:20:22 -0400
-Received: from c1-ctn-76.dial-up.net ([196.34.157.76]:15369 "EHLO cericon")
-	by vger.kernel.org with ESMTP id <S273973AbRISAUL>;
-	Tue, 18 Sep 2001 20:20:11 -0400
-Date: Wed, 19 Sep 2001 02:16:54 +0200
-From: Paul Sheer <psheer@icon.co.za>
-To: linux-kernel@vger.kernel.org, dahinds@users.sourceforge.net
-Subject: PATCH to non-working xirc2ps_cs.c driver (kernel 2.4.9)
-Message-ID: <20010919021654.G3768@cericon.cranzgot.co.za>
-Reply-To: psheer@icon.co.za
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.3
+	id <S273975AbRISAaE>; Tue, 18 Sep 2001 20:30:04 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:19786 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S273974AbRISA3v>; Tue, 18 Sep 2001 20:29:51 -0400
+Date: Tue, 18 Sep 2001 17:34:43 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Request for new block_device_operations function pointer
+In-Reply-To: <Pine.GSO.4.21.0109181748350.27538-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.30.0109181727111.27510-100000@nakedeye.aparity.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 18 Sep 2001, Alexander Viro wrote:
+|>On Tue, 18 Sep 2001, Matt D. Robinson wrote:
+|>
+|>> This would allow projects such as LKCD to use a specific dump
+|>> device associated to a block device driver.  This dump driver
+|>> writes data out directly to disk at a specific offset.  The
+|>
+|>... while submit_bh()... writes data out directly to disk at a specific
+|>offset.  Amazing, isn't it?
+|>
+|>Notice that you _will_ need to deal with IO in driver's queue, no matter
+|>how you implement the thing.  submit_bh() already does it.
 
-This driver tries to do media detection, failing
-even if the media type is forced. This patch skips
-media detection if the media type is forced, which,
-I believe, is the correct behaviour for cards like
-mine, where the media detection does not seem to
-work.
+... and deals with interrupt state, and any special device
+requirements?  Actually, we don't want to deal with any
+outstanding I/O.  You don't want to flush any outstanding
+requests if you're crashing (which is what LKCD is for).
+Sure, submit_bh() when things are running fine.  But not when
+you're crashing.  And also, this is intended at some point in
+the future to work to raw devices as well.
 
+I don't want to deal with b_end_io(), blk_get_queue(),
+generic_make_request() or any of that stuff.  This is
+supposed to be raw data to the disk.
 
---- drivers/net/pcmcia/xirc2ps_cs.c.orig	Wed Apr 18 23:40:05 2001
-+++ drivers/net/pcmcia/xirc2ps_cs.c	Wed Sep 19 01:03:06 2001
-@@ -5,6 +5,10 @@
-  * This driver supports various Xircom CreditCard Ethernet adapters
-  * including the CE2, CE IIps, RE-10, CEM28, CEM33, CE33, CEM56,
-  * CE3-100, CE3B, RE-100, REM10BT, and REM56G-100.
-+ *
-+ * 19Sep2001 - The CE3B-100 has problems with media detection. Use the
-+ * option if_port=1 or if_port=4 to force 10BaseT or 100BaseT
-respectively.
-+ * Change by psheer@icon.co.za
-  * 
-  * Written originally by Werner Koch based on David Hinds' skeleton of the
-  * PCMCIA driver.
-@@ -1925,6 +1929,17 @@
-     ioaddr_t ioaddr = dev->base_addr;
-     unsigned control, status, linkpartner;
-     int i;
-+
-+    if (if_port == 1) {
-+	dev->if_port = 1;
-+	local->probe_port = 0;
-+	return 1;	/* force to 10BaseT */
-+    }
-+    if (if_port == 4) {
-+	dev->if_port = 4;
-+	local->probe_port = 0;
-+	return 1;	/* force to 100BaseT */
-+    }
- 
-     status = mii_rd(ioaddr,  0, 1);
-     if ((status & 0xff00) != 0x7800)
+Again, the point here is to create a device operation that
+allows the driver to enter a dumping state and write out
+data raw to the device.  It's not intended for the normal
+block operations path.
 
+Thanks,
 
+--Matt
 
--- 
-Paul Sheer Consulting IT Services . . . Tel . . . +27 21 761 7224
-Email . . . psheer@icon.co.za . . . . . . Pager . . . 088 0057266
-Linux development, cryptography, recruitment,  support,  training
-http://www.icon.co.za/~psheer . . . . http://rute.sourceforge.net
-L I N U X . . . . . . . . . . . .  The Choice of a GNU Generation

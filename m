@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265653AbUEZNMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265590AbUEZNVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265653AbUEZNMj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 09:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265596AbUEZNJF
+	id S265590AbUEZNVw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 09:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265585AbUEZNVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 09:09:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65226 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265653AbUEZNFU (ORCPT
+	Wed, 26 May 2004 09:21:22 -0400
+Received: from trantor.org.uk ([213.146.130.142]:24717 "EHLO trantor.org.uk")
+	by vger.kernel.org with ESMTP id S265686AbUEZNHz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 09:05:20 -0400
-Date: Wed, 26 May 2004 15:05:00 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 4k stacks in 2.6
-Message-ID: <20040526130500.GB18028@devserv.devel.redhat.com>
-References: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com> <20040526130047.GF12142@wohnheim.fh-wedel.de>
+	Wed, 26 May 2004 09:07:55 -0400
+Subject: Re: why swap at all?
+From: Gianni Tedesco <gianni@scaramanga.co.uk>
+To: Matthias Schniedermeyer <ms@citd.de>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040526123740.GA14584@citd.de>
+References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org>
+	 <40B4590A.1090006@yahoo.com.au>
+	 <200405260934.i4Q9YblP000762@81-2-122-30.bradfords.org.uk>
+	 <40B467DA.4070600@yahoo.com.au> <20040526101001.GA13426@citd.de>
+	 <40B47278.6090309@yahoo.com.au> <20040526105837.GA13810@citd.de>
+	 <40B47D4C.6050206@yahoo.com.au>  <20040526123740.GA14584@citd.de>
+Content-Type: text/plain
+Message-Id: <1085576794.20025.5.camel@sherbert>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8GpibOaaTibBMecb"
-Content-Disposition: inline
-In-Reply-To: <20040526130047.GF12142@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 26 May 2004 14:06:45 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-05-26 at 13:37, Matthias Schniedermeyer wrote:
+> On Wed, May 26, 2004 at 09:19:40PM +1000, Nick Piggin wrote:
+> > Matthias Schniedermeyer wrote:
+> > >On Wed, May 26, 2004 at 08:33:28PM +1000, Nick Piggin wrote:
+> > 
+> > OK, this is obviously bad. Do you get this behaviour with 2.6.5
+> > or 2.6.6? If so, can you strace the program while it is writing
+> > an ISO? (just send 20 lines or so). Or tell me what program you
+> > use to create them and how to create one?
+> 
+> To use other words, this is the typical case where a "hint" would be
+> useful.
+> 
+> program to kernel: "i read ONCE though this file caching not useful".
 
---8GpibOaaTibBMecb
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Wasn't their an O_STREAMING patch thrown around towards the beginning of
+the 2.5 development cycle?
 
-On Wed, May 26, 2004 at 03:00:47PM +0200, J=F6rn Engel wrote:
-> > > Experience indicates that for whatever reason, big stack consumers for
-> > > all three contexts never hit at the same time.  Big stack consumers
-> > > for one context happen too often, though.  "Too often" may be quite
-> > > rare, but considering the result of a stack overflow, even "quite
-> > > rare" is too much.  "Never" is the only acceptable target.
-> >=20
+-- 
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
-> > actually the 4k stacks approach gives MORE breathing room for the probl=
-em
-> > cases that are getting hit by our customers...
->=20
-> For the cases you described, yes.  For some others like nvidia, no.
-> Not sure if we want to make things worse for some users in order to
-> improve things for others (better paying ones?).  I want the seperate
-
-
-You used the word "Never" and now you go away from it.... It wasn't Never,
-and it will never be never if you want to include random binary only
-modules. However in 2.4 for all intents and pruposes there was 4Kb already,
-and now there still is, for user context. Because those interrupts DO
-happen. NVidia was a walking timebomb, and with one function using 4Kb
-that's an obvious Needs-Fix case. The kernel had a few of those in rare
-drivers, most of which have been fixed by now. It'll never be never, but it
-never was never either.
-
---8GpibOaaTibBMecb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAtJX7xULwo51rQBIRAouqAJ9zDJRkZIdNFytL4fENOLuFZTgEJgCfa8fg
-N50j/AtFPWjmG/0rXRZm4lY=
-=v4Qg
------END PGP SIGNATURE-----
-
---8GpibOaaTibBMecb--

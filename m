@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315941AbSFESyd>; Wed, 5 Jun 2002 14:54:33 -0400
+	id <S315808AbSFES4u>; Wed, 5 Jun 2002 14:56:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315943AbSFESyc>; Wed, 5 Jun 2002 14:54:32 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28679 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315941AbSFESya>; Wed, 5 Jun 2002 14:54:30 -0400
-Date: Wed, 5 Jun 2002 11:53:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] 4KB stack + irq stack for x86
-In-Reply-To: <20020605144357.A4697@redhat.com>
-Message-ID: <Pine.LNX.4.33.0206051150320.10556-100000@penguin.transmeta.com>
+	id <S315919AbSFES4t>; Wed, 5 Jun 2002 14:56:49 -0400
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:288 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S315808AbSFES4r>; Wed, 5 Jun 2002 14:56:47 -0400
+Message-ID: <61DB42B180EAB34E9D28346C11535A783A7870@nocmail101.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: [OT,RFC] Itanium
+Date: Wed, 5 Jun 2002 13:56:43 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry for the off topic question, but if you've read this far, maybe you can
+give me some suggestions?
 
-On Wed, 5 Jun 2002, Benjamin LaHaise wrote:
-> 
-> Ah, you're right.  If anyone uses current_thread_info from IRQ context 
-> it will set the flags in the wrong structure.  However, it actually 
-> works because nobody does that currently: all of the _thread_flag users 
-> appear to be coming in from task context.  Mostly that's luck as I 
-> didn't change the smp ipis to switch stacks, so the only place that 
-> is an interrupt and needs to access the actual thread data, does.
+So, we are sitting on a Quad 800 Itanium here with 16gb of RAM, and
+wondering just what to do with it.  Is there anyone using these in any type
+of machines for any production level work? If so, what are you doing with
+them?
 
-Hmm..
+Here's our dilemma.  Unfortunately, we rely on "other" os and database
+software to power the site, that just doesn't have stable 64bit equivalents
+yet, if you know who I am referring too.  I may be able to acquire the
+machine to load Linux on it, and see what I can do with it for testing.
+>From our work perspective, I can't think of much to push through it.  Seems
+a bit much for a mail server :o)
 
-How about just making the interrupt code (ie do_IRQ()) or in the flags 
-into the "parent" flags.
-
-All of the flags should be "sticky one-bits", so just oring them should do 
-the right thing.
-
-That way we don't have to add nasty BUG checks to the code, and since 
-we're already dirtying both cache-lines the extra overhead should 
-literally be just the cost of doing one locked "orl".
-
-			Linus
-
+Thanks for your time,
+Bruce H.

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbTKXTQM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 14:16:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbTKXTQM
+	id S263812AbTKXT0v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 14:26:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTKXT0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 14:16:12 -0500
-Received: from web40902.mail.yahoo.com ([66.218.78.199]:36727 "HELO
-	web40902.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263609AbTKXTQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 14:16:09 -0500
-Message-ID: <20031124191459.99375.qmail@web40902.mail.yahoo.com>
-Date: Mon, 24 Nov 2003 11:14:59 -0800 (PST)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: What exactly are the issues with 2.6.0-test10 preempt?
-To: linux-kernel@vger.kernel.org
+	Mon, 24 Nov 2003 14:26:51 -0500
+Received: from bab72-140.optonline.net ([167.206.72.140]:59242 "EHLO
+	shookay.newview.com") by vger.kernel.org with ESMTP id S263812AbTKXT0s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 14:26:48 -0500
+To: Valdis.Kletnieks@vt.edu
+Cc: splite@purdue.edu, root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: hard links create local DoS vulnerability and security proble
+References: <200311241829.hAOITdKL014364@turing-police.cc.vt.edu>
+X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
+From: Mathieu Chouquet-Stringer <mathieu@newview.com>
+Date: 24 Nov 2003 14:25:31 -0500
+In-Reply-To: <200311241829.hAOITdKL014364@turing-police.cc.vt.edu>
+Message-ID: <xltptfhd0wk.fsf@shookay.newview.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I saw in Linus' 2.6.0-test10 announcement that preempt is suffering from some
-problems and should not be used. However, I am currently running 2.6.0-test10
-with CONFIG_PREEMPT=y and nothing has appeared yet. To see if the problem appeared
-under stress, I started an A/V trailer playback with mplayer and then ran the
-find command on both my home directory and the 2.6.0-test10 kernel source directory,
-with the expected result - mplayer did not skip, neither find invocation broke,
-and there were no nasty errors in dmesg.
+Valdis.Kletnieks@vt.edu writes:
+> mkdir ~/bin
+> chmod 700 ~/bin
+> cat > ~/bin/show-me
+> #!/bin/sh
+> whoami
+> ^D
+> chmod 4755 ~/bin/show-me
+> 
+> No separate partitions needed.
 
-So what exactly is the problem?
+It's always been my understanding that you cannot have suid shell script
+because you could easily change the IFS. Am i wrong? (
 
-I can provide more system info on request.
-
-TIA
-
-Brad
-
-=====
-
-
-__________________________________
-Do you Yahoo!?
-Free Pop-Up Blocker - Get it now
-http://companion.yahoo.com/
+-- 
+Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
+       Never attribute to malice that which can be adequately
+                    explained by stupidity.
+                     -- Hanlon's Razor --

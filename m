@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbVC3WL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVC3WS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbVC3WL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 17:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVC3WL1
+	id S262451AbVC3WS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 17:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVC3WS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 17:11:27 -0500
-Received: from hqemgate01.nvidia.com ([216.228.112.170]:38200 "EHLO
-	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
-	id S262458AbVC3WLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 17:11:04 -0500
-Date: Wed, 30 Mar 2005 16:10:42 -0600
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: tripperda@nvidia.com
-Subject: question about do_IRQ + 4k stacks
-Message-ID: <20050330221042.GZ2104@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.7 
-User-Agent: Mutt/1.5.6+20040907i
-X-OriginalArrivalTime: 30 Mar 2005 22:11:02.0555 (UTC) FILETIME=[5C474EB0:01C53575]
+	Wed, 30 Mar 2005 17:18:59 -0500
+Received: from 17.red-62-57-106.user.auna.net ([62.57.106.17]:30906 "EHLO
+	pau.newtral.org") by vger.kernel.org with ESMTP id S262451AbVC3WS5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 17:18:57 -0500
+Date: Thu, 31 Mar 2005 00:18:55 +0200 (CEST)
+From: Pau Aliagas <linuxnow@newtral.org>
+X-X-Sender: pau@pau.intranet.ct
+To: Andi Kleen <ak@muc.de>, linux kernel <linux-kernel@vger.kernel.org>
+Cc: binutils@sources.redhat.com
+Subject: Re: i386/x86_64 segment register issuses (Re: PATCH: Fix x86 segment
+ register access)
+In-Reply-To: <20050330210801.GA15384@lucon.org>
+Message-ID: <Pine.LNX.4.62.0503310015490.7060@pau.intranet.ct>
+References: <20050326020506.GA8068@lucon.org> <20050327222406.GA6435@lucon.org>
+ <m14qev3h8l.fsf@muc.de> <Pine.LNX.4.58.0503291618520.6036@ppc970.osdl.org>
+ <20050330015312.GA27309@lucon.org> <Pine.LNX.4.58.0503291815570.6036@ppc970.osdl.org>
+ <20050330040017.GA29523@lucon.org> <Pine.LNX.4.58.0503300738430.6036@ppc970.osdl.org>
+ <20050330210801.GA15384@lucon.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm investigating some 4k stack issues with our driver, and I noticed
-this ordering in do_IRQ:
+On Wed, 30 Mar 2005, H. J. Lu wrote:
 
-asmlinkage unsigned int do_IRQ(struct pt_regs regs)
-{
-	...
+> On Wed, Mar 30, 2005 at 07:57:28AM -0800, Linus Torvalds wrote:
 
-#ifdef CONFIG_DEBUG_STACKOVERFLOW
-        /* Debugging check for stack overflow: is there less than 1KB free? */
-        {
-	...
-        }
-#endif
+>>> There is no such an instruction of "movl %ds,(%eax)". The old assembler
+>>> accepts it and turns it into "movw %ds,(%eax)".
+>>
+>> I disagree. Violently. As does the old assembler, which does not turn
+>> "mov" into "movw" as you say. AT ALL.
+>
+> I should have made myself clear. By "movw %ds,(%eax)", I meant:
+>
+> 	8c 18	movw   %ds,(%eax)
+>
+> That is what the assembler generates, and should have generated, for
+> "movw %ds,(%eax)" since Nov. 4, 2004.
 
-	...
+Could this be the reason for the reported slowdown in the last six months?
 
-#ifdef CONFIG_4KSTACKS
+-- 
 
-        for (;;) {
-	... switch to interrupt stack
-        }
-#endif
-
-
-Is the intention of this stack overflow check to catch a currently
-running kernel thread that's getting low on stack space, or is the
-intent to make sure there's enough stack space to handle the incoming
-interrupt? if the later, wouldn't you want to potentially switch to
-your interrupt stack to be more accurate? (I recognize that often you
-will have switched to an empty stack, unless you have nested
-interrupts)
-
-Thanks,
-Terence
-
+Pau

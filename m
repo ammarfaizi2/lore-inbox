@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266510AbUFVBVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266513AbUFVBaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266510AbUFVBVz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 21:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUFVBVz
+	id S266513AbUFVBaK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 21:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266514AbUFVBaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 21:21:55 -0400
-Received: from bay17-f31.bay17.hotmail.com ([64.4.43.81]:61449 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S266510AbUFVBVx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 21:21:53 -0400
-X-Originating-IP: [69.104.143.247]
-X-Originating-Email: [jayrusman@hotmail.com]
-From: "Jason Mancini" <jayrusman@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Via C3-2 stepping 6.9.5 + VT8235 ide/dma/network hang
-Date: Mon, 21 Jun 2004 18:21:52 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY17-F31e1xkEfkuBZ00013b6e@hotmail.com>
-X-OriginalArrivalTime: 22 Jun 2004 01:21:52.0994 (UTC) FILETIME=[4CC82420:01C457F7]
+	Mon, 21 Jun 2004 21:30:10 -0400
+Received: from zero.aec.at ([193.170.194.10]:46086 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266513AbUFVBaE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 21:30:04 -0400
+To: "Kirill Korotaev" <kksx@mail.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: can TSC tick with different speeds on SMP?
+References: <29Cl9-2Uu-13@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 22 Jun 2004 05:30:30 +0200
+In-Reply-To: <29Cl9-2Uu-13@gated-at.bofh.it> (Kirill Korotaev's message of
+ "Mon, 21 Jun 2004 21:10:07 +0200")
+Message-ID: <m34qp4i815.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi, I'm using Mandrake cooker kernel 2.6.7-0rc3.1 on a
->Via Epia/Eden M10000N Nehemiah board with 512MB ram
->and a udma5-capable harddrive.  Looks like the
->active drivers are vt82cxxx 3.38 and via-rhine.
+"Kirill Korotaev"  <kksx@mail.ru> writes:
+
+> I've got some stupid question to SMP gurus and would be very
+> thankful for the details. I suddenly faced an SMP system where
+> different P4 cpus were installed (with different steppings). This
+> resulted in different CPU clock speeds and different speeds of time
+> stamp counters on these CPUs. I faced the problem during some
+> timings I measured in the kernel.
+
+Yes, it is a quite common problem. You'll have to deal with it
+somehow.  Somehow it can be fixed by disabling "cross spectrum
+clocking" or similar in the BIOS setup, but on others it 
+is unfixable.
+
+Ultimatively the kernel will need to move to a per CPU time base
+to deal with this better, but that is a future project.
+
+For user space I would suggest to use gettimeofday() or better
+clock_gettime(CLOCK_MONOTONIC, ...) in 2.6 to get time stamps
+and let the kernel deal with it.
+
 >
->1) heavy disk activity: works great for hours (hdparm -m16 -c1 -u1 -d1 
->-X66)
->2) heavy disk activity + network load: hangs and resets, or hangs hard,
->generally within minutes.
+> So the question is "is such system compliant with SMP
+> specification?".  In old kernels there was a code to syncronize TSCs
+> and to detect if they were screwed up. Current kernels do not have
+> such code. Is it intentional? I suppose there is some code in kernel
+> which won't work find on such systems (real-time threads timing
+> accounting and so on).
 
-Ok, I did *5* things and one of them must be the culprit, place your bets!  
-;-)
+The usual way to is to turn off tsc support in gettimeofday.  This can
+be done by booting with "notsc" That should be the only code relying
+on it. The scheduler did in some 2.6 versions, but that has been also
+fixed (it can tolerate non monotonous times now). Other code
+who reads the TSC directly has to deal with it.
 
-1) used gcc 3.3.2-7mdk instead of 3.4.1-0.3mdk
-2) enabled regparm
-3) enabled preempt
-4) -fomit_frame_pointer (config_frame_pointer=no)
-5) changed cpu from i586 to C3-2 (i686)
+e.g. x86-64 just forces HPET gettimeofday when SMP is on, which slows
+down gettimeofday greatly.
 
-The stock devel RPM kernel seems to work wonderfully, I'm just a few 
-compiles away...
-
-Many Thanks!
-Jason Mancini
-
-_________________________________________________________________
-Watch the online reality show Mixed Messages with a friend and enter to win 
-a trip to NY 
-http://www.msnmessenger-download.click-url.com/go/onm00200497ave/direct/01/
+-Andi
 

@@ -1,83 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287865AbSAFNJi>; Sun, 6 Jan 2002 08:09:38 -0500
+	id <S287866AbSAFNKh>; Sun, 6 Jan 2002 08:10:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288982AbSAFNJ2>; Sun, 6 Jan 2002 08:09:28 -0500
-Received: from mail2.home.nl ([213.51.129.226]:24763 "EHLO mail2.home.nl")
-	by vger.kernel.org with ESMTP id <S288983AbSAFNJE>;
-	Sun, 6 Jan 2002 08:09:04 -0500
-Message-ID: <3C384CB2.2040601@home.nl>
-Date: Sun, 06 Jan 2002 14:10:10 +0100
-From: Gertjan van Wingerde <gwingerde@home.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020101
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Gertjan van Wingerde <gwingerde@home.nl>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: drivers/md compile fixes.
-In-Reply-To: <3C384A97.8090909@home.nl>
-Content-Type: multipart/mixed;
- boundary="------------030401060101050502080503"
+	id <S288787AbSAFNKT>; Sun, 6 Jan 2002 08:10:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19214 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287866AbSAFNKA>;
+	Sun, 6 Jan 2002 08:10:00 -0500
+Date: Sun, 6 Jan 2002 13:09:58 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: William Lee Irwin III <wli@holomorphy.com>, binutils@sources.redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Binutils and the Linux kernel source finder
+Message-ID: <20020106130958.GC22105@gallifrey>
+In-Reply-To: <20020105180237.GF485@gallifrey> <20020106015517.D10391@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020106015517.D10391@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.17 (i686)
+X-Uptime: 13:08:19 up 1 day, 14:20,  4 users,  load average: 2.00, 2.02, 2.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030401060101050502080503
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+* William Lee Irwin III (wli@holomorphy.com) wrote:
 
-Okay,
-
-It seems that I f**ked up the patch creation. Actually only the first 
-chunk of the patch is correct. New version of the patch attached.
-
-
-         Best regards/MvG,
-
-                 Gertjan.
-
-Gertjan van Wingerde wrote:
-
-> Hi,
+> Hello, good to hear from you again!
 > 
-> The attached patch to 2.5.2-pre9 is necessary to get it to compile and
-> to clean up some NODEV vs. mk_kdev(0, 0) usages.
-> 
-> 
+> Do you already have a dedicated page up, or are you just going to keep
+> things there? This sounds like a very useful bit of information to get,
+> especially given my direct experience with the (lack of) documentation
+> of this issue, and perhaps worthy of its own microproject...
 
+I'm going to keep it on the same page as the kernel source pointers -
+have it all in one place.
 
--- 
-	MvG,
+> IIRC on linux-m68k or somewhere someone told me it was binutils-2.9.1
+> and gcc-2.95.3 for m68k (which I'm sure you've already heard, just
+> trying to air it out here).
 
-		Gertjan
+Yeh, I'm using 2.11.92.0.10 binutils and 2.95.4 20011223 (Debian
+prerelease) for gcc my self.
 
-----------
+> I myself am especially interested in seeing the results of this as I,
+> too, have a variety of architectures in the house.
 
-Gertjan van Wingerde
-Geessinkweg 177
-7544 TX Enschede
-The Netherlands
-E-mail: gwingerde@home.nl
+Yes, it can be a bit of a battle at times!
 
---------------030401060101050502080503
-Content-Type: text/plain;
- name="linux-md.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-md.diff"
-
-diff -u --recursive linux-2.5.2-pre8/drivers/md/md.c linux-2.5.x/drivers/md/md.c
---- linux-2.5.2-pre8/drivers/md/md.c	Sun Jan  6 11:28:53 2002
-+++ linux-2.5.x/drivers/md/md.c	Sun Jan  6 11:30:03 2002
-@@ -641,7 +641,7 @@
- 	int err = 0;
- 	struct block_device *bdev;
- 
--	bdev = bdget(rdev->dev);
-+	bdev = bdget(kdev_t_to_nr(rdev->dev));
- 	if (!bdev)
- 		return -ENOMEM;
- 	err = blkdev_get(bdev, FMODE_READ|FMODE_WRITE, 0, BDEV_RAW);
-
---------------030401060101050502080503--
-
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272228AbTGYRfr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 13:35:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272229AbTGYRff
+	id S272138AbTGYRfL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 13:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272228AbTGYRfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 13:35:35 -0400
-Received: from dialpool-210-214-166-187.maa.sify.net ([210.214.166.187]:50584
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S272228AbTGYRfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 13:35:32 -0400
-Date: Fri, 25 Jul 2003 23:21:41 +0530
-From: Balram Adlakha <b_adlakha@softhome.net>
-To: linux-kernel@vger.kernel.org
-Subject: Has this been fixed yet?
-Message-ID: <20030725175141.GA3290@localhost.localdomain>
+	Fri, 25 Jul 2003 13:35:11 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:16035 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272138AbTGYRfI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 13:35:08 -0400
+Date: Fri, 25 Jul 2003 10:47:38 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: arjanv@redhat.com, torvalds@transmeta.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove module reference counting.
+Message-Id: <20030725104738.7ffbc118.davem@redhat.com>
+In-Reply-To: <20030725173900.D7DE12C2A9@lists.samba.org>
+References: <20030725173900.D7DE12C2A9@lists.samba.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I posted before but nobody seems to have read it.
-I get his _every_time_ I unload emu10k1 (OSS) module on 2.6.0-test1:
+On Fri, 25 Jul 2003 04:00:18 +1000
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-Call Trace:
-[<c018e261>] devfs_remove+0x9e/0xa0
-[<c013898a>] unmap_vmas+0xcb/0x214
-[<d29e3e2d>] oss_cleanup+0x2b/0xed [sound]
-[<c0129c1e>] sys_delete_module+0x152/0x1a8
-[<c0130064>] generic_file_aio_write_nolock+0x8a7/0xa6a
-[<c013be3c>] sys_munmap+0x57/0x75
-[<c0108f81>] sysenter_past_esp+0x52/0x71 
+> 	If module removal is to be a rare and unusual event, it
+> doesn't seem so sensible to go to great lengths in the code to handle
+> just that case.  In fact, it's easier to leave the module memory in
+> place, and not have the concept of parts of the kernel text (and some
+> types of kernel data) vanishing.
+> 
+> Polite feedback welcome,
 
-And I'm not using devfs.
+I'm ok with this, with one possible enhancement.
+
+How about we make ->cleanup() return a boolean, which if true
+causes the caller to do the module_free()?
+
+(Yes I know that doing this will require some more thought
+ in order to minimize how large a change it would need to
+ be to keep exiting modules working.  It's a seperate discussion.)

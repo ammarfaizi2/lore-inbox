@@ -1,86 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVB0Roh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVB0Rtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVB0Roh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 12:44:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVB0RnL
+	id S261481AbVB0Rtu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 12:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVB0Rru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 12:43:11 -0500
-Received: from mail.suse.de ([195.135.220.2]:15011 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261466AbVB0RXG (ORCPT
+	Sun, 27 Feb 2005 12:47:50 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:9123 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261456AbVB0RXE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 12:23:06 -0500
-Message-Id: <20050227170314.279279000@blunzn.suse.de>
+	Sun, 27 Feb 2005 12:23:04 -0500
+Message-Id: <20050227170310.810890000@blunzn.suse.de>
 References: <20050227165954.566746000@blunzn.suse.de>
-Date: Sun, 27 Feb 2005 18:00:03 +0100
+Date: Sun, 27 Feb 2005 17:59:55 +0100
 From: Andreas Gruenbacher <agruen@suse.de>
 To: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
        Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: Olaf Kirch <okir@suse.de>, "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
        Andrew Morton <akpm@osdl.org>
-Subject: [nfsacl v2 09/16] Add noacl nfs mount option
-Content-Disposition: inline; filename=nfsacl-add-noacl-nfs-mount-option.patch
+Subject: [nfsacl v2 01/16] acl kconfig cleanup
+Content-Disposition: inline; filename=acl-kconfig-cleanup.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the noacl mount option, nfs clients stop using the ACCESS RPC which they
-usually use to get an access decision from the server.  Instead, they make the
-decision based on the file ownership and file mode permission bits.
-
-Security-wise using this option can lead to illicit read access to data cached
-locally on the client if the server uses POSIX ACLs.  Local access decisions
-are correct as long as the server does not support POSIX access control lists.
-
-This approach was discussed with Trond Myklebust <trond.myklebust@fys.uio.no>
-and Olaf Kirch <okir@suse.de>.  Requires a patch to mount (util-linux).
+Original patch from Matt Mackall <mpm@selenic.com>.
 
 Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
-Signed-off-by: Olaf Kirch <okir@suse.de>
 
-Index: linux-2.6.11-rc5/fs/nfs/dir.c
+Index: linux-2.6.11-rc5/fs/Kconfig
 ===================================================================
---- linux-2.6.11-rc5.orig/fs/nfs/dir.c
-+++ linux-2.6.11-rc5/fs/nfs/dir.c
-@@ -1497,6 +1497,7 @@ out:
+--- linux-2.6.11-rc5.orig/fs/Kconfig
++++ linux-2.6.11-rc5/fs/Kconfig
+@@ -29,6 +29,7 @@ config EXT2_FS_XATTR
+ config EXT2_FS_POSIX_ACL
+ 	bool "Ext2 POSIX Access Control Lists"
+ 	depends on EXT2_FS_XATTR
++	select FS_POSIX_ACL
+ 	help
+ 	  Posix Access Control Lists (ACLs) support permissions for users and
+ 	  groups beyond the owner/group/world scheme.
+@@ -97,6 +98,7 @@ config EXT3_FS_XATTR
+ config EXT3_FS_POSIX_ACL
+ 	bool "Ext3 POSIX Access Control Lists"
+ 	depends on EXT3_FS_XATTR
++	select FS_POSIX_ACL
+ 	help
+ 	  Posix Access Control Lists (ACLs) support permissions for users and
+ 	  groups beyond the owner/group/world scheme.
+@@ -224,6 +226,7 @@ config REISERFS_FS_XATTR
+ config REISERFS_FS_POSIX_ACL
+ 	bool "ReiserFS POSIX Access Control Lists"
+ 	depends on REISERFS_FS_XATTR
++	select FS_POSIX_ACL
+ 	help
+ 	  Posix Access Control Lists (ACLs) support permissions for users and
+ 	  groups beyond the owner/group/world scheme.
+@@ -257,6 +260,7 @@ config JFS_FS
+ config JFS_POSIX_ACL
+ 	bool "JFS POSIX Access Control Lists"
+ 	depends on JFS_FS
++	select FS_POSIX_ACL
+ 	help
+ 	  Posix Access Control Lists (ACLs) support permissions for users and
+ 	  groups beyond the owner/group/world scheme.
+@@ -289,8 +293,7 @@ config FS_POSIX_ACL
+ # 	Never use this symbol for ifdefs.
+ #
+ 	bool
+-	depends on EXT2_FS_POSIX_ACL || EXT3_FS_POSIX_ACL || JFS_POSIX_ACL || REISERFS_FS_POSIX_ACL || NFSD_V4
+-	default y
++	default n
  
- int nfs_permission(struct inode *inode, int mask, struct nameidata *nd)
- {
-+	struct nfs_server *server = NFS_SERVER(inode);
- 	struct rpc_cred *cred;
- 	int res;
- 
-@@ -1515,7 +1516,7 @@ int nfs_permission(struct inode *inode, 
- 
- 	lock_kernel();
- 
--	if (!NFS_PROTO(inode)->access)
-+	if ((server->flags & NFS_MOUNT_NOACL) || !NFS_PROTO(inode)->access)
- 		goto out_notsup;
- 
- 	cred = rpcauth_lookupcred(NFS_CLIENT(inode)->cl_auth, 0);
-Index: linux-2.6.11-rc5/fs/nfs/inode.c
-===================================================================
---- linux-2.6.11-rc5.orig/fs/nfs/inode.c
-+++ linux-2.6.11-rc5/fs/nfs/inode.c
-@@ -539,6 +539,7 @@ static int nfs_show_options(struct seq_f
- 		{ NFS_MOUNT_NOAC, ",noac", "" },
- 		{ NFS_MOUNT_NONLM, ",nolock", ",lock" },
- 		{ NFS_MOUNT_BROKEN_SUID, ",broken_suid", "" },
-+		{ NFS_MOUNT_NOACL, ",noacl", "" },
- 		{ 0, NULL, NULL }
- 	};
- 	struct proc_nfs_info *nfs_infop;
-Index: linux-2.6.11-rc5/include/linux/nfs_mount.h
-===================================================================
---- linux-2.6.11-rc5.orig/include/linux/nfs_mount.h
-+++ linux-2.6.11-rc5/include/linux/nfs_mount.h
-@@ -58,6 +58,7 @@ struct nfs_mount_data {
- #define NFS_MOUNT_KERBEROS	0x0100	/* 3 */
- #define NFS_MOUNT_NONLM		0x0200	/* 3 */
- #define NFS_MOUNT_BROKEN_SUID	0x0400	/* 4 */
-+#define NFS_MOUNT_NOACL		0x0800  /* 4 */
- #define NFS_MOUNT_STRICTLOCK	0x1000	/* reserved for NFSv4 */
- #define NFS_MOUNT_SECFLAVOUR	0x2000	/* 5 */
- #define NFS_MOUNT_FLAGMASK	0xFFFF
+ config XFS_FS
+ 	tristate "XFS filesystem support"
+@@ -1531,6 +1534,7 @@ config NFSD_V4
+ 	bool "Provide NFSv4 server support (EXPERIMENTAL)"
+ 	depends on NFSD_V3 && EXPERIMENTAL
+ 	select NFSD_TCP
++	select FS_POSIX_ACL
+ 	help
+ 	  If you would like to include the NFSv4 server as well as the NFSv2
+ 	  and NFSv3 servers, say Y here.  This feature is experimental, and
 
 --
 Andreas Gruenbacher <agruen@suse.de>

@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272636AbRIXVah>; Mon, 24 Sep 2001 17:30:37 -0400
+	id <S272651AbRIXVa1>; Mon, 24 Sep 2001 17:30:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272576AbRIXVa1>; Mon, 24 Sep 2001 17:30:27 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:3078 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S272636AbRIXVaU>; Mon, 24 Sep 2001 17:30:20 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200109242130.XAA06121@green.mif.pg.gda.pl>
-Subject: Re: Kernel 2.4.10: aironet4500_card.c:62: parse error
-To: hafre@macro.lan-ks.de, linux-kernel@vger.kernel.org (kernel list)
-Date: Mon, 24 Sep 2001 23:30:28 +0200 (CEST)
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S272576AbRIXVaR>; Mon, 24 Sep 2001 17:30:17 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:39883 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S272636AbRIXVaE>; Mon, 24 Sep 2001 17:30:04 -0400
+Date: Mon, 24 Sep 2001 17:30:29 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Simon Kirby <sim@netnation.com>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: O_NONBLOCK on files
+Message-ID: <20010924173029.J17683@redhat.com>
+In-Reply-To: <20010918234648.A21010@netnation.com> <m1r8t3fyot.fsf@frodo.biederman.org> <20010919002439.A21138@netnation.com> <20010924234717.V11046@mea-ext.zmailer.org> <20010924140534.E2335@netnation.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010924140534.E2335@netnation.com>; from sim@netnation.com on Mon, Sep 24, 2001 at 02:05:34PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
-> 
-> When I want to compile Kernel 2.4.10 the following error occours:
-> 
-> aironet4500_card.c:62: parse error before `__devinitdata'
-> aironet4500_card.c:62: warning: type defaults to `int' in declaration\
-> of `__devinitdata'
-> 
-> With the following patch it's compiling, but I could not
-> test its functionality.
+On Mon, Sep 24, 2001 at 02:05:34PM -0700, Simon Kirby wrote:
+> Yes, but this sucks.  My whole intent was an interface design that would
+> never need to context switch.  I'm not sure if this is even possible, but
+> if so it would be very nice from a userspace perspective.
 
-IMO, a better fix is to 
+Actually, this was one of the design concerns that I had in coming up with 
+the async io interfaces.  The interface was designed to make use of the 
+upcoming syscalls-in-userspace stubs that x86-64 implemented and will be 
+passed on to x86 in 2.5.  All completion events are passed through a ring 
+buffer with minimal locking on the kernel side which only needs thread 
+locking in userspace.  This way the whole userspace to kernel transition 
+can be avoided by the server under sufficiently high load.
 
-#include <linux/init.h>
-
-in the driver.
-aironet4500 needs more cleaning, however...
-
-> *** drivers/net/aironet4500_card.c.orig Mon Sep 24 18:04:04 2001
-> --- drivers/net/aironet4500_card.c      Mon Sep 24 18:06:16 2001
-> ***************
-> *** 59,65 ****
->   
->   #include <linux/pci.h>
->   
-> ! static struct pci_device_id aironet4500_card_pci_tbl[] __devinitdata = {
->         { PCI_VENDOR_ID_AIRONET, PCI_DEVICE_AIRONET_4800_1, PCI_ANY_ID, PCI_ANY_ID, },
->         { PCI_VENDOR_ID_AIRONET, PCI_DEVICE_AIRONET_4800, PCI_ANY_ID, PCI_ANY_ID, },
->         { PCI_VENDOR_ID_AIRONET, PCI_DEVICE_AIRONET_4500, PCI_ANY_ID, PCI_ANY_ID, },
-> --- 59,65 ----
->   
->   #include <linux/pci.h>
->   
-> ! static struct pci_device_id aironet4500_card_pci_tbl[] = {
->         { PCI_VENDOR_ID_AIRONET, PCI_DEVICE_AIRONET_4800_1, PCI_ANY_ID, PCI_ANY_ID, },
->         { PCI_VENDOR_ID_AIRONET, PCI_DEVICE_AIRONET_4800, PCI_ANY_ID, PCI_ANY_ID, },
->         { PCI_VENDOR_ID_AIRONET, PCI_DEVICE_AIRONET_4500, PCI_ANY_ID, PCI_ANY_ID, },
-> 
-
-Andrzej
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+		-ben

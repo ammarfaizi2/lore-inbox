@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVAEB3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVAEB1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbVAEB3d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 20:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVAEB33
+	id S262181AbVAEB1m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 20:27:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVAEB1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 20:29:29 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:51178 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262157AbVAEB3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 20:29:02 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Chris Wright <chrisw@osdl.org>
-In-Reply-To: <1104878646.17166.63.camel@localhost.localdomain>
-References: <1104374603.9732.32.camel@krustophenia.net>
-	 <20050103140359.GA19976@infradead.org>
-	 <1104862614.8255.1.camel@krustophenia.net>
-	 <20050104182010.GA15254@infradead.org>  <87u0pxhvn0.fsf@sulphur.joq.us>
-	 <1104865198.8346.8.camel@krustophenia.net>
-	 <1104878646.17166.63.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 04 Jan 2005 20:28:57 -0500
-Message-Id: <1104888538.18410.24.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jan 2005 20:27:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28070 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262192AbVAEB1L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 20:27:11 -0500
+Date: Tue, 4 Jan 2005 17:26:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+cc: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Prezeroing V3 [1/4]: Allow request for zeroed memory
+In-Reply-To: <Pine.LNX.4.58.0501041715280.2222@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0501041724050.4111@ppc970.osdl.org>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
+  <41C20E3E.3070209@yahoo.com.au>  <Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
+  <Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0412231132170.31791@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0412231133130.31791@schroedinger.engr.sgi.com> 
+ <Pine.GSO.4.61.0501011123550.27452@waterleaf.sonytel.be> 
+ <Pine.LNX.4.58.0501041510430.1536@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
+ <1104882342.16305.12.camel@localhost> <Pine.LNX.4.58.0501041715280.2222@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-05 at 00:01 +0000, Alan Cox wrote:
-> The problem with uid/gid based hacks is that they get really ugly to
-> administer really fast. Especially once you have users who need realtime
-> and hugetlb, and users who need one only.
+
+
+On Tue, 4 Jan 2005, Christoph Lameter wrote:
 > 
+> Ahh. Great. Do I need to submit a corrected patch that removes those two
+> lines or is it fine as is?
 
-Sorry, how does hugetlb relate to this?
+Please do split it up into a function of its own. It's going to look a lot 
+prettier as an intermediate phase. I realize that that touches #3 in the 
+series, but I suspect that one will also just be prettier as a result.
 
-> It would be far cleaner to split CAP_SYS_NICE capability down - which
-> should cover the real time OS functions nicely. Right now it gives a few
-> too many rights but that could be fixed easily.
-> 
-
-We need selected nonroot users to be able to run SCHED_FIFO tasks and
-mlock().  It has to be easy to administer.  That's it.
-
-As Jack mentioned, the developers of this patch are not kernel hackers
-by trade, they wrote this to solve a real problem.  In other words, a
-patch is worth a thousand words.
-
-It seems distro vendors would be interested in solving this problem.
-The linux audio market is smaller than the general desktop of course but
-many of the users are professionals who would gladly pay for support.
-Look how many people pay for OSX.  Wouldn't Red Hat and SuSE like some
-of those customers?
-
-Lee
-
+		Linus

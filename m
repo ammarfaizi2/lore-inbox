@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270516AbTGZWZD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 18:25:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270576AbTGZWZD
+	id S270586AbTGZW2h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 18:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270592AbTGZW2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 18:25:03 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:28327 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S270516AbTGZWY6 (ORCPT
+	Sat, 26 Jul 2003 18:28:37 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:45224 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S270586AbTGZW2e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 18:24:58 -0400
-Date: Sun, 27 Jul 2003 00:39:58 +0200
+	Sat, 26 Jul 2003 18:28:34 -0400
+Date: Sun, 27 Jul 2003 00:43:35 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: kernel list <linux-kernel@vger.kernel.org>,
        Patrick Mochel <mochel@osdl.org>
-Subject: [PM] Split SOFTWARE_SUSPEND and ACPI_SLEEP
-Message-ID: <20030726223958.GA473@elf.ucw.cz>
+Subject: [PM] Make suspend less talkative
+Message-ID: <20030726224335.GA483@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,120 +25,107 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Splits two config options to avoid user confusion. Patrick already has
-better version of that patch in his tree, and probably wants to avoid
-applying this.
-
+This is trivial killing of unneccessary printks. They mess up screen
+badly during suspend. Patrick, some of those are patches to your parts
+of code, so please try to propagate at least them to Linus.
 								Pavel
 
-Index: linux/arch/i386/kernel/Makefile
+Index: linux/drivers/acpi/sleep/main.c
 ===================================================================
---- linux.orig/arch/i386/kernel/Makefile	2003-07-22 13:39:42.000000000 +0200
-+++ linux/arch/i386/kernel/Makefile	2003-07-17 22:22:58.000000000 +0200
-@@ -24,7 +24,8 @@
- obj-$(CONFIG_X86_MPPARSE)	+= mpparse.o
- obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o nmi.o
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
--obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o suspend_asm.o
-+obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o
-+obj-$(CONFIG_PM)		+= suspend_asm.o
- obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
- obj-$(CONFIG_X86_SUMMIT)	+= summit.o
- obj-$(CONFIG_EDD)             	+= edd.o
-Index: linux/arch/i386/kernel/suspend_asm.S
+--- linux.orig/drivers/acpi/sleep/main.c	2003-07-22 13:39:42.000000000 +0200
++++ linux/drivers/acpi/sleep/main.c	2003-07-22 12:53:27.000000000 +0200
+@@ -197,7 +205,7 @@
+ 		break;
+ 	}
+ 	local_irq_restore(flags);
+-	printk(KERN_CRIT "Back to C!\n");
++	printk(KERN_DEBUG "Back to C!\n");
+ 
+ 	return status;
+ }
+
+
+Index: linux/arch/i386/kernel/sysenter.c
 ===================================================================
---- linux.orig/arch/i386/kernel/suspend_asm.S	2003-07-22 13:39:42.000000000 +0200
-+++ linux/arch/i386/kernel/suspend_asm.S	2003-07-20 15:02:12.000000000 +0200
-@@ -32,6 +32,7 @@
- saved_context_eflags:
- 	.long	0
- 
-+#ifdef CONFIG_SOFTWARE_SUSPEND
- 	.text
- 
- ENTRY(do_magic)
-@@ -117,4 +118,4 @@
- loop2:
-        .quad 0
-        .previous
--	
-\ No newline at end of file
-+#endif
-Index: linux/drivers/acpi/Kconfig
-===================================================================
---- linux.orig/drivers/acpi/Kconfig	2003-07-22 13:39:42.000000000 +0200
-+++ linux/drivers/acpi/Kconfig	2003-07-17 22:22:58.000000000 +0200
-@@ -58,8 +58,8 @@
- 	default y
- 
- config ACPI_SLEEP
--	bool "Sleep States"
--	depends on X86 && ACPI && !ACPI_HT_ONLY && SOFTWARE_SUSPEND
-+	bool "Sleep States (EXPERIMENTAL)"
-+	depends on X86 && ACPI && !ACPI_HT_ONLY && EXPERIMENTAL
- 	---help---
- 	  This option adds support for ACPI suspend states. 
- 
-Index: linux/include/linux/suspend.h
-===================================================================
---- linux.orig/include/linux/suspend.h	2003-07-22 13:39:42.000000000 +0200
-+++ linux/include/linux/suspend.h	2003-07-22 12:54:08.000000000 +0200
-@@ -55,10 +55,6 @@
- 
- extern int register_suspend_notifier(struct notifier_block *);
- extern int unregister_suspend_notifier(struct notifier_block *);
--extern void refrigerator(unsigned long);
+--- linux.orig/arch/i386/kernel/sysenter.c	2003-07-22 13:39:42.000000000 +0200
++++ linux/arch/i386/kernel/sysenter.c	2003-07-17 22:22:58.000000000 +0200
+@@ -31,8 +31,6 @@
+ 	wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
+ 	wrmsr(MSR_IA32_SYSENTER_ESP, tss->esp1, 0);
+ 	wrmsr(MSR_IA32_SYSENTER_EIP, (unsigned long) sysenter_entry, 0);
 -
--extern int freeze_processes(void);
--extern void thaw_processes(void);
+-	printk("Enabling SEP on CPU %d\n", cpu);
+ 	put_cpu();	
+ }
  
- extern unsigned int nr_copy_pages __nosavedata;
- extern suspend_pagedir_t *pagedir_nosave __nosavedata;
-@@ -76,15 +72,20 @@
- extern void do_suspend_lowlevel_s4bios(int resume);
+Index: linux/drivers/base/power.c
+===================================================================
+--- linux.orig/drivers/base/power.c	2003-07-22 13:39:42.000000000 +0200
++++ linux/drivers/base/power.c	2003-07-17 22:22:58.000000000 +0200
+@@ -52,8 +52,6 @@
+ 	struct device * dev;
+ 	int error = 0;
  
- #else
--static inline void software_suspend(void)
--{
--}
-+static inline void software_suspend(void) { }
- #define software_resume()		do { } while(0)
- #define register_suspend_notifier(a)	do { } while(0)
- #define unregister_suspend_notifier(a)	do { } while(0)
-+#endif
-+
-+#ifdef CONFIG_PM
-+extern void refrigerator(unsigned long);
-+extern int freeze_processes(void);
-+extern void thaw_processes(void);
-+#else
- #define refrigerator(a)			do { BUG(); } while(0)
- #define freeze_processes()		do { panic("You need CONFIG_SOFTWARE_SUSPEND to do sleeps."); } while(0)
- #define thaw_processes()		do { } while(0)
- #endif
+-	printk(KERN_EMERG "Suspending devices\n");
+-
+ 	down_write(&devices_subsys.rwsem);
+ 	list_for_each_entry_reverse(dev,&devices_subsys.kset.list,kobj.entry) {
+ 		if (dev->driver && dev->driver->suspend) {
+@@ -114,8 +112,6 @@
+ 		}
+ 	}
+ 	up_write(&devices_subsys.rwsem);
+-
+-	printk(KERN_EMERG "Devices Resumed\n");
+ }
  
- #endif /* _LINUX_SWSUSP_H */
+ /**
+@@ -125,8 +121,6 @@
+ {
+ 	struct device * dev;
+ 	
+-	printk(KERN_EMERG "Shutting down devices\n");
+-
+ 	down_write(&devices_subsys.rwsem);
+ 	list_for_each_entry_reverse(dev,&devices_subsys.kset.list,kobj.entry) {
+ 		pr_debug("shutting down %s: ",dev->name);
 
 
 Index: linux/kernel/suspend.c
 ===================================================================
 --- linux.orig/kernel/suspend.c	2003-07-22 13:39:43.000000000 +0200
 +++ linux/kernel/suspend.c	2003-07-22 13:46:26.000000000 +0200
-@@ -65,6 +65,7 @@
- #include <asm/pgtable.h>
- #include <asm/io.h>
+@@ -561,7 +596,6 @@
+ 			free_suspend_pagedir((unsigned long) pagedir);
+ 			return NULL;
+ 		}
+-		printk(".");
+ 		SetPageNosave(virt_to_page(p->address));
+ 		p->orig_address = 0;
+ 		p++;
+@@ -852,7 +853,6 @@
+ 	free_pages((unsigned long) pagedir_nosave, pagedir_order);
+ 	spin_unlock_irq(&suspend_pagedir_lock);
+ 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RESUME);
+-	PRINTK(KERN_WARNING "%sLeaving do_magic_suspend_2...\n", name_suspend);	
+ }
  
-+#ifdef CONFIG_SOFTWARE_SUSPEND
- extern long sys_sync(void);
+ static void do_software_suspend(void)
+@@ -888,12 +881,11 @@
+ 			 * using normal kernel mechanism.
+ 			 */
+ 			do_magic(0);
+-		PRINTK("Restarting processes...\n");
+ 		thaw_processes();
+ 	}
+ 	software_suspend_enabled = 1;
+ 	MDELAY(1000);
+-	restore_console ();
++	restore_console();
+ }
  
- unsigned char software_suspend_enabled = 0;
-@@ -139,3 +139,4 @@
- 
- static const char name_suspend[] = "Suspend Machine: ";
- static const char name_resume[] = "Resume Machine: ";
-+#endif
+ /*
 
 -- 
 When do you have a heart between your knees?
 [Johanka's followup: and *two* hearts?]
-

@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265977AbUIAKUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUIAKWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265977AbUIAKUt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 06:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUIAKUt
+	id S265795AbUIAKWP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 06:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUIAKWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 06:20:49 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.61]:25535 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S265977AbUIAKUq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 06:20:46 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Paolo Ornati <ornati@fastwebnet.it>, adaplas@pol.net
-Subject: Re: 2.6.9-rc1: scrolling with tdfxfb 5 times slower
-Date: Wed, 1 Sep 2004 18:21:06 +0800
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
-References: <200408312133.40039.ornati@fastwebnet.it> <200409010729.07156.adaplas@hotpop.com> <200409010920.13307.ornati@fastwebnet.it>
-In-Reply-To: <200409010920.13307.ornati@fastwebnet.it>
+	Wed, 1 Sep 2004 06:22:15 -0400
+Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:4017 "EHLO
+	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265795AbUIAKWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 06:22:02 -0400
+From: Stuart Young <cef-lkml@optusnet.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9-rc1 : Weirdness after shutdown - ACPI or Suspend bug?
+Date: Wed, 1 Sep 2004 20:20:41 +1000
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200409011821.06520.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409012020.42482.cef-lkml@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 September 2004 15:20, Paolo Ornati wrote:
+OK, this one is weirding me out.
 
-> Ok, with this patch and CONFIG_FB_3DFX_ACCEL=y the scrolling speed comes
-> back (only a bit slower than with 2.6.8.1 without CONFIG_FB_3DFX_ACCEL):
->
-> $ time cat MAINTAINERS: ~2.67s
+Note that when using 2.6.8.1 all is fine. The following situation only happens 
+in 2.6.9-rc1 or later.
 
-Ok.  However, I'm still wondering at the scrolling speed, it's a bit slower
-than what I would expect (I get < 1 second with vesafb which is completely
-unaccelerated).  
+If I shutdown my laptop (ie: halt) it goes through the motions and everything 
+goes off. If the lid switch changes state AFTER powerdown, the laptop starts 
+up. Removing AC power, or with AC power connected and removing the battery 
+does not trigger this, just seemingly the lid switch. This works on lid close, 
+AND lid open.
 
-Did you set info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN?
-Do you use the 'nopan' boot option?   
+I noticed it and thought my laptop was dying, and consequently made sure I 
+shut the lid before the machine actually powered off, and didn't correlate it 
+to 2.6.9-rc1. But when I was trying to compile 2.6.9-rc1-mm2 I had some 
+other issues (general weirdness), and decided to boot back to 2.6.8.1 in case 
+2.6.9-rc1 was at fault. When I shut down I noticed it didn't have 
+this behaviour, and went and did a little reboot test at random between 
+2.6.9-rc1 & 2.6.8.1 that showed this as consistent behaviour.
 
-Because if you answer yes to the first question and no to the second, that
-means that tdfxfb_pan_display() is probably broken.
+Note that once the laptop restarts, if I shut it down using the power switch 
+at the lilo prompt, the machine stays off, regardless of the lid switch 
+state.
 
-BTW, what does fbset -i say, and what's your hardware setup?
+Any ideas or suggestions? Going to start going back thru csets when I get a 
+chance if no one has an ideas.
 
->
-> Another interesting thing is that if I enable CONFIG_FB_3DFX_ACCEL without
-> your patch the screen becomes black and the kernel stop working at boot
-> time (when the mode switch happens).
-
-tdfxfb_cursor() is broken, so I disabled that.  It's the reason your machine
-hangs at boot time if CONFIG_FB_3DFX_ACCEL is set to y.
-
-Tony
-
-
-
+-- 
+ Stuart Young (aka Cef)
+ cef-lkml@optusnet.com.au is for LKML and related email only

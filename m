@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbTGCLdS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 07:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbTGCLdS
+	id S265152AbTGCLsS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 07:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265145AbTGCLsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 07:33:18 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:11745 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265144AbTGCLdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 07:33:13 -0400
-Date: Thu, 3 Jul 2003 13:47:26 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: maximilian attems <maks@sternwelten.at>
-Cc: linux-kernel@vger.kernel.org,
-       Thomas Winischhofer <thomas@winischhofer.net>
-Subject: Re: [2.5 patch] move an unused variable in sis_main.c
-Message-ID: <20030703114726.GK282@fs.tum.de>
-References: <20030703104700.GA939@mail.sternwelten.at>
+	Thu, 3 Jul 2003 07:48:18 -0400
+Received: from 69-55-72-144.ppp.netsville.net ([69.55.72.144]:678 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S265152AbTGCLsR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 07:48:17 -0400
+Subject: Re: Status of the IO scheduler fixes for 2.4
+From: Chris Mason <mason@suse.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, andrea@suse.de, piggin@cyberone.com.au
+In-Reply-To: <20030703125828.1347879d.skraw@ithnet.com>
+References: <Pine.LNX.4.55L.0307021923260.12077@freak.distro.conectiva>
+	 <Pine.LNX.4.55L.0307021927370.12077@freak.distro.conectiva>
+	 <1057197726.20903.1011.camel@tiny.suse.com>
+	 <20030703125828.1347879d.skraw@ithnet.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057233714.20899.1014.camel@tiny.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030703104700.GA939@mail.sternwelten.at>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 03 Jul 2003 08:01:55 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 12:47:00PM +0200, maximilian attems wrote:
-> The patch below moves an used variable from drivers/video/sis/sis_main.c
+On Thu, 2003-07-03 at 06:58, Stephan von Krawczynski wrote:
+> On 02 Jul 2003 22:02:07 -0400
+> Chris Mason <mason@suse.com> wrote:
 > 
-> i've tested the compilation with 2.5.74
+> > [...]
+> > Nick would like to see a better balance of throughput/fairness, I wimped
+> > out and went for the userspace toggle instead because I think anything
+> > else requires pulling in larger changes from 2.5 land.
 > 
-> please apply
-> maks
-> 
-> 
-> --- linux-2.5.74/drivers/video/sis/sis_main.c	Wed Jul  2 22:50:59 2003
-> +++ linux/drivers/video/sis/sis_main.c	Thu Jul  3 12:06:58 2003
-> @@ -619,11 +619,11 @@
->  	double drate = 0, hrate = 0;
->  	int found_mode = 0;
->  	int old_mode;
-> -	unsigned char reg;
->  
->  	TWDEBUG("Inside do_set_var");
->  	
->  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)	
-> +	unsigned char reg;
->  	inSISIDXREG(SISCR,0x34,reg);
->  	if(reg & 0x80) {
->  	   printk(KERN_INFO "sisfb: Cannot change display mode, X server is active\n");
+> I have a short question on that: did you check if there are any drawbacks on
+> network performance through this? We had a phenomenon here with 2.4.21 with
+> both samba and simple ftp where network performance dropped to a crawl when
+> simply entering "sync" on the console. Even simple telnet-sessions seemed to be
+> affected. As we could not create a reproducable setup I did not talk about this
+> up to now, but I wonder if anyone else ever checked that out ...
 
+It's possible the network programs involved are actually getting stuck
+in atime updates somewhere.  A decoded sysrq-t during one of the stalls
+would help find the real cause.
 
-If TWDEBUG does anything your patch breaks the compilation on kernel 2.4 
-with gcc 2.95 .
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-chris
 

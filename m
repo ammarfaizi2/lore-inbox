@@ -1,77 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317282AbSHTT5b>; Tue, 20 Aug 2002 15:57:31 -0400
+	id <S317286AbSHTUEY>; Tue, 20 Aug 2002 16:04:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317286AbSHTT5b>; Tue, 20 Aug 2002 15:57:31 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:40978 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S317282AbSHTT5a>; Tue, 20 Aug 2002 15:57:30 -0400
-Subject: Re: SE7500CW2 motherboard
-From: Samuel Flory <sflory@rackable.com>
-To: Jason Zebchuk <jason@consensys.com>
+	id <S317298AbSHTUEY>; Tue, 20 Aug 2002 16:04:24 -0400
+Received: from host-65-162-110-4.intense3d.com ([65.162.110.4]:53520 "EHLO
+	exchusa03.intense3d.com") by vger.kernel.org with ESMTP
+	id <S317286AbSHTUEY>; Tue, 20 Aug 2002 16:04:24 -0400
+Message-ID: <23B25974812ED411B48200D0B774071701248C6A@exchusa03.intense3d.com>
+From: Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>
+To: Mike Galbraith <efault@gmx.de>,
+       Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>,
+       Gilad Ben-Yossef <gilad@benyossef.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <033f01c247d4$1abd5610$4902a8c0@consensys.com>
-References: <033f01c247d4$1abd5610$4902a8c0@consensys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 Aug 2002 13:00:50 -0700
-Message-Id: <1029873651.3947.97.camel@flory.corp.rackablelabs.com>
-Mime-Version: 1.0
+Subject: RE: Alloc and lock down large amounts of memory
+Date: Tue, 20 Aug 2002 15:08:23 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Try updating to the latest intel bios.  I had a lot of issues with the
-keyboard not working, and at least once I swear using it crashed the
-system.
+> 
+> Curiosity:  why do you want to do device DMA buffer 
+> allocation from userland?
 
+I need 256M memory for a graphics operation.  It's a requiremment,
+can't change it. There will be other reasonably sized allocs in kernel 
+space, this is a special case that will be done from userland. As 
+discussed earlier in this thread, there's no good way of alloc()ing 
+and pinning that much in DMA memory space, is there?
 
-PS- I really recommend using the intel SE7500WV2 instead of the CW2. 
-It's a bit more in cost, but well worth it if you can afford it.
+Gilad, I looked at mm/memory.c and map_user_kiobuf() lets me
+map user memory into kernel memory and pins it down.  A scatter 
+gatter mapping (say, pci_map_sg()) will create a seemingly 
+contiguous buffer for DMA purposes.  Does that sound right to you?
 
-On Mon, 2002-08-19 at 15:59, Jason Zebchuk wrote:
-> Hi,
-> 
->     I'm having problems with the kernel debugger on a number of machines
-> with Intel SE7500CW2 motherboards.
-> 
->     When attempting to enter the debugger, either by pressing "PAUSE" or at
-> a breakpoint, one of  four things will happen:
-> 
->     1.  It works as expected.
-> 
->     2. It reboots.
-> 
->     3.  It hangs.  ie. input seems to have no effect, no signs of activity,
-> forced to power down.
-> 
->     4.  It prints:
-> 
->             PCI System Error on Bus/Device/Function 00B0h
->             PCI Parity Error on Bus/Device/Function 00B0h
-> 
->         and then continues to function as expected.
-> 
-> 
->     In addition, it also occasionally hangs or reboots after entering the
-> debugger successfully and using it for a short while.
-> 
-> 
->     I'm using a 2.4.18 kernel, and the problems are only happening on Intel
-> SE7500CW2 motherboards (ie.  I don't have problems on say an Intel SDS2).
-> 
->     Has anyone seen any similar problems?  Has anyone had problems using
-> this motherboard?  Does anyone have any suggestions?
-> 
-> Thanks,
-> 
-> Jason Zebchuk
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+Bhavana

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261817AbTCTTTS>; Thu, 20 Mar 2003 14:19:18 -0500
+	id <S261833AbTCTTXJ>; Thu, 20 Mar 2003 14:23:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261823AbTCTTTS>; Thu, 20 Mar 2003 14:19:18 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261817AbTCTTTP>;
-	Thu, 20 Mar 2003 14:19:15 -0500
-Date: Thu, 20 Mar 2003 11:30:31 -0800
-From: Greg KH <greg@kroah.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Jes Sorensen <jes@wildopensource.com>, Jeff Garzik <garzik@pobox.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fixup warning for acenic
-Message-ID: <20030320193031.GC3315@kroah.com>
-References: <14240000.1048146629@[10.10.2.4]> <m365qenioq.fsf@trained-monkey.org> <20030320160440.A14435@infradead.org> <9590000.1048176717@[10.10.2.4]> <20030320192020.GB3315@kroah.com> <413920000.1048187623@flay>
+	id <S261834AbTCTTXJ>; Thu, 20 Mar 2003 14:23:09 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:7428 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261833AbTCTTXG>;
+	Thu, 20 Mar 2003 14:23:06 -0500
+Date: Thu, 20 Mar 2003 20:33:15 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: share COMPATIBLE_IOCTL()s across architectures
+Message-ID: <20030320193315.GB312@elf.ucw.cz>
+References: <20030319232157.GA13415@elf.ucw.cz.suse.lists.linux.kernel> <p7365qe5284.fsf@amdsimf.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <413920000.1048187623@flay>
-User-Agent: Mutt/1.4i
+In-Reply-To: <p7365qe5284.fsf@amdsimf.suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 11:13:43AM -0800, Martin J. Bligh wrote:
-> >> > 2.4.9 of course has the newstyle pci interface! And actual hotplug
-> >> > PCI support also is in all today singnificant 2.4.9 forks (RH..).
-> >> > 
-> >> > There's even some shim to emulate the pci_driver style interface on
-> >> > 2.2.
-> >> > 
-> >> > Anyway, this table has another use, it's used by userland ools like
-> >> > installers for selecting the right driver for a given pci device.  So
-> >> > even if it seems unused from kernelspace it has a use.
-> >> 
-> >> Are they kmem diving? Or parsing source code? 
-> > 
-> > They are looking at the modules.pcimap files which are generated from
-> > depmod, which pull it from the object files.
+Hi!
+
+> > --- linux-test/include/linux/compat_ioctl.h	2003-03-20 00:08:12.000000000 +0100
+> > +++ linux/include/linux/compat_ioctl.h	2003-03-19 23:36:24.000000000 +0100
+> > @@ -0,0 +1,641 @@
+> > +/* List here explicitly which ioctl's are known to have
+> > + * compatible types passed or none at all...
+> > + */
+> > +/* Big T */
+> > +COMPATIBLE_IOCTL(TCGETA)
 > 
-> Hmmm ... so we're going to get a compiler warning for every hotpluggable
-> driver? or is this just an error in the way acenic does it?
+> Shouldn't you put the include files needed for all that in there
+> too?
 
-The fact that acenic doesn't reference the structure, like other pci
-drivers do, is the reason why the warning is there.  Once it switches to
-use the "new"[1] pci api, the warning will go away.
-
-thanks,
-
-greg k-h
-
-[1] What, isn't it like 2 years old now?
+List of includes is *way* shorter than 600 lines of
+COMPATIBLE_IOCTL. I prefer to keep it simple for now.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

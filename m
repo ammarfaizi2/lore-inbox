@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262651AbTIQVN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 17:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbTIQVN5
+	id S262855AbTIQVYk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 17:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbTIQVYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 17:13:57 -0400
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:55230 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id S262651AbTIQVMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 17:12:36 -0400
-Date: Wed, 17 Sep 2003 17:12:34 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: wait_on_irq, CPU 1:
-In-Reply-To: <20030917210545.GS1758@ovh.net>
-Message-ID: <Pine.LNX.4.58.0309171709580.12413@filesrv1.baby-dragons.com>
-References: <20030917210545.GS1758@ovh.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Sep 2003 17:24:40 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:51113 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262855AbTIQVYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 17:24:38 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: =?ISO-8859-1?Q?Dani=EBl?= Mantione <daniel@deadlock.et.tudelft.nl>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+In-Reply-To: <Pine.LNX.4.44.0309172304470.8512-100000@deadlock.et.tudelft.nl>
+References: <Pine.LNX.4.44.0309172304470.8512-100000@deadlock.et.tudelft.nl>
+Message-Id: <1063833817.585.220.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 17 Sep 2003 23:23:38 +0200
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+Subject: Re: Patch: Make iBook1 work again
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello All ,  Any more info I can pass along ?  This got dumped
-	into my /var/log/syslog .  Please advise .  Tia ,  JimL
+On Wed, 2003-09-17 at 23:10, Daniël Mantione wrote:
+> On Wed, 17 Sep 2003, Benjamin Herrenschmidt wrote:
+> 
+> > Unfortunately, the wallstreet doesn't work neither. I get something strange on the
+> > screen. It's somewhat sync'ed but divided in 4 vertical stripes, each one displaying
+> > the left side of the display (+/- offseted), along with some fuzziness (clock wrong).
+> 
+> Actually, is the problem perhaps this:
 
-Sep 17 15:00:59 filesrv1 kernel:
-Sep 17 15:00:59 filesrv1 kernel: wait_on_irq, CPU 1:
-Sep 17 15:00:59 filesrv1 kernel: irq:  0 [ 0 0 ]
-Sep 17 15:00:59 filesrv1 kernel: bh:   1 [ 2 0 ]
-Sep 17 15:00:59 filesrv1 kernel: Stack dumps:
-Sep 17 15:00:59 filesrv1 kernel: CPU 0: <unknown>
-Sep 17 15:00:59 filesrv1 kernel: CPU 1:c2b29f34 c03f8fdd 00000001 00000020 00000000 c2b29f60 c010a79d c03f8ff2
-Sep 17 15:00:59 filesrv1 kernel:        c04bc104 f70a8000 00000001 c2b29f7c c01f8006 c04bc104 c2b29f94 00000282
-Sep 17 15:00:59 filesrv1 kernel:        f70a876c f70a836c c2b29f9c c01224dc f70a8000 c2b28000 c2b2865c ffffffff
-Sep 17 15:00:59 filesrv1 kernel: Call Trace:    [<c010a79d>] [<c01f8006>] [<c01224dc>] [<c012bc0b>] [<c0107448>]
-Sep 17 15:00:59 filesrv1 kernel:
+It looks like this indeed. What is the cause you are thining about ?
+
+> Let's assume we have columns numbered from 0 to 79 i.e.
+> 
+> 00000000001111111111222222222233333333334444444444555555555566666666667777777777
+> 01234567890123456789012345678901234567890123456789012345678901234567890123456789
+> 
+> Perhaps your display is like this:
+> 
+> 00000000001111111111000000000011111111110000000000111111111100000000001111111111
+> 01234567890123456789012345678901234567890123456789012345678901234567890123456789
+>                    **                  **                  **              *****
+> 
+> Around the areas marked with ** there can be a lot of noise.
+> 
+> ??
+> 
+> 
+> If this is the case I know the cause.
+> 
+> Greetings,
+> 
+> Daniël
 -- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
+

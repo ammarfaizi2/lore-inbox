@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265801AbUFTRf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265877AbUFTRky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265801AbUFTRf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 13:35:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265889AbUFTRdH
+	id S265877AbUFTRky (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 13:40:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265880AbUFTR25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 13:33:07 -0400
-Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com.243.46.213.in-addr.arpa ([213.46.243.17]:53347 "EHLO amsfep12-int.chello.nl")
-	by vger.kernel.org with ESMTP id S265887AbUFTR1D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 13:27:03 -0400
-Date: Sun, 20 Jun 2004 19:27:04 +0200
-Message-Id: <200406201727.i5KHR4Su001549@anakin.of.borg>
+	Sun, 20 Jun 2004 13:28:57 -0400
+Received: from amsfep19-int.chello.nl ([213.46.243.20]:50776 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S265877AbUFTRZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 13:25:56 -0400
+Date: Sun, 20 Jun 2004 19:25:55 +0200
+Message-Id: <200406201725.i5KHPtbt001489@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 456] M68k sparse
+Subject: [PATCH 452] M68k bus error handling
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Make sparse work
+M68k: Allow to catch a bus error via the exception mechanism (from Roman
+Zippel)
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.7/arch/m68k/Makefile	2004-05-24 11:13:22.000000000 +0200
-+++ linux-m68k-2.6.7/arch/m68k/Makefile	2004-06-20 10:49:05.000000000 +0200
-@@ -28,6 +28,8 @@ ifdef CONFIG_SUN3
- LDFLAGS_vmlinux = -N
- endif
- 
-+CHECK := $(CHECK) -D__mc68000__=1 -I$(shell $(CC) -print-file-name=include)
-+
- # without -fno-strength-reduce the 53c7xx.c driver fails ;-(
- CFLAGS += -pipe -fno-strength-reduce -ffixed-a2
- 
+--- linux-2.6.7/arch/m68k/kernel/traps.c	2004-05-03 11:01:24.000000000 +0200
++++ linux-m68k-2.6.7/arch/m68k/kernel/traps.c	2004-05-23 10:55:54.000000000 +0200
+@@ -329,7 +329,8 @@
+ 		 * fault during mem_read/mem_write in ifpsp060/os.S
+ 		 */
+ 		send_fault_sig(&fp->ptregs);
+-	} else {
++	} else if (!(fslw & (MMU060_RE|MMU060_WE)) ||
++		   send_fault_sig(&fp->ptregs) > 0) {
+ 		printk("pc=%#lx, fa=%#lx\n", fp->ptregs.pc, fp->un.fmt4.effaddr);
+ 		printk( "68060 access error, fslw=%lx\n", fslw );
+ 		trap_c( fp );
+@@ -517,7 +518,7 @@
+ 			if (fp->un.fmt7.wb2a == fp->un.fmt7.faddr)
+ 				fp->un.fmt7.wb2s &= ~WBV_040;
+ 		}
+-	} else {
++	} else if (send_fault_sig(&fp->ptregs) > 0) {
+ 		printk("68040 access error, ssw=%x\n", ssw);
+ 		trap_c(fp);
+ 	}
+@@ -732,7 +733,7 @@
+ 				return;
+ 		} else if (!(mmusr & MMU_I)) {
+ 			/* probably a 020 cas fault */
+-			if (!(ssw & RM))
++			if (!(ssw & RM) && send_fault_sig(&fp->ptregs) > 0)
+ 				printk("unexpected bus error (%#x,%#x)\n", ssw, mmusr);
+ 		} else if (mmusr & (MMU_B|MMU_L|MMU_S)) {
+ 			printk("invalid %s access at %#lx from pc %#lx\n",
 
 Gr{oetje,eeting}s,
 

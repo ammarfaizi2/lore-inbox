@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129242AbRCUAtT>; Tue, 20 Mar 2001 19:49:19 -0500
+	id <S129344AbRCUAw7>; Tue, 20 Mar 2001 19:52:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129344AbRCUAtJ>; Tue, 20 Mar 2001 19:49:09 -0500
-Received: from nrg.org ([216.101.165.106]:8044 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S129242AbRCUAs6>;
-	Tue, 20 Mar 2001 19:48:58 -0500
-Date: Tue, 20 Mar 2001 16:48:01 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Keith Owens <kaos@ocs.com.au>
-cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <851.985080735@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.05.10103201625430.26853-100000@cosmic.nrg.org>
+	id <S129359AbRCUAws>; Tue, 20 Mar 2001 19:52:48 -0500
+Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:15876 "HELO
+	sh0n.net") by vger.kernel.org with SMTP id <S129344AbRCUAwh>;
+	Tue, 20 Mar 2001 19:52:37 -0500
+Date: Tue, 20 Mar 2001 19:52:08 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
+To: Wouter Verhelst <wouter.verhelst@advalvas.be>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: CDROM and harddisk fighting over DMA
+In-Reply-To: <Pine.LNX.4.21.0103201018080.370-100000@rock.dezevensprong.local>
+Message-ID: <Pine.LNX.4.30.0103201950530.1354-100000@coredump.sh0n.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Mar 2001, Keith Owens wrote:
-> The preemption patch only allows preemption from interrupt and only for
-> a single level of preemption.  That coexists quite happily with
-> synchronize_kernel() which runs in user context.  Just count user
-> context schedules (preempt_count == 0), not preemptive schedules.
 
-I'm not sure what you mean by "only for a single level of preemption."
-It's possible for a preempting process to be preempted itself by a
-higher priority process, and for that process to be preempted by an even
-higher priority one, limited only by the number of processes waiting for
-interrupt handlers to make them runnable.  This isn't very likely in
-practice (kernel preemptions tend to be rare compared to normal calls to
-schedule()), but it could happen in theory.
+Some CDROMS can do this, My old Acer 12x cdrom was fighting with DMA with
+my new Fujitsu drive, I disabled the cd-rom and no more DMA errors ;-)
 
-If you're looking at preempt_schedule(), note the call to ctx_sw_off()
-only increments current->preempt_count for the preempted task - the
-higher priority preempting task that is about to be scheduled will have
-a preempt_count of 0.
+You might also be able to fix this by rearranging the CD-ROM and drives:
+move the CD-ROM off the HD's IDE chain and put it separate (if its not
+already).
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+Shawn.
 
-MontaVista Software                             nigel@mvista.com
+On Tue, 20 Mar 2001, Wouter Verhelst wrote:
+
+> (I'm not subscribed to linux-kernel, so please CC any answers. TIA)
+>
+> Hello
+>
+> Since I bought my new harddisk (a Maxtor 40GB of about a half year old
+> now), I've had errors over my console like this:
+>
+> hda: timeout waiting for DMA
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+>
+> hda is my harddisk. The CDROM was first connected to hdb, but I changed
+> that to hdc, trying to get rid of these errors. This did not resolve the
+> issue.
+> After playing around a bit, I found out that these errors occur when both
+> the CDROM and the harddisk are being accessed at the same time (well,
+> almost; it's not an SMP system ;-). I managed to fix it by disabling DMA
+> on the harddisk, using hdparm. Disabling DMA on the CDROM, by contrast,
+> did not resolve the issue.
+>
+> However, as this slows down my data throughput speed quite drastically,
+> I'd like to do this differently.
+>
+> I first posted this to comp.os.linux.setup, but did not get any useful
+> information. I believe it's not some misconfiguration from my side, so I
+> sent this here since this mailinglist is listed as relevant mailinglist
+> for the IDE subsystem; however, if this is the wrong place to ask, please
+> redirect.
+>
+> --
+> wouter dot verhelst at advalvas in belgium
+>
+> Real men don't take backups.
+> They put their source on a public FTP-server and let the world mirror it.
+> 					-- Linus Torvalds
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272121AbRIEMK7>; Wed, 5 Sep 2001 08:10:59 -0400
+	id <S272119AbRIEMIt>; Wed, 5 Sep 2001 08:08:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272124AbRIEMKt>; Wed, 5 Sep 2001 08:10:49 -0400
-Received: from mustard.heime.net ([194.234.65.222]:24448 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S272121AbRIEMKi> convert rfc822-to-8bit; Wed, 5 Sep 2001 08:10:38 -0400
-Date: Wed, 5 Sep 2001 14:10:48 +0200 (CEST)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Flavio Bruno Leitner <flavio@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: error compiling 2.4.9 with ess solo1 support
-In-Reply-To: <20010905090821.G871@conectiva.com.br>
-Message-ID: <Pine.LNX.4.30.0109051410020.1280-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	id <S272121AbRIEMIj>; Wed, 5 Sep 2001 08:08:39 -0400
+Received: from mta8.srv.hcvlny.cv.net ([167.206.5.23]:39679 "EHLO
+	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S272119AbRIEMIg>; Wed, 5 Sep 2001 08:08:36 -0400
+Date: Wed, 05 Sep 2001 01:39:12 -0400
+From: Alan Shutko <ats@acm.org>
+Subject: Re: Linux 2.4.9-ac6
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMOEBEDLAA.davids@webmaster.com>
+To: David Schwartz <davids@webmaster.com>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Message-id: <87zo8atcvz.fsf@wesley.springies.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.0.105
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMOEBEDLAA.davids@webmaster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-found it.
-doesn't help compiling with joystick support. I actually need gameport
-support, and that's only available from the -ac patches.
+"David Schwartz" <davids@webmaster.com> writes:
 
-On Wed, 5 Sep 2001, Flavio Bruno Leitner wrote:
+> Yes, but even if the module is GPL'd, the module could still cost
+> $1,000 and you're not entitled to the source if you didn't buy the
+> module.
 
-> On Sun, Sep 02, 2001 at 02:01:40PM +0200, Roy Sigurd Karlsbakk wrote:
-> > hi all
-> >
-> > I get the following error message when compiling (or rather linking) 2.4.9
-> > with ESS Solo1 support. Anyone have a clue?
->
-> Compile with joystick support too.
->
->
-> --
-> Flávio Bruno Leitner <flavio@conectiva.com>
-> Pesquisa e Desenvolvimento http://fly.to/fbl
-> Conectiva Linux http://www.conectiva.com.br/
->
+OTOH, if you're getting a bug report from someone who has a GPLed
+module, they can get the source and send it to you.
 
-
+-- 
+Alan Shutko <ats@acm.org> - In a variety of flavors!
+Why do we have two eyes?  To watch 3-D movies with.

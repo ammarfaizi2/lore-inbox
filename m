@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129359AbRCBR4x>; Fri, 2 Mar 2001 12:56:53 -0500
+	id <S129364AbRCBR6D>; Fri, 2 Mar 2001 12:58:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129364AbRCBR4n>; Fri, 2 Mar 2001 12:56:43 -0500
-Received: from [24.183.135.182] ([24.183.135.182]:4104 "EHLO mail.neruo.com")
-	by vger.kernel.org with ESMTP id <S129359AbRCBR4j>;
-	Fri, 2 Mar 2001 12:56:39 -0500
-Subject: [ANNOUNCE] linux-fbdev mailing list moving
-From: Brad Douglas <brad@neruo.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-fbdev@vuser.vu.union.edu
-Content-Type: text/plain
-X-Mailer: Evolution 0.8 (Developer Preview)
-Date: 02 Mar 2001 09:54:39 -0800
-Mime-Version: 1.0
-Message-Id: <20010302175641Z129359-407+695@vger.kernel.org>
+	id <S129372AbRCBR5x>; Fri, 2 Mar 2001 12:57:53 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:41871 "EHLO penguin.homenet")
+	by vger.kernel.org with ESMTP id <S129364AbRCBR5p>;
+	Fri, 2 Mar 2001 12:57:45 -0500
+Date: Fri, 2 Mar 2001 17:56:58 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac7
+In-Reply-To: <E14Ystf-0001vP-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0103021749240.738-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
+On Fri, 2 Mar 2001, Alan Cox wrote:
+> 	[24940903.pdf]
+> 	Table 14 in paticular gives the config bits
 
-The linux-fbdev mailing list is going to be moving over to sourceforge.
-The following lists have been created:
+ok, thank you. Now I understand (maybe) whats' going on. Linux treated
+bits 22,23,24,25 but ignored 27 which it shouldn't have. Now, coupled with
+the fact that the problematic box I have (Celeron) has that bit 27 set 
+suggests that we ought to extend mult[] table appropriately. The values
+for that Celeron do not match anything in the Table 14 so we have to
+extend mult[] emprirically. (so I now come back to the idea of 4bit
+representation of 'bus').
 
-linux-fbdev-devel - for device driver developers and video subsystem
-linux-fbdev-users - user related mailing list
-linux-fbdev-announce - announcements (e.g. new software, drivers, etc.)
+I will stop here/now but I will definitely come back to this interesting
+problem in 24 hours. But if anyone fixes it before then, I won't cry :)
+Of course, before sending anything I will make sure my patch works on
+_all_ my machines without any exceptions.
 
-You may consult http://sourceforge.net/projects/linux-fbdev for
-subscribe information.
-
-Brad Douglas
-brad@neruo.com
-http://www.linux-fbdev.org
-
+Regards,
+Tigran
 

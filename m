@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129792AbRB0L5I>; Tue, 27 Feb 2001 06:57:08 -0500
+	id <S129840AbRB0MAS>; Tue, 27 Feb 2001 07:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129840AbRB0L46>; Tue, 27 Feb 2001 06:56:58 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3085 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129792AbRB0L44>; Tue, 27 Feb 2001 06:56:56 -0500
-Subject: Re: Linux 2.4.1 network (socket) performance
-To: davem@redhat.com (David S. Miller)
-Date: Tue, 27 Feb 2001 11:59:14 +0000 (GMT)
-Cc: root@chaos.analogic.com, manfred@colorfullife.com (Manfred Spraul),
-        linux-kernel@vger.kernel.org (Linux kernel)
-In-Reply-To: <15002.60558.421029.405754@pizda.ninka.net> from "David S. Miller" at Feb 26, 2001 03:53:50 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129855AbRB0MAI>; Tue, 27 Feb 2001 07:00:08 -0500
+Received: from ns1.whiterose.net ([208.155.122.237]:9998 "HELO
+	ns1.whiterose.net") by vger.kernel.org with SMTP id <S129840AbRB0L75>;
+	Tue, 27 Feb 2001 06:59:57 -0500
+Date: Tue, 27 Feb 2001 06:56:02 -0500 (EST)
+From: M Sweger <mikesw@ns1.whiterose.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.2.19pre14 is marked as pre13, plus some config/other
+ problems. (fwd)
+Message-ID: <Pine.BSF.4.21.0102270655440.49899-100000@ns1.whiterose.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Ximk-0003FW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm still talking with Alexey about how to fix this, I might just
-> prefer killing this fallback mechanism of skb_alloc_send_skb then
-> make AF_UNIX act just like everyone else.
-> 
-> This was always just a performance hack, and one which makes less
-> and less sense as time goes on.
 
-When I first did the hack it was worth about 20% performance, but at the time
-the fallback allocation and initial allocations didnt eat into pools in a 
-problematic way
+
+> A). The version of the linux 2.2.19pre14 on 2.2.18
+>     is compiling and saying it is pre13. Thus the
+>     make file has the wrong version.
+
+Yep. Harmless
+
+> B). After doing "make menuconfig". The textboxes
+>     displayed for the menu options "Processor family"
+>     and "Maximum Physical memory" are displayed
+>     incorrectly (half missing). 
+>     If I move the keyboard cursor arrow up and down
+>     for each of the above menus, then the display is
+>     redrawn with all of the missing menu options, color
+>     and graphics. Note: I have libcurses v5.0beta1 which
+>     didn't have problems in linux 2.2.19pre5 or earlier.
+
+I cant support beta curses libraries. The code was changed so that the 
+hardware cursor accurately reflected the position of the menu item. That is
+vital to blind users
+
+> C). Errors during "make dep". 
+>     note: I have md5sum from textutils v1.22.
+>     If my config file will help here, I can send it.
+
+The md5sum one is also ok. The ISDN code in 2.2.19pre14 isnt certified or
+intended to be
+
+Alan
 

@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbULBE2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbULBE2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbULBE2L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 23:28:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbULBE2L
+	id S261552AbULBE2P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 23:28:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbULBE2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 23:28:11 -0500
-Received: from mail5.speakeasy.net ([216.254.0.205]:7394 "EHLO
-	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S261551AbULBE2G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 23:28:06 -0500
-Date: Wed, 1 Dec 2004 22:28:02 -0600
-From: John Lash <jlash@speakeasy.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: dma errors with sata_sil and Seagate disk
-Message-ID: <20041201222802.4545e663@tux>
-In-Reply-To: <1101944482.30990.74.camel@localhost.localdomain>
-References: <20041201115045.3ab20e03@homer.sarvega.com>
-	<1101944482.30990.74.camel@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 0.9.12cvs126 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Dec 2004 23:28:15 -0500
+Received: from quechua.inka.de ([193.197.184.2]:18593 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261552AbULBE2H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 23:28:07 -0500
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <Pine.LNX.4.58.0412011948450.22796@ppc970.osdl.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1CZiZZ-0005ew-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Thu, 02 Dec 2004 05:28:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 01 Dec 2004 23:41:22 +0000
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+In article <Pine.LNX.4.58.0412011948450.22796@ppc970.osdl.org> you wrote:
+> I think you're making that up. Maybe there's some sw cult that swears by 
+> "contract programming"
 
-> On Mer, 2004-12-01 at 17:50, John Lash wrote:
-> > I don't see any indication that Seagate has released any public firmware
-> > upgrades for this drive. Anybody have a suggestion?
-> 
-> Don't mix seagate drives and SI311x hardware is the best suggestion.
-> Even if you activate the workaround for the problem you take a
-> performance hit.
-> 
-> Please send Jeff Garzik a patch for the the change you made of course.
-> 
-> 
+Design by Contract is the reason for descibing the agreement between
+caller/callee as an contract. Bertran Meyer added the pre-conditions and
+post-conditions (kind of asserts) to his Eiffel Language, and I dont think
+that that is limited to a single system, but is also valid for bondaries
+like an ABI. It describes conventions like syscall numbers, too.
 
-Thanks Alan, that's pretty clear ;-) Yes, performance hit, big time, 9-10 MB/sec, load average
-through the roof on a big copy. Pretty much what I was expecting though. I'll look around work and
-see if there is anybody I can trade with. Odd that those two devices are so wildly incompatible.
+Greetings
+Bernd
 
-I'll roll up a patch for the change in the morning.
-
---john
+PS: http://en.wikipedia.org/wiki/Eiffel_programming_language

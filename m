@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267554AbTAGXCZ>; Tue, 7 Jan 2003 18:02:25 -0500
+	id <S267562AbTAGXDj>; Tue, 7 Jan 2003 18:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267558AbTAGXCZ>; Tue, 7 Jan 2003 18:02:25 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:47117 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S267554AbTAGXCY>; Tue, 7 Jan 2003 18:02:24 -0500
-Date: Wed, 8 Jan 2003 10:10:25 +1100
-From: john slee <indigoid@higherplane.net>
-To: "Rick A. Hohensee" <rickh@capaccess.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The only way around Microsoft
-Message-ID: <20030107231025.GE18508@higherplane.net>
-References: <fc.0010c7b2006d67910010c7b2006d6791.6d6795@Capaccess.org> <20021231122253.GA26356@gallifrey> <fc.0010c7b2006d75640010c7b2006d6791.6d756c@capaccess.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267566AbTAGXDi>; Tue, 7 Jan 2003 18:03:38 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:18645 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S267562AbTAGXDg>; Tue, 7 Jan 2003 18:03:36 -0500
+Date: Wed, 08 Jan 2003 12:09:14 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+       Andre Hedrick <andre@pyxtechnologies.com>,
+       Oliver Xymoron <oxymoron@waste.org>, Andrew Morton <akpm@digeo.com>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
+Message-ID: <1540000.1041980954@localhost.localdomain>
+In-Reply-To: <1041947930.20658.21.camel@irongate.swansea.linux.org.uk>
+References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org>	
+ <3E19B401.7A9E47D5@linux-m68k.org>	
+ <17360000.1041899978@localhost.localdomain>	
+ <1041942677.20658.0.camel@irongate.swansea.linux.org.uk>	
+ <27130000.1041942696@localhost.localdomain>
+ <1041947930.20658.21.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <fc.0010c7b2006d75640010c7b2006d6791.6d756c@capaccess.org>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 31, 2002 at 01:52:19PM -0500, Rick A. Hohensee wrote:
-> I need some people that haven't forgotten how to use a computer to do
-> basic cleanups like convert "intelligence" in the CIA sense to "strinfo",
-> shut down the war on herbs, eliminate using the tax laws as a form of
-> subsidy, et cetera. The better hackers will get cabinet positions.
-> Otherwise I'll promote from the existing staff.
+Hardware acceleration is the right way to do any of this, agreed :-)
 
-sounds a lot like 'executive orders' by tom clancy.  not one of his
-better books, by the way
+--On Tuesday, January 07, 2003 13:58:50 +0000 Alan Cox 
+<alan@lxorguk.ukuu.org.uk> wrote:
 
-j.
+> On Tue, 2003-01-07 at 12:31, Andrew McGregor wrote:
+>> Or ESP, with or without encryption as well.
+>>
+>> But that does not acheive quite the same thing, because the iSCSI digest
+>> is  another lightweight checksum, albeit stronger than most, and does
+>> not  provide authentication.  So AH or ESP is stronger, but slower.
+>
+> AH permits multiple digests, they also happen to correspond to the
+> hardware accelerated ones on things like the 3c990...
+>
+>
 
--- 
-toyota power: http://indigoid.net/
+

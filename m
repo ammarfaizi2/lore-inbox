@@ -1,34 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130007AbRBTRDj>; Tue, 20 Feb 2001 12:03:39 -0500
+	id <S129180AbRBTREj>; Tue, 20 Feb 2001 12:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129551AbRBTRD3>; Tue, 20 Feb 2001 12:03:29 -0500
-Received: from t2.redhat.com ([199.183.24.243]:34043 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129191AbRBTRDW>; Tue, 20 Feb 2001 12:03:22 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3A924D8A.FBEAD695@cluster-labs.de> 
-In-Reply-To: <3A924D8A.FBEAD695@cluster-labs.de> 
-To: Norbert Roos <norbert.roos@cluster-labs.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Probs with PCI bus master DMA to user space 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 20 Feb 2001 17:03:16 +0000
-Message-ID: <6863.982688596@redhat.com>
+	id <S129144AbRBTREU>; Tue, 20 Feb 2001 12:04:20 -0500
+Received: from mail.inf.elte.hu ([157.181.161.6]:59863 "HELO mail.inf.elte.hu")
+	by vger.kernel.org with SMTP id <S129191AbRBTREL>;
+	Tue, 20 Feb 2001 12:04:11 -0500
+Date: Tue, 20 Feb 2001 18:04:09 +0100 (CET)
+From: BERECZ Szabolcs <szabi@inf.elte.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new setprocuid syscall
+In-Reply-To: <E14VDD2-0006ha-00@the-village.bc.nu>
+Message-ID: <Pine.A41.4.31.0102201759300.50000-100000@pandora.inf.elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-norbert.roos@cluster-labs.de said:
->  The problem I have is: Is there an efficient way to lock the pages
-> which are accessed by the DMA?
+The conclusion: it's cannot be implemented without slowdown.
+So ignore my patch.
 
-map_user_kiobuf, lock it, DMA into it, unlock it and unmap it again?
-
---
-dwmw2
+Bye,
+Szabolcs
 
 

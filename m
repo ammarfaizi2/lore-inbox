@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273340AbRINI3p>; Fri, 14 Sep 2001 04:29:45 -0400
+	id <S273337AbRINI1F>; Fri, 14 Sep 2001 04:27:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273343AbRINI3g>; Fri, 14 Sep 2001 04:29:36 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:3852 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S273340AbRINI30>; Fri, 14 Sep 2001 04:29:26 -0400
-Message-ID: <3BA1BF99.A0DEB08A@t-online.de>
-Date: Fri, 14 Sep 2001 10:28:09 +0200
-From: SPATZ1@t-online.de (Frank Schneider)
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
-X-Accept-Language: en
+	id <S273340AbRINI0z>; Fri, 14 Sep 2001 04:26:55 -0400
+Received: from puma.inf.ufrgs.br ([143.54.11.5]:34321 "EHLO inf.ufrgs.br")
+	by vger.kernel.org with ESMTP id <S273337AbRINI0y>;
+	Fri, 14 Sep 2001 04:26:54 -0400
+Date: Fri, 14 Sep 2001 05:27:49 -0300 (EST)
+From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Chris Vandomelen <chrisv@b0rked.dhs.org>, linux-kernel@vger.kernel.org,
+        VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Subject: Athlon: Try this (was: Re: Athlon bug stomping #2)
+In-Reply-To: <Pine.GSO.4.21.0109140430540.2204-100000@jacui>
+Message-ID: <Pine.GSO.4.21.0109140523060.3130-100000@jacui>
 MIME-Version: 1.0
-To: csaradap <csaradap@mihy.mot.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: testing PPP over null modem
-In-Reply-To: <3BA18965.A5761CEE@mihy.mot.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-csaradap schrieb:
+On Fri, 14 Sep 2001, Roberto Jung Drebes wrote:
+
+> On 13 Sep 2001, Eric W. Biederman wrote:
 > 
-> I thaink I have a PPP connection up and running  over a null modem. So
-> can u tell me how to test the ppp setup. By running ifconfig I am
-> getting the ppp* interface running but the number of packets received
-> and sent remains constant...
+> > Anyone want to generate a kernel patch so this fix can get some wider
+> > testing?
+> 
+> I'll try to isolate the single bit in the register that is causing the
+> fault and will send the diff.
 
-Hello...
+I tested here and it seems that bit 7 is responsible. Here is the diff to
+pci-pc.c:
 
-First you have to assign IP-adresses to the ppp*-devices, this can be
-done automatically at connect (so its done when you connect via ppp to
-an ISP), but yo can also do it by hand.
-
-I would suggest to read "man ifconfig", as i know, it should work like
-something:
-ifconfig ppp0 <ip> netmask <mask> up
-
-This on both sides of the ppp-link.
-
-Read also "man pppd".
-
-After you have the interfaces (test them by pinging your own ppp0-IP),
-you should lay some routing to them, e.g. you can set the default route
-to the ppp*-device, so every packet will be send to the other maschine:
-route add default gw ppp0
-
-After that you should be able to ping the other maschines ip over the
-ppp-link. Then the packetcounter will increase.
-
-Solong..
-Frank.
+=================================================
+--- linux-2.4.9/arch/i386/kernel/pci-pc.c.orig	Fri Sep 14 05:03:59 2001
++++ linux-2.4.9/arch/i386/kernel/pci-pc.c	Fri Sep 14 05:12:28 2001
+@@ -701,6 +701,22 @@
+ 	return rt;
+ }
+ 
++/* Fixes some oopses on fast_copy_page when it uses 'movntq's
++ * instead of 'movq's on Athlon/Duron optimized kernels. 
++ * Bit 7 at offset 0x55 seems to be responsible. 
++ * > Device 0 Offset 55 - Debug (RW)
++ * > 7-0 Reserved (do not program). default = 0
++ * > *** ABIT KT7A 3R BIOS: non-zero!? (oopses)
++ * > *** ABIT KT7A YH BIOS: zero. (works)
++ */
++static void __init pci_fixup_athlon_bug(struct pci_dev *d)
++{ 
++       u8 v; 
++       printk("Trying to stomp on Athlon bug...\n");
++       pci_read_config_byte(d, 0x55, &v);
++       v &= 0x7f; /* clear bit 55.7 */
++       pci_write_config_byte(d, 0x55, v);
++}
+ 
+ int pcibios_set_irq_routing(struct pci_dev *dev, int pin, int irq)
+ {
+@@ -966,6 +982,8 @@
+ 	{ PCI_FIXUP_HEADER,	PCI_ANY_ID,		PCI_ANY_ID,			pci_fixup_ide_bases },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5597,		pci_fixup_latency },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5598,		pci_fixup_latency },
++	{ PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,   PCI_DEVICE_ID_VIA_8363_0,
++     pci_fixup_athlon_bug }, 
+  	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371AB_3,	pci_fixup_piix4_acpi },
+ 	{ 0 }
+ };
+=================================================
 
 --
-Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
-Microsoft isn't the answer.
-Microsoft is the question, and the answer is NO.
-... -.-
+Roberto Jung Drebes <drebes@inf.ufrgs.br>
+Porto Alegre, RS - Brasil
+http://www.inf.ufrgs.br/~drebes/
+

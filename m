@@ -1,89 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280161AbRKEDc5>; Sun, 4 Nov 2001 22:32:57 -0500
+	id <S280162AbRKEDdr>; Sun, 4 Nov 2001 22:33:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280162AbRKEDcs>; Sun, 4 Nov 2001 22:32:48 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:6642
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S280161AbRKEDcm>; Sun, 4 Nov 2001 22:32:42 -0500
-Date: Sun, 4 Nov 2001 19:32:32 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] disk throughput
-Message-ID: <20011104193232.A16679@mikef-linux.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	lkml <linux-kernel@vger.kernel.org>,
-	ext2-devel@lists.sourceforge.net
-In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au>
-User-Agent: Mutt/1.3.23i
+	id <S280165AbRKEDdj>; Sun, 4 Nov 2001 22:33:39 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:15504 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S280162AbRKEDdS>; Sun, 4 Nov 2001 22:33:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+Date: Mon, 5 Nov 2001 04:34:19 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: tim@tjansen.de, linux-kernel@vger.kernel.org
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011104013951Z16981-4784+741@humbolt.nl.linux.org> <20011105111239.3403b162.rusty@rustcorp.com.au>
+In-Reply-To: <20011105111239.3403b162.rusty@rustcorp.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011105033316Z16051-18972+45@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 06:13:19PM -0800, Andrew Morton wrote:
-> I've been taking a look at one particular workload - the creation
-> and use of many smallish files.  ie: the things we do every day
-> with kernel trees.
+On November 5, 2001 01:12 am, Rusty Russell wrote:
+> On Sun, 4 Nov 2001 02:40:51 +0100
+> Daniel Phillips <phillips@bonn-fries.net> wrote:
 > 
-> There are a number of things which cause linux to perform quite badly
-> with this workload.  I've fixed most of them and the speedups are quite
-> dramatic.  The changes include:
+> > On November 2, 2001 03:20 am, Rusty Russell wrote:
+> > > I agree with the "one file, one value" idea.
+> > 
+> > So cat /proc/partitions goes from being a nice, easy to read and use human 
+> > interface to something other than that.  Lets not go overboard.
 > 
-> - reorganise the sync_inode() paths so we don't do
->   read-a-block,write-a-block,read-a-block, ...
->
+> Firstly, do not perpetuate the myth of /proc being "human readable".  (Hint:
+> what language do humans speak?)  It supposed to be "admin readable" and
+> "machine readable".
 
-Why can't the elevator do that?  I'm all for better performance, but if
-the elevator can do it, then it will work for other file systems too.
+You're letting me out as a human, fair enough ;-)
 
-> - asynchronous preread of an ext2 inode's block when we
->   create the inode, so:
-> 
->   a) the reads will cluster into larger requests and
->   b) during inode writeout we don't keep stalling on
->      reads, preventing write clustering.
->
+> Secondly, it is possible to implement a table formatter which kicks in
+> when someone does a read() on a directory.  This is not a desirable format:
+> look at /proc/mounts when you have a mount point with a space in it for a
+> good example.
 
-This may be what is inhibiting the elevator...
+Yes, sold, if implementing the formatter is part of the plan.
 
-> The above changes are basically a search-and-destroy mission against
-> the things which are preventing effective writeout request merging.
-> Once they're in place we also need:
-> 
-> - Alter the request queue size and elvtune settings
->
+Caveat: by profiling I've found that file ops on proc functions are already
+eating a significant amount of cpu, going to one-value-per-file is going to 
+make that worse.  But maybe this doesn't bother you.
 
-What settings are you suggesting?  The 2.4 elevator queue size is an
-order of magnatide larger than 2.2...
-
-> 
-> The time to create 100,000 4k files (10 per directory) has fallen
-> from 3:09 (3min 9second) down to 0:30.  A six-fold speedup.
->
-
-Nice!
-
-> 
-> All well and good, and still a WIP.  But by far the most dramatic
-> speedups come from disabling ext2's policy of placing new directories
-> in a different blockgroup from the parent:
-[snip]
-> A significant thing here is the improvement in read performance as well
-> as writes.  All of the other speedup changes only affect writes.
-> 
-> We are paying an extremely heavy price for placing directories in
-> different block groups from their parent.  Why do we do this, and
-> is it worth the cost?
->
-
-My God!  I'm no kernel hacker, but I would think the first thing you would
-want to do is keep similar data (in this case similar because of proximity
-in the dir tree) as close as possible to reduce seeking...
-
-Is there any chance that this will go into ext3 too?
-
-Mike
+--
+Daniel

@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272829AbRISWnK>; Wed, 19 Sep 2001 18:43:10 -0400
+	id <S274240AbRISWpj>; Wed, 19 Sep 2001 18:45:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274238AbRISWm7>; Wed, 19 Sep 2001 18:42:59 -0400
-Received: from smtp6.mindspring.com ([207.69.200.110]:11786 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S272829AbRISWmu>; Wed, 19 Sep 2001 18:42:50 -0400
-Subject: [PATCH] Preemption Latency Measurement Tool
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Cc: ozone@algorithm.com.au, safemode@speakeasy.net, Dieter.Nuetzel@hamburg.de,
-        iafilius@xs4all.nl, ilsensine@inwind.it, george@mvista.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Evolution-Format: text/plain
-X-Mailer: Evolution/0.13.99+cvs.2001.09.19.07.08 (Preview Release)
-Date: 19 Sep 2001 18:44:09 -0400
-Message-Id: <1000939458.3853.17.camel@phantasy>
+	id <S274238AbRISWp3>; Wed, 19 Sep 2001 18:45:29 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:30703 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274240AbRISWpV>;
+	Wed, 19 Sep 2001 18:45:21 -0400
+Date: Thu, 20 Sep 2001 00:45:43 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Shane Wegner <shane@cm.nu>
+Cc: Martin MOKREJ? <mmokrejs@natur.cuni.cz>, linux-kernel@vger.kernel.org
+Subject: Re: __alloc_pages: 0-order allocation failed still in -pre12
+Message-ID: <20010920004543.Z720@athlon.random>
+In-Reply-To: <Pine.OSF.4.21.0109121502420.18976-100000@prfdec.natur.cuni.cz> <Pine.OSF.4.21.0109191615070.3826-100000@prfdec.natur.cuni.cz> <20010919153441.A30940@cm.nu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010919153441.A30940@cm.nu>; from shane@cm.nu on Wed, Sep 19, 2001 at 03:34:41PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Available at:
-http://tech9.net/rml/linux/patch-rml-2.4.9-ac12-preempt-stats-1 and
-http://tech9.net/rml/linux/patch-rml-2.4.10-pre12-preempt-stats-1
-for 2.4.9-ac12 and 2.4.10-pre12, respectively.
+On Wed, Sep 19, 2001 at 03:34:41PM -0700, Shane Wegner wrote:
+> Hi,
+> 
+> I'm getting the same thing here.  At least it looks similar
+> though I'm not sure what's causing it.  Dual PIII 850, 1gb
+							 ^^^ perfect
+> ram, 300mb swap.
+> 
+> __alloc_pages: 0-order allocation failed (gfp=0x20/0) from
+> c012e052
+> __alloc_pages: 0-order allocation failed (gfp=0x20/0) from
+> c012e052
+> __alloc_pages: 0-order allocation failed (gfp=0x20/0) from
+> c012e052
 
-This patch is provided thanks to MontaVista (http://mvista.com).
+yes, please try this fix and let me know if it helps:
 
-This patch enables a new kernel configure option, CONFIG_PREEMPT_TIMES,
-which once enabled instructs the kernel preemption code to monitor
-in-kernel latencies due to the various locking primitives and report the
-20 worst recorded cases to /proc/latencytimes.
+--- 2.4.10pre11aa1/mm/page_alloc.c.~1~	Tue Sep 18 15:39:50 2001
++++ 2.4.10pre11aa1/mm/page_alloc.c	Thu Sep 20 00:36:11 2001
+@@ -369,6 +369,7 @@
+ 		return NULL;
+ 	}
+ 
++ rebalance:
+ 	page = balance_classzone(classzone, gfp_mask, order, &freed);
+ 	if (page)
+ 		return page;
+@@ -380,10 +381,13 @@
+ 			if (!z)
+ 				break;
+ 
+-			page = rmqueue(z, order);
+-			if (page)
+-				return page;
++			if (zone_free_pages(z, order) > z->pages_min) {
++				page = rmqueue(z, order);
++				if (page)
++					return page;
++			}
+ 		}
++		goto rebalance;
+ 	} else {
+ 		/* 
+ 		 * Check that no other task is been killed meanwhile,
 
-The patch obviously requires the preemption patch, available at
-http://tech9.net/rml/linux
 
-The patch won't start recording (I will change this...) until you read
-from /proc/latencytimes once.  From then on, each read will return the
-20 worst cases and reset the log.  Nonetheless, you don't want this in
-the kernel if you don't plan to do use it, and I do _not_ want it
-enabled during benchmarks.
-
-The proc interface is fairly verbose.  It will give you a measurement of
-the latency, what is causing the latency, the file line number and
-filename where the lock (or whatever) began and the same for where it
-ended.
-
-The point is to track down long held locks and other problems that are
-causing poor response.
-
-Thus, most of you CC have noticed certain situations wherein even with
-preemption you see high latencies (most of you with mp3 playback).  I
-ask that, if you get the chance, to play with this patch and measuring
-some latencies.  See where bad values lie.  Get a feeling for your
-system... most of your latencies should be very small.  Right now, I
-just read a sampling of my 8000 worst cases and the worst was 600us --
-this is not bad.  Things over 5000us are interesting, especially if
-consistent.
-
-I appreciate any comments.  CC me and the list.  Enjoy.
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Andrea

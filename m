@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbULPBVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbULPBbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262581AbULPBVG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 20:21:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbULPBTa
+	id S262594AbULPBbx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 20:31:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbULPB3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 20:19:30 -0500
-Received: from inx.pm.waw.pl ([195.116.170.20]:20685 "EHLO inx.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S262593AbULPA7O (ORCPT
+	Wed, 15 Dec 2004 20:29:04 -0500
+Received: from gprs215-43.eurotel.cz ([160.218.215.43]:48258 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262594AbULPB1J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 19:59:14 -0500
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
-       libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-References: <1101406661.8191.9390.camel@hades.cambridge.redhat.com>
-	<20041127032403.GB10536@kroah.com>
-	<16810.24893.747522.656073@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
-	<20041214025110.A28617@almesberger.net>
-	<Pine.LNX.4.58.0412140734340.3279@ppc970.osdl.org>
-	<20041214135029.A1271@almesberger.net>
-	<Pine.LNX.4.58.0412140950520.3279@ppc970.osdl.org>
-	<20041214184605.B1271@almesberger.net>
-	<m3fz28tp82.fsf@defiant.pm.waw.pl>
-	<20041214210912.C1271@almesberger.net>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 16 Dec 2004 01:58:31 +0100
-In-Reply-To: <20041214210912.C1271@almesberger.net> (Werner Almesberger's
- message of "Tue, 14 Dec 2004 21:09:12 -0300")
-Message-ID: <m38y7zt5xk.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Wed, 15 Dec 2004 20:27:09 -0500
+Date: Thu, 16 Dec 2004 02:26:27 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: Andi Kleen <ak@suse.de>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea
+Message-ID: <20041216012627.GA6462@elf.ucw.cz>
+References: <20041215114916.GB1232@elf.ucw.cz> <E1CekDZ-0005ZY-00@mta1.cl.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CekDZ-0005ZY-00@mta1.cl.cam.ac.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger <wa@almesberger.net> writes:
+Hi!
 
-> That's not what should be happening there: if the kernel only uses
-> __u32 and friends but never uint32_t et al. at an interface,
->
-> typedef __u32 uint32_t;
->
-> should be a perfectly safe thing for glibc's stdint.h to do.
+> > BTW if you merge xen as separate architecture, it will be *very* hard
+> > to merge it back to i386. That patch would be huge, and would need to
+> > go in "atomically".
+> 
+> I don't see it like that. While continuing to track changes in
+> i386/x86_64, we'd restructure the code under arch xen such that
+> it could build (or even boot) time switch between running native
+> and over Xen. At some point the arch directory could then be
+> renamed.  This would be a big project, and one that would involve
+> a lot more people than just the Xen team. Because the x86
 
-Aaah, right. I thought about #define there, it would be the other way
-around and thus wrong. Looks like I have to read my mail a bit earlier.
+So you plan to
+
+merge arch/xen
+
+then modify arch/xen to do all arch/i386 can do
+
+then rm -rf arch/i386, mv arch/xen arch/i386? Well, I'd say that's
+rather ambitious plan....
+								Pavel
 -- 
-Krzysztof Halasa
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbUDSOWz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 10:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264485AbUDSOWz
+	id S264225AbUDSOkW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 10:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbUDSOkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 10:22:55 -0400
-Received: from ns0.eris.qinetiq.com ([128.98.1.1]:3414 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S264450AbUDSOWM convert rfc822-to-8bit (ORCPT
+	Mon, 19 Apr 2004 10:40:22 -0400
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:3051 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S264225AbUDSOkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 10:22:12 -0400
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: Gilles May <gilles@canalmusic.com>, linux-kernel@vger.kernel.org
-Subject: Re: PDC20376 PATA?
-Date: Mon, 19 Apr 2004 14:20:16 +0000
-User-Agent: KMail/1.5.3
-References: <407FED4A.8040307@canalmusic.com>
-In-Reply-To: <407FED4A.8040307@canalmusic.com>
+	Mon, 19 Apr 2004 10:40:17 -0400
+Message-ID: <4083E4C8.4090202@samwel.tk>
+Date: Mon, 19 Apr 2004 16:40:08 +0200
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: nl, en-us, en
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200404191420.17116.m.watts@eris.qinetiq.com>
+To: John Que <qwejohn@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NIC inerrupt
+References: <BAY14-F34eqdGSyMp690005e9f6@hotmail.com>
+In-Reply-To: <BAY14-F34eqdGSyMp690005e9f6@hotmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: bart@samwel.tk
+X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
 
-> Hello everybody::
->
-> I have got a problem getting my onboard FastTrak 376 Controller to work.
-> The motherboard is an Asus A7V8X.
+John Que wrote:
+> Hello,
+> 
+> I want to count the number of times I reach an NIC receive
+> interrupt.
+> 
+> I added a global static variable of type int , and initialized
+> it to 0 ; each time I am in the rx_interrupt of the card I incerement
+> it by one;
+> I got large , non sensible numbers after one or two seconds;
+> 
+> So  for debug I added printk each time I increment it in rx_interrupt.
+> 
+> What I see is that there are  unreasonable jumps in the number
+> 
+> for instance , it inceremnts sequntially from 1 to 80,then jums to 4500, 
+> increments a little sequentially to 4580, and the jums again to
+> 11000 ;
+> 
+> Is it got to do with it that this is in interrupt?
+> Any idea what it can be ?
 
-I have the same controller, but welded into an MSI KT4 Ultra.
+You're probably reading the kernel output from syslog. Syslog 
+periodically reads out the printks from the kernel. With the amount of 
+printks you're doing you are probably printing info for about 4500 
+interrupts between every time syslog checks for new kernel output, while 
+the kernel buffer that is used to store this information can only handle 
+   enough data for 80 interrupts.
 
-With Mandrake 9.2 it gets detected and I was able to use the pata port with a 
-20Gig Maxtor drive.
-
-The module Mandrake uses for this is the pdc-ultra module, although I'm not 
-sure if its in the kernel or a 3rd party addition by Mandrake.
-
-Mark.
-
-
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ TIM
-St Andrews Road, Malvern
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAg+AhBn4EFUVUIO0RAoZ8AKDI8+KCd5vLLiQv4YX5AIs1J9lnHACbBsFU
-RFUNQkplMvfBw8WjXPITqsU=
-=cgaq
------END PGP SIGNATURE-----
-
+--Bart

@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312719AbSCVVBC>; Fri, 22 Mar 2002 16:01:02 -0500
+	id <S312818AbSCVVKz>; Fri, 22 Mar 2002 16:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312844AbSCVVAn>; Fri, 22 Mar 2002 16:00:43 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:17796 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S312719AbSCVVAl>; Fri, 22 Mar 2002 16:00:41 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 22 Mar 2002 13:05:39 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ORBZ is dead, don't use it...
-In-Reply-To: <20020322225305.B27741@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.44.0203221303400.1434-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312826AbSCVVKp>; Fri, 22 Mar 2002 16:10:45 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:49021 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S312818AbSCVVKg>; Fri, 22 Mar 2002 16:10:36 -0500
+Date: Fri, 22 Mar 2002 15:10:35 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200203222110.PAA26889@tomcat.admin.navo.hpc.mil>
+To: walt@nea-fast.com, linux-kernel@vger.kernel.org
+Subject: Re: printing from command line
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Mar 2002, Matti Aarnio wrote:
+walt <walt@nea-fast.com>:
+>This is a general linux question, not really a kernel question. Does
+>anyone know if there is a "simple" good way to print code from linux at
+>the command promt.  On a Solaris machine,
+>/usr/openwin/bin/mp -o -l filename
+>gives me a page with 2 columuns, user_name, date, and pagenumber at the
+>top of each column, and the filename at the bottom of each column. I've
+>read  lots of howtos and man pages, even wrote a perl script to wrap the
+>lines for me, but I haven't figured out how to get the same format from
+>Linux as I do from Solaris.
 
-> On Fri, Mar 22, 2002 at 01:45:36PM -0700, Richard Gooch wrote:
-> > Matti Aarnio writes:
-> > > We have been dropping people because they use now dead ORBZ:
-> > >
-> > >     Rejected - see http://orbz.org/
-> > >
-> > > The problem with these DNS-RBL things is that they are subject to
-> > > all kinds of external pressures, and apparently ORBZ has followed
-> > > ORBS in this manner.
-> >
-> > Interesting. When I try to lookup hosts using orbz.org, I just get
-> > Non-existent host/domain results (thus mail shouldn't bounce). Why are
-> > some people bouncing email?
->
->   I see both DNS lookup timeouts, and SERVFAIL returns.
->   In my books neither should lead to rejection, but
->   a) others may have better wisdom that I have,
->   b) some popular software are known to be unable to
->      separate any sort of temporary failures (timeouts
->      at DNS lookup) from real things (actual DNS-RBL)
+check the "pr" command:
 
-Only positive lookups should lead to rejection, IMHO. Timeouts & Co.
-should default to acception.
+	pr -m file1 file2
 
+Will format the output in two columns, file1 on the left, file2 on the right.
 
+It doesn't include username, but does have the date (top left) and page number
+(top right).
 
+An arbitrary title/heading may be specified with the -h option. The
+heading is at the top, center of each page.
 
-- Davide
+I've found that a single column was best based on readability (most source
+files will indent so far to the right that only a single column will do).
 
+If you want fancier printing try enscript, this utility allows for 1/2/n
+columns. (This one does a nice job for line numbers). The output is
+postscript - so options for various fonts and sizes are available.
 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

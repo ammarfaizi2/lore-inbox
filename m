@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132561AbRDAVFG>; Sun, 1 Apr 2001 17:05:06 -0400
+	id <S132558AbRDAVIq>; Sun, 1 Apr 2001 17:08:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132558AbRDAVE5>; Sun, 1 Apr 2001 17:04:57 -0400
-Received: from gear.torque.net ([204.138.244.1]:5139 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S132557AbRDAVEw>;
-	Sun, 1 Apr 2001 17:04:52 -0400
-Message-ID: <3AC797BB.D2AA2FE4@torque.net>
-Date: Sun, 01 Apr 2001 17:03:55 -0400
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i586)
-X-Accept-Language: en
+	id <S132562AbRDAVIg>; Sun, 1 Apr 2001 17:08:36 -0400
+Received: from nrg.org ([216.101.165.106]:21093 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S132558AbRDAVIa>;
+	Sun, 1 Apr 2001 17:08:30 -0400
+Date: Sun, 1 Apr 2001 14:07:42 -0700 (PDT)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <m14j5FD-001PKFC@mozart>
+Message-ID: <Pine.LNX.4.05.10104011347060.14420-100000@cosmic.nrg.org>
 MIME-Version: 1.0
-To: Peter Daum <gator@cs.tu-berlin.de>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-   "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: scsi bus numbering
-In-Reply-To: <Pine.LNX.4.30.0104012054180.779-100000@swamp.bayern.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Daum wrote:
+On Sat, 31 Mar 2001, Rusty Russell wrote:
+> > 		if (p->state == TASK_RUNNING ||
+> > 				(p->state == (TASK_RUNNING|TASK_PREEMPTED))) {
+> > 			p->flags |= PF_SYNCING;
 > 
-> On Sun, 1 Apr 2001, Douglas Gilbert wrote:
+> Setting a running task's flags brings races, AFAICT, and checking
+> p->state is NOT sufficient, consider wait_event(): you need p->has_cpu
+> here I think.
+
+My thought here was that if p->state is anything other than TASK_RUNNING
+or TASK_RUNNING|TASK_PREEMPTED, then that task is already at a
+synchonize point, so we don't need to wait for it to arrive at another
+one - it will get a consistent view of the data we are protecting.
+wait_event() qualifies as a synchronize point, doesn't it?  Or am I
+missing something?
+
+> The only way I can see is to have a new element in "struct
+> task_struct" saying "syncing now", which is protected by the runqueue
+> lock.  This looks like (and I prefer wait queues, they have such nice
+> helpers):
 > 
-> [...]
+> 	static DECLARE_WAIT_QUEUE_HEAD(syncing_task);
+> 	static DECLARE_MUTEX(synchronize_kernel_mtx);
+> 	static int sync_count = 0;
 > 
-> > >>>>>>>>>  scsihosts  <<<<<<<<<<<<<
-> >
-> > As a boot time option try:
-> >   scsihosts=aic7xxx:ncr53c8xxx
-> > or if you are using lilo, in /etc/lilo.conf add:
-> >   append="scsihosts=aic7xxx:ncr53c8xxx"
-> 
-> that does indeed change the bus numbering. Unfortunately, even
-> with this option, the first disk on the ncr controller becomes
-> "/dev/sda" ...
+> schedule():
+> 	if (!(prev->state & TASK_PREEMPTED) && prev->syncing)
+> 		if (--sync_count == 0) wake_up(&syncing_task);
 
-Peter,
-This indicates that the method being used by the 
-new aic7xxx driver for initialization is broken 
-with respect to other scsi adapters.
-
-The intent is that all built in HBA drivers are
-initialized _before_ the built in upper level 
-drivers (e.g. sd). To get the effect you describe
-the driver init order seems to have been:
-  register ncr53c8xxx
-  register sd
-  register aic7xxx      # too late ...
+Don't forget to reset prev->syncing.  I agree with you about wait
+queues, but didn't use them here because of the problem of avoiding
+deadlock on the runqueue lock, which the wait queues also use.  The
+above code in schedule needs the runqueue lock to protect sync_count.
 
 
-Doug Gilbert
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
+
+MontaVista Software                             nigel@mvista.com
+

@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315210AbSEHV3U>; Wed, 8 May 2002 17:29:20 -0400
+	id <S315214AbSEHV3h>; Wed, 8 May 2002 17:29:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315211AbSEHV3T>; Wed, 8 May 2002 17:29:19 -0400
-Received: from vpl.usc.edu ([128.125.21.202]:54656 "EHLO vpl.usc.edu")
-	by vger.kernel.org with ESMTP id <S315210AbSEHV3S>;
-	Wed, 8 May 2002 17:29:18 -0400
-Date: Wed, 8 May 2002 14:29:16 -0700
-From: Joaquin Rapela <rapela@usc.edu>
-To: "David D. Hagood" <wowbagger@sktc.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: es1371 sound problem
-Message-ID: <20020508142916.B1665@plato.usc.edu>
-In-Reply-To: <20020507215024.B11180@plato.usc.edu> <3CD91486.80903@sktc.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S315211AbSEHV3e>; Wed, 8 May 2002 17:29:34 -0400
+Received: from w007.z208177138.sjc-ca.dsl.cnc.net ([208.177.141.7]:28053 "HELO
+	mail.gurulabs.com") by vger.kernel.org with SMTP id <S315214AbSEHV32>;
+	Wed, 8 May 2002 17:29:28 -0400
+Date: Wed, 8 May 2002 15:29:24 -0600 (MDT)
+From: Dax Kelson <dax@gurulabs.com>
+X-X-Sender: dkelson@mooru.gurulabs.com
+To: "chris@scary.beasts.org" <chris@scary.beasts.org>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "marcelo@conectiva.com.br" <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] Completely honor prctl(PR_SET_KEEPCAPS, 1)
+In-Reply-To: <Pine.LNX.4.33.0205082210310.17893-100000@sphinx.mythic-beasts.com>
+Message-ID: <Pine.LNX.4.44.0205081523230.10496-100000@mooru.gurulabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 08, 2002 at 07:05:26AM -0500, David D. Hagood wrote:
-> Joaquin Rapela wrote:
-> > Hello,
-> > 
-> > I am having problems with a sound card. When I play a sound the machine becomes
-> > frozen.
-> > 
-> > sndconfig tells reports an Ensoniq|ES1371 [AudioPCI-97]
-> > 
-> > After my machine recovers from the frozen stage I read the following in
-> > /var/log/messages:
-> > 
-> > May  7 21:34:58 plato kernel: scsi : aborting command due to timeout : pid 0,
-> > scsi0, channel 0, id 0, lun 0 Write (10) 00 01 05 aa 19 00 00 26 00 
+On Wed, 8 May 2002, chris@scary.beasts.org wrote:
+
+> Are you sure about the current behaviour? Taking vsftpd as an example, it
+> does
 > 
-> Since the log message is from your SCSI card, it would have been helpful 
-> to know what kind of SCSI card you have, and how it and the ES1371 are 
-> mapped in terms of interrupts.
+1 prctl()
+2 setuid()
+3 setgid()
+4 cap_set_proc()
+ 
+> i.e. it only fiddles with capabilities after dropping euid == 0. Of
+> course, someone is welcome to fiddle with capabilities while euid == 0.
 
-Dear David,
+Sure this can be done before and after the proposed patch, end results are
+the same.  The difference would be what the effective caps are at step
+3.5.
 
-My scsi is an ADAPTEC AIC-7896 mapped to irq=10, my sound card is an
-Ensoniq|ES1371 [AudioPCI-97] mapped to irq=11.
+The point is when doing PR_SET_KEEPCAPS, one would expect not to have my
+caps fiddled with at all.
 
-> 
-> It sounds like your SCSI card and your sound card are on the same 
-> interrupt, and the SCSI card isn't sharing. Perchance is your SCSI card 
-> an ISA card? If so, then you need to tell your computer's BIOS that the 
-> SCSI card's interrupt is "Reserved for legacy ISA" so the sound card 
-> won't be assigned to that interrupt.
+Dax
 
-It seems that my scsi is not ISA. When I set in BIOS irq10 to ISA neither the
-scsi card or the sound card use irq10.
-
-I am wondering how the scsi could be interfering with the sound card if the two
-card are using different IRQs.
-
-Thanks for your help, Joaquin
-
--- 
-Joaquin Rapela
-PhD Student, Visual Processing Group
-University of Southern California
-3650 South McClintock Ave.
-Olin Hall of Engineering 500
-Los Angeles, CA 90089-1451
-tel/fax: (213) 821-2070
-----------------------------------
-
-"Respectfully keep at your studies constantly, and then you will have results."
-
-                                                                     Confucius

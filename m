@@ -1,87 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbUKHEIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUKHERO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbUKHEIO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 23:08:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUKHEIN
+	id S261724AbUKHERO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 23:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUKHERO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 23:08:13 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:12760 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261748AbUKHEIA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 23:08:00 -0500
-Date: Mon, 8 Nov 2004 09:47:30 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Darrick J. Wong" <djwong@us.ibm.com>, linux-aio@kvack.org,
-       Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Oops in aio_free_ring on 2.6.9
-Message-ID: <20041108041730.GB3681@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <1099683260.12365.348.camel@bluebox> <Pine.LNX.4.58.0411061938150.2223@ppc970.osdl.org>
+	Sun, 7 Nov 2004 23:17:14 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:17128 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261724AbUKHERB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 23:17:01 -0500
+Subject: [PATCH/RFC 1/4]device core changes
+From: Li Shaohua <shaohua.li@intel.com>
+To: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Cc: Len Brown <len.brown@intel.com>, Greg <greg@kroah.com>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Content-Type: multipart/mixed; boundary="=-kDnXXP/hKOE0jrMqzvOt"
+Message-Id: <1099887071.1750.243.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411061938150.2223@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 08 Nov 2004 12:11:11 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 07:43:33PM -0800, Linus Torvalds wrote:
-> 
-> On Fri, 5 Nov 2004, Darrick J. Wong wrote:
-> > 
-> > Next, the aio_setup_ring function tries to mmap a bunch of pages and
-> > fails, because in step 1 we used up all the address space. 
-> > aio_setup_ring then calls aio_free_ring to tear all of this down.
-> > (fs/aio.c:143)
-> > 
-> > aio_free_ring sees the block of struct page pointers and calls free_page
-> > (fs/aio.c:88) on the pointers without checking that they're not NULL. 
-> > Unfortunately, they _are_ NULL and *oops*!  My patch amends the function
-> > to include a null pointer check.
-> 
-> I don't disagree with the bug, but I disagree with the fix. 
-> 
-> In my opinion, the problem is that "info->nr_pages" is _wrong_. It's wrong 
-> because it has been initialized to a bogus value. 
-> 
-> I'd much prefer this alternate appended patch. Can you verify that it also 
-> fixes the problem (we can drop the bogus info->nr_pages initialization, 
-> because the context - including the info part - has been cleared when it 
-> was allocated, so nr_pages should already have the _correct_ value of zero 
-> at this point).
 
-Since aio_free_ring uses comparison with info->internal_pages rather than
-nr_pages to decide whether to kfree(info->ring_pages), I see your point.
+--=-kDnXXP/hKOE0jrMqzvOt
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Regards
-Suparna
+Hi,
+This is the device core change required. Add .platform_bind method for
+bus_type, so platform can do addition things when add a new device. A
+case is ACPI, we want to utilize some ACPI methods for physical devices.
+1. Why doesn't use 'platform_notify'?
+Current device core has a 'platform_notify' mechanism, but it's not
+sufficient for this. Only sepcific bus type know how to parse dev.bus_id
+and know how to encode specific device's address into ACPI _ADR syntax.
+2. Why adds new 'handle' in 'struct device'?
+'Platform_data' is the best candidate, but a search shows some drivers
+have used it. We can remove 'handle' after the drivers changes their
+behavior.
 
-> 
-> 		Linus
-> 
-> -----
-> ===== fs/aio.c 1.60 vs edited =====
-> --- 1.60/fs/aio.c	2004-10-20 01:12:10 -07:00
-> +++ edited/fs/aio.c	2004-11-06 19:41:45 -08:00
-> @@ -118,8 +118,6 @@
->  	if (nr_pages < 0)
->  		return -EINVAL;
->  
-> -	info->nr_pages = nr_pages;
-> -
->  	nr_events = (PAGE_SIZE * nr_pages - sizeof(struct aio_ring)) / sizeof(struct io_event);
->  
->  	info->nr = 0;
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+Thanks,
+Shaohua
+---
+
+ 2.6-root/drivers/base/bus.c     |    2 ++
+ 2.6-root/include/linux/device.h |    2 ++
+ 2 files changed, 4 insertions(+)
+
+diff -puN drivers/base/bus.c~devcore-platformbind drivers/base/bus.c
+--- 2.6/drivers/base/bus.c~devcore-platformbind	2004-11-08
+10:57:57.996568552 +0800
++++ 2.6-root/drivers/base/bus.c	2004-11-08 11:02:42.045386568 +0800
+@@ -463,6 +463,8 @@ int bus_add_device(struct device * dev)
+ 		list_add_tail(&dev->bus_list, &dev->bus->devices.list);
+ 		device_attach(dev);
+ 		up_write(&dev->bus->subsys.rwsem);
++		if (bus->platform_bind)
++			bus->platform_bind(dev);
+ 		device_add_attrs(bus, dev);
+ 		sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
+ 	}
+diff -puN include/linux/device.h~devcore-platformbind
+include/linux/device.h
+--- 2.6/include/linux/device.h~devcore-platformbind	2004-11-08
+10:57:57.998568248 +0800
++++ 2.6-root/include/linux/device.h	2004-11-08 10:57:58.001567792 +0800
+@@ -63,6 +63,7 @@ struct bus_type {
+ 				    int num_envp, char *buffer, int buffer_size);
+ 	int		(*suspend)(struct device * dev, u32 state);
+ 	int		(*resume)(struct device * dev);
++	int		(*platform_bind)(struct device *dev);
+ };
+ 
+ extern int bus_register(struct bus_type * bus);
+@@ -290,6 +291,7 @@ struct device {
+ 					     override */
+ 
+ 	void	(*release)(struct device * dev);
++	void			*handle;
+ };
+ 
+ static inline struct device *
+_
+
+
+--=-kDnXXP/hKOE0jrMqzvOt
+Content-Disposition: attachment; filename=p00001_devcore-platformbind.patch
+Content-Type: text/x-patch; name=p00001_devcore-platformbind.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+
+Add .platform_bind method for bus_type, so platform can do addition things
+when add a new device. A case is ACPI, we want to utilize some ACPI methods
+for physical devices.
+1. Why doesn't use 'platform_notify'?
+Current device core has a 'platform_notify' mechanism, but it's not
+sufficient for this. Only sepcific bus type know how to parse dev.bus_id and
+know how to encode specific device's address into ACPI _ADR syntax.
+2. Why adds new 'handle' in 'struct device'?
+'Platform_data' is the best candidate, but a search shows some drivers have
+used it. We can remove 'handle' after the drivers changes their behavior.
+
+---
+
+ 2.6-root/drivers/base/bus.c     |    2 ++
+ 2.6-root/include/linux/device.h |    2 ++
+ 2 files changed, 4 insertions(+)
+
+diff -puN drivers/base/bus.c~devcore-platformbind drivers/base/bus.c
+--- 2.6/drivers/base/bus.c~devcore-platformbind	2004-11-08 10:57:57.996568552 +0800
++++ 2.6-root/drivers/base/bus.c	2004-11-08 11:02:42.045386568 +0800
+@@ -463,6 +463,8 @@ int bus_add_device(struct device * dev)
+ 		list_add_tail(&dev->bus_list, &dev->bus->devices.list);
+ 		device_attach(dev);
+ 		up_write(&dev->bus->subsys.rwsem);
++		if (bus->platform_bind)
++			bus->platform_bind(dev);
+ 		device_add_attrs(bus, dev);
+ 		sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
+ 	}
+diff -puN include/linux/device.h~devcore-platformbind include/linux/device.h
+--- 2.6/include/linux/device.h~devcore-platformbind	2004-11-08 10:57:57.998568248 +0800
++++ 2.6-root/include/linux/device.h	2004-11-08 10:57:58.001567792 +0800
+@@ -63,6 +63,7 @@ struct bus_type {
+ 				    int num_envp, char *buffer, int buffer_size);
+ 	int		(*suspend)(struct device * dev, u32 state);
+ 	int		(*resume)(struct device * dev);
++	int		(*platform_bind)(struct device *dev);
+ };
+ 
+ extern int bus_register(struct bus_type * bus);
+@@ -290,6 +291,7 @@ struct device {
+ 					     override */
+ 
+ 	void	(*release)(struct device * dev);
++	void			*handle;
+ };
+ 
+ static inline struct device *
+_
+
+--=-kDnXXP/hKOE0jrMqzvOt--
 

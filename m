@@ -1,29 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277140AbRJHV0T>; Mon, 8 Oct 2001 17:26:19 -0400
+	id <S277141AbRJHV2t>; Mon, 8 Oct 2001 17:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277139AbRJHV0J>; Mon, 8 Oct 2001 17:26:09 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31506 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277141AbRJHV0A>; Mon, 8 Oct 2001 17:26:00 -0400
-Subject: Re: linux-2.4.10-acX
-To: rml@tech9.net (Robert Love)
-Date: Mon, 8 Oct 2001 22:32:01 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <1002576203.8568.192.camel@phantasy> from "Robert Love" at Oct 08, 2001 05:23:22 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277147AbRJHV2j>; Mon, 8 Oct 2001 17:28:39 -0400
+Received: from johnson.mail.mindspring.net ([207.69.200.177]:11792 "EHLO
+	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S277144AbRJHV23>; Mon, 8 Oct 2001 17:28:29 -0400
+Subject: [PATCH] 2.4.10-ac9: EXPORT_SYMBOLS compile fix
+From: Robert Love <rml@tech9.net>
+To: alan@lxorguk.ukuu.org.uk, kaos@ocs.com.au
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15qi0H-0001xD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 08 Oct 2001 17:29:13 -0400
+Message-Id: <1002576557.8568.199.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > getting very hard to merge a lot of the fixes like the truncate standards
-> > compliance stuff so they may not make Linus tree until 2.5
-> 
-> What are Linus's complaints about the faster syscall path improvement?
+The attached is against 2.4.10-ac9.  The problem cropped up in ac8.
 
-He insisted it wouldnt make it any faster. Of course rdtsc and profiling
-counters of locked cycles show otherwise..
+The kernel will not compile without modules.  This is from a patch by
+Keith Owens for 2.4.11-pre5 which has the same problem.  Keith, I assume
+this is right?
+
+--- linux-2.4.10-ac9/include/linux/module.h	Mon Oct  8 16:47:36 2001
++++ linux/include/linux/module.h	Mon Oct  8 17:19:10 2001
+@@ -348,9 +348,6 @@
+ #define EXPORT_SYMBOL_NOVERS(var)  error config_must_be_included_before_module
+ #define EXPORT_SYMBOL_GPL(var)  error config_must_be_included_before_module
+ 
+-#elif !defined(EXPORT_SYMTAB)
+-
+-#define __EXPORT_SYMBOL(sym,str)   error this_object_must_be_defined_as_export_objs_in_the_Makefile
+ #define EXPORT_SYMBOL(var)	   error this_object_must_be_defined_as_export_objs_in_the_Makefile
+ #define EXPORT_SYMBOL_NOVERS(var)  error this_object_must_be_defined_as_export_objs_in_the_Makefile
+ #define EXPORT_SYMBOL_GPL(var)  error this_object_must_be_defined_as_export_objs_in_the_Makefile
+@@ -362,6 +359,13 @@
+ #define EXPORT_SYMBOL_NOVERS(var)
+ #define EXPORT_SYMBOL_GPL(var)
+ 
++#elif !defined(EXPORT_SYMTAB)
++
++#define __EXPORT_SYMBOL(sym,str)  error this_object_must_be_defined_as_export_objs_in_the_Makefile
++#define EXPORT_SYMBOL(var)	  error this_object_must_be_defined_as_export_objs_in_the_Makefile
++#define EXPORT_SYMBOL_NOVERS(var) error this_object_must_be_defined_as_export_objs_in_the_Makefile
++#define EXPORT_SYMBOL_GPL(var)	  error this_object_must_be_defined_as_export_objs_in_the_Makefile 
++
+ #else
+ 
+ #define __EXPORT_SYMBOL(sym, str)			\
+
+
+	Robert Love
+

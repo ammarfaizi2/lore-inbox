@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314351AbSEMTLD>; Mon, 13 May 2002 15:11:03 -0400
+	id <S314381AbSEMTSw>; Mon, 13 May 2002 15:18:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314383AbSEMTLC>; Mon, 13 May 2002 15:11:02 -0400
-Received: from h24-71-223-10.cg.shawcable.net ([24.71.223.10]:56009 "EHLO
-	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id <S314351AbSEMTK4>; Mon, 13 May 2002 15:10:56 -0400
-Date: Mon, 13 May 2002 15:09:28 -0700
-From: Andre LeBlanc <ap.leblanc@shaw.ca>
-Subject: 2.4.19-pre8, network connection disapperead (was: More UDMA Troubles)
-To: linux-kernel@vger.kernel.org
-Message-id: <007501c1faca$da37eac0$2000a8c0@metalbox>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
+	id <S314383AbSEMTSv>; Mon, 13 May 2002 15:18:51 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:32918 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314381AbSEMTSv>;
+	Mon, 13 May 2002 15:18:51 -0400
+Date: Mon, 13 May 2002 12:55:21 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "torvalds@transmeta.com" <torvalds@transmeta.com>,
+        "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
+        "marcelo@conectiva.com.br" <marcelo@conectiva.com.br>
+Subject: Re: [RFC] Making capabilites useful with legacy apps
+Message-ID: <20020513125519.A37@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0205082029060.14553-100000@sphinx.mythic-beasts.com> <Pine.LNX.4.44.0205081403120.10496-100000@mooru.gurulabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I installed kernel 2.4.19-pre8 in hopes of getting UDMA Working on my debian
-installation, i still see some wierd errors fly by on the boot up, but i
-can't figure out what they say :)  i tried to apt-get install hdparm but my
-network connection disappeared, the ethernet card is still detected, but i
-can't even ping my firewall, I see some DHCP Errors go by, i think one of
-them mentions dhclient.pid but again, they go by too fast and I can't read
-them... I compiled the right driver for my ethernet card so I don't know
-what else i could have changed, If I boot the 2.2.20 kernel it works fine.
+Hi!
 
-oh, and in 2.4.19-pre8 something is wrong with ioapic.c, the compilation
-broke there. i just took it out of the kernle config and it worked fine.
+> In attempt to make capabilites more useful before the filesytem support 
+> arrives, I would like to "wrap" non-capabilities aware apps.
+> 
+> For example:
+> 
+> # capwrap --user nobody --grp nobody --cap CAP_NET_BIND_SERVICE nc -l -p 80
 
-Andre
+That looks pretty nice...
+
+> This wrapper[1] (that would increase security) won't work with the current 
+> kernel though, because at step 6, all capabilities are cleared.
+
+This should be fixed, then.
+									Pavel
+PS: you could ptrace attach yourself, fork and exec on root, and then force
+newly exec-ed app to give up id... But that's ugly and complicated hack.
+
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

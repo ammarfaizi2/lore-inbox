@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266015AbUA1Rbt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 12:31:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266020AbUA1Rbt
+	id S266019AbUA1Rbw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 12:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266017AbUA1Rbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 28 Jan 2004 12:31:51 -0500
+Received: from ns.suse.de ([195.135.220.2]:35797 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266019AbUA1Rbt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 28 Jan 2004 12:31:49 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:29963 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S266015AbUA1Rbr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 12:31:47 -0500
-Message-ID: <4017F2C0.4020001@techsource.com>
-Date: Wed, 28 Jan 2004 12:34:56 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [OT] Crazy idea:  Design open-source graphics chip
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Wed, 28 Jan 2004 18:31:42 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP AMD64 (Tyan S2882) problems.
+Message-Id: <20040128183142.0e5963b7.ak@suse.de>
+In-Reply-To: <20040128180702.E6714@fi.muni.cz>
+References: <20040127190911.B13769@fi.muni.cz.suse.lists.linux.kernel>
+	<p73fze1fdk4.fsf@nielsen.suse.de>
+	<20040127224931.D24747@fi.muni.cz>
+	<20040128180702.E6714@fi.muni.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is somewhat off-topic, so we shouldn't discuss it TOO much on-list, 
-but I feel it's relevant to the state of affairs with Linux.
+On Wed, 28 Jan 2004 18:07:03 +0100
+Jan Kasprzak <kas@informatics.muni.cz> wrote:
 
+> 	With pci=noacpi the system does not boot: it hangs during
+> the 3ware initialization - prints the following message:
+> 
+> 3w-xxxx: scsi0: UNIT #0: Command (000001002645b0) timed out, resetting card
+> 3w-xxxx: scsi0: UNIT #0: Command (000001002645b0) timed out, resetting card
+> 
+> Then it tries the same with UNIT #1 (whatever it is) and then the system
+> locks up.
+> 
+> 	With acpi=off it boots correctly. I will try it in another
+> Tyan S2882 box - it may be a faulty mainboard.
 
-I haven't looked at what's available on opencores.org, but one of the 
-biggest problems we seem to have is with getting high-quality graphics 
-cards that are compatible with Linux in the sense that there are open 
-specs and there's an open-source driver.  Oh, and we'd like to have 
-something decent.
+It's probably an ACPI bug.  I don't have time to look into it right now though.
+You can file a bug in kernel bugzilla so that it isn't forgotten.
 
-I have personally designed a graphics engine.  Actually, I would say 
-that I did maybe 90% of the Verilog coding on it, and about 20% of the 
-back-end (place, route, etc.) work.  I also did 100% of the X11 software 
-(DDX) and 0% of the kernel driver code.  I wouldn't call it a 
-masterpiece of engineering compared to the latest and greatest high-end 
-3D and CAD graphics chips, but it's a powerful workhorse used in most of 
-the air traffic control graphics cards and medical imaging cards that my 
-employer sells (10 megapixel displays are easy for us).  Were you to 
-read the manual on it, you'd think some of it was a bit unusual (such as 
-the way you issue rendering commands), because it WAS my first ASIC 
-ever.  I did meet all of our performance goals.  And I've come a long 
-way since then.  (Unfortunately, this may sound like a plug, but I have 
-competing desires to be humble about what I did but also not to 
-publically say something that might understate the value of my 
-employer's products.  I also feel a sense of pride in my accomplishment.)
-
-That being said, I would LOVE to be involved in the design of an 
-open-source graphics chip with the Linux market primarily in mind.  This 
-is a major sore point for us, and I, for one, would love to be involved 
-in solving it.  With an open architecture, everyone wins.  We win 
-because we have something stable which we can put in main-line Linux, 
-and chip fabs win, because anyone can sell it, and anyone can write 
-drivers for any platform.
-
-Imagine ATI and nVidia competing on how they can IMPROVE the design over 
-one another but being obligated to release the source code.  I know... 
-wishful thinking.  But I know a variety of ways that chips and boards 
-could be made with respectable geometries (90nm) and high performance. 
-No more being at the mercy of closed-development graphics chip designers 
-who make Linux an after-though if they even think of us at all.
-
-
-Please forgive my off-topic intrusion.
-
+-Andi

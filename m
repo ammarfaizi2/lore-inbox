@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265257AbTGKTtq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 15:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbTGKTqT
+	id S265261AbTGKTqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 15:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbTGKToD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 15:46:19 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:41876 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S265257AbTGKTqC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 15:46:02 -0400
-Message-Id: <200307112000.h6BJxwaL012856@eeyore.valparaiso.cl>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.75 
-In-Reply-To: Your message of "Fri, 11 Jul 2003 00:05:46 +0100."
-             <20030711000546.B20214@flint.arm.linux.org.uk> 
-X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
-Date: Fri, 11 Jul 2003 15:59:57 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Fri, 11 Jul 2003 15:44:03 -0400
+Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:21515
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S265141AbTGKTmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 15:42:54 -0400
+Date: Fri, 11 Jul 2003 12:57:37 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, xose@wanadoo.es
+Subject: Re: is lvm stuck in 2.4 ?
+Message-ID: <20030711195737.GC976@matchmail.com>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
+	xose@wanadoo.es
+References: <3F0F0746.8060403@wanadoo.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F0F0746.8060403@wanadoo.es>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> said:
+On Fri, Jul 11, 2003 at 08:51:50PM +0200, Xose Vazquez Perez wrote:
+> 
+> kernel has version 1.0.5+ (22/07/2002), but latest
+> is 1.0.7(2003/03/03). Is there any problem with 1.0.7 and
+> 2.4 ?
 
-[...]
+Most likely not.  It probably hasn't been merged yet.
 
-> The major problem is that embedded developers only care about what
-> works for them and what they can provide to their customers.  Once
-> that's done, they don't have any interest in cleaning stuff up nor
-> feeding obvious bug fixes back up.
+As well as the vfs patch needed for the journaled filesystems (forgot the
+name).
 
-I think this is rather uncivilized behaviour. Somebody called the work
-invested in the general infrastructure or just donating money "watering the
-garden". If they don't do that, they have no right to wonder later why it
-dried up.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Are there any efforts to get this merged?

@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317712AbSHCU3H>; Sat, 3 Aug 2002 16:29:07 -0400
+	id <S317714AbSHCUkh>; Sat, 3 Aug 2002 16:40:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317714AbSHCU3H>; Sat, 3 Aug 2002 16:29:07 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:48884 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317712AbSHCU3G>; Sat, 3 Aug 2002 16:29:06 -0400
-Subject: Re: i8xx series patches for 2.5.30
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020803221425.A18344@medelec.uia.ac.be>
-References: <20020803221425.A18344@medelec.uia.ac.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 03 Aug 2002 22:50:29 +0100
-Message-Id: <1028411429.1761.36.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317735AbSHCUkh>; Sat, 3 Aug 2002 16:40:37 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:52752 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317714AbSHCUkh>; Sat, 3 Aug 2002 16:40:37 -0400
+Date: Sat, 3 Aug 2002 17:43:31 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Ed Tomlinson <tomlins@cam.org>
+cc: linux-mm@kvack.org, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: [PATCH] slablru for linux-2.5 bk tree
+In-Reply-To: <200208031527.15093.tomlins@cam.org>
+Message-ID: <Pine.LNX.4.44L.0208031741000.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-08-03 at 21:14, Wim Van Sebroeck wrote:
-> 3) ftp://medelec.uia.ac.be/pub/linux/kernel-patches/i8xx-patch-against-2.5.30-patch-3.txt
-> This patch adds a set of defines to pci_ids.h for 82801E and 82801DB I/O Controller Hub PCI-IDS.
-> I could not add them all since two of them existed allready for the IDE controllers, but the naming was not ideal. That's why patch 5 and 6 corrects this.
-> 
+On Sat, 3 Aug 2002, Ed Tomlinson wrote:
 
-Corrects as in "uses my opinion of right" or corrects as in "matches
-2.4" ?
+> I have also updated the 2.4 version of the patch which can be pulled from
+> bk://casa.dyndns.org:3334/linux-2.4-rmap
+> Rik can we get this into your 2.4 rmap tree?
 
+I'll pull it into rmap 14.
+
+thanks,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267265AbTCEP36>; Wed, 5 Mar 2003 10:29:58 -0500
+	id <S267174AbTCEPe3>; Wed, 5 Mar 2003 10:34:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267267AbTCEP36>; Wed, 5 Mar 2003 10:29:58 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:11962 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267265AbTCEP35>;
-	Wed, 5 Mar 2003 10:29:57 -0500
-Date: Wed, 05 Mar 2003 07:21:49 -0800 (PST)
-Message-Id: <20030305.072149.121185037.davem@redhat.com>
-To: kazunori@miyazawa.org
-Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       usagi-core@linux-ipv6.org
-Subject: Re: [PATH] IPv6 IPsec support
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030305233025.784feb00.kazunori@miyazawa.org>
-References: <20030305233025.784feb00.kazunori@miyazawa.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S267206AbTCEPe3>; Wed, 5 Mar 2003 10:34:29 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:38047 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267174AbTCEPe0>;
+	Wed, 5 Mar 2003 10:34:26 -0500
+Date: Wed, 5 Mar 2003 07:43:27 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reserving physical memory at boot time
+Message-Id: <20030305074327.673e2432.rddunlap@osdl.org>
+In-Reply-To: <b453mj$qpi$1@cesium.transmeta.com>
+References: <Pine.LNX.3.95.1021204115837.29419B-100000@chaos.analogic.com>
+	<Pine.LNX.4.33L2.0212040905230.8842-100000@dragon.pdx.osdl.net>
+	<b442s0$pau$1@cesium.transmeta.com>
+	<32981.4.64.238.61.1046844111.squirrel@www.osdl.org>
+	<b453mj$qpi$1@cesium.transmeta.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Kazunori Miyazawa <kazunori@miyazawa.org>
-   Date: Wed, 5 Mar 2003 23:30:25 +0900
+On 5 Mar 2003 07:04:51 -0800
+"H. Peter Anvin" <hpa@zytor.com> wrote:
 
-Hello Miyazawa-san,
+| Followup to:  <32981.4.64.238.61.1046844111.squirrel@www.osdl.org>
+| By author:    "Randy.Dunlap" <rddunlap@osdl.org>
+| In newsgroup: linux.dev.kernel
+| > 
+| > OK, with feeling:
+| > 
+| > I agree with you since the boot protocol is well-defined.
+| > 
+| > Just to be clear, my comment was referring to
+| > Documentation/kernel-parameters.txt, not to any C code.
+| > 
+| > And it would really be helpful to catch issues like this soon
+| > after they happen...
+| > 
+| 
+| Unfortunately last time I commented on this the response was roughly
+| "well, the patch already made it into Linus' kernel, it's too late to
+| fix it now."  That isn't exactly a very helpful response.
 
-   I submit the patch to let the kernel support ipv6 ipsec again.
-   It is able to comple ipv6 as module.
-   
-   This patch incldes a couple of clean-up and
-   changes of function name.
+I don't see why it's too late.  How can it be too late?
+Ah, because it's already made it into 2.4?
 
-Excellent work.
+| The mem= parameter has the semantic in the i386/PC boot protocol that
+| it specifies the top address of the usable memory region that begins
+| at 0x100000.  It's a bit of a wart that the boot loaders have to be
+| aware of this, but it's so and it's been so for a very long time.
 
-I have comments, but they are very minor and can wait.
-I will apply your patch after basic build testing.
+So it's the top of the 0x100000-mem physical linear memory region
+(i.e., no gaps)?
 
-The next large task will be to abstract out more common
-pieces of code.  There is still quite a bit of code duplication
-between v4 and v6 xfrm methods,
-
-Thank you!
+--
+~Randy

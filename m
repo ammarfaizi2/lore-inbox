@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131669AbRDFPKX>; Fri, 6 Apr 2001 11:10:23 -0400
+	id <S131666AbRDFPJX>; Fri, 6 Apr 2001 11:09:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131672AbRDFPKO>; Fri, 6 Apr 2001 11:10:14 -0400
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:21003 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S131669AbRDFPKC>; Fri, 6 Apr 2001 11:10:02 -0400
-Date: Fri, 6 Apr 2001 08:08:21 -0700 (PDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Artur Frysiak <artur.frysiak@buy.pl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: syslog insmod please!
-In-Reply-To: <20010406165451.C1503@free.buy.pl>
-Message-ID: <Pine.LNX.4.32.0104060805360.17426-100000@filesrv1.baby-dragons.com>
+	id <S131669AbRDFPJO>; Fri, 6 Apr 2001 11:09:14 -0400
+Received: from krynn.axis.se ([193.13.178.10]:56251 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S131666AbRDFPJB>;
+	Fri, 6 Apr 2001 11:09:01 -0400
+Message-ID: <1d7601c0beab$0cb2bfa0$0a070d0a@axis.se>
+From: "Johan Adolfsson" <johan.adolfsson@axis.com>
+To: "Bernhard Bender" <Bernhard.Bender@ELSA.de>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <41256A26.005733A6.00@elsa.de>
+Subject: Re: ethernet phy link state info
+Date: Fri, 6 Apr 2001 17:05:42 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Wichert ,
-On Fri, 6 Apr 2001, Artur Frysiak wrote:
-> On Fri, Apr 06, 2001 at 07:43:29AM -0700, Mr. James W. Laferriere wrote:
-> > On 6 Apr 2001, Wichert Akkerman wrote:
-> > > In article <Pine.LNX.4.32.0104060429500.17426-100000@filesrv1.baby-dragons.com>,
-> > > Mr. James W. Laferriere <babydr@baby-dragons.com> wrote:
-> > > >	Not the problem being discussed ,  This is a user now root &
-> > > >	having gained root is now attempting to from the command line
-> > > >	to load a module .  How do we get this event recorded ?
-> > > Recent versions of modutils (2.4.3 and later iirc) log that info
-> > > in /var/log/ksymoops
+I don't have an answer but a related question:
+Is there any "standard ioctl" to force an interface
+to a certain link state, eg. auto, 10Mbs, 100Mbps,
+half/full duplex etc.?
 
-> But r00tkit may have own version of insmod.
-	OK ,  There are no special features accorded to /var/log/ksymoops
-	than to any other file .  Unless otherwise configured .
-	Am I that mistaken ?  I hope not .  Tia ,  JimL
+If not, can we create a standard ioctl mechanism for it?
 
-       +----------------------------------------------------------------+
-       | James   W.   Laferriere | System  Techniques | Give me VMS     |
-       | Network        Engineer | 25416      22nd So |  Give me Linux  |
-       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
-       +----------------------------------------------------------------+
+/Johan
+
+----- Original Message -----
+From: Bernhard Bender <Bernhard.Bender@ELSA.de>
+To: <linux-kernel@vger.kernel.org>
+Sent: Friday, April 06, 2001 16:54
+Subject: ethernet phy link state info
+
+
+>
+>
+> Hi all,
+>
+> where do I find information about the current link state of the ethernet
+PHY
+> (e.g. 100mbit/s full duplex) ?
+> Something like /proc/sys/net/* ?
+>
+> Thanks
+> Bernhard
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

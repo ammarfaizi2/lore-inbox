@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317605AbSGJU1E>; Wed, 10 Jul 2002 16:27:04 -0400
+	id <S317606AbSGJUcx>; Wed, 10 Jul 2002 16:32:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317606AbSGJU1E>; Wed, 10 Jul 2002 16:27:04 -0400
-Received: from relay01.valueweb.net ([216.219.253.235]:39438 "EHLO
-	relay01.valueweb.net") by vger.kernel.org with ESMTP
-	id <S317605AbSGJU1C>; Wed, 10 Jul 2002 16:27:02 -0400
-Message-ID: <3D2C9972.BB3DA772@opersys.com>
-Date: Wed, 10 Jul 2002 16:30:42 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+	id <S317610AbSGJUcw>; Wed, 10 Jul 2002 16:32:52 -0400
+Received: from cpe.atm2-0-1071115.0x50c4d862.boanxx10.customer.tele.dk ([80.196.216.98]:35025
+	"EHLO fugmann.dhs.org") by vger.kernel.org with ESMTP
+	id <S317606AbSGJUcw>; Wed, 10 Jul 2002 16:32:52 -0400
+Message-ID: <3D2C9A98.70509@fugmann.dhs.org>
+Date: Wed, 10 Jul 2002 22:35:36 +0200
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
 MIME-Version: 1.0
-To: Richard J Moore <richardj_moore@uk.ibm.com>
-CC: John Levon <movement@marcelothewonderpenguin.com>,
-       Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>,
-       bob <bob@watson.ibm.com>, linux-kernel@vger.kernel.org,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>, mjbligh@linux.ibm.com,
-       John Levon <moz@compsoc.man.ac.uk>,
-       Rik van Riel <riel@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Enhanced profiling support (was Re: vm lock contention reduction)
-References: <OFF41DACAC.FEED90BA-ON80256BF2.004DC147@portsmouth.uk.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+To: jamesclv@us.ibm.com
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Chatserver workload simulator by Bill Hartner?
+References: <629E717C12A8694A88FAA6BEF9FFCD440540AA@brigadoon.spirentcom.com> <200207101317.39447.jamesclv@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks - You just saved me a couple of hours there.
 
-Richard J Moore wrote:
-> Some level of tracing (along with other complementary PD tools e.g. crash
-> dump) needs to be readiliy available to deal with those types of problem we
-> see with mature systems employed in the production environment. Typically
-> such problems are not readily recreatable nor even prictable. I've often
-> had to solve problems which impact a business environment severely, where
-> one server out of 2000 gets hit each day, but its a different one each day.
-> Its under those circumstances that trace along without other automated data
-> capturing problem determination tools become invaluable. And its a fact of
-> life that only those types of difficult problem remain once we've beaten a
-> system to death in developments and test. Being able to use a common set of
-> tools whatever the componets under investigation greatly eases problem
-> determination. This is especially so where you have the ability to use
-> dprobes with LTT to provide ad hoc tracepoints that were not originally
-> included by the developers.
+I've also located a showstopper bug in the chat server code.
+If anyone steps forward as the maintainer, I will gladly send a patch.
 
-I definitely agree.
+The bug is when using accept, the last argument should be the size of the 2. argument but
+it is zero in the chat server.
 
-One case which perfectly illustrates how extreme these situations can be is
-the Mars Pathfinder. The folks at the Jet Propulsion Lab used a tracing tool
-very similar to LTT to locate the priority inversion problem the Pathfinder
-had while it was on Mars.
+Regards
+Anders Fugmann
 
-The full account gives an interesting read (sorry for the link being on
-MS's website but its author works for MS research ...):
-http://research.microsoft.com/research/os/mbj/Mars_Pathfinder/Authoritative_Account.html
+James Cleverdon wrote:
+> On Tuesday 09 July 2002 09:35 am, Perches, Joe wrote:
+> 
+> The chat-1.0.1.tar.gz on that page still has a memory free/use bug with the ti 
+> array.  I sent the patch to bhartner, but maybe he's not maintaining it 
+> anymore.  It only seems to cause trouble when running heavy loads.  (Maybe 
+> large blocks of memory get coalesced, or something.)  Anyway, here it is:
+<patch cut out>
 
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================

@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263482AbTCNT61>; Fri, 14 Mar 2003 14:58:27 -0500
+	id <S263483AbTCNT7O>; Fri, 14 Mar 2003 14:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263483AbTCNT61>; Fri, 14 Mar 2003 14:58:27 -0500
-Received: from holomorphy.com ([66.224.33.161]:3278 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S263482AbTCNT6Z>;
-	Fri, 14 Mar 2003 14:58:25 -0500
-Date: Fri, 14 Mar 2003 12:08:57 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Gregory K. Ruiz-Ade" <gregory@castandcrew.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 instability on bigmem systems?
-Message-ID: <20030314200857.GL20188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Gregory K. Ruiz-Ade" <gregory@castandcrew.com>,
-	linux-kernel@vger.kernel.org
-References: <200303131627.22572.gregory@castandcrew.com> <200303131955.27060.gregory@castandcrew.com> <20030314041307.GK20188@holomorphy.com> <200303140931.15541.gregory@castandcrew.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303140931.15541.gregory@castandcrew.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+	id <S263484AbTCNT7O>; Fri, 14 Mar 2003 14:59:14 -0500
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:5104 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S263483AbTCNT7L>; Fri, 14 Mar 2003 14:59:11 -0500
+Message-ID: <3E723705.3010800@quark.didntduck.org>
+Date: Fri, 14 Mar 2003 15:09:41 -0500
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ioperm() fix
+Content-Type: multipart/mixed;
+ boundary="------------090805090707070707040501"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 March 2003 20:13, William Lee Irwin III wrote:
->> Hmm, neither slabinfo nor meminfo show the machine being under any
->> stress. Were they generated while the problem was happening?
->> The useful information would be to collect meminfo and slabinfo while
->> kswapd and updated are spinning. Also, cpuinfo doesn't ever change,
->> (at least while being run on the same box) so you can leave that out.
+This is a multi-part message in MIME format.
+--------------090805090707070707040501
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Mar 14, 2003 at 09:31:15AM -0800, Gregory K. Ruiz-Ade wrote:
-> Ahh.  I was a bit out of it yesterday, and didn't think to actually stress 
-> the machine. :\
-> I'll be able to give it a good beating this weekend sometime.
+Properly initialize the IO bitmap in the TSS on the first ioperm() call.
 
-cc: me when you post those results.
+--
+				Brian Gerst
 
+--------------090805090707070707040501
+Content-Type: text/plain;
+ name="iobitmap-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="iobitmap-1"
 
-On Thursday 13 March 2003 20:13, William Lee Irwin III wrote:
->> BTW, oopses tracing back into the VM doesn't help. It's usually someone
->> doing something wrong the VM checks for. In this case I'll bet someone
->> (i.e. LVM) called vmalloc() with interrupts off.
+diff -urN linux-2.5.64-bk5/arch/i386/kernel/ioport.c linux/arch/i386/kernel/ioport.c
+--- linux-2.5.64-bk5/arch/i386/kernel/ioport.c	2003-02-24 14:59:03.000000000 -0500
++++ linux/arch/i386/kernel/ioport.c	2003-03-14 10:19:48.000000000 -0500
+@@ -84,15 +84,17 @@
+ 		t->ts_io_bitmap = bitmap;
+ 	}
+ 
+-	tss = init_tss + get_cpu();
+-	if (bitmap)
+-		tss->bitmap = IO_BITMAP_OFFSET;	/* Activate it in the TSS */
+-
+ 	/*
+ 	 * do it in the per-thread copy and in the TSS ...
+ 	 */
+ 	set_bitmap(t->ts_io_bitmap, from, num, !turn_on);
+-	set_bitmap(tss->io_bitmap, from, num, !turn_on);
++	tss = init_tss + get_cpu();
++	if (tss->bitmap == IO_BITMAP_OFFSET) { /* already active? */
++		set_bitmap(tss->io_bitmap, from, num, !turn_on);
++	} else {
++		memcpy(tss->io_bitmap, t->ts_io_bitmap, IO_BITMAP_BYTES);
++		tss->bitmap = IO_BITMAP_OFFSET;	/* Activate it in the TSS */
++	}
+ 	put_cpu();
+ out:
+ 	return ret;
 
-On Fri, Mar 14, 2003 at 09:31:15AM -0800, Gregory K. Ruiz-Ade wrote:
-> Hmm... Okay, mind if I quote you when I post that oops the the lvm list? :)
+--------------090805090707070707040501--
 
-Understand that was said in the context of finding the VM bug. I'm not
-interested in LVM bugs, legitimate though they may be, mostly b/c it's
-not my project and I can't save the world.
-
-
--- wli

@@ -1,37 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267968AbUHPVrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267971AbUHPVvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267968AbUHPVrw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 17:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267970AbUHPVrw
+	id S267971AbUHPVvW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 17:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267969AbUHPVvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 17:47:52 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:39685 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267968AbUHPVrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 17:47:51 -0400
-Date: Mon, 16 Aug 2004 22:47:49 +0100
-From: Christoph Hellwig <hch@infradead.org>
+	Mon, 16 Aug 2004 17:51:22 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:6065 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267971AbUHPVue (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 17:50:34 -0400
+Subject: Re: boot time, process start time, and NOW time
+From: john stultz <johnstul@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm1
-Message-ID: <20040816224749.A15510@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040816143710.1cd0bd2c.akpm@osdl.org>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, albert@users.sourceforge.net,
+       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
+       nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
+       tim@physik3.uni-rostock.de, george anzinger <george@mvista.com>,
+       david+powerix@blue-labs.org
+In-Reply-To: <20040816124136.27646d14.akpm@osdl.org>
+References: <1087948634.9831.1154.camel@cube>
+	 <87smcf5zx7.fsf@devron.myhome.or.jp>
+	 <20040816124136.27646d14.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1092692989.2429.15.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040816143710.1cd0bd2c.akpm@osdl.org>; from akpm@osdl.org on Mon, Aug 16, 2004 at 02:37:10PM -0700
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 16 Aug 2004 14:49:49 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 02:37:10PM -0700, Andrew Morton wrote:
-> - The packet-writing patches should be ready to go, but I haven't even
->   looked at them yet, and am not sure that anyone else has reviewed the code.
+On Mon, 2004-08-16 at 12:41, Andrew Morton wrote:
+> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+> >
+> > Albert Cahalan <albert@users.sf.net> writes:
+> > 
+> > > Even with the 2.6.7 kernel, I'm still getting reports of process
+> > > start times wandering. Here is an example:
+> > > 
+> > >    "About 12 hours since reboot to 2.6.7 there was already a
+> > >    difference of about 7 seconds between the real start time
+> > >    and the start time reported by ps. Now, 24 hours since reboot
+> > >    the difference is 10 seconds."
+> > > 
+> > > The calculation used is:
+> > > 
+> > >    now - uptime + time_from_boot_to_process_start
+> > 
+> > Start-time and uptime is using different source. Looks like the
+> > jiffies was added bogus lost counts.
+> > 
+> > quick hack. Does this change the behavior?
+> 
+> Where did this all end up?  Complaints about wandering start times are
+> persistent, and it'd be nice to get some fix in place...
 
-It's still messing with the elevator setting directly which is a no-go.
-That's not the packet-writing drivers fault but needs solving first.
+Yea, I think I dropped this. Not sure what the trouble is just yet. Let
+me go digging. 
+
+thanks
+-john
 

@@ -1,205 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131862AbQLHRYO>; Fri, 8 Dec 2000 12:24:14 -0500
+	id <S131957AbQLHR3o>; Fri, 8 Dec 2000 12:29:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132034AbQLHRYE>; Fri, 8 Dec 2000 12:24:04 -0500
-Received: from frogger.telerama.com ([205.201.1.48]:50700 "EHLO
-	frogger.telerama.com") by vger.kernel.org with ESMTP
-	id <S131862AbQLHRXt>; Fri, 8 Dec 2000 12:23:49 -0500
-Date: Fri, 8 Dec 2000 11:53:07 -0500 (EST)
-From: Peter Berger <peterb@telerama.com>
-To: linux-kernel@vger.kernel.org
-Subject: Pthreads, linux, gdb, oh my! (fwd)
-Message-ID: <Pine.BSI.4.02.10012081150130.17198-100000@frogger.telerama.com>
+	id <S132020AbQLHR3e>; Fri, 8 Dec 2000 12:29:34 -0500
+Received: from proxy.ovh.net ([213.244.20.42]:49415 "HELO proxy.ovh.net")
+	by vger.kernel.org with SMTP id <S131957AbQLHR3S>;
+	Fri, 8 Dec 2000 12:29:18 -0500
+Message-ID: <3A311338.238D81A3@ovh.net>
+Date: Fri, 08 Dec 2000 17:58:32 +0100
+From: octave klaba <oles@ovh.net>
+X-Mailer: Mozilla 4.73 [en] (Win98; I)
+X-Accept-Language: fr,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: problem with DAC960
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+running raid-1 on Mylex 170 2x18Go we have lot of problem
+like this:
 
+EXT2-fs error (device rd(48,3)): ext2_readdir: directory #181 contains a hole at offset 827392
+EXT2-fs error (device rd(48,3)): ext2_readdir: directory #181 contains a hole at offset 831488
+EXT2-fs error (device rd(48,3)): ext2_readdir: directory #181 contains a hole at offset 835584
+EXT2-fs error (device rd(48,3)): ext2_readdir: directory #181 contains a hole at offset 839680
+EXT2-fs error (device rd(48,3)): ext2_readdir: directory #181 contains a hole at offset 843776
+EXT2-fs error (device rd(48,2)): ext2_new_block: Free blocks count corrupted for block group 3
+EXT2-fs error (device rd(48,2)): ext2_new_block: Free blocks count corrupted for block group 3
+EXT2-fs error (device rd(48,2)): ext2_new_block: Free blocks count corrupted for block group 3
+EXT2-fs error (device rd(48,2)): ext2_new_block: Free blocks count corrupted for block group 3
+EXT2-fs error (device rd(48,2)): ext2_new_block: Free blocks count corrupted for block group 3
+EXT2-fs error (device rd(48,2)): ext2_new_block: Free blocks count corrupted for block group 3
 
-Hi.  I have the following tiny test program which fails dramatically,
-using pthreads, in a number of fascinating ways on various version of
-linux, using various versions of glibc, under various (current) versions
-of GDB.  I am honestly not sure if this is a linux bug, a glibc bug, or a
-gdb bug, but it runs fine under gdb 5.0 under FreeBSD (running the port of
-the linux Pthreads package, even).
+I comes after we added DEAD hd to raid
+rebuild 0:0 > command
 
-So I am sending the test code here; can -anyone- get this to run
-correctly, on any version of linux, under gdb?
+but we still have the errors.
+any idea ?
+thanks for help
 
-All the program does is create a thread, wait for that thread to exit,
-then iterate and do it again, and again, until MAX_COUNT_SEQ_THREADS is
-reached.  So no more than 2 threads should be running at once.  
+Octave
 
-I have seen two failure modes:  on my machine (linux 2.2.5-22, glibc
-2.1.1), when run under gdb 5.0, the created pthreads stick around as
-zombies until the machine runs out of resources.  On some friends'
-machines (kernel 2.2.15, glibc 2.1.94), the program creates one pthread,
-waits for it to exit, and then exits.
-
-The code is enclosed at the end of this message.  Can people try this out
-and let me know what results you get? Does anyone have any opinions as to
-where the bug is?  And, if the bug is in my code, I will be both relieved
-and happy, and look forward to finding out what it is.  If it's a kernel
-bug, I submit that this makes pthreads unusable, and want to inquire if
-anyone is working on fixing this?
-
-Peter Berger, Network Dilettante 
-http://peterb.telerama.com		peterb@telerama.com 
---------------------------thread_test.c------------------------
-
-#include <pthread.h>
-#include <stdio.h>
-
-#define MAX_COUNT_SEQ_THREADS 100000
-
-struct thread_group_s {
-  pthread_cond_t cond;
-  pthread_mutex_t lock;
-  int created;
-  int running;
-  int done;
-};
-
-/*
- * This child thread just runs and exits, always being careful
- * to take the mutex whenever it does anything even
- * remotely interesting.
- */
-int
-threads_test_count_seq_proc(struct thread_group_s *tg)
-{
-  int broadcast = 0;
-
-  /* We spend a lot of effort to do nothing here! */
-#ifdef DEBUG
-  printf("Hello...");
-#endif /* DEBUG */
-  pthread_mutex_lock(&tg->lock);
-  tg->running++;
-  if (tg->running >= tg->created) {
-    broadcast = 1;
-  }
-  pthread_mutex_unlock(&tg->lock);
-  if (broadcast) {
-    pthread_cond_broadcast(&tg->cond);
-  }
-  broadcast = 0;
-
-  pthread_mutex_lock(&tg->lock);
-  tg->done++;
-  if (tg->done >= tg->running) {
-    broadcast = 1;
-  }
-  pthread_mutex_unlock(&tg->lock);
-  if (broadcast) {
-    pthread_cond_broadcast(&tg->cond);
-  }
-#ifdef DEBUG
-  printf("goodbye.\n");
-#endif /* DEBUG */
-  pthread_exit(0);
-}
-
-/*
- * This test is designed to ensure that we can create
- * and destroy threads _in sequence_ for as long as
- * we please.  There are only ever 2 threads running
- * at one time.  The main routine creates a thread,
- * and waits for it to exit before creating the next
- * one.
- *
- * If you should find an error in my concurrency/mutex
- * handling, please let me know.
- */
-int
-main(int argc, char argv[])
-{
-  struct thread_group_s *tg;
-  pthread_t *thread;
-  pthread_attr_t *attr;
-
-  int i, rc, detached;
-
-  rc = 0; detached = 0;
-
-  thread = (pthread_t *)malloc(sizeof(*thread));
-  tg = (struct thread_group_s *)malloc(sizeof(*tg));
-  attr = (pthread_attr_t *)malloc(sizeof(*attr));
-
-  printf("Starting test.\n");
-  for(i = 1;
-      ((rc == 0) && (i <= MAX_COUNT_SEQ_THREADS));
-      i++)
-    {
-      tg->created = 0; tg->running = 0; tg->done = 0;
-      rc = pthread_attr_init(attr);
-      if (rc) {
-        printf("threads_test: failed initializing pthread attr object: %s\n",
-          strerror(rc));
-      }
-
-      rc = pthread_attr_setdetachstate(attr, PTHREAD_CREATE_DETACHED);
-      if (rc) {
-        printf("threads_test: couldn't set thread state to detached: %s\n",
-          strerror(rc));
-      }
-
-      /* Let's double-check, just to be paranoid. */
-      rc = pthread_attr_getdetachstate(attr, &detached);
-      if (detached != PTHREAD_CREATE_DETACHED) {
-        printf("threads_test: thread will not be created detached (fatal).\n");
-        exit(1);
-      }
-
-      /* Create a thread that will run and exit. */
-      rc = pthread_create(thread, attr, (void *)threads_test_count_seq_proc, tg
-);
-      if (rc) {
-        printf("threads_test: failed creating seq thread #%d with %s\n",
-          i, strerror(rc));
-        return(rc);
-      }
-      pthread_mutex_lock(&tg->lock);
-      tg->created++ ;
-      pthread_mutex_unlock(&tg->lock);
-
-      printf("\nthreads_test: thread #%d created...", i);
-
-      /* We wait for all (one) of the threads we have created
-         to start. */
-      pthread_mutex_lock(&tg->lock);
-      while(tg->running < tg->created) {
-        pthread_cond_wait(&tg->cond, &tg->lock);
-      }
-      pthread_mutex_unlock(&tg->lock);
-
-      /* Wait for the thread we created to exit. */
-      pthread_mutex_lock(&tg->lock);
-      while(tg->done < tg->running) {
-        pthread_cond_wait(&tg->cond, &tg->lock);
-      }
-      pthread_mutex_unlock(&tg->lock);
-
-      printf("done. ", i);
-
-      /*
-       * Let's yield just to make sure our other thread has time
-       * to clean up.
-       */
-      rc = sched_yield();
-      if (rc) {
-        printf("threads_test: error in sched_yield: %s\n", strerror(rc));
-      }
-    }
-
-  printf("threads_test: Test over.\n");
-  return(0);
-}
+# cat /proc/rd/c0/current_status 
+***** DAC960 RAID Driver Version 2.2.8 of 19 August 2000 *****
+Copyright 1998-2000 by Leonard N. Zubkoff <lnz@dandelion.com>
+Configuring Mylex AcceleRAID 170 PCI RAID Controller
+  Firmware Version: 6.00-01, Channels: 1, Memory Size: 32MB
+  PCI Bus: 0, Device: 16, Function: 1, I/O Address: Unassigned
+  PCI Address: 0xCE000000 mapped at 0xD0000000, IRQ Channel: 5
+  Controller Queue Depth: 512, Maximum Blocks per Command: 2048
+  Driver Queue Depth: 511, Scatter/Gather Limit: 128 of 257 Segments
+  Physical Devices:
+    0:0  Vendor: IBM       Model: DPSS-309170N      Revision: S93E
+         Wide Synchronous at 40 MB/sec
+         Serial Number:         ZD14G827
+         Disk Status: Write-Only, 17883136 blocks
+    0:1  Vendor: IBM       Model: DPSS-309170N      Revision: S93E
+         Wide Synchronous at 40 MB/sec
+         Serial Number:         ZD146613
+         Disk Status: Online, 17883136 blocks
+    0:7  Vendor: MYLEX     Model: AcceleRAID 170    Revision: 0600
+         Wide Synchronous at 160 MB/sec
+         Serial Number:   
+  Logical Drives:
+    /dev/rd/c0d0: RAID-1, Critical, 17883136 blocks
+                  Logical Device Initialized, BIOS Geometry: 255/63
+                  Stripe Size: 64KB, Segment Size: 8KB
+                  Read Cache Disabled, Write Cache Disabled
+  Rebuild in Progress: Logical Drive 0 (/dev/rd/c0d0) 0% completed
 
 
 
+Octave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

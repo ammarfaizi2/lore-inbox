@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268778AbUHTWWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268786AbUHTWhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268778AbUHTWWW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 18:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268782AbUHTWWW
+	id S268786AbUHTWhz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 18:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268787AbUHTWhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 18:22:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50081 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268778AbUHTWWT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 18:22:19 -0400
-Date: Fri, 20 Aug 2004 15:25:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: amgta@yacht.ocn.ne.jp, linux-kernel@vger.kernel.org, colpatch@us.ibm.com
-Subject: Re: [PATCH] shows Active/Inactive on per-node meminfo
-Message-Id: <20040820152551.03a4aee7.akpm@osdl.org>
-In-Reply-To: <200408201501.31542.jbarnes@engr.sgi.com>
-References: <200408210302.25053.amgta@yacht.ocn.ne.jp>
-	<200408201448.22566.jbarnes@engr.sgi.com>
-	<200408201501.31542.jbarnes@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 18:37:55 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:60138 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S268786AbUHTWhy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 18:37:54 -0400
+Date: Fri, 20 Aug 2004 18:42:05 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: John Levon <levon@movementarian.org>
+Cc: Corey Minyard <minyard@acm.org>, Mikael Pettersson <mikpe@csd.uu.se>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Patch to 2.6.8.1-mm2 to allow multiple NMI handlers to be
+ registered
+In-Reply-To: <20040819163124.GA81535@compsoc.man.ac.uk>
+Message-ID: <Pine.LNX.4.58.0408201840520.27390@montezuma.fsmlabs.com>
+References: <4124BACB.30100@acm.org> <16676.51035.924323.992044@alkaid.it.uu.se>
+ <4124D25C.20703@acm.org> <20040819163124.GA81535@compsoc.man.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+On Thu, 19 Aug 2004, John Levon wrote:
+
+> On Thu, Aug 19, 2004 at 11:16:28AM -0500, Corey Minyard wrote:
 >
-> On Friday, August 20, 2004 2:48 pm, Jesse Barnes wrote:
-> > On Friday, August 20, 2004 2:02 pm, mita akinobu wrote:
-> > > +	for (i = 0; i < MAX_NR_ZONES; i++) {
-> > > +		*active += zones[i].nr_active;
-> > > +		*inactive += zones[i].nr_inactive;
-> > > +		*free += zones[i].free_pages;
-> > > +	}
-> > > +}
-> > > +
-> > > -		*free += zone->free_pages;
-> > > +	for_each_pgdat(pgdat) {
-> > > +		unsigned long l, m, n;
-> > > +		__get_zone_counts(&l, &m, &n, pgdat);
-> > > +		*active += l;
-> > > +		*inactive += m;
-> > > +		*free += n;
-> > >  	}
-> >
-> > Just FYI, loops like this are going to be very slow on a large machine.
-> > Iterating over every node in the system involves a TLB miss on every
-> > iteration along with an offnode reference and possibly cacheline demotion.
-> 
-> ...but I see that you're just adding the info to the per-node meminfo files, 
-> so it should be ok as long as people access a node's meminfo file from a 
-> local cpu.  /proc/meminfo will still hurt a lot though.
-> 
-> I bring this up because I ran into it once.  I created a file 
-> called /proc/discontig which printed out detailed per-node memory stats, one 
-> node per line.  On a large system it would literally take several seconds to 
-> cat the file due to the overhead of looking at all the pages and zone 
-> structures.
-> 
+> > >Please use rdpmc() instead of rdmsr() when reading counter registers.
+> > >Ditto in the other places.
+> > >(I know oprofile doesn't, but that's no excuse.)
+>
+> I actually have no idea why we don't use rdpmc().
 
-So was that an ack, a nack or a quack?
-
-I'll queue the patch up so it doesn't get lost - could you please take a
-closer look at the performance implications sometime, let me know?
-
+If i recall, not all the performance counters were accessible via rdpmc
+and being slower.

@@ -1,58 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266599AbUBQVWr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:22:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266632AbUBQVU3
+	id S266579AbUBQVdl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266608AbUBQVaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:20:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61132 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266603AbUBQVRg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:17:36 -0500
-Date: Tue, 17 Feb 2004 13:17:27 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-cc: tridge@samba.org, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: UTF-8 and case-insensitivity
-In-Reply-To: <200402172208.25398.robin.rosenberg.lists@dewire.com>
-Message-ID: <Pine.LNX.4.58.0402171314320.2154@home.osdl.org>
-References: <16433.38038.881005.468116@samba.org> <Pine.LNX.4.58.0402170704210.2154@home.osdl.org>
- <Pine.LNX.4.58.0402170833110.2154@home.osdl.org>
- <200402172208.25398.robin.rosenberg.lists@dewire.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Feb 2004 16:30:07 -0500
+Received: from zmamail03.zma.compaq.com ([161.114.64.103]:64529 "EHLO
+	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S266627AbUBQV2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 16:28:39 -0500
+Subject: [PATCH]2.6.3-rc2 MSI Documentation
+From: Martine Silbermann <Martine.Silbermann@hp.com>
+To: greg@kraoh.com, linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
+Cc: Martine.Silbermann@hp.com
+Content-Type: multipart/mixed; boundary="=-vgxj9wz8oh7D8Lyg0qhc"
+Organization: 
+Message-Id: <1077053311.7426.5.camel@wcswing.americas.cpqcorp.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 17 Feb 2004 16:28:31 -0500
+X-OriginalArrivalTime: 17 Feb 2004 21:28:36.0764 (UTC) FILETIME=[00BE2DC0:01C3F59D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-vgxj9wz8oh7D8Lyg0qhc
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Tue, 17 Feb 2004, Robin Rosenberg wrote:
->
-> On Tuesday 17 February 2004 17.57, Linus Torvalds wrote:
-> [case-insanesititvity proposal ///]
-> > See where I'm going? Would this be acceptable to you? Are there any samba 
-> > people who are knowledgeable about the VFS-layer and have the time/energy 
-> > to try something like this?
-> 
-> So the same guy that strongly insist that a file is a string of bytes and nothing else,
-> now thinks it is sane to even think of "case" of a byte. That's impossible unless you
-> actually DO believe its a bunch of characters.  What is it?
+While trying to enable MSI I noticed that the documentation 
+that describes how to do it is slightly out of date. This 
+is mostly due to the fact that the code for MSI support has 
+been incorporated in the 2.6.1 kernel. Below is a patch that 
+should bring this documentation current.
 
-Which part of my argumen don't you understand?
+Martine
 
-The kernel proper thinks it's just a stream of bytes, and all the existing 
-interfaces do likewise.
+--=-vgxj9wz8oh7D8Lyg0qhc
+Content-Disposition: attachment; filename=patch-2.6.3-rc2-MSI-doc
+Content-Type: text/plain; name=patch-2.6.3-rc2-MSI-doc; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-But we'd have a kernel helper module to let samba do what it already does 
-now, except help it do so more efficiently?
+--- linux-2.6.3-rc2/Documentation/MSI-HOWTO.txt	2004-02-09 22:00:01.000000000 -0500
++++ linux-2.6.3-rc2_mine/Documentation/MSI-HOWTO.txt	2004-02-12 14:54:39.602300480 -0500
+@@ -1,6 +1,8 @@
+ 		The MSI Driver Guide HOWTO
+ 	Tom L Nguyen tom.l.nguyen@intel.com
+ 			10/03/2003
++	Revised Feb 12, 2004 by Martine Silbermann
++		email: Martine.Silbermann@hp.com
+ 
+ 1. About this guide
+ 
+@@ -90,17 +92,14 @@
+ 5. Configuring a driver to use MSI/MSI-X
+ 
+ By default, the kernel will not enable MSI/MSI-X on all devices that
+-support this capability once the patch is installed. A kernel
+-configuration option must be selected to enable MSI/MSI-X support.
++support this capability. The CONFIG_PCI_USE_VECTOR kernel option
++must be selected to enable MSI/MSI-X support.
+ 
+ 5.1 Including MSI support into the kernel
+ 
+-To include MSI support into the kernel requires users to patch the
+-VECTOR-base patch first and then the MSI patch because the MSI
+-support needs VECTOR based scheme. Once these patches are installed,
+-setting CONFIG_PCI_USE_VECTOR enables the VECTOR based scheme and
+-the option for MSI-capable device drivers to selectively enable MSI
+-(using pci_enable_msi as desribed below).
++To allow MSI-Capable device drivers to selectively enable MSI (using
++pci_enable_msi as described below), the VECTOR based scheme needs to
++be enabled by setting CONFIG_PCI_USE_VECTOR.
+ 
+ Since the target of the inbound message is the local APIC, providing
+ CONFIG_PCI_USE_VECTOR is dependent on whether CONFIG_X86_LOCAL_APIC
+@@ -125,12 +124,12 @@
+ 	|	     | <===============	| 			 |
+ 	| MSI MODE   |	  	     	| PIN-IRQ ASSERTION MODE |
+ 	| 	     | ===============>	|			 |
+- 	 ------------	free_irq      	 ------------------------
++ 	 ------------  msi_free_vectors  ------------------------
+ 
+ 5.2 Configuring for MSI support
+ 
+ Due to the non-contiguous fashion in vector assignment of the
+-existing Linux kernel, this patch does not support multiple
++existing Linux kernel, this version does not support multiple
+ messages regardless of the device function is capable of supporting
+ more than one vector. The bus driver initializes only entry 0 of
+ this capability if pci_enable_msi(...) is called successfully by
+@@ -232,7 +231,7 @@
+ CONFIG_X86_LOCAL_APIC. Once CONFIG_X86_LOCAL_APIC=y, setting
+ CONFIG_PCI_USE_VECTOR enables the VECTOR based scheme and
+ the option for MSI-capable device drivers to selectively enable
+-MSI (using pci_enable_msi as desribed below).
++MSI (using pci_enable_msi as described below).
+ 
+ Note that CONFIG_X86_IO_APIC setting is irrelevant because MSI
+ vector is allocated new during runtime and MSI support does not
 
-The fact that _I_ think pathnames are just a nice stream of bytes sadly 
-doesn't make Windows clients do the same. Some day when I'm King Of The 
-World, and I can outlaw windows clients, we'll finally get rid of the 
-braindamage, but until then I'm pragmatic enough to say "let's help out 
-the poor samba people who have to deal with the crap day in and day out".
+--=-vgxj9wz8oh7D8Lyg0qhc--
 
-What's your problem with that?
-
-		Linus

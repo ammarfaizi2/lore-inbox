@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbUFHJts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264934AbUFHJvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbUFHJts (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 05:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUFHJts
+	id S264934AbUFHJvX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 05:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbUFHJvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 05:49:48 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:53405 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S261991AbUFHJtq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 05:49:46 -0400
-To: Sebastian Kloska <kloska@scienion.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APM realy sucks on 2.6.x
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 08 Jun 2004 11:49:44 +0200
-Message-ID: <xb7smd6v0p3.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 8 Jun 2004 05:51:23 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36495 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261993AbUFHJuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 05:50:39 -0400
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Russell Leighton <russ@elegant-software.com>, davidm@hpl.hp.com,
+       Christoph Hellwig <hch@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Using getpid() often, another way? [was Re: clone() <-> getpid() bug in 2.6?]
+References: <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
+	<40C32A44.6050101@elegant-software.com>
+	<40C33A84.4060405@elegant-software.com>
+	<1086537490.3041.2.camel@laptop.fenrus.com>
+	<40C3AD9E.9070909@elegant-software.com>
+	<20040607121300.GB9835@devserv.devel.redhat.com>
+	<6uu0xn5vio.fsf@zork.zork.net> <20040607140009.GA21480@infradead.org>
+	<16580.46864.290708.33518@napali.hpl.hp.com>
+	<40C4F40A.8060205@elegant-software.com>
+	<20040608060129.GD31155@devserv.devel.redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 08 Jun 2004 03:48:11 -0600
+In-Reply-To: <20040608060129.GD31155@devserv.devel.redhat.com>
+Message-ID: <m1pt8amld0.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
-Organization: Universitaet Freiburg, Institut fuer Informatik
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Sebastian" == Sebastian Kloska <kloska@scienion.de> writes:
+Arjan van de Ven <arjanv@redhat.com> writes:
 
-    Sebastian>   But I also think that more and more hardware
-    Sebastian> functions (aka network, nd f***ing WinModem (arrg)
-    Sebastian> moves onto the motherboards of the laptops)
+> On Mon, Jun 07, 2004 at 07:02:34PM -0400, Russell Leighton wrote:
+> > >
+> > So Ia64 does have it..that's good. Does glibc wrap it?
+> > 
+> > I agree with the above...could glibc's clone() should have a size added? 
+> > Then the arch specific stack issues
+> > could be hidden.
+> 
+> glibc doesn't provide clone other than a raw syscall wrapper, under the
+> assumption that when you want threads, you'll use it's thread creation call.
+> Not too unfair imo.
 
-    Sebastian>   Not to mention WLAN etc ...
+That fn parameter certainly more than a raw wrapper.  I do agree that
+what is needed is a fairly raw wrapper though. 
 
-    Sebastian>   So the support for PCMCIA will slowly dissolve....
+I don't see how creating a clone2 wrapper that drops the extra argument
+on platforms that don't use it is any different than what glibc already
+does though.
 
-Add to  that, that  more and more  devices and  gadgets have a  USB or
-IEEE1394 interface, and new laptops have these versatile ports.
+Eric
 
-BTW, is  there *still* any technical  advantage of PCMCIA  over USB or
-1394?  (e.g. I know that USB pre 2.0 didn't have DMA and the interrupt
-model  is inferior.   That's why  PCMCIA 100BaseT  Ethernet  cards are
-superior to USB<-->Fast Ethernet bridges.)
-
-
--- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
 

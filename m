@@ -1,35 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVASUdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVASUiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbVASUdD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 15:33:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVASUcf
+	id S261878AbVASUiF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 15:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVASUiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 15:32:35 -0500
-Received: from mailgw.aecom.yu.edu ([129.98.1.16]:35727 "EHLO
-	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP id S261878AbVASUaz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 15:30:55 -0500
-Mime-Version: 1.0
-Message-Id: <a06100502be077de5e936@[129.98.90.227]>
-Date: Sun, 9 Jan 2005 19:33:44 -0500
-To: linux-kernel@vger.kernel.org
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: 2.6.11-r1 freezes dual 2.5 GHz PowerMac G5
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	Wed, 19 Jan 2005 15:38:05 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:47765 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261878AbVASUiB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 15:38:01 -0500
+Message-Id: <200501192037.j0JKbpuA008501@laptop11.inf.utfsm.cl>
+To: Carl Spalletta <cspalletta@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Linux-tracecalls, a new tool for Kernel development, released 
+In-Reply-To: Message from Carl Spalletta <cspalletta@yahoo.com> 
+   of "Wed, 19 Jan 2005 11:38:32 -0800." <20050119193832.34975.qmail@web53803.mail.yahoo.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Wed, 19 Jan 2005 17:37:51 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 19 Jan 2005 17:37:55 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running Gentoo with a fresh 2.6.11-r1. I have all the kernel 
-debugging options turned on. Occasionally, I can get past the boot 
-process, but half the time it freezes somewhere along the way. If 
-not, I do get to boot, it doesn't take very long for it to freeze.
+Carl Spalletta <cspalletta@yahoo.com> said:
+> >From http://www.linuxrd.com/~carl/cgi-bin/lnxtc.pl?help
 
-Any suggestions for how this can be debugged further?
+[...]
 
-other keywords: PowerPC, ppc, ppc64, Apple, freeze, freezing, 
-freezes, hang, hangs, froze, frozen, locks up, locked up, hard lock.
+> "It works, in part, by expanding function-yielding macros and by mangling
+> function names with the name of the file containing the function's
+> definition, prior to creating the cscope files."
+
+If it can't find out where a function could be called through a pointer
+(very common due to the OOP-in-C style in the kernel) it has no chance.
 -- 
-
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

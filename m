@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277431AbRJEQCC>; Fri, 5 Oct 2001 12:02:02 -0400
+	id <S277435AbRJEQJm>; Fri, 5 Oct 2001 12:09:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277432AbRJEQBw>; Fri, 5 Oct 2001 12:01:52 -0400
-Received: from smtp.mediascape.net ([212.105.192.20]:42759 "EHLO
-	smtp.mediascape.net") by vger.kernel.org with ESMTP
-	id <S277431AbRJEQBq>; Fri, 5 Oct 2001 12:01:46 -0400
-Message-ID: <3BBDD922.7F3EAA3D@mediascape.de>
-Date: Fri, 05 Oct 2001 18:00:34 +0200
-From: Olaf Zaplinski <o.zaplinski@mediascape.de>
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.11pre4 does not compile
+	id <S277436AbRJEQJZ>; Fri, 5 Oct 2001 12:09:25 -0400
+Received: from [192.132.92.2] ([192.132.92.2]:16547 "EHLO
+	bitmover.bitmover.com") by vger.kernel.org with ESMTP
+	id <S277435AbRJEQJL>; Fri, 5 Oct 2001 12:09:11 -0400
+Date: Fri, 5 Oct 2001 09:09:40 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jason Giglio <jgiglio@smythco.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3ware discontinuing the Escalade Series
+Message-ID: <20011005090940.B26141@work.bitmover.com>
+Mail-Followup-To: Jason Giglio <jgiglio@smythco.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011004141942.A28202@lenina.bedford.smythco.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011004141942.A28202@lenina.bedford.smythco.com>; from jgiglio@smythco.com on Thu, Oct 04, 2001 at 02:19:42PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Thu, Oct 04, 2001 at 02:19:42PM -0400, Jason Giglio wrote:
+> 3ware has decided to discontinue their escalade series IDE RAID controller
+> cards.  The drivers were open source and in the kernel tree.
 
-2.4.11pre4 does not compile on my two (rather different) machines:
-
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.11-pre4/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686    -c -o mpparse.o mpparse.c
-mpparse.c: In function `MP_processor_info':
-mpparse.c:195: `clustered_apic_mode' undeclared (first use in this function)
-mpparse.c:195: (Each undeclared identifier is reported only once
-mpparse.c:195: for each function it appears in.)
-mpparse.c: In function `smp_read_mpc':
-mpparse.c:386: `clustered_apic_mode' undeclared (first use in this function)
-make[1]: *** [mpparse.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.11-pre4/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
-
-.config says:
-CONFIG_MPENTIUMIII=y
-CONFIG_MTRR=y
-# CONFIG_SMP is not set
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-
-On the other one I get the same error. .config:
-
-CONFIG_MK6=y
-CONFIG_MTRR=y
-# CONFIG_SMP is not set
-CONFIG_X86_UP_APIC=y
-# CONFIG_X86_UP_IOAPIC is not set
-CONFIG_X86_LOCAL_APIC=y
-
-
-Olaf
+OK, this sucks because I like those cards a lot.  Before I go out and
+stock up on a bunch of them, is there anything else out there that works
+as well and is supported by Linux?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

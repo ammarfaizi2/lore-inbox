@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262288AbSI1SO7>; Sat, 28 Sep 2002 14:14:59 -0400
+	id <S262300AbSI1SW0>; Sat, 28 Sep 2002 14:22:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262293AbSI1SO7>; Sat, 28 Sep 2002 14:14:59 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:5638 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id <S262288AbSI1SO7>;
-	Sat, 28 Sep 2002 14:14:59 -0400
-Date: Sat, 28 Sep 2002 19:20:14 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 6/6] High-res-timers part 6 (support-man) take 2
-Message-ID: <20020928182014.GA56265@compsoc.man.ac.uk>
-References: <3D95E798.EDB241DD@mvista.com>
+	id <S262306AbSI1SW0>; Sat, 28 Sep 2002 14:22:26 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:17419
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262300AbSI1SWZ>; Sat, 28 Sep 2002 14:22:25 -0400
+Subject: Re: Sleeping function called from illegal context...
+From: Robert Love <rml@tech9.net>
+To: John Levon <movement@marcelothewonderpenguin.com>
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+In-Reply-To: <20020928172449.GA54680@compsoc.man.ac.uk>
+References: <20020927233044.GA14234@kroah.com>
+	 <1033174290.23958.17.camel@phantasy>
+	 <20020928145418.GB50842@compsoc.man.ac.uk> <3D95E14D.9134405C@digeo.com>
+	 <20020928172449.GA54680@compsoc.man.ac.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033237664.22582.167.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D95E798.EDB241DD@mvista.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *17vMCM-000Luk-00*u8k4H6j1Zrc* (Manchester Computing, University of Manchester)
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 28 Sep 2002 14:27:44 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 28, 2002 at 10:32:08AM -0700, george anzinger wrote:
+On Sat, 2002-09-28 at 13:24, John Levon wrote:
 
-> The 4th, 5th, and 6th parts are support code and not really
-> part of the kernel.
+> NMI interrupt handler cannot block so it trylocks against a spinlock
+> instead. Buffer processing code needs to block against concurrent NMI
+> interrupts so takes the spinlock for them. All actual blocks on the
+> spinlock are beneath a down() on another semaphore, so a sleep whilst
+> holding the spinlock won't actually cause deadlock.
 
-So ...
+If all accesses to the spinlock are taken under a semaphore, then the
+spinlock is not needed (i.e. the down'ed semaphore provides the same
+protection), or am I missing something?
 
-> This part contains man pages for the new system calls.
+If this is not the case - e.g. there are other accesses to these locks -
+then you cannot sleep, no?
 
-... why are they here ?
+I really can think of no case in which it is safe to sleep while holding
+a spinlock or otherwise atomic.  If it is, then the atomicity is not
+needed, sort of by definition.
 
-http://freshmeat.net/projects/man-pages/
+	Robert Love
 
-regards
-john
--- 
-"When your name is Winner, that's it. You don't need a nickname."
-	- Loser Lane

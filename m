@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291390AbSBSNXn>; Tue, 19 Feb 2002 08:23:43 -0500
+	id <S291397AbSBSNcZ>; Tue, 19 Feb 2002 08:32:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291397AbSBSNXd>; Tue, 19 Feb 2002 08:23:33 -0500
-Received: from ns.suse.de ([213.95.15.193]:32779 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S291390AbSBSNXT>;
-	Tue, 19 Feb 2002 08:23:19 -0500
-Date: Tue, 19 Feb 2002 14:23:12 +0100
-From: Dave Jones <davej@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Whitespace PCI cleanups
-Message-ID: <20020219142312.B8293@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Pavel Machek <pavel@suse.cz>, Rusty Russell <rusty@rustcorp.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020218181623.GA122@elf.ucw.cz> <20020219102752.7dd1e21c.rusty@rustcorp.com.au> <20020219090721.GB8851@atrey.karlin.mff.cuni.cz>
+	id <S291401AbSBSNcP>; Tue, 19 Feb 2002 08:32:15 -0500
+Received: from fysh.org ([212.47.68.126]:8460 "EHLO bowl.fysh.org")
+	by vger.kernel.org with ESMTP id <S291397AbSBSNcI>;
+	Tue, 19 Feb 2002 08:32:08 -0500
+Date: Tue, 19 Feb 2002 13:32:07 +0000
+From: Athanasius <Athanasius@gurus.tf>
+To: Advisories <advisories@stelt.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-rc1 freezing while switching to console
+Message-ID: <20020219133207.GO31110@gurus.tf>
+Mail-Followup-To: Athanasius <Athanasius@gurus.tf>,
+	Advisories <advisories@stelt.ru>, linux-kernel@vger.kernel.org
+In-Reply-To: <73925952749.20020219154004@stelt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="acOuGx3oQeOcSZJu"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020219090721.GB8851@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Tue, Feb 19, 2002 at 10:07:21AM +0100
+In-Reply-To: <73925952749.20020219154004@stelt.ru>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 19, 2002 at 10:07:21AM +0100, Pavel Machek wrote:
 
- > I did not want to give it to *two* maintainers for tracking, because
- > you might potentially stomp on each other. 
+--acOuGx3oQeOcSZJu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- I don't think thats an issue. Even if Rusty and myself both
- send the same small bits to Linus, it doubles the chances of him
- not dropping the patch for no reason.
+On Tue, Feb 19, 2002 at 03:40:04PM +0300, Advisories wrote:
+> Tested system:
+> CPU:   AMD Duron 700
+> MB:    GA-7ZM
+> RAM:   256Mb
+> VIDEO: nVidia TNT AGP
+>=20
+> kernel 2.4.18-rc1 with same configuration
+>=20
+> system started, X login message diplayed
+> when pressed Ctrl+Alt+F1 system freeze with blank screen :(
+> only _reset_ can help
 
- Whilst I'm chainsawing up some of the bigger bits, if the smaller
- bits go to Linus through Rusty, that makes everyones life easier.
- Having both of us pick up small bits isn't so much duplicating
- work, its an extra safety net of sorts. If I overlook something,
- maybe Rusty will pick it up, and vice versa.
+   You don't mention if you use FrameBuffer or plain text console.  I
+used FB with a GF2MX400 for a while and encountered this same problem
+(in various 2.4.17/2.4.18-pre's), so went back to plain text as I spend
+most of my time in X11 anyway.  All FB gained me was Tux at boot-time
+*;-).
 
- Hopefully Rusty will get a good acceptance on small bits before
- he ends up with a huge collection 8-)
+-Ath
+--=20
+- Athanasius =3D Athanasius(at)gurus.tf / http://www.clan-lovely.org/~athan/
+                  Finger athan(at)fysh.org for PGP key
+	   "And it's me who is my enemy. Me who beats me up.
+Me who makes the monsters. Me who strips my confidence." Paula Cole - ME
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+--acOuGx3oQeOcSZJu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjxyU9YACgkQzbc+I5XfxKdIpgCeKIFM3S9X8WghRMQC653f9D6s
+VCEAn35ceog8OLkI86I16dRo2NJxkNmd
+=4DBW
+-----END PGP SIGNATURE-----
+
+--acOuGx3oQeOcSZJu--

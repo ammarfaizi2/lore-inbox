@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264983AbTAJNHN>; Fri, 10 Jan 2003 08:07:13 -0500
+	id <S265132AbTAJNEL>; Fri, 10 Jan 2003 08:04:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265008AbTAJNHN>; Fri, 10 Jan 2003 08:07:13 -0500
-Received: from [216.222.206.4] ([216.222.206.4]:23196 "EHLO
-	webmail.frogspace.net") by vger.kernel.org with ESMTP
-	id <S264983AbTAJNHL>; Fri, 10 Jan 2003 08:07:11 -0500
-Message-ID: <1042204553.3e1ec789564b6@webmail.cogweb.net>
-Date: Fri, 10 Jan 2003 05:15:53 -0800
-From: Peter <peter@cogweb.net>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@redhat.com>
-Subject: Re: 2.4.19 -- ac97_codec failure ALi 5451
-References: <200301100250.h0A2olE20795@devserv.devel.redhat.com>
-In-Reply-To: <200301100250.h0A2olE20795@devserv.devel.redhat.com>
+	id <S265134AbTAJNEK>; Fri, 10 Jan 2003 08:04:10 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:11701 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S265132AbTAJNEJ>;
+	Fri, 10 Jan 2003 08:04:09 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.0
-X-Originating-IP: 128.97.184.97
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15902.50901.407336.44434@harpo.it.uu.se>
+Date: Fri, 10 Jan 2003 14:12:53 +0100
+To: Harry Sileoni <stamina@kolumbus.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suggestion
+In-Reply-To: <1042203152.954.7.camel@vihta>
+References: <1042203152.954.7.camel@vihta>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Harry Sileoni writes:
+ > While fighting for some time with my Dell Inspiron 8100 laptop and a new
+ > kernel. No matter what I did in the APM-settings, the computer just
+ > freezed after some minutes of uptime. Now I noticed a page witch
+ > informed me that APIC support should not be used. I disabled APIC
+ > support from the kernel config, and now it works perfect.
+ > 
+ > So, I suggest you add a line "This option might make your system hang
+ > randomly" to the APIC support help page, so that other innocent people
+ > with the same problem don't have to do hours of fighting with the APM,
+ > which really wasn't the problem as I first though. :)
 
-I've downloaded the latest driver and am running 2.4.20 (yea!) -- the trident.c here 
-is actually more recent than 2.5.55. It now loads fast and with no protest from 
-ac97_codec, which has a new ID (ADS114). However, there's still not a peep (I try 
-cat test.mp3 > /dev/dsp) -- and when KDE Control Center tries to restart the arts 
-sound server, it alarmingly fails on "CPU overload" or just freezes the whole 
-system. Is there anything I can do to get more information about what is not 
-happening?
+1. All recent 2.5/2.4 kernels have a blacklist rule that is supposed
+   to prevent the kernel from enabling the local APIC.
+   That kernel version are you using? What .config?
+   Doesn't the kernel boot log contain something like "Dell Inspiron
+   with broken BIOS detected. Refusing to enable the local APIC"?
+2. There is no "APIC support help page" that I know of.
 
-Cheers,
-Peter
-
-Trident 4DWave/SiS 7018/ALi 5451,Tvia CyberPro 5050 PCI Audio, version 0.14.10h, 
-Enabling device 00:06.0 (0000 -> 0003)
-PCI: Assigned IRQ 5 for device 00:06.0
-trident: ALi Audio Accelerator found at IO 0x1000, IRQ 5
-ac97_codec: AC97 Audio codec, id: ADS114(Unknown)
-ac97_codec: AC97 Audio codec, id: ADS114(Unknown)
-PCI: Found IRQ 5 for device 00:06.0
-gameport0: Acer Laboratories Inc. [ALi] M5451 PCI AC-Link Controller Audio Device at 
-pci00:06.0 speed 1924 kHz
-
-Quoting Alan Cox <alan@redhat.com>:
-
-> >         Trident 4DWave/SiS 7018/ALi 5451,Tvia CyberPro 5050 PCI Audio, 
-> > 		version 0.14.9d, 00:57:19 Jan  9 2003
-> >         PCI: Enabling device 00:06.0 (0000 -> 0003)
-> >         PCI: Assigned IRQ 10 for device 00:06.0
-> >         trident: ALi Audio Accelerator found at IO 0x1000, IRQ 10
-> >         ac97_codec: AC97 Audio codec, id: 0x4144:0x5372 (Unknown)
-> 
-> So far so good.
-> 
-> >         ali: AC97 CODEC read timed out.
-> >         last message repeated 127 times
-> >         ali: AC97 CODEC write timed out.
-> >         ac97_codec: AC97  codec, id: 0x0000:0x0000 (Unknown)
-> 
-> Something lost the codec. Could be power management - was the laptop
-> suspended before it went funny ?
-> 
-> Alan
-> 
-
-
+Are you sure you didn't mean ACPI instead? APIC != ACPI but
+people keep confusing the two.

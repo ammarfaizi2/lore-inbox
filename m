@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267620AbUHaJy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266069AbUHaKAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267620AbUHaJy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 05:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbUHaJy1
+	id S266069AbUHaKAX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 06:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUHaKAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 05:54:27 -0400
-Received: from gepard.lm.pl ([212.244.46.42]:55015 "EHLO gepard.lm.pl")
-	by vger.kernel.org with ESMTP id S267620AbUHaJyZ (ORCPT
+	Tue, 31 Aug 2004 06:00:23 -0400
+Received: from zero.aec.at ([193.170.194.10]:23300 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266069AbUHaKAW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 05:54:25 -0400
-Subject: Re: 2.6.9-rc1-mm1 kjournald: page allocation failure. order:1,
-	mode:0x20
-From: Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040830125742.18c38277.akpm@osdl.org>
-References: <1093794970.1751.10.camel@rakieeta>
-	 <20040829160257.3b881fef.akpm@osdl.org> <1093873432.1786.16.camel@rakieeta>
-	 <20040830125742.18c38277.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-2
-Organization: o2.pl Sp z o.o.
-Message-Id: <1093945972.1715.2.camel@rakieeta>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 31 Aug 2004 11:52:53 +0200
-Content-Transfer-Encoding: 8bit
+	Tue, 31 Aug 2004 06:00:22 -0400
+To: Roland McGrath <roland@redhat.com>
+cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: [PATCH] cleanup ptrace stops and remove notify_parent
+References: <2z7vs-2F1-13@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 31 Aug 2004 12:00:02 +0200
+In-Reply-To: <2z7vs-2F1-13@gated-at.bofh.it> (Roland McGrath's message of
+ "Tue, 31 Aug 2004 05:30:10 +0200")
+Message-ID: <m3hdqjk4pp.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-W li¶cie z pon, 30-08-2004, godz. 21:57, Andrew Morton pisze: 
-> Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl> wrote:
-> >
-> > > There should have been a stack trace as well.  Please send it.
-> >  > 
-> > 
-> >  this time there is an attachement.
-> 
-> OK.  It's netfilter.  Trying to allocate two physically contiguous
-> pages with GFP_ATOMIC.  This is expected to fail, and networking will
-> recover OK.
-> 
-> The networking guys are cooking up a fix for this, I believe.
+Roland McGrath <roland@redhat.com> writes:
 
-ok, I gues I might try without a netfilter, I've also seen similiar
-messages about kjournald allocation, but next line would say stack
-pointer is garbage, not printing. Would it be some leftover after
-netfilter problems during the run or should I try to reproduce that
-behaviour and wait for some meaningful output ?
+> This patch is against Linus's current tree.
+>
+> This adds a new state TASK_TRACED that is used in place of TASK_STOPPED
+> when a thread stops because it is ptraced.  Now ptrace operations are only
+> permitted when the target is in TASK_TRACED state, not in TASK_STOPPED.
+> This means that if a process is stopped normally by a job control signal
+> and then you PTRACE_ATTACH to it, you will have to send it a SIGCONT before
+> you can do any ptrace operations on it.  (The SIGCONT will be reported to
+> ptrace and then you can discard it instead of passing it through when you
+> call PTRACE_CONT et al.)
 
-Krzysztof.
+Are you sure such a user visible semantic change is a good idea? 
 
+I at least have written (not very important, but existing) user space
+code in the past that assumed it can stop and single step without
+SIGCONT. I wouldn't be surprised if other debuggers ran into 
+the same issue.
+
+And the Linux debugging world is not gdb only anymore, there are
+a lot of other users of ptrace around these days ...
+
+I don't think it is very good to change such behaviour in 2.6.
+Please don't do it.
+
+-Andi
 

@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262784AbULQLOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbULQLX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbULQLOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 06:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbULQLOI
+	id S262787AbULQLX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 06:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbULQLXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 06:14:08 -0500
-Received: from mail.renesas.com ([202.234.163.13]:63172 "EHLO
-	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262784AbULQLOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 06:14:01 -0500
-Date: Fri, 17 Dec 2004 20:13:47 +0900 (JST)
-Message-Id: <20041217.201347.628204375.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.10-rc3-mm1] m32r: Use kmalloc for m32r stacks (2/2)
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20041217.200641.1059989756.takata.hirokazu@renesas.com>
-References: <20041217.200641.1059989756.takata.hirokazu@renesas.com>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+	Fri, 17 Dec 2004 06:23:55 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:49670 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262787AbULQLXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 06:23:53 -0500
+Subject: Re: Linux 2.6.9-ac16
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1103222616.21920.12.camel@localhost.localdomain>
+References: <1103222616.21920.12.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 17 Dec 2004 12:23:39 +0100
+Message-Id: <1103282619.4138.21.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 2.6.10-rc3-mm1] m32r: Use kmalloc for m32r stacks (2/2)
-- Use kmalloc for m32r stacks (cf. changeset 1.1046.533.10)
-- Update for CONFIG_DEBUG_STACK_USAGE
+On Thu, 2004-12-16 at 18:43 +0000, Alan Cox wrote:
+> o	Acenic must use __devinitdata for hotplug	(Alan Cox)
+> 	| based on an RH patch
 
-This modification was taken from include/asm-i386/thread_info.h.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude
+linux.vanilla-2.6.9/drivers/net/acenic.c
+linux-2.6.9/drivers/net/acenic.c
+--- linux.vanilla-2.6.9/drivers/net/acenic.c    2004-10-20
+23:16:54.000000000 +0100
++++ linux-2.6.9/drivers/net/acenic.c    2004-12-16 17:13:10.799818288
++0000
+@@ -444,7 +444,7 @@
+ MODULE_PARM_DESC(tx_ratio, "AceNIC/3C985/GA620 ratio of NIC memory used
+for TX/RX descriptors (range 0-63)");
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
 
- include/asm-m32r/thread_info.h |   18 +++++++++++++++---
- 1 files changed, 15 insertions(+), 3 deletions(-)
+-static char version[] __initdata =
++static char version[] __devinitdata =
+   "acenic.c: v0.92 08/05/2002  Jes Sorensen, linux-acenic@SunSITE.dk\n"
+   "
+http://home.cern.ch/~jes/gige/acenic.html\n";
 
 
-diff -ruNp a/include/asm-m32r/thread_info.h b/include/asm-m32r/thread_info.h
---- a/include/asm-m32r/thread_info.h	2004-12-16 13:41:57.000000000 +0900
-+++ b/include/asm-m32r/thread_info.h	2004-12-16 13:42:32.000000000 +0900
-@@ -95,9 +95,21 @@ static inline struct thread_info *curren
- }
- 
- /* thread information allocation */
--#define alloc_thread_info(task) \
--	((struct thread_info *) __get_free_pages(GFP_KERNEL,1))
--#define free_thread_info(ti) free_pages((unsigned long) (ti), 1)
-+#if CONFIG_DEBUG_STACK_USAGE
-+#define alloc_thread_info(tsk)					\
-+	({							\
-+		struct thread_info *ret;			\
-+	 							\
-+	 	ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
-+	 	if (ret)					\
-+	 		memset(ret, 0, THREAD_SIZE);		\
-+	 	ret;						\
-+	 })
-+#else
-+#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
-+#endif
-+
-+#define free_thread_info(info) kfree(info)
- #define get_thread_info(ti) get_task_struct((ti)->task)
- #define put_thread_info(ti) put_task_struct((ti)->task)
- 
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+
+you broke this one... :-)
+the version var *cannot* be initdata of any kind, since the ethtool
+ioctl uses the variable. End Of Story(tm)
+
+

@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVBXNIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVBXNTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262336AbVBXNIY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 08:08:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbVBXNIX
+	id S262340AbVBXNTa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 08:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVBXNTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 08:08:23 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52417 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262336AbVBXNIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 08:08:18 -0500
-To: maneesh@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: [PATCH] Fix for broken kexec on panic
-References: <1109236432.5148.192.camel@terminator.in.ibm.com>
-	<20050224011312.29668947.akpm@osdl.org>
-	<20050224121649.GB5781@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 24 Feb 2005 06:05:45 -0700
-In-Reply-To: <20050224121649.GB5781@in.ibm.com>
-Message-ID: <m1wtsyrtue.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Feb 2005 08:19:30 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:4234 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262340AbVBXNT1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 08:19:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=TC+Z6eue66Kb3xK9vU9IKsFPYtRAYSOcZ9Jr1/LYVetTSg7IXHZuoVmcdDSt7q7BqGJSP64hqwXTNsQDd1gtwh0JVkZJsRGn9KvlAzRXzffGCAFkXmhw44DgqnZhFtSAMRe8QysvGcJrBmCPCrj+AS7IU/IRf+61TMd+m29c9n0=
+Message-ID: <58cb370e05022405192b2e91da@mail.gmail.com>
+Date: Thu, 24 Feb 2005 14:19:25 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
+Cc: elenstev@mesatop.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050223162539.2bd605b4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050223014233.6710fd73.akpm@osdl.org>
+	 <421CB161.7060900@mesatop.com> <20050223121759.5cb270ee.akpm@osdl.org>
+	 <421CFF5E.4030402@mesatop.com> <421D09AE.4090100@mesatop.com>
+	 <20050223161653.7cb966c3.akpm@osdl.org>
+	 <20050223162539.2bd605b4.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maneesh Soni <maneesh@in.ibm.com> writes:
-
-> On Thu, Feb 24, 2005 at 01:13:12AM -0800, Andrew Morton wrote:
-> > Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> > >
-> > > Kexec on panic is broken on i386 in 2.6.11-rc3-mm2 because of
-> > >  re-organization of boot memory allocator initialization code.
-> > 
-> > OK...
-> > 
-> > Where are we up to with these patches, btw?  Do you consider them
-> > close-to-complete?  Do you have a feel for what proportion of machines will
-> > work correctly?
+On Wed, 23 Feb 2005 16:25:39 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > Could someone try this?
 > 
-> After the rework of kexec patches, there is very minimal kernel code needed
-> for kdump and most of the code is in user space kexec-tools. The changes
-> needed in kexec-tools to load the crashdump kernel and generate ELF headers,
-> for x86 architecture are done and will be posted for comments today by Vivek. 
+> Let's turn that into a real patch.
+> 
+> --- 25/drivers/ide/ide-probe.c~ide_init_disk-fix        Wed Feb 23 16:24:44 2005
+> +++ 25-akpm/drivers/ide/ide-probe.c     Wed Feb 23 16:24:55 2005
+> @@ -1269,7 +1269,7 @@ EXPORT_SYMBOL_GPL(ide_unregister_region)
+>  void ide_init_disk(struct gendisk *disk, ide_drive_t *drive)
+>  {
+>         ide_hwif_t *hwif = drive->hwif;
+> -       unsigned int unit = drive->select.all & (1 << 4);
+> +       unsigned int unit = (drive->select.all >> 4) & 1;
+> 
+>         disk->major = hwif->major;
+>         disk->first_minor = unit << PARTN_BITS;
 
-Cool.
- 
-> Currently the work remaining is to capture the old-kernel memory during second 
-> kernel boot up. There is some lack of consensus whether this functionality 
-> should go in kernel-space (/proc/vmcore) or user-space (a separate utility
-> which can be run from initrd). Before the last kexec rework, kdump has the 
-> facility to do /proc/vmcore and now it has to be re-done accordingly. There is 
-> some code already done by Eric to do it in user-space. We are evaluating both
-> the approaches and should arrive at the conclusion asap.
+thanks Andrew
 
-Do you have a pointer to your user space kdump stuff?  I have never
-seen it.
-
-How to configure this and the usability issues are interesting.  There is
-no fundamental reason the code needs to live in a ramdisk.  We are back
-in a fully functional kernel after all.  In this case a
-ramdisk/initramfs is useful for the same reason a ramdisk with a 
-rescue disk is useful.  It is possible the normal root filesystem is
-corrupt.   A ramdisk allows you to have a known good copy of your
-tools.
-
-Eric
+fscking bitfields hopefully viro will kill them soon

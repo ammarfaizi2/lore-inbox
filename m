@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbULHLc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbULHLg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbULHLc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 06:32:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbULHLc7
+	id S261190AbULHLg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 06:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbULHLg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 06:32:59 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:19371 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261188AbULHLc5 (ORCPT
+	Wed, 8 Dec 2004 06:36:29 -0500
+Received: from mail.broadpark.no ([217.13.4.2]:40648 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S261190AbULHLgX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 06:32:57 -0500
-Date: Wed, 8 Dec 2004 22:32:41 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: "Zou, Nanhai" <nanhai.zou@intel.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, tony.luck@intel.com,
-       ak@suse.de, ralf@linux-mips.org, paulus@au.ibm.com,
-       schwidefsky@de.ibm.com, Davem@davemloft.net
-Subject: Re: [Compatibilty patch] sigtimedwait
-Message-Id: <20041208223241.4ff5a60c.sfr@canb.auug.org.au>
-In-Reply-To: <894E37DECA393E4D9374E0ACBBE7427013C9FB@pdsmsx402.ccr.corp.intel.com>
-References: <894E37DECA393E4D9374E0ACBBE7427013C9FB@pdsmsx402.ccr.corp.intel.com>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Wed__8_Dec_2004_22_32_41_+1100_H8AKtOeLZLjAwvX4"
+	Wed, 8 Dec 2004 06:36:23 -0500
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Transfer-Encoding: 7bit
+Message-Id: <62697744-490D-11D9-90F0-000D932A43BC@karlsbakk.net>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Subject: DMA problems with ICH5 in ATA mode
+Date: Wed, 8 Dec 2004 12:36:21 +0100
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__8_Dec_2004_22_32_41_+1100_H8AKtOeLZLjAwvX4
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+hi
 
-On Wed, 8 Dec 2004 08:48:56 +0800 "Zou, Nanhai" <nanhai.zou@intel.com> wrote:
->
-> 
-> This patch also merges all 6 32 bit layer sys_rt_sigtimedwait in IA64,
-> X86_64, PPC64, Sparc64, S390 and MIPS into 1 compat_rt_sigtimedwait.
+I have a disk connected to one of the below controllers in ATA mode, 
+but I can't enable DMA on it. Intel ATA support is in kernel, but when 
+hdparm -d1 /dev/hdc I get the following (extracted from strace)
 
-I think compat_siginfo_t/struct compat_siginfo should be the preferred
-name for the structure like all the other comptibility types.
+write(4, " HDIO_SET_DMA failed: Operation "..., 46 HDIO_SET_DMA failed: 
+Operation not permitted
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+lspci -vvvvvv gave this
 
---Signature=_Wed__8_Dec_2004_22_32_41_+1100_H8AKtOeLZLjAwvX4
-Content-Type: application/pgp-signature
+0000:00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150 
+Storage Controller (rev 02) (prog-if 8a [Master SecP PriP])
+         Subsystem: Micro-Star International Co., Ltd.: Unknown device 
+7650
+         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0
+         Interrupt: pin A routed to IRQ 0
+         Region 0: I/O ports at <unassigned>
+         Region 1: I/O ports at <unassigned>
+         Region 2: I/O ports at <unassigned>
+         Region 3: I/O ports at <unassigned>
+         Region 4: I/O ports at fc00 [size=16]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBtuZi4CJfqux9a+8RAhf3AKCVrpVcPFML2USks10VnG0A82p8HwCfTBGc
-SNaaUc7kf/evpRoMLMhmNI8=
-=tYEe
------END PGP SIGNATURE-----
+please cc: to me as I'm not on the list
 
---Signature=_Wed__8_Dec_2004_22_32_41_+1100_H8AKtOeLZLjAwvX4--
+roy
+

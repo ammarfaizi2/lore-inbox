@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264986AbUFGSma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUFGSv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264986AbUFGSma (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 14:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbUFGSm3
+	id S265000AbUFGSv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 14:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUFGSv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 14:42:29 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:7098 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S264986AbUFGSm2 (ORCPT
+	Mon, 7 Jun 2004 14:51:29 -0400
+Received: from mk-smarthost-3.mail.uk.tiscali.com ([212.74.114.39]:45839 "EHLO
+	mk-smarthost-3.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id S264994AbUFGSvY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 14:42:28 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Mon, 7 Jun 2004 14:51:24 -0400
+Date: Mon, 7 Jun 2004 11:51:19 -0700
+Message-ID: <40BC9D2F0001D89B@mk-cpfrontend-2.mail.uk.tiscali.com>
+From: "kazeem elsheikh" <el_kazeem@tiscali.co.uk>
+Subject: Investment Capital Inquiry. 
+Reply-To: el_kazeem@yahoo.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16580.46864.290708.33518@napali.hpl.hp.com>
-Date: Mon, 7 Jun 2004 11:42:24 -0700
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Russell Leighton <russ@elegant-software.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Using getpid() often, another way? [was Re: clone() <-> getpid() bug in 2.6?]
-In-Reply-To: <20040607140009.GA21480@infradead.org>
-References: <40C1E6A9.3010307@elegant-software.com>
-	<Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
-	<40C32A44.6050101@elegant-software.com>
-	<40C33A84.4060405@elegant-software.com>
-	<1086537490.3041.2.camel@laptop.fenrus.com>
-	<40C3AD9E.9070909@elegant-software.com>
-	<20040607121300.GB9835@devserv.devel.redhat.com>
-	<6uu0xn5vio.fsf@zork.zork.net>
-	<20040607140009.GA21480@infradead.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 7 Jun 2004 15:00:09 +0100, Christoph Hellwig <hch@infradead.org> said:
+Greetings and Compliments.
 
-  Christoph> On Mon, Jun 07, 2004 at 02:48:31PM +0100, Sean Neakums
-  Christoph> wrote:
-  >> > for example ia64 doesn't have it.
+Re: Investment Capital.
 
-  >> Then what is the sys_clone2 implementation in
-  >> arch/is64/kernel/entry.S for?
+Your contact has been gotten after a careful search
+for persons whom we can jointly invest Trust in and
+also solicit a honorable partnership with.
 
-  Christoph> It's clone with a slightly different calling convention.
+I represent a client and my client has interest to do
+business relative to investments in your country in
+areas related to Agriculture and Real-Estate
+Development respective of the nature and manner of
+investments you handle. To initiate a proper and
+structured relationship:
 
-Note that the only difference is that the stack-area is expressed as a
-range (starting-address + size), rather than a direct stack-pointer
-value.  IMHO, it was a mistake to not do it that way right from the
-beginning (consider that different arches grow stacks in different
-directions, for example).
+Please let me know what your response will be to an
+offer to receive investment funds in cash if:
 
-	--david
+1. The said fund amounts to Twenty Five Million
+Dollars (US).
+
+2. The said fund is in cash and will be transferred to
+you in same state.
+
+3. The fund shall be investment through your agency in
+the purchase of facility and assets for investment
+purposes within your country.
+
+4. This transaction will result in your being paid a
+commission of 10% off the investment capital.
+
+5.The fund owners desire absolute confidentiality and
+professionalism in the handling of this matter.
+
+Please respond urgently.
+
+Sincerely.
+
+kazeem elsheikh
+
+National Real Estate Co.
+Chittagong Bangladesh
+ 
+
+__________________________________________________
+Broadband from an unbeatable £15.99!
+
+http://www.tiscali.co.uk/products/broadband/home.html?code=SM-NL-11AM
+
+
+

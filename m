@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314458AbSFBVgZ>; Sun, 2 Jun 2002 17:36:25 -0400
+	id <S314446AbSFBVnH>; Sun, 2 Jun 2002 17:43:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314446AbSFBVgY>; Sun, 2 Jun 2002 17:36:24 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:52647 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S314458AbSFBVgW>; Sun, 2 Jun 2002 17:36:22 -0400
-Date: Sun, 2 Jun 2002 23:36:08 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Paul Mackerras <paulus@samba.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.19 IDE 78
-In-Reply-To: <3CFA733F.4070907@evision-ventures.com>
-Message-ID: <Pine.SOL.4.30.0206022333220.8028-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314459AbSFBVnG>; Sun, 2 Jun 2002 17:43:06 -0400
+Received: from holomorphy.com ([66.224.33.161]:21410 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S314446AbSFBVnG>;
+	Sun, 2 Jun 2002 17:43:06 -0400
+Date: Sun, 2 Jun 2002 14:42:43 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: duplicate declaration of rq in sched_init()
+Message-ID: <20020602214243.GH14918@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I found this one while trying to straighten out bootstrap ordering
+issues elsewhere.
 
-On Sun, 2 Jun 2002, Martin Dalecki wrote:
+There appears to be a duplicate declaration of rq in sched_init().
+This removes the nested declaration and otherwise leaves things alone.
 
-> Paul Mackerras wrote:
-> > Martin,
-> >
-> > I think you have a typo here:
-> >
-> >
-> >>diff -urN linux-2.5.19/drivers/ide/ide-pmac.c linux/drivers/ide/ide-pmac.c
-> >>--- linux-2.5.19/drivers/ide/ide-pmac.c	2002-06-01 18:53:06.000000000 +0200
-> >>+++ linux/drivers/ide/ide-pmac.c	2002-06-01 18:17:36.000000000 +0200
-> >>@@ -434,7 +434,7 @@
-> >> 		goto out;
-> >> 	}
-> >> 	udelay(10);
-> >>-	OUT_BYTE(drive->ctl | 2, IDE_CONTROL_REG);
-> >>+	ata_irq_enale(drive, 0);
->
+Cheers,
+Bill
 
-I think Paul was talking about ata_irq_enale() ;)
-
-> For sure not. The nIEN bit is *negated* on the part of the
-> device - please look at the ata_irq_enable() functions definition.
-> I have explained it there.
->
-> > ata_irq_enable surely?
->
-> The toggle is the second parameter becouse I didn't wan't to
-> provide two functions. - 0 measn disable it 1 means enable it.>
-
---
-Bartlomiej
-
+===== kernel/sched.c 1.79 vs edited =====
+--- 1.79/kernel/sched.c	Wed May 29 08:26:26 2002
++++ edited/kernel/sched.c	Sun Jun  2 14:38:24 2002
+@@ -1591,9 +1591,9 @@
+ 	int i, j, k;
+ 
+ 	for (i = 0; i < NR_CPUS; i++) {
+-		runqueue_t *rq = cpu_rq(i);
+ 		prio_array_t *array;
+ 
++		rq = cpu_rq(i);
+ 		rq->active = rq->arrays;
+ 		rq->expired = rq->arrays + 1;
+ 		spin_lock_init(&rq->lock);

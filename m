@@ -1,64 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVAGV2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVAGV3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbVAGV2W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 16:28:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVAGVNs
+	id S261612AbVAGV3R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 16:29:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVAGV3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 16:13:48 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:12957 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261622AbVAGVMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 16:12:31 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Jack O'Quin" <joq@io.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200501071620.j07GKrIa018718@localhost.localdomain>
-References: <200501071620.j07GKrIa018718@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 07 Jan 2005 16:12:28 -0500
-Message-Id: <1105132348.20278.88.camel@krustophenia.net>
+	Fri, 7 Jan 2005 16:29:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11910 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261612AbVAGVUr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 16:20:47 -0500
+Date: Fri, 7 Jan 2005 13:24:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: pmarques@grupopie.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org
+Subject: Re: [RFC] per thread page reservation patch
+Message-Id: <20050107132459.033adc9f.akpm@osdl.org>
+In-Reply-To: <m1llb5q7qs.fsf@clusterfs.com>
+References: <20050103011113.6f6c8f44.akpm@osdl.org>
+	<20050103114854.GA18408@infradead.org>
+	<41DC2386.9010701@namesys.com>
+	<1105019521.7074.79.camel@tribesman.namesys.com>
+	<20050107144644.GA9606@infradead.org>
+	<1105118217.3616.171.camel@tribesman.namesys.com>
+	<41DEDF87.8080809@grupopie.com>
+	<m1llb5q7qs.fsf@clusterfs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 11:20 -0500, Paul Davis wrote:
-> >On Fri, Jan 07, 2005 at 10:41:40AM -0500, Paul Davis wrote:
-> >> 
-> >> fine, so the mlock situation may have improved enough post-2.6.9 that
-> >> it can be considered fixed. that leaves the scheduler issue. but
-> >> apparently, a uid/gid solution is OK for mlock, and not for the
-> >> scheduler. am i missing something?
-> >
-> >I think you skipped a step. You don't have a scheduler requirement, you have
-> >a latency requirement. You currently *solve* that latency requirement via a
-> >scheduler "hack", yet is quite clear that the "hard" realtime solution is
-> >most likely not the right approach. Note that I'm not saying that you
+Nikita Danilov <nikita@clusterfs.com> wrote:
+>
+> That's the whole idea behind this patch: at the beginning of "atomic"
+> operation, some number of pages is reserved. As these pages are
+> available through page allocator, _all_ allocations done by atomic
+> operation will use reserved pages transparently. For example:
 > 
-> Why is that clear? In just about every respect, realtime audio has the
-> same characteristics as hard realtime, except that nobody gets hurt
-> when a deadline is missed :) We have an IRQ source, and a deadline
-> (sometimes on the sub-msec range, but more typically 1-5msec) for the
-> work that has to be done. This deadline is tight enough that the task
-> essentially *has* to run with SCHED_FIFO scheduling, because doing
-> almost anything else instead will cause the deadline to be missed. 
+>         perthread_pages_reserve(nr, GFP_KERNEL);
 > 
+>         foo()->
+> 
+>             bar()->
+> 
+>                 page = find_or_create_page(some_mapping, ...);
+> 
+>         perthread_pages_release(unused_pages);
+> 
+> find_or_create() pages will use pages reserved for this thread and,
+> hence, is guaranteed to succeed (given correct reservation).
+> 
+> Alternative is to pass some sort of handle all the way down to actual
+> calls to allocator, and to modify all generic code to use reservations.
 
-It's not like hard realtime, it is.  All that makes a hard RT system is
-that missing a deadline means the system has utterly failed.  How is
-this any different than an xrun causing a loud pop or click in a live
-performance?
+Maybe I'm being thick, but I don't see how you can protect the reservation
+of an outer reserver in the above way:
 
-Really, I think Linux has owned the server space for so long that some
-folks on this list are getting hubristic.  Just because you have the
-best server OS does not mean it's the best at everything.
+	perthread_pages_reserve(10);
+	...				/* current->private_pages_count = 10 */
+		perthread_pages_reserve(10)	/* private_pages_count = 20 */
+		use 5 pages			/* private_pages_count = 15 */
+		perthread_pages_release(5);
 
-Lee
+But how does the caller come up with the final "5"?
 
+Seems better to me if prethread_pages_reserve() were to return the initial
+value of private_pages_count, so the caller can do:
+
+	old = perthread_pages_reserve(10);
+		use 5 pages
+	perthread_pages_release(old);
+
+or whatever.
+
+That kinda stinks too in a way, because both the outer and the inner
+callers need to overallocate pages on behalf of the worst case user in some
+deep call stack.
+
+And the whole idea is pretty flaky really - how can one precalculate how
+much memory an arbitrary md-on-dm-on-loop-on-md-on-NBD stack will want to
+use?  It really would be better if we could drop the whole patch and make
+reiser4 behave more sanely when its writepage is called with for_reclaim=1.

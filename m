@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267423AbTAVK5k>; Wed, 22 Jan 2003 05:57:40 -0500
+	id <S267430AbTAVLMP>; Wed, 22 Jan 2003 06:12:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267424AbTAVK5k>; Wed, 22 Jan 2003 05:57:40 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:41428 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S267423AbTAVK5j>;
-	Wed, 22 Jan 2003 05:57:39 -0500
-Date: Wed, 22 Jan 2003 11:05:51 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: "Paulo Andre'" <fscked@netvisao.pt>
-Cc: rms@gnu.org, brand@jupiter.cs.uni-dortmund.de, steve@tuxsoft.com,
-       linux-kernel@vger.kernel.org, brand@eeyore.valparaiso.cl
-Subject: Re: [OFFTOPIC] RMS and reactions to him
-Message-ID: <20030122110551.GA3813@bjl1.asuk.net>
-References: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl> <E18bHfV-0002QE-00@fencepost.gnu.org> <20030122101903.1e7bb68e.fscked@netvisao.pt>
+	id <S267432AbTAVLMP>; Wed, 22 Jan 2003 06:12:15 -0500
+Received: from [213.86.99.237] ([213.86.99.237]:9186 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S267430AbTAVLMO>; Wed, 22 Jan 2003 06:12:14 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20030121214651.GA958@mars.ravnborg.org> 
+References: <20030121214651.GA958@mars.ravnborg.org>  <25160.1042809144@passion.cambridge.redhat.com> <Pine.LNX.4.33L2.0301171857230.25073-100000@vipe.technion.ac.il> <E18a1aZ-0006mL-00@bigred.inka.de> <1042930522.15782.12.camel@laptop.fenrus.com> <E18ai8O-00032u-00@bigred.inka.de> <1043098758.27074.2.camel@laptop.fenrus.com> <E18b5kc-0003BB-00@bigred.inka.de> 
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Olaf Titz <olaf@bigred.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030122101903.1e7bb68e.fscked@netvisao.pt>
-User-Agent: Mutt/1.4i
+Date: Wed, 22 Jan 2003 11:21:14 +0000
+Message-ID: <10769.1043234474@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Andre' wrote:
-> Really, if it didn't work until now what makes you think it'll work
-> in the future?
 
-Oh, but it is working.  I've seen quite a few web pages that say
-something to the effect of "I use GNU/Linux" or "this site runs on
-blah blah GNU/Linux".
+sam@ravnborg.org said:
+> From your previous posts I have only noted down one feature that is
+> not yet planned:  1) Building modules separate from module src.
 
-I think it likely that each person who wrote the "GNU/" thought about
-why they wanted to write it, too - which is the real point, isn't it?
+This would be cute. When testing a single module under both 2.4 and 2.5 
+kernels, I often have to 'make clean ; make LINUXDIR=/usr/src/linux-2.5'
+and 'make clean; make' to switch between them. Having separate object trees 
+would make life a lot nicer.
 
-I don't know anyone who actually says GNU/Linux verbally though -- it's
-quite clumsy to say.
+--
+dwmw2
 
-(For my part, I never say or write "GNU/Linux", but instead I tend to
-say I use and write "Free Software".  Unfortunately people still have
-trouble recognising how they are affected by the freedoms of _other_
-people, so they persist in thinking I must mean something to do with
-the price tag.  Alas!)
 
-> Even if you were right, I honestly don't see, with all my good will, a
-> successful ending to your quest. Do you?
-
-What is the rush to end the quest?
-
-Richard's campaign is about political awareness, and it seems to be
-working.  If the campaign stopped today, that awareness might die down.
-
-Hopefully, the day will come when that is ok -- not because there are
-lots of people saying the same thing, but because terms like GNU and
-Free Software will be redundant.
-
-Hopefully, one day freely sharing ideas will the norm, as cultures
-develop which encourage sharing without hunger, and fighting over who
-owns (and so is the sole profiter of) an idea will seem weird.
-
-_Then_ this particular quest is ready to end.  It may be a long time yet,
-perhaps longer than Richard or I will live.  But hopefully not.
-
--- Jamie

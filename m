@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264976AbSJVUUe>; Tue, 22 Oct 2002 16:20:34 -0400
+	id <S264887AbSJVU24>; Tue, 22 Oct 2002 16:28:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264963AbSJVUTj>; Tue, 22 Oct 2002 16:19:39 -0400
-Received: from mail.hometree.net ([212.34.181.120]:41866 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264974AbSJVUSZ>; Tue, 22 Oct 2002 16:18:25 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
+	id <S265000AbSJVU1l>; Tue, 22 Oct 2002 16:27:41 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:57069
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S265021AbSJVU0w>; Tue, 22 Oct 2002 16:26:52 -0400
+Date: Tue, 22 Oct 2002 16:32:54 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Allen Campbell <allenc@campbell.cwx.net>
+cc: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Bitkeeper outrage, old and new
-Date: Tue, 22 Oct 2002 20:24:33 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <ap4c61$kan$1@forge.intermeta.de>
-References: <20021022033834.GA24991@Master.Wizards> <Pine.LNX.4.44.0210221130110.8911-100000@serv>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1035318273 24853 212.34.181.4 (22 Oct 2002 20:24:33 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 22 Oct 2002 20:24:33 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+In-Reply-To: <20021022141336.A21184@const.>
+Message-ID: <Pine.LNX.4.44.0210221622130.13492-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> writes:
+On Tue, 22 Oct 2002, Allen Campbell wrote:
 
->Hi,
+> On Mon, Oct 21, 2002 at 01:56:05PM -0400, Nicolas Pitre wrote:
+> > Therefore the only real lever you have against BitKeeper or whatever else is
+> > to write a GPL equivalent.  Until it happens please assume that those who
+> > chose to use the tool they want are exercising their freedom since it was
+> > made certain that no one is forced into using BK for Linux development
+> > already.
+> 
+> The ability to participate in Linux development without using BK
+> is not some benevolent gift, granted from on-high by Linus as a
+> favor to those who object to BK.  It is assured by the GPL regardless
+> of some specific developers policy with regard to what tools are
+> used.  No one had to "make certain that no one is forced."  The
+> power to "force" doesn't exist.
 
->On Mon, 21 Oct 2002, Murray J. Root wrote:
+Whatever.  
 
->> It's a simple concept. I produced it, it's mine until I say otherwise.
->> You grant other laborers the right to profit from their labors, do you
->> not?
+So what's your own particular problem with BK again if you don't have to use
+it?
 
->Software isn't a product like others, once you've written it, you can
->reproduce it indefinitely with almost no further costs. Profit is defined
+I hope you still have the hability to write and contribute GPL'ed code.
 
-Not if you can tie it to some "not indefinitely at no further costs
-reproducable" item. E.g. Hardware. E.g. a serial number in hardware or
-an encryption key.
 
-<div sarcasm="true">
-What? what? Sounds familiar? Maybe someone else came
-to the same conclusions?
-</div>
+Nicolas
 
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

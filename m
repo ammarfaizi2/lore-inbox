@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbUKQRNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbUKQRNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbUKQRNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 12:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbUKQRM5
+	id S262430AbUKQRNW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 12:13:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbUKQRNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 12:12:57 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:20133 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262405AbUKQRKd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 12:10:33 -0500
-Date: Wed, 17 Nov 2004 18:10:28 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Nikita Danilov <nikita@clusterfs.com>
-cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-In-Reply-To: <16795.33515.187015.492860@thebsh.namesys.com>
-Message-ID: <Pine.LNX.4.53.0411171809490.24190@yvahk01.tjqt.qr>
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
- <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org> <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
- <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
- <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
- <20041116163314.GA6264@kroah.com> <E1CURx6-0005Qf-00@dorka.pomaz.szeredi.hu>
- <16795.33515.187015.492860@thebsh.namesys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Nov 2004 12:13:12 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:35557 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262430AbUKQRMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 12:12:52 -0500
+Subject: Re: GPL version, "at your option"?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Poole <mdpoole@troilus.org>
+Cc: Charles Cazabon <linux@discworld.dyndns.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <87y8h08mgv.fsf@sanosuke.troilus.org>
+References: <1100614115.16127.16.camel@ghanima>
+	 <20041116144029.GA6740@discworld.dyndns.org>
+	 <1100704019.32698.24.camel@localhost.localdomain>
+	 <87y8h08mgv.fsf@sanosuke.troilus.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100707771.419.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 17 Nov 2004 16:09:33 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mer, 2004-11-17 at 16:33, Michael Poole wrote:
+> I have no argument that restricting it to v2 is potentially harmful,
+> but allowing distribution under GPL v3 is also potentially harmful
+> since the terms are not yet known, and later v3plus changes would
+> restrict the whole work to v3plus.
 
->mount -tfoo_ctrlfs -o host=/mnt/point /mnt/control-point
+Oh believe me I understand exactly why Linus said "v2 only". The GPL say
+"similiar license" but Linus doesn't trust Richard. That's fine, I don't
+trust Richard or Linus 8)
 
-Looks to me like a pollution of the mount table if you do this on a lot of
-filesystems.
+If people are going to say "v2 only" they should most definitely make
+sure they assign Linus or some similar person the right to revisit that
+decision. 
 
+Alan
 
-
-Jan Engelhardt
--- 

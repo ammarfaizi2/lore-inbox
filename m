@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129450AbRABWab>; Tue, 2 Jan 2001 17:30:31 -0500
+	id <S130017AbRABWdn>; Tue, 2 Jan 2001 17:33:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbRABWaV>; Tue, 2 Jan 2001 17:30:21 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:65284 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129267AbRABWaC>; Tue, 2 Jan 2001 17:30:02 -0500
-Subject: Re: Compile errors: RCPCI, LANE, and others
-To: acahalan@cs.uml.edu (Albert D. Cahalan)
-Date: Tue, 2 Jan 2001 22:01:38 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200101022156.f02Lubf320936@saturn.cs.uml.edu> from "Albert D. Cahalan" at Jan 02, 2001 04:56:37 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129267AbRABWdb>; Tue, 2 Jan 2001 17:33:31 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:12300 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130017AbRABWdT>; Tue, 2 Jan 2001 17:33:19 -0500
+Date: Tue, 2 Jan 2001 14:01:57 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Mike Galbraith <mikeg@wen-online.de>,
+        Anton Blanchard <anton@linuxcare.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: scheduling problem?
+In-Reply-To: <20010102225230.D7563@athlon.random>
+Message-ID: <Pine.LNX.4.10.10101021357180.1292-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14DZUz-0002z8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> distribution? (hint: if it's redhat 7, don't bother).
-> >
-> > Bzzt, wrong. Red Hat 7 compiles the 2.4 tree beautifully
-> > with gcc 2.96 as well. Please grow up.
+
+
+On Tue, 2 Jan 2001, Andrea Arcangeli wrote:
 > 
-> Huh? Original, bug fix, or both?
+> > NOTE! I think that throttling writers is fine and good, but as it stands
+> > now, the dirty buffer balancing will throttle anybody, not just the
+> > writer. That's partly because of the 2.4.x mis-feature of doing the
+> 
+> How can it throttle everybody and not only the writers? _Only_ the
+> writers calls balance_dirty.
 
-I've run kernels built with both with no problems.
+A lot of people call mark_buffer_dirty() on one or two buffers. Things
+like file creation etc. Think about inode bitmap blocks that are marked
+dirty with the superblock held.. Ugh.
 
+> Right way to avoid blocking with lock helds is to replace mark_buffer_dirty
+> with __mark_buffer_dirty() and to call balance_dirty() later when the locks are
+> released.
+
+The point being that because _everybody_ should do this, we shouldn't have
+the "mark_buffer_dirty()" that we have. There are no really valid uses of
+the automatic rebalancing: either we're writing meta-data (which
+definitely should balance on its own _after_ the fact), or we're writing
+normal data (which already _does_ balance after the fact).
+
+Right now, the automatic balancing only hurts. The stuff that hasn't been
+converted is probably worse off doing balancing when they don't want to,
+than we would be to leave the balancing altogether.
+
+Which is why I don't like it.
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

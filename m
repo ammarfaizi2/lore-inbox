@@ -1,41 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317862AbSHZDA4>; Sun, 25 Aug 2002 23:00:56 -0400
+	id <S317876AbSHZDDZ>; Sun, 25 Aug 2002 23:03:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317864AbSHZDA4>; Sun, 25 Aug 2002 23:00:56 -0400
-Received: from host179.debill.org ([64.245.56.179]:61375 "EHLO mail.debill.org")
-	by vger.kernel.org with ESMTP id <S317862AbSHZDA4>;
-	Sun, 25 Aug 2002 23:00:56 -0400
-Date: Sun, 25 Aug 2002 22:05:12 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel losing time
-Message-ID: <20020826030512.GA3264@debill.org>
-References: <20020825105500.GE11740@paradise.net.nz> <Pine.LNX.4.44.0208250459500.3234-100000@hawkeye.luckynet.adm> <20020825215515.GA2965@debill.org> <1030320314.16766.25.camel@irongate.swansea.linux.org.uk>
+	id <S317887AbSHZDDZ>; Sun, 25 Aug 2002 23:03:25 -0400
+Received: from mesatop.zianet.com ([216.234.192.105]:17678 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S317876AbSHZDDY>; Sun, 25 Aug 2002 23:03:24 -0400
+Subject: Re: MM patches against 2.5.31
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+In-Reply-To: <3D699343.D5343AD4@zip.com.au>
+References: <3D698F4E.93A3DDA2@zip.com.au>
+	<17830228.1030302537@[10.10.2.3]>  <3D699343.D5343AD4@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 25 Aug 2002 21:06:20 -0600
+Message-Id: <1030331182.16525.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1030320314.16766.25.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-From: erik@debill.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 01:05:14AM +0100, Alan Cox wrote:
-> On Sun, 2002-08-25 at 22:55, erik@debill.org wrote:
-> > Would this explain my computer losing 2-3 minutes of time while
-> > ripping a cd?  Normally it's dead on (w/ ntpd running to guarantee
-> > that) but while ripping or burning it loses so badly ntpd can't keep
-> > up.
+On Sun, 2002-08-25 at 20:32, Andrew Morton wrote:
+> "Martin J. Bligh" wrote:
+> > 
+> > >> > kjournald: page allocation failure. order:0, mode:0x0
+> > >>
+> > >> I've seen this before, but am curious how we ever passed
+> > >> a gfpmask (aka mode) of 0 to __alloc_pages? Can't see anywhere
+> > >> that does this?
+> > >
+> > > Could be anywhere, really.  A network interrupt doing GFP_ATOMIC
+> > > while kjournald is executing.  A radix-tree node allocation
+> > > on the add-to-swap path perhaps.  (The swapout failure messages
+> > > aren't supposed to come out, but mempool_alloc() stomps on the
+> > > caller's setting of PF_NOWARN.)
+> > >
+> > > Or:
+> > >
+> > > mnm:/usr/src/25> grep -r GFP_ATOMIC drivers/scsi/*.c | wc -l
+> > >      89
+> > 
+> > No, GFP_ATOMIC is not 0:
+> > 
 > 
-> Could be - does hdparm -u1 on that device fix it ?
+> It's mempool_alloc(GFP_NOIO) or such.  mempool_alloc() strips
+> __GFP_WAIT|__GFP_IO on the first attempt.
+> 
+> It also disables the printk, so maybe I just dunno ;)  show_stack()
+> would tell.
+>
+ 
+The "kjournald: page allocation failure. order:0, mode:0x0" message and
+"pdflush: page allocation failure. order:0, mode:0x0" occurred only once
+each on my dual p3 scsi ext3 test box running 2.5.31-mm1.  So, I added
+something like this:
+--- page_alloc.c.orig	Thu Aug 22 17:27:32 2002
++++ page_alloc.c	Thu Aug 22 17:29:24 2002
+@@ -388,6 +388,8 @@
+ 			printk("%s: page allocation failure."
+ 				" order:%d, mode:0x%x\n",
+ 				current->comm, order, gfp_mask);
++			if (gfp_mask == 0)
++				BUG();
+ 		}
+ 		return NULL;
+ 	}
 
-nope.  I still lost a minute or so ripping a single disc.  This is
-using 2.4.19-rc3, though I've not seen a kernel where it /didn't/
-happen.
+and continued testing on Friday with no repeats of the "page allocation failure"
+messages.  I obtained a second dual p3 ext3 test box (ide this time) and left both
+boxes running 2.5.31-mm1 and the dbench 1..128 stress test scripted to rerun many 
+times over the weekend.  Due to a couple of firewalls, I can't look at those boxes
+from here, but I'll let you know what happened in about 10 to 11 hours.
 
-
-Erik
-
+Cheers,
+Steven
 

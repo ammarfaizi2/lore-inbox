@@ -1,100 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263048AbTEGKBw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 06:01:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263055AbTEGKBw
+	id S263055AbTEGKEu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 06:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTEGKEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 06:01:52 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:54941 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP id S263048AbTEGKBv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 06:01:51 -0400
-Date: Wed, 07 May 2003 03:12:56 -0700
-From: Mark McClelland <mark@alpha.dyndns.org>
-Subject: Re: [patch] i2c #3/3: add class field to i2c_adapter
-In-reply-to: <20030506195154.GC865@bytesex.org>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Greg KH <greg@kroah.com>,
-       Frank Davis <fdavis@si.rr.com>,
-       Kernel List <linux-kernel@vger.kernel.org>,
-       Ronald Bultje <R.S.Bultje@pharm.uu.nl>
-Message-id: <3EB8DC28.8040206@alpha.dyndns.org>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_eu+4BcNUcwUMd4S4vIfPyw)"
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030314
-References: <20030506193430.GA865@bytesex.org>
- <20030506194018.GB865@bytesex.org> <20030506195154.GC865@bytesex.org>
+	Wed, 7 May 2003 06:04:50 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:56740 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263055AbTEGKEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 06:04:48 -0400
+Date: Wed, 7 May 2003 12:16:37 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix .altinstructions linking failures
+Message-ID: <20030507101637.GB2389@wohnheim.fh-wedel.de>
+References: <20030506063055.GA15424@averell> <20030507092329.GA2389@wohnheim.fh-wedel.de> <20030507094752.GA4050@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030507094752.GA4050@averell>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
---Boundary_(ID_eu+4BcNUcwUMd4S4vIfPyw)
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-
-Gerd Knorr wrote:
-
->This is the last of three patches for i2c.  It introduces a new field
->to i2c_adapter which classifies the kind of hardware a i2c adapter
->belongs to (analog tv card / dvb card / smbus / gfx card ...).
+On Wed, 7 May 2003 11:47:52 +0200, Andi Kleen wrote:
+> Seriously. To give some numbers. This is the maxi kernel (about 8MB .text,
+> everything compiled in that compiles in 2.5.69) which is far too big to even 
+> even boot.
+> 
+>  20 .exit.text    00005afa  c0ada3d0  c0ada3d0  009db3d0  2**4
+>                   CONTENTS, ALLOC, LOAD, READONLY, CODE
+> 
+> About 20k from 8MB
 >
+> On a realistic kernel that actually boots we are talking about 1-2KB,
+> probably even less.
 
-I've attached a patch that adds classes for analog and digital cameras 
-(webcams, etc...). I plan to submit one such driver in the next few days.
+Sounds more like 1/2 maxi to me, but you are basically right. 2-3k on
+one of my production embedded kernels. I can accept that, but it
+doesn't really make me happy.
 
-The patch also fixes a typo ("DIGINAL").
+> If you really wanted to combat bloat there are a lot 
+> other areas where you can avoid much more than 2KB with minimum effort.
+> Just go through include/linux/* and move a few unnecessary inlines away, that
+> will help much more. If you want to save real memory attack mem_map, like
+> I proposed earlier.
 
->i2c chip
->drivers can use this infomation to decide whenever they want to look for
->hardware on that adapter or not.  It doesn't make sense to probe for a
->tv tuner on a smbus for example ...
->
+Still on my list, but I didn't get to it yet.
 
-Actually it does in some cases. I know of two devices that have analog 
-tuners on an smbus-like interface (OV511 USB TV and W9967CF USB TV). The 
-tuner can be controlled using a pair of i2c_smbus_write_byte_data() 
-calls. This works because, AFAIK, all four-byte tuners can differentiate 
-between bytes 0-1 and 2-3 due to their bit patterns.
+> P.S.: In case someone is interested: The hall of shame for the 2.5.69 SMP
+> maxi kernel (stuff that doesn't build) currently is:  Sound/Alsa (one driver 
+> doesn't compile), USB (3 drivers don't compile), MTD (lots of stuff doesn't 
+> compile).  Everything else is quite good.
 
-Would a patch that adds smbus algorithm support to tuner.c be 
-acceptable? It will only add about twelve lines, and will still use 
-i2c_master_send() when possible.
+Do you have a .config for that kernel. I tried to create a maximal one
+for 2.5.69 as well, but the problems in the Subject: stopped me and ld
+didn't give me enough clues, which drivers to remove.
+
+Jörn
 
 -- 
-Mark McClelland
-mark@alpha.dyndns.org
-
-
---Boundary_(ID_eu+4BcNUcwUMd4S4vIfPyw)
-Content-type: text/plain; name=i2c_adap_class_cam-2.5.69.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=i2c_adap_class_cam-2.5.69.patch
-
-
-Add I2C classes for analog and digital cameras, and fix a typo.
-
-diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
---- a/include/linux/i2c.h	Wed May  7 01:29:59 2003
-+++ b/include/linux/i2c.h	Wed May  7 01:29:59 2003
-@@ -280,10 +280,12 @@
- 						/* Must equal I2C_M_TEN below */
- 
- /* i2c adapter classes (bitmask) */
--#define I2C_ADAP_CLASS_SMBUS      (1<<0)        /* lm_sensors, ... */
--#define I2C_ADAP_CLASS_TV_ANALOG  (1<<1)        /* bttv + friends */
--#define I2C_ADAP_CLASS_TV_DIGINAL (1<<2)        /* dbv cards */
--#define I2C_ADAP_CLASS_DDC        (1<<3)        /* i2c-matroxfb ? */
-+#define I2C_ADAP_CLASS_SMBUS        (1<<0)      /* lm_sensors, ... */
-+#define I2C_ADAP_CLASS_TV_ANALOG    (1<<1)      /* bttv + friends */
-+#define I2C_ADAP_CLASS_TV_DIGITAL   (1<<2)      /* dbv cards */
-+#define I2C_ADAP_CLASS_DDC          (1<<3)      /* i2c-matroxfb ? */
-+#define I2C_ADAP_CLASS_CAM_ANALOG   (1<<4)      /* camera with analog CCD */
-+#define I2C_ADAP_CLASS_CAM_DIGITAL  (1<<5)      /* most webcams */
- 
- /* i2c_client_address_data is the struct for holding default client
-  * addresses for a driver and for the parameters supplied on the
-
-
---Boundary_(ID_eu+4BcNUcwUMd4S4vIfPyw)--
+When people work hard for you for a pat on the back, you've got
+to give them that pat.
+-- Robert Heinlein

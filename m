@@ -1,135 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbUKNLAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbUKNLQC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbUKNLAb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 06:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUKNLAb
+	id S261284AbUKNLQC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 06:16:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbUKNLQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 06:00:31 -0500
-Received: from verein.lst.de ([213.95.11.210]:19639 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261283AbUKNLAO (ORCPT
+	Sun, 14 Nov 2004 06:16:02 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:31241 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261284AbUKNLP4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 06:00:14 -0500
-Date: Sun, 14 Nov 2004 12:00:07 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove unused irq_cpustat fields
-Message-ID: <20041114110007.GA32387@lst.de>
+	Sun, 14 Nov 2004 06:15:56 -0500
+Date: Sun, 14 Nov 2004 12:15:51 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] __init in mm/slab.c
+Message-ID: <20041114111551.GA8680@pclin040.win.tue.nl>
+References: <E1CTDXF-0006mU-00@bkwatch.colorfullife.com> <419714B8.3030804@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <419714B8.3030804@colorfullife.com>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The only common field in irq_cpustat is __softirq_pending, i386 and ppc
-have some of their own.
+On Sun, Nov 14, 2004 at 09:18:00AM +0100, Manfred Spraul wrote:
 
-Remove all unused obsolete fields from various architectures.
+> g_cpucache_up is NONE during bootstrap and FULL after boot. Thus the 
+> initarray is never accessed after boot.
+> 
+> Andries, why did you propose this change? Does the current code trigger 
+> an automatic test?
 
+Yes. I was a bit more explicit in the timer patch:
 
---- 1.10/include/asm-alpha/hardirq.h	2004-11-08 03:08:14 +01:00
-+++ edited/include/asm-alpha/hardirq.h	2004-11-14 11:58:28 +01:00
-@@ -9,9 +9,6 @@
- /* entry.S is sensitive to the offsets of these fields */
- typedef struct {
- 	unsigned long __softirq_pending;
--	unsigned int __syscall_count;
--	unsigned long idle_timestamp;
--	struct task_struct * __ksoftirqd_task;
- } ____cacheline_aligned irq_cpustat_t;
- 
- #include <linux/irq_cpustat.h>	/* Standard mappings for irq_cpustat_t above */
---- 1.4/include/asm-arm26/hardirq.h	2004-11-08 03:08:14 +01:00
-+++ edited/include/asm-arm26/hardirq.h	2004-11-14 11:57:13 +01:00
-@@ -7,10 +7,6 @@
- 
- typedef struct {
- 	unsigned int __softirq_pending;
--	unsigned int __local_irq_count;
--	unsigned int __local_bh_count;
--	unsigned int __syscall_count;
--	struct task_struct * __ksoftirqd_task; /* waitqueue is too large */
- } ____cacheline_aligned irq_cpustat_t;
- 
- #include <linux/irq_cpustat.h>	/* Standard mappings for irq_cpustat_t above */
---- 1.5/include/asm-cris/hardirq.h	2004-11-08 03:08:14 +01:00
-+++ edited/include/asm-cris/hardirq.h	2004-11-14 11:57:15 +01:00
-@@ -9,10 +9,6 @@
- /* entry.S is sensitive to the offsets of these fields */
- typedef struct {
- 	unsigned int __softirq_pending;
--	unsigned int __local_irq_count;
--	unsigned int __local_bh_count;
--	unsigned int __syscall_count;
--	struct task_struct * __ksoftirqd_task; /* waitqueue is too large */
- } ____cacheline_aligned irq_cpustat_t;
- 
- #include <linux/irq_cpustat.h> /* Standard mappings for irq_cpustat_t above */
---- 1.6/include/asm-h8300/hardirq.h	2004-11-08 03:08:14 +01:00
-+++ edited/include/asm-h8300/hardirq.h	2004-11-14 11:57:20 +01:00
-@@ -9,8 +9,6 @@
- 
- typedef struct {
- 	unsigned int __softirq_pending;
--	unsigned int __syscall_count;
--	struct task_struct * __ksoftirqd_task;
- } ____cacheline_aligned irq_cpustat_t;
- 
- #include <linux/irq_cpustat.h>	/* Standard mappings for irq_cpustat_t above */
---- 1.4/include/asm-m32r/hardirq.h	2004-11-08 03:08:14 +01:00
-+++ edited/include/asm-m32r/hardirq.h	2004-11-14 11:57:25 +01:00
-@@ -7,8 +7,6 @@
- 
- typedef struct {
- 	unsigned int __softirq_pending;
--	unsigned int __syscall_count;
--	struct task_struct * __ksoftirqd_task; /* waitqueue is too large */
- } ____cacheline_aligned irq_cpustat_t;
- 
- #include <linux/irq_cpustat.h>	/* Standard mappings for irq_cpustat_t above */
---- 1.5/include/asm-m68knommu/hardirq.h	2004-11-08 03:08:14 +01:00
-+++ edited/include/asm-m68knommu/hardirq.h	2004-11-14 11:57:29 +01:00
-@@ -7,8 +7,6 @@
- 
- typedef struct {
- 	unsigned int __softirq_pending;
--	unsigned int __syscall_count;
--	struct task_struct * __ksoftirqd_task;
- } ____cacheline_aligned irq_cpustat_t;
- 
- #include <linux/irq_cpustat.h>	/* Standard mappings for irq_cpustat_t above */
---- 1.5/include/asm-parisc/hardirq.h	2004-11-08 03:08:14 +01:00
-+++ edited/include/asm-parisc/hardirq.h	2004-11-14 11:58:34 +01:00
-@@ -21,9 +21,6 @@
- 
- typedef struct {
- 	unsigned long __softirq_pending; /* set_bit is used on this */
--	unsigned int __syscall_count;
--	struct task_struct * __ksoftirqd_task;
--	unsigned long idle_timestamp;
- } ____cacheline_aligned irq_cpustat_t;
- 
- #include <linux/irq_cpustat.h>	/* Standard mappings for irq_cpustat_t above */
---- 1.15/include/asm-ppc64/hardirq.h	2004-10-19 07:26:40 +02:00
-+++ edited/include/asm-ppc64/hardirq.h	2004-11-14 11:55:29 +01:00
-@@ -14,7 +14,6 @@
- 
- typedef struct {
- 	unsigned int __softirq_pending;
--	struct task_struct * __ksoftirqd_task;
- } ____cacheline_aligned irq_cpustat_t;
- 
- #include <linux/irq_cpustat.h>	/* Standard mappings for irq_cpustat_t above */
---- 1.6/include/asm-v850/hardirq.h	2004-11-08 03:08:14 +01:00
-+++ edited/include/asm-v850/hardirq.h	2004-11-14 11:57:48 +01:00
-@@ -7,8 +7,6 @@
- 
- typedef struct {
- 	unsigned int __softirq_pending;
--	unsigned int __syscall_count;
--	struct task_struct * __ksoftirqd_task;
- } ____cacheline_aligned irq_cpustat_t;
- 
- #include <linux/irq_cpustat.h>	/* Standard mappings for irq_cpustat_t above */
+"The i386 timers use a struct timer_opts that has a field init
+pointing at a __init function. The rest of the struct is not __init.
+Nothing is wrong, but if we want to avoid having references to init stuff
+in non-init sections, some reshuffling is needed."
+
+So yesterday's series of __init patches is not because there were
+bugs, but because it is desirable to have the situation where
+static inspection of the object code shows absence of references
+to .init stuff. Much better than having to reason that there is
+a reference but that it will not be used.
+
+Where the memory win is important the code should be rewritten a bit.
+
+Andries

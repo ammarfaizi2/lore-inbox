@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUJGUIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268064AbUJGUFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268039AbUJGUIb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 16:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUJGUIQ
+	id S268064AbUJGUFe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 16:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUJGUD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 16:08:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11440 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267841AbUJGUH0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 16:07:26 -0400
-Date: Thu, 7 Oct 2004 13:05:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: serue@us.ibm.com, chrisw@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/3] lsm: add bsdjail module
-Message-Id: <20041007130530.5bcffa3c.akpm@osdl.org>
-In-Reply-To: <20041007124221.D2357@build.pdx.osdl.net>
-References: <1097094103.6939.5.camel@serge.austin.ibm.com>
-	<1097094270.6939.9.camel@serge.austin.ibm.com>
-	<20041006162620.4c378320.akpm@osdl.org>
-	<20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com>
-	<20041007124221.D2357@build.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Oct 2004 16:03:59 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:6066 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268029AbUJGUDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 16:03:25 -0400
+Subject: Re: Probable module bug in linux-2.6.5-1.358
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097175903.29576.12.camel@localhost.localdomain>
+References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com>
+	 <1097175903.29576.12.camel@localhost.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1097175596.31547.111.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 07 Oct 2004 19:59:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright <chrisw@osdl.org> wrote:
->
-> * Serge E. Hallyn (serue@us.ibm.com) wrote:
-> > Attached is a new version of the bsdjail patch with the requested code
-> > cleanups applied.
-> 
-> I noticed Andrew picked this up in -mm3, but that he had to do some diff
-> cleanups (see the thread/rlim changes in his tree).  If you'd like Andrew
-> to pick this up, it would be courteous to get the diff clean and
-> building against his tree.
+On Iau, 2004-10-07 at 20:05, Stephen Hemminger wrote:
+> --------------
+> /*
+>  *   Since some in the Linux-kernel development group want to play
+>  *   lawyer, and require that a GPL License exist for every kernel
+>  *   module,  I provide the following:
+>  *
+>  *   Everything in this file (only) is released under the so-called
+>  *   GNU Public License, incorporated herein by reference.
+>  *
+>  *   Now, we just link this with any proprietary code and everybody
+>  *   but the lawyers are happy.
+>  */
 
-Nah, that's OK.  I can drop the old patch and pick up the new.
+What a fascinating object. I hope thats not reflective of OSDL policy 8)
 
-It's only when code is settling down into a final state that I get upset
-about wholesale replacements.  Even then I'll just feed it through
-interdiff.
+Is fascinating because my first thought was that if they sign the Induce
+act it would be a criminal offence to have it in the USA since its
+clearly an incitement and my second thought was that the Bernstein case
+appears to argue its protected speech. Interesting times 8)
 
-> Andrew has cleanup here (__FUNCTION__ ,).  I just use __func__, anyway.
+More seriously the goal of MODULE_LICENSE has never been to -enforce-
+GPL licensing. It provides help in understanding what symbols are
+definitely off limits and it allows people to identify proprietary stuff
+loaded into a system to filter bug reports.
 
-That's a workaround for the gcc-2.95 pasting bug.
+The law on derivative works and copyright in general, murkly alas as it
+is, does the enforcing, and unfortunately it is becoming apparent that
+the free software world is going to have to go out soon and crack down
+hard on abusers, especially those simply shipping Linux binaries with no
+source or GPL information.
 
-__FUNCTION__ is preferred, actually.  Just for consistency, and so the
-compiler will spit it out if someone tries to do compile-time string
-concatenation with it.
+Alan
 

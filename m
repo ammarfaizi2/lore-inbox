@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbTIWSBj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 14:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTIWSBj
+	id S262040AbTIWSCp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 14:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbTIWSCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 14:01:39 -0400
-Received: from usea-naimss2.unisys.com ([192.61.61.104]:54284 "EHLO
-	usea-naimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S262139AbTIWSBf convert rfc822-to-8bit (ORCPT
+	Tue, 23 Sep 2003 14:02:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25514 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262040AbTIWSCa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 14:01:35 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: NS83820 2.6.0-test5 driver seems unstable on IA64
-Date: Tue, 23 Sep 2003 12:58:59 -0500
-Message-ID: <BFF315B8E1D7F845B8FC1C28778693D70AFEC6@usslc-exch1.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: NS83820 2.6.0-test5 driver seems unstable on IA64
-Thread-Index: AcOB+4f+A/scTi+0S7STcJN0vkPsdAAABdwA
-From: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
-To: "David S. Miller" <davem@redhat.com>, <davidm@hpl.hp.com>
-Cc: <davidm@napali.hpl.hp.com>, <peter@chubb.wattle.id.au>, <bcrl@kvack.org>,
-       <ak@suse.de>, <iod00d@hp.com>, <peterc@gelato.unsw.edu.au>,
-       <linux-ns83820@kvack.org>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 Sep 2003 17:59:10.0512 (UTC) FILETIME=[63F30B00:01C381FC]
+	Tue, 23 Sep 2003 14:02:30 -0400
+Date: Tue, 23 Sep 2003 11:02:19 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Chris Wright <chrisw@osdl.org>, David Yu Chen <dychen@stanford.edu>,
+       lkml <linux-kernel@vger.kernel.org>, mc@cs.stanford.edu,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
+Message-ID: <20030923110219.A15247@osdlab.pdx.osdl.net>
+References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU> <20030919160459.K27079@osdlab.pdx.osdl.net> <1064322949.3851.10.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1064322949.3851.10.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Tue, Sep 23, 2003 at 09:15:49AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The printk() is rate-controlled and doesn't happen for every unaligned
-> > access.  It's average cost can be made as low as we want to, by adjusting
-> > the rate.
-> 
-> But if the event is normal, you shouldn't be logging it as if
-> it weren't.
+* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
+> Sorry for the duplicated effort, but I had already written up a patch
+> prior to the hurricane, but didn't get it sent out.  I believe that the
+> patch below fixes the legitimate leaks in the SELinux code.  In some
+> cases, it rearranges the code (moving the allocation later to reduce the
+> need for further cleanup or linking the object into a containing
+> structure earlier so that the policydb_destroy will handle it upon any
+> subsequent errors).
 
-That's my view on the fpswa printk's (handle_fpu_swa): they are normal,
-expected, and there is absolutely nothing that can be done about them --
-so why print a "warning" about them (even if it is only 5 per second)?
-If nothing else, toggle the meaning for IA64_THREAD_FPEMU_NOPRINT: turn it
-ON for special apps.
-
-Rate-limited unaligned loads in user space make a lot more sense, since
-they _may_ point out issues in the code.
-
-Kevin
+No problem, your patch looks better anyway ;-)
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

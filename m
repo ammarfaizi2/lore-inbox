@@ -1,59 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317935AbSGKXJC>; Thu, 11 Jul 2002 19:09:02 -0400
+	id <S317939AbSGKXND>; Thu, 11 Jul 2002 19:13:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317939AbSGKXJA>; Thu, 11 Jul 2002 19:09:00 -0400
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:50055 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S317935AbSGKXHz>; Thu, 11 Jul 2002 19:07:55 -0400
-Subject: OLS RAS BoFs was [STATUS 2.5]  July 10, 2002
-To: "Perches, Joe" <joe.perches@spirentcom.com>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, thunder@ngforever.de,
-       "Cc: bunk" <"Cc:_bunk"@fs.tum.de>, boissiere@adiglobal.com,
-       linux-kernel@vger.kernel.org, "'Larry Kessler'" <kessler@us.ibm.com>,
-       "'Martin.Bligh@us.ibm.com'" <Martin.Bligh@us.ibm.com>,
-       "Andrew J. Hutton" <ajh@linuxsymposium.org>
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF3DAC5334.C06FB755-ON85256BF3.007168B9@portsmouth.uk.ibm.com>
-From: "Richard J Moore" <richardj_moore@uk.ibm.com>
-Date: Thu, 11 Jul 2002 21:51:10 +0100
-X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
- 12/07/2002 00:10:28
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S317940AbSGKXNC>; Thu, 11 Jul 2002 19:13:02 -0400
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:36830 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S317939AbSGKXM5>;
+	Thu, 11 Jul 2002 19:12:57 -0400
+Subject: jail() system call (was Re: prevent breaking a chroot() jail?)
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020705161750.GO1548@niksula.cs.hut.fi>
+References: <200207051516.g65FGYY20854@marc2.theaimsgroup.com> 
+	<20020705161750.GO1548@niksula.cs.hut.fi>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 11 Jul 2002 19:08:13 -0400
+Message-Id: <1026428914.8085.11.camel@zaphod>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Unfortunately, I missed the RAS BOF at OLS, so I don't know
->what was discussed.  Some of these were audio recorded.
->Anyone know of the audio repository location?  Can't find any of
->the 2001 or 2002 sessions on the symposium website.
+Wow, this is what I need.  Would there be any interest in having this
+syscall in Linux, as I need to design something like this anyways for
+the research we are doing.
 
-I am waiting to hear from Andrew Hutton - I have the MP3 files available
-(240Mb) and ready for him to host of the OLS website. Anyone else care to
-host them - Larry can we put them on sourceforge systemras?
+A first stab implementation would probably be as a module (as our
+research is based on a being usable just as a loadable module, w/o any
+direct kernel patch need, therefore until something is accepted into the
+kernel, we would need it like this), but we'd prefer it, and it
+definitely would be cleaner to have the jail tests integrated into the
+syscall and not wrapped by the module.
 
-The discussion was very good and the BoFs well attended. We had two
-sessions. The first discussed
-event logging
-driver hardening
-diagnostics
+I'd aim to fit in w/ the bsd api (looks feasable, though I was struck by
+the fact that each bsd syscall seems to take some proc struct (though
+not exposed to userspace), was wondering if that's there equiv of a
+task_struct)
 
-I counted about 50 folks attending the BoF and we talked for 3 hours.
+thanks,
 
-The second discussion took place on Friday, we had about 20 folks attending
-and discussed:
-system trace requirements
-mcore integration into lkcd.
+shaya
 
-We could hae gone of for much longer but flight schedules go in the way.
+On Fri, 2002-07-05 at 12:17, Ville Herva wrote:
+> On Fri, Jul 05, 2002 at 11:16:34AM -0400, you [Hank Leininger] wrote:
+> >
+> > No, there are many ways that root can break out of chroot(2).  I maintain
+> > some patches[1] against 2.2 (and grsecurity[2] has ported most of them to
+> > 2.4) which aim to try to make it harder for root to break out of chroot(2),
+> > but I won't say I've got them all--in fact I'll say I'm sure I *don't* have
+> > them all, and I'd like to hear suggestions for more.  Here are some things
+> > to worry about:
+> 
+> I was skimming through FreeBSD jail(2) documents
+> (http://docs.freebsd.org/44doc/papers/jail/jail.html). 
+> 
+> Compared to jail
+> (http://docs.freebsd.org/44doc/papers/jail/jail-5.html#section5):
+>  
+> > -chroot(2)'ing with an open directory fd
+> > -prevent chroot(2) by a process already chrooted ("double-chroot")
+> 
+> Jail thwarts these.
+> 
+> > -block mount(2) attempts inside chroot ("chroot(../..)" ...)
+> > -block mknod of char or block devices inside chroot ("mknod /dev/hda",
+> >    "mknod /dev/kmem")
+> 
+> Also prohibited in jail.
+> 
+> > -block chmod +s by a chrooted process
+> 
+> Jail appears to allow this, and you can't get out of jail as (jailed) root
+> anyway.
+> 
+> > -block ptrace(2) by a chrooted process of processes outside the jail
+> 
+> I believe jail prohibits this as well (through its p_trespass() mechanism).
+> 
+> > -block most signals by a chrooted process to processes outside the jail
+> 
+> Likewise - it blocks all signals in and out from jail.
+> 
+> > -block setting capabilities (capset) by a chrooted process of processes 
+> >    outside the jail
+> 
+> (No idea)
+> 
+> > -drop "dangerous" capabilities when chroot(2)'ing.  (See the patch, but
+> >    basically, various *_ADMIN, *RAW*, etc to block ioctl, sysctl for
+> >    dangerous things.)
+> 
+> Jail takes care of this by only allowing 35 operations for jailed root (out
+> of the 260 allowed for normal root). Capabilies are propably better in linux
+> context.
+> 
+> > One area I have not looked at sufficiently is sysv IPC (shared memory,
+> > semaphores...).  It's quite possible that a chrooted process can tamper
+> > with shared memory segments that other, outside-chroot processes are using
+> > (especially if some app is designed to use them to communicate across the
+> > chroot boundary; I don't know of any but they could exist) and use that
+> > vector to attack and try to subvert the other, non-chrooted process(es).
+> 
+> I would imagine the p_trespass() check is used in FreeBSD to disallow any
+> memory sharing between processes that are not in the same jail.
+> 
+> In addition to what has been mentioned above, jail(2) notably limits jailed
+> processes to one ip number (that of jail's). That way the jailed processes
+> can't connect to hosts services (even through localhost interface) unless
+> they listen to jail's ip, nor bind to any ip but the one that has been
+> granted to the jail. They also do not allow any ipconfig, routing or kernel
+> parameter changes etc from within a jail.
+>  
+> In general, I wonder if it would make sense to aim for something like
+> jail(2). Chroot has its shortcomings, and I take it that many of them have
+> to be preserved to maintain standard compliance. Jail isolates processes
+> more completely than chroot is ever ment to.
+> 
+> FreeBSD implements jail by adding a jail pointer to struct proc - I'm not
+> sure how much of that should/could be done with mere capabilities in linux,
+> and how much of the "fortificated chroot" implementation jail has overlaps
+> with Al Viro's namespaces.
+> 
+> All in all, I've seen suprisingly little conversation about jail on
+> lkml. What do people think of it?
+> 
+> 
+> -- v --
+> 
+> v@iki.fi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-What was very pleasing to see was the level of interest in this subect. It
-seems quite clear the Linux is coming of age and that there's a real
-interest in makeing Linux a first class candidate for mission critical
-employment.
-
-As soon as I can find a home for the MP3 files I'll post lkml.
-
-Richard J Moore RAS Project Lead - IBM Linux Technology Centre
 

@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267011AbTBCTKT>; Mon, 3 Feb 2003 14:10:19 -0500
+	id <S267022AbTBCTPR>; Mon, 3 Feb 2003 14:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267013AbTBCTKT>; Mon, 3 Feb 2003 14:10:19 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:4614 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267011AbTBCTKL>;
-	Mon, 3 Feb 2003 14:10:11 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302031920.h13JKZZd001140@darkstar.example.net>
-Subject: Re: CPU throttling??
-To: martin@martin.mh57.de (Martin Hermanowski)
-Date: Mon, 3 Feb 2003 19:20:34 +0000 (GMT)
-Cc: Valdis.Kletnieks@vt.edu, assembly@gofree.indigo.ie,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030203190920.GO1472@martin.mh57.de> from "Martin Hermanowski" at Feb 03, 2003 08:09:20 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267023AbTBCTPR>; Mon, 3 Feb 2003 14:15:17 -0500
+Received: from h80ad247a.async.vt.edu ([128.173.36.122]:23179 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267022AbTBCTPQ>; Mon, 3 Feb 2003 14:15:16 -0500
+Message-Id: <200302031924.h13JO9a0026095@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Matt Reppert <arashi@arashi.yi.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CPU throttling?? 
+In-Reply-To: Your message of "Mon, 03 Feb 2003 13:14:56 CST."
+             <20030203131456.34c04df8.arashi@arashi.yi.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <200302031713.h13HD2K8000181@darkstar.example.net> <200302031857.h13IvHa0025735@turing-police.cc.vt.edu>
+            <20030203131456.34c04df8.arashi@arashi.yi.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_318543187P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 03 Feb 2003 14:24:09 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Incidently, Linux has always halted the processor, rather than spun in
-> > > an idle loop, which saves power.
-> >
-> > It's conceivable that a CPU halted at 1.2Gz takes less power than one
-> > at 1.6Gz - anybody have any actual data on this?  Alternately phrased,
-> > does CPU throttling save power over and above what the halt does?
-> 
-> If I slow down my 1GHz CPU to 732MHz, I get 15min more (195min total).
-> So it is not much, but noticeable.
+--==_Exmh_318543187P
+Content-Type: text/plain; charset=us-ascii
 
-Does anybody have any data on frequency throttling on non-X86
-architectures?
+On Mon, 03 Feb 2003 13:14:56 CST, Matt Reppert said:
 
-John.
+> Yes. I have a powerpc laptop that runs at 700 MHz. If I throttle the CPU cloc
+k
+> speed down to 400 MHz and change nothing else the battery has noticeably long
+er
+> life; since it's running slower, it takes less power when it's active (not
+> halted).
+
+I knew that.  The question I asked was whether halted at 700Mhz takes more
+power than halted at 400Mhz... 
+
+--==_Exmh_318543187P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+PsHYcC3lWbTT17ARAgzPAKCeibuFatler3zxZ0cVIxJc05BSfgCg3Hj/
+zKsfRCjP4pJq1iM/5jyLR08=
+=FLSb
+-----END PGP SIGNATURE-----
+
+--==_Exmh_318543187P--

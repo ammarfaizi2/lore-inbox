@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314268AbSDRIT3>; Thu, 18 Apr 2002 04:19:29 -0400
+	id <S314269AbSDRIWh>; Thu, 18 Apr 2002 04:22:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314269AbSDRIT2>; Thu, 18 Apr 2002 04:19:28 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:53670 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S314268AbSDRIT2>;
-	Thu, 18 Apr 2002 04:19:28 -0400
-Date: Thu, 18 Apr 2002 18:18:43 +1000
-From: Anton Blanchard <anton@samba.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au, hannal@us.ibm.com
-Subject: 12 way dbench analysis: 2.5.9, dalloc and fastwalkdcache 
-Message-ID: <20020418081843.GE4209@krispykreme>
+	id <S314270AbSDRIWg>; Thu, 18 Apr 2002 04:22:36 -0400
+Received: from ns.suse.de ([213.95.15.193]:44805 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314269AbSDRIWf>;
+	Thu, 18 Apr 2002 04:22:35 -0400
+Date: Thu, 18 Apr 2002 10:22:34 +0200
+From: Andi Kleen <ak@suse.de>
+To: Doug Ledford <dledford@redhat.com>, jh@suse.cz,
+        linux-kernel@vger.kernel.org, jakub@redhat.com, aj@suse.de, ak@suse.de,
+        pavel@atrey.karlin.mff.cuni.cz
+Subject: Re: SSE related security hole
+Message-ID: <20020418102234.B7931@wotan.suse.de>
+In-Reply-To: <20020417194249.B23438@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> --- i387.c.save	Wed Apr 17 19:22:47 2002
+> +++ i387.c	Wed Apr 17 19:28:27 2002
+> @@ -33,8 +33,26 @@
+>  void init_fpu(void)
+>  {
+>  	__asm__("fninit");
+> -	if ( cpu_has_xmm )
+> +	if ( cpu_has_mmx )
 
-Hi,
+Shouldn't that be cpu_has_mmx && !cpu_has_sse2  ?
 
-Its about time I took to the kernel with the dbench stick. The following
-results were done on a 12 way ppc64 machine with 250MHz cpus. I tested
-2.5.9, 2.5.9 with Andrew Morton's dalloc work and Hanna Linder's fast
-walk dcache patch. The results can be found at:
 
-http://samba.org/~anton/linux/2.5.9/
+-Andi
 
-A few things to note:
+> +		asm volatile("xorq %%mm0, %%mm0;
+> +			      xorq %%mm1, %%mm1;
+> +			      xorq %%mm2, %%mm2;
 
-1. On 2.5.9, lru_list_lock contention starts to cut in at 4 cpus.
-Andrew's dalloc work gets rid of this bottleneck completely. Its fantastic
-stuff!
-
-2. The dcache lock starts to cut in at 6 cpus, and Hanna's patch reduces
-the contention a lot.
-
-Things look pretty good right out to 12 way with these patches, I'll try
-and get some runs on a larger SMP next.
-
-Anton

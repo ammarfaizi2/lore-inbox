@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUFALi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUFALp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265000AbUFALi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 07:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265005AbUFALi6
+	id S264991AbUFALp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 07:45:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUFALp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 07:38:58 -0400
-Received: from cantor.suse.de ([195.135.220.2]:5264 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265000AbUFALh7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 07:37:59 -0400
-Subject: Re: I would like to see ReiserFS V3 enter a feature freeze real
-	soon.
-From: Chris Mason <mason@suse.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Vladimir Saveliev <vs@namesys.com>,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-       Andrew Morton <akpm@osdl.org>, Alexander Zarochentcev <zam@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       LKML <linux-kernel@vger.kernel.org>, Jeff Mahoney <jeffm@suse.com>
-In-Reply-To: <40BB61C0.5020902@namesys.com>
-References: <20040528122854.GA23491@clipper.ens.fr>
-	 <1085748363.22636.3102.camel@watt.suse.com>
-	 <1085750828.1914.385.camel@tribesman.namesys.com>
-	 <1085751695.22636.3163.camel@watt.suse.com>  <40BB61C0.5020902@namesys.com>
-Content-Type: text/plain
-Message-Id: <1086089827.22636.3391.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 01 Jun 2004 07:37:07 -0400
+	Tue, 1 Jun 2004 07:45:29 -0400
+Received: from pD952C7EB.dip.t-dialin.net ([217.82.199.235]:717 "EHLO
+	router.zodiac.dnsalias.org") by vger.kernel.org with ESMTP
+	id S264991AbUFALpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 07:45:25 -0400
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com>
+Subject: Re: 2.6.7-rc2-mm1
+Date: Tue, 1 Jun 2004 13:39:56 +0200
+User-Agent: KMail/1.6.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Andy Lutomirski <luto@myrealbox.com>
+References: <20040601021539.413a7ad7.akpm@osdl.org> <200406011159.23532@zodiac.zodiac.dnsalias.org> <20040601202839.01c8a220.akiyama.nobuyuk@jp.fujitsu.com>
+In-Reply-To: <20040601202839.01c8a220.akiyama.nobuyuk@jp.fujitsu.com>
+X-Ignorant-User: yes
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406011339.58286@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-31 at 12:48, Hans Reiser wrote:
-> While I like and appreciate the data journaling stuff, and I think it 
-> should go in, real soon now I think we should avoid adding new features 
-> to V3.  Let the mission critical server folks have a reiserfs version 
-> that only gets bug fixes added to it, and let V4 be for those who want 
-> excitement.
-> 
-> Are there any things which Chris and Jeff think should go in besides 
-> data journaling/ordering and bitmap algorithm changes?
-> 
+Am Dienstag, 1. Juni 2004 13:28 schrieb AKIYAMA Nobuyuki:
+> > config attached, plain 2.6.7-rc2-mm1, only with dsdt patch for my laptop.
+>
+> Please try the patch below.
 
-We've got io error fault tolerance that needs to go in after the barrier
-code has stabilized.  I can't promise that I'll never making another
-change in there, but my goal is to keep them to a minimum.
+Did not work for me, but the other one mentioned by Andy looks good
 
-> Also, I would like to see some serious benchmarks of the bitmap 
-> algorithm changes before they go in.  They seem nice in theory, and some 
-> users liked them for their uses, but that does not make a serious 
-> scientific study.  Such a study has a high chance of making them even 
-> better.;-)
-> 
+> diff -Nur linux-2.6.7-rc2-mm1.org/kernel/sysctl.c
+> linux-2.6.7-rc2-mm1/kernel/sysctl.c ---
+> linux-2.6.7-rc2-mm1.org/kernel/sysctl.c	2004-06-01 19:47:22.000000000 +0900
+> +++ linux-2.6.7-rc2-mm1/kernel/sysctl.c	2004-06-01 20:21:13.000000000 +0900
+> @@ -63,7 +63,7 @@
+>  extern int printk_ratelimit_jiffies;
+>  extern int printk_ratelimit_burst;
+>
+> -#if defined(__i386__)
+> +#ifdef CONFIG_X86
+>  extern int unknown_nmi_panic;
+>  extern int proc_unknown_nmi_panic(ctl_table *, int, struct file *,
+>  				  void __user *, size_t *);
+> @@ -624,7 +624,7 @@
+>  		.mode		= 0444,
+>  		.proc_handler	= &proc_dointvec,
+>  	},
+> -#if defined(__i386__)
+> +#ifdef CONFIG_X86
+>  	{
+>  		.ctl_name       = KERN_UNKNOWN_NMI_PANIC,
+>  		.procname       = "unknown_nmi_panic",
 
-Some benchmarks have been posted on reiserfs-list, but I'd love to
-coordinate with you on getting some mongo numbers.  I can spout off a
-long list of places where the code does better then the original v3
-allocator, but that's because those were the ones I was trying to fix
-;-)
+-- 
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
 
-> zam, I view you as the block allocator maintainer, please review that 
-> bitmap code from Chris.
-> 
-> Chris and Jeff, can you propose a benchmarking plan for the bitmap code?
-
-A good start would be to just rebenchmark against v4.
-
--chris
 
 

@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129989AbQKIBkW>; Wed, 8 Nov 2000 20:40:22 -0500
+	id <S129483AbQKIBnC>; Wed, 8 Nov 2000 20:43:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129988AbQKIBkM>; Wed, 8 Nov 2000 20:40:12 -0500
-Received: from jalon.able.es ([212.97.163.2]:9419 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129044AbQKIBj5>;
-	Wed, 8 Nov 2000 20:39:57 -0500
-Date: Thu, 9 Nov 2000 02:39:50 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Errors in 2.4-test11 build
-Message-ID: <20001109023950.A4777@werewolf.able.es>
-Reply-To: jamagallon@able.es
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.0.pre2
+	id <S129044AbQKIBmm>; Wed, 8 Nov 2000 20:42:42 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:38538 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129483AbQKIBmg>;
+	Wed, 8 Nov 2000 20:42:36 -0500
+Date: Wed, 8 Nov 2000 17:27:30 -0800
+Message-Id: <200011090127.RAA17691@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: kuznet@ms2.inr.ac.ru
+CC: morton@nortelnetworks.com, andrewm@uow.edu.au,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200011082031.XAA20453@ms2.inr.ac.ru> (kuznet@ms2.inr.ac.ru)
+Subject: Re: [patch] NE2000
+In-Reply-To: <200011082031.XAA20453@ms2.inr.ac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to build 2.4.0-test11-pre1 I get the following:
+   From: kuznet@ms2.inr.ac.ru
+   Date: Wed, 8 Nov 2000 23:31:28 +0300 (MSK)
 
-make[1]: Entering directory `/usr/src/linux-2.4.0-test11/arch/i386/kernel'
-kgcc -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux/include -traditional -c
-trampoline.S -o trampoline.o
-gcc: installation problem, cannot exec `tradcpp0': No such file or directory
-make[1]: *** [trampoline.o] Error 1
+   [ Dave, please, look! I will strain brains this night too.
+     Indeed, this sounds dubious. ]
 
-My egcs does not have a -traditional cpp (Mandrake 7.2, packages egcs and
-egcs-cpp).
+Alexey!  Even someone understood all this already, look
+to include/net/sock.h SOCK_SLEEP_{PRE,POST} macros :-)
 
-Is mandatory the -traditional flag in linux/arch/i386/kernel/Makefile ?
+I will compose a patch to fix all this.
 
-If I symlink /usr/lib/gcc-lib/i586-mandrake-linux/egcs-2.91.66/tradcpp0 -> cpp0,
-or
-remove -traditional:
-
-kgcc -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux/include -c trampoline.S -o
-trampoline.o
-trampoline.S:47: unterminated character constant
-
-Code is:
-    movl    $0xA5A5A5A5, trampoline_data - r_base
- >>>>>          # write marker for master knows we're running
-
-well, remove the comment. Then:
-
-kgcc -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux/include -c trampoline.S -o
-trampoline.o
-/tmp/ccg9ZEBO.s: Assembler messages:
-/tmp/ccg9ZEBO.s:806: Error: can't handle non absolute segment in `ljmp'
-
-What's going on ??? Build works ok with 2.95.2.
-Any idea ?
-
-Thanks for reading...
-
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

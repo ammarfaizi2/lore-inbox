@@ -1,76 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266117AbUJQQ53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269183AbUJQQ4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266117AbUJQQ53 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 12:57:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269193AbUJQQ52
+	id S269183AbUJQQ4G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 12:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269205AbUJQQz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 12:57:28 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:27624 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S266117AbUJQQ5T (ORCPT
+	Sun, 17 Oct 2004 12:55:59 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:39815 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269183AbUJQQxp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 12:57:19 -0400
-Date: Sun, 17 Oct 2004 18:57:18 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Dan Kegel <dank@kegel.com>, Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Martin Schaffner <schaffner@gmx.li>, Kevin Hilman <kjh@hilman.org>,
-       bertrand marquis <bertrand.marquis@sysgo.com>
-Subject: Re: Building on case-insensitive systems and systems where -shared doesn't work well (was: Re: 2.6.8 link failure for sparc32 (vmlinux.lds.s: No such file or directory)?)
-Message-ID: <20041017165718.GB23525@mail.13thfloor.at>
-Mail-Followup-To: Dan Kegel <dank@kegel.com>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Martin Schaffner <schaffner@gmx.li>, Kevin Hilman <kjh@hilman.org>,
-	bertrand marquis <bertrand.marquis@sysgo.com>
-References: <414FC41B.7080102@kegel.com> <58517.194.237.142.24.1095763849.squirrel@194.237.142.24> <4164DAC9.8080701@kegel.com> <20041016210024.GB8306@mars.ravnborg.org> <20041016200627.A20488@flint.arm.linux.org.uk> <20041016212440.GA8765@mars.ravnborg.org> <20041016204001.B20488@flint.arm.linux.org.uk> <20041016220427.GE8765@mars.ravnborg.org>
+	Sun, 17 Oct 2004 12:53:45 -0400
+Date: Sun, 17 Oct 2004 18:55:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
+Message-ID: <20041017165509.GA26791@elte.hu>
+References: <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041017190330.7a226190@mango.fruits.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041016220427.GE8765@mars.ravnborg.org>
+In-Reply-To: <20041017190330.7a226190@mango.fruits.de>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 17, 2004 at 12:04:27AM +0200, Sam Ravnborg wrote:
-> On Sat, Oct 16, 2004 at 08:40:01PM +0100, Russell King wrote:
-> > On Sat, Oct 16, 2004 at 11:24:40PM +0200, Sam Ravnborg wrote:
-> > > On Sat, Oct 16, 2004 at 08:06:27PM +0100, Russell King wrote:
-> > > > 
-> > > > Converting .S -> .s is useful for debugging - please don't cripple the
-> > > > kernel developers just because some filesystems are case-challenged.
-> > > 
-> > > Does the debug tools rely on files named *.s then?
-> > > 
-> > > There are today ~1400 files named *.S in the tree, but none named *.s.
-> > > So my idea was to do it like:
-> > > *.S => *.asm => *.o
-> > > But if this breaks some debugging tools I would like to know.
-> > 
-> > *.asm is nonstanard naming.  If we have to support case-challenged
-> > filesystems, please ensure that the rest of the nonbroken world can
-> > continue as they have done for the last few decades and live happily
-> > unaffected by these problems.
+
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
+
+> the cpu mhz issue seems to be fixed:
 > 
-> I still do not see how a kernel developer are affected by changing
-> the extension of an intermidiate file - please explain.
-
-hmm, maybe because they expect the output of the
-preprocessed assembly code to have the prefix .s
-instead of .asm (see gcc man page and play with
-gcc -S)
-
-GCC(1)                      GNU Tools                      GCC(1)
-
-       .s    Assembler source; assemble
-       .S    Assembler source; preprocess, assemble
-
-best,
-Herbert
-
+> ~$ uname -a
+> Linux mango.fruits.de 2.6.9-rc4-mm1-RT-U4-RT #1 Sun Oct 17 17:48:48 CEST 2004 i686 GNU/Linux
+> ~$ cat /proc/cpuinfo |grep MHz
+> cpu MHz         : 1195.145
+> mango:/usr/src/linux-2.6.9-rc4-mm1-VP-U4# grep REALTIME .config
+> CONFIG_PREEMPT_REALTIME=y
 > 
-> 	Sam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Might of course be coincidence. Will report as soon as i see the 0.001 Mhz
+> pop up again.
+
+ok.
+
+> I saw one of these in /var/log/syslog:
+> 
+> Oct 17 18:53:52 mango kernel: PCI: Found IRQ 3 for device 0000:00:0f.0
+> Oct 17 18:53:52 mango kernel: Debug: sleeping function called from invalid context modprobe(109) at kernel/mutex.c:25
+> Oct 17 18:53:52 mango kernel: in_atomic():0 [00000000], irqs_disabled():1
+> Oct 17 18:53:52 mango kernel:  [print_context_stack+78/112] dump_stack+0x1e/0x20
+> Oct 17 18:53:52 mango kernel:  [sinbin_release_fn+536/864] __might_sleep+0xb8/0xd0
+> Oct 17 18:53:52 mango kernel:  [__create_workqueue+35/320] _mutex_lock+0x23/0x60
+> Oct 17 18:53:52 mango kernel:  [__create_workqueue+145/320] _mutex_lock_irqsave+0x11/0x20
+> Oct 17 18:53:52 mango kernel:  [pg0+809943061/1069765632] get_time_pit+0x15/0x50 [gameport]
+
+ok, does the patch below fix those messages? (gameport.c used its own,
+private, incompatible prototype for i8253_lock which breaks raw spinlock
+handling.)
+
+	Ingo
+
+--- linux/drivers/input/gameport/gameport.c.orig
++++ linux/drivers/input/gameport/gameport.c
+@@ -37,12 +37,13 @@ static LIST_HEAD(gameport_dev_list);
+ 
+ #ifdef __i386__
+ 
++#include <asm/i8253.h>
++
+ #define DELTA(x,y)      ((y)-(x)+((y)<(x)?1193182/HZ:0))
+ #define GET_TIME(x)     do { x = get_time_pit(); } while (0)
+ 
+ static unsigned int get_time_pit(void)
+ {
+-	extern spinlock_t i8253_lock;
+ 	unsigned long flags;
+ 	unsigned int count;
+ 

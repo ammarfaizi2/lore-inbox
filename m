@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265571AbRGCRgd>; Tue, 3 Jul 2001 13:36:33 -0400
+	id <S265682AbRGCRjx>; Tue, 3 Jul 2001 13:39:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265478AbRGCRgX>; Tue, 3 Jul 2001 13:36:23 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:12561 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S265610AbRGCRgL>; Tue, 3 Jul 2001 13:36:11 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200107031735.TAA00455@green.mif.pg.gda.pl>
-Subject: Re: RFC: modules and 2.5
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Tue, 3 Jul 2001 19:35:22 +0200 (CEST)
-Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org (kernel list)
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S265545AbRGCRjd>; Tue, 3 Jul 2001 13:39:33 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:37132 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265478AbRGCRjV>;
+	Tue, 3 Jul 2001 13:39:21 -0400
+Date: Tue, 3 Jul 2001 10:38:00 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-users@lists.sourceforge.net
+Subject: Re: 2.4.5 keyspan driver
+Message-ID: <20010703103800.B28180@kroah.com>
+In-Reply-To: <20010630003323.A908@glitch.snoozer.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010630003323.A908@glitch.snoozer.net>; from haphazard@socket.net on Sat, Jun 30, 2001 at 12:33:23AM -0500
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 30, 2001 at 12:33:23AM -0500, Gregory T. Norris wrote:
+> CONFIG_USB_SERIAL=m
+> # CONFIG_USB_SERIAL_GENERIC is not set
 
-> 
-> A couple things that would be nice for 2.5 is
-> - let MOD_INC_USE_COUNT work even when module is built into kernel, and
-> - let THIS_MODULE exist and be valid even when module is built into
-> kernel
-> 
-> This introduces bloat into the static kernel for modules which do not
-> take advantage of this, so perhaps we can make this new behavior
-> conditional on CONFIG_xxx option.  Individual drivers which make use of
-> the behavior can do something like
-> 
-> 	dep_tristate 'my driver' CONFIG_MYDRIVER $CONFIG_PCI
-> 	if [ "$CONFIG_MYDRIVER" != "n" -a \
-              ^^^^^^^^^^^^^^^^^^^^^^^
-> 	     "$CONFIG_STATIC_MODULES" != "y" ]; then
-> 	   define_bool CONFIG_STATIC_MODULES y
-> 	fi
+Can you enable CONFIG_USB_SERIAL_GENERIC and let me know if that fixes
+the problem?
 
-Hmmm, shouldn't it be written in CML2 if it is for 2.5 ?
+thanks,
 
-For 2.4 the marked condition ( != n on a variable defined by dep_*)
-probably would break xconfig. Don't suggest such solutions...
-
-Andrzej
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  tel.  (0-58) 347 14 61
-Wydz.Fizyki Technicznej i Matematyki Stosowanej Politechniki Gdanskiej
+greg k-h

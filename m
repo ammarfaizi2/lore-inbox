@@ -1,50 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264471AbTLQQOS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 11:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbTLQQOS
+	id S264467AbTLQQTw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 11:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264470AbTLQQTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 11:14:18 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:32678 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264471AbTLQQOR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 11:14:17 -0500
-Date: Wed, 17 Dec 2003 17:14:11 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: PCI Express support for 2.4 kernel
-In-Reply-To: <Pine.LNX.4.58.0312170753400.8541@home.osdl.org>
-Message-ID: <Pine.GSO.4.58.0312171713370.24864@waterleaf.sonytel.be>
-References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> 
- <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>  <3FDDACA9.1050600@intel.com>
- <1071494155.5223.3.camel@laptop.fenrus.com> <3FDDBDFE.5020707@intel.com>
- <Pine.LNX.4.58.0312151154480.1631@home.osdl.org> <3FDEDC77.9010203@intel.com>
- <Pine.LNX.4.58.0312160844110.1599@home.osdl.org> <3FDFF81F.7040309@intel.com>
- <Pine.LNX.4.58.0312162240040.8541@home.osdl.org>
- <Pine.GSO.4.58.0312171105200.24864@waterleaf.sonytel.be>
- <Pine.LNX.4.58.0312170753400.8541@home.osdl.org>
+	Wed, 17 Dec 2003 11:19:51 -0500
+Received: from out009pub.verizon.net ([206.46.170.131]:28837 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S264467AbTLQQTr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 11:19:47 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Thomas Voegtle <thomas@voegtle-clan.de>, linux-kernel@vger.kernel.org
+Subject: Re: no atapi cdrecord burning with 2.6.0-test11-bk10 / bk13
+Date: Wed, 17 Dec 2003 11:19:39 -0500
+User-Agent: KMail/1.5.1
+References: <Pine.LNX.4.21.0312171604390.32339-100000@needs-no.brain.uni-freiburg.de>
+In-Reply-To: <Pine.LNX.4.21.0312171604390.32339-100000@needs-no.brain.uni-freiburg.de>
+Organization: Organization: None that appears to be detectable by casual observers
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200312171119.39966.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.60.44] at Wed, 17 Dec 2003 10:19:45 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Dec 2003, Linus Torvalds wrote:
-> On Wed, 17 Dec 2003, Geert Uytterhoeven wrote:
-> > For the record: PCI Express is _not_ PCI-X.
+On Wednesday 17 December 2003 10:09, Thomas Voegtle wrote:
+>Hello,
 >
-> Ok, but "PCI Express" is too damn long to write, so we'll have to have
-> _some_ sane name for it without typing for half an hour.
+>cdrecord -dev=ATAPI -scanbus  with 2.6.0-test11-bk10 and bk13 shows
+> this:
+>
+>scsibus0:
+>        0,0,0     0) '' '' '' NON CCS Disk
+>        0,1,0     1) '' '' '' NON CCS Disk
+>
+>
+>but this works well with 2.6.0-test11.
+>=>
+>
+>        0,0,0     0) 'CREATIVE' ' CD5233E        ' '2.05' Removable
+> CD-ROM 0,1,0     1) 'PLEXTOR ' 'CD-R   PX-W1610A' '1.04' Removable
+> CD-ROM
+>
+>SuSE 9.0
 
-3GIO? That was the original name :-)
+The above looks ok, but even though I'm working with 2.6.0-test11, 
+that command gets this:
 
-Gr{oetje,eeting}s,
+[root@coyote amanda-dbg]# cdrecord -dev=ATAPI -scanbus
+Cdrecord 2.00.3 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg 
+Schilling
+scsidev: 'ATAPI'
+devname: 'ATAPI'
+scsibus: -2 target: -2 lun: -2
+Warning: Using ATA Packet interface.
+Warning: The related libscg interface code is in pre alpha.
+Warning: There may be fatal problems.
+Using libscg version 'schily-0.7'
+scsibus0:
+        0,0,0     0) 'CREATIVE' 'CD-RW RW1210E   ' 'LCS6' Removable 
+CD-ROM
+        0,1,0     1) *
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
 
-						Geert
+I take that it is attempting to scan all 8 addresses of the scsi bus 
+even though its actually hitting the atapi stuff?  Or do I need an 
+even fresher version of cdrecord? or libscg?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+>please cc me, I'm not subscribed
+>
+>Greetings
+>Thomas
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

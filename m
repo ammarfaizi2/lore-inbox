@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267098AbUBSCZz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 21:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267697AbUBSCZy
+	id S266997AbUBRXOu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 18:14:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266977AbUBRXOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 21:25:54 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:32896 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S267098AbUBSCZw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 21:25:52 -0500
-Date: Thu, 19 Feb 2004 03:25:46 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: uclinux-v850@lsi.nec.co.jp
-Cc: linux-kernel@vger.kernel.org
-Subject: v850 ptrace.c bug ...
-Message-ID: <20040219022546.GA16742@MAIL.13thfloor.at>
-Mail-Followup-To: uclinux-v850@lsi.nec.co.jp,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 18 Feb 2004 18:14:49 -0500
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:18308 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S266997AbUBRXNr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 18:13:47 -0500
+From: Rusty Russell <rusty@au1.ibm.com>
+To: Linda Xie <lxiep@ltcfwd.linux.ibm.com>
+Cc: John Rose <johnrose@austin.ibm.com>, Rusty Russell <rusty@au1.ibm.com>,
+       linux-kernel@vger.kernel.org, gregkh@us.ibm.com,
+       Mike Wortman <wortman@us.ibm.com>
+Subject: Re: [PATCH] PPC64 PCI Hotplug Driver for RPA 
+In-reply-to: Your message of "Wed, 18 Feb 2004 13:14:11 MDT."
+             <4033B983.6060809@ltcfwd.linux.ibm.com> 
+Date: Thu, 19 Feb 2004 09:27:18 +1100
+Message-Id: <20040218231322.65F7C17DD8@ozlabs.au.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <4033B983.6060809@ltcfwd.linux.ibm.com> you write:
+> >Umm, what's this?  Checking CONFIG_FOO_MODULE is basically always wrong
+> >and especially in this case.  Just use "rpaphp" always.
+> >  
+> >
+> Replaced with
+> 
+> #define MY_NAME "rpaphp"
 
-Hi!
+Or better, remove #define and use KBUILD_MODNAME, which for this file
+will be rpaphp anyway.
 
-stumbled over the following bug: 
-
-sys_ptrace() for v850, if pid == 1, doesn't put the
-struct task_struct (child), the following patch
-should fix that ...
-
-best,
-Herbert
-
---- linux-2.6.3/arch/v850/kernel/ptrace.c.orig	2004-02-18 04:58:01.000000000 +0100
-+++ linux-2.6.3/arch/v850/kernel/ptrace.c	2004-02-19 03:02:43.000000000 +0100
-@@ -138,7 +138,7 @@ int sys_ptrace(long request, long pid, l
- 
- 	rval = -EPERM;
- 	if (pid == 1)		/* you may not mess with init */
--		goto out;
-+		goto out_tsk;
- 
- 	if (request == PTRACE_ATTACH) {
- 		rval = ptrace_attach(child);
-
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,88 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbUE1OLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUE1OPs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbUE1OLu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 10:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbUE1OLu
+	id S263159AbUE1OPs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 10:15:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbUE1OPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 10:11:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24449 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263163AbUE1OLc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 10:11:32 -0400
-Date: Fri, 28 May 2004 09:09:41 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Len Brown <len.brown@intel.com>
-Cc: Matthew Wilcox <willy@debian.org>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-       "linux-pci@atrey.karlin.mff.cuni.cz" 
-	<linux-pci@atrey.karlin.mff.cuni.cz>
-Subject: Re: ACPI & 2.4 (Re: [BK PATCH] PCI Express patches for 2.4.27-pre3)
-Message-ID: <20040528120941.GB1400@logos.cnet>
-References: <A6974D8E5F98D511BB910002A50A6647615FC676@hdsmsx403.hd.intel.com> <1085556934.26254.132.camel@dhcppc4>
+	Fri, 28 May 2004 10:15:47 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:30346 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S263159AbUE1OPk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 10:15:40 -0400
+Date: Fri, 28 May 2004 18:15:40 +0400
+From: Andrey Panin <pazke@donpac.ru>
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] m32r - Upgrade to v2.6.6 kernel
+Message-ID: <20040528141540.GA12400@pazke>
+Mail-Followup-To: Hirokazu Takata <takata@linux-m32r.org>,
+	linux-kernel@vger.kernel.org
+References: <20040528.131611.28785624.takata.hirokazu@renesas.com> <20040528072336.GD7499@pazke> <swfzn7sivxe.wl@renesas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
 Content-Disposition: inline
-In-Reply-To: <1085556934.26254.132.camel@dhcppc4>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <swfzn7sivxe.wl@renesas.com>
+User-Agent: Mutt/1.5.6i
+X-SMTP-Authenticated: pazke@donpac.ru (cram)
+X-SMTP-TLS: TLSv1:AES256-SHA:256
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 26, 2004 at 03:35:34AM -0400, Len Brown wrote:
-> Yes, the ACPI part to enable MMconfig was pretty small.
-> We parse a table in the standard way and set a global variable --
-> that's about it.
-> 
-> I submitted it to 2.4 for the sole purpose
-> to enable Greg to enable native PCIExpress.
-> 
-> I expect demand for this in 2.4 as the major distros'
-> enterprise releases are still 2.4 based and the hardware has
-> arrived...  Your call, Marcelo, if this is something to
-> solve in upstream 2.4 or something the distros need
-> to solve for themselves.  I recommend leaving the
-> small ACPI piece of the puzzle intact in either case.
-> 
-> On Tue, 2004-05-25 at 08:54, Marcelo Tosatti wrote:
-> > I've humbly asked Len to stop doing big updates
-> > whenever possible on the 
-> > v2.4 ACPI code, and do bugfixes only instead. Is that a pain in the
-> > ass for you, Len?    
-> > 
-> > I asked that because it is common to see new bugs introduced by an
-> > ACPI update, and you know that more than I do.
-> 
-> At one point I released to 2.4 first because that is where
-> the useful testing feedback was; and then released to 2.5
-> to make sure it didn't fall behind.
-> 
-> Then I released to 2.4 and 2.6 simultaneously b/c
-> I got quick feeback from both camps.
-> 
-> Now we're into the era where the release-early
-> release-often matra applies to 26 only (or maybe more 2.6-mm)
-> and 2.4 is in maintenance mode.
-> 
-> I would still like to send some significant ACPI patches to 24.
-> Yes, they're 100% bugfixes -- sometimes bugfixes touch
-> lots of files too...  But I'll do so only after the same
-> fix has been proven in 2.6 for a spell.
-> 
-> With some parts of ACPI, such as the ACPICA core interpreter
-> this is actually pretty low risk, because that part of
-> the kernel is identical between 2.4 and 2.6.  So if 2.6 works,
-> so will 2.4.
-> 
-> Of course this also depends on if 2.4 will be accepting anything.
-> I recall talk back about 2.4.25 about the end of the 2.4 line.
 
-Yes, wish it was. Unfortunately there still a lot of activitity from 
-people sending me patches, which are usually fixing bugs. Not major core
-bugs, more "outside of the core" things (drivers and filesystems).
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I generally only have time to read LKML messages directed to me
-> or if the word "ACPI" appears in the message, so I may have missed
-> the word 2.4.  What is the word?
+On 149, 05 28, 2004 at 09:21:49PM +0900, Hirokazu Takata wrote:
+> From: Andrey Panin <pazke@donpac.ru>
+> > On 149, 05 28, 2004 at 01:16:11PM +0900, Hirokazu Takata wrote:
+> > > I would like to send the latest 2.6.6 kernel patch for=20
+> > > the Renesas M32R processor.
+> > >=20
+> > > Patch information to the stock 2.6.6 kernel is placed as follows:
+> > > - m32r architecture dependent portions (arch/m32r, include/asm-m32r)
+> > >   http://www.linux-m32r.org/public/linux-2.6.6_m32r_20040528.arch-m32=
+r.patch
+> >=20
+> > Single megapatch (1.5 Mb in size) is not the best way to merge somethin=
+g into Linux kernel.
+>=20
+> Yes, but the m32r port has not been merged into the mainline kernel
+> tree yet...  May I send many small patches to LKML?
+>=20
+>=20
+> > Now quick look at the patch itself:
+>=20
+> Thank you for your quick reply.
+>=20
+>=20
+> > 1)
+> > diff -ruN linux-2.6.6.org/arch/m32r/drivers/8390.c linux-2.6.6/arch/m32=
+r/drivers/8390.c
+>  ...
+> > diff -ruN linux-2.6.6.org/arch/m32r/drivers/8390.h linux-2.6.6/arch/m32=
+r/drivers/8390.h
+>  ...
+> > Is this really needed ?
+>=20
+> These files are required for mappi_ne.c.
+> The mappi_ne.c is based on ne.c and modified for an eva board "mappi",
+> I think it is highly dependent on the target platform.
+>=20
+> There are two reasons that we placed some m32r specific drivers in=20
+> arch/m32r/drivers/:
+> - We think they are highly depends on the target platform, and
 
-I dont get you? What you mean? (sorry)
+So we should merge m32r core first :)
 
+> - We can not merge them to drivers/ because the m32r architecture
+>   has not been supported by the mainline linux kernel.
 
+We have many arch specific drivers in drivers/net already.
+
+> > 2) File arch/m32r/drivers/mappi_ne.c contains almost complete copy of d=
+rivers/net/ne.c
+> > with lots of code probably useless for your systems (old style ISA prob=
+ing, ISAPnP=20
+> > support etc.)
+>=20
+> Yes.
+>=20
+> > Also code like this is definetely unacceptable:
+> >=20
+> > +#ifdef CONFIG_PLAT_MAPPI
+> > +		outb_p(0x4b, ioaddr + EN0_DCFG);
+> > +#elif CONFIG_PLAT_OAKS32R
+> > +		outb_p(0x48, ioaddr + EN0_DCFG);
+> > +#else
+> > +		outb_p(0x49, ioaddr + EN0_DCFG);
+> > +#endif
+> >=20
+> > This fragment can be rewritten this way, with all  #ifdef mess hidden i=
+n the some header file:
+> >=20
+> > +		outb_p(MY_MAGIC_OFFSET, ioaddr + EN0_DCFG);
+>=20
+> Do you mean I should use drivers/net/ne.c instead of mappi_ne.c?
+> I'm not sure how can I merge such target-dependent code fragments to ne.c.
+> But I will try to merge them.
+
+I didn't mean merging. My point is that general policy for linux kernel
+code is to avoid #ifdef cluttered code as much as possible. It's better
+to hide such code in header files.
+=20
+> > 4) Do you really need to reimplement Linux console subsystem in arch/m3=
+2r/drivers/video/console.c,
+> > arch/m32r/drivers/video/fbmem.c, arch/m32r/drivers/video/fbcon.h ?
+>=20
+> These are obsolete codes, which were used in m32r 2.4 kernel.
+> In 2.6 kernel, a framebuffer device and video console driver=20
+> should be reimplement for m32r targets...
+>=20
+>=20
+> > 5) Any specific reason to implement read[bwl]/write[bwl] this way:
+> >=20
+> > +unsigned char _readb(unsigned long addr)
+> > +{
+> > +       return *(volatile unsigned char *)addr;
+> > +}
+> >=20
+> > Why not to inline them ?
+>=20
+> They were used for debugging.=20
+> I will rewrite to inline them, thank you.
+>=20
+>=20
+> > 6) Lots of ugly debugging #ifdef's in arch/m32r/kernel/ptrace.c
+>=20
+> I agree.
+>=20
+>=20
+> > 7) arch/m32r/lib/clib.c contains slightly strange abs() function which
+> > isn't used anywhere in the patch.
+>=20
+> Hmm..  it is really strange.  I will remove it.
+
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--CE+1k2dSO48ffgeK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAt0mMby9O0+A2ZecRAq+OAKCsuJ6wgy0iZSdMvxiy/DDp8Dv1awCaA3Ue
++r778Pw3JKaTEP84Z05W5j4=
+=dy9o
+-----END PGP SIGNATURE-----
+
+--CE+1k2dSO48ffgeK--

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263364AbTH0NF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 09:05:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263373AbTH0NF4
+	id S263374AbTH0NJU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 09:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263377AbTH0NJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 09:05:56 -0400
-Received: from mail.permas.de ([195.143.204.226]:33198 "EHLO netserv.local")
-	by vger.kernel.org with ESMTP id S263364AbTH0NFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 09:05:55 -0400
-From: Hartmut Manz <manz@intes.de>
-Organization: INTES GmbH
-To: linux-kernel@vger.kernel.org
-Subject: Which U320 SCSI controler can be used on IA64 Systems
-Date: Wed, 27 Aug 2003 15:05:53 +0200
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Aug 2003 09:09:20 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:46034 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S263374AbTH0NJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 09:09:19 -0400
+Date: Wed, 27 Aug 2003 09:52:41 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Jaroslav Kysela <perex@suse.cz>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: Strange memory usage reporting
+Message-ID: <20030827095241.D639@nightmaster.csn.tu-chemnitz.de>
+References: <Pine.LNX.4.44.0308261550240.1958-100000@pnote.perex-int.cz> <Pine.LNX.4.44.0308261756570.1632-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308271505.53086.manz@intes.de>
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.44.0308261756570.1632-100000@localhost.localdomain>; from hugh@veritas.com on Tue, Aug 26, 2003 at 06:03:14PM +0100
+X-Spam-Score: -4.7 (----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19s033-0004IK-00*c6coH0gMtDk*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I need to extend an ITANIUM-2 system with a 4 way striped scratch file-system.
-Now I am looking for working U320 SCSI controllers.
+On Tue, Aug 26, 2003 at 06:03:14PM +0100, Hugh Dickins wrote:
+> Which is the driver involved?  Though it's not wrong to give do_no_page
+> a Reserved page, beware of the the page->count accounting: while it's
+> Reserved, get_page or page_cache_get raises the count, but put_page
+> or page_cache_release does not decrement it - very easy to end up
+> with the page never freed.
 
-Could anyone tell me which SCSI controller is working on IA64.
+Why is this so asymetric? I would understand ignoring these pages
+in the freeing logic, but why exclude them also from refcounting?
 
-My Idea was to use the ADAPTEC Controller 39320D with 
-2 * 2 external Seagate 15K3 Disk and to use softraid.
-Is this a good choice? 
+Regards
 
-The used operating system is RedHat AS2.1
-Compiling a new kernel is no problem.
-
-Thank You in advance
-
-Hartmut
--- 
------------------------------------------------------------------------------
-Hartmut Manz                                      WWW:    http://www.intes.de
-INTES GmbH                                        Phone:  +49-711-78499-29
-Schulze-Delitzsch-Str. 16                         Fax:    +49-711-78499-10
-D-70565 Stuttgart                                 E-mail: manz@intes.de
-   Ein Mensch sieht, was vor Augen ist; der Herr aber sieht das Herz an.
-------------------------------------------------------- 1. Samuel 16, 7 -----
-
+Ingo Oeser

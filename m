@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRCKTFI>; Sun, 11 Mar 2001 14:05:08 -0500
+	id <S129051AbRCKSvh>; Sun, 11 Mar 2001 13:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129091AbRCKTE6>; Sun, 11 Mar 2001 14:04:58 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47117 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129078AbRCKTEq>; Sun, 11 Mar 2001 14:04:46 -0500
+	id <S129066AbRCKSvS>; Sun, 11 Mar 2001 13:51:18 -0500
+Received: from f61.law3.hotmail.com ([209.185.241.61]:36113 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129051AbRCKSvJ>;
+	Sun, 11 Mar 2001 13:51:09 -0500
+X-Originating-IP: [65.25.188.54]
+From: "John William" <jw2357@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
 Subject: Re: HP Vectra XU 5/90 interrupt problems
-To: jw2357@hotmail.com (John William)
-Date: Sun, 11 Mar 2001 19:07:23 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <F61uN6tdqVvPdLFYxc900008c66@hotmail.com> from "John William" at Mar 11, 2001 06:50:23 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14cBBe-0000VT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sun, 11 Mar 2001 18:50:23 
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F61uN6tdqVvPdLFYxc900008c66@hotmail.com>
+X-OriginalArrivalTime: 11 Mar 2001 18:50:24.0028 (UTC) FILETIME=[2163DDC0:01C0AA5C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> maintainers about the problem. If this isn't ok, then maybe the sanity check 
-> in pci-irq.c would be to force level triggering only on shared PCI 
-> interrupts?
+>From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>
+> > So PCI interrupts must always be level triggered? If so, then the kernel
+> > should never program the IO APIC to use an edge triggered interrupt on a 
+>PCI
+> > device. If that's true, then why not force the interrupt type to level
+> > triggered for all PCI devices (to work around a potentially broken MP
+> > table)?
+>
+>Its not that simple. Its common to edge trigger some of the built in 
+>devices
+>like IDE controllers.
 
-This seems a sensible path to take for such machines
+Ok, I guess I'm a little confused again. My SCSI controller hangs when the 
+interrupt it shares with the network card is configured as edge triggered. 
+When I force the interrupt to be level triggered, everything works fine. 
+Does this sound like a problem in one of the two drivers (unable to share an 
+edge triggered interrupt) or is it a no-no to set up a shared PCI interrupt 
+as edge triggered?
 
-> I'm going down this path because I can't see a good way to check for the 
-> presence of a valid ELCR, so I'm hoping a PCI IRQ sanity check would fix my 
-> problem (but someone please correct me if I'm wrong). Are SMP standard type 
-> #5 machines (ISA/PCI) or just the Vectra's so rare that I'm the only one 
-> having this problem? Or am I the only one to try putting a PCI card in one 
-> of it's two slots... :-)
+If shared, edge triggered interrupts are ok then I will talk to the driver 
+maintainers about the problem. If this isn't ok, then maybe the sanity check 
+in pci-irq.c would be to force level triggering only on shared PCI 
+interrupts?
 
-HP/XU boxes have a history of weird (and sometimes invalid) MP tables. In this
-case its not clear to me whether HP or the kernel is right (or indeed if both
-are right and the standard doesnt help)
+I'm going down this path because I can't see a good way to check for the 
+presence of a valid ELCR, so I'm hoping a PCI IRQ sanity check would fix my 
+problem (but someone please correct me if I'm wrong). Are SMP standard type 
+#5 machines (ISA/PCI) or just the Vectra's so rare that I'm the only one 
+having this problem? Or am I the only one to try putting a PCI card in one 
+of it's two slots... :-)
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 

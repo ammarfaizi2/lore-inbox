@@ -1,20 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280159AbRJaL3K>; Wed, 31 Oct 2001 06:29:10 -0500
+	id <S280154AbRJaLbK>; Wed, 31 Oct 2001 06:31:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280162AbRJaL3A>; Wed, 31 Oct 2001 06:29:00 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39684 "HELO
+	id <S280156AbRJaLbB>; Wed, 31 Oct 2001 06:31:01 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:23045 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S280159AbRJaL2u>; Wed, 31 Oct 2001 06:28:50 -0500
-Date: Wed, 31 Oct 2001 07:42:59 -0200 (BRST)
+	id <S280154AbRJaLaq>; Wed, 31 Oct 2001 06:30:46 -0500
+Date: Wed, 31 Oct 2001 07:44:53 -0200 (BRST)
 From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        andrea@suse.de
-Subject: Re: pre5 VM livelock
-In-Reply-To: <Pine.LNX.4.33.0110301607220.1336-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0110310741420.4528-100000@freak.distro.conectiva>
+To: Les Schaffer <schaffer@optonline.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13 (SMP): kswapd working furiously, to no effect
+In-Reply-To: <15325.64751.75250.887741@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.21.0110310744220.4528-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,24 +20,77 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 30 Oct 2001, Linus Torvalds wrote:
-
-> 
-> On Tue, 30 Oct 2001, Jeff Garzik wrote:
-> > Linus Torvalds wrote:
-> > > Question: did you have some big process that you tried to test the VM
-> > > with? Did you expect the oom killer to kill it?
-> >
-> > AFAICT, yes.  I am going to re-run again to make sure (both with pre5
-> > and also pre5aa1).
-> 
-> Ok. The oom-killer is something I didn't even bother worrying about in the
-> pre-series, I'll give that another look.
-
-Jeff,
-
-Could you please show us the _full_ Alt+Sysrq+M output when the problem
-happens? I want to see the "free min low  high" part.
+Please try the newest .14-pre.
 
 Thanks
+
+On Mon, 29 Oct 2001, Les Schaffer wrote:
+
+> I noticed a problem for the last several days (2.4.13 Tyan PIII Dual)
+> but couldnt put my finger on it till i started paying attention:
+> kswapd is working furiously, but accomplishing nothing.
+> 
+> that is, kswapd is logging lots of CPU time, but no swap space is
+> being used. (see below).
+> 
+> i dont recall having problems until towards the end of the day (i
+> shutdown at nite). when i open or close a netscape session for
+> example, or do a dpkg blah-blah, the process hangs for a long time
+> before getting going.  at one point prior to the 'top' below, i had
+> something like 500XXXK used, and still not a drop, err byte, of swap
+> used.
+> 
+> this behavior was not occuring with 2.4.12 (will check tmw) and
+> earlier versions.
+> 
+> les schaffer
+> 
+> ================= INFO =================
+> speggy)~/: dmesg | grep swap
+> Starting kswapd
+> Adding Swap: 506036k swap-space (priority -1)
+> 
+> --------------
+> 
+> (speggy)~/: top
+> 
+> 19:07:09 up 13:12,  3 users,  load average: 1.68, 1.45, 1.24
+> 69 processes: 66 sleeping, 3 running, 0 zombie, 0 stopped
+> CPU states:  14.4% user,  85.5% system,   0.0% nice,   0.1% idle
+> Mem:    513916K total,   443932K used,    69984K free,     7808K buffers
+> Swap:   506036K total,        0K used,   506036K free,   166992K cached
+> 
+>   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+>  2873 godzilla   9   0 31984  30M 12272 S     0.0  6.0   0:00 mozilla-bin
+>              [ mozilla-bin repeated ad infinitum)
+>   356 godzilla   9   0 27528  26M  3688 S     0.0  5.3   4:16 xemacs
+>   298 root       6 -10  202M  26M  4120 S <   0.9  5.1   9:04 XFree86
+>   335 godzilla   9   0  7672 7668  6100 S     0.0  1.4   0:17 gabber
+>   326 godzilla   9   0  4908 4908  3812 S     0.0  0.9   0:06 panel
+>              [ etc ... ]
+>     3 root      19  19     0    0     0 SWN   0.0  0.0   0:00 ksoftirqd_CPU0
+>     4 root      19  19     0    0     0 SWN   0.0  0.0   0:00 ksoftirqd_CPU1
+>     5 root      19   0     0    0     0 RW   95.9  0.0 282:40 kswapd
+>     6 root       9   0     0    0     0 SW    0.0  0.0   0:00 bdflush
+> 
+> --------------
+> 
+> (speggy)~/: ps uxwa     // about 50 minutes after 'top' above 
+> 
+> USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+> root         5 37.9  0.0     0    0 ?        SW   05:54 315:56 [kswapd]
+> 
+> --------------
+> 
+> (speggy)/proc/: cat swaps 
+> Filename			Type		Size	Used	Priority
+> /dev/hda4                       partition	506036	0	-1
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

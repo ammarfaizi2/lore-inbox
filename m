@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265469AbTBPAiJ>; Sat, 15 Feb 2003 19:38:09 -0500
+	id <S265470AbTBPAl4>; Sat, 15 Feb 2003 19:41:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbTBPAiJ>; Sat, 15 Feb 2003 19:38:09 -0500
-Received: from c16639.thoms1.vic.optusnet.com.au ([210.49.244.5]:17284 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S265469AbTBPAiI>;
-	Sat, 15 Feb 2003 19:38:08 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: tbench as a load - DDOS attack?
-Date: Sun, 16 Feb 2003 11:48:02 +1100
-User-Agent: KMail/1.5
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200302161007.25149.kernel@kolivas.org> <Pine.LNX.4.50.0302151823130.16012-100000@montezuma.mastecende.com>
-In-Reply-To: <Pine.LNX.4.50.0302151823130.16012-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S265480AbTBPAl4>; Sat, 15 Feb 2003 19:41:56 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:42720 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S265470AbTBPAlz>; Sat, 15 Feb 2003 19:41:55 -0500
+Date: Sun, 16 Feb 2003 01:51:01 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] pcmcia: small bugfix & cleanup
+Message-ID: <20030216005101.GA6758@brodo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200302161148.02045.kernel@kolivas.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Feb 2003 10:24 am, Zwane Mwaikambo wrote:
-> On Sun, 16 Feb 2003, Con Kolivas wrote:
-> > Zwane M suggested using tbench as a load to test one of his recent
-> > patches and gave me the idea to try using tbench_load in contest. Here
-> > are the first set of results I got while running tbench 4 continuously
-> > (uniprocessor machine):
-> >
-> > tbench_load:
-> > Kernel         [runs]   Time    CPU%
-> > test2420            1   180     38.9
-> > test2561            1   970     7.7
-> >
-> > This is a massive difference. Sure tbench was giving better numbers on
-> > 2.5.61 but it caused a massive slowdown. I wondered whether this
-> > translates into being more susceptible to ping floods or DDOS attacks?
-> > You should have seen tbench 16 - 3546 seconds!
-> >
-> > comments?
->
-> Are you running this via loopback? Can you send a profile during the
-> 2.4.20 run?
+Remove unneeded function declarations and correct /proc-directory name for
+> 1 pcmcia_socket_class devices.
 
-Loopback. 
+	Dominik
 
-Con
+diff -ruN linux-original/drivers/pcmcia/cs.c linux-pcmcia/drivers/pcmcia/cs.c
+--- linux-original/drivers/pcmcia/cs.c	2003-02-16 01:28:50.000000000 +0100
++++ linux-pcmcia/drivers/pcmcia/cs.c	2003-02-16 01:30:04.000000000 +0100
+@@ -356,7 +356,7 @@
+ #ifdef CONFIG_PROC_FS
+ 		if (proc_pccard) {
+ 			char name[3];
+-			sprintf(name, "%02d", i);
++			sprintf(name, "%02d", j);
+ 			s->proc = proc_mkdir(name, proc_pccard);
+ 			if (s->proc)
+ 				s->ss_entry->proc_setup(i, s->proc);
+diff -ruN linux-original/drivers/pcmcia/pci_socket.c linux-pcmcia/drivers/pcmcia/pci_socket.c
+--- linux-original/drivers/pcmcia/pci_socket.c	2003-02-16 01:28:50.000000000 +0100
++++ linux-pcmcia/drivers/pcmcia/pci_socket.c	2003-02-16 01:28:16.000000000 +0100
+@@ -31,9 +31,6 @@
+ #include "pci_socket.h"
+ 
+ 
+-extern struct socket_info_t *pcmcia_register_socket (int slot,
+-		struct pccard_operations *vtable, int use_bus_pm);
+-extern void pcmcia_unregister_socket (struct socket_info_t *socket);
+ extern void pcmcia_suspend_socket (struct socket_info_t *socket);
+ extern void pcmcia_resume_socket (struct socket_info_t *socket);
+ 

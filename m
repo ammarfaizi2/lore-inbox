@@ -1,79 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbUBZEZf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 23:25:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbUBZEZf
+	id S262671AbUBZEZN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 23:25:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbUBZEZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 23:25:35 -0500
-Received: from alt.aurema.com ([203.217.18.57]:16256 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S262679AbUBZEZ3 (ORCPT
+	Wed, 25 Feb 2004 23:25:12 -0500
+Received: from nevyn.them.org ([66.93.172.17]:59528 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S262671AbUBZEZJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 23:25:29 -0500
-Message-ID: <403D7531.5060309@aurema.com>
-Date: Thu, 26 Feb 2004 15:25:21 +1100
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nuno Silva <nuno.silva@vgertech.com>
-CC: Timothy Miller <miller@techsource.com>, John Lee <johnl@aurema.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <Pine.GSO.4.03.10402260834530.27582-100000@swag.sw.oz.au>	<403D3E47.4080501@techsource.com> <403D5E7F.1080700@vgertech.com>
-In-Reply-To: <403D5E7F.1080700@vgertech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Feb 2004 23:25:09 -0500
+Date: Wed, 25 Feb 2004 23:24:54 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: George Anzinger <george@mvista.com>
+Cc: Tom Rini <trini@kernel.crashing.org>, Pavel Machek <pavel@suse.cz>,
+       "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
+Subject: Re: kgdb: rename i386-stub.c to kgdb.c
+Message-ID: <20040226042454.GA31771@nevyn.them.org>
+Mail-Followup-To: George Anzinger <george@mvista.com>,
+	Tom Rini <trini@kernel.crashing.org>, Pavel Machek <pavel@suse.cz>,
+	"Amit S. Kale" <amitkale@emsyssoft.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
+References: <20040224130650.GA9012@elf.ucw.cz> <200402251303.50102.amitkale@emsyssoft.com> <20040225103703.GB6206@atrey.karlin.mff.cuni.cz> <403D10DB.8060506@mvista.com> <20040225212826.GE1052@smtp.west.cox.net> <403D2230.8070000@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403D2230.8070000@mvista.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nuno Silva wrote:
+On Wed, Feb 25, 2004 at 02:31:12PM -0800, George Anzinger wrote:
+> I would guess it is a problem in the emacs interface where one points at a 
+> location in the code window and enters a command to set a break point ( I 
+> think it is "^x " (control X space)).  It would appear that emacs then only 
+> sends the file name to gdb rather than the full path.
 > 
-> 
-> Timothy Miller wrote:
-> 
-> [..]
-> 
->>
->>
->> It's a security concern to have to login as root unnecessarily.  It's 
->> bad enough we have to do that to change X11 configuration, but we 
->> shouldn't have to do that every time we want to start xmms.  And just 
->> suid root is also a security concern.
->>
-> 
-> Maybe I'm missing something, but xmms run OK with zero load, right? The 
-> problem is that, when building the kernel and the entire kde tree, each 
-> with make -j 16, xmms skips a few times? Well, tough luck...
-> 
-> And the user *can* do something about it, just nice -n 19 the builds and 
-> left xmms alone. (Or you can use other player... :-)
-> 
-> With this patch you can even say that each of the build processes can 
-> only hog 5% (at the most!) of the CPU (maybe the build is not a good 
-> example for mandatory CPU time caps, but it is usefull).
-> 
-> Besides, this implements a true run-only-when-noone-else-wants-to-run 
-> nice mode wich, combined with the absolut cpu time caps, hits some of my 
-> wish list for a complete scheduler :-) so I can't wait to test it :-)
+> This is not a show stopping problem, only confusing.  Once gdb figures out 
+> the right source, all is well.  I usually do it by setting a break point at 
+> the function by name, thus avoiding the point and grunt thing.
 
-Another idea that we are playing with for handling programs like xmms 
-(i.e. programs that require gauranteed CPU bandwidth to perform well) is 
-the complement of caps namely per task CPU reservations.  The 
-availability of CPU usage rate statistics for each task makes this 
-possible but the question is "Is the functionality worth the extra 
-overhead?".
+This is a known problem in the emacs interfaces; it will be fixed, but
+I have no idea when the fixed version will be available :)
 
-Of course, this won't solve the "need to be root" problem as this is 
-obviously the sort of control that should be reserved for root but it is 
-arguably better than having to guess how many shares a task needs to 
-ensure that it gets the required CPU bandwidth.
-
-Peter
 -- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
-
-
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

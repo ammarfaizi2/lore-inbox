@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264815AbSLIDLj>; Sun, 8 Dec 2002 22:11:39 -0500
+	id <S262266AbSLICuX>; Sun, 8 Dec 2002 21:50:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264990AbSLIDLj>; Sun, 8 Dec 2002 22:11:39 -0500
-Received: from schroeder.cs.wisc.edu ([128.105.6.11]:48910 "EHLO
-	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
-	id <S264815AbSLIDLi>; Sun, 8 Dec 2002 22:11:38 -0500
-Message-Id: <200212090319.gB93J7p20606@schroeder.cs.wisc.edu>
-Content-Type: text/plain; charset=US-ASCII
-From: Nick LeRoy <nleroy@cs.wisc.edu>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Detecting threads vs processes with ps or /proc
-Date: Sun, 8 Dec 2002 21:18:44 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: acahalan@cs.uml.edu
-References: <200212090024.gB90OTN25818@saturn.cs.uml.edu>
-In-Reply-To: <200212090024.gB90OTN25818@saturn.cs.uml.edu>
+	id <S262296AbSLICuX>; Sun, 8 Dec 2002 21:50:23 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:33478 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S262266AbSLICuW>;
+	Sun, 8 Dec 2002 21:50:22 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/pci deprecation?
+References: <Pine.LNX.4.33.0212061601550.1010-100000@localhost.localdomain>
+	<8bPzeb7mw-B@khms.westfalen.de>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 08 Dec 2002 21:01:55 +0100
+In-Reply-To: <8bPzeb7mw-B@khms.westfalen.de>
+Message-ID: <m3lm30l1os.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 December 2002 06:24 pm, Albert D. Cahalan wrote:
-> Robert Love writes:
-> > On Fri, 2002-12-06 at 14:56, Nick LeRoy wrote:
-> >> I was considerring doing something like this as well.  From your
-> >> experience,  does it work reliably?
-> >
-> > It never fails to detect threads (no false negatives).
->
-> Testing the algorithm on idle test processes won't show
-> this damn-obvious race condition:
->
-> 1. you read the first thread's info
-> 2. the second thread calls mmap() and/or takes a page fault
-> 3. you read the second thread's info
+kaih@khms.westfalen.de (Kai Henningsen) writes:
 
-Yeah, I thought of that, too.  Probably not too likely, of course, but it 
-still there.  Murphy rules.
+> I use cat /proc/pci for the same reason I use cat /proc/scsi - when  
+> configuring a box, or adding new hardware, to figure out what I should  
+> look for and where it is.
 
-Robert:  Any thoughts on this?
+Still there is lspci. Much better than just a file in /proc, in fact:
+you can have short or long output, and you always have device and
+vendor names (with /proc/pci it isn't true).
+As long as the database contains the names, of course (the same as with
+kernel, with the difference that it doesn't use kernel space).
 
--Nick
+> I don't particularly care which part of the file system this omes from,  
+> but I do care about being able to find it quickly, and about it being easy  
+> (i.e. not need looking at 7868 separate files) and giving the essential  
+> info (which is the info that can be found in the relevant docs or be fed  
+> to google).
+
+Same as "ps xaf". I usually don't look at /proc/*/cmdline etc either.
+This doesn't mean I want a file in /proc which contains "ps axf" output.
+
+Anyway, /proc/pci is currently broken (the kernel don't know what
+hot-pluggable devices will you use, and doesn't preserve the necessary
+names). If we want it in /proc, could it be corrected?
+
+
+I always thought of /proc/pci as of temporary q&d debug tool.
+-- 
+Krzysztof Halasa
+Network Administrator

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267065AbSLXIZv>; Tue, 24 Dec 2002 03:25:51 -0500
+	id <S267068AbSLXIob>; Tue, 24 Dec 2002 03:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267068AbSLXIZv>; Tue, 24 Dec 2002 03:25:51 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:32698 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267065AbSLXIZv>;
-	Tue, 24 Dec 2002 03:25:51 -0500
-Date: Tue, 24 Dec 2002 14:19:51 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.52-dcl1
-Message-ID: <20021224141951.A18357@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-References: <1040426052.1078.96.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1040426052.1078.96.camel@dell_ss3.pdx.osdl.net>; from shemminger@osdl.org on Fri, Dec 20, 2002 at 11:17:29PM +0000
+	id <S267070AbSLXIoa>; Tue, 24 Dec 2002 03:44:30 -0500
+Received: from smtp003.mail.tpe.yahoo.com ([202.1.238.88]:41228 "HELO
+	smtp003.mail.tpe.yahoo.com") by vger.kernel.org with SMTP
+	id <S267068AbSLXIoa>; Tue, 24 Dec 2002 03:44:30 -0500
+Message-ID: <002101c2ab29$cc7df1d0$3716a8c0@taipei.via.com.tw>
+From: "Joseph" <jospehchan@yahoo.com.tw>
+To: "David Brownell" <david-b@pacbell.net>, <linux-kernel@vger.kernel.org>
+References: <3E034860.70509@pacbell.net> <3E0752D3.3060000@pacbell.net>
+Subject: Re: USB 2.0 is too slow?
+Date: Tue, 24 Dec 2002 15:29:20 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephen,
+> I think you'd be better off with 2.5.52bk8 or 2.4.20pre with
+> the ehci24-1220 patch [*].  Fewer problems over all, and with
+> that version, fewer severe ones.
 
-On Fri, Dec 20, 2002 at 11:17:29PM +0000, Stephen Hemminger wrote:
-> OSDL common:
-> * linux-2.5.52-osdl1
-> . More updates to LKCD                  (me)
-> . Update kprobes to use notifiers       (me)
+   OK, I will try what you say.  :)
+ 
+> I think "message.c" needs a small patch.  The unlink diagnostics
+> have a FIXME next to them (there are false alarms), and I'm not
+> entirely trusting that "corrupted" diagnostic either.
+ 
+   :), Will you or someone patch the "message.c" in the future? 
 
-There is problem with this. In kprobe_event(), DIE_INT3 has be
-handled outside the check for kprobe_running(). 
-kprobe_handler() will check whether this INT3 event is due
-to a kprobe.
--- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com
+> You're describing a situation where /proc/bus/usb/devices shows the
+> devices, but they don't make it all the way into /proc/scsi/scsi?
+> Sounds familiar, as if someone else reported it too.
+
+  YES, is this bug going to be fixed in next release?
+  BTW, merry christmas and happy new year! 8-)
+BR,
+  Joseph
+
+
+-----------------------------------------------------------------
+< ¨C¤Ñ³£ Yahoo!©_¼¯ >  www.yahoo.com.tw

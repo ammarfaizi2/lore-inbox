@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbUJ0WxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262789AbUJ0W5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbUJ0WxT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbUJ0WwL
+	id S262789AbUJ0W5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 18:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262780AbUJ0WzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:52:11 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:28576 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262778AbUJ0Wtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 18:49:32 -0400
-Subject: Re: BK kernel workflow
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@novell.com>,
-       Larry McVoy <lm@work.bitmover.com>, Joe Perches <joe@perches.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.61.0410272049040.877@scrub.home>
-References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
-	 <20041023161253.GA17537@work.bitmover.com>
-	 <4d8e3fd304102403241e5a69a5@mail.gmail.com>
-	 <20041024144448.GA575@work.bitmover.com>
-	 <4d8e3fd304102409443c01c5da@mail.gmail.com>
-	 <20041024233214.GA9772@work.bitmover.com>
-	 <20041025114641.GU14325@dualathlon.random>
-	 <1098707342.7355.44.camel@localhost.localdomain>
-	 <20041025133951.GW14325@dualathlon.random>
-	 <20041025162022.GA27979@work.bitmover.com>
-	 <20041025164732.GE14325@dualathlon.random>
-	 <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0410252350240.17266@scrub.home>
-	 <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0410270223080.877@scrub.home>
-	 <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0410272049040.877@scrub.home>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098913524.7778.5.camel@localhost.localdomain>
+	Wed, 27 Oct 2004 18:55:12 -0400
+Received: from mproxy.gmail.com ([216.239.56.241]:9352 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262762AbUJ0WyM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 18:54:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=INuehE6oyQtsuwEUrzujV3vn2wEiFykX8yOZxS8+7rHpepA4nHdaiufhYMQRclY7jIj428Nb5Uqk+7+NWOsiWJsrei8opTZKZ7mn3U1a4W+7gnpweiKbiw6Fe2JIyT/jIeL8f+adsXffu810cL1sDKW1oqYqfIS1bWw6PPBBMh8=
+Message-ID: <21d7e997041027155426539c54@mail.gmail.com>
+Date: Thu, 28 Oct 2004 08:54:10 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: The naming wars continue...
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0410280036490.3284@dragon.hygekrogen.localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 27 Oct 2004 22:45:25 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <4179F81A.4010601@yahoo.com.au> <417D7089.3070208@tmr.com>
+	 <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org>
+	 <20041027200805.GA17759@4t2.com>
+	 <Pine.LNX.4.58.0410271323040.28839@ppc970.osdl.org>
+	 <21d7e997041027141358b05c41@mail.gmail.com>
+	 <Pine.LNX.4.58.0410271424590.28839@ppc970.osdl.org>
+	 <Pine.LNX.4.61.0410280036490.3284@dragon.hygekrogen.localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-10-27 at 21:56, Roman Zippel wrote:
-> Linus, what happened to the early promises, that the data wouldn't be 
-> locked into bk? Is the massively reduced data set in the cvs repository 
-> really all we ever get out of it again?
+> > >
+> > > There has been a fair bit of bike shedding going on... so I think we
+> > > should use some sort of timber and paint it red...
+> >
+> > Ok, I nominate this for the strangest entry in the discussion so far.
+> > 
+> Heh, yeah, glad I'm not the only one incapable of making sense of that. :)
+> 
 
-The daily CVS snapshots seem to solve most of that. Yes BK's licensing
-model isn't free software friendly, yes its a PITA. With the CVS
-snapshots nobody is forcing your hand, its not encrypted and locked away
-behind a DRM system.
+I think Linus made sense of it :-), 
 
-Alan
+for anyone that needs a explaination (takes all the fun out of it :-)
+http://www.unixguide.net/freebsd/faq/16.19.shtml
 
+Dave.

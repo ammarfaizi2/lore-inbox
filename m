@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbRAaORr>; Wed, 31 Jan 2001 09:17:47 -0500
+	id <S131034AbRAaOZJ>; Wed, 31 Jan 2001 09:25:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129965AbRAaORh>; Wed, 31 Jan 2001 09:17:37 -0500
-Received: from yoda.planetinternet.be ([195.95.30.146]:64520 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S129631AbRAaORZ>; Wed, 31 Jan 2001 09:17:25 -0500
-Date: Wed, 31 Jan 2001 15:17:20 +0100
-From: Kurt Roeckx <Q@ping.be>
-To: Mohit Aron <aron@cs.rice.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gprof cannot profile multi-threaded programs
-Message-ID: <20010131151720.A1386@ping.be>
-In-Reply-To: <200101310531.XAA09534@cs.rice.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <200101310531.XAA09534@cs.rice.edu>
+	id <S131110AbRAaOY7>; Wed, 31 Jan 2001 09:24:59 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:54656 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S130541AbRAaOYw>; Wed, 31 Jan 2001 09:24:52 -0500
+Date: Wed, 31 Jan 2001 09:24:27 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Version 2.4.1 cannot be built. 
+In-Reply-To: <Pine.LNX.4.21.0101311153510.1321-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.3.95.1010131091907.13340A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 30, 2001 at 11:31:13PM -0600, Mohit Aron wrote:
-> I analyzed the problem to be the following. Linux uses periodic SIGPROF signals
-> for profiling (Linux doesn't use the profil system call used in other OS's like
-> Solaris where the kernel does the profiling on behalf of the process). All
-> profile information is collected in the context of the signal handler for the
-> SIGPROF signal in Linux. Unfortunately, any thread that's created using
-> pthread_create() does not get these periodic SIGPROF signals. Hence any thread
-> other than the first thread is not profiled. The fix is to use setitimer()
-> system call immediately in the thread startup function for any new thread to
-> make the SIGPROF signal to be delivered at the designated interrupt frequency
-> (every 10ms). With this fix, the profile produced by gprof reflects the overall
-> computation done by all threads in the process. A more general fix would be
-> to fix the kernel to make any new threads inherit the setitimer() settings
-> for the parent thread.
+On Wed, 31 Jan 2001, Rik van Riel wrote:
 
-You have the same problem when doing fork().  Only the parent
-will get cpu usage info.  I have to call setitimer() too, to make
-it work properly.
+> On Wed, 31 Jan 2001, Richard B. Johnson wrote:
+> > On Tue, 30 Jan 2001, Rik van Riel wrote:
+> > > On Tue, 30 Jan 2001, Richard B. Johnson wrote:
+> > > 
+> > > > The subject says it all. `make dep` is now broken.
+> > > 
+> > > It worked fine here, with 2.4.1 unpacked from the tarball.
+> > 
+> > I cannot find the source for GNU Make 3.77+
+> 
+> I have a hard time believing that you don't have
+> the skills to go to ftp.gnu.org and download the
+> stuff...
+> 
 
-I complained about it a few days ago, but didn't get a reply yet.
+Now just a cotton-picken minute. When was the last time you
+accessed that site? I spent most of last night looking through
+EMPTY directories with files that are invisible to ftp but
+(sometimes) show with their `ls`, and never with nlist.
 
+Maybe you can still download stuff if you are running from a
+Web Crawler, but it doesn't work with `ftp` anymore.
 
-Kurt
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

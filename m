@@ -1,60 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbTKZHbm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 02:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbTKZHbm
+	id S262324AbTKZH1U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 02:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTKZH1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 02:31:42 -0500
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:523 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S262356AbTKZHbk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 02:31:40 -0500
-To: linux-kernel@vger.kernel.org
-From: Tim Connors <tconnors+linuxkernel1069831506@astro.swin.edu.au>
-Subject: Re: 2.2/2.4/2.6 VMs: do malloc() ever return NULL?
-References: <3FC358B5.3000501@softhome.net> <Pine.LNX.4.53.0311251510310.6584@chaos>
-X-Face: A>QmH)/u`[d}b.a5?Xq=L&d?Q}cF5x|wu#O_mAK83d(Tw,BjxX[}n4<13.e$"d!Gg(I%n8fL)I9fZ$0,8s3_5>iI]4c%FXg{CpVhuIuyI,W'!5Cl?5M,dL-*dHYs}K9=YQZCN-\2j1S>cU6XPXsQhz$x`M\ZEV}nPw'^jPc41FiwTQZ'g)xNK{2',](o5mrODBHe))
-Message-ID: <slrn-0.9.7.4-9248-27858-200311261825-tc@hexane.ssi.swin.edu.au>
-Date: Wed, 26 Nov 2003 18:31:37 +1100
+	Wed, 26 Nov 2003 02:27:20 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:63437 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S262324AbTKZH1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 02:27:18 -0500
+Date: Tue, 25 Nov 2003 21:14:32 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>, Rik van Riel <riel@redhat.com>
+cc: Jack Steiner <steiner@sgi.com>, Anton Blanchard <anton@samba.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, jbarnes@sgi.com
+Subject: Re: hash table sizes
+Message-ID: <1590000.1069823671@[10.10.2.4]>
+In-Reply-To: <20031126035953.GF8039@holomorphy.com>
+References: <20031125231108.GA5675@sgi.com> <Pine.LNX.4.44.0311252238140.22777-100000@chimarrao.boston.redhat.com> <20031126035953.GF8039@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> said on Tue, 25 Nov 2003 15:17:28 -0500 (EST):
-> On Tue, 25 Nov 2003, Ihar 'Philips' Filipau wrote:
+> Speaking of which, no one's bothered fixing the X crashes on i386
+> discontigmem. Untested patch below.
 > 
-> As documented, malloc() will never fail as long as there
-> is still address space (not memory) available. This is
-> the required nature of the over-commit strategy. This is
-> necessary because many programs never even touch all the
-> memory they allocate.
 > 
-> You can turn OFF over-commit by doing:
+> -- wli
 > 
-> echo "2" >proc/sys/vm/overcommit_memory
 > 
-> However, you will probably find that many programs fail
-> or seg-fault when normally they wouldn't. So, if you don't
-> mind restarting sendmail occasionally, then turn off over-commit.
+> diff -prauN linux-2.6.0-test10/include/asm-i386/mmzone.h pfn_valid-2.6.0-test10/include/asm-i386/mmzone.h
+> --- linux-2.6.0-test10/include/asm-i386/mmzone.h	2003-11-23 17:31:56.000000000 -0800
+> +++ pfn_valid-2.6.0-test10/include/asm-i386/mmzone.h	2003-11-25 19:54:31.000000000 -0800
+> @@ -85,13 +85,19 @@ extern struct pglist_data *node_data[];
+>  })
+>  #define pmd_page(pmd)		(pfn_to_page(pmd_val(pmd) >> PAGE_SHIFT))
+>  /*
+> - * pfn_valid should be made as fast as possible, and the current definition 
+> - * is valid for machines that are NUMA, but still contiguous, which is what
+> - * is currently supported. A more generalised, but slower definition would
+> - * be something like this - mbligh:
+> - * ( pfn_to_pgdat(pfn) && ((pfn) < node_end_pfn(pfn_to_nid(pfn))) ) 
+> + * pfn_valid must absolutely be correct, regardless of speed concerns.
+>   */ 
+> -#define pfn_valid(pfn)          ((pfn) < num_physpages)
+> +#define pfn_valid(pfn)							\
+> +({									\
+> +	unsigned long __pfn__ = pfn;					\
+> +	u8 __nid__ = pfn_to_nid(__pfn__);				\
+> +	pg_data_t *__pgdat__;						\
+> +	__pgdat__ = __nid__ < MAX_NUMNODES ? NODE_DATA(__nid__) : NULL;	\
+> +	__pgdat__ &&							\
+> +		__pfn__ >= __pgdat__->node_start_pfn &&			\
+> +		__pfn__ - __pgdat__->node_start_pfn			\
+> +				< __pgdat__->node_spanned_pages;	\
+> +})
+>  
+>  /*
+>   * generic node memory support, the following assumptions apply:
 
-I consider this a bug. If they don't use the memory, don't alloc
-it. It's not the responsibility of the kernel to determine whether the
-programmer was sane. If the programmer was sane, then he may well have
-been trying to keep some memory availble for emergency use, and
-wouldn't want his program dying from an untrapable kill signal. 
+Would it not be rather more readable as something along the lines of:
 
-Or he was just lazy, and if he's lazy enough to allocate too much
-memory, he'll also be lazy enough to "forget" to check for malloc()s
-return value, and hence his program will crash when derefencing
-NULL. Bug reports will be filed against his application, like it was
-meant to, because it was his fault. Not the kernel's.
+static inline int pfn_valid (int pfn) {
+        int nid = pfn_to_nid(pfn);
+        pg_data_t *pgdat;
 
-Hence 2 should be the default. 
+        if (nid >= MAX_NUMNODES)
+                return 0;		/* node invalid */
+        pgdat = NODE_DATA(nid);
+        if (!pgdat)
+                return 0;		/* pgdat invalid */
+        if (pfn < pgdat->node_start_pfn)
+                return 0;		/* before start of node */
+        if (pfn - pgdat->node_start_pfn >= pgdat->node_spanned_pages)
+                return 0;		/* past end of node */
+        return 1;
+}
 
-0 should be left for those poor fools who run closed source software,
-and can't get their vendor to fix their bugs, so need to use some
-kernel kludges (ie, overcommit) to get around it.
+However, I'm curious as to why this crashes X, as I don't see how this
+code change makes a difference in practice. I didn't think we had any i386
+NUMA with memory holes between nodes at the moment, though perhaps the x440
+does.
 
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-"Consider a spherical bear, in simple harmonic motion..."
-                -- Professor in the UCB physics department
+M.
+
+PS. No, I haven't tested my rephrasing of your patch either.
+

@@ -1,83 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272240AbRIER1i>; Wed, 5 Sep 2001 13:27:38 -0400
+	id <S272242AbRIERcs>; Wed, 5 Sep 2001 13:32:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272242AbRIER11>; Wed, 5 Sep 2001 13:27:27 -0400
-Received: from mx0.gmx.net ([213.165.64.100]:47840 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S272240AbRIER1T>;
-	Wed, 5 Sep 2001 13:27:19 -0400
-Date: Wed, 5 Sep 2001 19:27:35 +0200 (MEST)
-From: pattreeya@gmx.net
-To: dhinds@zen.stanford.edu, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========GMXBoundary8801999710855"
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0006447296@gmx.net
-X-Authenticated-IP: [213.7.19.39]
-Message-ID: <8801.999710855@www39.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
+	id <S272245AbRIERch>; Wed, 5 Sep 2001 13:32:37 -0400
+Received: from scispor.dolphinics.no ([193.71.152.117]:19986 "EHLO
+	scispor.dolphinics.no") by vger.kernel.org with ESMTP
+	id <S272242AbRIERc0> convert rfc822-to-8bit; Wed, 5 Sep 2001 13:32:26 -0400
+Message-ID: <200109051937150093.38F8B7ED@scispor.dolphinics.no>
+In-Reply-To: <JK3MT4ZNAEJNIG1ZEGEDMAZMT10XZKMHVJEFFMME@ziplip.com>
+In-Reply-To: <JK3MT4ZNAEJNIG1ZEGEDMAZMT10XZKMHVJEFFMME@ziplip.com>
+X-Mailer: Calypso Version 3.00.03.02 (1)
+Date: Wed, 05 Sep 2001 19:37:15 +0200
+From: "Simen Thoresen" <simen-tt@online.no>
+To: "noneuclidean" <noneuclidean@ziplip.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Athlon doesn't like Athlon optimisation?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encapsulated multipart message -
-please use a MIME-compliant e-mail program to open it.
+Jamal Conway wrote
+>I think the burnK7 program does not test enough K7 specific instruction sets to find the problem.
+>
 
-Dies ist eine mehrteilige Nachricht im MIME-Format -
-bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
+I tend to agree; 30+ minutes on a Epox 8KTA3 motherboard with a processor that fails when running with Athlon-optimized fast_copy_page (now running without that), without a hitch.
 
---========GMXBoundary8801999710855
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+-S
+--
+Simen Thoresen, Beowulf-cleaner and random artist - close and personal.
 
-Dear Sir,
-       I have compiled kernel 2.4.8 on my machine (debian-woody) and during
-I installed
-       modules (make modules_install), the  message below concerning about
-pcmcia occured.
-This made me couldn't install other modules, I guess. (only kernel and
-pcmcia directories found in 
-/lib/modules/2.4.8/).
-Threrefore, I switched off pcmcia support during configuration and
-recompiled it three times with 
-different
-option for configuration. However, it didn't help. I can boot and mount file
-with new kernel but 
-cannot
-install sound and other modules. Could you please give me some suggestion?
+Er det ikke rart?
+The gnu RART-project on http://valinor.dolphinics.no:1080/~simentt/rart
 
-
-          Thank you so much in anticipation.
-
-                                                Sincerely yours,
-                                                Pattreeya Tanisaro.
-
-
-
-make[1]: Entering directory `/usr/src/linux/arch/i386/math-emu'
-make[1]: Für das Target »modules_install« gibt es nichts zu tun.
-make[1]: Leaving directory `/usr/src/linux/arch/i386/math-emu'
-cd /lib/modules/2.4.8; \
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.8; fi
-judy:/usr/src/linux#
-
-
-
--- 
-http://pgpkeys.mit.edu:11371/pks/lookup?op=get&search=pattreeya
-
-GMX - Die Kommunikationsplattform im Internet.
-http://www.gmx.net
-
---========GMXBoundary8801999710855
-Content-Type: application/octet-stream; name="
-
-"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="
-"
-
---========GMXBoundary8801999710855--
 

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269944AbRHMHni>; Mon, 13 Aug 2001 03:43:38 -0400
+	id <S269954AbRHMH5b>; Mon, 13 Aug 2001 03:57:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269946AbRHMHn2>; Mon, 13 Aug 2001 03:43:28 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:48889 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S269944AbRHMHnS>;
-	Mon, 13 Aug 2001 03:43:18 -0400
-Date: Mon, 13 Aug 2001 17:42:04 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Riley Williams <rhw@MemAlpha.CX>
-Cc: monniaux@di.ens.fr, linux-kernel@vger.kernel.org
-Subject: Re: APM poweroff under Linux 2.4.7 / 2.4.2 RH 7.1
-Message-Id: <20010813174204.7cea2724.sfr@canb.auug.org.au>
-In-Reply-To: <Pine.LNX.4.33.0108090822460.10432-300000@infradead.org>
-In-Reply-To: <20010809170246.04c44c35.sfr@canb.auug.org.au>
-	<Pine.LNX.4.33.0108090822460.10432-300000@infradead.org>
-X-Mailer: Sylpheed version 0.5.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S269968AbRHMH5V>; Mon, 13 Aug 2001 03:57:21 -0400
+Received: from ns.ooc.de ([213.144.20.2]:12045 "HELO mail.ooc.de")
+	by vger.kernel.org with SMTP id <S269954AbRHMH5M>;
+	Mon, 13 Aug 2001 03:57:12 -0400
+Date: Mon, 13 Aug 2001 09:53:36 +0200
+From: Uwe Seimet <us@orbacus.com>
+To: linux-kernel@vger.kernel.org
+Subject: Bug in esssolo1.c, kernel 2.4.7 and 2.4.8
+Message-ID: <20010813095336.A934@duplo.ooc.de>
+Reply-To: us@ooc.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Riley,
+Hello,
 
-On Thu, 9 Aug 2001 08:34:51 +0100 (BST) Riley Williams <rhw@MemAlpha.CX> wrote:
-> 
-> Of the many patches theein, the enclosed TWO are the only ones that
-> touch apm.c so they are the patches you may need to consider. I'd
-> certainly be interested in your comments thereon.
+with kernel 2.4.7 and 2.4.8 you get this error message when running make
+modules_install:
 
-I have seen both these patches.  The first is not relevant (it just changes
-how we register a sysreq key).  The second has the effect of NOT using
-the real mode power off code unless both CONFIG_APM_REAL_MODE_POWER_OFF
-was set at kerne configure time AND "apm=realmode" was specified on the
-kernel command line at boot time.
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.8; fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.8/kernel/drivers/sound/esssolo1.o
+depmod:         gameport_register_port
+depmod:         gameport_unregister_port
 
-So those having trouble powering off with 2.4.[78] when the Red Hat kernel
-did power off, should try building their kernels with
-CONFIG_APM_REAL_MODE_POWER_OFF NOT selected.
+These symbols seem to be missing in esssolo1.c. With kernel 2.4.6 and older
+I did not get this error.
 
-Cheers,
-Stephen Rothwell
-IBM OzLabs - Linux Technology Centre
+Best regards,   Uwe
+
+-- 
+----------------------------------------------------------------------------
+ Dr. Uwe Seimet                                    mailto:us@iona.com
+ IONA - Total Business Integration(tm)             http://www.orbacus.com

@@ -1,54 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280136AbRKEDFP>; Sun, 4 Nov 2001 22:05:15 -0500
+	id <S280134AbRKEDAZ>; Sun, 4 Nov 2001 22:00:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280163AbRKEDFF>; Sun, 4 Nov 2001 22:05:05 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:41457
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S280146AbRKEDEx>; Sun, 4 Nov 2001 22:04:53 -0500
-Date: Sun, 4 Nov 2001 19:04:46 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: lonnie@outstep.com
-Cc: Ryan Cumming <bodnar42@phalynx.dhs.org>, linux-kernel@vger.kernel.org
-Subject: Re: Special Kernel Modification
-Message-ID: <20011104190446.B16017@mikef-linux.matchmail.com>
-Mail-Followup-To: lonnie@outstep.com,
-	Ryan Cumming <bodnar42@phalynx.dhs.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BE5D6EC.8040204@outstep.com> <E160XU3-00012T-00@localhost> <1004920141.3be5dd4db68a0@mail.outstep.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1004920141.3be5dd4db68a0@mail.outstep.com>
-User-Agent: Mutt/1.3.23i
+	id <S280132AbRKEDAE>; Sun, 4 Nov 2001 22:00:04 -0500
+Received: from [202.108.68.176] ([202.108.68.176]:58794 "HELO
+	xteamlinux.com.cn") by vger.kernel.org with SMTP id <S280134AbRKEC7y>;
+	Sun, 4 Nov 2001 21:59:54 -0500
+Message-ID: <3BE67230.5040006@xteamlinux.com.cn>
+Date: Mon, 05 Nov 2001 11:04:16 +0000
+From: zmwillow <zmwillow@xteamlinux.com.cn>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; zh-CN; rv:0.9.4) Gecko/20010917
+X-Accept-Language: zh, zh-tw, en-us
+MIME-Version: 1.0
+To: Jakob =?ISO-8859-1?Q?=D8stergaard?= <jakob@unthought.net>
+CC: linux-kernel-mail-list <linux-kernel@vger.kernel.org>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <160MMf-1ptGtMC@fmrl05.sul.t-online.com> <20011104143631.B1162@pelks01.extern.uni-tuebingen.de> <160Nyq-2ACgt6C@fmrl07.sul.t-online.com> <20011104163354.C14001@unthought.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 07:29:01PM -0500, lonnie@outstep.com wrote:
-> Hello Ryan,
-> 
-> >From what I can see. With chrooting, I have to make a complete "fake" system an
-> then place the users below that into a home directory, or make a complete "fake"
-> system for each user.
+Jakob ?tergaard wrote:
 
-> The basic problem is that I did not want, for example "user2" to be able to "cd
-> .." or some thing to go out of user2
-> 
-> I was hoping to be able to accomplish this at the filesystem level somehow, and
-> possibly without the need to mount the /dev/hda4 onto each /home/user/system, or
-> without having to make entire copies of the chrooted environment for each user.
-> 
+>Here's my stab at the problems - please comment,
+>
+>We want to avoid these problems:
+> 1)  It is hard to parse (some) /proc files from userspace
+> 2)  As /proc files change, parsers must be changed in userspace
+>
+>Still, we want to keep on offering
+> 3)  Human readable /proc files with some amount of pretty-printing
+> 4)  A /proc fs that can be changed as the kernel needs those changes
+>
+>
+>Taking care of (3) and (4):
+>
+>Maintaining the current /proc files is very simple, and it offers the system
+>administrator a lot of functionality that isn't reasonable to take away now. 
+>
+>       * They should stay in a form close to the current one *
+>
+>
+>Taking care of (1) and (2):
+>
+>For each file "f" in /proc, there will be a ".f" file which is a
+>machine-readable version of "f", with the difference that it may contain extra
+>information that one may not want to present to the user in "f".
+>
+>The dot-proc file is basically a binary encoding of Lisp (or XML), e.g. it is a
+>list of elements, wherein an element can itself be a list (or a character string,
+>or a host-native numeric type.  Thus, (key,value) pairs and lists thereof are
+>possible, as well as tree structures etc.
+>
+>All data types are stored in the architecture-native format, and a simple
+>library should be sufficient to parse any dot-proc file.
+>
+>
+>So, we need a small change in procfs that does not in any way break
+>compatibility - and we need a few lines of C under LGPL to interface with it.
+>
+>Tell me what you think - It is possible that I could do this (or something
+>close) in the near future, unless someone shows me the problem with the
+>approach.
+>
+>Thank you,
+>
 
-Chroot will allow you to keel a user within a certain directory tree, and as
-long as you use hard links on the same FS, you won't waste much space for
-each chroot...
+see http://sourceforge.net/projects/xmlprocfs/
+i think this is a good idea that make the kernel output xml format 
+informations.
 
-Also, why don't you want the users to be able to see the executable
-directories?  They're only writable by root, right?
 
-If you set each user's home directory to mode 0700 no other user will be
-able to cd into that dir...
+best regards.
+zmwillow
 
-The real question is why do you want to split each user so much?
 
-Mike

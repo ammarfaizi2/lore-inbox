@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbTEROwd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 10:52:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTEROwd
+	id S262101AbTEROvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 10:51:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbTEROvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 10:52:33 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:42506 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S262105AbTEROwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 10:52:31 -0400
-Date: Mon, 19 May 2003 01:03:08 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Herbert Xu <herbert@gondor.apana.org.au>, <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Added missing dependencies on CRYPTO_HMAC
-In-Reply-To: <20030518124603.GA12766@fs.tum.de>
-Message-ID: <Mutt.LNX.4.44.0305190054220.22329-100000@excalibur.intercode.com.au>
+	Sun, 18 May 2003 10:51:24 -0400
+Received: from pat.uio.no ([129.240.130.16]:62084 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262101AbTEROvY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 10:51:24 -0400
+To: Jim Nance <jlnance@us54.synopsys.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, jlnance@unity.ncsu.edu,
+       linux-kernel@vger.kernel.org, gary.nifong@synopsys.COM,
+       James.Nance@synopsys.COM, david.thomas@synopsys.COM
+Subject: Re: NFS problems with Linux-2.4
+References: <20030513145023.GA10383@ncsu.edu>
+	<16065.3323.449992.207039@charged.uio.no>
+	<20030515112231.A28148@synopsys.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 18 May 2003 17:00:24 +0200
+In-Reply-To: <20030515112231.A28148@synopsys.com>
+Message-ID: <shsznlkjo53.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: Please contact postmaster@uio.no for more information
+X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 May 2003, Adrian Bunk wrote:
 
-> It seems the cryptographic options don't depend on anything else. What 
-> about Herbert's patch plus moving the crypto menu above network support?
+Sorry. stat doesn't obey close-to-open. It relies on standard
+attribute caching. close-to-open means "open()" (and only "open()")
+checks data cache consistency...
 
-It's up to the authors whether they want their modules to always be 
-selectable or not.  We can't assume that only the networking wants this.
-
-Think of crypto algorithms like a library: components are enabled
-depending on what user-selected features need them.
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+Cheers,
+  Trond

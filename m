@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292657AbSBUR0Z>; Thu, 21 Feb 2002 12:26:25 -0500
+	id <S292659AbSBUR24>; Thu, 21 Feb 2002 12:28:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292658AbSBUR0Q>; Thu, 21 Feb 2002 12:26:16 -0500
-Received: from www.wen-online.de ([212.223.88.39]:55044 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S292657AbSBUR0F>;
-	Thu, 21 Feb 2002 12:26:05 -0500
-Date: Thu, 21 Feb 2002 18:37:21 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Joe Wong <joewong@tkodog.no-ip.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: detect memory leak tools?
-In-Reply-To: <Pine.LNX.4.33.0202211531440.5429-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.10.10202211823360.735-100000@mikeg.wen-online.de>
+	id <S292660AbSBUR2q>; Thu, 21 Feb 2002 12:28:46 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:37128 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292659AbSBUR2b>; Thu, 21 Feb 2002 12:28:31 -0500
+Message-ID: <3C752E1D.20606@evision-ventures.com>
+Date: Thu, 21 Feb 2002 18:27:57 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
+In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C737F29.7070105@evision-ventures.com> <3C74C03C.4060403@evision-ventures.com> <3C74D18D.FCCFEA83@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002, Joe Wong wrote:
-
-> Hi,
+> hum, I'm not sure that removing ->driver_init is a good idea.
 > 
->   Is there any tools that can detect memory leak in kernel loadable 
-> module?
+> Seems like a loss of flexibility to me, not a cleanup, and I wonder if
+> you have thought through all the paths that wind up calling
+> ->driver_init.
 
-Depends which kernel version.. <= 2.4.9, you can use IKD, which
-contains Ingo's memleak detector.  Sadly, it's unmaintained atm.
+Yes I have tought it all through!
+Please trust me - I eat at least myself my dog-food.
 
-See /pub/linux/kernel/people/andrea/ikd of your favorite mirror
-to see if there's a canned version that fits your needs.  (If not,
-it's likely easier to rip memleak out of ikd and hand patch than
-to try fixing the zillion rejects you'd have if you try to wedge
-ikd into a recent tree:)
+And the driver_init function is something which where currently
+just the bloody module initialization function get's called
+a seond time - and this is just plain wrong.
 
-	-Mike
+If I hadn't tought about it I wouldn't be that advantegrous.
+And my testing of it did consist of the following:
+
+1. 2 x IDE drives of one IDE port.
+
+2. 1 x CD-RW on a second port - modularized.
+
+3. 1 x CarBus to CF adapter.
+
+It all worked well after the removal!
+
+
 

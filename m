@@ -1,61 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbUBTSw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 13:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbUBTSw4
+	id S261237AbUBTSxs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 13:53:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbUBTSxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 13:52:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28055 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261251AbUBTSwy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 13:52:54 -0500
-Date: Fri, 20 Feb 2004 10:45:21 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Thomas Munck Steenholdt <tmus@tmus.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pcnet32 link detection patch proposal
-Message-Id: <20040220104521.4aaabd6e.rddunlap@osdl.org>
-In-Reply-To: <40365368.5020508@tmus.dk>
-References: <40365368.5020508@tmus.dk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 20 Feb 2004 13:53:48 -0500
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:21777 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S261237AbUBTSxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 13:53:42 -0500
+Message-ID: <403658D5.1030206@kolumbus.fi>
+Date: Fri, 20 Feb 2004 20:58:29 +0200
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+CC: Andreas Schwab <schwab@suse.de>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH]2.6.3-rc2 MSI Support for IA64
+References: <C7AB9DA4D0B1F344BF2489FA165E5024040580FB@orsmsx404.jf.intel.com>
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E5024040580FB@orsmsx404.jf.intel.com>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 20.02.2004 20:55:58,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 20.02.2004 20:55:04,
+	Serialize complete at 20.02.2004 20:55:04
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Feb 2004 19:35:20 +0100 Thomas Munck Steenholdt <tmus@tmus.dk> wrote:
+ia64 already has a function ia64_alloc_vector(void) in 
+arch/ia64/kernel/irq_ia64, why the doubling?
 
-| Hi Guys!
-| 
-| A lot of people have been experiencing problems with the pcnet32 nic 
-| driver that
-| always returns link down on some devices (including the VMware vlance 
-| adapter).
-| 
-| The patch makes sure that link is always reported as up (in contrast to 
-| always
-| being rported as down) if the device is not MII capable. Devices that 
-| ARE MII
-| capable will return whatever mii_link_ok() says.
-| 
-| Please let be know what you think and possible give me a hint as to how 
-| I can
-| make sure this fix gets included whereever such a patch should be included!
-| 
-| Thanks a lot!
+--Mika
 
-Hi,
 
-There has been some recent pcnet32 driver activity on the netdev
-mailing list.  Try that list.
-Recent patches have been from Don Fry (brazilnut@us.ibm.com).
-Mail archives for it are here:
-  http://oss.sgi.com/projects/netdev/archive/
-	
+Nguyen, Tom L wrote:
 
---
-~Randy
+>Friday, Feb. 20, 2004 8:55 AM, Andreas Schwab wrote:
+>
+>  
+>
+>>>@@ -316,6 +310,19 @@
+>>> 	return current_vector;
+>>> }
+>>> 
+>>>+int ia64_alloc_vector(void)
+>>>+{
+>>>+	static int next_vector = IA64_FIRST_DEVICE_VECTOR;
+>>>+
+>>>+	if (next_vector > IA64_LAST_DEVICE_VECTOR)
+>>>+		/* XXX could look for sharable vectors instead of panic'ing... */
+>>>+		panic("ia64_alloc_vector: out of interrupt vectors!");
+>>>+
+>>>+	nr_alloc_vectors++;
+>>>+
+>>>+	return next_vector++;
+>>>+}
+>>>+
+>>>      
+>>>
+>
+>  
+>
+>>IMHO this should be CONFIG_IA64 only.
+>>    
+>>
+>
+>To avoid some #ifdef statements as possible, "ia64_platform" 
+>defined in the header file "msi.h" is set to TRUE only if 
+>setting CONFIG_IA64 to 'Y'. The setting of ia64_platform
+>to TRUE will execute function ia64_alloc_vector.
+>
+>This API is only used in assign_msi_vector()in msi.c:
+>
+>	vector = (ia64_platform ? ia64_alloc_vector() :
+>		assign_irq_vector(MSI_AUTO));
+>
+>Thanks,
+>Long
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+

@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132383AbQLJEBf>; Sat, 9 Dec 2000 23:01:35 -0500
+	id <S132670AbQLJEFP>; Sat, 9 Dec 2000 23:05:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132769AbQLJEBZ>; Sat, 9 Dec 2000 23:01:25 -0500
-Received: from smtp1.ihug.co.nz ([203.109.252.7]:59920 "EHLO smtp1.ihug.co.nz")
-	by vger.kernel.org with ESMTP id <S132383AbQLJEBS>;
-	Sat, 9 Dec 2000 23:01:18 -0500
-Message-ID: <3A32F8B9.E6F1FC26@ihug.co.nz>
-Date: Sun, 10 Dec 2000 16:30:01 +1300
-From: Gerard Sharp <gsharp@ihug.co.nz>
-Reply-To: gsharp@ihug.co.nz
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: HPT366 + SMP = slight corruption in 2.3.99 - 2.4.0-11
-In-Reply-To: <Pine.LNX.4.10.10012090156060.5191-200000@master.linux-ide.org>
+	id <S132769AbQLJEFH>; Sat, 9 Dec 2000 23:05:07 -0500
+Received: from srv8-bnu.bnu.terra.com.br ([200.248.48.18]:39174 "EHLO
+	srv8-bnu.bnu.terra.com.br") by vger.kernel.org with ESMTP
+	id <S132670AbQLJEE4>; Sat, 9 Dec 2000 23:04:56 -0500
+Date: Sat, 9 Dec 2000 23:32:32 -0200
+From: Augusto Cesar Radtke <radtke@zaz.com.br>
+To: "Eddy" <edmc@snowline.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Hackers Guide
+Message-ID: <20001209233231.A15674@zaz.com.br>
+Mail-Followup-To: Augusto Cesar Radtke <radtke@zaz.com.br>,
+	"Eddy" <edmc@snowline.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <027101c06258$99f9c160$3d8d7ece@snowline.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <027101c06258$99f9c160$3d8d7ece@snowline.net>; from edmc@snowline.net on Sat, Dec 09, 2000 at 07:23:43PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
+Eddy wrote:
 
-> This has the missing ide-pci code from 2.2.
-> It stablized my BP6 on the HPT core.
+> Anybody know where I can find a recent kernel hackers guide? LDP points me to a non existing RedHat link.
+> 
+> Thanks from, Eddy
 
-The patch contained a large number of ^M's (about 1 per line), but
-applied cleanly after being passed through "sed"
+There's no more active KHG, but you can find the last version of the forum at http://www.linuxdoc.org
 
-It, however, has NOT corrected the problem :( :(
-Corruption still occurs, now under 2.4.0-test12-pre7
-
-> Cheers,
-> Andre Hedrick
-
-
-Good Day and Happy Hacking
-Gerard Sharp
-Two Penguins at 1024x768
+Augusto
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

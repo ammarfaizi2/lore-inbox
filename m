@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbTEETEv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 15:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbTEETEv
+	id S261235AbTEETKS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 15:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbTEETKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 15:04:51 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:61951 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261234AbTEETEu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 15:04:50 -0400
-Date: Mon, 5 May 2003 12:18:16 -0700
-From: Greg KH <greg@kroah.com>
-To: ebuddington@wesleyan.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68: BUG at usb-storage:963 on 'rmmod uhci-hcd'
-Message-ID: <20030505191816.GA2277@kroah.com>
-References: <20030504015421.A267@ma-northadams1b-60.bur.adelphia.net>
+	Mon, 5 May 2003 15:10:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21704 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261235AbTEETKS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 15:10:18 -0400
+Date: Mon, 5 May 2003 20:22:48 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove unused funcion proc_mknod
+Message-ID: <20030505192248.GD10374@parcelfarce.linux.theplanet.co.uk>
+References: <20030505190045.A22238@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030504015421.A267@ma-northadams1b-60.bur.adelphia.net>
+In-Reply-To: <20030505190045.A22238@lst.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 04, 2003 at 01:54:21AM -0400, Eric Buddington wrote:
-> 
-> Upon trying to rmmod the uhci-hcd module, I get the BUG shown in the
-> dmesg output below.
+On Mon, May 05, 2003 at 07:00:45PM +0200, Christoph Hellwig wrote:
+> Not used currently and a rather bad idea in general..
 
-removing usb host controllers is known to not work properly right now
-since about 2.5.67, sorry.  People are slowly looking at it, and help is
-always appreciated :)
-
-thanks,
-
-greg k-h
+That is true, but note that ALAS^H^HSA creates device nodes in /proc
+manually.  IOW, removal of proc_mknod() won't solve anything.  The
+real question is whether we should allow device nodes on procfs.
+If we should not allow them, ALSA needs API changes.  If we should,
+it'd be better to have creation of such nodes explicit (and if ALSA
+keeps doing that, it should switch to calling proc_mknod()).

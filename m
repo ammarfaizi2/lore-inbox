@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S145221AbRA2Faa>; Mon, 29 Jan 2001 00:30:30 -0500
+	id <S145192AbRA2Faa>; Mon, 29 Jan 2001 00:30:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S145222AbRA2FaU>; Mon, 29 Jan 2001 00:30:20 -0500
-Received: from mail.mojomofo.com ([208.248.233.19]:35855 "EHLO mojomofo.com")
-	by vger.kernel.org with ESMTP id <S145221AbRA2FaH>;
-	Mon, 29 Jan 2001 00:30:07 -0500
-Message-ID: <000c01c089b4$87b30970$0300a8c0@methusela>
+	id <S145221AbRA2FaU>; Mon, 29 Jan 2001 00:30:20 -0500
+Received: from mail.mojomofo.com ([208.248.233.19]:35343 "EHLO mojomofo.com")
+	by vger.kernel.org with ESMTP id <S145192AbRA2FaF>;
+	Mon, 29 Jan 2001 00:30:05 -0500
+Message-ID: <000b01c089b4$7e0aa7c0$0300a8c0@methusela>
 From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
 To: "Linus Torvalds" <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
 In-Reply-To: <Pine.LNX.4.10.10101282050180.5079-100000@penguin.transmeta.com>
 Subject: Re: PCI IRQ routing problem in 2.4.0 (SiS results)
-Date: Mon, 29 Jan 2001 00:30:01 -0500
+Date: Mon, 29 Jan 2001 00:29:15 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"

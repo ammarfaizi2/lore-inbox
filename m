@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267876AbTAMRPt>; Mon, 13 Jan 2003 12:15:49 -0500
+	id <S267846AbTAMRbz>; Mon, 13 Jan 2003 12:31:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267907AbTAMRPt>; Mon, 13 Jan 2003 12:15:49 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:12261 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S267876AbTAMRPr>;
-	Mon, 13 Jan 2003 12:15:47 -0500
-Date: Mon, 13 Jan 2003 09:24:35 -0800
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.4.20-pre11: PCI Wavelan card loses connection
-Message-ID: <20030113172435.GC20409@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <200301130821.h0D8Kis26772@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301130821.h0D8Kis26772@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S267867AbTAMRbz>; Mon, 13 Jan 2003 12:31:55 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:33753 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S267846AbTAMRby> convert rfc822-to-8bit; Mon, 13 Jan 2003 12:31:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: root@chaos.analogic.com
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Date: Mon, 13 Jan 2003 11:37:29 -0600
+User-Agent: KMail/1.4.1
+Cc: Richard Stallman <rms@gnu.org>, R.E.Wolff@BitWizard.nl, jalvo@mbay.net,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.95.1030113121925.26995A-200000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.3.95.1030113121925.26995A-200000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301131137.29161.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 10:20:14AM +0200, Denis Vlasenko wrote:
-> I bought a PCI wireless card, a DLink-520 (I think, I forgot exactly
-> (it's at home), anyway, lspci dump is below).
-> 
-> We (my father and me) made a fairly long helical aerial.
-> We are trying to communicate over ~15 km with a small wireless cell.
-> (~10 hosts, one AP).
-> 
-> We can successfully associate with it, signal is weak as expected.
-> But after a short while our eth0 seems to 'fall off the net'
-> and while it looks like we can send packets, we see no incoming data
-> at all.
-> 
-> Since I have almost zero wireless experience, I'll be happy if someone
-> with said experience can read further and say what bites us.
+On Monday 13 January 2003 11:22 am, Richard B. Johnson wrote:
+[snip]
+>
+> The early Ygddrasil distributions, of which I posted the 'grep'
+> several days ago, show that most of the files are BSD based.
+>
+> I attach it here for your pleasure.
 
-	Personally, I never managed to get this hardware to work at
-all. And Orinoco is known to have problems with PrismII cards. Please
-use the HostAP or linux-wlan-ng driver.
-	Good luck...
+Ummm you did a "strings *" twice in the /usr/bin directory....
 
-	Jean
+Though I grant that is still a relatively small number of actual programs.
+The style they used tended to have one such line per main program
+(and assuming that was true then too) what you have is only
+69 files. /bin only has 8, and /sbin only 4.
+
+How many other files were there? If none, then that distribution
+would be BSD based.
+
+Wish I still had my SLS distribution floppies... That would make
+a nice cross check.
+
+I still don't believe the current distributions include that many
+files any more. There was a request from UCLA to remove propriatary
+code from the distributions. The major effect was to purge the
+network code out of the kernel, but it also removed a LOT of user
+code as well... My mail archives don't go back that far but I think
+it was around 92/93/94 timeframe.
+
+Personally, I think that was the most damaging thing done to BSD.
+Before that, I used to consider using BSD for production, and Linux
+for testing. It was said to "use linux for the latest thing, but if you
+need stability, use BSD". And it appeared relatively simple to switch
+between the two kernels up to that time...
+
+BSD made a contribution then... But it's over.
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

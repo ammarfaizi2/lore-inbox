@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262817AbTI2GcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 02:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTI2GcZ
+	id S262838AbTI2Gp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 02:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262841AbTI2Gp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 02:32:25 -0400
-Received: from netcore.fi ([193.94.160.1]:29701 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id S262817AbTI2GcY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 02:32:24 -0400
-Date: Mon, 29 Sep 2003 09:29:19 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: netdev@oss.sgi.com, <davem@redhat.com>,
-       <lksctp-developers@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-In-Reply-To: <20030928225941.GW15338@fs.tum.de>
-Message-ID: <Pine.LNX.4.44.0309290927460.15163-100000@netcore.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Sep 2003 02:45:58 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:26098 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S262838AbTI2Gp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 02:45:57 -0400
+Date: Sun, 28 Sep 2003 23:42:36 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: effect of nfs blocksize on I/O ?
+Message-ID: <20030928234236.A16924@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Sep 2003, Adrian Bunk wrote:
-> It seems modular IPv6 doesn't work 100% reliable, e.g. after looking at 
-> the code it doesn't seem to be a good idea to compile a kernel without 
-> IPv6 support and later build and install IPv6 modules. Is there a great 
-> need for modular IPv6 or is the patch below to disallow modular IPv6 OK?
+I am not talking about rsize/wsize, rather the fs blocksize.
 
-IPv6 modularity is critical for all the Linux distributions who wish to
-give the users the possibility to turn on IPv6 if they wish, but turning
-it on by default for everybody is not realistic.
+2.4 sets this to MIN(MAX(MAX(4096,rsize),wsize),32768) = 8192 typically.
+2.6 sets this to nfs_fsinfo.wtmult?nfs_fsinfo.wtmult:512 = 512 typically.
 
-IMHO, making it non-modular is *NOT* an option.
+(My estimation of "typical" may be way off though.)
 
--- 
-Pekka Savola                 "You each name yourselves king, yet the
-Netcore Oy                    kingdom bleeds."
-Systems. Networks. Security. -- George R.R. Martin: A Clash of Kings
+At a 512 byte blocksize, this overflows struct statfs for fs > 1TB.
+Most of my NFS filesystems (on netapp) are larger than that.
 
+But more importantly, what does the VFS *do* with the blocksize?
+strace seems to show that glibc/stdio does consider it.  If I fprintf()
+two 4096 byte strings, libc does a single write() with 8192 blocksize,
+and 3 write()'s for 512 blocksize.  I haven't looked to see what goes
+over the wire, but I assume that still follows rsize/wsize.
+
+Does any NFS server report wtmult?
+
+Here's a patch.
+
+/fc
+
+--- a/fs/nfs/inode.c	2003-09-28 23:41:13.000000000 -0700
++++ b/fs/nfs/inode.c	2003-09-28 23:40:18.000000000 -0700
+@@ -323,8 +323,8 @@
+ 		server->wsize = nfs_block_size(fsinfo.wtpref, NULL);
+ 	if (sb->s_blocksize == 0) {
+ 		if (fsinfo.wtmult == 0) {
+-			sb->s_blocksize = 512;
+-			sb->s_blocksize_bits = 9;
++			sb->s_blocksize = nfs_block_bits(server->rsize > server->wsize ? server->rsize : server->wsize,
++							 &sb->s_blocksize_bits);
+ 		} else
+ 			sb->s_blocksize = nfs_block_bits(fsinfo.wtmult,
+ 							 &sb->s_blocksize_bits);

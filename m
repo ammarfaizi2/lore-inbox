@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263807AbUDOJVf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 05:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDOJVf
+	id S261821AbUDOJ2v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 05:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDOJ2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 05:21:35 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:32962 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S263882AbUDOJVd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 05:21:33 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Oliver Neukum <oliver@neukum.org>, Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs only on the disconnected interface
-Date: Thu, 15 Apr 2004 11:21:31 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Frederic Detienne <fd@cisco.com>
-References: <200404141245.37101.baldrick@free.fr> <200404151047.48239.baldrick@free.fr> <200404151108.52351.oliver@neukum.org>
-In-Reply-To: <200404151108.52351.oliver@neukum.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Apr 2004 05:28:51 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:5036 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S261821AbUDOJ2u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 05:28:50 -0400
+Date: Thu, 15 Apr 2004 11:28:54 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Guillaume =?iso-8859-1?Q?Lac=F4te?= <Guillaume@lacote.name>
+Cc: linux-kernel@vger.kernel.org, Linux@glacote.com
+Subject: Re: Using compression before encryption in device-mapper
+Message-ID: <20040415092854.GA28721@wohnheim.fh-wedel.de>
+References: <200404131744.40098.Guillaume@Lacote.name>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200404151121.31227.baldrick@free.fr>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200404131744.40098.Guillaume@Lacote.name>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The "if" cannot be optimized away for the case in point, because it
-> > does something (clears the bit) if it passes the test.  If I used WARN_ON
-> > then it would have to be WARN_ON(1) in the else branch of the if.
->
-> True. You should use BUG_ON().
->
-> If this ever happens the device tree is screwed. There's no use going on.
+On Tue, 13 April 2004 17:44:40 +0200, Guillaume Lacôte wrote:
+> 
+> I hope this is the right place to post this message; I tried to keep it small.
+> Basically I really would like to implement compression at the dm level, 
+> despite all of the problems. The reason for this is that reducing redundancy 
+> through compression tremendously reduces the possibilities of success for an 
+> attacker. I had implemented this idea in a java archiver ( 
+> http://jsam.sourceforge.net ).
+> 
+> Although I am not a good kernel hacker, I have spent some time reading 
+> compressed-loop.c, loop-aes, dm-crypt.c, and various threads from lkml 
+> including http://www.uwsg.iu.edu/hypermail/linux/kernel/0402.2/0035.html
+> Thus I would appreciate if you could answer the following questions regarding 
+> the implementation of a "dm-compress" dm personality. 
 
-I'm not sure - isn't it more likely that someone stuffed up in usbfs?  BUG_ON
-seems kind of harsh, since it will kill the hub thread.  If it wasn't for that I
-wouldn't hesitate to use BUG_ON here.
+Btw, looks like the whole idea is broken.  Consider a block of
+known-plaintext.  The known plaintext happens to be at the beginning
+of the block and has more entropy than the blocksize of your block
+cypher.  Bang, you're dead.
 
-> > > But there is another point. The embedded people deserve a single switch
-> > > to remove assertion checks. The purpose of macros like WARN_ON() is
-> > > easy and _central_ choice of debugging output vs. kernel size.
-> >
-> > This is not an argument against using USB's warn, it is an argument for
-> > building warn on top of a centralized macro like WARN_ON or a friend.
->
-> It is an argument against USB making its own constructs. There's nothing
-> terribly specific about USB that would justify it. If the usual debug
-> statements are inadequate, improve them.
+Your whole approach depends on the fact, that any known plaintext in
+the device is either not at the beginning of the block or has very
+little entropy.  1k of zeroes already has too much entropy if you use
+any form of huffman, so without RLE you're not frequently dead, but
+practically always.
 
-I don't see that there is anything wrong with USB using it's own constructs even
-if they were just defined to be equal to some centralized macro (as they probably
-should be).  In fact there is an advantage: they can be modified for debugging
-purposes (to add a backtrace for example) without disturbing the rest of the
-kernel.
+Does the idea still sound sane to you?
 
-All the best,
+Jörn
 
-Duncan.
+-- 
+...one more straw can't possibly matter...
+-- Kirby Bakken

@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267334AbTAGHvq>; Tue, 7 Jan 2003 02:51:46 -0500
+	id <S267338AbTAGIFp>; Tue, 7 Jan 2003 03:05:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267335AbTAGHvq>; Tue, 7 Jan 2003 02:51:46 -0500
-Received: from h80ad273a.async.vt.edu ([128.173.39.58]:35458 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267334AbTAGHvp>; Tue, 7 Jan 2003 02:51:45 -0500
-Message-Id: <200301070800.h0780ECR005255@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Werner Almesberger <wa@almesberger.net>
+	id <S267339AbTAGIFp>; Tue, 7 Jan 2003 03:05:45 -0500
+Received: from f39.sea1.hotmail.com ([207.68.163.39]:29971 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S267338AbTAGIFo>;
+	Tue, 7 Jan 2003 03:05:44 -0500
+X-Originating-IP: [196.44.34.77]
+From: "Dirk Bull" <dirkbull102@hotmail.com>
+To: fork0@users.sf.net, doug@mcnaught.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!) 
-In-Reply-To: Your message of "Tue, 07 Jan 2003 04:08:29 -0300."
-             <20030107040829.E1406@almesberger.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org> <3E19B401.7A9E47D5@linux-m68k.org> <17360000.1041899978@localhost.localdomain> <20030107042045.GA10045@waste.org> <200301070538.h075cICR004033@turing-police.cc.vt.edu> <20030107031638.D1406@almesberger.net> <200301070643.h076hWCR004411@turing-police.cc.vt.edu>
-            <20030107040829.E1406@almesberger.net>
+Subject: Re: shmat problem
+Date: Tue, 07 Jan 2003 08:14:17 +0000
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-758498996P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Jan 2003 03:00:14 -0500
+Content-Type: text/plain; format=flowed
+Message-ID: <F39ekoL0jfQnPEiuGHi0001ee0c@hotmail.com>
+X-OriginalArrivalTime: 07 Jan 2003 08:14:18.0000 (UTC) FILETIME=[C6316900:01C2B624]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-758498996P
-Content-Type: text/plain; charset=us-ascii
+Thanks for your help. I also thought the memory mapping code I'm
+porting looked funny. The code forms part of a simulation program where a 
+few processes have to share data in a data base. In the code they(the 
+original implementers) initialize a bunch of variables and then share these 
+variables as I've shown you. I've referenced W.R Stevens's UNIX programming 
+books and found no information on whether you could share memory other than 
+that on the heap (did not want to change their code to use pointers, not a 
+good idea to change too much of the original code). To end a long story, 
+Alex, thanks for the SHM_REMAP flag, would never have found it, you've saved 
+me a lot of time. Finally, in the code they share pages, therefor using 
+SHM_REMAP is not that unsafe, but still not good practice?
 
-On Tue, 07 Jan 2003 04:08:29 -0300, Werner Almesberger said:
-> Valdis.Kletnieks@vt.edu wrote:
+Thanks again.
 
-> > it takes *hours* without a
-> > packet drop to get the window open *all* the way
-> 
-> Or did you mean "after" instead of "without" ? Or maybe "into
-> equilibrium" instead of "the window open ..." ? (After all, the
-> window isn't only open, but it's been blown off its hinges.)
-
-"without".  Let's say it takes 4 hours to recover from a drop, and
-you have another one 3 hours into recovery - it will now take more than
-one more hour to recover.
-
-"into equilibrium fully open".  It's easy enough to see it in equilibrium
-(more or less) not fully open.. ;)
-
-> In any case, your statement accurately describes a somewhat
-> surprising quirk in Linux TCP performance as of only a bit more
-> than six years ago :)
-
-OK, I tuned in late - are you saying that the 6-year-old Linux quirk
-happened to have the same symptoms as Floyd's current work, or that
-the slow-start tweaks were designed in 6 years ago, or that a fix for
-the quirk accidentally did the same thing as Floyd's stuff?
-
-The whole slow-start/ack/retransmit has been chewed over so many times in the
-last 20 years that it's hard to keep track of which vendors picked up which
-tweaks when, and which vendors accidentally invented them again, and which
-vendors invented the tweaks independently and didn't publicize them more....
-
-/Valdis
+Dirk
 
 
---==_Exmh_-758498996P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+GokOcC3lWbTT17ARAvkUAJ4jloX6kjzGF6l7Nv69Y4ZzgJu7RwCg5Hjm
-eUWl8a4IF66Fbq4RbT7JveI=
-=OtON
------END PGP SIGNATURE-----
 
---==_Exmh_-758498996P--
+
+
+
+
+_________________________________________________________________
+Help STOP SPAM: Try the new MSN 8 and get 2 months FREE* 
+http://join.msn.com/?page=features/junkmail
+

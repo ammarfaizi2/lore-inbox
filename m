@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261271AbTCNWtY>; Fri, 14 Mar 2003 17:49:24 -0500
+	id <S261224AbTCNWwp>; Fri, 14 Mar 2003 17:52:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261273AbTCNWtY>; Fri, 14 Mar 2003 17:49:24 -0500
-Received: from [67.104.22.119] ([67.104.22.119]:36040 "EHLO
-	skull.piratehaven.org") by vger.kernel.org with ESMTP
-	id <S261271AbTCNWtX>; Fri, 14 Mar 2003 17:49:23 -0500
-Date: Fri, 14 Mar 2003 15:12:27 -0800
-From: Dale Harris <rodmur@maybe.org>
+	id <S261263AbTCNWwp>; Fri, 14 Mar 2003 17:52:45 -0500
+Received: from APastourelles-108-2-1-3.abo.wanadoo.fr ([80.14.139.3]:12228
+	"EHLO mail.two-towers.net") by vger.kernel.org with ESMTP
+	id <S261224AbTCNWwo>; Fri, 14 Mar 2003 17:52:44 -0500
+Message-ID: <3E725DA5.4070108@free.fr>
+Date: Fri, 14 Mar 2003 23:54:29 +0100
+From: Philip Dodd <smpcomputing@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: dual AMD MP 2000+ and ASUS A7M266-D problems
-Message-ID: <20030314231227.GA19468@maybe.org>
-Mail-Followup-To: Dale Harris <rodmur@maybe.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Subject: SCSI errors in logs
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-I have a small cluster of systems with:
-
-dual AMD MP 2000+
-ASUS A7M266-D motherboard
-2GB RAM... DIMMs are Crucial 512MB, DDR, 266Mhz, CL2.5, ECC
-I'm running 2.4.20 (Debian, or vanilla, didn't seem to matter)
-
-The only stable configuration I can seem to get is 1 CPU and 1 DIMM.
-Every other setup Cerberus just blows up in anywhere from 10 minutes to
-a little over 2 hrs.  Sometimes I see an oops, other times it just stops
-dead and no interrupts are handled (caps lock doesn't turn on the little
-light on the keyboard).  I saw a similar conversations in the archive
-about a setup similar to this and various solutions, one being to
-underclock the CPUs, suggesting, I guess that CPU heat is a problem
-(even though I never see an alarm out of lm_sensors).  I did update the
-board to the latest BIOS (1009), that doesn't seem to have any effect.  
-
-testing with Cerberus:
-
-1 CPU/ 1 DIMM run all the time
-2 CPU/ 1 DIMM might run for 3 hours
-1 or 2 CPU with more than 1 DIMM, lucky to last 20 minutes, usually
-less.
-
-I have tried each of the four DIMMs individually, they all appear to be
-fine.  
-
-So I'm wondering if anyone has any insight into what the problem might
-be.  Is underclocking the chips all I can do?
+Running debian testing with 2.4.20 + preempt + bttv kernel patches with 
+1GB of RAM - high memory enabled, I get big bunches of the following in 
+/var/log/messages.
 
 
--- 
-Dale Harris   
-rodmur@maybe.org
-/.-)
+Mar 14 20:41:08 gandalf kernel: scsi0: Transceiver State Has Changed to 
+SE mode
+Mar 14 20:41:08 gandalf kernel: scsi0: Transceiver State Has Changed to 
+LVD mode
+Mar 14 20:41:08 gandalf kernel: scsi0: Transceiver State Has Changed to 
+SE mode
+Mar 14 20:41:27 gandalf kernel: scsi0: Transceiver State Has Changed to 
+LVD mode
+
+On several occasions my logs have been filled with theses messages. 
+Adaptec driver is compiled in the kernel, and scsi0 is unused (scsi1 is 
+the other channel on my adaptec 39160, scsi2 is ide-scsi).  Nothing is 
+physically plugged in to this channel (yet!).
+
+I'd be grateful for any ideas - is this hardware?
+
+Thanks,
+
+Philip
+

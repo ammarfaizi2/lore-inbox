@@ -1,62 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269809AbRHDGHs>; Sat, 4 Aug 2001 02:07:48 -0400
+	id <S269810AbRHDGLR>; Sat, 4 Aug 2001 02:11:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269810AbRHDGHh>; Sat, 4 Aug 2001 02:07:37 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:7173 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S269809AbRHDGH2>;
-	Sat, 4 Aug 2001 02:07:28 -0400
-Date: Sat, 4 Aug 2001 03:07:31 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Ivan Kalvatchev <iive@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: DoS with tmpfs #3
-In-Reply-To: <20010803163409.62191.qmail@web13609.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33L.0108040303030.2526-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269812AbRHDGLH>; Sat, 4 Aug 2001 02:11:07 -0400
+Received: from tsukuba.m17n.org ([192.47.44.130]:18841 "EHLO tsukuba.m17n.org")
+	by vger.kernel.org with ESMTP id <S269811AbRHDGKz>;
+	Sat, 4 Aug 2001 02:10:55 -0400
+Date: Sat, 4 Aug 2001 15:10:47 +0900 (JST)
+Message-Id: <200108040610.f746AlJ19336@mule.m17n.org>
+From: NIIBE Yutaka <gniibe@m17n.org>
+To: linux-kernel@vger.kernel.org
+Subject: The interface of flush_cache_page
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Aug 2001, Ivan Kalvatchev wrote:
+Currently, the interface is like this:
 
-> I don't like stuped jokes.
+void flush_cache_page(struct vm_area_struct *vma, unsigned long address)
 
-> Oh maybe you have used to work in microsoft and this
-> is not a bug but a feature :-{
+This doesn't work well for (virtuall indexed) physically tagged
+architecture.
 
-I don't like insults.  Or people who don't read what
-I write but complain about it anyway.
+When it is called from vmscan.c:try_to_swap_out, as the PTE is cleared
+to be zero, we have no way to know what phisical address to match.
 
-I'll explain things once more. Slowly.
-
-1) you create a tmpfs with a high limit, such that
-   (max size tmpfs) + (user memory) > ram + swap
-
-2) you proceed to completely fill up ram and swap
-
-3) now ram and swap is full and the computer has no
-   place to put new data
-
-Apart from adding swap space on the fly or going to the
-shop to buy you more memory (neither of which is implemented
-in the current kernel) there is very little the kernel can
-do.
-
-As long as you don't try to use more resources than you
-have you will be ok.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+How about adding argument: struct page *page?  With that, we have
+information of physical memory.
+-- 

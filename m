@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbUJYLpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbUJYLrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbUJYLpz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 07:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUJYLpz
+	id S261699AbUJYLrX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 07:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUJYLrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 07:45:55 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:3764 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S261412AbUJYLpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 07:45:53 -0400
-Date: Mon, 25 Oct 2004 13:46:41 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-Message-ID: <20041025114641.GU14325@dualathlon.random>
-References: <41753B99.5090003@pobox.com> <4d8e3fd304101914332979f86a@mail.gmail.com> <20041019213803.GA6994@havoc.gtf.org> <4d8e3fd3041019145469f03527@mail.gmail.com> <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org> <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com>
+	Mon, 25 Oct 2004 07:47:22 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:49165 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261699AbUJYLrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 07:47:15 -0400
+Subject: Re: 2.6.9-mm1
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
+References: <20041022032039.730eb226.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1098704827.2798.18.camel@laptop.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041024233214.GA9772@work.bitmover.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Mon, 25 Oct 2004 13:47:09 +0200
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.6 (++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (2.6 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 04:32:14PM -0700, Larry McVoy wrote:
-> the BK license haters have finally admitted that, [..]
+>   - md updates: these are blocked by a minor bunfight over one of Neil's
+>     procfs innovations.  He's reworking the patches so we can defer that
+>     decision.
 
-dream on
+does that mean it'll use the new sysfs based (dbus) generic event
+mechanism instead? that sounds like a good step forward indeed.
+-- 
+

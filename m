@@ -1,116 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbTLHXmA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 18:42:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTLHXk2
+	id S262009AbTLHXou (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 18:44:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTLHXou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 18:40:28 -0500
-Received: from mail.kroah.org ([65.200.24.183]:12190 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261950AbTLHXkF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 18:40:05 -0500
-Date: Mon, 8 Dec 2003 15:34:28 -0800
-From: Greg KH <greg@kroah.com>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: State of devfs in 2.6?
-Message-ID: <20031208233428.GA31370@kroah.com>
-References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com> <pan.2003.12.08.23.04.07.111640@dungeon.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <pan.2003.12.08.23.04.07.111640@dungeon.inka.de>
-User-Agent: Mutt/1.4.1i
+	Mon, 8 Dec 2003 18:44:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25746 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262009AbTLHXof
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 18:44:35 -0500
+Message-ID: <3FD50CD6.3070808@pobox.com>
+Date: Mon, 08 Dec 2003 18:44:22 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: VIA on-chip RNG and crypto...
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 09, 2003 at 12:04:08AM +0100, Andreas Jellinghaus wrote:
-> On Mon, 08 Dec 2003 15:50:45 +0000, William Lee Irwin III wrote:
-> > I would say it's deprecated at the very least. sysfs and udev are
-> > supposed to provide equivalent functionality, albeit by a somewhat
-> > different mechanism.
-> 
-> huh?
-> 
-> aj@simulacron:/dev$ find -type c -mount |grep -v pty |wc -l
->     164
-> aj@simulacron:/dev$ find -type b |wc -l
->     157
-> aj@simulacron:/dev$ find /sys/ -name dev |wc -l
->     250
-> 
-> After ignoring .devfsd we are left with 70 devices missing:
->  - 15 floppy devices
 
-You have 15 floppy devices connected to your box?  All floppy devices
-should show up in /sys/block.
+VIA has publicly posted the docs for the 'xstore' and 'xcrypt' 
+instructions in their processors:
 
->  - 5 input/ devices
+	http://www.via.com.tw/en/viac3/c3.jsp
 
-Patch for sysfs support for this has been posted by Hanna Linder.  It
-still needs work before being added to the kernel tree.
+(grab "VIA Padlock {ACE|RNG} Programming Guide" down at the bottom)
 
->  - full, kmem, kmsg, mem, null, port, random, urandom, zero
+'xstore' is an instruction that any program may use, to obtain entropy 
+from the on-chip hardware source (RNG).  The in-kernel hw_random driver 
+already supports this (though this support will be moved to the 
+userspace rngd soon).  'xcrypt' provides on-chip AES encrypt and 
+decrypt, similarly useable by any program.
 
-Patch for this has been posted by me to lkml in the past.  It will
-probably go into 2.6.1
+They have also supported open source by providing docs and occasionally 
+hardware to myself, Dave Jones, Alan, and others.  So, while it might 
+appear this is a shameless plug :) I just really like the technology, 
+and am never shy about promoting good hardware designs, and vendors that 
+work with the open source community.
 
->  - printers/0 
+	Jeff
 
-Hanna Linder is working on a patch for these devices.
 
->  - 5 misc/ devices
 
-Patch for this has been posted by me to lkml in the past.  It will
-probably go into 2.6.1.
+P.S. In the interest of full disclosure, neither VIA nor my employer 
+prompted me to write this.
 
->  - 12 snd/ devices
->  - 5 sound/ devices
 
-I have a patch here from Leann Ogasawara that adds sysfs support for
-these devices.  I've been lacking time to test it better, but again, it
-will probably make it into 2.6.1.
-
->  - 18 vcc/ devices
-
-Hm, good catch.  I wonder why these aren't getting picked up in
-/sys/class/tty as they are tty devices.  I thought they used to be
-there...
-
-> I wouldn't call udev deprecated, unless a newer kernel has the
-> essential devices, too.
-
-You mean s/udev/devfs/ right?  :)
-
-> And is there a udev version that can
-> do devfs names? last time I checked only lanana names were supported.
-
-There is a udev config file that was just posted to linux-hotplug-devel
-that supports a lot of devfs names.  If there are any missing that you
-use, please post a config file for them.
-
-Remember, I don't use devfs, so I really don't care about a udev mapping
-for it :)
-
-> Some distributions were quite happy to move from /dev and lanana to
-> devfs with better names.
-
-Hm, 2?  And one of them (Mandrake) got smart and went back...
-
-> I doubt everyone will rush to udev with lanana names,
-
-Why not?  It's the standard afterall.  Remember, the devfs users are in
-the tiny minority here.
-
-> and
-> re-introducing makedev for devices not represented
-> in sysfs doesn't sound very nice either. So 2.8.* might be a nice time
-> frame for dropping devfs, or at least give sysfs and udev a few months
-> to catch up on the issues mentioned.
-
-Regardless of the state of udev, devfs has insolvable problems and you
-should not use it.  End of story.
-
-thanks,
-
-greg k-h

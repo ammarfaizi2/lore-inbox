@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265077AbSLTTXO>; Fri, 20 Dec 2002 14:23:14 -0500
+	id <S264908AbSLTTU3>; Fri, 20 Dec 2002 14:20:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265222AbSLTTXO>; Fri, 20 Dec 2002 14:23:14 -0500
-Received: from mail114.mail.bellsouth.net ([205.152.58.54]:47342 "EHLO
-	imf14bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S265077AbSLTTXM>; Fri, 20 Dec 2002 14:23:12 -0500
-Date: Fri, 20 Dec 2002 14:31:14 -0500 (EST)
-From: Burton Windle <bwindle@fint.org>
-X-X-Sender: bwindle@morpheus
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.51+] kernel not honoring init= bootparm?
-Message-ID: <Pine.LNX.4.43.0212201422580.2382-100000@morpheus>
+	id <S264910AbSLTTU2>; Fri, 20 Dec 2002 14:20:28 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:33485 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264908AbSLTTU1>; Fri, 20 Dec 2002 14:20:27 -0500
+Date: Fri, 20 Dec 2002 11:37:03 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Hanna Linder <hannal@us.ibm.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Dedicated kernel bug database
+Message-ID: <16020000.1040413023@w-hlinder>
+In-Reply-To: <20021220103527.GH24782@suse.de>
+References: <200212192155.gBJLtV6k003254@darkstar.example.net> <3E0240CA.4000502@inet.com> <42790000.1040337942@w-hlinder> <50260000.1040348396@flay> <71820000.1040349694@w-hlinder> <20021220103527.GH24782@suse.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears that somewhere in between 2.5.51 and 2.5.52-bk2 (and still in
-52-bk4), the kernel no longer pays attention to init=whatever when
-booting.
+--On Friday, December 20, 2002 10:35:27 AM +0000 Dave Jones <davej@codemonkey.org.uk> wrote:
 
-Does anybody else see this?
+> 
+> If you want to add to a bug reported in bugzilla, forget email,
+> just _use the tool_.
+> 
+> 		Dave
 
-The bootloader is still passing it
 
-LILO 22.3.3 boot: 2.5.52-bk2 init=/bin/bas
-Loading 2.5.52-bk2.......................
-<snip>
-Kernel command line: BOOT_IMAGE=2.5.52-bk2 root=302 console=ttyS0,9600
-console=tty0 init=/bin/bash
+Thanks Dave,
 
-but init still loads.
+	My ultimate goal is to help stabilize 2.5 by getting 
+more people using this kernel tracker thereby increasing the 
+patches and testing on lkml ;) 	
+	This thread has answered most my questions and I am 
+going to write up what I have learned to add it to the 
+documentation on the site. As with most things in Linux Kernel 
+development, dont ask to do it, just write it. Expect some
+documentation soon...
 
-This is single x86, Debian Testing.
-
---
-Burton Windle                           burton@fint.org
-Linux: the "grim reaper of innocent orphaned children."
-          from /usr/src/linux-2.4.18/init/main.c:461
+	Hanna
 
 

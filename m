@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143896AbRA1US7>; Sun, 28 Jan 2001 15:18:59 -0500
+	id <S144145AbRA1UjV>; Sun, 28 Jan 2001 15:39:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144111AbRA1USu>; Sun, 28 Jan 2001 15:18:50 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:40204 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S143896AbRA1USg>;
-	Sun, 28 Jan 2001 15:18:36 -0500
-Date: Sun, 28 Jan 2001 15:18:35 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: jamal <hadi@cyberus.ca>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, James Sutherland <jas88@cam.ac.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ECN: Clearing the air (fwd)
-Message-ID: <20010128151835.G13195@xi.linuxpower.cx>
-In-Reply-To: <200101281739.SAA05979@cave.bitwizard.nl> <Pine.GSO.4.30.0101281307090.24762-100000@shell.cyberus.ca>
+	id <S144147AbRA1UjM>; Sun, 28 Jan 2001 15:39:12 -0500
+Received: from crusoe.degler.net ([160.79.55.71]:448 "EHLO degler.net")
+	by vger.kernel.org with ESMTP id <S144145AbRA1UjC>;
+	Sun, 28 Jan 2001 15:39:02 -0500
+Date: Sun, 28 Jan 2001 15:38:54 -0500
+From: Stephen Degler <sdegler@degler.net>
+To: linux-kernel@vger.kernel.org
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: tulip autonegotiation patch
+Message-ID: <20010128153854.A13829@crusoe.degler.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <Pine.GSO.4.30.0101281307090.24762-100000@shell.cyberus.ca>; from hadi@cyberus.ca on Sun, Jan 28, 2001 at 01:08:40PM -0500
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 28, 2001 at 01:08:40PM -0500, jamal wrote:
-> On Sun, 28 Jan 2001, Rogier Wolff wrote:
-> 
-> > A sufficiently paranoid firewall should block requests that he doesn't
-> > fully understand. ECN was in this category, so old firewalls are
-> > "right" to block these. (Sending an 'RST' is not elegant. So be it.)
-> >
-> > However, ECN is now "understood", and operators are now in a position
-> > to configure their firewall to "do the right thing". This is
-> 
-> This would have been easier. The firewall operators were not provided with
-> this option. This is hard-coded. I agree with the rest of your message.
+Hi,
 
-They chose their vendor. 
+This one-liner fixes a subtle 21143 autonegotiation problem for me on a Zynx
+quad card.  The driver would claim to negotiate 100-FD, but would report late
+collisions and bad transmit throughput.
 
-In the case of Cisco, they aparently chose OK as cisco fixed their product
-right away.
+The driver still allows packets to be transmitted during autonegotiation,
+but that only drops a few packets.
 
-In the case of Raptor they made a bad decision as the vendor still has not
-fixed the problem...
+skd
 
-They could have chose Linux where if there had been an issue they could have
-gotten it fixed without respect to the vendors idea of how important the
-problem is...
-
+--- 21142.c.bad	Sun Jan 28 15:26:25 2001
++++ 21142.c	Sun Jan 28 11:51:59 2001
+@@ -171,7 +171,7 @@
+ 			for (i = 0; i < tp->mtable->leafcount; i++)
+ 				if (tp->mtable->mleaf[i].media == dev->if_port) {
+ 					tp->cur_index = i;
+-					tulip_select_media(dev, 0);
++					tulip_select_media(dev, 1);
+ 					setup_done = 1;
+ 					break;
+ 				}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

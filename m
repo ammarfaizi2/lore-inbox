@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130650AbQKANBY>; Wed, 1 Nov 2000 08:01:24 -0500
+	id <S130527AbQKANQp>; Wed, 1 Nov 2000 08:16:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130375AbQKANBN>; Wed, 1 Nov 2000 08:01:13 -0500
-Received: from tnt-dal-42-210.dallas.net ([209.44.42.210]:29708 "EHLO
-	bfgbhome.inetint.com") by vger.kernel.org with ESMTP
-	id <S130311AbQKANBJ>; Wed, 1 Nov 2000 08:01:09 -0500
-Date: Wed, 1 Nov 2000 06:59:40 -0600
-From: "Brian F. G. Bidulock" <bidulock@openswitch.org>
-To: f5ibh <f5ibh@db0bm.ampr.org>
+	id <S130090AbQKANQZ>; Wed, 1 Nov 2000 08:16:25 -0500
+Received: from styx.suse.cz ([195.70.145.226]:33533 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S130527AbQKANQV>;
+	Wed, 1 Nov 2000 08:16:21 -0500
+Date: Wed, 1 Nov 2000 13:58:58 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: David Woodhouse <dwmw2@infradead.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: tnt uses obsolete (PF_INET,SOCK_PACKET)
-Message-ID: <20001101065940.A20416@openswitch.org>
-Reply-To: bidulock@openswitch.org
-Mail-Followup-To: f5ibh <f5ibh@db0bm.ampr.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200011011117.MAA28584@db0bm.ampr.org>
+Subject: Re: mousedev uses userspace pointers without copy_{to,from}_user
+Message-ID: <20001101135858.B583@suse.cz>
+In-Reply-To: <20001026235728.A6232@suse.cz> <18835.972652671@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200011011117.MAA28584@db0bm.ampr.org>; from f5ibh@db0bm.ampr.org on Wed, Nov 01, 2000 at 12:17:40PM +0100
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openswitch.org>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <18835.972652671@redhat.com>; from dwmw2@infradead.org on Fri, Oct 27, 2000 at 02:17:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-f5ibh,
-
-It means that it should be opening a PF_PACKET socket (see packet(7))
-instead of a PF_INET, SOCK_PACKET (see COMPATIBILITY ip(7)):
-
-    "For compatibility with Linux 2.0, the obsolete socket(PF_INET,
-     SOCK_RAW, protocol) syntax is still supported to open a
-     packet(7) socket.  This is deprecated and should be replaced by
-     socket(PF_PACKET, SOCK_RAW, protocol) instead.  The main
-     difference is the new sockaddr_ll address structure for generic
-     link layer information instead of sockaddr_pkt." - ip(7)
-
---Brian
-
-On Wed, 01 Nov 2000, f5ibh wrote:
-
-> Hi,
+On Fri, Oct 27, 2000 at 02:17:51PM +0100, David Woodhouse wrote:
 > 
-> Nov  1 12:09:12 debian-f5ibh kernel: tnt uses obsolete (PF_INET,SOCK_PACKET)
 > 
-> I got often this message, it is harmless (seems to be). What does it means ?
+> static ssize_t mousedev_write(struct file * file, const char * buffer, size_t count, loff_t *ppos)
+> {
+>         struct mousedev_list *list = file->private_data;
+>         unsigned char c;
+>         int i;
 > 
-> ---
-> Regards
-> 		jean-luc
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+>         for (i = 0; i < count; i++) {
+> 
+>                 c = buffer[i];
+> 
+> 
+> oops. Can we make this die horribly on x86, just for a few kernel releases?
+> Along with turning on spinlock debugging, which would have shown up the USB 
+> audio problem months ago.
+
+Ok, fixed in the CVS, a patch for the kernel to follow soon.
 
 -- 
-Brian F. G. Bidulock
-http://www.openss7.org/
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263018AbUCXGTH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 01:19:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUCXGTG
+	id S263014AbUCXGSH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 01:18:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbUCXGSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 01:19:06 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:16514
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263018AbUCXGTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 01:19:04 -0500
-Date: Wed, 24 Mar 2004 07:19:57 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] anobjrmap 1/6 objrmap
-Message-ID: <20040324061957.GB2065@dualathlon.random>
-References: <Pine.LNX.4.44.0403190642450.17899-100000@localhost.localdomain> <2663710000.1079716282@[10.10.2.4]> <20040320123009.GC9009@dualathlon.random> <2696050000.1079798196@[10.10.2.4]> <20040320161905.GT9009@dualathlon.random> <2924080000.1079886632@[10.10.2.4]> <20040321235207.GC3649@dualathlon.random> <1684742704.1079970781@[10.10.2.4]>
-Mime-Version: 1.0
+	Wed, 24 Mar 2004 01:18:07 -0500
+Received: from web8004.mail.in.yahoo.com ([203.199.70.64]:3595 "HELO
+	web8004.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S263014AbUCXGSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 01:18:06 -0500
+Message-ID: <20040324061759.91514.qmail@web8004.mail.in.yahoo.com>
+Date: Tue, 23 Mar 2004 22:17:59 -0800 (PST)
+From: Dinesh Kumar <mljangir@yahoo.co.in>
+Subject: test mail
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1684742704.1079970781@[10.10.2.4]>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 07:53:02AM -0800, Martin J. Bligh wrote:
-> Just against 2.6.5-rc1 virgin is easiest - that's what I was doing the
-> rest of it against ...
+ 
+ 
 
-here it is:
-
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.5-rc1/anon-vma-2.6.5-rc2-aa2.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.5-rc1/objrmap-core-2.6.5-rc2-aa2.gz
+__________________________________
+Do you Yahoo!?
+Yahoo! Finance Tax Center - File online. File on time.
+http://taxes.yahoo.com/filing.html

@@ -1,79 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266847AbVBFITD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267176AbVBFIVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266847AbVBFITD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 03:19:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267127AbVBFITC
+	id S267176AbVBFIVN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 03:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268681AbVBFIVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 03:19:02 -0500
-Received: from av1-2-sn3.vrr.skanova.net ([81.228.9.106]:54731 "EHLO
-	av1-2-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S266889AbVBFISg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 03:18:36 -0500
-To: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>
-Cc: laurent.riffard@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc3-mm1 : mount UDF CDRW stuck in D state
-References: <4204F91B.5040302@free.fr> <m3vf96r017.fsf@telia.com>
-	<m3sm4apig8.fsf@telia.com> <20050205222301.337de629.akpm@osdl.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 06 Feb 2005 09:18:20 +0100
-In-Reply-To: <20050205222301.337de629.akpm@osdl.org>
-Message-ID: <m37jlmp0dv.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sun, 6 Feb 2005 03:21:13 -0500
+Received: from gprs214-129.eurotel.cz ([160.218.214.129]:58537 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S267176AbVBFIVB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 03:21:01 -0500
+Date: Sun, 6 Feb 2005 09:11:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+Message-ID: <20050206081137.GA994@elf.ucw.cz>
+References: <20050201204008.GD14274@atomide.com> <20050201212542.GA3691@openzaurus.ucw.cz> <20050201230357.GH14274@atomide.com> <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com> <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com> <20050204051929.GO14325@atomide.com> <20050205230017.GA1070@elf.ucw.cz> <20050206023344.GA15853@atomide.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050206023344.GA15853@atomide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Hi!
 
-> Peter Osterlund <petero2@telia.com> wrote:
-> >
-> > Peter Osterlund <petero2@telia.com> writes:
+> > > Currently the suggested combo is local APIC + ACPI PM timer...
 > > 
-> > > Laurent Riffard <laurent.riffard@free.fr> writes:
-> > > 
-> > > > This is kernel 2.6.11-rc3-mm1. I can't mount an UDF-formatted cdrw
-> > > > in packet-writing mode. Mount process gets stuck in D state.
-> > > > 
-> > > > Mounting and writing this media in packet-writing mode works fine
-> > > > with kernel 2.6.11-rc2-mm2.
+> > Ok, works slightly better: time no longer runs 2x too fast. When TSC
+> > is used, I get same behaviour  as before ("sleepy machine"). With
+> > "notsc", machine seems to work okay, but I still get 1000 timer
+> > interrupts a second.
 > 
-> > Anyway, mount hangs for me too if I use an IDE drive, both with native
-> > ide and ide-scsi emulation. It doesn't hang with a USB drive though. I
-> > verified that 2.6.11-rc3 does not have this problem. Reverting
-> > bk-ide-dev does *not* fix the problem.
-> 
-> Bah.  sysrq-T output would be helpful.
+> Sounds like dyn-tick did not get enabled then, maybe you don't have
+> CONFIG_X86_PM_TIMER, or don't have ACPI PM timer on your board?
 
-I was wrong about USB, it doesn't work either. The IDE drive failed
-with a non-packet formatted disc, so I didn't bother to check what was
-inserted in the USB drive. It turned out it was empty and in that case
-the driver doesn't hang.
+I do have CONFIG_X86_PM_TIMER enabled, but it seems by board does not
+have such piece of hardware:
 
-Anyway, the problem is that the add-struct-request-end_io-callback
-patch forgot to update pktcdvd.c. This patch fixes it. It should
-probably be merged into the add-struct-request-end_io-callback patch,
-because that patch already fixes up other struct request users.
+pavel@amd:/usr/src/linux-mm$ dmesg | grep -i "time\|tick\|apic"
+PCI: Setting latency timer of device 0000:00:11.5 to 64
+pavel@amd:/usr/src/linux-mm$ 
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
-
- linux-petero/drivers/block/pktcdvd.c |    1 +
- 1 files changed, 1 insertion(+)
-
-diff -puN drivers/block/pktcdvd.c~pktcdvd-endio-fix drivers/block/pktcdvd.c
---- linux/drivers/block/pktcdvd.c~pktcdvd-endio-fix	2005-02-06 08:59:16.000000000 +0100
-+++ linux-petero/drivers/block/pktcdvd.c	2005-02-06 09:01:22.000000000 +0100
-@@ -375,6 +375,7 @@ static int pkt_generic_packet(struct pkt
- 	rq->ref_count++;
- 	rq->flags |= REQ_NOMERGE;
- 	rq->waiting = &wait;
-+	rq->end_io = blk_end_sync_rq;
- 	elv_add_request(q, rq, ELEVATOR_INSERT_BACK, 1);
- 	generic_unplug_device(q);
- 	wait_for_completion(&wait);
-_
-
+[Strange, I should see some messages about apic, no?]
+								Pavel
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

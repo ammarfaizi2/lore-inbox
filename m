@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271794AbRHRHnk>; Sat, 18 Aug 2001 03:43:40 -0400
+	id <S271792AbRHRHij>; Sat, 18 Aug 2001 03:38:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271793AbRHRHnT>; Sat, 18 Aug 2001 03:43:19 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:3588 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S271795AbRHRHnI>;
-	Sat, 18 Aug 2001 03:43:08 -0400
-Date: Sat, 18 Aug 2001 03:47:25 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Robert Love <rml@tech9.net>
-Cc: elenstev@mesatop.com, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] Configure.help: Bad URL for CONFIG_SYN_COOKIES
-Message-ID: <20010818034725.A11028@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Robert Love <rml@tech9.net>, elenstev@mesatop.com,
-	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <998117417.2184.44.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <998117417.2184.44.camel@phantasy>; from rml@tech9.net on Sat, Aug 18, 2001 at 02:50:05AM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S271793AbRHRHi3>; Sat, 18 Aug 2001 03:38:29 -0400
+Received: from fep02-0.kolumbus.fi ([193.229.0.44]:16533 "EHLO
+	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id <S271792AbRHRHiR>; Sat, 18 Aug 2001 03:38:17 -0400
+Date: Sat, 18 Aug 2001 10:38:42 +0300 (EEST)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: <makisara@kai.makisara.local>
+To: "(Martin Jacobs)" <100.179370@germanynet.de>
+cc: <linux-kernel@vger.kernel.org>,
+        Albrecht Jacobs <albrecht.jacobs@janglednerves.com>
+Subject: Re: Q: 2.4.[37]-XFS: /dev/nst0m: cannot allocate memory
+In-Reply-To: <Pine.LNX.4.33.0108172200330.17813-100000@Schnecke.Windsbach.de>
+Message-ID: <Pine.LNX.4.33.0108181033140.12556-100000@kai.makisara.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net>:
-> The provided URL for more information re SYN Cookies is bad.  I
-> originally posted a patch to fix this in the 2.4-pre series but it was
-> not merged.  I am reposting because I was in need of the URL and again
-> got stuck on the stale URL in Configure.help.
-> 
-> This is against Configure.help 2.41, as in 2.4.8-ac7.
+On Fri, 17 Aug 2001, (Martin Jacobs) wrote:
 
-OK, Steve and Alan, I've uploaded this to the CML2 page as 2.42.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> Hi all,
+>
+> I cannot read anything from my tape (Tandberg DLT8000, LVD
+> interface, ID=5) connected to an aic7899 or an sym53c895 using
+> kernel 2.4.3-XFS or 2.4.7-XFS. (Everything works fine on
+> 2.2.16.) Loading of st.o works. stinit works. mt (status, tape
+> positioning) works. But when I try to read the amanda header
+> from the tape (dd if=/dev/nst0m bs=32k count=1) I get the
+> error
+>
+> dd: reading `/dev/nst0m': Cannot allocate memory
+>
+...
+> Nearly the same for tar (with default block size of 512 byte).
+>
+> BUT: if I use bs=64k it works!!?
+>
+In variable block mode in 2.4, you get ENOMEM if the block on the tape is
+larger than the byte count in the read(). 2.2 just returned what you asked
+for and silentlry threw away the rest of the block. If the byte count is
+larger than the block size, then the block is returned.
 
-...Virtually never are murderers the ordinary, law-abiding people
-against whom gun bans are aimed.  Almost without exception, murderers
-are extreme aberrants with lifelong histories of crime, substance
-abuse, psychopathology, mental retardation and/or irrational violence
-against those around them, as well as other hazardous behavior, e.g.,
-automobile and gun accidents."
-        -- Don B. Kates, writing on statistical patterns in gun crime
+I.e., the first block on your tape is larger than 32 kB.
+
+	Kai
+
+

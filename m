@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314469AbSEXQkL>; Fri, 24 May 2002 12:40:11 -0400
+	id <S314275AbSEXQkW>; Fri, 24 May 2002 12:40:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314475AbSEXQkK>; Fri, 24 May 2002 12:40:10 -0400
-Received: from daimi.au.dk ([130.225.16.1]:35699 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S314469AbSEXQkJ>;
-	Fri, 24 May 2002 12:40:09 -0400
-Message-ID: <3CEE6CDC.D5D7FF9E@daimi.au.dk>
-Date: Fri, 24 May 2002 18:39:56 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: It hurts when I shoot myself in the foot
-In-Reply-To: <E17BHdL-0006lF-00@the-village.bc.nu>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S314475AbSEXQkV>; Fri, 24 May 2002 12:40:21 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:23347 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314275AbSEXQkU>; Fri, 24 May 2002 12:40:20 -0400
+Date: Fri, 24 May 2002 18:39:42 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: negative dentries wasting ram
+Message-ID: <20020524163942.GB15703@dualathlon.random>
+In-Reply-To: <Pine.GSO.4.21.0205241215340.9792-100000@weyl.math.psu.edu> <Pine.LNX.4.44.0205240927580.11495-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Fri, May 24, 2002 at 09:29:56AM -0700, Linus Torvalds wrote:
 > 
-> > Couldn't that be solved in one of the following ways?
+> On Fri, 24 May 2002, Alexander Viro wrote:
 > >
-> > 1) Disable pre-emption while reading TSC and CPU nr.
-> > 2) Use affinity for processes pre-empted in kernel mode.
-> > 3) Disable pre-emption for SMP systems.
+> > On Fri, 24 May 2002, Linus Torvalds wrote:
+> >
+> > > However, you're right that it probably doesn't help to do this after
+> > > "unlink()" - it's probably only worth doing when actually doing a
+> > > "lookup()" that fails.
+> >
+> > Depends on many things, including the amount of userland code that does
+> > 	unlink(name);
+> > 	open(name, O_CREAT|O_EXCL..., ...);
 > 
-> You can solve it by disabling pre-emption (and given its questionable
-> value doing so permanently might not be a bad idea).
+> Note that this will have to touch the FS anyway, since the O_CREAT thing
+> forces a call down to the FS to actually create the file.
 
-Questionable value of what? TSC or preemption?
+yep. the only case where it could provide some in-core "caching"
+positive effect is:
 
-> However if you simply
-> disable pre-emption during udelay() calls then you've just screwed yourself
-> by removing 99% of the use pre-emption had.
+	unlink
+	open(w/o creat)
 
-I wouldn't want to disable preemption during udelays.
-Either I would disable and enable preemption on every
-pass through the loop. Or I would just manually check
-for every pass if I should give up the CPU. This
-obviously requires more computation for every pass,
-but being a busy waiting loop I don't see a problem.
+but I don't see it as a common case.
 
-Otherwise I would lock the process to a fixed CPU for
-the duration of udelay.
+> The only think we save is a dentry kfree/kmalloc in this case, nbot a FS
 
-> 
-> Given all the pain its probably better to not use the TSC
+agreed.
 
-Do we have better alternatives for high resolution
-time meassurements?
-
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk
+Andrea

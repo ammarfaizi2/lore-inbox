@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUIOJFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUIOJFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUIOJFr (ORCPT <rfc822;willy@w.ods.org>);
+	id S263540AbUIOJFr (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 15 Sep 2004 05:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUIOJFm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUIOJFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 05:05:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:32736 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264256AbUIOJBM (ORCPT
+	Wed, 15 Sep 2004 05:05:25 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:23698 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264265AbUIOJDM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 05:01:12 -0400
-Date: Wed, 15 Sep 2004 10:59:39 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lars =?iso-8859-1?Q?T=E4uber?= <taeuber@informatik.hu-berlin.de>
-Cc: linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: cdrom recognition on kernel 2.6.8.1
-Message-ID: <20040915085939.GU2304@suse.de>
-References: <20040915093635.1a8f08ff.taeuber@bbaw.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040915093635.1a8f08ff.taeuber@bbaw.de>
+	Wed, 15 Sep 2004 05:03:12 -0400
+Date: Wed, 15 Sep 2004 11:02:56 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Roland McGrath <roland@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: notify_parent (was: Re: Linux 2.6.9-rc2)
+In-Reply-To: <200409142019.i8EKJ8HG002560@magilla.sf.frob.com>
+Message-ID: <Pine.GSO.4.58.0409151102180.29604@waterleaf.sonytel.be>
+References: <200409142019.i8EKJ8HG002560@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15 2004, Lars Täuber wrote:
-> Hallo everybody,
-> 
-> I'm not subscribed to this list! But I read the archive from time to time.
-> 
-> In my linux box is a teac IDE CD-Rom drive. This is only recognised
-> when no audio cd is in the drive while booting.  Is this a drive
-> failure, or a kernel failure?
-> 
-> I didn't find any other on the net with the same problem. So hopefully
-> someone of you can explain?
-> 
-> ............
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> NFORCE3-150: IDE controller at PCI slot 0000:00:08.0
-> NFORCE3-150: chipset revision 165
-> NFORCE3-150: not 100% native mode: will probe irqs later
-> NFORCE3-150: 0000:00:08.0 (rev a5) UDMA133 controller
->     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-> libata version 1.02 loaded.
-> sata_sil version 0.54
-> ACPI: PCI interrupt 0000:01:07.0[A] -> GSI 11 (level, low) -> IRQ 11
-> ............
+On Tue, 14 Sep 2004, Roland McGrath wrote:
+> > On Mon, 13 Sep 2004, Linus Torvalds wrote:
+> > > Roland McGrath:
+> > >   o cleanup ptrace stops and remove notify_parent
+> >
+> > However, there are still a few users of notify_parent():
+>
+> IIRC all these are old arch-specific signal code that is rampantly wrong in
+> semantics compared to what the up-to-date arch's using the generic code do,
+> for quite a long time now.  I believe I mentioned this when I posted the
+> patch.  All this arch signal code needs to be rewritten to use
+> get_signal_to_deliver, and define ptrace_signal_deliver appropriately to
+> get its arch-specific work done.  The old style of code that does all the
+> central signal dispatch logic itself is hopeless.  Mostly you have a lot of
+> old cruft to remove, and the code that needs to be left is much smaller and
+> simpler because the complex stuff is in the shared kernel/signal.c.
+>
+> > You forgot to add `struct rusage _rusage' members to struct siginfo._sigchld
+> > for 2 architectures that define HAVE_ARCH_SIGINFO_T.
+>
+> I didn't forget.  I never claimed to update other arch's.  The arch
+> maintainers need to keep up with patches like you are doing with these
+> here.  Most other arch maintainers have submitted their updates already.
+> You may need to update some copy_*_siginfo functions if your arch's
+> have them in compat code as well.
 
-Did 2.6.7 work? The ide-probe isn't finding your drive, that's very odd.
-I think this is an issue with your hardware, not Linux. Perhaps you can
-use the drive if you add hdc=cdrom to your boot line.
+Hence (IMHO) they should have gone through linux-arch...
 
--- 
-Jens Axboe
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

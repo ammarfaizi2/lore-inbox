@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276452AbRI2Haw>; Sat, 29 Sep 2001 03:30:52 -0400
+	id <S276448AbRI2H0e>; Sat, 29 Sep 2001 03:26:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276450AbRI2Hae>; Sat, 29 Sep 2001 03:30:34 -0400
-Received: from imo-r08.mx.aol.com ([152.163.225.104]:38862 "EHLO
-	imo-r08.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S276449AbRI2Ha1>; Sat, 29 Sep 2001 03:30:27 -0400
-From: Floydsmith@aol.com
-Message-ID: <51.11defc6e.28e6d25d@aol.com>
-Date: Sat, 29 Sep 2001 03:29:33 EDT
-Subject: Re3: idetape broke in 2.4.x-2.4.9-ac5 (write OK but not read) ide-scsi works...
-To: zaitcev@redhat.com, mikpe@csd.uu.se
-CC: linux-kernel@vger.kernel.org, linux-tape@vger.kernel.org,
-        Floydsmith@aol.com
+	id <S276449AbRI2H0W>; Sat, 29 Sep 2001 03:26:22 -0400
+Received: from mailout6-0.nyroc.rr.com ([24.92.226.125]:37117 "EHLO
+	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S276448AbRI2H0N>; Sat, 29 Sep 2001 03:26:13 -0400
+Message-ID: <07f901c148b8$720a6230$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Mark Frazer" <mark@somanetworks.com>
+Cc: <pavel@md5.ca>, <linux-kernel@vger.kernel.org>, <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <fa.b97kd6v.8j2vhi@ifi.uio.no> <fa.hmvo4bv.l2gsaj@ifi.uio.no>
+Subject: Re: kernel changes
+Date: Sat, 29 Sep 2001 03:29:15 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: AOL 4.0 for Windows 95 sub 14
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Date: Wed, 5 Sep 2001 00:34:57 +0200 (MET DST)
->
->> >> - block size: The 2.4 ide-tape driver only works reliably if you
->> >>   write data with the correct block size. If you don't write full
->> >>   blocks the last block of data may not be readable.
->> >
->> >I fixed that some time ago, it's in current -ac
->> >if not in Linus's tree.
->> 
->> Sorry, but that's not correct. I just ran a test, and the bug is
->> still there in 2.4.9-ac7. Maybe you're thinking of some other bug?
->
->OK, perhaps you are right. I received a credible report from
->Ed Tomlinson that the "reading the last block" bug is in 2.4.10.
->
->It seems that either I fixed something else with the same symptoms
->or I fixed it improperly. Unfortunately, I cannot reproduce it.
->
->By the way, why does everyone insist on using ide-tape?
->It seems to be broken beyond any repair by injection of
->lethal poison marked "OnStream Support" (not that it was brilliant
->before, but that was the last nail in the coffin). Just use ide-scsi
->and be done with it. I really do not enjoy reading ide-tape.c.
->
->-- Pete
+> The answer is to treat all linus/ac/aa/... kernels as development
+> kernels.  Don't treat anything as stable until it's been through
+> a real QA cycle.
 
-I was using scsi emulation (when I first switched to 2.4.x kernels because I 
-was forced to when I ran to the above 2.4.x/bug/2.2.xworks ok ide problem . I 
-have two problems with that. First, I use loadline exclusively for booting 
-form DOS C: drive and from a ls-120 resue disk. To use scsi emu. I have to 
-add hdc=ide-scsi to the boot params of the loadline command line for a 
-machine with the tape drive on the secondary/master interface. I have three 
-different machines and so the first issue is can't use the same same loadlin 
-script for all machines (unless they all have the drive connected to the same 
-interface [hdc, for example]). But the second [and more] drastic problem is 
-scsi emu. simply stoped working all together in 2.4.5 (and higher 2.4.x 
-kernels) for my HP 8 gig drive(s). Also, I might add I don't thing anyone 
-shoud be forced to used scsi emu. for an ide drive - that should be an option.
-Floyd,
+I definitely have to second what you guys are saying here... 2.2.x is the
+stable kernel series, 2.4.x is for caffeine-fueled developers who read the
+LKML at least once every day...
+
+e.g. I consider it extremely embarrassing that fundamental drivers like
+aic7xxx, emu10k1, tulip, etc. are breaking regularly in the mainline
+kernels. I haven't had any trouble with things like this in Windows for
+several years now... Sure the Windows drivers are probably a few percent
+slower, but as Nathan Myers once wrote, "It is meaningless to compare the
+efficiency of a running system against one which might have done some
+operations faster if it had not crashed."
+
+I think we all owe major thanks to Alan Cox, who does his best to keep the
+house in order amidst the chaos of kernel development (kudos to Mr. Cox for
+holding on to Rik's VM design long enough for it to stabilize!). If anything
+I wish there were a third primary maintainer who would take an even more
+conservative stance, hanging maybe 2 minor versions behind Linus and -ac,
+and only picking up changes that have been tested widely. Hmm, the people
+working on distro kernels are probably just about doing this already...
+Maybe if they could combine efforts somehow?
+
+Regards,
+Dan
+

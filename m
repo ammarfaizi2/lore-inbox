@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265357AbSIWKWn>; Mon, 23 Sep 2002 06:22:43 -0400
+	id <S265358AbSIWKZN>; Mon, 23 Sep 2002 06:25:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265358AbSIWKWm>; Mon, 23 Sep 2002 06:22:42 -0400
-Received: from jack.stev.org ([217.79.103.51]:54438 "EHLO jack.stev.org")
-	by vger.kernel.org with ESMTP id <S265357AbSIWKWm>;
-	Mon, 23 Sep 2002 06:22:42 -0400
-Message-ID: <017e01c262ec$876bfb80$0cfea8c0@ezdsp.com>
-From: "James Stevenson" <james@stev.org>
-To: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-Cc: "Kernel" <linux-kernel@vger.kernel.org>
-References: <017801c262eb$010a3d00$0cfea8c0@ezdsp.com> <3D8EEB48.6010105@mandrakesoft.com>
-Subject: Re: via82cxxxx.c ?
-Date: Mon, 23 Sep 2002 11:32:33 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+	id <S265362AbSIWKZN>; Mon, 23 Sep 2002 06:25:13 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:12937 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S265358AbSIWKZM>;
+	Mon, 23 Sep 2002 06:25:12 -0400
+Message-ID: <1032777021.3d8eed3d55f53@kolivas.net>
+Date: Mon, 23 Sep 2002 20:30:21 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, gcc@gcc.gnu.org
+Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
+References: <Pine.LNX.4.44.0209230945260.2917-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0209230945260.2917-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> James Stevenson wrote:
-> > Hi
-> >
-> > i have the following on motherboard card.
-> >
-> >  Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97 Audio
-> > Controller (rev 48).
-> >
-> > there appears ot be a driver for it. But i am havign a few problems with
-it
-> > when the driver loads it says it picks the card up no problem
-> > and stays loaded and has the ioports, irq in /proc/*
->
->
-> sounds like an old kernel -- the driver doesn't support your chip at
-> all.  I removed the pci id in later kernels so it wouldn't even load.
+Quoting Ingo Molnar <mingo@elte.hu>:
 
-yeah i was wondering what was with the pci ids disappearing.
-they were in 2.4.18-redhat-7.3 kernel and were there in the
-driver download from the sourceforge site but not in 2.4.19
+> On Mon, 23 Sep 2002, Con Kolivas wrote:
+> 
+> > IO Full Load:
+> > 2.5.38                  170.21          42%
+> > 2.5.38-gcc32            230.77          30%
+> 
+> how many times are you running each test? You should run them at least
+> twice (ideally 3 times at least), to establish some sort of statistical
+> noise measure. Especially IO benchmarks tend to fluctuate very heavily
+> depending on various things - they are also very dependent on the initial
+> state - ie. how the pagecache happens to lay out, etc. Ie. a meaningful
+> measurement result would be something like:
 
-> It needs VT8233 support added to it (on my todo list), or you can use
-> ALSA, which supports VT8233.
+Yes you make a very valid point and something I've been stewing over privately
+for some time. contest runs benchmarks in a fixed order with a "priming" compile
+to try and get pagecaches etc back to some sort of baseline (I've been trying
+hard to make the results accurate and repeatable). 
 
-i would attempt to add support for it myself but i dont know where
-to get the docs from for the chipset from.
+Despite that, you're correct in assuming the IO load will fluctuate widely. My
+initial tests show that noload and process_load (not surprisingly) vary very
+little. Mem_load varies a little. IO Loads can vary wildly, and the worse the
+average performance is, the greater the variation (I mean percentage variation
+not just absolute).
 
+>  IO Full Load:
+>  2.5.38                  170.21 +- 55.21 sec        42%
+>  2.5.38-gcc32            230.77 +- 60.22 sec        30%
+> 
+> where the first column is the average of two measurements, the second
+> column is the delta of the two measurements divided by 2. This way we can
+> see the 'spread' of the results.
 
-    James
+I'll create some results based on 3 runs soon. 
 
+> I simply cannot believe that gcc32 can produce any visible effect in any
+> of the IO benchmarks, the only explanation would be heavy fluctuation of
+> IO results.
 
+Agreed. There probably is no statistically significant difference in the
+different gcc versions.
 
+Contest is very new and I appreciate any feedback I can get to make it as
+worthwhile a benchmark as possible to those who know.
 
-
+Con.

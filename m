@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261805AbTEBFb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 01:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbTEBFb1
+	id S261824AbTEBFoN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 01:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTEBFoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 01:31:27 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:35850 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261805AbTEBFb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 01:31:26 -0400
-Date: Fri, 2 May 2003 06:43:49 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: The Spirit of Open Source <tsoos@scoloses.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Did the SCO Group plant UnixWare source in the Linux kernel?
-Message-ID: <20030502064349.A9988@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	The Spirit of Open Source <tsoos@scoloses.org>,
-	linux-kernel@vger.kernel.org
-References: <ZIA7D8S737743.2233333333@Gilgamesh-frog.org>
+	Fri, 2 May 2003 01:44:13 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:60945 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S261801AbTEBFoL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 01:44:11 -0400
+Date: Fri, 2 May 2003 07:56:17 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Willy Tarreau <willy@w.ods.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Aic7xxx and Aic79xx Driver Updates
+Message-ID: <20030502055617.GB20977@alpha.home.local>
+References: <1866260000.1051828092@aslan.btc.adaptec.com> <20030502001758.GA20977@alpha.home.local> <700140000.1051849531@aslan.scsiguy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <ZIA7D8S737743.2233333333@Gilgamesh-frog.org>; from tsoos@scoloses.org on Fri, May 02, 2003 at 03:21:36AM -0000
+In-Reply-To: <700140000.1051849531@aslan.scsiguy.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 02, 2003 at 03:21:36AM -0000, The Spirit of Open Source wrote:
-> If there's UnixWare source in the Linux kernel, a SCO Group employee put it
-> there!  After all, who else would have such easy access to UnixWare sources?
+On Thu, May 01, 2003 at 10:25:31PM -0600, Justin T. Gibbs wrote:
+ 
+> Can you try with this patch?  It seems I forgot to pull part of a change
+> from the aic79xx driver into the aic7xxx driver.  This could easily cause
+> a lock order reversal. <sigh>
 
-As somone who walked for SCO (or rather Caldera how it was called at that
-time) I can tell you this is utter crap.  There were very people actually
-doing Linux kernel work then (and when the German office was closed down
-all those left the company) and we really had better things to do then
-trying to retrofit UnixWare code into the linux kenrel.  Especially given
-that the kernel internals are so different that you'd need a big glue
-layer to actually make it work and you can guess how that would be
-ripped apart in a usual lkml review :)
+Congratulations, Justin, you just spotted it !
 
-It might be more interesting to look for stolen Linux code in Unixware,
-I'd suggest with the support for a very well known Linux fileystem in
-the Linux compat addon product for UnixWare..
+I cannot hang it anymore. It supported an fsck and the make -j dep.
+I'm happy, I'll be able to reintegrate your updates to my tree !
+I just have changed one typo for it to compile :
+
+> --- /tmp/tmp.29873.2	2003-05-01 22:21:54.000000000 -0600
+> +++ /home/gibbs/bk/linux-2.4/drivers/scsi/aic7xxx/aic7xxx_osm.h	2003-05-01 22:21:10.000000000 -0600
+> @@ -745,7 +746,8 @@
+>  ahc_midlayer_entrypoint_unlock(struct ahc_softc *ahc, unsigned long *flags)
+>  {
+>  #if AHC_SCSI_HAS_HOST_LOCK == 0
+> -	ahc_unlock(ahc, flags);
+> +	spin_unlock(&ahd->platform_data->spin_lock);
+
+                    ^^^^ this one is in fact &ahc->platform_data...
+
+Thanks ;-)
+Willy
 

@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVAKSXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVAKSa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbVAKSXm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 13:23:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVAKSTz
+	id S261285AbVAKSa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 13:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVAKSa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 13:19:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60129 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261178AbVAKSTB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 13:19:01 -0500
-Date: Tue, 11 Jan 2005 10:18:56 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Dave <dave.jiang@gmail.com>, linux-kernel@vger.kernel.org,
-       smaurer@teja.com, linux@arm.linux.org.uk, dsaxena@plexity.net,
-       drew.moseley@intel.com
-Subject: Re: clean way to support >32bit addr on 32bit CPU
-In-Reply-To: <41E40F4A.6020500@osdl.org>
-Message-ID: <Pine.LNX.4.58.0501111013060.2373@ppc970.osdl.org>
-References: <8746466a050110153479954fd2@mail.gmail.com>
- <Pine.LNX.4.58.0501101607240.2373@ppc970.osdl.org> <41E31D95.50205@osdl.org>
- <Pine.LNX.4.58.0501101722200.2373@ppc970.osdl.org> <41E40F4A.6020500@osdl.org>
+	Tue, 11 Jan 2005 13:30:28 -0500
+Received: from gw.unix-scripts.info ([62.212.121.13]:10218 "EHLO
+	gw.unix-scripts.info") by vger.kernel.org with ESMTP
+	id S261285AbVAKSaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 13:30:12 -0500
+Message-ID: <41E41B32.9070206@apartia.fr>
+Date: Tue, 11 Jan 2005 19:30:10 +0100
+From: Laurent CARON <lcaron@apartia.fr>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Unable to burn DVDs
+References: <41E2F823.1070608@apartia.fr> <Pine.LNX.4.61.0501110802180.8535@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0501110802180.8535@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Engelhardt wrote:
 
-
-On Tue, 11 Jan 2005, Randy.Dunlap wrote:
+>>Hello,
+>>
+>>I recently upgraded to 2.6.10 and tried (today) to burn a dvd with growisofs.
+>>
+>>It seems there is a problem
+>>
+>>Here is the output
+>>
+>>
+>># growisofs -Z /dev/scd0 -R -J ~/foobar
+>>    
+>>
 >
-> > Ahh, yes. That's required on pretty much all platforms except x86 and
-> > x86-64.
-> 
-> OK, I don't get it, sorry.  What's different about ARM & MIPS here
-> (for PCMCIA)?  Is this historical (so that I'm just missing it)
-> or is it a data types difference?
+>I remember ide-scsi being broken now since you can use /dev/hdX directly for 
+>writing CDs.
+>
+>  
+>
+doesn't work for me
 
-Nothing is different. Pretty much every architecture - except for x86 and
-ilk - will at least have the _potential_ for IO ports encoded above the
-16-bit mark.
+growisofs -Z /dev/hdc -R -J ~/sendmail.mc
+:-( unable to open64("/dev/hdc",O_RDONLY): No such device or address
 
-But a lot of architectures won't have PCMCIA (or if they do, they end up
-having the whole ISA mapping, and for compatibility reasons they'll end up
-making the ports visible to the kernel in the low 16 bits, even if the
-actual hw has some other physical translation - I think that's true on
-ppc, at least).
+-- 
+To give happiness is to deserve happiness.
 
-So what makes ARM and MIPS special is just the fact that they have PCMCIA, 
-but don't necessarily have the traditional ISA mappings. Embedded devices 
-and all that. Others either try to hide the fact that they look different, 
-or just never cared.
-
-But the right thing is definitely to make an IO port pointer be "unsigned 
-int" or even "unsigned long". 
-
-		Linus

@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264248AbTFPUQC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 16:16:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbTFPUQC
+	id S264232AbTFPUPj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 16:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264248AbTFPUPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 16:16:02 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:51209 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264248AbTFPUP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 16:15:59 -0400
-Date: Mon, 16 Jun 2003 21:29:51 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Torrey Hoffman <thoffman@arnor.net>
+	Mon, 16 Jun 2003 16:15:39 -0400
+Received: from aibn55.astro.uni-bonn.de ([131.220.96.55]:7623 "EHLO
+	aibn55.astro.uni-bonn.de") by vger.kernel.org with ESMTP
+	id S264232AbTFPUPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 16:15:37 -0400
+Date: Mon, 16 Jun 2003 22:29:20 +0200 (CEST)
+From: Ole Marggraf <marggraf@astro.uni-bonn.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andrew Ryan <genanr@emsphone.com>
 cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] 2.5.70-bk15: RadeonFB dies at boot, and is undocumented
-In-Reply-To: <1055546532.1256.19.camel@torrey.et.myrio.com>
-Message-ID: <Pine.LNX.4.44.0306140031430.29353-100000@phoenix.infradead.org>
+Subject: Re: [BUG] 2.4.21: NFS copy produces I/O errors
+In-Reply-To: <20030616200415.GA23051@thumper2.emsphone.com>
+Message-ID: <Pine.LNX.4.55.0306162207360.8634@aibn99.astro.uni-bonn.de>
+References: <Pine.LNX.4.55.0306162047140.6775@aibn99.astro.uni-bonn.de>
+ <20030616200415.GA23051@thumper2.emsphone.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Trond, Andy.
 
-> With the Radeon framebuffer driver compiled in, 2.5.70-bk15 oopses very
-> early during the boot process.  The oops is visible in text mode but
-> scrolls off the screen.  (I really need to set up a serial console!)
-
-If you see the oops that is good thing. That means the framebuffer driver 
-works. 
-
-> [thoffman@torrey fb]$ pwd
-> /home/archive/Kernels/linux-2.5.70-bk15/Documentation/fb
-> [thoffman@torrey fb]$ grep radeon *
-> [thoffman@torrey fb]$ 
-> 
-> There is not a single mention of the radeon driver under Documentation! 
-> Even a 20 line note explaining what the kernel command line format is
-> would be nice.
-
-No :-( 
-
-> PS: Mr. Simmons, I really appreciate your work on the framebuffer and
-> console subsystem.  To make it easier for people to find you, perhaps a
-> little patch to update your email addresses throughout the code would be
-> worth while?   A quick grep under drivers/video turns up four different
-> addresses in about a dozen files, hopefully I am sending this email to a
-> current address:
-> 
-> jsimmons@users.sf.net
-> jsimmons@linux-fbdev.org
-> jsimmons@infradead.org
-> jsimmons@transvirtual.com
-
-Good point. I will update everything.
+Thank you, both, for the prompt reply.
 
 
+On Mon, 16 Jun 2003, Andrew Ryan wrote:
+
+> Trond, will tell you to always use hard mounts.  Though I believe it is an
+> excuse to not fix what it really broken since other UNIXes seem to not have
+> problems with soft mounts, it is a Linux problem, IMHO.
+
+Actually, I just played around with the timeouts... It seems to work (only
+one try, which is quite bad statistics...) also for a soft mount (hard
+mount works anyway) when I raise "retrans" to 20. At retrans=15 I still
+get a timeout (but much later, after about 30MB transmitted). This is for
+an internal connection via only one switch, and with no significant
+network load at the moment.
+
+Which makes me wonder, since our system did not have any such problems for
+years with the default retrans=3 (and soft mounts), until we ran into
+2.4.20. That's why I actually did not expect that there was a need for
+finetuning these parameters, and not by this amount... . 2.4.19 was
+running fine, so something has to have changed on the way to 2.4.20.
+
+> I don't know is this is the "right" way to fix this, but this patch has
+> worked for me.  Kernel versions should not matter, as long as you add the
+> !clnt->cl_softrtry to the if statement shown below things should work.
+>
+> But if you don't want to try this :
+
+I will test the patch tomorrow, yes, thank you. I'll keep you informed.
+
+
+Best regards,
+
+Ole
+
+-- 
++------------------------------------------------------------------------------+
+ Ole Marggraf                     email: marggraf@gmx.net
+ Sternwarte, Universitaet Bonn           marggraf@astro.uni-bonn.de
+ Auf dem Huegel 71
+ D-53121 Bonn, Germany            WWW:   http://www.astro.uni-bonn.de/~marggraf
++------------------------------------------------------------------------------+

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262979AbTI2KYc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 06:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbTI2KYc
+	id S262993AbTI2KU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 06:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbTI2KU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 06:24:32 -0400
-Received: from catv-50624ad9.szolcatv.broadband.hu ([80.98.74.217]:31616 "EHLO
-	catv-50624ad9.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
-	id S262979AbTI2KYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 06:24:31 -0400
-Message-ID: <3F780859.6060006@freemail.hu>
-Date: Mon, 29 Sep 2003 12:24:25 +0200
-From: Boszormenyi Zoltan <zboszor@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.2.1) Gecko/20030225
-X-Accept-Language: hu, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] exec-shield-2.6.0-test6-G3
-References: <3F77FF51.1010104@freemail.hu> <Pine.LNX.4.56.0309291148270.31236@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.56.0309291148270.31236@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 29 Sep 2003 06:20:28 -0400
+Received: from snoopy.pacific.net.au ([61.8.0.36]:19616 "EHLO
+	snoopy.pacific.net.au") by vger.kernel.org with ESMTP
+	id S262993AbTI2KU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 06:20:26 -0400
+Date: Mon, 29 Sep 2003 20:20:22 +1000
+From: david@luyer.net
+To: linux-kernel@vger.kernel.org
+Subject: Cosmetic error: 2.4.20 bootup and >2^31 sector SCSI devices
+Message-ID: <20030929102022.GB14176@pacific.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar írta:
-> On Mon, 29 Sep 2003, Boszormenyi Zoltan wrote:
-> 
-> 
->>XFree86-4.3.0-2. Hm, should I start using packages from rawhide or
->>severn beta2 besides the unified modutils+module-init-tools?
-> 
-> 
-> yes, please try them.
+This looks like it's using some signed numbers that should be unsigned:
 
-OK, I upgraded to XFree86*-4.3.0-33 and xterm-179-5
-(XFree86-twm required it) and rebooted. Works OK.
+SCSI device sdc: -876998784 512-byte hdwr sectors (-449022 MB)
 
+However all the tools (mkfs etc) work correctly and work out the correct
+drive size (~1.75Tb):
+
+/dev/sdc              1.7T  465G  1.2T  27% /usr/local/netflow/data
+
+Apologies if it's already fixed in later 2.4.x.
+
+David.
 -- 
-Best regards,
-Zoltán Böszörményi
-
----------------------
-What did Hussein say about his knife?
-One in Bush worth two in the hand.
-
+David Luyer                                     Phone:   +61 3 9674 7525
+Network Development Manager    P A C I F I C    Fax:     +61 3 9698 4825
+Pacific Internet (Australia)  I N T E R N E T   Mobile:  +61 4 1111 BYTE
+http://www.pacific.net.au/                      NASDAQ:  PCNTF

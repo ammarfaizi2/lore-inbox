@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268465AbUHTR5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268467AbUHTR6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268465AbUHTR5F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 13:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUHTR5E
+	id S268467AbUHTR6W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 13:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268476AbUHTR6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 13:57:04 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:57323 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268465AbUHTRz6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 13:55:58 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: mita akinobu <amgta@yacht.ocn.ne.jp>
-Subject: Re: 2.6.8.1-mm3 (build failture w/ CONFIG_NUMA)
-Date: Fri, 20 Aug 2004 13:55:22 -0400
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040820031919.413d0a95.akpm@osdl.org> <200408210238.32922.amgta@yacht.ocn.ne.jp>
-In-Reply-To: <200408210238.32922.amgta@yacht.ocn.ne.jp>
+	Fri, 20 Aug 2004 13:58:21 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55201 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S268467AbUHTR6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 13:58:15 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2/14] kexec: i8259-sysfs.x86_64
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Aug 2004 11:57:01 -0600
+Message-ID: <m1zn4p66c2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408201355.22999.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, August 20, 2004 1:38 pm, mita akinobu wrote:
-> I had tried to compile with CONFIG_NUMA and got this error:
->
->   CC      kernel/sched.o
-> kernel/sched.c: In function `sched_domain_node_span':
-> kernel/sched.c:4001: error: invalid lvalue in unary `&'
-> make[1]: *** [kernel/sched.o] Error 1
-> make: *** [kernel] Error 2
->
-> Below patch fixes this.
 
-Darn, I should have tried with NR_CPUS < 64 too.  Thanks for the fix.
+The i8259 does not yet have sysfs support on x86_64 so
+here is the port from i386, including the shutdown code
+to disable it on reboot that kexec appreciates.
 
-Jesse
+diff -uNr linux-2.6.8.1-mm2-i8259-shutdown.i386/arch/x86_64/kernel/i8259.c linux-2.6.8.1-mm2-i8259-sysfs.x86_64/arch/x86_64/kernel/i8259.c
+--- linux-2.6.8.1-mm2-i8259-shutdown.i386/arch/x86_64/kernel/i8259.c	Fri Aug 20 09:56:29 2004
++++ linux-2.6.8.1-mm2-i8259-sysfs.x86_64/arch/x86_64/kernel/i8259.c	Fri Aug 20 10:38:36 2004
+@@ -343,6 +343,44 @@
+ 	}
+ }
+ 
++static int i8259A_resume(struct sys_device *dev)
++{
++	init_8259A(0);
++	return 0;
++}
++
++static int i8259A_shutdown(struct sys_device *dev)
++{
++	/* Put the i8259A into a quiescent state that
++	 * the kernel initialization code can get it
++	 * out of.
++	 */
++	outb(0xff, 0x21);	/* mask all of 8259A-1 */
++	outb(0xff, 0xA1);	/* mask all of 8259A-1 */
++	return 0;
++}
++
++static struct sysdev_class i8259_sysdev_class = {
++	set_kset_name("i8259"),
++	.resume = i8259A_resume,
++	.shutdown = i8259A_shutdown,
++};
++
++static struct sys_device device_i8259A = {
++	.id	= 0,
++	.cls	= &i8259_sysdev_class,
++};
++
++static int __init i8259A_init_sysfs(void)
++{
++	int error = sysdev_class_register(&i8259_sysdev_class);
++	if (!error)
++		error = sysdev_register(&device_i8259A);
++	return error;
++}
++
++device_initcall(i8259A_init_sysfs);
++
+ void init_8259A(int auto_eoi)
+ {
+ 	unsigned long flags;

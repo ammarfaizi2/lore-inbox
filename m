@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264265AbTKZSVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 13:21:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbTKZSVQ
+	id S264273AbTKZSfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 13:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264277AbTKZSfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 13:21:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60620 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264265AbTKZSVO (ORCPT
+	Wed, 26 Nov 2003 13:35:16 -0500
+Received: from pop.gmx.net ([213.165.64.20]:25563 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264273AbTKZSfK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 13:21:14 -0500
-Date: Wed, 26 Nov 2003 10:21:00 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bruce Perens <bruce@perens.com>
-cc: Ulrich Drepper <drepper@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Signal left blocked after signal handler.
-In-Reply-To: <3FC4ED5F.4090901@perens.com>
-Message-ID: <Pine.LNX.4.58.0311261018420.1524@home.osdl.org>
-References: <20031126173953.GA3534@perens.com> <Pine.LNX.4.58.0311260945030.1524@home.osdl.org>
- <3FC4ED5F.4090901@perens.com>
+	Wed, 26 Nov 2003 13:35:10 -0500
+X-Authenticated: #524548
+From: rgx <rgx@gmx.de>
+To: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
+Subject: Re: kernel 2.4-22 won't compile...
+Date: Wed, 26 Nov 2003 19:35:03 +0100
+User-Agent: KMail/1.5.4
+References: <200311261734.23177.rgx@gmx.de> <200311261749.12545.rgx@gmx.de> <1069870412.25657.6.camel@tweedy.ksc.nasa.gov>
+In-Reply-To: <1069870412.25657.6.camel@tweedy.ksc.nasa.gov>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311261935.03860.rgx@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 26 Nov 2003, Bruce Perens wrote:
+Bob Chiodini schrieb am Mittwoch, 26. November 2003 19:13:
+> On Wed, 2003-11-26 at 11:49, rgx wrote:
+> > > Did you 'make oldconfig'?
+> >
+> > Yes, sure :) The NLS_DEFAULT... is not defined for some reason...
+> > I could replace it with the needed content in the source code if I
+> > knew its format...
 >
-> Sigsetjmp will save and restore the signal mask ONLY if its second
-> argument is nonzero. The libc code is correct.
+> Sorry, had to ask.
+>
+> My 2.4.20 .config defines:
+>
+> CONFIG_NLS_DEFAULT="iso8859-1"
 
-Oh, I didn't notice that part.
+yes, this is in my .config file, too, but for gcc it has to be converted 
+to a
+#define CONFIG_NLS_DEFAULT <something> line - and I think that it 
+shouldn't be just a string there...
 
-> The test program works properly under 2.4 .
-
-What do you mean "properly"? If you're not saving/restoring the sigmasks,
-then the 2.6.x behaviour is the right one and your program is buggy.
-
-What's your point?
-
-		Linus

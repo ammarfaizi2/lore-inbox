@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbTGASuk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 14:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbTGASuj
+	id S263418AbTGASwR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 14:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTGASwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 14:50:39 -0400
-Received: from dm4-186.slc.aros.net ([66.219.220.186]:5256 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S263309AbTGASui (ORCPT
+	Tue, 1 Jul 2003 14:52:17 -0400
+Received: from slimnet.xs4all.nl ([194.109.194.192]:7297 "EHLO gatekeeper.slim")
+	by vger.kernel.org with ESMTP id S263418AbTGASwL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 14:50:38 -0400
-Message-ID: <3F01DB5A.6060106@aros.net>
-Date: Tue, 01 Jul 2003 13:04:58 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [RFC] should block layer export bd_set_size() or equivalent?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 1 Jul 2003 14:52:11 -0400
+Subject: Re: ata-scsi driver update
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F00CEDC.2010806@pobox.com>
+References: <3F00CEDC.2010806@pobox.com>
+Content-Type: text/plain
+Message-Id: <1057086391.3444.3.camel@paragon.slim>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-1) 
+Date: 01 Jul 2003 21:06:31 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Background:
+Hi,
 
-Several drivers (like drivers/block/nbd.c or drivers/block/rd.c) need to 
-be able to update their devices' size after the first open. The way 
-fs/block_dev.c is currently implemented (as recently as 2.5.73-mm2) 
-however, updating the size as seen by user processes is not possible 
-without directly updating the size stored in various locations of the 
-struct block_device and the bd_inode as well. As an example, we have the 
-code in drivers/block/rd.c rd_open() which essentially calls what 
-fs/block_dev.c calls in its bd_set_size() function. But things are 
-changing within the block layer still as evidenced by changes to 
-bd_set_size() between 2.5.73 and 2.5.73-mm2 and consequently 
-drivers/block/rd.c rd_open() may be incorrect now.
+I've just tried your patch. Compiling fails at make dep:
 
-Suggestion:
+mv /usr/src/linux-2.4.21/include/linux/modules/scsi_syms.ver.tmp
+/usr/src/linux-2.4.21/include/linux/modules/scsi_syms.ver
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.21/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
+-nostdinc -iwithprefix include -E -D__GENKSYMS__ 53c700.c
+| /sbin/genksyms  -k 2.4.21 >
+/usr/src/linux-2.4.21/include/linux/modules/53c700.ver.tmp
+In file included from 53c700.c:142:
+53c700.h:40:2: #error "Config.in must define either
+CONFIG_53C700_IO_MAPPED or CONFIG_53C700_MEM_MAPPED to use this scsi
+core."
+53c700.c:163:22: 53c700_d.h: No such file or directory
+mv /usr/src/linux-2.4.21/include/linux/modules/53c700.ver.tmp
+/usr/src/linux-2.4.21/include/linux/modules/53c700.ver
+make[4]: *** No rule to make target `libata.c', needed by
+`/usr/src/linux-2.4.21/include/linux/modules/libata.ver'.  Stop.
+make[4]: Leaving directory `/usr/src/linux-2.4.21/drivers/scsi'
+make[3]: *** [_sfdep_scsi] Error 2
+make[3]: Leaving directory `/usr/src/linux-2.4.21/drivers'
+make[2]: *** [fastdep] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.21/drivers'
+make[1]: *** [_sfdep_drivers] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.21'
+make: *** [dep-files] Error 2
 
-To have fs/block_dev.c share bd_set_size(struct block_device *bdev, 
-loff_t size) or something like this to better abstract the block layer 
-from drivers and save us from essentially re-writing the code from here.
+Under SCSI low-level drivers only ATA support and Intel PIIX/ICH support
+are selected.
 
-Next step:
+This is with a freshly installed and patched 2.4.21.
 
-Discuss this. Why isn't it already exported? What are the cons of just 
-exporting bd_set_size()? Should we even let drivers change a device's 
-size after the first open? An alternative for nbd at least, is to have 
-its user space tool (nbd-client) simply close the device after it has 
-changed the size and then re-open it before continuing on. This way 
-fs/block_dev.c do_open() re-checks the disk capacity and calls 
-bd_set_size() again with the new correct size. Also, bd_set_size() is 
-very similar to set_blocksize() (the former though changes the byte size 
-of the block device which is what's most critical really to nbd at 
-least), perhaps these two functions can be rolled into one; at least 
-set_blocksize() is already exported.
+Greetings,
+
+Jurgen
+
 

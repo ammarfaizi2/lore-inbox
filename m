@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262604AbSKTVI4>; Wed, 20 Nov 2002 16:08:56 -0500
+	id <S262648AbSKTVNO>; Wed, 20 Nov 2002 16:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262631AbSKTVI4>; Wed, 20 Nov 2002 16:08:56 -0500
-Received: from ns.splentec.com ([209.47.35.194]:4614 "EHLO pepsi.splentec.com")
-	by vger.kernel.org with ESMTP id <S262604AbSKTVIe>;
-	Wed, 20 Nov 2002 16:08:34 -0500
-Message-ID: <3DDBFB75.6A3221A8@splentec.com>
-Date: Wed, 20 Nov 2002 16:15:33 -0500
-From: Luben Tuikov <luben@splentec.com>
-Organization: Splentec Ltd.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
+	id <S262662AbSKTVNN>; Wed, 20 Nov 2002 16:13:13 -0500
+Received: from elin.scali.no ([62.70.89.10]:45835 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S262648AbSKTVNL>;
+	Wed, 20 Nov 2002 16:13:11 -0500
+Date: Wed, 20 Nov 2002 22:22:40 +0100 (CET)
+From: Steffen Persvold <sp@scali.com>
+X-X-Sender: sp@sp-laptop.isdn.scali.no
+To: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [REPOST][PATCH] Fixup pci_alloc_consistent with 64bit DMA masks on
+ i386
+In-Reply-To: <Pine.LNX.4.44.0211112348570.1118-200000@sp-laptop.isdn.scali.no>
+Message-ID: <Pine.LNX.4.44.0211202221160.15336-200000@sp-laptop.isdn.scali.no>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: [PATCH]: jiffies wrap in ll_rw_blk.c
-References: <3DDBF413.C06DAF2E@splentec.com>
-		<1037827173.3267.78.camel@irongate.swansea.linux.org.uk> 
-		<3DDBF7FC.B0DBC75D@splentec.com> <1037827888.3267.84.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463794943-1980090718-1037827360=:15336"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+---1463794943-1980090718-1037827360=:15336
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+
+On Mon, 11 Nov 2002, Steffen Persvold wrote:
+
+> Hi Marcelo,
 > 
-> On Wed, 2002-11-20 at 21:00, Luben Tuikov wrote:sk) {
-> > > > -               unsigned long duration = jiffies - req->start_time;
-> > > > +               unsigned long duration = (signed) jiffies - (signed) req->start_time;
-> > > >                 switch (rq_data_dir(req)) {
-> > >
-> > > It was right before. Your patch breaks it. Think about it in unsigned
-> > > maths
-> > >
-> > >               0x00000002 - 0xFFFFFFFF = 0x00000003
-> >
-> > 0x2 - (-0x1) = 0x2 + 0x1 = 0x3
-> >
-> > Right! I thought (signed) does the job. I actually tried
-> > it both ways and works all right. I guess either way works fine.
+> I posted this small one-liner to Alan Cox (and to the lkml) in August but 
+> it doesn't seem to have gotten into the mainline yet (I think it is in -ac).
 > 
-> (signed long) maybe - but not signed - long is 64bit on Alpha, (signed)
-> is 32
+> The issue is that PCI drivers which uses 64bit DMA masks (in order to do 
+> DAC) is making unnecessary use of the DMA zone memory (the <16Meg region 
+> on i386) when doing pci_alloc_consitent().
+> 
+> Hope this gets into the next -rc or .21-pre
+> 
+> Regards,
+> 
 
-Aaaah, I see where you're coming from.
-
-I basically tried to stay away from knowing _what_ actual
-type it is and just to make it signed and do the arithmetic,
-but didn't know the specific for the Alpha.
-
-Shouldn't this be (symbolically:) (signed (typeof(jiffes)) jiffies -
-(signed (typeof(start)) start -- you know what I mean.
-
-But yes both ways should work:
-a, b are both unsigned, then a-b = a+(-b) and there's just no
-other way to compute the result.
-
-Anyway, doesn't matter,
 -- 
-Luben
+  Steffen Persvold   |       Scali AS      
+ mailto:sp@scali.com |  http://www.scali.com
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
+
+---1463794943-1980090718-1037827360=:15336
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pci-dma.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0211202222400.15336@sp-laptop.isdn.scali.no>
+Content-Description: 
+Content-Disposition: attachment; filename="pci-dma.patch"
+
+LS0tIGxpbnV4LTIuNC4xOS1vbGQvYXJjaC9pMzg2L2tlcm5lbC9wY2ktZG1h
+LmMufjF+CVdlZCBBdWcgMTQgMTU6MDY6NDkgMjAwMg0KKysrIGxpbnV4LTIu
+NC4xOS9hcmNoL2kzODYva2VybmVsL3BjaS1kbWEuYwlXZWQgQXVnIDE0IDE1
+OjA4OjI5IDIwMDINCkBAIC0xOSw3ICsxOSw3IEBADQogCXZvaWQgKnJldDsN
+CiAJaW50IGdmcCA9IEdGUF9BVE9NSUM7DQogDQotCWlmIChod2RldiA9PSBO
+VUxMIHx8IGh3ZGV2LT5kbWFfbWFzayAhPSAweGZmZmZmZmZmKQ0KKwlpZiAo
+aHdkZXYgPT0gTlVMTCB8fCBod2Rldi0+ZG1hX21hc2sgPCAweGZmZmZmZmZm
+KQ0KIAkJZ2ZwIHw9IEdGUF9ETUE7DQogCXJldCA9ICh2b2lkICopX19nZXRf
+ZnJlZV9wYWdlcyhnZnAsIGdldF9vcmRlcihzaXplKSk7DQogDQo=
+---1463794943-1980090718-1037827360=:15336--

@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292708AbSCOO7X>; Fri, 15 Mar 2002 09:59:23 -0500
+	id <S292702AbSCOPDC>; Fri, 15 Mar 2002 10:03:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292707AbSCOO7O>; Fri, 15 Mar 2002 09:59:14 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:48881 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S292702AbSCOO7C>; Fri, 15 Mar 2002 09:59:02 -0500
-Date: Fri, 15 Mar 2002 16:58:44 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: M Sweger <mikesw@ns1.whiterose.net>, linux-kernel@vger.kernel.org,
-        andre@linux-ide.org
-Subject: Re: linux 2.2.21 pre3, pre4 and rc1 problems. (fwd)
-Message-ID: <20020315145844.GK128921@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	M Sweger <mikesw@ns1.whiterose.net>, linux-kernel@vger.kernel.org,
-	andre@linux-ide.org
-In-Reply-To: <Pine.BSF.4.21.0203150904480.78417-100000@ns1.whiterose.net> <E16lt2T-0003pj-00@the-village.bc.nu>
+	id <S292707AbSCOPCw>; Fri, 15 Mar 2002 10:02:52 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:51981 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S292702AbSCOPCt>; Fri, 15 Mar 2002 10:02:49 -0500
+Date: Fri, 15 Mar 2002 15:02:41 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Nicholas Berry <nikberry@med.umich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4 and 2.5: remove Alt-Sysrq-L
+Message-ID: <20020315150241.H24984@flint.arm.linux.org.uk>
+In-Reply-To: <sc91c4ce.020@mail-01.med.umich.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16lt2T-0003pj-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <sc91c4ce.020@mail-01.med.umich.edu>; from nikberry@med.umich.edu on Fri, Mar 15, 2002 at 09:54:05AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 15, 2002 at 02:50:37PM +0000, you [Alan Cox] wrote:
-> > Hopefully, linux 2.2.x will get the 160gig IDE patch that 2.4.x has.
+On Fri, Mar 15, 2002 at 09:54:05AM -0500, Nicholas Berry wrote:
+> > I distinctly recall it working perfectly OK in around 2.1.50. I had boxen 
+> > where /sbin/init was a shell script which would bring up the interfaces,
+> > enable routing, and exit.
 > 
-> Andre's 2.2 patch has been picked up and maintained (I forget by who). I
-> don't consider it ever a mainstream 2.2 candidate
+> That's a different thing, I think. 
+> 
+> That is, 'init exiting' versus 'all the code to prevent init being killed
+> is bypassed and init is killed'
 
-I think you mean Krzysztof Oledzki (ole@ans.pl)
+Very true.
 
-From: Krzysztof Oledzki (ole@ans.pl)
-Subject: ANNOUNCE - 2.4.x ide backport for 2.2.21pre2 kernel 
+With all recent kernels, init exiting causes the last of these to trigger:
 
-http://groups.google.com/groups?q=ANNOUNCE+-+2.4.x+ide+backport+for&hl=en&ie=ISO-8859-1&oe=ISO-8859-1&selm=linux.kernel.Pine.LNX.4.33.0201291654480.17318-100000%40dark.pcgames.pl&rnum=1
+NORET_TYPE void do_exit(long code)
+{
+        struct task_struct *tsk = current;
 
+        if (in_interrupt())
+                panic("Aiee, killing interrupt handler!");
+        if (!tsk->pid)
+                panic("Attempted to kill the idle task!");
+        if (tsk->pid == 1)
+                panic("Attempted to kill init!");
 
-BTW: I've heard rumours that some older ide chipsets support 48-bit
-addressing with a bios upgrade. HPT370 and Via 686B have been mentioned.
+It is this very test that Alt-SysRQ-L is attempting to bypass which causes
+the problem.
 
-Highpoint windows driver readme:
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-  v2.1  11/15/2001
-          * Add 48bit LBA (Big Drive) support
-
-But I'm not sure whether this means HPT370 or 372 only.
-
-Is this possible and will it be possible to support that functionality in
-Linux?
-
-
--- v --
-
-v@iki.fi

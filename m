@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbVBBXDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVBBXGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262845AbVBBXDs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 18:03:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVBBXB2
+	id S262443AbVBBXGc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 18:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbVBBXG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 18:01:28 -0500
-Received: from out012pub.verizon.net ([206.46.170.137]:55518 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S262789AbVBBXAt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 18:00:49 -0500
-Message-Id: <200502022259.j12Mxtau001972@localhost.localdomain>
-To: Bill Huey (hui) <bhuey@lnxw.com>
-cc: Ingo Molnar <mingo@elte.hu>, "Jack O'Quin" <joq@io.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature 
-In-reply-to: Your message of "Wed, 02 Feb 2005 13:34:02 PST."
-             <20050202213402.GB14023@nietzsche.lynx.com> 
-Date: Wed, 02 Feb 2005 17:59:54 -0500
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.197.207.111] at Wed, 2 Feb 2005 17:00:40 -0600
+	Wed, 2 Feb 2005 18:06:29 -0500
+Received: from borg.st.net.au ([65.23.158.22]:664 "EHLO borg.st.net.au")
+	by vger.kernel.org with ESMTP id S262818AbVBBXGB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 18:06:01 -0500
+Message-ID: <42015CD3.60005@torque.net>
+Date: Thu, 03 Feb 2005 09:05:55 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: axboe@suse.de
+Cc: linville@tuxdriver.com, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [patch libata-dev-2.6 1/1] libata: sync SMART ioctls with ATA
+ pass thru spec (T10/04-262r7)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It's clever that they do that, but additional control is needed in the
->future. jackd isn't the most sophisticate media app on this planet (not
->too much of an insult :)) and the demands from this group is bound to
+Jens Axboe wrote:
+<snip>
+ > >
+ > > -/* Temporary values for T10/04-262 until official values are
+ > allocated */
+ > > -#define	ATA_16		      0x85	/* 16-byte pass-thru
+ > [0x85 == unused]*/
+ > -#define	ATA_12		      0xb3	/* 12-byte pass-thru
+ > [0xb3 == obsolete set limits command] */
+ > > +/* Values for T10/04-262r7 */
+ > > +#define	ATA_16		      0x85	/* 16-byte pass-thru */
+ > > +#define	ATA_12		      0xa1	/* 12-byte pass-thru */
+ >
+ > Ehh are you sure that is correct? 0xa1 is the BLANK command, I would
+ > hate to think there would be a collision like that.
 
-Actually, JACK probably is the most sophisticated media *framework* on
-the planet, at least inasmuch as it connects ideas drawn from the
-media world and OS research/design into a coherent package. Its not
-perfect, and we've just started adding new data types to its
-capabilities (its actually relatively easy). But it is amazingly
-powerful in comparison to anything offered to data, and is
-unencumbered by the limitations that have affected other attempts to
-do what it does.
+That very point came up recently in a MMC meeting:
+http://www.t10.org/ftp/t10/document.05/05-056r0.pdf
 
-And it makes possible some of the most sophisticated *audio* apps on
-the planet, though admittedly not video and other data at this time.
+To confuse things further "ATA_16" is shown as opcode 0x98
+in the latest draft of SPC-3 (rev 21c 15 January 2005)
+http://www.t10.org/ftp/t10/drafts/spc3/spc3r21c.pdf [annex D.3.1].
 
->increase as their group and competing projects get more and more
->sophisticated. When I mean kernel folks needs to be proactive, I really
->mean it. The Linux kernel latency issues and poor driver support is
->largely why media apps are way below even being second rate with regard
->to other operating systems such as Apple's OS X for instance.
+Hopefully these matters will be sorted out at the next t10
+meeting in March.
 
-This is a bit misleading. With the right kernel+patch, Linux performs
-at least as well as OSX, and measurably better in many configurations
-and cases. And its JACK that has provided OSX with inter-application
-audio routing, not the other way around. The higher quality of OSX
-apps isn't because of kernel latency or poor driver support: its
-because the apps have been under development for longer and have the
-immense of benefit of OSX's single unified development
-environment. Within the next month, expect to see several important
-Linux audio apps released for OSX, providing functionality not
-available on that platform at present.
-
---p
+Doug Gilbert
 

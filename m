@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263401AbUJ2QOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263380AbUJ2PiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263401AbUJ2QOM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 12:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263409AbUJ2QMF
+	id S263380AbUJ2PiN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 11:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbUJ2Pf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 12:12:05 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:12299 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S263440AbUJ2QGY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 12:06:24 -0400
-Message-ID: <41826A7E.6020801@domdv.de>
-Date: Fri, 29 Oct 2004 18:06:22 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
-X-Accept-Language: en-us, en, de
+	Fri, 29 Oct 2004 11:35:56 -0400
+Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:56837 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S263367AbUJ2OsH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:48:07 -0400
+Message-ID: <418257E3.2000606@tebibyte.org>
+Date: Fri, 29 Oct 2004 16:46:59 +0200
+From: Chris Ross <chris@tebibyte.org>
+Organization: At home (Eindhoven, The Netherlands)
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: pt-br, pt
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-os@analogic.com, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: Semaphore assembly-code bug
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>  <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com>  <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net> <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com> <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com> <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       javier@marcet.info, linux-kernel@vger.kernel.org, kernel@kolivas.org,
+       barry <barry@disus.com>
+Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
+References: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com> <20041028120650.GD5741@logos.cnet> <41824760.7010703@tebibyte.org>
+In-Reply-To: <41824760.7010703@tebibyte.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Fri, 29 Oct 2004, linux-os wrote:
-> 
->>Linus, please check this out.
-> 
-> 
-> Yes, I concur. However, I'd suggest changing the "addl $4,%esp" into a 
-> "popl %ecx", which is smaller and apparently faster on some CPU's (ecx 
-> obviously gets immediately overwritten by the next popl).
 
-Hmm, I didn't check the instruction length but modern CPUs usually work 
-best with the following:
 
-leal 4(%esp),%esp
+Chris Ross escreveu:
+> Testing again: on plain 2.6.10-rc1-mm2 (i.e. without Rik's patch) 
+> building umlsim fails on my 64MB P2 350MHz Gentoo box exactly as before.
 
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+To confirm, 2.6.10-rc1-mm2 with Rik's patch compiles umlsim-65 
+(http://umlsim.sourceforge.net/umlsim-65.tar.gz) just fine.
+
+Regards,
+Chris R.

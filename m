@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290689AbSBYJrP>; Mon, 25 Feb 2002 04:47:15 -0500
+	id <S290625AbSBYJxf>; Mon, 25 Feb 2002 04:53:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290756AbSBYJrF>; Mon, 25 Feb 2002 04:47:05 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:41221 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S290689AbSBYJq5>;
-	Mon, 25 Feb 2002 04:46:57 -0500
-Date: Mon, 25 Feb 2002 10:46:52 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Jakub Jelinek <jakub@redhat.com>
-cc: "Paul G. Allen" <pgallen@randomlogic.com>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: gcc-2.95.3 vs gcc-3.0.4
-In-Reply-To: <20020225024817.Q2434@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0202251044040.18205-100000@Expansa.sns.it>
+	id <S290792AbSBYJxQ>; Mon, 25 Feb 2002 04:53:16 -0500
+Received: from mail.informatik.uni-ulm.de ([134.60.68.63]:11737 "EHLO
+	mail.informatik.uni-ulm.de") by vger.kernel.org with ESMTP
+	id <S290739AbSBYJxB>; Mon, 25 Feb 2002 04:53:01 -0500
+Message-ID: <3C7A0977.8060100@student.uni-ulm.de>
+Date: Mon, 25 Feb 2002 10:52:55 +0100
+From: Markus Schaber <markus.schaber@student.uni-ulm.de>
+Organization: Informatik Uni-Ulm
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: German, de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: linux-kernel@vger.kernel.org
+Subject: Re: gcc-2.95.3 vs gcc-3.0.4
+In-Reply-To: <3C771D29.942A07C2@starband.net> <20020222204456.O11156@work.bitmover.com> <3C77270A.1CBA02E8@zip.com.au> <20020225080742.GA3122@netnation.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+Simon Kirby wrote:
+
+> I remember Borland Turbo Pascal's compiler... Yes, yes, but that thing
+> compiled insane amounts of code in split seconds on 386 hardware.
+
+But don't forget: Pascal was designed to ease the work of compiler 
+writers - at least ANSI Pascal is easy to compile using a single-pass 
+recursive descent compiler. And there wasn't so much optimization.
 
 
+markus
+-- 
+Markus Schaber - http://www.schabi.de/
 
-On Mon, 25 Feb 2002, Jakub Jelinek wrote:
-
-> On Mon, Feb 25, 2002 at 01:07:42AM +0100, Luigi Genoni wrote:
-> > At this link:
-> >
-> >  http://www.cs.utk.edu/~rwhaley/ATLAS/gcc30.html
-> >
-> > you can find an interesting explanation why code compiled with gcc 3.0 is
-> > mostly slower than code compiled with gcc 2.95 on x86 CPUs (but it is
-> > really faster on other platforms like alpha and sparc64).
-> >
-> > basically the main reasons semm to be the scheduler algorithm and the fpu
-> > stack handling, but I suggest to read the full study.
-> >
-> >
-> > I would be interested to know if this apply to gcc 3.1 too.
->
-> Well, concerning reg-stack, you can completely get away without it in 3.1
-> by using -mfpmath=sse if you are targeting Pentium 3,4 or Athlon 4,xp,mp
-> (for float math, for higher precision only for Pentium 4).
-
-Yes, but the lot of users (like me) who are still using Athlon TB, 1330 or
-1400 Mhz, and who do not have any reason to upgrade to MP since the
-performance gain is not really considerable, they cannot use sse instructions.
-So, what could they do? should they stay with gcc 2.95?
-
-
+Check in to another world - test a _real_ OS.
 

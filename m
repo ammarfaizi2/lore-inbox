@@ -1,304 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbUDPIqR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 04:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbUDPIqR
+	id S262733AbUDPIwq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 04:52:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUDPIwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 04:46:17 -0400
-Received: from [62.241.33.80] ([62.241.33.80]:26387 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262772AbUDPIp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 04:45:59 -0400
-From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Organization: Linux-Systeme GmbH
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] use Kconfig.debug (v3-proposed) (was: Re: [PATCH] use Kconfig.debug (v2))
-Date: Fri, 16 Apr 2004 10:42:21 +0200
-User-Agent: KMail/1.6.1
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, akpm <akpm@osdl.org>
-References: <20040415220338.3e351293.rddunlap@osdl.org>
-In-Reply-To: <20040415220338.3e351293.rddunlap@osdl.org>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+	Fri, 16 Apr 2004 04:52:45 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:44756 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S262770AbUDPIwn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 04:52:43 -0400
+In-Reply-To: <4072E2F5.9060604@us.ibm.com>
+To: Brian King <brking@us.ibm.com>, rusty@rustcorp.com.au
+Cc: brking@us.ibm.com, linux-scsi@vger.kernel.org,
+       linux-scsi-owner@vger.kernel.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200404161042.21164@WOLK>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_tx5fArZa181w8aS"
+Subject: Re: call_usermodehelper hang
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFD911A46B.B4FA5620-ONC1256E78.002FEC42-C1256E78.0030BCD4@de.ibm.com>
+From: Heiko Carstens <Heiko.Carstens@de.ibm.com>
+Date: Fri, 16 Apr 2004 10:52:39 +0200
+X-MIMETrack: S/MIME Sign by Notes Client on Heiko Carstens/Germany/IBM(Release 6.0.2CF1|June
+ 9, 2003) at 04/16/2004 10:52:20 AM,
+	Serialize by Notes Client on Heiko Carstens/Germany/IBM(Release 6.0.2CF1|June
+ 9, 2003) at 04/16/2004 10:52:20 AM,
+	Serialize complete at 04/16/2004 10:52:20 AM,
+	S/MIME Sign failed at 04/16/2004 10:52:20 AM: The cryptographic key was not
+ found,
+	Serialize by Router on D12ML064/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 16/04/2004 10:52:41,
+	Serialize complete at 16/04/2004 10:52:41
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I have been running into some kernel hangs due to call_usermodehelper. 
+Looking
+> at the backtrace, it looks to me like there are deadlock issues with 
+adding
+> devices from work queues. Attached is a sample backtrace from one of the
+> hangs I experienced. My question is why does call_usermodehelper do 
+> 2 different
+> things depending on whether or not it is called from the kevent 
+> task? It appears
+> that the simple way to fix the hang would be to never have 
+call_usermodehelper
+> use a work_queue since it must be called from process context anyway, or
+> am I missing something?
 
---Boundary-00=_tx5fArZa181w8aS
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Do you have a solution for this problem? As it appears we have the very 
+same
+problem with the zfcp lldd, since we also trigger a scsi_add_device call 
+by
+using schedule_work. IMO the right way to solve this problem would be to 
+not
+trigger any hotplug events while holding a semaphore.
 
-On Friday 16 April 2004 07:03, Randy.Dunlap wrote:
+> 0xc0000000017df300        1        0  0    0   D  0xc0000000017df7b0 
+swapper
+>            SP(esp)            PC(eip)      Function(args)
+> 0xc00000003fc9f460  0x0000000000000000  NO_SYMBOL or Userspace
+> 0xc00000003fc9f4f0  0xc000000000058c40  .schedule +0xb4
+> 0xc00000003fc9f5c0  0xc00000000005a464  .wait_for_completion +0x138
+> 0xc00000003fc9f6c0  0xc00000000007c594  .call_usermodehelper +0x104
+> 0xc00000003fc9f810  0xc00000000022d3e8  .kobject_hotplug +0x3c4
+> 0xc00000003fc9f900  0xc00000000022d67c  .kobject_add +0x134
+> 0xc00000003fc9f9a0  0xc00000000012b3d8  .register_disk +0x70
+> 0xc00000003fc9fa40  0xc00000000027dfe4  .add_disk +0x60
+> 0xc00000003fc9fad0  0xc0000000002dc7dc  .sd_probe +0x290
+> 0xc00000003fc9fb80  0xc00000000026fbe8  .bus_match +0x94
+> 0xc00000003fc9fc10  0xc00000000026ff70  .driver_attach +0x8c
+> 0xc00000003fc9fca0  0xc000000000270104  .bus_add_driver +0x110
+> 0xc00000003fc9fd50  0xc000000000270a18  .driver_register +0x38
+> 0xc00000003fc9fdd0  0xc0000000002cd8f8  .scsi_register_driver +0x28
+> 0xc00000003fc9fe50  0xc0000000004941d8  .init_sd +0x8c
+> 0xc00000003fc9fee0  0xc00000000000c720  .init +0x25c
+> 0xc00000003fc9ff90  0xc0000000000183ec  .kernel_thread +0x4c
+> 
+> 0xc00000003fab3380        4        1  0    0   D  0xc00000003fab3830 
+events/0
+>            SP(esp)            PC(eip)      Function(args)
+> 0xc00000003faaf6e0  0x0000000000000000  NO_SYMBOL or Userspace
+> 0xc00000003faaf770  0xc000000000058c40  .schedule +0xb4
+> 0xc00000003faaf840  0xc00000000022fa20  .rwsem_down_write_failed +0x14c
+> 0xc00000003faaf910  0xc00000000026fed0  .bus_add_device +0x11c
+> 0xc00000003faaf9b0  0xc00000000026e288  .device_add +0xd0
+> 0xc00000003faafa50  0xc0000000002cdb00  .scsi_sysfs_add_sdev +0x8c
+> 0xc00000003faafb00  0xc0000000002cbff8  .scsi_probe_and_add_lun +0xb04
+> 0xc00000003faafc00  0xc0000000002ccca0  .scsi_add_device +0x90
+> 0xc00000003faafcb0  0xc0000000002d9458  .ipr_worker_thread +0xc60
+> 0xc00000003faafdc0  0xc00000000007cd9c  .worker_thread +0x268
+> 0xc00000003faafee0  0xc0000000000839cc  .kthread +0x160
+> 0xc00000003faaff90  0xc0000000000183ec  .kernel_thread +0x4c
 
-Hi Randy,
-
-> Use generic lib/Kconfig.debug and arch-specific arch/*/Kconfig.debug.
-> Move KALLSYMS to generic debugging menu.
-> Changes from version 1:
-> 1.  remove global !CRIS && !H8300 from lib/Kconfig.debug;
-> 2.  for CRIS and H8300, don't source lib/Kconfig.debug (not used);
-> 3.  corrected several lib/Kconfig.debug ARCH usages;
-> 4.  small change in generic debug menu order (moved SPINLOCK
-> 	options together);
-> Ready for testing IMO.  More comments?
-
-yes. I'd like to see it this way:
-
-Changes from version 2:
-1.  Early Printk should not depend on EMBEDDED
-2.  change "if foobar" to "depend on"
-3.  remove endif's superfluous because of 2.
-4.  Move KALLSYMS some places lower
-5.  Add some more "depend on DEBUG_KERNEL" to indent the menu
-6.  Remove trailing new lines in some arch specific Kconfig.debug
-7.  move depends on DEBUG_KERNEL for arch/m68k/Kconfig.debug to
-    the menu so you only see that menu if you select DEBUG_KERNEL
-    You can't select anything there if DEBUG_KERNEL is N.
-8.  Whitespace cleanups
-
-Comments?
-
-
-Everything else is fine with me.
-
-All-in-One v3-proposed is here:
- http://www.kernel.org/pub/linux/kernel/people/mcp/linux-2.6/kconf-debug-v3-proposed-2.6.6-rc1.patch
-
-Update from v2 to v3-proposed is here too:
- http://www.kernel.org/pub/linux/kernel/people/mcp/linux-2.6/kconf-debug-v2-to-v3-proposed-2.6.6-rc1.patch
-
-
-ciao, Marc
-
---Boundary-00=_tx5fArZa181w8aS
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="kconf-debug-v2-to-v3-proposed-2.6.6-rc1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="kconf-debug-v2-to-v3-proposed-2.6.6-rc1.patch"
-
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/cris/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/cris/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/cris/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/cris/Kconfig.debug	2004-04-16 10:17:52.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "CRIS kernel hacking"
- 
- #bool 'Debug kmalloc/kfree' CONFIG_DEBUG_MALLOC
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/h8300/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/h8300/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/h8300/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/h8300/Kconfig.debug	2004-04-16 10:18:19.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "H8300 kernel hacking"
- 
- config FULLDEBUG
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/i386/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/i386/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/i386/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/i386/Kconfig.debug	2004-04-16 10:18:30.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "X86 kernel hacking"
- 
- config X86_FIND_SMP_CONFIG
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/ia64/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/ia64/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/ia64/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/ia64/Kconfig.debug	2004-04-16 10:18:56.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "IA64 kernel hacking"
- 
- choice
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/m68k/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/m68k/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/m68k/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/m68k/Kconfig.debug	2004-04-16 10:09:59.000000000 +0200
-@@ -1,9 +1,8 @@
--
- menu "M68K kernel hacking"
-+	depends on DEBUG_KERNEL
- 
- config DEBUG_BUGVERBOSE
- 	bool "Verbose BUG() reporting"
--	depends on DEBUG_KERNEL
- 
- endmenu
- 
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/m68knommu/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/m68knommu/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/m68knommu/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/m68knommu/Kconfig.debug	2004-04-16 10:19:19.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "M68K-nommu kernel hacking"
- 
- config FULLDEBUG
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/mips/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/mips/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/mips/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/mips/Kconfig.debug	2004-04-16 10:19:28.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "MIPS kernel hacking"
- 
- config CROSSCOMPILE
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/parisc/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/parisc/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/parisc/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/parisc/Kconfig.debug	2004-04-16 10:10:54.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "PA-RISC kernel hacking"
- 
- endmenu
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/ppc/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/ppc/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/ppc/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/ppc/Kconfig.debug	2004-04-16 10:19:38.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "PPC kernel hacking"
- 
- config KGDB
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/ppc64/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/ppc64/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/ppc64/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/ppc64/Kconfig.debug	2004-04-16 10:19:41.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "PPC64 kernel hacking"
- 
- config DEBUGGER
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/sh/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/sh/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/sh/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/sh/Kconfig.debug	2004-04-16 10:19:52.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "SuperH kernel hacking"
- 
- config SH_STANDARD_BIOS
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/sparc64/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/sparc64/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/sparc64/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/sparc64/Kconfig.debug	2004-04-16 10:20:03.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "UltraSPARC kernel hacking"
- 
- config DEBUG_BUGVERBOSE
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/um/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/um/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/um/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/um/Kconfig.debug	2004-04-16 10:20:11.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "UML kernel hacking"
- 
- config PT_PROXY
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/v850/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/v850/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/v850/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/v850/Kconfig.debug	2004-04-16 10:20:22.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "V850 kernel hacking"
- 
- config NO_KERNEL_MSG
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/arch/x86_64/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/x86_64/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/arch/x86_64/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/arch/x86_64/Kconfig.debug	2004-04-16 10:20:29.000000000 +0200
-@@ -1,4 +1,3 @@
--
- menu "X86-64 kernel hacking"
- 
- # !SMP for now because the context switch early causes GPF in segment reloading
-diff -Naurp linux-2.6.6-rc1-Kconfig.debug.v2/lib/Kconfig.debug linux-2.6.6-rc1-Kconfig.debug.v3-proposed/lib/Kconfig.debug
---- linux-2.6.6-rc1-Kconfig.debug.v2/lib/Kconfig.debug	2004-04-16 09:52:20.000000000 +0200
-+++ linux-2.6.6-rc1-Kconfig.debug.v3-proposed/lib/Kconfig.debug	2004-04-16 10:21:15.000000000 +0200
-@@ -1,3 +1,4 @@
-+# Generic debug menu
- 
- menu "Generic kernel hacking"
- 
-@@ -22,18 +23,9 @@ config MAGIC_SYSRQ
- 	  keys are documented in <file:Documentation/sysrq.txt>. Don't say Y
- 	  unless you really know what this hack does.
- 
--config KALLSYMS
--	 bool "Load all symbols for debugging/kksymoops" if EMBEDDED
--	 default y if !ARCH_S390
--	 help
--	   Say Y here to let the kernel print out symbolic crash information and
--	   symbolic stack backtraces. This increases the size of the kernel
--	   somewhat, as all symbols have to be loaded into the kernel image.
--
--if X86 || X86_64 || MACH_DECSTATION || ALPHA_GENERIC || ALPHA_SRM || PPC64
--
- config EARLY_PRINTK
--	bool "Early printk" if EMBEDDED
-+	bool "Early printk"
-+	depends on DEBUG_KERNEL && (X86 || X86_64 || MACH_DECSTATION || ALPHA_GENERIC || ALPHA_SRM || PPC64)
- 	default y
- 	help
- 	  Write kernel log output directly into the VGA buffer or to a serial
-@@ -45,8 +37,6 @@ config EARLY_PRINTK
- 	  with klogd/syslogd or the X server. You should normally N here,
- 	  unless you want to debug such a crash.
- 
--endif
--
- config DEBUG_STACKOVERFLOW
- 	bool "Check for stack overflows"
- 	depends on DEBUG_KERNEL && !ALPHA && !M68K && !S390 && !SUPERH && !V850
-@@ -99,6 +89,15 @@ config DEBUG_HIGHMEM
- 	  This options enables addition error checking for high memory systems.
- 	  Disable for production systems.
- 
-+config KALLSYMS
-+	bool "Load all symbols for debugging/kksymoops"
-+	depends on DEBUG_KERNEL
-+	default y if !ARCH_S390
-+	help
-+	  Say Y here to let the kernel print out symbolic crash information and
-+	  symbolic stack backtraces. This increases the size of the kernel
-+	  somewhat, as all symbols have to be loaded into the kernel image.
-+
- config DEBUG_INFO
- 	bool "Compile the kernel with debug info"
- 	depends on DEBUG_KERNEL && !SUPERH
-@@ -109,19 +108,19 @@ config DEBUG_INFO
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
- 	  
--if !ARM && !ARM26 && !X86_64 && !S390 && !V850
- config FRAME_POINTER
- 	bool "Compile the kernel with frame pointers"
-+	depends on DEBUG_KERNEL && (!ARM && !ARM26 && !X86_64 && !S390 && !V850)
- 	default y if (SUPERH && KGDB) || (USERMODE && DEBUG_INFO)
- 	help
- 	  If you say Y here the resulting kernel image will be slightly larger
- 	  and slower, but it will give very useful debugging information.
- 	  If you don't debug the kernel, you can say N, but we may not be able
- 	  to solve problems without frame pointers.
--endif
--if X86_64
-+
- config FRAME_POINTER
- 	bool "Compile the kernel with frame pointers"
-+	depends on DEBUG_KERNEL && X86_64
- 	help
- 	  If you say Y here the resulting kernel image will be slightly larger
- 	  and slower, but it will give very useful debugging information.
-@@ -132,10 +131,10 @@ config FRAME_POINTER
- 	  the x86-64 kernel doesn't ensure a consistent
- 	  frame pointer through inline assembly (semaphores etc.)
- 	  Normally you should say N.
--endif
- 
- config 4KSTACKS
--	bool "Use 4Kb for kernel stacks instead of 8Kb" if !M68K && !SUPERH && !V850
-+	bool "Use 4Kb for kernel stacks instead of 8Kb"
-+	depends on !M68K && !SUPERH && !V850
- 	help
- 	  If you say Y here the kernel will use a 4Kb stacksize for the
- 	  kernel stack attached to each process/thread. This facilitates
-
---Boundary-00=_tx5fArZa181w8aS--

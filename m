@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264956AbTIJPVM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 11:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264962AbTIJPVM
+	id S264989AbTIJPYk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 11:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264998AbTIJPYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 11:21:12 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:64945
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S264956AbTIJPVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 11:21:11 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: root@chaos.analogic.com, Takashi Iwai <tiwai@suse.de>
-Subject: Re: Audio skipping with alsa
-Date: Thu, 11 Sep 2003 01:28:35 +1000
-User-Agent: KMail/1.5.3
-Cc: Jaroslav Kysela <perex@suse.cz>, Russ Garrett <rg@tcslon.com>,
-       linux-kernel@vger.kernel.org
-References: <1063116861.852.50.camel@russell> <s5hhe3kvjtc.wl@alsa2.suse.de> <Pine.LNX.4.53.0309101037120.12986@chaos>
-In-Reply-To: <Pine.LNX.4.53.0309101037120.12986@chaos>
+	Wed, 10 Sep 2003 11:24:40 -0400
+Received: from hal-5.inet.it ([213.92.5.24]:12466 "EHLO hal-5.inet.it")
+	by vger.kernel.org with ESMTP id S264989AbTIJPYh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 11:24:37 -0400
+Message-ID: <05ec01c377b0$31535480$5aaf7450@wssupremo>
+Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
+From: "Luca Veraldi" <luca.veraldi@katamail.com>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <u9j3.1VB.27@gated-at.bofh.it> <u9j3.1VB.29@gated-at.bofh.it> <u9j3.1VB.31@gated-at.bofh.it> <u9j3.1VB.25@gated-at.bofh.it> <ubNY.5Ma.19@gated-at.bofh.it> <uc79.6lg.13@gated-at.bofh.it> <uc7d.6lg.23@gated-at.bofh.it> <uch0.6zx.17@gated-at.bofh.it> <ucqs.6NC.3@gated-at.bofh.it> <ucqy.6NC.19@gated-at.bofh.it> <udmB.8eZ.15@gated-at.bofh.it> <udPF.BD.11@gated-at.bofh.it> <3F5F37CD.6060808@softhome.net>
+Subject: Re: Efficient IPC mechanism on Linux
+Date: Wed, 10 Sep 2003 17:28:27 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309110128.35543.kernel@kolivas.org>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Sep 2003 00:45, Richard B. Johnson wrote:
-> I don't see the driver in linux-2.4.22/drivers/sound, so I can't
-> look at it directly, but normally all you have to do is keep
-> a FIFO full (not empty) during play. There should not be any
-> scheduling issues with sound chips although I am seeing too
-> much of that lately. Maybe  somebody should look at the driver
-> before the scheduler is blamed. Perhaps the driver is not
-> designed properly so it assumes the user-mode code can do
-> something it can't possibly be expected to do with any
-> reliability. For instance, perhaps it's the user-mode's
-> responsibility to keep a FIFO full? And, you can never
-> guarantee that.
+>    Can you forward-port your work to 2.6 kernel?
+>    Can you benchmarkt it against the same primitives in 2.6 kernel?
 
-That may be the case, but there is a very clear problem with the vanilla 
-scheduler that can cause too low priority for audio apps for up to 25 seconds 
-after starting a new thread (eg new song). In turn they will skip madly when 
-any higher priority task uses a burst of cpu and repeatedly preempts it (X, 
-mozilla, the neighbour's dog...). Only the largest buffer audio cards wont 
-skip with the vanilla scheduler, and _no_ amount of single cpu capability 
-today is enough to avoid the scheduler based starvation. So while it never 
-hurts to keep an eye on driver performance, the scheduler itself _must_ be 
-fixed to prevent this happening.
+I could do it only if there was an effective reason to do it. 
+And there isn't.
 
-Con
+They have just posted me a message with pipe latency under kernel 2.4.
+And it is exactly the same (apart some minor variations in misurements 
+that are natural enough).
 
+>    You have just started your work - are you going to finish it? Or it 
+> was just-another-academical-study?
+
+I consider my work finished.
+I studied an efficient IPC mechanism and I tried to implement it 
+on an existing Operating System.
+
+I tried some other IPC primitives in benchmark tests 
+and reported the comparisons between completion times.
+
+I got my goal.
+
+>    If you can try to develop new sematics for old syntax (shm* & etc) it 
+> can be welcomed too.
+>    And if it would be poll()able - it would be great. Applications which 
+> do block on read()/getmsg() in real-life not that common, and as I've 
+> understood - this is the case for your message passing structure.
+
+I'm not a kernel developer. Ask Linus Torvalds.
+
+Bye,
+Luca

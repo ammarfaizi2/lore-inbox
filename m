@@ -1,42 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267243AbTAKOus>; Sat, 11 Jan 2003 09:50:48 -0500
+	id <S267247AbTAKO7z>; Sat, 11 Jan 2003 09:59:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267245AbTAKOus>; Sat, 11 Jan 2003 09:50:48 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:22277 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267243AbTAKOur>; Sat, 11 Jan 2003 09:50:47 -0500
-Message-ID: <3E202F43.E51FB502@linux-m68k.org>
-Date: Sat, 11 Jan 2003 15:50:43 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+	id <S267252AbTAKO7z>; Sat, 11 Jan 2003 09:59:55 -0500
+Received: from mail.broadpark.no ([217.13.4.2]:38084 "HELO mail.broadpark.no")
+	by vger.kernel.org with SMTP id <S267247AbTAKO7w>;
+	Sat, 11 Jan 2003 09:59:52 -0500
+Message-ID: <3E20338A.5182057@online.no>
+Date: Sat, 11 Jan 2003 16:08:58 +0100
+From: Knut J Bjuland <knutjbj@online.no>
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.18-18SGI_XFS_1.2pre4custom i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Dominik Brodowski <linux@brodo.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: menucofig[2.5.56] bug: help texts in "choice"
-References: <20030110220402.GA1909@brodo.de>
+To: linux-kernel@vger.kernel.org
+Subject: bug in genrate-modprobe.conf
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+genrate-modprobe is unable to convert my modules.conf.  Which is below.
+Please cc: me. The problem is that the converting script does not
+produce a modprobe.conf at all.  I am running this script as root booted
+into linux 2.5.54 in init mode 1.
 
-Dominik Brodowski wrote:
+alias parport_lowlevel parport_pc
+alias usb-controller usb-uhci
+alias eth0 3c59x
 
-> In 2.5.56 I'm seeing a bug in "make menuconfig" on x86: selecting "processor
-> type and features", then "processor family", and then "help" for any entry,
-> I always get "There is no help available for this kernel option." even
-> though there are extensive help texts in arch/i386/Kconfig.
 
-Move the help text from CONFIG_M386 entry to the choice entry. I didn't
-do this automatically since often the help text has to splitted
-manually. It's on my TODO list, but I still hope someone else would like
-to do this. :)
-BTW menuconfig will only show the general help text. Showing the
-individual help text entries would require changing lxdialog, what I
-tried to avoid so far (so it's even lower on my TODO list).
+# #alsa
+alias char-major-116 snd
+alias snd-card-0 snd-emu10k1
+#options snd snd_cards_limit=1
+##oss lite
+alias char-major-14 soundcore
+alias sound-slot-0 snd-card-0
+##oss service
+alias sound-service-0-0 snd-mixer-oss
+alias sound-service-0-1 snd-seq-oss
+alias sound-service-0-3 snd-pcm-oss
+alias sound-service-0-8 snd-seq-oss
+alias sound-service-0-12 snd-pcm-oss
+post-install snd-emu10k1-synth sfxload /etc/midi/8mbgmsfx.sf2;
+/usr/sbin/alsactl restore
 
-bye, Roman
+
+# alsa finsihed
+options ide-cd dma=1
+
+# bttv
+#alias char-major-81 videodev
+alias char-major-81  bttv
+
+# BTTV setup by JeMi - 8/Dec/2000
+options bttv pll=1 radio=0 card=39
+options tuner type=5
+post-install bttv /sbin/modprobe "-k" tuner;
+                   /sbin/modprobe "-k" msp3400
+
+#nvidia
+
+alias char-major-195 nvidia
+
 

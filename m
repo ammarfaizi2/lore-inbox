@@ -1,84 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132331AbRBDUiR>; Sun, 4 Feb 2001 15:38:17 -0500
+	id <S132276AbRBDUyX>; Sun, 4 Feb 2001 15:54:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132305AbRBDUiI>; Sun, 4 Feb 2001 15:38:08 -0500
-Received: from femail2.rdc1.on.home.com ([24.2.9.89]:15558 "EHLO
-	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S132332AbRBDUh4>; Sun, 4 Feb 2001 15:37:56 -0500
-Message-ID: <3A7DBD8F.71941A32@Home.net>
-Date: Sun, 04 Feb 2001 15:37:35 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre1 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PS hanging in 2.4.1 - More interesting things
-In-Reply-To: <E14PVka-00026u-00@the-village.bc.nu>
-Content-Type: multipart/mixed;
- boundary="------------95A2D9C27F521C8C3D903533"
+	id <S132308AbRBDUyO>; Sun, 4 Feb 2001 15:54:14 -0500
+Received: from cr949225-b.rchrd1.on.wave.home.com ([24.112.58.97]:19725 "HELO
+	enfusion-group.com") by vger.kernel.org with SMTP
+	id <S132276AbRBDUyD>; Sun, 4 Feb 2001 15:54:03 -0500
+Date: Sun, 4 Feb 2001 15:53:54 -0500
+From: Adrian Chung <adrian@enfusion-group.com>
+To: linux-kernel@vger.kernel.org
+Subject: Dual Promise Ultra66 PCI Cards
+Message-ID: <20010204155354.A2674@toad>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+Organization: enfusion-group
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------95A2D9C27F521C8C3D903533
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+I've been attempting to get two Promise Ultra66 controllers working
+with an Asus P2B-F motherboard.  I've got one controller successfully
+working, but as soon as I stick the second controller in the computer,
+the system refuses to boot.
 
-Well, i found something in my logs:
+With 2.2.18 and the linux-ide patches (Uniform E-IDE 6.30), the
+computer refuses to boot if there are no bootable drives on the
+motherboard's IDE controllers.  I have 4 hard drives on the promise
+ultra66, and a cdrom drive on the motherboard's controller.  I've
+tried setting the BIOS IDE/SCSI first option to SCSI, and it still
+doesn't work.
 
-This really is weird :)
+I moved my boot drive to the motherboard's controller, and then linux
+boots, but after detecting IDE devices, it hangs just after printing:
 
-Shawn.
+ide1 at ...
+ide2 at ...
+ide3 at ...
 
-Alan Cox wrote:
+I don't have the exact messages at hand, but can produce them...
 
-> > Well, strangely, it stopped as it started?
-> > I don't know what caused it to go loopy but then it just stopped. Im using:
-> > syslogd -ver
-> > syslogd 1.4-0
-> >
-> > klogd -v
-> > klogd 1.4-0
-> >
-> > I thought this only affected older versions?
->
-> Yep. So something else happened in this case. I don't know what but that
-> would appear to be a different bug
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Any ideas?  Can this work?  I've read on the Promise site that
+flashing the second controller with their "dummy" BIOS may make a
+difference, but I'm not sure.
 
---------------95A2D9C27F521C8C3D903533
-Content-Type: text/plain; charset=iso-8859-15;
- name="dump.log"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dump.log"
-
-Feb  3 18:11:35 coredump syslogd 1.4-0: restart.
-Feb  3 18:11:35 coredump syslogd: select: Bad file descriptor
-Feb  3 18:12:06 coredump last message repeated 214069 times
-Feb  3 18:14:48 coredump syslogd 1.4-0: restart.
-Feb  3 18:14:48 coredump syslogd: select: Bad file descriptor
-Feb  3 18:21:08 coredump syslogd 1.4-0: restart.
-Feb  3 18:21:08 coredump syslogd: select: Bad file descriptor
-Feb  3 18:21:34 coredump last message repeated 168154 times
-Feb  3 18:24:08 coredump syslogd 1.4-0: restart.
-Feb  3 18:24:08 coredump syslogd: select: Bad file descriptor
-Feb  3 18:24:39 coredump last message repeated 231290 times
-Feb  3 18:26:07 coredump syslogd 1.4-0: restart.
-Feb  3 18:27:24 coredump init: Switching to runlevel: 6
-Feb  3 18:27:31 coredump exiting on signal 15
-Feb  3 18:34:44 coredump syslogd 1.4-0: restart.
-
-
---------------95A2D9C27F521C8C3D903533--
-
+--
+Adrian Chung
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

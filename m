@@ -1,73 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310391AbSCBPot>; Sat, 2 Mar 2002 10:44:49 -0500
+	id <S310397AbSCBQLQ>; Sat, 2 Mar 2002 11:11:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310396AbSCBPoa>; Sat, 2 Mar 2002 10:44:30 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:3945 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S310391AbSCBPoZ>; Sat, 2 Mar 2002 10:44:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-Organization: LISA GmbH
-To: "Henrik Lassen" <henrik@lassen.dk>
-Subject: Re: Please
-Date: Sat, 2 Mar 2002 16:43:58 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <NCBBLCAMGIICAAEFKIENIEOECDAA.henrik@lassen.dk>
-In-Reply-To: <NCBBLCAMGIICAAEFKIENIEOECDAA.henrik@lassen.dk>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Andre Hedrick <andre@linux-ide.org>, ataraid-list@redhat.com
+	id <S310398AbSCBQLH>; Sat, 2 Mar 2002 11:11:07 -0500
+Received: from ja.mac.ssi.bg ([212.95.166.194]:15878 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S310397AbSCBQLA>;
+	Sat, 2 Mar 2002 11:11:00 -0500
+Date: Sat, 2 Mar 2002 18:10:50 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: ja@u.domain.uli
+To: kuznet@ms2.inr.ac.ru
+cc: kain@kain.org, <linux-kernel@vger.kernel.org>, <ak@suse.de>
+Subject: Re: OOPS: Multipath routing 2.4.17
+In-Reply-To: <200203021436.RAA20557@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.44.0203021730110.5003-100000@u.domain.uli>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020302154358.D025F13E3@shrek.lisa.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 2. March 2002 00:27, Henrik Lassen wrote:
-> Hi
+
+	Hello,
+
+On Sat, 2 Mar 2002 kuznet@ms2.inr.ac.ru wrote:
+
+> > 	What about the new scheduler (for 2.5?), of course, after
+> > replacing the wrong write_lock() with spin_lock_bh(&fib_nh_powers) ?
 >
-> I saw your posting Promise TX4 - I bought two controllers (shit).
-
-Confirmed.
-
-> Using: Redhat 7.2 Egnima Kernel 2.4.7-10
+> I do not see any reasons not to do this.
+> I remember your approach had some inacceptable issues, but 2.5 is exactly
+> the place to resolve them. :-)
 >
-> I can se the first two disk, but redhat crashes if I try to connect the
-> others.
+> But actually I would like to see a fix for 2.4 for beginning.
 
-The problem is called Andre Hedrick, a guy who is talking in miracles,
-but seems to be unable to fix either the issues with:
- - the single TX4 with multiple PDC20270
-nor:
- - multiple TX2 with PDC20268
+	OK, I'll try it soon, I assume you ack about the
+new fib_select_multipath scheduler discussed in this thread.
 
-or at least ignores further communication on that problems, if you
-don't use some magic storage peoples language.(*) TM in a parallel 
-universe, not too far from here...
+> The failure with orphaned DEADs was hard bug yet. Minute...
+> I remember I did some work to make a minimalistic fix...
 
-Most other kernel guys prefer SCSI or simple IDE solutions.
+	Yep, I'm wondering, nobody complains about this problem :)
+May be it is still not too late to fix it :)
 
-> Please tell how you got IDE3-4 working and if you are up and running
-> satisfactory.
+> Aha! That's it. Please, look at this _carefully_. It is going
+> to be submitted to 2.4 and mistakes are not allowed here.
+> Look especially at the differences of your approach both about
+> medium_id and DEAD fault.
 
-Nope. In one board, I got two TX2 running fine. In different other
-boards (tyan thunder dual athlon), only a single TX2 is working fine.
-(System crashed shortly after IDE driver init in above mentioned 
-combinations.
+	I see, very good, you restore the nh_dev on "enable IP"
+which is detroyed on "disable IP".
 
-BTW: This is a 2 way communication problem: 
- - Andre ignores bugging user requests to some extend
- - He gets ignored by leading kernel hackers to some extend
+About medium_id, I didn't tested your variant but I see what you mean:
+proxy_arp must be enabled for the receiver, distinguish 0/-1.
+Sounds good, looks good, only doc changes:
 
-both based on (*) 
+- change "media" to "medium"
 
-One can only hope, that Andre gets his bablefish running, and
-using it then to communicate with the rest of _this_ universe. 
+- docs in Documentation/filesystems/proc.txt or the net part
+is going out from this file?
 
->
-> Rgds
->
-> Henrik
+	About the FIB changes, check fib_sync_down because I see a
+bad scenario, i.e. change:
 
-Cheers,
-  Hans-Peter
+if (force && nh->nh_dev) {
+
+to
+
+if (force && nh->nh_dev == dev && nh->nh_flags&RTNH_F_DEAD) {
+
+and move it before endfor_nexthops because we can miss the
+following sequence of events:
+
+- enable IP
+- link up
+...
+- link down => nh is DEAD after force=0 but with valid nh_dev!=NULL
+
+and we come here with the new change:
+
+- disable IP/unreg with force=1 => we miss the above event and
+don't clear nh_dev
+
+In short, nh can be already DEAD with nh_dev!=NULL and we miss it when
+force is 1.
+
+So, the new code must be something like this:
+
+				}
++				if (force && nh->nh_dev == dev &&
++				    nh->nh_flags&RTNH_F_DEAD) {
++					dev_put(nh->nh_dev);
++					nh->nh_dev = NULL;
++				}
+			} endfor_nexthops(fi)
+
+	There is a second variant: we to keep all DEAD nhs to be with
+nh_dev==NULL but I'm not sure about it. At least, you already added
+a mechanism the nexthops to bind again to outdev and this can work,
+may be. But I prefer the first solution after fixing.
+
+> Alexey
+
+> +	two devices attached to different media.
+
+medium
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+

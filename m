@@ -1,98 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbTKUCPM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 21:15:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTKUCPM
+	id S264182AbTKUC2e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 21:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264198AbTKUC2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 21:15:12 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:54403 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S264113AbTKUCPG (ORCPT
+	Thu, 20 Nov 2003 21:28:33 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:55939 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S264182AbTKUC2a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 21:15:06 -0500
-Date: Thu, 20 Nov 2003 21:09:53 +0000
+	Thu, 20 Nov 2003 21:28:30 -0500
+Date: Thu, 20 Nov 2003 21:23:20 +0000
 From: Adam Belay <ambx1@neo.rr.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Lawrence Walton <lawrence@the-penguin.otak.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Opps on boot 2.6.0-pre9-mm4
-Message-ID: <20031120210953.GA25417@neo.rr.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: arvidjaar@mail.ru, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: modules.pnpmap output support
+Message-ID: <20031120212320.GB25417@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Lawrence Walton <lawrence@the-penguin.otak.com>,
-	linux-kernel@vger.kernel.org
-References: <20031120193318.GA5578@the-penguin.otak.com> <20031120131945.3cd35911.akpm@osdl.org> <20031120233006.GA1331@the-penguin.otak.com> <20031120160601.6b1fbd53.akpm@osdl.org>
+	Takashi Iwai <tiwai@suse.de>, arvidjaar@mail.ru,
+	linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+References: <s5hptfrjezz.wl@alsa2.suse.de> <E1ALky0-000N9I-00.arvidjaar-mail-ru@f25.mail.ru> <s5had6vj99t.wl@alsa2.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031120160601.6b1fbd53.akpm@osdl.org>
+In-Reply-To: <s5had6vj99t.wl@alsa2.suse.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 04:06:01PM -0800, Andrew Morton wrote:
-> Lawrence Walton <lawrence@the-penguin.otak.com> wrote:
-> >
-> > > Looks like it died inside the machine's BIOS.
+On Mon, Nov 17, 2003 at 04:37:50PM +0100, Takashi Iwai wrote:
+> At Mon, 17 Nov 2003 18:07:04 +0300,
+> Andrey Borzenkov wrote:
+
+-->snip
+
+> > > the file2alias format of (isa) pnp devices will need variable number
+> > > of items, since a driver may require multiple ids.
+> > > for example, snd-cs4236 driver supports the cards with three ids like
+> > > 	CSCe825:CSC0100:CSC0110
+> > > and four ids like
+> > > 	CSCd937:CSC0000:CSC0010:CSC0003
+> > > in each case, a matching card must include all ids listed there.
 > > >
-> > > Please try reverting the three pnp patches:
-> > >
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-3.patch
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-2.patch
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-1.patch
-> > >
-> > > and let us know?
-> > >
-> > I reverted these and it works great!
 > >
+> > do you mean that card will have to have all of these IDs to match?
 > >
+> > I can't get it reading sources. When driver matches card against
+> > card driver it is apparently using only main IDs, not logical
+> > device IDs:
 > >
-> > > - Upgrade the bios
-> > The bios is the latest so updating it would not of been a option.
+> > driver/pnp/card.c:match_card()
 > >
+> > static const struct pnp_card_device_id * match_card(struct pnp_card_driver * drv, struct pnp_card * card)
+> > {
+> >  	const struct pnp_card_device_id * drv_id = drv->id_table;
+> >  	while (*drv_id->id){
+> >  		if (compare_pnp_id(card->id,drv_id->id))
+> >  			return drv_id;
+> >  		drv_id++;
+> >  	}
+> >  	return NULL;
+> >  }
+> >
+> > where are drv_id->devs used?
 >
-> OK, thanks.   Adam, those pnp patches are suspect...
+> hmm, i thought it checks the device ids but apparently it's not.
+> IMO, this is a bug, because there are cards with the same card id but
+> different device ids. (e.g. sound/isa/cs423x/cs4236.c)
+> in the logic above, only the first matching entry is checked and it
+> results in the failure of probing.
+>
+> Adam, what do you think?
+>
 
-Hmm, well it couldn't be patch 3 because it relates to isapnp.  Patch
-1 is the only patch that changes the PnPBIOS calls, and it has been
-known to fix problems for some systems.  Also it does what the actual
-specifications recommend.  You may just have a buggy system that's
-triggered by the static resource calls.  If so, we could use dynamic
-instead resources when the DMI scan matches with this system.  Patch
-2 provides an option to disable the PnPBIOS proc interface, but it
-should not affect PnPBIOS calls.
+The device ID is checked, but this checking occurs during the driver's
+probe function, when it calls pnp_request_card_device.  This is needed
+in order for us to properly deal with multidevice cards, especially in
+ALSA.  If possibly, I'd like to see the devices in these cards be
+handled individually in 2.7 but note that doing so would require
+changes to some drivers and subsystems.  The current system works well
+for 2.6.
 
-Lawrence, could you please test this again, only this time excluding
-patch 1 and no others.  If that doesn't work try excluding patch 2.
+Because of these factors, and the fact that pnp_device_id is also used,
+I think that we have to include all of the IDs in the pnpidmap.  This
+would include both the card id and the individual device IDs on each
+card.  pnp_device_id can use the isapnp card device ids in addition to
+the ids reported by the pnpbios.
 
 Thanks,
 Adam
-
-P.S.
-
-Andrew, could you please review this patch for your tree.
-
-# --------------------------------------------
-# 03/11/15	ambx1@neo.rr.com	1.1447
-# [PnP] reserve resources specified by the PnPBIOS properly
-#
-# A bug prevents the PnP layer from reserving some of the resources
-# specified by the PnPBIOS.  As a result some systems will have
-# unpredicable (random crashes etc.) problems because of resource
-# conflicts, especially when PCMCIA support is enabled.  This patch
-# fixes the problem by ensuring that the proper resource data is
-# reserved.
-# --------------------------------------------
-#
-diff -Nru a/drivers/pnp/system.c b/drivers/pnp/system.c
---- a/drivers/pnp/system.c	Sun Nov 16 00:25:14 2003
-+++ b/drivers/pnp/system.c	Sun Nov 16 00:25:14 2003
-@@ -54,7 +54,7 @@
- 	int i;
-
- 	for (i=0;i<PNP_MAX_PORT;i++) {
--		if (pnp_port_valid(dev, i))
-+		if (!pnp_port_valid(dev, i))
- 			/* end of resources */
- 			continue;
- 		if (pnp_port_start(dev, i) == 0)
-

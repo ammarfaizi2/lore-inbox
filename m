@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312497AbSCUVPZ>; Thu, 21 Mar 2002 16:15:25 -0500
+	id <S312499AbSCUVR4>; Thu, 21 Mar 2002 16:17:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312499AbSCUVPG>; Thu, 21 Mar 2002 16:15:06 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:35797 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S312497AbSCUVO5>; Thu, 21 Mar 2002 16:14:57 -0500
-Date: Thu, 21 Mar 2002 22:14:38 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>
-Subject: [patch] fix the last .text.exit error in 2.4.19-pre4
-Message-ID: <Pine.NEB.4.44.0203212211200.2125-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312500AbSCUVRq>; Thu, 21 Mar 2002 16:17:46 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:43147 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S312499AbSCUVRd>;
+	Thu, 21 Mar 2002 16:17:33 -0500
+Date: Thu, 21 Mar 2002 22:17:24 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200203212117.WAA22504@harpo.it.uu.se>
+To: macro@ds2.pg.gda.pl
+Subject: Re: [PATCH] boot_cpu_data corruption on SMP x86
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
 
-there's still one .text.exit error in 2.4.19-pre4:
+On Thu, 21 Mar 2002 21:01:39 +0100 (MET), Maciej W. Rozycki wrote:
+>On Thu, 14 Mar 2002, Mikael Pettersson wrote:
+>
+>> --- linux-2.4.19-pre3/arch/i386/kernel/head.S.~1~	Tue Feb 26 13:26:56 2002
+>> +++ linux-2.4.19-pre3/arch/i386/kernel/head.S	Thu Mar 14 16:20:57 2002
+>> @@ -178,7 +178,7 @@
+>>   * we don't need to preserve eflags.
+>>   */
+>>  
+>> -	movl $3,X86		# at least 386
+>> +	movb $3,X86		# at least 386
+>...
+>
+> This is broken -- these word stores assure a proper initialization on
+>pre-CPUID processors.
 
-drivers/char/char.o(.data+0xad74): undefined reference to `local symbols
-in discarded section .text.exit'
+boot_cpu_data is a static-extent object with an explicit initialiser
+(i.e., ".data") in setup.c in 2.2.21rc2, 2.4.19-pre4, and 2.5.7.
+Any further "initialisation" by APs is called "clobbering".
 
-It seems the following part of the latest version of Andrew Morton's
-.text.exit fixes didn't make it into 2.4.19-pre4 (with this patch it's
-fixed):
-
---- linux-2.4.18-rc1/drivers/char/wdt_pci.c	Wed Feb 13 12:59:10 2002
-+++ linux-akpm/drivers/char/wdt_pci.c	Thu Feb 14 19:23:21 2002
-@@ -577,7 +577,7 @@ out_reg:
- }
-
-
--static void __exit wdtpci_remove_one (struct pci_dev *pdev)
-+static void __devexit wdtpci_remove_one (struct pci_dev *pdev)
- {
- 	/* here we assume only one device will ever have
- 	 * been picked up and registered by probe function */
-@@ -602,7 +602,7 @@ static struct pci_driver wdtpci_driver =
- 	name:		"wdt-pci",
- 	id_table:	wdtpci_pci_tbl,
- 	probe:		wdtpci_init_one,
--	remove:		wdtpci_remove_one,
-+	remove:		__devexit_p(wdtpci_remove_one),
- };
-
-
-
-
-cu
-Adrian
-
-
+/Mikael

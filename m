@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289885AbSBKR4q>; Mon, 11 Feb 2002 12:56:46 -0500
+	id <S289901AbSBKR64>; Mon, 11 Feb 2002 12:58:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289899AbSBKR4h>; Mon, 11 Feb 2002 12:56:37 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18705 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289885AbSBKR4X>; Mon, 11 Feb 2002 12:56:23 -0500
-Subject: Re: 2.5.4, cs46xx snd, and virt_to_bus
-To: weber@nyc.rr.com (John Weber)
-Date: Mon, 11 Feb 2002 18:10:04 +0000 (GMT)
-Cc: tom_gall@vnet.ibm.com (Tom Gall), linux-kernel@vger.kernel.org
-In-Reply-To: <3C680184.9090208@nyc.rr.com> from "John Weber" at Feb 11, 2002 12:38:12 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S289917AbSBKR6r>; Mon, 11 Feb 2002 12:58:47 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:52484 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S289901AbSBKR6e>; Mon, 11 Feb 2002 12:58:34 -0500
+Date: Mon, 11 Feb 2002 18:58:31 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Hal Duston <hald@sound.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Input w/2.5.3-dj3
+Message-ID: <20020211185831.A11983@suse.cz>
+In-Reply-To: <Pine.GSO.4.10.10202111152530.20456-100000@sound.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16aKtw-0007Q0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.10.10202111152530.20456-100000@sound.net>; from hald@sound.net on Mon, Feb 11, 2002 at 11:56:52AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> address and a physical address (via dma_addr_t), so it should be simple 
-> to change the code to use this function.  However, I don't know where 
-> the hell I'm supposed to find pci_dev -- I'll try rereading the 
-> driver-model.txt code again :).
+On Mon, Feb 11, 2002 at 11:56:52AM -0600, Hal Duston wrote:
 
-For ISA devices pass NULL. For the PCI devices you get it when you do the
-initial PCI probing. So for the cs46xx you'll see its passed to cs46xx_probe()
-and saved in card->pci_dev for future use. So you can get it from there.
+> OK, I've moved up to 2.5.3-dj5, and made the changes you suggested.
+> 
+> This causes my keyboard to be "active", (keypresses do something),
+> but the keys aren't generating the correct characters/sequences.
+> 
+> What do you need for me to check now?
 
-If you are going to hack on cs46xx.c please pick up the one from 2.4.18pre9
-and use that not the one in 2.5 , unless someone also updated that to
-match the 2.4 changes. The one in 2.5 seems to still have holes where any 
-user can oops the system that will get fixed by porting forward the current
-driver
+What are they generating? Did you load keybdev.o?
 
-Alan
+-- 
+Vojtech Pavlik
+SuSE Labs

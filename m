@@ -1,124 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319104AbSHMS2P>; Tue, 13 Aug 2002 14:28:15 -0400
+	id <S318982AbSHMTBv>; Tue, 13 Aug 2002 15:01:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319105AbSHMS2O>; Tue, 13 Aug 2002 14:28:14 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:41179 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S319104AbSHMS2M>;
-	Tue, 13 Aug 2002 14:28:12 -0400
-Date: Tue, 13 Aug 2002 20:32:06 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
+	id <S318983AbSHMTBv>; Tue, 13 Aug 2002 15:01:51 -0400
+Received: from mnh-1-03.mv.com ([207.22.10.35]:58885 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S318982AbSHMTBu>;
+	Tue, 13 Aug 2002 15:01:50 -0400
+Message-Id: <200208132008.PAA03902@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>
-Subject: [patch] CLONE_SETTLS, CLONE_SETTID, 2.5.31-BK
-In-Reply-To: <Pine.LNX.4.44.0208130916280.7291-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208132025530.6752-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] UML - part 2 of 3 
+In-Reply-To: Your message of "Tue, 13 Aug 2002 09:13:58 MST."
+             <Pine.LNX.4.44.0208130912390.7291-100000@home.transmeta.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Aug 2002 15:08:56 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+torvalds@transmeta.com said:
+> Please use "root=0xXXYY" instead, or consider figuring out the name
+> _automatically_ from the list of genhd's in the system (ie the reverse
+> of  blkdev_name() or whatever it is called).
 
-okay, the attached patch gets rid of clone_startup() and adds two new
-clone() flags instead:
+OK, consider that patch withdrawn.  In its place is the one below.  It's in
+UML arch code, so it needs to be applied after UML itself.  It disables
+'root=/dev/ubdxx' in UML for the time being.
 
-    CLONE_SETTLS => if present then the third clone() syscall parameter
-                    is the new TLS.
+The root_dev_names array looks like it can be eliminated entirely, as long
+as the gendisk list is populated before checksetup.  This means either there
+needs to be a before_setup_initcall or the calculation of the rootdev kdev_t
+needs to be split out from the argument parsing and put in a late initcall.
+I don't know if that breaks anything.
 
-    CLONE_SETTID => if present then the child TID is written to the
-                    address specified by the fourth clone() parameter.
+If that is reasonable, I can start laying the groundwork.
 
-the new parameters are handled in a safe way, clone() returns -EFAULT or
--EINVAL if there's some problem with them.
+				Jeff
 
-No current code is affected by these new flags. Patch was testbooted on
-2.5.31-BK-current.
-
-	Ingo
-
---- linux/arch/i386/kernel/process.c.orig	Tue Aug 13 20:10:25 2002
-+++ linux/arch/i386/kernel/process.c	Tue Aug 13 20:30:11 2002
-@@ -559,6 +559,7 @@
- 	unsigned long unused,
- 	struct task_struct * p, struct pt_regs * regs)
+--- linus/arch/um/kernel/um_arch.c~     Fri Aug  2 22:06:03 2002
++++ linus/arch/um/kernel/um_arch.c      Tue Aug 13 14:32:39 2002
+@@ -38,7 +38,7 @@
+ int fg_console;
+ struct kbd_struct kbd_table[MAX_NR_CONSOLES];
+ 
+-#define DEFAULT_COMMAND_LINE "root=/dev/ubd0"
++#define DEFAULT_COMMAND_LINE "root=6200"
+ 
+ unsigned long thread_saved_pc(struct task_struct *task)
  {
-+	struct thread_struct *t = &p->thread;
- 	struct pt_regs * childregs;
- 	struct task_struct *tsk;
- 
-@@ -567,17 +568,45 @@
- 	childregs->eax = 0;
- 	childregs->esp = esp;
- 
--	p->thread.esp = (unsigned long) childregs;
--	p->thread.esp0 = (unsigned long) (childregs+1);
-+	t->esp = (unsigned long) childregs;
-+	t->esp0 = (unsigned long) (childregs+1);
-+	t->eip = (unsigned long) ret_from_fork;
- 
--	p->thread.eip = (unsigned long) ret_from_fork;
--
--	savesegment(fs,p->thread.fs);
--	savesegment(gs,p->thread.gs);
-+	savesegment(fs, t->fs);
-+	savesegment(gs, t->gs);
- 
- 	tsk = current;
- 	unlazy_fpu(tsk);
--	struct_cpy(&p->thread.i387, &tsk->thread.i387);
-+	struct_cpy(&t->i387, &tsk->thread.i387);
-+
-+	/*
-+	 * Set a new TLS for the child thread?
-+	 */
-+	if (clone_flags & CLONE_SETTLS) {
-+		struct desc_struct *desc;
-+		struct user_desc info;
-+		int idx;
-+
-+		if (copy_from_user(&info, (void *)childregs->esi, sizeof(info)))
-+			return -EFAULT;
-+		if (LDT_empty(&info))
-+			return -EINVAL;
-+
-+		idx = info.entry_number;
-+		if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
-+			return -EINVAL;
-+
-+		desc = t->tls_array + idx - GDT_ENTRY_TLS_MIN;
-+		desc->a = LDT_entry_a(&info);
-+		desc->b = LDT_entry_b(&info);
-+	}
-+
-+	/*
-+	 * Notify the child of the TID?
-+	 */
-+	if (clone_flags & CLONE_SETTLS)
-+		if (put_user(p->pid, (pid_t *)childregs->edx))
-+			return -EFAULT;
- 
- 	if (unlikely(NULL != tsk->thread.ts_io_bitmap)) {
- 		p->thread.ts_io_bitmap = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
-@@ -747,8 +776,7 @@
- asmlinkage int sys_clone(struct pt_regs regs)
- {
- 	struct task_struct *p;
--	unsigned long clone_flags;
--	unsigned long newsp;
-+	unsigned long clone_flags, newsp;
- 
- 	clone_flags = regs.ebx;
- 	newsp = regs.ecx;
---- linux/include/linux/sched.h.orig	Tue Aug 13 19:55:06 2002
-+++ linux/include/linux/sched.h	Tue Aug 13 20:27:23 2002
-@@ -45,6 +45,8 @@
- #define CLONE_THREAD	0x00010000	/* Same thread group? */
- #define CLONE_NEWNS	0x00020000	/* New namespace group? */
- #define CLONE_SYSVSEM	0x00040000	/* share system V SEM_UNDO semantics */
-+#define CLONE_SETTLS	0x00080000	/* create a new TLS for the child */
-+#define CLONE_SETTID	0x00100000	/* write the TID back to userspace */
- 
- #define CLONE_SIGNAL	(CLONE_SIGHAND | CLONE_THREAD)
- 
 

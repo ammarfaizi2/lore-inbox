@@ -1,597 +1,193 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTFOKdY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 06:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTFOKdX
+	id S262123AbTFOKhP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 06:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTFOKhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 06:33:23 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:54657 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262116AbTFOKdJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 06:33:09 -0400
-Message-ID: <3EEC4E9D.5080208@colorfullife.com>
-Date: Sun, 15 Jun 2003 12:46:53 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	Sun, 15 Jun 2003 06:37:15 -0400
+Received: from netmail01.services.quay.plus.net ([212.159.14.219]:55287 "HELO
+	netmail01.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S262123AbTFOKhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 06:37:06 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] input: Fix CLOCK_TICK_RATE usage ...  [8/13]
+Date: Sun, 15 Jun 2003 11:51:00 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAOEGHEFAA.Riley@Williams.Name>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [RFC,PATCH] sysv sem undo implementation
 Content-Type: multipart/mixed;
- boundary="------------010305020408010107020106"
+	boundary="----=_NextPart_000_0041_01C33334.63F62EA0"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030614231455.A26303@ucw.cz>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------010305020408010107020106
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi,
-
-I found a few odd lines in the sysv sem undo implementation and wrote a 
-patch to fix them:
-
-- lock_undo() locks the list of undo structures. The lock is held 
-throughout the semop() syscall, but that's unnecessary - we can drop it 
-immediately after the lookup.
-- undo structures are only allocated when necessary. The need for undo 
-structures is only noticed in the middle of the semop operation, while 
-holding the semaphore array spinlock. The result is a convoluted 
-unlock&revalidate implementation. I've reordered the code, and now the 
-undo allocation can happen before acquiring the semaphore array 
-spinlock. As a bonus, less code runs under the semaphore array spinlock.
-- sem_exit seems to be broken with CLONE_SYSVSEM: the reference count is 
-never decremented if it's > 1.
-- sysvsem.sleep_list looks like code to handle oopses: if an oops kills 
-a thread that sleeps in sys_timedsemop(), then sem_exit tries to 
-recover. I've removed that - too fragile.
-
-Attached is my patch, not yet fully tested. What do you think?
-
---
-    Manfred
-
---------------010305020408010107020106
+------=_NextPart_000_0041_01C33334.63F62EA0
 Content-Type: text/plain;
- name="patch-sem-undo"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-sem-undo"
 
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 5
-//  SUBLEVEL = 71
-//  EXTRAVERSION =
---- 2.5/include/linux/sem.h	2003-06-15 09:39:55.000000000 +0200
-+++ build-2.5/include/linux/sem.h	2003-06-15 11:32:53.000000000 +0200
-@@ -128,13 +128,11 @@ struct sem_undo {
- struct sem_undo_list {
- 	atomic_t	refcnt;
- 	spinlock_t	lock;
--	volatile unsigned long	add_count;
- 	struct sem_undo	*proc_list;
- };
- 
- struct sysv_sem {
- 	struct sem_undo_list *undo_list;
--	struct sem_queue *sleep_list;
- };
- 
- asmlinkage long sys_semget (key_t key, int nsems, int semflg);
-@@ -143,6 +141,8 @@ asmlinkage long sys_semctl (int semid, i
- asmlinkage long sys_semtimedop(int semid, struct sembuf __user *sops,
- 			unsigned nsops, const struct timespec __user *timeout);
- 
-+void exit_sem(struct task_struct *p);
-+
- #endif /* __KERNEL__ */
- 
- #endif /* _LINUX_SEM_H */
---- 2.5/ipc/sem.c	2003-06-15 09:40:18.000000000 +0200
-+++ build-2.5/ipc/sem.c	2003-06-15 11:34:45.000000000 +0200
-@@ -214,7 +214,7 @@ static int sem_revalidate(int semid, str
- 		return -EIDRM;
- 	}
- 
--	if (ipcperms(&sma->sem_perm, flg)) {
-+	if (flg && ipcperms(&sma->sem_perm, flg)) {
- 		sem_unlock(smanew);
- 		return -EACCES;
- 	}
-@@ -887,106 +887,87 @@ static inline int get_undo_list(struct s
- 	return 0;
- }
- 
--static struct sem_undo* freeundos(struct sem_undo* un)
-+static struct sem_undo *lookup_undo(struct sem_undo_list *ulp, int semid)
- {
--	struct sem_undo* u;
--	struct sem_undo** up;
-+	struct sem_undo **last, *un;
- 
--	for(up = &current->sysvsem.undo_list->proc_list;(u=*up);up=&u->proc_next) {
--		if(un==u) {
--			un=u->proc_next;
--			*up=un;
--			kfree(u);
--			return un;
--		}
--	}
--	printk ("freeundos undo list error id=%d\n", un->semid);
--	return un->proc_next;
--}
--
--static inline struct sem_undo *find_undo(int semid)
--{
--	struct sem_undo *un;
--
--	un = NULL;
--	if (current->sysvsem.undo_list != NULL) {
--		un = current->sysvsem.undo_list->proc_list;
--	}
-+	last = &ulp->proc_list;
-+	un = *last;
- 	while(un != NULL) {
- 		if(un->semid==semid)
- 			break;
--		if(un->semid==-1)
--			un=freeundos(un);
--		 else
--			un=un->proc_next;
-+		if(un->semid==-1) {
-+			*last=un->proc_next;
-+			kfree(un);
-+		} else {
-+			last=&un->proc_next;
-+		}
-+		un=*last;
- 	}
- 	return un;
- }
- 
--/* returns without sem_lock and semundo list locks on error! */
--static int alloc_undo(struct sem_array *sma, struct sem_undo** unp, int semid, int alter)
-+static struct sem_undo *find_undo(int semid)
- {
--	int size, nsems, error;
--	struct sem_undo *un, *new_un;
--	struct sem_undo_list *undo_list;
--	unsigned long	saved_add_count;
-+	struct sem_array *sma;
-+	struct sem_undo_list *ulp;
-+	struct sem_undo *un, *new;
-+	int nsems;
-+	int error;
- 
-+	error = get_undo_list(&ulp);
-+	if (error)
-+		return ERR_PTR(error);
- 
--	nsems = sma->sem_nsems;
--	saved_add_count = 0;
--	if (current->sysvsem.undo_list != NULL)
--		saved_add_count = current->sysvsem.undo_list->add_count;
--	sem_unlock(sma);
-+	lock_semundo();
-+	un = lookup_undo(ulp, semid);
- 	unlock_semundo();
-+	if (likely(un!=NULL))
-+		goto out;
- 
--	error = get_undo_list(&undo_list);
--	if (error)
--		return error;
-+	/* no undo structure around - allocate one. */
-+	sma = sem_lock(semid);
-+	un = ERR_PTR(-EINVAL);
-+	if(sma==NULL)
-+		goto out;
-+	un = ERR_PTR(-EIDRM);
-+	if (sem_checkid(sma,semid))
-+		goto out_unlock;
-+	nsems = sma->sem_nsems;
-+	sem_unlock(sma);
- 
--	size = sizeof(struct sem_undo) + sizeof(short)*nsems;
--	un = (struct sem_undo *) kmalloc(size, GFP_KERNEL);
--	if (!un)
--		return -ENOMEM;
-+	new = (struct sem_undo *) kmalloc(sizeof(struct sem_undo) + sizeof(short)*nsems, GFP_KERNEL);
-+	if (!new)
-+		return ERR_PTR(-ENOMEM);
-+	memset(new, 0, sizeof(struct sem_undo) + sizeof(short)*nsems);
-+	new->semadj = (short *) &new[1];
-+	new->semid = semid;
- 
--	memset(un, 0, size);
- 	lock_semundo();
--	error = sem_revalidate(semid, sma, nsems, alter ? S_IWUGO : S_IRUGO);
--	if(error) {
-+	un = lookup_undo(ulp, semid);
-+	if (un) {
- 		unlock_semundo();
--		kfree(un);
--		return error;
-+		kfree(new);
-+		goto out;
- 	}
--
--
--	/* alloc_undo has just
--	 * released all locks and reacquired them. 
--	 * But, another thread may have
--	 * added the semundo we were looking for
--	 * during that time.
--	 * So, we check for it again.
--	 * only initialize and add the new one
--	 * if we don't discover one.
--	 */
--	new_un = NULL;
--	if (current->sysvsem.undo_list->add_count != saved_add_count)
--		new_un = find_undo(semid);
--
--	if (new_un != NULL) {
--		if (sma->undo != new_un)
--			BUG();
--		kfree(un);
--		un = new_un;
--	} else {
--		current->sysvsem.undo_list->add_count++;
--		un->semadj = (short *) &un[1];
--		un->semid = semid;
--		un->proc_next = undo_list->proc_list;
--		undo_list->proc_list = un;
--		un->id_next = sma->undo;
--		sma->undo = un;
--	}
--	*unp = un;
--	return 0;
-+	error = sem_revalidate(semid, sma, nsems, 0);
-+	if (error) {
-+		sem_unlock(sma);
-+		unlock_semundo();
-+		kfree(new);
-+		un = ERR_PTR(error);
-+		goto out;
-+	}
-+	new->proc_next = ulp->proc_list;
-+	ulp->proc_list = new;
-+	new->id_next = sma->undo;
-+	sma->undo = new;
-+	sem_unlock(sma);
-+	un = new;
-+out_unlock:
-+	unlock_semundo();
-+out:
-+	return un;
- }
- 
- asmlinkage long sys_semop (int semid, struct sembuf *tsops, unsigned nsops)
-@@ -1002,7 +983,7 @@ asmlinkage long sys_semtimedop(int semid
- 	struct sembuf fast_sops[SEMOPM_FAST];
- 	struct sembuf* sops = fast_sops, *sop;
- 	struct sem_undo *un;
--	int undos = 0, decrease = 0, alter = 0;
-+	int undos = 0, decrease = 0, alter = 0, max;
- 	struct sem_queue queue;
- 	unsigned long jiffies_left = 0;
- 
-@@ -1032,18 +1013,10 @@ asmlinkage long sys_semtimedop(int semid
- 		}
- 		jiffies_left = timespec_to_jiffies(&_timeout);
- 	}
--	lock_semundo();
--	sma = sem_lock(semid);
--	error=-EINVAL;
--	if(sma==NULL)
--		goto out_semundo_free;
--	error = -EIDRM;
--	if (sem_checkid(sma,semid))
--		goto out_unlock_semundo_free;
--	error = -EFBIG;
-+	max = 0;
- 	for (sop = sops; sop < sops + nsops; sop++) {
--		if (sop->sem_num >= sma->sem_nsems)
--			goto out_unlock_semundo_free;
-+		if (sop->sem_num >= max)
-+			max = sop->sem_num;
- 		if (sop->sem_flg & SEM_UNDO)
- 			undos++;
- 		if (sop->sem_op < 0)
-@@ -1053,30 +1026,42 @@ asmlinkage long sys_semtimedop(int semid
- 	}
- 	alter |= decrease;
- 
--	error = -EACCES;
--	if (ipcperms(&sma->sem_perm, alter ? S_IWUGO : S_IRUGO))
--		goto out_unlock_semundo_free;
--
--	error = security_sem_semop(sma, sops, nsops, alter);
--	if (error)
--		goto out_unlock_semundo_free;
--
--	error = -EACCES;		
-+retry_undos:
- 	if (undos) {
--		/* Make sure we have an undo structure
--		 * for this process and this semaphore set.
--		 */
--		
- 		un = find_undo(semid);
--		if (!un) {
--			error = alloc_undo(sma,&un,semid,alter);
--			if (error)
--				goto out_free;
--
-+		if (IS_ERR(un)) {
-+			error = PTR_ERR(un);
-+			goto out_free;
- 		}
- 	} else
- 		un = NULL;
- 
-+	sma = sem_lock(semid);
-+	error=-EINVAL;
-+	if(sma==NULL)
-+		goto out_free;
-+	error = -EIDRM;
-+	if (sem_checkid(sma,semid))
-+		goto out_unlock_free;
-+	/*
-+	 * semid identifies are not unique - find_undo may have
-+	 * allocated an undo structure, it was invalidated by an RMID
-+	 * and now a new array with received the same id. Check and retry.
-+	 */
-+	if (un && un->semid == -1)
-+		goto retry_undos;
-+	error = -EFBIG;
-+	if (max >= sma->sem_nsems)
-+		goto out_unlock_free;
-+
-+	error = -EACCES;
-+	if (ipcperms(&sma->sem_perm, alter ? S_IWUGO : S_IRUGO))
-+		goto out_unlock_free;
-+
-+	error = security_sem_semop(sma, sops, nsops, alter);
-+	if (error)
-+		goto out_unlock_free;
-+
- 	error = try_atomic_semop (sma, sops, nsops, un, current->pid, 0);
- 	if (error <= 0)
- 		goto update;
-@@ -1096,28 +1081,24 @@ asmlinkage long sys_semtimedop(int semid
- 		append_to_queue(sma ,&queue);
- 	else
- 		prepend_to_queue(sma ,&queue);
--	current->sysvsem.sleep_list = &queue;
- 
- 	for (;;) {
- 		queue.status = -EINTR;
- 		queue.sleeper = current;
- 		current->state = TASK_INTERRUPTIBLE;
- 		sem_unlock(sma);
--		unlock_semundo();
- 
- 		if (timeout)
- 			jiffies_left = schedule_timeout(jiffies_left);
- 		else
- 			schedule();
- 
--		lock_semundo();
- 		sma = sem_lock(semid);
- 		if(sma==NULL) {
- 			if(queue.prev != NULL)
- 				BUG();
--			current->sysvsem.sleep_list = NULL;
- 			error = -EIDRM;
--			goto out_semundo_free;
-+			goto out_free;
- 		}
- 		/*
- 		 * If queue.status == 1 we where woken up and
-@@ -1139,19 +1120,15 @@ asmlinkage long sys_semtimedop(int semid
- 			if (queue.prev) /* got Interrupt */
- 				break;
- 			/* Everything done by update_queue */
--			current->sysvsem.sleep_list = NULL;
--			goto out_unlock_semundo_free;
-+			goto out_unlock_free;
- 		}
- 	}
--	current->sysvsem.sleep_list = NULL;
- 	remove_from_queue(sma,&queue);
- update:
- 	if (alter)
- 		update_queue (sma);
--out_unlock_semundo_free:
-+out_unlock_free:
- 	sem_unlock(sma);
--out_semundo_free:
--	unlock_semundo();
- out_free:
- 	if(sops != fast_sops)
- 		kfree(sops);
-@@ -1185,21 +1162,6 @@ int copy_semundo(unsigned long clone_fla
- 	return 0;
- }
- 
--static inline void __exit_semundo(struct task_struct *tsk)
--{
--	struct sem_undo_list *undo_list;
--
--	undo_list = tsk->sysvsem.undo_list;
--	if (!atomic_dec_and_test(&undo_list->refcnt))
--		kfree(undo_list);
--}
--
--void exit_semundo(struct task_struct *tsk)
--{
--	if (tsk->sysvsem.undo_list != NULL)
--		__exit_semundo(tsk);
--}
--
- /*
-  * add semadj values to semaphores, free undo structures.
-  * undo structures are not freed when semaphore arrays are destroyed
-@@ -1212,44 +1174,29 @@ void exit_semundo(struct task_struct *ts
-  * The current implementation does not do so. The POSIX standard
-  * and SVID should be consulted to determine what behavior is mandated.
-  */
--void sem_exit (void)
-+void exit_sem(struct task_struct *tsk)
- {
--	struct sem_queue *q;
--	struct sem_undo *u, *un = NULL, **up, **unp;
--	struct sem_array *sma;
- 	struct sem_undo_list *undo_list;
--	int nsems, i;
-+	struct sem_undo *u, **up;
- 
--	lock_kernel();
--
--	/* If the current process was sleeping for a semaphore,
--	 * remove it from the queue.
--	 */
--	if ((q = current->sysvsem.sleep_list)) {
--		int semid = q->id;
--		sma = sem_lock(semid);
--		current->sysvsem.sleep_list = NULL;
--
--		if (q->prev) {
--			if(sma==NULL)
--				BUG();
--			remove_from_queue(q->sma,q);
--		}
--		if(sma!=NULL)
--			sem_unlock(sma);
--	}
-+	undo_list = tsk->sysvsem.undo_list;
-+	if (!undo_list)
-+		return;
- 
--	undo_list = current->sysvsem.undo_list;
--	if ((undo_list == NULL) || (atomic_read(&undo_list->refcnt) != 1)) {
--		unlock_kernel();
-+	if (!atomic_dec_and_test(&undo_list->refcnt))
- 		return;
--	}
- 
- 	/* There's no need to hold the semundo list lock, as current
-          * is the last task exiting for this undo list.
- 	 */
- 	for (up = &undo_list->proc_list; (u = *up); *up = u->proc_next, kfree(u)) {
--		int semid = u->semid;
-+		struct sem_array *sma;
-+		int nsems, i;
-+		struct sem_undo *un, **unp;
-+		int semid;
-+	       
-+		semid = u->semid;
-+
- 		if(semid == -1)
- 			continue;
- 		sma = sem_lock(semid);
-@@ -1259,8 +1206,7 @@ void sem_exit (void)
- 		if (u->semid == -1)
- 			goto next_entry;
- 
--		if (sem_checkid(sma,u->semid))
--			goto next_entry;
-+		BUG_ON(sem_checkid(sma,u->semid));
- 
- 		/* remove u from the sma->undo list */
- 		for (unp = &sma->undo; (un = *unp); unp = &un->id_next) {
-@@ -1275,10 +1221,12 @@ found:
- 		nsems = sma->sem_nsems;
- 		for (i = 0; i < nsems; i++) {
- 			struct sem * sem = &sma->sem_base[i];
--			sem->semval += u->semadj[i];
--			if (sem->semval < 0)
--				sem->semval = 0; /* shouldn't happen */
--			sem->sempid = current->pid;
-+			if (u->semadj[i]) {
-+				sem->semval += u->semadj[i];
-+				if (sem->semval < 0)
-+					sem->semval = 0; /* shouldn't happen */
-+				sem->sempid = current->pid;
-+			}
- 		}
- 		sma->sem_otime = get_seconds();
- 		/* maybe some queued-up processes were waiting for this */
-@@ -1286,9 +1234,7 @@ found:
- next_entry:
- 		sem_unlock(sma);
- 	}
--	__exit_semundo(current);
--
--	unlock_kernel();
-+	kfree(undo_list);
- }
- 
- #ifdef CONFIG_PROC_FS
---- 2.5/ipc/util.c	2003-03-17 22:44:04.000000000 +0100
-+++ build-2.5/ipc/util.c	2003-06-15 11:32:53.000000000 +0200
-@@ -541,17 +541,11 @@ int copy_semundo(unsigned long clone_fla
- 	return 0;
- }
- 
--void exit_semundo(struct task_struct *tsk)
-+void exit_sem(struct task_struct *tsk)
- {
- 	return;
- }
- 
--
--void sem_exit (void)
--{
--    return;
--}
--
- asmlinkage long sys_semget (key_t key, int nsems, int semflg)
- {
- 	return -ENOSYS;
---- 2.5/kernel/fork.c	2003-06-15 09:40:18.000000000 +0200
-+++ build-2.5/kernel/fork.c	2003-06-15 11:32:53.000000000 +0200
-@@ -39,7 +39,7 @@
- #include <asm/tlbflush.h>
- 
- extern int copy_semundo(unsigned long clone_flags, struct task_struct *tsk);
--extern void exit_semundo(struct task_struct *tsk);
-+extern void exit_sem(struct task_struct *tsk);
- 
- /* The idle threads do not count..
-  * Protected by write_lock_irq(&tasklist_lock)
-@@ -846,6 +846,7 @@ struct task_struct *copy_process(unsigne
- 	p->vfork_done = NULL;
- 	spin_lock_init(&p->alloc_lock);
- 	spin_lock_init(&p->switch_lock);
-+	spin_lock_init(&p->proc_lock);
- 
- 	clear_tsk_thread_flag(p, TIF_SIGPENDING);
- 	init_sigpending(&p->pending);
-@@ -1033,7 +1034,7 @@ bad_fork_cleanup_fs:
- bad_fork_cleanup_files:
- 	exit_files(p); /* blocking */
- bad_fork_cleanup_semundo:
--	exit_semundo(p);
-+	exit_sem(p);
- bad_fork_cleanup_security:
- 	security_task_free(p);
- bad_fork_cleanup:
---- 2.5/kernel/exit.c	2003-06-15 09:39:55.000000000 +0200
-+++ build-2.5/kernel/exit.c	2003-06-15 11:32:53.000000000 +0200
-@@ -698,7 +698,7 @@ NORET_TYPE void do_exit(long code)
- 	acct_process(code);
- 	__exit_mm(tsk);
- 
--	sem_exit();
-+	exit_sem(tsk);
- 	__exit_files(tsk);
- 	__exit_fs(tsk);
- 	exit_namespace(tsk);
+Hi.
 
---------------010305020408010107020106--
+I've taken Linus out of the CC list as he'll not want to see this until
+it's all sorted out...
+
+ >>> ChangeSet@1.1215.104.25, 2003-06-09 14:41:31+02:00, vojtech@suse.cz
+ >>>   input: Change input/misc/pcspkr.c to use CLOCK_TICK_RATE instead of
+ >>>   a fixed value of 1193182. And change CLOCK_TICK_RATE and several
+ >>>   usages of a fixed value 1193180 to a slightly more correct value
+ >>>   of 1193182. (True freq is 1.193181818181...).
+
+ >> Is there any reason why you used CLOCK_TICK_RATE in some places and
+ >> 1193182 in others ??? I can understand your using the number in the
+ >> definition of CLOCK_TICK_RATE but not in the other cases.
+
+ > I only changed the numbers from 1193180 to 1193182 in the patch.
+ > The presence of the number instead of CLOCK_TICK_RATE in many drivers
+ > is most likely a bug by itself, but that'll need to be addressed in a
+ > different patch.
+ >
+ > The only one place where I fixed it for now is the pcspkr.c driver,
+ > since that is the one that actually started the whole thing.
+
+ >> If I'm reading it correctly, the result is a collection of bugs on the
+ >> AMD ELAN system as that uses a different frequency (at least, according
+ >> to the last but one hunk in your patch)...
+
+ > Care to send me a patch to fix this all completely and for once?
+
+I'm not sure whether your patch was for the 2.4 or 2.5 kernels. Linus has
+just released the 2.5.71 kernel which I haven't yet downloaded, but when
+UI have, I'll produce a patch for that as well. Enclosed is the relevant
+patch against the 2.4.21 raw kernel tree with comments here:
+
+ 1. The asm-arm version of timex.h includes an arm-subarch header that
+    is presumably supposed to define the relevant CLOCK_TICK_RATE for
+    each sub-arch. However, some don't. I've included a catch-all in
+    timex.h that defines CLOCK_TICK_RATE as being the standard value
+    you've used if it isn't defined otherwise.
+
+    Note that with the exception of the catch-all I've introduced, the
+    various arm sub-arches all use values other than 1193182 here, so
+    this architecture may need further work.
+
+ 2. The IA64 arch didn't define CLOCK_TICK_RATE at all, but then used the
+    1193182 value as a magic value in several files. I've inserted that
+    as the definition thereof in timex.h for that arch.
+
+ 3. The PARISC version of timex.h didn't define CLOCK_TICK_RATE at all.
+    Other than the magic values in several generic files, it apparently
+    didn't use it either. I've defined it with the 1193182 value here.
+
+This patch defines CLOCK_TICK_RATE for all architectures as far as I can
+tell, so the result should compile fine across them all. I can only test
+it for the ix86 arch though as that's all I have.
+
+ > Anyone disagrees with changing all the instances of 1193180/1193182 to
+ > CLOCK_TICK_RATE?
+
+Other than the ARM architecture, that appears to be the value used for
+all of the currently supported architectures in the 2.4 kernel series...
+
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.489 / Virus Database: 288 - Release Date: 10-Jun-2003
+
+------=_NextPart_000_0041_01C33334.63F62EA0
+Content-Type: application/octet-stream;
+	name="CLOCK_TICK_RATE.diff.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="CLOCK_TICK_RATE.diff.bz2"
+
+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
+
+------=_NextPart_000_0041_01C33334.63F62EA0--
 

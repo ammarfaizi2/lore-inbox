@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbTEMA0H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 20:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTEMA0H
+	id S263055AbTEMAnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 20:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTEMAnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 20:26:07 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:31473 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S263020AbTEMA0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 20:26:05 -0400
-Date: Mon, 12 May 2003 17:38:01 -0700
-From: Chris Wright <chris@wirex.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix net/rxrpc/proc.c
-Message-ID: <20030512173801.A20068@figure1.int.wirex.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Mon, 12 May 2003 20:43:25 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:17912 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263055AbTEMAnY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 20:43:24 -0400
+Message-ID: <3EC04261.6020206@us.ibm.com>
+Date: Mon, 12 May 2003 17:54:57 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, James <jamesclv@us.ibm.com>
+Subject: Re: [PATCH] linux-2.5.69_clear-smi-fix_A1
+References: <1052785802.4169.12.camel@w-jstultz2.beaverton.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A recent change in 2.5.69-bk from Yoshfuji broke compilation of rxrpc
-code.  It erroneously adds an owner field to the rxrpc_proc_peers_ops
-seq_operations.  Fix below.
+john stultz wrote:
+> All, 
+> 	I've been having problems with ACPI on a box here in our lab. Some of
+> our more recent hardware requires that SMIs are routed through the
+> IOAPIC, thus when we clear_IO_APIC() at boot time, we clear the BIOS
+> initialized SMI pin. This basically clobbers the SMI so we can then
+> never make the transition into ACPI mode. 
+> 
+> This patch simply reads the apic entry in clear_IO_APIC to make sure the
+> delivery_mode isn't dest_SMI. If it is, we leave the apic entry alone
+> and return.
+> 
+> With this patch, the box boots and SMIs function properly.
 
-thanks,
--chris
+So, without the patch, what happens?  Does the thing just completely
+freeze when it tries to turn ACPI on?  Does the machine _require_ that
+you use ACPI?
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Dave Hansen
+haveblue@us.ibm.com
 
-===== net/rxrpc/proc.c 1.3 vs edited =====
---- 1.3/net/rxrpc/proc.c	Sat May 10 11:46:35 2003
-+++ edited/net/rxrpc/proc.c	Mon May 12 17:25:12 2003
-@@ -52,7 +52,6 @@
- static int rxrpc_proc_peers_show(struct seq_file *m, void *v);
- 
- static struct seq_operations rxrpc_proc_peers_ops = {
--	.owner	= THIS_MODULE,
- 	.start	= rxrpc_proc_peers_start,
- 	.next	= rxrpc_proc_peers_next,
- 	.stop	= rxrpc_proc_peers_stop,

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131804AbQKJWTY>; Fri, 10 Nov 2000 17:19:24 -0500
+	id <S131945AbQKJWUO>; Fri, 10 Nov 2000 17:20:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131515AbQKJWTO>; Fri, 10 Nov 2000 17:19:14 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:32518 "EHLO
+	id <S131990AbQKJWUF>; Fri, 10 Nov 2000 17:20:05 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34566 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131804AbQKJWS7>; Fri, 10 Nov 2000 17:18:59 -0500
+	id <S131945AbQKJWT6>; Fri, 10 Nov 2000 17:19:58 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
-Date: 10 Nov 2000 14:18:20 -0800
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
+Date: 10 Nov 2000 14:19:45 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8uhs7c$2hr$1@cesium.transmeta.com>
-In-Reply-To: <3A0C3F30.F5EB076E@timpanogas.org> <3A0C6B7C.110902B4@timpanogas.org> <3A0C6E01.EFA10590@timpanogas.org> <26054.973893835@euclid.cs.niu.edu>
+Message-ID: <8uhsa1$2il$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.3.95.1001110153916.6334A-100000@chaos.analogic.com> <3A0C5EDC.3F30BE9C@timpanogas.org> <20001110125902.A16027@sendmail.com> <00111023290401.00203@linux1.home.bogus>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,29 +21,24 @@ Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <26054.973893835@euclid.cs.niu.edu>
-By author:    Neil W Rickert <sendmail+rickert@sendmail.org>
+Followup to:  <00111023290401.00203@linux1.home.bogus>
+By author:    Davide Libenzi <davidel@xmail.virusscreen.com>
 In newsgroup: linux.dev.kernel
 >
-> "Jeff V. Merkey" <jmerkey@timpanogas.org> wrote:
+> On Fri, 10 Nov 2000, Claus Assmann wrote:
+> > On Fri, Nov 10, 2000, Jeff V. Merkey wrote:
+> > > Looks like your bug.  As an FYI, sendmail.rpms in Suse, RedHat, and
+> > > OpenLinux all exhibit this behavior, which means they're all broken. 
+> > 
+> > Sorry, this is plain wrong. sendmail does NOT read the entire
+> > file into memory.
 > 
-> >The problem of dropping connections on 2.4 was related to the O RefuseLA
-> >settings.  The defaults  in the RedHat, Suse, and OpenLinux RPMs are
-> >clearly set too low for modern Linux kernels.  You may want them cranked
-> >up to 100 or something if you want sendmail to always work.  
-> 
-> If a modern Linux kernel requires high load average defaults, I will
-> stop using Linux.
+> Does sendmail use sendfile() ?
 > 
 
-Numerically high load averages aren't inherently a bad thing.  There
-isn't anything bad about a system with a loadavg of 20 if it does what
-it should in the time you'd expect.  However, if your daemons start
-blocking because they assume this number means badness, than that is
-the problem, not the loadavg in itself.
+Or mmap()/write()?
 
 	-hpa
-
 -- 
 <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
 "Unix gives you enough rope to shoot yourself in the foot."

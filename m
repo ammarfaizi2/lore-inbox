@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbUDNQmi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 12:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUDNQmh
+	id S261426AbUDNQoM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 12:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbUDNQoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 12:42:37 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:52705 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S261440AbUDNQme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 12:42:34 -0400
-Date: Wed, 14 Apr 2004 09:42:24 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+	Wed, 14 Apr 2004 12:44:12 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:62726 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S261426AbUDNQoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 12:44:00 -0400
+Date: Thu, 15 Apr 2004 00:48:41 +0800 (WST)
+From: raven@themaw.net
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: Benchmarking objrmap under memory pressure
-Message-ID: <25670000.1081960943@[10.10.2.4]>
-In-Reply-To: <20040414162700.GS2150@dualathlon.random>
-References: <1130000.1081841981@[10.10.2.4]> <20040413005111.71c7716d.akpm@osdl.org> <120240000.1081903082@flay> <20040414162700.GS2150@dualathlon.random>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+Subject: Re: [PATCH] umount after bad chdir
+In-Reply-To: <Pine.LNX.4.58.0404142352590.1480@donald.themaw.net>
+Message-ID: <Pine.LNX.4.58.0404150047220.1480@donald.themaw.net>
+References: <Pine.LNX.4.44.0404141241450.29568-100000@localhost.localdomain>
+ <Pine.LNX.4.58.0404142009500.1537@donald.themaw.net>
+ <20040414121026.GD31500@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0404142023460.1537@donald.themaw.net>
+ <Pine.LNX.4.58.0404142308260.20568@donald.themaw.net>
+ <20040414152420.GE31500@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0404142352590.1480@donald.themaw.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.7, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
+	REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As expected the 6 second difference was nothing compared the the noise,
-> though I'd be curious to see an average number.
+On Thu, 15 Apr 2004 raven@themaw.net wrote:
 
-Yeah, I don't think either is worse or better - I really want a more stable
-test though, if I can find one.
+> 
+> But looking further I see that a LOOKUP_DIRECTORY flag is used only for 
+> these two routines (excluding pivot_root) and when a trailing slash is 
+> present in the path. I think that the if this flag is present then the 
+> request will always want to look into the directory anyway, so if it's 
+> an autofs4 mount point it should be mounted then. If this is the case I 
+> can get this stuff into the fs module where it belongs.
+> 
 
-> the degradation of runtimes is interesting, runtimes should go downs not
-> up after more unused stuff is pushed into swap and so more ram is free
-> at every new start of the workload.
+But it's not as simple as that after all ...
 
-Yeah, that's odd.
-
-> BTW, I've no idea idea why you used an UP machine for this, (plus if you
-
-Because it's frigging hard to make a 16GB machine swap ;-) 'twas just my
-desktop.
-
-> critical app is using mremap on anonymous COW memory to save ram). You
-> definitely should use your 32-way booted with mem=512m to run this test
-> or there's no way you'll ever botice the additional boost in scalability
-> that anon-vma provides compared to anonmm, and that anonmm will never be
-> able to reach.
-
-Yeah, it's hard to do mem= on NUMA, but I have a patch from someone 
-somehwere. Those machines don't tend to swap heavily anyway, but I suppose
-page reclaim in general will happen.
-
-M.
+Ian
 

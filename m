@@ -1,34 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270423AbUJTTb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270433AbUJTTbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270423AbUJTTb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 15:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270278AbUJTT2z
+	id S270433AbUJTTbp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 15:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270441AbUJTTbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 15:28:55 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1664 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S270276AbUJTTUo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:20:44 -0400
-Date: Wed, 20 Oct 2004 15:20:41 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: M$ Mail-servers
-Message-ID: <Pine.LNX.4.61.0410201518230.4679@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 20 Oct 2004 15:31:43 -0400
+Received: from mail.tmr.com ([216.238.38.203]:11273 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S270433AbUJTTa3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:30:29 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Date: Wed, 20 Oct 2004 15:41:50 -0400
+Organization: TMR Associates, Inc
+Message-ID: <cl6dtk$2lv$2@gatekeeper.tmr.com>
+References: <41757478.4090402@drdos.com><41757478.4090402@drdos.com> <417594EC.2050703@coyotegulch.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1098300148 2751 192.168.12.10 (20 Oct 2004 19:22:28 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+In-Reply-To: <417594EC.2050703@coyotegulch.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Scott Robert Ladd wrote:
+> Jeff V. Merkey wrote:
+>  > I've got plenty of peyote around -- just watered them this morning.
+> 
+> What happened to your peyote-based cure for arthritis? I can't seem to 
+> find either timpanogas.org or utah-nac.org at the moment.
+> 
+>  > Dump the FS's and NUMA guys.  Then you are nearly there for being
+>  > squeaky clean.
+> 
+> Now, far be it for this old Coyote to sense something amiss in a person 
+> who's associated with both SCO and a controlled substance. Yes, I'm 
+> aware of recent Utah Court rulings; they only apply to members of the 
+> Native American Church.
+> 
+> Not that SCO would mind "tainting" Linux by associating its developers 
+> with an illegal substance...
 
-Anybody got some ammunition I can throw in the way
-of the local Net Nazi who is going to make all email
-go to a centralized mail-server where one has to
-access it through a web-crawler like it was yahoo.
+You mean they're gonna give us some weed?
 
-Thanks in advance.
+;-) if it isn't obvious...
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
-                  98.36% of all statistics are fiction.
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,54 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288833AbSANGnK>; Mon, 14 Jan 2002 01:43:10 -0500
+	id <S288835AbSANGnu>; Mon, 14 Jan 2002 01:43:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288835AbSANGnA>; Mon, 14 Jan 2002 01:43:00 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:35337 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S288833AbSANGmz>;
-	Mon, 14 Jan 2002 01:42:55 -0500
-Date: Mon, 14 Jan 2002 07:42:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BIO Usage Error or Conflicting Designs
-Message-ID: <20020114074245.B13929@suse.de>
-In-Reply-To: <20020113135927.A11793@suse.de> <Pine.LNX.4.10.10201131157590.15103-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10201131157590.15103-100000@master.linux-ide.org>
+	id <S288842AbSANGnk>; Mon, 14 Jan 2002 01:43:40 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:22147 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S288835AbSANGn2>; Mon, 14 Jan 2002 01:43:28 -0500
+Date: Mon, 14 Jan 2002 08:42:26 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Jim Studt <jim@federated.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with ServerWorks CNB20LE and lost interrupts
+In-Reply-To: <200201140029.g0E0TRD7026024@core.federated.com>
+Message-ID: <Pine.LNX.4.33.0201140836090.28735-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 13 2002, Andre Hedrick wrote:
-> On Sun, 13 Jan 2002, Jens Axboe wrote:
-> 
-> > On Sat, Jan 12 2002, Andre Hedrick wrote:
-> > > 
-> > > Jens,
-> > > 
-> > > Here is back at you sir.
-> > 
-> > Without highmem debug enabled?? I already knew this was the bug
-> > triggered, nothing new here.
-> > 
-> > Please print the two pfn values triggering the BUG_ON, I'll take a look
-> > at this tomorrow.
-> 
-> That is with highmem debug on, the stuff at the end of the config file.
-> Nothing more is generated, if there are more flags to set please tell me
-> where.
+I have a similar problem with my Serverworks based box, also a network
+device. However i have other devices on the second PCI bus which _do_
+work, notably 2 scsi controllers and a 3com card.
 
-Sorry if I wasn't clear, I mean the emulate highmem debug patch I
-forwarded to you. I'll look into Manfred's post right now, you can
-simply remove the
-
-#ifndef CONFIG_HIGHMEM
-	BUG();
-#endif
-
-test for now, for testing.
-
--- 
-Jens Axboe
+Cheers,
+	Zwane Mwaikambo
 

@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263597AbTG1LTn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 07:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTG1LTm
+	id S262273AbTG1LRR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 07:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTG1LRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 07:19:42 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:43957 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S263597AbTG1LTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 07:19:39 -0400
-Message-ID: <3F250E3A.60305@genebrew.com>
-Date: Mon, 28 Jul 2003 07:51:22 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+	Mon, 28 Jul 2003 07:17:17 -0400
+Received: from nic.bme.hu ([152.66.115.1]:59110 "EHLO nic.bme.hu")
+	by vger.kernel.org with ESMTP id S262273AbTG1LRQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 07:17:16 -0400
+Message-ID: <3F25095B.6070607@namesys.com>
+Date: Mon, 28 Jul 2003 15:30:35 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: davem@redhat.com, arjanv@redhat.com, torvalds@transmeta.com,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove module reference counting.
-References: <20030725173900.D7DE12C2A9@lists.samba.org>
-In-Reply-To: <20030725173900.D7DE12C2A9@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Daniel Egger <degger@fhm.edu>
+Cc: Yury Umanets <umka@namesys.com>, Nikita Danilov <Nikita@Namesys.COM>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       reiserfs mailing list <reiserfs-list@namesys.com>,
+       Alexander Lyamin <flx@namesys.com>
+Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
+References: <3F1EF7DB.2010805@namesys.com>	 <1059062380.29238.260.camel@sonja>	 <16160.4704.102110.352311@laputa.namesys.com>	 <1059093594.29239.314.camel@sonja>	 <16161.10863.793737.229170@laputa.namesys.com>	 <1059142851.6962.18.camel@sonja>	 <1059143985.19594.3.camel@haron.namesys.com>	 <1059181687.10059.5.camel@sonja>	 <1059203990.21910.13.camel@haron.namesys.com>	 <1059228808.10692.7.camel@sonja>  <3F23D38B.3020309@namesys.com> <1059315015.10692.207.camel@sonja>
+In-Reply-To: <1059315015.10692.207.camel@sonja>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+Daniel Egger wrote:
 
-> 	If module removal is to be a rare and unusual event, it
-> doesn't seem so sensible to go to great lengths in the code to handle
-> just that case.  In fact, it's easier to leave the module memory in
-> place, and not have the concept of parts of the kernel text (and some
-> types of kernel data) vanishing.
+>Are you sure CF cards have wear leveling? I'm pretty confident that they
+>have defect sector management but no wear leveling. There's a huge
+>difference between those two.
+>
+I am told that they do by flx.  After all, they are most used for the 
+FAT filesystem.
 
-Rusty and others,
 
-Module removal is *not* a rare event. One common case it is used is on 
-laptops during suspend. A lot of drivers do not do proper PM and so must 
-be unloaded before suspend and relaoaded after resume. How will this be 
-affected by removing module refcounting, even if we use your <deleted> 
-idea? If nothing else, having the ability to *reload* a module -- 
-thereby reinitializing the device and achieving the same effect as 
-actually rmmod/insmod is what is needed.
-
-I must say that it is somewhat disconcerting that I can rmmod a network 
-driver while it is being used by a network interface. A stupid user like 
-me can definitely shoot myself in the foot now.
-
-Last but not least weren't we moving towards a more modular kernel with 
-early userspace loading things from initrd as needed? Removing existing 
-module functionality, however broken it may be, seems to me a step 
-backward in this regard.
-
-Thanks,
-Rahul
 -- 
-Rahul Karnik
-rahul@genebrew.com
+Hans
+
 

@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262205AbTDAJNi>; Tue, 1 Apr 2003 04:13:38 -0500
+	id <S262215AbTDAJZZ>; Tue, 1 Apr 2003 04:25:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262209AbTDAJNi>; Tue, 1 Apr 2003 04:13:38 -0500
-Received: from zork.zork.net ([66.92.188.166]:29119 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S262205AbTDAJNh>;
-	Tue, 1 Apr 2003 04:13:37 -0500
-To: Marcus Alanen <marcus@infa.abo.fi>
-Cc: ramands@indiatimes.com, <linux-kernel@vger.kernel.org>
-Subject: Re: Compilation Error: variable has intializer but incomplete type
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Message-Flag: Message text advisory: HATE SPEECH, EXCRETORY SPEECH
-X-Mailer: Norman
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Alameda: WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
- OAKLAND!!!
-Organization: The Emadonics Institute
-Mail-Followup-To: Marcus Alanen <marcus@infa.abo.fi>,
- ramands@indiatimes.com,  <linux-kernel@vger.kernel.org>
-Date: Tue, 01 Apr 2003 10:24:53 +0100
-In-Reply-To: <200304010907.h3197Mi20706@infa.abo.fi> (Marcus Alanen's
- message of "Tue, 1 Apr 2003 12:07:22 +0300")
-Message-ID: <6u65pyd0yi.fsf@zork.zork.net>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
-References: <200304010401.JAA16708@WS0005.indiatimes.com>
-	<200304010907.h3197Mi20706@infa.abo.fi>
-MIME-Version: 1.0
+	id <S262219AbTDAJZZ>; Tue, 1 Apr 2003 04:25:25 -0500
+Received: from vhe-530008.sshn.net ([195.169.222.38]:55168 "EHLO
+	elektron.atoom.net") by vger.kernel.org with ESMTP
+	id <S262215AbTDAJZY>; Tue, 1 Apr 2003 04:25:24 -0500
+Date: Tue, 1 Apr 2003 11:36:46 +0200
+From: Miek Gieben <miekg@atoom.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-pre6 and usb-uhci
+Message-ID: <20030401093646.GA11420@atoom.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Vim/Mutt/Linux
+X-Home: www.miek.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  Marcus Alanen quotation:
+Hello,
 
->>i am trying to learn and write device driver on linux kernel 2.4 redhat
->>  distribution 
->>
->>iam getting compilation errors for driver code.
->>struct file_operations my_ops ={NULL,my_read,my_write,NULL,NULL,NULL
->>NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
->>NULL };
->>
->>ERROR -> my_ops has intializer but incomplete type
->
-> This is not a good way to do it. See e.g. fs/pipe.c#read_fifo_fops
-> for an easier approach:
->
-> struct file_operations read_fifo_fops = {
->         llseek:         no_llseek,
->         read:           pipe_read,
->         write:          bad_pipe_w,
->         poll:           fifo_poll,
->         ioctl:          pipe_ioctl,
->         open:           pipe_read_open,
->         release:        pipe_read_release,
-> };
+[ i'm not subscribed, so please cc me on any follow ups]
 
-Aside from this, the main issue is the "has intializer but incomplete
-type" error, which indicates that the definition of struct
-file_operations has not been seen by the compiler.  This seems to be
-defined (in 2.4.20, at least) by include/linux/fs.h, so Raman will
-need to #include that file for the initialization to work.
+with kernel 2.4.21-pre6 my usb mouse stopped working (actually all usb stuff
+stopped working). It's a logitech optical mouse which worked perfectly under
+-pre5. I'm using the usb-uhci module.  I get no failures are anything of that
+kind. dmesg just says:
 
--- 
-Sean Neakums - <sneakums@zork.net>
+hid-core.c: v1.8.1 Andreas Gal, Vojtech Pavlik <vojtech@suse.cz>
+hid-core.c: USB HID support drivers
+and
+mice: PS/2 mouse device common for all mice
+
+On my laptop (same mouse, same usb controllor) I also get these problems. It looks
+to me if usb-uhci is not loaded or something, on -pre5 I get
+this from my logs:
+
+usb-uhci.c: $Revision: 1.275 $ time 10:38:36 Apr  1 2003
+usb-uhci.c: High bandwidth mode enabled
+PCI: Found IRQ 9 for device 00:07.2
+PCI: Sharing IRQ 9 with 00:08.0
+usb-uhci.c: USB UHCI at I/O 0xfca0, IRQ 9
+usb-uhci.c: Detected 2 ports
+
+on -pre6 there are no such lines. Do I have to something differently in
+pre6? Btw, the usb-uhci drivers is compiled into the kernel.
+
+grtz  Miek
+
+
+--
+:wq!

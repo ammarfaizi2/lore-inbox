@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264653AbSLLQxB>; Thu, 12 Dec 2002 11:53:01 -0500
+	id <S264756AbSLLQxC>; Thu, 12 Dec 2002 11:53:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264836AbSLLQxB>; Thu, 12 Dec 2002 11:53:01 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:8065 "EHLO
+	id <S264836AbSLLQxC>; Thu, 12 Dec 2002 11:53:02 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:9601 "EHLO
 	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S264653AbSLLQxA>; Thu, 12 Dec 2002 11:53:00 -0500
+	id <S264756AbSLLQxA>; Thu, 12 Dec 2002 11:53:00 -0500
 From: Thomas Schlichter <schlicht@rumms.uni-mannheim.de>
-Message-ID: <1039712293.3df8c025b4af7@rumms.uni-mannheim.de>
-Date: Thu, 12 Dec 2002 17:58:13 +0100
+Message-ID: <1039712449.3df8c0c183dfe@rumms.uni-mannheim.de>
+Date: Thu, 12 Dec 2002 18:00:49 +0100
 To: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Pinning kernel memory
 MIME-Version: 1.0

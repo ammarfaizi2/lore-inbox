@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266844AbTAOSlz>; Wed, 15 Jan 2003 13:41:55 -0500
+	id <S266865AbTAOSm7>; Wed, 15 Jan 2003 13:42:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266852AbTAOSlz>; Wed, 15 Jan 2003 13:41:55 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:15326 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id <S266844AbTAOSly>; Wed, 15 Jan 2003 13:41:54 -0500
-Message-ID: <3E25AD42.3090409@google.com>
-Date: Wed, 15 Jan 2003 10:49:38 -0800
-From: Ross Biro <rossb@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S266898AbTAOSm6>; Wed, 15 Jan 2003 13:42:58 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:13025 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S266865AbTAOSm5>; Wed, 15 Jan 2003 13:42:57 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CACA88@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'DervishD'" <raul@pleyades.net>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: argv0 revisited...
+Date: Wed, 15 Jan 2003 10:51:40 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       andre@linux-ide.org
-Subject: [BUG] 2.4.21-pre3 hdparm -X violates IDE locking
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > welcome. Although I would like a portable solution, any 
+> solution that
+> > > works under *any* Linux kernel is welcome...
+> > What about mounting /proc from inside your program? Not a 
+> big deal, easy
+> > sollution ... 
+> 
+>     I don't like it, because it should happen at the very beginning
+> of init. Remember, is not any program, is an init. Should be a more
+> clean way, I suppose :??
 
-This bug impacts all versions of the kernel that I have looked at 
-including 2.4.18 and above.  It probably impacts many other versions as 
-well.
+I don't think is that big a deal ... if you startup the system normally,
+sooner or later, /proc is going to be mounted. A [quickie] variation is:
 
-hdparm -X issues a drive command ioctl which eventually issue a command 
-to the drive bypassing all of the normal locking.  The net effect is 
-that a command can be set to the drive when the drive is not ready. 
- Some drives lock up when this happens.
+mount()
+get the info from /proc/self/whatever
+umount()
 
-The call chain is
+Is simple, is clean and has no side effects; the code is pretty small, btw
 
-ide_ioctl calls
-ide_cmd_ioctl
-
-If the command is a set features to change the communications speed, 
-after the command is complete, ide_cmd_ioctl calls
-
-ide_set_xfer_rate
-
-ide_set_xfer_rate then calls drive->speedproc.
-
-Most speedprocs then call ide_config_drive_speed
-ide_config_drive_speed issue a set features command. and busy waits on it.
-
-The easiest fix is to probably modify execute_drive_command to update 
-drive->current_speed when it issues the appropriate SET FEATURES 
-command, and then have ide_config_drive_speed do nothing if speed == 
-current_speed.
-
-I did a much bigger modification that handles changing drive speed 
-specially and immediately.  I'll make patches for either one, but I 
-wanted to get some opinions before I did so.
-
-    Ross
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]
 
 

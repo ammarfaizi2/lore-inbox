@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQKNXsP>; Tue, 14 Nov 2000 18:48:15 -0500
+	id <S129045AbQKNX6G>; Tue, 14 Nov 2000 18:58:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129097AbQKNXsF>; Tue, 14 Nov 2000 18:48:05 -0500
-Received: from boss.staszic.waw.pl ([195.205.163.66]:21768 "EHLO
-	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
-	id <S129045AbQKNXrt>; Tue, 14 Nov 2000 18:47:49 -0500
-Date: Wed, 15 Nov 2000 00:17:19 +0100 (CET)
-From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch(?): linux-2.4.0-test11-pre4/drivers/sound/yss225.c 
- compilefailure
-In-Reply-To: <3A11C445.EB65B9D@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0011150011200.5049-100000@tricky>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129047AbQKNX5z>; Tue, 14 Nov 2000 18:57:55 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:49679 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129045AbQKNX5s>;
+	Tue, 14 Nov 2000 18:57:48 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: More modutils: It's probably worse. 
+In-Reply-To: Your message of "14 Nov 2000 11:42:42 -0800."
+             <8us4ji$dbl$1@cesium.transmeta.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 15 Nov 2000 10:27:43 +1100
+Message-ID: <11900.974244463@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2000, Jeff Garzik wrote:
+On 14 Nov 2000 11:42:42 -0800, 
+"H. Peter Anvin" <hpa@zytor.com> wrote:
+>Seriously, though, I don't see any reason modprobe shouldn't accept
+>funky filenames.  There is a standard way to do that, which is to have
+>an argument consisting of the string "--"; this indicates that any
+>further arguments should be considered filenames and not options.
 
-> Bartlomiej Zolnierkiewicz wrote:
-> > 
-> > On Mon, 13 Nov 2000, Adam J. Richter wrote:
-> > 
-> > >       linux-2.4.0-test11-pre4/drivers/sound/yss225.c uses __initdata
-> > > but does not include <linux/init.h>, so it could not compile.  I have
-> > > attached below.
-> > >
-> > >       Note that I am a bit uncertain about the correctness of
-> > > the __initdata prefix here in the first place.  Is yss225 a PCI
-> > > device?  If so, a kernel that supports PCI hot plugging should
-> > > be prepared to support the possibility of a hot pluggable yss225
-> > > card being inserted after the module has already been initialized.
-> > > Even if no CardBus or CompactPCI version of yss225 hardware exists
-> > > yet, it will require less maintenance for PCI drivers to be prepared
-> > > for this possibility from the outset (besides, is it possible to have a
-> > > hot pluggable PCI bridge card that bridges to a regular PCI bus?).
-> > 
-> > Good question....
-> 
+The original exploit had nothing to do with filenames masquerading as
+options, it was: ping6 -I ';chmod o+w .'.  Then somebody pointed out
+that -I '-C/my/config/file' could be abused as well.  '--' fixes the
+second exploit but not the first.
 
-I mean question about h-p PCI bridge card that bridges regular PCI bus...
+The problem is the combination of kernel code passing user space
+parameters through unchanged (promoting user input to root) plus the
+modprobe meta expansion algorithm.  By treating the last parameter from
+the kernel as a tainted module name (not an option) and suppressing
+meta expansion on tainted parameters, modprobe removes enough of the
+problem to be safe.
 
-> Please err on the conservative side -- IMHO you shouldn't mark a driver
-> as hotpluggable (by using the '__dev' prefix) unless you know it is
-> necessary.
-> 
-> Otherwise, you rob CONFIG_HOTPLUG people of some memory that could
-> otherwise be freed at boot.  And the number of CONFIG_HOTPLUG people is
-> not small, it includes not only the CardBus users but USB users too...
-> 
-> 	Jeff
-
-I fully agree. That's why "hotplugging" drivers requires some more
-effort then just adding __devfoo instead of __foo.
-Jeff, have you read last coment in my mail?
-
---
-Bartlomiej Zolnierkiewicz
-<bkz@linux-ide.org>
+My changes to modprobe do nothing about this: "ping6 -I binfmt_misc".
+That construct lets a user load any module.  However that is a pure
+kernel problem which needs to be fixed by the developers who call
+request_module.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

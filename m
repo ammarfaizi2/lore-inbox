@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265108AbUGTCWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265141AbUGTCfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265108AbUGTCWX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 22:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUGTCWX
+	id S265141AbUGTCfL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 22:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUGTCfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 22:22:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21451 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265108AbUGTCWW (ORCPT
+	Mon, 19 Jul 2004 22:35:11 -0400
+Received: from ozlabs.org ([203.10.76.45]:36997 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265141AbUGTCfG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 22:22:22 -0400
-Date: Mon, 19 Jul 2004 19:18:50 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re[3]: tcp_window_scaling degrades performance
-Message-Id: <20040719191850.75256ebe.davem@redhat.com>
-In-Reply-To: <1408328554.20040716160157@dns.toxicfilms.tv>
-References: <2igbK-82L-13@gated-at.bofh.it>
-	<m3zn615exj.fsf@averell.firstfloor.org>
-	<505216170.20040716122132@dns.toxicfilms.tv>
-	<1408328554.20040716160157@dns.toxicfilms.tv>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 19 Jul 2004 22:35:06 -0400
+Date: Tue, 20 Jul 2004 01:51:10 +1000
+From: Anton Blanchard <anton@samba.org>
+To: David Eger <eger@havoc.gtf.org>
+Cc: Tom Rini <trini@kernel.crashing.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pmac_zilog: initialize port spinlock on all init paths
+Message-ID: <20040719155110.GA419@krispykreme>
+References: <20040712075113.GB19875@havoc.gtf.org> <20040712082104.GA22366@havoc.gtf.org> <20040712220935.GA20049@havoc.gtf.org> <20040713003935.GA1050@havoc.gtf.org> <1089692194.1845.38.camel@gaston> <20040714040403.GA29729@havoc.gtf.org> <20040714233920.GP21856@smtp.west.cox.net> <20040716201515.GA14095@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040716201515.GA14095@havoc.gtf.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jul 2004 16:01:57 +0200
-Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
+ 
+> Sorry, I tend to think "ppc == pmac".  So, a couple of thoughts:
+> 
+> (1) Can you make the i8042 disable itself if the hardware isn't there?
+>     Those damned bad port messages eat my entire syslog buffer.
 
-> I seem to have isolated the changeset that causes my machines to have
-> very slow throughput, even as low as 2kB/s when tcp_window_scaling is
-> enabled.
+We put a quick fix in the ppc64 port. If you pre reserve the i8042 region
+then the driver will fail to initialise:
 
-The change is valid, firewalls are just corrupting the connection
-when window scaling is in use which is a valid RFC standard
-TCP feature.
+        /*
+         * Some machines have an unterminated i8042 so check the device
+         * tree and reserve the region if it does not appear. Later on
+         * the i8042 code will try and reserve this region and fail.
+         */
+        if (!(i8042 = of_find_node_by_type(NULL, "8042")))
+                request_region(I8042_DATA_REG, 16, "reserved (no i8042)");
 
-Please, get the firewall fixed.
+Anton

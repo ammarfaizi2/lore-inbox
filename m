@@ -1,86 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbUDET1M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 15:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263156AbUDET1M
+	id S263157AbUDETkb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 15:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263170AbUDETkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 15:27:12 -0400
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:13191 "EHLO
-	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
-	id S263154AbUDET1F (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 15:27:05 -0400
-Message-Id: <200404051927.i35JR2EN017101@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Cc: Timothy Miller <miller@techsource.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: kernel stack challenge 
-In-Reply-To: Your message of "Mon, 05 Apr 2004 10:59:40 PDT."
-             <20040405175940.94093.qmail@web40509.mail.yahoo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040405175940.94093.qmail@web40509.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1765474996P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 05 Apr 2004 15:27:02 -0400
+	Mon, 5 Apr 2004 15:40:31 -0400
+Received: from smtp-hub2.mrf.mail.rcn.net ([207.172.4.76]:20182 "EHLO
+	smtp-hub2.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S263157AbUDETkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 15:40:24 -0400
+Message-ID: <4071B622.20103@lycos.com>
+Date: Mon, 05 Apr 2004 15:40:18 -0400
+From: James Vega <vega_james@lycos.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marco Roeland <marco.roeland@xs4all.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: fat32 all upper-case filename problem
+References: <4070910E.7020808@lycos.com> <20040405103008.GB12373@localhost>
+In-Reply-To: <20040405103008.GB12373@localhost>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig2646F49A84B31FE13D3AFD0A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1765474996P
-Content-Type: text/plain; charset=us-ascii
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig2646F49A84B31FE13D3AFD0A
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, 05 Apr 2004 10:59:40 PDT, Sergiy Lozovsky said:
+Marco Roeland wrote:
+> You forgot a 'ls /usbdrive' *before* the 'touch'. Now we don't know
+> whether it was empty before. We'll assume so.
 
-> 1. Give system administrator possibility to change
-> security policy easy enough without C programminig
-> inside the kernel (we should not expect system
-> administartor to be a kernel guru). Language of higher
-> lavel make code more compact (C - is too low level,
-> that's why people use PERL for example or LISP). Lisp
-> was chosen because of very compact VM - around 100K.
+Sorry. Yes, the directory was empty before the 'touch'.
 
-Didn't seem to slow the SELinux crowd down any...
+>>debil% touch /usbdrive/CASE
+>>debil% ls /usbdrive
+>>case
+> 
+> 
+> This suggests that you've mounted your usbdrive (vfat probably?)
+> _specifically_ with the option to force lowercase filenames. The default
+> is to preserve the case of the filename (to the filename *should* be CASE here)
+> and to see both names as equals.
 
-You may not need the exact SELinux config language, but it does address the
-issue of making something fairly easy for the sysadmin to write while not
-requiring a large interpreter in the kernel (the kernel side of the selinuxfs
-pseudo-filesystem is all of 14K, the loadpolicy is about a 4K binary and a 60K
-shared library, and the policy compiler is about 100K and the shared lib).
+Here is the output from the 'mount' command:
 
-So you're including a much bigger interface for little gain.  The total
-footprint of the two solutions is about the same, but SELinux the vast majority
-of it is in userspace, and only costs you when you're actually compiling/
-loading a new policy, whereas yours takes up 100K of kernel space all the
-time....
+/dev/sda1 on /usbdrive type vfat (rw,noexec,nosuid,nodev,uid=1000,gid=1000)
 
-> 2. Protect system from bugs in security policy created
-> by system administrator (user). LISP interpreter is a
-> LISP Virtual Machine (as Java VM). So all bugs are
-> incapsulated and don't affect kernel. Even severe bugs
-> in this LISP kernel module can cause termination of
-> user space application only (except of stack overflow
-> - which I can address). LISP error message will be
-> printed in the kernel log.
+AFAIK, I did nothing to force lowercase filenames.
 
-If you think that "all bugs are encapsulated" actually means anything in the
-context of the Linux kernel, you're in for a very big surprise.
+> Another possibility is that there *was* already a file called 'case' and
+> that the actual writing of the 'CASE' file in the directory is postponed
+> until some sort of 'sync' operation. This also would need a
+> specific 'case-sensitive' mount option.
+> 
+> 
+>>debil% ls /usbdrive/CASE
+>>/usbdrive/CASE
+>>debil% ls /usbdrive/case
+>>/usbdrive/case
+> 
+> 
+> The above normally can only happen if there really are *two* files, one
+> name 'case' and the other 'CASE'. So a case sensitive filesystem.
 
-For example - your Lisp error messages go through the kernel log, so you're
-using printk() and friends.  Note that it *is* possible for a buggy call to
-printk() to cause problems for the kernel.
+There was only one file as shown by the ls output above.  Also, the few people 
+that I have asked to reproduce this are always able to ls both 'case' and 'CASE' 
+even after a remount or waiting for the cached entry to expire.
 
+>>debil% umount /usbdrive && mount /usbdrive
+>>debil% ls /usbdrive/case
+>>/usbdrive/case
+>>debil% ls /usbdrive/CASE
+>>ls: /usbdrive/CASE: No such file or directory
+> 
+> 
+> Looks like you have mounted the thing with case-sensitiviy *and* forcing
+> lowercase filenames always. Either there is a bug in the combination,
+> or perhaps there is a bug in that the uppercase name is cached for some
+> time in VFS until the lowercase name is reread from the usbdrive?
 
---==_Exmh_1765474996P
-Content-Type: application/pgp-signature
+Again, I'm not knowingly specifying either case-sensitivity or forced lowercase 
+filenames.  The line in /etc/fstab is as follows:
+/dev/sda1 /usbdrive auto (rw,noexec,nosuid,nodev,uid=1000,gid=1000) 0 0
+
+> When you test this please be very careful to reproduce every start and
+> end condition *exactly*. <Bad pun alert> It's very easy to look at
+> Heisenbugs here, with all these virtual filenames in case space. </Bad
+> pun alert>
+
+Thank you for the suggestions. I'll keep these in mind for future testing.
+
+--------------enig2646F49A84B31FE13D3AFD0A
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFAcbMGcC3lWbTT17ARAg3lAKD8ZJNWrbx8kPWhoQDfyS//dX14eACgqZjg
-mrkVZo3WoRvDAs6vys7xgGs=
-=V7LS
+iEYEARECAAYFAkBxtigACgkQDb3UpmEybUAn2gCgl4KpeF0mUh/ctLzJzNUHaJxl
+gj0AniS/XYD791rgjlnkS4dW7vlkewPP
+=2NLQ
 -----END PGP SIGNATURE-----
 
---==_Exmh_1765474996P--
+--------------enig2646F49A84B31FE13D3AFD0A--

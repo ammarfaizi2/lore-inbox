@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263615AbVBDNxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262995AbVBDN4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263615AbVBDNxO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 08:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263490AbVBDNxO
+	id S262995AbVBDN4I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 08:56:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbVBDNxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 08:53:14 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:12334 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S264168AbVBDNvl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 08:51:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=OqNesCX4zBzYJFMxRnjuH4VsCfK0gRsb1sBP5k2NLUUW2u9jgBFH0xBvw1UmOZvyoDpJgfLPdodT/ImGLfHtqCJslwL6F2Z5uWBnHuhWMPa9RVxCBkMQ3aenH/tqRgazcwa7Nz406n8FpRtoqY6bKtAcpxg+blWtW8uOzpUPQPQ=
-Message-ID: <d120d50005020405513bcf709@mail.gmail.com>
-Date: Fri, 4 Feb 2005 08:51:41 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 6/8] Kconfig: cleanup input menu
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-input@atrey.karlin.mff.cuni.cz,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050204131436.GC10424@ucw.cz>
+	Fri, 4 Feb 2005 08:53:30 -0500
+Received: from cavan.codon.org.uk ([213.162.118.85]:8105 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261298AbVBDNwS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 08:52:18 -0500
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Cc: Jon Smirl <jonsmirl@gmail.com>, ncunningham@linuxmail.org,
+       Pavel Machek <pavel@ucw.cz>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <420367CF.7060206@gmx.net>
+References: <20050122134205.GA9354@wsc-gmbh.de> <4201825B.2090703@gmx.net>
+	 <e796392205020221387d4d8562@mail.gmail.com> <420217DB.709@gmx.net>
+	 <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz>
+	 <1107474198.5727.9.camel@desktop.cunninghams>	 <4202DF7B.2000506@gmx.net>
+	 <9e47339105020321031ccaabb@mail.gmail.com>  <420367CF.7060206@gmx.net>
+Date: Fri, 04 Feb 2005 13:51:17 +0000
+Message-Id: <1107525077.8575.32.camel@tyrosine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
+X-SA-Exim-Connect-IP: 213.162.118.93
+X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
+Subject: Re: [ACPI] Re: [RFC] Reliable video POSTing on resume
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.61.0501292320090.7662@scrub.home>
-	 <200501292307.55193.dtor_core@ameritech.net>
-	 <Pine.LNX.4.61.0501301639171.30794@scrub.home>
-	 <200501301839.37548.dtor_core@ameritech.net>
-	 <20050204131436.GC10424@ucw.cz>
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005 14:14:36 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Sun, Jan 30, 2005 at 06:39:37PM -0500, Dmitry Torokhov wrote:
-> > On Sunday 30 January 2005 10:45, Roman Zippel wrote:
-> > > Hi,
-> > >
-> > > On Sat, 29 Jan 2005, Dmitry Torokhov wrote:
-> > >
-> > > > Ok, what about making some submenus to manage number of options, like in
-> > > > the patch below?
-> > >
-> > > I'd rather move it to the bottom and the menus had no dependencies.
-> > > Below is an alternative patch, which does a rather complete cleanup.
-> >
-> > This one looks nice. I still think that hardware port support should go
-> > first. My argument is:
-> >
-> > When I go into a menu I explore option and submenus from top to bottom.
-> > So I will see PS/2 or serial, and will go there and select what I need.
-> > Then I will see that generic input layer is also needed for keyboard
-> > and go there.
-> >
-> > If generic layer is first one I select options I think are needed I could
-> > skip over the HW I/O ports thinking that I already selected everything I
-> > need as far as keyboard/mouse goes.
-> >
-> > Does this make any sense?
+On Fri, 2005-02-04 at 13:17 +0100, Carl-Daniel Hailfinger wrote:
+> Jon Smirl schrieb:
+> > A starting place for a user space reset program:
+> > ftp://ftp.scitechsoft.com/devel/obsolete/x86emu/x86emu-0.8.tar.gz
+> > 
+> > This thread talks about the VGA routing code:
+> > http://lkml.org/lkml/2005/1/17/347
 > 
-> Dmitry, will you make a patch that has the port options first? If no,
-> I'll likely merge Roman's patch.
-> 
+> Thanks for the pointers! I'll have to compare it to our current
+> userspace reset and vesa register restoring program
+> http://www.srcf.ucam.org/~mjg59/vbetool/
 
-I'd rather make a patch on top of Roman's, if you don't mind. This way
-we will reduce merge conflicts (Sam I believe already grabbed Roman's
-changes and applied to his tree).
+I'm planning on getting x86emu support into vbetool in the near future,
+mostly because AMD64 doesn't have vm86 support. It's worth noting that
+attempting to re-POST many (most?) laptops will fail miserably - the
+code simply isn't available after boot. Saving/restoring state with VBE
+code tends to be more reliable, but there are some machines that need
+POSTing.
 
+In the long run, it's the sort of thing that needs a hardware database,
+which effectively requires it to be in userspace.
 -- 
-Dmitry
+Matthew Garrett | mjg59@srcf.ucam.org
+

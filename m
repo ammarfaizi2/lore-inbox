@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272413AbRI0LtN>; Thu, 27 Sep 2001 07:49:13 -0400
+	id <S272467AbRI0L4E>; Thu, 27 Sep 2001 07:56:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272415AbRI0LtD>; Thu, 27 Sep 2001 07:49:03 -0400
-Received: from ns.caldera.de ([212.34.180.1]:65434 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S272413AbRI0Ls7>;
-	Thu, 27 Sep 2001 07:48:59 -0400
+	id <S272449AbRI0Lzy>; Thu, 27 Sep 2001 07:55:54 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44556 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272415AbRI0Lzm>; Thu, 27 Sep 2001 07:55:42 -0400
+Subject: Re: Why is Device3Dfx driver (voodoo1/2) not in the kernel?
+To: jmcmullan@linuxcare.com (Jason McMullan)
+Date: Thu, 27 Sep 2001 13:00:50 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9ou9u4$ee6$1@localhost.localdomain> from "Jason McMullan" at Sep 27, 2001 04:28:52 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15283.4638.235617.873920@ns.caldera.de>
-Date: Thu, 27 Sep 2001 13:48:46 +0200 (CEST)
-To: Ben Greear <greearb@candelatech.com>
-Cc: Steven Rostedt <srostedt@stny.rr.com>,
-        Torsten.Duwe@informatik.uni-erlangen.de,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mc146818rtc.h for user land programs (2.4.10)
-In-Reply-To: <3BB2036D.A72C1C25@candelatech.com>
-In-Reply-To: <Pine.LNX.4.33.0109261152100.5923-100000@localhost.localdomain>
-	<3BB2036D.A72C1C25@candelatech.com>
-X-Mailer: VM 6.72 under 21.1 (patch 10) "Capitol Reef" XEmacs Lucid
-From: Torsten Duwe <duwe@caldera.de>
-Reply-to: Torsten.Duwe@caldera.de
+Message-Id: <E15mZqU-0003kx-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > then voodoo would be safe for user direct access.
+> 
+> 	Better stop that this minute Alan! You're starting
+> to sound like those old KGI people, with their 'safe kernel
+> drivers for video' spiel... ;^)
 
-    Ben> I can see arguing with Alan about the inclusion of linux-kernel
-    Ben> headers in some cases, but I don't see anything in this file that
-    Ben> looks like a user-space program could use.  Which part of this file
-    Ben> do the user space programs need?
+There are actually distinct similarities between some DRI drivers and what
+Linus suggested the KGI people needed to be doing. Certain hardware isnt 
+totally user safe (not on the extremes of the voodoo1 here) and the drivers
+do small amounts of work to stop abuse. All mode changes, rendering
+primitives and the like are however in userspace.
 
-Don't want to add more spam; but since I was addressed personally I just
-want to state that I agree with Ben here, as well as Tim's answer about the
-fine nvram and rtc drivers.
+I firmly believe you can do X11 with 3D in windows, including partial 
+occlusion of 3d windows on a 3dfx voodoo1 or voodoo2 card. 
 
-	Torsten
+Alan

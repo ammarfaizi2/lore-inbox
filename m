@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135410AbRAGDne>; Sat, 6 Jan 2001 22:43:34 -0500
+	id <S135420AbRAGDry>; Sat, 6 Jan 2001 22:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135420AbRAGDnO>; Sat, 6 Jan 2001 22:43:14 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:32520 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S135410AbRAGDnH>;
-	Sat, 6 Jan 2001 22:43:07 -0500
-Date: Sun, 7 Jan 2001 04:43:04 +0100
-From: Andi Kleen <ak@suse.de>
-To: Jean-Christian de Rivaz <jcdr@lightning.ch>
-Cc: jpranevich@lycos.com, linux-kernel@vger.kernel.org
-Subject: Re: New features in Linux 2.4 - Wonderful World of Linux 2.4
-Message-ID: <20010107044304.B14330@gruyere.muc.suse.de>
-In-Reply-To: <CNDCNNNONGMAFAAA@mailcity.com> <3A5782EF.93297FC5@lightning.ch>
-Mime-Version: 1.0
+	id <S135684AbRAGDro>; Sat, 6 Jan 2001 22:47:44 -0500
+Received: from linuxjedi.org ([192.234.5.42]:58641 "EHLO linuxjedi.org")
+	by vger.kernel.org with ESMTP id <S135420AbRAGDr2>;
+	Sat, 6 Jan 2001 22:47:28 -0500
+Message-ID: <3A57E6F6.EED83CD@roanoke.edu>
+Date: Sat, 06 Jan 2001 22:48:06 -0500
+From: "David L. Parsley" <parsley@roanoke.edu>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: cramfs & ramfs problems in 2.4.0 up to ac3
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5782EF.93297FC5@lightning.ch>; from jcdr@lightning.ch on Sat, Jan 06, 2001 at 09:41:19PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2001 at 09:41:19PM +0100, Jean-Christian de Rivaz wrote:
-> Joe Pranevich wrote:
-> >
-> > Networking and Protocols
-> >
-> >                                     ... It should also be mentioned at
-> >    this point that Linux is still the only operating system completely
-> >    compatible with the letter of the IPv4 specification ...
-> 
-> I am very interesting about the proof of this. I work on a project witch
-> need to be certified. Any informations about the compliance of Linux to
-> some specification is very welcome.
+Hi,
 
-It's very dubious at least. AFAIK no RFC1122/RFC1812 evulation has been done recently
-(since 2.0 or so). Also part of these RFCs have been superseeded by later RFCs
-that have not reached Internet standard status yet, so it would not be very useful
-anyways (today's internet looks very different from 1989's when 1122 was written) 
+Using root=/dev/ram0 and a cramfs initrd gives me 'wrong magic' when it
+tries to boot.  Even more bizarre, if cramfs is compiled in the kernel
+when I use a romfs root, it says 'wrong magic' then mounts the romfs but
+can't find init.  If I take cramfs out of the kernel, the romfs mounts &
+init runs fine.  I just saw this with ac3.
 
-The mechanism the comment refers to (asynchronous error notification for UDP, which
-is not in traditional BSD) is not used by 99.9% of all apps BTW ;) 
+ramfs croaks with 'kernel BUG in filemap.c line 2559' anytime I make a
+file in ac2 and ac3.  Works fine in 2.4.0 vanilla.  Should be quite
+repeatable...
 
+BTW, nice work on 2.4 everyone.
 
--Andi
-
+regards,
+	David
+--
+David L. Parsley
+Network Administrator
+Roanoke College
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130198AbQLVTDH>; Fri, 22 Dec 2000 14:03:07 -0500
+	id <S130140AbQLVTH5>; Fri, 22 Dec 2000 14:07:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130425AbQLVTC5>; Fri, 22 Dec 2000 14:02:57 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20996 "EHLO
+	id <S130425AbQLVTHr>; Fri, 22 Dec 2000 14:07:47 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23044 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130198AbQLVTCi>; Fri, 22 Dec 2000 14:02:38 -0500
-Subject: Re: rtl8139 driver broken? (2.2.16)
-To: Stefan.Hoffmeister@Econos.de (Stefan Hoffmeister)
-Date: Fri, 22 Dec 2000 18:34:46 +0000 (GMT)
+	id <S130140AbQLVTHm>; Fri, 22 Dec 2000 14:07:42 -0500
+Subject: Re: The NSA's Security-Enhanced Linux (fwd)
+To: sandy@storm.ca (Sandy Harris)
+Date: Fri, 22 Dec 2000 18:39:49 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <vb074t8d27bdedg6m7pv4c4qqu1f8324cq@4ax.com> from "Stefan Hoffmeister" at Dec 22, 2000 06:23:05 PM
+In-Reply-To: <3A439833.C64D493A@storm.ca> from "Sandy Harris" at Dec 22, 2000 01:06:43 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E149X1l-00051k-00@the-village.bc.nu>
+Message-Id: <E149X6e-000525-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Questions: 
-> * Is the rtl8139 driver broken?
+> These folks are good at what they do and the code is GPL.
+> It is worth starting to consider whether this code, or code
+> from one of the other security-enhancement projects, should
+> be included in the standard kernel for 2.6 or 3.0.
 
-Somewhat, especially in kernels that old
+I think this is a good point. Its actually a nice testimonial for free 
+software that its finally got the NSA contributing code in a way that everyone
+benefits from and which may help cut down computer crime beyond government.
+(and which of course actually is part of the NSA's real job)
 
-2.2.18 might help and also as an '8139too' driver rewrite which may work 
+> > It's just code like everone else produces.
+> 
+> So people looking at it may find bugs and vulnerabilities the
+> implementers hadn't considered. Great.
+
+Yep. Im sure all sorts of people will be finding bugs in it because they are
+looking for secret NSA backdoors so why discourage them 8)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

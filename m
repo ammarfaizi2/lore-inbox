@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262728AbVA1UTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262780AbVA1UTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262728AbVA1UTv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 15:19:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbVA1UKr
+	id S262780AbVA1UTq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 15:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbVA1URp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:10:47 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49419 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262748AbVA1UH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:07:27 -0500
-Date: Fri, 28 Jan 2005 20:07:13 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Grant Grundler <grundler@parisc-linux.org>, Jesse Barnes <jbarnes@sgi.com>,
-       Jon Smirl <jonsmirl@gmail.com>, Greg KH <greg@kroah.com>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
-Message-ID: <20050128200713.A19657@flint.arm.linux.org.uk>
-Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>,
-	Grant Grundler <grundler@parisc-linux.org>,
-	Jesse Barnes <jbarnes@sgi.com>, Jon Smirl <jonsmirl@gmail.com>,
-	Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
-	linux-pci@atrey.karlin.mff.cuni.cz,
-	lkml <linux-kernel@vger.kernel.org>
-References: <9e47339105011719436a9e5038@mail.gmail.com> <200501270828.43879.jbarnes@sgi.com> <20050128173222.GC30791@colo.lackof.org> <200501281041.42016.jbarnes@sgi.com> <20050128193320.GB32135@colo.lackof.org> <20050128200010.GJ28246@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050128200010.GJ28246@parcelfarce.linux.theplanet.co.uk>; from matthew@wil.cx on Fri, Jan 28, 2005 at 08:00:10PM +0000
+	Fri, 28 Jan 2005 15:17:45 -0500
+Received: from math.ut.ee ([193.40.5.125]:43921 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S262756AbVA1UQp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 15:16:45 -0500
+Date: Fri, 28 Jan 2005 22:16:43 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: TI Cardbus bridge has unsupported PM cap regs version
+Message-ID: <Pine.SOC.4.61.0501282209580.3696@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 08:00:10PM +0000, Matthew Wilcox wrote:
-> I've been thinking for a while that we should mark the 10-bit aliases
-> of ISA devices as used
+The system is working fine, it just gives warnings about unsupported PM 
+cap regs version (1). This is an excerpt from dmesg:
 
-ISTR that windows does this.
+PCI: 0000:00:11.0 has unsupported PM cap regs version (1)
+PCI: Enabling device 0000:00:11.0 (0000 -> 0002)
+ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
+PCI: setting IRQ 11 as level-triggered
+ACPI: PCI interrupt 0000:00:11.0[A] -> GSI 11 (level, low) -> IRQ 11
+Yenta: CardBus bridge found at 0000:00:11.0 [1179:0001]
+PCI: 0000:00:11.0 has unsupported PM cap regs version (1)
+Yenta: ISA IRQ mask 0x04b8, PCI irq 11
+Socket status: 30000007
+PCI: 0000:00:11.1 has unsupported PM cap regs version (1)
+PCI: Enabling device 0000:00:11.1 (0000 -> 0002)
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 11
+ACPI: PCI interrupt 0000:00:11.1[B] -> GSI 11 (level, low) -> IRQ 11
+Yenta: CardBus bridge found at 0000:00:11.1 [1179:0001]
+PCI: 0000:00:11.1 has unsupported PM cap regs version (1)
+Yenta: ISA IRQ mask 0x04b8, PCI irq 11
+Socket status: 30000020
 
-> Russell, would that allay your issues with the kernel io resource database?
+0000:00:11 is TI cardbus bridge with 2 ports:
 
-It makes the situation a whole lot clearer from the point of working
-out what is free and what isn't, making it less likely that we'll
-trample over some magic port which your VGA card needs.
+0000:00:11.0 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support (rev 32)
+         Subsystem: Toshiba America Info Systems: Unknown device 0001
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 168
+         Interrupt: pin A routed to IRQ 11
+         Region 0: Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
+         Bus: primary=00, secondary=02, subordinate=05, sec-latency=0
+         Memory window 0: 10400000-107ff000 (prefetchable)
+         Memory window 1: 10800000-10bff000
+         I/O window 0: 00004000-000040ff
+         I/O window 1: 00004400-000044ff
+         BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+         16-bit legacy interface ports at 0001
 
-This, along with throwing in the ports found via ACPI (which Dominik
-has hinted) should (maybe that's the wrong word) give us a complete
-picture and allow things like PCMCIA to do reliable resource
-allocation.  The same goes for Cardbus/PCI as well of course.
+0000:00:11.1 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support (rev 32)
+         Subsystem: Toshiba America Info Systems: Unknown device 0001
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 168
+         Interrupt: pin B routed to IRQ 11
+         Region 0: Memory at 10002000 (32-bit, non-prefetchable) [size=4K]
+         Bus: primary=00, secondary=06, subordinate=09, sec-latency=0
+         Memory window 0: 10c00000-10fff000 (prefetchable)
+         Memory window 1: 11000000-113ff000
+         I/O window 0: 00004800-000048ff
+         I/O window 1: 00004c00-00004cff
+         BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
+         16-bit legacy interface ports at 0001
 
-Maybe at this point the idea that you need to tell PCMCIA about which
-resources it can validly use can finally be eliminated, which is a
-big step towards eliminating it's dependence on userspace.
-
-(I hope this is what you were talking about and I haven't just produced
-a load of unrelated waffle!)
+One of the ports has a realtek 8139c nic plugged in, the other is empty, 
+but this probably doesn't matter.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Meelis Roos (mroos@linux.ee)

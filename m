@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269212AbRHLOIh>; Sun, 12 Aug 2001 10:08:37 -0400
+	id <S269226AbRHLOZ7>; Sun, 12 Aug 2001 10:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269236AbRHLOIR>; Sun, 12 Aug 2001 10:08:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34573 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269222AbRHLOIL>; Sun, 12 Aug 2001 10:08:11 -0400
-Subject: Re: Reg:flow of system call in linux
-To: sathish.j@tatainfotech.com (SATHISH.J)
-Date: Sun, 12 Aug 2001 15:10:38 +0100 (BST)
+	id <S269232AbRHLOZt>; Sun, 12 Aug 2001 10:25:49 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:518 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S269226AbRHLOZi>;
+	Sun, 12 Aug 2001 10:25:38 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10108121903130.26368-100000@blrmail> from "SATHISH.J" at Aug 12, 2001 07:05:35 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+Subject: kbuild-2.5 against 2.4.8-ac1 is available
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Vvwt-0005m5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 13 Aug 2001 00:25:43 +1000
+Message-ID: <3507.997626343@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can someone tell me about the flow of system call for eg. from open
-> wrapper routine to sys_open() function or atleast please suggest me a
-> book/website
-> where I can get this info.
+http://sourceforge.net/projects/kbuild/, Package kbuild-2.5, download
+release 1.1, file kbuild-2.5-2.4.8-ac1.bz2.  This extends kbuild 2.5
+from 2.4.8 to 2.4.8-ac1.
 
-Userspace open() calls into glibc code
-glibc does architecture dependant magic to make a syscall
-The kernel syscall code does architecture dependant magic 
-The kernel calls sys_open
+Apply this patch in the following order.
 
+  Kernel 2.4.8
+  patch-2.4.8-ac1
+  kbuild-2.5-2.4.8-2 from http://sourceforge.net/projects/kbuild/
+  This patch
 
-In the x86 case the magic is basically
+  It may or may not work, if it eats your system for breakfast, fix it
+  and send patches to kbuild-devel@lists.sourceforge.net.  If you want
+  a patch against a more recent -ac kernel and there is not one on
+  sourceforge, upgrade the Makefile.in files yourself and send your
+  updates to kbuild-devel.
 
-Load arguments into the right registers
-int 0x80
-
-then the kernel code in arch/i386/kernel/entry.S
+  This patch contains both drm and drm 4.0, as for -ac1.  Pity, I
+  thought I had seen the last of the drm 4.0 Makefile abomination.
 

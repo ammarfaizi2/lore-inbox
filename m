@@ -1,56 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbUCDWOh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 17:14:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbUCDWOh
+	id S261983AbUCDWSW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 17:18:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbUCDWSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 17:14:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48538 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261976AbUCDWOf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 17:14:35 -0500
-Date: Thu, 4 Mar 2004 17:14:30 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, Peter Zaitsev <peter@mysql.com>,
-       <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
- end)
-In-Reply-To: <20040304175821.GO4922@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0403041711500.20043-100000@chimarrao.boston.redhat.com>
+	Thu, 4 Mar 2004 17:18:22 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:36091 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261983AbUCDWSR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 17:18:17 -0500
+Message-ID: <4047AB20.1080703@mvista.com>
+Date: Thu, 04 Mar 2004 14:18:08 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tom Rini <trini@kernel.crashing.org>
+CC: "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@ucw.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
+References: <20040302213901.GF20227@smtp.west.cox.net> <20040302230018.GL20227@smtp.west.cox.net> <40451CCA.4070907@mvista.com> <200403031113.02822.amitkale@emsyssoft.com> <20040303151628.GQ20227@smtp.west.cox.net> <4046780D.7020700@mvista.com> <20040304151705.GB26065@smtp.west.cox.net>
+In-Reply-To: <20040304151705.GB26065@smtp.west.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Mar 2004, Andrea Arcangeli wrote:
-> On Thu, Mar 04, 2004 at 07:12:23AM -0500, Rik van Riel wrote:
-
-> > All the CPUs use the _same_ mm_struct in kernel space, so
-> > all VM operations inside the kernel are effectively single 
-> > threaded.
+Tom Rini wrote:
+> On Wed, Mar 03, 2004 at 04:27:57PM -0800, George Anzinger wrote:
 > 
-> so what, the 3:1 has the same bottleneck too.
+>>Tom Rini wrote:
+>>
+>>>But that's not what you get with kgdb_serial.  You get the possibility
+>>>of serial from point A to B and you will have eth from point B onward,
+>>>if compiled in.  With an arch serial driver you get the possibility of
+>>>serial (or arch serial or whatever) from point A to B and eth from point
+>>>B onward, if compiled in.
+>>
+>>I don't think we want to switch.  Rather we want to say something like: If 
+>>no eth (or other input) options are on the command line then its is serial. 
+>>If eth (or other input) is there, that is what we use.
+>>
+>>This does leave open what happens when "eth" is given and we hit a 
+>>breakpoint prior to looking at the command line, but now this just fails so 
+>>we would be hard put to do worse.
+> 
+> 
+> This doesn't fail right now, or rather it shouldn't.  We would call
+> kgdb_arch_init() which would set it to 8250 (or arch serial) and go.  If
+> 8250||arch serial is compiled in.
 
-Not true, in the 3:1 split every process has its own
-mm_struct and they all happen to share the top GB with
-kernel stuff.  You can do a copy_to_user on multiple
-CPUs efficiently.
+But, if I understand this right, now you can have either eth or serial.  If you 
+have eth and hit a breakpoint prior to its int, you are dead.
+> 
+> 
+>>>I think you missed the point.  The problem isn't with providing weak
+>>>functions, the problem is trying to set the function pointer.  PPC
+>>>becomes quite clean since the next step is to kill off
+>>>PPC_SIMPLE_SERIAL and just have kgdb_read/write_debug_char in the
+>>>relevant serial drivers.
+>>
+>>No, you just set the default at configure time.  It is just done in such 
+>>away as to allow it to be overridden.
+> 
+> 
+> Which means you have to either c&p this into kgdb_arch_init for every
+> arch that provides it's own, or (and I've been thinking that this isn't
+> necessarily a bad idea) standardize on names for the arch serial driver,
+> and in kernel/kgdb.c::kgdb_entry() do:
+> #ifdef CONFIG_KGDB_8250
+>   extern ... kgdb8250_serial;
+>   kgdb_serial = &kgdb8250_serial;
+> #elif CONFIG_KGDB_ARCH_SERIAL
+>   extern ... kgdbarch_serial;
+>   kgdb_serial = &kgdbarch_serial;
+> #elif CONFIG_KGDB_ETH
+>   extern ... kgdboe_serial;
+>   kgdb_serial = &kgdboe_serial;
+> #endif
+> 
 
-> or maybe you mean the page_table_lock hold during copy-user that Andrew
-> mentioned? (copy-user doesn't mean "all VM operations" not sure if you
-> meant this or the usual locking of every 2.4/2.6 kernel out there)
+I would rather standardize on the name of the INIT block.  How about something like:
 
-True, there are some other operations.  However, when
-you consider the fact that copy-user operations are
-needed for so many things they are the big bottleneck.
+#include <linux/kdgb_io.h>
+:
+:
+struc kgdb_io_table kgdb_io_table[]=KGDB_IO_FUNCTIONS;
 
-Making it possible to copy things to and from userspace
-in a lockless way will help performance quite a bit...
+then in linux/kgdb_io.h we have:
+
+#include <asm/kgdb_io.h>
+
+struc kgdb_io_table {
+	char (*kgdb_read_char);
+     	void  (*kgdb_write_char);
+         :
+	:
+}
+
+And in asm/kgdb_io.h we define:
+extern char my_read_char(void);
+:
+#define KGDB_IO_FUNCTIONS {{my_read_char, my_write_char,...},\
+                             {eth_read_char,...}}
+
+
+So it is completely up to the arch asm/kgdb_io.h to define the names and even 
+how many.  We then assume that the first one is the default.  An arch that wants 
+to mess with different things can do it all in this file, including having 
+several diffent serial drivers all with the same entry points, different default 
+as set at configure time and so on.
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269506AbRHLWcl>; Sun, 12 Aug 2001 18:32:41 -0400
+	id <S269946AbRHMHs2>; Mon, 13 Aug 2001 03:48:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269515AbRHLWcb>; Sun, 12 Aug 2001 18:32:31 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:24076 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269491AbRHLWcS>; Sun, 12 Aug 2001 18:32:18 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-Date: Sun, 12 Aug 2001 22:31:57 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9l704t$1rp$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0108121509310.974-100000@penguin.transmeta.com> <E15W3ZC-0006IC-00@the-village.bc.nu>
-X-Trace: palladium.transmeta.com 997655539 12041 127.0.0.1 (12 Aug 2001 22:32:19 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 12 Aug 2001 22:32:19 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S269964AbRHMHsS>; Mon, 13 Aug 2001 03:48:18 -0400
+Received: from 20dyn53.com21.casema.net ([213.17.90.53]:1552 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S269946AbRHMHsI>; Mon, 13 Aug 2001 03:48:08 -0400
+Message-Id: <200108121955.VAA25314@cave.bitwizard.nl>
+Subject: Re: Unknown error
+In-Reply-To: <E15Vti5-0005ao-00@the-village.bc.nu> from Alan Cox at "Aug 12,
+ 2001 12:47:13 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sun, 12 Aug 2001 21:55:45 +0200 (MEST)
+CC: Keith Owens <kaos@ocs.com.au>, louisg00@bellsouth.net,
+        linux-kernel@vger.kernel.org, device@lanana.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E15W3ZC-0006IC-00@the-village.bc.nu>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->> The problem with backing it out is that apparently nobody has tried to
->> really maintain it for a year, and if it gets backed out nobody will even
->> bother to try to fix it. So I'll let it be for a while, at least.
->
->I thought this was a stable kernel tree not 2.5 ?
+Alan Cox wrote:
+> > 2.4.8 says that device 228 is unassigned, but ...
+> > 
+> >   drivers/char/drm/drm.h:#define DRM_MAJOR       226
+> >   drivers/net/wan/sdla_chdlc.c:#define WAN_TTY_MAJOR 226
+> > 
+> > Somebody has been naughty and used a code not assigned to them.
 
-Well, considering that the _old_ driver is also not stable and doesn't
-work on all machines, we're really screwed whichever way we turn. 
+> 226 char        Direct Rendering Infrastructure (DRI)
+>                   0 = /dev/dri/card0		First graphics card
+>                   1 = /dev/dri/card1            Second graphics card 
+> 
+> 
+> Peter - was this dual issued, or do Sangoma need to be spanked. The obvious
+> place to put the sdla tty would I think be 229, since its not physically
+> possible to put one in an iSeries machine.
 
-If the old driver was a known working one, this would be a no-brainer. 
-As it is, the old driver doesn't work for people _either_ - but they
-probably aren't piping up, because the old driver has been broken
-forever. 
+Speaking of which... 
 
-So we have a situation that the new driver works better on some
-machines, and the old driver works better on others. The old driver will
-obviously neevr get fixed (we've given it several years now), so the old
-driver is _known_ to be terminally broken. The new driver is a question
-mark in that regard.
+I always (try to) write my drivers to do:
 
-So I'd rather give the new driver a chance, and see if people can get it
-fixed.  For example, the oops that people have reported _seems_ to be
-due to initializing the tasklet before actually having initialized all
-the data structures the tasklet depends on.  It may well be that moving
-the two "tasklet_init()"s down two lines would fix it.
+#ifndef MY_MAJOR
+#define MY_MAJOR xyz
+#endif
 
-		Linus
+This allows "test-compilation" with -Dtest_major , but is also
+preparing for having a "majors.h" which defines ALL the major numbers
+in one place. The place where it /completly/ obvious if two devices
+are trying to use the same major.... 
+
+			Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

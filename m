@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263376AbSJFKte>; Sun, 6 Oct 2002 06:49:34 -0400
+	id <S263381AbSJFKxn>; Sun, 6 Oct 2002 06:53:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263377AbSJFKte>; Sun, 6 Oct 2002 06:49:34 -0400
-Received: from 62-190-200-32.pdu.pipex.net ([62.190.200.32]:17669 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S263376AbSJFKtd>; Sun, 6 Oct 2002 06:49:33 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210061103.g96B3mlO001484@darkstar.example.net>
-Subject: Re: QLogic Linux failover/Load Balancing ER0000000020860
-To: masterlee@digitalroadkill.net (GrandMasterLee)
-Date: Sun, 6 Oct 2002 12:03:47 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1033900283.6413.27.camel@localhost> from "GrandMasterLee" at Oct 06, 2002 05:31:54 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S263383AbSJFKxn>; Sun, 6 Oct 2002 06:53:43 -0400
+Received: from brev.stud.ntnu.no ([129.241.56.70]:3301 "EHLO brev.stud.ntnu.no")
+	by vger.kernel.org with ESMTP id <S263381AbSJFKxm>;
+	Sun, 6 Oct 2002 06:53:42 -0400
+Date: Sun, 6 Oct 2002 12:59:17 +0200
+From: Thomas =?iso-8859-1?Q?Lang=E5s?= <tlan@stud.ntnu.no>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: Unable to kill processes in D-state
+Message-ID: <20021006105917.GB13046@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+References: <20021005090705.GA18475@stud.ntnu.no> <1033841462.1247.3716.camel@phantasy> <20021005182740.GC16200@vagabond> <20021005235614.GC25827@stud.ntnu.no> <20021006021802.GA31878@pegasys.ws> <1033871869.1247.4397.camel@phantasy> <20021006024902.GB31878@pegasys.ws>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20021006024902.GB31878@pegasys.ws>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > Linux is not allowed to address LUNs out of sequence, so searching for
-> > > > further LUN numbers stops after 0, since 2 is the next one. 
-> > 
-> > That's not true:
-> > 
-> > CONFIG_SCSI_REPORT_LUNS:
-> > 
-> > If you want to build with SCSI REPORT LUNS support i the kernel, say Y
-> > here.
-> > The REPORT LUNS command is useful for devices (such as disk arrays) with
-> > large numbers of LUNs where the LUN values are not contiguous (sparse LUN).
-> > REPORT LUNS scanning is done only for SCSI-3 devices.
-> 
-> I believe my kernel has that configured. I will look when I wake. It's
-> 530 am now, and I've been setting up my volumes for a while now. Just
-> about time to go to sleep, then wake up and install oracle. :)
+jw schultz:
+> I stand corrected.  The load average reported will reflect
+> them.  The D-state processes, however, will have nearly zero
+> effect on the system performance, yes?  So in this case the
+> load average reported is simply an infated number.
 
-All night hacking sessions, are cool :-).
+They won't have any effect on the system, but the load number is
+insane (we have a 2 CPU intel-boks with a load number of 480)
+and there's like 200-300 (or more) processes hanging in D-state
+with they're FD's and stuff. There _really_ should be a way
+to remove all theese processes, Solaris does this nicely.
 
-> > > > Is there a way to resolve this, either at the driver level, IMHO the
-> > > > place it *should* happen. At the storage level, the place that it could
-> > > > also happen, or in the Kernel?
-> > 
-> > This is new in 2.5.x
-> > 
-> 
-> 
-> I see. ATM I'm using 2.4.19, but would like to get to 2.4.20, because of
-> the TG3 fixes. 
-
-You were probably thinking of CONFIG_SCSI_MULTI_LUN above, then.  That causes the kernel to probe all LUNs instead of just LUN 0, which is the default due to a lot of broken devices to respond to all LUNs instead of just LUN 0.  The sparse LUN option is in addition to that in 2.5.x.
-
-If this is for a live server, it might be easiest to hard code the LUNs you need it to probe in to 2.4.x for now, and wait until 2.6.x for proper support.
-
-John.
+-- 
+Thomas

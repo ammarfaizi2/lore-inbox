@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267312AbUIEUMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267209AbUIEUQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267312AbUIEUMh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 16:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267259AbUIEUMh
+	id S267209AbUIEUQL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 16:16:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267205AbUIEUQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 16:12:37 -0400
-Received: from [65.61.200.145] ([65.61.200.145]:11161 "EHLO dotnoc.dotnoc.com")
-	by vger.kernel.org with ESMTP id S267189AbUIEULq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 16:11:46 -0400
-Message-ID: <1094411544.413b65185bdba@mail.dreamtoy.net>
-Date: Sun,  5 Sep 2004 12:12:24 -0700
-From: Nathan <lists@netdigix.com>
-To: keepalived-devel@lists.sourceforge.net
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Kernel panic issues
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 216.232.223.77
+	Sun, 5 Sep 2004 16:16:10 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:50006 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S267212AbUIEUQA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 16:16:00 -0400
+Date: Sun, 5 Sep 2004 22:19:03 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: kbuild: Simplify vmlinux generation
+Message-ID: <20040905201903.GA17854@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040905201235.GC16901@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040905201235.GC16901@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,  I have a server running debian 3.0r1 kernel 2.4.25 and I get these kernel 
-panic about 5 times this week.  If anyone can tell me what it means it would be 
-greatly appreciated.  Any additional instructions on how to read kernel panic 
-dumps would also be appreciated.
+Not posted to lkml:
+o Update ver_linux to include current reiserfsprogs (Steven Cole)
+
+--- bk-current/scripts/ver_linux.orig	2004-08-31 22:00:44.506377680 -0600
++++ bk-current/scripts/ver_linux	2004-08-31 22:04:59.844560376 -0600
+@@ -37,8 +37,11 @@
+ fsck.jfs -V 2>&1 | grep version | sed 's/,//' |  awk \
+ 'NR==1 {print "jfsutils              ", $3}'
+ 
+-reiserfsck -V 2>&1 | grep reiserfsprogs | awk \
+-'NR==1{print "reiserfsprogs         ", $NF}'
++reiserfsck -V 2>&1 | grep reiserfsck | awk \
++'NR==1{print "reiserfsprogs         ", $2}'
++
++fsck.reiser4 -V 2>&1 | grep fsck.reiser4 | awk \
++'NR==1{print "reiser4progs          ", $2}'
+ 
+ xfs_db -V 2>&1 | grep version | awk \
+ 'NR==1{print "xfsprogs              ", $3}'
 
 
-asdasdkernel BUG as slab.c:1263!
-Invalid operand: 0000
-CPU:	0
-EIP:	0010:[<c012609d>] Not tainted
-EFLAGS: 00010012
-eax: f31eafff	ebx: c19ad700	ecx: 00000001	edx: 00000001
-esi: f31ea800	edi: f31eabd3	ebp: c02cfca8	esp: c02cfc8c
-ds: 0018	es: 0018	ss: 0018
-Process swapper (pid: 0, stackpage=c02cf000)
-Stack:	f69657fc c03397e0 00000020 00000800 00012800 f31eabd3 00000246 c02cfcc4
-	c01f6b5e 0000065c 00000020 00000008 0000001c f74ec160 c02cfcf f887afe3
-	00000620 00000020 00000008 0000001c f74ec160 c01fa090 00000000 f6ebec
-Call Trace:	[<c01f6b5e>] [<f887afe3>] [<c01fa090>] [<f887ae58>] [<f887ae58>]
-	[<c0107ee0>] [<c010806f>] [<c0125f2c>] [<c0231d11>] [<c02320c8>] 
-[<c0207b60>]
-	[<f887b4ef>] [<c010806f>] [<c0207b60>] [<c02010b7>] [<c0207b60>] 
-[<c02079f5>]
-	[<c0207b60>] [<c01fa40b>] [<c01fa4ad>] [<c01fa5bf>] [<c011552b>] 
-[<c010809d>]
-	[<c0105260>] [<c0105260>] [<c0105260>] [<c0105260>] [<c0105286>] 
-[<c01052f9>]
-	[<c0105000>] [<c010502a>]
-
-Code: 0f 0b ef 04 60 33 26 c0 8b 7d f4 f7 c7 00 04 00 00 74 36 b8
- <0>Kernel panic: Aiee, Killing interrupt handler!
-In interrupt handler - not syncing
-
-
-
-Thanks and best regards,
-
-- Nathan
-- http://www.netdigix.com
 

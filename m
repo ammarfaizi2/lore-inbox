@@ -1,69 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318172AbSGWTFJ>; Tue, 23 Jul 2002 15:05:09 -0400
+	id <S318180AbSGWTEF>; Tue, 23 Jul 2002 15:04:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318176AbSGWTFI>; Tue, 23 Jul 2002 15:05:08 -0400
-Received: from ares.sdinet.de ([195.21.215.20]:9998 "HELO ares.sdinet.de")
-	by vger.kernel.org with SMTP id <S318172AbSGWTFG>;
-	Tue, 23 Jul 2002 15:05:06 -0400
-Date: Tue, 23 Jul 2002 21:08:26 +0200 (CEST)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: haegar@space.comunit.de
-To: George France <france@handhelds.org>
-Cc: Martin Brulisauer <martin@uceb.org>, <linux-kernel@vger.kernel.org>,
-       Jay Estabrook <Jay.Estabrook@hp.com>
-Subject: Re: kbuild 2.5.26 - arch/alpha
-In-Reply-To: <02072315005002.31958@shadowfax.middleearth>
-Message-ID: <Pine.LNX.4.44.0207232103120.16191-100000@space.comunit.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318184AbSGWTEF>; Tue, 23 Jul 2002 15:04:05 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:5900 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S318180AbSGWTEF>;
+	Tue, 23 Jul 2002 15:04:05 -0400
+Date: Tue, 23 Jul 2002 21:14:24 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: DocBook - kernel-doc error messages
+Message-ID: <20020723211424.A9242@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jul 2002, George France wrote:
+While cleaning up the DocBook makefile I have seen the following errormessage
+as produced by scripts/kernel-doc:
 
-> On Tuesday 23 July 2002 13:01, Martin Brulisauer wrote:
-> > Hopefully I can fix core_cia.c to run on XLT's (it's hard to find any
-> > documentation on this toppic) and arch/alpha/kernel/setup.c for
-> > machines booting with linload.exe/MILO because the hwrpb
-> > struct is built by MILO and does not match the one booting from
-> > SRM (eg. empty percpu struct resulting in a cpucount of zero
-> > in /proc/cpuinfo).
->
-> I am not very familiar with the XLT systems. Maybe Jay can help.  He has been
-> working on Alpha systems for a very long time.
+Use of uninitialized value in string ne at scripts/kernel-doc line 641, <IN> line 247.
+Use of uninitialized value in string ne at scripts/kernel-doc line 661, <IN> line 247.
+Use of uninitialized value in join or string at scripts/kernel-doc line 363, <IN> line 247.
 
-I am using Stock 2.4.19-rc2 with the following simple patch on an xl-300
-with milo:
-(without it, it breaks while initalizing the ncr-scsi-controller)
+Any brave perl guru that is able to hack kernel-doc to at least provide
+a filename, to give a hint where to search?
+Obviously a better approach would be to fix this error in kernel-doc.
 
---- linux/arch/alpha/kernel/core_cia.c.orig	Sun Oct 21 19:30:58 2001
-+++ linux/arch/alpha/kernel/core_cia.c	Fri Jul 19 16:11:46 2002
-@@ -382,10 +382,10 @@
- 	for (i = 0; i < CIA_BROKEN_TBIA_SIZE / sizeof(unsigned long); ++i)
- 		ppte[i] = pte;
+The above output can be reproduced by the following command:
 
--	*(vip)CIA_IOC_PCI_W1_BASE = CIA_BROKEN_TBIA_BASE | 3;
--	*(vip)CIA_IOC_PCI_W1_MASK = (CIA_BROKEN_TBIA_SIZE*1024 - 1)
-+	*(vip)CIA_IOC_PCI_W3_BASE = CIA_BROKEN_TBIA_BASE | 3;
-+	*(vip)CIA_IOC_PCI_W3_MASK = (CIA_BROKEN_TBIA_SIZE*1024 - 1)
- 				    & 0xfff00000;
--	*(vip)CIA_IOC_PCI_T1_BASE = virt_to_phys(ppte) >> 2;
-+	*(vip)CIA_IOC_PCI_T3_BASE = virt_to_phys(ppte) >> 2;
- }
+src/linux$ scripts/kernel-doc -docbook include/linux/skbuff.h > x
 
- static void __init
-
-
-I've got the patch from Alexander Stokman, who was kind to send it to me
-~3 month after sending my question to lkml
-
-
-c'ya
-sven
-
--- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
+	Sam
 

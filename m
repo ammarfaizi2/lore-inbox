@@ -1,46 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293684AbSCKLMO>; Mon, 11 Mar 2002 06:12:14 -0500
+	id <S293688AbSCKLNY>; Mon, 11 Mar 2002 06:13:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293696AbSCKLME>; Mon, 11 Mar 2002 06:12:04 -0500
-Received: from angband.namesys.com ([212.16.7.85]:8832 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S293684AbSCKLLz>; Mon, 11 Mar 2002 06:11:55 -0500
-Date: Mon, 11 Mar 2002 14:11:54 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-ID: <20020311141154.C856@namesys.com>
-In-Reply-To: <shswuwkujx5.fsf@charged.uio.no> <200203110018.BAA11921@webserver.ithnet.com> <15499.64058.442959.241470@charged.uio.no> <20020311091458.A24600@namesys.com> <20020311114654.2901890f.skraw@ithnet.com> <20020311135256.A856@namesys.com> <20020311120016.475fc854.skraw@ithnet.com>
+	id <S293691AbSCKLNW>; Mon, 11 Mar 2002 06:13:22 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:51531 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S293686AbSCKLNI>; Mon, 11 Mar 2002 06:13:08 -0500
+Date: Mon, 11 Mar 2002 12:13:00 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Jeremy Higdon <jeremy@classic.engr.sgi.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        James Bottomley <James.Bottomley@SteelEye.com>,
+        Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
+Message-ID: <20020311121300.G2346@nbkurt.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Douglas Gilbert <dougg@torque.net>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Jeremy Higdon <jeremy@classic.engr.sgi.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+In-Reply-To: <200202281536.g1SFaqF02079@localhost.localdomain> <E16heCm-0000Q5-00@starship.berlin> <10203032021.ZM443706@classic.engr.sgi.com> <E16hl4R-0000Zx-00@starship.berlin> <phillips@bonn-fries.net> <10203032209.ZM424559@classic.engr.sgi.com> <20020304165216.A1444@redhat.com> <3C8AEDFC.502CAD04@torque.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7IgncvKP0CVPV/ZZ"
 Content-Disposition: inline
-In-Reply-To: <20020311120016.475fc854.skraw@ithnet.com>
+In-Reply-To: <3C8AEDFC.502CAD04@torque.net>
 User-Agent: Mutt/1.3.22.1i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Mon, Mar 11, 2002 at 12:00:16PM +0100, Stephan von Krawczynski wrote:
-> > On Mon, Mar 11, 2002 at 11:46:54AM +0100, Stephan von Krawczynski wrote:
-> > > <4>reiserfs: checking transaction log (device 22:01) ...
-> > > <4>Using tea hash to sort names
-> > > <4>reiserfs: using 3.5.x disk format
-> > This means you have reiserfs v3.5 format on /dev/hdc1
-> > And this one won't behave very good with nfs.
-> > Does this one contain your nfs exports?
-> There is _no_ /dev/hdc1.
+--7IgncvKP0CVPV/ZZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Stupid me! Numbers are in hex! ;)
-So that's /dev/hdg1 that is reiserfs v3.5
+Hi Doug,
 
-> /dev/hdg1             20043416  16419444   3623972  82% /p3
-> Exported fs is on /dev/hde1.
+On Sun, Mar 10, 2002 at 12:24:12AM -0500, Douglas Gilbert wrote:
+> "Stephen C. Tweedie" wrote:
+> > Even if WCE is enabled in the caching mode page, we can still set FUA
+> > (Force Unit Access) in individual write commands to force platter
+> > completion before commands complete.
+> >=20
+> > Of course, it's a good question whether this is honoured properly on
+> > all drives.
+> >=20
+> > FUA is not available on WRITE6, only WRITE10 or WRITE12 commands.
+>=20
+> Stephen,
+[...]
+>=20
+> Also SYNCHRONIZE CACHE(10) allows a range of blocks to be sent
+> to the platter but the size of the range is limited to 2**16 - 1
+> blocks which is probably too small to be useful. If the
+> "number of blocks" field is set to 0 then the whole disk cache
+> is flushed to the platter.
 
-Hm. Strange. Are you sure you do not export /dev/hdg1?
+Which I think we should send before shutdown (and possible poweroff) for
+disks (DASDs), Write-Once and Optical Memory devices. (Funny enough, the
+SCSI spec also lists SYNCHRONIZE_CACHE for CD-Rom devices
+Unfortunately, SYNCHRONIZE CACHE is optional, so we would need to ignore any
+errors returned by this command.
 
-Bye,
-    Oleg
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--7IgncvKP0CVPV/ZZ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8jJE8xmLh6hyYd04RArF2AJ9jQ0iQdKVTyth28OZaFtqeWr3zBgCg1pzc
+KkAub5YVSAyAsHU58JIiBRc=
+=L3yN
+-----END PGP SIGNATURE-----
+
+--7IgncvKP0CVPV/ZZ--

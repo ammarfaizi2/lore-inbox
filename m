@@ -1,87 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265229AbTFMQt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 12:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbTFMQt4
+	id S265326AbTFMQxq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 12:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265406AbTFMQxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 12:49:56 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:5290 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265229AbTFMQtw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 12:49:52 -0400
-Importance: Normal
-Sensitivity: 
-Subject: RE: e1000 performance hack for ppc64 (Power4)
-To: haveblue@us.ibm.com
-Cc: "Feldman, Scott" <scott.feldman@intel.com>, David Gibson <dwg@au1.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>,
-       "Nancy J Milliner" <milliner@us.ibm.com>,
-       "Ricardo C Gonzalez" <ricardoz@us.ibm.com>,
-       "Brian Twichell" <twichell@us.ibm.com>, netdev@oss.sgi.com
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFE66E5333.7D508BC2-ON85256D44.005D4736@pok.ibm.com>
-From: "Herman Dierks" <hdierks@us.ibm.com>
-Date: Fri, 13 Jun 2003 12:03:00 -0500
-X-MIMETrack: Serialize by Router on D01ML065/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 06/13/2003 01:03:21 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Fri, 13 Jun 2003 12:53:46 -0400
+Received: from grendel.firewall.com ([66.28.56.41]:22248 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S265326AbTFMQxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 12:53:43 -0400
+Date: Fri, 13 Jun 2003 19:07:21 +0200
+From: Marek Habersack <grendel@caudium.net>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.5.70-mm8 and the 3com NIC driver
+Message-ID: <20030613170721.GA1768@thanes.org>
+Reply-To: grendel@caudium.net
+References: <20030612214626.GA1770@thanes.org> <200306130927.06971.schlicht@uni-mannheim.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Disposition: inline
+In-Reply-To: <200306130927.06971.schlicht@uni-mannheim.de>
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I will let Anton respond to this.   I think he may have tried this some
-time back in his early prototypes to fix this.
-I think the problem was not where the buffer started but where the  packet
-ended up within the buffer.
-Due to varying sizes of TCP and IP headers the packet ended up at some
-non-cache aligned address.
-What we need for the DMA to work well is to have the final packet  (with
-datalink headers)  starting on a cache line as its the final packet that
-must be DMA'd. In fact it may need to to be aligned to a higher level than
-that (not sure).
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, Jun 13, 2003 at 09:27:02AM +0200, Thomas Schlichter scribbled:
+[snip]
+> 1. Disable ACPI (for example with the 'acpi=3Doff' boot option)
+>   This was no major impact for me as ACPI never worked here well...
+>=20
+> 2. Revert the pci-init-ordering-fix from
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.=
+70-mm8/broken-out/pci-init-ordering-fix.patch
+>   This may be only suboptimal, as this patch seems to fix some problems...
+Thanks for the tips but, fortunately, with -mm9 they were no longer needed -
+it works like a charm.
 
-haveblue@us.ltcfwd.linux.ibm.com on 06/13/2003 11:21:03 AM
+thanks again,
 
-To:    Herman Dierks/Austin/IBM@IBMUS
-cc:    "Feldman, Scott" <scott.feldman@intel.com>, David Gibson
-       <dwg@au1.ibm.com>, Linux Kernel Mailing List
-       <linux-kernel@vger.kernel.org>, Anton Blanchard <anton@samba.org>,
-       Nancy J Milliner/Austin/IBM@IBMUS, Ricardo C
-       Gonzalez/Austin/IBM@ibmus, Brian Twichell/Austin/IBM@IBMUS,
-       netdev@oss.sgi.com
-Subject:    RE: e1000 performance hack for ppc64 (Power4)
+marek
 
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Too long to quote:
-http://marc.theaimsgroup.com/?t=105538879600001&r=1&w=2
+iD8DBQE+6gTJq3909GIf5uoRAq9XAJ4zfv1e8q7I4Zpe1X52oaxh18fEbgCgiBLO
+CqRv9anTt3kKvfjB4OwjSgo=
+=1UAV
+-----END PGP SIGNATURE-----
 
-Wouldn't you get most of the benefit from copying that stuff around in
-the driver if you allocated the skb->data aligned in the first place?
-
-There's already code to align them on CPU cache boundaries:
-#define SKB_DATA_ALIGN(X)       (((X) + (SMP_CACHE_BYTES - 1)) & \
-                                 ~(SMP_CACHE_BYTES - 1))
-
-So, do something like this:
-#ifdef ARCH_ALIGN_SKB_BYTES
-#define SKB_ALIGN_BYTES ARCH_ALIGN_SKB_BYTES
-#else
-#define SKB_ALIGN_BYTES SMP_CACHE_BYTES
-#endif
-#define SKB_DATA_ALIGN(X)       (((X) + (ARCH_ALIGN_SKB - 1)) & \
-                                 ~(SKB_ALIGN_BYTES - 1))
-
-You could easily make this adaptive to no align on th arch size when the
-request is bigger than that, just like in the e1000 patch you posted.
---
-Dave Hansen
-haveblue@us.ibm.com
-
-
-
-
-
+--XsQoSWH+UP9D9v3l--

@@ -1,91 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBFL10>; Tue, 6 Feb 2001 06:27:26 -0500
+	id <S129035AbRBFMhB>; Tue, 6 Feb 2001 07:37:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129197AbRBFL1Q>; Tue, 6 Feb 2001 06:27:16 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:16397 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129027AbRBFL1E>;
-	Tue, 6 Feb 2001 06:27:04 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: David Woodhouse <dwmw2@infradead.org>
-Date: Tue, 6 Feb 2001 12:24:37 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Matrox Marvell G400 
-CC: Gregory Maxwell <greg@linuxpower.cx>, linux-kernel@vger.kernel.org,
-        wakko@animx.eu.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <14B394FA5EC2@vcnet.vc.cvut.cz>
+	id <S129058AbRBFMgv>; Tue, 6 Feb 2001 07:36:51 -0500
+Received: from [195.6.125.97] ([195.6.125.97]:29961 "EHLO looping.sycomore.fr")
+	by vger.kernel.org with ESMTP id <S129035AbRBFMgk>;
+	Tue, 6 Feb 2001 07:36:40 -0500
+Message-Id: <l0310280ab6a59b6a53d3@[172.30.8.86]>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="============_-1230659375==_============"
+Date: Tue, 6 Feb 2001 13:38:37 +0100
+To: linux-kernel@vger.kernel.org
+From: Eric Berenguier <Eric.Berenguier@sycomore.fr>
+Subject: PATCH: ipfwadm IP accounting (2.4.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  6 Feb 01 at 9:36, David Woodhouse wrote:
-> VANDROVE@vc.cvut.cz said:
-> >  And if you insist on X, you can run first head through mga with
-> > usefbdev /dev/fb0 with hwcursor off, and secondary head through fbdev /
-> > dev/fb1. But it is not supported by me (and neither by XFree guys
-> > AFAIK, not even talking about Matrox support guys) - I support only
-> > first head in X and secondary head used for 'fbtv -k'.
-> 
-> Unless your machine is x86, and you use the binary-only HALlib from Matrox,
-> that is. :(
-> 
-> However, since the second heads of both G400 and G450 cards are supported 
-> in matroxfb, there's no real reason why the support in the 'real' XFree86 
-> driver should be so far behind. The main barrier to dual-head support in 
-> XFree86, last time I knew, was the lack of a way to _configure_ it. That's 
-> now been fixed, obviously. The HALlib is used only for mode setup, AFAICT. 
-> All acceleration is still done by the real driver. 
-> 
-> Petr - how much of the matroxfb code is yours to give, and would you permit
-> chunks of it to be reused under the XFree86 licence? Clean-room
-> reverse-engineering is such a PITA :)
+--============_-1230659375==_============
+Content-Type: text/plain; charset="us-ascii"
 
-Initialization code is entirely mine, sometime written with Matrox docs
-in hand, sometime without; except G100 initialization, which was written 
-with cooperation with others. But proper initialization have to parse
-BIOS - now when PCI subsystem can enable/disable ROM, maybe I should try
-it.
+Hello,
 
-Accelerator code was written/enhandced by couple of peoples except me,
-so it is probably impossible to get it under X - but they have some
-acceleration already, right ? ;-)
 
-Dualhead code is written entirely by me, and at least some portions
-are already used in BeOS driver, probably under GPL, but I have no
-problem releasing code under any other license you can imagine, as long
-as it does not impose additional restrictions on my (me personally,
-not future of matroxfb) further work.
+Using ipfwadm on a 2.4.1 kernel, some ip accouting rules for outgoing
+packets have theirs packet and byte counter stuck to 0 value. There is no
+such problem with incoming packets.
 
-There maybe problem that i2c examples were used when writting core
-of maven driver. But real useful code should not be affected by this.
+For example try this one: ipfwadm -A out -a -W eth0 -S 0/0 -D 0/0
 
-BTW, http://platan.vc.cvut.cz/~vana/maven/mavenreg.html contains
-partial MAVEN documentation, as I assembled it more than year ago
-for my own needs. But it is really partial, as most of TVOut equations
-are present only in code, and not in `datasheet'. I have some about
-half year old updates to that datasheet which were submitted by someone
-who had access to TV signal analyser, but I did not integrate them to
-HTML yet. And my code does not support original G200 TV Out, only
-late (non-US, MGA-TVO-C) G200 and G400 are supported for TV.
+The included patch solves this problem (this was probably a typo).
+I've only tested it with ipfwadm and with simple rules like the one above.
 
-> > I'm trying... more or less. Next G450 BIOSes will have fix for
-> > matroxfb deadlock on boot, so there is at least some move. Although
-> > now when workaround is implemented in matroxfb, it is a bit late...
-> 
-> I think that workaround wants to be put in place for G400 too; not just 
-> G450.
 
-According to Matrox engineers last G400 BIOSes already contains this 
-workaround. And as G400 initialization from scratch is not officially 
-supported by me... Yes, I should dig old G400 somewhere, replace one of
-my G450 with it and code something up.
-                                          Best regards,
-                                                   Petr Vandrovec
-                                                   vandrove@vc.cvut.cz
-                                                   
+Eric Berenguier
+
+--============_-1230659375==_============
+Content-Type: text/plain; name="2.4.1_ipfwadm_ip_acct_out_patch"; charset="us-ascii"
+Content-Disposition: attachment; filename="2.4.1_ipfwadm_ip_acct_out_patch"
+
+--- linux-2.4.1/net/ipv4/netfilter/ip_fw_compat.c	Tue Feb  6 11:10:01
+2001
++++ linux/net/ipv4/netfilter/ip_fw_compat.c	Tue Feb  6 09:03:17 2001
+@@ -132,7 +132,7 @@
+ 		if (ret == FW_ACCEPT || ret == FW_SKIP) {
+ 			if (fwops->fw_acct_out)
+ 				fwops->fw_acct_out(fwops, PF_INET,
+-						   (struct net_device *)in,
++						   (struct net_device *)out,
+ 						   (*pskb)->nh.raw, &redirpt,
+ 						   pskb);
+ 			confirm_connection(*pskb);
+
+--============_-1230659375==_============
+Content-Type: text/plain; charset="us-ascii"
+
+--
+Eric Berenguier
+
+-----------------------------------------------------------------
+                    SYCOMORE Groupe EADS
+63 Ter, Av. Edouard Vaillant - 92517 Boulogne-Billancourt Cedex
+  Tel. : +33 (0)1 46 08 61 55 - Fax : +33 (0)1 46 08 63 19
+                    http://www.sycomore.fr
+-----------------------------------------------------------------
+
+
+--============_-1230659375==_============--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

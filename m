@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132743AbRDQQbn>; Tue, 17 Apr 2001 12:31:43 -0400
+	id <S132754AbRDQQgM>; Tue, 17 Apr 2001 12:36:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132754AbRDQQbd>; Tue, 17 Apr 2001 12:31:33 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:38153 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S132743AbRDQQbT>; Tue, 17 Apr 2001 12:31:19 -0400
-Date: Tue, 17 Apr 2001 17:30:46 +0100 (BST)
-From: Steve Hill <steve@navaho.co.uk>
-To: RobertoNibali <ratz@tac.ch>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
-In-Reply-To: <3ADC6C70.1590D9B7@tac.ch>
-Message-ID: <Pine.LNX.4.21.0104171727300.4446-100000@sorbus.navaho>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132755AbRDQQgC>; Tue, 17 Apr 2001 12:36:02 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:60680 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S132754AbRDQQfr>; Tue, 17 Apr 2001 12:35:47 -0400
+Date: Tue, 17 Apr 2001 12:35:46 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: FAVRE Gregoire <greg@ulima.unil.ch>, linux-kernel@vger.kernel.org
+Subject: Re: USB with 2.4.3-ac{1,3,7} without devfs-> aic7xxx ?
+Message-ID: <20010417123546.B4295@sventech.com>
+In-Reply-To: <20010417004248.A19914@ulima.unil.ch> <20010416185740.Y4295@sventech.com> <20010417182130.A30800@ulima.unil.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <20010417182130.A30800@ulima.unil.ch>; from FAVRE Gregoire on Tue, Apr 17, 2001 at 06:21:30PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Apr 2001, RobertoNibali wrote:
+On Tue, Apr 17, 2001, FAVRE Gregoire <greg@ulima.unil.ch> wrote:
+> Thus spake Johannes Erdfelt (johannes@erdfelt.com):
+> 
+> > You should probably bring up things like this on the Linux USB list.
+> 
+> Well, where is that mailing list?
 
-> My 2 questions are: 
-> Is this an acceptable fix for Donald? Because if so, I'd like to submit it
-> for the starfire quardboard driver.
+http://www.linux-usb.org
 
-I have no idea - I haven't been able to get in touch with him :(
-(The fix was urgently required, and this did the job).
+> > What does /proc/interrupts show for the 2.4.3-ac7 case?
+> 
+> Exactly the same as the one from 2.4.3:
+> CPU0       
+>   0:      30204          XT-PIC  timer
+>   1:        522          XT-PIC  keyboard
+>   2:          0          XT-PIC  cascade
+>   7:     293087          XT-PIC  aic7xxx, usb-uhci
+>   8:          1          XT-PIC  rtc
+>  10:        794          XT-PIC  eth0, bttv
+>  11:      47362          XT-PIC  saa7146(1)
+>  12:       2346          XT-PIC  PS/2 Mouse
+>  14:       6615          XT-PIC  ide0
+>  15:         37          XT-PIC  ide1
+> NMI:          0 
+> LOC:      30165 
+> ERR:          0
+> MIS:          0
+> 
+> Sorry for the strange looking of my copy and paste to vim...
 
-> Is there no implication with PCI latencies if multiple such cards
-> are loaded? I'm still having problems initializing more then 4
-> Quadboards.
+You may want to turn off auto-indent under vim, or you can always just
+remove the excess spaces by hand.
 
-Not sure - I've never tried initing more than 3 of the DP83815 cards in a
-single machine.  (I am using Cobalt Qube 3's, which have 2 DP83815's on
-the motherboard, and a single PCI slot which I have installed a DP38315 in
-for testing purposes).
+> Maybe the driver don't like IRQ sharing, but I can't change it: aic7xxx
+> and usb are onboard, and changing the IRQ for aic7xxx change also the
+> one from usb (P2B-LS mother board).
 
--- 
+Nope. Both drivers support IRQ sharing just fine.
 
-- Steve Hill
-System Administrator         Email: steve@navaho.co.uk
-Navaho Technologies Ltd.       Tel: +44-870-7034015
+> > s10sh doesn't use anything under /dev, it's all under /proc/bus/usb,
+> > however, you are having a problem before it gets to s10sh at all.
+> 
+> So, as my only change in config betweem 2.4.3 and 2.4.3-ac[137] was the
+> removing of devfs, that's not the problem...
 
-        ... Alcohol and calculus don't mix - Don't drink and derive! ...
+Yeah. I don't think there are any changes in the USB code between 2.4.3
+and 2.4.3-ac[137].
 
+I'll have to check and see.
+
+JE
 

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129510AbRBVUWe>; Thu, 22 Feb 2001 15:22:34 -0500
+	id <S129268AbRBVU0g>; Thu, 22 Feb 2001 15:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129527AbRBVUWT>; Thu, 22 Feb 2001 15:22:19 -0500
-Received: from [216.218.132.86] ([216.218.132.86]:12540 "EHLO
-	web2.workspot.net") by vger.kernel.org with ESMTP
-	id <S129510AbRBVUWL>; Thu, 22 Feb 2001 15:22:11 -0500
-Subject: Re: (BUG) 3c509b and kernel 2.4.x
+	id <S129385AbRBVU0Q>; Thu, 22 Feb 2001 15:26:16 -0500
+Received: from [64.240.26.66] ([64.240.26.66]:35484 "EHLO ethan.tricord.com")
+	by vger.kernel.org with ESMTP id <S129268AbRBVU0H>;
+	Thu, 22 Feb 2001 15:26:07 -0500
+Date: Thu, 22 Feb 2001 13:25:55 -0700
+From: Jay Miller <jnmiller@cryptofreak.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Porting to 2.4 info
+Message-ID: <20010222132555.F23153@ethan.tricord.com>
+In-Reply-To: <20010221143230.A8246@cryptofreak.org>
 Mime-Version: 1.0
-To: lazarus@workspot.net
-From: Lazarus Long <lazarus@workspot.net>
-Cc: becker@webserv.gsfc.nasa.gov, linux-kernel@vger.kernel.org
-Message-Id: <E14W2Eo-0006e5-00@web2.workspot.net>
-Date: Thu, 22 Feb 2001 12:21:18 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010221143230.A8246@cryptofreak.org>; from jnmiller@cryptofreak.org on Wed, Feb 21, 2001 at 02:32:30PM -0700
+X-Mailer: Mutt 1.2.5i
+X-URL: http://www.cryptofreak.org/
+X-Accept-Language: en
+X-Editor: Vim 5.7.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In reply to message
-  From: Lazarus Long <lazarus@workspot.net>
-  Subject: (BUG) 3c509b and kernel 2.4.x
-  Date: Tue, 20 Feb 2001 12:13:59 -0800
+I hate to pollute your mailboxes with stuff that almost certainly
+doesn't concern you, but my ISP went down for about 6-7 hours yesterday
+after I posted this.. <sigh> So, um, if you couldn't get in - please try
+again!
 
-(Replying to my own message. :-/ )
+(Sorry to the rest of ya'..)
 
->Non-modular support for 3Com EtherLinkIII cards, specifically the ISA
->3c509b, worked fine in kernel 2.2.18.
->
->CONFIG_EL3=y
->
->What worked in kernel 2.2.18 does not work in kernel 2.4.1 however.
+- Words by Jay Miller <jnmiller@cryptofreak.org> [010221 16:48]:
+> Since I had some trouble finding any porting info from 2.2 to 2.4, I
+> wrote up a small amount of research I did on porting FSDs in hope that
+> someone else might find it useful.. it can be found here:
+> 
+> http://www.cryptofreak.org/projects/port/port-fs-2.4.html
+> 
+> I'd also be grateful for any help, re: errors or improvements.  Thanks!
 
-Nor does it work in 2.4.2 or 2.4.2-ac1.
-
->Please CC: lazarus@workspot.com in any discussion, as I am not on the list.
-
-Again.
-
---------------------------------------------------------------
-Get "Your Linux Desktop on the Net" at http://www.workspot.com
+-- 
+Jay Miller

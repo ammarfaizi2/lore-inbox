@@ -1,92 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131407AbRC0Qad>; Tue, 27 Mar 2001 11:30:33 -0500
+	id <S131376AbRC0QYx>; Tue, 27 Mar 2001 11:24:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131408AbRC0QaY>; Tue, 27 Mar 2001 11:30:24 -0500
-Received: from [192.118.128.39] ([192.118.128.39]:20239 "HELO
-	sol.aladdin.co.il") by vger.kernel.org with SMTP id <S131407AbRC0QaS>;
-	Tue, 27 Mar 2001 11:30:18 -0500
-Subject: problem with ip_rcv()
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFCBFF5C94.FFD930D8-ON42256A1C.00580271@aladdin.co.il>
-From: Andrey.Kondakov@eAladdin.com
-Date: Tue, 27 Mar 2001 18:29:51 +0200
-X-MIMETrack: Serialize by Router on SOL/AKS(Release 5.0.5 |September 22, 2000) at 03/27/2001
- 06:29:51 PM
+	id <S131393AbRC0QYp>; Tue, 27 Mar 2001 11:24:45 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20499 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131395AbRC0QY0>; Tue, 27 Mar 2001 11:24:26 -0500
+Subject: Re: "mount -o loop" lockup issue
+To: dek_ml@konerding.com (David Konerding)
+Date: Tue, 27 Mar 2001 17:25:46 +0100 (BST)
+Cc: riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org
+In-Reply-To: <3AC04BAC.C21E302@konerding.com> from "David Konerding" at Mar 27, 2001 12:13:32 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14hwI1-0003sV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> It's even worse that these are obvious, simple bugs (like the "NFS doesn't
+> work over reiserfs
+> because somebody changed the VFS layer and didn't fix any filesystems but
+> ext2" that I reported a while ago) which would have been caught by a
+> little testing.
 
-I try to develop driver that has to catch all incomming traffic and proceed
-it.
+Again people knew about this. It was a chosen decision that 2.4.x shouldnt
+support NFS over reiserfs.  If you want an extensively QA'd, signed off
+kernel tree then wait for vendors to release one.
 
-I use register_firewall() function that registers three functions:
-in_check, out_check, forward_check.
-There is call to register_firewall in my driver's init_module().
-So, in in_check() I receive packet and give it to my processing function
-Parse() that makes decision
-regarding to the packet:
-- to let it in and calls to ip_rcv(skb, skb->dev, NULL);
-- to block it.
-
-Always in_check returns FW_BLOCK.
-
-The problem is when I call to ip_rcv() my computer is hanged up. All I see
-is printing log after
-function Parse().
-
-Below is cut of my source.
-
-int Parse(struct sk_buff * skb)
-{
-     [ packet analyze ]
-
-     if ( packet may enter ) return ip_rcv(skb, skb->dev, NULL);
-
-     else
-     {
-          kfree_skb(skb);
-          return BLOCKED;
-     }
-}
-
-int in_check(struct firewall_ops *this, int pf, struct device *dev,
-               void *phdr, void *arg, struct sk_buff **pskb)
-{
-     int res;
-
-     ip_statistics.IpInReceives--;
-
-     res = Parse(*pskb);
-     printk(...);
-     if(res == BLOCKED)
-     {
-     [ something ]
-     }
-
-     return FW_BLOCK;
-}
-
-What ip_rcv() has to return? Do I do everything right? Is there maybe
-common way to perform such a trik?
-
-Thanks a lot.
-
-Andrey
-
-
-******************************* IMPORTANT ! **********************************
-The content of this email and any attachments are confidential and intended 
-for the named recipient(s) only.
-
-If you have received this email in error please notify the sender immediately.
-Do not disclose the content of this message or make copies.
-
-This email was scanned by eSafe Mail for viruses, vandals  and other
-malicious content.
-******************************************************************************
+Alan
 

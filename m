@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136058AbRDVMNx>; Sun, 22 Apr 2001 08:13:53 -0400
+	id <S136059AbRDVMQq>; Sun, 22 Apr 2001 08:16:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136056AbRDVMNe>; Sun, 22 Apr 2001 08:13:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28177 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S136059AbRDVMMv>;
-	Sun, 22 Apr 2001 08:12:51 -0400
-Date: Sun, 22 Apr 2001 13:12:34 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Matthew Kirkwood <matthew@hairy.beasts.org>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-Message-ID: <20010422131234.B20807@flint.arm.linux.org.uk>
-In-Reply-To: <20010421194706.A14896@thyrsus.com> <Pine.LNX.4.30.0104221114020.10515-100000@sphinx.mythic-beasts.com>
-Mime-Version: 1.0
+	id <S136061AbRDVMQd>; Sun, 22 Apr 2001 08:16:33 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29967 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136059AbRDVMQZ>; Sun, 22 Apr 2001 08:16:25 -0400
+Subject: Re: 2.4.3+ sound distortion
+To: marcel@mesa.nl
+Date: Sun, 22 Apr 2001 13:17:31 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        v.p.p.julien@let.rug.nl (Victor Julien), linux-kernel@vger.kernel.org
+In-Reply-To: <20010422095538.A16395@joshua.mesa.nl> from "Marcel J.E. Mol" at Apr 22, 2001 09:55:38 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0104221114020.10515-100000@sphinx.mythic-beasts.com>; from matthew@hairy.beasts.org on Sun, Apr 22, 2001 at 11:22:11AM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14rIo2-0005hi-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 22, 2001 at 11:22:11AM +0100, Matthew Kirkwood wrote:
-> C: CONFIG_SCSI_BLARG
+> I noticed that X11 became teribly slow on screen updates using 2.4.3-ac11 on
+> an asus a7v133 (via686b).
+> Before that I ran an a7v (via686a): using ac6 worked
+> fine with X. X on ac9 also works fine, at least I did not notice any slowdown.
+> Unfortunately cannot test ac11 on the a7v anymore...
 > 
-> tag to MAINTAINERS.  If you _really_ insist, add an:
-> 
-> F: drivers/scsi/blarg.c
-> F: drivers/scsi/blarg.h
-> 
-> too.  It removes the ambiguity inherent in the current system,
-> without adding an overengineered solution with no obvious
-> advantages.
+> I thought ac9 does include the via workarounds.  Is there a significant
+> diff between ac9 and ac11, or between via686a and 686b to cause this?
 
-And what would:
+We are still playing with the VIA fixups, but this may also be VM related. I'm
+currently playing with several VM ideas, and potential fixes which might
+impact overall performance.
 
-C: CONFIG_ARM
-
-tell you?  Nothing that is not described in the rest of the "ARM PORT"
-entry.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Test 2.4.4pre6 that has the VIA fixes but does not have the VM changes
 

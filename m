@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129759AbRAIRkP>; Tue, 9 Jan 2001 12:40:15 -0500
+	id <S129573AbRAIRmp>; Tue, 9 Jan 2001 12:42:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbRAIRkH>; Tue, 9 Jan 2001 12:40:07 -0500
-Received: from jesus.ksc.co.th ([203.107.130.99]:29702 "EHLO jesus.ksc.co.th")
-	by vger.kernel.org with ESMTP id <S131231AbRAIRjx>;
-	Tue, 9 Jan 2001 12:39:53 -0500
-Date: Wed, 10 Jan 2001 00:39:35 +0700
-From: Prasong Aroonruviwat <psa@ksc.net.th>
-To: linux-kernel@vger.kernel.org
-Subject: Please help may be off topic
-Message-ID: <20010110003935.A3008@jesus.ksc.co.th>
-Reply-To: psa@jesus.ksc.co.th
+	id <S129538AbRAIRmf>; Tue, 9 Jan 2001 12:42:35 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:29154 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S131308AbRAIRmU>;
+	Tue, 9 Jan 2001 12:42:20 -0500
+Date: Tue, 9 Jan 2001 09:42:17 -0800
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: jt@hpl.hp.com, John Ruttenberg <rutt@chezrutt.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: wavelan has fatal error with 2.4.0 (but worked in 2.4.0-test12)
+Message-ID: <20010109094217.A30225@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20010109090427.A30175@bougret.hpl.hp.com> <E14G2LB-0006zy-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.11i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14G2LB-0006zy-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jan 09, 2001 at 05:13:42PM +0000
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+On Tue, Jan 09, 2001 at 05:13:42PM +0000, Alan Cox wrote:
+> > 	This is a bug with the definition of udelay(). Somebody tried
+> > to be too clever with udelay(), and the end result is that it breaks
+> > perfectly good and valid code.
+> > 	Therefore, it should be reported as such on LKML, a bug in udelay().
+> 
+> It is a bug in the driver.
 
-        I'm sorry if this not right to post here.
-        I've got this error after upgrade my system.
+	Please check again the code and point me the invalid
+udelay(). You will realise that there is no delay in the driver that
+is longer than 100ms.
+	The bug is that udelay() can't be passed a variable but only a
+constant. Therefore bug in udelay().
 
-/usr/include/stdlib.h:208: undefined reference to `__srandom'
-/usr/include/stdlib.h:206: undefined reference to `__random'
-/usr/libip.a(net.o): In function `net_ip_connect':
-/home/seshadri/lib/net.c:281: undefined reference to `__setjmp'
-/usr/lib/libip.a(net.o): In function `net_connect':
-/home/seshadri/lib/net.c:387: undefined reference to `__setjmp'
-/usr/lib/libip.a(net.o): In function `net_read':
-/home/seshadri/lib/net.c:729: undefined reference to `__setjmp'
-/usr/lib/libcrypto.a(x509_def.o): In function `X509_load_verify_locations':
-x509_def.o(.text+0x133): undefined reference to `_xstat'
-x509_def.o(.text+0x174): undefined reference to `_xstat'
-/usr/lib/libcrypto.a(x509_crt.o): In function `X509_get_cert':
-x509_crt.o(.text+0x2a2): undefined reference to `_xstat'
-/usr/lib/libcrypto.a(read_pwd.o): In function `read_pw':
-read_pwd.o(.text+0x1f9): undefined reference to `__setjmp'
+> > there. For my part, I insist that the code is correct, that replacing
+> > an inline function by a #define is going backwards and that udelay()
+> > should be fixed one way or another (easy, just define __bad_udelay()
+> > as returning a compilation warning or an error message).
+> 
+> You can't #define a function to a #warning or #error in C. Language limitation
 
-        I can't make my program.
-        My environment is below:
+	Yes. Tough.
 
-$ gcc -V
-Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.2/specs
-gcc version 2.95.2 20000220 (Debian GNU/Linux)
-
-$ ld -v
-GNU ld version 2.9.5 (with BFD 2.9.5.0.37)
-
-$ ldd -v
-ldd: version 1.9.11
-
-Regards,
-Prasong Aroonruviwat
+	Jean
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

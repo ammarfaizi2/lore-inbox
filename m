@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267695AbRG0PvI>; Fri, 27 Jul 2001 11:51:08 -0400
+	id <S268871AbRG0P5S>; Fri, 27 Jul 2001 11:57:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268872AbRG0Pu6>; Fri, 27 Jul 2001 11:50:58 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64520 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267695AbRG0Puv>; Fri, 27 Jul 2001 11:50:51 -0400
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-To: reiser@namesys.com (Hans Reiser)
-Date: Fri, 27 Jul 2001 16:51:16 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        menion@srci.iwpsd.org (Joshua Schmidlkofer),
-        linux-kernel@vger.kernel.org (kernel)
-In-Reply-To: <no.id> from "Hans Reiser" at Jul 27, 2001 07:31:09 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268872AbRG0P46>; Fri, 27 Jul 2001 11:56:58 -0400
+Received: from vp226158.uac62.hknet.com ([202.71.226.158]:35846 "EHLO
+	main.coppice.org") by vger.kernel.org with ESMTP id <S268871AbRG0P4t>;
+	Fri, 27 Jul 2001 11:56:49 -0400
+Message-ID: <3B61872C.6B1485B6@coppice.org>
+Date: Fri, 27 Jul 2001 23:22:20 +0800
+From: Steve Underwood <steveu@coppice.org>
+Organization: Me? Organised?
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
+X-Accept-Language: en, zh-TW
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hard disk problem:
+In-Reply-To: <E15Q4Pg-0005MV-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Q9tU-0005vk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> > No. The only thing I can think of that might slow it is that we build with
-> > the reiserfs paranoia/sanity checks on. Thats because at the time 7.1 was
+Alan Cox wrote:
 > 
-> Yes, that option should never be on for an end user not having a bug that he wants a more detailed
-> bug report on.  It just makes us look slow compared to ext2.
+> > >  Model=IBM-DTLA-307030, FwRev=TX4OA50C, SerialNo=YKDYKGF1437
+> >
+> > Ah, one of these excellent Hungarian DTLA drives? :) AFAIK, the entire batch
+> > was broken, although there are people who insist that there was no single
+> > working hard drive leaving that factory! I personally have seen 7 out of 7
+> > failing...
+> 
+> I have a large collection of these drives and none of them are problematic,
+> while the maxtors seem a little less reliable
+> 
+> > Take it back to where you bought it and demand a replacement for something
+> > NOT bearing "MADE IN HUNGARY" sign.
+> 
+> Of course the writer of this is Polish and the drives are Hungarian ..
+> 
+But he is right. Practically all the "Made in Hungary" ones develop bad
+sectors after a few months. The "Made in Phillipinnes" ones do not.
+Strangely, I am Hong Kong and almost all the GXP75s we got here were
+made in Hungary - go figure! They were so bad the dealers finally
+wouldn't stock them. If your experience has been different, think
+yourself lucky.
 
-Maybe its old fashioned but we'd rather any inconsistency in the file system
-behaviour was made obvious to the end user. Enterprise customers object to
-losing data.
-
-> 2.4.2 was not a stable kernel for any FS, not just for ReiserFS.
-
-The RH 2.4.2 derived kernel isnt 2.4.2 by any stretch of the imagination. 
-Vanilla 2.4.2 wouldnt pass a test suite.
-
-> I don't think that even with CONFIG_REISERFS_CHECK on, journal replay can take as long as fsck on
-> ext2.  reiserfsck though, if that was on, oh, could even RedHat be that desperate to make us look
-> bad to users as to run reiserfsck at every boot?
-
-Hans, if you stopped considering every report that your file system wasn't
-the best in the world as either a conspiracy theory or someone elses fault
-you'd have a much better product
-
-Nobody needs conspiracies to not use reiserfs as their core fs, and until
-things like big endian support are cleanly resolved that isnt likely to
-change.
-
-Alan
+Regards,
+Steve

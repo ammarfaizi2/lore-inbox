@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288834AbSANS5G>; Mon, 14 Jan 2002 13:57:06 -0500
+	id <S288956AbSANTBf>; Mon, 14 Jan 2002 14:01:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288862AbSANS4X>; Mon, 14 Jan 2002 13:56:23 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:3718
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288897AbSANSzk>; Mon, 14 Jan 2002 13:55:40 -0500
-Date: Mon, 14 Jan 2002 13:39:11 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
+	id <S288896AbSANTAi>; Mon, 14 Jan 2002 14:00:38 -0500
+Received: from bitmover.com ([192.132.92.2]:26497 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S288922AbSANS7l>;
+	Mon, 14 Jan 2002 13:59:41 -0500
+Date: Mon, 14 Jan 2002 10:59:40 -0800
+From: Larry McVoy <lm@bitmover.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-        Giacomo Catenazzi <cate@debian.org>,
+Cc: esr@thyrsus.com, Eli Carter <eli.carter@inet.com>,
+        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away?
-Message-ID: <20020114133911.B17522@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-	Giacomo Catenazzi <cate@debian.org>,
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020114105940.H27433@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
+	Eli Carter <eli.carter@inet.com>,
+	"Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
 	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020114131050.E14747@thyrsus.com> <E16QCH4-0002XB-00@the-village.bc.nu>
+In-Reply-To: <20020114132618.G14747@thyrsus.com> <E16QCL7-0002Xs-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16QCH4-0002XB-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 14, 2002 at 06:56:02PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16QCL7-0002Xs-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 14, 2002 at 07:00:13PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > Yowza...so how soon is [the end of hard-compiled drivers] supposed to 
-> > happen?
-> 
-> Subject to availability. No contract implied or etc.. Its something to
-> tackle after the rest of initramfs works.
+On Mon, Jan 14, 2002 at 07:00:13PM +0000, Alan Cox wrote:
+> Secondly we've established we can pick the right CPU for the kernel reliably
+> that is seperate to modules. 
 
-Dang.  This will make the CML2 inference engine work better in some
-funky corner cases, too.  And its behavior will be easier to
-understand all around.
-
-Sign me up.  This will be a good change; I like it when I can make things
-better by taking features *out* of my code.
+Yup, I noticed this when I did a RH 7.2 install recently, pretty spiffy.
+And it seems to work, 7.2 "feels" faster, especially groff for some reason
+I don't understand.
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Every Communist must grasp the truth, 'Political power grows out of
-the barrel of a gun.'
-        -- Mao Tse-tung, 1938, inadvertently endorsing the Second Amendment.
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

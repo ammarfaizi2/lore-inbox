@@ -1,40 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265064AbUEKXiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265065AbUEKXpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265064AbUEKXiO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 19:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265057AbUEKXiO
+	id S265065AbUEKXpj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 19:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUEKXpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 19:38:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18082 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265065AbUEKXho (ORCPT
+	Tue, 11 May 2004 19:45:39 -0400
+Received: from mail.kroah.org ([65.200.24.183]:61154 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265065AbUEKXpZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 19:37:44 -0400
-Date: Tue, 11 May 2004 16:38:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: ashok.raj@intel.com, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
-       anil.s.keshavamurthy@intel.com
-Subject: Re: (resend) take3: Updated CPU Hotplug patches for IA64 (pj
- blessed) Patch [6/7]
-Message-Id: <20040511163801.2a657b07.akpm@osdl.org>
-In-Reply-To: <20040511161653.49e836e5.pj@sgi.com>
-References: <20040504211755.A13286@unix-os.sc.intel.com>
-	<20040511161653.49e836e5.pj@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 11 May 2004 19:45:25 -0400
+Date: Tue, 11 May 2004 16:33:51 -0700
+From: Greg KH <greg@kroah.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [RFC 2/2] sysfs_rename_dir-cleanup
+Message-ID: <20040511233350.GC27069@kroah.com>
+References: <20040417082206.GM24997@parcelfarce.linux.theplanet.co.uk> <20040430101333.GB25296@in.ibm.com> <20040430101401.GC25296@in.ibm.com> <200404300748.14151.dtor_core@ameritech.net> <20040504053908.GA2900@in.ibm.com> <20040507222549.GB14660@kroah.com> <20030509153523.A20357@in.ibm.com> <20030509153957.A20432@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030509153957.A20432@in.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> On the off chance that
-> others find this way of phrasing it helpful, I post it here for the
-> record.
+On Fri, May 09, 2003 at 03:39:57PM +0530, Maneesh Soni wrote:
+> diff -puN fs/sysfs/dir.c~sysfs_rename_dir-cleanup fs/sysfs/dir.c
+> --- linux-2.6.6-rc3-mm2/fs/sysfs/dir.c~sysfs_rename_dir-cleanup	2004-05-05 18:22:39.000000000 +0530
+> +++ linux-2.6.6-rc3-mm2-maneesh/fs/sysfs/dir.c	2004-05-05 18:33:54.000000000 +0530
+> @@ -162,15 +162,16 @@ restart:
+>  	dput(dentry);
+>  }
+>  
+> -void sysfs_rename_dir(struct kobject * kobj, const char *new_name)
+> +int sysfs_rename_dir(struct kobject * kobj, const char *new_name)
+>  {
+> +	int error = 0;
+>  	struct dentry * new_dentry, * parent;
+>  
+>  	if (!strcmp(kobject_name(kobj), new_name))
+> -		return;
+> +		return -EINVAL;
+>  
+>  	if (!kobj->parent)
+> -		return;
+> +		return -EINVAL;
+>  
+>  	down_write(&sysfs_rename_sem);
+>  	parent = kobj->parent->dentry;
+> @@ -179,13 +180,16 @@ void sysfs_rename_dir(struct kobject * k
+>  	new_dentry = sysfs_get_dentry(parent, new_name);
+>  	if (!IS_ERR(new_dentry)) {
+>  		if (!new_dentry->d_inode) {
+> -			d_move(kobj->dentry, new_dentry);
+> -			kobject_set_name(kobj,new_name);
+> +			error = kobject_set_name(kobj,new_name);
+> +			if (!error)
+> +				d_move(kobj->dentry, new_dentry);
+>  		}
+>  		dput(new_dentry);
+>  	}
+>  	up(&parent->d_inode->i_sem);	
+>  	up_write(&sysfs_rename_sem);
+> +
+> +	return error;
+>  }
+>  
+>  EXPORT_SYMBOL(sysfs_create_dir);
 
-Thanks, I added that to the changelog.  If you think additional code
-commentary is needed, please send patches.
+This second chunk fails miserably.  I don't know what you diffed it
+against, as it doesn't look like anything that I currently have in that
+function...
 
-I guess I'm not doing anything useful with these patches.  Is it OK with
-everyone if I scoot them over to davidm?
+Anyway, can you grab the next -mm release and rediff this patch against
+the bk-driver-2.6 tree, or even against a clean 2.6.6 tree so that I can
+apply it?
+
+thanks,
+
+greg k-h

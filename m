@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbTD3XL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 19:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbTD3XL6
+	id S262526AbTD3X1y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 19:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbTD3X1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 19:11:58 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:4207 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262494AbTD3XL4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 19:11:56 -0400
-Date: Wed, 30 Apr 2003 16:21:08 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Rick Lindsley <ricklind@us.ibm.com>
-Cc: solt@dns.toxicfilms.tv, linux-kernel@vger.kernel.org, frankeh@us.ibm.com
-Subject: Re: must-fix list for 2.6.0
-Message-Id: <20030430162108.09dbd019.akpm@digeo.com>
-In-Reply-To: <200304302311.h3UNB2H27134@owlet.beaverton.ibm.com>
-References: <20030430121105.454daee1.akpm@digeo.com>
-	<200304302311.h3UNB2H27134@owlet.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Apr 2003 23:24:10.0599 (UTC) FILETIME=[9A98AF70:01C30F6F]
+	Wed, 30 Apr 2003 19:27:53 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44806 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262526AbTD3X1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 19:27:52 -0400
+Date: Wed, 30 Apr 2003 16:41:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>,
+       <dphillips@sistina.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Faster generic_fls
+In-Reply-To: <1051734350.20270.28.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0304301640110.19484-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rick Lindsley <ricklind@us.ibm.com> wrote:
->
-> 	Why is this bad?
-> 	(a) if it does busy looping through sched_yield it will eat cycles which
-> 	    might not have happened
 
-Things like OpenOffice _do_ busy loop on sched_yield().  It appears with
-that patch, OO will sit there chewing ~1% of CPU.  Not great, but not bad
-either..
+On 30 Apr 2003, Alan Cox wrote:
+> 
+> It ought to be basically the same as ffs because if I remember rightly 
+> 
+> ffs(x^(x-1)) == fls(x)
 
-A few kernels ago, OpenOffice would take sixty seconds to just flop down a
-menu if there was a kernel build happening at the same time.  That is just
-utterly broken, so if we're going to leave the sched.c code as-is then we
-*require* that all applications be updated to not spin on sched_yield.
+So did anybody time this? ffs() we have hardware support for on x86, and 
+it's even reasonably efficient on some CPU's .. So this _should_ beat all 
+new-comers, and obviously some people already have benchmark programs 
+ready and willing..
 
-There's just no question about that.  It may end up not being acceptable.
-
-Has anyone looked at what Andrea did in -aa?  I assume some suitable
-compromise was achieved there.
-
+		Linus
 

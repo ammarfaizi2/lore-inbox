@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317362AbSHBAXC>; Thu, 1 Aug 2002 20:23:02 -0400
+	id <S317450AbSHBA2M>; Thu, 1 Aug 2002 20:28:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317363AbSHBAXC>; Thu, 1 Aug 2002 20:23:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33034 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317362AbSHBAW7>;
-	Thu, 1 Aug 2002 20:22:59 -0400
-Message-ID: <3D49D1B2.2010201@mandrakesoft.com>
-Date: Thu, 01 Aug 2002 20:26:26 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Levon <movement@marcelothewonderpenguin.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: network driver informations [general NIC, Wireless and e100]
-References: <20020731212426.GA3342@schottelius.org> <3D492531.9030905@mandrakesoft.com> <20020801174252.GA58488@compsoc.man.ac.uk>
-X-Enigmail-Version: 0.65.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317484AbSHBA2M>; Thu, 1 Aug 2002 20:28:12 -0400
+Received: from pcp809445pcs.nrockv01.md.comcast.net ([68.49.82.129]:55686 "EHLO
+	zalem.puupuu.org") by vger.kernel.org with ESMTP id <S317450AbSHBA2L>;
+	Thu, 1 Aug 2002 20:28:11 -0400
+Date: Thu, 1 Aug 2002 20:31:40 -0400
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: manipulating sigmask from filesystems and drivers
+Message-ID: <20020801203140.A3166@zalem.puupuu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208020009490.28515-100000@serv> <Pine.LNX.4.33.0208011613440.1315-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0208011613440.1315-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Aug 01, 2002 at 04:30:40PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon wrote:
-> On Thu, Aug 01, 2002 at 08:10:25AM -0400, Jeff Garzik wrote:
-> 
-> 
->>Al Viro has talked about, long term, making this information available 
->>through a filesystem.  When that happens, your request will have 
->>basically been implemented.
-> 
-> 
-> It would probably help if some of the basic code needed was wrapped in
-> an even more "dumbed-down" API - most of the stuff in say pcihpfs is
-> generically useful for this sort of configfs thing.
-> 
-> As more and more minifs's appear (they are trivially easy to write after
-> all) we're likely to see more duplication of this code, and the
-> resultant missing bug fix propogation
+On Thu, Aug 01, 2002 at 04:30:40PM -0700, Linus Torvalds wrote:
+> And yes, these logging programs are mission-critical, and they do have
+> signals going on, and they rely on well-defined and documented interfaces
+> that say that doing a write() to a filesystem is _not_ going to return in
+> the middle just because a signal came in.
 
+How hard and/or insane would it be to somehow special-case SIGKILL?
+It is a tad annoying not to be able to get rid of D state processes,
+especially ones blocking unmounts because the filesystem is busy.
 
-Doubtful -- Al Viro created libfs.c, and understands the basic concept 
-of avoiding code duplication :)
+Of course, an alternative is a real, brutal, forced unmount that
+leaves a clean filesystem and dead/dying processes.
 
-
+  OG.

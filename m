@@ -1,26 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293608AbSBZVtx>; Tue, 26 Feb 2002 16:49:53 -0500
+	id <S293607AbSBZVuN>; Tue, 26 Feb 2002 16:50:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293070AbSBZVto>; Tue, 26 Feb 2002 16:49:44 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:63497 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S292835AbSBZVtZ>;
-	Tue, 26 Feb 2002 16:49:25 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Martin Dalecki <dalecki@evision-ventures.com>
+	id <S293070AbSBZVuE>; Tue, 26 Feb 2002 16:50:04 -0500
+Received: from tomahawk.com ([194.85.82.184]:47109 "HELO gleam.rt.mipt.ru")
+	by vger.kernel.org with SMTP id <S293607AbSBZVtu>;
+	Tue, 26 Feb 2002 16:49:50 -0500
+Date: Wed, 27 Feb 2002 00:49:43 +0300
+From: Andrey Ulanov <drey@au.ru>
+To: linux-fbdev-devel@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5 IDE clean 14 
-In-Reply-To: Your message of "Tue, 26 Feb 2002 13:15:19 BST."
-             <3C7B7C57.4090000@evision-ventures.com> 
+Subject: [PATCH] intel740 frame-buffer device driver
+Message-ID: <20020227004943.A2678@gleam.rt.mipt.ru>
+Mail-Followup-To: Andrey Ulanov <drey@au.ru>,
+	linux-fbdev-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 27 Feb 2002 08:49:12 +1100
-Message-ID: <24118.1014760152@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin, please fix your mailer on 195.63.194.11.  It retries the send
-every minute which is far too fast.  It is absolutely broken because it
-ignores 5xx response codes.
+i wrote intel740 frame-buffer driver. i tested it with my hardware 
+with kernels 2.4.8, 2.4.14, 2.4.17 and 2.5.5. 
 
+you can download the patch
+http://i740fbdev.sourceforge.net/download/patch-2.5.5-i740fb-020225.diff.gz
+
+if anybody tested it, please drop me a report
+
+-- 
+With best regards, Andrey Ulanov.
+mailto: drey<at>au.ru
+XMMS: Tiamat - So Much For Suicide

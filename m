@@ -1,35 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVBRHJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVBRHYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbVBRHJe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 02:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVBRHJd
+	id S261304AbVBRHYa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 02:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVBRHYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 02:09:33 -0500
-Received: from gate.crashing.org ([63.228.1.57]:8366 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261301AbVBRHJc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 02:09:32 -0500
-Subject: Current bk on ppc32: kernel text corruption
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>
-Content-Type: text/plain
-Date: Fri, 18 Feb 2005 18:09:14 +1100
-Message-Id: <1108710554.5587.1.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Feb 2005 02:24:30 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7859 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261299AbVBRHY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 02:24:28 -0500
+To: Itsuro Oda <oda@valinux.co.jp>
+Cc: fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Re: [PATCH] /proc/cpumem
+References: <20050217084547.4C72.ODA@valinux.co.jp>
+	<m1vf8rtsrw.fsf@ebiederm.dsl.xmission.com>
+	<20050218150658.4CA2.ODA@valinux.co.jp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 18 Feb 2005 00:22:08 -0700
+In-Reply-To: <20050218150658.4CA2.ODA@valinux.co.jp>
+Message-ID: <m1y8dmxrhb.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, we may not be over with memory corruption bugs yet. ppc64 now seem
-stable running LTP overnight, but my laptop has a page of kernel .text
-replaced with zero's as soon as I launch X (and just X, no need to launc
-the whole desktop environment).
+Itsuro Oda <oda@valinux.co.jp> writes:
 
-I suspect remap_pfn_range() but I haven't checked yet.
+> I see. I would like to contribute as possible I can.
 
-Ben.
+Pick some piece you that have an affinity for and work on it.
+Problems are best solved by those who see them and by those who care :)
 
+I believe Vivek Goyal is currently working on the remaining user space
+piece, and expects to have something in a week or so.
 
+Eric

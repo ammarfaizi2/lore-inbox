@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269223AbTGJLrW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 07:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269224AbTGJLrV
+	id S269225AbTGJLsh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 07:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269226AbTGJLsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 07:47:21 -0400
-Received: from ns.suse.de ([213.95.15.193]:37392 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269223AbTGJLrR (ORCPT
+	Thu, 10 Jul 2003 07:48:36 -0400
+Received: from neko.kfib.org ([193.12.253.17]:15759 "EHLO neko.kfib.org")
+	by vger.kernel.org with ESMTP id S269225AbTGJLsa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 07:47:17 -0400
-To: Oleg Drokin <green@namesys.com>
-Cc: Andrey Borzenkov <arvidjaar@mail.ru>,
-       "\"Nikita Danilov\" " <Nikita@Namesys.COM>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Are "," and ".." in directory required?
-References: <16141.14720.980604.428130@laputa.namesys.com>
-	<E19aYWH-00075R-00.arvidjaar-mail-ru@f25.mail.ru>
-	<20030710104145.GA2858@namesys.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: All I can think of is a platter of organic PRUNE CRISPS being
- trampled
- by an army of swarthy, Italian LOUNGE SINGERS...
-Date: Thu, 10 Jul 2003 14:01:55 +0200
-In-Reply-To: <20030710104145.GA2858@namesys.com> (Oleg Drokin's message of
- "Thu, 10 Jul 2003 14:41:45 +0400")
-Message-ID: <je65maio98.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 10 Jul 2003 07:48:30 -0400
+Date: Thu, 10 Jul 2003 14:03:15 +0200
+Message-Id: <200307101203.h6AC3FB17406@neko.kfib.org>
+From: "=^.^=" <martin@kfib.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Bug in initrd-handling while remounting the root
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin <green@namesys.com> writes:
+At work we've encountered a problem when trying to netboot 2.4.21.
+After /linuxrc has been executed and the kernel tries to remount the
+root, it panics with the all too well known message "Unable to mount
+root fs on ...".
 
-|> Hello!
-|> 
-|> On Thu, Jul 10, 2003 at 02:19:21PM +0400, "Andrey Borzenkov"  wrote:
-|> > > Enter empty directory. Remove it by rmdir() by another process. Now you
-|> > > have a directory without dot and dotdot.
-|> > It is not quite the same.
-|> > bor@itsrm2% cd foo
-|> > bor@itsrm2% sudo rmdir /tmp/foo
+The kernel bugs out in mount_block_root in the file init/do_mounts.c,
+to be more precise in the for-loop. What happens is that it tries to
+mount the file system as type ext2 (which happens to be first in the
+list in our case), but instead of returning -EINVAL it returns -EBUSY,
+the loop exits instead of trying the next (correct) fs-type and the
+kernel panics.
 
-No need for sudo.
+Here's a patch:
 
-|> > bor@itsrm2% ls -la .
-|> > .: No such file or directory
-|> 
-|> Well, this sequence of events is wrong.
-|> You need to open it first, then remove it, and then do readdir (you still have filehandle to it).
+--- linux-2.4.21/init/do_mounts.orig	Thu Jul 10 13:44:03 2003
++++ linux-2.4.21/init/do_mounts.c	Thu Jul 10 13:46:36 2003
+@@ -359,6 +359,7 @@
+ 				flags |= MS_RDONLY;
+ 				goto retry;
+ 			case -EINVAL:
++		        case -EBUSY:
+ 				continue;
+ 		}
+ 	        /*
 
-The filehandle is implicit (by being a cwd).
+--
+Martin Persson           martin@kfib.org
+http://martin.kfib.org/  http://ss.kfib.org/
 
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+  "esound is junk. The only thing esd has is a good client API for
+   going boing at approximately the right time. Anything else is
+   beyond it." -- Alan Cox

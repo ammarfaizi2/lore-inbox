@@ -1,42 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264302AbTDKGxz (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 02:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTDKGxz (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 02:53:55 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:22745 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S264302AbTDKGxy (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 02:53:54 -0400
-Date: Fri, 11 Apr 2003 00:05:36 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200304110705.h3B75aQt026081@napali.hpl.hp.com>
-To: akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: too much timer simplification...
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+	id S264303AbTDKHEf (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 03:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbTDKHEf (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 03:04:35 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:62959 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S264303AbTDKHEe (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 03:04:34 -0400
+Message-ID: <3E966BAA.804@mvista.com>
+Date: Fri, 11 Apr 2003 00:15:54 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 kernel/timer.c may incorrectly reenable interrupts
+References: <24294.1050043625@kao2.melbourne.sgi.com>
+In-Reply-To: <24294.1050043625@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears to me that this changeset:
+Keith Owens wrote:
+> 2.4.20 kernel/timer.c
+> 
+> static inline void update_times(void)
+> {
+> 	unsigned long ticks;
+> 
+> 	/*
+> 	 * update_times() is run from the raw timer_bh handler so we
+> 	 * just know that the irqs are locally enabled and so we don't
+> 	 * need to save/restore the flags of the local CPU here. -arca
+> 	 */
+> 	write_lock_irq(&xtime_lock);
+> 	vxtime_lock();
+> 
+> 	ticks = jiffies - wall_jiffies;
+> 	if (ticks) {
+> 		wall_jiffies += ticks;
+> 		update_wall_time(ticks);
+> 	}
+> 	vxtime_unlock();
+> 	write_unlock_irq(&xtime_lock);
+> 	calc_load(ticks);
+> }
+> 
+> I hit one case when the routine was called with interrupts disabled and
+> it unconditionally enabled them, with nasty side effects.  Code fragment
+> 
+>   local_irq_save();
+>   local_bh_disable();
+>   ....
+>   local_bh_enable();
+>   local_irq_restore();
+> 
+> local_bh_enable() checks for pending softirqs, finds that there is an
+> outstanding timer bh and runs it.  do_softirq() -> tasklet_hi_action()
+> -> bh_action() -> timer_bh() -> update_times() which unconditionally
+> reenables interrupts.  Then the timer code issued cli(), because
+> interrupts were incorrectly reenabled it tried to get the global cli
+> lock and hung.
 
-  http://linux.bkbits.net:8080/linux-2.5/diffs/kernel/timer.c@1.48
+If you look at do_softirq() you will see that it enables irqs 
+unconditionally while calling pending functions.  It does, however, 
+save the irq on entry and restore it on exit (seems strange eh).
+> 
+> There is no documentation that defines the required nesting order of
+> local_irq and local_bh.  Even if the above code fragment is deemed to
+> be illegal, there are uses of local_bh_enable() all through the kernel,
+> it will be difficult to prove that none of them are called with
+> interrupts disabled.  If there is any chance that local_bh_enable() is
+> called with interrupts off, update_times() is wrong.
 
-may have gone a little too far.
+IMHO, update_times() is right!  The code fragment you found is wrong. 
+  If there is a real need we could code up a check to see if 
+local_bh_enable() is called with interrupts off.
 
-What I'm seeing is that if someone happens to arm a periodic timer at
-exactly 256 jiffies (as ohci happens to do on platforms with HZ=1024),
-then you end up getting an endless loop of timer activations, causing
-a machine hang.
+As machines get faster and faster, it will be come more and more of a 
+burden to "stop the world" and sync with the interrupt system, which 
+is running at a much slower speed.  This is what the cli / sti/ 
+restore flags causes.  I saw one test where the time to do the cli was 
+as long as the run_timer_list code, for example.
 
-The problem is that __run_timers updates base->timer_jiffies _before_
-running the callback routines.  If a callback re-arms the timer at
-exactly 256 jiffies, add_timers() will reinsert the timer into the
-list that we're currently processing, which of course will cause the
-timer to expire immediately again, etc., etc., ad naseum...
 
-I'll leave it as an exercise to the readers to come up with the proper
-patch.  (The old code looked fine to me.  My cheesy quick workaround
-is to round up 256 ticks to 257 ticks; might not make the soft RT
-folks too happy though... ;-)
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-	--david

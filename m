@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275723AbRJAXzU>; Mon, 1 Oct 2001 19:55:20 -0400
+	id <S275719AbRJAX6A>; Mon, 1 Oct 2001 19:58:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275719AbRJAXzL>; Mon, 1 Oct 2001 19:55:11 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:23823 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S275723AbRJAXy4>; Mon, 1 Oct 2001 19:54:56 -0400
-Date: Mon, 1 Oct 2001 16:55:13 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Jordan Breeding <ledzep37@home.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Increasing dmesg buffer size?
-In-Reply-To: <3BB90039.E551000C@home.com>
-Message-ID: <Pine.LNX.4.10.10110011650280.8135-100000@transvirtual.com>
+	id <S275731AbRJAX5u>; Mon, 1 Oct 2001 19:57:50 -0400
+Received: from maile.telia.com ([194.22.190.16]:13051 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id <S275719AbRJAX5i>;
+	Mon, 1 Oct 2001 19:57:38 -0400
+Message-ID: <3BB9030D.C82F6D3A@canit.se>
+Date: Tue, 02 Oct 2001 01:58:05 +0200
+From: Kenneth Johansson <ken@canit.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: stephane@antefacto.com, linux-kernel@vger.kernel.org
+Subject: Re: USB Issues on 2.4
+In-Reply-To: <mailman.1001935801.16389.linux-kernel2news@redhat.com> <200110011705.f91H5lB31719@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pete Zaitcev wrote:
 
-> What kernel parameter do I need to modify in the source to allow a
-> larger dmesg buffer?  I have a lot of boot messages and I currently
-> loose about 10-20 lines immediately and they can not even be seen in
-> /var/log/dmesg because that file gets dumped after those lines are
-> already gone.  Thanks to anyone who can help.
+> > First one (the intel) behaves fine, all modules loading up okay and all
+> > working smoothly.
+> >
+> > Second one (via from hell) locks up the keyboard as soon as the usb-uhci
+> > is loaded up. This behavior happened on both 2.4.9 and 2.4.10 final
+> > kernels.
+>
 
-No command line paramter. Go into linux/kernel/printk.c and increase the
-value of LOG_BUF_LEN. It must be a power of two.
+I have a similar problem but I get it both on keyboard and mouse (usb). The
+funny thing is that if I do filesystem activity the keyboard and mouse works
+OK.
+
+This must be some sort of IRQ problem.
+
+Don't know if it works in earlier version 2.4.10 is the first one in a long
+time I tried to get USB working on.
+
 

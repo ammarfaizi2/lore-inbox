@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVCKUaC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVCKUaD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbVCKUaC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 15:30:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVCKU1m
+	id S261268AbVCKUaD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 15:30:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVCKU1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 15:27:42 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:26256 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261563AbVCKUSL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 15:18:11 -0500
-Message-ID: <4231FE29.7090109@tmr.com>
-Date: Fri, 11 Mar 2005 15:23:05 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Fri, 11 Mar 2005 15:27:53 -0500
+Received: from mail58-s.fg.online.no ([148.122.161.58]:6045 "EHLO
+	mail58-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S261804AbVCKUKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 15:10:41 -0500
+From: Kenneth =?iso-8859-1?q?Aafl=F8y?= <lists@kenneth.aafloy.net>
+To: Juri Haberland <juri@koschikode.com>
+Subject: Re: linux dvb alps_tdlb7 removed
+Date: Fri, 11 Mar 2005 21:10:27 +0100
+User-Agent: KMail/1.7.2
+Cc: Peter Waechtler <pwaechtler@mac.com>, linux-kernel@vger.kernel.org
+References: <20050311125836.BDB721B02B@nx-01.home.sapienti-sat.org>
+In-Reply-To: <20050311125836.BDB721B02B@nx-01.home.sapienti-sat.org>
 MIME-Version: 1.0
-To: Rob Landley <rob@landley.net>
-CC: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] [PATCH 3/9] UML - "Hardware" random number generator
-References: <200503100215.j2A2FuDN015227@ccure.user-mode-linux.org><200503100215.j2A2FuDN015227@ccure.user-mode-linux.org> <200503101341.37346.rob@landley.net>
-In-Reply-To: <200503101341.37346.rob@landley.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503112110.28060.lists@kenneth.aafloy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> On Wednesday 09 March 2005 09:15 pm, Jeff Dike wrote:
+On Friday 11 March 2005 13:58, Juri Haberland wrote:
+> In article <aebc44b2e0c42cc9dc0ec0b215c10ec4@mac.com> you wrote:
+> > With version 2.6.10 the driver for the tuner frontend from ALPS TDLB7 
+> > was removed.
+> > 
+> > Why do you think that this is a dead file?
+> > While I'm happy with the work you do for dvb on Linux, and I want to 
+> > thank you for this anyway, my TV does not work anymore! :(
+> > 
+> > I use a TechoTrend Premium card with that frontend on it. It worked 
+> > fine until 2.6.10.
+> > Can you put it back into mainline? Is there some work to do for 
+> > reinsertion?
 > 
->>This implements a hardware random number generator for UML which attaches
->>itself to the host's /dev/random.
-> 
-> 
-> Direct use of /dev/random always makes me nervous.  I've had a recurring 
-> problem with /dev/random blocking, and generally configure as much as 
-> possible to use /dev/urandom instead.  It's really easy for a normal user to 
-> drain the /dev/random entropy pool on a server (at least one that doesn't 
-> have a sound card you can tell it to read white noise from).  cat /dev/random 
-> 
->>/dev/null
-> 
-> 
-> I like /dev/urandom because it'll feed you as much entropy as it's got, but 
-> won't block, and will presumably round-robin insert real entropy in the 
-> streams that multiple users get from /dev/urandom.  (I realize this may not 
-> be the best place to get gpg keys from.)
-> 
-> I'm just thinking about those UML hosting farms, with several UML instances 
-> per machine, on machines which haven't got a keyboard attached constantly 
-> feeding entropy into the pool.  If just ONE of them is serving ssl 
-> connections from its own /dev/urandom, that would drain the /dev/random 
-> entropy pool on the host machine almost immediately...
-> 
-> Admittedly if UML used /dev/urandom instead of /dev/random, it wouldn't know 
-> how much "real" randomness it was getting and how much synthetic randomness, 
-> but this makes predicting the numbers it's producing easier how?
+> I think the driver you now need is sp8870. It's just another name for
 
-Use of a "hardware" RNG patch without a real hardware RNG could do all 
-that. I would add a caution to the help warning of this problem if you 
-lack real hardware RNG capability. The really paranoid could insist that 
-at least one hardware driver be configured, but how much do you need to 
-protect people from themselves?
+Yup you are right. If someone has a card that is no longer working,
+please have a look at these pages and contact the linuxtv-dvb mailing-list:
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+http://www.linuxtv.org/wiki/index.php/Supported_DVB_cards
+http://www.linuxtv.org/wiki/index.php/DVB_cards_requiring_definition
+http://www.linuxtv.org/lists.php
+
+Kenneth

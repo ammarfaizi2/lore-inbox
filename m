@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271024AbTGPRqg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271023AbTGPRoz
+	id S270975AbTGPRxg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270994AbTGPRxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:44:55 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:49811 "EHLO
-	genius.impure.org.uk") by vger.kernel.org with ESMTP
-	id S270965AbTGPRoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:44:05 -0400
-Date: Wed, 16 Jul 2003 18:58:09 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Pedro Ribeiro <deadheart@netcabo.pt>, linux-kernel@vger.kernel.org
-Subject: Re: Problems with 2.6.0-test1 && depmod
-Message-ID: <20030716175809.GA26192@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Pedro Ribeiro <deadheart@netcabo.pt>, linux-kernel@vger.kernel.org
-References: <3F15E439.70107@netcabo.pt> <20030716103517.65e146bc.rddunlap@osdl.org>
+	Wed, 16 Jul 2003 13:53:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15331 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270975AbTGPRwn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:52:43 -0400
+Date: Wed, 16 Jul 2003 11:00:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: axboe@suse.de, davej@codemonkey.org.uk, vojtech@suse.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: PS2 mouse going nuts during cdparanoia session.
+Message-Id: <20030716110009.43129dca.akpm@osdl.org>
+In-Reply-To: <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk>
+References: <20030716165701.GA21896@suse.de>
+	<20030716170352.GJ833@suse.de>
+	<1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030716103517.65e146bc.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 10:35:17AM -0700, Randy.Dunlap wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> > SG_IO, that way you can use dma (and zero copy) for the rips. That will
+> > be lots more smooth.
+> 
+> So why isnt this occuring on 2.4 .. thats the important question here is
+> this a logging thing, a new input layer bug, an ide bug or what ?
 
- > Please read
- >   http://www.codemonkey.org.uk/post-halloween-2.5.txt
- > when it's back online (maybe 2 hours).
-
-Until then.. http://lwn.net/Articles/39901/  (Thanks Jon).
-
-		Dave
+input layer, I think.  Several people are having problems with the
+synchronisation loss thing.
 

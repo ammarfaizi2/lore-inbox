@@ -1,56 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267612AbUJRThO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUJRThQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267612AbUJRThO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 15:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUJRThA
+	id S267602AbUJRThQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 15:37:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267633AbUJRTgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 15:37:00 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:26312 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267651AbUJRTei (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 15:34:38 -0400
-Date: Mon, 18 Oct 2004 21:36:03 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
-Message-ID: <20041018193603.GB8159@elte.hu>
-References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041018193251.GA15313@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041018193251.GA15313@nietzsche.lynx.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 18 Oct 2004 15:36:20 -0400
+Received: from mail.scitechsoft.com ([63.195.13.67]:14760 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S267659AbUJRTfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 15:35:00 -0400
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: Jon Smirl <jonsmirl@gmail.com>
+Date: Mon, 18 Oct 2004 12:34:45 -0700
+MIME-Version: 1.0
+Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
+CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Message-ID: <4173B865.26539.117B09BD@localhost>
+In-reply-to: <9e47339104101519034137c795@mail.gmail.com>
+References: <200410160946.32644.adaplas@hotpop.com>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jon Smirl <jonsmirl@gmail.com> wrote:
 
-* Bill Huey <bhuey@lnxw.com> wrote:
-
-> On Mon, Oct 18, 2004 at 04:50:08PM +0200, Ingo Molnar wrote:
-> > i have released the -U5 Real-Time Preemption patch:
-> > 
-> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U5
+> > There's a log of initialization that goes on between console_init() and
+> > populate_rootfs().  However, console_init() will only initialize built-in
+> > consoles (as pointed to by conswitchp) such as vgacon or dummycon.
+> > However, the framebuffer system initialization does happen after
+> > populate_rootfs().
 > 
->   CC      arch/i386/kernel/traps.o
-> arch/i386/kernel/traps.c: In function `do_debug':
-> arch/i386/kernel/traps.c:786: error: `sysenter_past_esp' undeclared (first use in this function)
-> arch/i386/kernel/traps.c:786: error: (Each undeclared identifier is reported only once
-> arch/i386/kernel/traps.c:786: error: for each function it appears in.)
-> make[1]: *** [arch/i386/kernel/traps.o] Error 1
-> make: *** [arch/i386/kernel] Error 2
+> We already have vgacon, promcon, sticon, mgacon, newportcon. What
+> platforms (other than embedded) are not covered by these? 
 
-i guess this might be an -mm1 breakage if CONFIG_KGDB enabled - does it
-happen with vanilla -mm1 too?
+Many embedded platforms do not map VGA resources in, so it is not 
+possible to get VGACon to work on those machines unless the kernel/boot 
+loader is modified to properly map VGA resources (which should be 
+possible).
 
-	Ingo
+Then there are Macintosh machines that also do not map VGA resources. I 
+am not sure if it is possible to map them on Macintosh machines or not.
+
+I would assume however a serial port console would be fine for embedded 
+machines until the framebuffer driver could come up anyway.
+
+> The idea is to use one of these as a temporary console and not
+> print anything on it except KERN_ERR level messages. Of course if
+> you are a kernel developer you can change this. A working system
+> would non have KERN_ERR messages during this phase and the screen
+> would remain blank. 
+> 
+> Messages at levels other than KERN_ERR would be queued until
+> populate_rootfs()/early user space time where they would then get
+> displayed on the fbcon. fbcon will be a full console with mode
+> setting capability and other fancy features. It would immediately
+> go into graphics mode. 
+
+As long as this process happens quickly and the machine boots into 
+graphics mode within 1-2 seconds from poweron, that would probably be OK. 
+If it starts taking too long for the system to get into graphics mode to 
+display something the user can easily think something is wrong and the 
+machine is not working.
+
+Regards,
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
+
+

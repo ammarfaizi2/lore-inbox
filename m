@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262391AbSJ2RsP>; Tue, 29 Oct 2002 12:48:15 -0500
+	id <S262084AbSJ2Rrq>; Tue, 29 Oct 2002 12:47:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262402AbSJ2RsO>; Tue, 29 Oct 2002 12:48:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60173 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262391AbSJ2RsO>;
-	Tue, 29 Oct 2002 12:48:14 -0500
-Message-ID: <3DBECB3E.8000809@pobox.com>
-Date: Tue, 29 Oct 2002 12:54:06 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S262391AbSJ2Rrq>; Tue, 29 Oct 2002 12:47:46 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49158 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262084AbSJ2Rrp> convert rfc822-to-8bit; Tue, 29 Oct 2002 12:47:45 -0500
+Date: Tue, 29 Oct 2002 09:53:48 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove the conv option of fat (1/3)
+In-Reply-To: <87fzupb2pi.fsf@devron.myhome.or.jp>
+Message-ID: <Pine.LNX.4.44.0210290949120.6190-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Osamu Tomita <tomita@cinet.co.jp>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, LKML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCHSET 8/23] add support for PC-9800 architecture (fs)
-References: <20021029023017.A2319@precia.cinet.co.jp> <1035844431.1945.81.camel@irongate.swansea.linux.org.uk> <20021030021146.C4772@precia.cinet.co.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g9THrjR27141
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A general suggestion... some of your patches add headers to include/* 
-directories, when they are only included from one location in the tree. 
- For that case, it is preferred to place the header in the same 
-directory as the code which includes the header.
 
+On Wed, 30 Oct 2002, OGAWA Hirofumi wrote:
+>
+> This removes the conv option. This option does nothing, now.
+> (This patch from René Scharfe)
+
+This patch was damaged in interesting ways, in particular the number of 
+lines in the patch description was wrong, causing the patch program to get 
+very confused.
+
+That implies that you're using some kind of post-processing tool to remove
+lines from the diff, without fixing up the diff numeric output. Correct?  
+If so, your tools are broken.
+
+I ended up hand-editing the diff to make it apply, please don't make me do 
+it again.
+
+			Linus
 

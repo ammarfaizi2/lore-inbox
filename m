@@ -1,45 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbTESBIk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 21:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTESBIk
+	id S262283AbTESBOG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 21:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTESBOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 21:08:40 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:22218 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262282AbTESBIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 21:08:39 -0400
-Date: Mon, 19 May 2003 02:24:25 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-       kraxel@suse.de, jsimmons@infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
-Message-ID: <20030519012425.GB18507@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jamie Lokier <jamie@shareable.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-	kraxel@suse.de, jsimmons@infradead.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030515151633.GA6128@suse.de> <1053118296.5599.27.camel@dhcp22.swansea.linux.org.uk> <20030518053935.GA4112@averell> <20030518161105.GA7404@mail.jlokier.co.uk> <1053290431.27107.4.camel@dhcp22.swansea.linux.org.uk> <20030518223446.GA8591@mail.jlokier.co.uk> <20030518225204.GA21068@suse.de> <20030518233325.GA8888@mail.jlokier.co.uk> <20030519000249.GA18507@suse.de> <20030519002820.GA9048@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030519002820.GA9048@mail.jlokier.co.uk>
-User-Agent: Mutt/1.5.4i
+	Sun, 18 May 2003 21:14:06 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:152 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262283AbTESBOE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 21:14:04 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Stekloff <dsteklof@us.ibm.com>
+To: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: Naming devices
+Date: Sun, 18 May 2003 18:22:51 -0700
+User-Agent: KMail/1.4.1
+References: <20030518213358.GE8994@krispykreme>
+In-Reply-To: <20030518213358.GE8994@krispykreme>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200305181822.51612.dsteklof@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 19, 2003 at 01:28:20AM +0100, Jamie Lokier wrote:
+On Sunday 18 May 2003 02:33 pm, Anton Blanchard wrote:
+> Hi,
+>
+> I just spent 2 hours trying to make a machine boot. It had one bad disk
+> and one bad network card. Normally not a problem, but this thing had 40
+> cards in it so identifying the problem ones was not straight forward.
+>
+> I was wondering why we dont have a consistent way of printing a device
+> location? If all drivers used the same thing, eg:
+>
+> struct pci_dev *foo;
+> ...
+> printf("%s: could not enable card\n", PCI_LOCATION(foo));
+>
+> Which by default would print pci bus/devfn and an arch could override eg
+> on ppc64 it would also print a location code:
+>
+> U1.6-P1-I2/E1 (90:0c.0)
+>
+> This sounds like the domain of the event logging guys but I havent seen
+> anything from them in a while. The nice thing about this is that when we
+> get pci domains nothing needs to be changed in the driver, we just
+> update the PCI_LOCATION macro.
+>
+> Also the tendency of network drivers to print "eth0: foo" during
+> initialisation is even more of a problem. If you get a bad card then you
+> could end up reusing the eth0 name for a subsequent device, making
+> pinpointing the problem card difficult. On top of that some drivers use
+> dev->name between calling alloc_netdev() and register_netdev() so that
+> you end up with error messages like "eth%d: failed".
 
- > > It works just fine. Just you can't enable MTRRs for framebuffer memory.
- > > Losing a bit of performance for what is (by todays standards) a crap
- > > performing card anyways, is no big deal.
- > 
- > How do you know the blacklist is complete?
 
-no-one complains that they see random crap on their screens any more.
- 
-		Dave
+Hi Anton,
+
+We have been working on device macros that add standard prefixes to printk 
+messages. The purpose of the prefix is to identify the device in the message 
+with a specific device or sysfs directory. Generic device macros already are 
+in the 2.5 kernel in include/linux/device.h - dev_err, dev_info, etc. They 
+prefix printk messages with dev->bus_id and driver name. 
+
+Just last week or so, Jim Keniston asked for comments on network device 
+specific macros - netdev_printk. I thought these were handy when I was 
+working on a system with 4 ethernet cards. With the e1000 patch, I could 
+identify the device without having to use ethtool because netdev_printk 
+appends the PCI device id in the prefix of the message. I could tell which 
+device eth0 referred to from the message.
+
+One of the reasons why we decided on the wrapper macros is the ability to 
+change the prefix in the future without impacting device drivers that have 
+implemented those macros. We could add more infromation from the device 
+structure to the message without requiring device drivers to change anything. 
+We could also use those macros as a hook to provide more functionality, like 
+building templates based on calling function and format string to idenify the 
+message uniquely, without impacting the driver.
+
+Yet the macros we've been supplying are a bit rigid. Perhaps we should have 
+something like you've suggested that could be used by driver writers to tag a 
+message with a specific device location while not requiring the use of a 
+whole wrapper macro. Plus, you could override the result based on arch. You 
+wouldn't get the benefits of the current device macros, but you would be able 
+to identify the message with a specific device.
+
+
+Thanks,
+
+Dan
+
+
+
+
+
+> Anton
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

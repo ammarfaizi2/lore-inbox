@@ -1,126 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbSLZRk4>; Thu, 26 Dec 2002 12:40:56 -0500
+	id <S263313AbSLZRrd>; Thu, 26 Dec 2002 12:47:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbSLZRk4>; Thu, 26 Dec 2002 12:40:56 -0500
-Received: from numenor.qualcomm.com ([129.46.51.58]:54518 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S263228AbSLZRkz>; Thu, 26 Dec 2002 12:40:55 -0500
-Date: Wed, 25 Dec 2002 20:03:02 -0800 (PST)
-From: Max Krasnyansky <maxk@qualcomm.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <rmk@arm.linux.org.uk>
-Subject: [PATCH/RFC] New module refcounting for TTY ldisc
-Message-ID: <Pine.LNX.4.33.0212251951540.7979-100000@champ.qualcomm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263321AbSLZRrc>; Thu, 26 Dec 2002 12:47:32 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:36869 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263313AbSLZRrb>;
+	Thu, 26 Dec 2002 12:47:31 -0500
+Date: Thu, 26 Dec 2002 09:51:37 -0800
+From: Greg KH <greg@kroah.com>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PROBLEM][2.5.52/53][USB] USB Device unusable
+Message-ID: <20021226175137.GC8229@kroah.com>
+References: <200212241533.21347.spstarr@sh0n.net> <200212241652.45041.spstarr@sh0n.net> <20021224220913.GA3237@kroah.com> <200212241725.15439.spstarr@sh0n.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212241725.15439.spstarr@sh0n.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+On Tue, Dec 24, 2002 at 05:25:15PM -0500, Shawn Starr wrote:
+> mount reports:
+> usbfs on /proc/bus/usb type usbfs (rw)
+> 
+> /etc/fstab:
+> usbfs          /proc/bus/usb  usbfs   defaults    0       0
+> 
+> well, KDE has a plugin that utilizes libusb, libgphoto2 to manipulate the 
+> camera. 
 
-Here is the patch that converts TTY ldisc code to the new 
-module refcounting API.
-Tested with Bluetooth UART driver and seemed to work fine.
-Other ldiscs are not affected because their ldisc->owner is
-set to NULL.
+And you are sure that this camera works with Linux?
 
-If people are ok with it I'll push it to my BK tree along with
-fixed Bluetooth ldisc.
+> I never tried the USB on this machine in 2.5 or 2.4.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.889   -> 1.890  
-#	drivers/char/tty_io.c	1.50    -> 1.51   
-#	include/linux/tty_ldisc.h	1.2     -> 1.3    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/12/23	maxk@qualcomm.com	1.890
-# New module refcounting for TTY ldisc
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/tty_io.c b/drivers/char/tty_io.c
---- a/drivers/char/tty_io.c	Wed Dec 25 19:49:53 2002
-+++ b/drivers/char/tty_io.c	Wed Dec 25 19:49:53 2002
-@@ -292,6 +292,10 @@
- 
- 	if (tty->ldisc.num == ldisc)
- 		return 0;	/* We are already in the desired discipline */
-+
-+	if (!try_module_get(ldiscs[ldisc].owner))
-+	       	return -EINVAL;
-+	
- 	o_ldisc = tty->ldisc;
- 
- 	tty_wait_until_sent(tty, 0);
-@@ -306,9 +310,13 @@
- 	if (tty->ldisc.open)
- 		retval = (tty->ldisc.open)(tty);
- 	if (retval < 0) {
-+		module_put(tty->ldisc.owner);
-+		
- 		tty->ldisc = o_ldisc;
- 		tty->termios->c_line = tty->ldisc.num;
- 		if (tty->ldisc.open && (tty->ldisc.open(tty) < 0)) {
-+			module_put(tty->ldisc.owner);
-+
- 			tty->ldisc = ldiscs[N_TTY];
- 			tty->termios->c_line = N_TTY;
- 			if (tty->ldisc.open) {
-@@ -320,7 +328,10 @@
- 					      tty_name(tty, buf), r);
- 			}
- 		}
-+	} else {
-+		module_put(o_ldisc.owner);
- 	}
-+	
- 	if (tty->ldisc.num != o_ldisc.num && tty->driver.set_ldisc)
- 		tty->driver.set_ldisc(tty);
- 	return retval;
-@@ -489,6 +500,8 @@
- 	if (tty->ldisc.num != ldiscs[N_TTY].num) {
- 		if (tty->ldisc.close)
- 			(tty->ldisc.close)(tty);
-+		module_put(tty->ldisc.owner);
-+		
- 		tty->ldisc = ldiscs[N_TTY];
- 		tty->termios->c_line = N_TTY;
- 		if (tty->ldisc.open) {
-@@ -1259,6 +1272,8 @@
- 	 */
- 	if (tty->ldisc.close)
- 		(tty->ldisc.close)(tty);
-+	module_put(tty->ldisc.owner);
-+	
- 	tty->ldisc = ldiscs[N_TTY];
- 	tty->termios->c_line = N_TTY;
- 	if (o_tty) {
-diff -Nru a/include/linux/tty_ldisc.h b/include/linux/tty_ldisc.h
---- a/include/linux/tty_ldisc.h	Wed Dec 25 19:49:53 2002
-+++ b/include/linux/tty_ldisc.h	Wed Dec 25 19:49:53 2002
-@@ -105,6 +105,7 @@
- 	char	*name;
- 	int	num;
- 	int	flags;
-+	
- 	/*
- 	 * The following routines are called from above.
- 	 */
-@@ -129,6 +130,8 @@
- 			       char *fp, int count);
- 	int	(*receive_room)(struct tty_struct *);
- 	void	(*write_wakeup)(struct tty_struct *);
-+
-+	struct  module *owner;
- };
- 
- #define TTY_LDISC_MAGIC	0x5403
+Have you tried this camera on any other Linux machine, with any other
+kernel?
 
---
+thanks,
 
-Max
-
+greg k-h

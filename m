@@ -1,191 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262227AbSIZHT4>; Thu, 26 Sep 2002 03:19:56 -0400
+	id <S262230AbSIZHWj>; Thu, 26 Sep 2002 03:22:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262228AbSIZHT4>; Thu, 26 Sep 2002 03:19:56 -0400
-Received: from [64.76.155.18] ([64.76.155.18]:46809 "EHLO alumno.inacap.cl")
-	by vger.kernel.org with ESMTP id <S262227AbSIZHTx>;
-	Thu, 26 Sep 2002 03:19:53 -0400
-Date: Thu, 26 Sep 2002 03:25:08 -0400 (CLT)
-From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Con Kolivas <conman@kolivas.net>
-Subject: [RFC] Script for doing unattended kernel benchmarks using contest
-Message-ID: <Pine.LNX.4.44.0209260309190.17684-200000@alumno.inacap.cl>
+	id <S262231AbSIZHWj>; Thu, 26 Sep 2002 03:22:39 -0400
+Received: from packet.digeo.com ([12.110.80.53]:34267 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262230AbSIZHWi>;
+	Thu, 26 Sep 2002 03:22:38 -0400
+Message-ID: <3D92B6F3.1428A76A@digeo.com>
+Date: Thu, 26 Sep 2002 00:27:47 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1279267483-79802818-1033025108=:17684"
+To: Michael Clark <michael@metaparadigm.com>
+CC: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.19pre10aa4 OOPS in ext3 (get_hash_table, 
+ unmap_underlying_metadata)
+References: <3D92A1D0.5000203@metaparadigm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Sep 2002 07:27:48.0312 (UTC) FILETIME=[36DC8D80:01C2652E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Michael Clark wrote:
+> 
+> Hiya,
+> 
+> Been having frequent (every 4-8 days) oopses with 2.4.19pre10aa4 on
+> a moderately loaded server (100 users - 0.4 load avg).
+> 
+> The server is a Intel STL2 with dual P3, 1GB RAM, Intel Pro1000T
+> and Qlogic 2300 Fibre channel HBA.
+> 
+> We are running qla2300, e1000 and lvm modules unmodified as present in
+> 2.4.19pre10aa4. We also have quotas enabled on 1 of the ext3 fs.
+> 
 
---1279267483-79802818-1033025108=:17684
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+It's not familiar, sorry.
 
-Hi all,
-this is the first release of autocontest.pl
-
-Use it at your own risk, I just can say that "It works for me(tm)"
-
-What's that?
-
-A simple (and ugly) PERL script for automated kernel benchmarks, it was 
-written for contest <http://contest.kolivas.net/>, it simply generates a 
-custom (dummy) runlevel and boot every kernel image found in 
-/etc/lilo.conf in this runlevel, perform contest, reboot the next image, 
-perform contest, etc.
-
-
-Err OK, what do I need to run it?
-
-PERL 5 will do, hopefully.
-LILO, with it's config file in /etc/lilo.conf otherwise edit the script 8)
-Bash, along with cp, cat, rm, and find
-A directory /usr/src/linux-2.4.19 with the 2.4.19 kernel sources in (this 
-is for contest)
-
-
-How do I run it?
-
-perl autoncontest.pl and then cross your fingers 8)
-
-
-Will it screw my initscripts?
-
-I don't know
-
-
-Why your english is so crappy?
-
-I'm Chilean, I speak Spanish 8)
-
-
-How it works?
-
-Read the source, Luke.
-
-
-It was tested on RedHat 7.3 and (null), and debian 2.2, if it runs in 
-another version/distro, please let me know
-
-Questions/Comments/Patches/Rewrites/Rants/Flames are welcome.
-
-Best regards.
--- 
-Robinson Maureira Castillo
-Asesor DAI
-INACAP
-
---1279267483-79802818-1033025108=:17684
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="autocontest.pl"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0209260325080.17684@alumno.inacap.cl>
-Content-Description: 
-Content-Disposition: attachment; filename="autocontest.pl"
-
-IyEvdXNyL2Jpbi9wZXJsDQojIA0KIyBBdXRvbWF0aWMgZXhlY3V0aW9uIG9m
-IGNvbnRlc3QgPGh0dHA6Ly9jb250ZXN0LmtvbGl2YXMubmV0Lz4NCiMgYWdh
-aW5zdCBrZXJuZWwgaW1hZ2VzIGxpc3RlZCBpbiAvZXRjL2xpbG8uY29uZg0K
-Iw0KIyBhdXRvY29udGVzdC5wbCB2MC4wNGEgUnVuIGl0IEAgeW91ciBvd24g
-cmlzay4NCiMNCiMgQ29weXJpZ2h0IDIwMDIsIFJvYmluc29uIE1hdXJlaXJh
-LCBhbGwgcmlnaHRzIHJlc2VydmVkLg0KIw0KIyBBdXRob3I6ICBSb2JpbnNv
-biBNYXVyZWlyYSBDYXN0aWxsbyA8cm1hdXJlaXJhQGFsdW1uby5pbmFjYXAu
-Y2w+DQojDQojIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3Ug
-Y2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9kaWZ5DQojIGl0IHVuZGVy
-IHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2Ug
-YXMgcHVibGlzaGVkIGJ5DQojIHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRp
-b247IGVpdGhlciB2ZXJzaW9uIDIgb2YgdGhlIExpY2Vuc2UsIG9yDQojIChh
-dCB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uDQojDQojIFRoaXMg
-cHJvZ3JhbSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdp
-bGwgYmUgdXNlZnVsLA0KIyBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdp
-dGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50eSBvZg0KIyBNRVJDSEFO
-VEFCSUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0Uu
-ICBTZWUgdGhlDQojIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGZvciBt
-b3JlIGRldGFpbHMuDQojDQojIFlvdSBzaG91bGQgaGF2ZSByZWNlaXZlZCBh
-IGNvcHkgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlDQojIGFs
-b25nIHdpdGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBG
-cmVlIFNvZnR3YXJlDQojIEZvdW5kYXRpb24sIEluYy4sIDY3NSBNYXNzIEF2
-ZSwgQ2FtYnJpZGdlLCBNQSAwMjEzOSwgVVNBLg0KIw0KIyBUaGUgc2NyaXB0
-IHRha2VzIGNhcmUgb2YgYm9vdCBlYWNoIGtlcm5lbCBpbWFnZSBhbmQgcnVu
-DQojIGNvbnRlc3QgYSBjb3VwbGUgb2YgdGltZXMgd2l0aCBlYWNoIG9uZS4N
-CiMNCiMgRm9sbG93aW5nIGFzc3VtcHRpb25zIGFyZSBtYWRlOg0KIyANCiMg
-LSBZb3UncmUgdXNpbmcgTElMTywgR1JVQiB2ZXJzaW9uIHdpbGwgZm9sbG93
-IGlmIHRoaXMgb25lIHByb2JlcyB1c2VmdWwNCiMgLSBZb3VyIHN5c3RlbSBp
-cyBjb21wYXRpYmxlIHdpdGggcmVkaGF0IG9yIGRlYmlhbiAoSXQgd2FzIHRl
-c3RlZCBvbiB0aG9zZSkNCiMgV2l0aCAiY29tcGF0aWJsZSIgSSBtZWFuOg0K
-IyBJdCBoYXMgL2V0Yy9pbml0dGFiLCAvZXRjL3JjKi5kLCBhbmQgYSBTeXNW
-IHdheSBvZiAiaW5pdCINCiMgLSBZb3UgaGF2ZSBQRVJMIGluc3RhbGxlZCwg
-aWYgbm90LCBpdCB3b24ndCBydW4sIGJlbGlldmUgbWUgOCkNCiMgLSBZb3Ug
-aGF2ZSBhIGRpcmVjdG9yeSAvdXNyL3NyYy9saW51eC0yLjQuMTkgZm9yIG1h
-a2UgdGhlIGNvbXBpbGVzDQojIC0gT3B0aW9ucyB1c2VkIHRvIGJvb3QgYXJl
-IHZnYT1ub3JtYWwgYW5kIGFwbT1vZmYNCiMgDQojIEkgY2FuJ3Qgc2F5IGl0
-IHdpbGwgd29yayBvbiB5b3VyIHN5c3RlbSwgIkl0IHdvcmtzIGZvciBtZSh0
-bSkiDQojIEZlZWRiYWNrIGlzIG9mIGNvdXJzZSB3ZWxjb21lLCByYW50cyBh
-Ym91dCBQRVJMIE1vbmtleSBTdHlsZSBnb2VzIHRvIC9kZXYvbnVsbA0KIw0K
-IyBDaGFuZ2Vsb2c6DQojDQojIHYwLjA0YSAtIFVzZXIgZGVmaW5hYmxlIHZh
-cmlhYmxlcw0KIyB2MC4wM2IgLSBTb21lIGNvZGUgY29tbWVudGluZw0KIyB2
-MC4wMiAgLSB1aWQoMCkgY2hlY2ssIGF1dG9zZWxlY3Rpb24gb2YgcnVubGV2
-ZWwgbnVtYmVyDQojIHYwLjAxICAtIGluc2FuZSBmaXJzdCB2ZXJzaW9uDQoj
-DQoNCiMgQ3VzdG9taXplIGF0IHlvdXIgdGFzdGUsIGRlZmF1bHRzIHNob3Vs
-ZCBiZSBvaw0KIyBubG9hZCA9IGhvdyBtYW55IHRpbWVzIG5vbG9hZCB3aWxs
-IHJ1bg0KIyBwbG9hZCA9IHRoZSBzYW1lIGZvciBwcm9jZXNzIGxvYWQNCiMg
-bWxvYWQgPSBtZW1vcnkgbG9hZA0KIyBpb2xvYWQgPSBpbyBsb2FkDQoNCiRu
-bG9hZCA9IDE7DQokcGxvYWQgPSAxOw0KJG1sb2FkID0gMzsNCiRpb2xvYWQg
-PSA1Ow0KDQoNCiMgSWYgeW91J3JlIG5vdCByb290LCB5b3UgY2FuJ3QgcnVu
-IGF1dG9jb250ZXN0LnBsDQpkaWUgIllheSEgeW91J3JlIG5vdCByb290LCBz
-dSBhbmQgdHJ5IGFnYWluIiBpZiAoJDwgbmUgMCk7DQoNCiMgTGV0J3Mgc2Vl
-IGlmIHdlIGNhbiBjcmVhdGUgYSBuZXcgZHVtbXkgcnVubGV2ZWwgZGlyZWN0
-b3J5DQojIElmIHdlIGNhbid0LCB3ZSBkaWUuDQpmb3IgKCRybCA9IDc7ICRy
-bCA8PSA5OyAkcmwrKykgew0KCW5leHQgaWYgKCgtZCAiL2V0Yy9yYyRybC5k
-LyIpIHx8ICgtbCAiL2V0Yy9yYyRybC5kLyIpKTsNCgkkbmV3ID0gJHJsOw0K
-CWxhc3Q7IA0KfQ0KZGllICJUaGVyZSdzIG5vIHNwYWNlIHRvIGNyZWF0ZSBh
-IG5ldyBydW5sZXZlbCwgdGhpcyBpcyBuZWVkZWQgZm9yIGF1dG9jb250ZXN0
-IiBpZiAhJG5ldzsNCg0KIyBOb3cgd2UgcGFyc2UgdGhlIGNvbmZpZ3VyYXRp
-b24gZmlsZSBmb3IgbGlsbw0KIyBBZnRlciB0aGlzLCB3ZSdsbCBoYXZlIGEg
-bGlzdCBvZiBpbWFnZXMgKGxhYmVscykNCiMgYW5kIHRoZSB0b3RhbCBudW1i
-ZXIgb2YgdGhvc2UuDQpvcGVuIEZELCAiL2V0Yy9saWxvLmNvbmYiIG9yIGRp
-ZSAiJCFcbiI7DQp3aGlsZSg8RkQ+KXsNCglpZihncmVwIC9sYWJlbC8sJF8p
-IHsNCgkJY2hvcDsNCgkJcHVzaCBAbGFiZWxzLCRfOw0KCX0NCn0NCmNsb3Nl
-IEZEOw0KDQojIExldCdzIGVyYXNlIGFueSBwcmV2aW91cyB2ZXJzaW9uIG9m
-IC8ubGFiZWxzDQpzeXN0ZW0oIi9iaW4vcm0iLCItZiIsIi8ubGFiZWxzIik7
-DQoNCmZvcmVhY2ggJGxpbmUgKEBsYWJlbHMpIHsNCgkoJHgsJGxhYmVsKSA9
-IHNwbGl0IC89LywgJGxpbmU7DQoJcHVzaCBAbGIsJGxhYmVsOw0KCSRjb20g
-PSAiL2Jpbi9lY2hvIFwiJGxhYmVsXCIgPj4gLy5sYWJlbHMiOw0KCXN5c3Rl
-bSgkY29tKTsNCn0NCiR0aW1lcyA9IHNjYWxhcihAbGIpOw0KJGtlcm5lbCA9
-ICRsYlskdGltZXMgLSAxXTsNCg0KDQojIE9LIHRoZW4sIGxldCdzIGNyZWF0
-ZSB0aGUgZHVtbXkgZGlyDQojIGJhY2t1cCBpbml0dGFiIGFuZCBtYWtlIHNv
-bWUgY2hhbmdlcw0KIyBhZnRlciB0aGF0LCBsZXQncyBwdXQgdGhlIG51bWJl
-ciBvZiByZWJvb3RzIGluIHRoZSAvLm51bSBmaWxlDQpzeXN0ZW0oIi9iaW4v
-bWtkaXIiLCItcCIsIi9ldGMvcmMkbmV3LmQvIik7DQpzeXN0ZW0oIi9iaW4v
-Y3AiLCIvZXRjL2luaXR0YWIiLCIvZXRjL2luaXR0YWIuY29udGVzdCIpOw0K
-DQokcmMgPSBgL3Vzci9iaW4vZmluZCAvZXRjLyAtbmFtZSByYyAyPiAvZGV2
-L251bGwgfCBoZWFkIC1uIDFgOw0KY2hvbXAgJHJjOw0KDQokY29tID0gIi9i
-aW4vZWNobyBcImwkbmV3OiRuZXc6d2FpdDokcmMgJG5ld1wiID4+IC9ldGMv
-aW5pdHRhYiI7DQpzeXN0ZW0oJGNvbSk7DQokY29tID0gIi9iaW4vZWNobyBc
-ImM6JG5ldzpvbmNlOi9iaW4vYmFzaCAtLWluaXQtZmlsZSAvLmNvbnRlc3Rc
-IiA+PiAvZXRjL2luaXR0YWIiOw0Kc3lzdGVtKCRjb20pOw0KJGNvbSA9ICIv
-YmluL2VjaG8gJHRpbWVzID4gLy5udW0iOw0Kc3lzdGVtKCRjb20pOw0KDQoj
-IE5vdyB3ZSBjcmVhdGUgdGhlIGluaXRmaWxlIGZvciBlYWNoIHJlYm9vdA0K
-b3BlbiBGRCwgIj4gLy5jb250ZXN0IiBvciBkaWUgIiQhXG4iOw0KcHJpbnQg
-RkQ8PEVPRjsNCiMhL2Jpbi9zaA0KIw0KUlVOTEVWRUw9JG5ldw0KVElNRVM9
-YGNhdCAvLm51bWANCk5BTUU9YGhlYWQgLW4gXCRUSU1FUyAvLmxhYmVscyB8
-IHRhaWwgLW4gMWANCmNkIC91c3Ivc3JjL2xpbnV4LTIuNC4xOQ0KY29udGVz
-dCAtayBcJE5BTUUgLWwgbm9sb2FkIC1uICRubG9hZA0KY29udGVzdCAtayBc
-JE5BTUUgLWwgcHJvY2Vzc19sb2FkIC1uICRwbG9hZA0KY29udGVzdCAtayBc
-JE5BTUUgLWwgbWVtX2xvYWQgLW4gJG1sb2FkDQpjb250ZXN0IC1rIFwkTkFN
-RSAtbCBpb19sb2FkIC1uICRpb2xvYWQgLXINClRJTUVTPWBwZXJsIC1lICJw
-cmludCAoXCRUSU1FUyAtIDEpImANCk5BTUU9YGhlYWQgLW4gXCRUSU1FUyAv
-LmxhYmVscyB8IHRhaWwgLW4gMWANCmlmIFsgLXogXCROQU1FIF0gOw0KdGhl
-bg0KICAgICAgICBjcCAtZiAvZXRjL2luaXR0YWIuY29udGVzdCAvZXRjL2lu
-aXR0YWINCiAgICAgICAgcm0gLWZyIC9ldGMvcmNcJFJVTkxFVkVMLmQvDQoJ
-cm0gLWZyIC8ubnVtDQoJcm0gLWZyIC8ubGFiZWxzDQogICAgICAgIGxpbG8N
-CiAgICAgICAgcmVib290DQoJZXhpdCAwDQpmaQ0KZWNobyBcJFRJTUVTID4g
-Ly5udW0NCmxpbG8gLVIgXCROQU1FIFwkUlVOTEVWRUwgdmdhPW5vcm1hbCBh
-cG09b2ZmDQpyZWJvb3QNCkVPRg0KY2xvc2UgRkQ7DQoNCiMgRmluYWxseSwg
-c2V0IGxpbG8gZm9yIHRoZSBmaXJzdCByZWJvb3QsIGFuZCByZWJvb3QuDQpz
-eXN0ZW0oImxpbG8iLCItUiIsJGtlcm5lbCwkbmV3LCJ2Z2E9bm9ybWFsIiwi
-YXBtPW9mZiIpOw0Kc3lzdGVtKCJyZWJvb3QiKTsNCg0KIyBXZSBzaG91bGQg
-bmV2ZXIgZ2V0IGhlcmUgOCkNCmV4aXQgMDsNCg0K
---1279267483-79802818-1033025108=:17684--
+People are saying unkind things about the qlogic driver, and
+the new version in Andrea's latest patchset is definitely
+faster than before.   Might be worth a shot.

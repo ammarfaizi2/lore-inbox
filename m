@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUGFCGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUGFCRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUGFCGr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 22:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUGFCGr
+	id S262730AbUGFCRv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 22:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUGFCRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 22:06:47 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:26257 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262605AbUGFCGd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 22:06:33 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: jhf@rivenstone.net (Joseph Fannin)
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       paulus@samba.org, benh@kernel.crashing.org
-Subject: Re: 2.6.7-mm6 - ppc32 inconsistent kallsyms data 
-In-reply-to: Your message of "Mon, 05 Jul 2004 16:38:18 -0400."
-             <20040705203818.GA11625@samarkand.rivenstone.net> 
+	Mon, 5 Jul 2004 22:17:51 -0400
+Received: from lists.us.dell.com ([143.166.224.162]:23638 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262730AbUGFCRu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 22:17:50 -0400
+Date: Mon, 5 Jul 2004 21:17:38 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: EDD unknown symbols in 2.6.7+BK
+Message-ID: <20040706021738.GA20540@lists.us.dell.com>
+References: <Pine.GSO.4.44.0407060001560.18649-100000@math.ut.ee>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Jul 2004 12:06:08 +1000
-Message-ID: <2970.1089079568@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0407060001560.18649-100000@math.ut.ee>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jul 2004 16:38:18 -0400, 
-jhf@rivenstone.net (Joseph Fannin) wrote:
->On Mon, Jul 05, 2004 at 02:31:20AM -0700, Andrew Morton wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm6/
->
->  I'm getting this while building for ppc32:
->    Inconsistent kallsyms data, try setting CONFIG_KALLSYMS_EXTRA_PASS
->
->  This didn't happen with -mm5.
->
->  The help text for CONFIG_KALLSYMS_EXTRA_PASS says I should report a
->bug, and reads like kallsyms is a utility or part of the toolchain;
->I think it's talking about the kernel feature though, so I guess
->I'll report it here.  I'll keep this tree around in case any more
->information is needed.
+On Tue, Jul 06, 2004 at 12:03:12AM +0300, Meelis Roos wrote:
+> WARNING: /lib/modules/2.6.7/build/arch/i386/kernel/edd.ko needs unknown symbol eddnr
+> WARNING: /lib/modules/2.6.7/build/arch/i386/kernel/edd.ko needs unknown symbol edd_disk80_sig
 
-Run these commands on the tree that needed CONFIG_KALLSYMS_EXTRA_PASS=y
-(assumes Bourne shell)
+Wow.  That module moved from arch/i386/kernel/ to drivers/firmware
+a few months ago.  It would have broken with BK this week as
+those symbols were removed and merged into a single 'edd' exported
+object.
 
-for i in 1 2 3; do nm .tmp_kallsyms$i.o > .tmp_mapk$i; nm .tmp_vmlinux$i > .tmp_mapv$i; done
-tar cjvf /var/tmp/kallsyms.tar.bz2 .tmp_kallsyms* .tmp_vmlinux* .tmp_map*
+I recommend doing a 'bk -r co -q', make clean, make oldconfig, to
+clean up your copy of the tree.
 
-Send the tarball to me, not the list.
+Thanks,
+Matt
 
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

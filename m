@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293462AbSBZByx>; Mon, 25 Feb 2002 20:54:53 -0500
+	id <S293461AbSBZB4e>; Mon, 25 Feb 2002 20:56:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293461AbSBZByl>; Mon, 25 Feb 2002 20:54:41 -0500
-Received: from dsl-65-185-109-125.telocity.com ([65.185.109.125]:37506 "EHLO
-	ohdarn.net") by vger.kernel.org with ESMTP id <S293439AbSBZByS>;
-	Mon, 25 Feb 2002 20:54:18 -0500
-Date: Mon, 25 Feb 2002 20:54:18 -0500
+	id <S293439AbSBZB4V>; Mon, 25 Feb 2002 20:56:21 -0500
+Received: from dsl-65-185-109-125.telocity.com ([65.185.109.125]:38274 "EHLO
+	ohdarn.net") by vger.kernel.org with ESMTP id <S293447AbSBZB4C>;
+	Mon, 25 Feb 2002 20:56:02 -0500
+Date: Mon, 25 Feb 2002 20:56:04 -0500
 From: Michael Cohen <me@ohdarn.net>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo@connectiva.com.br
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
 Subject: Submssions for 2.4.19-pre [Fibonacci Hashing (William Lee Irwin)] [Discuss :) ]
-Message-Id: <20020225205418.7f1851fa.me@ohdarn.net>
+Message-Id: <20020225205604.0583595e.me@ohdarn.net>
 Organization: OhDarn.net
 X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0

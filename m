@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265597AbSJXS4O>; Thu, 24 Oct 2002 14:56:14 -0400
+	id <S265576AbSJXS4B>; Thu, 24 Oct 2002 14:56:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265598AbSJXS4O>; Thu, 24 Oct 2002 14:56:14 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:61338 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265597AbSJXS4M>; Thu, 24 Oct 2002 14:56:12 -0400
-Subject: Re: Crunch time -- the musical.  (2.5 merge candidate list 1.5)
-From: Michael Hohnbaum <hohnbaum@us.ibm.com>
-To: landley@trommello.org
-Cc: linux-kernel@vger.kernel.org, Erich Focht <efocht@ess.nec.de>
-In-Reply-To: <200210240750.09751.landley@trommello.org>
-References: <200210231626.12903.landley@trommello.org>
-	<1035476230.1274.1065.camel@dyn9-47-17-164.beaverton.ibm.com> 
-	<200210240750.09751.landley@trommello.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 24 Oct 2002 12:01:01 -0700
-Message-Id: <1035486061.9367.1078.camel@dyn9-47-17-164.beaverton.ibm.com>
-Mime-Version: 1.0
+	id <S265597AbSJXS4B>; Thu, 24 Oct 2002 14:56:01 -0400
+Received: from trillium-hollow.org ([209.180.166.89]:31154 "EHLO
+	trillium-hollow.org") by vger.kernel.org with ESMTP
+	id <S265576AbSJXS4A>; Thu, 24 Oct 2002 14:56:00 -0400
+To: Matthias Welk <matthias.welk@fokus.gmd.de>
+cc: Manfred Spraul <manfred@colorfullife.com>, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [CFT] faster athlon/duron memory copy implementation 
+In-Reply-To: Your message of "Thu, 24 Oct 2002 19:48:38 +0200."
+             <200210241948.38490.matthias.welk@fokus.fraunhofer.de> 
+Date: Thu, 24 Oct 2002 12:01:54 -0700
+From: erich@uruk.org
+Message-Id: <E184nEw-00071m-00@trillium-hollow.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-24 at 05:50, Rob Landley wrote:
-> On Thursday 24 October 2002 11:17, Michael Hohnbaum wrote:
-> > On Wed, 2002-10-23 at 14:26, Rob Landley wrote:
-> > > 26) NUMA aware scheduler extenstions (Erich Focht, Michael Hohnbaum)
-> > >
-> > > Home page:
-> > > http://home.arcor.de/efocht/sched/
-> > >
-> > > Patch:
-> > > http://home.arcor.de/efocht/sched/Nod20_numa_sched-2.5.31.patch
-> >
-> > The simple NUMA scheduler patch, which is ready for inclusion is a
-> > separate project from Erich's NUMA scheduler extensions.  Information
-> > on the simple NUMA scheduler is contained in this lkml posting:
-> >
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103351680614980&w=2
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103480772901235&w=2
-> >
-> > The most recent version has been split into two patches for 2.5.44:
-> >
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103539626130709&w=2
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103540481010560&w=2
+
+Matthias Welk <matthias.welk@fokus.gmd.de> wrote:
+
+> Running on an Athlon XP2000+, ASUS A7V333, 768MB DDR2100:
+
+...[snip]...
+
+> 1019 [maw] (buruk) /tmp/athlon # athlon_test
+> Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
 > 
-> Any relation to http://lse.sourceforge.net/numa/ which the 2.5 status list 
-> says is "Alpha" state, two steps down from "Ready"?
-> 
-> Rob
+> copy_page() tests
+> copy_page function 'warm up run'         took 18081 cycles per page
+> copy_page function '2.4 non MMX'         took 19487 cycles per page
+> copy_page function '2.4 MMX fallback'    took 19403 cycles per page
+> copy_page function '2.4 MMX version'     took 18086 cycles per page
+> copy_page function 'faster_copy'         took 11372 cycles per page
+> copy_page function 'even_faster'         took 11183 cycles per page
+> copy_page function 'no_prefetch'         took 7815 cycles per page
+> 1020 [maw] (buruk) /tmp/athlon # athlon_test
 
-Yes and no.  At one point I was working with Erich moving his NUMA 
-scheduler to 2.5 and testing it on our NUMA hardware.  However, it
-was not looking like his NUMA scheduler was going to be ready for 
-2.5, so I went off on a separate effort to produce a much smaller,
-simpler patch to provide rudimentary NUMA support within the scheduler.
-This patch does not have all the functionality of Erich's, but does
-provide definite performance improvements on NUMA machines with no
-degradation on non-NUMA SMP.  It is much smaller and less intrusive,
-and has been tested on multiple NUMA architectures (including by 
-Erich on the NEC IA64 NUMA box).
 
-The 2.5 status list has not been updated to reflect this separate 
-effort, and I believe incorrectly lists this entry as "ready".  There
-really are now two NUMA scheduler projects:
+Whoa!  Hmm.
 
-* Simple NUMA scheduler (Michael Hohnbaum)  - ready for inclusion
-* Node affine NUMA scheduler (Erich Focht)  - Alpha (Beta?)
+If I'm reading this right, with a processor speed of 1.666 GHz,
+you're getting:
 
--- 
+    (4096 bytes / 7815 clocks) * 1.666 GHz  =  873 MB/sec
 
-Michael Hohnbaum                      503-578-5486
-hohnbaum@us.ibm.com                   T/L 775-5486
+The perfect peak performance of your setup, if the cache implements
+standard write-allocate behavior (the target cache line is read before it
+is written because the write logic doesn't know you're going to overwrite
+the whole line in cases like this), should be:
 
+    MIN( Memory speed / FSB speed ) / 3  =  700 MB/sec
+
+
+So what gives?  Did I misinterpret the output of your program?
+Is the test flawed?
+
+--
+    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
+"Reality is truly stranger than fiction; Probably why fiction is so popular"

@@ -1,82 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271144AbUJVAtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271146AbUJVBIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271144AbUJVAtq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 20:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271137AbUJVArN
+	id S271146AbUJVBIl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 21:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271105AbUJVBHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 20:47:13 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:26521 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S271160AbUJVAlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 20:41:14 -0400
-Date: Fri, 22 Oct 2004 02:41:59 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: shaggy@austin.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] zap_pte_range should not mark non-uptodate pages dirty
-Message-ID: <20041022004159.GB14325@dualathlon.random>
-References: <1098393346.7157.112.camel@localhost> <20041021144531.22dd0d54.akpm@osdl.org> <20041021223613.GA8756@dualathlon.random> <20041021160233.68a84971.akpm@osdl.org> <20041021232059.GE8756@dualathlon.random> <20041021164245.4abec5d2.akpm@osdl.org> <20041021171558.3214cea4.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041021171558.3214cea4.akpm@osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Thu, 21 Oct 2004 21:07:15 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:63110 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S271052AbUJVA7T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 20:59:19 -0400
+Message-ID: <41785B65.4090202@rtr.ca>
+Date: Thu, 21 Oct 2004 20:59:17 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-ac3
+References: <1098400086.18025.0.camel@localhost.localdomain>
+In-Reply-To: <1098400086.18025.0.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 05:15:58PM -0700, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > I don't get it.  invalidate has the pageframe.  All it need to do is to
-> > lock the page, examine mapcount and if it's non-zero, do the shootdown. 
-> 
-> unmap_mapping_range() will do that - can call it one page at a time, or
-> batch up runs of pages.  It's not fast, but presumably not frequent either.
+ >Bug Fixes
+ >o	Working IDE locking		(Alan Cox)
+ >	| And a great deal of review by Bartlomiej
 
-That would shootdown the ptes to add completely coherency to the mmaps, right.
+Mmm.. may still have some issues.
 
-Still we could shootdown the ptes after clearing the uptodate bitflag,
-allowing the mapped page to be not uptodate for a short while, since it
-makes sense and it's harmless. The pte shootdown from my point of view
-is just an additional coherency feature, but it cannot provide full
-coherency anyways, since the invalidate arrives after the I/O hit the
-disk, so the page will be out of sync with the disk if it's dirty, and
-no coherency can be provided anyways, because no locking happens to get
-max scalability.
+Here's what "cardctl eject" now gives on unload of ide-cs:
 
-> The bigger problem is shooting down the buffer_heads.  It's certainly the
-> case that mpage_readpage() will call block_read_full_page() which will then
-> bring the page uptodate without performing any I/O.
+bad: scheduling while atomic!
+  [<c02a0f7e>] schedule+0x4de/0x4f0
+  [<c0119451>] __wake_up_common+0x41/0x60
+  [<c02a1079>] wait_for_completion+0x99/0xf0
+  [<c01193f0>] default_wake_function+0x0/0x20
+  [<c01193f0>] default_wake_function+0x0/0x20
+  [<c012c8a8>] queue_work+0x68/0x80
+  [<c012c791>] call_usermodehelper+0xe1/0xf0
+  [<c012c640>] __call_usermodehelper+0x0/0x70
+  [<c01bdc7d>] kset_hotplug+0x1dd/0x240
+  [<c01bdd3a>] kobject_hotplug+0x5a/0x60
+  [<c01be07b>] kobject_del+0x1b/0x40
+  [<c01be0b3>] kobject_unregister+0x13/0x30
+  [<c018cef9>] del_gendisk+0x39/0xe0
+  [<c0223cd8>] idedisk_cleanup+0x48/0x60
+  [<c0212fd6>] __ide_unregister_hwif+0x506/0x5c0
+  [<c0196be8>] ext3_mark_iloc_dirty+0x28/0x40
+  [<c02130b6>] ide_unregister_hwif+0x26/0x40
+  [<e092da23>] ide_release+0x73/0x80 [ide_cs]
+  [<c0118992>] activate_task+0x62/0x80
+  [<e092d1b6>] ide_detach+0x86/0xa0 [ide_cs]
+  [<e08b5b19>] unbind_request+0xc9/0xd0 [ds]
+  [<e08b62fd>] ds_ioctl+0x3dd/0x690 [ds]
+  [<c029c25d>] unix_dgram_sendmsg+0x36d/0x570
+  [<c0230ce0>] sock_sendmsg+0xe0/0x100
+  [<c013bd8b>] generic_file_aio_write_nolock+0x27b/0x4b0
+  [<c0185a7b>] proc_destroy_inode+0x1b/0x20
+  [<c0172b75>] destroy_inode+0x35/0x60
+  [<c0173ef2>] iput+0x62/0x90
+  [<c0185a7b>] proc_destroy_inode+0x1b/0x20
+  [<c0172b75>] destroy_inode+0x35/0x60
+  [<c0147bb3>] zap_pmd_range+0x63/0x80
+  [<c0147c23>] unmap_page_range+0x53/0x80
+  [<c0147d36>] unmap_vmas+0xe6/0x1d0
+  [<c014a4d7>] remove_vm_struct+0x77/0xa0
+  [<c014bf1f>] unmap_vma_list+0x1f/0x30
+  [<c014c2df>] do_munmap+0x14f/0x190
+  [<c016ba30>] sys_ioctl+0x100/0x270
+  [<c01060d9>] sysenter_past_esp+0x52/0x71
 
-yes, this is actually the only bug I can see in this whole affair
-(besdies the BUG that goes away with the patch already posted, and that
-patch still makes perfect sense to me since we could use it even for a
-more relaxed pte shootdown as described above, plus it doesn't worth to
-mark not-uptodate pages as dirty, that is really what makes no sense and
-needs fixing).
+I see a similar dump when using delkin_cb on 2.6.9-ac3 as well.
 
-> And invalidating the buffer_heads in invalidate_inode_pages2() is tricky -
-> we need to enter the filesystem and I'm not sure that either
-> ->invalidatepage() or ->releasepage() are quite suitable.  For a start,
-> they're best-effort and may fail.  If we just go and mark the buffers not
-> uptodate we'll probably give ext3 a heart attack, so careful work would be
-> needed there.
-> 
-> Let's go back to why we needed all of this.  Was it just for the NFS
-> something-changed-on-the-server code?  If so, would it be sufficient to add
-> a new invalidate_inode_pages3() just for NFS, which clears the uptodate
-> bit?  Or something along those lines?
-
-nfs is a case here too. But this is mostly needed for O_DIRECT write
-happening on a file that is mmapped and read in buffered mode at the
-same time. The API totally ignores the mapping, but we must guarantee
-buffered read to see the written data on disk, and in turn the uptodate
-bitflag must be clared because the page is not uptodate anymore. This 
-just describes what has happened on disk and it tells to _future_ page
-faults (or buffered read syscalls) they've to re-read from disk. The
-only issue seems to be the bhs. Peraphs te bhs requires a new bitflag if
-the fs risks an hearth attack, but the VM can do the natural thing of
-clearing the uptodate bitflag reflecting the fact the cache is
-out-of-date, since the VM can deal with that just fine.
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282206AbRKWTDX>; Fri, 23 Nov 2001 14:03:23 -0500
+	id <S282210AbRKWTLf>; Fri, 23 Nov 2001 14:11:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282207AbRKWTDN>; Fri, 23 Nov 2001 14:03:13 -0500
-Received: from [213.97.199.90] ([213.97.199.90]:2176 "HELO fargo")
-	by vger.kernel.org with SMTP id <S282206AbRKWTDI> convert rfc822-to-8bit;
-	Fri, 23 Nov 2001 14:03:08 -0500
-From: "David =?ISO-8859-1?Q?G=F3mez" ?= <davidge@jazzfree.com>
-Date: Fri, 23 Nov 2001 20:02:28 -0500 (EST)
-X-X-Sender: <huma@fargo>
-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <dervishd@jazzfree.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Moving ext3 journal file
-In-Reply-To: <E167Fuw-00001K-00@DervishD>
-Message-ID: <Pine.LNX.4.33.0111231944430.2891-100000@fargo>
+	id <S282213AbRKWTL0>; Fri, 23 Nov 2001 14:11:26 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:5504 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S282211AbRKWTLF>; Fri, 23 Nov 2001 14:11:05 -0500
+Message-ID: <012101c17452$9ac11550$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: IDE is still crap.. or something
+Date: Fri, 23 Nov 2001 20:11:07 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Well, just wanted to tell you that 2.4.15 still slows down to a crawl when
+copying a 500MB file between two hard drives (running ext3). I have tried
+any of the -c -u -m -W settings in hdparm. I even applied the 2.4.14 IDE
+patch (after fixing the rejects) but no go.
 
-Hi ;),
+Even iptables is affected, because it takes forever to surf the internet
+from my behind-linux-firewall windows computer.
 
->     Is there any problem on moving the /.journal file (even renaming
-> it) so it doesn't lives on the root? I mean, maintaining its inode
-> number, of course ;))
->
->     Anyway, ext3 shouldn't (just an idea) show the journal as a
-> normal file. It may add some load on the kernel, because the inode
-> number should be compared with that of the journal every time a file
-> is accessed, but it's just a suggestion ;))
+I'm right now trying to apply the preemptive-kernel patch to 2.4.15 but it
+had some strange rejects so it will be exciting to see if it works. I get
+good response from the -ac kernel series though.
 
-AFAIK the .journal it's visible only when you convert an ext2 to an ext3
-filesystem on a mounted partition, it was a problem with 2.4.10 kernel
-version, but i'm not sure if posterior releases also show this behavior.
-Anyway you can solve it recreating a new journal (remount it to ext2
-before doing this):
-
-'chattr -i /.journal;rm /.journal;tune2fs -j /dev/whatever'
-
-
-
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
+_____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  MSc CSE student, department of Computing Science
+|  Umeå University, Sweden
 
 

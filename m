@@ -1,42 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131448AbQK3IvO>; Thu, 30 Nov 2000 03:51:14 -0500
+        id <S129614AbQK3Ixm>; Thu, 30 Nov 2000 03:53:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131581AbQK3Iux>; Thu, 30 Nov 2000 03:50:53 -0500
-Received: from 213-120-136-24.btconnect.com ([213.120.136.24]:18948 "EHLO
-        penguin.homenet") by vger.kernel.org with ESMTP id <S131401AbQK3Iup>;
-        Thu, 30 Nov 2000 03:50:45 -0500
-Date: Thu, 30 Nov 2000 08:22:13 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Patrick van de Lageweg <patrick@bitwizard.nl>
-cc: Rogier Wolff <wolff@bitwizard.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] New user space serial port driver
-In-Reply-To: <Pine.LNX.4.21.0011300903470.11226-100000@panoramix.bitwizard.nl>
-Message-ID: <Pine.LNX.4.21.0011300817320.846-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S129977AbQK3Ixc>; Thu, 30 Nov 2000 03:53:32 -0500
+Received: from wiiusc.wii.ericsson.net ([192.36.108.17]:21681 "EHLO
+        hell.wii.ericsson.net") by vger.kernel.org with ESMTP
+        id <S129614AbQK3IxR>; Thu, 30 Nov 2000 03:53:17 -0500
+Message-Id: <200011300822.JAA11351@hell.wii.ericsson.net>
+X-Mailer: exmh version 2.2_20001129 06/23/2000 with nmh-1.0.3
+To: linux-kernel@vger.kernel.org
+From: Anders Eriksson <aer-list@mailandnews.com>
+Subject: romfs as initrd
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1249086358P";
+         micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 30 Nov 2000 09:22:45 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2000, Patrick van de Lageweg wrote:
-> +static struct tty_struct * ussp_table[USSP_MAX_PORTS] = { NULL, };
+--==_Exmh_1249086358P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-this wastes at least 4 * USSP_MAX_PORTS bytes in the kernel image.
-Typically around 64 bytes but could be more. For more info see the recent
-silly flamewars on the list. The correct way is not to initialize the data
-to zero explicitly as BSS is cleared automatically on boot. It is also
-probably documented in the lkml FAQ at the bottom of this message.
 
-Also, it makes your code look consistent as, e.g. in cases below you do
-the right thing:
+Running 2.4.0-test10 I try to get an romfs image to work as an initrd =
 
-> +static struct termios    * ussp_termios[USSP_MAX_PORTS];
-> +static struct termios    * ussp_termios_locked[USSP_MAX_PORTS];
+image. It does work when mount `normally` using `mount -o loop`. =
 
-Regards,
-Tigran
+However, when used as initrd image it fails. Here's the relevant part =
 
+of dmesg:
+
+  =
+
+RAMDISK driver initialized: 16 RAM disks of 16384K size 1024 blocksize  =
+
+
+loop: enabling 64 loop devices                                          =
+
+                RAMDISK: romfs filesystem found at block 0              =
+
+                                RAMDISK: Loading 3183 blocks [1 disk] =
+
+into ram disk... done.                            Freeing initrd =
+
+memory: 3184k freed
+
+=2E..
+
+devfs: v0.102 (20000622) Richard Gooch (rgooch@atnf.csiro.au)
+devfs: boot_options: 0x0
+Trying fs: ext2
+Trying fs: cramfs
+wrong magic
+Trying fs: romfs
+ROMFS DEBUG: rsb_word0 0 rsb_word1 0 sz 0
+Kernel panic: VFS: Unable to mount root fs on 01:00
+
+
+Where the ROMFS DEBUG message comes for this section of romfs/inode.c:
+----------------
+
+        if (rsb->word0 !=3D ROMSB_WORD0 || rsb->word1 !=3D ROMSB_WORD1
+           || sz < ROMFH_SIZE) {
+                if (!silent)
+                        printk ("VFS: Can't find a romfs filesystem on =
+
+dev "
+                                "%s.\n", kdevname(dev));
+                printk ("ROMFS DEBUG: rsb_word0 %i rsb_word1 %i sz =
+
+%i\n",rsb->word0,rsb->word1,sz);
+                goto out;
+----------------
+
+
+Not knowing that much about fs (and VFS) internals it seems that the =
+
+image is identified by the initrd code, but  currupted/misplaced so it =
+
+cannot be used by the VFS when trying to mount it. I have no ideas what =
+
+steps are supposed to happen in between these two.
+
+
+Help and insights appreciated.
+
+/Anders
+
+
+
+
+
+--==_Exmh_1249086358P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: Exmh version 2.2_20000822 06/23/2000
+
+iD8DBQE6Jg5V/X4RQObd8qERAmM/AJ4xlUjCJbX/+ZsedspmKAyKHTXgcgCfQt5X
+qaTa/K9vk5TbLIJO15WmK34=
+=33qn
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1249086358P--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbTJAJYR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 05:24:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTJAJYR
+	id S262080AbTJAJZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 05:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTJAJZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 05:24:17 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:44731 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262006AbTJAJYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 05:24:16 -0400
-Subject: Re: [BUG] 2.4.x RT signal leak with kupdated (and maybe others)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-In-Reply-To: <20030930182255.GX17274@velociraptor.random>
-References: <1064939275.673.42.camel@gaston>
-	 <20030930173651.GU17274@velociraptor.random>
-	 <1064944028.5634.49.camel@gaston>
-	 <20030930182255.GX17274@velociraptor.random>
-Content-Type: text/plain
-Message-Id: <1065000241.5636.53.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 01 Oct 2003 11:24:01 +0200
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+	Wed, 1 Oct 2003 05:25:19 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:42720 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S262080AbTJAJZO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 05:25:14 -0400
+Date: Wed, 1 Oct 2003 12:25:13 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+X-X-Sender: util@hosting.rdsbv.ro
+To: linux-kernel@vger.kernel.org
+Subject: Re: chstk - URL?
+In-Reply-To: <Pine.LNX.4.58.0310011218290.22797@hosting.rdsbv.ro>
+Message-ID: <Pine.LNX.4.58.0310011223260.22797@hosting.rdsbv.ro>
+References: <Pine.LNX.4.58.0310011218290.22797@hosting.rdsbv.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hi list, Ingo!
+>
+> Where I can find the modified (by Info) chstk.c?
+> Thanks!
 
-> That's because nobody else sends signals to the daemons I guess. And
-> even if they do the daemon won't clear the pending bitflag, so there's
-> no risk to queue more than 1 non-RT entry per signal per daemon like it
-> happened with kupdate.
+I take a closer look at Ingo's announce and I see that chstk is obsolete.
 
-And any daemon can cause the same leak by sending it RT signals... I just
-verified sending for example a bunch of 33's (SIGRTMIN) to khubd, that
-increased the count permanently.
+I use kernel 2.6.0-test6-mm1 with ecec-shield and X gives me sig 11.
 
-I agree this should not happen normally, and I suppose only root can do
-that and we aren't here to prevent root from shooting itself in the
-foot, are we ?
+A program must be compiled with new gcc to work with exec-shield and
+without chstk?
 
-The question is should I spend some time adding some flush_signals() to
-the loop of those various kernel daemons I can find or that isn't worth ?
+Thank you for your time.
 
-Regarding kupated, dequeue_signal is a better option as we actually care
-about the signal, I'm testing a patch it will be there in a few minutes.
+>
+> ---
+> Catalin(ux) BOIE
+> catab@deuroconsult.ro
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Ben.
- 
-
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

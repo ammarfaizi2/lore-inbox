@@ -1,114 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288153AbSBQVUW>; Sun, 17 Feb 2002 16:20:22 -0500
+	id <S292613AbSBPXus>; Sat, 16 Feb 2002 18:50:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289764AbSBQVUN>; Sun, 17 Feb 2002 16:20:13 -0500
-Received: from eik.ii.uib.no ([129.177.16.3]:19673 "EHLO ii.uib.no")
-	by vger.kernel.org with ESMTP id <S288153AbSBQVUC>;
-	Sun, 17 Feb 2002 16:20:02 -0500
-Date: Sun, 17 Feb 2002 22:19:47 +0100
-From: Jan-Frode Myklebust <janfrode@parallab.uib.no>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: secure erasure of files?
-Message-ID: <20020217211947.GA17457@ii.uib.no>
-In-Reply-To: <200202121326.g1CDQct12086@Port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.30.0202121431560.18694-100000@mustard.heime.net>
+	id <S292618AbSBPXuj>; Sat, 16 Feb 2002 18:50:39 -0500
+Received: from holomorphy.com ([216.36.33.161]:22146 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S292613AbSBPXua>;
+	Sat, 16 Feb 2002 18:50:30 -0500
+Date: Sat, 16 Feb 2002 15:50:18 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dave Jones <davej@suse.de>, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] shrink struct page for 2.5
+Message-ID: <20020216235018.GB3511@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Dave Jones <davej@suse.de>, Rik van Riel <riel@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.33L.0202161804330.1930-100000@imladris.surriel.com> <20020216212327.C4777@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.30.0202121431560.18694-100000@mustard.heime.net>
-X-Scanner: exiscan *16cYir-0000jD-00*K.Eux63DAGg* (ii.uib.no)
+In-Reply-To: <20020216212327.C4777@suse.de>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12, 2002 at 02:33:47PM +0100, Roy Sigurd Karlsbakk wrote:
-> > IMHO overwriting with /dev/zero or /dev/random is sufficient.
-> > Recovering data after that falls into urban legend category :-)
-> 
-> I know of personal experience that the company ibas (http://www.ibas.com)
-> have, in lab, recovered data overwritten >30 times. To recover data
-> overwritten from /dev/zero is done in minutes.
-> 
+On Sat, Feb 16, 2002 at 09:23:27PM +0100, Dave Jones wrote:
+>  Anton Blanchard did some nice benchmarks of this work a while
+>  ago, and noticed that with one of the features (I think the
+>  I forget which its in the l-k archives somewhere) there
+>  seemed to be a noticable performance degradation.
+>  Of course, this was a dbench test, so how reflective this is
+>  of real world is another story..
 
-Interessting, but according to the following newsposting (in
-Norwegian) IBAS is clearly stating that they don't know of any
-documented methods to read back overwritten data, or know of anyone
-who are able to do this.
+I've discussed this with him.
 
+The performance degradation was real and it was the result of
+poor code generation for the address calculation of the page address.
+Apparently this toolchain performance issue made driver calls that use
+page_address() within it very expensive. The size reduction won't
+provide as significant of benefits on 64-bit machines as it does on
+32-bit machines with highmem (36-bit stuff like PAE), so it makes sense
+(perhaps like 64-bit SPARC) that there may be 64-bit architectures that
+will not care to use it. On the other hand, I suspect there are similar
+issues on other 64-bit architectures that are the true culprit with
+respect to this.
 
-   -jf
+On Sat, Feb 16, 2002 at 09:23:27PM +0100, Dave Jones wrote:
+>  Maybe Randy Hron can throw it in with the next round of
+>  kernel tests he does ?
 
------------------------------------------------------------------------------
-Path: nntp.uib.no!uio.no!nntp.uio.no!not-for-mail
-From: "Erik Andersen" <Erik@Andersen.tf>
-Newsgroups: no.fag.jus.it
-Subject: Re: Loggføring av bevegelser på  Internett
-Date: Thu, 22 Mar 2001 10:17:50 +0100
-Message-ID: <99cg5n$8ur$1@readme.uio.no>
-Reply-To: "Erik Andersen" <Erik@Andersen.tf>
-Xref: nntp.uib.no no.fag.jus.it:387
+He is unlikely to see these detrimental effects on i386. It's
+possible waitqueue collisions could happen in highly threaded
+tests, but that is a different issues.
 
-Med tillatelse fra FoU-sjefen gjengir jeg hans svar i sin helhet:
+On Sat, Feb 16, 2002 at 09:23:27PM +0100, Dave Jones wrote:
+>> Unfortunately I haven't managed to make 2.5.5-pre2 to boot on
+>> my machine, so I haven't been able to test this port of the
+>> patch to 2.5.
 
+On Sat, Feb 16, 2002 at 09:23:27PM +0100, Dave Jones wrote:
+>  Just a complete lock up ? oops ? anything ?
 
-
-Jeg skal forsøke å svare på dine spørsmål:
-
-Det korte svaret er: Nei det er ikke mulig å lese data som virkelig fysisk
-er blitt overskrevet.
-
-Imidlertid er grunnen til dette litt annerledes en det du beskriver.  For å
-snakke fornuftig om dette er det først nødvendig med forståelse av hva et
-bit på en HD er. En HD opererer ikke med individuelle bit, men med
-flux-endringer. Flux retning er enkelt fortalt hvorvidt magnet-feltet på
-disken peker mot eller med klokka (CW eller CCW). Så en flux endring er
-altså en endring fra f.eks CW til CCW flux retning. Mapping mellom flux
-endringer er ikke en-til-en. Det betyr at man IKKE benytter CW=0, CCW=1. I
-stedet gir en enkelt.flux-endring opphav til 2.5 til 3 bit. I tillegg
-benytter disken sekvens detektering. Dvs. at den ikke prøver å dekode
-bit'ene hver for seg, men i stedet ser på en hel sekvens (typisk 4096 bit =
-sektor).
-
-Denne sekvensdetekteringen disken gjør ligner mye på hvordan vi leser en
-dårlig telefax. Hvis vi forsøker å lese faxen bokstav for bokstav kan vi
-f.eks lett forveksle en a med en o. Hvis denne bokstaven er en del av ordet
-'bank', og vi tolker bokstav for bokstav ender vi med ordet 'bonk'.  Hvis vi
-ser på hele ordet (sekvensen med bokstaver) kan vi se at det mest
-sannsynlige ordet er 'bank'.
-
-Det man kan si er at man etter en overskriving kan måle hvor sterke de
-gamle dataene er i forhold til de nye. Det betyr at alle 'gamle' signaler
-faktisk ikke forsvinner. Våre undersøkelser viser imidlertid at det ikke
-finnes noen beskrivelser i litteraturen om hvordan man kan omdanne disse
-signalrestene til de opprinnelige dataene.
-
-Det kan synes som at dette krever banebrytende oppdagelser i en rekke
-disipliner: Ikke-linjær analyse og modellering, lavt-støyende elektronikk
-(cryo-elektronikk), datamaskin teknologi (superraske tallknusere).
-
-Og det var det lange (kompliserte) svaret :)
-
-Det som er sikkert: Ibas kjenner ikke til dokumenterte metoder,
-vitenskapelige miljøer eller kommersielle tjenester som utføre eller
-demonstrere lesing av overskrevne data.
-
---
-Thor Arne Johansen
-Avdelingssjef FoU, Ibas AS
+Triplefault well prior to console output being visible to the naked eye.
 
 
-
-Han har nå lagt til følgende:
-
-
-Det er imidlertid på sin plass å nevne at dette er et tema
-hvor de 'lærde' strides. Dvs. det finnes enkelte som mener at det er mulig
-å lese overskrevne data. Men vi har som sagt ikke kunnet finne noe
-vitenskaplig dokumentasjon eller beskrivelser av hvordan dette kan
-gjøres.
-
------------------------------------------------------------------------------
-
-
-  -jf
+Cheers,
+Bill

@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263542AbTDYJwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 05:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263814AbTDYJwI
+	id S263547AbTDYKDA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 06:03:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbTDYKC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 05:52:08 -0400
-Received: from gate.perex.cz ([194.212.165.105]:41742 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S263542AbTDYJwH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 05:52:07 -0400
-Date: Fri, 25 Apr 2003 12:03:30 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Matthias Schniedermeyer <ms@citd.de>, Pat Suwalski <pat@suwalski.net>,
-       Jamie Lokier <jamie@shareable.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-In-Reply-To: <20030424182227.P3557@almesberger.net>
-Message-ID: <Pine.LNX.4.44.0304251202290.1347-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Apr 2003 06:02:59 -0400
+Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:29966 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S263547AbTDYKC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 06:02:58 -0400
+Date: Fri, 25 Apr 2003 12:15:17 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: linux-kernel@vger.kernel.org
+Cc: sp@osb.hu
+Subject: Re: [PATCH 2.4] dmi_ident made public
+Message-Id: <20030425121517.28c9002b.khali@linux-fr.org>
+In-Reply-To: <20030424231028.GA29393@kroah.com>
+References: <20030424184759.5f7b3323.khali@linux-fr.org>
+	<20030424231028.GA29393@kroah.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Apr 2003, Werner Almesberger wrote:
 
-> Jaroslav Kysela wrote:
-> > We have emulation layer for non-ALSA mixers. This layer turns mute off 
-> > automagically when volume is greater than zero.
+> > If this patch is accepted and applied, I'll work together with Peter
+> > to get the three above-mentioned modules simplified, as well as any
+> > other I may have missed. Also, I'll take care of porting this patch
+> > to the 2.5 series, since it also belongs there.
 > 
-> Thanks for clarifying this ! So, would you agree with the following
-> addition to Documentation/Changes ?
-> 
->   ALSA (Advanced Linux Sound Architecture) is now the preferred
->   architecture for sound support, instead of the older OSS (Open
->   Sound System). Note that, in ALSA, all volume settings default
->   to zero, and all channels default to being "muted".
-> 
->   User space therefore needs to explicitly increase the volume,
->   and "unmute" the respective audio channels before any sound
->   can be heard. 
-> 
->   Mixers not explicitly supporting the "mute" functionality will
-    ^^^^^^
+> i2c-piix4 in the 2.5 kernel tree does not need this patch, as
+> everything it needs to detect IBM laptops is already made public.  See
+> the current 2.5 releases to verify this.
 
-I would change this to 'OSS mixers' because all ALSA mixers handle the 
-mute feature.
+Thanks for pointing this out. I took a look and could actually verify
+it. This made me think again about the whole problem. I wondered wether
+all other modules could be fixed that way (in which case my patch
+wouldn't make sense), but it turns out that neither i8k nor omke can use
+the same trick as the one you used for i2c-piix4. This is due to the
+fact that i2c-piix4 only needs a flag (does the system match a given DMI
+"mask"? yes/no) whereas the other modules need the actual data. Peter,
+correct me if I'm wrong.
 
->   usually "unmute" sources when setting the volume to a value
->   above zero.
-> 
->   More information about ALSA, including configuration and OSS
->   compatibility, can be found in Documentation/sound/alsa/
+What's more, I plan to write another module that exports the DMI data,
+as scanned at boot time, to userland (via sysfs), and such a module
+definitely requires that the DMI data is made public in dmi_scan.
 
-It sounds good.
+The good thing is that I think I now understand a bit better what Alan
+meant yesterday by "register multiple DMI tables for boot time scanning
+to set further flags in the dmi properties post scan". It must be what
+you did for i2c-piix4, and isn't what I need there if my analysis is
+correct.
 
-						Jaroslav
+So, I still think my patch makes sense and should be applied.
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
-
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

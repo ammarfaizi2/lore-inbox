@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290860AbSBLJMV>; Tue, 12 Feb 2002 04:12:21 -0500
+	id <S290858AbSBLJIS>; Tue, 12 Feb 2002 04:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290839AbSBLJLd>; Tue, 12 Feb 2002 04:11:33 -0500
-Received: from mail.cogenit.fr ([195.68.53.173]:10414 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S290860AbSBLJKd>;
-	Tue, 12 Feb 2002 04:10:33 -0500
-Date: Tue, 12 Feb 2002 10:10:27 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with mke2fs on huge RAID-partition
-Message-ID: <20020212101027.A14377@fafner.intra.cogenit.fr>
-In-Reply-To: <20020211195710.A12859@fafner.intra.cogenit.fr> <Pine.LNX.3.96.1020211155518.1149A-100000@gatekeeper.tmr.com>
+	id <S290841AbSBLJIJ>; Tue, 12 Feb 2002 04:08:09 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:41737 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290845AbSBLJIC>;
+	Tue, 12 Feb 2002 04:08:02 -0500
+Date: Mon, 11 Feb 2002 21:31:27 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: SA products <super.aorta@ntlworld.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: faking time
+Message-ID: <20020211203127.GD1614@elf.ucw.cz>
+In-Reply-To: <3C67AFD3.722C5471@ntlworld.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1020211155518.1149A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Mon, Feb 11, 2002 at 03:57:22PM -0500
-X-Organisation: Marie's fan club - II
+In-Reply-To: <3C67AFD3.722C5471@ntlworld.com>
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> :
-[...]
-> What's your stripe size? I have that "this works for me" feeling, although
+Hi!
 
-raiddev                 /dev/md20
-raid-level              1
-nr-raid-disks           2
-chunk-size              32k
-persistent-superblock   1
-nr-spare-disks          0
-        device          /dev/hde3
-        raid-disk       0
-        device          /dev/hdg3
-        raid-disk       1
+> I want to fake the time returned by the time() system call so that for a
+> limited number
+> of user space programs the time can be set to the future or the past
+> without affecting
+> other applications and without affecting system time-- Ideally I would
+> like to install a
+> loadable module to accomplish this- Any hints ? Any starting points?
 
-/dev/md10 is built on hda3, hdc3 the same way.
-
-> I'd like to know why the drives didn't autotune just the same way, and
-> that might tell someone what's up.
-
-I'd like too. Datasheet anyone ?
-
+You can do that in userland, see subterfugue.sf.net.
+								Pavel
 -- 
-Ueimor
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

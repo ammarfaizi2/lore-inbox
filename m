@@ -1,101 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVCMJdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVCMJh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVCMJdy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 04:33:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbVCMJdy
+	id S261826AbVCMJh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 04:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbVCMJh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 04:33:54 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:28879 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261899AbVCMJd3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 04:33:29 -0500
-Message-ID: <423408EA.3040106@tiscali.de>
-Date: Sun, 13 Mar 2005 10:33:30 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
+	Sun, 13 Mar 2005 04:37:27 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:11056 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261826AbVCMJhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 04:37:22 -0500
+Date: Sun, 13 Mar 2005 09:35:59 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] break_lock forever broken
+In-Reply-To: <1110702194.6278.31.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0503130931140.15083@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com> 
+    <20050311203427.052f2b1b.akpm@osdl.org> 
+    <Pine.LNX.4.61.0503122311160.13909@goblin.wat.veritas.com> 
+    <1110702194.6278.31.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Strange Linking Problem
-References: <4232F642.2050704@tiscali.de> <Pine.LNX.4.61.0503120929200.7904@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0503120929200.7904@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
+On Sun, 13 Mar 2005, Arjan van de Ven wrote:
+> > 							\
+> > +	if ((lock)->break_lock)						\
+> > +		(lock)->break_lock = 0;					\
+> >  }									\
+> if it really worth an conditional there? the cacheline of the lock is
+> made dirty anyway on unlock, so writing an extra 0 is like almost free
+> (maybe half a cycle) while a conditional jump can be 100+....
 
-> On Sat, 12 Mar 2005, Matthias-Christian Ott wrote:
->
->> Hi!
->> I hope I'm right here. I've the following assembler code:
->>
->> SECTION .DATA
->>       hello:     db 'Hello world!',10
->>       helloLen:  equ $-hello
->>
->> SECTION .TEXT
->>       GLOBAL main
->>
->> main:
->>
->>
->>
->>       ; Write 'Hello world!' to the screen
->>       mov eax,4            ; 'write' system call
->>       mov ebx,1            ; file descriptor 1 = screen
->>       mov ecx,hello        ; string to write
->>       mov edx,helloLen     ; length of string to write
->>       int 80h              ; call the kernel
->>
->>       ; Terminate program
->>       mov eax,1            ; 'exit' system call
->>       mov ebx,0            ; exit with error code 0
->>       int 80h              ; call the kernel
->>
->>
->> Then I run:
->>
->> nasm -f elf hello.asm
->>
->>
->> I link it with ld and run it:
->>
->> ld -s -o hello hello.o
->> ./hello
->> segmentation fault
->>
->>
->> I link it with the gcc and run it:
->>
->> gcc hello.o -o hello
->> ./hello
->> Hello world!
->>
->>
->> What's wrong with the ld?
->>
->
-> Nothing at all. Where is _start: ?
->
-> Remove the 'main' label and substitute _start:
->
-> It is 'C' convention that programs start with main(). They
-> really don't. With the Linux API, they start at _start: and
-> do some housekeeping before calling main. That's what the
-> crt.o file that the 'C' tool-chain uses, does.
->
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
->  Notice : All mail here is now cached for review by Dictator Bush.
->                  98.36% of all statistics are fiction.
->
-Ofcourse you have to edit it, but this is not the problem (the linker 
-will give an error message if you don't change it). Why does it cause a 
-segementation fault?
+I wondered the same, I don't know and would defer to those who do:
+really I was just following the style of where break_lock is set above,
+which follows soon (unless preempted) after a _raw_whatever_trylock.
 
-Matthias-Christian Ott
+Hugh

@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262818AbVAFN3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVAFNav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262818AbVAFN3H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 08:29:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVAFN3H
+	id S262819AbVAFNav (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 08:30:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262820AbVAFNau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 08:29:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34448 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262818AbVAFN3E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 08:29:04 -0500
-Date: Thu, 6 Jan 2005 08:28:43 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Andrea Arcangeli <andrea@suse.de>, nickpiggin@yahoo.com.au,
-       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
-In-Reply-To: <20050105213704.0282316f.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0501060827200.11550@chimarrao.boston.redhat.com>
-References: <20050105173624.5c3189b9.akpm@osdl.org>
- <Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com>
- <41DCB577.9000205@yahoo.com.au> <20050105202611.65eb82cf.akpm@osdl.org>
- <41DCC014.80007@yahoo.com.au> <20050105204706.0781d672.akpm@osdl.org>
- <20050106045932.GN4597@dualathlon.random> <20050105210539.19807337.akpm@osdl.org>
- <20050106051707.GP4597@dualathlon.random> <41DCCA68.3020100@yahoo.com.au>
- <20050106052507.GR4597@dualathlon.random> <20050105213704.0282316f.akpm@osdl.org>
+	Thu, 6 Jan 2005 08:30:50 -0500
+Received: from alog0039.analogic.com ([208.224.220.54]:15232 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262819AbVAFNag
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 08:30:36 -0500
+Date: Thu, 6 Jan 2005 08:30:25 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Jan Frey <jan.frey@nokia.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] support for gzipped (ELF) core dumps
+In-Reply-To: <1105017578.28175.1.camel@borcx178>
+Message-ID: <Pine.LNX.4.61.0501060826060.17938@chaos.analogic.com>
+References: <1105017578.28175.1.camel@borcx178>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jan 2005, Andrew Morton wrote:
+On Thu, 6 Jan 2005, Jan Frey wrote:
 
-> The timeouts are for:
+> Hi,
 >
-> a) A fallback for backing stores which don't wake up waiters in
->   blk_congestion_wait() (eg: NFS).
+> I've written a patch for 2.4.28 kernel which enables writing of core
+> dump files for ELF binaries in .gz format. This is interesting when
+> using and debugging large binaries. In my case core files exceeded 1GB
+> and got written via NFS...
+> Anyhow, below patch is not really "beautiful", especially CRC looks
+> quite annoying here. Consequently it is to be seen as "proof of concept"
+> and I'm open for further discussion.
+>
+> Is anybody else interested in something like this at all?
+>
+> Regards,
+> Jan
 
-This is buggy, btw.  NFS has a "fun" deadlock where it can
-send so many writes over the wire at once that the PF_MEMALLOC
-allocations eat up all memory and there's no memory left to
-receive ACKs from the NFS server ...
+But that's what modules are for! It would nice to have a module
+that could be inserted when the capability is needed. Certainly
+you don't expect everybody to keep those unused CRC tables in
+the kernel forever. Do you?
 
-NFS will need to act congested when memory is low and there
-are already some writeouts underway.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

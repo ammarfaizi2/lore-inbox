@@ -1,59 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287159AbSAECIp>; Fri, 4 Jan 2002 21:08:45 -0500
+	id <S287456AbSAECXq>; Fri, 4 Jan 2002 21:23:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287427AbSAECIf>; Fri, 4 Jan 2002 21:08:35 -0500
-Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:27915 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S287159AbSAECIR>;
-	Fri, 4 Jan 2002 21:08:17 -0500
-Message-ID: <3C366013.6090207@blueyonder.co.uk>
-Date: Sat, 05 Jan 2002 02:08:19 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Organization: blueyonder
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
-X-Accept-Language: en-us
+	id <S287459AbSAECXg>; Fri, 4 Jan 2002 21:23:36 -0500
+Received: from ns.suse.de ([213.95.15.193]:39179 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287456AbSAECX1>;
+	Fri, 4 Jan 2002 21:23:27 -0500
+Date: Sat, 5 Jan 2002 03:23:25 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Sid Boyce <sboyce@blueyonder.co.uk>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.1-dj11/12 compile errors
+In-Reply-To: <3C366013.6090207@blueyonder.co.uk>
+Message-ID: <Pine.LNX.4.33.0201050322450.24284-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-dj11/12 compile errors
-Content-Type: multipart/mixed;
- boundary="------------010204050004080200090706"
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
+Content-ID: <Pine.LNX.4.33.0201050322452.24284@Appserv.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010204050004080200090706
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, 5 Jan 2002, Sid Boyce wrote:
 
-bumble:~ # gcc -v
-Reading specs from /usr/lib/gcc-lib/i486-suse-linux/2.95.3/specs
-gcc version 2.95.3 20010315 (SuSE)
-	See attached.
-Regards
+> 	See attached.
+
+Yup, initrd is still borked (in -linus too). I'll take a look
+at fixing it in the morning.
+
 -- 
-Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
-Linux only shop
-
---------------010204050004080200090706
-Content-Type: text/plain;
- name="dj11_12_err"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dj11_12_err"
-
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -c -o init/do_mounts.o init/do_mounts.c
-init/do_mounts.c: In function `rd_load_disk':
-init/do_mounts.c:634: incompatible type for argument 2 of `create_dev'
-init/do_mounts.c: In function `handle_initrd':
-init/do_mounts.c:752: incompatible type for argument 1 of `kdev_t_to_nr'
-init/do_mounts.c:756: incompatible type for argument 2 of `create_dev'
-init/do_mounts.c:777: incompatible types in assignment
-init/do_mounts.c: In function `initrd_load':
-init/do_mounts.c:804: incompatible type for argument 2 of `create_dev'
-init/do_mounts.c:805: incompatible type for argument 2 of `create_dev'
-init/do_mounts.c: In function `prepare_namespace':
-init/do_mounts.c:819: incompatible types in assignment
-make: *** [init/do_mounts.o] Error 1
-
---------------010204050004080200090706--
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,77 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271817AbRHWNeb>; Thu, 23 Aug 2001 09:34:31 -0400
+	id <S265249AbRHWOBY>; Thu, 23 Aug 2001 10:01:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270159AbRHWNeW>; Thu, 23 Aug 2001 09:34:22 -0400
-Received: from ns.suse.de ([213.95.15.193]:34568 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S270154AbRHWNeR>;
-	Thu, 23 Aug 2001 09:34:17 -0400
-Date: Thu, 23 Aug 2001 15:34:19 +0200
-From: Andi Kleen <ak@suse.de>
-To: Paul <set@pobox.com>, Andi Kleen <ak@suse.de>,
-        Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk, Wilfried.Weissmann@gmx.at
-Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
-Message-ID: <20010823153419.A8743@gruyere.muc.suse.de>
-In-Reply-To: <20010819004703.A226@squish.home.loc.suse.lists.linux.kernel> <3B831CDF.4CC930A7@didntduck.org.suse.lists.linux.kernel> <oupn14sny4f.fsf@pigdrop.muc.suse.de> <3B839E47.874F8F64@didntduck.org> <20010822141058.A18043@gruyere.muc.suse.de> <3B83A17C.CB8ABC53@didntduck.org> <20010822152203.A18873@gruyere.muc.suse.de> <20010822155226.A228@squish.home.loc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010822155226.A228@squish.home.loc>; from set@pobox.com on Wed, Aug 22, 2001 at 03:52:26PM -0400
+	id <S266488AbRHWOBO>; Thu, 23 Aug 2001 10:01:14 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:16581 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S265249AbRHWOA6>; Thu, 23 Aug 2001 10:00:58 -0400
+Message-ID: <3B850C9A.7080002@redhat.com>
+Date: Thu, 23 Aug 2001 10:00:58 -0400
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andris Pavenis <pavenis@latnet.lv>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: i810 audio doesn't work with 2.4.9
+In-Reply-To: <E15ZGQv-0008Qb-00@the-village.bc.nu> <200108220848.f7M8mVh00441@hal.astr.lu.lv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 22, 2001 at 03:52:26PM -0400, Paul wrote:
-> Andi Kleen <ak@suse.de>, on Wed Aug 22, 2001 [03:22:03 PM] said:
-> > 
-> > Here is a new patch with both checks.
-> > 
-> 
-> 	Dear Andi;
-> 
-> 	Well, with this patch, the kernel doesnt oops, but vm86
-> seems to be busted now. save_v86_state() pops out:
-> 	'vm86: could not access userspace vm86_info'
-> and gives dosemu a segv.
+Andris Pavenis wrote:
 
-I found the problem in the previous patch. Here is an updated one.
-Please test again. Again against -ac7 (or later if Alan hasn't applied 
-the earlier patch) 
+> Got incremental diffs between ac versions since 2.4.5.
+> Applied all diffs to 2.4.5 version of i810_audio.c except one between 2.4.6-ac1 and 2.4.6-ac2
+> As result i810 audio seems to work
+
+Can you send me that incremental patch you left out.  I would like to 
+look at it to see what's going on.
+
+> So it seems that update of i810_audio.c between 2.4.6-ac1 and ac2 breaks it (at least for me).
+> But I think it still eating too much time (about 2-3% on PIII 700) when I'm not doing anything 
+> with sound but no more up to 90% as with unmodified version from 2.4.9 (maybe it's a problem
+> of artsd , I don't know)
 
 
--Andi
+Yes, it's a problem of artsd.  Someone decided (presumably to avoid the 
+occasional pop/click from the startup or shutdown of the sound device) 
+to make artsd transmit silence over the sound card when no sounds 
+currently need played.  From my perspective, I will *NEVER* use artsd as 
+long as it does this.  I find it so extremely stupid and insane to a 
+level that can't be measured that I refuse to run that software.  I 
+absolutely will not have my systems PCI bus loaded down with a constant 
+data transfer when there is no sound to be played.  Right now, that's 
+possibly something as small as a 48KHz/16bit data stream.  But what if 
+the system is upgraded to an ac3 5.1 digital system.  Then you would 
+have something like 384KByte/s of data to transfer over the PCI bus just 
+for frickin silence.  Won't ever happen on any machine I use.  Anyone 
+trying to do things like disk benchmarks on a system that runs artsd may 
+be suprised to find their performance is actually negatively impacted 
+just by having that horrible sound daemon running.  Furthermore, I find 
+their use of the sound API to be suboptimal, especially when they are 
+going to transmit silence all the time.  I am *FAR* happier with the way 
+esd actually handles its interaction with the sound card (other issues 
+are a different matter, I don't rightly know which one does better sound 
+sample upconversion for instance).
 
 
+-- 
 
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 
---- include/asm-i386/hw_irq.h-SEG2	Mon Aug 20 02:54:53 2001
-+++ include/asm-i386/hw_irq.h	Wed Aug 22 13:02:16 2001
-@@ -114,8 +114,10 @@
- 	"cmpl %eax,7*4(%esp)\n\t"  \
- 	"je 1f\n\t"  \
- 	"movl %eax,%ds\n\t" \
-+	"1: cmpl %eax,8*4(%esp)\n\t" \
-+	"je 2f\n\t" \
- 	"movl %eax,%es\n\t" \
--	"1:\n\t"
-+	"2:\n\t"
- 
- #define IRQ_NAME2(nr) nr##_interrupt(void)
- #define IRQ_NAME(nr) IRQ_NAME2(IRQ##nr)
---- arch/i386/kernel/entry.S-SEG2	Sat Aug 18 08:41:53 2001
-+++ arch/i386/kernel/entry.S	Thu Aug 23 15:20:21 2001
-@@ -291,9 +291,11 @@
- 	movl $(__KERNEL_DS),%edx
- 	cmpl %edx,%ecx
- 	jz	1f
--	movl %edx,%ds
- 	movl %edx,%es
--1:	GET_CURRENT(%ebx)
-+1:	cmpl %edx,9*4(%esp)	# check ds on the stack
-+	jz   2f	
-+	movl %edx,%ds
-+2:	GET_CURRENT(%ebx)
- 	call *%edi
- 	addl $8,%esp
- 	jmp ret_from_exception

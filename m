@@ -1,106 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268405AbUHQUOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268401AbUHQUU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268405AbUHQUOq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 16:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268404AbUHQUOq
+	id S268401AbUHQUU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 16:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268407AbUHQUU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 16:14:46 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:12460 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268401AbUHQUOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 16:14:17 -0400
-Subject: Re: boot time, process start time, and NOW time
-From: Albert Cahalan <albert@users.sf.net>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
-       tim@physik3.uni-rostock.de, george anzinger <george@mvista.com>,
-       david+powerix@blue-labs.org
-In-Reply-To: <1092769231.2429.115.camel@cog.beaverton.ibm.com>
-References: <1087948634.9831.1154.camel@cube>
-	 <87smcf5zx7.fsf@devron.myhome.or.jp>
-	 <20040816124136.27646d14.akpm@osdl.org>  <1092698648.2301.1250.camel@cube>
-	 <1092769231.2429.115.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092764462.5761.1553.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Aug 2004 13:41:02 -0400
+	Tue, 17 Aug 2004 16:20:29 -0400
+Received: from ishtar.tlinx.org ([64.81.245.74]:63135 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S268401AbUHQUUQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 16:20:16 -0400
+Message-ID: <41226871.5080900@tlinx.org>
+Date: Tue, 17 Aug 2004 13:20:01 -0700
+From: "L. A. Walsh" <law@tlinx.org>
+Organization: Tlinx Solutions
+User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Darren Williams <dsw@gelato.unsw.edu.au>
+CC: Rahul Jain <rbj2@oak.njit.edu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel recompilation error
+References: <Pine.GSO.4.58.0408162058310.17241@chrome.njit.edu> <20040817044343.GA17796@cse.unsw.EDU.AU>
+In-Reply-To: <20040817044343.GA17796@cse.unsw.EDU.AU>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 15:00, john stultz wrote:
-> On Mon, 2004-08-16 at 16:24, Albert Cahalan wrote:
-> > On Mon, 2004-08-16 at 15:41, Andrew Morton wrote:
-> > 
-> > > Where did this all end up?  Complaints about
-> > > wandering start times are persistent, and it'd
-> > > be nice to get some fix in place...
-> > 
-> > If you're interested in reducing (not solving)
-> > the problem for the 2.6.x series, you might change
-> > HZ to something that works better with the PIT.
-> > 
-> > Here is a table showing % error for various HZ choices:
-> > 
-> > wrongness_%   HZ_diff   PIT_#   HZ     actual_HZ   
-> > -0.00150855  -0.001509  11932   100    99.998491  
-> > -0.00150855  -0.009474   1900   628   627.990526  
-> > -0.00083809  -0.003051   3278   364   363.996949  
-> > -0.00083809  -0.008389   1192  1001  1000.991611  
-> > +0.00000000  +0.000000  14551    82    82.000000  
-> > +0.00008381  +0.000304   3287   363   363.000304  
-> > +0.00008381  +0.000435   2299   519   519.000435  
-> > +0.00008381  +0.000525   1903   627   627.000525  
-> > +0.01525566  +0.152557   1193  1000  1000.152557  
-> > +0.01860917  +0.190558   1165  1024  1024.190558
-> > 
-> > As you can see, 1000 HZ and 1024 HZ are really bad.
-> > They're worse than typical quartz crystal variation.
-> > 
-> > The old 100 HZ tick was just barely tolerable.
-> > While 82 is perfect, it's a bit low. :-(
-> > 
-> > Some of the other choices are nice. How about 363,
-> > 519, or 627?
-> 
-> What about 1001? That looks reasonably accurate.
+Yep...if ya ever find yourself running on a no-loop back kernel -- first
+thing to do is compile-up a new one with it enabled so you can make
+new kernels! :-)
 
-Sure. (it's 10x worse, but the crystals aren't good
-enough to tell the difference) Supposing that a
-choice near 1000 HZ is good, here are some more:
+-l
 
-wrongness_%   HZ_diff   PIT_#   HZ     actual_HZ   
--0.00217900  -0.021703   1198   996   995.978297
--0.00083809  -0.008389   1192  1001  1000.991611
--0.00050285  -0.006376    941  1268  1267.993624
-+0.00050286  +0.005396   1112  1073  1073.005396
-+0.00150859  +0.014950   1204   991   991.014950
+Darren Williams wrote:
 
-I think it's better to drop down a bit, because people
-have also been suffering problems with lost ticks.
-The BIOS can grab the CPU for too long.
+>Hi Rahul
+>As a guess the kernel you are compiling on
+>does not have loopback enabled and therefore
+>you are seeing this message.
+>
+>I use to see this message on RH7 and 8 if
+>I had no loopback device.
+>
+>Darren
+>
+>On Mon, 16 Aug 2004, Rahul Jain wrote:
+>
+>  
+>
+>>Hi,
+>>
+>>This is the first time I am seeing this error while recompiling the
+>>kernel. Could someone plz explain what it means and how to fix it.
+>>
+>>I get this error message when I run the command 'make install'. Till this
+>>point everything else works out properly.
+>>
+>>Error Message
+>>-------------
+>>All of your loopback devices are in use.
+>>mkinitrd failed
+>>
+>>The commands run before this were
+>>make mrproper
+>>make menuconfig
+>>make dep
+>>make bzImage
+>>make modules and
+>>make modules_install
+>>
+>>Thanks,
+>>Rahul.
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>    
+>>
+>--------------------------------------------------
+>Darren Williams <dsw AT gelato.unsw.edu.au>
+>Gelato@UNSW <www.gelato.unsw.edu.au>
+>--------------------------------------------------
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 
-We need to deal well with a few different frequencies:
-
-100    the old clock tick
-59.94  NTSC field rate
-50     PAL field rate
-
-The theory is that you need a frequency of just over 2x
-the one you'd like, but in practice you need about 4x.
-So that's why I suggested 363, 519, and 627.
-
-I'd really rather just run everything off the RTC or HPET,
-with an arbitrary rate interrupt source, and just call into
-the regular jiffies handling code as needed to catch up.
-This would allow steering the jiffies tick to an exact
-integer HZ. High-precision timers could be fired off of
-the RTC or HPET interrupt if that is running faster.
+-- 
+    In the marketplace of "Real goods", capitalism is limited by safety
+    regulations, consumer protection laws, and product liability.  In
+    the computer industry, what protects consumers (other than vendor
+    good will that seems to diminish inversely to their size)?
 
 

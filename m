@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263496AbRFANU2>; Fri, 1 Jun 2001 09:20:28 -0400
+	id <S263501AbRFANWi>; Fri, 1 Jun 2001 09:22:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263497AbRFANUS>; Fri, 1 Jun 2001 09:20:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:59522 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263496AbRFANUL>;
-	Fri, 1 Jun 2001 09:20:11 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15127.38509.495537.405210@pizda.ninka.net>
-Date: Fri, 1 Jun 2001 06:19:41 -0700 (PDT)
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        netdev@oss.sgi.com
-Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (forrealthis
-In-Reply-To: <3B179579.F9C9C721@mandrakesoft.com>
-In-Reply-To: <Pine.LNX.4.33.0106011503030.18082-100000@kenzo.iwr.uni-heidelberg.de>
-	<3B179579.F9C9C721@mandrakesoft.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S263504AbRFANW2>; Fri, 1 Jun 2001 09:22:28 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:4094 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S263501AbRFANWS>; Fri, 1 Jun 2001 09:22:18 -0400
+Message-Id: <5.1.0.14.2.20010601141547.00acb090@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 01 Jun 2001 14:22:21 +0100
+To: Liu Wen <ragent@gnuchina.org>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Is it possible to read NTFS5 in the future?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010601201308.E597.RAGENT@gnuchina.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 13:17 01/06/01, Liu Wen wrote:
+>NTFS5 is really an efficient filesystem under Windows 2000. I have a 12G
+>data partition kept as FAT32 just in order to use it under Linux. But I
+>am thinking of converting it to NTFS,which would be very inconvinient
+>to use Linux. How about the kernel developing project to work on NTFS?
 
-Jeff Garzik writes:
- > For your HA application specifically, right now, I would suggest making
- > sure your net driver calls netif_carrier_xxx correctly, then checking
- > for IFF_RUNNING interface flag.  IFF_RUNNING will disappear if the
- > interface is up, but there is no carrier [as according to
- > netif_carrier_ok].
+Using the at least kernel 2.4.4-ac18 (note you have to use -ac kernels at 
+the moment) you should be fine accessing Win2k NTFS volumes from Linux 
+READ-ONLY. Only the advanced Win2k NTFS features like reparse points, 
+quota, etc. will not work under linux as of now.
 
-Don't such HA apps need to run as root anyways?
+As of the moment write support for NTFS is still EXTREMELY DANGEROUS, 
+especially under Win2k, so you better not do it unless you are 
+participating in NTFS development on Linux and have backups...
 
-Regardless, I agree that, long term, the way to do this is via netlink.
+So basically NTFS is under development. There is no need for yet another 
+NTFS project. Just join ours if you are interested:
+         http://sf.net/projects/linux-ntfs
 
-Later,
-David S. Miller
-davem@redhat.com
+Anton
+
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sf.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311709AbSCNSXH>; Thu, 14 Mar 2002 13:23:07 -0500
+	id <S311714AbSCNS1H>; Thu, 14 Mar 2002 13:27:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311711AbSCNSW6>; Thu, 14 Mar 2002 13:22:58 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24973 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311709AbSCNSWy>; Thu, 14 Mar 2002 13:22:54 -0500
-Date: Thu, 14 Mar 2002 10:22:34 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
-        Ingo Molnar <mingo@elte.hu>, oliend@us.ibm.com
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
-Message-ID: <41140000.1016130154@flay>
-In-Reply-To: <546494477.1016087693@[10.10.2.3]>
-In-Reply-To: <Pine.LNX.4.33.0203141426200.1477-100000@biker.pdb.fsc.net> <546494477.1016087693@[10.10.2.3]>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S311716AbSCNS05>; Thu, 14 Mar 2002 13:26:57 -0500
+Received: from zero.tech9.net ([209.61.188.187]:15883 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S311714AbSCNS0q>;
+	Thu, 14 Mar 2002 13:26:46 -0500
+Subject: Re: Linux 2.4 and BitKeeper
+From: Robert Love <rml@tech9.net>
+To: Ben Greear <greearb@candelatech.com>
+Cc: Larry McVoy <lm@bitmover.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C90E994.2030702@candelatech.com>
+In-Reply-To: <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva>
+	<3C904437.7080603@candelatech.com> <20020313224255.F9010@work.bitmover.com>
+	 <3C90E994.2030702@candelatech.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 14 Mar 2002 13:26:40 -0500
+Message-Id: <1016130404.4289.5.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Btw is it correct that one could also use the APIC Task Priority Registers
->> to implement "fair" IRQ routing? (If linux adjusted them, which it
->> currently doesn't).
-> 
-> Yes, and Dave Olien has already done this. It's a good idea for P3,
-> and seems to me to be essential for P4. 
-> 
-> Dave, can you republish your patch?
+On Thu, 2002-03-14 at 13:19, Ben Greear wrote:
 
-Apparently he's out for a few days. I poked around, and here's the latest
-version of his stuff I can find:
+> I did a clone with this.  However, I see no files, only
+> directories.  The files do seem to be in the SCCS directories,
+> but I don't know how to make them appear in their normal place.
 
-http://sourceforge.net/project/showfiles.php?group_id=8875
+Uh that is how BK works.  The files are stored.  Try
 
-Look under "APIC routing". Read the notes carefully - you have to
-activate it from the command line.
+	bk -r co
 
+to get all the files.  Omit the `-r' to check out only the current
+directory.
 
-M.
+There are some decent tutorials and such on bitmovers[1] page.
+
+[1] http://www.bitmover.com
+
+	Robert Love
 

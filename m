@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263945AbUDZOF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUDZOIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbUDZOF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 10:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbUDZOFD
+	id S263881AbUDZOIs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 10:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263858AbUDZOHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 10:05:03 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48362 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263851AbUDZNvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 09:51:41 -0400
-Date: Mon, 26 Apr 2004 14:28:32 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Martin Hermanowski <martin@mh57.de>
-Cc: Nigel Cunningham <ncunningham@linuxmail.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SOFTWARE_SUSPEND as a module
-Message-ID: <20040426122831.GH2595@openzaurus.ucw.cz>
-References: <20040422120417.GA2835@gondor.apana.org.au> <20040423005617.GA414@elf.ucw.cz> <20040423093836.GA10550@gondor.apana.org.au> <opr6wvqddzruvnp2@laptop-linux.wpcb.org.au> <20040423143004.GC20742@mh57.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 26 Apr 2004 10:07:43 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:28579 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S263881AbUDZOFY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 10:05:24 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 1/9] USB usbfs: take a reference to the usb device
+Date: Mon, 26 Apr 2004 16:05:17 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Frederic Detienne <fd@cisco.com>
+References: <200404141229.26677.baldrick@free.fr> <20040423231811.GA10398@kroah.com>
+In-Reply-To: <20040423231811.GA10398@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040423143004.GC20742@mh57.de>
-User-Agent: Mutt/1.3.27i
+Message-Id: <200404261605.17486.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Nice, I've applied all 9 patches here (with the updated patch 8
+> version).  Feel free to send me an update for the warning issue you and
+> Oliver talked about if you want to.
 
-> > >As a side-effect it also allows you to resume from devices that couldn't
-> > >be done before due to the need for user-space setup.  Examples are LVM
-> > >and NBD.
-> > 
-> > LVM can be compiled in, can't it? Does it need to do some setup from an  
-> > initrd?
-> 
-> It needs to be recognised by the lvm userspace utilities before it can
-> be used.
-> 
-> One other thing this might be very useful for is _swsusp from encrypted
-> swap'. With dm-crypt, it should be very easy to create a crypto mapping
-> from initrd from which swsusp can resume. IMHO this is a killer feature
-> for notebook users (everything encrypted but the boot partition).
+Hi Greg, thanks for applying the patches.  The following patch goes on top.
+Hopefully it will make Oliver happy!
 
-Okay. Best way is probably to introduce reboot() variant that
-says "resume from this".
-				Pavel
+Ciao,
 
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Duncan.
 
+
+Be assertive.
+
+ devio.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+
+diff -Nru a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+--- a/drivers/usb/core/devio.c	Mon Apr 26 13:48:28 2004
++++ b/drivers/usb/core/devio.c	Mon Apr 26 13:48:28 2004
+@@ -350,8 +350,8 @@
+ 	 * all pending I/O requests; 2.6 does that.
+ 	 */
+ 
+-	if (ifnum < 8*sizeof(ps->ifclaimed))
+-		clear_bit(ifnum, &ps->ifclaimed);
++	BUG_ON(ifnum >= 8*sizeof(ps->ifclaimed));
++	clear_bit(ifnum, &ps->ifclaimed);
+ 	usb_set_intfdata (intf, NULL);
+ 
+ 	/* force async requests to complete */

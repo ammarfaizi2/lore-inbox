@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274809AbRJXOfn>; Wed, 24 Oct 2001 10:35:43 -0400
+	id <S274862AbRJXOin>; Wed, 24 Oct 2001 10:38:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274862AbRJXOfd>; Wed, 24 Oct 2001 10:35:33 -0400
-Received: from mail.fenster-information.de ([62.159.82.131]:18665 "EHLO
-	imhotep.aubi.de") by vger.kernel.org with ESMTP id <S274809AbRJXOf3>;
-	Wed, 24 Oct 2001 10:35:29 -0400
-Message-ID: <08F6135C268EDC44847CCC444E7B0CF0B6A5@EXCHANGEC>
-From: =?iso-8859-1?Q?Markus_D=F6hr?= <doehrm@aubi.de>
-To: "'Francois Romieu'" <romieu@cogenit.fr>,
-        "'Andy Pevy'" <andy.pevy@nokia.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: linux-2.4.13..
-Date: Wed, 24 Oct 2001 16:35:42 +0200
-Importance: high
-X-Priority: 1
+	id <S275115AbRJXOid>; Wed, 24 Oct 2001 10:38:33 -0400
+Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:34369 "HELO
+	oceanic.wsisiz.edu.pl") by vger.kernel.org with SMTP
+	id <S274862AbRJXOiU>; Wed, 24 Oct 2001 10:38:20 -0400
+From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Two suggestions (loop and owner's of linux tree)
+In-Reply-To: <1003933278.1496.6.camel@LNX.iNES.RO>
+X-Newsgroups: wsisiz.linux-kernel
+User-Agent: tin/1.5.9-20010723 ("Chord of Souls") (UNIX) (Linux/2.4.12 (i686))
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011024143850.EAC2598410@oceanic.wsisiz.edu.pl>
+Date: Wed, 24 Oct 2001 16:38:50 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andy Pevy <andy.pevy@nokia.com> :
-> [Compaq Fibre Channel failure]
-> 
-> Didn't build in -pre either. It compiles fine in -ac. 
-> 
+In article <1003933278.1496.6.camel@LNX.iNES.RO> you wrote:
+>> I would like to suggest to change max_loop from 8 to 16 or more if it
+>> possible.
 
-See here...
+> max_loop=16 in your kernel command line if you use loop builtin or:
+> options loop max_loop=16 in /etc/modules.conf if you use it as an
+> module.
 
-ftp://ftp.compaq.com/pub/products/drivers/linux/released/cpqfc/cpqfc_2.1.0_f
-or_2.4.10-ac8.patch
+I know about this option, but I think limit max=16 is much better.
 
+> chmod -R root.root linux/ 
+> after you have unpacked the tarball.
+
+Unnecessarily extra command :) Sometimes I can forget about this and then
+user with uid 1046 can modify my kernel source.
 
 -- 
-Markus Doehr            AUBI Baubschlaege GmbH
-IT Admin/SAP R/3 Basis  Zum Grafenwald
-fon: +49 6503 917 152   54411 Hermeskeil
-fax: +49 6503 917 190   http://www.aubi.de 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

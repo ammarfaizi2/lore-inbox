@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVBNPMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVBNPVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVBNPMs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 10:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVBNPMs
+	id S261445AbVBNPVV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 10:21:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVBNPVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 10:12:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64926 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261443AbVBNPMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 10:12:46 -0500
-Date: Mon, 14 Feb 2005 15:12:44 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Christophe Lucas <c.lucas@ifrance.com>
-Cc: kernel-janitors@lists.osdl.org, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [KJ] [PATCH] drivers/char/watchdog/* : pci_request_regions
-Message-ID: <20050214151244.GF29917@parcelfarce.linux.theplanet.co.uk>
-References: <20050214150111.GH20620@rhum.iomeda.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050214150111.GH20620@rhum.iomeda.fr>
-User-Agent: Mutt/1.4.1i
+	Mon, 14 Feb 2005 10:21:21 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:44702 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S261445AbVBNPVR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 10:21:17 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: How to get the maximum output from dmesg command
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Mon, 14 Feb 2005 20:55:35 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB3481134E2AE@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: How to get the maximum output from dmesg command
+Thread-Index: AcUSqW4Lm/OUjfNlS4K9vpEUAiZTBA==
+From: "Srinivas G." <srinivasg@esntechnologies.co.in>
+To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+Cc: <jjoy@novell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 04:01:11PM +0100, Christophe Lucas wrote:
-> If PCI request regions fails, then someone else is using the
-> hardware we wish to use. For that one case, calling
-> pci_disable_device() is rather rude.
-> See : http://www.ussg.iu.edu/hypermail/linux/kernel/0502.1/1061.html
+Dear All,
 
-Actually, that isn't necessarily true.  If the request_regions call fails,
-that can mean there's a resource conflict.  If so, leaving the device
-enabled is the worst possible thing to do as we'll now have two devices
-trying to respond to the same io accesses.
+How to get maximum output from dmesg command? 
+I am unable to see all my debug messages after loading my driver. 
+I think there is a restriction in displaying the dmesg output. 
+I saw in printk.c file under source directory. There I found LOG_BUF_LEN
+is 16384.
+But I am unable to see not more that 300 to 400 lines of code from
+dmesg. 
+If I modify in the printk.c file then I get more lines of code from
+dmesg command!!!
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+As var/log/messages is the source of dmesg command, I made a copy of
+var/log/messages assuming that I will be getting the complete driver
+trace in it. But a part of the messages that are at the initialization
+of our driver are not seen. 
+
+How can I get maximum lines of output from the dmesg command? 
+I am using Red Hat 7.3 with 2.4.18-3 kernel version. 
+Can anybody help in this regard?
+
+Thanks in advance.
+Regards,
+Srinivas G
+

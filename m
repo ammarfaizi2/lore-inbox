@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265400AbSLQUgo>; Tue, 17 Dec 2002 15:36:44 -0500
+	id <S265469AbSLQUtE>; Tue, 17 Dec 2002 15:49:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265469AbSLQUgo>; Tue, 17 Dec 2002 15:36:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12556 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265400AbSLQUgn>; Tue, 17 Dec 2002 15:36:43 -0500
+	id <S265506AbSLQUtE>; Tue, 17 Dec 2002 15:49:04 -0500
+Received: from lennier.cc.vt.edu ([198.82.162.213]:65291 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S265469AbSLQUtD>; Tue, 17 Dec 2002 15:49:03 -0500
+X-WebMail-UserID: rtilley
+Date: Tue, 17 Dec 2002 15:57:01 -0500
+From: rtilley <rtilley@vt.edu>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: HT Benchmarks (was: /proc/cpuinfo and hyperthreading)
-Date: 17 Dec 2002 12:44:22 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ato2b6$v48$1@cesium.transmeta.com>
-References: <FKEAJLBKJCGBDJJIPJLJAEOLDLAA.scott@coyotegulch.com> <20021216232755.GA3750@werewolf.able.es> <200212170614.gBH6ELs15888@Port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+X-EXP32-SerialNo: 00002964
+Subject: 2.5.52 compile error
+Message-ID: <3E058049@zathras>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebMail (Hydra) SMTP v3.61.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200212170614.gBH6ELs15888@Port.imtp.ilyichevsk.odessa.ua>
-By author:    Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-In newsgroup: linux.dev.kernel
-> 
-> As to HT, it's definitely a good thing. Multiple CPUs on a chip is
-> a logical step. HT in P4 is rather weak, but future processors will
-> likely have more advanced cores.
-> 
+Using RH's default *i686.config to build a vanilla 2.5.52 kernel. It keeps 
+returning this error on 2 totally different x86 PCs:
 
-SMT and SMP-on-chip are two very different things.
 
-> I never heard about HT from AMD camp. I'm curious what they do. ;)
+drivers/built-in.o: In function `kd_nosound':
+drivers/built-in.o(.text+0x1883f): undefined reference to `input_event'
+drivers/built-in.o(.text+0x18861): undefined reference to `input_event'
+drivers/built-in.o: In function `kd_mksound':
+drivers/built-in.o(.text+0x1890a): undefined reference to `input_event'
+drivers/built-in.o: In function `kbd_bh':
+drivers/built-in.o(.text+0x197a2): undefined reference to `input_event'
+drivers/built-in.o(.text+0x197c1): undefined reference to `input_event'
+drivers/built-in.o(.text+0x197e0): more undefined references to `input_event' 
+follow
+drivers/built-in.o: In function `kbd_connect':
+drivers/built-in.o(.text+0x19d54): undefined reference to `input_open_device'
+drivers/built-in.o: In function `kbd_disconnect':
+drivers/built-in.o(.text+0x19d7f): undefined reference to `input_close_device'
+drivers/built-in.o: In function `kbd_init':
+drivers/built-in.o(.init.text+0x12c1): undefined reference to 
+`input_register_handler'
+make: *** [.tmp_vmlinux1] Error 1
 
-Not have insanely long pipelines, so that a single thread can actually
-use the processor functional units?
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Where is the fix for this?
+

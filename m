@@ -1,76 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267880AbUJTAhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUJTAmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267880AbUJTAhE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 20:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267363AbUJTAdI
+	id S263962AbUJTAmI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 20:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUJTAkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 20:33:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10164 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267739AbUJTATc convert rfc822-to-8bit
+	Tue, 19 Oct 2004 20:40:45 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:13276 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S263962AbUJTARp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 20:19:32 -0400
-Subject: Re: [PATCH] I2C update for 2.6.9
-In-Reply-To: <10982315052653@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 19 Oct 2004 17:18:25 -0700
-Message-Id: <10982315053127@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Tue, 19 Oct 2004 20:17:45 -0400
+From: Alistair John Strachan <alistair@devzero.co.uk>
+Reply-To: alistair@devzero.co.uk
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.6.9: performance issues on Via Epia
+Date: Wed, 20 Oct 2004 01:17:29 +0100
+User-Agent: KMail/1.7.1
+References: <200410191604.22747.alistair@devzero.co.uk> <200410192346.14695.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200410192346.14695.vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410200117.29871.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1867.7.8, 2004/09/21 16:40:19-07:00, nacc@us.ibm.com
+On Tuesday 19 Oct 2004 21:46, you wrote:
+> On Tuesday 19 October 2004 18:04, Alistair John Strachan wrote:
+> > Hi,
+> >
+> > I recently upgraded from 2.6.8.1 to 2.6.9 (the release, not -final) on my
+> > Via Epia 5000 router. Now when I transfer files from the machine's HD
+> > vsftpd can only achieve 3MB/s.
+> >
+> > I believe this is some performance problem specifically related to XFS,
+> > or something specific to the local VM, because if I transfer from an NFS
+> > mounted directory on the same machine, vsftpd easily achieves the 10MB/s
+> > I'm used to.
+>
+> Sound like 'DMA off' problem.
 
-[PATCH] i2c/i2c-mpc: replace schedule_timeout() with msleep_interruptible()
+Could be, not changed anything since 2.6.8.1 though and dmesg claims dma is 
+enabled on hda, which is the only connected drive
 
-Properly orders set_current_state() and add_wait_queue().  Uses
-msleep_interruptible() in place of schedule_timeout() to guarantee the
-task delays as expected. Uses set_current_state() instead of direct
-assignment of current->state.
+>
+> > Top shows something typical to this during transfers from the machine's
+> > local HD;
+> >
+> > Cpu(s):  0.7% us,  9.2% sy,  0.0% ni,  0.3% id, 84.5% wa,  5.3% hi,  0.0%
+> > si
+> >
+> > Which seems like an awful lot of wait time. Anybody got any suggestions
+> > of where to start reverting patches? The amount of difference between
+> > 2.6.8.1 and 2.6.9 is quite daunting.
+>
+> Binary search is converging quickly.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+That's still a lot of work, but thanks.. I'll probably just work through the 
+bk snapshots until it breaks, then binary search on the remaining patches. 
+It'll still take a couple of hours, especially on such a slow machine.
 
+>
+> > By the way, copying a file locally on the system from the same partition
+> > to another directory is far more efficient.
+> >
+> > [root] 16:02 [~] time cp /var/cache/swapfile here
+> > `/var/cache/swapfile' -> `here'
+> >
+> > real    0m37.904s
+> > user    0m0.115s
+> > sys     0m13.033s
+>
+> size of this file?
 
- drivers/i2c/busses/i2c-mpc.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+512MB, sorry about that..
 
+By the way Jeff, I already said in my original post that copying from a local 
+NFS mount gives me to get the full 10MB/s i.e.
 
-diff -Nru a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
---- a/drivers/i2c/busses/i2c-mpc.c	2004-10-19 16:54:50 -07:00
-+++ b/drivers/i2c/busses/i2c-mpc.c	2004-10-19 16:54:50 -07:00
-@@ -23,6 +23,7 @@
- #include <asm/ocp.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
-+#include <linux/delay.h>
- 
- #define MPC_I2C_ADDR  0x00
- #define MPC_I2C_FDR 	0x04
-@@ -91,9 +92,9 @@
- 		x = readb(i2c->base + MPC_I2C_SR);
- 		writeb(0, i2c->base + MPC_I2C_SR);
- 	} else {
-+		set_current_state(TASK_INTERRUPTIBLE);
- 		add_wait_queue(&i2c->queue, &wait);
- 		while (!(i2c->interrupt & CSR_MIF)) {
--			set_current_state(TASK_INTERRUPTIBLE);
- 			if (signal_pending(current)) {
- 				pr_debug("I2C: Interrupted\n");
- 				result = -EINTR;
-@@ -104,9 +105,9 @@
- 				result = -EIO;
- 				break;
- 			}
--			schedule_timeout(timeout);
-+			msleep_interruptible(jiffies_to_msecs(timeout));
- 		}
--		current->state = TASK_RUNNING;
-+		set_current_state(TASK_RUNNING);
- 		remove_wait_queue(&i2c->queue, &wait);
- 		x = i2c->interrupt;
- 		i2c->interrupt = 0;
+NFS server X -> problem case machine's NFS mount -> some client machine = fine
+problem case machine's local mount -> some client machine = slow.
 
+My email was just an attempt to stir up any obvious changes that might've 
+taken place. Since the problem seems obscure, I'll probably have to do it 
+properly and manually search through the patches until I find the problem 
+one.
+
+Thanks for your prompt replies.
+
+-- 
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/AI Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

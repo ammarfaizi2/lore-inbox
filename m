@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315420AbSFYAPP>; Mon, 24 Jun 2002 20:15:15 -0400
+	id <S315424AbSFYAhE>; Mon, 24 Jun 2002 20:37:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315421AbSFYAPO>; Mon, 24 Jun 2002 20:15:14 -0400
-Received: from pallas.or.intel.com ([134.134.214.21]:21961 "EHLO
-	pallas.or.intel.com") by vger.kernel.org with ESMTP
-	id <S315420AbSFYAPO>; Mon, 24 Jun 2002 20:15:14 -0400
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7F59@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Shawn Starr'" <spstarr@sh0n.net>, Linux <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.5.24 - Strange power off problems (ACPI support on)
-Date: Mon, 24 Jun 2002 17:15:03 -0700
+	id <S315427AbSFYAhE>; Mon, 24 Jun 2002 20:37:04 -0400
+Received: from node-c-3d3f.a2000.nl ([62.194.61.63]:43531 "HELO
+	vger.kernel.org") by vger.kernel.org with SMTP id <S315424AbSFYAhD>;
+	Mon, 24 Jun 2002 20:37:03 -0400
+From: "joseph edward" <jossy01@spinfinder.com>
+Date: Tue, 25 Jun 2002 02:37:10
+To: linux-kernel@vger.kernel.org
+Subject: urgent response is needed
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020625003703Z315424-22020+10192@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Shawn Starr [mailto:spstarr@sh0n.net] 
-> When I run the halt/poweroff program, it powers off the hard 
-> disks, and
-> displays the 'Poweroff System' message. If I press the power 
-> button, It
-> turns the system off HARD, Ie, i don't see the NIC card's aux 
-> power on,
-> and when I try to turn the machine on again it won't until I 
-> physically
-> remove all power (turn off powerbar) for a few seconds, then 
-> It will let
-> me power it on (or it will power on itself).
-> 
-> This did not happen in the 2.4.x kernel, I assume a new ACPI bug? ;-)
+STRICTLY CONFIDENTIAL & URGENT.
 
-I'm heartened to see that ACPI PCI IRQ routing and CPU/IOAPIC enumeration is
-working on your system. ;-)
+I am Mr, Joseph Edward a native of Cape Town in
+South Africa and I am an Executive Accountant with
+the South Africa  DEPARTMENT OF MINERAL RESOURCES AND ENERGY 
 
-2.4 ACPI is very different from 2.5 ACPI. You can try the latest ACPI patch
-against 2.4 at http://sf.net/projects/acpi .
+First and foremost, I apologized using this medium to
+reach you for a transaction/business of this
+magnitude, but this is due to
+Confidentiality and prompt access reposed on this
+medium. 
 
-I bet it will do the same thing, though. I'll have to think about why this
-might be happening.
+I have decided to seek a confidential
+co-operation with you in the execution of the deal
+described Hereunder for the benefit of all parties
+and hope you will keep it as a top secret because of the nature of this transaction.
 
-Regards -- Andy
+Within the Department of Mining & Natural Resources
+where I work as an Executive Accountant and with the
+cooperation of four other top officials, we have in
+our possession as overdue payment bills totaling
+Twenty - One Million, Five Hundred Thousand U. S.
+Dollars ($21,500,000.) which we want to transfer
+abroad with the assistance and cooperation of a
+foreign company/individual to receive the said fund
+on
+our behalf or a reliable foreign non-company account
+to receive such funds. More so, we are handicapped in
+the circumstances, as the South Africa Civil Service
+Code of Conduct does not allow us to operate offshore
+account hence your importance in the whole
+transaction.
+This amount $21.5m represents the balance of the
+total contract value executed on behalf of my Department by a foreign contracting firm, which we the officials over-invoiced deliberately. Though the actual
+contract cost have been paid to the original contractor,leaving the balance in the Tune of the said amount which we have in principles gotten approval to remit by Key tested Telegraphic Transfer (K.T.T) to any
+foreign bank account you will provide by filing in an
+application through the Justice Ministry here in
+South Africa for the transfer of rights and privileges of the former contractor to you.
+
+I have the authority of my partners involved to
+propose that should you be willing to assist us in
+the transaction, your share of the sum will be 25% of the $21.5 million, 70% for us and 5% for taxation and
+miscellaneous expenses. The business itself is 100%
+safe, on your part provided you treat it with utmost
+secrecy and confidentiality. Also your area of
+specialization is not a hindrance to the successful
+execution of this transaction. I have reposed my
+confidence in you and hope that you will not
+disappoint me. Endeavor to contact me immediately my
+e-mail address  whether or not you are
+interested in this deal. If you are not, it will enable me scout for another foreign partner to carry out this deal I want to assure you that my partners and myself are in a position to make the payment of this claim possible provided you can give us a very strong Assurance and guarantee that our share will be secured and please remember to treat this matter as very confidential matter, because we will not comprehend with any form of exposure as we are still in active Government Service and remember once again that time is of the essence in this business.
+I wait in anticipation of your fullest co-operation.
+
+Yours faithfully,
+
+
+JOSEPH EDWARD
+
+
+NOTE:YOUR RESPONSE TO THIS MAIL SHOULD BE SENT TO  jossy02@spinfinder.com

@@ -1,81 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268660AbUJDWXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268650AbUJDWaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268660AbUJDWXt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 18:23:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268650AbUJDWWL
+	id S268650AbUJDWaE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 18:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268541AbUJDW1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 18:22:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:36552 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268685AbUJDWPS (ORCPT
+	Mon, 4 Oct 2004 18:27:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62647 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268670AbUJDVdp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 18:15:18 -0400
-Date: Mon, 4 Oct 2004 15:11:08 -0700
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc3-mm1, bk-pci patch, USB hubs
-Message-ID: <20041004221107.GC11110@kroah.com>
-References: <9e473391041003113351c6e237@mail.gmail.com>
+	Mon, 4 Oct 2004 17:33:45 -0400
+Date: Mon, 4 Oct 2004 14:37:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: annabellesgarden@yahoo.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm2
+Message-Id: <20041004143738.5ca9c43f.akpm@osdl.org>
+In-Reply-To: <20041004212633.GA13527@elte.hu>
+References: <200410041634.24937.annabellesgarden@yahoo.de>
+	<20041004122304.4f545f3c.akpm@osdl.org>
+	<20041004122533.0a85a1ad.akpm@osdl.org>
+	<20041004212633.GA13527@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e473391041003113351c6e237@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 03, 2004 at 02:33:48PM -0400, Jon Smirl wrote:
-> These changes make the USB hub module fail to load. I get a trap in
-> kmem_cache_alloc called from uhci_alloc_urb_private. Reverting them
-> fixes it.
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> Must not put side-effects into a macro that is NOP on
+> !SMP.
 
-Thanks, but I've fixed up pci_register_driver() to not return a fake
-"1", which was undocumented, and not a nice thing to do.
+This one, too:
 
-That patch is below, and is in my trees, which will cause it to show up
-in the next -mm release.
-
-thanks,
-
-greg k-h
-
-
-===== pci-driver.c 1.46 vs edited =====
---- 1.46/drivers/pci/pci-driver.c	2004-09-29 23:09:23 -07:00
-+++ edited/pci-driver.c	2004-10-04 11:11:20 -07:00
-@@ -396,13 +396,13 @@
-  * @drv: the driver structure to register
-  * 
-  * Adds the driver structure to the list of registered drivers.
-- * Returns a negative value on error. The driver remains registered
-- * even if no device was claimed during registration.
-+ * Returns a negative value on error, otherwise 0. 
-+ * If no error occured, the driver remains registered even if 
-+ * no device was claimed during registration.
-  */
--int
--pci_register_driver(struct pci_driver *drv)
-+int pci_register_driver(struct pci_driver *drv)
- {
--	int count = 0;
-+	int error;
+diff -puN include/linux/netfilter_ipv4/ip_conntrack.h~conntrack-preempt-safety-fix include/linux/netfilter_ipv4/ip_conntrack.h
+--- 25/include/linux/netfilter_ipv4/ip_conntrack.h~conntrack-preempt-safety-fix	Mon Oct  4 14:36:19 2004
++++ 25-akpm/include/linux/netfilter_ipv4/ip_conntrack.h	Mon Oct  4 14:37:02 2004
+@@ -311,10 +311,11 @@ struct ip_conntrack_stat
+ 	unsigned int expect_delete;
+ };
  
- 	/* initialize common driver fields */
- 	drv->driver.name = drv->name;
-@@ -414,13 +414,12 @@
- 	pci_init_dynids(&drv->dynids);
+-#define CONNTRACK_STAT_INC(count)				\
+-	do {							\
+-		per_cpu(ip_conntrack_stat, get_cpu()).count++;	\
+-		put_cpu();					\
++#define CONNTRACK_STAT_INC(count)					\
++	do {								\
++		preempt_disable();					\
++		per_cpu(ip_conntrack_stat, smp_processor_id()).count++;	\
++		preempt_disable();					\
+ 	} while (0)
  
- 	/* register with core */
--	count = driver_register(&drv->driver);
-+	error = driver_register(&drv->driver);
- 
--	if (count >= 0) {
-+	if (!error)
- 		pci_populate_driver_dir(drv);
--	}
- 
--	return count ? count : 1;
-+	return error;
- }
- 
- /**
+ /* eg. PROVIDES_CONNTRACK(ftp); */
+_
+

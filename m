@@ -1,51 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVCXHqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVCXHvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbVCXHqI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 02:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVCXHqI
+	id S262715AbVCXHvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 02:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVCXHvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 02:46:08 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:62669 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262731AbVCXHqE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 02:46:04 -0500
-Date: Wed, 23 Mar 2005 23:46:13 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-Message-ID: <20050324074613.GJ1298@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu> <20050324052854.GA1298@us.ibm.com> <20050324053456.GA14494@elte.hu>
+	Thu, 24 Mar 2005 02:51:16 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:2258 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262715AbVCXHvE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 02:51:04 -0500
+Subject: Re: [RFC] Obtaining memory information for kexec/kdump
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Hariprasad Nellitheertha [imap]" <hari@in.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       fastboot <fastboot@lists.osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <424254E0.6060003@in.ibm.com>
+References: <424254E0.6060003@in.ibm.com>
+Content-Type: multipart/mixed; boundary="=-gzH/NE2vVDZYzVoVW3je"
+Date: Wed, 23 Mar 2005 23:50:44 -0800
+Message-Id: <1111650644.9881.43.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050324053456.GA14494@elte.hu>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2005 at 06:34:56AM +0100, Ingo Molnar wrote:
-> 
-> * Paul E. McKenney <paulmck@us.ibm.com> wrote:
-> 
-> > Now, it is true that CPU#2 might record a quiescent state during this 
-> > time, but this will have no effect because -all- CPUs must pass 
-> > through a quiescent state before any callbacks will be invoked.  Since 
-> > CPU#1 is refusing to record a quiescent state, grace periods will be 
-> > blocked for the full extent of task 1's RCU read-side critical 
-> > section.
-> 
-> ok, great. So besides the barriers issue (and the long grace period time 
-> issue), the current design is quite ok. And i think your original flip 
-> pointers suggestion can be used to force synchronization.
 
-The thing I am currently struggling with on the flip-pointers approach is
-handling races between rcu_read_lock() and the flipping.  In the earlier
-implementations that used this trick, you were guaranteed that if you were
-executing concurrently with one flip, you would do a voluntary context
-switch before the next flip happened, so that the race was harmless.
-This guarantee does not work in the PREEMPT_RT case, so more thought
-will be required.  :-/
+--=-gzH/NE2vVDZYzVoVW3je
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-						Thanx, Paul
+On Thu, 2005-03-24 at 11:19 +0530, Hariprasad Nellitheertha wrote:
+> The topic of creating a common interface across 
+> architectures for obtaining system RAM information has been 
+> discussed on lkml and fastboot for a while now.
+
+Sorry, I missed this on LKML.
+
+> Kexec needs 
+> information about the entire physical RAM present in the 
+> system while kdump needs information on the memory that the 
+> kernel has booted with.
+
+I think there's likely a lot of commonality with the needs of memory
+hotplug systems here.  We effectively dump out the physical layout of
+the system, but in sysfs.  We do this mostly because any memory hotplug
+changes generate hotplug events, just like all other hardware.  If you
+do this in /proc, it's another thing that memory hotplug will have to
+update.  
+
+Also, we already have a concept of active and non-active physical
+memory: we call it online and offline.  Some tweaks to the information
+that we export might be all that you need, instead of creating a new
+interface.  I've attached a document I started writing a couple days ago
+about the sysfs layout and the call paths for hotplug.  It's horribly
+incomplete, but not a bad start.
+
+If you want to see some more details of the layout, please check out
+this patch set:
+
+http://www.sr71.net/patches/2.6.12/2.6.12-rc1-mhp1/patch-2.6.12-rc1-mhp1.gz
+
+A good example of all of the hotplug stuff enabled for a normal machine
+is this .config, it boots on my 4-way PIII Xeon.  
+
+http://www.sr71.net/patches/2.6.12/2.6.12-rc1-mhp1/configs/config-i386-sparse-hotplug
+
+You're welcome to borrow the machine that I normally boot this config
+on.  Should make booting it relatively foolproof. :)
+
+-- Dave
+
+--=-gzH/NE2vVDZYzVoVW3je
+Content-Disposition: attachment; filename=hotplug-docco.txt
+Content-Type: text/plain; name=hotplug-docco.txt; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
+
+block_size_bytes:  The size of each memory section (in hex)
+
+memoryXXXX: Each directory contains individual information about
+	that memory section.  The number associated with the
+	memory section is arbitrary, and should not be
+	used for any calculations, it is a useless tag.
+
+memoryXXXX/phys_index: multiply this by block_size_bytes and you
+	can calculate the starting physical address of this
+	memory section.  This is so that you can directly 
+	correlate the memoryXXXX directory with any probe that
+	you've issued.
+
+probe: The user may write a physical address into this file to
+	initate a hot-addition of a new memory section.  
+
+echo 0x00000000 > /sys/devices/system/memory/probe
+memory_probe_store()
+  add_memory()
+	  __add_pages()
+	  __add_section()
+		allocate section memmap
+		lock zone
+		register_new_memory()
+			add_memory_block()
+			register_memory()
+				create kobject -> generates hotplug event
+			sysfs create files()
+		unlock zone
+
+/sbin/hotplug sees "ADD" event, calls:
+
+#!/bin/sh
+# goes in /etc/hotplug.d/memory/onlinenow.hotplug
+if [ "$ACTION" != "add" ]; then
+	exit 0;
+fi
+while ! [ -f $SYSFS/$DEVPATH/state ]; do
+	sleep 0.1;
+done
+echo online > "$SYSFS/$DEVPATH/state"
+
+store_mem_state()
+	memory_block_change_state()
+		memory_block_action()
+		|------>online_pages()
+		|		online_page()
+		|			__free_page()
+		\------>remove_memory()
+				__remove_pages()
+					capture_page_range()
+					unregister_memory_section()
+						-> generates unplug event
+		
+
+--=-gzH/NE2vVDZYzVoVW3je--
+

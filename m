@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263008AbTLDCat (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 21:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTLDCat
+	id S261522AbTLDCaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 21:30:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTLDCaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 21:30:49 -0500
-Received: from mail.kroah.org ([65.200.24.183]:33963 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263008AbTLDCar (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 21:30:47 -0500
-Date: Wed, 3 Dec 2003 18:29:12 -0800
-From: Greg KH <greg@kroah.com>
-To: Fredrik Tolf <fredrik@dolda2000.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is hotplug a kernel helper?
-Message-ID: <20031204022911.GA23761@kroah.com>
-References: <16334.31260.278243.22272@pc7.dolda2000.com> <20031204011357.GA22506@kroah.com> <16334.38227.433336.514399@pc7.dolda2000.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16334.38227.433336.514399@pc7.dolda2000.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 3 Dec 2003 21:30:25 -0500
+Received: from desire.actrix.co.nz ([203.96.16.164]:14052 "EHLO
+	desire.actrix.co.nz") by vger.kernel.org with ESMTP id S261522AbTLDCaX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 21:30:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Charles Manning <manningc2@actrix.gen.nz>
+Reply-To: manningc2@actrix.gen.nz
+To: Linus Torvalds <torvalds@osdl.org>,
+       =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
+Subject: Re: partially encrypted filesystem
+Date: Thu, 4 Dec 2003 15:37:05 +1300
+X-Mailer: KMail [version 1.3.1]
+Cc: Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
+       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+References: <1070485676.4855.16.camel@nucleon> <20031203214443.GA23693@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0312031600460.2055@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312031600460.2055@home.osdl.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20031204023019.3466017340@desire.actrix.co.nz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 04, 2003 at 03:00:51AM +0100, Fredrik Tolf wrote:
-> Greg KH writes:
->  > On Thu, Dec 04, 2003 at 01:04:44AM +0100, Fredrik Tolf wrote:
->  > > If you don't mind me asking, I would like to know why the kernel calls
->  > > a usermode helper for hotplug events? Wouldn't a chrdev be a better
->  > > solution (especially considering that programs like magicdev could
->  > > listen in to it as well)? 
->  > 
->  > Please see the archives for why this is, it's been argued many times.
-> 
-> I am sincerely sorry for being a bother, but I have spent several
-> hours searching far and wide for information on it, both in the
-> archives and generally on the web, without any luck in finding
-> anything. If it's not too much to ask, would you be as kind as to
-> provide a pointer?
 
-Here was the latest thread where this was brought up:
-	http://marc.theaimsgroup.com/?t=105544548100008
+> ** NOTE NOTE NOTE **
+>
+> If you don't need to mmap() the files, writing becomes much easier.
+> Because then you can make rules like "the page cache accesses always
+> happen with the page locked", and then the encryption layer can do the
+> encryption in-place.
+>
+> So it is potentially much easier to make encrypted files a special case,
+> and disallow mmap on them, and also disallow concurrent read/write on
+> encrypted files. This may be acceptable for a lot of uses (most programs
+> still work without mmap - but you won't be able to encrypt demand-loaded
+> binaries, for example).
+>
 
-I would suggest reading this post from Linus for a quick summary:
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=105552804303171
+Is there a useful half-way point here: how about supporting mmap reading but 
+not mmap writing. JFFS2, which incidentally also does compression, does this 
+to allow execution of binaries.
 
-> Btw., Is there any preferred method of announcing hotplug events to
-> user interfaces?
-
-Yes there is a standard.  Have you read the docs at
-http://linux-hotplug.sf.net/ ?  Also my 2001 OLS paper details the
-format the messages should be in, but it's a bit out of date as to the
-new values that the 2.6 kernel sends.
-
-What do you want to use the hotplug interface for that it currently does
-not do?
-
-Hope this helps,
-
-greg k-h
+-- Charles

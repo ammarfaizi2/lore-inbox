@@ -1,95 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbUCCHud (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 02:50:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbUCCHud
+	id S262408AbUCCHsL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 02:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbUCCHsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 02:50:33 -0500
-Received: from web20909.mail.yahoo.com ([216.136.226.231]:45969 "HELO
-	web20909.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262409AbUCCHu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 02:50:27 -0500
-Message-ID: <20040303075026.2822.qmail@web20909.mail.yahoo.com>
-Date: Tue, 2 Mar 2004 23:50:26 -0800 (PST)
-From: Anonymous <anon78344@yahoo.com>
-Subject: Re: init dies after reboot
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0403021145150.489@chaos>
-MIME-Version: 1.0
+	Wed, 3 Mar 2004 02:48:11 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:55305 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262408AbUCCHsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 02:48:10 -0500
+Date: Wed, 3 Mar 2004 07:47:56 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: David Weinehall <david@southpole.se>, Dax Kelson <dax@gurulabs.com>,
+       Peter Nelson <pnelson@andrew.cmu.edu>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
+Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
+Message-ID: <20040303074756.A25861@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andi Kleen <ak@suse.de>, David Weinehall <david@southpole.se>,
+	Dax Kelson <dax@gurulabs.com>,
+	Peter Nelson <pnelson@andrew.cmu.edu>,
+	Hans Reiser <reiser@namesys.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+	jfs-discussion@www-124.southbury.usf.ibm.com,
+	reiserfs-list@namesys.com, linux-xfs@oss.sgi.com
+References: <4044119D.6050502@andrew.cmu.edu> <4044366B.3000405@namesys.com> <4044B787.7080301@andrew.cmu.edu> <1078266793.8582.24.camel@mentor.gurulabs.com> <20040302224758.GK19111@khan.acc.umu.se> <40453538.8050103@animezone.org> <20040303014115.GP19111@khan.acc.umu.se> <20040303014115.GP19111@khan.acc.umu.se.suse.lists.linux.kernel> <p73ptbu4psx.fsf@brahms.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <p73ptbu4psx.fsf@brahms.suse.de>; from ak@suse.de on Wed, Mar 03, 2004 at 03:39:26AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 03, 2004 at 03:39:26AM +0100, Andi Kleen wrote:
+> A lot of this is actually optional features the other FS don't have,
+> like support for separate realtime volumes and compat code for old 
+> revisions, journaled quotas etc. I think you could
+> relatively easily do a "mini xfs" that would be a lot smaller. 
 
-Thanks for answer, but the thing with core is
-imposible as I said that there is no /proc/1 dir :(
+And a whole lot of code to stay somewhat in sync with other codebases..
 
---- "Richard B. Johnson" <root@chaos.analogic.com>
-wrote:
-> On Tue, 2 Mar 2004, Anonymous wrote:
-> 
-> > Hello
-> >
-> > I encountered a strange problem, and i'm not sure
-> that
-> > it originates or not in the kernel.
-> > the probl. is that on many slack boxes init dies
-> after
-> > some time, but the OS is still up and running.
-> > if I 'ps aux' the machine,no init, and /proc/1
-> doesn't
-> > exist.
-> > although, `lsof | grep init` shows:init          1
-> > root  cwd    DIR        8,3        472         2 /
-> > init          1   root  rtd    DIR        8,3
-> > 472         2 /
-> > init          1   root  txt    REG        8,3
-> > 468916     15607 /sbin/init
-> > init          1   root    0r   CHR        1,3
-> >        5659 /dev/null
-> > init          1   root    1u   CHR        1,3
-> >        5659 /dev/null
-> > init          1   root    2u   CHR        1,3
-> >        5659 /dev/null
-> > init          1   root   10u  FIFO        8,3
-> >      137774 /dev/initctl
-> >
-> >
-> > Any kind of ideea?
-> >
-> > Thanks,
-> > Uwe Bower
-> 
-> The kernel will never send a signal 9 to init.
-> However, it can
-> send many other signals. If the signal handler in
-> init got
-> corrupt from a buffer overrun, bad memory, etc.,
-> it's quite
-> possible for init to die. When it dies, it would
-> usually
-> die as a result of a seg-fault. You can observe
-> /proc/1/cwd to
-> see where init lives. There may be a core-file in
-> that directory.
-> The core-file might be able to give you a hint.
-> Also, somebody
-> who has su privs can `cp /dev/random /dev/initctl`
-> with some
-> interesting results.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.24 on an i686 machine
-> (797.90 BogoMips).
->             Note 96.31% of all statistics are
-> fiction.
-> 
-> 
-
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Search - Find what you’re looking for faster
-http://search.yahoo.com

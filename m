@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280781AbRKBS7J>; Fri, 2 Nov 2001 13:59:09 -0500
+	id <S280798AbRKBS54>; Fri, 2 Nov 2001 13:57:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280795AbRKBS6E>; Fri, 2 Nov 2001 13:58:04 -0500
-Received: from [208.232.58.25] ([208.232.58.25]:60887 "EHLO kronos.usol.com")
-	by vger.kernel.org with ESMTP id <S280797AbRKBS5T>;
-	Fri, 2 Nov 2001 13:57:19 -0500
-Subject: Re: APM/ACPI
-From: Sean Middleditch <smiddle@twp.ypsilanti.mi.us>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111021039130.15166-100000@osdlab.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.33.0111021039130.15166-100000@osdlab.pdx.osdl.net>
-Content-Type: text/plain
+	id <S280781AbRKBS4Z>; Fri, 2 Nov 2001 13:56:25 -0500
+Received: from aloha.egartech.com ([62.118.81.133]:26895 "HELO
+	mx02.egartech.com") by vger.kernel.org with SMTP id <S280795AbRKBSzQ>;
+	Fri, 2 Nov 2001 13:55:16 -0500
+Message-ID: <3BE2DBA9.847AA3C0@egartech.com>
+Date: Fri, 02 Nov 2001 20:45:13 +0300
+From: Kirill Ratkin <kratkin@egartech.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA->USB
+In-Reply-To: <3BE29AC3.DEB4B31A@egartech.com> <3BE2CC18.976C2A9B@osdl.org> <3BE2D20C.3F7E7817@egartech.com> <3BE2D2F9.B9058C81@osdl.org>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.30.16.08 (Preview Release)
-Date: 02 Nov 2001 13:56:46 -0500
-Message-Id: <1004727406.4883.51.camel@smiddle>
-Mime-Version: 1.0
+X-OriginalArrivalTime: 02 Nov 2001 17:42:52.0604 (UTC) FILETIME=[CC0A9FC0:01C163C5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alrighty!  Thank you!  I'll play around and see if I can't get it to
-work.  I don't really care about suspend and whatnot at the moment, I
-just want a warning when my battery is getting low.  ~,^
-
-Sean Etc.
-
-On Fri, 2001-11-02 at 13:42, Patrick Mochel wrote:
+"Randy.Dunlap" wrote:
 > 
-> On 2 Nov 2001, Sean Middleditch wrote:
-> 
-> > Hmm, not to point fingers or anything, but...
+> Kirill Ratkin wrote:
 > >
-> > "The WindowsXP that came preinstalled supported it!"
+> > "Randy.Dunlap" wrote:
+> > >
+> > > Kirill Ratkin wrote:
+> > > >
+> > > > Do somebody make driver for subject device now!?
+> > >
+> > > Do you have a web page reference for the subject device?
+> > No, It isn't finished yet. I thought may be somebody have made it
+> > already.
+> >
+> > >
+> > > The usb-ohci driver has been known to work with PCMCIA/USB OHCI
+> > > cards.
 > 
-> Windows XP requires systems to be fully ACPI (1.0b?) compliant. So, you
-> probably have an ACPII BIOS, though many BIOSes have some remnants of APM
-> left in them...
+> Do you mean that you are working on a PCMCIA (CardBus I hope ?)
+> to USB card and want to know if it will work with Linux?
 > 
-> > I dunno, perhaps there is some proprietary protocol?  Is ACPI backwards
-> > compat with APM?  I mean, if the laptop doesn't support APM, would that
-> > mean it can't support ACPI?
-> 
-> Probably not, no, and no. ACPI support in Linux is still maturing, and
-> many things still do not work. I would recommend the ACPI mailing list and
-> archives for more assistance:
-> 
-> 	http://phobos.fs.tum.de/acpi/index.html
-> 
-> 
-> 	-pat
-> 
-> 
+> Is it OHCI- or UHCI- or ECHI-based (USB controller)?
 
+I have device (see description below) and I started to find
+documentation for it now (I'd like to write driver of it for education
+goals). And I ask because may be somebody wrote it already and there
+isn't necessary to write same one.
 
+--->>>---
+? For PC, Notebook and MAC Powerbook ? Adds two USB ports into your
+notebook
+computer for instant multiple USB device connections ? Built in driver
+support from Apple and
+Microsoft PC : Windows 98 , Windows 98 SE, Windows ME, Windows 2000 Mac
+: OS 8.6 or
+later ? Compliant with USB Specification, Version 1.1 ? Compliant with
+OpenHCI
+Specification, Revision 1.0a ? Chip set: Opti chip ? Regulatory
+approval(s): FCC Class B & CE
+? Version: v1.0 
+---<<<---
+
+> 
+> Or are you just interested in using one?
+> 
+> ~Randy

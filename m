@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265296AbUBANMs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 08:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265298AbUBANMs
+	id S265306AbUBANvS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 08:51:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265309AbUBANvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 08:12:48 -0500
-Received: from [202.125.86.130] ([202.125.86.130]:18632 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S265296AbUBANMq convert rfc822-to-8bit (ORCPT
+	Sun, 1 Feb 2004 08:51:18 -0500
+Received: from doortje.mesa.nl ([80.126.82.97]:26631 "EHLO joshua.mesa.nl")
+	by vger.kernel.org with ESMTP id S265306AbUBANvO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 08:12:46 -0500
-Subject: FW: Linux device driver using c++!
-Date: Sun, 1 Feb 2004 18:37:19 +0530
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <1118873EE1755348B4812EA29C55A9720DE156@esnmail.esntechnologies.co.in>
-X-MS-Has-Attach: 
-Content-class: urn:content-classes:message
-X-MS-TNEF-Correlator: 
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Thread-Topic: Linux device driver using c++!
-Thread-Index: AcPowwfKmK7SdruuR92jP8cOEZLfcgAAH77gAAAw6sA=
-From: "Jinu M." <jinum@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+	Sun, 1 Feb 2004 08:51:14 -0500
+Date: Sun, 1 Feb 2004 14:51:01 +0100
+From: "Marcel J.E. Mol" <marcel@mesa.nl>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: 2.6 input drivers FAQ
+Message-ID: <20040201135101.GA25794@joshua.mesa.nl>
+Reply-To: marcel@mesa.nl
+References: <20040201100644.GA2201@ucw.cz> <20040201141516.A28045@pclin040.win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040201141516.A28045@pclin040.win.tue.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there someway I can make use of a OS independent C++ code. This code has classes, new, delete etc.. My plan was to build a static library using the C++ code and then write a simple OS interface module which has the init, cleanup, read, write, ioctl etc but calls C++ functions in the library.
+Andries,
 
-Is this scenario possible?
+On Sun, Feb 01, 2004 at 02:15:16PM +0100, Andries Brouwer wrote:
+> On Sun, Feb 01, 2004 at 11:06:44AM +0100, Vojtech Pavlik wrote:
+> 
+> > Common problems and solutions with 2.6 input drivers:
+> 
+> Good!
+> 
+> > Get a recent version of kbd-utils, and recompile on a 2.6 kernel.
+> 
+> on both 2.4 and 2.6, regardless where they were compiled.
 
--Jinu
+ON Fedora development (around 30 jan)
 
+% rpm -qf /usr/bin/setkeycodes
+kbd-1.08-12
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Måns Rullgård
-Sent: Sunday, February 01, 2004 6:32 PM
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux device driver using c++!
+% /usr/bin/setkeycodes e001 130
+setkeycode: code outside bounds
+usage: setkeycode scancode keycode ...
+ (where scancode is either xx or e0xx, given in hexadecimal,
+  and keycode is given in decimal)
 
-"Jinu M." <jinum@esntechnologies.co.in> writes:
-
-> I am new to Linux based device driver development.  I wanted to know
-> if it is possible to write a Linux device driver (kernel loadable
-> module) using C++.
-
-It's impossible.
-
+-Marcel
 -- 
-Måns Rullgård
-mru@kth.se
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
+    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
+    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
+__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
+ They couldn't think of a number,           Linux user 1148  --  counter.li.org
+    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com

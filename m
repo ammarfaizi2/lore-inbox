@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289313AbSAVOKC>; Tue, 22 Jan 2002 09:10:02 -0500
+	id <S289312AbSAVONW>; Tue, 22 Jan 2002 09:13:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289312AbSAVOJx>; Tue, 22 Jan 2002 09:09:53 -0500
-Received: from mail2.infineon.com ([192.35.17.230]:40698 "EHLO
-	mail2.infineon.com") by vger.kernel.org with ESMTP
-	id <S289314AbSAVOJi>; Tue, 22 Jan 2002 09:09:38 -0500
-X-Envelope-Sender-Is: Erez.Doron@savan.com (at relayer mail2.infineon.com)
-Subject: solved: ( was Re: non volatile ram disk)
-From: Erez Doron <erez@savan.com>
-To: linux kernel <linux-kernel@vger.kernel.org>, ilug <linux-il@linux.org.il>
-In-Reply-To: <1011618928.2825.5.camel@hal.savan.com>
-In-Reply-To: <1011618928.2825.5.camel@hal.savan.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 22 Jan 2002 15:53:45 +0200
-Message-Id: <1011707625.1835.3.camel@hal.savan.com>
-Mime-Version: 1.0
+	id <S289314AbSAVONC>; Tue, 22 Jan 2002 09:13:02 -0500
+Received: from purveyor7.dresdnerbank.de ([193.194.7.53]:62224 "EHLO
+	purveyor7.Dresdnerbank.de") by vger.kernel.org with ESMTP
+	id <S289312AbSAVONA>; Tue, 22 Jan 2002 09:13:00 -0500
+Message-Id: <B575BF98FA79D4119BD20008C7A4516502E1C488@ffz00za9.wwz1me.mail.dresdner.net>
+From: "Halpaap, Mark (CETA)" <Mark.MH.Halpaap@Dresdner-Bank.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon PSE/AGP Bug
+Date: Tue, 22 Jan 2002 15:12:48 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-well, i finanly managed to make a ramdisk which will not earsed by
-reboot.
+Hi,
 
-the solution is to give mem=32m, and use ioremap to map the rest of the
-32m to virtual adresses
+after applying mem=nopentium as a boot parameter
+I've been able to play tuxracer _for the first time_.
 
-now it works !!!
+Prior to this any OpenGL application deepfroze
+the system after 10-20 secs.
 
-thanks anyway
-erez.
+Tried some other Loki-Demos, they run just fine
+now.
 
+I do _not_ have an NVidia card, it's a Matrox G450.
 
+I wasn't able to use OpenGL on both Athlon-systems
+I used (was Athlon 600 w/ G400, is a Thunderbird 1333 
+w/ G450 now), been trying it ever since XFree86 4.0 and
+with (almost) any kernel that was released since then
+(It's 2.4.16-pre1 right now).
 
-On Mon, 2002-01-21 at 15:15, Erez Doron wrote:
-> hi
-> 
-> I'm looking for a way to make a ramdisk which is not erased on reboot
-> this is for use with ipaq/linux.
-> 
-> i tought of booting with mem=32m and map a block device to the rest of
-> the 32M ram i have.
-> 
-> the probelm is that giving mem=32m to the kernel will cause the kernel
-> to map only the first 32m of physical memory to virtual one, so using
-> __pa(ptr) on the top 32m causes a kernel oops.
-> 
-> any idea ?
-> 
-> 
-> regards
-> erez.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+So whatever the deeper reason, there _is_ something
+fishy that this workaround seems to fix and it seems
+not to be tied to NVidia drivers.
 
+Mark.

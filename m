@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266251AbRG1EDx>; Sat, 28 Jul 2001 00:03:53 -0400
+	id <S266377AbRG1FpT>; Sat, 28 Jul 2001 01:45:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266339AbRG1EDm>; Sat, 28 Jul 2001 00:03:42 -0400
-Received: from groucho.maths.monash.edu.au ([130.194.160.211]:45587 "EHLO
-	groucho.maths.monash.edu.au") by vger.kernel.org with ESMTP
-	id <S266251AbRG1ED3>; Sat, 28 Jul 2001 00:03:29 -0400
-From: Robin Humble <rjh@groucho.maths.monash.edu.au>
-Message-Id: <200107280403.EAA11561@groucho.maths.monash.edu.au>
-Subject: Re: 2.4.7 + VIA Pro266 + 2xUltraTx2 lockups
-To: linux-kernel@vger.kernel.org
-Date: Sat, 28 Jul 2001 14:03:18 +1000 (EST)
-In-Reply-To: <E15Q4KV-0005LU-00@the-village.bc.nu> from "Alan Cox" at Jul 27, 2001 10:54:47 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S266381AbRG1FpJ>; Sat, 28 Jul 2001 01:45:09 -0400
+Received: from tomts5.bellnexxia.net ([209.226.175.25]:38065 "EHLO
+	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S266377AbRG1FpF>; Sat, 28 Jul 2001 01:45:05 -0400
+Message-ID: <3B625147.E35216FF@yahoo.co.uk>
+Date: Sat, 28 Jul 2001 01:44:39 -0400
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+Reply-To: jdthood_A@T_yahoo.co.uk
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Multiple apm resume events
+In-Reply-To: <20010214092251.D1144@e-trend.de> <3A8AA725.7446DEA0@ubishops.ca> <20010214165758.L28359@e-trend.de> <20010214122244.H7859@conectiva.com.br>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Machine:   ThinkPad 600
+Kernel:    2.4.7-ac1
 
-Alan Cox wrote:
->Robin Humble wrote:
->> So the system is stable when driving a single Tx2 card, or on a BX,
->> but just not two Tx2's together on the pro266 board :-/ So it's
->> perhaps (I'm guessing here :) a non-trivial Tx2 driver bug or maybe a
->> VIA Pro266 problem?
->
->Firstly please try 2.4.6-ac5 as that has the proper VIA workaround for their
->bridge bugs. Its useful to rule out the very conservative approach the older
->kernels use to avoid the disk corruption problem they had
+When I resume the machine the apmd_proxy script handles
+*two* "resume suspend" events.  The apm driver ought to
+filter multiple resume events.
 
-Ok. That locked up in the same way unfortunately :-/
-Also a 2.4.8-pre1-xfs that I just tried...
-I tried the "noapic" option as suggested in another email and that
-didn't change anything either.
+About a year ago I had this and a couple other problems
+with the apm driver.  I submitted patches to the maintainer,
+Stephen Rothwell, but he was MIA.  "Too busy", he said.
+I see he is still listed as the maintainer.  Is there 
+someone else who is acting as the de facto maintainer or
+should I just post patches to this list?
 
-We've moved all the disks and controllers to a BX m/b machine for now, but
-if there's anything else you want us to be guinea pigs for them we'll be
-happy to try it out on the VIA Pro266 machine.
-One other odd thing is that I have yet to make the CUV266 board see any
-devices on its built-in secondary IDE controller. I have no idea why that
-could be... The BIOS just doesn't detect them. Might that be a related
-problem? Perhaps it's a faulty motherboard? Seems unlikely.
-
-Please CC me on any replies as I'm not subscribed... ta...
-
-cheers,
-robin
+Thomas Hood
+Please cc: jdthood_AT_yahoo.co.uk  with "_AT_" -> "@"

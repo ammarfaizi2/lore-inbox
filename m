@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbQLNTr5>; Thu, 14 Dec 2000 14:47:57 -0500
+	id <S129260AbQLNTsh>; Thu, 14 Dec 2000 14:48:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132638AbQLNTrr>; Thu, 14 Dec 2000 14:47:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11277 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129383AbQLNTrg>;
-	Thu, 14 Dec 2000 14:47:36 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200012141915.TAA02512@raistlin.arm.linux.org.uk>
-Subject: Re: Fwd: [Fwd: [PATCH] cs89x0 is not only an ISA card]
-To: J.A.K.Mouw@ITS.TUDelft.NL (Erik Mouw)
-Date: Thu, 14 Dec 2000 19:15:54 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), nico@cam.org (Nicolas Pitre),
-        morton@nortelnetworks.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20001214194221.K15157@arthur.ubicom.tudelft.nl> from "Erik Mouw" at Dec 14, 2000 07:42:21 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132636AbQLNTsT>; Thu, 14 Dec 2000 14:48:19 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:58119 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S132638AbQLNTsA>;
+	Thu, 14 Dec 2000 14:48:00 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200012141917.WAA02918@ms2.inr.ac.ru>
+Subject: Re: [PATCH] Fix poll bug
+To: Guy_Bolton_King@non.agilent.COM (Guy Bolton King)
+Date: Thu, 14 Dec 2000 22:17:15 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A3896B0.9567E7DA@non.agilent.com> from "Guy Bolton King" at Dec 14, 0 01:15:01 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw writes:
-> No, the cs89x0 can be used on systems that don't have an ISA bus at
-> all. It just needs 16 data lines, a couple of address lines and some
-> selection lines, but that's all. It's very nice for embedded designs
-> because it's a single chip solution. Add a 20MHz crystal, a
-> transformer, and a connector and you're set.
+Hello!
 
-Umm, you're right; the manufacturer describes the chip as "10Mbps Embedded
-Ethernet Controller" which just happens to be able to be used on an ISA
-bus.
+> I believe I've found an inconsistency between the behaviour of poll(2)
+> and select(2); select() is restartable in the face of signals
+> (sys_select() returns ERESTARTNOHAND if a signal is pending), whilst
+> poll() is not (sys_poll() returns EINTR).
 
-Therefore, it is NOT an ISA peripheral, but a general purpose peripheral.
-As such, it should NOT be classified as an ISA bus device, and therefore
-should NOT depend on CONFIG_ISA.
+poll() cannot be restarted.
 
-(I hope there are enough NOTs there).
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+select() can, because state of timer is remembered.
+
+
+> breaking code (or at least breaking code that expects BSD signal
+> behaviour as the default,
+
+BSD behaviour is never to restart select() (because BSD does
+not update timer, it is the only possible behaviour there, otherwise
+select can never terminate). Its restart in some rare cases
+(when signal happens to be ignored) is small optimization,
+specific only to Linux.
+
+
+> which I believe is also the POSIX
+
+Seems, POSIX behaviour is not to restart any syscall.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
